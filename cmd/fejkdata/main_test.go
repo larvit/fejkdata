@@ -11,7 +11,6 @@ const (
 	enUS = "../../data/en_US"
 )
 
-// runOut runs the CLI and returns exit code, stdout, stderr.
 func runOut(args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
 	code := run(args, &out, &errb)
@@ -19,7 +18,7 @@ func runOut(args ...string) (int, string, string) {
 }
 
 func TestRunOutputsValue(t *testing.T) {
-	code, out, errb := runOut("-data-path", svSE, "person")
+	code, out, errb := runOut("--data-path", svSE, "person")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -32,12 +31,11 @@ func TestRunOutputsValue(t *testing.T) {
 }
 
 func TestRunDotPath(t *testing.T) {
-	// person.last descends to just a surname — never the full "First Last".
-	code, full, _ := runOut("-seed", "7", "-data-path", svSE, "person")
+	code, full, _ := runOut("--seed", "7", "--data-path", svSE, "person")
 	if code != 0 {
 		t.Fatalf("person run = %d", code)
 	}
-	code, last, errb := runOut("-seed", "7", "-data-path", svSE, "person.last")
+	code, last, errb := runOut("--seed", "7", "--data-path", svSE, "person.last")
 	if code != 0 {
 		t.Fatalf("person.last run = %d, stderr=%q", code, errb)
 	}
@@ -49,17 +47,80 @@ func TestRunDotPath(t *testing.T) {
 	}
 }
 
-func TestRunSeedDeterministic(t *testing.T) {
-	_, a, _ := runOut("-seed", "42", "-data-path", svSE, "address")
-	_, b, _ := runOut("-seed", "42", "-data-path", svSE, "address")
-	if a != b {
-		t.Errorf("same seed diverged: %q != %q", a, b)
+func TestRunSeedSpellings(t *testing.T) {
+	_, want, _ := runOut("--seed", "42", "--data-path", svSE, "address")
+	for _, args := range [][]string{
+		{"--seed=42", "--data-path", svSE, "address"},
+		{"-s", "42", "-d", svSE, "address"},
+		{"--data-path", svSE, "address", "--seed", "42"},
+	} {
+		code, got, errb := runOut(args...)
+		if code != 0 {
+			t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
+		}
+		if got != want {
+			t.Errorf("run(%v) = %q, want %q", args, got, want)
+		}
+	}
+}
+
+func TestRunDoubleDashEndsFlags(t *testing.T) {
+	code, out, errb := runOut("--data-path", svSE, "--", "person")
+	if code != 0 || strings.TrimSpace(out) == "" {
+		t.Fatalf("run = %d, out=%q, stderr=%q", code, out, errb)
+	}
+	code, _, errb = runOut("--data-path", svSE, "--", "--list")
+	if code != 1 || !strings.Contains(errb, "--list") {
+		t.Errorf("after --, --list should be a path: code %d, stderr %q", code, errb)
+	}
+}
+
+func TestRunSingleDashLongIsRejected(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"-seed", "42", "-d", svSE, "person"}, "use --seed"},
+		{[]string{"-seed=42", "-d", svSE, "person"}, "use --seed"},
+		{[]string{"-data-path", svSE, "person"}, "use --data-path"},
+		{[]string{"-list", "-d", svSE}, "use --list"},
+		{[]string{"--nope", "-d", svSE, "person"}, "unknown flag --nope"},
+		{[]string{"-x", "-d", svSE, "person"}, "unknown flag -x"},
+	} {
+		code, _, errb := runOut(c.args...)
+		if code != 2 {
+			t.Errorf("run(%v) = %d, want 2", c.args, code)
+		}
+		if !strings.Contains(errb, c.want) {
+			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+		}
+	}
+}
+
+func TestRunFlagValues(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"--seed", "-d", svSE, "person"}, `--seed needs an unsigned integer, got "-d"`},
+		{[]string{"-d", svSE, "person", "--seed"}, "--seed needs a value"},
+		{[]string{"--seed", "x", "-d", svSE, "person"}, "--seed"},
+		{[]string{"--list=1", "-d", svSE}, "--list takes no value"},
+		{[]string{"--repeat", "0", "-d", svSE, "person"}, "--repeat"},
+		{[]string{"-n", "-1", "-d", svSE, "person"}, "--repeat"},
+	} {
+		code, _, errb := runOut(c.args...)
+		if code != 2 {
+			t.Errorf("run(%v) = %d, want 2", c.args, code)
+		}
+		if !strings.Contains(errb, c.want) {
+			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+		}
 	}
 }
 
 func TestRunRepeat(t *testing.T) {
-	// -repeat N prints N values, one per line by default.
-	code, out, errb := runOut("-seed", "1", "-repeat", "3", "-data-path", svSE, "word")
+	code, out, errb := runOut("--seed", "1", "--repeat", "3", "--data-path", svSE, "word")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -67,11 +128,14 @@ func TestRunRepeat(t *testing.T) {
 	if len(lines) != 3 {
 		t.Errorf("repeat=3 gave %d lines: %q", len(lines), out)
 	}
+	_, short, _ := runOut("--seed", "1", "-n", "3", "-d", svSE, "word")
+	if short != out {
+		t.Errorf("-n 3 = %q, want the same as --repeat 3 %q", short, out)
+	}
 }
 
 func TestRunSeparator(t *testing.T) {
-	// -separator joins the repeated values instead of newlines.
-	code, out, errb := runOut("-repeat", "3", "-separator", ",", "-data-path", svSE, "word")
+	code, out, errb := runOut("--repeat", "3", "--separator", ",", "--data-path", svSE, "word")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -84,8 +148,7 @@ func TestRunSeparator(t *testing.T) {
 }
 
 func TestRunRepeatAdvancesRNG(t *testing.T) {
-	// Each repeat is a fresh draw, not the same value N times.
-	code, out, errb := runOut("-seed", "1", "-repeat", "5", "-data-path", svSE, "person")
+	code, out, errb := runOut("--seed", "1", "--repeat", "5", "--data-path", svSE, "person")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -98,35 +161,23 @@ func TestRunRepeatAdvancesRNG(t *testing.T) {
 	}
 }
 
-func TestRunRepeatInvalid(t *testing.T) {
-	// A non-positive repeat is misuse.
-	for _, r := range []string{"0", "-1"} {
-		code, _, errb := runOut("-repeat", r, "-data-path", svSE, "word")
-		if code != 2 {
-			t.Errorf("repeat=%s = %d, want 2", r, code)
-		}
-		if errb == "" {
-			t.Errorf("repeat=%s: want an error message", r)
-		}
-	}
-}
-
-func TestRunUsageOnMissingArgs(t *testing.T) {
-	// Need at least one -data-path and exactly one positional path; else misuse.
-	for _, args := range [][]string{{}, {"-data-path", svSE}, {"person"}} {
-		code, _, errb := runOut(args...)
+func TestRunMisuse(t *testing.T) {
+	for _, args := range [][]string{{}, {"--data-path", svSE}, {"person"}, {"-d", svSE, "person", "word"}, {"-d", svSE, "--list", "person"}} {
+		code, out, errb := runOut(args...)
 		if code != 2 {
 			t.Errorf("run(%v) = %d, want 2", args, code)
 		}
-		if !strings.Contains(errb, "Usage") {
-			t.Errorf("run(%v) stderr = %q, want usage", args, errb)
+		if !strings.Contains(errb, "try 'fejkdata --help'") {
+			t.Errorf("run(%v) stderr = %q, want a pointer to --help", args, errb)
+		}
+		if out != "" {
+			t.Errorf("run(%v) stdout = %q, want nothing", args, out)
 		}
 	}
 }
 
 func TestRunMultipleDataPaths(t *testing.T) {
-	// -data-path repeats: dirs merge, last wins; the path stays positional.
-	code, out, errb := runOut("-data-path", enUS, "-data-path", svSE, "person")
+	code, out, errb := runOut("-d", enUS, "--data-path", svSE, "person")
 	if code != 0 {
 		t.Fatalf("run(multi-dir) = %d, stderr=%q", code, errb)
 	}
@@ -136,7 +187,7 @@ func TestRunMultipleDataPaths(t *testing.T) {
 }
 
 func TestRunUnknownCategoryFails(t *testing.T) {
-	code, _, errb := runOut("-data-path", svSE, "nope")
+	code, _, errb := runOut("--data-path", svSE, "nope")
 	if code != 1 {
 		t.Fatalf("run = %d, want 1", code)
 	}
@@ -146,8 +197,7 @@ func TestRunUnknownCategoryFails(t *testing.T) {
 }
 
 func TestRunList(t *testing.T) {
-	// -list prints the discoverable paths and exits 0, no positional path needed.
-	code, out, errb := runOut("-data-path", svSE, "-list")
+	code, out, errb := runOut("--data-path", svSE, "--list")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -158,32 +208,31 @@ func TestRunList(t *testing.T) {
 	}
 }
 
-func TestRunHelpExitsZero(t *testing.T) {
-	// -h/-help is success (0), not misuse (2), so scripts under `set -e` survive.
-	for _, h := range []string{"-h", "-help"} {
-		code, _, errb := runOut(h)
+func TestRunHelpOnStdout(t *testing.T) {
+	for _, h := range []string{"-h", "--help"} {
+		code, out, errb := runOut(h)
 		if code != 0 {
 			t.Errorf("%s = %d, want 0", h, code)
 		}
-		if !strings.Contains(errb, "Usage") {
-			t.Errorf("%s: stderr = %q, want usage", h, errb)
+		if !strings.Contains(out, "Usage") || errb != "" {
+			t.Errorf("%s: stdout = %q, stderr = %q, want usage on stdout only", h, out, errb)
 		}
 	}
 }
 
 func TestRunVersion(t *testing.T) {
-	code, out, errb := runOut("-version")
+	code, out, errb := runOut("--version")
 	if code != 0 {
-		t.Fatalf("-version = %d, stderr=%q", code, errb)
+		t.Fatalf("--version = %d, stderr=%q", code, errb)
 	}
 	version, ok := strings.CutPrefix(out, "fejkdata ")
 	if !ok || strings.TrimSpace(version) == "" {
-		t.Errorf("-version = %q, want the command name and a version on stdout", out)
+		t.Errorf("--version = %q, want the command name and a version on stdout", out)
 	}
 }
 
 func TestRunMissingDirFails(t *testing.T) {
-	code, _, errb := runOut("-data-path", "../../data/nope", "person")
+	code, _, errb := runOut("--data-path", "../../data/nope", "person")
 	if code != 1 {
 		t.Fatalf("run = %d, want 1", code)
 	}
