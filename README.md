@@ -28,29 +28,29 @@ lacked the locale coverage and format control we needed.
 
 ## CLI
 
-Install the `fejkdata` command, then give it one or more `--data-path` directories
-and a path — it prints one value to stdout. Each dot segment descends one level:
-folders, then the category (a JSON file), then fields inside it.
+Install the `fejkdata` command and give it a path — it prints one value to stdout.
+The shipped data set is built in; each dot segment descends one level: folders,
+then the category (a JSON file), then fields inside it.
 
 ```sh
 go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
 
-fejkdata --data-path ./data/sv_SE person               # Sara Eriksson
-fejkdata --data-path ./data/sv_SE person.last          # Eriksson  (dotted path into a category)
-fejkdata --data-path ./data sv_SE.person               # point at the tree; the folder is a segment
-fejkdata -d ./data/sv_SE -d ./mydata word              # layer dirs; the last wins a name clash
-fejkdata --seed 42 --data-path ./data/sv_SE address
-fejkdata --repeat 3 --data-path ./data/sv_SE person             # three values, one per line
-fejkdata -n 3 --separator ', ' --data-path ./data/sv_SE word    # nät, barn, sol
-fejkdata --data-path ./data/sv_SE --list                        # every path this data offers
+fejkdata sv_SE.person                          # Sara Eriksson
+fejkdata sv_SE.person.last                     # Eriksson  (dotted path into a category)
+fejkdata --seed 42 sv_SE.address
+fejkdata --repeat 3 sv_SE.person               # three values, one per line
+fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
+fejkdata --list                                # every path the data offers
+fejkdata --data-path ./mydata sv_SE.word       # layer a dir over the shipped data; last wins a clash
+fejkdata --no-shipped-data -d ./mydata --list  # only your data
 ```
 
 Flags are GNU-style: `--name value` or `--name=value`, short aliases `-d`, `-n`,
 `-s`, `-h`, in any position; `--` ends the flags. `--data-path` is repeatable
-(last wins a name clash). `--repeat N` renders the path N times — each an
-independent draw — joined by `--separator` (default a newline, so values land one
-per line). Not sure what a data set offers? `--list` prints every path you can ask
-for; `--version` prints the build version.
+(last wins a name clash) and `--no-shipped-data` leaves the built-in set out.
+`--repeat N` renders the path N times — each an independent draw — joined by
+`--separator` (default a newline, so values land one per line). `--list` prints
+every path you can ask for; `--version` prints the build version.
 
 Without installing, run it from a checkout with `go run ./cmd/fejkdata …`. Exit
 codes: `0` success (including `--list`, `--version`, `--help`), `1` runtime error
@@ -59,7 +59,7 @@ codes: `0` success (including `--list`, `--version`, `--help`), `1` runtime erro
 ### Generating a file from a custom template
 
 A category is just a JSON file in a data directory, so you can drop in your
-own and render it — no code change. Save this as `data/sv_SE/sql.json`:
+own and render it — no code change. Save this as `mydata/sql.json`:
 
 ```json
 {
@@ -79,7 +79,7 @@ the `),(` separator; the outer `V#ALUES(…)` wraps that into one valid row list
 letter token — see [Data format](#data-format).)
 
 ```sh
-fejkdata --seed 1 --data-path ./data/sv_SE sql
+fejkdata --seed 1 --data-path ./mydata sql
 # INSERT INTO users VALUES('zoom'),('wahoo'),('blip');
 ```
 
@@ -87,7 +87,7 @@ Raise the template's `repeat` for more rows per statement; use the CLI's
 `--repeat` for more statements — together they build a whole seed file:
 
 ```sh
-fejkdata --repeat 100 --data-path ./data/sv_SE sql > seed.sql
+fejkdata --repeat 100 --data-path ./mydata sql > seed.sql
 ```
 
 ## Library
@@ -96,9 +96,9 @@ fejkdata --repeat 100 --data-path ./data/sv_SE sql > seed.sql
 go get gitea.larvit.se/larvit/fejkdata   # requires Go 1.22+ (for math/rand/v2)
 ```
 
-Point `New` at one or more data directories, then generate values by path with
-`Fake`. Each dot segment descends one level: folders, then the category (a JSON
-file), then fields inside it.
+`New` loads the shipped data set, plus any `WithDataPath` directories layered over
+it; generate values by path with `Fake`. Each dot segment descends one level:
+folders, then the category (a JSON file), then fields inside it.
 
 ```go
 package main
@@ -111,37 +111,40 @@ import (
 )
 
 func main() {
-	f, err := fejkdata.New([]string{"./data/sv_SE"})
+	f, err := fejkdata.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, path := range []string{"person", "address", "phone", "address.locality"} {
+	for _, path := range []string{"sv_SE.person", "sv_SE.address", "sv_SE.phone", "sv_SE.address.locality"} {
 		v, err := f.Fake(path)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%-18s %s\n", path, v)
+		fmt.Printf("%-24s %s\n", path, v)
 	}
 }
 ```
 
 ```
-person             Sara Eriksson
-address            Kungsvägen 68
-                   379 17 Stockholm
-phone              072-402 91 67
-address.locality   Linköping
+sv_SE.person             Sara Eriksson
+sv_SE.address            Kungsvägen 68
+                         379 17 Stockholm
+sv_SE.phone              072-402 91 67
+sv_SE.address.locality   Linköping
 ```
 
-Seed a generator for reproducible output — same seed + locale yields an identical
-sequence, handy for stable tests:
+Options: `WithSeed(n)` for a reproducible sequence — same seed + data yields an
+identical sequence, handy for stable tests; `WithDataPath(dir)` layers a directory
+(repeat it to layer several, last wins a clash); `WithDataFS(fsys)` layers an
+`fs.FS`, such as your own `embed.FS`; `WithoutShippedData()` loads only what you
+give.
 
 ```go
-a, _ := fejkdata.New([]string{"./data/sv_SE"}, fejkdata.WithSeed(42))
-b, _ := fejkdata.New([]string{"./data/sv_SE"}, fejkdata.WithSeed(42))
-av, _ := a.Fake("person")
-bv, _ := b.Fake("person")
+a, _ := fejkdata.New(fejkdata.WithSeed(42))
+b, _ := fejkdata.New(fejkdata.WithSeed(42))
+av, _ := a.Fake("sv_SE.person")
+bv, _ := b.Fake("sv_SE.person")
 av == bv // true
 ```
 
@@ -149,28 +152,27 @@ av == bv // true
 dotted fields and folder segments (what the CLI's `--list` prints). Every path it
 lists renders.
 
-A `*Generator` is **not** safe for concurrent use — create one per goroutine.
+A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
+when drawn from one goroutine.
 
 ## Data
 
-The library ships a ready-to-use set under [`data/`](data): one folder per locale
-(`en_US`, `sv_SE`) plus a locale-neutral `misc` folder. Point either tool at the
-whole tree, a single folder, a copy, or your own directory — anywhere on disk. A
-category or folder name must not use `.`, `|`, `(` or `}` (see [Data
-format](#data-format)), and dot-prefixed entries are skipped, so a data directory
-can also be a checkout.
+The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`)
+plus a locale-neutral `misc` folder — is embedded in the library and the CLI, so
+both work with no data on disk. Layer your own directories over it; a category or
+folder name must not use `.`, `|`, `(` or `}` (see [Data format](#data-format)),
+and dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
 A directory is just a namespace. Each JSON file is a category named after the
 file; each subdirectory is a dot-path segment — folders nest exactly like JSON
-objects do. So `data/sv_SE/person.json` is `Fake("person")` when you point at
-`data/sv_SE`, or `Fake("sv_SE.person")` when you point at `data`.
+objects do. So `mydata/sv_SE/person.json` is `Fake("sv_SE.person")`.
 
-Pass several directories and they merge, left to right: matching folders combine
-by their children, and any other clash is won by the last directory loaded. That
-lets you layer your own data over the built-ins without copying them:
+Sources merge in order: matching folders combine by their children, and any other
+clash is won by the last one loaded. That lets you override a shipped category
+without copying the rest:
 
 ```go
-fejkdata.New([]string{"./data/sv_SE", "./mydata"}) // mydata overrides on a clash
+fejkdata.New(fejkdata.WithDataPath("./mydata")) // mydata/sv_SE/person.json replaces sv_SE.person
 ```
 
 Each shipped locale carries these categories, formatted per locale (e.g. `date`
@@ -517,16 +519,16 @@ docker compose run --rm test                      # latest
 ## Layout
 
 ```
-fejkdata.go     Generator, New, List, options, seeding
+fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 render.go       Fake and the recursive renderer (choices, format strings, paths, bound draws)
 template.go     the {token} grammar: scanning, function and path tokens, validation
 reference.go    {..path} binding across the tree, the render graph, and the walks over it
 builtins.go     the {name()} function registry and its implementations
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
-data.go         data loading: folders/files -> namespace tree, multi-path merge
+data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the `fejkdata` CLI (New + Fake/List over stdout)
-data/           shipped data (JSON): locale folders + a misc folder
+data/           shipped data (JSON), embedded at build: locale folders + a misc folder
 ```
 
 To add a category, drop a JSON file into a data directory; to add a locale, add

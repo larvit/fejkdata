@@ -1,77 +1,109 @@
 // Package fejkdata generates fake data from recursive JSON templates.
 //
-// Data lives in JSON on disk, not in Go. Point [New] at one or more data
-// directories; folders and files become a dot-path namespace, then generate
-// values by path:
+// Data lives in JSON, not in Go. A generator starts from the shipped data set and
+// layers any directories you add; folders and files become a dot-path namespace,
+// then generate values by path:
 //
-//	f, _ := fejkdata.New([]string{"./data/sv_SE"}, fejkdata.WithSeed(42))
-//	f.Fake("address")          // "Storgatan 12\n234 56 Göteborg"
-//	f.Fake("address.locality") // "Göteborg"
+//	f, _ := fejkdata.New(fejkdata.WithSeed(42))
+//	f.Fake("sv_SE.address")          // "Storgatan 12\n234 56 Göteborg"
+//	f.Fake("sv_SE.address.locality") // "Göteborg"
 //
-// A subdirectory is a namespace segment, so pointing at "./data" instead reaches
-// a category as "sv_SE.address". Several directories are merged left to right;
-// the last one wins on a name clash, so you can layer custom data over the
-// built-ins. The JSON template format is documented in the README.
-//
-// A [Generator] is not safe for concurrent use; create one per goroutine.
+// Several sources merge in order, the last winning a name clash, so custom data
+// layers over the built-ins. The JSON template format is documented in the README.
 package fejkdata
 
 import (
 	crand "crypto/rand"
+	"embed"
 	"encoding/binary"
 	"fmt"
+	"io/fs"
 	"math/rand/v2"
+	"os"
 	"sort"
+	"sync"
 )
 
+//go:embed data
+var shippedFS embed.FS
+
 // Generator generates fake data from a loaded namespace tree. Create one with [New].
+// It is safe for concurrent use; a seeded sequence is reproducible only when drawn
+// from one goroutine.
 type Generator struct {
+	mu         sync.Mutex
 	rand       *session
-	categories map[string]node // root namespace: name -> compiled node tree
+	categories map[string]node
 }
 
 // session is one generator's mutable render state: the seeded rng plus the {seq()}
-// counters. Scoping it to the Generator means sequences (and randomness) belong to
-// that generator and reset when you create a new one. Embedding *rand.Rand makes a
-// *session satisfy the rng interface the renderer draws from.
+// counters.
 type session struct {
 	*rand.Rand
 	counters map[string]uint64
 }
 
-// next returns the next value (counting from 1) of the named {seq()} counter.
 func (s *session) next(key string) uint64 {
 	s.counters[key]++
 	return s.counters[key]
 }
 
 type config struct {
-	seed   uint64
-	seeded bool
+	seed    uint64
+	seeded  bool
+	shipped bool
+	sources []dataSource
 }
 
 // Option configures a [Generator].
 type Option func(*config)
 
-// WithSeed makes output reproducible: two generators with the same seed and locale
+// WithSeed makes output reproducible: two generators with the same seed and data
 // emit identical sequences.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
 
-// New builds a generator from one or more data directories (e.g. "./data/sv_SE").
-// Each JSON file becomes a category named after the file (address.json ->
-// "address") and each subdirectory a namespace segment; directories are merged
-// in order, the last winning a name clash. It errors on a missing directory,
-// invalid JSON, or no data found.
-func New(paths []string, opts ...Option) (*Generator, error) {
-	cats, err := loadData(paths)
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
+// WithDataPath layers a data directory over what is loaded before it. Repeat it to
+// layer several; the last wins a name clash.
+func WithDataPath(dir string) Option {
+	return func(c *config) {
+		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, path: dir})
 	}
-	var c config
+}
+
+// WithDataFS layers a data tree held in an [fs.FS], such as an embed.FS of your own.
+func WithDataFS(fsys fs.FS) Option {
+	return func(c *config) { c.sources = append(c.sources, dataSource{fsys: fsys}) }
+}
+
+// WithoutShippedData leaves the shipped data set out, so only the sources given
+// with [WithDataPath] and [WithDataFS] load.
+func WithoutShippedData() Option {
+	return func(c *config) { c.shipped = false }
+}
+
+// New builds a generator from the shipped data set and the options' sources, merged
+// in order with the last winning a name clash. Each JSON file becomes a category
+// named after the file (address.json -> "address") and each subdirectory a
+// namespace segment. It errors on a missing directory, invalid JSON, invalid data,
+// or no data at all.
+func New(opts ...Option) (*Generator, error) {
+	c := config{shipped: true}
 	for _, opt := range opts {
 		opt(&c)
+	}
+	var sources []dataSource
+	if c.shipped {
+		sources = append(sources, dataSource{fsys: shippedFS, root: "data"})
+	}
+	sources = append(sources, c.sources...)
+	if len(sources) == 0 {
+		return nil, fmt.Errorf("fejkdata: no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
+	}
+	cats, err := loadData(sources)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Generator{rand: newRand(c.seed, c.seeded), categories: cats}, nil
 }

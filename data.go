@@ -3,29 +3,60 @@ package fejkdata
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 )
 
-// loadData loads every given directory into one namespace tree and returns its
-// root children. A directory becomes a group; each *.json file in it compiles to
-// a node keyed by its base name (address.json -> "address"); each subdirectory
-// becomes a nested group, so folders turn into dot-path segments. Paths are
-// merged left to right: matching groups merge by their children, and any other
-// clash (a leaf, or a leaf-vs-group) is won by the last directory loaded. Once
-// merged, linkRefs binds every {..path} reference against the final tree.
-func loadData(paths []string) (map[string]node, error) {
+// dataSource is one tree to load: an fs.FS and the directory in it to start from.
+// label prefixes file names in errors; path, when set, is a directory on disk that
+// must exist.
+type dataSource struct {
+	fsys  fs.FS
+	label string
+	path  string
+	root  string
+}
+
+func (s dataSource) name(p string) string {
+	if s.label == "" {
+		return p
+	}
+	return path.Join(s.label, p)
+}
+
+// loadData loads every source into one namespace tree and returns its root
+// children. A directory becomes a group; each *.json file in it compiles to a node
+// keyed by its base name (address.json -> "address"); each subdirectory becomes a
+// nested group, so folders turn into dot-path segments. Sources merge left to right:
+// matching groups merge by their children, and any other clash is won by the last
+// source loaded. Once merged, linkRefs binds every {..path} reference against the
+// final tree.
+func loadData(sources []dataSource) (map[string]node, error) {
 	root := map[string]node{}
-	for _, p := range paths {
-		g, err := loadDir(p)
+	for _, src := range sources {
+		if src.path != "" {
+			info, err := os.Stat(src.path)
+			if err != nil {
+				return nil, fmt.Errorf("%s: no such directory", src.path)
+			}
+			if !info.IsDir() {
+				return nil, fmt.Errorf("%s is not a directory", src.path)
+			}
+		}
+		dir := src.root
+		if dir == "" {
+			dir = "."
+		}
+		g, err := loadDir(src, dir)
 		if err != nil {
 			return nil, err
 		}
 		mergeChildren(root, g.children)
 	}
 	if len(root) == 0 {
-		return nil, fmt.Errorf("no .json data found in %v", paths)
+		return nil, fmt.Errorf("no .json data found")
 	}
 	if err := linkRefs(root); err != nil {
 		return nil, err
@@ -39,29 +70,22 @@ func loadData(paths []string) (map[string]node, error) {
 	return root, nil
 }
 
-// loadDir compiles one directory into a group. os.ReadDir yields entries sorted
+// loadDir compiles one directory into a group. fs.ReadDir yields entries sorted
 // by name, so the tree is built deterministically. Empty subdirectories (no JSON
 // anywhere under them) are skipped rather than added as empty namespaces.
-func loadDir(dir string) (*group, error) {
-	info, err := os.Stat(dir)
+func loadDir(src dataSource, dir string) (*group, error) {
+	entries, err := fs.ReadDir(src.fsys, dir)
 	if err != nil {
-		return nil, err
-	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("%s is not a directory", dir)
-	}
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", src.name(dir), err)
 	}
 	g := &group{children: map[string]node{}}
 	for _, e := range entries {
 		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
 			continue
 		}
-		full := filepath.Join(dir, e.Name())
+		full := path.Join(dir, e.Name())
 		if e.IsDir() {
-			child, err := loadDir(full)
+			child, err := loadDir(src, full)
 			if err != nil {
 				return nil, err
 			}
@@ -69,7 +93,7 @@ func loadDir(dir string) (*group, error) {
 				continue
 			}
 			if err := checkName(e.Name()); err != nil {
-				return nil, fmt.Errorf("%s: folder %w", full, err)
+				return nil, fmt.Errorf("%s: folder %w", src.name(full), err)
 			}
 			g.children[e.Name()] = child
 			continue
@@ -79,19 +103,19 @@ func loadDir(dir string) (*group, error) {
 		}
 		name := strings.TrimSuffix(e.Name(), ".json")
 		if err := checkName(name); err != nil {
-			return nil, fmt.Errorf("%s: category %w", full, err)
+			return nil, fmt.Errorf("%s: category %w", src.name(full), err)
 		}
-		b, err := os.ReadFile(full)
+		b, err := fs.ReadFile(src.fsys, full)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s: %w", src.name(full), err)
 		}
 		var raw any
 		if err := json.Unmarshal(b, &raw); err != nil {
-			return nil, fmt.Errorf("%s: %w", full, err)
+			return nil, fmt.Errorf("%s: %w", src.name(full), err)
 		}
 		n, err := compile(raw)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", full, err)
+			return nil, fmt.Errorf("%s: %w", src.name(full), err)
 		}
 		g.children[name] = n
 	}

@@ -1,10 +1,10 @@
-// Command fejkdata prints fake values from one or more data directories.
+// Command fejkdata prints fake values from the shipped data and any directories
+// layered over it.
 //
-//	fejkdata --data-path ./data/sv_SE person                       # a full person
-//	fejkdata --data-path ./data/sv_SE person.last                  # just the surname
-//	fejkdata --data-path ./data sv_SE.person                       # point at the tree, address by folder
-//	fejkdata --data-path ./data/sv_SE --data-path ./mydata person  # layer custom data; last dir wins
-//	fejkdata --seed 42 --data-path ./data/sv_SE address
+//	fejkdata sv_SE.person                        # a full person
+//	fejkdata sv_SE.person.last                   # just the surname
+//	fejkdata --data-path ./mydata sv_SE.person   # layer custom data; the last dir wins
+//	fejkdata --seed 42 sv_SE.address
 package main
 
 import (
@@ -23,13 +23,14 @@ const usage = `Usage: fejkdata [flags] <path>
 
   <path>              a category, or a dotted path into one (person, person.last)
 
-  -d, --data-path D   a data directory, e.g. ./data/sv_SE (repeatable; last wins on a clash)
-  -h, --help          print this help, then exit
-      --list          list the paths the data offers, then exit
-  -n, --repeat N      render the path N times (default 1)
-  -s, --seed N        seed for reproducible output
-      --separator S   string between repeated values (default newline)
-      --version       print the version, then exit
+  -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
+  -h, --help             print this help, then exit
+      --list             list the paths the data offers, then exit
+      --no-shipped-data  load only the --data-path directories
+  -n, --repeat N         render the path N times (default 1)
+  -s, --seed N           seed for reproducible output
+      --separator S      string between repeated values (default newline)
+      --version          print the version, then exit
 
 Flags may come before or after <path>; -- ends the flags.
 `
@@ -38,6 +39,7 @@ type invocation struct {
 	dirs      []string
 	help      bool
 	list      bool
+	noShipped bool
 	paths     []string
 	repeat    int
 	seed      uint64
@@ -57,6 +59,7 @@ var flagDefs = []flagDef{
 	{"data-path", "d", true, func(in *invocation, v string) error { in.dirs = append(in.dirs, v); return nil }},
 	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
 	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
+	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
 	{"repeat", "n", true, func(in *invocation, v string) error {
 		n, err := strconv.Atoi(v)
 		if err != nil || n < 1 {
@@ -167,8 +170,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
-	if len(in.dirs) == 0 {
-		return misuse(stderr, errors.New("--data-path is required"))
+	if in.noShipped && len(in.dirs) == 0 {
+		return misuse(stderr, errors.New("--no-shipped-data needs at least one --data-path"))
 	}
 	if in.list && len(in.paths) > 0 {
 		return misuse(stderr, errors.New("--list takes no path"))
@@ -178,10 +181,16 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	var opts []fejkdata.Option
+	if in.noShipped {
+		opts = append(opts, fejkdata.WithoutShippedData())
+	}
+	for _, dir := range in.dirs {
+		opts = append(opts, fejkdata.WithDataPath(dir))
+	}
 	if in.seeded {
 		opts = append(opts, fejkdata.WithSeed(in.seed))
 	}
-	f, err := fejkdata.New(in.dirs, opts...)
+	f, err := fejkdata.New(opts...)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
