@@ -16,9 +16,9 @@ const (
 	maxDecimals = 1024
 )
 
-// builtins is the registry of {name(args)} functions. Two kinds: derivations read
-// the digits emitted so far in the current expansion (luhn, mod11, ean — place
-// them after their payload); samples read only the rng (uuid, ulid, ...). All
+// builtins is the registry of {name(args)} functions. Derivations read the
+// digits emitted so far in the current expansion (luhn, mod11, ean — place them
+// after their payload); samples read only the rng (uuid, ulid, ...). All
 // must stay pure over (rng, emitted, args) so seeded output is reproducible — a
 // time-based id (uuid v7, ulid) draws its timestamp from the rng, not the wall
 // clock. Add a builtin only for what data can't express: a random v4 UUID and a
