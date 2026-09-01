@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-// engine builds a seeded faker with no loaded categories, for rendering tests.
-func engine(seed uint64) *Fejkdata { return &Fejkdata{rand: newRand(seed, true)} }
+// engine builds a seeded generator with no loaded categories, for rendering tests.
+func engine(seed uint64) *Generator { return &Generator{rand: newRand(seed, true)} }
 
 // parse unmarshals a JSON template fragment into its dynamic form.
 func parse(t *testing.T, s string) any {
@@ -30,7 +30,7 @@ func compiled(t *testing.T, s string) node {
 	return n
 }
 
-func mustRender(t *testing.T, f *Fejkdata, s string) string {
+func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
 	return render(f.rand, compiled(t, s))
 }

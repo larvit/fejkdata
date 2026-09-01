@@ -96,8 +96,8 @@ func TestBuiltinChecksums(t *testing.T) {
 }
 
 // TestBuiltinSeqPerSession pins seq's contract: a counter from 1, advancing on
-// each call, named counters independent, and the whole thing scoped to one faker
-// (session) so a fresh faker restarts at 1.
+// each call, named counters independent, and the whole thing scoped to one session
+// so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerSession(t *testing.T) {
 	f := engine(1)
 	for i := 1; i <= 5; i++ {

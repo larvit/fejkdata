@@ -240,7 +240,7 @@ func TestPathThroughChoice(t *testing.T) {
 		"notall": `[{"format":"{f}","f":["1"]},["plain"]]`,
 		"some":   `[{"format":"{f}","f":["1"]},{"format":"{f}","f":["2"],"extra":["x"]}]`,
 	})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 200; i++ {
 		if got := fake(t, f, "every.f"); got != "1" && got != "2" {
 			t.Fatalf("every.f = %q, want 1 or 2", got)
@@ -277,7 +277,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}
 	// The same data without the dotted key is fine, and the path resolves.
-	f := newFejkdata(t, writeData(t, map[string]string{
+	f := newGenerator(t, writeData(t, map[string]string{
 		"cat": `{"format":"{a.b}","a":{"format":"{b}","b":["2"]}}`,
 	}), WithSeed(1))
 	if !slices.Contains(f.List(), "cat.a.b") {
@@ -292,7 +292,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 // single-variant choice always picks the same item, so it needs no every-variant
 // guard and the error can name the field that is missing.
 func TestMissingFieldNamesItself(t *testing.T) {
-	f := newFejkdata(t, "data/sv_SE", WithSeed(1))
+	f := newGenerator(t, "data/sv_SE", WithSeed(1))
 	_, err := f.Fake("person.typo")
 	if err == nil || !strings.Contains(err.Error(), `no field "typo"`) {
 		t.Errorf("Fake(person.typo) = %v, want it to name the missing field", err)
@@ -306,7 +306,7 @@ func TestCategoryRootShapes(t *testing.T) {
 		"obj": `{"format":"00"}`, // object root
 		"lit": `"hello"`,         // bare-string root
 	})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {
 		t.Errorf("object-root category = %q, want two digits", got)
 	}
@@ -327,7 +327,7 @@ func TestLongStringList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f := newFejkdata(t, writeData(t, map[string]string{"name": string(list)}), WithSeed(1))
+	f := newGenerator(t, writeData(t, map[string]string{"name": string(list)}), WithSeed(1))
 
 	valid := map[string]bool{}
 	for _, v := range names {
@@ -355,7 +355,7 @@ var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 
 func TestShippedStreetComposition(t *testing.T) {
 	// street is a choice of composed {first}{last} templates and literal names.
-	f := newFejkdata(t, "data/sv_SE", WithSeed(5))
+	f := newGenerator(t, "data/sv_SE", WithSeed(5))
 	for i := 0; i < 300; i++ {
 		if s := fake(t, f, "address.street"); !swedishName.MatchString(s) {
 			t.Fatalf("street %q is not a Swedish street name", s)
@@ -366,7 +366,7 @@ func TestShippedStreetComposition(t *testing.T) {
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
-	f := newFejkdata(t, "data/sv_SE", WithSeed(6))
+	f := newGenerator(t, "data/sv_SE", WithSeed(6))
 	for i := 0; i < 300; i++ {
 		if s := fake(t, f, "person.last"); !swedishName.MatchString(s) {
 			t.Fatalf("last name %q is not a Swedish surname", s)
@@ -376,7 +376,7 @@ func TestShippedLastNameComposition(t *testing.T) {
 
 func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
-	f := newFejkdata(t, "data/sv_SE", WithSeed(8))
+	f := newGenerator(t, "data/sv_SE", WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
 	for i := 0; i < 300; i++ {
 		if n := fake(t, f, "address.street-number"); !re.MatchString(n) {

@@ -13,15 +13,15 @@ lacked the locale coverage and format control we needed.
   (`sv_SE`), but the engine treats folders as plain namespaces — name yours
   anything.
 - **Data lives in JSON** — all source data is recursive JSON on disk, read when
-  you create a faker and then served from memory. Add or change data without
+  you create a generator and then served from memory. Add or change data without
   touching the library. Behavior belongs in data too: the engine grows a
   built-in function only for what data can't express (a checksum, a time-based
   id), never for what character classes and choices already do.
 - **Composable** — templates nest without limit: weighted choices, character
   classes and sub-templates combine to model any format.
-- **Reproducible** — seed a faker and it emits the same sequence every time, for a
+- **Reproducible** — seed a generator and it emits the same sequence every time, for a
   given version of the data: changing how a value is composed shifts the stream for
-  that value and for everything drawn after it in the same faker.
+  that value and for everything drawn after it in the same generator.
   Every built-in draws only from that seed — no wall-clock, no `crypto/rand` —
   so determinism holds end to end.
 - **Zero dependencies** — standard library only.
@@ -133,7 +133,7 @@ phone              072-402 91 67
 address.locality   Linköping
 ```
 
-Seed a faker for reproducible output — same seed + locale yields an identical
+Seed a generator for reproducible output — same seed + locale yields an identical
 sequence, handy for stable tests:
 
 ```go
@@ -148,7 +148,7 @@ av == bv // true
 dotted fields and folder segments (what the CLI's `-list` prints). Every path it
 lists renders.
 
-A `*Fejkdata` is **not** safe for concurrent use — create one per goroutine.
+A `*Generator` is **not** safe for concurrent use — create one per goroutine.
 
 ## Data
 
@@ -219,7 +219,7 @@ within a choice:
 ```
 
 Only template (object) nodes carry `weight` — a bare string or nested array in a
-choice always counts as `1`. Weights are checked when you create the faker: a
+choice always counts as `1`. Weights are checked when you create the generator: a
 negative, non-numeric, or all-zero set is rejected at `New`, so a typo fails
 fast instead of silently skewing output.
 
@@ -264,14 +264,14 @@ form prefixes the century outside the checksummed core:
   "core": { "format": "00{mmdd}-000{luhn()}", "mmdd": [ … ] } }
 ```
 
-A function must be deterministic (no wall-clock), so a seeded faker stays
+A function must be deterministic (no wall-clock), so a seeded generator stays
 reproducible. A time-based id (UUID v7, ULID) therefore draws its timestamp from
 the rng, not the clock — the result is a valid, reproducible value, not a real
 point in time.
 
 There are four kinds. **Derivations** read the digits emitted so far, so put them
 after their payload; **generators** read only the rng, so they stand alone; one
-**session counter** (`seq`) advances state held on the faker; and one
+**session counter** (`seq`) advances state held on the generator; and one
 **computation** (`calc`) evaluates arithmetic over sibling fields. Arguments are
 validated at `New` (a bad count, range, country, or expression fails fast); a
 length, count or decimal place beyond a sane maximum is rejected there too, so a
@@ -290,7 +290,7 @@ fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
 | `{int(min,max)}` | generator | uniform integer in `[min, max]` |
 | `{float(min,max,dp)}` | generator | number in `[min, max]` with `dp` decimals |
 | `{iban(CC)}` | generator | a length- and mod-97-valid IBAN for country `CC` (BE, DE, DK, ES, FI, NO, SE) |
-| `{seq()}`, `{seq(name)}` | session counter | next integer (from 1) in this faker's sequence; `name` selects an independent counter |
+| `{seq()}`, `{seq(name)}` | session counter | next integer (from 1) in this generator's sequence; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | value of an arithmetic expression over number literals and sibling fields; `dp` rounds |
 
 `{ean()}` is also the ISBN-13 check (an ISBN-13 *is* an EAN-13 — build the 978/979
@@ -299,8 +299,8 @@ an IBAN's check digits sit *before* the account number, which a left-to-right
 reader can't reach, so it emits the whole value (a generic numeric BBAN — valid
 length and checksum, not real bank routing).
 
-`{seq()}`'s counter lives on the faker, so it spans `Fake` calls (and `repeat`)
-and resets when you build a new faker — `seq` is reproducible by being ordered,
+`{seq()}`'s counter lives on the generator, so it spans `Fake` calls (and `repeat`)
+and resets when you build a new generator — `seq` is reproducible by being ordered,
 not random. It's the natural fit for a primary-key column in the SQL example above.
 
 **Computation.** `{calc(expr)}` evaluates an arithmetic expression — `+ - * /`,
@@ -332,7 +332,7 @@ data dirs:
 { "format": "Hej, {..en_US.person}!" }
 ```
 
-renders e.g. `Hej, Pat Smith!`. References are bound when you create the faker, so
+renders e.g. `Hej, Pat Smith!`. References are bound when you create the generator, so
 a path that is unknown, names a folder, or steps through a multi-variant choice
 fails at `New`. A reference that leads back to its own value (directly, mutually,
 or through a chain) is a cycle that would never finish rendering, so it too is
@@ -516,7 +516,7 @@ docker compose run --rm test                      # latest
 ## Layout
 
 ```
-fejkdata.go     Fejkdata, New, List, options, seeding
+fejkdata.go     Generator, New, List, options, seeding
 node.go         the node model and JSON -> node compilation
 render.go       Fake and the recursive renderer (choices, format strings, paths, bound draws)
 template.go     the {token} grammar: scanning, function and path tokens, validation

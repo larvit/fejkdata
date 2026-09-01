@@ -17,7 +17,7 @@ type rng interface {
 // names and the category (JSON file) come first, then named fields within it,
 // e.g. "sv_SE.address" or "sv_SE.address.street". Choices along the way are
 // resolved at random. A path naming a folder (no value of its own) is an error.
-func (f *Fejkdata) Fake(path string) (string, error) {
+func (f *Generator) Fake(path string) (string, error) {
 	n, err := descend(f.rand, &group{children: f.categories}, strings.Split(path, "."))
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)

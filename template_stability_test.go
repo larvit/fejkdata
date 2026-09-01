@@ -2,7 +2,7 @@ package fejkdata
 
 import "testing"
 
-// TestSeededOutputIsStable pins the exact bytes a seeded faker emits for each
+// TestSeededOutputIsStable pins the exact bytes a seeded generator emits for each
 // piece of the token grammar, so a change to how a format is scanned or rendered
 // cannot quietly shift the rng stream that reproducibility depends on.
 func TestSeededOutputIsStable(t *testing.T) {
@@ -31,7 +31,7 @@ func TestSeededOutputIsStable(t *testing.T) {
 		"weights": {"big", "big", "big", "big"},
 	}
 	for path := range want {
-		f := newFejkdata(t, dir, WithSeed(42))
+		f := newGenerator(t, dir, WithSeed(42))
 		for i, expect := range want[path] {
 			if got := fake(t, f, path); got != expect {
 				t.Errorf("%s draw %d = %q, want %q", path, i, got, expect)

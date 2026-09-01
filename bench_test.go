@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func benchFaker(b *testing.B, dir string) *Fejkdata {
+func benchGenerator(b *testing.B, dir string) *Generator {
 	b.Helper()
 	f, err := New([]string{dir}, WithSeed(1))
 	if err != nil {
@@ -16,7 +16,7 @@ func benchFaker(b *testing.B, dir string) *Fejkdata {
 }
 
 func benchPath(b *testing.B, dir, path string) {
-	f := benchFaker(b, dir)
+	f := benchGenerator(b, dir)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

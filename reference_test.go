@@ -9,7 +9,7 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 		"en_US/person":   `["Pat Smith"]`,
 		"sv_SE/greeting": `{"format":"Hej, {..en_US.person}!"}`,
 	})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
 		t.Fatalf("greeting = %q, want \"Hej, Pat Smith!\"", got)
 	}
@@ -22,7 +22,7 @@ func TestReferenceIntoAField(t *testing.T) {
 		"who":  `[{"format":"{first} {last}","first":["Ada"],"last":["Byron"]}]`,
 		"card": `{"format":"signed {..who.last}"}`,
 	})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "card"); got != "signed Byron" {
 		t.Fatalf("card = %q, want \"signed Byron\"", got)
 	}
@@ -35,7 +35,7 @@ func TestReferenceInAlternation(t *testing.T) {
 		"far":  `["X"]`,
 		"near": `{"format":"{here|..far}","here":["H"]}`,
 	})
-	f := newFejkdata(t, dir, WithSeed(2))
+	f := newGenerator(t, dir, WithSeed(2))
 	seen := map[string]bool{}
 	for i := 0; i < 100; i++ {
 		seen[fake(t, f, "near")] = true
@@ -50,7 +50,7 @@ func TestReferenceInAlternation(t *testing.T) {
 func TestReferenceCombinesLoadedPaths(t *testing.T) {
 	a := writeData(t, map[string]string{"en_US/word": `["river"]`})
 	b := writeData(t, map[string]string{"mine/slug": `{"format":"the-{..en_US.word}"}`})
-	f := newFejkdataN(t, []string{a, b}, WithSeed(1))
+	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "mine.slug"); got != "the-river" {
 		t.Fatalf("slug = %q, want the-river", got)
 	}
@@ -64,7 +64,7 @@ func TestReferenceChain(t *testing.T) {
 		"b": `{"format":"{..c}"}`,
 		"c": `["deep"]`,
 	})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "a"); got != "deep" {
 		t.Fatalf("a = %q, want deep", got)
 	}
@@ -118,7 +118,7 @@ func TestReferenceErrors(t *testing.T) {
 // starting with the reference prefix is covered by that same rule, since ".."
 // starts with "." — it is skipped, not rejected.
 func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
-	f := newFejkdata(t, writeData(t, map[string]string{
+	f := newGenerator(t, writeData(t, map[string]string{
 		"sv_SE/ok":     `["fine"]`,
 		"sv_SE/..bad":  `{"format":"{..nope}"}`,
 		"sv_SE/..y/ct": `{"format":"{..nope}"}`,
@@ -134,7 +134,7 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 // category, which terminates, and stays renderable by path.
 func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
 	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":{"format":"see {..cat}"}}`})
-	f := newFejkdata(t, dir, WithSeed(1))
+	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "cat"); got != "hi" {
 		t.Fatalf("cat = %q, want hi", got)
 	}

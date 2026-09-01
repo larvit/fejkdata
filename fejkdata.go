@@ -13,7 +13,7 @@
 // the last one wins on a name clash, so you can layer custom data over the
 // built-ins. The JSON template format is documented in the README.
 //
-// A [Fejkdata] is not safe for concurrent use; create one per goroutine.
+// A [Generator] is not safe for concurrent use; create one per goroutine.
 package fejkdata
 
 import (
@@ -24,15 +24,15 @@ import (
 	"sort"
 )
 
-// Fejkdata generates fake data from a loaded namespace tree. Create one with [New].
-type Fejkdata struct {
+// Generator generates fake data from a loaded namespace tree. Create one with [New].
+type Generator struct {
 	rand       *session
 	categories map[string]node // root namespace: name -> compiled node tree
 }
 
-// session is one faker's mutable render state: the seeded rng plus the {seq()}
-// counters. Scoping it to the Fejkdata means sequences (and randomness) belong to
-// that faker and reset when you create a new one. Embedding *rand.Rand makes a
+// session is one generator's mutable render state: the seeded rng plus the {seq()}
+// counters. Scoping it to the Generator means sequences (and randomness) belong to
+// that generator and reset when you create a new one. Embedding *rand.Rand makes a
 // *session satisfy the rng interface the renderer draws from.
 type session struct {
 	*rand.Rand
@@ -50,21 +50,21 @@ type config struct {
 	seeded bool
 }
 
-// Option configures a [Fejkdata].
+// Option configures a [Generator].
 type Option func(*config)
 
-// WithSeed makes output reproducible: two fakers with the same seed and locale
+// WithSeed makes output reproducible: two generators with the same seed and locale
 // emit identical sequences.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
 
-// New builds a faker from one or more data directories (e.g. "./data/sv_SE").
+// New builds a generator from one or more data directories (e.g. "./data/sv_SE").
 // Each JSON file becomes a category named after the file (address.json ->
 // "address") and each subdirectory a namespace segment; directories are merged
 // in order, the last winning a name clash. It errors on a missing directory,
 // invalid JSON, or no data found.
-func New(paths []string, opts ...Option) (*Fejkdata, error) {
+func New(paths []string, opts ...Option) (*Generator, error) {
 	cats, err := loadData(paths)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
@@ -73,7 +73,7 @@ func New(paths []string, opts ...Option) (*Fejkdata, error) {
 	for _, opt := range opts {
 		opt(&c)
 	}
-	return &Fejkdata{rand: newRand(c.seed, c.seeded), categories: cats}, nil
+	return &Generator{rand: newRand(c.seed, c.seeded), categories: cats}, nil
 }
 
 // List returns the sorted dotted paths Fake can render: every category, the dotted
@@ -81,7 +81,7 @@ func New(paths []string, opts ...Option) (*Fejkdata, error) {
 // single-variant choices the way a reference does. A choice consumes no segment, so
 // a path continues through a multi-variant one only where every variant carries it,
 // which is the rule Fake applies too: List is the set of paths Fake accepts.
-func (f *Fejkdata) List() []string {
+func (f *Generator) List() []string {
 	var out []string
 	for _, name := range sortedNames(f.categories) {
 		for _, p := range paths(f.categories[name]) {

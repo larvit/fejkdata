@@ -19,7 +19,7 @@ const (
 // builtins is the registry of {name(args)} functions. Two kinds: derivations read
 // the digits emitted so far in the current expansion (luhn, mod11, ean — place
 // them after their payload); generators read only the rng (uuid, ulid, ...). All
-// must stay pure over (rng, emitted, args) so a seeded faker is reproducible — a
+// must stay pure over (rng, emitted, args) so seeded output is reproducible — a
 // time-based id (uuid v7, ulid) draws its timestamp from the rng, not the wall
 // clock. Add a builtin only for what data can't express: a random v4 UUID and a
 // 24-hex ObjectID both ship as data, so the uuid builtin is v7.
@@ -62,7 +62,7 @@ var builtins = map[string]builtin{
 	"calc": {arity: -1, check: checkCalc, prep: calcPrep},
 	// seq is the one stateful builtin: a per-session counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
-	// default one. Deterministic by construction, so a seeded faker stays stable.
+	// default one. Deterministic by construction, so seeded output stays stable.
 	"seq": {arity: -1, check: seqArg, prep: func(a []string) callFn {
 		key := ""
 		if len(a) == 1 {
