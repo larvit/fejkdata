@@ -482,7 +482,6 @@ Source is bind-mounted; build caches persist in the `gocache` volume.
 
 ```sh
 docker compose run --rm test    # run tests
-docker compose run --rm ci      # vet + format check + tests
 docker compose run --rm cover   # tests with coverage
 docker compose run --rm bench   # benchmarks
 docker compose run --rm build   # compile the library
@@ -497,9 +496,14 @@ docker compose run --rm --user "$(id -u):$(id -g)" fmt   # gofmt -w .
 docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 ```
 
-Every pull request runs `docker compose run --rm ci` against both the latest and
-the lowest supported Go, and must pass before it can be merged. `docker build .`
-runs the same vet and tests locally.
+Every pull request runs `docker build .` against both the latest and the lowest
+supported Go, and must pass before it can be merged. That build is the whole
+gate — vet, format check and tests — so run it locally before pushing:
+
+```sh
+docker build .                                  # latest
+docker build --build-arg GO_VERSION=1.22.12 .   # lowest supported
+```
 
 Tests run against the latest Go by default. Set `GO_VERSION` to check the lowest
 supported version too:

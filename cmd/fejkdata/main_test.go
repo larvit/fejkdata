@@ -176,8 +176,9 @@ func TestRunVersion(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("-version = %d, stderr=%q", code, errb)
 	}
-	if strings.TrimSpace(out) == "" {
-		t.Error("-version: want a version on stdout")
+	version, ok := strings.CutPrefix(out, "fejkdata ")
+	if !ok || strings.TrimSpace(version) == "" {
+		t.Errorf("-version = %q, want the command name and a version on stdout", out)
 	}
 }
 

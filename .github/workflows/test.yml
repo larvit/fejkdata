@@ -16,12 +16,12 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      # `docker build` streams the context to the daemon. A compose bind-mount of
+      # `.` mounts an empty host dir instead, because the job is itself a container.
       - name: Latest supported Go
-        run: docker compose run --rm ci
+        run: docker build .
       # Runs even when the step above failed, so a red build says whether the
       # failure is version-specific.
       - name: Lowest supported Go
         if: ${{ !cancelled() }}
-        env:
-          GO_VERSION: 1.22.12
-        run: docker compose run --rm ci
+        run: docker build --build-arg GO_VERSION=1.22.12 .

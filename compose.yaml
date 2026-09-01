@@ -1,9 +1,11 @@
 # Docker-based dev workflow — no local tooling beyond Docker is required.
 #
 #   docker compose run --rm test
-#   docker compose run --rm ci
 #   docker compose run --rm vet
 #   docker compose run --rm build
+#
+# The full gate — vet, formatting and tests — is `docker build .`, which is what
+# CI runs.
 #
 # Build caches persist in the `gocache` volume, so re-runs are fast and the
 # host tree stays clean. Commands that rewrite source (fmt, tidy) keep your
@@ -51,15 +53,6 @@ services:
   tidy:
     <<: *go
     command: go mod tidy
-
-  # vet + format check + tests, in one container.
-  ci:
-    <<: *go
-    command: >
-      sh -c 'go vet ./... &&
-      { unformatted=$$(gofmt -l .); test -z "$$unformatted" ||
-        { echo "unformatted files:"; echo "$$unformatted"; exit 1; }; } &&
-      go test ./...'
 
   # Interactive shell for ad-hoc work: docker compose run --rm dev
   dev:
