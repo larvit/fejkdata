@@ -54,7 +54,7 @@ func TestRenderingALevelAndReadingIntoItIsRejected(t *testing.T) {
 		"either order": `{"format":"{p.first} + {p}","p":[{"format":"{first}","first":["Anna","Bo"]}]}`,
 	}
 	for name, file := range rejected {
-		_, err := New([]string{writeData(t, map[string]string{"cat": file})})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want the overlapping tokens rejected", name)
 			continue
@@ -64,9 +64,9 @@ func TestRenderingALevelAndReadingIntoItIsRejected(t *testing.T) {
 		}
 	}
 	// The same path twice is one spelling, so it stays legal.
-	if _, err := New([]string{writeData(t, map[string]string{
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{p.first} + {p.first}","p":[{"format":"{first}","first":["Anna","Bo"]}]}`,
-	})}); err != nil {
+	}))); err != nil {
 		t.Errorf("New = %v, want one path read twice accepted", err)
 	}
 }
@@ -75,17 +75,17 @@ func TestCalcOperandNamingABoundLevelIsRejected(t *testing.T) {
 	// A calc operand renders its field, so naming a bound level in one is the same
 	// overlap as a bare token: {calc(item * 1)} renders what {item.price} reads a
 	// path into, and the two disagree.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{item.price}|{calc(item * 1)}","item":[` +
 			`{"format":"{price}","price":"10"},{"format":"{price}","price":"20"}]}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 		t.Fatalf("New = %v, want the calc operand rejected as an overlap", err)
 	}
 	// Arithmetic over fields no path names is untouched.
-	if _, err := New([]string{writeData(t, map[string]string{
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99"],"qty":["3"]}`,
-	})}); err != nil {
+	}))); err != nil {
 		t.Errorf("New = %v, want plain arithmetic accepted", err)
 	}
 }
@@ -104,16 +104,16 @@ func TestReferenceNamingABoundLevelIsRejected(t *testing.T) {
 			`"inner":{"format":"{..cat.p}"}}`,
 	}
 	for name, file := range rejected {
-		_, err := New([]string{writeData(t, map[string]string{"cat": file})})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the reference rejected as an overlap", name, err)
 		}
 	}
 	// A reference to anything this format does not bind is untouched.
-	if _, err := New([]string{writeData(t, map[string]string{
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat":     `{"format":"{p.first} {..surname}","p":[{"format":"{first}","first":["Anna","Bo"]}]}`,
 		"surname": `["Eriksson","Lindqvist"]`,
-	})}); err != nil {
+	}))); err != nil {
 		t.Errorf("New = %v, want a reference outside the bound level accepted", err)
 	}
 }
@@ -122,9 +122,9 @@ func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
 	// A path token renders what it lands on, not the level it started from, so the
 	// cycle walk has to follow it there. A head whose own format names nothing
 	// would otherwise hide the cycle until render, where it is fatal.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"{p.x}","p":{"format":"static","x":{"format":"{..a}"}}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "reference cycle") {
 		t.Fatalf("New = %v, want the cycle through {p.x} rejected", err)
 	}
@@ -133,10 +133,10 @@ func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
 func TestALevelRenderedOnlyByAPathTokenIsHeld(t *testing.T) {
 	// {p.a} renders q, so it is a route to the level {q.x} holds — even though p's
 	// own format names nothing.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"thing": `{"format":"{p.a} {q.x}","p":{"format":"static","a":{"format":"{..thing.q}"}},` +
 			`"q":{"format":"{x}","x":["1","2"]}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 		t.Fatalf("New = %v, want the second route to q rejected", err)
 	}
@@ -212,7 +212,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New([]string{writeData(t, c.files)})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
 		if err == nil || !strings.Contains(err.Error(), "a {calc()} also reads") {
 			t.Errorf("%s: New = %v, want the second route to the operand rejected", name, err)
 			continue
@@ -259,7 +259,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		},
 	}
 	for name, files := range accepted {
-		if _, err := New([]string{writeData(t, files)}); err != nil {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 		}
 	}
@@ -282,7 +282,7 @@ func TestAPathReachesEveryVariantItMightDraw(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New([]string{writeData(t, map[string]string{"cat": c.file})})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": c.file})))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
 		}
@@ -300,7 +300,7 @@ func TestALevelAPathNeverRendersIsAccepted(t *testing.T) {
 			`"p":{"format":"{first}","first":["A","B"]},"q":{"format":"{a} {..thing.p}","a":["1","2"]}}`,
 	}
 	for name, file := range accepted {
-		if _, err := New([]string{writeData(t, map[string]string{"thing": file})}); err != nil {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"thing": file}))); err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 		}
 	}
@@ -315,7 +315,7 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 			`{"format":"{a}{b}","a":{"format":"{..l%d}"},"b":{"format":"{..l%d}"}}`, i-1, i-1)
 	}
 	files["thing"] = `{"format":"{p.first} {..l30}","p":{"format":"x","first":["A","B"]}}`
-	if _, err := New([]string{writeData(t, files)}); err != nil {
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err != nil {
 		t.Fatalf("New = %v, want a deep diamond chain to load", err)
 	}
 }
@@ -324,11 +324,11 @@ func TestASharedNodeIsWalkedOnce(t *testing.T) {
 	// Two fields reaching one node make the render graph a diamond, not a tree.
 	// The search past a bound level must take that in its stride rather than walk
 	// the shared node once per route.
-	f, err := New([]string{writeData(t, map[string]string{
+	f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{p.first}|{q}","p":[{"format":"{first}","first":["Anna","Bo"]}],` +
 			`"q":{"format":"{a}{b}","a":{"format":"{..shared}"},"b":{"format":"{..shared}"}}}`,
 		"shared": `["x"]`,
-	})}, WithSeed(1))
+	})), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v, want a shared node accepted", err)
 	}
@@ -341,9 +341,9 @@ func TestTheEarlierReaderIsNamed(t *testing.T) {
 	// A token and a calc operand can name one level. The one the format writes
 	// first is the one reported, so the error points at the same place a reader
 	// looking at the format would start.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{calc(p * 1)} {p} {p.first}","p":[{"format":"{first}","first":["1","2"]}]}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), `calc operand "p"`) {
 		t.Fatalf("New = %v, want the calc operand named, being written first", err)
 	}
@@ -353,10 +353,10 @@ func TestReferenceToAMatchingStringIsAccepted(t *testing.T) {
 	// A literal renders one fixed string, so no draw of it can disagree with a
 	// held one. Two unrelated literals that merely spell the same text must not
 	// read as the same node — the trap when comparing a value type.
-	if _, err := New([]string{writeData(t, map[string]string{
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat":   `{"format":"{p.city} {..other.tag}","p":{"format":"{city}","city":"Stockholm"}}`,
 		"other": `{"format":"x","tag":"Stockholm"}`,
-	})}); err != nil {
+	}))); err != nil {
 		t.Fatalf("New = %v, want a reference to a matching string accepted", err)
 	}
 }
@@ -378,9 +378,9 @@ func TestNestedChoiceDrawsOneVariant(t *testing.T) {
 func TestRepeatingLevelIsNamedInTheError(t *testing.T) {
 	// The level carrying the repeat is the one to fix, so the error names it
 	// rather than the head the path started from.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"[{p.a.b}]","p":{"format":"{a}","a":{"format":"{b}","repeat":3,"separator":",","b":["z"]}}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), `"p.a"`) {
 		t.Fatalf("New = %v, want it to name the level p.a that carries the repeat", err)
 	}
@@ -390,9 +390,9 @@ func TestPathIntoARepeatingLevelBehindAChoiceIsRejected(t *testing.T) {
 	// A choice of rows is the shape this feature is for, so the repeat rule has to
 	// reach inside one — otherwise the direct spelling is a load error and the same
 	// mistake behind a choice silently drops the repeat.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"[{p.a}]","p":[{"format":"{a}","repeat":3,"separator":",","a":["x"]},{"format":"{a}","a":["y"]}]}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "repeat") {
 		t.Fatalf("New = %v, want the repeat behind a choice rejected", err)
 	}
@@ -401,9 +401,9 @@ func TestPathIntoARepeatingLevelBehindAChoiceIsRejected(t *testing.T) {
 func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 	// A path reads one level's draw, so it can never apply that level's repeat.
 	// The engine rejects options that cannot take effect, and this is one.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"[{p.a}]","p":{"format":"{a}","repeat":3,"separator":",","a":["z"]}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "repeat") {
 		t.Fatalf("New = %v, want a path into a repeating level rejected", err)
 	}
@@ -412,9 +412,9 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 func TestPathIntoAPlainTemplateNamesTheMissingField(t *testing.T) {
 	// A head that is one template, not a choice, reports the missing segment
 	// directly — there are no variants to compare.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{a.nope}","a":{"format":"x","b":"1"}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
 		t.Fatalf("New = %v, want it to name the missing field", err)
 	}
@@ -532,7 +532,7 @@ func TestDottedTokenErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New([]string{writeData(t, map[string]string{"cat": c.file})})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": c.file})))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want it rejected at load", name)
 			continue
@@ -665,7 +665,7 @@ func TestEmptyPathSegmentIsRejected(t *testing.T) {
 		"double dot":   `{"format":"[{a..b}]","a":{"format":"x"}}`,
 	}
 	for name, file := range rejected {
-		_, err := New([]string{writeData(t, map[string]string{"cat": file})})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want the unfinished path rejected", name)
 			continue
@@ -680,9 +680,9 @@ func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
 	// A path token is a render edge like any other, so a cycle routed through one
 	// must be caught at New. Reaching render would be fatal: the recursion never
 	// terminates, and a stack overflow cannot be recovered.
-	_, err := New([]string{writeData(t, map[string]string{
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"{p.x}","p":{"format":"{x}","x":{"format":"{..a}"}}}`,
-	})})
+	})))
 	if err == nil || !strings.Contains(err.Error(), "reference cycle") {
 		t.Fatalf("New = %v, want the cycle through {p.x} rejected", err)
 	}
@@ -692,7 +692,7 @@ func TestBoundPathIsReachableByFake(t *testing.T) {
 	// Binding changes how a format reads a sibling, not what List and Fake offer:
 	// the sub-fields stay addressable on their own.
 	dir := writeData(t, map[string]string{"address": places("{place.postal-code} {place.locality}")})
-	f, err := New([]string{dir}, WithSeed(9))
+	f, err := New(WithoutShippedData(), WithDataPath(dir), WithSeed(9))
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}

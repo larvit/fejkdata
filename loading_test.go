@@ -57,7 +57,7 @@ func TestNewLoadsAnyDirName(t *testing.T) {
 }
 
 func TestNewEmptyDirErrors(t *testing.T) {
-	if _, err := New([]string{writeData(t, nil)}); err == nil {
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, nil))); err == nil {
 		t.Fatal("New(empty dir) = nil error")
 	}
 }

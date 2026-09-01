@@ -28,7 +28,7 @@ x-go: &go
 services:
   test:
     <<: *go
-    command: go test ./...
+    command: go test -race ./...
 
   cover:
     <<: *go

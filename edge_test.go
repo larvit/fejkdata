@@ -56,11 +56,11 @@ func TestNewErrors(t *testing.T) {
 	if err := os.WriteFile(file, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := New([]string{file}); err == nil {
+	if _, err := New(WithoutShippedData(), WithDataPath(file)); err == nil {
 		t.Error("New(file) = nil error, want not-a-directory error")
 	}
 	// Invalid JSON in a category file fails.
-	if _, err := New([]string{writeData(t, map[string]string{"broken": `{ not json`})}); err == nil {
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {
 		t.Error("New(invalid JSON) = nil error")
 	}
 	// An option that cannot take effect, and a category or folder no dot path can
@@ -168,7 +168,7 @@ func TestNewErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New([]string{writeData(t, c.files)})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want it rejected at load", name)
 			continue
@@ -195,7 +195,7 @@ func TestNewErrors(t *testing.T) {
 		"one name in two tokens": {map[string]string{"a": `{"format":"{x}{x}","x":["1"]}`}, "a", "11"},
 	}
 	for name, c := range accepted {
-		f, err := New([]string{writeData(t, c.files)})
+		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 			continue
@@ -272,7 +272,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"cat": `[{"format":"{a.b}","a.b":["1"]},{"format":"{a}","a":{"format":"{b}","b":["2"]}}]`,
 	})
-	_, err := New([]string{dir})
+	_, err := New(WithoutShippedData(), WithDataPath(dir))
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}

@@ -162,7 +162,7 @@ func TestRunRepeatAdvancesRNG(t *testing.T) {
 }
 
 func TestRunMisuse(t *testing.T) {
-	for _, args := range [][]string{{}, {"--data-path", svSE}, {"person"}, {"-d", svSE, "person", "word"}, {"-d", svSE, "--list", "person"}} {
+	for _, args := range [][]string{{}, {"--data-path", svSE}, {"-d", svSE, "person", "word"}, {"-d", svSE, "--list", "person"}, {"--no-shipped-data", "sv_SE.person"}} {
 		code, out, errb := runOut(args...)
 		if code != 2 {
 			t.Errorf("run(%v) = %d, want 2", args, code)
@@ -238,5 +238,34 @@ func TestRunMissingDirFails(t *testing.T) {
 	}
 	if errb == "" {
 		t.Error("want an error message on stderr")
+	}
+}
+
+func TestRunShippedDataByDefault(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "sv_SE.person")
+	if code != 0 || strings.TrimSpace(out) == "" {
+		t.Fatalf("run = %d, out=%q, stderr=%q", code, out, errb)
+	}
+	code, list, _ := runOut("--list")
+	if code != 0 || !strings.Contains(list, "en_US.person\n") || !strings.Contains(list, "misc.uuid\n") {
+		t.Errorf("--list without --data-path = %d, %q", code, list)
+	}
+	code, _, errb = runOut("person")
+	if code != 1 || !strings.Contains(errb, "person") {
+		t.Errorf("a category outside the shipped tree: code %d, stderr %q", code, errb)
+	}
+}
+
+func TestRunNoShippedData(t *testing.T) {
+	code, list, errb := runOut("--no-shipped-data", "-d", svSE, "--list")
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	if strings.Contains(list, "en_US") || !strings.Contains(list, "person\n") {
+		t.Errorf("--no-shipped-data --list = %q, want only the given dir", list)
+	}
+	code, out, _ := runOut("--no-shipped-data", "-d", svSE, "-s", "3", "person")
+	if code != 0 || strings.TrimSpace(out) == "" {
+		t.Errorf("run = %d, out=%q", code, out)
 	}
 }

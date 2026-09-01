@@ -107,7 +107,7 @@ func TestReferenceErrors(t *testing.T) {
 		"field key using the reference prefix": {"cat": `{"format":"hi","..x":{"format":"{..nope}"}}`},
 	}
 	for name, files := range cases {
-		if _, err := New([]string{writeData(t, files)}); err == nil {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
 			t.Errorf("%s: New = nil error, want a reference error", name)
 		}
 	}
@@ -161,7 +161,7 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 		dir := writeData(t, files)
 		var first string
 		for i := 0; i < 50; i++ {
-			_, err := New([]string{dir})
+			_, err := New(WithoutShippedData(), WithDataPath(dir))
 			if err == nil {
 				t.Fatalf("%s: New = nil error, want a load error", name)
 			}
@@ -198,7 +198,7 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		_, err := New([]string{writeData(t, c.files)})
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error", c.name)
 			continue

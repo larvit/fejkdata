@@ -15,7 +15,11 @@ func newGenerator(t *testing.T, dir string, opts ...Option) *Generator {
 
 func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 	t.Helper()
-	f, err := New(dirs, opts...)
+	all := []Option{WithoutShippedData()}
+	for _, dir := range dirs {
+		all = append(all, WithDataPath(dir))
+	}
+	f, err := New(append(all, opts...)...)
 	if err != nil {
 		t.Fatalf("New(%q): %v", dirs, err)
 	}
@@ -33,7 +37,7 @@ func fake(t *testing.T, f *Generator, path string) string {
 }
 
 func TestNewMissingDirectory(t *testing.T) {
-	_, err := New([]string{"data/de_DE"})
+	_, err := New(WithoutShippedData(), WithDataPath("data/de_DE"))
 	if err == nil || !strings.Contains(err.Error(), "de_DE") {
 		t.Fatalf("New(missing) error = %v, want it to name the path", err)
 	}

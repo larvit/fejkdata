@@ -8,7 +8,7 @@ import (
 
 func benchGenerator(b *testing.B, dir string) *Generator {
 	b.Helper()
-	f, err := New([]string{dir}, WithSeed(1))
+	f, err := New(WithoutShippedData(), WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -91,11 +91,10 @@ func BenchmarkBoundWide(b *testing.B) {
 	benchPath(b, dir, "row")
 }
 
-// BenchmarkNew measures load+compile+validate of the whole shipped tree.
 func BenchmarkNew(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		if _, err := New([]string{"data"}, WithSeed(1)); err != nil {
+		if _, err := New(WithSeed(1)); err != nil {
 			b.Fatal(err)
 		}
 	}
