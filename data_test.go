@@ -249,7 +249,7 @@ func digitsOnly(s string) string {
 }
 
 // luhnValid verifies a full number (payload + trailing check digit). It doubles
-// from the second-from-right, independent of the generator's own Luhn code.
+// from the second-from-right, independent of the builtin's own Luhn code.
 func luhnValid(s string) bool {
 	sum, double := 0, false
 	for i := len(s) - 1; i >= 0; i-- {

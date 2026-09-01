@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// maxLen caps generator output lengths (hex, nanoid, base64) and maxDecimals caps
+// maxLen caps sample output lengths (hex, nanoid, base64) and maxDecimals caps
 // float/calc decimal places, so a fat-fingered or overflowing argument fails at
 // New instead of trying to allocate gigabytes — or panicking — at render.
 const (
@@ -18,7 +18,7 @@ const (
 
 // builtins is the registry of {name(args)} functions. Two kinds: derivations read
 // the digits emitted so far in the current expansion (luhn, mod11, ean — place
-// them after their payload); generators read only the rng (uuid, ulid, ...). All
+// them after their payload); samples read only the rng (uuid, ulid, ...). All
 // must stay pure over (rng, emitted, args) so seeded output is reproducible — a
 // time-based id (uuid v7, ulid) draws its timestamp from the rng, not the wall
 // clock. Add a builtin only for what data can't express: a random v4 UUID and a
@@ -27,8 +27,8 @@ var builtins = map[string]builtin{
 	"luhn":  {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
 	"mod11": {arity: 0, prep: derive(mod11Check)},
 	"ean":   {arity: 0, prep: derive(eanCheck)},
-	"uuid":  {arity: 0, prep: generate(uuidV7)},
-	"ulid":  {arity: 0, prep: generate(ulid)},
+	"uuid":  {arity: 0, prep: sample(uuidV7)},
+	"ulid":  {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
 		n := atoi(a[0])
 		return func(s *session, _ string, _ []string) string { return nanoid(s, n) }
@@ -74,8 +74,8 @@ var builtins = map[string]builtin{
 	}},
 }
 
-// derive and generate are the two argument-free builtin shapes the README names: a
-// derivation reads the output emitted so far, a generator reads only the rng. Each
+// derive and sample are the two argument-free builtin shapes the README names: a
+// derivation reads the output emitted so far, a sample reads only the rng. Each
 // lifts that one function into the prep every registry entry supplies.
 func derive(f func(emitted string) string) func([]string) callFn {
 	return func([]string) callFn {
@@ -83,7 +83,7 @@ func derive(f func(emitted string) string) func([]string) callFn {
 	}
 }
 
-func generate(f func(rng) string) func([]string) callFn {
+func sample(f func(rng) string) func([]string) callFn {
 	return func([]string) callFn {
 		return func(s *session, _ string, _ []string) string { return f(s) }
 	}

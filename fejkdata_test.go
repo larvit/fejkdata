@@ -5,8 +5,9 @@ import (
 	"testing"
 )
 
-// newGenerator creates a generator over a single data directory, failing on error. Most
-// tests load one dir; newGeneratorN loads several (last-loaded wins on conflicts).
+// newGenerator creates a generator over a single data directory, failing on
+// error. Most tests load one dir; newGeneratorN loads several (last-loaded wins
+// on conflicts).
 func newGenerator(t *testing.T, dir string, opts ...Option) *Generator {
 	t.Helper()
 	return newGeneratorN(t, []string{dir}, opts...)

@@ -34,9 +34,9 @@ func TestBuiltinIDGenerators(t *testing.T) {
 	}
 }
 
-// TestBuiltinGeneratorsReproducible pins the determinism guardrail: every
-// generator draws only from the seeded rng, so same seed -> same value.
-func TestBuiltinGeneratorsReproducible(t *testing.T) {
+// TestBuiltinSamplesReproducible pins the determinism guardrail: every
+// sample draws only from the seeded rng, so same seed -> same value.
+func TestBuiltinSamplesReproducible(t *testing.T) {
 	for _, tmpl := range []string{
 		`{"format":"{uuid()}"}`, `{"format":"{ulid()}"}`,
 		`{"format":"{nanoid(12)}"}`, `{"format":"{int(1,1000000)}"}`,
@@ -96,8 +96,8 @@ func TestBuiltinChecksums(t *testing.T) {
 }
 
 // TestBuiltinSeqPerSession pins seq's contract: a counter from 1, advancing on
-// each call, named counters independent, and the whole thing scoped to one session
-// so a fresh Generator restarts at 1.
+// each call, named counters independent, and the whole thing scoped to one
+// session so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerSession(t *testing.T) {
 	f := engine(1)
 	for i := 1; i <= 5; i++ {
@@ -163,7 +163,7 @@ func TestBuiltinIBAN(t *testing.T) {
 	}
 }
 
-// ibanValid checks the IBAN mod-97 rule independently of the generator: move the
+// ibanValid checks the IBAN mod-97 rule independently of the builtin: move the
 // first four chars to the end, map letters A-Z to 10-35, the number mod 97 == 1.
 func ibanValid(s string) bool {
 	r := s[4:] + s[:4]

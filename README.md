@@ -19,9 +19,9 @@ lacked the locale coverage and format control we needed.
   id), never for what character classes and choices already do.
 - **Composable** — templates nest without limit: weighted choices, character
   classes and sub-templates combine to model any format.
-- **Reproducible** — seed a generator and it emits the same sequence every time, for a
-  given version of the data: changing how a value is composed shifts the stream for
-  that value and for everything drawn after it in the same generator.
+- **Reproducible** — seed a generator and it emits the same sequence every time,
+  for a given version of the data: changing how a value is composed shifts the
+  stream for that value and for everything drawn after it in the same generator.
   Every built-in draws only from that seed — no wall-clock, no `crypto/rand` —
   so determinism holds end to end.
 - **Zero dependencies** — standard library only.
@@ -270,7 +270,7 @@ the rng, not the clock — the result is a valid, reproducible value, not a real
 point in time.
 
 There are four kinds. **Derivations** read the digits emitted so far, so put them
-after their payload; **generators** read only the rng, so they stand alone; one
+after their payload; **samples** read only the rng, so they stand alone; one
 **session counter** (`seq`) advances state held on the generator; and one
 **computation** (`calc`) evaluates arithmetic over sibling fields. Arguments are
 validated at `New` (a bad count, range, country, or expression fails fast); a
@@ -282,19 +282,19 @@ fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
 | `{luhn()}` | derivation | Luhn check digit (mod-10) over preceding digits |
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` when it would be 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
-| `{uuid()}` | generator | UUID v7 (v4 ships as data — see [Data](#data)) |
-| `{ulid()}` | generator | ULID, 26-char Crockford base32 |
-| `{nanoid(n)}` | generator | URL-safe Nano ID, `n` chars |
-| `{hex(n)}` | generator | `n` lowercase hex digits |
-| `{base64(n)}` | generator | `n` random bytes, base64 |
-| `{int(min,max)}` | generator | uniform integer in `[min, max]` |
-| `{float(min,max,dp)}` | generator | number in `[min, max]` with `dp` decimals |
-| `{iban(CC)}` | generator | a length- and mod-97-valid IBAN for country `CC` (BE, DE, DK, ES, FI, NO, SE) |
+| `{uuid()}` | sample | UUID v7 (v4 ships as data — see [Data](#data)) |
+| `{ulid()}` | sample | ULID, 26-char Crockford base32 |
+| `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
+| `{hex(n)}` | sample | `n` lowercase hex digits |
+| `{base64(n)}` | sample | `n` random bytes, base64 |
+| `{int(min,max)}` | sample | uniform integer in `[min, max]` |
+| `{float(min,max,dp)}` | sample | number in `[min, max]` with `dp` decimals |
+| `{iban(CC)}` | sample | a length- and mod-97-valid IBAN for country `CC` (BE, DE, DK, ES, FI, NO, SE) |
 | `{seq()}`, `{seq(name)}` | session counter | next integer (from 1) in this generator's sequence; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | value of an arithmetic expression over number literals and sibling fields; `dp` rounds |
 
 `{ean()}` is also the ISBN-13 check (an ISBN-13 *is* an EAN-13 — build the 978/979
-prefix in data and call `{ean()}`). `{iban()}` is a generator, not a derivation:
+prefix in data and call `{ean()}`). `{iban()}` is a sample, not a derivation:
 an IBAN's check digits sit *before* the account number, which a left-to-right
 reader can't reach, so it emits the whole value (a generic numeric BBAN — valid
 length and checksum, not real bank routing).
