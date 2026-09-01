@@ -1,122 +1,214 @@
-// Command fejkdata prints one fake value from one or more data directories.
+// Command fejkdata prints fake values from one or more data directories.
 //
-//	fejkdata -data-path ./data/sv_SE person                     # a full person
-//	fejkdata -data-path ./data/sv_SE person.last                # just the surname (dotted path)
-//	fejkdata -data-path ./data sv_SE.person                     # point at the tree, address by folder
-//	fejkdata -data-path ./data/sv_SE -data-path ./mydata person # layer custom data; last dir wins
-//	fejkdata -seed 42 -data-path ./data/sv_SE address
-//
-// It is a thin CLI over the fejkdata library: New(dirs) then Fake(path).
+//	fejkdata --data-path ./data/sv_SE person                       # a full person
+//	fejkdata --data-path ./data/sv_SE person.last                  # just the surname
+//	fejkdata --data-path ./data sv_SE.person                       # point at the tree, address by folder
+//	fejkdata --data-path ./data/sv_SE --data-path ./mydata person  # layer custom data; last dir wins
+//	fejkdata --seed 42 --data-path ./data/sv_SE address
 package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"strings"
 
 	"gitea.larvit.se/larvit/fejkdata"
 )
 
-const usage = `Usage: fejkdata -data-path D [-data-path D]... [-seed N] [-repeat N] [-separator S] <path>
+const usage = `Usage: fejkdata [flags] <path>
 
-  -data-path D  a data directory, e.g. ./data/sv_SE (repeatable; last wins on clash)
-  <path>        a category, or a dotted path into one (person, person.last)
-  -seed N       seed for reproducible output
-  -repeat N     render the path N times (default 1)
-  -separator S  string between repeated values (default newline)
-  -list         list the paths the data offers, then exit
-  -version      print the version, then exit
+  <path>              a category, or a dotted path into one (person, person.last)
 
-Flags must come before <path>.`
+  -d, --data-path D   a data directory, e.g. ./data/sv_SE (repeatable; last wins on a clash)
+  -h, --help          print this help, then exit
+      --list          list the paths the data offers, then exit
+  -n, --repeat N      render the path N times (default 1)
+  -s, --seed N        seed for reproducible output
+      --separator S   string between repeated values (default newline)
+      --version       print the version, then exit
 
-// stringList collects a repeatable string flag, preserving order.
-type stringList []string
+Flags may come before or after <path>; -- ends the flags.
+`
 
-func (s *stringList) String() string { return strings.Join(*s, ",") }
+type invocation struct {
+	dirs      []string
+	help      bool
+	list      bool
+	paths     []string
+	repeat    int
+	seed      uint64
+	seeded    bool
+	separator string
+	version   bool
+}
 
-func (s *stringList) Set(v string) error { *s = append(*s, v); return nil }
+type flagDef struct {
+	long  string
+	short string
+	value bool
+	set   func(*invocation, string) error
+}
+
+var flagDefs = []flagDef{
+	{"data-path", "d", true, func(in *invocation, v string) error { in.dirs = append(in.dirs, v); return nil }},
+	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
+	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
+	{"repeat", "n", true, func(in *invocation, v string) error {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 {
+			return fmt.Errorf("--repeat needs a positive integer, got %q", v)
+		}
+		in.repeat = n
+		return nil
+	}},
+	{"seed", "s", true, func(in *invocation, v string) error {
+		n, err := strconv.ParseUint(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("--seed needs an unsigned integer, got %q", v)
+		}
+		in.seed, in.seeded = n, true
+		return nil
+	}},
+	{"separator", "", true, func(in *invocation, v string) error { in.separator = v; return nil }},
+	{"version", "", false, func(in *invocation, _ string) error { in.version = true; return nil }},
+}
+
+func flagByLong(name string) *flagDef {
+	for i := range flagDefs {
+		if flagDefs[i].long == name {
+			return &flagDefs[i]
+		}
+	}
+	return nil
+}
+
+func flagByShort(name string) *flagDef {
+	for i := range flagDefs {
+		if flagDefs[i].short == name {
+			return &flagDefs[i]
+		}
+	}
+	return nil
+}
+
+func parseArgs(argv []string) (invocation, error) {
+	in := invocation{repeat: 1, separator: "\n"}
+	for i := 0; i < len(argv); i++ {
+		arg := argv[i]
+		switch {
+		case arg == "--":
+			in.paths = append(in.paths, argv[i+1:]...)
+			return in, nil
+		case strings.HasPrefix(arg, "--"):
+			name, value, hasValue := strings.Cut(arg[2:], "=")
+			def := flagByLong(name)
+			if def == nil {
+				return in, fmt.Errorf("unknown flag --%s", name)
+			}
+			if !def.value {
+				if hasValue {
+					return in, fmt.Errorf("--%s takes no value", name)
+				}
+				_ = def.set(&in, "")
+				continue
+			}
+			if !hasValue {
+				if i++; i >= len(argv) {
+					return in, fmt.Errorf("--%s needs a value", name)
+				}
+				value = argv[i]
+			}
+			if err := def.set(&in, value); err != nil {
+				return in, err
+			}
+		case len(arg) > 1 && arg[0] == '-':
+			name, _, _ := strings.Cut(arg[1:], "=")
+			def := flagByShort(name)
+			if def == nil {
+				if flagByLong(name) != nil {
+					return in, fmt.Errorf("unknown flag %s; use --%s", arg, name)
+				}
+				return in, fmt.Errorf("unknown flag %s", arg)
+			}
+			if !def.value {
+				_ = def.set(&in, "")
+				continue
+			}
+			if i++; i >= len(argv) {
+				return in, fmt.Errorf("--%s needs a value", def.long)
+			}
+			if err := def.set(&in, argv[i]); err != nil {
+				return in, err
+			}
+		default:
+			in.paths = append(in.paths, arg)
+		}
+	}
+	return in, nil
+}
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
-// run is main's testable core: it returns the process exit code (0 ok, 1
-// runtime error, 2 misuse) and writes only to the given streams.
+// run returns the exit code: 0 ok, 1 runtime error, 2 misuse.
 func run(args []string, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("fejkdata", flag.ContinueOnError)
-	fs.SetOutput(stderr)
-	fs.Usage = func() { fmt.Fprintln(stderr, usage) }
-	seed := fs.Uint64("seed", 0, "seed for reproducible output")
-	repeat := fs.Int("repeat", 1, "render the path this many times")
-	sep := fs.String("separator", "\n", "string between repeated values")
-	list := fs.Bool("list", false, "list the paths the data offers, then exit")
-	showVersion := fs.Bool("version", false, "print the version, then exit")
-	var dirs stringList
-	fs.Var(&dirs, "data-path", "a data directory to load (repeatable)")
-	if err := fs.Parse(args); err != nil {
-		if errors.Is(err, flag.ErrHelp) { // -h/-help already printed usage
-			return 0
-		}
-		return 2
+	in, err := parseArgs(args)
+	if err != nil {
+		return misuse(stderr, err)
 	}
-	if *showVersion {
+	if in.help {
+		fmt.Fprint(stdout, usage)
+		return 0
+	}
+	if in.version {
 		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
-	if len(dirs) == 0 {
-		fs.Usage()
-		return 2
+	if len(in.dirs) == 0 {
+		return misuse(stderr, errors.New("--data-path is required"))
+	}
+	if in.list && len(in.paths) > 0 {
+		return misuse(stderr, errors.New("--list takes no path"))
+	}
+	if !in.list && len(in.paths) != 1 {
+		return misuse(stderr, fmt.Errorf("expected one path, got %d", len(in.paths)))
 	}
 
 	var opts []fejkdata.Option
-	fs.Visit(func(fl *flag.Flag) {
-		if fl.Name == "seed" {
-			opts = append(opts, fejkdata.WithSeed(*seed))
-		}
-	})
-
-	if *list {
-		f, err := fejkdata.New(dirs, opts...)
-		if err != nil {
-			fmt.Fprintln(stderr, err)
-			return 1
-		}
+	if in.seeded {
+		opts = append(opts, fejkdata.WithSeed(in.seed))
+	}
+	f, err := fejkdata.New(in.dirs, opts...)
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+	if in.list {
 		for _, p := range f.List() {
 			fmt.Fprintln(stdout, p)
 		}
 		return 0
 	}
-	if fs.NArg() != 1 {
-		fs.Usage()
-		return 2
-	}
-	if *repeat < 1 {
-		fmt.Fprintln(stderr, "repeat must be a positive integer")
-		return 2
-	}
-
-	path := fs.Arg(0)
-	f, err := fejkdata.New(dirs, opts...)
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
-	}
-	vals := make([]string, *repeat)
+	vals := make([]string, in.repeat)
 	for i := range vals {
-		if vals[i], err = f.Fake(path); err != nil {
+		if vals[i], err = f.Fake(in.paths[0]); err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
 	}
-	fmt.Fprintln(stdout, strings.Join(vals, *sep))
+	fmt.Fprintln(stdout, strings.Join(vals, in.separator))
 	return 0
 }
 
-// buildVersion reports the module version stamped into the binary by `go install`
-// (or "devel" for a local build), read from the build info — no version constant
-// to bump, no extra dependency.
+func misuse(stderr io.Writer, err error) int {
+	fmt.Fprintf(stderr, "fejkdata: %v\ntry 'fejkdata --help'\n", err)
+	return 2
+}
+
+// buildVersion is the module version go install stamps into the binary, or "devel".
 func buildVersion() string {
 	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" {
 		return info.Main.Version

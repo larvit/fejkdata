@@ -28,31 +28,32 @@ lacked the locale coverage and format control we needed.
 
 ## CLI
 
-Install the `fejkdata` command, then give it one or more `-data-path` directories
+Install the `fejkdata` command, then give it one or more `--data-path` directories
 and a path — it prints one value to stdout. Each dot segment descends one level:
 folders, then the category (a JSON file), then fields inside it.
 
 ```sh
 go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
 
-fejkdata -data-path ./data/sv_SE person               # Sara Eriksson
-fejkdata -data-path ./data/sv_SE person.last          # Eriksson  (dotted path into a category)
-fejkdata -data-path ./data sv_SE.person               # point at the tree; the folder is a segment
-fejkdata -data-path ./data/sv_SE -data-path ./mydata word  # layer dirs; the last wins a name clash
-fejkdata -seed 42 -data-path ./data/sv_SE address
-fejkdata -repeat 3 -data-path ./data/sv_SE person             # three values, one per line
-fejkdata -repeat 3 -separator ', ' -data-path ./data/sv_SE word  # nät, barn, sol
-fejkdata -data-path ./data/sv_SE -list                        # every path this data offers
+fejkdata --data-path ./data/sv_SE person               # Sara Eriksson
+fejkdata --data-path ./data/sv_SE person.last          # Eriksson  (dotted path into a category)
+fejkdata --data-path ./data sv_SE.person               # point at the tree; the folder is a segment
+fejkdata -d ./data/sv_SE -d ./mydata word              # layer dirs; the last wins a name clash
+fejkdata --seed 42 --data-path ./data/sv_SE address
+fejkdata --repeat 3 --data-path ./data/sv_SE person             # three values, one per line
+fejkdata -n 3 --separator ', ' --data-path ./data/sv_SE word    # nät, barn, sol
+fejkdata --data-path ./data/sv_SE --list                        # every path this data offers
 ```
 
-`-data-path` is repeatable (last wins a name clash) and the path comes last —
-all flags must precede it. `-repeat N` renders the path N times — each an
-independent draw — joined by `-separator` (default a newline, so values land one
-per line). Not sure what a data set offers? `-list` prints every path you can ask
-for; `-version` prints the build version.
+Flags are GNU-style: `--name value` or `--name=value`, short aliases `-d`, `-n`,
+`-s`, `-h`, in any position; `--` ends the flags. `--data-path` is repeatable
+(last wins a name clash). `--repeat N` renders the path N times — each an
+independent draw — joined by `--separator` (default a newline, so values land one
+per line). Not sure what a data set offers? `--list` prints every path you can ask
+for; `--version` prints the build version.
 
 Without installing, run it from a checkout with `go run ./cmd/fejkdata …`. Exit
-codes: `0` success (including `-list`, `-version`, `-h`), `1` runtime error
+codes: `0` success (including `--list`, `--version`, `--help`), `1` runtime error
 (missing dir, unknown path), `2` misuse.
 
 ### Generating a file from a custom template
@@ -78,15 +79,15 @@ the `),(` separator; the outer `V#ALUES(…)` wraps that into one valid row list
 letter token — see [Data format](#data-format).)
 
 ```sh
-fejkdata -seed 1 -data-path ./data/sv_SE sql
+fejkdata --seed 1 --data-path ./data/sv_SE sql
 # INSERT INTO users VALUES('zoom'),('wahoo'),('blip');
 ```
 
 Raise the template's `repeat` for more rows per statement; use the CLI's
-`-repeat` for more statements — together they build a whole seed file:
+`--repeat` for more statements — together they build a whole seed file:
 
 ```sh
-fejkdata -repeat 100 -data-path ./data/sv_SE sql > seed.sql
+fejkdata --repeat 100 --data-path ./data/sv_SE sql > seed.sql
 ```
 
 ## Library
@@ -145,7 +146,7 @@ av == bv // true
 ```
 
 `f.List()` returns the sorted paths the loaded data offers — the categories, their
-dotted fields and folder segments (what the CLI's `-list` prints). Every path it
+dotted fields and folder segments (what the CLI's `--list` prints). Every path it
 lists renders.
 
 A `*Generator` is **not** safe for concurrent use — create one per goroutine.
