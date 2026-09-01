@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 )
 
 // engine builds a seeded faker with no loaded categories, for rendering tests.
-func engine(seed uint64) *Fakes { return &Fakes{rand: newRand(seed, true)} }
+func engine(seed uint64) *Fejkdata { return &Fejkdata{rand: newRand(seed, true)} }
 
 // parse unmarshals a JSON template fragment into its dynamic form.
 func parse(t *testing.T, s string) any {
@@ -30,7 +30,7 @@ func compiled(t *testing.T, s string) node {
 	return n
 }
 
-func mustRender(t *testing.T, f *Fakes, s string) string {
+func mustRender(t *testing.T, f *Fejkdata, s string) string {
 	t.Helper()
 	return render(f.rand, compiled(t, s))
 }

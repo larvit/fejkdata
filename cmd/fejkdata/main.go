@@ -1,12 +1,12 @@
-// Command fakes prints one fake value from one or more data directories.
+// Command fejkdata prints one fake value from one or more data directories.
 //
-//	fakes -data-path ./data/sv_SE person                     # a full person
-//	fakes -data-path ./data/sv_SE person.last                # just the surname (dotted path)
-//	fakes -data-path ./data sv_SE.person                     # point at the tree, address by folder
-//	fakes -data-path ./data/sv_SE -data-path ./mydata person # layer custom data; last dir wins
-//	fakes -seed 42 -data-path ./data/sv_SE address
+//	fejkdata -data-path ./data/sv_SE person                     # a full person
+//	fejkdata -data-path ./data/sv_SE person.last                # just the surname (dotted path)
+//	fejkdata -data-path ./data sv_SE.person                     # point at the tree, address by folder
+//	fejkdata -data-path ./data/sv_SE -data-path ./mydata person # layer custom data; last dir wins
+//	fejkdata -seed 42 -data-path ./data/sv_SE address
 //
-// It is a thin CLI over the fakes library: New(dirs) then Fake(path).
+// It is a thin CLI over the fejkdata library: New(dirs) then Fake(path).
 package main
 
 import (
@@ -18,10 +18,10 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/Timewave-AB/fakes"
+	"gitea.larvit.se/larvit/fejkdata"
 )
 
-const usage = `Usage: fakes -data-path D [-data-path D]... [-seed N] [-repeat N] [-separator S] <path>
+const usage = `Usage: fejkdata -data-path D [-data-path D]... [-seed N] [-repeat N] [-separator S] <path>
 
   -data-path D  a data directory, e.g. ./data/sv_SE (repeatable; last wins on clash)
   <path>        a category, or a dotted path into one (person, person.last)
@@ -45,7 +45,7 @@ func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 // run is main's testable core: it returns the process exit code (0 ok, 1
 // runtime error, 2 misuse) and writes only to the given streams.
 func run(args []string, stdout, stderr io.Writer) int {
-	fs := flag.NewFlagSet("fakes", flag.ContinueOnError)
+	fs := flag.NewFlagSet("fejkdata", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	fs.Usage = func() { fmt.Fprintln(stderr, usage) }
 	seed := fs.Uint64("seed", 0, "seed for reproducible output")
@@ -62,7 +62,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	if *showVersion {
-		fmt.Fprintln(stdout, "fakes "+buildVersion())
+		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
 	if len(dirs) == 0 {
@@ -70,15 +70,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	var opts []fakes.Option
+	var opts []fejkdata.Option
 	fs.Visit(func(fl *flag.Flag) {
 		if fl.Name == "seed" {
-			opts = append(opts, fakes.WithSeed(*seed))
+			opts = append(opts, fejkdata.WithSeed(*seed))
 		}
 	})
 
 	if *list {
-		f, err := fakes.New(dirs, opts...)
+		f, err := fejkdata.New(dirs, opts...)
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
@@ -98,7 +98,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	path := fs.Arg(0)
-	f, err := fakes.New(dirs, opts...)
+	f, err := fejkdata.New(dirs, opts...)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1

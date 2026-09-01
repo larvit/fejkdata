@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"os"
@@ -21,7 +21,7 @@ func TestList(t *testing.T) {
 		// Only the fields every variant carries are addressable, so "extra" is not.
 		"coin": `[{"format":"{code}","code":["A"],"name":["Aa"]},{"format":"{code}","code":["B"],"name":["Bb"],"extra":["x"]}]`,
 	})
-	got := newFakes(t, dir, WithSeed(1)).List()
+	got := newFejkdata(t, dir, WithSeed(1)).List()
 	want := []string{"coin", "coin.code", "coin.name", "geo.city", "greeting", "greeting.own", "person", "person.first", "person.last", "word"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("List() = %v, want %v", got, want)
@@ -50,7 +50,7 @@ func writeData(t *testing.T, files map[string]string) string {
 func TestNewLoadsAnyDirName(t *testing.T) {
 	// No locale tag required: a directory named anything loads fine.
 	dir := writeData(t, map[string]string{"greeting": `["hej", "hallå"]`})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "greeting"); got != "hej" && got != "hallå" {
 		t.Fatalf("greeting = %q, want hej or hallå", got)
 	}
@@ -69,7 +69,7 @@ func TestFoldersBecomeDotPaths(t *testing.T) {
 		"sv_SE/greeting": `["hej"]`,
 		"en_US/greeting": `["hi"]`,
 	})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "hej" {
 		t.Fatalf("sv_SE.greeting = %q, want hej", got)
 	}
@@ -84,7 +84,7 @@ func TestNestedFoldersAndJSON(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"a/b/c/thing": `{"format":"{x}","x":{"format":"{y}","y":{"format":"{z}","z":["leaf"]}}}`,
 	})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	// Folders a.b.c, file thing, then JSON fields x.y.z — one continuous path.
 	if got := fake(t, f, "a.b.c.thing.x.y.z"); got != "leaf" {
 		t.Fatalf("a.b.c.thing.x.y.z = %q, want leaf", got)
@@ -97,7 +97,7 @@ func TestNestedFoldersAndJSON(t *testing.T) {
 
 func TestRenderingAFolderErrors(t *testing.T) {
 	dir := writeData(t, map[string]string{"sv_SE/greeting": `["hej"]`})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if _, err := f.Fake("sv_SE"); err == nil {
 		t.Fatal("Fake(folder) = nil error, want a not-a-value error")
 	}
@@ -108,7 +108,7 @@ func TestRenderingAFolderErrors(t *testing.T) {
 func TestMultiPathLastWins(t *testing.T) {
 	a := writeData(t, map[string]string{"greeting": `["from-a"]`, "only-a": `["a"]`})
 	b := writeData(t, map[string]string{"greeting": `["from-b"]`, "only-b": `["b"]`})
-	f := newFakesN(t, []string{a, b}, WithSeed(1))
+	f := newFejkdataN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "greeting"); got != "from-b" {
 		t.Fatalf("greeting = %q, want from-b (last loaded wins)", got)
 	}
@@ -126,7 +126,7 @@ func TestMultiPathLastWins(t *testing.T) {
 func TestMultiPathMergesFolders(t *testing.T) {
 	a := writeData(t, map[string]string{"sv_SE/person": `["from-a"]`, "sv_SE/shared": `["a"]`})
 	b := writeData(t, map[string]string{"sv_SE/company": `["from-b"]`, "sv_SE/shared": `["b"]`})
-	f := newFakesN(t, []string{a, b}, WithSeed(1))
+	f := newFejkdataN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "sv_SE.person"); got != "from-a" {
 		t.Fatalf("sv_SE.person = %q, want from-a (folder merged, not replaced)", got)
 	}
@@ -142,7 +142,7 @@ func TestMultiPathMergesFolders(t *testing.T) {
 // tree: everything List advertises renders, every time, and the sub-fields the
 // README advertises are discoverable.
 func TestListedPathsAllRender(t *testing.T) {
-	f := newFakes(t, "data", WithSeed(4))
+	f := newFejkdata(t, "data", WithSeed(4))
 	paths := f.List()
 	for _, p := range paths {
 		for i := 0; i < 20; i++ {
@@ -171,7 +171,7 @@ func TestHiddenEntriesAreSkipped(t *testing.T) {
 	if err := os.Rename(filepath.Join(dir, "empty.folder", "doc.json"), filepath.Join(dir, "empty.folder", "doc.txt")); err != nil {
 		t.Fatal(err)
 	}
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "cat"); got != "V" {
 		t.Fatalf("cat = %q, want V", got)
 	}

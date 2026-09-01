@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"fmt"
@@ -17,13 +17,13 @@ type rng interface {
 // names and the category (JSON file) come first, then named fields within it,
 // e.g. "sv_SE.address" or "sv_SE.address.street". Choices along the way are
 // resolved at random. A path naming a folder (no value of its own) is an error.
-func (f *Fakes) Fake(path string) (string, error) {
+func (f *Fejkdata) Fake(path string) (string, error) {
 	n, err := descend(f.rand, &group{children: f.categories}, strings.Split(path, "."))
 	if err != nil {
-		return "", fmt.Errorf("fakes: %s: %w", path, err)
+		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
 	if _, ok := n.(*group); ok {
-		return "", fmt.Errorf("fakes: %s names a folder, not a value", path)
+		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
 	return render(f.rand, n), nil
 }
@@ -101,7 +101,7 @@ func render(s *session, n node) string {
 		}
 		return b.String()
 	default:
-		panic(fmt.Sprintf("fakes: uncompiled node %T", n))
+		panic(fmt.Sprintf("fejkdata: uncompiled node %T", n))
 	}
 }
 
@@ -225,11 +225,11 @@ func readField(s *session, t *template, held *draws, a arm) string {
 func child(n node, seg string) node {
 	t, ok := n.(*template)
 	if !ok {
-		panic(fmt.Sprintf("fakes: %q under %T, which carries no fields", seg, n))
+		panic(fmt.Sprintf("fejkdata: %q under %T, which carries no fields", seg, n))
 	}
 	c, ok := t.fields[seg]
 	if !ok {
-		panic(fmt.Sprintf("fakes: no field %q under a drawn level", seg))
+		panic(fmt.Sprintf("fejkdata: no field %q under a drawn level", seg))
 	}
 	return c
 }

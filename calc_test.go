@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"fmt"
@@ -126,7 +126,7 @@ func TestCalcOperandReadsTheExpansionsDraw(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"inv": `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
 	})
-	f := newFakes(t, dir, WithSeed(3))
+	f := newFejkdata(t, dir, WithSeed(3))
 	for i := 0; i < 300; i++ {
 		got := fake(t, f, "inv")
 		var net, qty, want float64
@@ -145,7 +145,7 @@ func TestCalcOperandSharesOneDraw(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"same": `{"format":"{w} {w} {calc(w)}","w":["1","2","3","4","5"]}`,
 	})
-	f := newFakes(t, dir, WithSeed(5))
+	f := newFejkdata(t, dir, WithSeed(5))
 	for i := 0; i < 200; i++ {
 		got := fake(t, f, "same")
 		if p := strings.Fields(got); len(p) != 3 || p[0] != p[1] || p[0] != p[2] {
@@ -158,7 +158,7 @@ func TestCalcOperandSharesOneDraw(t *testing.T) {
 // held, so an ordinary {w} {w} still draws twice.
 func TestFieldNoCalcReadsDrawsEachTime(t *testing.T) {
 	dir := writeData(t, map[string]string{"two": `{"format":"{w} {w}","w":["1","2","3","4","5"]}`})
-	f := newFakes(t, dir, WithSeed(5))
+	f := newFejkdata(t, dir, WithSeed(5))
 	for i := 0; i < 200; i++ {
 		if p := strings.Fields(fake(t, f, "two")); p[0] != p[1] {
 			return
@@ -173,7 +173,7 @@ func TestCalcHoldIsPerExpansion(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"rep": `{"format":"{n}={calc(n * 1)}","repeat":8,"separator":" ","n":["2","3","4","5","6","7","8","9"]}`,
 	})
-	f := newFakes(t, dir, WithSeed(11))
+	f := newFejkdata(t, dir, WithSeed(11))
 	varied := false
 	for i := 0; i < 50; i++ {
 		got := fake(t, f, "rep")
@@ -199,7 +199,7 @@ func TestCalcHoldIsPerTemplate(t *testing.T) {
 		"nest": `{"format":"{v}={calc(v * 1)} {inner}","v":["2","3","4","5","6","7","8","9"],
 			"inner":{"format":"{v}={calc(v * 1)}","v":["2","3","4","5","6","7","8","9"]}}`,
 	})
-	f := newFakes(t, dir, WithSeed(13))
+	f := newFejkdata(t, dir, WithSeed(13))
 	differed := false
 	for i := 0; i < 200; i++ {
 		got := fake(t, f, "nest")

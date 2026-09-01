@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"regexp"
@@ -51,8 +51,8 @@ func TestShippedDataCategories(t *testing.T) {
 			regexp.MustCompile(`^\d{1,3}( \d{3})?(,\d{2})? kr$`)},
 	}
 
-	en := newFakes(t, "data/en_US", WithSeed(1))
-	sv := newFakes(t, "data/sv_SE", WithSeed(1))
+	en := newFejkdata(t, "data/en_US", WithSeed(1))
+	sv := newFejkdata(t, "data/sv_SE", WithSeed(1))
 	for _, c := range cases {
 		for i := 0; i < 200; i++ {
 			if v := fake(t, en, c.path); !c.en.MatchString(v) {
@@ -69,7 +69,7 @@ func TestShippedDataCategories(t *testing.T) {
 // v4 UUID (version/variant nibbles fixed), a MAC address, and credit-card numbers
 // whose trailing {luhn()} check passes.
 func TestShippedMiscCategories(t *testing.T) {
-	f := newFakes(t, "data/misc", WithSeed(1))
+	f := newFejkdata(t, "data/misc", WithSeed(1))
 	v4 := regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 	mac := regexp.MustCompile(`^([0-9a-f]{2}:){5}[0-9a-f]{2}$`)
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
@@ -93,7 +93,7 @@ func TestShippedMiscCategories(t *testing.T) {
 // codes follow their standard shape, dotted sub-paths resolve, emoji is a real
 // glyph, and a coordinate parses to a point within geographic bounds.
 func TestShippedMiscReferenceData(t *testing.T) {
-	f := newFakes(t, "data/misc", WithSeed(1))
+	f := newFejkdata(t, "data/misc", WithSeed(1))
 	re := map[string]*regexp.Regexp{
 		"currency":        regexp.MustCompile(`^[A-Z]{3}$`),
 		"currency.name":   regexp.MustCompile(`\p{L}`),
@@ -134,7 +134,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 // TestSwedishPersonNamesHaveNoTripleLetter pins an orthographic rule the shape
 // regexes miss: no generated name repeats a character three times over.
 func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
-	f := newFakes(t, "data/sv_SE", WithSeed(11))
+	f := newFejkdata(t, "data/sv_SE", WithSeed(11))
 	for _, path := range []string{"person", "person.last"} {
 		for i := 0; i < 20000; i++ {
 			name := fake(t, f, path)
@@ -152,7 +152,7 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 // is a real calendar date (so month-length variants never emit e.g. Apr 31 or
 // Feb 30) and the trailing digit is a valid Luhn checksum over the other nine.
 func TestSwedishPersonnummer(t *testing.T) {
-	sv := newFakes(t, "data/sv_SE", WithSeed(1))
+	sv := newFejkdata(t, "data/sv_SE", WithSeed(1))
 	sawLongMonthEnd := false
 	for i := 0; i < 2000; i++ {
 		v := fake(t, sv, "ssn")
@@ -176,7 +176,7 @@ func TestSwedishPersonnummer(t *testing.T) {
 }
 
 func TestShippedSwedishPhone(t *testing.T) {
-	f := newFakes(t, "data/sv_SE", WithSeed(11))
+	f := newFejkdata(t, "data/sv_SE", WithSeed(11))
 	re := regexp.MustCompile(`^0\d{1,2}-\d{3} \d{2} \d{2}$`)
 	for i := 0; i < 50; i++ {
 		if n := fake(t, f, "phone"); !re.MatchString(n) {
@@ -186,7 +186,7 @@ func TestShippedSwedishPhone(t *testing.T) {
 }
 
 func TestShippedSwedishAddress(t *testing.T) {
-	f := newFakes(t, "data/sv_SE", WithSeed(3))
+	f := newFejkdata(t, "data/sv_SE", WithSeed(3))
 	digit := regexp.MustCompile(`\d`)
 	for i := 0; i < 30; i++ {
 		a := fake(t, f, "address")
@@ -205,7 +205,7 @@ func TestShippedSwedishAddress(t *testing.T) {
 
 func TestShippedPersonHasParts(t *testing.T) {
 	for _, dir := range []string{"data/sv_SE", "data/en_US"} {
-		f := newFakes(t, dir, WithSeed(7))
+		f := newFejkdata(t, dir, WithSeed(7))
 		for i := 0; i < 30; i++ {
 			if name := fake(t, f, "person"); len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
 				t.Fatalf("%s person %q lacks first and last name", dir, name)
@@ -215,7 +215,7 @@ func TestShippedPersonHasParts(t *testing.T) {
 }
 
 func TestShippedUSPhone(t *testing.T) {
-	f := newFakes(t, "data/en_US", WithSeed(11))
+	f := newFejkdata(t, "data/en_US", WithSeed(11))
 	re := regexp.MustCompile(`^(\(\d{3}\) \d{3}-\d{4}|\d{3}-\d{3}-\d{4})$`)
 	for i := 0; i < 50; i++ {
 		if n := fake(t, f, "phone"); !re.MatchString(n) {
@@ -227,7 +227,7 @@ func TestShippedUSPhone(t *testing.T) {
 // TestShippedNamespacedTree loads the whole data/ tree (not a single locale) and
 // reaches each locale through its folder segment: data/sv_SE/person -> sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
-	f := newFakes(t, "data", WithSeed(1))
+	f := newFejkdata(t, "data", WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {
 		if got := fake(t, f, path); got == "" {
 			t.Fatalf("Fake(%q) returned empty", path)

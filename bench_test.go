@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func benchFaker(b *testing.B, dir string) *Fakes {
+func benchFaker(b *testing.B, dir string) *Fejkdata {
 	b.Helper()
 	f, err := New([]string{dir}, WithSeed(1))
 	if err != nil {

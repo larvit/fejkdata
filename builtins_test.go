@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"encoding/base64"

@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func (n calcIdx) eval(operands []string) float64 {
 // than returning NaN, so a node kind indexVars forgets is a stack trace and not a
 // silently wrong number.
 func (n calcVar) eval([]string) float64 {
-	panic(fmt.Sprintf("fakes: calc operand %q was never placed", string(n)))
+	panic(fmt.Sprintf("fejkdata: calc operand %q was never placed", string(n)))
 }
 
 func (n calcNeg) eval(operands []string) float64 { return -n.x.eval(operands) }
@@ -98,7 +98,7 @@ func checkCalc(fields map[string]node, args []string) error {
 func calcPrep(args []string) callFn {
 	expr, err := parseCalc(args[0])
 	if err != nil { // a nil AST would be a nil dereference per render, with no message
-		panic(fmt.Sprintf("fakes: calc(%q) reached prep unparsed: %v", args[0], err))
+		panic(fmt.Sprintf("fejkdata: calc(%q) reached prep unparsed: %v", args[0], err))
 	}
 	at := make(map[string]int)
 	for i, name := range calcVars(expr) {
@@ -121,7 +121,7 @@ func indexVars(n calcNode, at map[string]int) calcNode {
 	case calcVar:
 		i, placed := at[string(n)]
 		if !placed { // calcVars named every operand, so a miss means the two disagree
-			panic(fmt.Sprintf("fakes: calc operand %q is not among the names read for it", string(n)))
+			panic(fmt.Sprintf("fejkdata: calc operand %q is not among the names read for it", string(n)))
 		}
 		return calcIdx(i)
 	case calcNeg:

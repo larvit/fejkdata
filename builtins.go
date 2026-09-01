@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import (
 	"encoding/base64"
@@ -97,7 +97,7 @@ const hexDigits = "0123456789abcdef"
 func atoi(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {
-		panic(fmt.Sprintf("fakes: builtin arg %q reached prep unvalidated: %v", s, err))
+		panic(fmt.Sprintf("fejkdata: builtin arg %q reached prep unvalidated: %v", s, err))
 	}
 	return n
 }
@@ -106,7 +106,7 @@ func atoi(s string) int {
 func atof(s string) float64 {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		panic(fmt.Sprintf("fakes: builtin arg %q reached prep unvalidated: %v", s, err))
+		panic(fmt.Sprintf("fejkdata: builtin arg %q reached prep unvalidated: %v", s, err))
 	}
 	return f
 }

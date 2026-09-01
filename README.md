@@ -1,4 +1,6 @@
-# fakes
+# fejkdata
+
+Forked from [github.com/Timewave-AB/fakes](https://github.com/Timewave-AB/fakes).
 
 A Go library and CLI for generating fake data, built for
 **internationalization**. It exists because the existing Go fake libraries
@@ -26,21 +28,21 @@ lacked the locale coverage and format control we needed.
 
 ## CLI
 
-Install the `fakes` command, then give it one or more `-data-path` directories
+Install the `fejkdata` command, then give it one or more `-data-path` directories
 and a path — it prints one value to stdout. Each dot segment descends one level:
 folders, then the category (a JSON file), then fields inside it.
 
 ```sh
-go install github.com/Timewave-AB/fakes/cmd/fakes@latest
+go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
 
-fakes -data-path ./data/sv_SE person               # Sara Eriksson
-fakes -data-path ./data/sv_SE person.last          # Eriksson  (dotted path into a category)
-fakes -data-path ./data sv_SE.person               # point at the tree; the folder is a segment
-fakes -data-path ./data/sv_SE -data-path ./mydata word  # layer dirs; the last wins a name clash
-fakes -seed 42 -data-path ./data/sv_SE address
-fakes -repeat 3 -data-path ./data/sv_SE person             # three values, one per line
-fakes -repeat 3 -separator ', ' -data-path ./data/sv_SE word  # nät, barn, sol
-fakes -data-path ./data/sv_SE -list                        # every path this data offers
+fejkdata -data-path ./data/sv_SE person               # Sara Eriksson
+fejkdata -data-path ./data/sv_SE person.last          # Eriksson  (dotted path into a category)
+fejkdata -data-path ./data sv_SE.person               # point at the tree; the folder is a segment
+fejkdata -data-path ./data/sv_SE -data-path ./mydata word  # layer dirs; the last wins a name clash
+fejkdata -seed 42 -data-path ./data/sv_SE address
+fejkdata -repeat 3 -data-path ./data/sv_SE person             # three values, one per line
+fejkdata -repeat 3 -separator ', ' -data-path ./data/sv_SE word  # nät, barn, sol
+fejkdata -data-path ./data/sv_SE -list                        # every path this data offers
 ```
 
 `-data-path` is repeatable (last wins a name clash) and the path comes last —
@@ -49,7 +51,7 @@ independent draw — joined by `-separator` (default a newline, so values land o
 per line). Not sure what a data set offers? `-list` prints every path you can ask
 for; `-version` prints the build version.
 
-Without installing, run it from a checkout with `go run ./cmd/fakes …`. Exit
+Without installing, run it from a checkout with `go run ./cmd/fejkdata …`. Exit
 codes: `0` success (including `-list`, `-version`, `-h`), `1` runtime error
 (missing dir, unknown path), `2` misuse.
 
@@ -76,7 +78,7 @@ the `),(` separator; the outer `V#ALUES(…)` wraps that into one valid row list
 letter token — see [Data format](#data-format).)
 
 ```sh
-fakes -seed 1 -data-path ./data/sv_SE sql
+fejkdata -seed 1 -data-path ./data/sv_SE sql
 # INSERT INTO users VALUES('zoom'),('wahoo'),('blip');
 ```
 
@@ -84,13 +86,13 @@ Raise the template's `repeat` for more rows per statement; use the CLI's
 `-repeat` for more statements — together they build a whole seed file:
 
 ```sh
-fakes -repeat 100 -data-path ./data/sv_SE sql > seed.sql
+fejkdata -repeat 100 -data-path ./data/sv_SE sql > seed.sql
 ```
 
 ## Library
 
 ```sh
-go get github.com/Timewave-AB/fakes   # requires Go 1.22+ (for math/rand/v2)
+go get gitea.larvit.se/larvit/fejkdata   # requires Go 1.22+ (for math/rand/v2)
 ```
 
 Point `New` at one or more data directories, then generate values by path with
@@ -104,11 +106,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Timewave-AB/fakes"
+	"gitea.larvit.se/larvit/fejkdata"
 )
 
 func main() {
-	f, err := fakes.New([]string{"./data/sv_SE"})
+	f, err := fejkdata.New([]string{"./data/sv_SE"})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,8 +137,8 @@ Seed a faker for reproducible output — same seed + locale yields an identical
 sequence, handy for stable tests:
 
 ```go
-a, _ := fakes.New([]string{"./data/sv_SE"}, fakes.WithSeed(42))
-b, _ := fakes.New([]string{"./data/sv_SE"}, fakes.WithSeed(42))
+a, _ := fejkdata.New([]string{"./data/sv_SE"}, fejkdata.WithSeed(42))
+b, _ := fejkdata.New([]string{"./data/sv_SE"}, fejkdata.WithSeed(42))
 av, _ := a.Fake("person")
 bv, _ := b.Fake("person")
 av == bv // true
@@ -146,7 +148,7 @@ av == bv // true
 dotted fields and folder segments (what the CLI's `-list` prints). Every path it
 lists renders.
 
-A `*Fakes` is **not** safe for concurrent use — create one per goroutine.
+A `*Fejkdata` is **not** safe for concurrent use — create one per goroutine.
 
 ## Data
 
@@ -167,7 +169,7 @@ by their children, and any other clash is won by the last directory loaded. That
 lets you layer your own data over the built-ins without copying them:
 
 ```go
-fakes.New([]string{"./data/sv_SE", "./mydata"}) // mydata overrides on a clash
+fejkdata.New([]string{"./data/sv_SE", "./mydata"}) // mydata overrides on a clash
 ```
 
 Each shipped locale carries these categories, formatted per locale (e.g. `date`
@@ -510,7 +512,7 @@ docker compose run --rm test                      # latest
 ## Layout
 
 ```
-fakes.go        Fakes, New, List, options, seeding
+fejkdata.go     Fejkdata, New, List, options, seeding
 node.go         the node model and JSON -> node compilation
 render.go       Fake and the recursive renderer (choices, format strings, paths, bound draws)
 template.go     the {token} grammar: scanning, function and path tokens, validation
@@ -518,7 +520,7 @@ reference.go    {..path} binding across the tree, the render graph, and the walk
 builtins.go     the {name()} function registry and its implementations
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
 data.go         data loading: folders/files -> namespace tree, multi-path merge
-cmd/fakes/      the `fakes` CLI (New + Fake/List over stdout)
+cmd/fejkdata/   the `fejkdata` CLI (New + Fake/List over stdout)
 data/           shipped data (JSON): locale folders + a misc folder
 ```
 

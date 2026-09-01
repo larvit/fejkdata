@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import "testing"
 
@@ -31,7 +31,7 @@ func TestSeededOutputIsStable(t *testing.T) {
 		"weights": {"big", "big", "big", "big"},
 	}
 	for path := range want {
-		f := newFakes(t, dir, WithSeed(42))
+		f := newFejkdata(t, dir, WithSeed(42))
 		for i, expect := range want[path] {
 			if got := fake(t, f, path); got != expect {
 				t.Errorf("%s draw %d = %q, want %q", path, i, got, expect)

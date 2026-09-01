@@ -1,4 +1,4 @@
-package fakes
+package fejkdata
 
 import "testing"
 
@@ -9,7 +9,7 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 		"en_US/person":   `["Pat Smith"]`,
 		"sv_SE/greeting": `{"format":"Hej, {..en_US.person}!"}`,
 	})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
 		t.Fatalf("greeting = %q, want \"Hej, Pat Smith!\"", got)
 	}
@@ -22,7 +22,7 @@ func TestReferenceIntoAField(t *testing.T) {
 		"who":  `[{"format":"{first} {last}","first":["Ada"],"last":["Byron"]}]`,
 		"card": `{"format":"signed {..who.last}"}`,
 	})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "card"); got != "signed Byron" {
 		t.Fatalf("card = %q, want \"signed Byron\"", got)
 	}
@@ -35,7 +35,7 @@ func TestReferenceInAlternation(t *testing.T) {
 		"far":  `["X"]`,
 		"near": `{"format":"{here|..far}","here":["H"]}`,
 	})
-	f := newFakes(t, dir, WithSeed(2))
+	f := newFejkdata(t, dir, WithSeed(2))
 	seen := map[string]bool{}
 	for i := 0; i < 100; i++ {
 		seen[fake(t, f, "near")] = true
@@ -50,7 +50,7 @@ func TestReferenceInAlternation(t *testing.T) {
 func TestReferenceCombinesLoadedPaths(t *testing.T) {
 	a := writeData(t, map[string]string{"en_US/word": `["river"]`})
 	b := writeData(t, map[string]string{"mine/slug": `{"format":"the-{..en_US.word}"}`})
-	f := newFakesN(t, []string{a, b}, WithSeed(1))
+	f := newFejkdataN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "mine.slug"); got != "the-river" {
 		t.Fatalf("slug = %q, want the-river", got)
 	}
@@ -64,7 +64,7 @@ func TestReferenceChain(t *testing.T) {
 		"b": `{"format":"{..c}"}`,
 		"c": `["deep"]`,
 	})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "a"); got != "deep" {
 		t.Fatalf("a = %q, want deep", got)
 	}
@@ -118,7 +118,7 @@ func TestReferenceErrors(t *testing.T) {
 // starting with the reference prefix is covered by that same rule, since ".."
 // starts with "." — it is skipped, not rejected.
 func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
-	f := newFakes(t, writeData(t, map[string]string{
+	f := newFejkdata(t, writeData(t, map[string]string{
 		"sv_SE/ok":     `["fine"]`,
 		"sv_SE/..bad":  `{"format":"{..nope}"}`,
 		"sv_SE/..y/ct": `{"format":"{..nope}"}`,
@@ -134,7 +134,7 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 // category, which terminates, and stays renderable by path.
 func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
 	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":{"format":"see {..cat}"}}`})
-	f := newFakes(t, dir, WithSeed(1))
+	f := newFejkdata(t, dir, WithSeed(1))
 	if got := fake(t, f, "cat"); got != "hi" {
 		t.Fatalf("cat = %q, want hi", got)
 	}
@@ -189,12 +189,12 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		{
 			"cycle inside a choice arm",
 			map[string]string{"cat": `[{"format":"hi","x":{"format":"{..cat.x}"}}]`},
-			"fakes: reference cycle: cat.x -> ..cat.x",
+			"fejkdata: reference cycle: cat.x -> ..cat.x",
 		},
 		{
 			"bad reference reached through another reference",
 			map[string]string{"a": `{"format":"{..b}"}`, "b": `{"format":"{..nope}"}`},
-			`fakes: b: reference {..nope}: no entry "nope"`,
+			`fejkdata: b: reference {..nope}: no entry "nope"`,
 		},
 	}
 	for _, c := range cases {
