@@ -379,6 +379,7 @@ docker compose run --rm cover   # tests with coverage
 docker compose run --rm bench   # benchmarks
 docker compose run --rm build   # compile the library
 docker compose run --rm vet     # go vet
+docker compose run --rm cyclo   # cyclomatic complexity over 14 (test files excluded)
 docker compose run --rm dev     # interactive shell
 ```
 
@@ -391,7 +392,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 
 Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged. That build is the whole
-gate — vet, format check and tests — so run it locally before pushing:
+gate — vet, complexity, format check and tests — so run it locally before pushing:
 
 ```sh
 docker build .                                  # latest

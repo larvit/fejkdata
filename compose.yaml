@@ -42,6 +42,10 @@ services:
     <<: *go
     command: go vet ./...
 
+  cyclo:
+    <<: *go
+    command: go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test .
+
   build:
     <<: *go
     command: go build ./...

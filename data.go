@@ -87,42 +87,57 @@ func loadDir(src dataSource, dir string) (*group, error) {
 			continue
 		}
 		full := path.Join(dir, e.Name())
+		load := loadFile
 		if e.IsDir() {
-			child, err := loadDir(src, full)
-			if err != nil {
-				return nil, err
-			}
-			if len(child.children) == 0 {
-				continue
-			}
-			if err := checkName(e.Name()); err != nil {
-				return nil, fmt.Errorf("%s: folder %w", src.name(full), err)
-			}
-			g.children[e.Name()] = child
-			continue
+			load = loadFolder
 		}
-		if !strings.HasSuffix(e.Name(), ".json") {
-			continue
+		if err := load(src, g, full, e.Name()); err != nil {
+			return nil, err
 		}
-		name := strings.TrimSuffix(e.Name(), ".json")
-		if err := checkName(name); err != nil {
-			return nil, fmt.Errorf("%s: category %w", src.name(full), err)
-		}
-		b, err := fs.ReadFile(src.fsys, full)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", src.name(full), err)
-		}
-		var raw any
-		if err := json.Unmarshal(b, &raw); err != nil {
-			return nil, fmt.Errorf("%s: %w", src.name(full), err)
-		}
-		n, err := compile(raw)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", src.name(full), err)
-		}
-		g.children[name] = n
 	}
 	return g, nil
+}
+
+// loadFolder adds a subdirectory as a nested group, unless nothing under it is data.
+func loadFolder(src dataSource, g *group, full, name string) error {
+	child, err := loadDir(src, full)
+	if err != nil {
+		return err
+	}
+	if len(child.children) == 0 {
+		return nil
+	}
+	if err := checkName(name); err != nil {
+		return fmt.Errorf("%s: folder %w", src.name(full), err)
+	}
+	g.children[name] = child
+	return nil
+}
+
+// loadFile compiles a *.json file into a category named after it; any other file
+// is skipped.
+func loadFile(src dataSource, g *group, full, file string) error {
+	if !strings.HasSuffix(file, ".json") {
+		return nil
+	}
+	name := strings.TrimSuffix(file, ".json")
+	if err := checkName(name); err != nil {
+		return fmt.Errorf("%s: category %w", src.name(full), err)
+	}
+	b, err := fs.ReadFile(src.fsys, full)
+	if err != nil {
+		return fmt.Errorf("%s: %w", src.name(full), err)
+	}
+	var raw any
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return fmt.Errorf("%s: %w", src.name(full), err)
+	}
+	n, err := compile(raw)
+	if err != nil {
+		return fmt.Errorf("%s: %w", src.name(full), err)
+	}
+	g.children[name] = n
+	return nil
 }
 
 // mergeChildren overlays src onto dst. Two groups under the same key merge

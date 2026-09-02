@@ -181,29 +181,68 @@ func checkNoRepeatedItem(items []any) error {
 }
 
 func compileTemplate(m map[string]any) (node, error) {
-	format, ok := m["format"].(string)
-	if !ok {
-		return nil, fmt.Errorf("template object missing string \"format\"")
-	}
-	repeat, err := repeatOf(m)
+	o, err := readOptions(m)
 	if err != nil {
 		return nil, err
 	}
-	sep := ""
+	fields, err := compileFields(m)
+	if err != nil {
+		return nil, err
+	}
+	if len(fields) == 0 && o.repeat == 1 && !o.weighted {
+		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
+	}
+	if err := checkTokens(o.format, fields); err != nil {
+		return nil, err
+	}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator}
+	if err := t.compileFormat(); err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+// templateOptions is what a template object's option keys say.
+type templateOptions struct {
+	format    string
+	repeat    int
+	separator string
+	weighted  bool
+}
+
+func readOptions(m map[string]any) (templateOptions, error) {
+	var o templateOptions
+	format, ok := m["format"].(string)
+	if !ok {
+		return o, fmt.Errorf("template object missing string \"format\"")
+	}
+	o.format = format
+	repeat, err := repeatOf(m)
+	if err != nil {
+		return o, err
+	}
+	o.repeat = repeat
 	if sv, ok := m["separator"]; ok {
-		if sep, ok = sv.(string); !ok {
-			return nil, fmt.Errorf("separator must be a string, got %T", sv)
+		if o.separator, ok = sv.(string); !ok {
+			return o, fmt.Errorf("separator must be a string, got %T", sv)
 		}
 		if repeat == 1 {
-			return nil, fmt.Errorf("separator joins repeated renders, so it has no effect without a repeat above 1")
+			return o, fmt.Errorf("separator joins repeated renders, so it has no effect without a repeat above 1")
 		}
 	}
-	t := &template{format: format, fields: make(map[string]node, len(m)), repeat: repeat, separator: sep}
+	_, o.weighted = m["weight"]
+	return o, nil
+}
+
+// compileFields compiles every non-option key of a template object, in name order
+// so which of several bad fields is reported does not vary.
+func compileFields(m map[string]any) (map[string]node, error) {
+	fields := make(map[string]node, len(m))
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys) // so which of several bad fields is reported does not vary
+	sort.Strings(keys)
 	for _, k := range keys {
 		if isOption(k) {
 			continue
@@ -215,18 +254,9 @@ func compileTemplate(m map[string]any) (node, error) {
 		if err != nil {
 			return nil, fmt.Errorf("field %q: %w", k, err)
 		}
-		t.fields[k] = n
+		fields[k] = n
 	}
-	if _, weighted := m["weight"]; len(t.fields) == 0 && repeat == 1 && !weighted {
-		return nil, fmt.Errorf("an object holding only a format is a string; write %q", format)
-	}
-	if err := checkTokens(format, t.fields); err != nil {
-		return nil, err
-	}
-	if err := t.compileFormat(); err != nil {
-		return nil, err
-	}
-	return t, nil
+	return fields, nil
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format

@@ -15,7 +15,8 @@ type ftoken struct {
 
 // eachToken scans a format string once and calls fn for each unit, the single
 // source of truth for how braces are read: "{{" and "}}" are literal braces, a "{"
-// opens a token that must reach its "}", and a lone "}" is an error.
+// opens a token that must reach its "}", and a lone "}" is an error. A table-shaped
+// scanner, one case per rune kind, kept whole on purpose.
 func eachToken(format string, fn func(ftoken) error) error {
 	rs := []rune(format)
 	for i := 0; i < len(rs); i++ {

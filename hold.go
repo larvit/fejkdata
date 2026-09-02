@@ -19,57 +19,72 @@ func checkBoundLevelsHeld(root map[string]node) error {
 		if !ok || len(t.held) == 0 {
 			return nil
 		}
-		heads := make([]string, 0, len(t.held))
-		for head := range t.held {
-			heads = append(heads, head)
-		}
-		// Operand heads first, then paths, each in name order: a level read both
-		// ways is reported by the operand's fence, and which overlap is reported
-		// does not vary.
-		sort.Slice(heads, func(i, j int) bool {
-			_, pi := t.bound[heads[i]]
-			_, pj := t.bound[heads[j]]
-			if pi != pj {
-				return !pi
-			}
-			return heads[i] < heads[j]
-		})
 		readers := boundReaders(t.format, t.bound, t.refs)
-		for _, head := range heads {
-			// What one draw answers for depends on how the draw is read: a path pins
-			// the levels it passes through and the leaf it lands on, an operand
-			// exactly the value its render produces.
-			held := map[node]bool{}
-			reader, isPath := t.bound[head]
-			if isPath {
-				for _, r := range readers {
-					if a := splitArm(r.name, t.refs); a.key == head {
-						coverPath(t.fields[head], a.tail, held)
-					}
-				}
-			} else {
-				operandDraw(t.fields[head], held)
-			}
-			if len(held) == 0 {
-				continue // an early out: a fixed head holds nothing to reach
-			}
-			// One seen set across the edges: a node that cannot reach the level
-			// cannot reach it by another route either, so it is walked once here.
-			seen := map[node]bool{}
-			for _, e := range renderEdges(t) {
-				if splitArm(e.label, t.refs).key == head {
-					continue // a token or operand reading this draw, the routes allowed
-				}
-				if renders(e.to, held, seen) {
-					if isPath {
-						return fmt.Errorf("%s: %s renders %q, which {%s} reads a path into; name the fields you want instead", path, e.reached(), head, reader)
-					}
-					return fmt.Errorf("%s: %s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", path, e.reached(), head, operandReader(t, head))
-				}
+		for _, head := range heldHeads(t) {
+			if err := checkHeadHeld(t, head, readers); err != nil {
+				return fmt.Errorf("%s: %w", path, err)
 			}
 		}
 		return nil
 	})
+}
+
+// heldHeads lists a template's held names, operand heads first, then paths, each
+// in name order: a level read both ways is reported by the operand's fence, and
+// which overlap is reported does not vary.
+func heldHeads(t *template) []string {
+	heads := make([]string, 0, len(t.held))
+	for head := range t.held {
+		heads = append(heads, head)
+	}
+	sort.Slice(heads, func(i, j int) bool {
+		_, pi := t.bound[heads[i]]
+		_, pj := t.bound[heads[j]]
+		if pi != pj {
+			return !pi
+		}
+		return heads[i] < heads[j]
+	})
+	return heads
+}
+
+// pinned collects what the hold of head answers for: a path pins the levels it
+// passes through and the leaf it lands on, an operand exactly the value its render
+// produces.
+func pinned(t *template, head string, readers []reader) map[node]bool {
+	held := map[node]bool{}
+	if _, isPath := t.bound[head]; !isPath {
+		operandDraw(t.fields[head], held)
+		return held
+	}
+	for _, r := range readers {
+		if a := splitArm(r.name, t.refs); a.key == head {
+			coverPath(t.fields[head], a.tail, held)
+		}
+	}
+	return held
+}
+
+// checkHeadHeld rejects every route to what head's hold pins except the readers
+// holding it. One seen set across the edges: a node that cannot reach the level
+// cannot reach it by another route either, so it is walked once.
+func checkHeadHeld(t *template, head string, readers []reader) error {
+	held := pinned(t, head, readers)
+	if len(held) == 0 {
+		return nil // a fixed head holds nothing to reach
+	}
+	reader, isPath := t.bound[head]
+	seen := map[node]bool{}
+	for _, e := range renderEdges(t) {
+		if splitArm(e.label, t.refs).key == head || !renders(e.to, held, seen) {
+			continue
+		}
+		if isPath {
+			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), head, reader)
+		}
+		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), head, operandReader(t, head))
+	}
+	return nil
 }
 
 // operandReader names the builtin whose operand holds head.

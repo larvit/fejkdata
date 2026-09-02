@@ -13,6 +13,7 @@ RUN go mod download
 
 COPY . .
 RUN go vet ./... && \
+	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
 	{ unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
 	  { echo "unformatted files:"; echo "$unformatted"; exit 1; }; } && \
 	go test -race ./...
