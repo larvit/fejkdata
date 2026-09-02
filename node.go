@@ -41,11 +41,11 @@ type template struct {
 	fields    map[string]node
 	repeat    int
 	separator string
-	ops       []op              // format compiled once (see compileOps); what expand walks
-	grow      int               // minimum output size, to size the render buffer
-	fixed     bool              // no op varies, so every render is lit
-	lit       string            // the whole output when fixed
-	refs      map[string]string // each {..path} the format reads -> the head it is bound under
+	ops       []op                  // format compiled once (see compileOps); what expand walks
+	grow      int                   // minimum output size, to size the render buffer
+	fixed     bool                  // no op varies, so every render is lit
+	lit       string                // the whole output when fixed
+	refs      map[string]refBinding // each reference the format reads -> what it is bound to
 	// bound maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
@@ -208,9 +208,6 @@ func compileTemplate(m map[string]any) (node, error) {
 		if isOption(k) {
 			continue
 		}
-		if isRef(k) {
-			return nil, fmt.Errorf("field %q starts with %q, which is reserved for {..path} bindings", k, refPrefix)
-		}
 		if err := checkName(k); err != nil {
 			return nil, fmt.Errorf("field %w", err)
 		}
@@ -321,10 +318,10 @@ func weightOf(raw any) (float64, error) {
 
 // reservedInName is what a category, folder or field name may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
-// call and braces delimit the token. A name carrying one is reachable by no format,
-// so it is rejected where it is authored rather than at the token that cannot
-// reach it.
-const reservedInName = ".|({}"
+// call, braces delimit the token and '/' starts a reference. A name carrying one is
+// reachable by no format, so it is rejected where it is authored rather than at
+// the token that cannot reach it.
+const reservedInName = ".|({}/"
 
 // reservedList spells reservedInName for an error message, so the two cannot drift.
 var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")

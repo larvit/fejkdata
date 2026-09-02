@@ -162,7 +162,7 @@ type draws struct {
 }
 
 // readField renders one arm of a token. An arm's key is a sibling field or a
-// {..path} reference, which linkRefs bound into fields too. A name the expansion
+// {/path} reference, which linkRefs bound into fields too. A name the expansion
 // holds — a level some token addresses by dotted path, or a sibling a {calc()}
 // reads — is drawn once and kept, so {place.postal-code} and {place.locality} read
 // one row, either read twice gives one value, and a shown operand is the operand

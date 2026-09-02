@@ -129,10 +129,8 @@ func transformArg(fields map[string]node, a []string) error {
 		return err
 	}
 	if isRef(leaf) {
-		if leaf == refPrefix {
-			return fmt.Errorf("reference has no path")
-		}
-		return nil
+		_, _, err := refShape(leaf)
+		return err
 	}
 	return checkArm(leaf, fields)
 }

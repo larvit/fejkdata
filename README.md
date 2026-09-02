@@ -110,7 +110,7 @@ work with no data on disk. A directory is a namespace: each JSON file is a
 category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{` or `}`; dot-prefixed entries
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}` or `/`; dot-prefixed entries
 are skipped, so a data directory can also be a checkout.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
@@ -141,7 +141,7 @@ Every character is literal except a `{…}` token:
 | `{name.field}` | `field` of one draw of `name` ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
 | `{fn(args)}` | a builtin ([Functions](#functions)) |
-| `{..path}` | a node reached from the data root ([References](#references)) |
+| `{/path}`, `{.path}`, `{..path}` | a node reached from the data root, this file's folder, or the folder above ([References](#references)) |
 | `{{`, `}}` | a literal `{` or `}` |
 
 ```json
@@ -267,21 +267,25 @@ a mix.
 
 ### References
 
-`{..path}` renders a node from the **data root** — the path `Fake` takes, across
-every loaded source — so one category borrows another, even across folders or
-layered directories:
+A reference renders a node from elsewhere in the data — the path `Fake` takes,
+across every loaded source — so one category borrows another. The sigil says
+where the path starts, as in a filesystem: `{/en_US.person}` from the data root,
+`{.username}` from the folder this file sits in, `{..username}` from the folder
+above. `data/sv_SE/email.json` can therefore read its own locale's `username`
+without naming `sv_SE`:
 
 ```json
-"Hej, {..en_US.person}!"
+"Hej, {/en_US.person}!"
 ```
 
 Renders e.g. `Hej, Pat Smith!`. A reference into a category is held like a
-[correlated](#correlated-fields) path — `{..sv_SE.person.first} {..sv_SE.person.last}`
-name one person, `{lowercase(..sv_SE.person.first)}` reads that same draw — while
-a bare `{..misc.uuid} {..misc.uuid}` is two draws. Rejected at `New`: a path that
-is unknown, names a folder, or reads a field not every variant of a choice
-carries, and a reference that leads back to its own value, directly, mutually or
-through a chain.
+[correlated](#correlated-fields) path — `{.person.first} {.person.last}` name one
+person, `{lowercase(.person.first)}` reads that same draw, and `{.person.first}`
+beside `{/sv_SE.person.last}` in `sv_SE` is one person too — while a bare
+`{/misc.uuid} {/misc.uuid}` is two draws. Rejected at `New`: a path that is
+unknown, names a folder, has no folder above, or reads a field not every variant
+of a choice carries, and a reference that leads back to its own value, directly,
+mutually or through a chain.
 
 ### Correlated fields
 
@@ -315,8 +319,8 @@ The sub-fields stay addressable — `Fake("address.place.locality")` renders, an
 
 A name any token reads as a path (`{p.first}`) or as an operand (`{calc(net * 2)}`,
 `{uppercase(w)}`) is drawn **once per expansion**, and every other route to it —
-a bare `{p}`, a second bare `{w}`, `{..cat.net}`, a nested template rendering
-`{..cat.p.last}`, at any depth — is a load error naming the spelling to use. A
+a bare `{p}`, a second bare `{w}`, `{/cat.net}`, a nested template rendering
+`{/cat.p.last}`, at any depth — is a load error naming the spelling to use. A
 name nothing reads that way is drawn each time: `{word} {word}` differs. An
 expansion is one render of one format, so each `repeat` iteration and each nested
 template draws again.
@@ -351,11 +355,15 @@ tokens add cost in proportion to the output.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
-- **A bare reference draws each time; a reference path is held.** `{..p} {..p}`
-  is two draws, as `{word} {word}` is, while `{..p.first}` beside a nested template
-  rendering `{..p.first}` is a load error: a bare token is by contract an
+- **A bare reference draws each time; a reference path is held.** `{/p} {/p}`
+  is two draws, as `{word} {word}` is, while `{/p.first}` beside a nested template
+  rendering `{/p.first}` is a load error: a bare token is by contract an
   independent draw, a path pins its level, and any route into a pinned level from
   another expansion could show another row.
+- **Reference sigils follow the filesystem.** `/` is the root, `.` this file's
+  folder, `..` the folder above — what those spellings already mean to anyone who
+  has typed a path. A locale's files reach each other without naming the locale,
+  so a folder renames and copies without editing its references.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
@@ -398,7 +406,7 @@ fejkdata.go        Generator, New, options, the embedded data set, List
 node.go            the node model and JSON -> node compilation
 render.go          Fake and the recursive renderer (choices, format strings, paths, held draws)
 template.go        the {token} grammar: scanning, arms, operands, validation
-reference.go       {..path} binding across the tree, the render graph, and the walks over it
+reference.go       {/path} binding across the tree, the render graph, and the walks over it
 builtins.go        the {name()} function registry and its implementations
 calc.go            the {calc()} arithmetic evaluator: parser, eval, validation
 data.go            data loading: fs.FS folders/files -> namespace tree, multi-source merge

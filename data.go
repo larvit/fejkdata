@@ -31,7 +31,7 @@ func (s dataSource) name(p string) string {
 // keyed by its base name (address.json -> "address"); each subdirectory becomes a
 // nested group, so folders turn into dot-path segments. Sources merge left to right:
 // matching groups merge by their children, and any other clash is won by the last
-// source loaded. Once merged, linkRefs binds every {..path} reference against the
+// source loaded. Once merged, linkRefs binds every reference against the
 // final tree.
 func loadData(sources []dataSource) (map[string]node, error) {
 	root := map[string]node{}
