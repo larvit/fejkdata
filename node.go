@@ -149,8 +149,8 @@ func compileChoice(items []any) (node, error) {
 		}
 		c.cum = cum
 	}
-	// Safe to precompute: a choice's items come from one file, so no group can
-	// appear inside one, and neither mergeChildren nor linkRefs can reach in.
+	// Computed before linkRefs binds references into the items: a binding is keyed
+	// by a reference sigil, which paths skips, so the set is the same after.
 	c.shared = sharedPaths(c.items)
 	return c, nil
 }
@@ -227,43 +227,6 @@ func compileTemplate(m map[string]any) (node, error) {
 		return nil, err
 	}
 	return t, nil
-}
-
-// checkPath reports whether a token's dotted tail can address a node whichever way
-// the draw goes, by the reachability rule descend applies — a choice must carry
-// the whole remaining path in the set every variant shares — plus the
-// rules a held draw adds, which descend has no need of: a level a path reads may
-// not carry a repeat, and each variant answers for that itself. So a path that
-// validates here resolves on every render, and a typo is a New-time error.
-func checkPath(n node, tail []string, level string) error {
-	if len(tail) == 0 {
-		return nil
-	}
-	switch n := n.(type) {
-	case *template:
-		if n.repeat > 1 {
-			return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", level)
-		}
-		child, ok := n.fields[tail[0]]
-		if !ok {
-			return fmt.Errorf("no field %q", tail[0])
-		}
-		return checkPath(child, tail[1:], level+"."+tail[0])
-	case *choice:
-		if want := strings.Join(tail, "."); !n.shared[want] {
-			return unreachableInChoice(n, want)
-		}
-		// Reachability is settled; each variant still answers for itself, so a
-		// rule about the level (its repeat) holds behind a choice as in front.
-		for _, item := range n.items {
-			if err := checkPath(item, tail, level); err != nil {
-				return err
-			}
-		}
-		return nil
-	default:
-		return fmt.Errorf("cannot descend into %T at %q", n, tail[0])
-	}
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format

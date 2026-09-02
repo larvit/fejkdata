@@ -402,16 +402,19 @@ GO_VERSION=1.22.12 docker compose run --rm test # the same tests, without the im
 ## Layout
 
 ```
-fejkdata.go        Generator, New, options, the embedded data set, List
-node.go            the node model and JSON -> node compilation
-render.go          Fake and the recursive renderer (choices, format strings, paths, held draws)
-template.go        the {token} grammar: scanning, arms, operands, validation
-reference.go       {/path} binding across the tree, the render graph, and the walks over it
-builtins.go        the {name()} function registry and its implementations
-calc.go            the {calc()} arithmetic evaluator: parser, eval, validation
-data.go            data loading: fs.FS folders/files -> namespace tree, multi-source merge
-cmd/fejkdata/      the fejkdata CLI
-data/              shipped data (JSON), embedded at build: locale folders + a misc folder
+fejkdata.go     Generator, New, options, the embedded data set, List
+node.go         the node model and JSON -> node compilation
+path.go         the dotted-path walk, and proving a path resolves
+render.go       Fake and the recursive renderer (choices, format strings, expansions)
+template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
+hold.go         the hold: one draw per expansion for paths and operands, and its fences
+reference.go    reference sigils, and binding references across the tree
+graph.go        the render graph: edges, cycles, the repeat bound, tree walks
+builtins.go     the {name()} function registry and its implementations
+calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
+data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
+cmd/fejkdata/   the fejkdata CLI
+data/           shipped data (JSON), embedded at build: locale folders + a misc folder
 ```
 
 ## License

@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -229,98 +228,6 @@ func fieldTokens(format string) []string {
 	return names
 }
 
-// arm is one alternative of a {a|b} token or one operand, split into the key
-// naming the node in a template's fields (a sibling field, or the head a
-// reference is bound under) and the tail of a dotted path into it. A non-empty
-// tail is what makes the arm a bound draw: its head is drawn once per expansion
-// (see compileOps).
-type arm struct {
-	name  string // as written, and the key a bound draw's value is held under
-	key   string
-	tail  []string
-	steps []string // key per level passed through; the head and leaf hold their own
-}
-
-// splitArm splits one name into key and tail. refs maps a reference to what
-// linkRefs bound it to; before linking, a reference is whole.
-func splitArm(name string, refs map[string]refBinding) arm {
-	if isRef(name) {
-		b, bound := refs[name]
-		if !bound || len(b.tail) == 0 {
-			key := name
-			if bound {
-				key = b.key
-			}
-			return arm{name: name, key: key}
-		}
-		return pathArm(name, b.key, b.tail)
-	}
-	head, tail, dotted := strings.Cut(name, ".")
-	if !dotted {
-		return arm{name: name, key: name}
-	}
-	return pathArm(name, head, strings.Split(tail, "."))
-}
-
-func pathArm(name, key string, segs []string) arm {
-	var steps []string
-	for i := 0; i < len(segs)-1; i++ { // every level except the leaf's own
-		steps = append(steps, key+"."+strings.Join(segs[:i+1], "."))
-	}
-	return arm{name: name, key: key, tail: segs, steps: steps}
-}
-
-// checkNoOverlap rejects a format that both renders a level and reads a path into
-// it — {p} beside {p.first}, or {p.addr} beside {p.addr.city}. The path reads the
-// level's held draw while rendering the level expands it afresh, so their values
-// would disagree. Names are compared in sorted order, so which pair is reported
-// does not depend on where the tokens sit.
-func checkNoOverlap(format string, bound map[string]string, refs map[string]refBinding) error {
-	names := boundReaders(format, bound, refs)
-	// Stable over one format-order scan, so two readers of one name (a token and a
-	// calc operand both naming "p") are reported as the format writes them.
-	sort.SliceStable(names, func(i, j int) bool { return names[i].name < names[j].name })
-	for i, level := range names {
-		for _, path := range names[i+1:] {
-			if strings.HasPrefix(path.name, level.name+".") {
-				return fmt.Errorf("%s renders a level that {%s} reads a path into; name the fields you want instead", level.label, path.name)
-			}
-		}
-	}
-	return nil
-}
-
-// reader is one way a format reaches a bound field, and how to name that spelling.
-type reader struct{ name, label string }
-
-// boundReaders lists every way a format reaches a bound field, in the order the
-// format writes them. An operand renders its field, so it names a level exactly
-// as a token does; one scan finds both, which is what puts them in one order.
-func boundReaders(format string, bound map[string]string, refs map[string]refBinding) []reader {
-	var names []reader
-	_ = eachToken(format, func(t ftoken) error {
-		if t.kind != 'b' {
-			return nil
-		}
-		if fn, _, isFunc := funcCall(t.body); isFunc {
-			for _, operand := range tokenOperands(t.body) {
-				a := splitArm(operand, refs)
-				if _, isBound := bound[a.key]; isBound {
-					names = append(names, reader{a.name, fmt.Sprintf("%s operand %q", fn, operand)})
-				}
-			}
-			return nil
-		}
-		for _, a := range splitArms(t.body, refs) {
-			if _, isBound := bound[a.key]; isBound {
-				names = append(names, reader{a.name, "token {" + a.name + "}"})
-			}
-		}
-		return nil
-	})
-	return names
-}
-
 // checkSegments rejects an unfinished path: "{a.}", "{.b}" and "{a..b}" each have
 // a segment naming nothing. A field really named "" would otherwise make them
 // resolve, so a typo would read as a path that worked.
@@ -337,16 +244,6 @@ func checkSegments(a arm) error {
 		}
 	}
 	return nil
-}
-
-// splitArms splits a token body's '|' alternatives.
-func splitArms(body string, refs map[string]refBinding) []arm {
-	parts := strings.Split(body, "|")
-	arms := make([]arm, len(parts))
-	for i, p := range parts {
-		arms[i] = splitArm(p, refs)
-	}
-	return arms
 }
 
 // callFn is a builtin bound to one call site: its args already parsed. It reads the
@@ -449,28 +346,4 @@ func compileOps(format string, refs map[string]refBinding) formatOps {
 	})
 	flush()
 	return c
-}
-
-// checkNoRepeatedRead rejects a bare token repeated on a held name: {w} {w} beside
-// {uppercase(w)} would read one draw twice, where {w} {w} alone draws twice. The
-// error names the single-token spelling.
-func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding) error {
-	count := map[string]int{}
-	return eachToken(format, func(t ftoken) error {
-		if t.kind != 'b' {
-			return nil
-		}
-		if _, _, isFunc := funcCall(t.body); isFunc {
-			return nil
-		}
-		for _, a := range splitArms(t.body, refs) {
-			if len(a.tail) > 0 || !c.held[a.key] {
-				continue
-			}
-			if count[a.key]++; count[a.key] > 1 {
-				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.name, c.holder[a.key], a.key, a.name)
-			}
-		}
-		return nil
-	})
 }

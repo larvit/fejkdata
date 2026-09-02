@@ -33,48 +33,20 @@ func (f *Generator) Fake(path string) (string, error) {
 // descend walks named fields to the node a path names. It is the one render-side
 // step that can fail, because the path comes from the caller and may name a field
 // that does not exist. A choice consumes no segment, so the rest of the path must
-// be one every variant carries (the set compile stored) before a variant is picked
-// — a path that resolves at all resolves on every call.
-func descend(s *session, n node, segments []string) (node, error) {
-	if len(segments) == 0 {
-		return n, nil
-	}
-	switch n := n.(type) {
-	case *group:
-		child, ok := n.children[segments[0]]
-		if !ok {
-			return nil, fmt.Errorf("no entry %q", segments[0])
-		}
-		return descend(s, child, segments[1:])
-	case *template:
-		child, ok := n.fields[segments[0]]
-		if !ok {
-			return nil, fmt.Errorf("no field %q", segments[0])
-		}
-		return descend(s, child, segments[1:])
-	case *choice:
-		if want := strings.Join(segments, "."); !n.shared[want] {
-			return nil, unreachableInChoice(n, want)
-		}
-		return descend(s, pick(s, n), segments)
-	default:
-		return nil, fmt.Errorf("cannot descend into %T at %q", n, segments[0])
-	}
-}
-
-// unreachableInChoice reports that a path cannot step through this choice, listing
-// what every variant does carry. It reads the precomputed set, so a failing path
-// costs no more than a rendering one.
-func unreachableInChoice(c *choice, want string) error {
-	if len(c.shared) == 0 {
-		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.items), want)
-	}
-	offered := make([]string, 0, len(c.shared))
-	for p := range c.shared {
-		offered = append(offered, p)
-	}
-	sort.Strings(offered)
-	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
+// be one every variant carries before a variant is picked — a path that resolves
+// at all resolves on every call.
+func descend(s *session, root node, segments []string) (node, error) {
+	var found node
+	err := walkPath(root, segments, pathWalk{
+		choice: func(c *choice, rest []string) ([]node, error) {
+			if err := carriedByAll(c, rest); err != nil {
+				return nil, err
+			}
+			return []node{pick(s, c)}, nil
+		},
+		leaf: func(n node) error { found = n; return nil },
+	})
+	return found, err
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
@@ -151,77 +123,4 @@ func expand(s *session, t *template) string {
 		}
 	}
 	return b.String()
-}
-
-// draws is what an expansion has already drawn for its held names: the variant each
-// was drawn as, so every path under it reads one row, and the value each read, so
-// the same name read twice reads one value.
-type draws struct {
-	variant map[string]node
-	value   map[string]string
-}
-
-// readField renders one arm of a token. An arm's key is a sibling field or a
-// {/path} reference, which linkRefs bound into fields too. A name the expansion
-// holds — a level some token addresses by dotted path, or a sibling a {calc()}
-// reads — is drawn once and kept, so {place.postal-code} and {place.locality} read
-// one row, either read twice gives one value, and a shown operand is the operand
-// computed. Every other name is drawn afresh, so {word} {word} still draws twice.
-// checkTokens, checkPath and linkRefs prove every step, so this cannot fail.
-func readField(s *session, t *template, held *draws, a arm) string {
-	if !t.held[a.key] {
-		return render(s, t.fields[a.key])
-	}
-	if v, read := held.value[a.name]; read {
-		return v
-	}
-	n, drew := held.variant[a.key]
-	if !drew {
-		n = drawn(s, t.fields[a.key])
-		held.variant[a.key] = n
-	}
-	// Hold the draw at every level passed through, so two paths sharing a prefix
-	// share it.
-	for i, seg := range a.tail {
-		if i < len(a.steps) {
-			step, drew := held.variant[a.steps[i]]
-			if !drew {
-				step = drawn(s, child(n, seg))
-				held.variant[a.steps[i]] = step
-			}
-			n = step
-			continue
-		}
-		n = child(n, seg)
-	}
-	v := render(s, n)
-	held.value[a.name] = v
-	return v
-}
-
-// child is the node one path segment names below an already-drawn node. It holds
-// while checkPath and the set a choice shares (see sharedPaths) agree with this
-// walk: both prove the segment exists and that drawn leaves a template here. Each
-// way that can break panics naming the segment, so a slip in that agreement
-// reports where it happened rather than surfacing a nil node a level later.
-func child(n node, seg string) node {
-	t, ok := n.(*template)
-	if !ok {
-		panic(fmt.Sprintf("fejkdata: %q under %T, which carries no fields", seg, n))
-	}
-	c, ok := t.fields[seg]
-	if !ok {
-		panic(fmt.Sprintf("fejkdata: no field %q under a drawn level", seg))
-	}
-	return c
-}
-
-// drawn resolves a choice to one variant, so a bound head is a concrete node the
-// rest of the expansion shares. Nested choices unwrap too: a draw is one value, not
-// another set to pick from.
-func drawn(s *session, n node) node {
-	for c, ok := n.(*choice); ok; c, ok = n.(*choice) {
-		n = pick(s, c)
-	}
-	return n
 }
