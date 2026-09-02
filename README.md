@@ -1,65 +1,61 @@
 # fejkdata
 
+A Go library and CLI for generating locale-aware fake data from JSON templates.
 Forked from [github.com/Timewave-AB/fakes](https://github.com/Timewave-AB/fakes).
 
-A Go library and CLI for generating fake data, built for
-**internationalization**. It exists because the existing Go fake libraries
-lacked the locale coverage and format control we needed.
+## Goals
 
-- **Standards first** — formats, names and structures follow international and
-  local standards first and foremost.
-- **Locale-aware** — names, addresses, postal codes and phone numbers follow
-  per-locale data and formats. The shipped data is organised by full locale tag
-  (`sv_SE`), but the engine treats folders as plain namespaces — name yours
-  anything.
-- **Data lives in JSON** — all source data is recursive JSON on disk, read when
-  you create a generator and then served from memory. Add or change data without
-  touching the library. Behavior belongs in data too: the engine grows a
-  built-in function only for what data can't express (a checksum, a time-based
-  id), never for what character classes and choices already do.
-- **Composable** — templates nest without limit: weighted choices, character
-  classes and sub-templates combine to model any format.
-- **Reproducible** — seed a generator and it emits the same sequence every time,
-  for a given version of the data: changing how a value is composed shifts the
-  stream for that value and for everything drawn after it in the same generator.
-  Every built-in draws only from that seed — no wall-clock, no `crypto/rand` —
-  so determinism holds end to end.
-- **Zero dependencies** — standard library only.
+1. **Valid by construction** — every value passes the check its real consumer
+   applies; facts that belong together come from one draw, within a value and
+   across categories.
+2. **Text means what it says** — a format renders as written; only `{…}` varies,
+   random characters included (`{digits(3)}`). One spelling per result; the wrong
+   one is a load error naming the right one.
+3. **Every mistake is a load error** — `New` rejects; `Fake` on a loaded generator
+   fails only for an unknown path.
+4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
+   no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
+   the first custom template needs no escape and no option.
+5. **Data lives in JSON** — a builtin only for what data can't express.
+6. **Reproducible** — seed in, same stream out; no builtin reads a clock.
+7. **Zero dependencies** — standard library only.
+8. **Docs index the grammar** — every syntax feature is a heading; every example
+   runs under test and shows its output; a rule is stated once.
 
 ## CLI
-
-Install the `fejkdata` command and give it a path — it prints one value to stdout.
-The shipped data set is built in; each dot segment descends one level: folders,
-then the category (a JSON file), then fields inside it.
 
 ```sh
 go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
 
 fejkdata sv_SE.person                          # Sara Eriksson
-fejkdata sv_SE.person.last                     # Eriksson  (dotted path into a category)
-fejkdata --seed 42 sv_SE.address
-fejkdata --repeat 3 sv_SE.person               # three values, one per line
+fejkdata sv_SE.person.last                     # Eriksson
+fejkdata --seed 42 sv_SE.address               # the same address every run
 fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
-fejkdata --data-path ./mydata sv_SE.word       # layer a dir over the shipped data; last wins a clash
+fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
 ```
 
-Flags are GNU-style: `--name value` or `--name=value`, short aliases `-d`, `-n`,
-`-s`, `-h`, in any position; `--` ends the flags. `--data-path` is repeatable
-(last wins a name clash) and `--no-shipped-data` leaves the built-in set out.
-`--repeat N` renders the path N times — each an independent draw — joined by
-`--separator` (default a newline, so values land one per line). `--list` prints
-every path you can ask for; `--version` prints the build version.
+A path names a category, or a field inside one: each dot segment descends one
+level — folders, then the category (a JSON file), then fields.
 
-Without installing, run it from a checkout with `go run ./cmd/fejkdata …`. Exit
-codes: `0` success (including `--list`, `--version`, `--help`), `1` runtime error
-(missing dir, unknown path), `2` misuse.
+| Flag | |
+|------|--|
+| `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
+| `--no-shipped-data` | load only the `--data-path` directories |
+| `-s`, `--seed N` | reproducible output |
+| `-n`, `--repeat N` | render the path N times, each an independent draw |
+| `--separator S` | between repeated values (default a newline) |
+| `--list` | print every path, then exit |
+| `--version`, `-h`, `--help` | print, then exit |
 
-### Generating a file from a custom template
+`--name value` and `--name=value` both work (see [Decisions](#decisions)); flags
+go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
+dir, unknown path), `2` misuse. From a checkout: `go run ./cmd/fejkdata …`.
 
-A category is just a JSON file in a data directory, so you can drop in your
-own and render it — no code change. Save this as `mydata/sql.json`:
+### Your own data
+
+A category is a JSON file in a directory. Save this as `mydata/sql.json`:
 
 ```json
 {
@@ -73,410 +69,283 @@ own and render it — no code change. Save this as `mydata/sql.json`:
 }
 ```
 
-`sql-username` renders `'{username}'` `repeat` times and joins the results with
-the `),(` separator; the outer `VALUES(…)` wraps that into one valid row list.
-
 ```sh
 fejkdata --seed 1 --data-path ./mydata sql
 # INSERT INTO users VALUES('zoom'),('wahoo'),('blip');
-```
-
-Raise the template's `repeat` for more rows per statement; use the CLI's
-`--repeat` for more statements — together they build a whole seed file:
-
-```sh
 fejkdata --repeat 100 --data-path ./mydata sql > seed.sql
 ```
 
 ## Library
 
 ```sh
-go get gitea.larvit.se/larvit/fejkdata   # requires Go 1.22+ (for math/rand/v2)
+go get gitea.larvit.se/larvit/fejkdata   # Go 1.22+
 ```
 
-`New` loads the shipped data set, plus any `WithDataPath` directories layered over
-it; generate values by path with `Fake`. Each dot segment descends one level:
-folders, then the category (a JSON file), then fields inside it.
-
 ```go
-package main
-
-import (
-	"fmt"
-	"log"
-
-	"gitea.larvit.se/larvit/fejkdata"
-)
-
-func main() {
-	f, err := fejkdata.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, path := range []string{"sv_SE.person", "sv_SE.address", "sv_SE.phone", "sv_SE.address.locality"} {
-		v, err := f.Fake(path)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%-24s %s\n", path, v)
-	}
+f, err := fejkdata.New(fejkdata.WithSeed(42))
+if err != nil {
+	log.Fatal(err)
 }
+v, err := f.Fake("sv_SE.address") // "Kungsvägen 68\n379 17 Stockholm"
+paths := f.List()                  // every path Fake accepts, sorted
 ```
 
-```
-sv_SE.person             Sara Eriksson
-sv_SE.address            Kungsvägen 68
-                         379 17 Stockholm
-sv_SE.phone              072-402 91 67
-sv_SE.address.locality   Linköping
-```
-
-Options: `WithSeed(n)` for a reproducible sequence — same seed + data yields an
-identical sequence, handy for stable tests; `WithDataPath(dir)` layers a directory
-(repeat it to layer several, last wins a clash); `WithDataFS(fsys)` layers an
-`fs.FS`, such as your own `embed.FS`; `WithoutShippedData()` loads only what you
-give.
-
-```go
-a, _ := fejkdata.New(fejkdata.WithSeed(42))
-b, _ := fejkdata.New(fejkdata.WithSeed(42))
-av, _ := a.Fake("sv_SE.person")
-bv, _ := b.Fake("sv_SE.person")
-av == bv // true
-```
-
-`f.List()` returns the sorted paths the loaded data offers — the categories, their
-dotted fields and folder segments (what the CLI's `--list` prints). Every path it
-lists renders.
+| Option | |
+|--------|--|
+| `WithSeed(n)` | same seed, same data: identical sequence |
+| `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
+| `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
+| `WithoutShippedData()` | load only what you give |
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
-when drawn from one goroutine.
+when drawn from one goroutine. Changing how a value is composed shifts the seeded
+stream for that value and everything drawn after it.
 
 ## Data
 
 The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`)
-plus a locale-neutral `misc` folder — is embedded in the library and the CLI, so
-both work with no data on disk. Layer your own directories over it; a category or
-folder name must not use `.`, `|`, `(`, `{` or `}` (see [Data format](#data-format)),
-and dot-prefixed entries are skipped, so a data directory can also be a checkout.
+plus a locale-neutral `misc` folder — is embedded, so the CLI and the library
+work with no data on disk. A directory is a namespace: each JSON file is a
+category named after the file, each subdirectory a dot-path segment, so
+`mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
+Sources merge in order; matching folders combine, any other clash is won by the
+last loaded. Names may not use `.`, `|`, `(`, `{` or `}`; dot-prefixed entries
+are skipped, so a data directory can also be a checkout.
 
-A directory is just a namespace. Each JSON file is a category named after the
-file; each subdirectory is a dot-path segment — folders nest exactly like JSON
-objects do. So `mydata/sv_SE/person.json` is `Fake("sv_SE.person")`.
-
-Sources merge in order: matching folders combine by their children, and any other
-clash is won by the last one loaded. That lets you override a shipped category
-without copying the rest:
-
-```go
-fejkdata.New(fejkdata.WithDataPath("./mydata")) // mydata/sv_SE/person.json replaces sv_SE.person
-```
-
-Each shipped locale carries these categories, formatted per locale (e.g. `date`
-is `MM/DD/YYYY` in `en_US`, `YYYY-MM-DD` in `sv_SE`; `ssn` is a US SSN vs a
-Swedish personnummer): `address`, `color`, `company`, `date`, `email`, `ip`,
+Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `person`, `phone`, `price`, `sentence`, `ssn`, `time`, `url`, `username`,
-`version`, `word`.
-
-`data/misc` carries locale-neutral categories — universal data that isn't tied to
-a language or region:
-
-- ids & networking: `uuid` (a proper random v4), `mac`, `objectid` (24 hex chars,
-  MongoDB ObjectID-shaped — the leading bytes are random, not a real timestamp),
-  `creditcard` (per-network numbers ending in a valid `{luhn()}` digit)
-- reference codes: `currency` (ISO 4217), `country` (ISO 3166), `language` (ISO
-  639), `timezone` (IANA)
-- web & systems: `mimetype`, `httpstatus`, `useragent`
-- misc: `coordinate` (a lat/long point), `emoji`, `car`
-
-Many carry dotted sub-fields — `currency.symbol`, `country.alpha2`,
-`mimetype.ext`, `httpstatus.code`, `car.maker`. A time-ordered v7 UUID can't be
-expressed as data, so it's the `{uuid()}` builtin instead (see **Functions**).
+`version` and `word`, formatted per locale. `misc` carries `car`, `coordinate`,
+`country` (ISO 3166), `creditcard` (Luhn-valid), `currency` (ISO 4217), `emoji`,
+`httpstatus`, `language` (ISO 639), `mac`, `mimetype`, `objectid`, `timezone`
+(IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows.
 
 ## Data format
 
-Each JSON file in a data directory is a **category** named after the file
-(`address.json` → `address`), rendered by `Fake("address")`. Drop in a new file
-or folder — no code change, no recompile.
+Every value is a **node**, nestable without limit:
 
-Every value is a **node**, one of three shapes, nestable without limit:
-
-| Node | JSON | Meaning |
+| Node | JSON | Renders |
 |------|------|---------|
-| string | `"Malmö"` | a format with no fields: text, or tokens that need none (`"{digits(3)}"`, `"{..path}"`) |
-| choice | `["a", "b", …]` | one element, picked at random |
-| template | `{"format": "…", …}` | a format string plus the named sub-nodes it references |
+| string | `"Malmö"` | its text, with any `{…}` tokens expanded |
+| choice | `["a", "b", …]` | one item, picked at random |
+| template | `{"format": "…", …}` | its format, with `{name}` tokens rendering the named fields |
 
-**Weight.** A template node may carry a `weight` (default `1`) to skew its odds
-within a choice:
+### Format string
+
+Every character is literal except a `{…}` token:
+
+| Token | Renders |
+|-------|---------|
+| `{name}` | the sibling field `name` |
+| `{name.field}` | `field` of one draw of `name` ([Correlated fields](#correlated-fields)) |
+| `{a\|b}` | one of the named fields, even odds |
+| `{fn(args)}` | a builtin ([Functions](#functions)) |
+| `{..path}` | a node reached from the data root ([References](#references)) |
+| `{{`, `}}` | a literal `{` or `}` |
+
+```json
+"100 Main St, Apt {int(1,9)}{upper(1)} — tel {digits(3)}-{digits(4)}"
+```
+
+Renders e.g. `100 Main St, Apt 4B — tel 555-0199`. Random characters come from
+the sample functions, so a phone pattern is `070-{digits(3)} {digits(2)} {digits(2)}`.
+A lone `}` is a load error naming `}}`; the arms of `{a|b}` must differ, a
+repeated arm being a second spelling of [weight](#weight).
+
+### Weight
+
+An item of a choice may carry a `weight` (default `1`) to skew its odds:
 
 ```json
 [
   { "format": "070-{digits(3)} {digits(2)} {digits(2)}", "weight": 10 },
-  { "format": "01-{digits(3)} {digits(2)} {digits(2)}" },
-  { "format": "010-{digits(3)} {digits(2)} {digits(2)}" }
+  "08-{digits(3)} {digits(2)} {digits(2)}",
+  { "format": "010-{digits(3)} {digits(2)} {digits(2)}", "weight": 2 }
 ]
 ```
 
-A bare string or nested array in a choice counts as `1`; to weight a string,
-write it as `{ "format": "AB", "weight": 3 }`. A repeated item is a load error
-naming that spelling, and so is a `weight` of `1`. Weights are checked when you
-create the generator: a negative, non-numeric, or all-zero set is rejected at
-`New`, so a typo fails fast instead of silently skewing output.
+Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
+writing it as `{ "format": "AB", "weight": 3 }`. Rejected at load: a weight that
+is negative, non-numeric, `1` (the default) or outside a choice, a set summing to
+zero, and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
+and the error says so.
 
-**Repeat.** A template node may carry a `repeat` (default `1`) to render its
-`format` that many times — each render an independent pick — joined by
-`separator` (default `""`):
+### Repeat
+
+A template may carry `repeat` (an integer above `1`) to render its format that
+many times — each an independent draw — joined by `separator` (default `""`):
 
 ```json
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-This yields e.g. `bar foo baz`. `repeat` must be an integer above `1` and
-`separator` a string, both checked at `New`.
+Renders e.g. `bar foo baz`. A `separator` without a `repeat` is rejected.
 
-`format`, `weight`, `repeat` and `separator` are the only options; **any other key
-is a field**. So write `seperator` and you get a field by that name while the
-option stays unset. `New` rejects an option that cannot take effect — a
-`separator` without a `repeat`, a `weight` outside a choice, a `weight` or
-`repeat` of `1` — an object holding only a `format` (that is a string; write it),
-a one-item choice (that is its item; write it), and a name using a character the
-grammars reserve: `.` separates the segments of a path, `|`
-the arms of a token, `(` opens a function call and `{` `}` delimit the token, so a
-name carrying one is a name no format could ever spell. An empty name goes the same
-way — it is no path segment at all, so `List` never offers it. That holds for a
-category, a folder and a field alike.
+### Options and fields
 
-**Functions.** A `{name()}` token calls a built-in function instead of rendering
-a field. `{luhn()}` appends a Luhn check digit over the digits emitted **so far**
-in the current format (non-digits skipped but kept); unknown functions or wrong
-argument counts are rejected at `New`. This is what makes a generated Swedish
-personnummer valid — its last digit is a Luhn checksum over the nine before it:
+`format`, `weight`, `repeat` and `separator` are the only options; **any other
+key is a field** (see [Decisions](#decisions)). An object that does nothing a
+string can't — only a `format` — is rejected naming the string, as is a one-item
+choice naming its item.
 
-```json
-{ "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": [ … ] }
-```
+### Functions
 
-renders e.g. `811218-987`, then `{luhn()}` appends `6` → `811218-9876`. Place it
-after its payload (it reads what is to its left). The buffer it reads is
-per-expansion, so nesting keeps fixed parts out of the sum — e.g. a 12-digit
-form prefixes the century outside the checksummed core:
+A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
+count, range, country or expression fails fast, and a length, count or decimal
+place beyond a sane maximum is rejected, so a fat-fingered `hex(2000000000)`
+never tries to allocate gigabytes. Every builtin draws only from the seed — a
+time-based id takes its timestamp from the rng, not the clock — so seeded output
+stays reproducible.
+
+| Function | Kind | Renders |
+|----------|------|---------|
+| `{luhn()}` | derivation | Luhn check digit over the digits emitted so far in this expansion |
+| `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
+| `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
+| `{digits(n)}` | sample | `n` digits 0–9 |
+| `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
+| `{int(min,max)}` | sample | uniform integer in `[min, max]` |
+| `{float(min,max,dp)}` | sample | number in `[min, max]` with `dp` decimals |
+| `{hex(n)}` | sample | `n` lowercase hex digits |
+| `{base64(n)}` | sample | `n` random bytes, base64 |
+| `{uuid()}` | sample | UUID v7 (`misc.uuid` ships v4 as data) |
+| `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
+| `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
+| `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE |
+| `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
+| `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields ([Computation](#computation)) |
+| `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
+
+A derivation reads what is to its left, so place it after its payload; the
+buffer is per expansion, so a nested template keeps fixed parts out of the sum. A
+Swedish personnummer is a Luhn checksum over the nine digits before it:
 
 ```json
 { "format": "{century}{core}", "century": ["19", "20"],
-  "core": { "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": [ … ] } }
+  "core": { "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": ["0115", "0704", "1218"] } }
 ```
 
-A function must be deterministic (no wall-clock), so a seeded generator stays
-reproducible. A time-based id (UUID v7, ULID) therefore draws its timestamp from
-the rng, not the clock — the result is a valid, reproducible value, not a real
-point in time.
+Renders e.g. `19811218-9876`. `{seq()}` spans `Fake` calls and `repeat`, resets
+with a new generator, and is the natural primary key for the SQL example above.
 
-There are five kinds. **Derivations** read the digits emitted so far, so put them
-after their payload; **samples** read only the rng, so they stand alone; one
-**session counter** (`seq`) advances state held on the generator; one
-**computation** (`calc`) evaluates arithmetic over sibling fields; and the
-**transforms** rewrite one field's value. Arguments are
-validated at `New` (a bad count, range, country, or expression fails fast); a
-length, count or decimal place beyond a sane maximum is rejected there too, so a
-fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
+### Computation
 
-| Function | Kind | Emits |
-|----------|------|-------|
-| `{luhn()}` | derivation | Luhn check digit (mod-10) over preceding digits |
-| `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` when it would be 10 |
-| `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
-| `{uuid()}` | sample | UUID v7 (v4 ships as data — see [Data](#data)) |
-| `{ulid()}` | sample | ULID, 26-char Crockford base32 |
-| `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
-| `{hex(n)}` | sample | `n` lowercase hex digits |
-| `{digits(n)}` | sample | `n` digits 0–9 |
-| `{upper(n)}` | sample | `n` letters A–Z |
-| `{lower(n)}` | sample | `n` letters a–z |
-| `{base64(n)}` | sample | `n` random bytes, base64 |
-| `{int(min,max)}` | sample | uniform integer in `[min, max]` |
-| `{float(min,max,dp)}` | sample | number in `[min, max]` with `dp` decimals |
-| `{iban(CC)}` | sample | a length- and mod-97-valid IBAN for country `CC` (BE, DE, DK, ES, FI, NO, SE) |
-| `{seq()}`, `{seq(name)}` | session counter | next integer (from 1) in this generator's sequence; `name` selects an independent counter |
-| `{calc(expr)}`, `{calc(expr,dp)}` | computation | value of an arithmetic expression over number literals and sibling fields; `dp` rounds |
-| `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | the field `x` — a name, a path or a `..path` — lower-cased, upper-cased, or folded to ASCII (`Åsa` → `Asa`); they nest: `{lowercase(ascii(x))}` |
-
-`{ean()}` is also the ISBN-13 check (an ISBN-13 *is* an EAN-13 — build the 978/979
-prefix in data and call `{ean()}`). `{iban()}` is a sample, not a derivation:
-an IBAN's check digits sit *before* the account number, which a left-to-right
-reader can't reach, so it emits the whole value (a generic numeric BBAN — valid
-length and checksum, not real bank routing).
-
-`{seq()}`'s counter lives on the generator, so it spans `Fake` calls (and `repeat`)
-and resets when you build a new generator — `seq` is reproducible by being ordered,
-not random. It's the natural fit for a primary-key column in the SQL example above.
-
-**Computation.** `{calc(expr)}` evaluates an arithmetic expression — `+ - * /`,
-parentheses and unary minus, the usual precedence — and emits the result. Operands
-are number literals and **sibling field names**, each rendered then read as a
-number; an optional second arg rounds to that many decimals (`{calc(net * qty, 2)}`),
-otherwise the value prints in minimal form. A hyphen is always subtraction, so a
-hyphenated field name can't be an operand. The expression is checked at `New`
-(parse, and that every name is a real field):
+`{calc(expr)}` evaluates `+ - * /`, parentheses and unary minus over number
+literals and sibling field names, each rendered then read as a number; a second
+argument rounds to that many decimals. A hyphen is always subtraction, so a
+hyphenated field can't be an operand.
 
 ```json
-{ "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99"], "qty": ["3"] }
+{ "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-renders `19.99 x 3 = 59.97`. A field a `calc` reads is drawn **once per
-expansion** and held, so the operand shown is the operand computed — give `net`
-three prices and the line still multiplies the one it printed. The hold covers
-every reading of that name in the format, so `{w} {w} {calc(w)}` is one value
-three times; a name no `calc` reads is unaffected, and `{word} {word}` still draws
-twice. A field that doesn't render to a number yields `NaN`, and a division by
-zero yields `Inf`; both print rather than failing the render.
+Renders e.g. `19.99 x 3 = 59.97`: an operand is drawn once per expansion, so the
+operand shown is the operand computed. A non-numeric operand yields `NaN` and a
+division by zero `Inf`; both print rather than fail.
 
-**References.** A `{..path}` token renders a node from the **data root** instead
-of a sibling field — the dot path is the one `Fake` takes, resolved across every
-loaded directory. One category can borrow another, even across folders or layered
-data dirs:
+### Transforms
+
+`{lowercase(x)}`, `{uppercase(x)}` and `{ascii(x)}` rewrite the value of `x` — a
+field, a path or a `..path` — and nest. `ascii` folds Latin letters (`Åsa Öberg`
+→ `Asa Oberg`) and drops any other non-ASCII rune. Like a calc operand, `x` is
+drawn once per expansion, so an email built from a name matches the name beside it:
 
 ```json
-{ "format": "Hej, {..en_US.person}!" }
+{ "format": "{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",
+  "p": [
+    { "format": "{first} {last}", "first": "Åsa", "last": "Öberg" },
+    { "format": "{first} {last}", "first": "Bo", "last": "Ek" }
+  ] }
 ```
 
-renders e.g. `Hej, Pat Smith!`. A reference path is held like a sibling path:
-`{..person.first} {..person.last}` read one person, and `{lowercase(..person.first)}`
-reads that same draw, while a bare `{..die} {..die}` is two draws. References are
-bound when you create the generator, so a path that is unknown, names a folder,
-or reads a field not every variant of a choice carries fails at `New`. A reference that leads back to its own value (directly, mutually,
-or through a chain) is a cycle that would never finish rendering, so it too is
-rejected at `New`.
+Renders `Åsa Öberg <asa.oberg@example.com>` or `Bo Ek <bo.ek@example.com>`, never
+a mix.
 
-**Correlated fields.** A `{name.field}` token addresses a **path** into a sibling,
-and a sibling addressed that way is drawn **once per expansion** — so several
-tokens read one row. That is how two facts that belong together, such as a
-locality and the postal code that really covers it, stay together:
+### References
+
+`{..path}` renders a node from the **data root** — the path `Fake` takes, across
+every loaded source — so one category borrows another, even across folders or
+layered directories:
 
 ```json
-{ "format": "{street} {number}\n{place.postal-code} {place.locality}",
+"Hej, {..en_US.person}!"
+```
+
+Renders e.g. `Hej, Pat Smith!`. A reference into a category is held like a
+[correlated](#correlated-fields) path — `{..sv_SE.person.first} {..sv_SE.person.last}`
+name one person, `{lowercase(..sv_SE.person.first)}` reads that same draw — while
+a bare `{..misc.uuid} {..misc.uuid}` is two draws. Rejected at `New`: a path that
+is unknown, names a folder, or reads a field not every variant of a choice
+carries, and a reference that leads back to its own value, directly, mutually or
+through a chain.
+
+### Correlated fields
+
+`{name.field}` reads a path into a sibling, and a sibling read that way is drawn
+**once per expansion**, so several tokens read one row — a locality and the
+postal code that really covers it:
+
+```json
+{ "format": "{street} {int(1,99)}\n{place.postal-code} {place.locality}",
+  "street": ["Kungsgatan", "Storgatan"],
   "place": [
     { "format": "{locality}", "locality": "Stockholm", "postal-code": "1{digits(2)} {digits(2)}", "weight": 975 },
     { "format": "{locality}", "locality": "Tranås",    "postal-code": "573 {digits(2)}", "weight": 18 }
   ] }
 ```
 
-renders e.g. `Kungsgatan 35` / `176 99 Stockholm`, never a Stockholm postal code
-beside Tranås. Each row carries its own `weight`, so how often a place appears is data
-too. The rule holds both ways: two tails of one head come from the same row, and
-one path read twice reads one value (`{p.first} … {p.first}@…` gives one name).
+Renders e.g. `Kungsgatan 35` / `176 99 Stockholm`, never a Stockholm code beside
+Tranås; each row's `weight` says how often it appears. A path is held at every
+level it passes through (`{p.geo.town.name} {p.geo.town.zip}` share the town),
+one path read twice reads one value, and a field no path addresses is drawn each
+time (`{word} {word}` differs). The hold lasts one expansion: each `repeat`
+iteration and each nested template draws again. Every variant of a choice on the
+path must carry the rest of it, so a row missing a field is named at load:
 
-**One draw, one spelling.** The hold above is what a dotted token reads, and a
-`{calc()}` operand reads its sibling the same way (see **Computation**). A format
-may not both *render* a level and *read a path into* it — `{p}` beside
-`{p.first}`, or `{place}` beside `{place.locality}`.
-Rendering a level expands it afresh while a path reads the level's held draw, so
-the two would disagree; naming the fields you want is the one spelling that
-always agrees, and the other is a load error. This covers every way a level can
-be rendered: a token, a `{calc()}` operand, and a `{..path}` reference — wherever
-the reference sits, including in a field the format renders.
+```text
+token {place.postal-code}: field "place": not every variant of this 2-way choice carries "postal-code"; all carry [locality]
+```
 
-A `{calc()}` operand is held on its own terms too, so the same fence guards it:
-`{..cat.net} x 2 = {calc(net * 2, 2)}` names one field two ways and is a load
-error, with no path token anywhere. A calc renders its operand whole, so the hold
-pins what that render settled, following the operand's plain `{field}` tokens —
-`{net.v}` and `{..cat.net.v}` are rejected alike. It stops at a `{..path}`, where
-the operand's own value ends and a shared source begins: two names drawing from
-one referenced category are two draws, as `{word} {word}` is, so two dice over
-one `{..die}` are fine.
+The sub-fields stay addressable — `Fake("address.place.locality")` renders, and
+`List` advertises it. A path may not read into a level carrying a `repeat`.
+
+### One draw, one spelling
+
+A format may not both **render** a level and **read a path into** it — `{p}`
+beside `{p.first}`, `{..cat.net}` beside `{calc(net * 2)}`, or `{q}` beside
+`{p.first}` where `q` renders `{..cat.p.last}` — because the render draws afresh
+while the path reads the held draw, and the two would disagree. Wherever the
+second route sits, it is a load error naming the spelling to use:
 
 ```text
 token {p} renders a level that {p.first} reads a path into; name the fields you want instead
 ```
 
-For the same reason a path may not read into a level carrying a `repeat`: it
-reads one draw, so the repeat could never apply.
-
-A path is held at **every level it passes through**, not just the first, so the
-facts can nest as deeply as they belong:
-
-```json
-{ "format": "{p.geo.town.name} {p.geo.town.zip}, {p.geo.region}", "p": [ … ] }
-```
-
-renders `Kiruna 98100, Norrbotten` — the town, the zip that covers it and the
-region it sits in all come from one draw. Two paths part company exactly where
-they diverge: `{p.a.v}` and `{p.b.v}` share the row and nothing below it.
-
-The binding lasts for one expansion, so each `repeat` iteration draws again and a
-nested template keeps its own. A field no dotted token addresses is unaffected:
-`{word} {word}` still draws twice.
-
-`New` checks a path the way `Fake` resolves one: every variant of a
-choice must carry the whole path, so a row missing a field is named at load:
-
-```text
-token {place.postal-code}: field "place": not every variant of this 2-way choice
-carries "postal-code"; all carry [locality]
-```
-
-The sub-fields stay addressable on their own — `Fake("address.place.locality")`
-renders, and `List` advertises it.
-
-**Format string.** Every character is literal except a `{…}` token:
-
-| Token | Expands to |
-|-------|-----------|
-| `{name}` | render the sibling field `name` |
-| `{name.field}` | render `field` of one draw of the sibling `name` (see **Correlated fields**) |
-| `{name()}` | call a built-in function (see **Functions**) |
-| `{..path}` | render the node at a dot path from the data root (see **References**) |
-| `{{`, `}}` | a literal `{` or `}` |
-
-`{a|b}` renders one of the sibling fields `a` or `b`, chosen at random; an arm
-may be a `{..path}` reference too (`{name|..en_US.person}`). The arms are picked
-evenly and must differ — `{a|a|b}` would skew the odds, which is what `weight` is
-for, so a repeated arm is a load error.
-
-Text means what it says: `100 Main St` renders `100 Main St`. Random characters
-come from the sample functions — `{digits(3)}`, `{upper(1)}`, `{lower(2)}`,
-`{int(10,99)}` — so a phone pattern is `070-{digits(3)} {digits(2)} {digits(2)}`.
-A lone `}` is a load error naming `}}`.
-
-**Putting it together** (`person.json`):
-
-```json
-{
-  "format": "{prefix}{femalefirst|malefirst} {last}",
-  "femalefirst": ["Anna", "Astrid", "Elin"],
-  "malefirst": ["Anders", "Erik", "Gustav"],
-  "last": [
-    { "format": "{first}sson", "first": ["Ander", "Erik", "Karl"] },
-    ["Berg", "von Flemming"]
-  ],
-  "prefix": [
-    "",
-    { "format": "{string} ", "string": ["dr", "prof"], "weight": 0.05 }
-  ]
-}
-```
-
-This yields e.g. `Anna Eriksson`, `Erik Berg`, or rarely `dr Astrid von Flemming`.
-Any field is reachable by dotted path — `Fake("person.last")` renders just a
-surname; choices along the path are resolved at random. A path may continue
-*through* a choice only where every variant carries the rest of it — every
-`currency` variant carries `symbol`, so `currency.symbol` resolves — which keeps a
-path from rendering on one call and failing on the next.
-
 ### Performance
 
-Each file is parsed, validated and weight-indexed once, in `New`. After that a
-`Fake` call costs about what its output costs — it scans the chosen format and
-renders nested tokens, independent of how large your lists are:
+Each file is parsed, validated and weight-indexed once, in `New`. A `Fake` call
+then costs about what its output costs: an unweighted pick is O(1) whatever the
+list's length, a weighted one O(log n), and long formats, deep nesting and many
+tokens add cost in proportion to the output.
 
-- Picking from a list is **O(1)** whatever its length — a 10-name list and a
-  100 000-name list cost the same.
-- Giving entries a `weight` makes that list's pick **O(log n)** instead (a
-  search over cumulative weights). Still tiny, but an unweighted list is the
-  cheapest — only add `weight` where you actually want skew.
-- Long `format` strings, deep nesting and many `{tokens}` add cost in
-  proportion to the output produced.
+## Decisions
+
+- **Options and fields share one namespace.** `format`, `weight`, `repeat` and
+  `separator` are reserved; every other key is a field. Nesting fields under a
+  key, or prefixing options, would tax every template to guard against a
+  misspelt option.
+- **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
+  its arms are anonymous; `{femalefirst|malefirst}` keeps `person.femalefirst`
+  addressable.
+- **`--name value` and `--name=value` both work.** GNU getopt_long convention,
+  which every shell user expects. A single-dash long flag is rejected naming the
+  double-dash spelling.
+- **The shipped data is embedded, not discovered.** A directory a machine happens
+  to have would make `--seed 42` machine-dependent. Data still lives in `data/`
+  as JSON; `--data-path` layers over it.
+- **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
+  letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
+  whether the argument looks like a number.
 
 ## Development
 
@@ -484,7 +353,7 @@ Everything runs in Docker — **no local tooling beyond Docker is needed**.
 Source is bind-mounted; build caches persist in the `gocache` volume.
 
 ```sh
-docker compose run --rm test    # run tests
+docker compose run --rm test    # go test -race
 docker compose run --rm cover   # tests with coverage
 docker compose run --rm bench   # benchmarks
 docker compose run --rm build   # compile the library
@@ -506,33 +375,24 @@ gate — vet, format check and tests — so run it locally before pushing:
 ```sh
 docker build .                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 .   # lowest supported
-```
-
-Tests run against the latest Go by default. Set `GO_VERSION` to check the lowest
-supported version too:
-
-```sh
-GO_VERSION=1.22.12 docker compose run --rm test   # lowest supported
-docker compose run --rm test                      # latest
+GO_VERSION=1.22.12 docker compose run --rm test # the same tests, without the image build
 ```
 
 ## Layout
 
 ```
-fejkdata.go     Generator, New, options, the embedded data set, List
-node.go         the node model and JSON -> node compilation
-render.go       Fake and the recursive renderer (choices, format strings, paths, bound draws)
-template.go     the {token} grammar: scanning, function and path tokens, validation
-reference.go    {..path} binding across the tree, the render graph, and the walks over it
-builtins.go     the {name()} function registry and its implementations
-calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
-data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
-cmd/fejkdata/   the `fejkdata` CLI (New + Fake/List over stdout)
-data/           shipped data (JSON), embedded at build: locale folders + a misc folder
+fejkdata.go        Generator, New, options, the embedded data set, List
+node.go            the node model and JSON -> node compilation
+render.go          Fake and the recursive renderer (choices, format strings, paths, held draws)
+template.go        the {token} grammar: scanning, arms, operands, validation
+reference.go       {..path} binding across the tree, the render graph, and the walks over it
+builtins.go        the {name()} function registry and its implementations
+calc.go            the {calc()} arithmetic evaluator: parser, eval, validation
+data.go            data loading: fs.FS folders/files -> namespace tree, multi-source merge
+cmd/fejkdata/      the fejkdata CLI
+data/              shipped data (JSON), embedded at build: locale folders + a misc folder
+format-migration/  converters from the pre-release grammar; delete before the first tag
 ```
-
-To add a category, drop a JSON file into a data directory; to add a locale, add
-a subdirectory of JSON files.
 
 ## License
 
