@@ -40,7 +40,7 @@ func walkPath(n node, tail []string, w pathWalk) error {
 				return err
 			}
 		}
-		child, ok := n.fields[tail[0]]
+		child, ok := n.field(tail[0])
 		if !ok {
 			return fmt.Errorf("no field %q", tail[0])
 		}

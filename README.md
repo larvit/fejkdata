@@ -180,9 +180,9 @@ many times — each an independent draw — joined by `separator` (default `""`)
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-Renders e.g. `bar foo baz`. A `separator` without a `repeat` is rejected, and so
-is a `repeat` that multiplies to more than 1 048 576 renders along any path of
-nested repeats.
+Renders e.g. `bar foo baz`. Rejected at load: a `separator` without a `repeat`,
+a `separator` of `""` (the default), and a `repeat` that multiplies to more than
+1 048 576 renders along any path of nested repeats.
 
 ### Options and fields
 
@@ -194,9 +194,11 @@ choice naming its item.
 ### Functions
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
-count, range, country or expression fails fast, and a length, count or decimal
-place beyond a sane maximum is rejected, so a fat-fingered `hex(2000000000)`
-never tries to allocate gigabytes. Every builtin draws only from the seed — a
+count, range, country or expression fails fast; an integer is written plain
+(`5`, not `+5` or `05`); bounds are finite; a sample that could only ever emit one
+value (`int(5,5)`, `float(1,1,2)`) is rejected naming the text to write instead;
+and a length, count or decimal place beyond a sane maximum is rejected, so a
+fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
 time-based id takes its timestamp from the rng, not the clock — so seeded output
 stays reproducible.
 
@@ -243,8 +245,9 @@ hyphenated field can't be an operand.
 ```
 
 Renders e.g. `19.99 x 3 = 59.97`. An operand that can never be a number (`"abc"`,
-or a choice of such) is rejected at load; one that sometimes is not yields `NaN`,
-and a division by zero `Inf` — both print rather than fail.
+or a choice of such) is rejected at load, as is a division by a constant zero
+(`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
+`NaN`, and a division by a sometimes-zero one `Inf` — both print rather than fail.
 
 ### Transforms
 

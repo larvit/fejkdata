@@ -176,7 +176,7 @@ var asciiFolds = map[rune]string{
 func asciiFold(s string) string {
 	var b strings.Builder
 	for _, r := range s {
-		if r < unicode.MaxASCII {
+		if r <= unicode.MaxASCII {
 			b.WriteRune(r)
 		} else {
 			b.WriteString(asciiFolds[r])
@@ -221,10 +221,25 @@ func randChars(r rng, n int, alphabet string) string {
 	return string(b)
 }
 
+// plainInt parses an integer arg written the one way: no sign, no leading zero.
+func plainInt(s string) (int, error) {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("%q is not an integer", s)
+	}
+	if strconv.Itoa(n) != s {
+		return 0, fmt.Errorf("%q is not a plain integer; write %d", s, n)
+	}
+	return n, nil
+}
+
 func posIntArg(_ map[string]node, a []string) error {
-	n, err := strconv.Atoi(a[0])
-	if err != nil || n < 1 {
-		return fmt.Errorf("count %q must be a positive integer", a[0])
+	n, err := plainInt(a[0])
+	if err != nil {
+		return fmt.Errorf("count %w", err)
+	}
+	if n < 1 {
+		return fmt.Errorf("count %q must be positive", a[0])
 	}
 	if n > maxLen {
 		return fmt.Errorf("count %d exceeds the maximum %d", n, maxLen)
@@ -233,13 +248,16 @@ func posIntArg(_ map[string]node, a []string) error {
 }
 
 func intRangeArgs(_ map[string]node, a []string) error {
-	lo, e1 := strconv.Atoi(a[0])
-	hi, e2 := strconv.Atoi(a[1])
+	lo, e1 := plainInt(a[0])
+	hi, e2 := plainInt(a[1])
 	if e1 != nil || e2 != nil {
-		return fmt.Errorf("int(min,max) needs integer args, got %q,%q", a[0], a[1])
+		return fmt.Errorf("int(min,max) needs plain integers, got %q,%q", a[0], a[1])
 	}
 	if lo > hi {
 		return fmt.Errorf("int(min,max): min %d > max %d", lo, hi)
+	}
+	if lo == hi {
+		return fmt.Errorf("int(%d,%d) is the constant %d; write it as text", lo, hi, lo)
 	}
 	if uint64(hi)-uint64(lo) >= uint64(math.MaxInt64) { // span hi-lo+1 would overflow int -> IntN panic
 		return fmt.Errorf("int(min,max): range %d..%d is too wide", lo, hi)
@@ -250,18 +268,24 @@ func intRangeArgs(_ map[string]node, a []string) error {
 func floatArgs(_ map[string]node, a []string) error {
 	lo, e1 := strconv.ParseFloat(a[0], 64)
 	hi, e2 := strconv.ParseFloat(a[1], 64)
-	dp, e3 := strconv.Atoi(a[2])
+	dp, e3 := plainInt(a[2])
 	if e1 != nil || e2 != nil || e3 != nil {
-		return fmt.Errorf("float(min,max,dp) needs numeric args, got %q,%q,%q", a[0], a[1], a[2])
+		return fmt.Errorf("float(min,max,dp) needs numeric bounds and a plain decimals count, got %q,%q,%q", a[0], a[1], a[2])
+	}
+	if math.IsNaN(lo) || math.IsNaN(hi) || math.IsInf(lo, 0) || math.IsInf(hi, 0) {
+		return fmt.Errorf("float(min,max,dp) needs finite bounds, got %q,%q", a[0], a[1])
 	}
 	if lo > hi {
 		return fmt.Errorf("float(min,max,dp): min %v > max %v", lo, hi)
 	}
-	if math.IsInf(hi-lo, 0) { // an overflowing span would render as "+Inf"
-		return fmt.Errorf("float(min,max,dp): range %v..%v is too wide", lo, hi)
-	}
 	if dp < 0 || dp > maxDecimals {
 		return fmt.Errorf("float(min,max,dp): decimals %d out of range 0..%d", dp, maxDecimals)
+	}
+	if lo == hi {
+		return fmt.Errorf("float(%s,%s,%d) is the constant %q; write it as text", a[0], a[1], dp, strconv.FormatFloat(lo, 'f', dp, 64))
+	}
+	if math.IsInf(hi-lo, 0) { // an overflowing span would render as "+Inf"
+		return fmt.Errorf("float(min,max,dp): range %v..%v is too wide", lo, hi)
 	}
 	return nil
 }

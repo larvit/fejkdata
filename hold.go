@@ -273,6 +273,9 @@ type draws struct {
 // linkRefs prove every step, so the walk cannot fail.
 func readField(s *session, t *template, held *draws, a arm) string {
 	if !t.held[a.key] {
+		if len(a.tail) > 0 {
+			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
+		}
 		return render(s, t.fields[a.key])
 	}
 	if v, read := held.value[a.path]; read {

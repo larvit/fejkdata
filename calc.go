@@ -78,12 +78,76 @@ func checkCalc(fields map[string]node, args []string) error {
 			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", args[0], name, text)
 		}
 	}
+	if divisor, zero := constantZeroDivisor(expr, fields); zero {
+		return fmt.Errorf("calc(%q) divides by %s, which is always zero", args[0], divisor)
+	}
 	if len(args) == 2 {
-		if dp, err := strconv.Atoi(args[1]); err != nil || dp < 0 || dp > maxDecimals {
-			return fmt.Errorf("calc decimals %q must be an integer in 0..%d", args[1], maxDecimals)
+		if dp, err := plainInt(args[1]); err != nil || dp < 0 || dp > maxDecimals {
+			return fmt.Errorf("calc decimals %q must be a plain integer in 0..%d", args[1], maxDecimals)
 		}
 	}
 	return nil
+}
+
+// constantZeroDivisor finds a division whose right side is a constant zero: number
+// literals and fixed operands folded, anything that varies left unknown.
+func constantZeroDivisor(n calcNode, fields map[string]node) (string, bool) {
+	switch n := n.(type) {
+	case calcNeg:
+		return constantZeroDivisor(n.x, fields)
+	case calcBin:
+		if n.op == '/' {
+			if v, known := constantValue(n.r, fields); known && v == 0 {
+				return calcText(n.r), true
+			}
+		}
+		if d, zero := constantZeroDivisor(n.l, fields); zero {
+			return d, true
+		}
+		return constantZeroDivisor(n.r, fields)
+	}
+	return "", false
+}
+
+// constantValue evaluates an expression whose every operand is fixed.
+func constantValue(n calcNode, fields map[string]node) (float64, bool) {
+	switch n := n.(type) {
+	case calcNum:
+		return float64(n), true
+	case calcVar:
+		t, ok := fields[string(n)].(*template)
+		if !ok || !t.fixed || t.repeat > 1 {
+			return 0, false
+		}
+		v, err := strconv.ParseFloat(strings.TrimSpace(t.lit), 64)
+		return v, err == nil
+	case calcNeg:
+		v, ok := constantValue(n.x, fields)
+		return -v, ok
+	case calcBin:
+		l, lok := constantValue(n.l, fields)
+		r, rok := constantValue(n.r, fields)
+		if !lok || !rok {
+			return 0, false
+		}
+		return calcBin{n.op, calcNum(l), calcNum(r)}.eval(nil), true
+	}
+	return 0, false
+}
+
+// calcText spells an expression node the way an author would read it.
+func calcText(n calcNode) string {
+	switch n := n.(type) {
+	case calcNum:
+		return strconv.FormatFloat(float64(n), 'f', -1, 64)
+	case calcVar:
+		return string(n)
+	case calcNeg:
+		return "-" + calcText(n.x)
+	case calcBin:
+		return "(" + calcText(n.l) + " " + string(n.op) + " " + calcText(n.r) + ")"
+	}
+	return "?"
 }
 
 // neverNumeric reports a node no render of which is a number: fixed text that does

@@ -57,6 +57,15 @@ type template struct {
 
 func (*template) isNode() {}
 
+// field is the node a path segment names; a binding is a render edge, not a field.
+func (t *template) field(seg string) (node, bool) {
+	if isRef(seg) {
+		return nil, false
+	}
+	n, ok := t.fields[seg]
+	return n, ok
+}
+
 // compile converts parsed JSON into a node tree, validating structure up front.
 // Only a choice's items carry a weight, so one here would be inert whatever its type.
 func compile(v any) (node, error) {
@@ -228,6 +237,9 @@ func readOptions(m map[string]any) (templateOptions, error) {
 		}
 		if repeat == 1 {
 			return o, fmt.Errorf("separator joins repeated renders, so it has no effect without a repeat above 1")
+		}
+		if o.separator == "" {
+			return o, fmt.Errorf("separator \"\" is the default, so it has no effect; drop it")
 		}
 	}
 	_, o.weighted = m["weight"]
