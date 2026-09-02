@@ -49,8 +49,9 @@ level — folders, then the category (a JSON file), then fields.
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
 
-`--name value` and `--name=value` both work (see [Decisions](#decisions)); flags
-go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
+`--name value` and `--name=value` both work, a short flag's value attaches or
+follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
+[Decisions](#decisions); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, unknown path), `2` misuse. From a checkout: `go run ./cmd/fejkdata …`.
 
 ### Your own data
@@ -337,9 +338,12 @@ tokens add cost in proportion to the output.
 - **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
   its arms are anonymous; `{femalefirst|malefirst}` keeps `person.femalefirst`
   addressable.
-- **`--name value` and `--name=value` both work.** GNU getopt_long convention,
-  which every shell user expects. A single-dash long flag is rejected naming the
-  double-dash spelling.
+- **Flags follow getopt_long.** `--name value` and `--name=value` both work; a
+  short flag's value attaches or follows (`-s42`, `-s 42`) and short flags bundle
+  (`-hn 3`), as every shell user expects. A single-dash long flag is rejected
+  naming the double-dash spelling, and `-s=42` is rejected naming both short
+  spellings: `=` belongs to the long form, and reading `=42` as the value would
+  make `-d=./x` a directory named `=./x`.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
