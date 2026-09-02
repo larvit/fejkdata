@@ -153,11 +153,15 @@ func compileChoice(items []any) (node, error) {
 func checkNoRepeatedItem(items []any) error {
 	seen := make(map[string]int, len(items))
 	for i, raw := range items {
-		key, err := json.Marshal(raw)
-		if err != nil {
-			return err
+		key, isString := raw.(string)
+		if !isString {
+			b, err := json.Marshal(raw)
+			if err != nil {
+				return err
+			}
+			key = "\x00" + string(b)
 		}
-		if j, dup := seen[string(key)]; dup {
+		if j, dup := seen[key]; dup {
 			if s, isString := raw.(string); isString {
 				return fmt.Errorf("choice item %q is repeated; skew the odds with a weight instead: { \"format\": %q, \"weight\": 2 }", s, s)
 			}
