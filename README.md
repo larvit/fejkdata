@@ -364,6 +364,21 @@ tokens add cost in proportion to the output.
   folder, `..` the folder above — what those spellings already mean to anyone who
   has typed a path. A locale's files reach each other without naming the locale,
   so a folder renames and copies without editing its references.
+- **After the first tag, a new fence is a major version.** Data files are the
+  public API, and one spelling per result grows by tightening, so every fence
+  invalidates some file. Each such release names the rejected spelling and its
+  replacement in the changelog and in the load error, and that is the whole
+  migration: a fence rejects one spelling with one replacement, so the fix is
+  local to each site. A fence that would need a non-local rewrite ships a
+  converter with its release instead. Before the first tag there is no
+  compatibility promise.
+- **A `--data-path` override rebinds every reference to the category it
+  replaces.** References bind against the merged tree, so once shipped data uses
+  `{.person}`, a consumer's `sv_SE/person.json` is what every shipped reference
+  into `person` reads, and `New` fails on shipped data the consumer never wrote
+  when that file lacks a field those references read. Accepted: overriding is the
+  point of layering, the error names the reference and the field, and the fix is
+  the consumer's file carrying the fields the shipped tree reads.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
