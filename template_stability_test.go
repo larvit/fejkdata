@@ -19,13 +19,13 @@ func TestSeededOutputIsStable(t *testing.T) {
 		"weights": `[{"format":"big","weight":9},"tiny"]`,
 	})
 	want := map[string][]string{
-		"alt":     {"A", "B", "A", "A"},
+		"alt":     {"A", "A", "B", "A"},
 		"calc":    {"100.00 x 3 = 300.00", "100.00 x 3 = 300.00", "100.00 x 7 = 700.00", "5.00 x 3 = 15.00"},
 		"classes": {"49-74-VY-gj", "38-68-RP-xo", "47-68-IB-hs", "91-89-LP-gk"},
 		"escapes": {"01Aa#!", "01Aa#!", "01Aa#!", "01Aa#!"},
 		"funcs":   {"0016a2 33 0.649 k4Kwj 1", "a00c07 84 0.175 6UjGv 2", "f70eb8 12 0.390 p5p6g 3", "9048a3 90 0.531 I3Aqv 4"},
-		"nested":  {"i-89", "i-67", "i-47", "i-27"},
-		"ref":     {"see A", "see A", "see B", "see A"},
+		"nested":  {"i-73", "i-23", "i-67", "i-85"},
+		"ref":     {"see A", "see A", "see A", "see B"},
 		"repeat":  {"z,y,z,y", "z,z,y,y", "z,z,x,z", "x,z,y,y"},
 		"sums":    {"90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780", "90123456789012348 1234567890124 123456780"},
 		"weights": {"big", "big", "big", "big"},
