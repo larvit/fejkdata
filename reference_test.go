@@ -1,6 +1,9 @@
 package fejkdata
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // TestRootReferenceAcrossFolders is the headline case: a category in one folder
 // pulls a value from another via a {..path} reference resolved from the data root.
@@ -15,8 +18,7 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 	}
 }
 
-// TestReferenceIntoAField reaches a field inside a referenced category, crossing
-// a single-variant choice and then a template field (..who.last).
+// TestReferenceIntoAField reaches a field inside a referenced category.
 func TestReferenceIntoAField(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"who":  `{"format":"{first} {last}","first":"Ada","last":"Byron"}`,
@@ -76,8 +78,8 @@ func TestReferenceErrors(t *testing.T) {
 	cases := map[string]map[string]string{
 		"missing target": {"card": `"{..nope.gone}"`},
 		"folder target":  {"en_US/word": `"w"`, "card": `"{..en_US}"`},
-		"multi-variant on the path": {
-			"who":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`,
+		"a variant on the path lacks the field": {
+			"who":  `[{"format":"{f}","f":"1"},{"format":"{g}","g":"2"}]`,
 			"card": `"{..who.f}"`,
 		},
 		"empty reference path": {"card": `"{..}"`},
@@ -205,6 +207,61 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		}
 		if err.Error() != c.want {
 			t.Errorf("%s:\n  got  %s\n  want %s", c.name, err, c.want)
+		}
+	}
+}
+
+func TestReferencePathIsHeld(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg"}]`,
+		"card":   `"{..person.first} {..person.last}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(3))
+	seen := map[string]bool{}
+	for i := 0; i < 50; i++ {
+		got := fake(t, f, "card")
+		if got != "Anna Andersson" && got != "Bo Berg" {
+			t.Fatalf("card = %q, want one person's first and last name", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) != 2 {
+		t.Fatalf("card only ever rendered %v", seen)
+	}
+}
+
+func TestReferenceThroughChoiceNeedsEveryVariant(t *testing.T) {
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"who":  `[{"format":"{f}{h}","f":"1","h":"x"},{"format":"{g}{h}","g":"2","h":"y"}]`,
+		"card": `"{..who.f}"`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), "not every variant") {
+		t.Fatalf("New = %v, want the missing variant named", err)
+	}
+}
+
+func TestBareReferenceDrawsEachTime(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"die":  `["1","2","3","4","5","6"]`,
+		"roll": `"{..die} {..die}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "roll"); got[0] != got[2] {
+			return
+		}
+	}
+	t.Fatal("two bare references always agreed; each should be its own draw")
+}
+
+func TestReferenceOverlapIsRejected(t *testing.T) {
+	for name, file := range map[string]string{
+		"head beside a path":                   `{"format":"{..cat.p} {..cat.p.first}","p":[{"format":"{first}","first":"A"},{"format":"{first}","first":"B"}]}`,
+		"sibling path beside a reference path": `{"format":"{p.first} {..cat.p.last}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
+	} {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
 	}
 }
