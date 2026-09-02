@@ -247,7 +247,8 @@ hyphenated field can't be an operand.
 Renders e.g. `19.99 x 3 = 59.97`. An operand that can never be a number (`"abc"`,
 or a choice of such) is rejected at load, as is a division by a constant zero
 (`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
-`NaN`, and a division by a sometimes-zero one `Inf` — both print rather than fail.
+`NaN`, and a division by one that is not constant `Inf` — both print rather than
+fail.
 
 ### Transforms
 
@@ -390,14 +391,16 @@ tokens add cost in proportion to the output.
 - **64-bit targets only.** The gate builds amd64, and the buffer sizing a render
   pre-computes (renders × bytes) assumes a 64-bit int; on a 32-bit target it could
   overflow and panic.
-- **A constant zero divisor is a load error; a sometimes-zero one prints `Inf`.**
-  `1/0` and a fixed `"0"` field are decidable, so they join the never-numeric
-  operand as a load error; a divisor that is only sometimes zero is data, and
-  `Inf` printing visibly is the never-fail rule.
-- **A default written out, and a constant spelled as a sample, are load errors.**
-  `weight: 1`, `repeat: 1`, `separator: ""`, `int(5,5)`, `float(1,1,2)`, `+5`
-  and `05` each spell what a shorter form already spells, so each is rejected
-  naming that form.
+- **A constant zero divisor is a load error; a divisor that is not constant prints
+  `Inf`.** `1/0` and a fixed `"0"` field are decidable, so they join the
+  never-numeric operand as a load error; the fold stops where an operand varies,
+  so `a/(b*c)` with `b` fixed at `0` and `c` varying loads and prints `Inf` every
+  draw — catching it needs zero-absorbing algebra for a shape nobody writes.
+- **In data, a default written out and a constant spelled as a sample are load
+  errors.** `weight: 1`, `repeat: 1`, `separator: ""`, `int(5,5)`, `float(1,1,2)`,
+  `+5` and `05` each spell what a shorter form already spells, so each is rejected
+  naming that form. The CLI's numbers follow the shell instead: `--seed 007` and
+  `--repeat +3` are 7 and 3, as every command line reads them.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.

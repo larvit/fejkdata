@@ -181,8 +181,8 @@ func checkRepeatReach(root map[string]node) error {
 		return r
 	}
 	return walkNodes(root, func(path string, n node) error {
-		if t, ok := n.(*template); ok && t.repeat > 1 && of(n) > maxLen {
-			return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, of(n), maxLen)
+		if t, ok := n.(*template); ok && t.repeat > 1 && of(n) > MaxRepeat {
+			return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, of(n), MaxRepeat)
 		}
 		return nil
 	})

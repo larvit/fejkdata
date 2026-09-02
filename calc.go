@@ -82,8 +82,12 @@ func checkCalc(fields map[string]node, args []string) error {
 		return fmt.Errorf("calc(%q) divides by %s, which is always zero", args[0], divisor)
 	}
 	if len(args) == 2 {
-		if dp, err := plainInt(args[1]); err != nil || dp < 0 || dp > maxDecimals {
-			return fmt.Errorf("calc decimals %q must be a plain integer in 0..%d", args[1], maxDecimals)
+		dp, err := plainInt(args[1])
+		if err != nil {
+			return fmt.Errorf("calc decimals %w", err)
+		}
+		if dp < 0 || dp > maxDecimals {
+			return fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
 		}
 	}
 	return nil

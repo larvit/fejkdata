@@ -28,8 +28,11 @@ import (
 //go:embed data
 var shippedFS embed.FS
 
-// MaxRepeat caps a repeat, and the renders nested repeats multiply to along any path.
+// MaxRepeat caps a repeat, and the renders nested repeats multiply to along any
+// path; the CLI's --repeat shares it.
 const MaxRepeat = 1 << 20
+
+var _ [^uint(0)>>63 - 1]struct{} // 64-bit only, per the README's Decisions
 
 // ErrNoData is returned by New when no source is loaded at all.
 var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
@@ -207,7 +210,7 @@ func join(prefix, name string) string {
 	return prefix + "." + name
 }
 
-// randomBytes seeds an unseeded generator; a failure is an error, never a fixed seed.
+// randomBytes seeds an unseeded generator.
 var randomBytes = crand.Read
 
 func newRand(seed uint64, seeded bool) (*session, error) {

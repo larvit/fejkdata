@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -9,12 +10,12 @@ import (
 	"unicode"
 )
 
-// maxLen caps sample output lengths (hex, nanoid, base64) and the renders a repeat
-// multiplies to along any path; maxDecimals caps float/calc decimal places. So a
-// fat-fingered or overflowing argument fails at New instead of trying to allocate
-// gigabytes — or panicking — at render.
+// maxLen caps sample output lengths (hex, nanoid, base64, digits, upper, lower)
+// and maxDecimals float/calc decimal places, so a fat-fingered or overflowing
+// argument fails at New instead of trying to allocate gigabytes — or panicking —
+// at render.
 const (
-	maxLen      = MaxRepeat
+	maxLen      = 1 << 20
 	maxDecimals = 1024
 )
 
@@ -224,6 +225,9 @@ func randChars(r rng, n int, alphabet string) string {
 // plainInt parses an integer arg written the one way: no sign, no leading zero.
 func plainInt(s string) (int, error) {
 	n, err := strconv.Atoi(s)
+	if errors.Is(err, strconv.ErrRange) {
+		return 0, fmt.Errorf("%q is past the integer range: %w", s, err)
+	}
 	if err != nil {
 		return 0, fmt.Errorf("%q is not an integer", s)
 	}
@@ -235,6 +239,9 @@ func plainInt(s string) (int, error) {
 
 func posIntArg(_ map[string]node, a []string) error {
 	n, err := plainInt(a[0])
+	if errors.Is(err, strconv.ErrRange) {
+		return fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
+	}
 	if err != nil {
 		return fmt.Errorf("count %w", err)
 	}
@@ -248,10 +255,13 @@ func posIntArg(_ map[string]node, a []string) error {
 }
 
 func intRangeArgs(_ map[string]node, a []string) error {
-	lo, e1 := plainInt(a[0])
-	hi, e2 := plainInt(a[1])
-	if e1 != nil || e2 != nil {
-		return fmt.Errorf("int(min,max) needs plain integers, got %q,%q", a[0], a[1])
+	lo, err := plainInt(a[0])
+	if err != nil {
+		return fmt.Errorf("int(min,max): min %w", err)
+	}
+	hi, err := plainInt(a[1])
+	if err != nil {
+		return fmt.Errorf("int(min,max): max %w", err)
 	}
 	if lo > hi {
 		return fmt.Errorf("int(min,max): min %d > max %d", lo, hi)
@@ -268,9 +278,12 @@ func intRangeArgs(_ map[string]node, a []string) error {
 func floatArgs(_ map[string]node, a []string) error {
 	lo, e1 := strconv.ParseFloat(a[0], 64)
 	hi, e2 := strconv.ParseFloat(a[1], 64)
-	dp, e3 := plainInt(a[2])
-	if e1 != nil || e2 != nil || e3 != nil {
-		return fmt.Errorf("float(min,max,dp) needs numeric bounds and a plain decimals count, got %q,%q,%q", a[0], a[1], a[2])
+	if e1 != nil || e2 != nil {
+		return fmt.Errorf("float(min,max,dp) needs numeric bounds, got %q,%q", a[0], a[1])
+	}
+	dp, err := plainInt(a[2])
+	if err != nil {
+		return fmt.Errorf("float(min,max,dp): decimals %w", err)
 	}
 	if math.IsNaN(lo) || math.IsNaN(hi) || math.IsInf(lo, 0) || math.IsInf(hi, 0) {
 		return fmt.Errorf("float(min,max,dp) needs finite bounds, got %q,%q", a[0], a[1])

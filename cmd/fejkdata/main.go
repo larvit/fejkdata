@@ -215,8 +215,9 @@ func (in invocation) options() []fejkdata.Option {
 }
 
 // write streams the path's renders to w, repeat of them joined by the separator
-// and ended by a newline. A path that renders once renders every time, so the only
-// failure comes before anything is written.
+// and ended by a newline. A path that renders once renders every time, so a Fake
+// failure comes before anything is written; a write failure surfaces from Flush,
+// bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
