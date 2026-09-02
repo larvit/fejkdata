@@ -365,3 +365,17 @@ func TestAlternationThreeWay(t *testing.T) {
 		t.Fatalf("3-way alternation produced %v, want A, B and C", seen)
 	}
 }
+
+func TestArgErrorsNameTheSpelling(t *testing.T) {
+	for src, want := range map[string]string{
+		`"{float(1,2,02)}"`:                 "write 2",
+		`{"format":"{calc(a,02)}","a":"1"}`: "write 2",
+		`"{digits(+5)}"`:                    "write 5",
+		`"{hex(99999999999999999999)}"`:     "exceeds the maximum",
+		`"{int(007,9)}"`:                    "write 7",
+	} {
+		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
+		}
+	}
+}

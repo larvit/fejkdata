@@ -247,10 +247,20 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 }
 
 func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
-	for _, bad := range []string{`"{calc(1/0)}"`, `"{calc(2/(1-1))}"`, `{"format":"{calc(x/y)}","x":"1","y":"0"}`, `{"format":"{calc(x/(y*2))}","x":"1","y":" 0 "}`} {
-		if _, err := compile(parse(t, bad)); err == nil || !strings.Contains(err.Error(), "zero") {
-			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected", bad, err)
+	for src, want := range map[string]string{
+		`"{calc(1/0)}"`:                                  "divides by 0",
+		`"{calc(2/(1-1))}"`:                              "divides by (1 - 1)",
+		`{"format":"{calc(x/y)}","x":"1","y":"0"}`:       "divides by y",
+		`{"format":"{calc(x/(y*2))}","x":"1","y":" 0 "}`: "divides by (y * 2)",
+		`{"format":"{calc((a/0)+b)}","a":"1","b":"2"}`:   "divides by 0",
+		`{"format":"{calc(a/-0)}","a":"1"}`:              "divides by -0",
+	} {
+		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
 		}
+	}
+	if _, err := compile(parse(t, `{"format":"{calc(a/(b*c))}","a":"1","b":"0","c":["1","2"]}`)); err != nil {
+		t.Errorf("compile(a/(b*c)) = %v, want a divisor that varies accepted", err)
 	}
 	f := engine(1)
 	for i := 0; i < 50; i++ {

@@ -362,3 +362,11 @@ func TestRunEmptyDataPathIsNamed(t *testing.T) {
 		t.Errorf("run(--data-path=) = %d, %q, want the empty path named", code, errb)
 	}
 }
+
+func TestRunNumbersFollowTheShell(t *testing.T) {
+	_, want, _ := runOut("--seed", "7", "--repeat", "3", "sv_SE.word")
+	code, got, errb := runOut("--seed", "007", "--repeat", "+3", "sv_SE.word")
+	if code != 0 || got != want {
+		t.Errorf("run(--seed 007 --repeat +3) = %d, %q, stderr %q; want the same as --seed 7 --repeat 3 %q", code, got, errb, want)
+	}
+}
