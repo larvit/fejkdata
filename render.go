@@ -59,8 +59,6 @@ func descend(s *session, n node, segments []string) (node, error) {
 			}
 		}
 		return descend(s, pick(s, n), segments)
-	case literal:
-		return nil, fmt.Errorf("a plain string has no field %q", segments[0])
 	default:
 		return nil, fmt.Errorf("cannot descend into %T at %q", n, segments[0])
 	}
@@ -85,12 +83,13 @@ func unreachableInChoice(c *choice, want string) error {
 // front, so rendering a compiled tree cannot fail.
 func render(s *session, n node) string {
 	switch n := n.(type) {
-	case literal:
-		return string(n)
 	case *choice:
 		return render(s, pick(s, n))
 	case *template:
 		if n.repeat == 1 {
+			if n.fixed {
+				return n.lit
+			}
 			return expand(s, n)
 		}
 		var b strings.Builder
@@ -119,21 +118,6 @@ func pick(r rng, c *choice) node {
 	return c.items[i]
 }
 
-// classChar randomises one character-class rune: '0' digit 0-9, '1' digit 1-9,
-// 'A' letter A-Z, 'a' letter a-z.
-func classChar(s *session, c rune) byte {
-	switch c {
-	case '0':
-		return byte('0' + s.IntN(10))
-	case '1':
-		return byte('1' + s.IntN(9))
-	case 'A':
-		return byte('A' + s.IntN(26))
-	default: // 'a'
-		return byte('a' + s.IntN(26))
-	}
-}
-
 // expand renders a template's compiled ops. compile validated every token, so this
 // cannot fail.
 func expand(s *session, t *template) string {
@@ -153,8 +137,6 @@ func expand(s *session, t *template) string {
 		switch o.kind {
 		case 'l':
 			b.WriteString(o.lit)
-		case 'c':
-			b.WriteByte(classChar(s, o.r))
 		case 'f':
 			b.WriteString(readField(s, t, held, o.arms[s.IntN(len(o.arms))]))
 		case 'b':

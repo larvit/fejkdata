@@ -6,41 +6,33 @@ import (
 	"strings"
 )
 
-// This file is the {token} grammar of a format string: how it is scanned
-// (eachToken), how a function token is parsed (funcCall) and validated
-// (checkFunc, checkTokens), and the builtin contract its functions implement.
-// render.go evaluates these tokens; node.go compiles the surrounding JSON;
-// reference.go binds {..path} tokens across the tree.
-
-// ftoken is one unit of a scanned format string: a literal rune to emit, a class
-// char to randomise ('0' '1' 'A' 'a'), or the body of a {…} token.
+// ftoken is one unit of a scanned format string: a literal rune or the body of a
+// {…} token.
 type ftoken struct {
-	kind byte // 'l' literal rune, 'c' class char, 'b' brace body
-	r    rune // for kinds 'l' and 'c'
+	kind byte // 'l' literal rune, 'b' brace body
+	r    rune
 	body string
 }
 
 // eachToken scans a format string once and calls fn for each unit, the single
-// source of truth for how '#' escapes and {…} braces are read — compileOps,
-// checkTokens, fieldTokens and refTokens all drive off it so the grammar can't
-// drift between the validator and the renderer. '#' escapes the next char to a
-// literal ("#0" -> '0', "##" -> '#'); a '{' must reach a '}' (else an error); an
-// unmatched '}' is an ordinary literal. The error stops the scan early.
+// source of truth for how braces are read: "{{" and "}}" are literal braces, a "{"
+// opens a token that must reach its "}", and a lone "}" is an error.
 func eachToken(format string, fn func(ftoken) error) error {
 	rs := []rune(format)
 	for i := 0; i < len(rs); i++ {
 		var t ftoken
 		switch c := rs[i]; c {
-		case '#':
-			t.kind, t.r = 'l', '#'
-			if i++; i < len(rs) {
-				t.r = rs[i]
-			}
-		case '0', '1', 'A', 'a':
-			t.kind, t.r = 'c', c
 		case '{':
+			if i+1 < len(rs) && rs[i+1] == '{' {
+				t.kind, t.r = 'l', '{'
+				i++
+				break
+			}
 			end := i + 1
 			for end < len(rs) && rs[end] != '}' {
+				if rs[end] == '{' {
+					return fmt.Errorf("'{' inside a token in %q; a literal brace is written {{", format)
+				}
 				end++
 			}
 			if end >= len(rs) {
@@ -48,6 +40,13 @@ func eachToken(format string, fn func(ftoken) error) error {
 			}
 			t.kind, t.body = 'b', string(rs[i+1:end])
 			i = end
+		case '}':
+			if i+1 < len(rs) && rs[i+1] == '}' {
+				t.kind, t.r = 'l', '}'
+				i++
+				break
+			}
+			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
 		default:
 			t.kind, t.r = 'l', c
 		}
@@ -61,13 +60,10 @@ func eachToken(format string, fn func(ftoken) error) error {
 // builtin is a format-string function invoked as {name(args)}. It receives the
 // session (its rng, and the {seq()} counters), the output emitted so far in the
 // current expansion (for derivations such as a checksum over preceding digits), and
-// the values of the operands it named (only calc names any).
-// Almost all are pure over (rng, emitted, args) — no wall-clock, no crypto/rand —
-// so seeding stays reproducible; a time-based id derives its time from the rng.
-// seq is the one exception: it advances per-session counter state, which is itself
-// deterministic (1, 2, 3 …). arity is the exact arg count, or -1 for variadic
-// (then check does all the validation). The optional check validates args at
-// compile time (their values, beyond the count). The registry lives in builtins.go.
+// the values of the operands it named (only calc names any). All must stay pure
+// over (rng, emitted, args) so seeded output is reproducible; seq advances
+// per-session counter state, which is itself deterministic. arity is the exact arg
+// count, or -1 for variadic (then check does all the validation).
 type builtin struct {
 	arity int
 	// prep parses validated args once, at compile time, into the closure expand calls.
@@ -165,11 +161,9 @@ func checkTokens(format string, fields map[string]node) error {
 	})
 }
 
-// checkNoRepeatedArm rejects {a|a|b}. An alternation picks its arms evenly, so a
-// repeated one skews the odds — a third spelling of what weight is for, and one an
-// author is far likelier to have typed by accident than meant. The error names the
-// spelling that does skew a pick. It runs over the arms as written, so a repeated
-// reference arm ({..a|..a}) is caught alongside a repeated sibling.
+// checkNoRepeatedArm rejects {a|a|b}: an alternation picks its arms evenly, so a
+// repeated one is a second spelling of weight. The error names the spelling that
+// does skew a pick.
 func checkNoRepeatedArm(body string, names []string) error {
 	if len(names) < 2 {
 		return nil
@@ -228,10 +222,9 @@ func splitArm(name string) arm {
 }
 
 // checkNoOverlap rejects a format that both renders a level and reads a path into
-// it — {p} beside {p.first}, or {p.addr} beside {p.addr.city}. The two spell one
-// draw two ways: the path reads the level's held draw, while rendering the level
-// expands it afresh, so their values disagree. One spelling, so there is nothing
-// to get wrong. Names are compared in sorted order, so which pair is reported
+// it — {p} beside {p.first}, or {p.addr} beside {p.addr.city}. The path reads the
+// level's held draw while rendering the level expands it afresh, so their values
+// would disagree. Names are compared in sorted order, so which pair is reported
 // does not depend on where the tokens sit.
 func checkNoOverlap(format string, bound map[string]string) error {
 	names := boundReaders(format, bound)
@@ -311,13 +304,12 @@ func splitArms(body string) []arm {
 // values of the operands it named, which expand read for it.
 type callFn func(s *session, emitted string, operands []string) string
 
-// op is one compiled unit of a format string: a literal run, a class char, a field
-// alternation, or a builtin already bound to its args. compile builds these so
-// render never re-scans the format.
+// op is one compiled unit of a format string: a literal run, a field alternation,
+// or a builtin already bound to its args. compile builds these so render never
+// re-scans the format.
 type op struct {
-	kind byte   // 'l' literal run, 'c' class char, 'f' field alternation, 'b' builtin
+	kind byte   // 'l' literal run, 'f' field alternation, 'b' builtin
 	lit  string // kind 'l'
-	r    rune   // kind 'c'
 	arms []arm  // kind 'f': the '|' alternatives, split into key and path once
 	call callFn
 	// operands names the sibling fields a {calc()} reads, in the order calcVars
@@ -325,14 +317,14 @@ type op struct {
 	operands []string
 }
 
-// compileOps turns a format string into ops, and returns the smallest output it can
-// produce (literals plus one byte per class char) to size the render buffer, plus
-// two sets. bound is the levels the format addresses by dotted path, each mapped to
-// the first path reading it, which is what the overlap fences name. held is every
-// name drawn once per expansion — those levels, plus the siblings a {calc()} reads,
-// so an operand shown is the operand computed. Both are nil when the format needs
-// neither, so data that uses neither carries no render-time cost. Call checkTokens
-// first: it is what proves the scan and every token are valid.
+// compileOps turns a format string into ops, and returns the size of its literal
+// text to size the render buffer, plus two sets. bound is the levels the format
+// addresses by dotted path, each mapped to the first path reading it, which is what
+// the overlap fences name. held is every name drawn once per expansion — those
+// levels, plus the siblings a {calc()} reads, so an operand shown is the operand
+// computed. Both are nil when the format needs neither, so data that uses neither
+// carries no render-time cost. Call checkTokens first: it is what proves the scan
+// and every token are valid.
 func compileOps(format string) ([]op, int, map[string]string, map[string]bool) {
 	var ops []op
 	var lit strings.Builder
@@ -356,10 +348,6 @@ func compileOps(format string) ([]op, int, map[string]string, map[string]bool) {
 		switch t.kind {
 		case 'l':
 			lit.WriteRune(t.r)
-		case 'c':
-			flush()
-			grow++
-			ops = append(ops, op{kind: 'c', r: t.r})
 		case 'b':
 			flush()
 			if name, args, ok := funcCall(t.body); ok {

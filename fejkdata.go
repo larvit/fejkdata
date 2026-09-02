@@ -156,8 +156,6 @@ func paths(n node) []string {
 			out = append(out, p)
 		}
 		return out
-	case literal:
-		return []string{""}
 	}
 	return nil
 }

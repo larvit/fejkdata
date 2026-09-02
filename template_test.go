@@ -219,32 +219,32 @@ func TestCompileErrors(t *testing.T) {
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf
 		`[{"format":"A","weight":"heavy"}]`,                             // non-numeric weight
-		`{"format":"x","repeat":0}`,                                              // repeat below 1
-		`{"format":"x","repeat":-2}`,                                             // negative repeat
-		`{"format":"x","repeat":1.5}`,                                            // non-integer repeat
-		`{"format":"x","repeat":"two"}`,                                          // non-numeric repeat
-		`{"format":"x","repeat":2,"separator":5}`,                                // non-string separator
-		`{"format":"{nope()}"}`,                                                  // unknown function
-		`{"format":"{luhn(x)}"}`,                                                 // function given args it takes none of
-		`{"format":"{luhn(}"}`,                                                   // malformed function token
-		`{"format":"{int(1)}"}`,                                                  // wrong arity
-		`{"format":"{int(a,b)}"}`,                                                // non-integer args
-		`{"format":"{int(5,1)}"}`,                                                // min > max
-		`{"format":"{hex(0)}"}`,                                                  // count must be positive
-		`{"format":"{nanoid(-1)}"}`,                                              // negative count
-		`{"format":"{base64(0)}"}`,                                               // count must be positive
-		`{"format":"{float(1,2)}"}`,                                              // wrong arity
-		`{"format":"{float(1,2,-1)}"}`,                                           // negative decimals
-		`{"format":"{iban(US)}"}`,                                                // unsupported country
-		`{"format":"{seq(a,b)}"}`,                                                // seq takes at most one name
-		`{"format":"{calc()}"}`,                                                  // calc needs an expression
-		`{"format":"{calc(1 +)}"}`,                                               // dangling operator
-		`{"format":"{calc((1 + 2)}"}`,                                            // unbalanced parenthesis
-		`{"format":"{calc(1 2)}"}`,                                               // two operands, no operator
-		`{"format":"{calc(price)}"}`,                                             // operand names no field
-		`{"format":"{calc(1, 2, 3)}"}`,                                           // too many args
-		`{"format":"{calc(1, x)}"}`,                                              // decimals arg not an integer
-		`{"format":"{calc(1, -1)}"}`,                                             // decimals negative
+		`{"format":"x","repeat":0}`,                                     // repeat below 1
+		`{"format":"x","repeat":-2}`,                                    // negative repeat
+		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
+		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
+		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
+		`{"format":"{nope()}"}`,                                         // unknown function
+		`{"format":"{luhn(x)}"}`,                                        // function given args it takes none of
+		`{"format":"{luhn(}"}`,                                          // malformed function token
+		`{"format":"{int(1)}"}`,                                         // wrong arity
+		`{"format":"{int(a,b)}"}`,                                       // non-integer args
+		`{"format":"{int(5,1)}"}`,                                       // min > max
+		`{"format":"{hex(0)}"}`,                                         // count must be positive
+		`{"format":"{nanoid(-1)}"}`,                                     // negative count
+		`{"format":"{base64(0)}"}`,                                      // count must be positive
+		`{"format":"{float(1,2)}"}`,                                     // wrong arity
+		`{"format":"{float(1,2,-1)}"}`,                                  // negative decimals
+		`{"format":"{iban(US)}"}`,                                       // unsupported country
+		`{"format":"{seq(a,b)}"}`,                                       // seq takes at most one name
+		`{"format":"{calc()}"}`,                                         // calc needs an expression
+		`{"format":"{calc(1 +)}"}`,                                      // dangling operator
+		`{"format":"{calc((1 + 2)}"}`,                                   // unbalanced parenthesis
+		`{"format":"{calc(1 2)}"}`,                                      // two operands, no operator
+		`{"format":"{calc(price)}"}`,                                    // operand names no field
+		`{"format":"{calc(1, 2, 3)}"}`,                                  // too many args
+		`{"format":"{calc(1, x)}"}`,                                     // decimals arg not an integer
+		`{"format":"{calc(1, -1)}"}`,                                    // decimals negative
 	} {
 		if _, err := compile(parse(t, bad)); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)

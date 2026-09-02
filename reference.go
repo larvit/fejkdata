@@ -90,11 +90,10 @@ func checkBoundLevelsHeld(root map[string]node) error {
 }
 
 // cover collects what one held draw of a level answers for: the level and
-// everything contained in it, since a path may read any of it. Literals are left
-// out — one fixed string cannot disagree with itself, and a literal is a value, so
-// two that spell the same text are indistinguishable.
+// everything contained in it, since a path may read any of it. A fixed string is
+// left out — it cannot disagree with itself.
 func cover(n node, into map[node]bool) {
-	if _, fixed := n.(literal); fixed {
+	if isFixed(n) {
 		return
 	}
 	into[n] = true
@@ -111,10 +110,9 @@ func cover(n node, into map[node]bool) {
 // The walk stops at a {..path} edge, which is where the operand's own value ends
 // and a shared source begins: two names referencing one category are two draws, the
 // same rule {word} {word} follows. cover stops there too, by way of named, so both
-// halves of the fence end at the same boundary. A literal is left out for the
-// reason cover leaves one out.
+// halves of the fence end at the same boundary.
 func operandDraw(n node, into map[node]bool) {
-	if _, fixed := n.(literal); fixed {
+	if isFixed(n) {
 		return
 	}
 	if into[n] {
@@ -127,6 +125,12 @@ func operandDraw(n node, into map[node]bool) {
 		}
 		operandDraw(e.to, into)
 	}
+}
+
+// isFixed is a string that varies nothing: fixed text with no fields to read into.
+func isFixed(n node) bool {
+	t, ok := n.(*template)
+	return ok && t.fixed && len(t.fields) == 0
 }
 
 // renders reports whether rendering n can reach anything in want, following the
@@ -294,7 +298,7 @@ func (e renderEdge) reached() string {
 
 // renderEdges lists the children rendering n recurses into, mirroring expand: a
 // choice's items, and a template's field/reference tokens plus its calc operands.
-// A literal or group renders nothing, so it has no edges.
+// A group renders nothing, so it has no edges.
 func renderEdges(n node) []renderEdge {
 	switch n := n.(type) {
 	case *choice:

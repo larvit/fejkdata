@@ -63,7 +63,7 @@ own and render it — no code change. Save this as `mydata/sql.json`:
 
 ```json
 {
-  "format": "INSERT INTO users V#ALUES({sql-username});",
+  "format": "INSERT INTO users VALUES({sql-username});",
   "sql-username": {
     "format": "'{username}'",
     "repeat": 3,
@@ -74,9 +74,7 @@ own and render it — no code change. Save this as `mydata/sql.json`:
 ```
 
 `sql-username` renders `'{username}'` `repeat` times and joins the results with
-the `),(` separator; the outer `V#ALUES(…)` wraps that into one valid row list.
-(`#A` escapes the literal `A`, which a format string would otherwise read as a
-letter token — see [Data format](#data-format).)
+the `),(` separator; the outer `VALUES(…)` wraps that into one valid row list.
 
 ```sh
 fejkdata --seed 1 --data-path ./mydata sql
@@ -160,7 +158,7 @@ when drawn from one goroutine.
 The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`)
 plus a locale-neutral `misc` folder — is embedded in the library and the CLI, so
 both work with no data on disk. Layer your own directories over it; a category or
-folder name must not use `.`, `|`, `(` or `}` (see [Data format](#data-format)),
+folder name must not use `.`, `|`, `(`, `{` or `}` (see [Data format](#data-format)),
 and dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
 A directory is just a namespace. Each JSON file is a category named after the
@@ -206,7 +204,7 @@ Every value is a **node**, one of three shapes, nestable without limit:
 
 | Node | JSON | Meaning |
 |------|------|---------|
-| literal | `"Malmö"` | emitted verbatim — never formatted |
+| string | `"Malmö"` | a format with no fields: text, or tokens that need none (`"{digits(3)}"`, `"{..path}"`) |
 | choice | `["a", "b", …]` | one element, picked at random |
 | template | `{"format": "…", …}` | a format string plus the named sub-nodes it references |
 
@@ -215,9 +213,9 @@ within a choice:
 
 ```json
 [
-  { "format": "#070-000 00 00", "weight": 10 },
-  { "format": "#01-000 00 00" },
-  { "format": "#010-000 00 00" }
+  { "format": "070-{digits(3)} {digits(2)} {digits(2)}", "weight": 10 },
+  { "format": "01-{digits(3)} {digits(2)} {digits(2)}" },
+  { "format": "010-{digits(3)} {digits(2)} {digits(2)}" }
 ]
 ```
 
@@ -242,8 +240,8 @@ is a field**. So write `seperator` and you get a field by that name while the
 option stays unset. `New` rejects an option that cannot take effect — a
 `separator` without a `repeat` above 1, a `weight` outside a choice — and a name
 using a character the grammars reserve: `.` separates the segments of a path, `|`
-the arms of a token, `(` opens a function call and `}` ends the token, so a name
-carrying one is a name no format could ever spell. An empty name goes the same
+the arms of a token, `(` opens a function call and `{` `}` delimit the token, so a
+name carrying one is a name no format could ever spell. An empty name goes the same
 way — it is no path segment at all, so `List` never offers it. That holds for a
 category, a folder and a field alike.
 
@@ -254,7 +252,7 @@ argument counts are rejected at `New`. This is what makes a generated Swedish
 personnummer valid — its last digit is a Luhn checksum over the nine before it:
 
 ```json
-{ "format": "00{mmdd}-000{luhn()}", "mmdd": [ … ] }
+{ "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": [ … ] }
 ```
 
 renders e.g. `811218-987`, then `{luhn()}` appends `6` → `811218-9876`. Place it
@@ -264,7 +262,7 @@ form prefixes the century outside the checksummed core:
 
 ```json
 { "format": "{century}{core}", "century": ["19", "20"],
-  "core": { "format": "00{mmdd}-000{luhn()}", "mmdd": [ … ] } }
+  "core": { "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": [ … ] } }
 ```
 
 A function must be deterministic (no wall-clock), so a seeded generator stays
@@ -289,6 +287,9 @@ fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
 | `{ulid()}` | sample | ULID, 26-char Crockford base32 |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{hex(n)}` | sample | `n` lowercase hex digits |
+| `{digits(n)}` | sample | `n` digits 0–9 |
+| `{upper(n)}` | sample | `n` letters A–Z |
+| `{lower(n)}` | sample | `n` letters a–z |
 | `{base64(n)}` | sample | `n` random bytes, base64 |
 | `{int(min,max)}` | sample | uniform integer in `[min, max]` |
 | `{float(min,max,dp)}` | sample | number in `[min, max]` with `dp` decimals |
@@ -349,8 +350,8 @@ locality and the postal code that really covers it, stay together:
 ```json
 { "format": "{street} {number}\n{place.postal-code} {place.locality}",
   "place": [
-    { "format": "{locality}", "locality": "Stockholm", "postal-code": { "format": "#100 00" }, "weight": 975 },
-    { "format": "{locality}", "locality": "Tranås",    "postal-code": { "format": "#5#7#3 00" }, "weight": 18 }
+    { "format": "{locality}", "locality": "Stockholm", "postal-code": "1{digits(2)} {digits(2)}", "weight": 975 },
+    { "format": "{locality}", "locality": "Tranås",    "postal-code": "573 {digits(2)}", "weight": 18 }
   ] }
 ```
 
@@ -411,31 +412,25 @@ carries "postal-code"; all carry [locality]
 The sub-fields stay addressable on their own — `Fake("address.place.locality")`
 renders, and `List` advertises it.
 
-**Format string.** Every character is literal except:
+**Format string.** Every character is literal except a `{…}` token:
 
 | Token | Expands to |
 |-------|-----------|
-| `0` | digit 0–9 |
-| `1` | digit 1–9 |
-| `A` | letter A–Z |
-| `a` | letter a–z |
-| `#` | escape — the next char is literal (`#0` → `0`, `##` → `#`) |
 | `{name}` | render the sibling field `name` |
 | `{name.field}` | render `field` of one draw of the sibling `name` (see **Correlated fields**) |
 | `{name()}` | call a built-in function (see **Functions**) |
 | `{..path}` | render the node at a dot path from the data root (see **References**) |
+| `{{`, `}}` | a literal `{` or `}` |
 
 `{a|b}` renders one of the sibling fields `a` or `b`, chosen at random; an arm
 may be a `{..path}` reference too (`{name|..en_US.person}`). The arms are picked
 evenly and must differ — `{a|a|b}` would skew the odds, which is what `weight` is
 for, so a repeated arm is a load error.
 
-Inside a `format`, `0 1 A a` are **always** character classes — so a fixed `0`,
-`1`, `A` or `a` must be escaped (`#1`, `#A`) or it becomes random. A format of
-`100 Main St` renders e.g. `506 Mdin St` — the `1`, `0`, `0` and `a` were random,
-the `M`, `in` and `St` were not. A half-fixed string is the trap: `555-0000`
-keeps `555-` and randomises the last four digits. For a value with no
-tokens at all, use a bare string node (`"100 Main St"`), emitted verbatim.
+Text means what it says: `100 Main St` renders `100 Main St`. Random characters
+come from the sample functions — `{digits(3)}`, `{upper(1)}`, `{lower(2)}`,
+`{int(10,99)}` — so a phone pattern is `070-{digits(3)} {digits(2)} {digits(2)}`.
+A lone `}` is a load error naming `}}`.
 
 **Putting it together** (`person.json`):
 

@@ -16,27 +16,21 @@ const (
 	maxDecimals = 1024
 )
 
-// builtins is the registry of {name(args)} functions. Derivations read the
-// digits emitted so far in the current expansion (luhn, mod11, ean — place them
-// after their payload); samples read only the rng (uuid, ulid, ...). All
-// must stay pure over (rng, emitted, args) so seeded output is reproducible — a
-// time-based id (uuid v7, ulid) draws its timestamp from the rng, not the wall
-// clock. Add a builtin only for what data can't express: a random v4 UUID and a
-// 24-hex ObjectID both ship as data, so the uuid builtin is v7.
+// builtins is the registry of {name(args)} functions. Derivations read the digits
+// emitted so far in the current expansion (place them after their payload);
+// samples read only the rng. A time-based id (uuid v7, ulid) draws its timestamp
+// from the rng, not the wall clock, so seeded output stays reproducible.
 var builtins = map[string]builtin{
-	"luhn":  {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
-	"mod11": {arity: 0, prep: derive(mod11Check)},
-	"ean":   {arity: 0, prep: derive(eanCheck)},
-	"uuid":  {arity: 0, prep: sample(uuidV7)},
-	"ulid":  {arity: 0, prep: sample(ulid)},
-	"nanoid": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
-		n := atoi(a[0])
-		return func(s *session, _ string, _ []string) string { return nanoid(s, n) }
-	}},
-	"hex": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
-		n := atoi(a[0])
-		return func(s *session, _ string, _ []string) string { return randHex(s, n) }
-	}},
+	"luhn":   {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
+	"mod11":  {arity: 0, prep: derive(mod11Check)},
+	"ean":    {arity: 0, prep: derive(eanCheck)},
+	"uuid":   {arity: 0, prep: sample(uuidV7)},
+	"ulid":   {arity: 0, prep: sample(ulid)},
+	"nanoid": {arity: 1, check: posIntArg, prep: chars(nanoidAlphabet)},
+	"hex":    {arity: 1, check: posIntArg, prep: chars(hexDigits)},
+	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789")},
+	"upper":  {arity: 1, check: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+	"lower":  {arity: 1, check: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
 	"base64": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
 		n := atoi(a[0])
 		return func(s *session, _ string, _ []string) string {
@@ -74,9 +68,9 @@ var builtins = map[string]builtin{
 	}},
 }
 
-// derive and sample are the two argument-free builtin shapes the README names: a
-// derivation reads the output emitted so far, a sample reads only the rng. Each
-// lifts that one function into the prep every registry entry supplies.
+// derive and sample are the two argument-free builtin shapes: a derivation reads
+// the output emitted so far, a sample reads only the rng. chars is the shape of a
+// sample of n characters drawn from an alphabet.
 func derive(f func(emitted string) string) func([]string) callFn {
 	return func([]string) callFn {
 		return func(_ *session, emitted string, _ []string) string { return f(emitted) }
@@ -86,6 +80,13 @@ func derive(f func(emitted string) string) func([]string) callFn {
 func sample(f func(rng) string) func([]string) callFn {
 	return func([]string) callFn {
 		return func(s *session, _ string, _ []string) string { return f(s) }
+	}
+}
+
+func chars(alphabet string) func([]string) callFn {
+	return func(a []string) callFn {
+		n := atoi(a[0])
+		return func(s *session, _ string, _ []string) string { return randChars(s, n, alphabet) }
 	}
 }
 
@@ -119,10 +120,10 @@ func randBytes(r rng, n int) []byte {
 	return b
 }
 
-func randHex(r rng, n int) string {
+func randChars(r rng, n int, alphabet string) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = hexDigits[r.IntN(16)]
+		b[i] = alphabet[r.IntN(len(alphabet))]
 	}
 	return string(b)
 }
@@ -182,17 +183,8 @@ func seqArg(_ map[string]node, a []string) error {
 	return nil
 }
 
-// nanoidAlphabet is the 64-char URL-safe set Nano IDs use (order is irrelevant
-// to the uniform pick).
+// nanoidAlphabet is the 64-char URL-safe set Nano IDs use.
 const nanoidAlphabet = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-func nanoid(r rng, n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = nanoidAlphabet[r.IntN(len(nanoidAlphabet))]
-	}
-	return string(b)
-}
 
 // uuidV7 builds an RFC 9562 v7 UUID. The 48-bit timestamp field is drawn from
 // the rng (not the clock) to stay reproducible, then the version (7) and variant

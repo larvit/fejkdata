@@ -8,16 +8,6 @@ import (
 	"unicode"
 )
 
-// calc is the {calc(expr[, dp])} token: an arithmetic expression over number
-// literals and sibling-field names, with + - * /, unary minus and parentheses. It is
-// a registry builtin like any other {name(args)} function — the one that names
-// operands, which expand reads for it (once per expansion, so the value computed is
-// the value the format showed) and hands over as strings. The value prints in
-// minimal decimal form, or rounded to dp when given. An operand that isn't a number
-// becomes NaN, which propagates and prints as "NaN" — visible, never a render error.
-// The expression is parsed once at New into an AST every render shares and none
-// mutates, so render cannot fail and must not carry per-render state.
-
 // calcNode is a parsed expression node. It evaluates over the operand values expand
 // read, so the evaluator touches neither the rng nor the node tree.
 type calcNode interface {

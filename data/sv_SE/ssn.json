@@ -1,6 +1,6 @@
 [
   {
-    "format": "00{mmdd}-000{luhn()}",
+    "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}",
     "mmdd": [
       {
         "format": "{m}{d}",

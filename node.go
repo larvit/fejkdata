@@ -7,15 +7,10 @@ import (
 	"strings"
 )
 
-// node is a compiled template element: literal, choice, or template. Compiling
-// JSON into these once (see compile) means rendering never re-inspects the raw
-// JSON or re-sums weights.
+// node is a compiled template element: a choice or a template. Compiling JSON
+// into these once (see compile) means rendering never re-inspects the raw JSON or
+// re-sums weights.
 type node interface{ isNode() }
-
-// literal is emitted verbatim, never formatted.
-type literal string
-
-func (literal) isNode() {}
 
 // group is a namespace of named children, built from a directory of JSON files
 // and subdirectories. It has no value of its own: descend into a named child by
@@ -36,16 +31,19 @@ type choice struct {
 
 func (*choice) isNode() {}
 
-// template renders a format string, substituting {tokens} from fields. repeat
-// (default 1) renders that format that many times and joins the results with
-// separator (default ""), each render an independent pick.
+// template renders a format string, substituting {tokens} from fields. A bare
+// JSON string is a template with no fields. repeat (default 1) renders that format
+// that many times and joins the results with separator (default ""), each render
+// an independent pick.
 type template struct {
 	format    string
 	fields    map[string]node
 	repeat    int
 	separator string
-	ops       []op // format compiled once (see compileOps); what expand walks
-	grow      int  // minimum output size, to size the render buffer
+	ops       []op   // format compiled once (see compileOps); what expand walks
+	grow      int    // minimum output size, to size the render buffer
+	fixed     bool   // no op varies, so every render is lit
+	lit       string // the whole output when fixed
 	// bound maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
@@ -72,13 +70,36 @@ func compile(v any) (node, error) {
 func compileItem(v any) (node, error) {
 	switch v := v.(type) {
 	case string:
-		return literal(v), nil
+		return compileString(v)
 	case []any:
 		return compileChoice(v)
 	case map[string]any:
 		return compileTemplate(v)
 	default:
 		return nil, fmt.Errorf("unsupported node type %T", v)
+	}
+}
+
+func compileString(s string) (node, error) {
+	if err := checkTokens(s, nil); err != nil {
+		return nil, err
+	}
+	t := &template{format: s, repeat: 1}
+	t.compileFormat()
+	return t, nil
+}
+
+// compileFormat compiles the format into ops once every field is in place.
+func (t *template) compileFormat() {
+	t.ops, t.grow, t.bound, t.held = compileOps(t.format)
+	t.fixed = true
+	for _, o := range t.ops {
+		if o.kind != 'l' {
+			t.fixed = false
+		}
+	}
+	if t.fixed && len(t.ops) == 1 {
+		t.lit = t.ops[0].lit
 	}
 }
 
@@ -163,7 +184,7 @@ func compileTemplate(m map[string]any) (node, error) {
 	if err := checkTokens(format, t.fields); err != nil {
 		return nil, err
 	}
-	t.ops, t.grow, t.bound, t.held = compileOps(format)
+	t.compileFormat()
 	if err := checkNoOverlap(format, t.bound); err != nil {
 		return nil, err
 	}
@@ -205,8 +226,6 @@ func checkPath(n node, tail []string, level string) error {
 			return nil
 		}
 		return checkPath(n.items[0], tail, level)
-	case literal:
-		return fmt.Errorf("a plain string has no field %q", tail[0])
 	default:
 		return fmt.Errorf("cannot descend into %T at %q", n, tail[0])
 	}
@@ -255,9 +274,10 @@ func weightOf(raw any) (float64, error) {
 
 // reservedInName is what a category, folder or field name may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
-// call and '}' ends the token. A name carrying one is reachable by no format, so it
-// is rejected where it is authored rather than at the token that cannot reach it.
-const reservedInName = ".|(}"
+// call and braces delimit the token. A name carrying one is reachable by no format,
+// so it is rejected where it is authored rather than at the token that cannot
+// reach it.
+const reservedInName = ".|({}"
 
 // reservedList spells reservedInName for an error message, so the two cannot drift.
 var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")

@@ -1,7 +1,7 @@
 [
   {
     "format": "{pre}{n}.{n}.{n}{suffix}",
-    "n": [{ "format": "0", "weight": 3 }, { "format": "10" }],
+    "n": [{ "format": "{digits(1)}", "weight": 3 }, { "format": "{int(10,99)}" }],
     "pre": ["", { "format": "v", "weight": 0.4 }],
     "suffix": ["", { "format": "-{tag}.{m}", "tag": ["alpha", "beta", "rc"], "m": ["1", "2", "3"], "weight": 0.3 }]
   }

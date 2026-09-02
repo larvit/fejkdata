@@ -9,16 +9,16 @@
       }
     ],
     "street-number": [
-      { "format": "10" },
-      { "format": "100", "weight": 2 },
-      { "format": "1000", "weight": 0.5 },
-      { "format": "10100", "weight": 0.3 }
+      { "format": "{int(10,99)}" },
+      { "format": "{int(100,999)}", "weight": 2 },
+      { "format": "{int(1000,9999)}", "weight": 0.5 },
+      { "format": "{int(10,99)}{int(100,999)}", "weight": 0.3 }
     ],
     "locality": ["Albany", "Atlanta", "Austin", "Baltimore", "Boston", "Charlotte", "Chicago", "Cincinnati", "Cleveland", "Columbus", "Dallas", "Denver", "Detroit", "El Paso", "Fort Worth", "Fresno", "Houston", "Indianapolis", "Jacksonville", "Kansas City", "Las Vegas", "Long Beach", "Los Angeles", "Memphis", "Mesa", "Miami", "Milwaukee", "Minneapolis", "Nashville", "New Orleans", "Oakland", "Oklahoma City", "Omaha", "Orlando", "Philadelphia", "Phoenix", "Pittsburgh", "Portland", "Raleigh", "Sacramento", "San Antonio", "San Diego", "San Jose", "Seattle", "St. Louis", "Tampa", "Tucson", "Tulsa"],
     "region": ["AL", "AZ", "CA", "CO", "CT", "FL", "GA", "IL", "IN", "KY", "LA", "MA", "MD", "MI", "MN", "MO", "NC", "NJ", "NV", "NY", "OH", "OK", "OR", "PA", "TN", "TX", "VA", "WA", "WI"],
     "postal-code": [
-      { "format": "10000" },
-      { "format": "10000-0000", "weight": 0.3 }
+      { "format": "{int(10000,99999)}" },
+      { "format": "{int(10000,99999)}-{digits(4)}", "weight": 0.3 }
     ]
   }
 ]

@@ -2,7 +2,7 @@
   {
     "format": "{o}.{o}.{o}.{o}",
     "weight": 8,
-    "o": [{ "format": "0", "weight": 3 }, { "format": "10", "weight": 4 }, { "format": "#100", "weight": 2 }]
+    "o": [{ "format": "{digits(1)}", "weight": 3 }, { "format": "{int(10,99)}", "weight": 4 }, { "format": "1{digits(2)}", "weight": 2 }]
   },
   {
     "format": "{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}:{hex(4)}"
