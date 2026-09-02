@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -90,7 +92,7 @@ func TestRunShortFlagValues(t *testing.T) {
 		{[]string{"-s=42", "-d", svSE, "address"}, "-s42"},
 		{[]string{"-s=42", "-d", svSE, "address"}, "--seed=42"},
 		{[]string{"-d=" + svSE, "address"}, "--data-path="},
-		{[]string{"-nd", "3", "-d", svSE, "word"}, `--repeat needs a positive integer, got "d"`},
+		{[]string{"-nd", "3", "-d", svSE, "word"}, `--repeat needs an integer in 1..1048576, got "d"`},
 		{[]string{"--seed=", "-d", svSE, "word"}, `--seed needs an unsigned integer, got ""`},
 	} {
 		code, out, errb := runOut(c.args...)
@@ -314,5 +316,42 @@ func TestRunNoShippedData(t *testing.T) {
 	code, _, errb = runOut("--no-shipped-data", "sv_SE.person")
 	if code != 2 || !strings.Contains(errb, "--no-shipped-data needs at least one --data-path") {
 		t.Errorf("--no-shipped-data alone = %d, %q, want misuse naming --data-path", code, errb)
+	}
+}
+
+func TestRunRepeatIsBounded(t *testing.T) {
+	for _, args := range [][]string{
+		{"--repeat", "9223372036854775807", "sv_SE.word"},
+		{"--repeat", "1048577", "sv_SE.word"},
+		{"-n", "99999999999", "sv_SE.word"},
+	} {
+		code, out, errb := runOut(args...)
+		if code != 2 || out != "" || !strings.Contains(errb, "1..1048576") {
+			t.Errorf("run(%v) = %d, %q, %q, want misuse naming the range", args, code, out, errb)
+		}
+	}
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "x.json"), []byte(`"x"`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, out, errb := runOut("--no-shipped-data", "-d", dir, "--repeat", "1048576", "--separator", "", "x")
+	if code != 0 || len(out) != 1048576+1 {
+		t.Errorf("repeat at the cap = %d, %d bytes, stderr %q; want every render streamed", code, len(out), errb)
+	}
+}
+
+func TestRunListTakesNoRepeatOrSeparator(t *testing.T) {
+	for _, args := range [][]string{{"--list", "-n", "3"}, {"--list", "--separator", ","}} {
+		code, _, errb := runOut(args...)
+		if code != 2 || !strings.Contains(errb, "--list takes no") {
+			t.Errorf("run(%v) = %d, %q, want misuse", args, code, errb)
+		}
+	}
+}
+
+func TestRunUnknownFlagIsNamedByRune(t *testing.T) {
+	code, _, errb := runOut("-ä", "sv_SE.word")
+	if code != 2 || !strings.Contains(errb, "unknown flag -ä") {
+		t.Errorf("run(-ä) = %d, %q, want the flag named whole", code, errb)
 	}
 }
