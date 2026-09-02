@@ -8,33 +8,47 @@ import (
 
 // refPrefix marks a {..path} token: a reference to a node elsewhere in the data
 // root rather than a sibling field. The path is resolved across every loaded
-// directory (see linkRefs), and is stricter than the one Fake takes: a reference
-// binds one node, so it cannot step through a choice even where Fake and List can.
+// directory (see linkRefs).
 const refPrefix = ".."
 
 func isRef(name string) bool { return strings.HasPrefix(name, refPrefix) }
 
-// linkRefs resolves every {..path} reference in the assembled tree, binding the
-// target node into the referring template's fields under the token's key so the
-// ordinary resolver renders it like a sibling. It runs once, after all data is
-// merged, so a reference sees the final (override-resolved) tree. A path that is
-// unknown, names a folder, or steps through a multi-variant choice fails here,
-// keeping a bad reference a New-time error, never a random render-time one.
+// linkRefs resolves every {..path} reference in the assembled tree. The head of the
+// path — up to the category it names — is bound into the referring template's
+// fields, and the rest reads into it the way a sibling path does, so a reference
+// is held like a sibling. It runs once, after all data is merged, so a reference
+// sees the final (override-resolved) tree. A path that is unknown, names a folder,
+// or reads a field not every variant carries fails here, keeping a bad reference a
+// New-time error, never a random render-time one.
 func linkRefs(root map[string]node) error {
 	return walkNodes(root, func(path string, n node) error {
 		t, ok := n.(*template)
 		if !ok {
 			return nil
 		}
-		for _, name := range refTokens(t.format) {
-			target, err := lookup(root, strings.Split(name[len(refPrefix):], "."))
+		names := refTokens(t.format)
+		if len(names) == 0 {
+			return nil
+		}
+		if t.fields == nil {
+			t.fields = map[string]node{}
+		}
+		t.refs = make(map[string]string, len(names))
+		for _, name := range names {
+			head, target, tail, err := resolveRef(root, strings.Split(name[len(refPrefix):], "."))
 			if err != nil {
 				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 			}
-			if t.fields == nil {
-				t.fields = map[string]node{}
+			key := refPrefix + strings.Join(head, ".")
+			if err := checkPath(target, tail, key); err != nil {
+				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 			}
-			t.fields[name] = target
+			t.fields[key] = target
+			t.refs[name] = key
+		}
+		t.compileFormat()
+		if err := checkNoOverlap(t.format, t.bound, t.refs); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
 		}
 		return nil
 	})
@@ -43,7 +57,7 @@ func linkRefs(root map[string]node) error {
 // checkBoundLevelsHeld rejects every route to a held name except the ones that read
 // its draw. An expansion holds one draw of that name; anything else that renders it
 // draws again, and the two disagree. checkNoOverlap settles the spellings within one
-// format (a token, a calc operand); this settles the rest — a reference, whether it
+// format (a token, an operand); this settles the rest — a reference, whether it
 // sits in that format or in anything the format renders, however deep.
 //
 // It runs after checkNoCycles, whose guarantee is what lets the walk terminate.
@@ -57,33 +71,48 @@ func checkBoundLevelsHeld(root map[string]node) error {
 		for head := range t.held {
 			heads = append(heads, head)
 		}
-		sort.Strings(heads) // so which overlap is reported does not vary
+		// Operand heads first, then paths, each in name order: a level read both
+		// ways is reported by the operand's fence, and which overlap is reported
+		// does not vary.
+		sort.Slice(heads, func(i, j int) bool {
+			_, pi := t.bound[heads[i]]
+			_, pj := t.bound[heads[j]]
+			if pi != pj {
+				return !pi
+			}
+			return heads[i] < heads[j]
+		})
+		readers := boundReaders(t.format, t.bound, t.refs)
 		for _, head := range heads {
-			// What one draw answers for depends on how the draw is read. A path may
-			// read into anything the level contains; a calc renders its operand, so
-			// that draw fixes exactly the value the render produces.
+			// What one draw answers for depends on how the draw is read: a path pins
+			// the levels it passes through and the leaf it lands on, an operand
+			// exactly the value its render produces.
 			held := map[node]bool{}
 			reader, isPath := t.bound[head]
 			if isPath {
-				cover(t.fields[head], held)
+				for _, r := range readers {
+					if a := splitArm(r.name, t.refs); a.key == head {
+						coverPath(t.fields[head], a.tail, held)
+					}
+				}
 			} else {
 				operandDraw(t.fields[head], held)
 			}
 			if len(held) == 0 {
-				continue // an early out: a literal head holds nothing to reach
+				continue // an early out: a fixed head holds nothing to reach
 			}
 			// One seen set across the edges: a node that cannot reach the level
 			// cannot reach it by another route either, so it is walked once here.
 			seen := map[node]bool{}
 			for _, e := range renderEdges(t) {
-				if splitArm(e.label).key == head {
+				if splitArm(e.label, t.refs).key == head {
 					continue // a token or operand reading this draw, the routes allowed
 				}
 				if renders(e.to, held, seen) {
 					if isPath {
 						return fmt.Errorf("%s: %s renders %q, which {%s} reads a path into; name the fields you want instead", path, e.reached(), head, reader)
 					}
-					return fmt.Errorf("%s: %s renders %q, which a {calc()} also reads; reach it one way so it is drawn once", path, e.reached(), head)
+					return fmt.Errorf("%s: %s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", path, e.reached(), head, operandReader(t, head))
 				}
 			}
 		}
@@ -91,28 +120,63 @@ func checkBoundLevelsHeld(root map[string]node) error {
 	})
 }
 
-// cover collects what one held draw of a level answers for: the level and
-// everything contained in it, since a path may read any of it. A fixed string is
-// left out — it cannot disagree with itself.
-func cover(n node, into map[node]bool) {
-	if isFixed(n) {
+// operandReader names the builtin whose operand holds head.
+func operandReader(t *template, head string) string {
+	fn := ""
+	_ = eachToken(t.format, func(tok ftoken) error {
+		if tok.kind != 'b' || fn != "" {
+			return nil
+		}
+		if name, _, isFunc := funcCall(tok.body); isFunc {
+			for _, operand := range tokenOperands(tok.body) {
+				if splitArm(operand, t.refs).key == head {
+					fn = name
+				}
+			}
+		}
+		return nil
+	})
+	return fn
+}
+
+// coverPath collects what holding one path pins: every choice level the path
+// passes through, whole, and the leaf it renders.
+func coverPath(n node, tail []string, into map[node]bool) {
+	if _, isChoice := n.(*choice); isChoice || len(tail) == 0 {
+		cover(n, into, false)
 		return
 	}
-	into[n] = true
-	for _, c := range contained(n) {
-		cover(c.node, into)
+	t, ok := n.(*template)
+	if !ok {
+		return
+	}
+	if child, ok := t.fields[tail[0]]; ok {
+		coverPath(child, tail[1:], into)
 	}
 }
 
-// operandDraw collects what one held draw of a {calc()} operand answers for: the
-// operand and what rendering it settles inside itself. A calc renders its operand
+// cover collects a level and everything contained in it. A fixed string outside a
+// choice is left out — it cannot disagree with itself — but inside one each
+// variant carries its own, so there it counts.
+func cover(n node, into map[node]bool, inChoice bool) {
+	if isFixed(n) && !inChoice {
+		return
+	}
+	into[n] = true
+	_, isChoice := n.(*choice)
+	for _, c := range contained(n) {
+		cover(c.node, into, inChoice || isChoice)
+	}
+}
+
+// operandDraw collects what one held draw of an operand answers for: the operand
+// and what rendering it settles inside itself. The builtin renders its operand
 // whole, so that draw fixes every value the render produced, and a second route to
 // any of them disagrees with it.
 //
 // The walk stops at a {..path} edge, which is where the operand's own value ends
 // and a shared source begins: two names referencing one category are two draws, the
-// same rule {word} {word} follows. cover stops there too, by way of named, so both
-// halves of the fence end at the same boundary.
+// same rule {word} {word} follows.
 func operandDraw(n node, into map[node]bool) {
 	if isFixed(n) {
 		return
@@ -232,43 +296,35 @@ func sortedNames(m map[string]node) []string {
 	return names
 }
 
-// lookup finds the single node a reference path names, walking groups and
-// template fields by segment. A missing segment, a folder target, or a step
-// through a choice (which has no one value to bind) is an error.
-func lookup(root map[string]node, segments []string) (node, error) {
+// resolveRef walks a reference path through the folders to the category it names,
+// returning that head, the node, and the tail left to read into it.
+func resolveRef(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
 	var n node = &group{children: root}
-	for i := 0; i < len(segments); i++ {
-		switch c := n.(type) {
-		case *group:
-			child, ok := c.children[segments[i]]
-			if !ok {
-				return nil, fmt.Errorf("no entry %q", segments[i])
-			}
-			n = child
-		case *template:
-			child, ok := c.fields[segments[i]]
-			if !ok {
-				return nil, fmt.Errorf("no field %q", segments[i])
-			}
-			n = child
-		case *choice:
-			return nil, fmt.Errorf("%q steps through a %d-way choice", segments[i], len(c.items))
-		default:
-			return nil, fmt.Errorf("cannot descend into %T at %q", n, segments[i])
+	i := 0
+	for ; i < len(segments); i++ {
+		g, ok := n.(*group)
+		if !ok {
+			break
 		}
+		child, ok := g.children[segments[i]]
+		if !ok {
+			return nil, nil, nil, fmt.Errorf("no entry %q", segments[i])
+		}
+		n = child
 	}
 	if _, ok := n.(*group); ok {
-		return nil, fmt.Errorf("names a folder, not a value")
+		return nil, nil, nil, fmt.Errorf("names a folder, not a value")
 	}
-	return n, nil
+	return segments[:i], n, segments[i:], nil
 }
 
-// refTokens returns just the {..path} reference names among a format's field
-// tokens (linkRefs binds each into the template's fields).
+// refTokens returns the {..path} names a format reads, as tokens or as operands.
 func refTokens(format string) []string {
 	var refs []string
-	for _, name := range fieldTokens(format) {
-		if isRef(name) {
+	seen := map[string]bool{}
+	for _, name := range append(fieldTokens(format), operandTokens(format)...) {
+		if isRef(name) && !seen[name] {
+			seen[name] = true
 			refs = append(refs, name)
 		}
 	}
@@ -276,27 +332,27 @@ func refTokens(format string) []string {
 }
 
 // renderEdge is a child a node renders into, labelled by what reaches it (a field
-// name, reference, or choice index) for a readable cycle report. operand marks a
-// label that is a {calc()} operand name rather than a token, so an error can name
-// it the way the author wrote it.
+// name, reference, or choice index) for a readable cycle report. operand names
+// the builtin when the label is its operand rather than a token, so an error can
+// name it the way the author wrote it.
 type renderEdge struct {
 	to      node
 	label   string
-	operand bool
+	operand string
 }
 
 // reached names an edge as the author spelled it, the vocabulary boundReaders uses
 // for the sibling fence.
 func (e renderEdge) reached() string {
-	if e.operand {
-		return fmt.Sprintf("calc operand %q", e.label)
+	if e.operand != "" {
+		return fmt.Sprintf("%s operand %q", e.operand, e.label)
 	}
 	return "{" + e.label + "}"
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring expand: a
-// choice's items, and a template's field/reference tokens plus its calc operands.
-// A group renders nothing, so it has no edges.
+// choice's items, and a template's field/reference tokens plus its operands. A
+// group renders nothing, so it has no edges.
 func renderEdges(n node) []renderEdge {
 	switch n := n.(type) {
 	case *choice:
@@ -307,8 +363,8 @@ func renderEdges(n node) []renderEdge {
 		return es
 	case *template:
 		var es []renderEdge
-		add := func(name string, operand bool) {
-			a := splitArm(name)
+		add := func(name, operand string) {
+			a := splitArm(name, n.refs)
 			c, ok := n.fields[a.key]
 			if !ok {
 				return
@@ -317,12 +373,21 @@ func renderEdges(n node) []renderEdge {
 				es = append(es, renderEdge{leaf, name, operand})
 			}
 		}
-		for _, name := range fieldTokens(n.format) {
-			add(name, false)
-		}
-		for _, name := range calcOperands(n.format) {
-			add(name, true)
-		}
+		_ = eachToken(n.format, func(t ftoken) error {
+			if t.kind != 'b' {
+				return nil
+			}
+			if fn, _, isFunc := funcCall(t.body); isFunc {
+				for _, operand := range tokenOperands(t.body) {
+					add(operand, fn)
+				}
+				return nil
+			}
+			for _, name := range strings.Split(t.body, "|") {
+				add(name, "")
+			}
+			return nil
+		})
 		return es
 	default:
 		return nil

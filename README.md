@@ -273,10 +273,11 @@ reproducible. A time-based id (UUID v7, ULID) therefore draws its timestamp from
 the rng, not the clock — the result is a valid, reproducible value, not a real
 point in time.
 
-There are four kinds. **Derivations** read the digits emitted so far, so put them
+There are five kinds. **Derivations** read the digits emitted so far, so put them
 after their payload; **samples** read only the rng, so they stand alone; one
-**session counter** (`seq`) advances state held on the generator; and one
-**computation** (`calc`) evaluates arithmetic over sibling fields. Arguments are
+**session counter** (`seq`) advances state held on the generator; one
+**computation** (`calc`) evaluates arithmetic over sibling fields; and the
+**transforms** rewrite one field's value. Arguments are
 validated at `New` (a bad count, range, country, or expression fails fast); a
 length, count or decimal place beyond a sane maximum is rejected there too, so a
 fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
@@ -299,6 +300,7 @@ fat-fingered `hex(2000000000)` can't try to allocate gigabytes at render.
 | `{iban(CC)}` | sample | a length- and mod-97-valid IBAN for country `CC` (BE, DE, DK, ES, FI, NO, SE) |
 | `{seq()}`, `{seq(name)}` | session counter | next integer (from 1) in this generator's sequence; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | value of an arithmetic expression over number literals and sibling fields; `dp` rounds |
+| `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | the field `x` — a name, a path or a `..path` — lower-cased, upper-cased, or folded to ASCII (`Åsa` → `Asa`); they nest: `{lowercase(ascii(x))}` |
 
 `{ean()}` is also the ISBN-13 check (an ISBN-13 *is* an EAN-13 — build the 978/979
 prefix in data and call `{ean()}`). `{iban()}` is a sample, not a derivation:
@@ -339,9 +341,11 @@ data dirs:
 { "format": "Hej, {..en_US.person}!" }
 ```
 
-renders e.g. `Hej, Pat Smith!`. References are bound when you create the generator, so
-a path that is unknown, names a folder, or steps through a choice
-fails at `New`. A reference that leads back to its own value (directly, mutually,
+renders e.g. `Hej, Pat Smith!`. A reference path is held like a sibling path:
+`{..person.first} {..person.last}` read one person, and `{lowercase(..person.first)}`
+reads that same draw, while a bare `{..die} {..die}` is two draws. References are
+bound when you create the generator, so a path that is unknown, names a folder,
+or reads a field not every variant of a choice carries fails at `New`. A reference that leads back to its own value (directly, mutually,
 or through a chain) is a cycle that would never finish rendering, so it too is
 rejected at `New`.
 

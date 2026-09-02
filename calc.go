@@ -122,26 +122,10 @@ func indexVars(n calcNode, at map[string]int) calcNode {
 	return n
 }
 
-// calcOperands lists the sibling-field names every {calc(...)} token in a format
-// reads, so cycle detection sees the field edges calc renders through (a function
-// token otherwise carries no field edge).
-func calcOperands(format string) []string {
-	var names []string
-	_ = eachToken(format, func(t ftoken) error {
-		if t.kind == 'b' {
-			names = append(names, calcTokenOperands(t.body)...)
-		}
-		return nil
-	})
-	return names
-}
-
-// calcTokenOperands lists the sibling-field names one {token} body reads, empty
-// for anything that is not a {calc(...)}. checkCalc reports an expression that does
-// not parse, so one that does not simply names nothing here.
-func calcTokenOperands(body string) []string {
-	name, args, ok := funcCall(body)
-	if !ok || name != "calc" || len(args) == 0 {
+// calcOperands lists the sibling-field names a calc's args read. checkCalc reports
+// an expression that does not parse, so one that does not simply names nothing.
+func calcOperands(args []string) []string {
+	if len(args) == 0 {
 		return nil
 	}
 	expr, err := parseCalc(args[0])

@@ -41,10 +41,11 @@ type template struct {
 	fields    map[string]node
 	repeat    int
 	separator string
-	ops       []op   // format compiled once (see compileOps); what expand walks
-	grow      int    // minimum output size, to size the render buffer
-	fixed     bool   // no op varies, so every render is lit
-	lit       string // the whole output when fixed
+	ops       []op              // format compiled once (see compileOps); what expand walks
+	grow      int               // minimum output size, to size the render buffer
+	fixed     bool              // no op varies, so every render is lit
+	lit       string            // the whole output when fixed
+	refs      map[string]string // each {..path} the format reads -> the head it is bound under
 	// bound maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
@@ -92,7 +93,7 @@ func compileString(s string) (node, error) {
 
 // compileFormat compiles the format into ops once every field is in place.
 func (t *template) compileFormat() {
-	t.ops, t.grow, t.bound, t.held = compileOps(t.format)
+	t.ops, t.grow, t.bound, t.held = compileOps(t.format, t.refs)
 	t.fixed = true
 	for _, o := range t.ops {
 		if o.kind != 'l' {
@@ -214,15 +215,15 @@ func compileTemplate(m map[string]any) (node, error) {
 		return nil, err
 	}
 	t.compileFormat()
-	if err := checkNoOverlap(format, t.bound); err != nil {
+	if err := checkNoOverlap(format, t.bound, nil); err != nil {
 		return nil, err
 	}
 	return t, nil
 }
 
 // checkPath reports whether a token's dotted tail can address a node whichever way
-// the draw goes, by the reachability rule descend applies — a multi-variant choice
-// must carry the whole remaining path in the set every variant shares — plus the
+// the draw goes, by the reachability rule descend applies — a choice must carry
+// the whole remaining path in the set every variant shares — plus the
 // rules a held draw adds, which descend has no need of: a level a path reads may
 // not carry a repeat, and each variant answers for that itself. So a path that
 // validates here resolves on every render, and a typo is a New-time error.

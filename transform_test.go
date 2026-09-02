@@ -6,8 +6,8 @@ func TestTransforms(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string]string{
 		`{"format":"{uppercase(x)}|{lowercase(x)}|{ascii(x)}","x":"Åsa Ödegård-Nuñez"}`: "ÅSA ÖDEGÅRD-NUÑEZ|åsa ödegård-nuñez|Asa Odegard-Nunez",
-		`{"format":"{lowercase(ascii(x))}","x":"Åsa"}`:                              "asa",
-		`{"format":"{ascii(x)}","x":"Ærø ß 日本"}`:                                "AEro ss ",
+		`{"format":"{lowercase(ascii(x))}","x":"Åsa"}`:                                  "asa",
+		`{"format":"{ascii(x)}","x":"Ærø ß 日本"}`:                                        "AEro ss ",
 	} {
 		if got := mustRender(t, f, src); got != want {
 			t.Errorf("render(%s) = %q, want %q", src, got, want)

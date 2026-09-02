@@ -69,6 +69,9 @@ type builtin struct {
 	// prep parses validated args once, at compile time, into the closure expand calls.
 	prep  func(args []string) callFn
 	check func(fields map[string]node, args []string) error
+	// operands names the fields the call reads, which expand renders for it; nil
+	// for a builtin that reads none.
+	operands func(args []string) []string
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
@@ -137,28 +140,62 @@ func checkTokens(format string, fields map[string]node) error {
 				}
 				continue // a root reference; its target is checked at New (see linkRefs)
 			}
-			a := splitArm(name)
-			if err := checkSegments(a); err != nil {
+			if err := checkArm(name, fields); err != nil {
 				return fmt.Errorf("token {%s}: %w", t.body, err)
-			}
-			head, ok := fields[a.key]
-			if !ok {
-				if a.key == "" {
-					return fmt.Errorf("token {%s}: a name is never empty, so this token can name no field", t.body)
-				}
-				if isOption(a.key) {
-					return fmt.Errorf("token {%s}: %q is an option and can never be a field", t.body, a.key)
-				}
-				return fmt.Errorf("token {%s}: no field %q", t.body, a.key)
-			}
-			if err := checkPath(head, a.tail, a.key); err != nil {
-				return fmt.Errorf("token {%s}: field %q: %w", t.body, a.key, err)
 			}
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
 		return checkNoRepeatedArm(t.body, names)
 	})
+}
+
+// checkArm validates one sibling name or path against a template's fields.
+func checkArm(name string, fields map[string]node) error {
+	a := splitArm(name, nil)
+	if err := checkSegments(a); err != nil {
+		return err
+	}
+	head, ok := fields[a.key]
+	if !ok {
+		if a.key == "" {
+			return fmt.Errorf("a name is never empty, so this token can name no field")
+		}
+		if isOption(a.key) {
+			return fmt.Errorf("%q is an option and can never be a field", a.key)
+		}
+		return fmt.Errorf("no field %q", a.key)
+	}
+	if err := checkPath(head, a.tail, a.key); err != nil {
+		return fmt.Errorf("field %q: %w", a.key, err)
+	}
+	return nil
+}
+
+// tokenOperands lists the fields one {token} body reads as operands, empty for a
+// field token or a builtin that reads none.
+func tokenOperands(body string) []string {
+	name, args, ok := funcCall(body)
+	if !ok {
+		return nil
+	}
+	b, known := builtins[name]
+	if !known || b.operands == nil {
+		return nil
+	}
+	return b.operands(args)
+}
+
+// operandTokens lists every operand the builtins in a format read.
+func operandTokens(format string) []string {
+	var names []string
+	_ = eachToken(format, func(t ftoken) error {
+		if t.kind == 'b' {
+			names = append(names, tokenOperands(t.body)...)
+		}
+		return nil
+	})
+	return names
 }
 
 // checkNoRepeatedArm rejects {a|a|b}: an alternation picks its arms evenly, so a
@@ -192,10 +229,11 @@ func fieldTokens(format string) []string {
 	return names
 }
 
-// arm is one alternative of a {a|b} token, split into the key naming the node in
-// a template's fields (a sibling field, or the whole "..path" string a reference is
-// bound under) and the tail of a dotted path into it. A non-empty tail is what makes
-// the arm a bound draw: its head is drawn once per expansion (see compileOps).
+// arm is one alternative of a {a|b} token or one operand, split into the key
+// naming the node in a template's fields (a sibling field, or the "..path" head a
+// reference is bound under) and the tail of a dotted path into it. A non-empty
+// tail is what makes the arm a bound draw: its head is drawn once per expansion
+// (see compileOps).
 type arm struct {
 	name  string // as written, and the key a bound draw's value is held under
 	key   string
@@ -203,22 +241,29 @@ type arm struct {
 	steps []string // key per level passed through; the head and leaf hold their own
 }
 
-// splitArm splits one token alternative into key and tail. A reference keeps its
-// dots — linkRefs binds it whole — so only a sibling name reads as a path.
-func splitArm(name string) arm {
+// splitArm splits one name into key and tail. refs maps a reference to the head
+// linkRefs bound it under; before linking, a reference is whole.
+func splitArm(name string, refs map[string]string) arm {
 	if isRef(name) {
-		return arm{name: name, key: name}
+		key, bound := refs[name]
+		if !bound || key == name {
+			return arm{name: name, key: name}
+		}
+		return pathArm(name, key, strings.Split(name[len(key)+1:], "."))
 	}
 	head, tail, dotted := strings.Cut(name, ".")
 	if !dotted {
 		return arm{name: name, key: name}
 	}
-	segs := strings.Split(tail, ".")
+	return pathArm(name, head, strings.Split(tail, "."))
+}
+
+func pathArm(name, key string, segs []string) arm {
 	var steps []string
 	for i := 0; i < len(segs)-1; i++ { // every level except the leaf's own
-		steps = append(steps, head+"."+strings.Join(segs[:i+1], "."))
+		steps = append(steps, key+"."+strings.Join(segs[:i+1], "."))
 	}
-	return arm{name: name, key: head, tail: segs, steps: steps}
+	return arm{name: name, key: key, tail: segs, steps: steps}
 }
 
 // checkNoOverlap rejects a format that both renders a level and reads a path into
@@ -226,8 +271,8 @@ func splitArm(name string) arm {
 // level's held draw while rendering the level expands it afresh, so their values
 // would disagree. Names are compared in sorted order, so which pair is reported
 // does not depend on where the tokens sit.
-func checkNoOverlap(format string, bound map[string]string) error {
-	names := boundReaders(format, bound)
+func checkNoOverlap(format string, bound map[string]string, refs map[string]string) error {
+	names := boundReaders(format, bound, refs)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
 	sort.SliceStable(names, func(i, j int) bool { return names[i].name < names[j].name })
@@ -245,23 +290,24 @@ func checkNoOverlap(format string, bound map[string]string) error {
 type reader struct{ name, label string }
 
 // boundReaders lists every way a format reaches a bound field, in the order the
-// format writes them. A calc operand renders its field, so it names a level exactly
+// format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
-func boundReaders(format string, bound map[string]string) []reader {
+func boundReaders(format string, bound map[string]string, refs map[string]string) []reader {
 	var names []reader
 	_ = eachToken(format, func(t ftoken) error {
 		if t.kind != 'b' {
 			return nil
 		}
-		if _, _, isFunc := funcCall(t.body); isFunc {
-			for _, operand := range calcTokenOperands(t.body) {
-				if _, isBound := bound[operand]; isBound {
-					names = append(names, reader{operand, fmt.Sprintf("calc operand %q", operand)})
+		if fn, _, isFunc := funcCall(t.body); isFunc {
+			for _, operand := range tokenOperands(t.body) {
+				a := splitArm(operand, refs)
+				if _, isBound := bound[a.key]; isBound {
+					names = append(names, reader{a.name, fmt.Sprintf("%s operand %q", fn, operand)})
 				}
 			}
 			return nil
 		}
-		for _, a := range splitArms(t.body) {
+		for _, a := range splitArms(t.body, refs) {
 			if _, isBound := bound[a.key]; isBound {
 				names = append(names, reader{a.name, "token {" + a.name + "}"})
 			}
@@ -290,11 +336,11 @@ func checkSegments(a arm) error {
 }
 
 // splitArms splits a token body's '|' alternatives.
-func splitArms(body string) []arm {
+func splitArms(body string, refs map[string]string) []arm {
 	parts := strings.Split(body, "|")
 	arms := make([]arm, len(parts))
 	for i, p := range parts {
-		arms[i] = splitArm(p)
+		arms[i] = splitArm(p, refs)
 	}
 	return arms
 }
@@ -312,30 +358,38 @@ type op struct {
 	lit  string // kind 'l'
 	arms []arm  // kind 'f': the '|' alternatives, split into key and path once
 	call callFn
-	// operands names the sibling fields a {calc()} reads, in the order calcVars
-	// fixed; expand reads them before the call. nil for every other builtin.
-	operands []string
+	// operands are the fields the builtin reads, in the order its operands func
+	// fixed; expand reads them before the call. nil for a builtin that reads none.
+	operands []arm
 }
 
 // compileOps turns a format string into ops, and returns the size of its literal
 // text to size the render buffer, plus two sets. bound is the levels the format
 // addresses by dotted path, each mapped to the first path reading it, which is what
 // the overlap fences name. held is every name drawn once per expansion — those
-// levels, plus the siblings a {calc()} reads, so an operand shown is the operand
+// levels, plus the fields an operand reads, so an operand shown is the operand
 // computed. Both are nil when the format needs neither, so data that uses neither
 // carries no render-time cost. Call checkTokens first: it is what proves the scan
 // and every token are valid.
-func compileOps(format string) ([]op, int, map[string]string, map[string]bool) {
+func compileOps(format string, refs map[string]string) ([]op, int, map[string]string, map[string]bool) {
 	var ops []op
 	var lit strings.Builder
 	var bound map[string]string
 	var held map[string]bool
 	grow := 0
-	hold := func(name string) {
+	hold := func(a arm) {
 		if held == nil {
 			held = map[string]bool{}
 		}
-		held[name] = true
+		held[a.key] = true
+		if len(a.tail) > 0 {
+			if bound == nil {
+				bound = map[string]string{}
+			}
+			if _, named := bound[a.key]; !named {
+				bound[a.key] = a.name // the first path reading it, for error messages
+			}
+		}
 	}
 	flush := func() {
 		if lit.Len() > 0 {
@@ -351,22 +405,18 @@ func compileOps(format string) ([]op, int, map[string]string, map[string]bool) {
 		case 'b':
 			flush()
 			if name, args, ok := funcCall(t.body); ok {
-				operands := calcTokenOperands(t.body)
-				for _, operand := range operands {
-					hold(operand) // a calc renders its operand, so the expansion holds that draw
+				var operands []arm
+				for _, operand := range tokenOperands(t.body) {
+					a := splitArm(operand, refs)
+					hold(a) // the builtin renders its operand, so the expansion holds that draw
+					operands = append(operands, a)
 				}
 				ops = append(ops, op{kind: 'b', call: builtins[name].prep(args), operands: operands})
 			} else {
-				arms := splitArms(t.body)
+				arms := splitArms(t.body, refs)
 				for _, a := range arms {
 					if len(a.tail) > 0 {
-						if bound == nil {
-							bound = map[string]string{}
-						}
-						if _, named := bound[a.key]; !named {
-							bound[a.key] = a.name // the first path reading it, for error messages
-						}
-						hold(a.key)
+						hold(a)
 					}
 				}
 				ops = append(ops, op{kind: 'f', arms: arms})

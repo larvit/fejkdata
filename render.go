@@ -143,8 +143,8 @@ func expand(s *session, t *template) string {
 			var operands []string
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))
-				for j, name := range o.operands {
-					operands[j] = readField(s, t, held, arm{name: name, key: name})
+				for j, a := range o.operands {
+					operands[j] = readField(s, t, held, a)
 				}
 			}
 			b.WriteString(o.call(s, b.String(), operands)) // b.String() is the output so far
