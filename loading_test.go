@@ -1,9 +1,12 @@
 package fejkdata
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -199,5 +202,204 @@ func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
 		"cat": `{"format":"{a}{c}","repeat":1024,"a":{"format":"{b}","repeat":1024,"b":"x"},"c":{"format":"y","repeat":1024}}`,
 	}))); err != nil {
 		t.Errorf("New = %v, want 1024 x 1024 along one path accepted", err)
+	}
+}
+
+func TestNewErrors(t *testing.T) {
+	// Pointing New at a file (not a directory) fails.
+	file := filepath.Join(t.TempDir(), "xx_XX")
+	if err := os.WriteFile(file, []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(file)); err == nil {
+		t.Error("New(file) = nil error, want not-a-directory error")
+	}
+	// Invalid JSON in a category file fails.
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {
+		t.Error("New(invalid JSON) = nil error")
+	}
+	// An option that cannot take effect, and a category or folder no dot path can
+	// reach, are mistakes New must name rather than accept and ignore.
+	rejected := map[string]struct {
+		files map[string]string
+		want  string
+	}{
+		"separator without repeat": {
+			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
+			"has no effect without a repeat above 1",
+		},
+		"separator with an explicit repeat of 1": {
+			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
+			"has no effect without a repeat above 1",
+		},
+		"weight outside a choice": {
+			map[string]string{"a": `{"format":"x","weight":5}`},
+			"weight only skews a choice's items",
+		},
+		"non-numeric weight outside a choice": {
+			map[string]string{"a": `{"format":"x","weight":"bad"}`},
+			"weight only skews a choice's items",
+		},
+		"weight used as a field": {
+			map[string]string{"a": `{"format":"{name} {weight}kg","name":"Anvil","weight":["7"]}`},
+			"can never be a field",
+		},
+		"an option name used as a token": {
+			map[string]string{"a": `"{weight}"`},
+			`"weight" is an option and can never be a field`,
+		},
+		"category name with a dot": {
+			map[string]string{"a.b": `"1"`},
+			`category "a.b" contains "."`,
+		},
+		"folder name with a dot": {
+			map[string]string{"a.b/cat": `"1"`},
+			`/a.b: folder "a.b" contains "."`,
+		},
+		// The token grammar reserves three more characters. A name carrying one
+		// still resolves by dot path, but no format can name it, so it is rejected
+		// where it is authored rather than at the token that cannot reach it.
+		"field name with a pipe": {
+			map[string]string{"a": `{"format":"{x}","x":"1","b|c":"2"}`},
+			`field "b|c" contains "|"`,
+		},
+		"field name with a paren": {
+			map[string]string{"a": `{"format":"{x}","x":"1","b(c":"2"}`},
+			`field "b(c" contains "("`,
+		},
+		"field name with a closing brace": {
+			map[string]string{"a": `{"format":"{x}","x":"1","b}c":"2"}`},
+			`field "b}c" contains "}"`,
+		},
+		"category name with a pipe": {
+			map[string]string{"a|b": `"1"`},
+			`category "a|b" contains "|"`,
+		},
+		// An empty name is not a path segment, so List never offered it — while a
+		// bare {}, a trailing dot in Fake("a.") and a {/a.} reference all reached
+		// it. The engine accepted spellings it would never advertise.
+		"empty field name": {
+			map[string]string{"a": `{"format":"[{}]","":"VALUE"}`},
+			`field "" is empty`,
+		},
+		"folder name with a paren": {
+			map[string]string{"a(b/cat": `"1"`},
+			`folder "a(b" contains "("`,
+		},
+		// A repeated arm skews an alternation, which weight is the spelling for.
+		"repeated alternation arm": {
+			map[string]string{"a": `{"format":"{x|x}","x":"1"}`},
+			`arm "x" is repeated`,
+		},
+		"repeated arm among others": {
+			map[string]string{"a": `{"format":"{x|y|x}","x":"1","y":"2"}`},
+			`arm "x" is repeated`,
+		},
+		"repeated path arm": {
+			map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":"1"}}`},
+			`arm "p.v" is repeated`,
+		},
+		// A reference arm is the only kind that reaches the repeat check by passing
+		// the per-arm checks rather than falling through them.
+		"repeated reference arm": {
+			map[string]string{"a": `"x"`, "b": `"{/a|/a}"`},
+			`arm "/a" is repeated`,
+		},
+		// An arm that is broken on its own terms is reported as that, not as a
+		// repeat: the repeat is a consequence of the real mistake.
+		"repeated arm with no path": {
+			map[string]string{"a": `"{/|/}"`},
+			"reference has no path",
+		},
+		// No field can be named "", so the token is told that rather than sent to
+		// name one — the fix "no field" points at is itself a load error.
+		"repeated empty arm": {
+			map[string]string{"a": `"{|}"`},
+			"a name is never empty",
+		},
+		"bare empty token": {
+			map[string]string{"a": `{"format":"[{}]","x":"1"}`},
+			"a name is never empty",
+		},
+	}
+	for name, c := range rejected {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
+		if err == nil {
+			t.Errorf("%s: New = nil error, want it rejected at load", name)
+			continue
+		}
+		if !strings.Contains(err.Error(), c.want) {
+			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+		}
+	}
+	// Data that works today must keep working, and stay reachable.
+	accepted := map[string]struct {
+		files map[string]string
+		path  string
+		want  string
+	}{
+		"option name as a field":     {map[string]string{"a": `{"format":"{name} {Weight}kg","name":"Anvil","Weight":"7"}`}, "a", "Anvil 7kg"},
+		"format spelling as a field": {map[string]string{"a": `{"format":"{Format}","Format":"PDF"}`}, "a", "PDF"},
+		"hyphenated field":           {map[string]string{"a": `{"format":"{x-y}","x-y":"1"}`}, "a.x-y", "1"},
+		"category named Format":      {map[string]string{"Format": `"1"`}, "Format", "1"},
+		"folder named Repeat":        {map[string]string{"Repeat/cat": `"1"`}, "Repeat.cat", "1"},
+		"field with a closing paren": {map[string]string{"a": `{"format":"{b)c}","b)c":"2"}`}, "a", "2"},
+		"repeat without a separator": {map[string]string{"a": `{"format":"{x}","repeat":3,"x":"1"}`}, "a", "111"},
+		// One name in two separate tokens is two independent draws, not a repeated
+		// arm; only a repeat within one alternation is rejected.
+		"one name in two tokens": {map[string]string{"a": `{"format":"{x}{x}","x":"1"}`}, "a", "11"},
+	}
+	for name, c := range accepted {
+		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
+		if err != nil {
+			t.Errorf("%s: New = %v, want it accepted", name, err)
+			continue
+		}
+		if got, err := f.Fake(c.path); err != nil || got != c.want {
+			t.Errorf("%s: Fake(%q) = %q, %v, want %q", name, c.path, got, err, c.want)
+		}
+	}
+}
+
+func TestCategoryRootShapes(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"obj": `"{digits(2)}"`, // object root
+		"lit": `"hello"`,       // bare-string root
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	if got := fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {
+		t.Errorf("object-root category = %q, want two digits", got)
+	}
+	if got := fake(t, f, "lit"); got != "hello" {
+		t.Errorf("string-root category = %q, want hello", got)
+	}
+}
+
+func TestLongStringList(t *testing.T) {
+	const n = 2000
+	names := make([]string, n)
+	for i := range names {
+		names[i] = fmt.Sprintf("name-%04d", i)
+	}
+	list, err := json.Marshal(names)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := newGenerator(t, writeData(t, map[string]string{"name": string(list)}), WithSeed(1))
+
+	valid := map[string]bool{}
+	for _, v := range names {
+		valid[v] = true
+	}
+	seen := map[string]bool{}
+	for i := 0; i < 20000; i++ {
+		v := fake(t, f, "name")
+		if !valid[v] {
+			t.Fatalf("got %q, not in the list", v)
+		}
+		seen[v] = true
+	}
+	if len(seen) < n*8/10 {
+		t.Fatalf("only %d/%d distinct values seen; selection looks skewed", len(seen), n)
 	}
 }

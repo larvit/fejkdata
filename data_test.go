@@ -264,3 +264,40 @@ func luhnValid(s string) bool {
 	}
 	return sum%10 == 0
 }
+
+// swedishName matches one or more letter-words, optionally space/hyphen joined
+// ("Storgatan", "Norra Promenaden", "von Flemming"). Used by the composition
+// tests so shipped name lists can grow without re-enumerating them here.
+var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
+
+func TestShippedStreetComposition(t *testing.T) {
+	// street is a choice of composed {first}{last} templates and literal names.
+	f := newGenerator(t, "data/sv_SE", WithSeed(5))
+	for i := 0; i < 300; i++ {
+		if s := fake(t, f, "address.street"); !swedishName.MatchString(s) {
+			t.Fatalf("street %q is not a Swedish street name", s)
+		}
+	}
+}
+
+func TestShippedLastNameComposition(t *testing.T) {
+	// last is a choice of patronymic {first}sson templates, compound
+	// {first}{last} templates and literal surnames.
+	f := newGenerator(t, "data/sv_SE", WithSeed(6))
+	for i := 0; i < 300; i++ {
+		if s := fake(t, f, "person.last"); !swedishName.MatchString(s) {
+			t.Fatalf("last name %q is not a Swedish surname", s)
+		}
+	}
+}
+
+func TestShippedStreetNumberFormats(t *testing.T) {
+	// Reachable via a hyphenated path; covers all five weighted number variants.
+	f := newGenerator(t, "data/sv_SE", WithSeed(8))
+	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
+	for i := 0; i < 300; i++ {
+		if n := fake(t, f, "address.street-number"); !re.MatchString(n) {
+			t.Fatalf("street-number %q does not match %s", n, re)
+		}
+	}
+}

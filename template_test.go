@@ -311,3 +311,39 @@ func quote(s string) string {
 	}
 	return string(b)
 }
+
+func TestHashIsLiteral(t *testing.T) {
+	f := engine(1)
+	cases := map[string]string{
+		`{"format":"","x":"v"}`:         "",
+		`{"format":"#","x":"v"}`:        "#",
+		`{"format":"##","x":"v"}`:       "##",
+		`{"format":"#0#1#A#a","x":"v"}`: "#0#1#A#a",
+		`{"format":"#{x}","x":"v"}`:     "#v",
+	}
+	for tmpl, want := range cases {
+		if got := mustRender(t, f, tmpl); got != want {
+			t.Errorf("render(%s) = %q, want %q", tmpl, got, want)
+		}
+	}
+}
+
+func TestMultibyteFormat(t *testing.T) {
+	// Scanning is rune-aware: multibyte literals coexist with class chars and
+	// tokens without corrupting indices.
+	got := mustRender(t, engine(2), `{"format":"Öster{x}-{digits(1)}å","x":"väg"}`)
+	if !regexp.MustCompile(`^Österväg-[0-9]å$`).MatchString(got) {
+		t.Fatalf("multibyte format = %q", got)
+	}
+}
+
+func TestAlternationThreeWay(t *testing.T) {
+	f := engine(4)
+	seen := map[string]bool{}
+	for i := 0; i < 200; i++ {
+		seen[mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`)] = true
+	}
+	if !seen["A"] || !seen["B"] || !seen["C"] || len(seen) != 3 {
+		t.Fatalf("3-way alternation produced %v, want A, B and C", seen)
+	}
+}
