@@ -83,9 +83,9 @@ func TestBuiltinBase64(t *testing.T) {
 // hand-computed check, like the luhn test. mod-11 emits X when it would be 10.
 func TestBuiltinChecksums(t *testing.T) {
 	cases := map[string]string{
-		`{"format":"#1#2#3#4#5#6#7#8{mod11()}"}`:       "123456785",     // weights 2..7 from the right
-		`{"format":"#6{mod11()}"}`:                     "6X",            // remainder 10 -> X
-		`{"format":"#4#0#0#6#3#8#1#3#3#3#9#3{ean()}"}`: "4006381333931", // EAN-13 (= ISBN-13) check digit
+		`{"format":"12345678{mod11()}"}`:   "123456785",     // weights 2..7 from the right
+		`{"format":"6{mod11()}"}`:          "6X",            // remainder 10 -> X
+		`{"format":"400638133393{ean()}"}`: "4006381333931", // EAN-13 (= ISBN-13) check digit
 	}
 	f := engine(1)
 	for tmpl, want := range cases {
@@ -216,4 +216,17 @@ func mustPanic(t *testing.T, name string, call func()) {
 		}
 	}()
 	call()
+}
+
+func TestClassBuiltinArgs(t *testing.T) {
+	for _, bad := range []string{`"{digits(0)}"`, `"{digits(2000000000)}"`, `"{upper(-1)}"`, `"{lower(x)}"`, `"{digits()}"`, `"{upper(1,2)}"`} {
+		if _, err := compile(parse(t, bad)); err == nil {
+			t.Errorf("compile(%s) = nil error, want the arg rejected", bad)
+		}
+	}
+	for _, ok := range []string{`"{digits(1048576)}"`, `"{upper(1)}"`, `"{lower(26)}"`} {
+		if _, err := compile(parse(t, ok)); err != nil {
+			t.Errorf("compile(%s) = %v", ok, err)
+		}
+	}
 }

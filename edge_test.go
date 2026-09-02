@@ -13,15 +13,14 @@ import (
 
 // --- format string edge cases ---
 
-func TestEscapeEdgeCases(t *testing.T) {
+func TestHashIsLiteral(t *testing.T) {
 	f := engine(1)
 	cases := map[string]string{
-		`{"format":""}`:         "",     // empty format
-		`{"format":"#"}`:        "#",    // trailing escape is a literal #
-		`{"format":"##"}`:       "#",    // escaped hash
-		`{"format":"#0#1#A#a"}`: "01Aa", // escaped class chars stay literal
-		`{"format":"#{x#}"}`:    "{x}",  // escaping braces disables tokens
-		`{"format":"x}y"}`:      "x}y",  // an unmatched } is literal (x, y aren't classes)
+		`{"format":"","x":["v"]}`:         "",
+		`{"format":"#","x":["v"]}`:        "#",
+		`{"format":"##","x":["v"]}`:       "##",
+		`{"format":"#0#1#A#a","x":["v"]}`: "#0#1#A#a",
+		`{"format":"#{x}","x":["v"]}`:     "#v",
 	}
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {
@@ -33,7 +32,7 @@ func TestEscapeEdgeCases(t *testing.T) {
 func TestMultibyteFormat(t *testing.T) {
 	// Scanning is rune-aware: multibyte literals coexist with class chars and
 	// tokens without corrupting indices.
-	got := mustRender(t, engine(2), `{"format":"Öster{x}-0å","x":["väg"]}`)
+	got := mustRender(t, engine(2), `{"format":"Öster{x}-{digits(1)}å","x":["väg"]}`)
 	if !regexp.MustCompile(`^Österväg-[0-9]å$`).MatchString(got) {
 		t.Fatalf("multibyte format = %q", got)
 	}
@@ -224,11 +223,11 @@ func TestDeepDottedPath(t *testing.T) {
 	}
 }
 
-func TestDescendIntoLiteralErrors(t *testing.T) {
+func TestDescendIntoStringErrors(t *testing.T) {
 	f := engine(1)
 	f.categories = map[string]node{"greeting": compiled(t, `["hej"]`)}
-	if _, err := f.Fake("greeting.extra"); err == nil {
-		t.Fatal("Fake(greeting.extra) = nil error, want descend-into-literal error")
+	if _, err := f.Fake("greeting.extra"); err == nil || !strings.Contains(err.Error(), `no field "extra"`) {
+		t.Fatalf("Fake(greeting.extra) = %v, want a no-field error", err)
 	}
 }
 
@@ -303,8 +302,8 @@ func TestMissingFieldNamesItself(t *testing.T) {
 
 func TestCategoryRootShapes(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"obj": `{"format":"00"}`, // object root
-		"lit": `"hello"`,         // bare-string root
+		"obj": `{"format":"{digits(2)}"}`, // object root
+		"lit": `"hello"`,                  // bare-string root
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {

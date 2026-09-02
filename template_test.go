@@ -35,19 +35,33 @@ func mustRender(t *testing.T, f *Generator, s string) string {
 	return render(f.rand, compiled(t, s))
 }
 
-func TestLiteralStringIsVerbatim(t *testing.T) {
-	// A bare string is a literal, never formatted: 'a'/'A' must survive.
-	if got := mustRender(t, engine(1), `"Malmö"`); got != "Malmö" {
-		t.Fatalf("literal = %q, want Malmö", got)
+func TestStringIsAFormat(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`"Malmö"`:                  "Malmö",
+		`"100 Main St, Apt 1A #0"`: "100 Main St, Apt 1A #0",
+		`"{{x}}"`:                  "{x}",
+	} {
+		if got := mustRender(t, f, src); got != want {
+			t.Errorf("render(%s) = %q, want %q", src, got, want)
+		}
+	}
+	if got := mustRender(t, f, `"{digits(3)}"`); !regexp.MustCompile(`^[0-9]{3}$`).MatchString(got) {
+		t.Errorf(`render("{digits(3)}") = %q, want three digits`, got)
+	}
+	if _, err := compile(parse(t, `"{x}"`)); err == nil || !strings.Contains(err.Error(), `no field "x"`) {
+		t.Errorf(`compile("{x}") = %v, want a no-field error`, err)
 	}
 }
 
-func TestCharacterClasses(t *testing.T) {
+func TestClassBuiltins(t *testing.T) {
 	cases := map[string]*regexp.Regexp{
-		`{"format":"0"}`: regexp.MustCompile(`^[0-9]$`),
-		`{"format":"1"}`: regexp.MustCompile(`^[1-9]$`),
-		`{"format":"A"}`: regexp.MustCompile(`^[A-Z]$`),
-		`{"format":"a"}`: regexp.MustCompile(`^[a-z]$`),
+		`"{digits(1)}"`:          regexp.MustCompile(`^[0-9]$`),
+		`"{digits(3)}"`:          regexp.MustCompile(`^[0-9]{3}$`),
+		`"{int(1,9)}"`:           regexp.MustCompile(`^[1-9]$`),
+		`"{upper(1)}"`:           regexp.MustCompile(`^[A-Z]$`),
+		`"{lower(1)}"`:           regexp.MustCompile(`^[a-z]$`),
+		`"{upper(2)}{lower(2)}"`: regexp.MustCompile(`^[A-Z]{2}[a-z]{2}$`),
 	}
 	f := engine(7)
 	for tmpl, re := range cases {
@@ -59,10 +73,34 @@ func TestCharacterClasses(t *testing.T) {
 	}
 }
 
-func TestEscapeAndLiteralChars(t *testing.T) {
-	// '#' escapes the next char; non-class chars (7, x, -) are literal.
-	if got := mustRender(t, engine(1), `{"format":"#0#1#A#a## x7-z"}`); got != "01Aa# x7-z" {
-		t.Fatalf("escape = %q, want \"01Aa# x7-z\"", got)
+func TestTextIsLiteral(t *testing.T) {
+	if got := mustRender(t, engine(1), `{"format":"100 Main St #1 {x}","x":["A"]}`); got != "100 Main St #1 A" {
+		t.Fatalf("text = %q, want it verbatim", got)
+	}
+}
+
+func TestBraceEscapes(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`{"format":"{{","x":["v"]}`:         "{",
+		`{"format":"}}","x":["v"]}`:         "}",
+		`{"format":"{{x}}","x":["v"]}`:      "{x}",
+		`{"format":"{{{x}}}","x":["v"]}`:    "{v}",
+		`{"format":"a{{{{b}}}}","x":["v"]}`: "a{{b}}",
+	} {
+		if got := mustRender(t, f, src); got != want {
+			t.Errorf("render(%s) = %q, want %q", src, got, want)
+		}
+	}
+	for src, want := range map[string]string{
+		`{"format":"x}y"}`:             "}}",
+		`{"format":"}"}`:               "}}",
+		`{"format":"{a{b}","a":["Q"]}`: "'{'",
+		`{"format":"{x"}`:              "unterminated",
+	} {
+		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
+		}
 	}
 }
 
@@ -118,7 +156,7 @@ func TestRepeatRendersFormatNTimes(t *testing.T) {
 	f, re := engine(7), regexp.MustCompile(`^[0-9]{4}$`)
 	seen := map[string]bool{}
 	for i := 0; i < 50; i++ {
-		got := mustRender(t, f, `{"format":"0","repeat":4}`)
+		got := mustRender(t, f, `{"format":"{digits(1)}","repeat":4}`)
 		if !re.MatchString(got) {
 			t.Fatalf("repeat-4 = %q, want 4 digits", got)
 		}
@@ -135,9 +173,9 @@ func TestFunctionTokenLuhn(t *testing.T) {
 	// buffer, so a value is never re-rendered. Bodies are escaped to fix input.
 	f := engine(1)
 	cases := map[string]string{
-		`{"format":"#8#1#1#2#1#8#9#8#7{luhn()}"}`:    "8112189876",  // personnummer body
-		`{"format":"#7#9#9#2#7#3#9#8#7#1{luhn()}"}`:  "79927398713", // classic Luhn vector
-		`{"format":"#8#1#1#2#1#8-#9#8#7{luhn()}"}`:   "811218-9876", // '-' skipped, kept
+		`{"format":"811218987{luhn()}"}`:             "8112189876",  // personnummer body
+		`{"format":"7992739871{luhn()}"}`:            "79927398713", // classic Luhn vector
+		`{"format":"811218-987{luhn()}"}`:            "811218-9876", // '-' skipped, kept
 		`{"format":"{n}{luhn()}","n":["811218987"]}`: "8112189876",  // over a rendered token
 	}
 	for tmpl, want := range cases {
@@ -162,45 +200,51 @@ func TestCompileErrors(t *testing.T) {
 	// Every structural problem is caught up front, at compile/New time, never
 	// deferred to a random render that happens to hit the bad branch.
 	for _, bad := range []string{
-		`{"x":["Q"]}`,                 // object without "format"
-		`{"format":"{y}","x":1}`,      // a field is a bare number
-		`[1, 2]`,                      // a choice of numbers
-		`5`,                           // unsupported node type
-		`[]`,                          // empty choice
-		`{"format":"{x"}`,             // unterminated brace
-		`{"format":"{y}","x":["Q"]}`,  // token names a missing field
-		`{"format":"{}"}`,             // empty token name
-		`{"format":"{a|}","a":["Q"]}`, // empty alternation segment
+		`{"x":["Q"]}`,                  // object without "format"
+		`{"format":"{y}","x":1}`,       // a field is a bare number
+		`[1, 2]`,                       // a choice of numbers
+		`5`,                            // unsupported node type
+		`[]`,                           // empty choice
+		`{"format":"{x"}`,              // unterminated brace
+		`{"format":"x}y"}`,             // a lone } must be written }}
+		`{"format":"{a{b}","a":["Q"]}`, // a brace inside a token
+		`"{x}"`,                        // a bare string has no fields to name
+		`{"format":"{digits(0)}"}`,     // count must be positive
+		`{"format":"{upper(x)}"}`,      // count must be an integer
+		`{"format":"{lower()}"}`,       // wrong arity
+		`{"format":"{y}","x":["Q"]}`,   // token names a missing field
+		`{"format":"{}"}`,              // empty token name
+		`{"format":"{a|}","a":["Q"]}`,  // empty alternation segment
 		`[{"format":"A","weight":-1},{"format":"B"}]`,                   // negative weight
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf
 		`[{"format":"A","weight":"heavy"}]`,                             // non-numeric weight
-		`{"format":"x","repeat":0}`,                                     // repeat below 1
-		`{"format":"x","repeat":-2}`,                                    // negative repeat
-		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
-		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
-		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
-		`{"format":"{nope()}"}`,                                         // unknown function
-		`{"format":"{luhn(x)}"}`,                                        // function given args it takes none of
-		`{"format":"{luhn(}"}`,                                          // malformed function token
-		`{"format":"{int(1)}"}`,                                         // wrong arity
-		`{"format":"{int(a,b)}"}`,                                       // non-integer args
-		`{"format":"{int(5,1)}"}`,                                       // min > max
-		`{"format":"{hex(0)}"}`,                                         // count must be positive
-		`{"format":"{nanoid(-1)}"}`,                                     // negative count
-		`{"format":"{base64(0)}"}`,                                      // count must be positive
-		`{"format":"{float(1,2)}"}`,                                     // wrong arity
-		`{"format":"{float(1,2,-1)}"}`,                                  // negative decimals
-		`{"format":"{iban(US)}"}`,                                       // unsupported country
-		`{"format":"{seq(a,b)}"}`,                                       // seq takes at most one name
-		`{"format":"{calc()}"}`,                                         // calc needs an expression
-		`{"format":"{calc(1 +)}"}`,                                      // dangling operator
-		`{"format":"{calc((1 + 2)}"}`,                                   // unbalanced parenthesis
-		`{"format":"{calc(1 2)}"}`,                                      // two operands, no operator
-		`{"format":"{calc(price)}"}`,                                    // operand names no field
-		`{"format":"{calc(1, 2, 3)}"}`,                                  // too many args
-		`{"format":"{calc(1, x)}"}`,                                     // decimals arg not an integer
-		`{"format":"{calc(1, -1)}"}`,                                    // decimals negative
+		`{"format":"x","repeat":0}`,                                              // repeat below 1
+		`{"format":"x","repeat":-2}`,                                             // negative repeat
+		`{"format":"x","repeat":1.5}`,                                            // non-integer repeat
+		`{"format":"x","repeat":"two"}`,                                          // non-numeric repeat
+		`{"format":"x","repeat":2,"separator":5}`,                                // non-string separator
+		`{"format":"{nope()}"}`,                                                  // unknown function
+		`{"format":"{luhn(x)}"}`,                                                 // function given args it takes none of
+		`{"format":"{luhn(}"}`,                                                   // malformed function token
+		`{"format":"{int(1)}"}`,                                                  // wrong arity
+		`{"format":"{int(a,b)}"}`,                                                // non-integer args
+		`{"format":"{int(5,1)}"}`,                                                // min > max
+		`{"format":"{hex(0)}"}`,                                                  // count must be positive
+		`{"format":"{nanoid(-1)}"}`,                                              // negative count
+		`{"format":"{base64(0)}"}`,                                               // count must be positive
+		`{"format":"{float(1,2)}"}`,                                              // wrong arity
+		`{"format":"{float(1,2,-1)}"}`,                                           // negative decimals
+		`{"format":"{iban(US)}"}`,                                                // unsupported country
+		`{"format":"{seq(a,b)}"}`,                                                // seq takes at most one name
+		`{"format":"{calc()}"}`,                                                  // calc needs an expression
+		`{"format":"{calc(1 +)}"}`,                                               // dangling operator
+		`{"format":"{calc((1 + 2)}"}`,                                            // unbalanced parenthesis
+		`{"format":"{calc(1 2)}"}`,                                               // two operands, no operator
+		`{"format":"{calc(price)}"}`,                                             // operand names no field
+		`{"format":"{calc(1, 2, 3)}"}`,                                           // too many args
+		`{"format":"{calc(1, x)}"}`,                                              // decimals arg not an integer
+		`{"format":"{calc(1, -1)}"}`,                                             // decimals negative
 	} {
 		if _, err := compile(parse(t, bad)); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
@@ -235,8 +279,9 @@ func TestGrowIsALowerBound(t *testing.T) {
 	for _, format := range []string{
 		"",
 		"plain literal",
-		"00-11-AA-aa",
-		"#0#1#A#a## literal",
+		"{digits(2)}-{int(1,9)}{int(1,9)}-{upper(2)}-{lower(2)}",
+		"01Aa# literal",
+		"{{}} {{{x}}}",
 		"Ö dag åäö 日本語",
 		"{x}{x}{x}",
 		"{hex(8)}-{int(10,99)}-{nanoid(5)}",

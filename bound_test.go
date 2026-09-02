@@ -16,8 +16,8 @@ import (
 // swedishPlaces is a two-variant sibling whose variants pair a locality with the
 // postal-code prefix that really belongs to it.
 const swedishPlaces = `{"format":"%s","place":[
-	{"format":"{locality}","locality":"Stockholm","postal-code":{"format":"#100 00"}},
-	{"format":"{locality}","locality":"Tranås","postal-code":{"format":"#5#7#3 00"}}
+	{"format":"{locality}","locality":"Stockholm","postal-code":{"format":"1{digits(2)} {digits(2)}"}},
+	{"format":"{locality}","locality":"Tranås","postal-code":{"format":"573 {digits(2)}"}}
 ]}`
 
 // agree reports whether a rendered "postcode locality" pair is a real pairing.

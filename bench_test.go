@@ -48,7 +48,7 @@ func BenchmarkCalc(b *testing.B) {
 }
 
 func BenchmarkLongLiteral(b *testing.B) {
-	dir := tmpData(b, "sql", `{"format":"INSERT INTO customers (id, name, city) V#ALUES (#1#2#3, '{word}', '{word}');","word":["alpha","beta","gamma","delta"]}`)
+	dir := tmpData(b, "sql", `{"format":"INSERT INTO customers (id, name, city) VALUES (123, '{word}', '{word}');","word":["alpha","beta","gamma","delta"]}`)
 	benchPath(b, dir, "sql")
 }
 
@@ -62,14 +62,14 @@ func BenchmarkRepeat(b *testing.B) {
 // two independent fields.
 func BenchmarkBound(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{place.postal-code} {place.locality}","place":[
-		{"format":"{locality}","locality":"Stockholm","postal-code":{"format":"#100 00"}},
-		{"format":"{locality}","locality":"Tranås","postal-code":{"format":"#5#7#3 00"}}]}`)
+		{"format":"{locality}","locality":"Stockholm","postal-code":{"format":"1{digits(2)} {digits(2)}"}},
+		{"format":"{locality}","locality":"Tranås","postal-code":{"format":"573 {digits(2)}"}}]}`)
 	benchPath(b, dir, "addr")
 }
 
 func BenchmarkUnbound(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{postal-code} {locality}",
-		"postal-code":[{"format":"#100 00"},{"format":"#5#7#3 00"}],
+		"postal-code":[{"format":"1{digits(2)} {digits(2)}"},{"format":"573 {digits(2)}"}],
 		"locality":["Stockholm","Tranås"]}`)
 	benchPath(b, dir, "addr")
 }
@@ -78,7 +78,7 @@ func BenchmarkUnbound(b *testing.B) {
 // depth question is about.
 func BenchmarkBoundDeep(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{p.addr.city} {p.addr.zip}","p":[
-		{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":{"format":"#100 00"}}}]}`)
+		{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":{"format":"1{digits(2)} {digits(2)}"}}}]}`)
 	benchPath(b, dir, "addr")
 }
 

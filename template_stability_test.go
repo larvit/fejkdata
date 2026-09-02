@@ -9,10 +9,10 @@ func TestSeededOutputIsStable(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"alt":     `{"format":"{a|b}","a":["A"],"b":["B"]}`,
 		"calc":    `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
-		"classes": `{"format":"00-11-AA-aa"}`,
-		"escapes": `{"format":"#0#1#A#a##{x}","x":["!"]}`,
+		"classes": `{"format":"{digits(2)}-{int(1,9)}{int(1,9)}-{upper(2)}-{lower(2)}"}`,
+		"escapes": `{"format":"01Aa#{x}","x":["!"]}`,
 		"funcs":   `{"format":"{hex(6)} {int(10,99)} {float(0,1,3)} {nanoid(5)} {seq()}"}`,
-		"nested":  `{"format":"{outer}","outer":[{"format":"{inner}-00","inner":["i"]}]}`,
+		"nested":  `{"format":"{outer}","outer":[{"format":"{inner}-{digits(2)}","inner":["i"]}]}`,
 		"ref":     `{"format":"see {..alt}"}`,
 		"repeat":  `{"format":"{w}","repeat":4,"separator":",","w":["x","y","z"]}`,
 		"sums":    `{"format":"9{d}{luhn()} {e}{ean()} {m}{mod11()}","d":["012345678901234"],"e":["123456789012"],"m":["12345678"]}`,
