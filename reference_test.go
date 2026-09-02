@@ -312,3 +312,37 @@ func TestReferenceSigilErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
+	person := `[{"format":"{first} {last}","first":"Ada","last":"Byron"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"sv_SE/person": person,
+		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), "reads a path into") || !strings.Contains(err.Error(), "{.person}") {
+		t.Errorf("New = %v, want the bare spelling rejected beside the path spelling", err)
+	}
+	dir := writeData(t, map[string]string{
+		"sv_SE/word": `["alpha","beta","gamma"]`,
+		"sv_SE/loud": `"{/sv_SE.word} {uppercase(.word)}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(2))
+	for i := 0; i < 50; i++ {
+		got := strings.Fields(fake(t, f, "sv_SE.loud"))
+		if len(got) != 2 || strings.ToUpper(got[0]) != got[1] {
+			t.Fatalf("loud = %q, want one draw under both spellings", got)
+		}
+	}
+}
+
+func TestSlashAfterAReferenceSigilIsRejected(t *testing.T) {
+	for name, files := range map[string]map[string]string{
+		"after ..": {"sv_SE/person": `"Ada"`, "sv_SE/deep/a": `"{../person}"`},
+		"after .":  {"sv_SE/person": `"Ada"`, "sv_SE/a": `"{./person}"`},
+	} {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
+		if err == nil || !strings.Contains(err.Error(), "person}") || !strings.Contains(err.Error(), "write {") {
+			t.Errorf("%s: New = %v, want the slash rejected naming the spelling", name, err)
+		}
+	}
+}
