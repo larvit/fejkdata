@@ -13,10 +13,10 @@ func TestBuiltinIDGenerators(t *testing.T) {
 		tmpl string
 		re   *regexp.Regexp
 	}{
-		{"uuid v7", `{"format":"{uuid()}"}`, regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)},
-		{"ulid", `{"format":"{ulid()}"}`, regexp.MustCompile(`^[0-7][0-9A-HJKMNP-TV-Z]{25}$`)},
-		{"nanoid", `{"format":"{nanoid(21)}"}`, regexp.MustCompile(`^[A-Za-z0-9_-]{21}$`)},
-		{"hex", `{"format":"{hex(16)}"}`, regexp.MustCompile(`^[0-9a-f]{16}$`)},
+		{"uuid v7", `"{uuid()}"`, regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)},
+		{"ulid", `"{ulid()}"`, regexp.MustCompile(`^[0-7][0-9A-HJKMNP-TV-Z]{25}$`)},
+		{"nanoid", `"{nanoid(21)}"`, regexp.MustCompile(`^[A-Za-z0-9_-]{21}$`)},
+		{"hex", `"{hex(16)}"`, regexp.MustCompile(`^[0-9a-f]{16}$`)},
 	}
 	f := engine(1)
 	for _, c := range cases {
@@ -38,9 +38,9 @@ func TestBuiltinIDGenerators(t *testing.T) {
 // sample draws only from the seeded rng, so same seed -> same value.
 func TestBuiltinSamplesReproducible(t *testing.T) {
 	for _, tmpl := range []string{
-		`{"format":"{uuid()}"}`, `{"format":"{ulid()}"}`,
-		`{"format":"{nanoid(12)}"}`, `{"format":"{int(1,1000000)}"}`,
-		`{"format":"{float(0,1,6)}"}`, `{"format":"{base64(12)}"}`, `{"format":"{iban(SE)}"}`,
+		`"{uuid()}"`, `"{ulid()}"`,
+		`"{nanoid(12)}"`, `"{int(1,1000000)}"`,
+		`"{float(0,1,6)}"`, `"{base64(12)}"`, `"{iban(SE)}"`,
 	} {
 		if a, b := mustRender(t, engine(7), tmpl), mustRender(t, engine(7), tmpl); a != b {
 			t.Fatalf("%s not reproducible: %q != %q", tmpl, a, b)
@@ -52,7 +52,7 @@ func TestBuiltinIntInclusiveRange(t *testing.T) {
 	f := engine(1)
 	lo, hi := false, false
 	for i := 0; i < 1000; i++ {
-		n, err := strconv.Atoi(mustRender(t, f, `{"format":"{int(3,7)}"}`))
+		n, err := strconv.Atoi(mustRender(t, f, `"{int(3,7)}"`))
 		if err != nil || n < 3 || n > 7 {
 			t.Fatalf("int(3,7) = %d (err %v), out of range", n, err)
 		}
@@ -66,14 +66,14 @@ func TestBuiltinIntInclusiveRange(t *testing.T) {
 func TestBuiltinFloat(t *testing.T) {
 	f, re := engine(1), regexp.MustCompile(`^[12]\.\d{3}$`)
 	for i := 0; i < 200; i++ {
-		if got := mustRender(t, f, `{"format":"{float(1,2,3)}"}`); !re.MatchString(got) {
+		if got := mustRender(t, f, `"{float(1,2,3)}"`); !re.MatchString(got) {
 			t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
 		}
 	}
 }
 
 func TestBuiltinBase64(t *testing.T) {
-	got := mustRender(t, engine(1), `{"format":"{base64(9)}"}`)
+	got := mustRender(t, engine(1), `"{base64(9)}"`)
 	if b, err := base64.StdEncoding.DecodeString(got); err != nil || len(b) != 9 {
 		t.Fatalf("base64(9) = %q decodes to %d bytes (err %v), want 9", got, len(b), err)
 	}
@@ -83,9 +83,9 @@ func TestBuiltinBase64(t *testing.T) {
 // hand-computed check, like the luhn test. mod-11 emits X when it would be 10.
 func TestBuiltinChecksums(t *testing.T) {
 	cases := map[string]string{
-		`{"format":"12345678{mod11()}"}`:   "123456785",     // weights 2..7 from the right
-		`{"format":"6{mod11()}"}`:          "6X",            // remainder 10 -> X
-		`{"format":"400638133393{ean()}"}`: "4006381333931", // EAN-13 (= ISBN-13) check digit
+		`"12345678{mod11()}"`:   "123456785",     // weights 2..7 from the right
+		`"6{mod11()}"`:          "6X",            // remainder 10 -> X
+		`"400638133393{ean()}"`: "4006381333931", // EAN-13 (= ISBN-13) check digit
 	}
 	f := engine(1)
 	for tmpl, want := range cases {
@@ -101,14 +101,14 @@ func TestBuiltinChecksums(t *testing.T) {
 func TestBuiltinSeqPerSession(t *testing.T) {
 	f := engine(1)
 	for i := 1; i <= 5; i++ {
-		if got := mustRender(t, f, `{"format":"{seq()}"}`); got != strconv.Itoa(i) {
+		if got := mustRender(t, f, `"{seq()}"`); got != strconv.Itoa(i) {
 			t.Fatalf("seq call %d = %q, want %d", i, got, i)
 		}
 	}
-	if got := mustRender(t, f, `{"format":"{seq(orders)}"}`); got != "1" {
+	if got := mustRender(t, f, `"{seq(orders)}"`); got != "1" {
 		t.Fatalf("named seq(orders) = %q, want its own count from 1", got)
 	}
-	if got := mustRender(t, f, `{"format":"{seq()}"}`); got != "6" {
+	if got := mustRender(t, f, `"{seq()}"`); got != "6" {
 		t.Fatalf("default seq after the named one = %q, want 6 (counters are independent)", got)
 	}
 	// repeat drives one counter forward across its renders...
@@ -116,7 +116,7 @@ func TestBuiltinSeqPerSession(t *testing.T) {
 		t.Fatalf("repeat seq = %q, want 1,2,3", got)
 	}
 	// ...and a fresh session restarts from 1.
-	if got := mustRender(t, engine(2), `{"format":"{seq()}"}`); got != "1" {
+	if got := mustRender(t, engine(2), `"{seq()}"`); got != "1" {
 		t.Fatalf("new session seq = %q, want 1", got)
 	}
 }
@@ -126,14 +126,14 @@ func TestBuiltinSeqPerSession(t *testing.T) {
 // at compile, not detonate when the template is drawn.
 func TestBuiltinArgLimits(t *testing.T) {
 	bad := []string{
-		`{"format":"{int(-9223372036854775808,9223372036854775807)}"}`, // span overflows int -> IntN panic
-		`{"format":"{hex(2000000000)}"}`,                               // ~2 GB string
-		`{"format":"{nanoid(2000000000)}"}`,
-		`{"format":"{base64(2000000000)}"}`,
-		`{"format":"{float(-1e308,1e308,2)}"}`,           // span is +Inf
-		`{"format":"{float(0,1,100000)}"}`,               // decimals -> huge string
-		`{"format":"{calc(1+1,100000)}"}`,                // calc decimals -> huge string
-		`{"format":"{x}","x":["1"],"repeat":2000000000}`, // repeat -> multi-GB join
+		`"{int(-9223372036854775808,9223372036854775807)}"`, // span overflows int -> IntN panic
+		`"{hex(2000000000)}"`,                               // ~2 GB string
+		`"{nanoid(2000000000)}"`,
+		`"{base64(2000000000)}"`,
+		`"{float(-1e308,1e308,2)}"`,                    // span is +Inf
+		`"{float(0,1,100000)}"`,                        // decimals -> huge string
+		`"{calc(1+1,100000)}"`,                         // calc decimals -> huge string
+		`{"format":"{x}","x":"1","repeat":2000000000}`, // repeat -> multi-GB join
 	}
 	for _, tmpl := range bad {
 		if _, err := compile(parse(t, tmpl)); err == nil {
@@ -141,7 +141,7 @@ func TestBuiltinArgLimits(t *testing.T) {
 		}
 	}
 	// Ordinary values still compile.
-	if _, err := compile(parse(t, `{"format":"{hex(16)} {int(-5,5)} {float(0,1,3)} {calc(1+1,2)}"}`)); err != nil {
+	if _, err := compile(parse(t, `"{hex(16)} {int(-5,5)} {float(0,1,3)} {calc(1+1,2)}"`)); err != nil {
 		t.Errorf("compile of normal args failed: %v", err)
 	}
 }
@@ -150,7 +150,7 @@ func TestBuiltinIBAN(t *testing.T) {
 	wantLen := map[string]int{"SE": 24, "DE": 22, "NO": 15}
 	f := engine(1)
 	for cc, n := range wantLen {
-		tmpl := `{"format":"{iban(` + cc + `)}"}`
+		tmpl := `"{iban(` + cc + `)}"`
 		for i := 0; i < 100; i++ {
 			got := mustRender(t, f, tmpl)
 			if got[:2] != cc || len(got) != n {

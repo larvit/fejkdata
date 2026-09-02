@@ -26,7 +26,7 @@ func TestNewDefaultsToShippedData(t *testing.T) {
 }
 
 func TestWithDataPathLayersOverShipped(t *testing.T) {
-	dir := writeData(t, map[string]string{"sv_SE/word": `["only-mine"]`, "greeting": `["hej"]`})
+	dir := writeData(t, map[string]string{"sv_SE/word": `"only-mine"`, "greeting": `"hej"`})
 	f, err := New(WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v", err)
@@ -43,7 +43,7 @@ func TestWithDataPathLayersOverShipped(t *testing.T) {
 }
 
 func TestUserDataMayReferenceShipped(t *testing.T) {
-	dir := writeData(t, map[string]string{"greeting": `{"format":"Hej {..sv_SE.person}!"}`})
+	dir := writeData(t, map[string]string{"greeting": `"Hej {..sv_SE.person}!"`})
 	f, err := New(WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v", err)
@@ -61,7 +61,7 @@ func TestWithoutShippedDataNeedsASource(t *testing.T) {
 }
 
 func TestWithoutShippedDataListsOnlyOwn(t *testing.T) {
-	dir := writeData(t, map[string]string{"greeting": `["hej"]`})
+	dir := writeData(t, map[string]string{"greeting": `"hej"`})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := f.List(); !reflect.DeepEqual(got, []string{"greeting"}) {
 		t.Errorf("List() = %v, want only the loaded dir", got)
@@ -70,10 +70,10 @@ func TestWithoutShippedDataListsOnlyOwn(t *testing.T) {
 
 func TestWithDataFS(t *testing.T) {
 	fsys := fstest.MapFS{
-		"greeting.json":  {Data: []byte(`["hej"]`)},
-		"nested/x.json":  {Data: []byte(`{"format":"{y}","y":["z"]}`)},
-		".hidden.json":   {Data: []byte(`["ignored"]`)},
-		"broken/no.json": {Data: []byte(`["x"]`)},
+		"greeting.json":  {Data: []byte(`"hej"`)},
+		"nested/x.json":  {Data: []byte(`{"format":"{y}","y":"z"}`)},
+		".hidden.json":   {Data: []byte(`"ignored"`)},
+		"broken/no.json": {Data: []byte(`"x"`)},
 	}
 	f, err := New(WithoutShippedData(), WithDataFS(fsys), WithSeed(1))
 	if err != nil {

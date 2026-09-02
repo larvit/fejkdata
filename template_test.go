@@ -74,7 +74,7 @@ func TestClassBuiltins(t *testing.T) {
 }
 
 func TestTextIsLiteral(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"100 Main St #1 {x}","x":["A"]}`); got != "100 Main St #1 A" {
+	if got := mustRender(t, engine(1), `{"format":"100 Main St #1 {x}","x":"A"}`); got != "100 Main St #1 A" {
 		t.Fatalf("text = %q, want it verbatim", got)
 	}
 }
@@ -82,21 +82,21 @@ func TestTextIsLiteral(t *testing.T) {
 func TestBraceEscapes(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string]string{
-		`{"format":"{{","x":["v"]}`:         "{",
-		`{"format":"}}","x":["v"]}`:         "}",
-		`{"format":"{{x}}","x":["v"]}`:      "{x}",
-		`{"format":"{{{x}}}","x":["v"]}`:    "{v}",
-		`{"format":"a{{{{b}}}}","x":["v"]}`: "a{{b}}",
+		`{"format":"{{","x":"v"}`:         "{",
+		`{"format":"}}","x":"v"}`:         "}",
+		`{"format":"{{x}}","x":"v"}`:      "{x}",
+		`{"format":"{{{x}}}","x":"v"}`:    "{v}",
+		`{"format":"a{{{{b}}}}","x":"v"}`: "a{{b}}",
 	} {
 		if got := mustRender(t, f, src); got != want {
 			t.Errorf("render(%s) = %q, want %q", src, got, want)
 		}
 	}
 	for src, want := range map[string]string{
-		`{"format":"x}y"}`:             "}}",
-		`{"format":"}"}`:               "}}",
-		`{"format":"{a{b}","a":["Q"]}`: "'{'",
-		`{"format":"{x"}`:              "unterminated",
+		`"x}y"`:                      "}}",
+		`"}"`:                        "}}",
+		`{"format":"{a{b}","a":"Q"}`: "'{'",
+		`"{x"`:                       "unterminated",
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
@@ -105,7 +105,7 @@ func TestBraceEscapes(t *testing.T) {
 }
 
 func TestTokenSubstitution(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{x}sson","x":["Erik"]}`); got != "Eriksson" {
+	if got := mustRender(t, engine(1), `{"format":"{x}sson","x":"Erik"}`); got != "Eriksson" {
 		t.Fatalf("token = %q, want Eriksson", got)
 	}
 }
@@ -114,7 +114,7 @@ func TestAlternationPicksOneField(t *testing.T) {
 	f := engine(3)
 	seen := map[string]bool{}
 	for i := 0; i < 100; i++ {
-		seen[mustRender(t, f, `{"format":"{a|b}","a":["A"],"b":["B"]}`)] = true
+		seen[mustRender(t, f, `{"format":"{a|b}","a":"A","b":"B"}`)] = true
 	}
 	if !seen["A"] || !seen["B"] || len(seen) != 2 {
 		t.Fatalf("alternation produced %v, want both A and B", seen)
@@ -134,7 +134,7 @@ func TestWeightSkewsDistribution(t *testing.T) {
 	f := engine(9)
 	heavy := 0
 	for i := 0; i < 1000; i++ {
-		if mustRender(t, f, `[{"format":"H","weight":10},{"format":"L"}]`) == "H" {
+		if mustRender(t, f, `[{"format":"H","weight":10},"L"]`) == "H" {
 			heavy++
 		}
 	}
@@ -173,10 +173,10 @@ func TestFunctionTokenLuhn(t *testing.T) {
 	// buffer, so a value is never re-rendered. Bodies are escaped to fix input.
 	f := engine(1)
 	cases := map[string]string{
-		`{"format":"811218987{luhn()}"}`:             "8112189876",  // personnummer body
-		`{"format":"7992739871{luhn()}"}`:            "79927398713", // classic Luhn vector
-		`{"format":"811218-987{luhn()}"}`:            "811218-9876", // '-' skipped, kept
-		`{"format":"{n}{luhn()}","n":["811218987"]}`: "8112189876",  // over a rendered token
+		`"811218987{luhn()}"`:                      "8112189876",  // personnummer body
+		`"7992739871{luhn()}"`:                     "79927398713", // classic Luhn vector
+		`"811218-987{luhn()}"`:                     "811218-9876", // '-' skipped, kept
+		`{"format":"{n}{luhn()}","n":"811218987"}`: "8112189876",  // over a rendered token
 	}
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {
@@ -189,7 +189,7 @@ func TestRecursionHasNoDepthLimit(t *testing.T) {
 	// Build {format:{a}, a:[{format:{a}, a:[ ... "deep" ]]}} 50 levels deep.
 	tmpl := `"deep"`
 	for i := 0; i < 50; i++ {
-		tmpl = `{"format":"{a}","a":[` + tmpl + `]}`
+		tmpl = `{"format":"{a}","a":` + tmpl + `}`
 	}
 	if got := mustRender(t, engine(1), tmpl); got != "deep" {
 		t.Fatalf("deep recursion = %q, want deep", got)
@@ -200,51 +200,56 @@ func TestCompileErrors(t *testing.T) {
 	// Every structural problem is caught up front, at compile/New time, never
 	// deferred to a random render that happens to hit the bad branch.
 	for _, bad := range []string{
-		`{"x":["Q"]}`,                  // object without "format"
-		`{"format":"{y}","x":1}`,       // a field is a bare number
-		`[1, 2]`,                       // a choice of numbers
-		`5`,                            // unsupported node type
-		`[]`,                           // empty choice
-		`{"format":"{x"}`,              // unterminated brace
-		`{"format":"x}y"}`,             // a lone } must be written }}
-		`{"format":"{a{b}","a":["Q"]}`, // a brace inside a token
-		`"{x}"`,                        // a bare string has no fields to name
-		`{"format":"{digits(0)}"}`,     // count must be positive
-		`{"format":"{upper(x)}"}`,      // count must be an integer
-		`{"format":"{lower()}"}`,       // wrong arity
-		`{"format":"{y}","x":["Q"]}`,   // token names a missing field
-		`{"format":"{}"}`,              // empty token name
-		`{"format":"{a|}","a":["Q"]}`,  // empty alternation segment
-		`[{"format":"A","weight":-1},{"format":"B"}]`,                   // negative weight
+		`{"x":"Q"}`,                           // object without "format"
+		`{"format":"{y}","x":1}`,              // a field is a bare number
+		`[1, 2]`,                              // a choice of numbers
+		`5`,                                   // unsupported node type
+		`[]`,                                  // empty choice
+		`"{x"`,                                // unterminated brace
+		`"x}y"`,                               // a lone } must be written }}
+		`["x"]`,                               // a one-item choice is its item
+		`["a","a"]`,                           // a repeated item is a weight
+		`{"format":"x"}`,                      // an object holding only a format is a string
+		`[{"format":"a","weight":1},"b"]`,     // weight 1 is the default
+		`{"format":"{x}","x":"v","repeat":1}`, // repeat 1 is the default
+		`{"format":"{a{b}","a":"Q"}`,          // a brace inside a token
+		`"{x}"`,                               // a bare string has no fields to name
+		`"{digits(0)}"`,                       // count must be positive
+		`"{upper(x)}"`,                        // count must be an integer
+		`"{lower()}"`,                         // wrong arity
+		`{"format":"{y}","x":"Q"}`,            // token names a missing field
+		`"{}"`,                                // empty token name
+		`{"format":"{a|}","a":"Q"}`,           // empty alternation segment
+		`[{"format":"A","weight":-1},"B"]`,    // negative weight
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf
-		`[{"format":"A","weight":"heavy"}]`,                             // non-numeric weight
+		`{"format":"A","weight":"heavy"}`,                               // non-numeric weight
 		`{"format":"x","repeat":0}`,                                     // repeat below 1
 		`{"format":"x","repeat":-2}`,                                    // negative repeat
 		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
 		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
 		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
-		`{"format":"{nope()}"}`,                                         // unknown function
-		`{"format":"{luhn(x)}"}`,                                        // function given args it takes none of
-		`{"format":"{luhn(}"}`,                                          // malformed function token
-		`{"format":"{int(1)}"}`,                                         // wrong arity
-		`{"format":"{int(a,b)}"}`,                                       // non-integer args
-		`{"format":"{int(5,1)}"}`,                                       // min > max
-		`{"format":"{hex(0)}"}`,                                         // count must be positive
-		`{"format":"{nanoid(-1)}"}`,                                     // negative count
-		`{"format":"{base64(0)}"}`,                                      // count must be positive
-		`{"format":"{float(1,2)}"}`,                                     // wrong arity
-		`{"format":"{float(1,2,-1)}"}`,                                  // negative decimals
-		`{"format":"{iban(US)}"}`,                                       // unsupported country
-		`{"format":"{seq(a,b)}"}`,                                       // seq takes at most one name
-		`{"format":"{calc()}"}`,                                         // calc needs an expression
-		`{"format":"{calc(1 +)}"}`,                                      // dangling operator
-		`{"format":"{calc((1 + 2)}"}`,                                   // unbalanced parenthesis
-		`{"format":"{calc(1 2)}"}`,                                      // two operands, no operator
-		`{"format":"{calc(price)}"}`,                                    // operand names no field
-		`{"format":"{calc(1, 2, 3)}"}`,                                  // too many args
-		`{"format":"{calc(1, x)}"}`,                                     // decimals arg not an integer
-		`{"format":"{calc(1, -1)}"}`,                                    // decimals negative
+		`"{nope()}"`,        // unknown function
+		`"{luhn(x)}"`,       // function given args it takes none of
+		`"{luhn(}"`,         // malformed function token
+		`"{int(1)}"`,        // wrong arity
+		`"{int(a,b)}"`,      // non-integer args
+		`"{int(5,1)}"`,      // min > max
+		`"{hex(0)}"`,        // count must be positive
+		`"{nanoid(-1)}"`,    // negative count
+		`"{base64(0)}"`,     // count must be positive
+		`"{float(1,2)}"`,    // wrong arity
+		`"{float(1,2,-1)}"`, // negative decimals
+		`"{iban(US)}"`,      // unsupported country
+		`"{seq(a,b)}"`,      // seq takes at most one name
+		`"{calc()}"`,        // calc needs an expression
+		`"{calc(1 +)}"`,     // dangling operator
+		`"{calc((1 + 2)}"`,  // unbalanced parenthesis
+		`"{calc(1 2)}"`,     // two operands, no operator
+		`"{calc(price)}"`,   // operand names no field
+		`"{calc(1, 2, 3)}"`, // too many args
+		`"{calc(1, x)}"`,    // decimals arg not an integer
+		`"{calc(1, -1)}"`,   // decimals negative
 	} {
 		if _, err := compile(parse(t, bad)); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
@@ -255,7 +260,7 @@ func TestCompileErrors(t *testing.T) {
 func TestFakePathNavigation(t *testing.T) {
 	f := engine(1)
 	f.categories = map[string]node{
-		"addr": compiled(t, `[{"format":"{street}","street":["Main"]}]`),
+		"addr": compiled(t, `{"format":"{street}","street":"Main"}`),
 	}
 	if got, err := f.Fake("addr"); err != nil || !strings.Contains(got, "Main") {
 		t.Fatalf("Fake(addr) = %q, %v", got, err)
@@ -288,7 +293,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 		"9{d}{luhn()}",
 		"{a|b} and {a|b}",
 	} {
-		src := `{"format":` + quote(format) + `,"x":["1"],"a":["A"],"b":["B"],"d":["012345678901234"]}`
+		src := `{"format":` + quote(format) + `,"x":"1","a":"A","b":"B","d":"012345678901234"}`
 		tmpl, ok := compiled(t, src).(*template)
 		if !ok {
 			t.Fatalf("format %q did not compile to a template", format)

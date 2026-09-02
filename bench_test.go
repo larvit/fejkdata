@@ -43,7 +43,7 @@ func tmpData(b *testing.B, name, body string) string {
 }
 
 func BenchmarkCalc(b *testing.B) {
-	dir := tmpData(b, "inv", `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99"],"qty":["3"]}`)
+	dir := tmpData(b, "inv", `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":"19.99","qty":"3"}`)
 	benchPath(b, dir, "inv")
 }
 
@@ -61,24 +61,19 @@ func BenchmarkRepeat(b *testing.B) {
 // what a correlated pair costs against BenchmarkUnbound, the same output drawn from
 // two independent fields.
 func BenchmarkBound(b *testing.B) {
-	dir := tmpData(b, "addr", `{"format":"{place.postal-code} {place.locality}","place":[
-		{"format":"{locality}","locality":"Stockholm","postal-code":{"format":"1{digits(2)} {digits(2)}"}},
-		{"format":"{locality}","locality":"Tranås","postal-code":{"format":"573 {digits(2)}"}}]}`)
+	dir := tmpData(b, "addr", `{"format":"{place.postal-code} {place.locality}","place":[{"format":"{locality}","locality":"Stockholm","postal-code":"1{digits(2)} {digits(2)}"},{"format":"{locality}","locality":"Tranås","postal-code":"573 {digits(2)}"}]}`)
 	benchPath(b, dir, "addr")
 }
 
 func BenchmarkUnbound(b *testing.B) {
-	dir := tmpData(b, "addr", `{"format":"{postal-code} {locality}",
-		"postal-code":[{"format":"1{digits(2)} {digits(2)}"},{"format":"573 {digits(2)}"}],
-		"locality":["Stockholm","Tranås"]}`)
+	dir := tmpData(b, "addr", `{"format":"{postal-code} {locality}","postal-code":["1{digits(2)} {digits(2)}","573 {digits(2)}"],"locality":["Stockholm","Tranås"]}`)
 	benchPath(b, dir, "addr")
 }
 
 // BenchmarkBoundDeep reads two paths through an intermediate level, the shape the
 // depth question is about.
 func BenchmarkBoundDeep(b *testing.B) {
-	dir := tmpData(b, "addr", `{"format":"{p.addr.city} {p.addr.zip}","p":[
-		{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":{"format":"1{digits(2)} {digits(2)}"}}}]}`)
+	dir := tmpData(b, "addr", `{"format":"{p.addr.city} {p.addr.zip}","p":{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":"1{digits(2)} {digits(2)}"}}}`)
 	benchPath(b, dir, "addr")
 }
 

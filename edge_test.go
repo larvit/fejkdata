@@ -16,11 +16,11 @@ import (
 func TestHashIsLiteral(t *testing.T) {
 	f := engine(1)
 	cases := map[string]string{
-		`{"format":"","x":["v"]}`:         "",
-		`{"format":"#","x":["v"]}`:        "#",
-		`{"format":"##","x":["v"]}`:       "##",
-		`{"format":"#0#1#A#a","x":["v"]}`: "#0#1#A#a",
-		`{"format":"#{x}","x":["v"]}`:     "#v",
+		`{"format":"","x":"v"}`:         "",
+		`{"format":"#","x":"v"}`:        "#",
+		`{"format":"##","x":"v"}`:       "##",
+		`{"format":"#0#1#A#a","x":"v"}`: "#0#1#A#a",
+		`{"format":"#{x}","x":"v"}`:     "#v",
 	}
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {
@@ -32,7 +32,7 @@ func TestHashIsLiteral(t *testing.T) {
 func TestMultibyteFormat(t *testing.T) {
 	// Scanning is rune-aware: multibyte literals coexist with class chars and
 	// tokens without corrupting indices.
-	got := mustRender(t, engine(2), `{"format":"Öster{x}-{digits(1)}å","x":["väg"]}`)
+	got := mustRender(t, engine(2), `{"format":"Öster{x}-{digits(1)}å","x":"väg"}`)
 	if !regexp.MustCompile(`^Österväg-[0-9]å$`).MatchString(got) {
 		t.Fatalf("multibyte format = %q", got)
 	}
@@ -42,7 +42,7 @@ func TestAlternationThreeWay(t *testing.T) {
 	f := engine(4)
 	seen := map[string]bool{}
 	for i := 0; i < 200; i++ {
-		seen[mustRender(t, f, `{"format":"{a|b|c}","a":["A"],"b":["B"],"c":["C"]}`)] = true
+		seen[mustRender(t, f, `{"format":"{a|b|c}","a":"A","b":"B","c":"C"}`)] = true
 	}
 	if !seen["A"] || !seen["B"] || !seen["C"] || len(seen) != 3 {
 		t.Fatalf("3-way alternation produced %v, want A, B and C", seen)
@@ -69,11 +69,11 @@ func TestNewErrors(t *testing.T) {
 		want  string
 	}{
 		"separator without repeat": {
-			map[string]string{"a": `{"format":"{x}","x":["1"],"separator":","}`},
+			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
 			"has no effect without a repeat above 1",
 		},
 		"separator with an explicit repeat of 1": {
-			map[string]string{"a": `{"format":"{x}","x":["1"],"repeat":1,"separator":","}`},
+			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
 			"has no effect without a repeat above 1",
 		},
 		"weight outside a choice": {
@@ -85,38 +85,38 @@ func TestNewErrors(t *testing.T) {
 			"weight only skews a choice's items",
 		},
 		"weight used as a field": {
-			map[string]string{"a": `{"format":"{name} {weight}kg","name":["Anvil"],"weight":["7"]}`},
+			map[string]string{"a": `{"format":"{name} {weight}kg","name":"Anvil","weight":["7"]}`},
 			"can never be a field",
 		},
 		"an option name used as a token": {
-			map[string]string{"a": `{"format":"{weight}"}`},
+			map[string]string{"a": `"{weight}"`},
 			`"weight" is an option and can never be a field`,
 		},
 		"category name with a dot": {
-			map[string]string{"a.b": `["1"]`},
+			map[string]string{"a.b": `"1"`},
 			`category "a.b" contains "."`,
 		},
 		"folder name with a dot": {
-			map[string]string{"a.b/cat": `["1"]`},
+			map[string]string{"a.b/cat": `"1"`},
 			`/a.b: folder "a.b" contains "."`,
 		},
 		// The token grammar reserves three more characters. A name carrying one
 		// still resolves by dot path, but no format can name it, so it is rejected
 		// where it is authored rather than at the token that cannot reach it.
 		"field name with a pipe": {
-			map[string]string{"a": `{"format":"{x}","x":["1"],"b|c":["2"]}`},
+			map[string]string{"a": `{"format":"{x}","x":"1","b|c":"2"}`},
 			`field "b|c" contains "|"`,
 		},
 		"field name with a paren": {
-			map[string]string{"a": `{"format":"{x}","x":["1"],"b(c":["2"]}`},
+			map[string]string{"a": `{"format":"{x}","x":"1","b(c":"2"}`},
 			`field "b(c" contains "("`,
 		},
 		"field name with a closing brace": {
-			map[string]string{"a": `{"format":"{x}","x":["1"],"b}c":["2"]}`},
+			map[string]string{"a": `{"format":"{x}","x":"1","b}c":"2"}`},
 			`field "b}c" contains "}"`,
 		},
 		"category name with a pipe": {
-			map[string]string{"a|b": `["1"]`},
+			map[string]string{"a|b": `"1"`},
 			`category "a|b" contains "|"`,
 		},
 		// An empty name is not a path segment, so List never offered it — while a
@@ -127,42 +127,42 @@ func TestNewErrors(t *testing.T) {
 			`field "" is empty`,
 		},
 		"folder name with a paren": {
-			map[string]string{"a(b/cat": `["1"]`},
+			map[string]string{"a(b/cat": `"1"`},
 			`folder "a(b" contains "("`,
 		},
 		// A repeated arm skews an alternation, which weight is the spelling for.
 		"repeated alternation arm": {
-			map[string]string{"a": `{"format":"{x|x}","x":["1"]}`},
+			map[string]string{"a": `{"format":"{x|x}","x":"1"}`},
 			`arm "x" is repeated`,
 		},
 		"repeated arm among others": {
-			map[string]string{"a": `{"format":"{x|y|x}","x":["1"],"y":["2"]}`},
+			map[string]string{"a": `{"format":"{x|y|x}","x":"1","y":"2"}`},
 			`arm "x" is repeated`,
 		},
 		"repeated path arm": {
-			map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":["1"]}}`},
+			map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":"1"}}`},
 			`arm "p.v" is repeated`,
 		},
 		// A reference arm is the only kind that reaches the repeat check by passing
 		// the per-arm checks rather than falling through them.
 		"repeated reference arm": {
-			map[string]string{"a": `["x"]`, "b": `{"format":"{..a|..a}"}`},
+			map[string]string{"a": `"x"`, "b": `"{..a|..a}"`},
 			`arm "..a" is repeated`,
 		},
 		// An arm that is broken on its own terms is reported as that, not as a
 		// repeat: the repeat is a consequence of the real mistake.
 		"repeated arm with no path": {
-			map[string]string{"a": `{"format":"{..|..}"}`},
+			map[string]string{"a": `"{..|..}"`},
 			"reference has no path",
 		},
 		// No field can be named "", so the token is told that rather than sent to
 		// name one — the fix "no field" points at is itself a load error.
 		"repeated empty arm": {
-			map[string]string{"a": `{"format":"{|}"}`},
+			map[string]string{"a": `"{|}"`},
 			"a name is never empty",
 		},
 		"bare empty token": {
-			map[string]string{"a": `{"format":"[{}]","x":["1"]}`},
+			map[string]string{"a": `{"format":"[{}]","x":"1"}`},
 			"a name is never empty",
 		},
 	}
@@ -182,16 +182,16 @@ func TestNewErrors(t *testing.T) {
 		path  string
 		want  string
 	}{
-		"option name as a field":     {map[string]string{"a": `{"format":"{name} {Weight}kg","name":["Anvil"],"Weight":["7"]}`}, "a", "Anvil 7kg"},
-		"format spelling as a field": {map[string]string{"a": `{"format":"{Format}","Format":["PDF"]}`}, "a", "PDF"},
-		"hyphenated field":           {map[string]string{"a": `{"format":"{x-y}","x-y":["1"]}`}, "a.x-y", "1"},
-		"category named Format":      {map[string]string{"Format": `["1"]`}, "Format", "1"},
-		"folder named Repeat":        {map[string]string{"Repeat/cat": `["1"]`}, "Repeat.cat", "1"},
-		"field with a closing paren": {map[string]string{"a": `{"format":"{b)c}","b)c":["2"]}`}, "a", "2"},
-		"repeat without a separator": {map[string]string{"a": `{"format":"{x}","repeat":3,"x":["1"]}`}, "a", "111"},
+		"option name as a field":     {map[string]string{"a": `{"format":"{name} {Weight}kg","name":"Anvil","Weight":"7"}`}, "a", "Anvil 7kg"},
+		"format spelling as a field": {map[string]string{"a": `{"format":"{Format}","Format":"PDF"}`}, "a", "PDF"},
+		"hyphenated field":           {map[string]string{"a": `{"format":"{x-y}","x-y":"1"}`}, "a.x-y", "1"},
+		"category named Format":      {map[string]string{"Format": `"1"`}, "Format", "1"},
+		"folder named Repeat":        {map[string]string{"Repeat/cat": `"1"`}, "Repeat.cat", "1"},
+		"field with a closing paren": {map[string]string{"a": `{"format":"{b)c}","b)c":"2"}`}, "a", "2"},
+		"repeat without a separator": {map[string]string{"a": `{"format":"{x}","repeat":3,"x":"1"}`}, "a", "111"},
 		// One name in two separate tokens is two independent draws, not a repeated
 		// arm; only a repeat within one alternation is rejected.
-		"one name in two tokens": {map[string]string{"a": `{"format":"{x}{x}","x":["1"]}`}, "a", "11"},
+		"one name in two tokens": {map[string]string{"a": `{"format":"{x}{x}","x":"1"}`}, "a", "11"},
 	}
 	for name, c := range accepted {
 		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
@@ -212,7 +212,7 @@ func TestDeepDottedPath(t *testing.T) {
 	// on the path are single-variant, so it resolves deterministically.
 	f := engine(1)
 	f.categories = map[string]node{
-		"deep": compiled(t, `[{"format":"{a}","a":[{"format":"{b}","b":[{"format":"{c}","c":[{"format":"{d}","d":["leaf"]}]}]}]}]`),
+		"deep": compiled(t, `{"format":"{a}","a":{"format":"{b}","b":{"format":"{c}","c":{"format":"{d}","d":"leaf"}}}}`),
 	}
 	if got, err := f.Fake("deep.a.b.c.d"); err != nil || got != "leaf" {
 		t.Fatalf("Fake(deep.a.b.c.d) = %q, %v, want leaf", got, err)
@@ -225,7 +225,7 @@ func TestDeepDottedPath(t *testing.T) {
 
 func TestDescendIntoStringErrors(t *testing.T) {
 	f := engine(1)
-	f.categories = map[string]node{"greeting": compiled(t, `["hej"]`)}
+	f.categories = map[string]node{"greeting": compiled(t, `"hej"`)}
 	if _, err := f.Fake("greeting.extra"); err == nil || !strings.Contains(err.Error(), `no field "extra"`) {
 		t.Fatalf("Fake(greeting.extra) = %v, want a no-field error", err)
 	}
@@ -235,9 +235,9 @@ func TestDescendIntoStringErrors(t *testing.T) {
 // one call and failing on the next: every variant must carry the rest of the path.
 func TestPathThroughChoice(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"every":  `[{"format":"{f}","f":["1"]},{"format":"{f}","f":["2"]}]`,
-		"notall": `[{"format":"{f}","f":["1"]},["plain"]]`,
-		"some":   `[{"format":"{f}","f":["1"]},{"format":"{f}","f":["2"],"extra":["x"]}]`,
+		"every":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`,
+		"notall": `[{"format":"{f}","f":"1"},"plain"]`,
+		"some":   `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2","extra":"x"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 200; i++ {
@@ -269,7 +269,7 @@ func TestPathThroughChoice(t *testing.T) {
 // wherever it appears.
 func TestPathKeyIsUnambiguous(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"cat": `[{"format":"{a.b}","a.b":["1"]},{"format":"{a}","a":{"format":"{b}","b":["2"]}}]`,
+		"cat": `[{"format":"{a.b}","a.b":"1"},{"format":"{a}","a":{"format":"{b}","b":"2"}}]`,
 	})
 	_, err := New(WithoutShippedData(), WithDataPath(dir))
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
@@ -277,7 +277,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	}
 	// The same data without the dotted key is fine, and the path resolves.
 	f := newGenerator(t, writeData(t, map[string]string{
-		"cat": `{"format":"{a.b}","a":{"format":"{b}","b":["2"]}}`,
+		"cat": `{"format":"{a.b}","a":{"format":"{b}","b":"2"}}`,
 	}), WithSeed(1))
 	if !slices.Contains(f.List(), "cat.a.b") {
 		t.Error("List() omits cat.a.b, which the data carries")
@@ -302,8 +302,8 @@ func TestMissingFieldNamesItself(t *testing.T) {
 
 func TestCategoryRootShapes(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"obj": `{"format":"{digits(2)}"}`, // object root
-		"lit": `"hello"`,                  // bare-string root
+		"obj": `"{digits(2)}"`, // object root
+		"lit": `"hello"`,       // bare-string root
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "obj"); !regexp.MustCompile(`^\d\d$`).MatchString(got) {

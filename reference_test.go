@@ -6,8 +6,8 @@ import "testing"
 // pulls a value from another via a {..path} reference resolved from the data root.
 func TestRootReferenceAcrossFolders(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"en_US/person":   `["Pat Smith"]`,
-		"sv_SE/greeting": `{"format":"Hej, {..en_US.person}!"}`,
+		"en_US/person":   `"Pat Smith"`,
+		"sv_SE/greeting": `"Hej, {..en_US.person}!"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
@@ -19,8 +19,8 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 // a single-variant choice and then a template field (..who.last).
 func TestReferenceIntoAField(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"who":  `[{"format":"{first} {last}","first":["Ada"],"last":["Byron"]}]`,
-		"card": `{"format":"signed {..who.last}"}`,
+		"who":  `{"format":"{first} {last}","first":"Ada","last":"Byron"}`,
+		"card": `"signed {..who.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "card"); got != "signed Byron" {
@@ -32,8 +32,8 @@ func TestReferenceIntoAField(t *testing.T) {
 // alternation, so a field and a cross-file value share one slot.
 func TestReferenceInAlternation(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"far":  `["X"]`,
-		"near": `{"format":"{here|..far}","here":["H"]}`,
+		"far":  `"X"`,
+		"near": `{"format":"{here|..far}","here":"H"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
 	seen := map[string]bool{}
@@ -48,8 +48,8 @@ func TestReferenceInAlternation(t *testing.T) {
 // TestReferenceCombinesLoadedPaths is the point of references over the merge
 // model: data layered from two dirs can point at each other through the root.
 func TestReferenceCombinesLoadedPaths(t *testing.T) {
-	a := writeData(t, map[string]string{"en_US/word": `["river"]`})
-	b := writeData(t, map[string]string{"mine/slug": `{"format":"the-{..en_US.word}"}`})
+	a := writeData(t, map[string]string{"en_US/word": `"river"`})
+	b := writeData(t, map[string]string{"mine/slug": `"the-{..en_US.word}"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "mine.slug"); got != "the-river" {
 		t.Fatalf("slug = %q, want the-river", got)
@@ -60,9 +60,9 @@ func TestReferenceCombinesLoadedPaths(t *testing.T) {
 // linking order cannot matter.
 func TestReferenceChain(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"a": `{"format":"{..b}"}`,
-		"b": `{"format":"{..c}"}`,
-		"c": `["deep"]`,
+		"a": `"{..b}"`,
+		"b": `"{..c}"`,
+		"c": `"deep"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "a"); got != "deep" {
@@ -74,37 +74,37 @@ func TestReferenceChain(t *testing.T) {
 // fails at load, never at a random render.
 func TestReferenceErrors(t *testing.T) {
 	cases := map[string]map[string]string{
-		"missing target": {"card": `{"format":"{..nope.gone}"}`},
-		"folder target":  {"en_US/word": `["w"]`, "card": `{"format":"{..en_US}"}`},
+		"missing target": {"card": `"{..nope.gone}"`},
+		"folder target":  {"en_US/word": `"w"`, "card": `"{..en_US}"`},
 		"multi-variant on the path": {
-			"who":  `[{"format":"{f}","f":["1"]},{"format":"{f}","f":["2"]}]`,
-			"card": `{"format":"{..who.f}"}`,
+			"who":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`,
+			"card": `"{..who.f}"`,
 		},
-		"empty reference path": {"card": `{"format":"{..}"}`},
+		"empty reference path": {"card": `"{..}"`},
 		// A reference that leads back to its own value never terminates at render,
 		// so New must reject the cycle up front (direct, mutual, or chained).
-		"direct cycle": {"a": `{"format":"x{..a}"}`},
-		"mutual cycle": {"a": `{"format":"{..b}"}`, "b": `{"format":"{..a}"}`},
-		"chain cycle":  {"a": `{"format":"{..b}"}`, "b": `{"format":"{..c}"}`, "c": `{"format":"{..a}"}`},
+		"direct cycle": {"a": `"x{..a}"`},
+		"mutual cycle": {"a": `"{..b}"`, "b": `"{..a}"`},
+		"chain cycle":  {"a": `"{..b}"`, "b": `"{..c}"`, "c": `"{..a}"`},
 		// calc renders its operands, so a cycle through one must be caught too.
-		"calc operand cycle": {"x": `{"format":"{calc(y)}","y":[{"format":"{..x}"}]}`},
+		"calc operand cycle": {"x": `{"format":"{calc(y)}","y":"{..x}"}`},
 		// A field its parent's format never renders is still reachable by dot path,
 		// so a cycle hiding in one must fail at New rather than at render.
-		"cycle in an unrendered field": {"cat": `{"format":"hi","x":{"format":"{..cat.x}"}}`},
+		"cycle in an unrendered field": {"cat": `{"format":"hi","x":"{..cat.x}"}`},
 		"mutual cycle between unrendered fields": {
-			"cat": `{"format":"hi","x":{"format":"{..cat.y}"},"y":{"format":"{..cat.x}"}}`,
+			"cat": `{"format":"hi","x":"{..cat.y}","y":"{..cat.x}"}`,
 		},
 		"cycle in an unrendered field of a choice arm": {
-			"cat": `[{"format":"hi","x":{"format":"{..cat.x}"}}]`,
+			"cat": `{"format":"hi","x":"{..cat.x}"}`,
 		},
 		// The shipped layout puts categories in folders, so a cycle one level down
 		// is the common case, not an edge case.
-		"cycle in a subfolder":            {"sv_SE/a": `{"format":"x{..sv_SE.a}"}`},
-		"mutual cycle within a subfolder": {"sv_SE/a": `{"format":"{..sv_SE.b}"}`, "sv_SE/b": `{"format":"{..sv_SE.a}"}`},
-		"mutual cycle across two folders": {"en_US/a": `{"format":"{..sv_SE.b}"}`, "sv_SE/b": `{"format":"{..en_US.a}"}`},
+		"cycle in a subfolder":            {"sv_SE/a": `"x{..sv_SE.a}"`},
+		"mutual cycle within a subfolder": {"sv_SE/a": `"{..sv_SE.b}"`, "sv_SE/b": `"{..sv_SE.a}"`},
+		"mutual cycle across two folders": {"en_US/a": `"{..sv_SE.b}"`, "sv_SE/b": `"{..en_US.a}"`},
 		// ".." is reserved for bound references, so an authored key using it would
 		// name a node nothing can reach and nothing would validate.
-		"field key using the reference prefix": {"cat": `{"format":"hi","..x":{"format":"{..nope}"}}`},
+		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{..nope}"}`},
 	}
 	for name, files := range cases {
 		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
@@ -119,10 +119,10 @@ func TestReferenceErrors(t *testing.T) {
 // starts with "." — it is skipped, not rejected.
 func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
-		"sv_SE/ok":     `["fine"]`,
-		"sv_SE/..bad":  `{"format":"{..nope}"}`,
-		"sv_SE/..y/ct": `{"format":"{..nope}"}`,
-		".git/config":  `["not data"]`,
+		"sv_SE/ok":     `"fine"`,
+		"sv_SE/..bad":  `"{..nope}"`,
+		"sv_SE/..y/ct": `"{..nope}"`,
+		".git/config":  `"not data"`,
 	}), WithSeed(1))
 	if got := f.List(); len(got) != 1 || got[0] != "sv_SE.ok" {
 		t.Fatalf("List() = %v, want only sv_SE.ok", got)
@@ -133,7 +133,7 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 // over-rejecting: a field the format never renders may point back at its own
 // category, which terminates, and stays renderable by path.
 func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
-	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":{"format":"see {..cat}"}}`})
+	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":"see {..cat}"}`})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "cat"); got != "hi" {
 		t.Fatalf("cat = %q, want hi", got)
@@ -149,9 +149,9 @@ func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
 func TestNewErrorIsDeterministic(t *testing.T) {
 	cases := map[string]map[string]string{
 		"three bad references": {
-			"a": `{"format":"{..nope.one}"}`,
-			"b": `{"format":"{..nope.two}"}`,
-			"c": `{"format":"{..nope.three}"}`,
+			"a": `"{..nope.one}"`,
+			"b": `"{..nope.two}"`,
+			"c": `"{..nope.three}"`,
 		},
 		"two bad fields in one template": {
 			"cat": `{"format":"hi","aaa":{"no":1},"zzz":{"no":2}}`,
@@ -188,12 +188,12 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 	}{
 		{
 			"cycle inside a choice arm",
-			map[string]string{"cat": `[{"format":"hi","x":{"format":"{..cat.x}"}}]`},
+			map[string]string{"cat": `{"format":"hi","x":"{..cat.x}"}`},
 			"fejkdata: reference cycle: cat.x -> ..cat.x",
 		},
 		{
 			"bad reference reached through another reference",
-			map[string]string{"a": `{"format":"{..b}"}`, "b": `{"format":"{..nope}"}`},
+			map[string]string{"a": `"{..b}"`, "b": `"{..nope}"`},
 			`fejkdata: b: reference {..nope}: no entry "nope"`,
 		},
 	}

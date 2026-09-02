@@ -13,13 +13,13 @@ import (
 // folder segments — descending transparently through single-variant choices.
 func TestList(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"person":   `{"format":"{first} {last}","first":["A"],"last":["B"]}`,
+		"person":   `{"format":"{first} {last}","first":"A","last":"B"}`,
 		"word":     `["x", "y"]`,
-		"geo/city": `["Z"]`,
+		"geo/city": `"Z"`,
 		// A bound {..path} reference is a render edge, not an addressable field.
-		"greeting": `{"format":"hej {..person.first} and {own}","own":["x"]}`,
+		"greeting": `{"format":"hej {..person.first} and {own}","own":"x"}`,
 		// Only the fields every variant carries are addressable, so "extra" is not.
-		"coin": `[{"format":"{code}","code":["A"],"name":["Aa"]},{"format":"{code}","code":["B"],"name":["Bb"],"extra":["x"]}]`,
+		"coin": `[{"format":"{code}","code":"A","name":"Aa"},{"format":"{code}","code":"B","name":"Bb","extra":"x"}]`,
 	})
 	got := newGenerator(t, dir, WithSeed(1)).List()
 	want := []string{"coin", "coin.code", "coin.name", "geo.city", "greeting", "greeting.own", "person", "person.first", "person.last", "word"}
@@ -66,8 +66,8 @@ func TestNewEmptyDirErrors(t *testing.T) {
 // namespace, so data/<loc>/person.json is reachable as "<loc>.person".
 func TestFoldersBecomeDotPaths(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"sv_SE/greeting": `["hej"]`,
-		"en_US/greeting": `["hi"]`,
+		"sv_SE/greeting": `"hej"`,
+		"en_US/greeting": `"hi"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "hej" {
@@ -82,7 +82,7 @@ func TestFoldersBecomeDotPaths(t *testing.T) {
 // a/b/c, then deep JSON fields inside the file at the end of that path.
 func TestNestedFoldersAndJSON(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"a/b/c/thing": `{"format":"{x}","x":{"format":"{y}","y":{"format":"{z}","z":["leaf"]}}}`,
+		"a/b/c/thing": `{"format":"{x}","x":{"format":"{y}","y":{"format":"{z}","z":"leaf"}}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	// Folders a.b.c, file thing, then JSON fields x.y.z — one continuous path.
@@ -96,7 +96,7 @@ func TestNestedFoldersAndJSON(t *testing.T) {
 }
 
 func TestRenderingAFolderErrors(t *testing.T) {
-	dir := writeData(t, map[string]string{"sv_SE/greeting": `["hej"]`})
+	dir := writeData(t, map[string]string{"sv_SE/greeting": `"hej"`})
 	f := newGenerator(t, dir, WithSeed(1))
 	if _, err := f.Fake("sv_SE"); err == nil {
 		t.Fatal("Fake(folder) = nil error, want a not-a-value error")
@@ -106,8 +106,8 @@ func TestRenderingAFolderErrors(t *testing.T) {
 // TestMultiPathLastWins loads two dirs; on a name clash the later dir wins, and
 // non-clashing entries from both are reachable (data combines).
 func TestMultiPathLastWins(t *testing.T) {
-	a := writeData(t, map[string]string{"greeting": `["from-a"]`, "only-a": `["a"]`})
-	b := writeData(t, map[string]string{"greeting": `["from-b"]`, "only-b": `["b"]`})
+	a := writeData(t, map[string]string{"greeting": `"from-a"`, "only-a": `"a"`})
+	b := writeData(t, map[string]string{"greeting": `"from-b"`, "only-b": `"b"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "greeting"); got != "from-b" {
 		t.Fatalf("greeting = %q, want from-b (last loaded wins)", got)
@@ -124,8 +124,8 @@ func TestMultiPathLastWins(t *testing.T) {
 // children rather than replacing wholesale: each dir adds a file to sv_SE, and
 // a per-file clash inside still resolves last-wins.
 func TestMultiPathMergesFolders(t *testing.T) {
-	a := writeData(t, map[string]string{"sv_SE/person": `["from-a"]`, "sv_SE/shared": `["a"]`})
-	b := writeData(t, map[string]string{"sv_SE/company": `["from-b"]`, "sv_SE/shared": `["b"]`})
+	a := writeData(t, map[string]string{"sv_SE/person": `"from-a"`, "sv_SE/shared": `"a"`})
+	b := writeData(t, map[string]string{"sv_SE/company": `"from-b"`, "sv_SE/shared": `"b"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "sv_SE.person"); got != "from-a" {
 		t.Fatalf("sv_SE.person = %q, want from-a (folder merged, not replaced)", got)
@@ -163,10 +163,10 @@ func TestListedPathsAllRender(t *testing.T) {
 // carrying no JSON never contributed a namespace, so neither may fail the load.
 func TestHiddenEntriesAreSkipped(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"cat":              `["V"]`,
-		".git/HEAD":        `["ignored"]`,
-		".hidden":          `["ignored"]`,
-		"empty.folder/doc": `["ignored"]`,
+		"cat":              `"V"`,
+		".git/HEAD":        `"ignored"`,
+		".hidden":          `"ignored"`,
+		"empty.folder/doc": `"ignored"`,
 	})
 	if err := os.Rename(filepath.Join(dir, "empty.folder", "doc.json"), filepath.Join(dir, "empty.folder", "doc.txt")); err != nil {
 		t.Fatal(err)
