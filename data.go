@@ -10,13 +10,14 @@ import (
 )
 
 // dataSource is one tree to load: an fs.FS and the directory in it to start from.
-// label prefixes file names in errors; path, when set, is a directory on disk that
-// must exist.
+// label prefixes file names in errors; onDisk marks path as a directory that must
+// exist.
 type dataSource struct {
-	fsys  fs.FS
-	label string
-	path  string
-	root  string
+	fsys   fs.FS
+	label  string
+	onDisk bool
+	path   string
+	root   string
 }
 
 func (s dataSource) name(p string) string {
@@ -36,10 +37,13 @@ func (s dataSource) name(p string) string {
 func loadData(sources []dataSource) (map[string]node, error) {
 	root := map[string]node{}
 	for _, src := range sources {
-		if src.path != "" {
+		if src.onDisk {
+			if src.path == "" {
+				return nil, fmt.Errorf("a data path is empty")
+			}
 			info, err := os.Stat(src.path)
 			if err != nil {
-				return nil, fmt.Errorf("%s: no such directory", src.path)
+				return nil, err
 			}
 			if !info.IsDir() {
 				return nil, fmt.Errorf("%s is not a directory", src.path)

@@ -75,7 +75,7 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, path: dir})
+		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, onDisk: true, path: dir})
 	}
 }
 
@@ -112,7 +112,11 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: newRand(c.seed, c.seeded), categories: cats}, nil
+	rng, err := newRand(c.seed, c.seeded)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %w", err)
+	}
+	return &Generator{rand: rng, categories: cats}, nil
 }
 
 // List returns the sorted dotted paths Fake can render: every category, the dotted
@@ -203,12 +207,19 @@ func join(prefix, name string) string {
 	return prefix + "." + name
 }
 
-func newRand(seed uint64, seeded bool) *session {
-	r := rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
-	if !seeded {
+// randomBytes seeds an unseeded generator; a failure is an error, never a fixed seed.
+var randomBytes = crand.Read
+
+func newRand(seed uint64, seeded bool) (*session, error) {
+	var r *rand.Rand
+	if seeded {
+		r = rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
+	} else {
 		var b [16]byte
-		_, _ = crand.Read(b[:])
+		if _, err := randomBytes(b[:]); err != nil {
+			return nil, fmt.Errorf("seeding from crypto/rand: %w", err)
+		}
 		r = rand.New(rand.NewPCG(binary.LittleEndian.Uint64(b[:8]), binary.LittleEndian.Uint64(b[8:])))
 	}
-	return &session{Rand: r, counters: map[string]uint64{}}
+	return &session{Rand: r, counters: map[string]uint64{}}, nil
 }
