@@ -245,3 +245,18 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		}
 	}
 }
+
+func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
+	for _, bad := range []string{`"{calc(1/0)}"`, `"{calc(2/(1-1))}"`, `{"format":"{calc(x/y)}","x":"1","y":"0"}`, `{"format":"{calc(x/(y*2))}","x":"1","y":" 0 "}`} {
+		if _, err := compile(parse(t, bad)); err == nil || !strings.Contains(err.Error(), "zero") {
+			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected", bad, err)
+		}
+	}
+	f := engine(1)
+	for i := 0; i < 50; i++ {
+		if got := mustRender(t, f, `{"format":"{calc(x/y)}","x":"1","y":["0","1"]}`); got == "+Inf" {
+			return
+		}
+	}
+	t.Fatal("a sometimes-zero divisor never printed +Inf in 50 draws")
+}

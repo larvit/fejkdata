@@ -711,3 +711,13 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 		}
 	}
 }
+
+func TestReadFieldPanicsOnAnUnheldPath(t *testing.T) {
+	tm, ok := compiled(t, `{"format":"{w}","w":{"format":"{x}","x":"1"}}`).(*template)
+	if !ok {
+		t.Fatal("not a template")
+	}
+	mustPanic(t, "unheld arm with a path", func() {
+		readField(engine(1).rand, tm, nil, arm{name: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
+	})
+}

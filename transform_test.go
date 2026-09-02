@@ -51,3 +51,9 @@ func TestTransformArgs(t *testing.T) {
 		}
 	}
 }
+
+func TestAsciiKeepsDEL(t *testing.T) {
+	if got := mustRender(t, engine(1), `{"format":"{ascii(x)}","x":"a\u007fb"}`); got != "a\u007fb" {
+		t.Errorf("ascii over DEL = %q, want it kept: DEL is ASCII", got)
+	}
+}

@@ -227,17 +227,29 @@ func TestCompileErrors(t *testing.T) {
 		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
 		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
 		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
-		`"{nope()}"`,        // unknown function
-		`"{luhn(x)}"`,       // function given args it takes none of
-		`"{luhn(}"`,         // malformed function token
-		`"{int(1)}"`,        // wrong arity
-		`"{int(a,b)}"`,      // non-integer args
-		`"{int(5,1)}"`,      // min > max
-		`"{hex(0)}"`,        // count must be positive
-		`"{nanoid(-1)}"`,    // negative count
-		`"{base64(0)}"`,     // count must be positive
-		`"{float(1,2)}"`,    // wrong arity
-		`"{float(1,2,-1)}"`, // negative decimals
+		`"{nope()}"`,           // unknown function
+		`"{luhn(x)}"`,          // function given args it takes none of
+		`"{luhn(}"`,            // malformed function token
+		`"{int(1)}"`,           // wrong arity
+		`"{int(a,b)}"`,         // non-integer args
+		`"{int(5,1)}"`,         // min > max
+		`"{hex(0)}"`,           // count must be positive
+		`"{nanoid(-1)}"`,       // negative count
+		`"{base64(0)}"`,        // count must be positive
+		`"{float(1,2)}"`,       // wrong arity
+		`"{float(1,2,-1)}"`,    // negative decimals
+		`"{float(NaN,NaN,2)}"`, // bounds must be finite
+		`"{float(Inf,Inf,2)}"`, // same-sign infinities
+		`"{float(1,NaN,2)}"`,   // one NaN bound
+		`"{float(-Inf,1,2)}"`,  // one infinite bound
+		`"{digits(+5)}"`,       // a count is a plain integer
+		`"{digits(05)}"`,       // no leading zero
+		`"{int(+1,5)}"`,        // a bound is a plain integer
+		`"{int(5,5)}"`,         // a constant is written as text
+		`"{float(1,1,2)}"`,     // a constant is written as text
+		`{"format":"{x}","x":"v","repeat":2,"separator":""}`, // separator "" is the default
+		`"{calc(1/0)}"`, // a constant zero divisor
+		`{"format":"{calc(x/y)}","x":"1","y":"0"}`, // a fixed zero divisor
 		`"{iban(US)}"`,      // unsupported country
 		`"{seq(a,b)}"`,      // seq takes at most one name
 		`"{calc()}"`,        // calc needs an expression

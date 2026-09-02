@@ -136,3 +136,17 @@ func TestMissingFieldNamesItself(t *testing.T) {
 		t.Errorf("Fake(person.typo) = %v, want it to name the missing field", err)
 	}
 }
+
+func TestBindingKeyIsNotAPathSegment(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"color": `["red","blue"]`,
+		"name":  `{"format":"{/color} {w}","w":"x"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	if slices.Contains(f.List(), "name./color") {
+		t.Error("List() advertises a binding key")
+	}
+	if _, err := f.Fake("name./color"); err == nil || !strings.Contains(err.Error(), `no field "/color"`) {
+		t.Errorf("Fake(name./color) = %v, want a no-field error", err)
+	}
+}
