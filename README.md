@@ -240,16 +240,16 @@ hyphenated field can't be an operand.
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `19.99 x 3 = 59.97`: an operand is drawn once per expansion, so the
-operand shown is the operand computed. A non-numeric operand yields `NaN` and a
+Renders e.g. `19.99 x 3 = 59.97`. A non-numeric operand yields `NaN` and a
 division by zero `Inf`; both print rather than fail.
 
 ### Transforms
 
 `{lowercase(x)}`, `{uppercase(x)}` and `{ascii(x)}` rewrite the value of `x` — a
 field, a path or a `..path` — and nest. `ascii` folds Latin letters (`Åsa Öberg`
-→ `Asa Oberg`) and drops any other non-ASCII rune. Like a calc operand, `x` is
-drawn once per expansion, so an email built from a name matches the name beside it:
+→ `Asa Oberg`) and drops any other non-ASCII rune. `x` is held
+([One draw, one spelling](#one-draw-one-spelling)), so an email built from a name
+matches the name beside it:
 
 ```json
 { "format": "{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",
@@ -282,9 +282,9 @@ through a chain.
 
 ### Correlated fields
 
-`{name.field}` reads a path into a sibling, and a sibling read that way is drawn
-**once per expansion**, so several tokens read one row — a locality and the
-postal code that really covers it:
+`{name.field}` reads a path into a sibling, which holds the sibling to one draw
+([One draw, one spelling](#one-draw-one-spelling)), so several tokens read one
+row — a locality and the postal code that really covers it:
 
 ```json
 { "format": "{street} {int(1,99)}\n{place.postal-code} {place.locality}",
@@ -297,11 +297,9 @@ postal code that really covers it:
 
 Renders e.g. `Kungsgatan 35` / `176 99 Stockholm`, never a Stockholm code beside
 Tranås; each row's `weight` says how often it appears. A path is held at every
-level it passes through (`{p.geo.town.name} {p.geo.town.zip}` share the town),
-one path read twice reads one value, and a field no path addresses is drawn each
-time (`{word} {word}` differs). The hold lasts one expansion: each `repeat`
-iteration and each nested template draws again. Every variant of a choice on the
-path must carry the rest of it, so a row missing a field is named at load:
+level it passes through: `{p.geo.town.name} {p.geo.town.zip}` share the town.
+Every variant of a choice on the path must carry the rest of it, so a row missing
+a field is named at load:
 
 ```text
 token {place.postal-code}: field "place": not every variant of this 2-way choice carries "postal-code"; all carry [locality]
@@ -312,14 +310,17 @@ The sub-fields stay addressable — `Fake("address.place.locality")` renders, an
 
 ### One draw, one spelling
 
-A format may not both **render** a level and **read a path into** it — `{p}`
-beside `{p.first}`, `{..cat.net}` beside `{calc(net * 2)}`, or `{q}` beside
-`{p.first}` where `q` renders `{..cat.p.last}` — because the render draws afresh
-while the path reads the held draw, and the two would disagree. Wherever the
-second route sits, it is a load error naming the spelling to use:
+A name any token reads as a path (`{p.first}`) or as an operand (`{calc(net * 2)}`,
+`{uppercase(w)}`) is drawn **once per expansion**, and every other route to it —
+a bare `{p}`, a second bare `{w}`, `{..cat.net}`, a nested template rendering
+`{..cat.p.last}`, at any depth — is a load error naming the spelling to use. A
+name nothing reads that way is drawn each time: `{word} {word}` differs. An
+expansion is one render of one format, so each `repeat` iteration and each nested
+template draws again.
 
 ```text
 token {p} renders a level that {p.first} reads a path into; name the fields you want instead
+token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expansion; write {w} once
 ```
 
 ### Performance
@@ -347,6 +348,11 @@ tokens add cost in proportion to the output.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
+- **A bare reference draws each time; a reference path is held.** `{..p} {..p}`
+  is two draws, as `{word} {word}` is, while `{..p.first}` beside a nested template
+  rendering `{..p.first}` is a load error: a bare token is by contract an
+  independent draw, a path pins its level, and any route into a pinned level from
+  another expansion could show another row.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.

@@ -46,8 +46,7 @@ func linkRefs(root map[string]node) error {
 			t.fields[key] = target
 			t.refs[name] = key
 		}
-		t.compileFormat()
-		if err := checkNoOverlap(t.format, t.bound, t.refs); err != nil {
+		if err := t.compileFormat(); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
 		return nil

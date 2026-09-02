@@ -87,13 +87,17 @@ func compileString(s string) (node, error) {
 		return nil, err
 	}
 	t := &template{format: s, repeat: 1}
-	t.compileFormat()
+	if err := t.compileFormat(); err != nil {
+		return nil, err
+	}
 	return t, nil
 }
 
-// compileFormat compiles the format into ops once every field is in place.
-func (t *template) compileFormat() {
-	t.ops, t.grow, t.bound, t.held = compileOps(t.format, t.refs)
+// compileFormat compiles the format into ops once every field is in place, and
+// applies the fences that need the compiled reads.
+func (t *template) compileFormat() error {
+	c := compileOps(t.format, t.refs)
+	t.ops, t.grow, t.bound, t.held = c.ops, c.grow, c.bound, c.held
 	t.fixed = true
 	for _, o := range t.ops {
 		if o.kind != 'l' {
@@ -103,6 +107,10 @@ func (t *template) compileFormat() {
 	if t.fixed && len(t.ops) == 1 {
 		t.lit = t.ops[0].lit
 	}
+	if err := checkNoOverlap(t.format, t.bound, t.refs); err != nil {
+		return err
+	}
+	return checkNoRepeatedRead(t.format, c, t.refs)
 }
 
 func compileChoice(items []any) (node, error) {
@@ -218,8 +226,7 @@ func compileTemplate(m map[string]any) (node, error) {
 	if err := checkTokens(format, t.fields); err != nil {
 		return nil, err
 	}
-	t.compileFormat()
-	if err := checkNoOverlap(format, t.bound, nil); err != nil {
+	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
 	return t, nil

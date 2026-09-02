@@ -363,38 +363,69 @@ type op struct {
 	operands []arm
 }
 
-// compileOps turns a format string into ops, and returns the size of its literal
-// text to size the render buffer, plus two sets. bound is the levels the format
-// addresses by dotted path, each mapped to the first path reading it, which is what
-// the overlap fences name. held is every name drawn once per expansion — those
-// levels, plus the fields an operand reads, so an operand shown is the operand
-// computed. Both are nil when the format needs neither, so data that uses neither
-// carries no render-time cost. Call checkTokens first: it is what proves the scan
-// and every token are valid.
-func compileOps(format string, refs map[string]string) ([]op, int, map[string]string, map[string]bool) {
-	var ops []op
-	var lit strings.Builder
-	var bound map[string]string
-	var held map[string]bool
-	grow := 0
-	hold := func(a arm) {
-		if held == nil {
-			held = map[string]bool{}
+// formatOps is a compiled format: its ops, the size of its literal text (to size
+// the render buffer), and the names drawn once per expansion. bound maps each level
+// a path reads into to the first such path; held is every such level plus the
+// fields an operand reads; holder maps each held name to the first reader holding
+// it, for error messages. The maps are nil when the format holds nothing, so data
+// that holds nothing carries no render-time cost.
+type formatOps struct {
+	ops    []op
+	grow   int
+	bound  map[string]string
+	held   map[string]bool
+	holder map[string]string
+}
+
+func (c *formatOps) hold(a arm, label string) {
+	if c.held == nil {
+		c.held = map[string]bool{}
+		c.holder = map[string]string{}
+	}
+	c.held[a.key] = true
+	if _, named := c.holder[a.key]; !named {
+		c.holder[a.key] = label
+	}
+	if len(a.tail) > 0 {
+		if c.bound == nil {
+			c.bound = map[string]string{}
 		}
-		held[a.key] = true
-		if len(a.tail) > 0 {
-			if bound == nil {
-				bound = map[string]string{}
-			}
-			if _, named := bound[a.key]; !named {
-				bound[a.key] = a.name // the first path reading it, for error messages
-			}
+		if _, named := c.bound[a.key]; !named {
+			c.bound[a.key] = a.name
 		}
 	}
+}
+
+func (c *formatOps) function(body string, refs map[string]string) {
+	name, args, _ := funcCall(body)
+	var operands []arm
+	for _, operand := range tokenOperands(body) {
+		a := splitArm(operand, refs)
+		c.hold(a, fmt.Sprintf("%s operand %q", name, operand))
+		operands = append(operands, a)
+	}
+	c.ops = append(c.ops, op{kind: 'b', call: builtins[name].prep(args), operands: operands})
+}
+
+func (c *formatOps) field(body string, refs map[string]string) {
+	arms := splitArms(body, refs)
+	for _, a := range arms {
+		if len(a.tail) > 0 {
+			c.hold(a, "token {"+a.name+"}")
+		}
+	}
+	c.ops = append(c.ops, op{kind: 'f', arms: arms})
+}
+
+// compileOps compiles a format string. Call checkTokens first: it is what proves
+// the scan and every token are valid.
+func compileOps(format string, refs map[string]string) formatOps {
+	var c formatOps
+	var lit strings.Builder
 	flush := func() {
 		if lit.Len() > 0 {
-			grow += lit.Len()
-			ops = append(ops, op{kind: 'l', lit: lit.String()})
+			c.grow += lit.Len()
+			c.ops = append(c.ops, op{kind: 'l', lit: lit.String()})
 			lit.Reset()
 		}
 	}
@@ -404,26 +435,38 @@ func compileOps(format string, refs map[string]string) ([]op, int, map[string]st
 			lit.WriteRune(t.r)
 		case 'b':
 			flush()
-			if name, args, ok := funcCall(t.body); ok {
-				var operands []arm
-				for _, operand := range tokenOperands(t.body) {
-					a := splitArm(operand, refs)
-					hold(a) // the builtin renders its operand, so the expansion holds that draw
-					operands = append(operands, a)
-				}
-				ops = append(ops, op{kind: 'b', call: builtins[name].prep(args), operands: operands})
+			if _, _, isFunc := funcCall(t.body); isFunc {
+				c.function(t.body, refs)
 			} else {
-				arms := splitArms(t.body, refs)
-				for _, a := range arms {
-					if len(a.tail) > 0 {
-						hold(a)
-					}
-				}
-				ops = append(ops, op{kind: 'f', arms: arms})
+				c.field(t.body, refs)
 			}
 		}
 		return nil
 	})
 	flush()
-	return ops, grow, bound, held
+	return c
+}
+
+// checkNoRepeatedRead rejects a bare token repeated on a held name: {w} {w} beside
+// {uppercase(w)} would read one draw twice, where {w} {w} alone draws twice. The
+// error names the single-token spelling.
+func checkNoRepeatedRead(format string, c formatOps, refs map[string]string) error {
+	count := map[string]int{}
+	return eachToken(format, func(t ftoken) error {
+		if t.kind != 'b' {
+			return nil
+		}
+		if _, _, isFunc := funcCall(t.body); isFunc {
+			return nil
+		}
+		for _, a := range splitArms(t.body, refs) {
+			if len(a.tail) > 0 || !c.held[a.key] {
+				continue
+			}
+			if count[a.key]++; count[a.key] > 1 {
+				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.name, c.holder[a.key], a.key, a.name)
+			}
+		}
+		return nil
+	})
 }
