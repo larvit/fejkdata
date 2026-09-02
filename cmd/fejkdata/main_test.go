@@ -64,6 +64,49 @@ func TestRunSeedSpellings(t *testing.T) {
 	}
 }
 
+func TestRunShortFlagValues(t *testing.T) {
+	_, want, _ := runOut("--seed", "42", "--data-path", svSE, "address")
+	for _, args := range [][]string{
+		{"-s42", "-d", svSE, "address"},
+		{"-s", "42", "-d" + svSE, "address"},
+		{"-d", svSE, "address", "-s42"},
+	} {
+		code, got, errb := runOut(args...)
+		if code != 0 {
+			t.Fatalf("run(%v) = %d, stderr=%q", args, code, errb)
+		}
+		if got != want {
+			t.Errorf("run(%v) = %q, want %q", args, got, want)
+		}
+	}
+	_, three, _ := runOut("-s", "1", "-n3", "-d", svSE, "word")
+	if lines := strings.Split(strings.TrimRight(three, "\n"), "\n"); len(lines) != 3 {
+		t.Errorf("-n3 gave %d lines: %q", len(lines), three)
+	}
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"-s=42", "-d", svSE, "address"}, "-s42"},
+		{[]string{"-s=42", "-d", svSE, "address"}, "--seed=42"},
+		{[]string{"-d=" + svSE, "address"}, "--data-path="},
+		{[]string{"-nd", "3", "-d", svSE, "word"}, `--repeat needs a positive integer, got "d"`},
+		{[]string{"--seed=", "-d", svSE, "word"}, `--seed needs an unsigned integer, got ""`},
+	} {
+		code, out, errb := runOut(c.args...)
+		if code != 2 || out != "" {
+			t.Errorf("run(%v) = %d, stdout %q, want misuse", c.args, code, out)
+		}
+		if !strings.Contains(errb, c.want) {
+			t.Errorf("run(%v) stderr = %q, want %q", c.args, errb, c.want)
+		}
+	}
+	code, out, _ := runOut("-hd", svSE)
+	if code != 0 || !strings.Contains(out, "Usage") {
+		t.Errorf("-hd (bundled help) = %d, %q, want usage", code, out)
+	}
+}
+
 func TestRunDoubleDashEndsFlags(t *testing.T) {
 	code, out, errb := runOut("--data-path", svSE, "--", "person")
 	if code != 0 || strings.TrimSpace(out) == "" {
