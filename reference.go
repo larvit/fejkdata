@@ -29,6 +29,9 @@ func refShape(name string) (sigil, rest string, err error) {
 	if rest == "" {
 		return "", "", fmt.Errorf("reference has no path")
 	}
+	if strings.HasPrefix(rest, "/") {
+		return "", "", fmt.Errorf("the path after %s starts at a name, not a /; write {%s%s}", sigil, sigil, rest[1:])
+	}
 	if strings.HasPrefix(rest, ".") {
 		return "", "", fmt.Errorf("a reference starts with / (the root), . (this folder) or .. (the folder above)")
 	}
@@ -137,7 +140,9 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 }
 
 // resolveRef walks a reference path through the folders to the category it names,
-// returning that head, the node, and the tail left to read into it.
+// returning that head, the node, and the tail left to read into it. A descent of
+// its own rather than a walkPath: it walks groups only and returns where they end,
+// not a leaf.
 func resolveRef(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
 	var n node = &group{children: root}
 	i := 0

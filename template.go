@@ -229,8 +229,60 @@ func fieldTokens(format string) []string {
 	return names
 }
 
-// checkSegments rejects an unfinished path: "{a.}", "{.b}" and "{a..b}" each have
-// a segment naming nothing. A field really named "" would otherwise make them
+// arm is one alternative of a {a|b} token or one operand, split into the key
+// naming the node in a template's fields (a sibling field, or the head a
+// reference is bound under) and the tail of a dotted path into it. A non-empty
+// tail is what makes the arm a bound draw: its head is drawn once per expansion
+// (see compileOps).
+type arm struct {
+	name  string // as written, for messages
+	key   string
+	tail  []string
+	steps []string // key per level passed through; the head and leaf hold their own
+	path  string   // key and tail, the one spelling every way of writing this read shares
+}
+
+// splitArm splits one name into key and tail. refs maps a reference to what
+// linkRefs bound it to; before linking, a reference is whole.
+func splitArm(name string, refs map[string]refBinding) arm {
+	if isRef(name) {
+		b, bound := refs[name]
+		if !bound || len(b.tail) == 0 {
+			key := name
+			if bound {
+				key = b.key
+			}
+			return arm{name: name, key: key, path: key}
+		}
+		return pathArm(name, b.key, b.tail)
+	}
+	head, tail, dotted := strings.Cut(name, ".")
+	if !dotted {
+		return arm{name: name, key: name, path: name}
+	}
+	return pathArm(name, head, strings.Split(tail, "."))
+}
+
+func pathArm(name, key string, segs []string) arm {
+	var steps []string
+	for i := 0; i < len(segs)-1; i++ { // every level except the leaf's own
+		steps = append(steps, key+"."+strings.Join(segs[:i+1], "."))
+	}
+	return arm{name: name, key: key, tail: segs, steps: steps, path: key + "." + strings.Join(segs, ".")}
+}
+
+// splitArms splits a token body's '|' alternatives.
+func splitArms(body string, refs map[string]refBinding) []arm {
+	parts := strings.Split(body, "|")
+	arms := make([]arm, len(parts))
+	for i, p := range parts {
+		arms[i] = splitArm(p, refs)
+	}
+	return arms
+}
+
+// checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
+// segment naming nothing. A field really named "" would otherwise make them
 // resolve, so a typo would read as a path that worked.
 func checkSegments(a arm) error {
 	if len(a.tail) == 0 {

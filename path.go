@@ -18,7 +18,8 @@ type pathWalk struct {
 
 // walkPath descends tail from n: a group or template by its next segment, a
 // choice by w.choice, which consumes no segment. A missing segment is an error,
-// so no walk reaches past what the data holds.
+// so no walk reaches past what the data holds. A table-shaped dispatch, one case
+// per node kind, kept whole on purpose.
 func walkPath(n node, tail []string, w pathWalk) error {
 	if len(tail) == 0 {
 		if w.leaf != nil {
