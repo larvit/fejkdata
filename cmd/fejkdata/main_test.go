@@ -355,3 +355,10 @@ func TestRunUnknownFlagIsNamedByRune(t *testing.T) {
 		t.Errorf("run(-ä) = %d, %q, want the flag named whole", code, errb)
 	}
 }
+
+func TestRunEmptyDataPathIsNamed(t *testing.T) {
+	code, _, errb := runOut("--data-path=", "sv_SE.word")
+	if code != 1 || !strings.Contains(errb, "empty") {
+		t.Errorf("run(--data-path=) = %d, %q, want the empty path named", code, errb)
+	}
+}

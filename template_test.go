@@ -8,7 +8,13 @@ import (
 )
 
 // engine builds a seeded generator with no loaded categories, for rendering tests.
-func engine(seed uint64) *Generator { return &Generator{rand: newRand(seed, true)} }
+func engine(seed uint64) *Generator {
+	s, err := newRand(seed, true)
+	if err != nil {
+		panic(err)
+	}
+	return &Generator{rand: s}
+}
 
 // parse unmarshals a JSON template fragment into its dynamic form.
 func parse(t *testing.T, s string) any {

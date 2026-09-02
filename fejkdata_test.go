@@ -1,8 +1,11 @@
 package fejkdata
 
 import (
+	"errors"
+	"io/fs"
 	"strings"
 	"testing"
+	"testing/fstest"
 )
 
 // newGenerator creates a generator over a single data directory, failing on
@@ -38,8 +41,25 @@ func fake(t *testing.T, f *Generator, path string) string {
 
 func TestNewMissingDirectory(t *testing.T) {
 	_, err := New(WithoutShippedData(), WithDataPath("data/de_DE"))
-	if err == nil || !strings.Contains(err.Error(), "de_DE") {
-		t.Fatalf("New(missing) error = %v, want it to name the path", err)
+	if err == nil || !strings.Contains(err.Error(), "de_DE") || !errors.Is(err, fs.ErrNotExist) {
+		t.Fatalf("New(missing) error = %v, want the real error, naming the path", err)
+	}
+}
+
+func TestNewRejectsAnEmptyDataPath(t *testing.T) {
+	_, err := New(WithoutShippedData(), WithDataPath(""))
+	if err == nil || !strings.Contains(err.Error(), "empty") {
+		t.Fatalf("New(WithDataPath(\"\")) = %v, want the empty path named", err)
+	}
+}
+
+func TestNewReportsAnEntropyFailure(t *testing.T) {
+	saved := randomBytes
+	randomBytes = func([]byte) (int, error) { return 0, errors.New("no entropy") }
+	defer func() { randomBytes = saved }()
+	_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"w.json": {Data: []byte(`"x"`)}}))
+	if err == nil || !strings.Contains(err.Error(), "no entropy") {
+		t.Fatalf("New() without entropy = %v, want the failure reported", err)
 	}
 }
 
