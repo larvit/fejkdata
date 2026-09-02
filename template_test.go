@@ -121,12 +121,10 @@ func TestAlternationPicksOneField(t *testing.T) {
 	}
 }
 
-func TestWeightZeroNeverChosen(t *testing.T) {
-	f := engine(5)
-	for i := 0; i < 200; i++ {
-		if got := mustRender(t, f, `[{"format":"X","weight":0},"Y"]`); got != "Y" {
-			t.Fatalf("weight-0 variant chosen: %q", got)
-		}
+func TestWeightZeroIsRejected(t *testing.T) {
+	_, err := compile(parse(t, `[{"format":"X","weight":0},"Y"]`))
+	if err == nil || !strings.Contains(err.Error(), "weight 0") || !strings.Contains(err.Error(), "remove") {
+		t.Fatalf("compile(weight 0) = %v, want it rejected naming the fix", err)
 	}
 }
 

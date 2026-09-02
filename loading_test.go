@@ -181,3 +181,23 @@ func TestHiddenEntriesAreSkipped(t *testing.T) {
 		}
 	}
 }
+
+func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
+	for name, files := range map[string]map[string]string{
+		"nested": {"cat": `{"format":"{a}","repeat":2048,"a":{"format":"{b}","repeat":2048,"b":"x"}}`},
+		"through a reference": {
+			"a": `{"format":"{..b}","repeat":2048}`,
+			"b": `{"format":"x","repeat":2048}`,
+		},
+	} {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
+		if err == nil || !strings.Contains(err.Error(), "repeat") || !strings.Contains(err.Error(), "1048576") {
+			t.Errorf("%s: New = %v, want the repeat product rejected naming the maximum", name, err)
+		}
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat": `{"format":"{a}{c}","repeat":1024,"a":{"format":"{b}","repeat":1024,"b":"x"},"c":{"format":"y","repeat":1024}}`,
+	}))); err != nil {
+		t.Errorf("New = %v, want 1024 x 1024 along one path accepted", err)
+	}
+}

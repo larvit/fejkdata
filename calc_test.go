@@ -72,12 +72,16 @@ func TestCalcFields(t *testing.T) {
 	}
 }
 
-// TestCalcNonNumericIsNaN pins the never-fail rule: a field that doesn't render
-// to a number becomes NaN, which propagates and prints visibly.
+// TestCalcNonNumericIsNaN pins the never-fail rule: a field that sometimes does
+// not render to a number becomes NaN then, which propagates and prints visibly.
 func TestCalcNonNumericIsNaN(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{calc(x * 2)}","x":"abc"}`); got != "NaN" {
-		t.Fatalf("calc over non-numeric field = %q, want NaN", got)
+	f := engine(1)
+	for i := 0; i < 50; i++ {
+		if got := mustRender(t, f, `{"format":"{calc(x * 2)}","x":["abc","1"]}`); got == "NaN" {
+			return
+		}
 	}
+	t.Fatal("calc over a sometimes non-numeric field never printed NaN in 50 draws")
 }
 
 // TestCalcReproducible pins that a calc over a random operand stays seed-stable.
@@ -216,5 +220,28 @@ func TestCalcHoldIsPerTemplate(t *testing.T) {
 	}
 	if !differed {
 		t.Fatal("the nested template never differed from its parent, want its own draw")
+	}
+}
+
+func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
+	for src, want := range map[string]string{
+		`{"format":"{calc(x * 2)}","x":"abc"}`:           `"abc"`,
+		`{"format":"{calc(x * 2)}","x":["a","b"]}`:       `"x"`,
+		`{"format":"{calc(x + y)}","x":"1","y":"{{2}}"}`: `"{2}"`,
+	} {
+		_, err := compile(parse(t, src))
+		if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "never a number") {
+			t.Errorf("compile(%s) = %v, want the operand rejected naming %s", src, err, want)
+		}
+	}
+	for _, ok := range []string{
+		`{"format":"{calc(x * 2)}","x":"3"}`,
+		`{"format":"{calc(x * 2)}","x":" 2.5 "}`,
+		`{"format":"{calc(x * 2)}","x":["1","abc"]}`,
+		`{"format":"{calc(x * 2)}","x":"{digits(2)}"}`,
+	} {
+		if _, err := compile(parse(t, ok)); err != nil {
+			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
+		}
 	}
 }

@@ -311,4 +311,8 @@ func TestRunNoShippedData(t *testing.T) {
 	if code != 0 || strings.TrimSpace(out) == "" {
 		t.Errorf("run = %d, out=%q", code, out)
 	}
+	code, _, errb = runOut("--no-shipped-data", "sv_SE.person")
+	if code != 2 || !strings.Contains(errb, "--no-shipped-data needs at least one --data-path") {
+		t.Errorf("--no-shipped-data alone = %d, %q, want misuse naming --data-path", code, errb)
+	}
 }

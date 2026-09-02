@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"errors"
 	"reflect"
 	"slices"
 	"strings"
@@ -55,8 +56,8 @@ func TestUserDataMayReferenceShipped(t *testing.T) {
 
 func TestWithoutShippedDataNeedsASource(t *testing.T) {
 	_, err := New(WithoutShippedData())
-	if err == nil || !strings.Contains(err.Error(), "WithDataPath") {
-		t.Fatalf("New(WithoutShippedData()) = %v, want an error naming WithDataPath", err)
+	if err == nil || !strings.Contains(err.Error(), "WithDataPath") || !errors.Is(err, ErrNoData) {
+		t.Fatalf("New(WithoutShippedData()) = %v, want ErrNoData naming WithDataPath", err)
 	}
 }
 
