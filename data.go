@@ -64,6 +64,9 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if err := checkNoCycles(root); err != nil {
 		return nil, err
 	}
+	if err := checkRepeatReach(root); err != nil {
+		return nil, err
+	}
 	if err := checkBoundLevelsHeld(root); err != nil {
 		return nil, err
 	}

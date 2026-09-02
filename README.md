@@ -167,8 +167,8 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
 writing it as `{ "format": "AB", "weight": 3 }`. Rejected at load: a weight that
-is negative, non-numeric, `1` (the default) or outside a choice, a set summing to
-zero, and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
+is negative, non-numeric, `0` (never drawn — remove the item), `1` (the default)
+or outside a choice, and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
 and the error says so.
 
 ### Repeat
@@ -180,7 +180,9 @@ many times — each an independent draw — joined by `separator` (default `""`)
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-Renders e.g. `bar foo baz`. A `separator` without a `repeat` is rejected.
+Renders e.g. `bar foo baz`. A `separator` without a `repeat` is rejected, and so
+is a `repeat` that multiplies to more than 1 048 576 renders along any path of
+nested repeats.
 
 ### Options and fields
 
@@ -240,8 +242,9 @@ hyphenated field can't be an operand.
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `19.99 x 3 = 59.97`. A non-numeric operand yields `NaN` and a
-division by zero `Inf`; both print rather than fail.
+Renders e.g. `19.99 x 3 = 59.97`. An operand that can never be a number (`"abc"`,
+or a choice of such) is rejected at load; one that sometimes is not yields `NaN`,
+and a division by zero `Inf` — both print rather than fail.
 
 ### Transforms
 

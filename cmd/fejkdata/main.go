@@ -185,9 +185,6 @@ func parseArgs(argv []string) (invocation, error) {
 
 // check rejects a flag combination that cannot run.
 func (in invocation) check() error {
-	if in.noShipped && len(in.dirs) == 0 {
-		return errors.New("--no-shipped-data needs at least one --data-path")
-	}
 	if in.list && len(in.paths) > 0 {
 		return errors.New("--list takes no path")
 	}
@@ -244,6 +241,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return misuse(stderr, err)
 	}
 	f, err := fejkdata.New(in.options()...)
+	if errors.Is(err, fejkdata.ErrNoData) {
+		return misuse(stderr, errors.New("--no-shipped-data needs at least one --data-path"))
+	}
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1

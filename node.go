@@ -144,8 +144,8 @@ func compileChoice(items []any) (node, error) {
 		c.items[i] = n
 	}
 	if weighted { // uniform choices skip the weight table and pick in O(1)
-		if total <= 0 || math.IsInf(total, 1) {
-			return nil, fmt.Errorf("choice weights must sum to a finite positive number, got %v", total)
+		if math.IsInf(total, 1) {
+			return nil, fmt.Errorf("choice weights must sum to a finite number, got %v", total)
 		}
 		c.cum = cum
 	}
@@ -293,7 +293,7 @@ func repeatOf(m map[string]any) (int, error) {
 }
 
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only
-// template objects carry weight; a present one must be finite and non-negative.
+// template objects carry weight; a present one must be finite and positive.
 func weightOf(raw any) (float64, error) {
 	m, ok := raw.(map[string]any)
 	if !ok {
@@ -308,7 +308,10 @@ func weightOf(raw any) (float64, error) {
 		return 0, fmt.Errorf("weight must be a number, got %T", wv)
 	}
 	if w < 0 || math.IsNaN(w) || math.IsInf(w, 0) {
-		return 0, fmt.Errorf("weight must be finite and non-negative, got %v", w)
+		return 0, fmt.Errorf("weight must be finite and positive, got %v", w)
+	}
+	if w == 0 {
+		return 0, fmt.Errorf("weight 0 means the item is never drawn; remove the item instead")
 	}
 	if w == 1 {
 		return 0, fmt.Errorf("weight 1 is the default, so it has no effect; drop it")

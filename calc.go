@@ -70,8 +70,12 @@ func checkCalc(fields map[string]node, args []string) error {
 		return fmt.Errorf("calc(%q): %w", args[0], err)
 	}
 	for _, name := range calcVars(expr) {
-		if _, ok := fields[name]; !ok {
+		operand, ok := fields[name]
+		if !ok {
 			return fmt.Errorf("calc(%q): no field %q", args[0], name)
+		}
+		if text, never := neverNumeric(operand); never {
+			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", args[0], name, text)
 		}
 	}
 	if len(args) == 2 {
@@ -80,6 +84,30 @@ func checkCalc(fields map[string]node, args []string) error {
 		}
 	}
 	return nil
+}
+
+// neverNumeric reports a node no render of which is a number: fixed text that does
+// not parse, or a choice of only such items. text is one such render.
+func neverNumeric(n node) (text string, never bool) {
+	switch n := n.(type) {
+	case *template:
+		if !n.fixed || n.repeat > 1 {
+			return "", false
+		}
+		if _, err := strconv.ParseFloat(strings.TrimSpace(n.lit), 64); err != nil {
+			return n.lit, true
+		}
+	case *choice:
+		for _, it := range n.items {
+			t, itemNever := neverNumeric(it)
+			if !itemNever {
+				return "", false
+			}
+			text = t
+		}
+		return text, true
+	}
+	return "", false
 }
 
 // calcPrep parses the expression and decimals once, at compile time, and places each

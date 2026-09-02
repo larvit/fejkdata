@@ -16,6 +16,7 @@ import (
 	crand "crypto/rand"
 	"embed"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io/fs"
 	"math/rand/v2"
@@ -26,6 +27,9 @@ import (
 
 //go:embed data
 var shippedFS embed.FS
+
+// ErrNoData is returned by New when no source is loaded at all.
+var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
 
 // Generator generates fake data from a loaded namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
@@ -99,7 +103,7 @@ func New(opts ...Option) (*Generator, error) {
 	}
 	sources = append(sources, c.sources...)
 	if len(sources) == 0 {
-		return nil, fmt.Errorf("fejkdata: no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
+		return nil, fmt.Errorf("fejkdata: %w", ErrNoData)
 	}
 	cats, err := loadData(sources)
 	if err != nil {

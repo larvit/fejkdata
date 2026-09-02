@@ -9,9 +9,10 @@ import (
 	"unicode"
 )
 
-// maxLen caps sample output lengths (hex, nanoid, base64) and maxDecimals caps
-// float/calc decimal places, so a fat-fingered or overflowing argument fails at
-// New instead of trying to allocate gigabytes — or panicking — at render.
+// maxLen caps sample output lengths (hex, nanoid, base64) and the renders a repeat
+// multiplies to along any path; maxDecimals caps float/calc decimal places. So a
+// fat-fingered or overflowing argument fails at New instead of trying to allocate
+// gigabytes — or panicking — at render.
 const (
 	maxLen      = 1 << 20 // 1,048,576 chars/bytes
 	maxDecimals = 1024

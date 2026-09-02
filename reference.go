@@ -412,6 +412,36 @@ func pathLeaves(n node, tail []string) []node {
 	return pathLeaves(child(n, tail[0]), tail[1:])
 }
 
+// checkRepeatReach bounds the renders a repeat multiplies to along any root-to-leaf
+// path, so nested repeats cannot build what one repeat may not. It runs after
+// checkNoCycles, whose guarantee is what lets the walk terminate.
+func checkRepeatReach(root map[string]node) error {
+	reach := map[node]int{}
+	var of func(n node) int
+	of = func(n node) int {
+		if r, done := reach[n]; done {
+			return r
+		}
+		r := 1
+		for _, e := range renderEdges(n) {
+			if c := of(e.to); c > r {
+				r = c
+			}
+		}
+		if t, ok := n.(*template); ok {
+			r *= t.repeat
+		}
+		reach[n] = r
+		return r
+	}
+	return walkNodes(root, func(path string, n node) error {
+		if t, ok := n.(*template); ok && t.repeat > 1 && of(n) > maxLen {
+			return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, of(n), maxLen)
+		}
+		return nil
+	})
+}
+
 // checkNoCycles rejects a reference cycle: a node whose rendering can reach itself
 // — directly, mutually, or through a chain — never terminates, so it must fail at
 // New rather than stack-overflow at render. It is a depth-first walk of the render
