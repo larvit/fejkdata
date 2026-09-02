@@ -219,10 +219,11 @@ within a choice:
 ]
 ```
 
-Only template (object) nodes carry `weight` — a bare string or nested array in a
-choice always counts as `1`. Weights are checked when you create the generator: a
-negative, non-numeric, or all-zero set is rejected at `New`, so a typo fails
-fast instead of silently skewing output.
+A bare string or nested array in a choice counts as `1`; to weight a string,
+write it as `{ "format": "AB", "weight": 3 }`. A repeated item is a load error
+naming that spelling, and so is a `weight` of `1`. Weights are checked when you
+create the generator: a negative, non-numeric, or all-zero set is rejected at
+`New`, so a typo fails fast instead of silently skewing output.
 
 **Repeat.** A template node may carry a `repeat` (default `1`) to render its
 `format` that many times — each render an independent pick — joined by
@@ -232,14 +233,16 @@ fast instead of silently skewing output.
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-This yields e.g. `bar foo baz`. `repeat` must be a positive integer and
+This yields e.g. `bar foo baz`. `repeat` must be an integer above `1` and
 `separator` a string, both checked at `New`.
 
 `format`, `weight`, `repeat` and `separator` are the only options; **any other key
 is a field**. So write `seperator` and you get a field by that name while the
 option stays unset. `New` rejects an option that cannot take effect — a
-`separator` without a `repeat` above 1, a `weight` outside a choice — and a name
-using a character the grammars reserve: `.` separates the segments of a path, `|`
+`separator` without a `repeat`, a `weight` outside a choice, a `weight` or
+`repeat` of `1` — an object holding only a `format` (that is a string; write it),
+a one-item choice (that is its item; write it), and a name using a character the
+grammars reserve: `.` separates the segments of a path, `|`
 the arms of a token, `(` opens a function call and `{` `}` delimit the token, so a
 name carrying one is a name no format could ever spell. An empty name goes the same
 way — it is no path segment at all, so `List` never offers it. That holds for a
@@ -337,7 +340,7 @@ data dirs:
 ```
 
 renders e.g. `Hej, Pat Smith!`. References are bound when you create the generator, so
-a path that is unknown, names a folder, or steps through a multi-variant choice
+a path that is unknown, names a folder, or steps through a choice
 fails at `New`. A reference that leads back to its own value (directly, mutually,
 or through a chain) is a cycle that would never finish rendering, so it too is
 rejected at `New`.
@@ -401,7 +404,7 @@ The binding lasts for one expansion, so each `repeat` iteration draws again and 
 nested template keeps its own. A field no dotted token addresses is unaffected:
 `{word} {word}` still draws twice.
 
-`New` checks a path the way `Fake` resolves one: every variant of a multi-variant
+`New` checks a path the way `Fake` resolves one: every variant of a
 choice must carry the whole path, so a row missing a field is named at load:
 
 ```text
@@ -435,21 +438,19 @@ A lone `}` is a load error naming `}}`.
 **Putting it together** (`person.json`):
 
 ```json
-[
-  {
-    "format": "{prefix}{femalefirst|malefirst} {last}",
-    "femalefirst": ["Anna", "Astrid", "Elin"],
-    "malefirst": ["Anders", "Erik", "Gustav"],
-    "last": [
-      { "format": "{first}sson", "first": ["Ander", "Erik", "Karl"] },
-      ["Berg", "von Flemming"]
-    ],
-    "prefix": [
-      "",
-      { "format": "{string} ", "string": ["dr", "prof"], "weight": 0.05 }
-    ]
-  }
-]
+{
+  "format": "{prefix}{femalefirst|malefirst} {last}",
+  "femalefirst": ["Anna", "Astrid", "Elin"],
+  "malefirst": ["Anders", "Erik", "Gustav"],
+  "last": [
+    { "format": "{first}sson", "first": ["Ander", "Erik", "Karl"] },
+    ["Berg", "von Flemming"]
+  ],
+  "prefix": [
+    "",
+    { "format": "{string} ", "string": ["dr", "prof"], "weight": 0.05 }
+  ]
+}
 ```
 
 This yields e.g. `Anna Eriksson`, `Erik Berg`, or rarely `dr Astrid von Flemming`.

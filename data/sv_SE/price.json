@@ -1,13 +1,11 @@
-[
-  {
-    "format": "{amt}{ore} kr",
-    "amt": [
-      { "format": "{int(1,9)}", "weight": 2 },
-      { "format": "{int(10,99)}", "weight": 4 },
-      { "format": "{int(100,999)}", "weight": 3 },
-      { "format": "{int(1,9)} {digits(3)}", "weight": 1 },
-      { "format": "{int(10,99)} {digits(3)}", "weight": 0.3 }
-    ],
-    "ore": ["", { "format": ",{c}", "c": [{ "format": "{digits(2)}" }], "weight": 0.4 }]
-  }
-]
+{
+  "format": "{amt}{ore} kr",
+  "amt": [
+    { "format": "{int(1,9)}", "weight": 2 },
+    { "format": "{int(10,99)}", "weight": 4 },
+    { "format": "{int(100,999)}", "weight": 3 },
+    "{int(1,9)} {digits(3)}",
+    { "format": "{int(10,99)} {digits(3)}", "weight": 0.3 }
+  ],
+  "ore": ["", { "format": ",{c}", "c": "{digits(2)}", "weight": 0.4 }]
+}

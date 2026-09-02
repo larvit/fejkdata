@@ -1,14 +1,12 @@
-[
-  {
-    "format": "{base} {suffix}",
-    "base": [
-      {
-        "format": "{a}{b}",
-        "a": ["Berg", "Blå", "Eko", "Fjäll", "Grön", "Järn", "Nord", "Ny", "Sjö", "Skog", "Sol", "Sten", "Stor", "Syd", "Söder", "Trä", "Vind", "Väst", "Ås", "Öst"],
-        "b": ["bygg", "data", "design", "energi", "frakt", "gruppen", "handel", "konsult", "kraft", "logistik", "media", "produkter", "system", "teknik", "verkstad", "vård"]
-      },
-      ["Aktiebolaget Vega", "Bröderna Lund", "Ekonomihuset", "Hantverkargruppen", "Lindberg", "Mälardalens Bygg", "Nordström", "Skandinaviska Handelshuset", "Sundbergs Verkstad", "Svensson & Co", "Vasa Logistik"]
-    ],
-    "suffix": ["AB", "AB", "AB", "AB", "HB", "KB"]
-  }
-]
+{
+  "format": "{base} {suffix}",
+  "base": [
+    {
+      "format": "{a}{b}",
+      "a": ["Berg", "Blå", "Eko", "Fjäll", "Grön", "Järn", "Nord", "Ny", "Sjö", "Skog", "Sol", "Sten", "Stor", "Syd", "Söder", "Trä", "Vind", "Väst", "Ås", "Öst"],
+      "b": ["bygg", "data", "design", "energi", "frakt", "gruppen", "handel", "konsult", "kraft", "logistik", "media", "produkter", "system", "teknik", "verkstad", "vård"]
+    },
+    ["Aktiebolaget Vega", "Bröderna Lund", "Ekonomihuset", "Hantverkargruppen", "Lindberg", "Mälardalens Bygg", "Nordström", "Skandinaviska Handelshuset", "Sundbergs Verkstad", "Svensson & Co", "Vasa Logistik"]
+  ],
+  "suffix": [{ "format": "AB", "weight": 4 }, "HB", "KB"]
+}

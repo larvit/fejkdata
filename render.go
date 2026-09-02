@@ -53,10 +53,8 @@ func descend(s *session, n node, segments []string) (node, error) {
 		}
 		return descend(s, child, segments[1:])
 	case *choice:
-		if len(n.items) > 1 {
-			if want := strings.Join(segments, "."); !n.shared[want] {
-				return nil, unreachableInChoice(n, want)
-			}
+		if want := strings.Join(segments, "."); !n.shared[want] {
+			return nil, unreachableInChoice(n, want)
 		}
 		return descend(s, pick(s, n), segments)
 	default:

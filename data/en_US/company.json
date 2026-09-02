@@ -1,14 +1,12 @@
-[
-  {
-    "format": "{base} {suffix}",
-    "base": [
-      {
-        "format": "{a}{b}",
-        "a": ["Acme", "Apex", "Atlas", "Aurora", "Blue", "Bright", "Cedar", "Crest", "Delta", "Eagle", "Ever", "Fair", "Falcon", "Iron", "Maple", "North", "Onyx", "Pioneer", "Polar", "Prime", "Quartz", "River", "Silver", "Solar", "Summit", "Sun", "Swift", "True", "Vertex", "West"],
-        "b": ["bridge", "core", "field", "flow", "forge", "gate", "grid", "hub", "line", "logic", "mark", "nest", "path", "point", "scape", "soft", "span", "spark", "stone", "tech", "ware", "wave", "works", "yard"]
-      },
-      ["Atlas Industries", "Beacon Labs", "Cedar & Vine", "Compass Group", "Evergreen Trading", "Harbor Logistics", "Hudson Partners", "Liberty Holdings", "Meridian Capital", "Northgate Studios", "Pinnacle Systems", "Riverside", "Sequoia Foods", "Smith & Sons", "Stonebridge Ventures", "Sunrise Bakery", "Wexford Holdings"]
-    ],
-    "suffix": ["Co.", "Corp.", "Group", "Inc.", "Inc.", "LLC", "LLC", "Ltd."]
-  }
-]
+{
+  "format": "{base} {suffix}",
+  "base": [
+    {
+      "format": "{a}{b}",
+      "a": ["Acme", "Apex", "Atlas", "Aurora", "Blue", "Bright", "Cedar", "Crest", "Delta", "Eagle", "Ever", "Fair", "Falcon", "Iron", "Maple", "North", "Onyx", "Pioneer", "Polar", "Prime", "Quartz", "River", "Silver", "Solar", "Summit", "Sun", "Swift", "True", "Vertex", "West"],
+      "b": ["bridge", "core", "field", "flow", "forge", "gate", "grid", "hub", "line", "logic", "mark", "nest", "path", "point", "scape", "soft", "span", "spark", "stone", "tech", "ware", "wave", "works", "yard"]
+    },
+    ["Atlas Industries", "Beacon Labs", "Cedar & Vine", "Compass Group", "Evergreen Trading", "Harbor Logistics", "Hudson Partners", "Liberty Holdings", "Meridian Capital", "Northgate Studios", "Pinnacle Systems", "Riverside", "Sequoia Foods", "Smith & Sons", "Stonebridge Ventures", "Sunrise Bakery", "Wexford Holdings"]
+  ],
+  "suffix": ["Co.", "Corp.", "Group", { "format": "Inc.", "weight": 2 }, { "format": "LLC", "weight": 2 }, "Ltd."]
+}

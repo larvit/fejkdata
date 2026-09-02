@@ -109,10 +109,9 @@ func New(opts ...Option) (*Generator, error) {
 }
 
 // List returns the sorted dotted paths Fake can render: every category, the dotted
-// fields within a template, and folder segments — descending transparently through
-// single-variant choices the way a reference does. A choice consumes no segment, so
-// a path continues through a multi-variant one only where every variant carries it,
-// which is the rule Fake applies too: List is the set of paths Fake accepts.
+// fields within a template, and folder segments. A choice consumes no segment, so a
+// path continues through one only where every variant carries it, which is the
+// rule Fake applies too: List is the set of paths Fake accepts.
 func (f *Generator) List() []string {
 	var out []string
 	for _, name := range sortedNames(f.categories) {
@@ -148,9 +147,6 @@ func paths(n node) []string {
 		}
 		return out
 	case *choice:
-		if len(n.items) == 1 {
-			return paths(n.items[0])
-		}
 		out := []string{""}
 		for p := range n.shared {
 			out = append(out, p)
@@ -161,7 +157,7 @@ func paths(n node) []string {
 }
 
 // sharedPaths is the sub-paths every item carries — the only ones a path may step
-// through a multi-variant choice to reach. It intersects, bailing as soon as the set
+// through a choice to reach. It intersects, bailing as soon as the set
 // is empty, which is immediate for a choice of plain strings.
 func sharedPaths(items []node) map[string]bool {
 	shared := subPaths(items[0])

@@ -7,7 +7,7 @@
     "noun": ["arkivet", "berget", "bäcken", "dalen", "eken", "fjället", "floden", "fyren", "fågeln", "gården", "glaciären", "hamnen", "holmen", "klippan", "kusten", "lampan", "lyktan", "motorn", "måsen", "ravinen", "räven", "seglaren", "signalen", "sjön", "skogen", "slätten", "stigen", "stjärnan", "stranden", "tornet", "trädgården", "vandraren", "vinden", "vågen", "ängen"],
     "verb": ["anar", "bevakar", "bygger", "bär", "döljer", "famnar", "följer", "formar", "gömmer", "hälsar", "korsar", "leder", "lockar", "lyser", "minns", "möter", "når", "skyddar", "speglar", "söker", "tänder", "vaktar", "väcker", "värnar", "återvänder"],
     "prep": ["bakom", "bland", "bortom", "framför", "genom", "intill", "kring", "längs", "mot", "nära", "ovanför", "runt", "under", "vid", "över"],
-    "end": [".", ".", ".", "!"]
+    "end": [{ "format": ".", "weight": 3 }, "!"]
   },
   {
     "format": "{q} {adj} {noun} {verb} {prep} {noun}?",

@@ -1,25 +1,21 @@
-[
-  {
-    "format": "{street} {street-number}\n{postal-code} {locality}",
-    "street": [
-      {
-        "format": "{first}{last}",
-        "first": ["Ängs", "Bergs", "Björk", "Drottning", "Eke", "Furu", "Hamn", "Köpmans", "Kungs", "Linné", "Norra", "Nybro", "Oden", "Öster", "Park", "Skogs", "Skol", "Slotts", "Söder", "Stations", "Stor", "Strand", "Trädgårds", "Vasa", "Väster"],
-        "last": ["gatan", "vägen", "stigen", "gränd", "backen", "torget", "allén"]
-      },
-      ["Avenyn", "Birger Jarlsgatan", "Promenaden", "Staby", "Sveavägen", "Vintjärn"]
-    ],
-    "street-number": [
-      { "format": "{int(1,9)}" },
-      { "format": "{int(10,99)}" },
-      { "format": "{int(100,999)}", "weight": 0.2 },
-      { "format": "{int(1,9)}{upper(1)}", "weight": 0.2 },
-      { "format": "{int(10,99)}{upper(1)}", "weight": 0.1 },
-      { "format": "{int(100,999)}{upper(1)}", "weight": 0.05 }
-    ],
-    "postal-code": [
-      { "format": "{int(100,999)} {int(10,99)}" }
-    ],
-    "locality": ["Alingsås", "Alvesta", "Ängelholm", "Arboga", "Arvika", "Avesta", "Boden", "Bollnäs", "Borås", "Borlänge", "Enköping", "Eskilstuna", "Eslöv", "Fagersta", "Falkenberg", "Falköping", "Falun", "Finspång", "Gällivare", "Gävle", "Göteborg", "Halmstad", "Haparanda", "Härnösand", "Hässleholm", "Helsingborg", "Huddinge", "Hudiksvall", "Jönköping", "Kalmar", "Karlshamn", "Karlskoga", "Karlskrona", "Karlstad", "Katrineholm", "Kiruna", "Köping", "Kramfors", "Kristianstad", "Kristinehamn", "Landskrona", "Lidingö", "Lidköping", "Lindesberg", "Linköping", "Ljungby", "Ludvika", "Luleå", "Lund", "Lycksele", "Malmö", "Mariestad", "Mjölby", "Mölndal", "Mora", "Motala", "Nacka", "Nässjö", "Norrköping", "Norrtälje", "Nyköping", "Nynäshamn", "Örebro", "Örnsköldsvik", "Oskarshamn", "Östersund", "Piteå", "Rabbalshede", "Ronneby", "Säffle", "Sandviken", "Sävsjö", "Sigtuna", "Skara", "Skellefteå", "Skövde", "Söderhamn", "Södertälje", "Sollentuna", "Solna", "Sölvesborg", "Stockholm", "Strängnäs", "Sundbyberg", "Sundsvall", "Täby", "Tierp", "Tranås", "Trelleborg", "Trollhättan", "Uddevalla", "Ulricehamn", "Umeå", "Upplands Väsby", "Uppsala", "Vänersborg", "Varberg", "Värnamo", "Västerås", "Västervik", "Växjö", "Vetlanda", "Vimmerby", "Visby", "Ystad"]
-  }
-]
+{
+  "format": "{street} {street-number}\n{postal-code} {locality}",
+  "street": [
+    {
+      "format": "{first}{last}",
+      "first": ["Ängs", "Bergs", "Björk", "Drottning", "Eke", "Furu", "Hamn", "Köpmans", "Kungs", "Linné", "Norra", "Nybro", "Oden", "Öster", "Park", "Skogs", "Skol", "Slotts", "Söder", "Stations", "Stor", "Strand", "Trädgårds", "Vasa", "Väster"],
+      "last": ["gatan", "vägen", "stigen", "gränd", "backen", "torget", "allén"]
+    },
+    ["Avenyn", "Birger Jarlsgatan", "Promenaden", "Staby", "Sveavägen", "Vintjärn"]
+  ],
+  "street-number": [
+    "{int(1,9)}",
+    "{int(10,99)}",
+    { "format": "{int(100,999)}", "weight": 0.2 },
+    { "format": "{int(1,9)}{upper(1)}", "weight": 0.2 },
+    { "format": "{int(10,99)}{upper(1)}", "weight": 0.1 },
+    { "format": "{int(100,999)}{upper(1)}", "weight": 0.05 }
+  ],
+  "postal-code": "{int(100,999)} {int(10,99)}",
+  "locality": ["Alingsås", "Alvesta", "Ängelholm", "Arboga", "Arvika", "Avesta", "Boden", "Bollnäs", "Borås", "Borlänge", "Enköping", "Eskilstuna", "Eslöv", "Fagersta", "Falkenberg", "Falköping", "Falun", "Finspång", "Gällivare", "Gävle", "Göteborg", "Halmstad", "Haparanda", "Härnösand", "Hässleholm", "Helsingborg", "Huddinge", "Hudiksvall", "Jönköping", "Kalmar", "Karlshamn", "Karlskoga", "Karlskrona", "Karlstad", "Katrineholm", "Kiruna", "Köping", "Kramfors", "Kristianstad", "Kristinehamn", "Landskrona", "Lidingö", "Lidköping", "Lindesberg", "Linköping", "Ljungby", "Ludvika", "Luleå", "Lund", "Lycksele", "Malmö", "Mariestad", "Mjölby", "Mölndal", "Mora", "Motala", "Nacka", "Nässjö", "Norrköping", "Norrtälje", "Nyköping", "Nynäshamn", "Örebro", "Örnsköldsvik", "Oskarshamn", "Östersund", "Piteå", "Rabbalshede", "Ronneby", "Säffle", "Sandviken", "Sävsjö", "Sigtuna", "Skara", "Skellefteå", "Skövde", "Söderhamn", "Södertälje", "Sollentuna", "Solna", "Sölvesborg", "Stockholm", "Strängnäs", "Sundbyberg", "Sundsvall", "Täby", "Tierp", "Tranås", "Trelleborg", "Trollhättan", "Uddevalla", "Ulricehamn", "Umeå", "Upplands Väsby", "Uppsala", "Vänersborg", "Varberg", "Värnamo", "Västerås", "Västervik", "Växjö", "Vetlanda", "Vimmerby", "Visby", "Ystad"]
+}

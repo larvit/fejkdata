@@ -1,19 +1,12 @@
-[
-  {
-    "format": "${amt}.{cents}",
-    "amt": [
-      { "format": "{int(1,9)}", "weight": 2 },
-      { "format": "{int(10,99)}", "weight": 4 },
-      { "format": "{int(100,999)}", "weight": 3 },
-      { "format": "{int(1,9)},{digits(3)}", "weight": 1 },
-      { "format": "{int(10,99)},{digits(3)}", "weight": 0.4 },
-      { "format": "{int(100,999)},{digits(3)}", "weight": 0.1 }
-    ],
-    "cents": [
-      { "format": "{digits(2)}", "weight": 3 },
-      "49",
-      "95",
-      "99"
-    ]
-  }
-]
+{
+  "format": "${amt}.{cents}",
+  "amt": [
+    { "format": "{int(1,9)}", "weight": 2 },
+    { "format": "{int(10,99)}", "weight": 4 },
+    { "format": "{int(100,999)}", "weight": 3 },
+    "{int(1,9)},{digits(3)}",
+    { "format": "{int(10,99)},{digits(3)}", "weight": 0.4 },
+    { "format": "{int(100,999)},{digits(3)}", "weight": 0.1 }
+  ],
+  "cents": [{ "format": "{digits(2)}", "weight": 3 }, "49", "95", "99"]
+}

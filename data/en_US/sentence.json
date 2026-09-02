@@ -7,7 +7,7 @@
     "noun": ["anchor", "archer", "beacon", "bridge", "captain", "cavern", "cottage", "ember", "engine", "falcon", "ferry", "forest", "fox", "garden", "glacier", "harbor", "hermit", "hollow", "island", "lantern", "lighthouse", "mariner", "meadow", "mountain", "orchard", "otter", "pilgrim", "prairie", "quarry", "raven", "ridge", "river", "sailor", "scholar", "signal", "sparrow", "stranger", "summit", "thicket", "tower", "traveler", "valley", "voyager", "wanderer", "willow", "woodland"],
     "verb": ["abandons", "anchors", "awakens", "befriends", "builds", "calms", "carries", "chases", "conceals", "crosses", "embraces", "follows", "gathers", "greets", "guards", "guides", "haunts", "heralds", "honors", "kindles", "leads", "mends", "mirrors", "outlasts", "ponders", "reveals", "salutes", "shapes", "shelters", "shields", "summons", "tends", "traces", "weathers"],
     "prep": ["above", "across", "against", "alongside", "amid", "around", "beneath", "beside", "between", "beyond", "near", "over", "past", "through", "toward", "under", "within"],
-    "end": [".", ".", ".", ".", "!"]
+    "end": [{ "format": ".", "weight": 4 }, "!"]
   },
   {
     "format": "{lead} {noun} {adv} {verb} {prep} {adj} {noun}{end}",
@@ -18,7 +18,7 @@
     "verb": ["builds", "carries", "chases", "crosses", "follows", "gathers", "guards", "guides", "leads", "mirrors", "outlasts", "reveals", "shapes", "shelters", "summons", "tends", "traces", "weathers"],
     "adj": ["ancient", "bright", "distant", "fierce", "fragile", "gentle", "golden", "hidden", "lonely", "quiet", "restless", "rugged", "silent", "stormy", "weary", "wild"],
     "prep": ["across", "against", "alongside", "amid", "beneath", "between", "beyond", "near", "over", "past", "through", "toward", "within"],
-    "end": [".", ".", ".", "!"]
+    "end": [{ "format": ".", "weight": 3 }, "!"]
   },
   {
     "format": "{q} {adj} {noun} {verb} {prep} {adj} {noun}?",

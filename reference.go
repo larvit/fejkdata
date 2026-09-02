@@ -9,8 +9,7 @@ import (
 // refPrefix marks a {..path} token: a reference to a node elsewhere in the data
 // root rather than a sibling field. The path is resolved across every loaded
 // directory (see linkRefs), and is stricter than the one Fake takes: a reference
-// binds one node, so it cannot step through a multi-variant choice even where Fake
-// and List can.
+// binds one node, so it cannot step through a choice even where Fake and List can.
 const refPrefix = ".."
 
 func isRef(name string) bool { return strings.HasPrefix(name, refPrefix) }
@@ -31,6 +30,9 @@ func linkRefs(root map[string]node) error {
 			target, err := lookup(root, strings.Split(name[len(refPrefix):], "."))
 			if err != nil {
 				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			}
+			if t.fields == nil {
+				t.fields = map[string]node{}
 			}
 			t.fields[name] = target
 		}
@@ -231,9 +233,8 @@ func sortedNames(m map[string]node) []string {
 }
 
 // lookup finds the single node a reference path names, walking groups and
-// template fields by segment and descending a single-variant choice as a
-// transparent wrapper. A missing segment, a folder target, or a step through a
-// multi-variant choice (which has no one value to bind) is an error.
+// template fields by segment. A missing segment, a folder target, or a step
+// through a choice (which has no one value to bind) is an error.
 func lookup(root map[string]node, segments []string) (node, error) {
 	var n node = &group{children: root}
 	for i := 0; i < len(segments); i++ {
@@ -251,10 +252,7 @@ func lookup(root map[string]node, segments []string) (node, error) {
 			}
 			n = child
 		case *choice:
-			if len(c.items) != 1 {
-				return nil, fmt.Errorf("%q steps through a %d-way choice", segments[i], len(c.items))
-			}
-			n, i = c.items[0], i-1 // a choice consumes no segment; reprocess it unwrapped
+			return nil, fmt.Errorf("%q steps through a %d-way choice", segments[i], len(c.items))
 		default:
 			return nil, fmt.Errorf("cannot descend into %T at %q", n, segments[i])
 		}

@@ -1,8 +1,17 @@
-[
-  {
-    "format": "{hour}:{minute}{sec}",
-    "hour": [{ "format": "0{digits(1)}", "weight": 4 }, { "format": "1{digits(1)}", "weight": 4 }, { "format": "2{t}", "t": ["0", "1", "2", "3"], "weight": 2 }],
-    "minute": [{ "format": "{t}{digits(1)}", "t": ["0", "1", "2", "3", "4", "5"] }],
-    "sec": ["", { "format": ":{s}", "s": [{ "format": "{t}{digits(1)}", "t": ["0", "1", "2", "3", "4", "5"] }], "weight": 0.4 }]
-  }
-]
+{
+  "format": "{hour}:{minute}{sec}",
+  "hour": [
+    { "format": "0{digits(1)}", "weight": 4 },
+    { "format": "1{digits(1)}", "weight": 4 },
+    { "format": "2{t}", "t": ["0", "1", "2", "3"], "weight": 2 }
+  ],
+  "minute": { "format": "{t}{digits(1)}", "t": ["0", "1", "2", "3", "4", "5"] },
+  "sec": [
+    "",
+    {
+      "format": ":{s}",
+      "s": { "format": "{t}{digits(1)}", "t": ["0", "1", "2", "3", "4", "5"] },
+      "weight": 0.4
+    }
+  ]
+}

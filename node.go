@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
@@ -107,6 +108,12 @@ func compileChoice(items []any) (node, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("empty choice")
 	}
+	if len(items) == 1 {
+		return nil, fmt.Errorf("a one-item choice is its item; write the item")
+	}
+	if err := checkNoRepeatedItem(items); err != nil {
+		return nil, err
+	}
 	c := &choice{items: make([]node, len(items))}
 	cum := make([]float64, len(items))
 	var total float64
@@ -133,12 +140,31 @@ func compileChoice(items []any) (node, error) {
 		}
 		c.cum = cum
 	}
-	if len(c.items) > 1 {
-		// Safe to precompute: a choice's items come from one file, so no group can
-		// appear inside one, and neither mergeChildren nor linkRefs can reach in.
-		c.shared = sharedPaths(c.items)
-	}
+	// Safe to precompute: a choice's items come from one file, so no group can
+	// appear inside one, and neither mergeChildren nor linkRefs can reach in.
+	c.shared = sharedPaths(c.items)
 	return c, nil
+}
+
+// checkNoRepeatedItem rejects a choice that lists one item twice: a pick is even
+// over the items, so a repeat is a second spelling of weight. The error names the
+// spelling that does skew a pick.
+func checkNoRepeatedItem(items []any) error {
+	seen := make(map[string]int, len(items))
+	for i, raw := range items {
+		key, err := json.Marshal(raw)
+		if err != nil {
+			return err
+		}
+		if j, dup := seen[string(key)]; dup {
+			if s, isString := raw.(string); isString {
+				return fmt.Errorf("choice item %q is repeated; skew the odds with a weight instead: { \"format\": %q, \"weight\": 2 }", s, s)
+			}
+			return fmt.Errorf("choice item %d repeats item %d; skew the odds with a weight on one of them instead", i, j)
+		}
+		seen[string(key)] = i
+	}
+	return nil
 }
 
 func compileTemplate(m map[string]any) (node, error) {
@@ -181,6 +207,9 @@ func compileTemplate(m map[string]any) (node, error) {
 		}
 		t.fields[k] = n
 	}
+	if _, weighted := m["weight"]; len(t.fields) == 0 && repeat == 1 && !weighted {
+		return nil, fmt.Errorf("an object holding only a format is a string; write %q", format)
+	}
 	if err := checkTokens(format, t.fields); err != nil {
 		return nil, err
 	}
@@ -212,27 +241,24 @@ func checkPath(n node, tail []string, level string) error {
 		}
 		return checkPath(child, tail[1:], level+"."+tail[0])
 	case *choice:
-		if len(n.items) > 1 {
-			if want := strings.Join(tail, "."); !n.shared[want] {
-				return unreachableInChoice(n, want)
-			}
-			// Reachability is settled; each variant still answers for itself, so a
-			// rule about the level (its repeat) holds behind a choice as in front.
-			for _, item := range n.items {
-				if err := checkPath(item, tail, level); err != nil {
-					return err
-				}
-			}
-			return nil
+		if want := strings.Join(tail, "."); !n.shared[want] {
+			return unreachableInChoice(n, want)
 		}
-		return checkPath(n.items[0], tail, level)
+		// Reachability is settled; each variant still answers for itself, so a
+		// rule about the level (its repeat) holds behind a choice as in front.
+		for _, item := range n.items {
+			if err := checkPath(item, tail, level); err != nil {
+				return err
+			}
+		}
+		return nil
 	default:
 		return fmt.Errorf("cannot descend into %T at %q", n, tail[0])
 	}
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format
-// is rendered and concatenated. A present one must be a positive integer.
+// is rendered and concatenated. A present one must be an integer above 1.
 func repeatOf(m map[string]any) (int, error) {
 	rv, ok := m["repeat"]
 	if !ok {
@@ -244,6 +270,9 @@ func repeatOf(m map[string]any) (int, error) {
 	}
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 1 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be a positive integer, got %v", rv)
+	}
+	if r == 1 {
+		return 0, fmt.Errorf("repeat 1 is the default, so it has no effect; drop it")
 	}
 	if r > maxLen { // cap so a fat-fingered repeat can't build a multi-GB string
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, maxLen)
@@ -268,6 +297,9 @@ func weightOf(raw any) (float64, error) {
 	}
 	if w < 0 || math.IsNaN(w) || math.IsInf(w, 0) {
 		return 0, fmt.Errorf("weight must be finite and non-negative, got %v", w)
+	}
+	if w == 1 {
+		return 0, fmt.Errorf("weight 1 is the default, so it has no effect; drop it")
 	}
 	return w, nil
 }
