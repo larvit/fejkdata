@@ -16,8 +16,8 @@ func TestList(t *testing.T) {
 		"person":   `{"format":"{first} {last}","first":"A","last":"B"}`,
 		"word":     `["x", "y"]`,
 		"geo/city": `"Z"`,
-		// A bound {..path} reference is a render edge, not an addressable field.
-		"greeting": `{"format":"hej {..person.first} and {own}","own":"x"}`,
+		// A bound {/path} reference is a render edge, not an addressable field.
+		"greeting": `{"format":"hej {/person.first} and {own}","own":"x"}`,
 		// Only the fields every variant carries are addressable, so "extra" is not.
 		"coin": `[{"format":"{code}","code":"A","name":"Aa"},{"format":"{code}","code":"B","name":"Bb","extra":"x"}]`,
 	})
@@ -186,7 +186,7 @@ func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
 	for name, files := range map[string]map[string]string{
 		"nested": {"cat": `{"format":"{a}","repeat":2048,"a":{"format":"{b}","repeat":2048,"b":"x"}}`},
 		"through a reference": {
-			"a": `{"format":"{..b}","repeat":2048}`,
+			"a": `{"format":"{/b}","repeat":2048}`,
 			"b": `{"format":"x","repeat":2048}`,
 		},
 	} {

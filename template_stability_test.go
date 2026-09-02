@@ -13,7 +13,7 @@ func TestSeededOutputIsStable(t *testing.T) {
 		"escapes": `{"format":"01Aa#{x}","x":"!"}`,
 		"funcs":   `"{hex(6)} {int(10,99)} {float(0,1,3)} {nanoid(5)} {seq()}"`,
 		"nested":  `{"format":"{outer}","outer":{"format":"{inner}-{digits(2)}","inner":"i"}}`,
-		"ref":     `"see {..alt}"`,
+		"ref":     `"see {/alt}"`,
 		"repeat":  `{"format":"{w}","repeat":4,"separator":",","w":["x","y","z"]}`,
 		"sums":    `{"format":"9{d}{luhn()} {e}{ean()} {m}{mod11()}","d":"012345678901234","e":"123456789012","m":"12345678"}`,
 		"weights": `[{"format":"big","weight":9},"tiny"]`,

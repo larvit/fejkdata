@@ -120,7 +120,7 @@ func TestNewErrors(t *testing.T) {
 			`category "a|b" contains "|"`,
 		},
 		// An empty name is not a path segment, so List never offered it — while a
-		// bare {}, a trailing dot in Fake("a.") and a {..a.} reference all reached
+		// bare {}, a trailing dot in Fake("a.") and a {/a.} reference all reached
 		// it. The engine accepted spellings it would never advertise.
 		"empty field name": {
 			map[string]string{"a": `{"format":"[{}]","":"VALUE"}`},
@@ -146,13 +146,13 @@ func TestNewErrors(t *testing.T) {
 		// A reference arm is the only kind that reaches the repeat check by passing
 		// the per-arm checks rather than falling through them.
 		"repeated reference arm": {
-			map[string]string{"a": `"x"`, "b": `"{..a|..a}"`},
-			`arm "..a" is repeated`,
+			map[string]string{"a": `"x"`, "b": `"{/a|/a}"`},
+			`arm "/a" is repeated`,
 		},
 		// An arm that is broken on its own terms is reported as that, not as a
 		// repeat: the repeat is a consequence of the real mistake.
 		"repeated arm with no path": {
-			map[string]string{"a": `"{..|..}"`},
+			map[string]string{"a": `"{/|/}"`},
 			"reference has no path",
 		},
 		// No field can be named "", so the token is told that rather than sent to

@@ -6,11 +6,11 @@ import (
 )
 
 // TestRootReferenceAcrossFolders is the headline case: a category in one folder
-// pulls a value from another via a {..path} reference resolved from the data root.
+// pulls a value from another via a {/path} reference resolved from the data root.
 func TestRootReferenceAcrossFolders(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"en_US/person":   `"Pat Smith"`,
-		"sv_SE/greeting": `"Hej, {..en_US.person}!"`,
+		"sv_SE/greeting": `"Hej, {/en_US.person}!"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "sv_SE.greeting"); got != "Hej, Pat Smith!" {
@@ -22,7 +22,7 @@ func TestRootReferenceAcrossFolders(t *testing.T) {
 func TestReferenceIntoAField(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"who":  `{"format":"{first} {last}","first":"Ada","last":"Byron"}`,
-		"card": `"signed {..who.last}"`,
+		"card": `"signed {/who.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "card"); got != "signed Byron" {
@@ -30,12 +30,12 @@ func TestReferenceIntoAField(t *testing.T) {
 	}
 }
 
-// TestReferenceInAlternation lets a reference stand as one arm of a {a|..b}
+// TestReferenceInAlternation lets a reference stand as one arm of a {a|/b}
 // alternation, so a field and a cross-file value share one slot.
 func TestReferenceInAlternation(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"far":  `"X"`,
-		"near": `{"format":"{here|..far}","here":"H"}`,
+		"near": `{"format":"{here|/far}","here":"H"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(2))
 	seen := map[string]bool{}
@@ -51,7 +51,7 @@ func TestReferenceInAlternation(t *testing.T) {
 // model: data layered from two dirs can point at each other through the root.
 func TestReferenceCombinesLoadedPaths(t *testing.T) {
 	a := writeData(t, map[string]string{"en_US/word": `"river"`})
-	b := writeData(t, map[string]string{"mine/slug": `"the-{..en_US.word}"`})
+	b := writeData(t, map[string]string{"mine/slug": `"the-{/en_US.word}"`})
 	f := newGeneratorN(t, []string{a, b}, WithSeed(1))
 	if got := fake(t, f, "mine.slug"); got != "the-river" {
 		t.Fatalf("slug = %q, want the-river", got)
@@ -62,8 +62,8 @@ func TestReferenceCombinesLoadedPaths(t *testing.T) {
 // linking order cannot matter.
 func TestReferenceChain(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"a": `"{..b}"`,
-		"b": `"{..c}"`,
+		"a": `"{/b}"`,
+		"b": `"{/c}"`,
 		"c": `"deep"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
@@ -76,37 +76,37 @@ func TestReferenceChain(t *testing.T) {
 // fails at load, never at a random render.
 func TestReferenceErrors(t *testing.T) {
 	cases := map[string]map[string]string{
-		"missing target": {"card": `"{..nope.gone}"`},
-		"folder target":  {"en_US/word": `"w"`, "card": `"{..en_US}"`},
+		"missing target": {"card": `"{/nope.gone}"`},
+		"folder target":  {"en_US/word": `"w"`, "card": `"{/en_US}"`},
 		"a variant on the path lacks the field": {
 			"who":  `[{"format":"{f}","f":"1"},{"format":"{g}","g":"2"}]`,
-			"card": `"{..who.f}"`,
+			"card": `"{/who.f}"`,
 		},
-		"empty reference path": {"card": `"{..}"`},
+		"empty reference path": {"card": `"{/}"`},
 		// A reference that leads back to its own value never terminates at render,
 		// so New must reject the cycle up front (direct, mutual, or chained).
-		"direct cycle": {"a": `"x{..a}"`},
-		"mutual cycle": {"a": `"{..b}"`, "b": `"{..a}"`},
-		"chain cycle":  {"a": `"{..b}"`, "b": `"{..c}"`, "c": `"{..a}"`},
+		"direct cycle": {"a": `"x{/a}"`},
+		"mutual cycle": {"a": `"{/b}"`, "b": `"{/a}"`},
+		"chain cycle":  {"a": `"{/b}"`, "b": `"{/c}"`, "c": `"{/a}"`},
 		// calc renders its operands, so a cycle through one must be caught too.
-		"calc operand cycle": {"x": `{"format":"{calc(y)}","y":"{..x}"}`},
+		"calc operand cycle": {"x": `{"format":"{calc(y)}","y":"{/x}"}`},
 		// A field its parent's format never renders is still reachable by dot path,
 		// so a cycle hiding in one must fail at New rather than at render.
-		"cycle in an unrendered field": {"cat": `{"format":"hi","x":"{..cat.x}"}`},
+		"cycle in an unrendered field": {"cat": `{"format":"hi","x":"{/cat.x}"}`},
 		"mutual cycle between unrendered fields": {
-			"cat": `{"format":"hi","x":"{..cat.y}","y":"{..cat.x}"}`,
+			"cat": `{"format":"hi","x":"{/cat.y}","y":"{/cat.x}"}`,
 		},
 		"cycle in an unrendered field of a choice arm": {
-			"cat": `{"format":"hi","x":"{..cat.x}"}`,
+			"cat": `{"format":"hi","x":"{/cat.x}"}`,
 		},
 		// The shipped layout puts categories in folders, so a cycle one level down
 		// is the common case, not an edge case.
-		"cycle in a subfolder":            {"sv_SE/a": `"x{..sv_SE.a}"`},
-		"mutual cycle within a subfolder": {"sv_SE/a": `"{..sv_SE.b}"`, "sv_SE/b": `"{..sv_SE.a}"`},
-		"mutual cycle across two folders": {"en_US/a": `"{..sv_SE.b}"`, "sv_SE/b": `"{..en_US.a}"`},
+		"cycle in a subfolder":            {"sv_SE/a": `"x{/sv_SE.a}"`},
+		"mutual cycle within a subfolder": {"sv_SE/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/sv_SE.a}"`},
+		"mutual cycle across two folders": {"en_US/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/en_US.a}"`},
 		// ".." is reserved for bound references, so an authored key using it would
 		// name a node nothing can reach and nothing would validate.
-		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{..nope}"}`},
+		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{/nope}"}`},
 	}
 	for name, files := range cases {
 		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
@@ -122,8 +122,8 @@ func TestReferenceErrors(t *testing.T) {
 func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
 		"sv_SE/ok":     `"fine"`,
-		"sv_SE/..bad":  `"{..nope}"`,
-		"sv_SE/..y/ct": `"{..nope}"`,
+		"sv_SE/..bad":  `"{/nope}"`,
+		"sv_SE/..y/ct": `"{/nope}"`,
 		".git/config":  `"not data"`,
 	}), WithSeed(1))
 	if got := f.List(); len(got) != 1 || got[0] != "sv_SE.ok" {
@@ -135,7 +135,7 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 // over-rejecting: a field the format never renders may point back at its own
 // category, which terminates, and stays renderable by path.
 func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
-	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":"see {..cat}"}`})
+	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":"see {/cat}"}`})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := fake(t, f, "cat"); got != "hi" {
 		t.Fatalf("cat = %q, want hi", got)
@@ -151,9 +151,9 @@ func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
 func TestNewErrorIsDeterministic(t *testing.T) {
 	cases := map[string]map[string]string{
 		"three bad references": {
-			"a": `"{..nope.one}"`,
-			"b": `"{..nope.two}"`,
-			"c": `"{..nope.three}"`,
+			"a": `"{/nope.one}"`,
+			"b": `"{/nope.two}"`,
+			"c": `"{/nope.three}"`,
 		},
 		"two bad fields in one template": {
 			"cat": `{"format":"hi","aaa":{"no":1},"zzz":{"no":2}}`,
@@ -180,7 +180,7 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 }
 
 // TestNewErrorPathIsCanonical pins the node path a load error names: a choice arm
-// adds no segment, and a bound {..path} reference is not a containment segment at
+// adds no segment, and a bound {/path} reference is not a containment segment at
 // all, so a bad reference is reported against the node that holds it.
 func TestNewErrorPathIsCanonical(t *testing.T) {
 	cases := []struct {
@@ -190,13 +190,13 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 	}{
 		{
 			"cycle inside a choice arm",
-			map[string]string{"cat": `{"format":"hi","x":"{..cat.x}"}`},
-			"fejkdata: reference cycle: cat.x -> ..cat.x",
+			map[string]string{"cat": `{"format":"hi","x":"{/cat.x}"}`},
+			"fejkdata: reference cycle: cat.x -> /cat.x",
 		},
 		{
 			"bad reference reached through another reference",
-			map[string]string{"a": `"{..b}"`, "b": `"{..nope}"`},
-			`fejkdata: b: reference {..nope}: no entry "nope"`,
+			map[string]string{"a": `"{/b}"`, "b": `"{/nope}"`},
+			`fejkdata: b: reference {/nope}: no entry "nope"`,
 		},
 	}
 	for _, c := range cases {
@@ -214,7 +214,7 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 func TestReferencePathIsHeld(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg"}]`,
-		"card":   `"{..person.first} {..person.last}"`,
+		"card":   `"{/person.first} {/person.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
 	seen := map[string]bool{}
@@ -233,7 +233,7 @@ func TestReferencePathIsHeld(t *testing.T) {
 func TestReferenceThroughChoiceNeedsEveryVariant(t *testing.T) {
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"who":  `[{"format":"{f}{h}","f":"1","h":"x"},{"format":"{g}{h}","g":"2","h":"y"}]`,
-		"card": `"{..who.f}"`,
+		"card": `"{/who.f}"`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "not every variant") {
 		t.Fatalf("New = %v, want the missing variant named", err)
@@ -243,7 +243,7 @@ func TestReferenceThroughChoiceNeedsEveryVariant(t *testing.T) {
 func TestBareReferenceDrawsEachTime(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"die":  `["1","2","3","4","5","6"]`,
-		"roll": `"{..die} {..die}"`,
+		"roll": `"{/die} {/die}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 50; i++ {
@@ -256,12 +256,59 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 
 func TestReferenceOverlapIsRejected(t *testing.T) {
 	for name, file := range map[string]string{
-		"head beside a path":                   `{"format":"{..cat.p} {..cat.p.first}","p":[{"format":"{first}","first":"A"},{"format":"{first}","first":"B"}]}`,
-		"sibling path beside a reference path": `{"format":"{p.first} {..cat.p.last}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
+		"head beside a path":                   `{"format":"{/cat.p} {/cat.p.first}","p":[{"format":"{first}","first":"A"},{"format":"{first}","first":"B"}]}`,
+		"sibling path beside a reference path": `{"format":"{p.first} {/cat.p.last}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
+		}
+	}
+}
+
+func TestRelativeReferences(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"sv_SE/username":  `"bob"`,
+		"sv_SE/email":     `"{.username}@example.com"`,
+		"sv_SE/deep/card": `"{..username} via {/sv_SE.username}"`,
+		"top":             `"{.sv_SE.username}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for path, want := range map[string]string{
+		"sv_SE.email":     "bob@example.com",
+		"sv_SE.deep.card": "bob via bob",
+		"top":             "bob",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s = %q, want %q", path, got, want)
+		}
+	}
+}
+
+func TestRelativeAndRootSpellingsBindOneDraw(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"sv_SE/person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg"}]`,
+		"sv_SE/card":   `"{.person.first} {/sv_SE.person.last}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(3))
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "sv_SE.card"); got != "Anna Andersson" && got != "Bo Berg" {
+			t.Fatalf("card = %q, want both spellings to read one person", got)
+		}
+	}
+}
+
+func TestReferenceSigilErrors(t *testing.T) {
+	for name, files := range map[string]map[string]string{
+		"no folder above the root": {"a": `"{..b}"`, "b": `"x"`},
+		"three dots":               {"a": `"{...b}"`, "b": `"x"`},
+		"root sigil alone":         {"a": `"{/}"`},
+		"dot alone":                {"a": `"{.}"`},
+		"missing sibling":          {"sv_SE/a": `"{.nope}"`},
+		"slash in a field name":    {"a": `{"format":"{x}","x":"1","a/b":"2"}`},
+	} {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
+			t.Errorf("%s: New = nil error, want a reference error", name)
 		}
 	}
 }

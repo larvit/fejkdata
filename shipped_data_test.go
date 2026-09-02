@@ -44,7 +44,7 @@ func TestWithDataPathLayersOverShipped(t *testing.T) {
 }
 
 func TestUserDataMayReferenceShipped(t *testing.T) {
-	dir := writeData(t, map[string]string{"greeting": `"Hej {..sv_SE.person}!"`})
+	dir := writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})
 	f, err := New(WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v", err)
