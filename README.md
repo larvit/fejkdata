@@ -395,7 +395,6 @@ calc.go            the {calc()} arithmetic evaluator: parser, eval, validation
 data.go            data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/      the fejkdata CLI
 data/              shipped data (JSON), embedded at build: locale folders + a misc folder
-format-migration/  converters from the pre-release grammar; delete before the first tag
 ```
 
 ## License
