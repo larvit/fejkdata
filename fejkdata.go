@@ -28,6 +28,9 @@ import (
 //go:embed data
 var shippedFS embed.FS
 
+// MaxRepeat caps a repeat, and the renders nested repeats multiply to along any path.
+const MaxRepeat = 1 << 20
+
 // ErrNoData is returned by New when no source is loaded at all.
 var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
 

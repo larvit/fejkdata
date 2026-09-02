@@ -14,7 +14,7 @@ import (
 // fat-fingered or overflowing argument fails at New instead of trying to allocate
 // gigabytes — or panicking — at render.
 const (
-	maxLen      = 1 << 20 // 1,048,576 chars/bytes
+	maxLen      = MaxRepeat
 	maxDecimals = 1024
 )
 

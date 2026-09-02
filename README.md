@@ -44,7 +44,7 @@ level — folders, then the category (a JSON file), then fields.
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | reproducible output |
-| `-n`, `--repeat N` | render the path N times, each an independent draw |
+| `-n`, `--repeat N` | render the path N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
