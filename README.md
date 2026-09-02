@@ -382,6 +382,22 @@ tokens add cost in proportion to the output.
   when that file lacks a field those references read. Accepted: overriding is the
   point of layering, the error names the reference and the field, and the fix is
   the consumer's file carrying the fields the shipped tree reads.
+- **The repeat cap bounds renders, not bytes.** A repeat, alone or nested, may
+  ask for at most 1 048 576 renders; how large each render is stays what the data
+  asked for, so `{hex(1048576)}` repeated to the cap is a terabyte, loaded without
+  complaint. A byte estimate would need every builtin to declare a width to fence
+  a shape no data comes near, and the harm lands on the author who wrote it.
+- **64-bit targets only.** The gate builds amd64, and the buffer sizing a render
+  pre-computes (renders × bytes) assumes a 64-bit int; on a 32-bit target it could
+  overflow and panic.
+- **A constant zero divisor is a load error; a sometimes-zero one prints `Inf`.**
+  `1/0` and a fixed `"0"` field are decidable, so they join the never-numeric
+  operand as a load error; a divisor that is only sometimes zero is data, and
+  `Inf` printing visibly is the never-fail rule.
+- **A default written out, and a constant spelled as a sample, are load errors.**
+  `weight: 1`, `repeat: 1`, `separator: ""`, `int(5,5)`, `float(1,1,2)`, `+5`
+  and `05` each spell what a shorter form already spells, so each is rejected
+  naming that form.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.

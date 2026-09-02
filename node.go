@@ -288,7 +288,7 @@ func repeatOf(m map[string]any) (int, error) {
 	if r == 1 {
 		return 0, fmt.Errorf("repeat 1 is the default, so it has no effect; drop it")
 	}
-	if r > maxLen { // cap so a fat-fingered repeat can't build a multi-GB string
+	if r > maxLen { // caps the renders one repeat asks for; checkRepeatReach bounds what nested ones multiply to
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, maxLen)
 	}
 	return int(r), nil
