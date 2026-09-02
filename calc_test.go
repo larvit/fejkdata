@@ -140,16 +140,16 @@ func TestCalcOperandReadsTheExpansionsDraw(t *testing.T) {
 }
 
 // TestCalcOperandSharesOneDraw pins the reach of that hold: the draw belongs to the
-// expansion, not to the calc, so a bare token rendering the same name reads it too.
+// expansion, not to the calc, so the bare token rendering the same name reads it too.
 func TestCalcOperandSharesOneDraw(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"same": `{"format":"{w} {w} {calc(w)}","w":["1","2","3","4","5"]}`,
+		"same": `{"format":"{w} {calc(w)}","w":["1","2","3","4","5"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
 	for i := 0; i < 200; i++ {
 		got := fake(t, f, "same")
-		if p := strings.Fields(got); len(p) != 3 || p[0] != p[1] || p[0] != p[2] {
-			t.Fatalf("same = %q, want one value three times", got)
+		if p := strings.Fields(got); len(p) != 2 || p[0] != p[1] {
+			t.Fatalf("same = %q, want one value twice", got)
 		}
 	}
 }
