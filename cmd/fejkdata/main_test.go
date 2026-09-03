@@ -309,6 +309,7 @@ func TestClassify(t *testing.T) {
 		`{"format":"x"}`: argTemplate,
 		`["a","b"]`:      argTemplate, // a JSON array carries no brace
 		`[1, 2]`:         argTemplate,
+		` ["a","b"]`:     argTemplate, // padding is the template's own error, not a shape verdict
 		`"hello"`:        argTemplate, // a JSON string, the spelling a format-only object names
 	} {
 		got, err := classify(arg)
@@ -321,6 +322,7 @@ func TestClassify(t *testing.T) {
 		"[abc].field": `holds a "["`,
 		"x[1]":        `holds a "["`,
 		"a]b":         `holds a "]"`,
+		"a}b":         `holds a "}"`,
 		`"abc`:        `holds a "\""`,
 		`"a]b`:        `holds a "\""`, // the opener the reader typed, not the bracket behind it
 	} {
@@ -358,16 +360,17 @@ func TestRunInlineTemplate(t *testing.T) {
 }
 
 func TestRunTemplateMisuse(t *testing.T) {
-	for _, arg := range []string{
-		"{bad",            // unterminated brace
-		"[red,green]",     // a near-miss JSON array (unquoted strings)
-		`{"format":"x"}`,  // an object holding only a format
-		"{/no.such.path}", // a reference into nothing
-		"x[1]",            // a bracket no path may hold
+	for arg, want := range map[string]string{
+		"{bad":            "unterminated",
+		"[red,green]":     "names no template either",
+		`{"format":"x"}`:  "is a string",
+		"{/no.such.path}": "no entry",
+		"x[1]":            "names no template either",
+		` ["a","b"] `:     "may not be padded",
 	} {
 		code, out, errb := runOut("--seed", "1", arg)
-		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") {
-			t.Errorf("run(%q) = %d, %q, %q; want misuse naming --help", arg, code, out, errb)
+		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
+			t.Errorf("run(%q) = %d, %q, %q; want misuse naming %q and --help", arg, code, out, errb, want)
 		}
 		if strings.Contains(errb, "fejkdata: fejkdata:") {
 			t.Errorf("run(%q) doubled the program prefix: %q", arg, errb)

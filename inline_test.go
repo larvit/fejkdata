@@ -76,11 +76,19 @@ func TestFakeTemplateDeterministic(t *testing.T) {
 	}
 }
 
-func TestBareStringReferenceHint(t *testing.T) {
+func TestFieldlessTokenHint(t *testing.T) {
 	f := shipped(t)
 	_, err := f.FakeTemplate(`{sv_SE.person.last}`)
 	if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
 		t.Fatalf("FakeTemplate(bare token) = %v, want a hint naming {/sv_SE.person.last}", err)
+	}
+	_, err = f.FakeTemplate(`{"format":"{x}","repeat":2}`)
+	if err == nil || strings.Contains(err.Error(), "bare string") {
+		t.Errorf("FakeTemplate(fieldless object) = %v, want an error that does not call it a bare string", err)
+	}
+	_, err = f.FakeTemplate(`{ /sv_SE.person.last }`)
+	if err == nil || strings.Contains(err.Error(), "write {") {
+		t.Errorf("FakeTemplate(malformed token) = %v, want no hint naming a spelling that fails too", err)
 	}
 }
 
@@ -97,6 +105,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
 		{`{/misc.country} {/misc.country.alpha2}`, "renders a level"},
+		{`{"format":"{/misc.country.alpha2} {x}","x":"{/misc.country}"}`, "renders"},
 	} {
 		_, err := f.FakeTemplate(c.input)
 		if err == nil || !strings.Contains(err.Error(), c.want) {
@@ -124,13 +133,13 @@ func TestPaddedJSONIsRejected(t *testing.T) {
 
 func TestNewTemplateReusable(t *testing.T) {
 	f := shipped(t)
-	tmpl, err := f.NewTemplate(`{digits(2)}`)
+	reusable, err := f.NewTemplate(`{digits(2)}`)
 	if err != nil {
 		t.Fatalf("NewTemplate: %v", err)
 	}
 	seen := map[string]bool{}
 	for i := 0; i < 50; i++ {
-		seen[tmpl.Fake()] = true
+		seen[reusable.Fake()] = true
 	}
 	if len(seen) < 2 {
 		t.Fatalf("Template.Fake() repeated %v, want varied draws from one compile", seen)

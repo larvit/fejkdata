@@ -108,6 +108,12 @@ func TestFakeIsSafeForConcurrentUse(t *testing.T) {
 					return
 				}
 				f.List()
+				tmpl, err := f.NewTemplate("{/sv_SE.person.last}")
+				if err != nil {
+					t.Error(err)
+					return
+				}
+				tmpl.Fake()
 			}
 		}()
 	}
