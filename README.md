@@ -41,6 +41,8 @@ brace, a bracket or a quote, so the two cannot collide (see
 | `-s`, `--seed N` | reproducible output |
 | `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
+| `--format F` | `text` (default), `json`, `csv` or `sql` — a record's columns, one per line |
+| `--table T` | the INSERT target for `--format sql` (default: the path's last segment) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
 
@@ -73,6 +75,36 @@ fejkdata --seed 1 --data-path ./mydata sql
 fejkdata --repeat 100 --data-path ./mydata sql > seed.sql
 ```
 
+That `format` string is the free-form spelling — you hand-write the whole row.
+For structured output a record writes the row for you.
+
+### Records
+
+A record is a template seen as columns: its fields are the columns, its `format`
+the whole. `--format json|csv|sql` streams a record per line; the library's
+`Record` (below) hands back the columns. Save `mydata/users.json`:
+
+```json
+{
+  "format": "{first} {last}",
+  "first": ["Ada", "Bo"],
+  "last": ["Lovelace", "Ek"]
+}
+```
+
+```sh
+fejkdata --format json users                      # {"first":"Ada","last":"Lovelace"}
+fejkdata --format csv  users                      # first,last  →  Ada,Lovelace
+fejkdata --format sql  users                      # INSERT INTO users (first, last) VALUES ('Ada', 'Lovelace');
+fejkdata --format json --repeat 3 users           # three objects, one per line
+fejkdata --format sql --table people users          # INSERT into another table
+```
+
+`--repeat` streams that many records — a JSON object per line, a CSV row per
+line after a header, an INSERT per line in SQL. Columns render independently, each
+a fresh draw, in name order. A column is a string, and each format quotes it as
+such; see [Decisions](#decisions) for the typed-scalar and struct-filling scope.
+
 ## Library
 
 ```sh
@@ -89,6 +121,9 @@ paths := f.List()                  // every path Fake accepts, sorted
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
 v = t.Fake()                                              // render many times, no re-parse
+r, err := f.Record("users")               // one record: each field a column
+s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
+r, err = f.FakeRecord(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 ```
 
 | Option | |
@@ -97,6 +132,11 @@ v = t.Fake()                                              // render many times, 
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
+
+A `*Record` carries its columns via `Fields()`, and serializes them with `JSON()`
+(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the same three
+shapes the CLI's `--format` streams. `Record` and `FakeRecord` take a record; a
+path or template that is not one — a bare string, a choice, or a folder — errors.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
@@ -454,6 +494,22 @@ tokens add cost in proportion to the output.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
+- **A record is a template seen as columns, not a second schema format.** A
+  template's `format` composes its fields into one string; `Record` and
+  `--format` project the same fields as columns. Two views of one dataset, so a
+  record author writes the same JSON they already know, and a column is the same
+  field `Fake` renders by dotted path.
+- **Records emit text; typed scalars are out.** Every value fejkdata yields is a
+  string, so JSON, CSV and SQL each quote a column as text (`"42"`, `'42'`) rather
+  than guess a number or a boolean. Emitting unquoted numbers or booleans would
+  need a per-column `kind`, a parallel scalar system in a format whose promise is
+  "text means what it says". A column's check digit, number or id is still
+  valid-by-construction through a builtin; it is serialized as text.
+- **Filling a Go struct is out of scope.** `Record.Fields()` returns the columns a
+  caller maps onto a struct themselves. gofakeit's `fake:"{firstname}"` tags
+  reflect over an arbitrary struct type and cast into its fields — a different
+  concern from "data lives in JSON", and one a JSON record feeds without fejkdata
+  owning the reflection.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
   is deterministic across machines, so a ±10% ceiling does not flake under CI load,
   while time varies with the machine and its neighbours. A rendering slowdown
@@ -500,6 +556,7 @@ fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 path.go         the dotted-path walk, and proving a path resolves
 render.go       Fake and the recursive renderer (choices, format strings, expansions)
+record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, and their compile and link
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and its fences

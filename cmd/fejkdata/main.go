@@ -34,13 +34,19 @@ or a quote). Templates reach the data by reference from the root —
 argument carrying a bracket, a closing brace or a quote but no valid JSON names
 neither.
 
+With --format json, csv or sql the argument must name a record — a template whose
+fields are its columns — and each render is streamed as one JSON object, one CSV
+row (after a header), or one INSERT.
+
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
+      --format F         output form: text (default), json, csv or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, then exit
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the value N times, 1..1048576 (default 1)
   -s, --seed N           seed for reproducible output
       --separator S      string between repeated values (default newline)
+      --table T          the INSERT target for --format sql (default: the path's last segment)
       --version          print the version, then exit
 
 Flags may come before or after <path|template>; -- ends the flags. A short flag's
@@ -49,6 +55,8 @@ value attaches or follows (-n3, -n 3); short flags bundle (-hn 3).
 
 type invocation struct {
 	dirs         []string
+	format       string
+	formatSet    bool
 	help         bool
 	list         bool
 	noShipped    bool
@@ -59,6 +67,8 @@ type invocation struct {
 	seeded       bool
 	separator    string
 	separatorSet bool
+	table        string
+	tableSet     bool
 	version      bool
 }
 
@@ -71,6 +81,7 @@ type flagDef struct {
 
 var flagDefs = []flagDef{
 	{"data-path", "d", true, func(in *invocation, v string) error { in.dirs = append(in.dirs, v); return nil }},
+	{"format", "", true, func(in *invocation, v string) error { in.format, in.formatSet = v, true; return nil }},
 	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
 	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
 	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
@@ -91,6 +102,7 @@ var flagDefs = []flagDef{
 		return nil
 	}},
 	{"separator", "", true, func(in *invocation, v string) error { in.separator, in.separatorSet = v, true; return nil }},
+	{"table", "", true, func(in *invocation, v string) error { in.table, in.tableSet = v, true; return nil }},
 	{"version", "", false, func(in *invocation, _ string) error { in.version = true; return nil }},
 }
 
@@ -158,7 +170,7 @@ func splitFlags(arg string) ([]flagArg, error) {
 }
 
 func parseArgs(argv []string) (invocation, error) {
-	in := invocation{repeat: 1, separator: "\n"}
+	in := invocation{repeat: 1, separator: "\n", format: "text"}
 	for i := 0; i < len(argv); i++ {
 		arg := argv[i]
 		if arg == "--" {
@@ -196,14 +208,41 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
+// recordFormat reports whether the format names a record output (json, csv or
+// sql) rather than the default text.
+func (in invocation) recordFormat() bool {
+	return in.formatSet && in.format != "text"
+}
+
+// checkFlags rejects a flag value or combination that cannot run.
+func (in invocation) checkFlags() error {
+	if in.formatSet {
+		switch in.format {
+		case "text", "json", "csv", "sql":
+		default:
+			return fmt.Errorf("--format takes text, json, csv or sql, got %q", in.format)
+		}
+	}
+	if in.tableSet && in.format != "sql" {
+		return errors.New("--table names the INSERT target, so it needs --format sql")
+	}
+	if in.recordFormat() && in.separatorSet {
+		return errors.New("--separator joins text values, so it has no effect with --format " + in.format)
+	}
+	return nil
+}
+
 // check rejects a flag combination or an argument that cannot run, and reports
 // what the argument names, so its shape is settled before any data is read.
 func (in invocation) check() (argKind, error) {
+	if err := in.checkFlags(); err != nil {
+		return argPath, err
+	}
 	if in.list && len(in.paths) > 0 {
 		return argPath, errors.New("--list takes no path")
 	}
-	if in.list && (in.repeatSet || in.separatorSet) {
-		return argPath, errors.New("--list takes no --repeat or --separator")
+	if in.list && (in.repeatSet || in.separatorSet || in.formatSet || in.tableSet) {
+		return argPath, errors.New("--list takes no --repeat, --separator, --format or --table")
 	}
 	if in.list {
 		return argPath, nil
@@ -234,6 +273,9 @@ func (in invocation) options() []fejkdata.Option {
 // from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) error {
 	arg := in.paths[0]
+	if in.recordFormat() {
+		return in.writeRecords(f, kind, arg, w)
+	}
 	draw := func() (string, error) { return f.Fake(arg) }
 	if kind == argTemplate {
 		t, err := f.NewTemplate(arg)
@@ -255,6 +297,52 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 	}
 	out.WriteString("\n")
 	return out.Flush()
+}
+
+// writeRecords streams a record per line in the chosen format: one JSON object
+// per line, a CSV header then a row per line, or one INSERT per line.
+func (in invocation) writeRecords(f *fejkdata.Generator, kind argKind, arg string, w io.Writer) error {
+	draw := func() (*fejkdata.Record, error) { return f.Record(arg) }
+	if kind == argTemplate {
+		t, err := f.NewRecordTemplate(arg)
+		if err != nil {
+			return templateError{err}
+		}
+		draw = func() (*fejkdata.Record, error) { return t.Fake(), nil }
+	}
+	out := bufio.NewWriter(w)
+	table := in.table
+	if table == "" {
+		table = defaultTable(arg, kind)
+	}
+	for i := 0; i < in.repeat; i++ {
+		r, err := draw()
+		if err != nil {
+			return err
+		}
+		switch in.format {
+		case "json":
+			fmt.Fprintln(out, r.JSON())
+		case "csv":
+			if i == 0 {
+				fmt.Fprintln(out, r.CSVHeader())
+			}
+			fmt.Fprintln(out, r.CSVLine())
+		case "sql":
+			fmt.Fprintln(out, r.SQLInsert(table))
+		}
+	}
+	return out.Flush()
+}
+
+// defaultTable names the INSERT target when --table is absent: the path's last
+// segment, or "records" for an inline template that sits in no folder.
+func defaultTable(arg string, kind argKind) string {
+	if kind == argTemplate {
+		return "records"
+	}
+	segments := strings.Split(arg, ".")
+	return segments[len(segments)-1]
 }
 
 // templateError marks a render failure that is the argument's own fault — an
