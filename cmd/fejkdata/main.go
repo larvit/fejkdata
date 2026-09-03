@@ -227,10 +227,20 @@ func (in invocation) options() []fejkdata.Option {
 // failure comes before anything is written; a write failure surfaces from Flush,
 // bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
+	arg := in.paths[0]
+	var draw func() (string, error)
+	if isTemplate(arg) {
+		t, err := f.NewTemplate(arg)
+		if err != nil {
+			return err
+		}
+		draw = func() (string, error) { return t.Fake(), nil }
+	} else {
+		draw = func() (string, error) { return f.Fake(arg) }
+	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
-		arg := in.paths[0]
-		v, err := renderArg(f, arg)
+		v, err := draw()
 		if err != nil {
 			return err
 		}
@@ -244,22 +254,15 @@ func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 }
 
 // isTemplate reports whether an argument is an inline template rather than a
-// path: a format string carrying a { token (a path can never contain a brace),
-// or a JSON object or array. A [ can begin a real category name, so a [
-// counts as a template only when the whole argument is valid JSON.
+// path: a format string carrying a { token, or a JSON object or array. A name may
+// not contain a brace or bracket, so both spellings collide with no path; the [
+// gate is valid-JSON so a [ alone never swallows an argument that merely began
+// with a copied bracket.
 func isTemplate(arg string) bool {
 	if strings.ContainsRune(arg, '{') {
 		return true
 	}
 	return strings.HasPrefix(arg, "[") && json.Valid([]byte(arg))
-}
-
-// renderArg renders one positional argument: an inline template, or a path.
-func renderArg(f *fejkdata.Generator, arg string) (string, error) {
-	if isTemplate(arg) {
-		return f.FakeTemplate(arg)
-	}
-	return f.Fake(arg)
 }
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }

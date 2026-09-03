@@ -22,6 +22,16 @@ Forked from [github.com/Timewave-AB/fakes](https://github.com/Timewave-AB/fakes)
 8. **Docs index the grammar** — every syntax feature is a heading; every example
    runs under test and shows its output; a rule is stated once.
 
+## Audience, scale and horizon
+
+fejkdata is for developers generating test and fixture data, from Go or the CLI —
+in-memory and single-process, with no persistence or networking, so it reads no
+configuration beyond what the caller passes. A single value is bounded at 1 048 576
+renders (`MaxRepeat`); how large each render is stays what the data asked for. The
+data format becomes the frozen public API at the first tagged release, which is the
+promotion trigger for a compatibility review; until then there is no compatibility
+promise.
+
 ## CLI
 
 ```sh
@@ -98,8 +108,9 @@ if err != nil {
 }
 v, err := f.Fake("sv_SE.address") // "Kungsvägen 68\n379 17 Stockholm"
 paths := f.List()                  // every path Fake accepts, sorted
-v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // an inline template
-v, err = f.FakeTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`)
+v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
+t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
+v = t.Fake()                                              // render many times, no re-parse
 ```
 
 | Option | |
@@ -121,8 +132,8 @@ work with no data on disk. A directory is a namespace: each JSON file is a
 category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}` or `/`; dot-prefixed entries
-are skipped, so a data directory can also be a checkout.
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]` or `/`; dot-prefixed
+entries are skipped, so a data directory can also be a checkout.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `person`, `phone`, `price`, `sentence`, `ssn`, `time`, `url`, `username`,
@@ -369,8 +380,9 @@ tokens add cost in proportion to the output.
   make `-d=./x` a directory named `=./x`.
 - **An argument is a template by its shape, not by a flag.** A JSON object or
   array, or a string carrying a `{` token, is an inline template; anything else is
-  a path. A path can never contain a brace — a name may not use one — so the two
-  never collide, and no `--template` flag is needed to disambiguate them.
+  a path. A name may not contain a brace or a bracket, so a path can never collide
+  with either spelling, and the `[` of a JSON array is gated on valid JSON so a
+  stray copied bracket never swallows an argument. No `--template` flag is needed.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.

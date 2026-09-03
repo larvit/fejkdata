@@ -30,30 +30,52 @@ func (f *Generator) Fake(path string) (string, error) {
 	return render(f.rand, n), nil
 }
 
-// FakeTemplate renders an inline template — a format string or a JSON value — the
-// way a category's data is compiled and rendered, references reaching the loaded
-// tree with {/path}. It shares [Fake]'s lock: an inline node is compiled and
-// referenced per draw, so a seeded sequence is reproducible when drawn from one
-// goroutine.
-func (f *Generator) FakeTemplate(input string) (string, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
+// Template is an inline template compiled, referenced and validated against a
+// generator's loaded data once, ready to render many times with [Template.Fake].
+type Template struct {
+	g *Generator
+	n node
+}
+
+// Fake renders the template with one draws.
+func (t *Template) Fake() string {
+	t.g.mu.Lock()
+	defer t.g.mu.Unlock()
+	return render(t.g.rand, t.n)
+}
+
+// NewTemplate compiles an inline template — a format string or a JSON value — and
+// binds its references against the loaded tree, so repeated renders pay the
+// compile and validation once. It shares [New]'s guarantees: a bad template errors
+// here, and rendering cannot fail.
+func (f *Generator) NewTemplate(input string) (*Template, error) {
 	n, err := compileInput(input)
 	if err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if err := linkNodeRefs(n, f.categories); err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	// No cycle is possible: a reference binds only into the loaded tree, which has
 	// no path into this node, so rendering it cannot reach itself.
 	if err := checkNodeRepeatReach(n); err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if err := checkNodeBoundLevelsHeld(n); err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return render(f.rand, n), nil
+	return &Template{g: f, n: n}, nil
+}
+
+// FakeTemplate compiles and renders an inline template in one call. It is
+// [NewTemplate] then [Template.Fake]; to render the same template many times, hold
+// the *Template and call its Fake.
+func (f *Generator) FakeTemplate(input string) (string, error) {
+	t, err := f.NewTemplate(input)
+	if err != nil {
+		return "", err
+	}
+	return t.Fake(), nil
 }
 
 // descend walks named fields to the node a path names. It is the one render-side

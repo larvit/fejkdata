@@ -335,23 +335,23 @@ func weightOf(raw any) (float64, error) {
 
 // reservedInName is what a category, folder or field name may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
-// call, braces delimit the token and '/' starts a reference. A name carrying one is
-// reachable by no format, so it is rejected where it is authored rather than at
-// the token that cannot reach it.
-const reservedInName = ".|({}/"
+// call, braces delimit the token, '/' starts a reference, and a bracket would be
+// misread by the command line as a JSON array. A name carrying one is rejected
+// where it is authored rather than where it would be unreachable.
+const reservedInName = ".|({}/[]"
 
 // reservedList spells reservedInName for an error message, so the two cannot drift.
 var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
 
-// checkName rejects a name the dot path and {token} grammars cannot spell. Both a
-// category or folder and a field go through it, so there is one answer to what a
-// name may contain.
+// checkName rejects a name the dot path, {token} and CLI grammars cannot spell.
+// Both a category or folder and a field go through it, so there is one answer to
+// what a name may contain.
 func checkName(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
 	}
 	if i := strings.IndexAny(name, reservedInName); i >= 0 {
-		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path and {token} grammars reserve",
+		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and CLI grammars reserve",
 			name, name[i:i+1], reservedList)
 	}
 	return nil
