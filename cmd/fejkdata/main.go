@@ -30,8 +30,8 @@ const usage = `Usage: fejkdata [flags] <path|template>
 An argument containing a { token, or a JSON object, array or string, is a
 template; any other argument is a path (a path never contains a brace, a bracket
 or a quote). Templates reach the data by reference from the root —
-{/sv_SE.person.first} — whether the data is shipped or layered with --data-path. A
-bracket that is not valid JSON names no template and no path.
+{/sv_SE.person.last} — whether the data is shipped or layered with --data-path. An
+argument carrying one of those characters but no valid JSON names neither.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
   -h, --help             print this help, then exit
@@ -208,7 +208,7 @@ func (in invocation) check() (argKind, error) {
 		return argPath, nil
 	}
 	if len(in.paths) != 1 {
-		return argPath, fmt.Errorf("expected one path, got %d", len(in.paths))
+		return argPath, fmt.Errorf("expected one path or template, got %d", len(in.paths))
 	}
 	return classify(in.paths[0])
 }
@@ -276,10 +276,10 @@ const (
 // quote, so no path collides with any of those spellings, and the JSON gate is
 // valid-JSON so a copied bracket names nothing rather than swallowing an argument.
 func classify(arg string) (argKind, error) {
-	if strings.ContainsRune(arg, '{') || (isJSONStart(arg) && json.Valid([]byte(arg))) {
+	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
 		return argTemplate, nil
 	}
-	if i := strings.IndexAny(arg, `[]"`); i >= 0 {
+	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
 		return argPath, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
 	}
 	return argPath, nil

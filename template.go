@@ -165,7 +165,11 @@ func checkArm(name string, fields map[string]node) error {
 			return fmt.Errorf("%q is an option and can never be a field", a.key)
 		}
 		if len(fields) == 0 {
-			return fmt.Errorf("no field %q; a token names a sibling field, and a bare string has none — write {/%s} to reference the data", a.key, name)
+			hint := ""
+			if hintableRef(name) {
+				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
+			}
+			return fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.key, hint)
 		}
 		return fmt.Errorf("no field %q", a.key)
 	}
@@ -173,6 +177,17 @@ func checkArm(name string, fields map[string]node) error {
 		return fmt.Errorf("field %q: %w", a.key, err)
 	}
 	return nil
+}
+
+// hintableRef reports whether {/name} is a reference the grammar accepts, so the
+// hint never names a spelling that fails too.
+func hintableRef(name string) bool {
+	for _, seg := range strings.Split(name, ".") {
+		if checkName(seg) != nil {
+			return false
+		}
+	}
+	return true
 }
 
 // tokenOperands lists the fields one {token} body reads as operands, empty for a
