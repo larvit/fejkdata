@@ -20,21 +20,28 @@ import (
 	"gitea.larvit.se/larvit/fejkdata"
 )
 
-const usage = `Usage: fejkdata [flags] <path>
+const usage = `Usage: fejkdata [flags] <path|template>
 
   <path>                 a category, or a dotted path into one (person, person.last)
+  <template>             a format string or JSON value to render inline, e.g.
+                         'name: {/sv_SE.person.last}' or '{"format":"{x}","x":[1,2]}'
+
+An argument containing a { token, or a JSON object or array, is a template; any
+other argument is a path (a path never contains a brace). Templates reach the data
+with a reference: {/sv_SE.person.first} from the root, whether the data is shipped
+or layered with --data-path.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
   -h, --help             print this help, then exit
       --list             list the paths the data offers, then exit
       --no-shipped-data  load only the --data-path directories
-  -n, --repeat N         render the path N times, 1..1048576 (default 1)
+  -n, --repeat N         render the value N times, 1..1048576 (default 1)
   -s, --seed N           seed for reproducible output
       --separator S      string between repeated values (default newline)
       --version          print the version, then exit
 
-Flags may come before or after <path>; -- ends the flags. A short flag's value
-attaches or follows (-n3, -n 3); short flags bundle (-hn 3).
+Flags may come before or after <path|template>; -- ends the flags. A short flag's
+value attaches or follows (-n3, -n 3); short flags bundle (-hn 3).
 `
 
 type invocation struct {
@@ -221,7 +228,8 @@ func (in invocation) options() []fejkdata.Option {
 func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
-		v, err := f.Fake(in.paths[0])
+		arg := in.paths[0]
+		v, err := renderArg(f, arg)
 		if err != nil {
 			return err
 		}
@@ -232,6 +240,24 @@ func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 	}
 	out.WriteString("\n")
 	return out.Flush()
+}
+
+// isTemplate reports whether an argument is an inline template rather than a
+// path: a JSON object or array, or a format string carrying a { token. A path can
+// never contain a brace, so the two never collide.
+func isTemplate(arg string) bool {
+	if strings.ContainsRune(arg, '{') {
+		return true
+	}
+	return strings.HasPrefix(arg, "[")
+}
+
+// renderArg renders one positional argument: an inline template, or a path.
+func renderArg(f *fejkdata.Generator, arg string) (string, error) {
+	if isTemplate(arg) {
+		return f.FakeTemplate(arg)
+	}
+	return f.Fake(arg)
 }
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
