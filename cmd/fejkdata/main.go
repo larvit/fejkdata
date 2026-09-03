@@ -279,7 +279,7 @@ func classify(arg string) (argKind, error) {
 	if strings.ContainsRune(arg, '{') || (isJSONStart(arg) && json.Valid([]byte(arg))) {
 		return argTemplate, nil
 	}
-	if i := strings.IndexAny(arg, "[]"); i >= 0 {
+	if i := strings.IndexAny(arg, `[]"`); i >= 0 {
 		return argPath, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
 	}
 	return argPath, nil

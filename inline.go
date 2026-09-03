@@ -36,10 +36,11 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := linkNodeRefs(n, f.categories); err != nil {
+	scope := inlineScope(n)
+	if err := linkNodeRefs(scope, f.categories); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := checkScope(inlineScope(n)); err != nil {
+	if err := checkScope(scope); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -77,8 +78,8 @@ func compileInput(input string) (node, error) {
 // linkNodeRefs binds the references in an inline node's templates against the
 // loaded tree. An inline template sits in no folder, so . and .. name nothing and
 // are rejected for the root spelling they would otherwise silently mean.
-func linkNodeRefs(n node, root map[string]node) error {
-	return eachNode(n, "template", func(path string, m node) error {
+func linkNodeRefs(scope nodeScope, root map[string]node) error {
+	return scope(func(path string, m node) error {
 		t, ok := m.(*template)
 		if !ok {
 			return nil
