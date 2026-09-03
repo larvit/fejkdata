@@ -1,42 +1,17 @@
 # fejkdata
 
-A Go library and CLI for generating locale-aware fake data from JSON templates.
-Forked from [github.com/Timewave-AB/fakes](https://github.com/Timewave-AB/fakes).
+Locale-aware fake data for tests and fixtures, generated from JSON templates. Use
+it from Go or the CLI — no data on disk, no dependencies, and a seed makes output
+reproducible.
 
-## Goals
-
-1. **Valid by construction** — every value passes the check its real consumer
-   applies; facts that belong together come from one draw, within a value and
-   across categories.
-2. **Text means what it says** — a format renders as written; only `{…}` varies,
-   random characters included (`{digits(3)}`). One spelling per result; the wrong
-   one is a load error naming the right one.
-3. **Every mistake is a load error** — `New` rejects; `Fake` on a loaded generator
-   fails only for an unknown path.
-4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
-   no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
-   the first custom template needs no escape and no option.
-5. **Data lives in JSON** — a builtin only for what data can't express.
-6. **Reproducible** — seed in, same stream out; no builtin reads a clock.
-7. **Zero dependencies** — standard library only.
-8. **Docs index the grammar** — every syntax feature is a heading; every example
-   runs under test and shows its output; a rule is stated once.
-
-## Audience, scale and horizon
-
-fejkdata is for developers generating test and fixture data, from Go or the CLI —
-in-memory and single-process, with no persistence or networking, so it reads no
-configuration beyond what the caller passes. A single value is bounded at 1 048 576
-renders (`MaxRepeat`); how large each render is stays what the data asked for. The
-data format becomes the frozen public API at the first tagged release, which is the
-promotion trigger for a compatibility review; until then there is no compatibility
-promise.
+```sh
+go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
+fejkdata sv_SE.person          # Sara Eriksson
+```
 
 ## CLI
 
 ```sh
-go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
-
 fejkdata sv_SE.person                          # Sara Eriksson
 fejkdata sv_SE.person.last                     # Eriksson
 fejkdata --seed 42 sv_SE.address               # the same address every run
@@ -363,6 +338,25 @@ then costs about what its output costs: an unweighted pick is O(1) whatever the
 list's length, a weighted one O(log n), and long formats, deep nesting and many
 tokens add cost in proportion to the output.
 
+## Goals
+
+1. **Valid by construction** — every value passes the check its real consumer
+   applies; facts that belong together come from one draw, within a value and
+   across categories.
+2. **Text means what it says** — a format renders as written; only `{…}` varies,
+   random characters included (`{digits(3)}`). One spelling per result; the wrong
+   one is a load error naming the right one.
+3. **Every mistake is a load error** — `New` rejects; `Fake` on a loaded generator
+   fails only for an unknown path.
+4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
+   no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
+   the first custom template needs no escape and no option.
+5. **Data lives in JSON** — a builtin only for what data can't express.
+6. **Reproducible** — seed in, same stream out; no builtin reads a clock.
+7. **Zero dependencies** — standard library only.
+8. **Docs index the grammar** — every syntax feature is a heading; every example
+   runs under test and shows its output; a rule is stated once.
+
 ## Decisions
 
 - **Options and fields share one namespace.** `format`, `weight`, `repeat` and
@@ -486,4 +480,4 @@ data/           shipped data (JSON), embedded at build: locale folders + a misc 
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Forked from [github.com/Timewave-AB/fakes](https://github.com/Timewave-AB/fakes).
