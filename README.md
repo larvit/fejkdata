@@ -1,7 +1,7 @@
 # fejkdata
 
 Locale-aware fake data for tests and fixtures, generated from JSON templates. Use
-it from Go or the CLI — no data on disk, no dependencies, and a seed makes output
+it as a Go library or the CLI — no data on disk, no dependencies, and a seed makes output
 reproducible.
 
 ```sh
