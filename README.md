@@ -491,10 +491,10 @@ docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 ```
 
 Every pull request runs `docker build .` against both the latest and the lowest
-supported Go, and must pass before it can be merged — unless it touches none of
-the files the build and its tests read, in which case it's skipped (see
-[Decisions](#decisions)). That build is the whole gate — vet, complexity, format
-check and tests — so run it locally before pushing:
+supported Go, and must pass before it can be merged — unless it changes none of
+the files the build and its tests read, nor the workflow itself, in which case
+it's skipped (see [Decisions](#decisions)). That build is the whole gate — vet,
+complexity, format check and tests — so run it locally before pushing:
 
 ```sh
 docker build .                                  # latest
