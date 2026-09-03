@@ -518,12 +518,15 @@ tokens add cost in proportion to the output.
   need a per-column `kind`, a parallel scalar system in a format whose promise is
   "text means what it says". A column's check digit, number or id is still
   valid-by-construction through a builtin; it is serialized as text.
-- **A record's columns share one reference draw.** Two columns that reference one
-  category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of it,
-  so a record's facts agree the way a template's [correlated
-  fields](#correlated-fields) do. Only references share across columns: a sibling
-  field is local to its own column, so `first` does not silently bind to a
-  `first` in the column next to it.
+- **A record shares one reference draw per category.** Two columns that reference
+  one category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of
+  it, so a record's facts agree the way a template's [correlated
+  fields](#correlated-fields) do. The draw is one per record, so it spans a
+  column's `repeat` and nested templates too (one record is one coherent unit);
+  a bare reference — `{/currency}`, no field — stays an independent draw every
+  time, the rule a format string already follows. Only references share: a sibling
+  field is local to its own column, so a `first` column does not silently bind to
+  a `first` in the column next to it.
 - **Filling a Go struct is out of scope.** `Record.Fields()` returns the columns a
   caller maps onto a struct themselves. gofakeit's `fake:"{firstname}"` tags
   reflect over an arbitrary struct type and cast into its fields — a different

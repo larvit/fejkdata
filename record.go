@@ -88,17 +88,17 @@ func quoteIdent(s string) string {
 }
 
 // Record renders a path as one record: the template it names, with each direct
-// field drawn as a column. A path naming a folder or a value that is not a
-// template — a bare string or a choice, which have no fields — is an error.
+// field drawn as a column. Only a category-level template is a record — a path
+// that descends into a field, or that names a folder or a choice, is an error.
 func (f *Generator) Record(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	n, err := descend(f.rand, &group{children: f.categories}, strings.Split(path, "."))
+	_, n, tail, err := resolveRef(f.categories, strings.Split(path, "."))
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	if _, ok := n.(*group); ok {
-		return nil, fmt.Errorf("fejkdata: %s names a folder, not a value", path)
+	if len(tail) > 0 {
+		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	t, ok := n.(*template)
 	if !ok {

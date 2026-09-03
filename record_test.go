@@ -139,6 +139,19 @@ func TestRecordSQLInsert(t *testing.T) {
 	}
 }
 
+func TestRecordRejectsFieldDescent(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"cat": `{"format":"{sub}","sub":{"format":"{x}","x":"1"}}`,
+		"row": `[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for _, path := range []string{"cat.sub", "row.x"} {
+		if _, err := f.Record(path); err == nil || !strings.Contains(err.Error(), "field") {
+			t.Errorf("Record(%q) = %v, want a 'descends into a field' error", path, err)
+		}
+	}
+}
+
 func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€"}]`,
@@ -165,6 +178,24 @@ func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 			}
 		default:
 			t.Fatalf("record %q has unexpected code %q", r.JSON(), m["code"])
+		}
+	}
+}
+
+func TestRecordSharesAReferenceIntoAColumnRepeat(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"currency": `[{"format":"{code}","code":"AUD"},{"format":"{code}","code":"EUR"}]`,
+		"order":    `{"format":"","codes":{"format":"{/currency.code}","repeat":3,"separator":"-"}}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for i := 0; i < 50; i++ {
+		r, err := f.Record("order")
+		if err != nil {
+			t.Fatal(err)
+		}
+		parts := strings.Split(r.Fields()[0].Value, "-")
+		if len(parts) != 3 || parts[0] != parts[1] || parts[1] != parts[2] {
+			t.Fatalf("codes column = %q, want one shared draw across its repeat", r.Fields()[0].Value)
 		}
 	}
 }
