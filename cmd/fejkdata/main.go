@@ -31,7 +31,8 @@ An argument containing a { token, or a JSON object, array or string, is a
 template; any other argument is a path (a path never contains a brace, a bracket
 or a quote). Templates reach the data by reference from the root —
 {/sv_SE.person.last} — whether the data is shipped or layered with --data-path. An
-argument carrying one of those characters but no valid JSON names neither.
+argument carrying a bracket, a closing brace or a quote but no valid JSON names
+neither.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
   -h, --help             print this help, then exit

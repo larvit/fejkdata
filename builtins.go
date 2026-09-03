@@ -133,7 +133,7 @@ func transformArg(fields map[string]node, a []string) error {
 		_, _, err := refShape(leaf)
 		return err
 	}
-	return checkArm(leaf, fields)
+	return checkArm(leaf, fields, false)
 }
 
 func transformOperand(a []string) []string {

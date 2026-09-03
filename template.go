@@ -140,7 +140,7 @@ func checkTokens(format string, fields map[string]node) error {
 				}
 				continue // its target is checked at New (see linkRefs)
 			}
-			if err := checkArm(name, fields); err != nil {
+			if err := checkArm(name, fields, len(names) == 1); err != nil {
 				return fmt.Errorf("token {%s}: %w", t.body, err)
 			}
 		}
@@ -151,7 +151,9 @@ func checkTokens(format string, fields map[string]node) error {
 }
 
 // checkArm validates one sibling name or path against a template's fields.
-func checkArm(name string, fields map[string]node) error {
+// wholeToken says the name is the token's entire body, so {/name} would render
+// the same value and can be offered as the reference spelling.
+func checkArm(name string, fields map[string]node, wholeToken bool) error {
 	a := splitArm(name, nil)
 	if err := checkSegments(a); err != nil {
 		return err
@@ -166,7 +168,7 @@ func checkArm(name string, fields map[string]node) error {
 		}
 		if len(fields) == 0 {
 			hint := ""
-			if hintableRef(name) {
+			if wholeToken && hintableRef(name) {
 				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
 			}
 			return fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.key, hint)
