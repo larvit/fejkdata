@@ -83,12 +83,16 @@ func TestFieldlessTokenHint(t *testing.T) {
 		t.Fatalf("FakeTemplate(bare token) = %v, want a hint naming {/sv_SE.person.last}", err)
 	}
 	_, err = f.FakeTemplate(`{"format":"{x}","repeat":2}`)
-	if err == nil || strings.Contains(err.Error(), "bare string") {
-		t.Errorf("FakeTemplate(fieldless object) = %v, want an error that does not call it a bare string", err)
+	if err == nil || !strings.Contains(err.Error(), `this template has none — write {/x}`) {
+		t.Errorf("FakeTemplate(fieldless object) = %v, want the hint without calling it a bare string", err)
 	}
-	_, err = f.FakeTemplate(`{ /sv_SE.person.last }`)
-	if err == nil || strings.Contains(err.Error(), "write {") {
-		t.Errorf("FakeTemplate(malformed token) = %v, want no hint naming a spelling that fails too", err)
+	// A hint is only a drop-in where the name is the whole token: {/x} inside a
+	// transform or an alternation renders a different value, so none is offered.
+	for _, input := range []string{`{ /sv_SE.person.last }`, "{lowercase(x)}", "{x|y}"} {
+		_, err := f.FakeTemplate(input)
+		if err == nil || strings.Contains(err.Error(), "write {") {
+			t.Errorf("FakeTemplate(%q) = %v, want no hint naming a spelling that means something else", input, err)
+		}
 	}
 }
 
@@ -105,7 +109,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
 		{`{/misc.country} {/misc.country.alpha2}`, "renders a level"},
-		{`{"format":"{/misc.country.alpha2} {x}","x":"{/misc.country}"}`, "renders"},
+		{`{"format":"{/misc.country.alpha2} {x}","x":"{/misc.country}"}`, "reads a path into"},
 	} {
 		_, err := f.FakeTemplate(c.input)
 		if err == nil || !strings.Contains(err.Error(), c.want) {

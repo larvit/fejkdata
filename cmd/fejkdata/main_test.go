@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -329,6 +330,15 @@ func TestClassify(t *testing.T) {
 		_, err := classify(arg)
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("classify(%q) = %v; want it rejected naming %s", arg, err, want)
+		}
+	}
+}
+
+func TestUsageReferencesResolve(t *testing.T) {
+	for _, token := range regexp.MustCompile(`\{/[^}]+\}`).FindAllString(usage, -1) {
+		code, out, errb := runOut("--seed", "1", token)
+		if code != 0 || strings.TrimSpace(out) == "" {
+			t.Errorf("usage advertises %s: run = %d, %q, stderr %q", token, code, out, errb)
 		}
 	}
 }
