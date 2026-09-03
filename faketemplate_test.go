@@ -97,6 +97,21 @@ func TestFakeTemplateErrors(t *testing.T) {
 	}
 }
 
+func TestNewTemplateReusable(t *testing.T) {
+	f := shipped(t)
+	tmpl, err := f.NewTemplate(`{digits(2)}`)
+	if err != nil {
+		t.Fatalf("NewTemplate: %v", err)
+	}
+	seen := map[string]bool{}
+	for i := 0; i < 50; i++ {
+		seen[tmpl.Fake()] = true
+	}
+	if len(seen) < 2 {
+		t.Fatalf("Template.Fake() repeated %v, want varied draws from one compile", seen)
+	}
+}
+
 func TestFakeTemplateRepeatBound(t *testing.T) {
 	f := shipped(t)
 	_, err := f.FakeTemplate(`{"format":"{x}","repeat":200,"x":{"format":"{y}","repeat":200,"y":{"format":"z","repeat":200}}}`)
