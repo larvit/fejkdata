@@ -42,9 +42,10 @@ A path names a category, or a field inside one: each dot segment descends one
 level — folders, then the category (a JSON file), then fields. An argument that is
 a JSON object or array, or that carries a `{` token, is instead an **inline
 template**: a format string or a JSON value compiled and rendered on the spot. Its
-tokens reach the data by reference — `{/sv_SE.person.last}` from the root, `{.name}`
-and `{..name}` relative to it — so `--data-path` categories are available too. A
-path never contains a brace, so the two cannot collide (see
+tokens reach the data by reference from the root — `{/sv_SE.person.last}` (or
+`{.name}`, which means the same here), so shipped and `--data-path` categories are
+available — and `{..name}` is rejected, an inline template having no folder to step
+up from. A path never contains a brace, so the two cannot collide (see
 [Decisions](#decisions)).
 
 | Flag | |

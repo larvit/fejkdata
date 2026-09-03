@@ -9,6 +9,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -243,13 +244,14 @@ func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 }
 
 // isTemplate reports whether an argument is an inline template rather than a
-// path: a JSON object or array, or a format string carrying a { token. A path can
-// never contain a brace, so the two never collide.
+// path: a format string carrying a { token (a path can never contain a brace),
+// or a JSON object or array. A [ can begin a real category name, so a [
+// counts as a template only when the whole argument is valid JSON.
 func isTemplate(arg string) bool {
 	if strings.ContainsRune(arg, '{') {
 		return true
 	}
-	return strings.HasPrefix(arg, "[")
+	return strings.HasPrefix(arg, "[") && json.Valid([]byte(arg))
 }
 
 // renderArg renders one positional argument: an inline template, or a path.
