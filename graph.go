@@ -165,24 +165,28 @@ func pathLeaves(n node, tail []string) []node {
 	return out
 }
 
-// checkRepeatReach bounds the renders a repeat multiplies to along any root-to-leaf
-// path, so nested repeats cannot build what one repeat may not. It runs after
-// checkNoCycles, whose guarantee is what lets the walk terminate.
-func checkRepeatReach(root map[string]node) error {
-	mem := reachMemo{}
-	return walkNodes(root, func(path string, n node) error {
-		return repeatCheck(path, n, mem)
-	})
+// nodeScope is the set of nodes one validation pass covers: a whole loaded tree,
+// or a single inline node.
+type nodeScope func(fn func(path string, n node) error) error
+
+func treeScope(root map[string]node) nodeScope {
+	return func(fn func(path string, n node) error) error { return walkNodes(root, fn) }
 }
 
-// checkNodeRepeatReach is checkRepeatReach for one inline node: each template in
-// it is bounded, following reference edges into the already-validated tree the same
-// way a repeat through a reference multiplies along a path.
-func checkNodeRepeatReach(n node) error {
+func inlineScope(n node) nodeScope {
+	return func(fn func(path string, m node) error) error { return eachNode(n, "template", fn) }
+}
+
+// checkScope runs the per-node fences over a scope, each over the whole scope
+// before the next, so which of several broken nodes is reported does not depend on
+// the walk. It runs after checkNoCycles, whose guarantee is what lets the walks
+// terminate.
+func checkScope(s nodeScope) error {
 	mem := reachMemo{}
-	return eachNode(n, "template", func(path string, m node) error {
-		return repeatCheck(path, m, mem)
-	})
+	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
+		return err
+	}
+	return s(heldCheck)
 }
 
 type reachMemo map[node]int
@@ -204,6 +208,8 @@ func (m reachMemo) of(n node) int {
 	return r
 }
 
+// repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
+// path, so nested repeats cannot build what one repeat may not.
 func repeatCheck(path string, n node, mem reachMemo) error {
 	if t, ok := n.(*template); ok && t.repeat > 1 && mem.of(n) > MaxRepeat {
 		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.of(n), MaxRepeat)

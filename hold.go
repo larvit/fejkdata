@@ -6,27 +6,11 @@ import (
 	"strings"
 )
 
-// checkBoundLevelsHeld rejects every route to a held name except the ones that read
-// its draw. An expansion holds one draw of that name; anything else that renders it
-// draws again, and the two disagree. checkNoOverlap settles the spellings within one
+// heldCheck rejects every route to a held name except the ones that read its draw.
+// An expansion holds one draw of that name; anything else that renders it draws
+// again, and the two disagree. checkNoOverlap settles the spellings within one
 // format (a token, an operand); this settles the rest — a reference, whether it
 // sits in that format or in anything the format renders, however deep.
-//
-// It runs after checkNoCycles, whose guarantee is what lets the walk terminate.
-func checkBoundLevelsHeld(root map[string]node) error {
-	return walkNodes(root, func(path string, n node) error {
-		return heldCheck(path, n)
-	})
-}
-
-// checkNodeBoundLevelsHeld is checkBoundLevelsHeld for one inline node: the same
-// held fence, over its own templates and the shared tree they reference.
-func checkNodeBoundLevelsHeld(n node) error {
-	return eachNode(n, "template", func(path string, m node) error {
-		return heldCheck(path, m)
-	})
-}
-
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || len(t.held) == 0 {

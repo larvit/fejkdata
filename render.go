@@ -51,10 +51,10 @@ func (t *Template) Fake() string {
 // binds its references against the loaded tree, so repeated renders pay the
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
-// NewTemplate runs the same fences loadData does for a category, scoped to one
-// inline node with everything but checkNoCycles: a reference binds only into the
-// loaded tree, which has no path into this node, so rendering it cannot reach
-// itself. A new fence belongs in both places (loadData and here).
+//
+// checkNoCycles is the one fence loadData runs that an inline node does not need:
+// the loaded tree is proven acyclic at [New], the node is a finite tree, and no
+// tree node can reference it, so nothing it renders can reach itself.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
 	n, err := compileInput(input)
 	if err != nil {
@@ -63,10 +63,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err := linkNodeRefs(n, f.categories); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := checkNodeRepeatReach(n); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	if err := checkNodeBoundLevelsHeld(n); err != nil {
+	if err := checkScope(inlineScope(n)); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
