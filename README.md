@@ -34,17 +34,25 @@ fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
+fejkdata 'name: {/sv_SE.person.last}'          # name: Eriksson (an inline template)
+fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse
 ```
 
 A path names a category, or a field inside one: each dot segment descends one
-level — folders, then the category (a JSON file), then fields.
+level — folders, then the category (a JSON file), then fields. An argument that is
+a JSON object or array, or that carries a `{` token, is instead an **inline
+template**: a format string or a JSON value compiled and rendered on the spot. Its
+tokens reach the data by reference — `{/sv_SE.person.last}` from the root, `{.name}`
+and `{..name}` relative to it — so `--data-path` categories are available too. A
+path never contains a brace, so the two cannot collide (see
+[Decisions](#decisions)).
 
 | Flag | |
 |------|--|
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | reproducible output |
-| `-n`, `--repeat N` | render the path N times (up to 1048576), each an independent draw, streamed |
+| `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
@@ -89,6 +97,8 @@ if err != nil {
 }
 v, err := f.Fake("sv_SE.address") // "Kungsvägen 68\n379 17 Stockholm"
 paths := f.List()                  // every path Fake accepts, sorted
+v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // an inline template
+v, err = f.FakeTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`)
 ```
 
 | Option | |
@@ -356,6 +366,10 @@ tokens add cost in proportion to the output.
   naming the double-dash spelling, and `-s=42` is rejected naming both short
   spellings: `=` belongs to the long form, and reading `=42` as the value would
   make `-d=./x` a directory named `=./x`.
+- **An argument is a template by its shape, not by a flag.** A JSON object or
+  array, or a string carrying a `{` token, is an inline template; anything else is
+  a path. A path can never contain a brace — a name may not use one — so the two
+  never collide, and no `--template` flag is needed to disambiguate them.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
