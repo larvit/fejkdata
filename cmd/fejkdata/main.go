@@ -27,11 +27,11 @@ const usage = `Usage: fejkdata [flags] <path|template>
   <template>             a format string or JSON value to render inline, e.g.
                          'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
 
-An argument containing a { token, or a JSON object or array, is a template; any
-other argument is a path (a path never contains a brace). Templates reach the data
-with a reference: {/sv_SE.person.first} from the root, whether the data is shipped
-or layered with --data-path. A [ that is not valid JSON names no template and no
-path.
+An argument containing a { token, or a JSON object, array or string, is a
+template; any other argument is a path (a path never contains a brace, a bracket
+or a quote). Templates reach the data by reference from the root —
+{/sv_SE.person.first} — whether the data is shipped or layered with --data-path. A
+bracket that is not valid JSON names no template and no path.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
   -h, --help             print this help, then exit
@@ -195,18 +195,22 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
-// check rejects a flag combination that cannot run.
-func (in invocation) check() error {
+// check rejects a flag combination or an argument that cannot run, and reports
+// what the argument names, so its shape is settled before any data is read.
+func (in invocation) check() (argKind, error) {
 	if in.list && len(in.paths) > 0 {
-		return errors.New("--list takes no path")
+		return argPath, errors.New("--list takes no path")
 	}
 	if in.list && (in.repeatSet || in.separatorSet) {
-		return errors.New("--list takes no --repeat or --separator")
+		return argPath, errors.New("--list takes no --repeat or --separator")
 	}
-	if !in.list && len(in.paths) != 1 {
-		return fmt.Errorf("expected one path, got %d", len(in.paths))
+	if in.list {
+		return argPath, nil
 	}
-	return nil
+	if len(in.paths) != 1 {
+		return argPath, fmt.Errorf("expected one path, got %d", len(in.paths))
+	}
+	return classify(in.paths[0])
 }
 
 func (in invocation) options() []fejkdata.Option {
@@ -223,24 +227,19 @@ func (in invocation) options() []fejkdata.Option {
 	return opts
 }
 
-// write streams the path's renders to w, repeat of them joined by the separator
-// and ended by a newline. A path that renders once renders every time, so a Fake
-// failure comes before anything is written; a write failure surfaces from Flush,
-// bufio keeping the first one.
-func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
+// write streams the argument's renders to w, repeat of them joined by the
+// separator and ended by a newline. A value that renders once renders every time,
+// so a render failure comes before anything is written; a write failure surfaces
+// from Flush, bufio keeping the first one.
+func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) error {
 	arg := in.paths[0]
-	var draw func() (string, error)
-	switch {
-	case isTemplate(arg):
+	draw := func() (string, error) { return f.Fake(arg) }
+	if kind == argTemplate {
 		t, err := f.NewTemplate(arg)
 		if err != nil {
 			return templateError{err}
 		}
 		draw = func() (string, error) { return t.Fake(), nil }
-	case strings.HasPrefix(arg, "["):
-		return templateError{fmt.Errorf("%q starts with [ but is not valid JSON, so it names no template and no path", arg)}
-	default:
-		draw = func() (string, error) { return f.Fake(arg) }
 	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
@@ -264,16 +263,30 @@ type templateError struct{ error }
 
 func (e templateError) Unwrap() error { return e.error }
 
-// isTemplate reports whether an argument is an inline template rather than a
-// path: a format string carrying a { token, or a JSON object or array. A name may
-// not contain a brace or bracket, so both spellings collide with no path; the [
-// gate is valid-JSON so a [ alone never swallows an argument that merely began
-// with a copied bracket.
-func isTemplate(arg string) bool {
-	if strings.ContainsRune(arg, '{') {
-		return true
+type argKind int
+
+const (
+	argPath argKind = iota
+	argTemplate
+)
+
+// classify reads what a positional argument names by its shape: a format string
+// carrying a { token, or a JSON object, array or string, is an inline template;
+// anything else is a path. A name may hold neither a brace nor a bracket nor a
+// quote, so no path collides with any of those spellings, and the JSON gate is
+// valid-JSON so a copied bracket names nothing rather than swallowing an argument.
+func classify(arg string) (argKind, error) {
+	if strings.ContainsRune(arg, '{') || (isJSONStart(arg) && json.Valid([]byte(arg))) {
+		return argTemplate, nil
 	}
-	return strings.HasPrefix(arg, "[") && json.Valid([]byte(arg))
+	if i := strings.IndexAny(arg, "[]"); i >= 0 {
+		return argPath, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
+	}
+	return argPath, nil
+}
+
+func isJSONStart(arg string) bool {
+	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
 }
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
@@ -292,7 +305,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
-	if err := in.check(); err != nil {
+	kind, err := in.check()
+	if err != nil {
 		return misuse(stderr, err)
 	}
 	f, err := fejkdata.New(in.options()...)
@@ -309,7 +323,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		return 0
 	}
-	if err := in.write(f, stdout); err != nil {
+	if err := in.write(f, kind, stdout); err != nil {
 		var te templateError
 		if errors.As(err, &te) {
 			return misuse(stderr, te.error)
@@ -321,7 +335,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 func misuse(stderr io.Writer, err error) int {
-	fmt.Fprintf(stderr, "fejkdata: %v\ntry 'fejkdata --help'\n", err)
+	// A library error already names the program, so the prefix is not doubled.
+	fmt.Fprintf(stderr, "fejkdata: %s\ntry 'fejkdata --help'\n", strings.TrimPrefix(err.Error(), "fejkdata: "))
 	return 2
 }
 

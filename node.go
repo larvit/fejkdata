@@ -140,11 +140,16 @@ func (t *template) compileFormat() error {
 // when the input is not JSON. A JSON string literal and a bare string compile
 // alike (both are a template with no fields); the other JSON scalars — a number,
 // bool or null — are no template, so they are rejected here, as a data file that
-// was one would be at load.
+// was one would be at load. Padding is where the two readings would disagree — a
+// format string renders it, JSON drops it — so a padded JSON value is rejected
+// naming the one that renders.
 func compileInput(input string) (node, error) {
 	var raw any
 	if err := json.Unmarshal([]byte(input), &raw); err != nil {
 		return compile(input)
+	}
+	if trimmed := strings.TrimSpace(input); trimmed != input {
+		return nil, fmt.Errorf("a JSON template may not be padded with spaces, which a format string would render; write %s", trimmed)
 	}
 	return compile(raw)
 }
@@ -350,15 +355,15 @@ func weightOf(raw any) (float64, error) {
 
 // reservedInName is what a category, folder or field name may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
-// call, braces delimit the token, '/' starts a reference, and a bracket would be
-// misread by the command line as a JSON array. A name carrying one is rejected
-// where it is authored rather than where it would be unreachable.
-const reservedInName = ".|({}/[]"
+// call, braces delimit the token, '/' starts a reference, and brackets and a quote
+// open a JSON value. A name carrying one is rejected where it is authored rather
+// than where it would be unreachable.
+const reservedInName = ".|({}/[]\""
 
 // reservedList spells reservedInName for an error message, so the two cannot drift.
 var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
 
-// checkName rejects a name the dot path, {token} and CLI grammars cannot spell.
+// checkName rejects a name the dot path, {token} and JSON grammars cannot spell.
 // Both a category or folder and a field go through it, so there is one answer to
 // what a name may contain.
 func checkName(name string) error {
@@ -366,7 +371,7 @@ func checkName(name string) error {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
 	}
 	if i := strings.IndexAny(name, reservedInName); i >= 0 {
-		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and CLI grammars reserve",
+		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
 			name, name[i:i+1], reservedList)
 	}
 	return nil
