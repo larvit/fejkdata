@@ -360,6 +360,9 @@ tokens add cost in proportion to the output.
 7. **Zero dependencies** — standard library only.
 8. **Docs index the grammar** — every syntax feature is a heading; every example
    runs under test and shows its output; a rule is stated once.
+9. **Fast enough to be free** — a value renders in about a microsecond and `New`
+   parses and validates the whole set once upfront, so generating fixtures stays
+   noise against a test's own runtime.
 
 ## Decisions
 
@@ -451,6 +454,12 @@ tokens add cost in proportion to the output.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
+- **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
+  is deterministic across machines, so a ±10% ceiling does not flake under CI load,
+  while time varies with the machine and its neighbours. A rendering slowdown
+  almost always costs an allocation too (a lost pre-size, a per-item map, an extra
+  copy). The benchmark suite (see Development) reports time for a human, not as a
+  pass/fail gate.
 
 ## Development
 
