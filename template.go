@@ -164,6 +164,9 @@ func checkArm(name string, fields map[string]node) error {
 		if isOption(a.key) {
 			return fmt.Errorf("%q is an option and can never be a field", a.key)
 		}
+		if len(fields) == 0 {
+			return fmt.Errorf("no field %q; a token names a sibling field, and a bare string has none — write {/%s} to reference the data", a.key, name)
+		}
 		return fmt.Errorf("no field %q", a.key)
 	}
 	if err := checkPath(head, a.tail, a.key); err != nil {

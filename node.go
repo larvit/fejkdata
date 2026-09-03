@@ -87,8 +87,22 @@ func compileItem(v any) (node, error) {
 	case map[string]any:
 		return compileTemplate(v)
 	default:
-		return nil, fmt.Errorf("unsupported node type %T", v)
+		return nil, fmt.Errorf("a template value must be a string, a list or an object, not %s", jsonKind(v))
 	}
+}
+
+// jsonKind names a JSON value a template cannot hold, in the data format's own
+// terms rather than the decoding library's.
+func jsonKind(v any) string {
+	switch v.(type) {
+	case float64:
+		return "a number"
+	case bool:
+		return "a boolean"
+	case nil:
+		return "null"
+	}
+	return fmt.Sprintf("%T", v)
 }
 
 func compileString(s string) (node, error) {

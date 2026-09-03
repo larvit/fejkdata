@@ -25,12 +25,13 @@ const usage = `Usage: fejkdata [flags] <path|template>
 
   <path>                 a category, or a dotted path into one (person, person.last)
   <template>             a format string or JSON value to render inline, e.g.
-                         'name: {/sv_SE.person.last}' or '{"format":"{x}","x":[1,2]}'
+                         'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
 
 An argument containing a { token, or a JSON object or array, is a template; any
 other argument is a path (a path never contains a brace). Templates reach the data
 with a reference: {/sv_SE.person.first} from the root, whether the data is shipped
-or layered with --data-path.
+or layered with --data-path. A [ that is not valid JSON names no template and no
+path.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
   -h, --help             print this help, then exit
@@ -229,13 +230,16 @@ func (in invocation) options() []fejkdata.Option {
 func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 	arg := in.paths[0]
 	var draw func() (string, error)
-	if isTemplate(arg) {
+	switch {
+	case isTemplate(arg):
 		t, err := f.NewTemplate(arg)
 		if err != nil {
-			return err
+			return templateError{err}
 		}
 		draw = func() (string, error) { return t.Fake(), nil }
-	} else {
+	case strings.HasPrefix(arg, "["):
+		return templateError{fmt.Errorf("%q starts with [ but is not valid JSON, so it names no template and no path", arg)}
+	default:
 		draw = func() (string, error) { return f.Fake(arg) }
 	}
 	out := bufio.NewWriter(w)
@@ -252,6 +256,13 @@ func (in invocation) write(f *fejkdata.Generator, w io.Writer) error {
 	out.WriteString("\n")
 	return out.Flush()
 }
+
+// templateError marks a render failure that is the argument's own fault — an
+// inline template that does not compile. run reports it as misuse (exit 2, with a
+// pointer to --help), unlike an unknown path, which is a runtime error (exit 1).
+type templateError struct{ error }
+
+func (e templateError) Unwrap() error { return e.error }
 
 // isTemplate reports whether an argument is an inline template rather than a
 // path: a format string carrying a { token, or a JSON object or array. A name may
@@ -299,6 +310,10 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if err := in.write(f, stdout); err != nil {
+		var te templateError
+		if errors.As(err, &te) {
+			return misuse(stderr, te.error)
+		}
 		fmt.Fprintln(stderr, err)
 		return 1
 	}

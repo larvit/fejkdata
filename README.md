@@ -44,8 +44,8 @@ fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
-fejkdata 'name: {/sv_SE.person.last}'          # name: Eriksson (an inline template)
-fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse
+fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
+fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse or name: lina
 ```
 
 A path names a category, or a field inside one: each dot segment descends one

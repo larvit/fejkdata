@@ -62,6 +62,9 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
+	// The fences here and the scoped ones [Generator.NewTemplate] runs are one
+	// sequence split across two entry points; a new fence lands a twin below and
+	// in NewTemplate (see its comment for the one omission, checkNoCycles).
 	if err := linkRefs(root); err != nil {
 		return nil, err
 	}
