@@ -30,56 +30,6 @@ func (f *Generator) Fake(path string) (string, error) {
 	return render(f.rand, n), nil
 }
 
-// Template is an inline template compiled, referenced and validated against a
-// generator's loaded data once, ready to render many times with [Template.Fake].
-// It is safe for concurrent use: Fake serializes on its generator's lock, so a
-// seeded sequence is reproducible only when a generator — and its templates — are
-// drawn from one goroutine.
-type Template struct {
-	g *Generator
-	n node
-}
-
-// Fake renders the template with one draw.
-func (t *Template) Fake() string {
-	t.g.mu.Lock()
-	defer t.g.mu.Unlock()
-	return render(t.g.rand, t.n)
-}
-
-// NewTemplate compiles an inline template — a format string or a JSON value — and
-// binds its references against the loaded tree, so repeated renders pay the
-// compile and validation once. It shares [New]'s guarantees: a bad template errors
-// here, and rendering cannot fail.
-//
-// checkNoCycles is the one fence loadData runs that an inline node does not need:
-// the loaded tree is proven acyclic at [New], the node is a finite tree, and no
-// tree node can reference it, so nothing it renders can reach itself.
-func (f *Generator) NewTemplate(input string) (*Template, error) {
-	n, err := compileInput(input)
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	if err := linkNodeRefs(n, f.categories); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	if err := checkScope(inlineScope(n)); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	return &Template{g: f, n: n}, nil
-}
-
-// FakeTemplate compiles and renders an inline template in one call. It is
-// [NewTemplate] then [Template.Fake]; to render the same template many times, hold
-// the *Template and call its Fake.
-func (f *Generator) FakeTemplate(input string) (string, error) {
-	t, err := f.NewTemplate(input)
-	if err != nil {
-		return "", err
-	}
-	return t.Fake(), nil
-}
-
 // descend walks named fields to the node a path names. It is the one render-side
 // step that can fail, because the path comes from the caller and may name a field
 // that does not exist. A choice consumes no segment, so the rest of the path must

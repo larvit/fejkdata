@@ -25,12 +25,13 @@ fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse or name: l
 
 A path names a category, or a field inside one: each dot segment descends one
 level — folders, then the category (a JSON file), then fields. An argument that is
-a JSON object or array, or that carries a `{` token, is instead an **inline
-template**: a format string or a JSON value compiled and rendered on the spot. Its
-tokens reach the data by reference from the root — `{/sv_SE.person.last}` (or
-`{.name}`, which means the same here), so shipped and `--data-path` categories are
-available — and `{..name}` is rejected, an inline template having no folder to step
-up from. A path never contains a brace, so the two cannot collide (see
+a JSON object, array or string, or that carries a `{` token, is instead an
+**inline template**: a format string or a JSON value compiled and rendered on the
+spot. Its tokens reach the data by reference from the root —
+`{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike
+available. An inline template sits in no folder, so the folder-relative `{.name}`
+and `{..name}` are rejected naming the root spelling. A path never contains a
+brace, a bracket or a quote, so the two cannot collide (see
 [Decisions](#decisions)).
 
 | Flag | |
@@ -46,7 +47,9 @@ up from. A path never contains a brace, so the two cannot collide (see
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](#decisions); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
-dir, unknown path), `2` misuse. From a checkout: `go run ./cmd/fejkdata …`.
+dir, unknown path), `2` misuse — a bad flag, an argument that names neither a
+template nor a path, or an inline template that does not compile. From a checkout:
+`go run ./cmd/fejkdata …`.
 
 ### Your own data
 
@@ -107,8 +110,8 @@ work with no data on disk. A directory is a namespace: each JSON file is a
 category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]` or `/`; dot-prefixed
-entries are skipped, so a data directory can also be a checkout.
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`;
+dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `person`, `phone`, `price`, `sentence`, `ssn`, `time`, `url`, `username`,
@@ -346,8 +349,9 @@ tokens add cost in proportion to the output.
 2. **Text means what it says** — a format renders as written; only `{…}` varies,
    random characters included (`{digits(3)}`). One spelling per result; the wrong
    one is a load error naming the right one.
-3. **Every mistake is a load error** — `New` rejects; `Fake` on a loaded generator
-   fails only for an unknown path.
+3. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
+   the inline template; on a loaded generator `Fake` fails only for an unknown
+   path, and `Template.Fake` cannot fail at all.
 4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
@@ -372,13 +376,24 @@ tokens add cost in proportion to the output.
   naming the double-dash spelling, and `-s=42` is rejected naming both short
   spellings: `=` belongs to the long form, and reading `=42` as the value would
   make `-d=./x` a directory named `=./x`.
-- **An argument is a template by its shape, not by a flag.** A JSON object or
-  array, or a string carrying a `{` token, is an inline template; anything else is
-  a path. A name may not contain a brace or a bracket, so a path can never collide
-  with either spelling, and the `[` of a JSON array is gated on valid JSON so a
-  stray copied bracket never swallows an argument. No `--template` flag is needed.
-  Reserving both brackets — though only a leading `[` could collide — keeps one
-  simple name rule instead of a leading-position special case.
+- **An argument is a template by its shape, not by a flag.** A JSON object, array
+  or string, or a string carrying a `{` token, is an inline template; anything else
+  is a path. A name may not contain a brace, a bracket or a quote, so a path can
+  never collide with any of those spellings, and the leading `[` or `"` is gated on
+  valid JSON so a stray copied bracket never swallows an argument — it names
+  nothing, and says so. No `--template` flag is needed. Reserving the characters
+  whole — though only a leading one could collide — keeps one simple name rule
+  instead of a leading-position special case. The JSON string is what makes the
+  library's own advice reachable: the error for an object holding only a format
+  names `"…"`, and that spelling has to work where it is printed.
+- **A padded JSON argument is rejected, not trimmed.** Padding is the one place the
+  two readings disagree — a format string renders it, JSON drops it — so the
+  spelling that renders is named rather than silently chosen.
+- **`FakeTemplate` and `NewTemplate` both stay.** They reach the same value but not
+  at the same cost: `NewTemplate` pays the compile and validation once and renders
+  many times, `FakeTemplate` is the one-shot call, and `--repeat` is exactly the
+  case that needs the first. The pair is `regexp.MustCompile` and `regexp.Match`,
+  not two spellings of one result.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
@@ -467,6 +482,7 @@ fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 path.go         the dotted-path walk, and proving a path resolves
 render.go       Fake and the recursive renderer (choices, format strings, expansions)
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, and their compile and link
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and its fences
 reference.go    reference sigils, and binding references across the tree

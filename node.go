@@ -136,24 +136,6 @@ func (t *template) compileFormat() error {
 	return checkNoRepeatedRead(t.format, c, t.refs)
 }
 
-// compileInput compiles an inline template: a JSON value, or a bare format string
-// when the input is not JSON. A JSON string literal and a bare string compile
-// alike (both are a template with no fields); the other JSON scalars — a number,
-// bool or null — are no template, so they are rejected here, as a data file that
-// was one would be at load. Padding is where the two readings would disagree — a
-// format string renders it, JSON drops it — so a padded JSON value is rejected
-// naming the one that renders.
-func compileInput(input string) (node, error) {
-	var raw any
-	if err := json.Unmarshal([]byte(input), &raw); err != nil {
-		return compile(input)
-	}
-	if trimmed := strings.TrimSpace(input); trimmed != input {
-		return nil, fmt.Errorf("a JSON template may not be padded with spaces, which a format string would render; write %s", trimmed)
-	}
-	return compile(raw)
-}
-
 func compileChoice(items []any) (node, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("empty choice")

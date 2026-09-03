@@ -110,28 +110,6 @@ func linkTemplateRefs(folder []string, path string, t *template, root map[string
 	return nil
 }
 
-// linkNodeRefs binds the references in an inline node's templates against the
-// loaded tree. An inline template sits in no folder, so . and .. name nothing and
-// are rejected for the root spelling they would otherwise silently mean.
-func linkNodeRefs(n node, root map[string]node) error {
-	return eachNode(n, "template", func(path string, m node) error {
-		t, ok := m.(*template)
-		if !ok {
-			return nil
-		}
-		for _, name := range refTokens(t.format) {
-			sigil, rest, err := refShape(name)
-			if err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
-			}
-			if sigil != "/" {
-				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", path, name, rest)
-			}
-		}
-		return linkTemplateRefs(nil, path, t, root)
-	})
-}
-
 // eachTemplate calls fn once per template, with the folder its category sits in
 // and the dot path reaching it, folders and names in sorted order.
 func eachTemplate(root map[string]node, fn func(folder []string, path string, t *template) error) error {
