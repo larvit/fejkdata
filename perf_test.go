@@ -7,14 +7,7 @@ import (
 	"testing/fstest"
 )
 
-// The renderer's cost scales with the shape it renders: a deep nest descends one
-// level per field, a wide format expands one token per field. The ceiling tests
-// below pin the allocations one render costs for those shapes, so a change that
-// adds a per-level or per-token allocation (a lost pre-size, a per-item map, an
-// extra copy) fails unless the baseline is bumped as a deliberate decision.
-
-// nestedJSON nests a template depth times: each level's format renders its field
-// "a", which is the next template down, so one Fake call recurses depth levels.
+// One Fake call descends depth levels: each level's "a" is the next template down.
 func nestedJSON(depth int) string {
 	s := `"leaf"`
 	for i := 0; i < depth; i++ {
@@ -23,8 +16,7 @@ func nestedJSON(depth int) string {
 	return s
 }
 
-// wideTokenJSON is one format with n sibling fields, so one Fake call expands n
-// tokens.
+// One Fake call expands n sibling tokens.
 func wideTokenJSON(n int) string {
 	var toks, fields strings.Builder
 	for i := 0; i < n; i++ {
@@ -37,11 +29,6 @@ func wideTokenJSON(n int) string {
 	return fmt.Sprintf(`{"format":"%s",%s}`, toks.String(), fields.String())
 }
 
-// TestNoRenderAllocRegression fails when a render allocates more than 10% past its
-// recorded baseline. Allocations are deterministic across machines, so this gate
-// cannot flake under CI load the way a wall-clock ceiling would; a real slowdown
-// almost always costs an allocation too. Raising a baseline here is a deliberate
-// "we accept this cost" decision.
 func TestNoRenderAllocRegression(t *testing.T) {
 	shapes := []struct {
 		name string
@@ -64,8 +51,6 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// A few depth/width benchmarks so the time trend stays visible next to the
-// allocation gate.
 func BenchmarkNestedDepth25(b *testing.B)  { benchPath(b, tmpData(b, "deep", nestedJSON(25)), "deep") }
 func BenchmarkNestedDepth100(b *testing.B) { benchPath(b, tmpData(b, "deep", nestedJSON(100)), "deep") }
 func BenchmarkWideTokens100(b *testing.B) {
