@@ -76,6 +76,14 @@ func TestFakeTemplateDeterministic(t *testing.T) {
 	}
 }
 
+func TestBareStringReferenceHint(t *testing.T) {
+	f := shipped(t)
+	_, err := f.FakeTemplate(`{sv_SE.person.last}`)
+	if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
+		t.Fatalf("FakeTemplate(bare token) = %v, want a hint naming {/sv_SE.person.last}", err)
+	}
+}
+
 func TestFakeTemplateErrors(t *testing.T) {
 	f := shipped(t)
 	for _, c := range []struct {

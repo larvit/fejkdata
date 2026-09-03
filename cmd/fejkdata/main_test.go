@@ -333,6 +333,20 @@ func TestRunInlineTemplate(t *testing.T) {
 	}
 }
 
+func TestRunTemplateMisuse(t *testing.T) {
+	for _, arg := range []string{
+		"{bad",            // unterminated brace
+		"[red,green]",     // a near-miss JSON array (unquoted strings)
+		`{"format":"x"}`,  // an object holding only a format
+		"{/no.such.path}", // a reference into nothing
+	} {
+		code, out, errb := runOut("--seed", "1", arg)
+		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") {
+			t.Errorf("run(%q) = %d, %q, %q; want misuse naming --help", arg, code, out, errb)
+		}
+	}
+}
+
 func TestRunNoShippedData(t *testing.T) {
 	code, list, errb := runOut("--no-shipped-data", "-d", svSE, "--list")
 	if code != 0 {
