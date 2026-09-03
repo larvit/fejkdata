@@ -27,10 +27,6 @@ func (t *Template) Fake() string {
 // binds its references against the loaded tree, so repeated renders pay the
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
-//
-// checkNoCycles is the one fence loadData runs that an inline node does not need:
-// the loaded tree is proven acyclic at [New], the node is a finite tree, and no
-// tree node can reference it, so nothing it renders can reach itself.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
 	n, err := compileInput(input)
 	if err != nil {
@@ -58,12 +54,7 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 }
 
 // compileInput compiles an inline template: a JSON value, or a bare format string
-// when the input is not JSON. A JSON string literal and a bare string compile
-// alike (both are a template with no fields); the other JSON scalars — a number,
-// bool or null — are no template, so they are rejected here, as a data file that
-// was one would be at load. Padding is where the two readings would disagree — a
-// format string renders it, JSON drops it — so a padded JSON value is rejected
-// naming the one that renders.
+// when the input is not JSON.
 func compileInput(input string) (node, error) {
 	var raw any
 	if err := json.Unmarshal([]byte(input), &raw); err != nil {
@@ -76,8 +67,7 @@ func compileInput(input string) (node, error) {
 }
 
 // linkNodeRefs binds the references in an inline node's templates against the
-// loaded tree. An inline template sits in no folder, so . and .. name nothing and
-// are rejected for the root spelling they would otherwise silently mean.
+// loaded tree.
 func linkNodeRefs(scope nodeScope, root map[string]node) error {
 	return scope(func(path string, m node) error {
 		t, ok := m.(*template)

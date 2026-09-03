@@ -270,11 +270,8 @@ const (
 	argTemplate
 )
 
-// classify reads what a positional argument names by its shape: a format string
-// carrying a { token, or a JSON object, array or string, is an inline template;
-// anything else is a path. A name may hold neither a brace nor a bracket nor a
-// quote, so no path collides with any of those spellings, and the JSON gate is
-// valid-JSON so a copied bracket names nothing rather than swallowing an argument.
+// classify reads what a positional argument names by its shape: a { token, or a
+// JSON object, array or string, is an inline template; anything else is a path.
 func classify(arg string) (argKind, error) {
 	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
 		return argTemplate, nil

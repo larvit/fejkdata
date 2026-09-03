@@ -20,7 +20,7 @@ func walkNodes(root map[string]node, fn func(path string, n node) error) error {
 
 // eachNode visits n and every node contained within it once, passing the dot path
 // that reaches each. It never crosses a reference edge — a bound {/path} field is
-// skipped, as in walkNodes — so a single inline node is walked on its own.
+// skipped — so a single inline node is walked on its own.
 func eachNode(n node, path string, fn func(path string, n node) error) error {
 	seen := map[node]bool{}
 	var visit func(string, node) error

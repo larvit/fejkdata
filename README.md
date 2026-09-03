@@ -386,6 +386,15 @@ tokens add cost in proportion to the output.
   instead of a leading-position special case. The JSON string is what makes the
   library's own advice reachable: the error for an object holding only a format
   names `"…"`, and that spelling has to work where it is printed.
+- **An inline template skips the cycle fence, and only that one.** `New` proves the
+  loaded tree acyclic, an inline node is a finite tree of its own, and nothing in
+  the tree can reference it, so no render of it reaches itself. Every other fence
+  runs over both, from one `checkScope`.
+- **An inline template that does not compile is misuse (exit 2), including a
+  reference that resolves to nothing** — the whole argument is the spelling under
+  test, and `NewTemplate` compiles, links and validates as one step. An unknown
+  *path* stays a runtime error (exit 1): there the argument is well-formed and only
+  the data is absent.
 - **A padded JSON argument is rejected, not trimmed.** Padding is the one place the
   two readings disagree — a format string renders it, JSON drops it — so the
   spelling that renders is named rather than silently chosen.
