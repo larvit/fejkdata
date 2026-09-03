@@ -43,6 +43,31 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 	}
 }
 
+func TestReadmeRecordExample(t *testing.T) {
+	src := readme(t)
+	section := src[strings.Index(src, "### Records"):]
+	section = section[:strings.Index(section, "## Library")]
+	block := jsonBlock.FindStringSubmatch(section)
+	if block == nil {
+		t.Fatal("README lost the Records example")
+	}
+	f, err := New(WithDataPath(writeData(t, map[string]string{"users": block[1]})), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.Record("users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := r.Fields()
+	if len(got) != 2 || got[0].Name != "first" || got[1].Name != "last" {
+		t.Fatalf("record columns = %v, want first, last", got)
+	}
+	if r.CSVHeader() != "first,last" || !strings.HasPrefix(r.SQLInsert("users"), "INSERT INTO users (first, last) VALUES (") {
+		t.Fatalf("serializers = %q, %q, want first,last and an INSERT", r.CSVHeader(), r.SQLInsert("users"))
+	}
+}
+
 func TestReadmeSQLExampleOutput(t *testing.T) {
 	src := readme(t)
 	src = src[strings.Index(src, "### Your own data"):]

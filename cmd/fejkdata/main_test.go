@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/csv"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -447,6 +449,108 @@ func TestRunEmptyDataPathIsNamed(t *testing.T) {
 	code, _, errb := runOut("--data-path=", "sv_SE.word")
 	if code != 1 || !strings.Contains(errb, "empty") {
 		t.Errorf("run(--data-path=) = %d, %q, want the empty path named", code, errb)
+	}
+}
+
+func recordDir(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	content := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"]}`
+	if err := os.WriteFile(filepath.Join(dir, "users.json"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return dir
+}
+
+func TestRunRecordJSON(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "json", "--data-path", recordDir(t), "users")
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	var m map[string]string
+	if err := json.Unmarshal([]byte(strings.TrimSpace(out)), &m); err != nil {
+		t.Fatalf("json output is not one valid JSON object: %v\n%q", err, out)
+	}
+	if len(m) != 2 || m["first"] == "" || m["last"] == "" {
+		t.Fatalf("json output = %q, want first and last columns", out)
+	}
+}
+
+func TestRunRecordCSVRoundTrips(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "csv", "--repeat", "3", "--data-path", recordDir(t), "users")
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	if len(lines) != 4 {
+		t.Fatalf("csv output = %d lines %q, want a header and 3 rows", len(lines), out)
+	}
+	if lines[0] != "first,last" {
+		t.Fatalf("csv header = %q, want first,last", lines[0])
+	}
+	r, err := csv.NewReader(strings.NewReader(out)).ReadAll()
+	if err != nil {
+		t.Fatalf("csv output is not valid CSV: %v", err)
+	}
+	if len(r) != 4 || len(r[0]) != 2 {
+		t.Fatalf("csv parsed to %v, want 4 records of 2 fields", r)
+	}
+}
+
+func TestRunRecordSQL(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "sql", "--repeat", "2", "--table", "people", "--data-path", recordDir(t), "users")
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	if len(lines) != 2 || !strings.HasPrefix(lines[0], "INSERT INTO people (first, last) VALUES (") {
+		t.Fatalf("sql output = %q, want two INSERT INTO people statements", out)
+	}
+}
+
+func TestRunRecordDefaultTable(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "sql", "--data-path", recordDir(t), "users")
+	if code != 0 || !strings.HasPrefix(out, "INSERT INTO users (") {
+		t.Fatalf("default table = %d, %q, want the path's last segment; stderr %q", code, out, errb)
+	}
+}
+
+func TestRunRecordInlineTemplate(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "json", `{"format":"{x}","x":["a","b"]}`)
+	if code != 0 {
+		t.Fatalf("inline record = %d, stderr=%q", code, errb)
+	}
+	var m map[string]string
+	if err := json.Unmarshal([]byte(strings.TrimSpace(out)), &m); err != nil || m["x"] != "a" && m["x"] != "b" {
+		t.Fatalf("inline record json = %q, want a column x (err %v)", out, err)
+	}
+}
+
+func TestRunRecordMisuse(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"--format", "yaml", "users"}, "--format takes text, json, csv or sql"},
+		{[]string{"--format", "json", "--separator", ",", "users"}, "--separator joins text values"},
+		{[]string{"--table", "t", "users"}, "--table names the INSERT target"},
+		{[]string{"--format", "json", "--table", "t", "users"}, "--table names the INSERT target"},
+	} {
+		code, out, errb := runOut(c.args...)
+		if code != 2 || out != "" || !strings.Contains(errb, c.want) {
+			t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
+		}
+	}
+}
+
+func TestRunRecordOnABareValueIsRuntimeError(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "word.json"), []byte(`["a","b"]`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, _, errb := runOut("--format", "json", "--data-path", dir, "word")
+	if code != 1 {
+		t.Fatalf("record on a choice = %d, want exit 1 (runtime error), stderr %q", code, errb)
 	}
 }
 
