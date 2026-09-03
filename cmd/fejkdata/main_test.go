@@ -301,6 +301,21 @@ func TestRunShippedDataByDefault(t *testing.T) {
 	}
 }
 
+func TestRunInlineTemplate(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "name: {/sv_SE.person.last}")
+	if code != 0 || !strings.HasPrefix(out, "name: ") || strings.Contains(out, "{") {
+		t.Fatalf("inline format string = %d, %q, stderr %q", code, out, errb)
+	}
+	code, out, errb = runOut("--seed", "1", `{"format":"name: {x}","x":["bosse","lina"]}`)
+	if code != 0 || (out != "name: bosse\n" && out != "name: lina\n") {
+		t.Fatalf("inline JSON template = %d, %q, want one name, stderr %q", code, out, errb)
+	}
+	code, out, errb = runOut("--seed", "1", "-n", "2", `{digits(1)}`)
+	if code != 0 || len(strings.Split(strings.TrimRight(out, "\n"), "\n")) != 2 {
+		t.Fatalf("inline template with --repeat = %d, %q, stderr %q", code, out, errb)
+	}
+}
+
 func TestRunNoShippedData(t *testing.T) {
 	code, list, errb := runOut("--no-shipped-data", "-d", svSE, "--list")
 	if code != 0 {
