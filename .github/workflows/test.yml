@@ -24,7 +24,7 @@ jobs:
             git fetch --no-tags origin "$GITHUB_BASE_REF"
             base="origin/$GITHUB_BASE_REF"
           else
-            base="HEAD^"
+            base='${{ github.event.before }}'
           fi
           if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data README.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
