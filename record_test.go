@@ -200,6 +200,32 @@ func TestRecordSharesAReferenceIntoAColumnRepeat(t *testing.T) {
 	}
 }
 
+func TestRecordBareReferenceStaysIndependent(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"currency": `[{"format":"{code}","code":"AUD"},{"format":"{code}","code":"EUR"}]`,
+		"order":    `{"format":"","whole":"{/currency}","code":"{/currency.code}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	sawMismatch := false
+	for i := 0; i < 100; i++ {
+		r, err := f.Record("order")
+		if err != nil {
+			t.Fatal(err)
+		}
+		m := map[string]string{}
+		for _, c := range r.Fields() {
+			m[c.Name] = c.Value
+		}
+		if m["whole"] != m["code"] {
+			sawMismatch = true
+			break
+		}
+	}
+	if !sawMismatch {
+		t.Fatal("a bare {/currency} column never disagreed with a tailed {/currency.code} column; a bare reference should draw independently")
+	}
+}
+
 func TestRecordSQLQuotesIdentifiers(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"row": `{"format": "", "postal-code": "1", "street-number": "2"}`,

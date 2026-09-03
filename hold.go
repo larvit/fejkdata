@@ -274,8 +274,7 @@ func readField(s *session, t *template, held, shared *draws, a arm) string {
 		}
 		return renderShared(s, t.fields[a.key], shared)
 	}
-	// A reference names a shared source, so a record shares its draw across the
-	// columns; a sibling field is drawn per expansion as always.
+	// A reference shares its draw across a record's columns; a sibling is per expansion.
 	d := held
 	if isRef(a.key) && shared != nil {
 		d = shared

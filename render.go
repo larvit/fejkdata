@@ -56,8 +56,7 @@ func render(s *session, n node) string {
 }
 
 // renderShared is render with a shared draw context: the draws a record shares
-// across its columns. A nil shared means a standalone render, where a reference
-// is drawn per expansion as it always has been.
+// across its columns; a nil shared is a standalone render.
 func renderShared(s *session, n node, shared *draws) string {
 	switch n := n.(type) {
 	case *choice:
