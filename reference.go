@@ -72,34 +72,54 @@ func refSegments(name string, folder []string) ([]string, error) {
 // error, never a random render-time one.
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
-		names := refTokens(t.format)
-		if len(names) == 0 {
+		return linkTemplateRefs(folder, path, t, root)
+	})
+}
+
+// linkTemplateRefs binds one template's references against root. A template with
+// none is left untouched, so an inline format that references nothing costs only
+// the refTokens scan.
+func linkTemplateRefs(folder []string, path string, t *template, root map[string]node) error {
+	names := refTokens(t.format)
+	if len(names) == 0 {
+		return nil
+	}
+	if t.fields == nil {
+		t.fields = map[string]node{}
+	}
+	t.refs = make(map[string]refBinding, len(names))
+	for _, name := range names {
+		segments, err := refSegments(name, folder)
+		if err != nil {
+			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+		}
+		head, target, tail, err := resolveRef(root, segments)
+		if err != nil {
+			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+		}
+		key := "/" + strings.Join(head, ".")
+		if err := checkPath(target, tail, key); err != nil {
+			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+		}
+		t.fields[key] = target
+		t.refs[name] = refBinding{key, tail}
+	}
+	if err := t.compileFormat(); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	return nil
+}
+
+// linkNodeRefs binds the references in an inline node's templates against the
+// loaded tree. The node has no folder of its own, so every sigil is root-relative:
+// / and . mean the root, .. has no folder above it.
+func linkNodeRefs(n node, root map[string]node) error {
+	return eachNode(n, "template", func(path string, m node) error {
+		t, ok := m.(*template)
+		if !ok {
 			return nil
 		}
-		if t.fields == nil {
-			t.fields = map[string]node{}
-		}
-		t.refs = make(map[string]refBinding, len(names))
-		for _, name := range names {
-			segments, err := refSegments(name, folder)
-			if err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
-			}
-			head, target, tail, err := resolveRef(root, segments)
-			if err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
-			}
-			key := "/" + strings.Join(head, ".")
-			if err := checkPath(target, tail, key); err != nil {
-				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
-			}
-			t.fields[key] = target
-			t.refs[name] = refBinding{key, tail}
-		}
-		if err := t.compileFormat(); err != nil {
-			return fmt.Errorf("%s: %w", path, err)
-		}
-		return nil
+		return linkTemplateRefs(nil, path, t, root)
 	})
 }
 

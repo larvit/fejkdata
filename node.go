@@ -122,6 +122,18 @@ func (t *template) compileFormat() error {
 	return checkNoRepeatedRead(t.format, c, t.refs)
 }
 
+// compileInput compiles an inline template: a JSON value, or a bare format string
+// when the input is not JSON. A format string is a template with no fields, so a
+// string that is itself valid JSON (a JSON string literal) and a bare string
+// compile alike.
+func compileInput(input string) (node, error) {
+	var raw any
+	if err := json.Unmarshal([]byte(input), &raw); err != nil {
+		return compile(input)
+	}
+	return compile(raw)
+}
+
 func compileChoice(items []any) (node, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("empty choice")

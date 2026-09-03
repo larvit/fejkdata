@@ -10,29 +10,36 @@ import (
 // visiting keys in sorted order so which of several broken nodes gets reported does
 // not depend on map iteration.
 func walkNodes(root map[string]node, fn func(path string, n node) error) error {
-	seen := map[node]bool{}
-	var visit func(string, node) error
-	visit = func(path string, n node) error {
-		if n == nil || seen[n] {
-			return nil
-		}
-		seen[n] = true
-		if err := fn(path, n); err != nil {
+	for _, name := range sortedNames(root) {
+		if err := eachNode(root[name], name, fn); err != nil {
 			return err
 		}
-		for _, c := range contained(n) {
+	}
+	return nil
+}
+
+// eachNode visits n and every node contained within it once, passing the dot path
+// that reaches each. It never crosses a reference edge — a bound {/path} field is
+// skipped, as in walkNodes — so a single inline node is walked on its own.
+func eachNode(n node, path string, fn func(path string, n node) error) error {
+	seen := map[node]bool{}
+	var visit func(string, node) error
+	visit = func(path string, m node) error {
+		if m == nil || seen[m] {
+			return nil
+		}
+		seen[m] = true
+		if err := fn(path, m); err != nil {
+			return err
+		}
+		for _, c := range contained(m) {
 			if err := visit(join(path, c.name), c.node); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	for _, name := range sortedNames(root) {
-		if err := visit(name, root[name]); err != nil {
-			return err
-		}
-	}
-	return nil
+	return visit(path, n)
 }
 
 // namedNode is a contained child and the segment reaching it; a choice's items carry
@@ -162,30 +169,46 @@ func pathLeaves(n node, tail []string) []node {
 // path, so nested repeats cannot build what one repeat may not. It runs after
 // checkNoCycles, whose guarantee is what lets the walk terminate.
 func checkRepeatReach(root map[string]node) error {
-	reach := map[node]int{}
-	var of func(n node) int
-	of = func(n node) int {
-		if r, done := reach[n]; done {
-			return r
-		}
-		r := 1
-		for _, e := range renderEdges(n) {
-			if c := of(e.to); c > r {
-				r = c
-			}
-		}
-		if t, ok := n.(*template); ok {
-			r *= t.repeat
-		}
-		reach[n] = r
+	mem := reachMemo{}
+	return walkNodes(root, func(path string, n node) error {
+		return repeatCheck(path, n, mem)
+	})
+}
+
+// checkNodeRepeatReach is checkRepeatReach for one inline node: each template in
+// it is bounded, following reference edges into the already-validated tree the same
+// way a repeat through a reference multiplies along a path.
+func checkNodeRepeatReach(n node) error {
+	mem := reachMemo{}
+	return eachNode(n, "template", func(path string, m node) error {
+		return repeatCheck(path, m, mem)
+	})
+}
+
+type reachMemo map[node]int
+
+func (m reachMemo) of(n node) int {
+	if r, done := m[n]; done {
 		return r
 	}
-	return walkNodes(root, func(path string, n node) error {
-		if t, ok := n.(*template); ok && t.repeat > 1 && of(n) > MaxRepeat {
-			return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, of(n), MaxRepeat)
+	r := 1
+	for _, e := range renderEdges(n) {
+		if c := m.of(e.to); c > r {
+			r = c
 		}
-		return nil
-	})
+	}
+	if t, ok := n.(*template); ok {
+		r *= t.repeat
+	}
+	m[n] = r
+	return r
+}
+
+func repeatCheck(path string, n node, mem reachMemo) error {
+	if t, ok := n.(*template); ok && t.repeat > 1 && mem.of(n) > MaxRepeat {
+		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.of(n), MaxRepeat)
+	}
+	return nil
 }
 
 // checkNoCycles rejects a reference cycle: a node whose rendering can reach itself

@@ -30,6 +30,32 @@ func (f *Generator) Fake(path string) (string, error) {
 	return render(f.rand, n), nil
 }
 
+// FakeTemplate renders an inline template — a format string or a JSON value — the
+// way a category's data is compiled and rendered, references reaching the loaded
+// tree with {/path}. It shares [Fake]'s lock: an inline node is compiled and
+// referenced per draw, so a seeded sequence is reproducible when drawn from one
+// goroutine.
+func (f *Generator) FakeTemplate(input string) (string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	n, err := compileInput(input)
+	if err != nil {
+		return "", fmt.Errorf("fejkdata: %w", err)
+	}
+	if err := linkNodeRefs(n, f.categories); err != nil {
+		return "", fmt.Errorf("fejkdata: %w", err)
+	}
+	// No cycle is possible: a reference binds only into the loaded tree, which has
+	// no path into this node, so rendering it cannot reach itself.
+	if err := checkNodeRepeatReach(n); err != nil {
+		return "", fmt.Errorf("fejkdata: %w", err)
+	}
+	if err := checkNodeBoundLevelsHeld(n); err != nil {
+		return "", fmt.Errorf("fejkdata: %w", err)
+	}
+	return render(f.rand, n), nil
+}
+
 // descend walks named fields to the node a path names. It is the one render-side
 // step that can fail, because the path comes from the caller and may name a field
 // that does not exist. A choice consumes no segment, so the rest of the path must

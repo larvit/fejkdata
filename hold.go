@@ -15,18 +15,30 @@ import (
 // It runs after checkNoCycles, whose guarantee is what lets the walk terminate.
 func checkBoundLevelsHeld(root map[string]node) error {
 	return walkNodes(root, func(path string, n node) error {
-		t, ok := n.(*template)
-		if !ok || len(t.held) == 0 {
-			return nil
-		}
-		readers := boundReaders(t.format, t.bound, t.refs)
-		for _, head := range heldHeads(t) {
-			if err := checkHeadHeld(t, head, readers); err != nil {
-				return fmt.Errorf("%s: %w", path, err)
-			}
-		}
-		return nil
+		return heldCheck(path, n)
 	})
+}
+
+// checkNodeBoundLevelsHeld is checkBoundLevelsHeld for one inline node: the same
+// held fence, over its own templates and the shared tree they reference.
+func checkNodeBoundLevelsHeld(n node) error {
+	return eachNode(n, "template", func(path string, m node) error {
+		return heldCheck(path, m)
+	})
+}
+
+func heldCheck(path string, n node) error {
+	t, ok := n.(*template)
+	if !ok || len(t.held) == 0 {
+		return nil
+	}
+	readers := boundReaders(t.format, t.bound, t.refs)
+	for _, head := range heldHeads(t) {
+		if err := checkHeadHeld(t, head, readers); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+	}
+	return nil
 }
 
 // heldHeads lists a template's held names, operand heads first, then paths, each
