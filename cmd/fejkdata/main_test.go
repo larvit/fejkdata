@@ -305,7 +305,6 @@ func TestClassify(t *testing.T) {
 	for arg, want := range map[string]argKind{
 		"sv_SE.person":   argPath,
 		"person.last":    argPath,
-		`"abc`:           argPath,     // a quote opening no JSON string is part of a name
 		"name: {x}":      argTemplate, // a { token: a path can never carry a brace
 		`{"format":"x"}`: argTemplate,
 		`["a","b"]`:      argTemplate, // a JSON array carries no brace
@@ -317,9 +316,17 @@ func TestClassify(t *testing.T) {
 			t.Errorf("classify(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
-	for _, arg := range []string{"[abc]", "[abc].field", "x[1]", "a]b"} {
-		if _, err := classify(arg); err == nil {
-			t.Errorf("classify(%q) = no error; want the bracket rejected", arg)
+	for arg, want := range map[string]string{
+		"[abc]":       `holds a "["`,
+		"[abc].field": `holds a "["`,
+		"x[1]":        `holds a "["`,
+		"a]b":         `holds a "]"`,
+		`"abc`:        `holds a "\""`,
+		`"a]b`:        `holds a "\""`, // the opener the reader typed, not the bracket behind it
+	} {
+		_, err := classify(arg)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("classify(%q) = %v; want it rejected naming %s", arg, err, want)
 		}
 	}
 }
