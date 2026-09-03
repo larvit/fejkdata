@@ -460,13 +460,6 @@ tokens add cost in proportion to the output.
   almost always costs an allocation too (a lost pre-size, a per-item map, an extra
   copy). The benchmark suite (see Development) reports time for a human, not as a
   pass/fail gate.
-- **The gate runs only when something it consumes changes.** A PR that touches
-  none of the Go and module files, the Dockerfile, `.dockerignore`, the
-  workflow, the shipped data nor the README skips `docker build` and passes
-  as-is — those are what the build feeds or the tests read (`data_test.go` and
-  `loading_test.go` load `data/`, `readme_test.go` renders every README
-  example), so any other change is a verdict already decided, and waiting would
-  be idle. The check still reports success, so the merge gate stays whole.
 
 ## Development
 
