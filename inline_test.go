@@ -94,7 +94,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`"{x}"`, `no field "x"`},
 		{`"{digits(0)}"`, "must be positive"},
 		{`name: {/no.such.path}`, "no entry"},
-		{`name: {..nope}`, "no folder above"},
+		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
 		{`{/misc.country} {/misc.country.alpha2}`, "renders a level"},
 	} {
@@ -102,6 +102,23 @@ func TestFakeTemplateErrors(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeTemplate(%q) = %v, want an error containing %q", c.input, err, c.want)
 		}
+	}
+}
+
+func TestFakeTemplateJSONString(t *testing.T) {
+	f := shipped(t)
+	got := tmpl(t, f, `"name: {/sv_SE.person.last}"`)
+	if !strings.HasPrefix(got, "name: ") || strings.Contains(got, "{") {
+		t.Fatalf("FakeTemplate(JSON string) = %q, want a rendered last name after the prefix", got)
+	}
+}
+
+func TestPaddedJSONIsRejected(t *testing.T) {
+	f := shipped(t)
+	in := `{"format":"{x}","x":["a","b"]}`
+	_, err := f.NewTemplate("  " + in + "  ")
+	if err == nil || !strings.Contains(err.Error(), "write "+in) {
+		t.Fatalf("NewTemplate(padded JSON) = %v, want an error naming the unpadded spelling", err)
 	}
 }
 

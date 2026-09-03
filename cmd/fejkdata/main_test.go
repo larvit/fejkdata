@@ -301,20 +301,33 @@ func TestRunShippedDataByDefault(t *testing.T) {
 	}
 }
 
-func TestIsTemplate(t *testing.T) {
-	for arg, want := range map[string]bool{
-		"sv_SE.person":   false,
-		"person.last":    false,
-		"[abc]":          false, // a [ that is not valid JSON is not a template
-		"[abc].field":    false,
-		"name: {x}":      true, // a { token: a path can never carry a brace
-		`{"format":"x"}`: true,
-		`["a","b"]`:      true, // a JSON array carries no brace
-		`[1, 2]`:         true,
+func TestClassify(t *testing.T) {
+	for arg, want := range map[string]argKind{
+		"sv_SE.person":   argPath,
+		"person.last":    argPath,
+		`"abc`:           argPath,     // a quote opening no JSON string is part of a name
+		"name: {x}":      argTemplate, // a { token: a path can never carry a brace
+		`{"format":"x"}`: argTemplate,
+		`["a","b"]`:      argTemplate, // a JSON array carries no brace
+		`[1, 2]`:         argTemplate,
+		`"hello"`:        argTemplate, // a JSON string, the spelling a format-only object names
 	} {
-		if got := isTemplate(arg); got != want {
-			t.Errorf("isTemplate(%q) = %v, want %v", arg, got, want)
+		got, err := classify(arg)
+		if err != nil || got != want {
+			t.Errorf("classify(%q) = %v, %v; want %v", arg, got, err, want)
 		}
+	}
+	for _, arg := range []string{"[abc]", "[abc].field", "x[1]", "a]b"} {
+		if _, err := classify(arg); err == nil {
+			t.Errorf("classify(%q) = no error; want the bracket rejected", arg)
+		}
+	}
+}
+
+func TestRunShapeMisuseBeforeLoad(t *testing.T) {
+	code, _, errb := runOut("--no-shipped-data", "[abc]")
+	if code != 2 || !strings.Contains(errb, "[abc]") || strings.Contains(errb, "--data-path") {
+		t.Fatalf("shape misuse with no data = %d, %q; want the shape error before any load", code, errb)
 	}
 }
 
@@ -326,6 +339,10 @@ func TestRunInlineTemplate(t *testing.T) {
 	code, out, errb = runOut("--seed", "1", `{"format":"name: {x}","x":["bosse","lina"]}`)
 	if code != 0 || (out != "name: bosse\n" && out != "name: lina\n") {
 		t.Fatalf("inline JSON template = %d, %q, want one name, stderr %q", code, out, errb)
+	}
+	code, out, errb = runOut("--seed", "1", `"name: {/sv_SE.person.last}"`)
+	if code != 0 || !strings.HasPrefix(out, "name: ") || strings.Contains(out, "{") {
+		t.Fatalf("inline JSON string = %d, %q, stderr %q", code, out, errb)
 	}
 	code, out, errb = runOut("--seed", "1", "-n", "2", `{digits(1)}`)
 	if code != 0 || len(strings.Split(strings.TrimRight(out, "\n"), "\n")) != 2 {
@@ -339,10 +356,14 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"[red,green]",     // a near-miss JSON array (unquoted strings)
 		`{"format":"x"}`,  // an object holding only a format
 		"{/no.such.path}", // a reference into nothing
+		"x[1]",            // a bracket no path may hold
 	} {
 		code, out, errb := runOut("--seed", "1", arg)
 		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") {
 			t.Errorf("run(%q) = %d, %q, %q; want misuse naming --help", arg, code, out, errb)
+		}
+		if strings.Contains(errb, "fejkdata: fejkdata:") {
+			t.Errorf("run(%q) doubled the program prefix: %q", arg, errb)
 		}
 	}
 }

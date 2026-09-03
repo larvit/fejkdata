@@ -275,8 +275,6 @@ func TestNewErrors(t *testing.T) {
 			map[string]string{"a|b": `"1"`},
 			`category "a|b" contains "|"`,
 		},
-		// A bracket is not a token-grammar character, but the CLI reads an argument
-		// starting with [ as a JSON array, so a name carrying one would be misread.
 		"field name with a bracket": {
 			map[string]string{"a": `{"format":"{x}","x":"1","b[c":"2"}`},
 			`field "b[c" contains "["`,
@@ -284,6 +282,10 @@ func TestNewErrors(t *testing.T) {
 		"category name with a bracket": {
 			map[string]string{"[abc]": `"1"`},
 			`category "[abc]" contains "["`,
+		},
+		"field name with a quote": {
+			map[string]string{"a": `{"format":"{x}","x":"1","b\"c":"2"}`},
+			`field "b\"c" contains "\""`,
 		},
 		// An empty name is not a path segment, so List never offered it — while a
 		// bare {}, a trailing dot in Fake("a.") and a {/a.} reference all reached

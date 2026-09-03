@@ -47,3 +47,13 @@ func TestInertObjectIsRejected(t *testing.T) {
 		}
 	}
 }
+
+func TestInlineFolderSigilsAreRejected(t *testing.T) {
+	f := shipped(t)
+	for _, input := range []string{"{.sv_SE.person.last}", "{..sv_SE.person.last}"} {
+		_, err := f.NewTemplate(input)
+		if err == nil || !strings.Contains(err.Error(), "write {/sv_SE.person.last}") {
+			t.Errorf("NewTemplate(%q) = %v, want an error naming the root spelling", input, err)
+		}
+	}
+}
