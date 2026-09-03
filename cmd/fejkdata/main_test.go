@@ -303,14 +303,14 @@ func TestRunShippedDataByDefault(t *testing.T) {
 
 func TestIsTemplate(t *testing.T) {
 	for arg, want := range map[string]bool{
-		"sv_SE.person":      false,
-		"person.last":       false,
-		"[abc]":             false, // a [ can open a real category name; not JSON
-		"[abc].field":       false,
-		"name: {x}":         true, // a { token: a path can never carry a brace
-		`{"format":"x"}`:    true,
-		`["a","b"]`:         true, // a JSON array carries no brace
-		`[1, 2]`:            true,
+		"sv_SE.person":   false,
+		"person.last":    false,
+		"[abc]":          false, // a [ that is not valid JSON is not a template
+		"[abc].field":    false,
+		"name: {x}":      true, // a { token: a path can never carry a brace
+		`{"format":"x"}`: true,
+		`["a","b"]`:      true, // a JSON array carries no brace
+		`[1, 2]`:         true,
 	} {
 		if got := isTemplate(arg); got != want {
 			t.Errorf("isTemplate(%q) = %v, want %v", arg, got, want)

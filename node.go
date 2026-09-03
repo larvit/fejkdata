@@ -123,9 +123,10 @@ func (t *template) compileFormat() error {
 }
 
 // compileInput compiles an inline template: a JSON value, or a bare format string
-// when the input is not JSON. A format string is a template with no fields, so a
-// string that is itself valid JSON (a JSON string literal) and a bare string
-// compile alike.
+// when the input is not JSON. A JSON string literal and a bare string compile
+// alike (both are a template with no fields); the other JSON scalars — a number,
+// bool or null — are no template, so they are rejected here, as a data file that
+// was one would be at load.
 func compileInput(input string) (node, error) {
 	var raw any
 	if err := json.Unmarshal([]byte(input), &raw); err != nil {

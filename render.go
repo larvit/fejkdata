@@ -37,7 +37,7 @@ type Template struct {
 	n node
 }
 
-// Fake renders the template with one draws.
+// Fake renders the template with one draw.
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()

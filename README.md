@@ -383,6 +383,8 @@ tokens add cost in proportion to the output.
   a path. A name may not contain a brace or a bracket, so a path can never collide
   with either spelling, and the `[` of a JSON array is gated on valid JSON so a
   stray copied bracket never swallows an argument. No `--template` flag is needed.
+  Reserving both brackets — though only a leading `[` could collide — keeps one
+  simple name rule instead of a leading-position special case.
 - **The shipped data is embedded, not discovered.** A directory a machine happens
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
