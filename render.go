@@ -52,15 +52,22 @@ func descend(s *session, root node, segments []string) (node, error) {
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail.
 func render(s *session, n node) string {
+	return renderShared(s, n, nil)
+}
+
+// renderShared is render with a shared draw context: the draws a record shares
+// across its columns. A nil shared means a standalone render, where a reference
+// is drawn per expansion as it always has been.
+func renderShared(s *session, n node, shared *draws) string {
 	switch n := n.(type) {
 	case *choice:
-		return render(s, pick(s, n))
+		return renderShared(s, pick(s, n), shared)
 	case *template:
 		if n.repeat == 1 {
 			if n.fixed {
 				return n.lit
 			}
-			return expand(s, n)
+			return expand(s, n, shared)
 		}
 		var b strings.Builder
 		b.Grow(n.repeat * (n.grow + len(n.separator)))
@@ -68,7 +75,7 @@ func render(s *session, n node) string {
 			if i > 0 {
 				b.WriteString(n.separator)
 			}
-			b.WriteString(expand(s, n))
+			b.WriteString(expand(s, n, shared))
 		}
 		return b.String()
 	default:
@@ -90,11 +97,12 @@ func pick(r rng, c *choice) node {
 
 // expand renders a template's compiled ops. compile validated every token, so this
 // cannot fail.
-func expand(s *session, t *template) string {
+func expand(s *session, t *template, shared *draws) string {
 	var b strings.Builder
 	b.Grow(t.grow)
 	// One draw per held name, for this expansion only: a nested template and each
-	// repeat iteration get their own, since each is its own expansion.
+	// repeat iteration get their own, since each is its own expansion. A shared
+	// draw context, when a record supplies one, overrides that for references.
 	var held *draws
 	if len(t.held) > 0 {
 		held = &draws{
@@ -108,7 +116,7 @@ func expand(s *session, t *template) string {
 		case 'l':
 			b.WriteString(o.lit)
 		case 'f':
-			b.WriteString(readField(s, t, held, o.arms[s.IntN(len(o.arms))]))
+			b.WriteString(readField(s, t, held, shared, o.arms[s.IntN(len(o.arms))]))
 		case 'b':
 			// Read before the call, so the value a calc computes is the value the
 			// format showed. calcVars fixed the order op.operands holds.
@@ -116,7 +124,7 @@ func expand(s *session, t *template) string {
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))
 				for j, a := range o.operands {
-					operands[j] = readField(s, t, held, a)
+					operands[j] = readField(s, t, held, shared, a)
 				}
 			}
 			b.WriteString(o.call(s, b.String(), operands)) // b.String() is the output so far

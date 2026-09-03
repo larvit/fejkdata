@@ -63,7 +63,7 @@ func TestReadmeRecordExample(t *testing.T) {
 	if len(got) != 2 || got[0].Name != "first" || got[1].Name != "last" {
 		t.Fatalf("record columns = %v, want first, last", got)
 	}
-	if r.CSVHeader() != "first,last" || !strings.HasPrefix(r.SQLInsert("users"), "INSERT INTO users (first, last) VALUES (") {
+	if r.CSVHeader() != "first,last" || !strings.HasPrefix(r.SQLInsert("users"), `INSERT INTO "users" ("first", "last") VALUES (`) {
 		t.Fatalf("serializers = %q, %q, want first,last and an INSERT", r.CSVHeader(), r.SQLInsert("users"))
 	}
 }

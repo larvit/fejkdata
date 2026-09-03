@@ -503,14 +503,14 @@ func TestRunRecordSQL(t *testing.T) {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
 	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
-	if len(lines) != 2 || !strings.HasPrefix(lines[0], "INSERT INTO people (first, last) VALUES (") {
+	if len(lines) != 2 || !strings.HasPrefix(lines[0], `INSERT INTO "people" ("first", "last") VALUES (`) {
 		t.Fatalf("sql output = %q, want two INSERT INTO people statements", out)
 	}
 }
 
 func TestRunRecordDefaultTable(t *testing.T) {
 	code, out, errb := runOut("--seed", "1", "--format", "sql", "--data-path", recordDir(t), "users")
-	if code != 0 || !strings.HasPrefix(out, "INSERT INTO users (") {
+	if code != 0 || !strings.HasPrefix(out, `INSERT INTO "users" (`) {
 		t.Fatalf("default table = %d, %q, want the path's last segment; stderr %q", code, out, errb)
 	}
 }

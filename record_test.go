@@ -73,7 +73,7 @@ func TestRecordErrors(t *testing.T) {
 		want string
 	}{
 		{"bare", "has no fields, so no columns"},
-		{"pick", "does not name a record"},
+		{"pick", "names a choice"},
 		{"group", "names a folder"},
 		{"nope", "no entry"},
 	} {
@@ -134,8 +134,53 @@ func TestRecordSQLInsert(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := r.SQLInsert("people")
-	if got != "INSERT INTO people (last) VALUES ('O''Brien');" {
-		t.Fatalf("SQLInsert() = %q, want the single quote doubled", got)
+	if got != `INSERT INTO "people" ("last") VALUES ('O''Brien');` {
+		t.Fatalf("SQLInsert() = %q, want quoted identifiers and the single quote doubled", got)
+	}
+}
+
+func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€"}]`,
+		"price":    `{"format":"","code":"{/currency.code}","symbol":"{/currency.symbol}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for i := 0; i < 100; i++ {
+		r, err := f.Record("price")
+		if err != nil {
+			t.Fatal(err)
+		}
+		m := map[string]string{}
+		for _, c := range r.Fields() {
+			m[c.Name] = c.Value
+		}
+		switch m["code"] {
+		case "AUD":
+			if m["symbol"] != "$" {
+				t.Fatalf("record %q: code AUD but symbol %q, want one currency draw across columns", r.JSON(), m["symbol"])
+			}
+		case "EUR":
+			if m["symbol"] != "€" {
+				t.Fatalf("record %q: code EUR but symbol %q, want one currency draw across columns", r.JSON(), m["symbol"])
+			}
+		default:
+			t.Fatalf("record %q has unexpected code %q", r.JSON(), m["code"])
+		}
+	}
+}
+
+func TestRecordSQLQuotesIdentifiers(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"row": `{"format": "", "postal-code": "1", "street-number": "2"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	r, err := f.Record("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := r.SQLInsert("my-table")
+	if got != `INSERT INTO "my-table" ("postal-code", "street-number") VALUES ('1', '2');` {
+		t.Fatalf("SQLInsert() = %q, want hyphenated identifiers and table quoted", got)
 	}
 }
 

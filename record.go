@@ -71,16 +71,20 @@ func csvLine(cols []string) string {
 	return strings.TrimSuffix(b.String(), "\n")
 }
 
-// SQLInsert renders the record as one INSERT statement into table, every column a
-// single-quoted string literal.
+// SQLInsert renders the record as one INSERT statement into table: identifiers in
+// ANSI double quotes, every value a single-quoted string literal.
 func (r *Record) SQLInsert(table string) string {
 	cols := make([]string, len(r.fields))
 	vals := make([]string, len(r.fields))
 	for i, f := range r.fields {
-		cols[i] = f.Name
+		cols[i] = quoteIdent(f.Name)
 		vals[i] = "'" + strings.ReplaceAll(f.Value, "'", "''") + "'"
 	}
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", table, strings.Join(cols, ", "), strings.Join(vals, ", "))
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", quoteIdent(table), strings.Join(cols, ", "), strings.Join(vals, ", "))
+}
+
+func quoteIdent(s string) string {
+	return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 }
 
 // Record renders a path as one record: the template it names, with each direct
@@ -98,7 +102,7 @@ func (f *Generator) Record(path string) (*Record, error) {
 	}
 	t, ok := n.(*template)
 	if !ok {
-		return nil, fmt.Errorf("fejkdata: %s does not name a record; it has no fields to project", path)
+		return nil, fmt.Errorf("fejkdata: %s names a choice, not a template; only a category-level template is a record", path)
 	}
 	r := renderRecord(f.rand, t)
 	if len(r.fields) == 0 {
@@ -156,11 +160,13 @@ func (f *Generator) FakeRecord(input string) (*Record, error) {
 
 // renderRecord projects a template's direct fields as columns, drawn once each,
 // in name order. A {/path} binding is a render edge, not a column, so it is
-// skipped the same way List and the graph do.
+// skipped the same way List and the graph do. The columns share one draw context,
+// so two columns that reference one category read one draw of it.
 func renderRecord(s *session, t *template) *Record {
+	shared := &draws{variant: map[string]node{}, value: map[string]string{}}
 	r := &Record{}
 	for _, name := range recordColumns(t) {
-		r.fields = append(r.fields, Field{Name: name, Value: render(s, t.fields[name])})
+		r.fields = append(r.fields, Field{Name: name, Value: renderShared(s, t.fields[name], shared)})
 	}
 	return r
 }

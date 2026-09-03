@@ -93,17 +93,28 @@ the whole. `--format json|csv|sql` streams a record per line; the library's
 ```
 
 ```sh
-fejkdata --format json users                      # {"first":"Ada","last":"Lovelace"}
-fejkdata --format csv  users                      # first,last  →  Ada,Lovelace
-fejkdata --format sql  users                      # INSERT INTO users (first, last) VALUES ('Ada', 'Lovelace');
-fejkdata --format json --repeat 3 users           # three objects, one per line
+fejkdata --format json users                        # {"first":"Ada","last":"Lovelace"}
+fejkdata --format csv  users                        # first,last  →  Ada,Lovelace
+fejkdata --format sql  users                        # INSERT INTO "users" ("first", "last") VALUES ('Ada', 'Lovelace');
+fejkdata --format json --repeat 3 users             # three objects, one per line
 fejkdata --format sql --table people users          # INSERT into another table
 ```
 
 `--repeat` streams that many records — a JSON object per line, a CSV row per
-line after a header, an INSERT per line in SQL. Columns render independently, each
-a fresh draw, in name order. A column is a string, and each format quotes it as
-such; see [Decisions](#decisions) for the typed-scalar and struct-filling scope.
+line after a header, an INSERT per line in SQL. Only a category-level template is
+a record; a field, choice or folder errors. Column identifiers are double-quoted
+in SQL, so a hyphenated field like `postal-code` stays valid. A column is a
+string, and each format quotes it as such; see [Decisions](#decisions) for the
+typed-scalar, correlation and struct-filling scope.
+
+A record written only to emit columns still needs a `format` — the grammar's one
+required key — so `"format": ""` carries the fields with an inert format: it
+renders nothing by `Fake`, and is compiled only so the tree's fences still run.
+The columns are the point, and their facts stay together: two columns that
+reference one category — `{/currency.code}` and `{/currency.symbol}` — share one
+draw of it, so the record is internally consistent. A field hold, transform or
+operand ties fields together within one column as always (see
+[Correlated fields](#correlated-fields) and [Decisions](#decisions)).
 
 ## Library
 
@@ -498,13 +509,21 @@ tokens add cost in proportion to the output.
   template's `format` composes its fields into one string; `Record` and
   `--format` project the same fields as columns. Two views of one dataset, so a
   record author writes the same JSON they already know, and a column is the same
-  field `Fake` renders by dotted path.
+  field `Fake` renders by dotted path. The `format` is inert to a record — a
+  record-only template writes `"format": ""` — but it is compiled and fenced, so
+  a template that loads renders as whichever shape is asked for.
 - **Records emit text; typed scalars are out.** Every value fejkdata yields is a
   string, so JSON, CSV and SQL each quote a column as text (`"42"`, `'42'`) rather
   than guess a number or a boolean. Emitting unquoted numbers or booleans would
   need a per-column `kind`, a parallel scalar system in a format whose promise is
   "text means what it says". A column's check digit, number or id is still
   valid-by-construction through a builtin; it is serialized as text.
+- **A record's columns share one reference draw.** Two columns that reference one
+  category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of it,
+  so a record's facts agree the way a template's [correlated
+  fields](#correlated-fields) do. Only references share across columns: a sibling
+  field is local to its own column, so `first` does not silently bind to a
+  `first` in the column next to it.
 - **Filling a Go struct is out of scope.** `Record.Fields()` returns the columns a
   caller maps onto a struct themselves. gofakeit's `fake:"{firstname}"` tags
   reflect over an arbitrary struct type and cast into its fields — a different

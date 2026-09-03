@@ -718,6 +718,6 @@ func TestReadFieldPanicsOnAnUnheldPath(t *testing.T) {
 		t.Fatal("not a template")
 	}
 	mustPanic(t, "unheld arm with a path", func() {
-		readField(engine(1).rand, tm, nil, arm{name: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
+		readField(engine(1).rand, tm, nil, nil, arm{name: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
 	})
 }

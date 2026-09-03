@@ -267,14 +267,20 @@ type draws struct {
 // gives one value, and a shown operand is the operand computed. Every other name is
 // drawn afresh, so {word} {word} still draws twice. checkTokens, checkPath and
 // linkRefs prove every step, so the walk cannot fail.
-func readField(s *session, t *template, held *draws, a arm) string {
+func readField(s *session, t *template, held, shared *draws, a arm) string {
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
 		}
-		return render(s, t.fields[a.key])
+		return renderShared(s, t.fields[a.key], shared)
 	}
-	if v, read := held.value[a.path]; read {
+	// A reference names a shared source, so a record shares its draw across the
+	// columns; a sibling field is drawn per expansion as always.
+	d := held
+	if isRef(a.key) && shared != nil {
+		d = shared
+	}
+	if v, read := d.value[a.path]; read {
 		return v
 	}
 	var v string
@@ -286,16 +292,16 @@ func readField(s *session, t *template, held *draws, a arm) string {
 			if consumed := len(a.tail) - len(rest); consumed > 0 {
 				key = a.steps[consumed-1]
 			}
-			n, drew := held.variant[key]
+			n, drew := d.variant[key]
 			if !drew {
 				n = drawn(s, c)
-				held.variant[key] = n
+				d.variant[key] = n
 			}
 			return []node{n}, nil
 		},
-		leaf: func(n node) error { v = render(s, n); return nil },
+		leaf: func(n node) error { v = renderShared(s, n, shared); return nil },
 	})
-	held.value[a.path] = v
+	d.value[a.path] = v
 	return v
 }
 
