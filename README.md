@@ -125,9 +125,13 @@ required key — so `"format": ""` carries the fields with an inert format: it
 renders nothing by `Fake`, and is compiled only so the tree's fences still run.
 The columns are the point, and their facts stay together: two columns that
 reference one category — `{/currency.code}` and `{/currency.symbol}` — share one
-draw of it, so the record is internally consistent. A field hold, transform or
-operand ties fields together within one column as always (see
-[Correlated fields](#correlated-fields) and [Decisions](#decisions)).
+draw of it, so the record is internally consistent. That one draw is also why two
+columns may not read overlapping reference paths — `{/cat.a}` beside `{/cat.a.b}`
+is refused, naming the fields to write instead, exactly as
+[One draw, one spelling](#one-draw-one-spelling) refuses the pair inside a single
+format. A field hold, transform or operand ties fields together within one column
+as always (see [Correlated fields](#correlated-fields) and
+[Decisions](#decisions)).
 
 ## Library
 

@@ -216,9 +216,7 @@ type recordFormat struct {
 	line   func(r *fejkdata.Record, table string) string
 }
 
-// recordFormats is every --format that writes records. Adding one is this entry
-// alone: the flag check reads the same table the writer dispatches through, so a
-// format cannot be accepted and then not written.
+// recordFormats is every --format that writes records.
 var recordFormats = map[string]recordFormat{
 	"csv":  {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }},
 	"json": {line: func(r *fejkdata.Record, _ string) string { return r.JSON() }},
@@ -244,6 +242,9 @@ func formatNames() string {
 func (in invocation) checkFlags() error {
 	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
 		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
+	}
+	if in.tableSet && in.table == "" {
+		return errors.New("--table names the INSERT target, so it cannot be empty")
 	}
 	if in.tableSet && in.format != "sql" {
 		return errors.New("--table names the INSERT target, so it needs --format sql")

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -15,9 +16,8 @@ type Column struct {
 }
 
 // Record is one record rendered from a template: every direct field is a column,
-// drawn independently and listed in name order. The template's format is the
-// string a [Generator.Fake] call renders; a record is its inverse — each field
-// projected as a column instead of composed.
+// listed in name order. Each column is its own expansion, so a sibling field is
+// local to it, while a reference is drawn once for the whole record.
 type Record struct {
 	columns []Column
 }
@@ -68,7 +68,11 @@ func csvLine(cols []string) string {
 	w := csv.NewWriter(&b)
 	_ = w.Write(cols)
 	w.Flush()
-	return strings.TrimSuffix(b.String(), "\n")
+	line := strings.TrimSuffix(b.String(), "\n")
+	if line == "" {
+		return `""` // a blank line is a row every CSV reader drops
+	}
+	return line
 }
 
 // SQLInsert renders the record as one INSERT statement into table: identifiers in
@@ -145,10 +149,8 @@ func (f *Generator) FakeRecord(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// recordOf is the fence both record entry points pass: the node is a template, it
-// carries no repeat — which composes the format rather than projecting columns —
-// and it offers at least one column. The columns come back with it, fixed for
-// every draw the caller goes on to make.
+// recordOf is the fence both record entry points pass. The columns come back with
+// the template, fixed for every draw the caller goes on to make.
 func recordOf(n node) (*template, []string, error) {
 	t, ok := n.(*template)
 	if !ok {
@@ -161,7 +163,69 @@ func recordOf(n node) (*template, []string, error) {
 	if len(columns) == 0 {
 		return nil, nil, errors.New("has no fields, so no columns")
 	}
+	if err := checkColumnRefs(t, columns); err != nil {
+		return nil, nil, err
+	}
 	return t, columns, nil
+}
+
+// checkColumnRefs rejects two reference reads that overlap across a record's
+// columns: one renders a level the other reads a path into, and the record's one
+// draw of that level cannot answer for both. checkNoOverlap settles the pair
+// within a single format; the record's shared scope is what carries it across
+// columns, so the same pair is settled here. A bare reference holds nothing, so it
+// is not collected and keeps drawing on its own.
+func checkColumnRefs(t *template, columns []string) error {
+	reads := columnRefs(t, columns)
+	sort.Slice(reads, func(i, j int) bool {
+		if reads[i].a.path != reads[j].a.path {
+			return reads[i].a.path < reads[j].a.path
+		}
+		return reads[i].column < reads[j].column
+	})
+	for i, level := range reads {
+		for _, into := range reads[i+1:] {
+			if strings.HasPrefix(into.a.path, level.a.path+".") {
+				return fmt.Errorf("column %q renders {%s}, a level column %q reads a path into with {%s}; name the fields you want instead",
+					level.column, level.a.name, into.column, into.a.name)
+			}
+		}
+	}
+	return nil
+}
+
+// columnRef is one held reference read, and the column whose render reaches it.
+type columnRef struct {
+	column string
+	a      arm
+}
+
+// columnRefs lists every held reference read anywhere a column renders, following
+// the same edges expand does.
+func columnRefs(t *template, columns []string) []columnRef {
+	var out []columnRef
+	for _, name := range columns {
+		seen := map[node]bool{}
+		var walk func(n node)
+		walk = func(n node) {
+			if n == nil || seen[n] {
+				return
+			}
+			seen[n] = true
+			if tm, ok := n.(*template); ok {
+				for _, r := range boundReaders(tm.format, tm.bound, tm.refs) {
+					if a := splitArm(r.name, tm.refs); isRef(a.key) && len(a.tail) > 0 {
+						out = append(out, columnRef{name, a})
+					}
+				}
+			}
+			for _, e := range renderEdges(n) {
+				walk(e.to)
+			}
+		}
+		walk(t.fields[name])
+	}
+	return out
 }
 
 // renderRecord draws each column once, in the name order recordOf fixed. The
