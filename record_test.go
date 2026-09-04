@@ -152,9 +152,9 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 	cat := `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
 	for _, c := range []struct{ name, row string }{
 		{"sibling columns", `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`},
-		{"through a nested template", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}"}}`},
+		{"through a nested template", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b} {x}","x":"1"}}`},
 		{"through a column repeat", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
-		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b}"},{"format":"{/cat.a.b}!"}]}`},
+		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b} {x}","x":"1"},{"format":"{/cat.a.b}! {x}","x":"2"}]}`},
 		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
 	} {
 		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
@@ -169,6 +169,17 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 		if _, err := f.Fake("row"); err != nil {
 			t.Errorf("%s: Fake(row) = %v, want the string view untouched", c.name, err)
 		}
+	}
+}
+
+func TestInlineRecordRejectsOverlappingColumns(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"cat": `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	_, err := f.FakeRecord(`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`)
+	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+		t.Fatalf("inline record over an overlapping pair = %v, want the inline entry point to refuse it too", err)
 	}
 }
 
@@ -361,7 +372,6 @@ func TestInlineRecordErrors(t *testing.T) {
 		{`"hello"`, "has no fields, so no columns"},
 		{`["a","b"]`, "a record is a template whose fields are its columns"},
 		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
-		{`{"format":"","whole":"{/cur.code}","inner":"{/cur.code.x}"}`, "reads a path into"},
 	} {
 		if _, err := f.FakeRecord(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeRecord(%q) = %v, want an error naming %q", c.input, err, c.want)

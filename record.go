@@ -17,7 +17,8 @@ type Column struct {
 
 // Record is one record rendered from a template: every direct field is a column,
 // listed in name order. Each column is its own expansion, so a sibling field is
-// local to it, while a reference is drawn once for the whole record.
+// local to it, while a reference that reads a path is drawn once for the whole
+// record.
 type Record struct {
 	columns []Column
 }
@@ -104,11 +105,35 @@ func (f *Generator) Record(path string) (*Record, error) {
 	if len(tail) > 0 {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
-	t, columns, err := recordOf(n)
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
+	shape := f.recordShapeOf(n)
+	if shape.err != nil {
+		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
 	}
-	return renderRecord(f.rand, t, columns), nil
+	return renderRecord(f.rand, shape.t, shape.columns), nil
+}
+
+// recordShape is what recordOf settled about a node: the template to project, its
+// columns, or why it is not a record.
+type recordShape struct {
+	t       *template
+	columns []string
+	err     error
+}
+
+// recordShapeOf fences a node once and remembers the answer. The fences read the
+// compiled tree, which New fixed, so a repeated Record call on one path pays them
+// once rather than per draw. Callers hold the generator's lock.
+func (f *Generator) recordShapeOf(n node) recordShape {
+	if shape, done := f.records[n]; done {
+		return shape
+	}
+	t, columns, err := recordOf(n)
+	shape := recordShape{t: t, columns: columns, err: err}
+	if f.records == nil {
+		f.records = map[node]recordShape{}
+	}
+	f.records[n] = shape
+	return shape
 }
 
 // RecordTemplate is an inline record compiled, referenced and validated once,
@@ -169,14 +194,14 @@ func recordOf(n node) (*template, []string, error) {
 	return t, columns, nil
 }
 
-// checkColumnRefs rejects two reference reads that overlap across a record's
-// columns: one renders a level the other reads a path into, and the record's one
-// draw of that level cannot answer for both. checkNoOverlap settles the pair
-// within a single format; the record's shared scope is what carries it across
-// columns, so the same pair is settled here. A bare reference holds nothing, so it
-// is not collected and keeps drawing on its own.
+// checkColumnRefs rejects the reference reads a record's shared draw cannot answer
+// for: one column rendering a level another reads a path into, and a column
+// reading the record back through its own path.
 func checkColumnRefs(t *template, columns []string) error {
-	reads := columnRefs(t, columns)
+	reads, err := columnRefs(t, columns)
+	if err != nil {
+		return err
+	}
 	sort.Slice(reads, func(i, j int) bool {
 		if reads[i].a.path != reads[j].a.path {
 			return reads[i].a.path < reads[j].a.path
@@ -200,21 +225,32 @@ type columnRef struct {
 	a      arm
 }
 
-// columnRefs lists every held reference read anywhere a column renders, following
-// the same edges expand does.
-func columnRefs(t *template, columns []string) []columnRef {
+// columnRefs lists every reference read that reads a path, anywhere a column
+// renders, following the same edges expand does. A read that lands back on the
+// record itself names a sibling column, which no draw of the record can answer
+// for, so it is reported here rather than collected.
+func columnRefs(t *template, columns []string) ([]columnRef, error) {
 	var out []columnRef
+	var err error
 	for _, name := range columns {
 		seen := map[node]bool{}
 		var walk func(n node)
 		walk = func(n node) {
-			if n == nil || seen[n] {
+			if n == nil || seen[n] || err != nil {
 				return
 			}
 			seen[n] = true
 			if tm, ok := n.(*template); ok {
 				for _, r := range boundReaders(tm.format, tm.bound, tm.refs) {
-					if a := splitArm(r.name, tm.refs); isRef(a.key) && len(a.tail) > 0 {
+					a := splitArm(r.name, tm.refs)
+					if !isRef(a.key) {
+						continue
+					}
+					if tm.fields[a.key] == node(t) {
+						err = fmt.Errorf("column %q reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", name, a.name)
+						return
+					}
+					if len(a.tail) > 0 {
 						out = append(out, columnRef{name, a})
 					}
 				}
@@ -225,12 +261,11 @@ func columnRefs(t *template, columns []string) []columnRef {
 		}
 		walk(t.fields[name])
 	}
-	return out
+	return out, err
 }
 
-// renderRecord draws each column once, in the name order recordOf fixed. The
-// columns share one reference scope, so two columns that reference one category
-// read one draw of it.
+// renderRecord draws each column once, in the name order recordOf fixed, over one
+// reference scope shared across them.
 func renderRecord(s *session, t *template, columns []string) *Record {
 	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
 	r := &Record{columns: make([]Column, len(columns))}

@@ -45,6 +45,7 @@ type Generator struct {
 	mu         sync.Mutex
 	rand       *session
 	categories map[string]node
+	records    map[node]recordShape
 }
 
 // session is one generator's mutable render state: the seeded rng plus the {seq()}

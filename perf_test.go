@@ -51,6 +51,25 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
+// A record's fences read the compiled tree, so they belong to New, not to a draw.
+// A per-draw walk costs allocations in proportion to the tree; this pins that the
+// count does not move with the column count.
+func TestNoRecordAllocRegression(t *testing.T) {
+	for _, s := range []struct{ name, json string }{
+		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},
+		{"record 50 columns", wideTokenJSON(50)},
+	} {
+		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
+		if err != nil {
+			t.Fatalf("New(%s): %v", s.name, err)
+		}
+		const base = 4.0
+		if allocs := testing.AllocsPerRun(10000, func() { f.Record("x") }); allocs > base*1.10 {
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
+		}
+	}
+}
+
 func BenchmarkNestedDepth25(b *testing.B)  { benchPath(b, tmpData(b, "deep", nestedJSON(25)), "deep") }
 func BenchmarkNestedDepth100(b *testing.B) { benchPath(b, tmpData(b, "deep", nestedJSON(100)), "deep") }
 func BenchmarkWideTokens100(b *testing.B) {

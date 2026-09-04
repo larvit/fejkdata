@@ -274,10 +274,10 @@ func readField(s *session, t *template, held, refScope *draws, a arm) string {
 		}
 		return render(s, t.fields[a.key], refScope)
 	}
-	// A reference reads the caller's scope, so its draw outlives this expansion; a
-	// sibling stays local to it.
+	// A reference that reads a path reads the caller's scope, so its draw outlives
+	// this expansion; a sibling, and a reference read whole, stay local to it.
 	d := held
-	if isRef(a.key) && refScope != nil {
+	if isRef(a.key) && refScope != nil && len(a.tail) > 0 {
 		d = refScope
 	}
 	if v, read := d.value[a.path]; read {
