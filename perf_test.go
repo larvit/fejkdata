@@ -52,8 +52,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 }
 
 // A record's fences read the compiled tree, so they belong to New, not to a draw.
-// A per-draw walk costs allocations in proportion to the tree; this pins that the
-// count does not move with the column count.
+// A per-draw walk costs allocations in proportion to the tree.
 func TestNoRecordAllocRegression(t *testing.T) {
 	for _, s := range []struct{ name, json string }{
 		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},
@@ -62,6 +61,9 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
 		if err != nil {
 			t.Fatalf("New(%s): %v", s.name, err)
+		}
+		if _, err := f.Record("x"); err != nil {
+			t.Fatalf("Record(%s): %v", s.name, err) // else the gate would measure the error path
 		}
 		const base = 4.0
 		if allocs := testing.AllocsPerRun(10000, func() { f.Record("x") }); allocs > base*1.10 {

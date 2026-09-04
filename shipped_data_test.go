@@ -108,6 +108,10 @@ func TestFakeIsSafeForConcurrentUse(t *testing.T) {
 					return
 				}
 				f.List()
+				if _, err := f.Record("sv_SE.person"); err != nil {
+					t.Error(err)
+					return
+				}
 				tmpl, err := f.NewTemplate("{/sv_SE.person.last}")
 				if err != nil {
 					t.Error(err)
