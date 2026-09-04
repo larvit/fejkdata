@@ -123,9 +123,10 @@ string and a backslash as an escape.
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: it
 renders nothing by `Fake`, and is compiled only so the tree's fences still run.
-The columns are the point, and their facts stay together: two columns that
-reference one category — `{/currency.code}` and `{/currency.symbol}` — share one
-draw of it, so the record is internally consistent. That one draw is also why two
+The columns are the point, and their facts stay together: two columns that read a
+path into one category — `{/currency.code}` and `{/currency.symbol}` — share one
+draw of it, so the record is internally consistent. A bare `{/currency}` names no
+field, so it keeps drawing on its own. That one draw is also why two
 columns may not read overlapping reference *paths* — `{/cat.a}` beside
 `{/cat.a.b}` is refused, naming the fields to write instead, as
 [One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single

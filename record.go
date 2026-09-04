@@ -120,9 +120,8 @@ type recordShape struct {
 	err     error
 }
 
-// recordShapeOf fences a node once and remembers the answer. The fences read the
-// compiled tree, which New fixed, so a repeated Record call on one path pays them
-// once rather than per draw. Callers hold the generator's lock.
+// recordShapeOf fences a node once and remembers the answer. Callers hold the
+// generator's lock.
 func (f *Generator) recordShapeOf(n node) recordShape {
 	if shape, done := f.records[n]; done {
 		return shape
@@ -225,10 +224,10 @@ type columnRef struct {
 	a      arm
 }
 
-// columnRefs lists every reference read that reads a path, anywhere a column
-// renders, following the same edges expand does. A read that lands back on the
-// record itself names a sibling column, which no draw of the record can answer
-// for, so it is reported here rather than collected.
+// columnRefs lists every reference that reads a path, anywhere a column renders,
+// following the same edges expand does. A reference landing back on the record
+// itself is reported rather than collected, whether it reads a path or the record
+// whole: either way the column describes a draw other than its neighbours'.
 func columnRefs(t *template, columns []string) ([]columnRef, error) {
 	var out []columnRef
 	var err error
@@ -241,11 +240,8 @@ func columnRefs(t *template, columns []string) ([]columnRef, error) {
 			}
 			seen[n] = true
 			if tm, ok := n.(*template); ok {
-				for _, r := range boundReaders(tm.format, tm.bound, tm.refs) {
-					a := splitArm(r.name, tm.refs)
-					if !isRef(a.key) {
-						continue
-					}
+				for _, ref := range refTokens(tm.format) {
+					a := splitArm(ref, tm.refs)
 					if tm.fields[a.key] == node(t) {
 						err = fmt.Errorf("column %q reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", name, a.name)
 						return
