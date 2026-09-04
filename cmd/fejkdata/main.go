@@ -225,8 +225,8 @@ var recordFormats = map[string]recordFormat{
 	"sql":  {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }},
 }
 
-// recordFormat reports whether the format writes records rather than plain text.
-func (in invocation) recordFormat() bool {
+// writesRecords reports whether the format writes records rather than plain text.
+func (in invocation) writesRecords() bool {
 	return in.format != "text"
 }
 
@@ -248,7 +248,7 @@ func (in invocation) checkFlags() error {
 	if in.tableSet && in.format != "sql" {
 		return errors.New("--table names the INSERT target, so it needs --format sql")
 	}
-	if in.recordFormat() && in.separatorSet {
+	if in.writesRecords() && in.separatorSet {
 		return errors.New("--separator joins text values, so it has no effect with --format " + in.format)
 	}
 	return nil
@@ -298,10 +298,6 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 	if err != nil {
 		return err
 	}
-	separator := in.separator
-	if in.recordFormat() {
-		separator = "\n"
-	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
 		v, err := draw()
@@ -309,7 +305,7 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 			return err
 		}
 		if i > 0 {
-			out.WriteString(separator)
+			out.WriteString(in.separator)
 		}
 		out.WriteString(v)
 	}
@@ -320,7 +316,7 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 // draw builds what one render yields: the value's text, or the record's line in
 // the chosen format, the header carried ahead of the first one.
 func (in invocation) draw(f *fejkdata.Generator, kind argKind, arg string) (func() (string, error), error) {
-	if !in.recordFormat() {
+	if !in.writesRecords() {
 		if kind != argTemplate {
 			return func() (string, error) { return f.Fake(arg) }, nil
 		}

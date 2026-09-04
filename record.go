@@ -100,25 +100,26 @@ func (f *Generator) Record(path string) (*Record, error) {
 	if len(tail) > 0 {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
-	t, err := recordOf(n)
+	t, columns, err := recordOf(n)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
 	}
-	return renderRecord(f.rand, t), nil
+	return renderRecord(f.rand, t, columns), nil
 }
 
 // RecordTemplate is an inline record compiled, referenced and validated once,
 // ready to render many times with [RecordTemplate.Fake].
 type RecordTemplate struct {
-	g *Generator
-	t *template
+	g       *Generator
+	t       *template
+	columns []string
 }
 
 // Fake renders the record with one draw.
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderRecord(t.g.rand, t.t)
+	return renderRecord(t.g.rand, t.t, t.columns)
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -128,11 +129,11 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	if err != nil {
 		return nil, err
 	}
-	rt, err := recordOf(t.n)
+	tm, columns, err := recordOf(t.n)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: an inline record %w", err)
 	}
-	return &RecordTemplate{g: f, t: rt}, nil
+	return &RecordTemplate{g: f, t: tm, columns: columns}, nil
 }
 
 // FakeRecord compiles and renders an inline record in one call.
@@ -144,32 +145,33 @@ func (f *Generator) FakeRecord(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// recordOf is the fence both record entry points pass: the node is a
-// category-level template, it carries no repeat — which composes the format
-// rather than projecting columns — and it offers at least one column.
-func recordOf(n node) (*template, error) {
+// recordOf is the fence both record entry points pass: the node is a template, it
+// carries no repeat — which composes the format rather than projecting columns —
+// and it offers at least one column. The columns come back with it, fixed for
+// every draw the caller goes on to make.
+func recordOf(n node) (*template, []string, error) {
 	t, ok := n.(*template)
 	if !ok {
-		return nil, errors.New("names a choice, not a template; only a category-level template is a record")
+		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 	}
 	if t.repeat != 1 {
-		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
+		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if len(recordColumns(t)) == 0 {
-		return nil, errors.New("has no fields, so no columns")
+	columns := recordColumns(t)
+	if len(columns) == 0 {
+		return nil, nil, errors.New("has no fields, so no columns")
 	}
-	return t, nil
+	return t, columns, nil
 }
 
-// renderRecord projects a template's direct fields as columns, drawn once each,
-// in name order. A {/path} binding is a render edge, not a column, so it is
-// skipped the same way List and the graph do. The columns share one reference
-// scope, so two columns that reference one category read one draw of it.
-func renderRecord(s *session, t *template) *Record {
+// renderRecord draws each column once, in the name order recordOf fixed. The
+// columns share one reference scope, so two columns that reference one category
+// read one draw of it.
+func renderRecord(s *session, t *template, columns []string) *Record {
 	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
-	r := &Record{}
-	for _, name := range recordColumns(t) {
-		r.columns = append(r.columns, Column{Name: name, Value: render(s, t.fields[name], scope)})
+	r := &Record{columns: make([]Column, len(columns))}
+	for i, name := range columns {
+		r.columns[i] = Column{Name: name, Value: render(s, t.fields[name], scope)}
 	}
 	return r
 }
