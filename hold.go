@@ -267,17 +267,18 @@ type draws struct {
 // gives one value, and a shown operand is the operand computed. Every other name is
 // drawn afresh, so {word} {word} still draws twice. checkTokens, checkPath and
 // linkRefs prove every step, so the walk cannot fail.
-func readField(s *session, t *template, held, shared *draws, a arm) string {
+func readField(s *session, t *template, held, refScope *draws, a arm) string {
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
 		}
-		return renderShared(s, t.fields[a.key], shared)
+		return render(s, t.fields[a.key], refScope)
 	}
-	// A reference shares its draw across a record's columns; a sibling is per expansion.
+	// A reference reads the caller's scope, so its draw outlives this expansion; a
+	// sibling stays local to it.
 	d := held
-	if isRef(a.key) && shared != nil {
-		d = shared
+	if isRef(a.key) && refScope != nil {
+		d = refScope
 	}
 	if v, read := d.value[a.path]; read {
 		return v
@@ -298,7 +299,7 @@ func readField(s *session, t *template, held, shared *draws, a arm) string {
 			}
 			return []node{n}, nil
 		},
-		leaf: func(n node) error { v = renderShared(s, n, shared); return nil },
+		leaf: func(n node) error { v = render(s, n, refScope); return nil },
 	})
 	d.value[a.path] = v
 	return v

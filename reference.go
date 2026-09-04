@@ -93,7 +93,7 @@ func linkTemplateRefs(folder []string, path string, t *template, root map[string
 		if err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		head, target, tail, err := resolveRef(root, segments)
+		head, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
@@ -146,11 +146,11 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 	return inFolder(nil, root)
 }
 
-// resolveRef walks a reference path through the folders to the category it names,
-// returning that head, the node, and the tail left to read into it. A descent of
-// its own rather than a walkPath: it walks groups only and returns where they end,
-// not a leaf.
-func resolveRef(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
+// resolveCategory walks a dotted path through the folders to the category it
+// names, returning that head, the node, and the tail left to read into it. A
+// descent of its own rather than a walkPath: it walks groups only and returns
+// where they end, not a leaf.
+func resolveCategory(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
 	var n node = &group{children: root}
 	i := 0
 	for ; i < len(segments); i++ {

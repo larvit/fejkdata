@@ -15,6 +15,7 @@ import (
 	"io"
 	"os"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -208,20 +209,41 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
-// recordFormat reports whether the format names a record output (json, csv or
-// sql) rather than the default text.
+// recordFormat is one way to write a record out: the line it renders, and the
+// header that precedes the first one, if the format has one.
+type recordFormat struct {
+	header func(*fejkdata.Record) string
+	line   func(r *fejkdata.Record, table string) string
+}
+
+// recordFormats is every --format that writes records. Adding one is this entry
+// alone: the flag check reads the same table the writer dispatches through, so a
+// format cannot be accepted and then not written.
+var recordFormats = map[string]recordFormat{
+	"csv":  {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }},
+	"json": {line: func(r *fejkdata.Record, _ string) string { return r.JSON() }},
+	"sql":  {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }},
+}
+
+// recordFormat reports whether the format writes records rather than plain text.
 func (in invocation) recordFormat() bool {
-	return in.formatSet && in.format != "text"
+	return in.format != "text"
+}
+
+// formatNames lists the --format values, text included, for the misuse error.
+func formatNames() string {
+	names := []string{"text"}
+	for name := range recordFormats {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return strings.Join(names[:len(names)-1], ", ") + " or " + names[len(names)-1]
 }
 
 // checkFlags rejects a flag value or combination that cannot run.
 func (in invocation) checkFlags() error {
-	if in.formatSet {
-		switch in.format {
-		case "text", "json", "csv", "sql":
-		default:
-			return fmt.Errorf("--format takes text, json, csv or sql, got %q", in.format)
-		}
+	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
+		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
 	}
 	if in.tableSet && in.format != "sql" {
 		return errors.New("--table names the INSERT target, so it needs --format sql")
@@ -272,17 +294,13 @@ func (in invocation) options() []fejkdata.Option {
 // so a render failure comes before anything is written; a write failure surfaces
 // from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) error {
-	arg := in.paths[0]
-	if in.recordFormat() {
-		return in.writeRecords(f, kind, arg, w)
+	draw, err := in.draw(f, kind, in.paths[0])
+	if err != nil {
+		return err
 	}
-	draw := func() (string, error) { return f.Fake(arg) }
-	if kind == argTemplate {
-		t, err := f.NewTemplate(arg)
-		if err != nil {
-			return templateError{err}
-		}
-		draw = func() (string, error) { return t.Fake(), nil }
+	separator := in.separator
+	if in.recordFormat() {
+		separator = "\n"
 	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
@@ -291,7 +309,7 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 			return err
 		}
 		if i > 0 {
-			out.WriteString(in.separator)
+			out.WriteString(separator)
 		}
 		out.WriteString(v)
 	}
@@ -299,40 +317,43 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 	return out.Flush()
 }
 
-// writeRecords streams a record per line in the chosen format: one JSON object
-// per line, a CSV header then a row per line, or one INSERT per line.
-func (in invocation) writeRecords(f *fejkdata.Generator, kind argKind, arg string, w io.Writer) error {
-	draw := func() (*fejkdata.Record, error) { return f.Record(arg) }
+// draw builds what one render yields: the value's text, or the record's line in
+// the chosen format, the header carried ahead of the first one.
+func (in invocation) draw(f *fejkdata.Generator, kind argKind, arg string) (func() (string, error), error) {
+	if !in.recordFormat() {
+		if kind != argTemplate {
+			return func() (string, error) { return f.Fake(arg) }, nil
+		}
+		t, err := f.NewTemplate(arg)
+		if err != nil {
+			return nil, templateError{err}
+		}
+		return func() (string, error) { return t.Fake(), nil }, nil
+	}
+	record := func() (*fejkdata.Record, error) { return f.Record(arg) }
 	if kind == argTemplate {
 		t, err := f.NewRecordTemplate(arg)
 		if err != nil {
-			return templateError{err}
+			return nil, templateError{err}
 		}
-		draw = func() (*fejkdata.Record, error) { return t.Fake(), nil }
+		record = func() (*fejkdata.Record, error) { return t.Fake(), nil }
 	}
-	out := bufio.NewWriter(w)
-	table := in.table
+	format, table, first := recordFormats[in.format], in.table, true
 	if table == "" {
 		table = defaultTable(arg, kind)
 	}
-	for i := 0; i < in.repeat; i++ {
-		r, err := draw()
+	return func() (string, error) {
+		r, err := record()
 		if err != nil {
-			return err
+			return "", err
 		}
-		switch in.format {
-		case "json":
-			fmt.Fprintln(out, r.JSON())
-		case "csv":
-			if i == 0 {
-				fmt.Fprintln(out, r.CSVHeader())
-			}
-			fmt.Fprintln(out, r.CSVLine())
-		case "sql":
-			fmt.Fprintln(out, r.SQLInsert(table))
+		line := format.line(r, table)
+		if first && format.header != nil {
+			line = format.header(r) + "\n" + line
 		}
-	}
-	return out.Flush()
+		first = false
+		return line, nil
+	}, nil
 }
 
 // defaultTable names the INSERT target when --table is absent: the path's last

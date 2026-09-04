@@ -3,13 +3,13 @@ package fejkdata
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"sort"
 	"strings"
 )
 
-// Field is one rendered column of a record.
-type Field struct {
+// Column is one rendered column of a record.
+type Column struct {
 	Name  string
 	Value string
 }
@@ -19,19 +19,19 @@ type Field struct {
 // string a [Generator.Fake] call renders; a record is its inverse — each field
 // projected as a column instead of composed.
 type Record struct {
-	fields []Field
+	columns []Column
 }
 
-// Fields returns the record's columns in name order.
-func (r *Record) Fields() []Field {
-	return append([]Field(nil), r.fields...)
+// Columns returns the record's columns in name order.
+func (r *Record) Columns() []Column {
+	return append([]Column(nil), r.columns...)
 }
 
 // JSON renders the record as one JSON object, every column a string.
 func (r *Record) JSON() string {
-	m := make(map[string]string, len(r.fields))
-	for _, f := range r.fields {
-		m[f.Name] = f.Value
+	m := make(map[string]string, len(r.columns))
+	for _, c := range r.columns {
+		m[c.Name] = c.Value
 	}
 	b, _ := json.Marshal(m)
 	return string(b)
@@ -48,17 +48,17 @@ func (r *Record) CSVLine() string {
 }
 
 func (r *Record) names() []string {
-	out := make([]string, len(r.fields))
-	for i, f := range r.fields {
-		out[i] = f.Name
+	out := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		out[i] = c.Name
 	}
 	return out
 }
 
 func (r *Record) values() []string {
-	out := make([]string, len(r.fields))
-	for i, f := range r.fields {
-		out[i] = f.Value
+	out := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		out[i] = c.Value
 	}
 	return out
 }
@@ -74,11 +74,11 @@ func csvLine(cols []string) string {
 // SQLInsert renders the record as one INSERT statement into table: identifiers in
 // ANSI double quotes, every value a single-quoted string literal.
 func (r *Record) SQLInsert(table string) string {
-	cols := make([]string, len(r.fields))
-	vals := make([]string, len(r.fields))
-	for i, f := range r.fields {
-		cols[i] = quoteIdent(f.Name)
-		vals[i] = "'" + strings.ReplaceAll(f.Value, "'", "''") + "'"
+	cols := make([]string, len(r.columns))
+	vals := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		cols[i] = quoteIdent(c.Name)
+		vals[i] = "'" + strings.ReplaceAll(c.Value, "'", "''") + "'"
 	}
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", quoteIdent(table), strings.Join(cols, ", "), strings.Join(vals, ", "))
 }
@@ -93,60 +93,46 @@ func quoteIdent(s string) string {
 func (f *Generator) Record(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	_, n, tail, err := resolveRef(f.categories, strings.Split(path, "."))
+	_, n, tail, err := resolveCategory(f.categories, strings.Split(path, "."))
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
 	if len(tail) > 0 {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
-	t, ok := n.(*template)
-	if !ok {
-		return nil, fmt.Errorf("fejkdata: %s names a choice, not a template; only a category-level template is a record", path)
+	t, err := recordOf(n)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
 	}
-	r := renderRecord(f.rand, t)
-	if len(r.fields) == 0 {
-		return nil, fmt.Errorf("fejkdata: %s has no fields, so no columns", path)
-	}
-	return r, nil
+	return renderRecord(f.rand, t), nil
 }
 
 // RecordTemplate is an inline record compiled, referenced and validated once,
 // ready to render many times with [RecordTemplate.Fake].
 type RecordTemplate struct {
 	g *Generator
-	n node
+	t *template
 }
 
 // Fake renders the record with one draw.
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderRecord(t.g.rand, t.n.(*template))
+	return renderRecord(t.g.rand, t.t)
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
 // fields — and binds its references against the loaded tree.
 func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
-	n, err := compileInput(input)
+	t, err := f.NewTemplate(input)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
+		return nil, err
 	}
-	t, ok := n.(*template)
-	if !ok {
-		return nil, fmt.Errorf("fejkdata: an inline record is a JSON object with a format and fields, not a choice")
+	rt, err := recordOf(t.n)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: an inline record %w", err)
 	}
-	if len(recordColumns(t)) == 0 {
-		return nil, fmt.Errorf("fejkdata: an inline record needs at least one field to project as a column")
-	}
-	scope := inlineScope(t)
-	if err := linkNodeRefs(scope, f.categories); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	if err := checkScope(scope); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	return &RecordTemplate{g: f, n: t}, nil
+	return &RecordTemplate{g: f, t: rt}, nil
 }
 
 // FakeRecord compiles and renders an inline record in one call.
@@ -158,15 +144,32 @@ func (f *Generator) FakeRecord(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
+// recordOf is the fence both record entry points pass: the node is a
+// category-level template, it carries no repeat — which composes the format
+// rather than projecting columns — and it offers at least one column.
+func recordOf(n node) (*template, error) {
+	t, ok := n.(*template)
+	if !ok {
+		return nil, errors.New("names a choice, not a template; only a category-level template is a record")
+	}
+	if t.repeat != 1 {
+		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
+	}
+	if len(recordColumns(t)) == 0 {
+		return nil, errors.New("has no fields, so no columns")
+	}
+	return t, nil
+}
+
 // renderRecord projects a template's direct fields as columns, drawn once each,
 // in name order. A {/path} binding is a render edge, not a column, so it is
-// skipped the same way List and the graph do. The columns share one draw context,
-// so two columns that reference one category read one draw of it.
+// skipped the same way List and the graph do. The columns share one reference
+// scope, so two columns that reference one category read one draw of it.
 func renderRecord(s *session, t *template) *Record {
-	shared := &draws{variant: map[string]node{}, value: map[string]string{}}
+	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
 	r := &Record{}
 	for _, name := range recordColumns(t) {
-		r.fields = append(r.fields, Field{Name: name, Value: renderShared(s, t.fields[name], shared)})
+		r.columns = append(r.columns, Column{Name: name, Value: render(s, t.fields[name], scope)})
 	}
 	return r
 }
@@ -176,11 +179,10 @@ func renderRecord(s *session, t *template) *Record {
 // name that is not a reference is a column.
 func recordColumns(t *template) []string {
 	var names []string
-	for name := range t.fields {
+	for _, name := range sortedNames(t.fields) {
 		if !isRef(name) {
 			names = append(names, name)
 		}
 	}
-	sort.Strings(names)
 	return names
 }
