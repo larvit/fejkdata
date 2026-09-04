@@ -531,7 +531,7 @@ func TestRunRecordMisuse(t *testing.T) {
 		args []string
 		want string
 	}{
-		{[]string{"--format", "yaml", "users"}, "--format takes text, json, csv or sql"},
+		{[]string{"--format", "yaml", "users"}, "--format takes csv, json, sql or text"},
 		{[]string{"--format", "json", "--separator", ",", "users"}, "--separator joins text values"},
 		{[]string{"--table", "t", "users"}, "--table names the INSERT target"},
 		{[]string{"--format", "json", "--table", "t", "users"}, "--table names the INSERT target"},
@@ -551,6 +551,25 @@ func TestRunRecordOnABareValueIsRuntimeError(t *testing.T) {
 	code, _, errb := runOut("--format", "json", "--data-path", dir, "word")
 	if code != 1 {
 		t.Fatalf("record on a choice = %d, want exit 1 (runtime error), stderr %q", code, errb)
+	}
+}
+
+func TestRunRecordRejectsATopLevelRepeat(t *testing.T) {
+	dir := t.TempDir()
+	content := `{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`
+	if err := os.WriteFile(filepath.Join(dir, "rep.json"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code, _, errb := runOut("--format", "json", "--data-path", dir, "rep")
+	if code != 1 || !strings.Contains(errb, "carries repeat 3") {
+		t.Errorf("record on a repeating path = %d, %q; want exit 1 naming the repeat", code, errb)
+	}
+	code, _, errb = runOut("--format", "json", content)
+	if code != 2 || !strings.Contains(errb, "carries repeat 3") {
+		t.Errorf("record on a repeating inline template = %d, %q; want exit 2 naming the repeat", code, errb)
+	}
+	if code, out, _ := runOut("--seed", "1", "--data-path", dir, "rep"); code != 0 || strings.TrimSpace(out) != "x-|x-|x-" {
+		t.Errorf("text view = %d, %q; want the repeat still composed", code, out)
 	}
 }
 

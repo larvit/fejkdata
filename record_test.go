@@ -25,9 +25,9 @@ func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := r.Fields()
+	got := r.Columns()
 	if len(got) != 2 || got[0].Name != "first" || got[1].Name != "last" {
-		t.Fatalf("Record.Fields() = %v, want columns first, last in name order", got)
+		t.Fatalf("Record.Columns() = %v, want columns first, last in name order", got)
 	}
 	if (got[0].Value != "Ada" && got[0].Value != "Bo") || (got[1].Value != "Lovelace" && got[1].Value != "Ek") {
 		t.Fatalf("columns = %v, want the field values", got)
@@ -55,9 +55,9 @@ func TestRecordSkipsReferenceBindings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := r.Fields()
+	got := r.Columns()
 	if len(got) != 1 || got[0].Name != "id" {
-		t.Fatalf("Record.Fields() = %v, want only the id column (a {/path} is not a column)", got)
+		t.Fatalf("Record.Columns() = %v, want only the id column (a {/path} is not a column)", got)
 	}
 }
 
@@ -96,7 +96,7 @@ func TestRecordJSON(t *testing.T) {
 	if len(m) != 2 || (m["first"] != "Ada" && m["first"] != "Bo") {
 		t.Fatalf("Record.JSON() = %s, want two addressable columns", r.JSON())
 	}
-	for _, f := range r.Fields() {
+	for _, f := range r.Columns() {
 		if m[f.Name] != f.Value {
 			t.Fatalf("JSON column %q = %q, want %q", f.Name, m[f.Name], f.Value)
 		}
@@ -119,7 +119,7 @@ func TestRecordCSV(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CSVLine() is not valid CSV: %v\n%q", err, r.CSVLine())
 	}
-	if len(rec) != 1 || rec[0] != r.Fields()[0].Value {
+	if len(rec) != 1 || rec[0] != r.Columns()[0].Value {
 		t.Fatalf("CSVLine() = %v, want the field value round-tripped", rec)
 	}
 }
@@ -164,7 +164,7 @@ func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 			t.Fatal(err)
 		}
 		m := map[string]string{}
-		for _, c := range r.Fields() {
+		for _, c := range r.Columns() {
 			m[c.Name] = c.Value
 		}
 		switch m["code"] {
@@ -193,9 +193,9 @@ func TestRecordSharesAReferenceIntoAColumnRepeat(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		parts := strings.Split(r.Fields()[0].Value, "-")
+		parts := strings.Split(r.Columns()[0].Value, "-")
 		if len(parts) != 3 || parts[0] != parts[1] || parts[1] != parts[2] {
-			t.Fatalf("codes column = %q, want one shared draw across its repeat", r.Fields()[0].Value)
+			t.Fatalf("codes column = %q, want one shared draw across its repeat", r.Columns()[0].Value)
 		}
 	}
 }
@@ -213,7 +213,7 @@ func TestRecordBareReferenceStaysIndependent(t *testing.T) {
 			t.Fatal(err)
 		}
 		m := map[string]string{}
-		for _, c := range r.Fields() {
+		for _, c := range r.Columns() {
 			m[c.Name] = c.Value
 		}
 		if m["whole"] != m["code"] {
@@ -248,16 +248,16 @@ func TestFakeRecordAndTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("FakeRecord: %v", err)
 	}
-	if len(want.Fields()) != 2 {
-		t.Fatalf("FakeRecord fields = %v, want two columns", want.Fields())
+	if len(want.Columns()) != 2 {
+		t.Fatalf("FakeRecord columns = %v, want two columns", want.Columns())
 	}
 	reusable, err := f.NewRecordTemplate(in)
 	if err != nil {
 		t.Fatalf("NewRecordTemplate: %v", err)
 	}
 	for i := 0; i < 20; i++ {
-		if got := reusable.Fake(); len(got.Fields()) != 2 {
-			t.Fatalf("RecordTemplate.Fake() = %v, want two columns", got.Fields())
+		if got := reusable.Fake(); len(got.Columns()) != 2 {
+			t.Fatalf("RecordTemplate.Fake() = %v, want two columns", got.Columns())
 		}
 	}
 }
@@ -268,11 +268,36 @@ func TestInlineRecordErrors(t *testing.T) {
 		input string
 		want  string
 	}{
-		{`"hello"`, "needs at least one field"},
-		{`["a","b"]`, "a choice"},
+		{`"hello"`, "has no fields, so no columns"},
+		{`["a","b"]`, "names a choice, not a template"},
+		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
 	} {
 		if _, err := f.FakeRecord(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeRecord(%q) = %v, want an error naming %q", c.input, err, c.want)
 		}
+	}
+}
+
+func TestRecordRejectsATopLevelRepeat(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"rep": `{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	if _, err := f.Record("rep"); err == nil || !strings.Contains(err.Error(), "carries repeat 3") {
+		t.Errorf("Record on a repeating template = %v, want an error naming the repeat", err)
+	}
+	if v, err := f.Fake("rep"); err != nil || v != "x-|x-|x-" {
+		t.Errorf("Fake(rep) = %q, %v, want the repeat still composed for the string view", v, err)
+	}
+}
+
+func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
+	f := recordCat(t)
+	in := `{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`
+	if _, err := f.NewRecordTemplate(in); err == nil || !strings.Contains(err.Error(), "carries repeat 3") {
+		t.Errorf("NewRecordTemplate on a repeating template = %v, want an error naming the repeat", err)
+	}
+	if _, err := f.NewTemplate(in); err != nil {
+		t.Errorf("NewTemplate on the same input = %v, want the string view to still compile", err)
 	}
 }

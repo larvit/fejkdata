@@ -38,7 +38,7 @@ func compiled(t *testing.T, s string) node {
 
 func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
-	return render(f.rand, compiled(t, s))
+	return render(f.rand, compiled(t, s), nil)
 }
 
 func TestStringIsAFormat(t *testing.T) {

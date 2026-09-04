@@ -59,7 +59,7 @@ func TestReadmeRecordExample(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got := r.Fields()
+	got := r.Columns()
 	if len(got) != 2 || got[0].Name != "first" || got[0].Value != "Bo" || got[1].Name != "last" || got[1].Value != "Lovelace" {
 		t.Fatalf("record columns = %v, want first=Bo, last=Lovelace with seed 1", got)
 	}
