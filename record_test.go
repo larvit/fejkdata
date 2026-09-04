@@ -108,19 +108,57 @@ func TestRecordCSV(t *testing.T) {
 		"note": `{"format": "{word}, {word}", "word": ["a", "b,c", "d\"e", "f\n"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.Record("note")
+	seen := map[string]bool{}
+	for i := 0; i < 200 && len(seen) < 4; i++ {
+		r, err := f.Record("note")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := r.CSVHeader(); got != "word" {
+			t.Fatalf("CSVHeader() = %q, want word", got)
+		}
+		rec, err := csv.NewReader(strings.NewReader(r.CSVLine() + "\n")).Read()
+		if err != nil {
+			t.Fatalf("CSVLine() is not valid CSV: %v\n%q", err, r.CSVLine())
+		}
+		want := r.Columns()[0].Value
+		if len(rec) != 1 || rec[0] != want {
+			t.Fatalf("CSVLine() = %v, want the field value %q round-tripped", rec, want)
+		}
+		seen[want] = true
+	}
+	if len(seen) != 4 {
+		t.Fatalf("round-tripped %d of the 4 values; the comma, quote and newline shapes must each survive", len(seen))
+	}
+}
+
+func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
+	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`})
+	f := newGenerator(t, dir, WithSeed(1))
+	r, err := f.Record("blank")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := r.CSVHeader(); got != "word" {
-		t.Errorf("CSVHeader() = %q, want word", got)
-	}
-	rec, err := csv.NewReader(strings.NewReader(r.CSVLine() + "\n")).Read()
+	rows, err := csv.NewReader(strings.NewReader(r.CSVHeader() + "\n" + r.CSVLine() + "\n")).ReadAll()
 	if err != nil {
-		t.Fatalf("CSVLine() is not valid CSV: %v\n%q", err, r.CSVLine())
+		t.Fatalf("csv: %v", err)
 	}
-	if len(rec) != 1 || rec[0] != r.Columns()[0].Value {
-		t.Fatalf("CSVLine() = %v, want the field value round-tripped", rec)
+	if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
+		t.Fatalf("one empty column parsed to %v, want a header and one row of one empty field", rows)
+	}
+}
+
+func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"cat": `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`,
+		"row": `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	if _, err := f.Record("row"); err == nil || !strings.Contains(err.Error(), "reads a path into") {
+		t.Fatalf("Record over an overlapping reference pair = %v, want it rejected the way one format is", err)
+	}
+	if _, err := f.Fake("row"); err != nil {
+		t.Errorf("Fake(row) = %v, want the string view untouched", err)
 	}
 }
 

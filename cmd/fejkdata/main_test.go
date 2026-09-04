@@ -535,6 +535,7 @@ func TestRunRecordMisuse(t *testing.T) {
 		{[]string{"--format", "json", "--separator", ",", "users"}, "--separator joins text values"},
 		{[]string{"--table", "t", "users"}, "--table names the INSERT target"},
 		{[]string{"--format", "json", "--table", "t", "users"}, "--table names the INSERT target"},
+		{[]string{"--format", "sql", "--table", "", "users"}, "--table names the INSERT target"},
 	} {
 		code, out, errb := runOut(c.args...)
 		if code != 2 || out != "" || !strings.Contains(errb, c.want) {
