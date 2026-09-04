@@ -35,12 +35,12 @@ or a quote). Templates reach the data by reference from the root —
 argument carrying a bracket, a closing brace or a quote but no valid JSON names
 neither.
 
-With --format json, csv or sql the argument must name a record — a template whose
-fields are its columns — and each render is streamed as one JSON object, one CSV
-row (after a header), or one INSERT.
+With --format json, ndjson, csv or sql the argument must name a record — a
+template whose fields are its columns — and the rows are written as one JSON
+array, one JSON object per line, one CSV row (after a header), or one INSERT.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
-      --format F         output form: text (default), json, csv or sql
+      --format F         output form: text (default), json, ndjson, csv or sql
   -h, --help             print this help, then exit
       --list             list the paths the data offers, then exit
       --no-shipped-data  load only the --data-path directories
@@ -209,19 +209,27 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
-// recordFormat is one way to write a record out: the line it renders, and the
-// header that precedes the first one, if the format has one.
+// recordFormat is one way to write a record out: the line each record renders,
+// the header that precedes the first one, and the open/close frame plus the
+// between-record separator a document form needs.
 type recordFormat struct {
 	header func(*fejkdata.Record) string
 	line   func(r *fejkdata.Record, table string) string
+	open   string
+	close  string
+	sep    string
 }
 
-// recordFormats is every --format that writes records.
+// recordFormats is every --format that writes records. json frames the records
+// as one array document; ndjson is the same column, one object per line.
 var recordFormats = map[string]recordFormat{
-	"csv":  {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }},
-	"json": {line: func(r *fejkdata.Record, _ string) string { return r.JSON() }},
-	"sql":  {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }},
+	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n"},
+	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n"},
+	"ndjson": {line: jsonLine, sep: "\n"},
+	"sql":    {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }, sep: "\n"},
 }
+
+func jsonLine(r *fejkdata.Record, _ string) string { return r.JSON() }
 
 // writesRecords reports whether the format writes records rather than plain text.
 func (in invocation) writesRecords() bool {
@@ -295,7 +303,10 @@ func (in invocation) options() []fejkdata.Option {
 // so a render failure comes before anything is written; a write failure surfaces
 // from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) error {
-	draw, err := in.draw(f, kind, in.paths[0])
+	if in.writesRecords() {
+		return in.writeRecords(f, kind, w)
+	}
+	draw, err := in.textDraw(f, kind, in.paths[0])
 	if err != nil {
 		return err
 	}
@@ -314,43 +325,70 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 	return out.Flush()
 }
 
-// draw builds what one render yields: the value's text, or the record's line in
-// the chosen format, the header carried ahead of the first one.
-func (in invocation) draw(f *fejkdata.Generator, kind argKind, arg string) (func() (string, error), error) {
-	if !in.writesRecords() {
-		if kind != argTemplate {
-			return func() (string, error) { return f.Fake(arg) }, nil
-		}
-		t, err := f.NewTemplate(arg)
-		if err != nil {
-			return nil, templateError{err}
-		}
-		return func() (string, error) { return t.Fake(), nil }, nil
+// textDraw builds what one text render yields: the value, from a path or an
+// inline template.
+func (in invocation) textDraw(f *fejkdata.Generator, kind argKind, arg string) (func() (string, error), error) {
+	if kind != argTemplate {
+		return func() (string, error) { return f.Fake(arg) }, nil
 	}
+	t, err := f.NewTemplate(arg)
+	if err != nil {
+		return nil, templateError{err}
+	}
+	return func() (string, error) { return t.Fake(), nil }, nil
+}
+
+// recordStream builds the record drawer for the argument, plus the INSERT table
+// a sql format names.
+func (in invocation) recordStream(f *fejkdata.Generator, kind argKind, arg string) (func() (*fejkdata.Record, error), string, error) {
 	record := func() (*fejkdata.Record, error) { return f.Record(arg) }
 	if kind == argTemplate {
 		t, err := f.NewRecordTemplate(arg)
 		if err != nil {
-			return nil, templateError{err}
+			return nil, "", templateError{err}
 		}
 		record = func() (*fejkdata.Record, error) { return t.Fake(), nil }
 	}
-	format, table, first := recordFormats[in.format], in.table, true
+	table := in.table
 	if table == "" {
 		table = defaultTable(arg, kind)
 	}
-	return func() (string, error) {
+	return record, table, nil
+}
+
+// writeRecords streams a record per line in the chosen format, framing a document
+// form with its open/close brackets and a header preceding the first record.
+func (in invocation) writeRecords(f *fejkdata.Generator, kind argKind, w io.Writer) error {
+	record, table, err := in.recordStream(f, kind, in.paths[0])
+	if err != nil {
+		return err
+	}
+	format := recordFormats[in.format]
+	out := bufio.NewWriter(w)
+	if format.open != "" {
+		out.WriteString(format.open)
+		out.WriteByte('\n')
+	}
+	for i := 0; i < in.repeat; i++ {
 		r, err := record()
 		if err != nil {
-			return "", err
+			return err
 		}
-		line := format.line(r, table)
-		if first && format.header != nil {
-			line = format.header(r) + "\n" + line
+		if i == 0 && format.header != nil {
+			out.WriteString(format.header(r))
+			out.WriteByte('\n')
 		}
-		first = false
-		return line, nil
-	}, nil
+		if i > 0 {
+			out.WriteString(format.sep)
+		}
+		out.WriteString(format.line(r, table))
+	}
+	if format.close != "" {
+		out.WriteByte('\n')
+		out.WriteString(format.close)
+	}
+	out.WriteByte('\n')
+	return out.Flush()
 }
 
 // defaultTable names the INSERT target when --table is absent: the path's last

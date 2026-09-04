@@ -41,7 +41,7 @@ brace, a bracket or a quote, so the two cannot collide (see
 | `-s`, `--seed N` | reproducible output |
 | `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
-| `--format F` | `text` (default), `json`, `csv` or `sql` — a record's columns, one record per row |
+| `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql` (default: the path's last segment, or `records` for an inline template) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
@@ -81,7 +81,7 @@ For structured output a record writes the row for you.
 ### Records
 
 A record is a template seen as columns: its fields are the columns, its `format`
-the whole. `--format json|csv|sql` streams one record per row; the library's
+the whole. `--format json|ndjson|csv|sql` writes the records; the library's
 `Record` (below) hands back the columns. Every column is a string — this is the
 out-of-scope of typed scalars, see [Decisions](#decisions). Save
 `mydata/users.json`:
@@ -95,17 +95,17 @@ out-of-scope of typed scalars, see [Decisions](#decisions). Save
 ```
 
 ```sh
-fejkdata --seed 1 --data-path ./mydata --format json users   # {"first":"Bo","last":"Lovelace"}
-fejkdata --seed 1 --data-path ./mydata --format csv  users   # first,last  →  Bo,Lovelace
-fejkdata --seed 1 --data-path ./mydata --format sql  users   # INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');
-fejkdata --seed 1 --data-path ./mydata --format json --repeat 3 users   # three objects, one per line
+fejkdata --seed 1 --data-path ./mydata --format json users            # [{"first":"Bo","last":"Lovelace"}]
+fejkdata --seed 1 --data-path ./mydata --format ndjson users          # {"first":"Bo","last":"Lovelace"}
+fejkdata --seed 1 --data-path ./mydata --format csv  users            # first,last  →  Bo,Lovelace
+fejkdata --seed 1 --data-path ./mydata --format sql  users            # INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');
 fejkdata --seed 1 --data-path ./mydata --format sql --table people users # INSERT into another table
 ```
 
-`--repeat` streams that many records — newline-delimited JSON (one object per
-line, NDJSON), a CSV row after a header, or an INSERT in SQL. To fold NDJSON into
-a single array, `fejkdata … --format json | jq -s .`. Only a category-level
-template is a record; a field, choice or folder errors, and so does a `repeat` on
+`--repeat` streams that many records — `json` frames them as one array document,
+`ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
+per line. Only a category-level template is a record; a field, choice or folder
+errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
 is fine.
@@ -165,9 +165,9 @@ r, err = f.FakeRecord(`{"format":"{x}","x":["a","b"]}`) // compile + render inli
 | `WithoutShippedData()` | load only what you give |
 
 A `*Record` carries its columns via `Columns()`, and serializes them with `JSON()`
-(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the same three
-shapes the CLI's `--format` streams. `Record` and `FakeRecord` take a record; a
-path or template that is not one — a bare string, a choice, or a folder — errors.
+(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
+CLI's `--format` writes. `Record` and `FakeRecord` take a record; a path or
+template that is not one — a bare string, a choice, or a folder — errors.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
