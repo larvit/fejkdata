@@ -11,6 +11,13 @@
 
 # Deferred
 
+- **A record cannot ask for an independent reference draw (2026-09-04).** Within
+  one record every tailed reference to a category is one draw, and a bare
+  `{/cat}` renders the whole category, so a column wanting its own draw of
+  `{/cat.field}` has no spelling for it. Left until a use case names which columns
+  should disagree; premise: a record is one coherent row, which is what columns
+  are for. Not raised in review before that.
+
 - **Shipped-data de-duplication (2026-09-02).** `email.json`'s `local` is a
   drifted copy of `username.json`, and no shipped file yet uses a held path, an
   operand or a reference. Fixed in the data fill before the first tag, when the

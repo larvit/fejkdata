@@ -41,7 +41,7 @@ brace, a bracket or a quote, so the two cannot collide (see
 | `-s`, `--seed N` | reproducible output |
 | `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
-| `--format F` | `text` (default), `json`, `csv` or `sql` — a record's columns, one per line |
+| `--format F` | `text` (default), `json`, `csv` or `sql` — a record's columns, one record per row |
 | `--table T` | the INSERT target for `--format sql` (default: the path's last segment, or `records` for an inline template) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
@@ -81,7 +81,7 @@ For structured output a record writes the row for you.
 ### Records
 
 A record is a template seen as columns: its fields are the columns, its `format`
-the whole. `--format json|csv|sql` streams a record per line; the library's
+the whole. `--format json|csv|sql` streams one record per row; the library's
 `Record` (below) hands back the columns. Every column is a string — this is the
 out-of-scope of typed scalars, see [Decisions](#decisions). Save
 `mydata/users.json`:
@@ -103,11 +103,22 @@ fejkdata --seed 1 --data-path ./mydata --format sql --table people users # INSER
 ```
 
 `--repeat` streams that many records — newline-delimited JSON (one object per
-line, NDJSON), a CSV row per line after a header, or an INSERT per line in SQL.
-To fold NDJSON into a single array, `fejkdata … --format json | jq -s .`. Only a
-category-level template is a record; a field, choice or folder errors. Column
-identifiers are double-quoted in SQL, so a hyphenated field like `postal-code`
-stays valid.
+line, NDJSON), a CSV row after a header, or an INSERT in SQL. To fold NDJSON into
+a single array, `fejkdata … --format json | jq -s .`. Only a category-level
+template is a record; a field, choice or folder errors, and so does a `repeat` on
+the template itself, which composes the format into one string rather than
+projecting columns — ask for more records with `--repeat`. A `repeat` on a column
+is fine.
+
+A column carrying a newline keeps it inside the quoted CSV field or the SQL string
+literal, so a row can span physical lines: read the stream with a CSV or SQL
+parser rather than splitting it on newlines.
+
+The SQL is ANSI — identifiers in double quotes, a literal quote doubled (`''`),
+backslashes passed through — so a hyphenated field like `postal-code` stays a
+valid identifier. PostgreSQL and SQLite take it as written; MySQL and MariaDB need
+`ANSI_QUOTES` and `NO_BACKSLASH_ESCAPES` set first, or they read `"users"` as a
+string and a backslash as an escape.
 
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: it
@@ -146,7 +157,7 @@ r, err = f.FakeRecord(`{"format":"{x}","x":["a","b"]}`) // compile + render inli
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
 
-A `*Record` carries its columns via `Fields()`, and serializes them with `JSON()`
+A `*Record` carries its columns via `Columns()`, and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the same three
 shapes the CLI's `--format` streams. `Record` and `FakeRecord` take a record; a
 path or template that is not one — a bare string, a choice, or a folder — errors.
@@ -529,7 +540,23 @@ tokens add cost in proportion to the output.
   time, the rule a format string already follows. Only references share: a sibling
   field is local to its own column, so a `first` column does not silently bind to
   a `first` in the column next to it.
-- **Filling a Go struct is out of scope.** `Record.Fields()` returns the columns a
+
+  The string view of that same template does not share. `Fake` renders each
+  sibling field as its own expansion, so a `{/currency.code}` field beside a
+  `{/currency.symbol}` field is two draws and may render `EUR $`; writing both
+  references in one `format` holds them together, as
+  [One draw, one spelling](#one-draw-one-spelling) says. The scope is what makes a
+  row coherent when the columns *are* the output, and there the caller cannot fall
+  back on one format string. Widening it to every render would change what `Fake`
+  has emitted since the start, for a correlation a single format already reaches.
+- **A record's column set is fixed before the first draw.** Only a category-level
+  template is a record: a path descending into a field, or naming a folder or a
+  choice, errors. A tail may pass through a choice whose variants carry different
+  fields, so the columns — and with them the CSV header written once ahead of every
+  row — would vary per draw. A fixed column set is what the CSV and `INSERT`
+  contracts rest on, so the restriction holds even where a particular choice would
+  happen to agree.
+- **Filling a Go struct is out of scope.** `Record.Columns()` returns the columns a
   caller maps onto a struct themselves, casting each string to the field's type.
   gofakeit's `fake:"{firstname}"` tags reflect over an arbitrary struct type and
   cast into its fields — a different concern from "data lives in JSON", and one
