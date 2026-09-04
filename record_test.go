@@ -269,7 +269,7 @@ func TestInlineRecordErrors(t *testing.T) {
 		want  string
 	}{
 		{`"hello"`, "has no fields, so no columns"},
-		{`["a","b"]`, "names a choice, not a template"},
+		{`["a","b"]`, "a record is a template whose fields are its columns"},
 		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
 	} {
 		if _, err := f.FakeRecord(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
