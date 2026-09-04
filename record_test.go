@@ -149,16 +149,68 @@ func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
 }
 
 func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
+	cat := `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
+	for _, c := range []struct{ name, row string }{
+		{"sibling columns", `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`},
+		{"through a nested template", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}"}}`},
+		{"through a column repeat", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
+		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b}"},{"format":"{/cat.a.b}!"}]}`},
+		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
+	} {
+		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
+		_, err := f.Record("row")
+		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+			t.Errorf("%s: Record = %v, want the overlap rejected the way one format is", c.name, err)
+			continue
+		}
+		if !strings.Contains(err.Error(), `"whole"`) || !strings.Contains(err.Error(), `"inner"`) {
+			t.Errorf("%s: error %q names neither column; it must name both", c.name, err)
+		}
+		if _, err := f.Fake("row"); err != nil {
+			t.Errorf("%s: Fake(row) = %v, want the string view untouched", c.name, err)
+		}
+	}
+}
+
+func TestRecordRejectsAColumnReadingItsOwnRecord(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"cat": `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`,
-		"row": `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`,
+		"person": `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],"full":"{/person.first} {/person.last}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if _, err := f.Record("row"); err == nil || !strings.Contains(err.Error(), "reads a path into") {
-		t.Fatalf("Record over an overlapping reference pair = %v, want it rejected the way one format is", err)
+	if _, err := f.Record("person"); err == nil || !strings.Contains(err.Error(), "points back at this record") {
+		t.Fatalf("a column referencing its own record = %v, want it refused; it would contradict the columns it reads", err)
 	}
-	if _, err := f.Fake("row"); err != nil {
-		t.Errorf("Fake(row) = %v, want the string view untouched", err)
+}
+
+func TestRecordBareReferenceStaysIndependentAsAnOperand(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"cur": `[{"format":"{code}","code":"aud"},{"format":"{code}","code":"eur"}]`,
+		"row": `{"format":"","up":"{uppercase(/cur)}","low":"{lowercase(/cur)}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	sawMismatch := false
+	for i := 0; i < 200 && !sawMismatch; i++ {
+		r, err := f.Record("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		m := map[string]string{}
+		for _, c := range r.Columns() {
+			m[c.Name] = c.Value
+		}
+		sawMismatch = !strings.EqualFold(m["up"], m["low"])
+	}
+	if !sawMismatch {
+		t.Error("two bare-reference operand columns never disagreed; a bare reference draws on its own, as the plain spelling does")
+	}
+	for i := 0; i < 50; i++ {
+		v, err := f.FakeTemplate("{/cur}|{uppercase(/cur)}")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if parts := strings.Split(v, "|"); !strings.EqualFold(parts[0], parts[1]) {
+			t.Fatalf("one format rendered %q; within an expansion a bare reference is still one draw", v)
+		}
 	}
 }
 
@@ -309,6 +361,7 @@ func TestInlineRecordErrors(t *testing.T) {
 		{`"hello"`, "has no fields, so no columns"},
 		{`["a","b"]`, "a record is a template whose fields are its columns"},
 		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
+		{`{"format":"","whole":"{/cur.code}","inner":"{/cur.code.x}"}`, "reads a path into"},
 	} {
 		if _, err := f.FakeRecord(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeRecord(%q) = %v, want an error naming %q", c.input, err, c.want)
