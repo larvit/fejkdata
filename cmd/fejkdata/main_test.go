@@ -463,16 +463,33 @@ func recordDir(t *testing.T) string {
 }
 
 func TestRunRecordJSON(t *testing.T) {
-	code, out, errb := runOut("--seed", "1", "--format", "json", "--data-path", recordDir(t), "users")
+	code, out, errb := runOut("--seed", "1", "--format", "json", "--repeat", "2", "--data-path", recordDir(t), "users")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	var m map[string]string
-	if err := json.Unmarshal([]byte(strings.TrimSpace(out)), &m); err != nil {
-		t.Fatalf("json output is not one valid JSON object: %v\n%q", err, out)
+	var arr []map[string]string
+	if err := json.Unmarshal([]byte(out), &arr); err != nil {
+		t.Fatalf("json output is not one JSON array: %v\n%q", err, out)
 	}
-	if len(m) != 2 || m["first"] == "" || m["last"] == "" {
-		t.Fatalf("json output = %q, want first and last columns", out)
+	if len(arr) != 2 || len(arr[0]) != 2 || arr[0]["first"] == "" || arr[0]["last"] == "" {
+		t.Fatalf("json output = %q, want an array of two records with first and last columns", out)
+	}
+}
+
+func TestRunRecordNDJSON(t *testing.T) {
+	code, out, errb := runOut("--seed", "1", "--format", "ndjson", "--repeat", "2", "--data-path", recordDir(t), "users")
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("ndjson output = %d lines %q, want one object per line", len(lines), out)
+	}
+	for _, line := range lines {
+		var m map[string]string
+		if err := json.Unmarshal([]byte(line), &m); err != nil || len(m) != 2 {
+			t.Fatalf("ndjson line %q is not one object: %v", line, err)
+		}
 	}
 }
 
@@ -520,9 +537,9 @@ func TestRunRecordInlineTemplate(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("inline record = %d, stderr=%q", code, errb)
 	}
-	var m map[string]string
-	if err := json.Unmarshal([]byte(strings.TrimSpace(out)), &m); err != nil || m["x"] != "a" && m["x"] != "b" {
-		t.Fatalf("inline record json = %q, want a column x (err %v)", out, err)
+	var arr []map[string]string
+	if err := json.Unmarshal([]byte(out), &arr); err != nil || len(arr) != 1 || (arr[0]["x"] != "a" && arr[0]["x"] != "b") {
+		t.Fatalf("inline record json = %q, want one record with a column x (err %v)", out, err)
 	}
 }
 
@@ -531,7 +548,7 @@ func TestRunRecordMisuse(t *testing.T) {
 		args []string
 		want string
 	}{
-		{[]string{"--format", "yaml", "users"}, "--format takes csv, json, sql or text"},
+		{[]string{"--format", "yaml", "users"}, "--format takes csv, json, ndjson, sql or text"},
 		{[]string{"--format", "json", "--separator", ",", "users"}, "--separator joins text values"},
 		{[]string{"--table", "t", "users"}, "--table names the INSERT target"},
 		{[]string{"--format", "json", "--table", "t", "users"}, "--table names the INSERT target"},
