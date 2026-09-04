@@ -46,7 +46,7 @@ row (after a header), or one INSERT.
   -n, --repeat N         render the value N times, 1..1048576 (default 1)
   -s, --seed N           seed for reproducible output
       --separator S      string between repeated values (default newline)
-      --table T          the INSERT target for --format sql (default: the path's last segment)
+      --table T          the INSERT target for --format sql (default: the path's last segment, or records for an inline template)
       --version          print the version, then exit
 
 Flags may come before or after <path|template>; -- ends the flags. A short flag's

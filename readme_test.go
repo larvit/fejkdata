@@ -60,11 +60,14 @@ func TestReadmeRecordExample(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := r.Fields()
-	if len(got) != 2 || got[0].Name != "first" || got[1].Name != "last" {
-		t.Fatalf("record columns = %v, want first, last", got)
+	if len(got) != 2 || got[0].Name != "first" || got[0].Value != "Bo" || got[1].Name != "last" || got[1].Value != "Lovelace" {
+		t.Fatalf("record columns = %v, want first=Bo, last=Lovelace with seed 1", got)
 	}
-	if r.CSVHeader() != "first,last" || !strings.HasPrefix(r.SQLInsert("users"), `INSERT INTO "users" ("first", "last") VALUES (`) {
-		t.Fatalf("serializers = %q, %q, want first,last and an INSERT", r.CSVHeader(), r.SQLInsert("users"))
+	if r.CSVHeader() != "first,last" || r.CSVLine() != "Bo,Lovelace" {
+		t.Fatalf("csv = %q, %q, want first,last / Bo,Lovelace", r.CSVHeader(), r.CSVLine())
+	}
+	if r.SQLInsert("users") != `INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');` {
+		t.Fatalf("sql = %q, want the seeded INSERT", r.SQLInsert("users"))
 	}
 }
 

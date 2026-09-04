@@ -42,7 +42,7 @@ brace, a bracket or a quote, so the two cannot collide (see
 | `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
 | `--format F` | `text` (default), `json`, `csv` or `sql` — a record's columns, one per line |
-| `--table T` | the INSERT target for `--format sql` (default: the path's last segment) |
+| `--table T` | the INSERT target for `--format sql` (default: the path's last segment, or `records` for an inline template) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
 
@@ -82,7 +82,9 @@ For structured output a record writes the row for you.
 
 A record is a template seen as columns: its fields are the columns, its `format`
 the whole. `--format json|csv|sql` streams a record per line; the library's
-`Record` (below) hands back the columns. Save `mydata/users.json`:
+`Record` (below) hands back the columns. Every column is a string — this is the
+out-of-scope of typed scalars, see [Decisions](#decisions). Save
+`mydata/users.json`:
 
 ```json
 {
@@ -93,19 +95,19 @@ the whole. `--format json|csv|sql` streams a record per line; the library's
 ```
 
 ```sh
-fejkdata --format json users                        # {"first":"Ada","last":"Lovelace"}
-fejkdata --format csv  users                        # first,last  →  Ada,Lovelace
-fejkdata --format sql  users                        # INSERT INTO "users" ("first", "last") VALUES ('Ada', 'Lovelace');
-fejkdata --format json --repeat 3 users             # three objects, one per line
-fejkdata --format sql --table people users          # INSERT into another table
+fejkdata --seed 1 --data-path ./mydata --format json users   # {"first":"Bo","last":"Lovelace"}
+fejkdata --seed 1 --data-path ./mydata --format csv  users   # first,last  →  Bo,Lovelace
+fejkdata --seed 1 --data-path ./mydata --format sql  users   # INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');
+fejkdata --seed 1 --data-path ./mydata --format json --repeat 3 users   # three objects, one per line
+fejkdata --seed 1 --data-path ./mydata --format sql --table people users # INSERT into another table
 ```
 
-`--repeat` streams that many records — a JSON object per line, a CSV row per
-line after a header, an INSERT per line in SQL. Only a category-level template is
-a record; a field, choice or folder errors. Column identifiers are double-quoted
-in SQL, so a hyphenated field like `postal-code` stays valid. A column is a
-string, and each format quotes it as such; see [Decisions](#decisions) for the
-typed-scalar, correlation and struct-filling scope.
+`--repeat` streams that many records — newline-delimited JSON (one object per
+line, NDJSON), a CSV row per line after a header, or an INSERT per line in SQL.
+To fold NDJSON into a single array, `fejkdata … --format json | jq -s .`. Only a
+category-level template is a record; a field, choice or folder errors. Column
+identifiers are double-quoted in SQL, so a hyphenated field like `postal-code`
+stays valid.
 
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: it
@@ -528,10 +530,10 @@ tokens add cost in proportion to the output.
   field is local to its own column, so a `first` column does not silently bind to
   a `first` in the column next to it.
 - **Filling a Go struct is out of scope.** `Record.Fields()` returns the columns a
-  caller maps onto a struct themselves. gofakeit's `fake:"{firstname}"` tags
-  reflect over an arbitrary struct type and cast into its fields — a different
-  concern from "data lives in JSON", and one a JSON record feeds without fejkdata
-  owning the reflection.
+  caller maps onto a struct themselves, casting each string to the field's type.
+  gofakeit's `fake:"{firstname}"` tags reflect over an arbitrary struct type and
+  cast into its fields — a different concern from "data lives in JSON", and one
+  whose typed casting fejkdata leaves to the caller rather than owning.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
   is deterministic across machines, so a ±10% ceiling does not flake under CI load,
   while time varies with the machine and its neighbours. A rendering slowdown
