@@ -52,7 +52,6 @@ func TestNoRenderAllocRegression(t *testing.T) {
 }
 
 // A record's fences read the compiled tree, so they belong to New, not to a draw.
-// A per-draw walk costs allocations in proportion to the tree.
 func TestNoRecordAllocRegression(t *testing.T) {
 	for _, s := range []struct{ name, json string }{
 		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},

@@ -130,9 +130,9 @@ field, so it keeps drawing on its own. That one draw is also why two
 columns may not read overlapping reference *paths* — `{/cat.a}` beside
 `{/cat.a.b}` is refused, naming the fields to write instead, as
 [One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single
-format. A column may not reference the record it belongs to either: `{/users.first}`
-inside `users` would contradict the `first` column beside it, so put a value two
-columns share in its own category and reference that. A field hold, transform or
+format. A column may not reference the record it belongs to by any spelling: `{/users.first}`
+or a bare `{/users}` inside `users` describes a draw other than the columns beside
+it, so put a value two columns share in its own category and reference that. A field hold, transform or
 operand ties fields together within one column as always (see
 [Correlated fields](#correlated-fields) and [Decisions](#decisions)).
 
