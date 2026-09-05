@@ -82,8 +82,8 @@ For structured output a record writes the row for you.
 
 A record is a template seen as columns: its fields are the columns, its `format`
 the whole. `--format json|ndjson|csv|sql` writes the records; the library's
-`Record` (below) hands back the columns. Every column is a string — this is the
-out-of-scope of typed scalars, see [Decisions](#decisions). Save
+`Record` (below) hands back the columns. Every column is a string — typed scalars
+are on the release checklist, see [`todo.md`](todo.md). Save
 `mydata/users.json`:
 
 ```json
@@ -532,12 +532,6 @@ tokens add cost in proportion to the output.
   field `Fake` renders by dotted path. The `format` is inert to a record — a
   record-only template writes `"format": ""` — but it is compiled and fenced, so
   a template that loads renders as whichever shape is asked for.
-- **Records emit text; typed scalars are out.** Every value fejkdata yields is a
-  string, so JSON, CSV and SQL each quote a column as text (`"42"`, `'42'`) rather
-  than guess a number or a boolean. Emitting unquoted numbers or booleans would
-  need a per-column `kind`, a parallel scalar system in a format whose promise is
-  "text means what it says". A column's check digit, number or id is still
-  valid-by-construction through a builtin; it is serialized as text.
 - **A record shares one reference draw per category.** Two columns that reference
   one category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of
   it, so a record's facts agree the way a template's [correlated
@@ -563,11 +557,6 @@ tokens add cost in proportion to the output.
   row — would vary per draw. A fixed column set is what the CSV and `INSERT`
   contracts rest on, so the restriction holds even where a particular choice would
   happen to agree.
-- **Filling a Go struct is out of scope.** `Record.Columns()` returns the columns a
-  caller maps onto a struct themselves, casting each string to the field's type.
-  gofakeit's `fake:"{firstname}"` tags reflect over an arbitrary struct type and
-  cast into its fields — a different concern from "data lives in JSON", and one
-  whose typed casting fejkdata leaves to the caller rather than owning.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
   is deterministic across machines, so a ±10% ceiling does not flake under CI load,
   while time varies with the machine and its neighbours. A rendering slowdown
