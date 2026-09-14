@@ -1,4 +1,3 @@
 .claude
 *.out
 __pycache__/
-todo.md
