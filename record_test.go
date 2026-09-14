@@ -21,7 +21,7 @@ func recordCat(t *testing.T) *Generator {
 
 func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 	f := recordCat(t)
-	r, err := f.Record("users")
+	r, err := f.FakeRecord("users")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,8 +37,8 @@ func TestRecordProjectsFieldsAsColumns(t *testing.T) {
 func TestRecordIsDeterministic(t *testing.T) {
 	a, b := recordCat(t), recordCat(t)
 	for i := 0; i < 20; i++ {
-		x, _ := a.Record("users")
-		y, _ := b.Record("users")
+		x, _ := a.FakeRecord("users")
+		y, _ := b.FakeRecord("users")
 		if x.JSON() != y.JSON() {
 			t.Fatalf("same seed diverged: %s != %s", x.JSON(), y.JSON())
 		}
@@ -51,7 +51,7 @@ func TestRecordSkipsReferenceBindings(t *testing.T) {
 		"user": `{"format": "they are {/name}", "id": "1"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.Record("user")
+	r, err := f.FakeRecord("user")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,15 +77,15 @@ func TestRecordErrors(t *testing.T) {
 		{"group", "names a folder"},
 		{"nope", "no entry"},
 	} {
-		if _, err := f.Record(c.path); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("Record(%q) = %v, want an error containing %q", c.path, err, c.want)
+		if _, err := f.FakeRecord(c.path); err == nil || !strings.Contains(err.Error(), c.want) {
+			t.Errorf("FakeRecord(%q) = %v, want an error containing %q", c.path, err, c.want)
 		}
 	}
 }
 
 func TestRecordJSON(t *testing.T) {
 	f := recordCat(t)
-	r, err := f.Record("users")
+	r, err := f.FakeRecord("users")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ func TestRecordCSV(t *testing.T) {
 	f := newGenerator(t, dir, WithSeed(1))
 	seen := map[string]bool{}
 	for i := 0; i < 200 && len(seen) < 4; i++ {
-		r, err := f.Record("note")
+		r, err := f.FakeRecord("note")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -135,7 +135,7 @@ func TestRecordCSV(t *testing.T) {
 func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
 	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`})
 	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.Record("blank")
+	r, err := f.FakeRecord("blank")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,9 +158,9 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
 	} {
 		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
-		_, err := f.Record("row")
+		_, err := f.FakeRecord("row")
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
-			t.Errorf("%s: Record = %v, want the overlap rejected the way one format is", c.name, err)
+			t.Errorf("%s: FakeRecord = %v, want the overlap rejected the way one format is", c.name, err)
 			continue
 		}
 		if !strings.Contains(err.Error(), `"whole"`) || !strings.Contains(err.Error(), `"inner"`) {
@@ -177,7 +177,7 @@ func TestInlineRecordRejectsOverlappingColumns(t *testing.T) {
 		"cat": `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	_, err := f.FakeRecord(`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`)
+	_, err := f.FakeRecordTemplate(`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`)
 	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 		t.Fatalf("inline record over an overlapping pair = %v, want the inline entry point to refuse it too", err)
 	}
@@ -191,8 +191,8 @@ func TestRecordRejectsAColumnReadingItsOwnRecord(t *testing.T) {
 	} {
 		person := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],` + c.column + `}`
 		f := newGenerator(t, writeData(t, map[string]string{"person": person}), WithSeed(1))
-		if _, err := f.Record("person"); err == nil || !strings.Contains(err.Error(), "points back at this record") {
-			t.Errorf("%s: Record = %v, want it refused; the column would contradict the columns beside it", c.name, err)
+		if _, err := f.FakeRecord("person"); err == nil || !strings.Contains(err.Error(), "points back at this record") {
+			t.Errorf("%s: FakeRecord = %v, want it refused; the column would contradict the columns beside it", c.name, err)
 		}
 	}
 }
@@ -205,7 +205,7 @@ func TestRecordBareReferenceStaysIndependentAsAnOperand(t *testing.T) {
 	f := newGenerator(t, dir, WithSeed(1))
 	sawMismatch := false
 	for i := 0; i < 200 && !sawMismatch; i++ {
-		r, err := f.Record("row")
+		r, err := f.FakeRecord("row")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -234,7 +234,7 @@ func TestRecordSQLInsert(t *testing.T) {
 		"person": `{"format": "{last}", "last": "O'Brien"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.Record("person")
+	r, err := f.FakeRecord("person")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -251,8 +251,8 @@ func TestRecordRejectsFieldDescent(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, path := range []string{"cat.sub", "row.x"} {
-		if _, err := f.Record(path); err == nil || !strings.Contains(err.Error(), "field") {
-			t.Errorf("Record(%q) = %v, want a 'descends into a field' error", path, err)
+		if _, err := f.FakeRecord(path); err == nil || !strings.Contains(err.Error(), "field") {
+			t.Errorf("FakeRecord(%q) = %v, want a 'descends into a field' error", path, err)
 		}
 	}
 }
@@ -264,7 +264,7 @@ func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 100; i++ {
-		r, err := f.Record("price")
+		r, err := f.FakeRecord("price")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -294,7 +294,7 @@ func TestRecordSharesAReferenceIntoAColumnRepeat(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 50; i++ {
-		r, err := f.Record("order")
+		r, err := f.FakeRecord("order")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -313,7 +313,7 @@ func TestRecordBareReferenceStaysIndependent(t *testing.T) {
 	f := newGenerator(t, dir, WithSeed(1))
 	sawMismatch := false
 	for i := 0; i < 100; i++ {
-		r, err := f.Record("order")
+		r, err := f.FakeRecord("order")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -336,7 +336,7 @@ func TestRecordSQLQuotesIdentifiers(t *testing.T) {
 		"row": `{"format": "", "postal-code": "1", "street-number": "2"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.Record("row")
+	r, err := f.FakeRecord("row")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -346,15 +346,15 @@ func TestRecordSQLQuotesIdentifiers(t *testing.T) {
 	}
 }
 
-func TestFakeRecordAndTemplate(t *testing.T) {
+func TestFakeRecordTemplateAndNewRecordTemplate(t *testing.T) {
 	f := recordCat(t)
 	in := `{"format":"{x} {y}","x":["1","2"],"y":["3","4"]}`
-	want, err := f.FakeRecord(in)
+	want, err := f.FakeRecordTemplate(in)
 	if err != nil {
-		t.Fatalf("FakeRecord: %v", err)
+		t.Fatalf("FakeRecordTemplate: %v", err)
 	}
 	if len(want.Columns()) != 2 {
-		t.Fatalf("FakeRecord columns = %v, want two columns", want.Columns())
+		t.Fatalf("FakeRecordTemplate columns = %v, want two columns", want.Columns())
 	}
 	reusable, err := f.NewRecordTemplate(in)
 	if err != nil {
@@ -377,8 +377,8 @@ func TestInlineRecordErrors(t *testing.T) {
 		{`["a","b"]`, "a record is a template whose fields are its columns"},
 		{`{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`, "carries repeat 3"},
 	} {
-		if _, err := f.FakeRecord(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("FakeRecord(%q) = %v, want an error naming %q", c.input, err, c.want)
+		if _, err := f.FakeRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
+			t.Errorf("FakeRecordTemplate(%q) = %v, want an error naming %q", c.input, err, c.want)
 		}
 	}
 }
@@ -388,8 +388,8 @@ func TestRecordRejectsATopLevelRepeat(t *testing.T) {
 		"rep": `{"format":"{a}-","repeat":3,"separator":"|","a":["x","y"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if _, err := f.Record("rep"); err == nil || !strings.Contains(err.Error(), "carries repeat 3") {
-		t.Errorf("Record on a repeating template = %v, want an error naming the repeat", err)
+	if _, err := f.FakeRecord("rep"); err == nil || !strings.Contains(err.Error(), "carries repeat 3") {
+		t.Errorf("FakeRecord on a repeating template = %v, want an error naming the repeat", err)
 	}
 	if v, err := f.Fake("rep"); err != nil || v != "x-|x-|x-" {
 		t.Errorf("Fake(rep) = %q, %v, want the repeat still composed for the string view", v, err)

@@ -108,7 +108,7 @@ func TestFakeIsSafeForConcurrentUse(t *testing.T) {
 					return
 				}
 				f.List()
-				if _, err := f.Record("sv_SE.person"); err != nil {
+				if _, err := f.FakeRecord("sv_SE.person"); err != nil {
 					t.Error(err)
 					return
 				}

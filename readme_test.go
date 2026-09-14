@@ -55,7 +55,7 @@ func TestReadmeRecordExample(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r, err := f.Record("users")
+	r, err := f.FakeRecord("users")
 	if err != nil {
 		t.Fatal(err)
 	}

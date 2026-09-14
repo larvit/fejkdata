@@ -61,11 +61,11 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		if err != nil {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
-		if _, err := f.Record("x"); err != nil {
-			t.Fatalf("Record(%s): %v", s.name, err) // else the gate would measure the error path
+		if _, err := f.FakeRecord("x"); err != nil {
+			t.Fatalf("FakeRecord(%s): %v", s.name, err) // else the gate would measure the error path
 		}
 		const base = 4.0
-		if allocs := testing.AllocsPerRun(10000, func() { f.Record("x") }); allocs > base*1.10 {
+		if allocs := testing.AllocsPerRun(10000, func() { f.FakeRecord("x") }); allocs > base*1.10 {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
 		}
 	}
