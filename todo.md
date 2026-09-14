@@ -6,8 +6,6 @@ The record API lands first, so the data update can use it.
 
 ### Record API
 
-- Rename the record entry points after the string ones: `Record(path)` becomes
-  `FakeRecord(path)`, and `FakeRecord(inline)` becomes `FakeRecordTemplate(inline)`.
 - Typed columns — a column declares its type, so `json` writes `42` rather than
   `"42"` and `sql` an unquoted literal: string, integer, number, boolean, and a
   way to write null. A template that can render a value its type rejects is a

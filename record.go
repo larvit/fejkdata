@@ -92,10 +92,10 @@ func quoteIdent(s string) string {
 	return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 }
 
-// Record renders a path as one record: the template it names, with each direct
+// FakeRecord renders a path as one record: the template it names, with each direct
 // field drawn as a column. Only a category-level template is a record — a path
 // that descends into a field, or that names a folder or a choice, is an error.
-func (f *Generator) Record(path string) (*Record, error) {
+func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	_, n, tail, err := resolveCategory(f.categories, strings.Split(path, "."))
@@ -164,8 +164,8 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	return &RecordTemplate{g: f, t: tm, columns: columns}, nil
 }
 
-// FakeRecord compiles and renders an inline record in one call.
-func (f *Generator) FakeRecord(input string) (*Record, error) {
+// FakeRecordTemplate compiles and renders an inline record in one call.
+func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	t, err := f.NewRecordTemplate(input)
 	if err != nil {
 		return nil, err

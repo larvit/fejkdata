@@ -82,7 +82,7 @@ For structured output a record writes the row for you.
 
 A record is a template seen as columns: its fields are the columns, its `format`
 the whole. `--format json|ndjson|csv|sql` writes the records; the library's
-`Record` (below) hands back the columns. Every column is a string — typed scalars
+`FakeRecord` (below) hands back the columns. Every column is a string — typed scalars
 are on the release checklist, see [`todo.md`](todo.md). Save
 `mydata/users.json`:
 
@@ -152,9 +152,9 @@ paths := f.List()                  // every path Fake accepts, sorted
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
 v = t.Fake()                                              // render many times, no re-parse
-r, err := f.Record("users")               // one record: each field a column
+r, err := f.FakeRecord("users")           // one record: each field a column
 s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
-r, err = f.FakeRecord(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
+r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 ```
 
 | Option | |
@@ -166,8 +166,8 @@ r, err = f.FakeRecord(`{"format":"{x}","x":["a","b"]}`) // compile + render inli
 
 A `*Record` carries its columns via `Columns()`, and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
-CLI's `--format` writes. `Record` and `FakeRecord` take a record; a path or
-template that is not one — a bare string, a choice, or a folder — errors.
+CLI's `--format` writes. `FakeRecord` and `FakeRecordTemplate` take a record; a
+path or template that is not one — a bare string, a choice, or a folder — errors.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
@@ -526,7 +526,7 @@ tokens add cost in proportion to the output.
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
 - **A record is a template seen as columns, not a second schema format.** A
-  template's `format` composes its fields into one string; `Record` and
+  template's `format` composes its fields into one string; `FakeRecord` and
   `--format` project the same fields as columns. Two views of one dataset, so a
   record author writes the same JSON they already know, and a column is the same
   field `Fake` renders by dotted path. The `format` is inert to a record — a

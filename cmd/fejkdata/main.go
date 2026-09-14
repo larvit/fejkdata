@@ -341,7 +341,7 @@ func (in invocation) textDraw(f *fejkdata.Generator, kind argKind, arg string) (
 // recordStream builds the record drawer for the argument, plus the INSERT table
 // a sql format names.
 func (in invocation) recordStream(f *fejkdata.Generator, kind argKind, arg string) (func() (*fejkdata.Record, error), string, error) {
-	record := func() (*fejkdata.Record, error) { return f.Record(arg) }
+	record := func() (*fejkdata.Record, error) { return f.FakeRecord(arg) }
 	if kind == argTemplate {
 		t, err := f.NewRecordTemplate(arg)
 		if err != nil {
