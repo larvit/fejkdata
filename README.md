@@ -354,9 +354,9 @@ without naming `sv_SE`:
 ```
 
 Renders e.g. `Hej, Pat Smith!`. A reference into a category is held like a
-[correlated](#correlated-fields) path — `{.person.first} {.person.last}` name one
-person, `{lowercase(.person.first)}` reads that same draw, and `{.person.first}`
-beside `{/sv_SE.person.last}` in `sv_SE` is one person too — while a bare
+[correlated](#correlated-fields) path — `{.person.femalefirst} {.person.last}` name
+one person, `{lowercase(.person.femalefirst)}` reads that same draw, and
+`{.person.femalefirst}` beside `{/sv_SE.person.last}` in `sv_SE` is one person too — while a bare
 `{/misc.uuid} {/misc.uuid}` is two draws. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, or reads a field not every variant
 of a choice carries, and a reference that leads back to its own value, directly,
