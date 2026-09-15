@@ -72,7 +72,7 @@ func render(s *session, n node, sc drawScope) string {
 			if i > 0 {
 				b.WriteString(n.separator)
 			}
-			b.WriteString(expandAnew(s, n, sc.group))
+			b.WriteString(expandAnew(s, n))
 		}
 		return b.String()
 	default:
@@ -80,13 +80,13 @@ func render(s *session, n node, sc drawScope) string {
 	}
 }
 
-// expandAnew expands one repeat iteration of t as a render of its own, in group. Inlined into
+// expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
 // render's loop, its draw set would move to the heap.
 //
 //go:noinline
-func expandAnew(s *session, t *template, group string) string {
+func expandAnew(s *session, t *template) string {
 	var set drawSet
-	return expand(s, t, drawScope{set: &set, group: group})
+	return expand(s, t, drawScope{set: &set})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an

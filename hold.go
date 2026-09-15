@@ -6,11 +6,12 @@ import (
 	"strings"
 )
 
-// heldCheck rejects every route to a held name except the ones that read its draw.
-// An expansion holds one draw of that name; anything else that renders it draws
-// again, and the two disagree. checkNoOverlap settles the spellings within one
-// format (a token, an operand); this settles the rest — a reference, whether it
-// sits in that format or in anything the format renders, however deep.
+// heldCheck rejects every route to a held sibling name except the ones that read its
+// draw. An expansion holds one draw of that name; anything else that renders it draws
+// again, and the two disagree. checkNoOverlap settles the spellings within one format
+// (a token, an operand); this settles the rest — a reference, whether it sits in that
+// format or in anything the format renders, however deep. A reference path is held
+// for the whole render instead, which drawCheck fences.
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || len(t.held) == 0 {
@@ -19,7 +20,7 @@ func heldCheck(path string, n node) error {
 	readers := boundReaders(t.format, t.bound, t.refs)
 	for _, head := range heldHeads(t) {
 		if _, isPath := t.bound[head]; isPath && isRef(head) {
-			continue // held for the whole render, which drawCheck fences
+			continue
 		}
 		if err := checkHeadHeld(t, head, readers); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
@@ -178,12 +179,11 @@ func renders(n node, want, seen map[node]bool) bool {
 	return false
 }
 
-// checkNoOverlap rejects a format that both renders a level and reads a path into
-// it — {p} beside {p.first}, {p.addr} beside {p.addr.city}, {.p} beside
-// {/sv_SE.p.first}. The path reads the level's held draw while rendering the level
-// expands it afresh, so their values would disagree. Reads are compared by their
-// one spelling, in sorted order, so which pair is reported depends neither on how
-// a reference was written nor on where the tokens sit.
+// checkNoOverlap rejects a format that both renders a sibling level and reads a path
+// into it — {p} beside {p.first}, {p.addr} beside {p.addr.city}. The path reads the
+// level's held draw while rendering the level expands it afresh, so their values would
+// disagree. Reads are compared in sorted order, so which pair is reported does not
+// depend on where the tokens sit.
 func checkNoOverlap(format string, bound map[string]string, refs map[string]refBinding) error {
 	names := boundReaders(format, bound, refs)
 	// Stable over one format-order scan, so two readers of one name (a token and a
@@ -203,7 +203,7 @@ func checkNoOverlap(format string, bound map[string]string, refs map[string]refB
 // spelling, and how to name it.
 type reader struct{ name, path, label string }
 
-// boundReaders lists every way a format reaches a bound field, in the order the
+// boundReaders lists every way a format reaches a bound sibling field, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
 func boundReaders(format string, bound map[string]string, refs map[string]refBinding) []reader {
@@ -215,14 +215,14 @@ func boundReaders(format string, bound map[string]string, refs map[string]refBin
 		if fn, _, isFunc := funcCall(t.body); isFunc {
 			for _, operand := range tokenOperands(t.body) {
 				a := splitArm(operand, refs)
-				if _, isBound := bound[a.key]; isBound {
+				if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
 					names = append(names, reader{a.name, a.path, fmt.Sprintf("%s operand %q", fn, operand)})
 				}
 			}
 			return nil
 		}
 		for _, a := range splitArms(t.body, refs) {
-			if _, isBound := bound[a.key]; isBound {
+			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
 				names = append(names, reader{a.name, a.path, "token {" + a.name + "}"})
 			}
 		}

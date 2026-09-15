@@ -62,7 +62,8 @@ type template struct {
 	fromString  bool        // written as a JSON string rather than an object
 	readsColumn *columnRead // set when the format is one reference alone reading a record's column
 	record      bool        // compiled at the top without a repeat, so its fields are record columns
-	drawGroup   string      // the group its render reads reference paths in; "" keeps its caller's
+	group       string      // the group it draws in, as written; "" keeps its caller's
+	groupKey    string      // group keyed by its category once linked, what a render reads its reference paths under
 }
 
 func (*template) isNode() {}
@@ -248,7 +249,10 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err := checkTokens(o.format, fields); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
+	if err := checkNestedGroup(fields, o.group); err != nil {
+		return nil, err
+	}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, group: o.group, record: fieldPos == inColumn}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -280,7 +284,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
 		return o, err
 	}
-	if o.group, err = groupOf(m); err != nil {
+	if o.group, err = groupOf(m, repeat); err != nil {
 		return o, err
 	}
 	if sv, ok := m["separator"]; ok {

@@ -443,9 +443,10 @@ Renders e.g. `Hej, Pat Smith!`. A reference path into a category is held like a
 record — rather than one format: `{.person.femalefirst} {.person.last}` name one
 person, as do the same two references in sibling fields or a nested template, and
 `{lowercase(.person.femalefirst)}` reads that same draw. Each `repeat` iteration is
-a render of its own, so it draws anew, and a [group](#group) holds a draw apart. A
-bare reference names no field and draws each time: `{/misc.uuid} {/misc.uuid}` is
-two draws. Rejected at `New`: a path that is
+a render of its own, in no group, so it draws anew, and a [group](#group) holds a
+draw apart. A bare reference names no field and makes its own picks each time —
+`{/misc.uuid} {/misc.uuid}` is two draws — while the reference paths inside what it
+renders still read the render's draws. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, or reads a field not every variant
 of a choice carries, and a reference that leads back to its own value, directly,
 mutually or through a chain.
@@ -453,8 +454,10 @@ mutually or through a chain.
 ### Group
 
 A template may carry `group` to hold its reference draws apart: every reference path
-it renders, however deep, reads the draw of that group, and the templates naming one
-group in a render read one draw. A nested `group` names another.
+it renders, however deep short of a `repeat`, reads the draw of that group, and the
+templates of one category naming one group read one draw. A group name is local to
+its category, so a category another one references never joins its groups by name;
+the unnamed group spans them all.
 
 ```json
 { "format": "{payer} pays {payee}; signed {signature}",
@@ -464,9 +467,11 @@ group in a render read one draw. A nested `group` names another.
 ```
 
 Renders e.g. `Sara Eriksson pays Ebba Lind; signed Eriksson`: the signature reads the
-payer's draw, while the payee is drawn apart. Rejected at load: a `group` of `""` (the
-default), one on a template that renders no reference path, and a path reading into a
-level that carries one.
+payer's draw, while the payee is drawn apart. Rejected at load, each naming nothing: a
+`group` of `""` (the default); one naming the group its template already draws in; one
+on a template that renders no reference path short of a `repeat`, on a `repeat` itself —
+each iteration renders in no group — or on an inline template's root, which nothing
+references. So is a path reading into a level that carries a `group`.
 
 ### Correlated fields
 
@@ -673,6 +678,11 @@ tokens add cost in proportion to the output.
   `person` rather than two copies of it. Only references share: a sibling field is
   local to its own expansion, so a `first` column does not silently bind to a
   `first` in the column next to it.
+- **A group name is local to its category.** A category's groups are its own
+  entities, so a caller naming a group the same way never joins them by accident,
+  and renaming a group inside one file changes no render elsewhere. The unnamed
+  group still spans categories, since facts that belong together across categories
+  must agree.
 - **A record's column set is fixed before the first draw.** Only a category-level
   template is a record: a path descending into a field, or naming a folder or a
   choice, errors. A tail may pass through a choice whose variants carry different

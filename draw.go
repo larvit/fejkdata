@@ -31,10 +31,10 @@ func renderOnce(s *session, n node) string {
 	return render(s, n, drawScope{set: &set})
 }
 
-// in is the scope t renders in: the group it names, else its caller's.
+// in is the scope t renders in: its group where it names one, else its caller's.
 func (sc drawScope) in(t *template) drawScope {
-	if t.drawGroup != "" {
-		sc.group = t.drawGroup
+	if t.groupKey != "" {
+		sc.group = t.groupKey
 	}
 	return sc
 }
@@ -55,8 +55,9 @@ func (sc drawScope) draws() *draws {
 	return d
 }
 
-// groupOf reads a template's "group" (default "").
-func groupOf(m map[string]any) (string, error) {
+// groupOf reads a template's "group" (default ""), which a repeat cannot carry: each iteration
+// renders in no group.
+func groupOf(m map[string]any, repeat int) (string, error) {
 	v, ok := m["group"]
 	if !ok {
 		return "", nil
@@ -67,29 +68,73 @@ func groupOf(m map[string]any) (string, error) {
 		return "", fmt.Errorf("group must be a string, got %T", v)
 	case name == "":
 		return "", fmt.Errorf(`group "" is the default, so it has no effect; drop it`)
+	case repeat > 1:
+		return "", fmt.Errorf("group %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
 	}
 	return name, nil
 }
 
-// drawCheck fences each template of a scope as a render of its own, remembering which nodes
-// read a reference path.
+// keyGroup keys t's group by the category t sits in, "" for an inline template, so a group name is
+// local to its category.
+func (t *template) keyGroup(category string) {
+	if t.group != "" {
+		t.groupKey = category + "/" + t.group
+	}
+}
+
+// checkNestedGroup refuses a template beneath one drawing in group that names group again, short of
+// a repeat or another group.
+func checkNestedGroup(fields map[string]node, group string) error {
+	if group == "" {
+		return nil
+	}
+	var walk func(path string, n node) error
+	walk = func(path string, n node) error {
+		t, isTemplate := n.(*template)
+		switch {
+		case isTemplate && t.group == group:
+			return fmt.Errorf("%q names group %q, the group this template draws in already; drop it", path, group)
+		case isTemplate && (t.group != "" || t.repeat > 1):
+			return nil
+		}
+		for _, c := range contained(n) {
+			if err := walk(join(path, c.name), c.node); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	for _, name := range sortedNames(fields) {
+		if err := walk(name, fields[name]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// drawCheck fences each template of a scope as a render of its own, remembering which nodes read a
+// reference path.
 type drawCheck struct {
 	reads map[node]bool
 }
 
-func (c *drawCheck) check(path string, n node) error {
+// checkGroup refuses a group that splits nothing: one whose render reads no reference path short of
+// a repeat.
+func (c *drawCheck) checkGroup(path string, n node) error {
+	if t, ok := n.(*template); ok && t.group != "" && !c.readsPath(t) {
+		return fmt.Errorf("%s: group %q splits nothing, since nothing it renders reads a reference path; drop it", path, t.group)
+	}
+	return nil
+}
+
+func (c *drawCheck) checkDraws(path string, n node) error {
 	t, ok := n.(*template)
-	switch {
-	case !ok:
-		return nil
-	case !c.readsPath(t) && t.drawGroup != "":
-		return fmt.Errorf("%s: group %q splits nothing, since nothing it renders reads a reference path; drop it", path, t.drawGroup)
-	case !c.readsPath(t):
+	if !ok || !c.readsPath(t) {
 		return nil
 	}
 	w := newDrawWalk(nil)
 	for _, e := range renderEdges(t) {
-		w.edge(t, e, t.drawGroup, drawRoute{e.reached(), e.label}, "", false)
+		w.edge(t, e, drawAt{group: t.groupKey, route: drawRoute{e.reached(), e.label}})
 	}
 	if err := w.check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
@@ -97,14 +142,15 @@ func (c *drawCheck) check(path string, n node) error {
 	return nil
 }
 
-// readsPath reports whether rendering n reads a reference path, however deep.
+// readsPath reports whether rendering n reads a reference path, short of a repeat, which renders over
+// draws of its own.
 func (c *drawCheck) readsPath(n node) bool {
 	if r, done := c.reads[n]; done {
 		return r
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || c.readsPath(e.to) {
+		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && c.readsPath(e.to)) {
 			r = true
 			break
 		}
@@ -116,8 +162,13 @@ func (c *drawCheck) readsPath(n node) bool {
 	return r
 }
 
-// refRead is the reference an edge of n reads, and the node it is bound to; false when the
-// edge reads none.
+func repeats(n node) bool {
+	t, isTemplate := n.(*template)
+	return isTemplate && t.repeat > 1
+}
+
+// refRead is the reference an edge of n reads, and the node it is bound to; false when the edge
+// reads none.
 func refRead(n node, label string) (arm, node, bool) {
 	t, isTemplate := n.(*template)
 	if !isTemplate {
@@ -131,14 +182,13 @@ func refRead(n node, label string) (arm, node, bool) {
 func checkColumnDraws(t *template, columns []string) error {
 	w := newDrawWalk(t)
 	for _, name := range columns {
-		w.walk(t.fields[name], t.drawGroup, drawRoute{spelling: fmt.Sprintf("column %q", name)}, "", false)
+		w.walk(t.fields[name], drawAt{group: t.groupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
 	return w.check()
 }
 
-// drawWalk gathers what one render reads through its draws and what it draws afresh, each by
-// group, for check to compare. record is set for a record's columns, which may not read the
-// record back.
+// drawWalk gathers what one render reads by reference and what it draws afresh, each by group, for
+// check to compare. record is set for a record's columns, which may not read the record back.
 type drawWalk struct {
 	record *template
 	reads  []pathRead
@@ -148,21 +198,28 @@ type drawWalk struct {
 	err    error
 }
 
+// drawAt is where a walk stands: the group it draws in, how the render's root reached it, the
+// reference it last crossed, and whether it renders inside a reference path's draw.
+type drawAt struct {
+	group string
+	route drawRoute
+	via   string
+	held  bool
+}
+
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
 type drawRoute struct{ spelling, label string }
 
+// pathRead is one reference a render reads: a path, or a bare reference with no tail.
 type pathRead struct {
-	group  string
-	route  drawRoute
+	at     drawAt
 	a      arm
 	target node
 }
 
 type freshDraw struct {
-	group string
-	route drawRoute
-	via   string
-	n     node
+	at drawAt
+	n  node
 }
 
 type drawVisit struct {
@@ -180,88 +237,105 @@ func newDrawWalk(record *template) *drawWalk {
 	return &drawWalk{record: record, read: map[drawKey]bool{}, seen: map[drawVisit]bool{}}
 }
 
-// walk follows what rendering n renders. held says n renders inside a reference path's draw, so
-// what it draws belongs to that draw; a repeat renders over draws of its own, so the walk stops there.
-func (w *drawWalk) walk(n node, group string, route drawRoute, via string, held bool) {
-	v := drawVisit{n, group, held}
+// walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
+// there.
+func (w *drawWalk) walk(n node, at drawAt) {
+	v := drawVisit{n, at.group, at.held}
 	if w.seen[v] || w.err != nil {
 		return
 	}
 	w.seen[v] = true
-	if !held {
-		w.fresh = append(w.fresh, freshDraw{group, route, via, n})
+	if !at.held {
+		w.fresh = append(w.fresh, freshDraw{at, n})
 	}
-	t, isTemplate := n.(*template)
-	if isTemplate && t.repeat > 1 {
+	if repeats(n) {
 		return
 	}
-	if isTemplate && t.drawGroup != "" {
-		group = t.drawGroup
+	if t, isTemplate := n.(*template); isTemplate && t.groupKey != "" {
+		at.group = t.groupKey
 	}
 	for _, e := range renderEdges(n) {
-		w.edge(n, e, group, route, via, held)
+		w.edge(n, e, at)
 	}
 }
 
-func (w *drawWalk) edge(from node, e renderEdge, group string, route drawRoute, via string, held bool) {
+func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	a, target, reads := refRead(from, e.label)
 	switch {
 	case !reads:
-		w.walk(e.to, group, route, via, held)
+		w.walk(e.to, at)
+		return
 	case w.record != nil && target == node(w.record):
-		w.err = fmt.Errorf("%s reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", route.spelling, a.name)
-	case len(a.tail) > 0:
-		if k := (drawKey{group, a.path}); !w.read[k] {
-			w.read[k] = true
-			w.reads = append(w.reads, pathRead{group, route, a, target})
-		}
-		w.walk(e.to, group, route, a.name, true)
-	default:
-		w.walk(e.to, group, route, a.name, false)
+		w.err = fmt.Errorf("%s reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", at.route.spelling, a.name)
+		return
 	}
+	if k := (drawKey{at.group, a.path}); !w.read[k] {
+		w.read[k] = true
+		w.reads = append(w.reads, pathRead{at, a, target})
+	}
+	at.via, at.held = a.name, len(a.tail) > 0
+	w.walk(e.to, at)
 }
 
-// check refuses what one draw per reference path cannot answer for: a path read into a level
-// another read renders, and a node drawn afresh beside a path whose draw holds it.
+// check refuses what one draw per reference path cannot answer for, reads compared in path order so
+// which pair is reported does not vary.
 func (w *drawWalk) check() error {
 	if w.err != nil {
 		return w.err
 	}
 	sort.SliceStable(w.reads, func(i, j int) bool {
-		if w.reads[i].group != w.reads[j].group {
-			return w.reads[i].group < w.reads[j].group
+		if w.reads[i].at.group != w.reads[j].at.group {
+			return w.reads[i].at.group < w.reads[j].at.group
 		}
 		return w.reads[i].a.path < w.reads[j].a.path
 	})
-	pins := map[drawKey]pathRead{}
+	if err := w.checkOverlaps(); err != nil {
+		return err
+	}
+	return w.checkFreshDraws()
+}
+
+// checkOverlaps refuses a read of a level beside a path another read takes into it.
+func (w *drawWalk) checkOverlaps() error {
 	for i, level := range w.reads {
 		for _, into := range w.reads[i+1:] {
-			if into.group == level.group && strings.HasPrefix(into.a.path, level.a.path+".") {
-				return overlap(level.route, level.a.name, into)
+			if into.at.group == level.at.group && strings.HasPrefix(into.a.path, level.a.path+".") {
+				return overlapError(level.at.route, level.a.name, into)
 			}
-		}
-		held := map[node]bool{}
-		coverPath(level.target, level.a.tail, held)
-		for n := range held {
-			if _, pinned := pins[drawKey{level.group, n}]; !pinned {
-				pins[drawKey{level.group, n}] = level
-			}
-		}
-	}
-	for _, f := range w.fresh {
-		if r, pinned := pins[drawKey{f.group, f.n}]; pinned {
-			return overlap(f.route, f.via, r)
 		}
 	}
 	return nil
 }
 
-func overlap(route drawRoute, ref string, into pathRead) error {
-	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a group", route.spelled(ref), into.route.spelled(into.a.name))
+// checkFreshDraws refuses a node drawn afresh where a reference path's draw holds it.
+func (w *drawWalk) checkFreshDraws() error {
+	pins := map[drawKey]pathRead{}
+	for _, r := range w.reads {
+		if len(r.a.tail) == 0 {
+			continue
+		}
+		held := map[node]bool{}
+		coverPath(r.target, r.a.tail, held)
+		for n := range held {
+			if _, pinned := pins[drawKey{r.at.group, n}]; !pinned {
+				pins[drawKey{r.at.group, n}] = r
+			}
+		}
+	}
+	for _, f := range w.fresh {
+		if r, pinned := pins[drawKey{f.at.group, f.n}]; pinned {
+			return overlapError(f.at.route, f.at.via, r)
+		}
+	}
+	return nil
 }
 
-// spelled names the route, and the reference it reaches a draw by where its root edge is not
-// that reference.
+func overlapError(route drawRoute, ref string, into pathRead) error {
+	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a group", route.spelled(ref), into.at.route.spelled(into.a.name))
+}
+
+// spelled names the route, and the reference it reaches a draw by where its root edge is not that
+// reference.
 func (r drawRoute) spelled(ref string) string {
 	if ref == "" || ref == r.label {
 		return r.spelling

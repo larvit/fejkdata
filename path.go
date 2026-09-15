@@ -105,7 +105,7 @@ func checkPath(n node, tail []string, level string) error {
 			switch {
 			case t.repeat > 1:
 				return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", name)
-			case t.drawGroup != "":
+			case t.group != "":
 				return fmt.Errorf("the level %q carries a group, which a path reading into it cannot apply", name)
 			}
 			return nil
