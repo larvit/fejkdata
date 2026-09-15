@@ -30,10 +30,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 		`{"format":"{p}","p":{"format":"{n}","n":{"format":"1","datatype":"integer"}}}`: "datatype only types a record column",
 		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:           "datatype only types a record column",
 		`null`: `so write ""`,
-		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`:                                           `so write ""`,
-		`{"format":"","c":[{"format":"1","datatype":"integer"},"x"]}`:                                    `write it as {"format":"x","datatype":"integer"}`,
-		`{"format":"","c":[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]}`:              `give it "datatype": "integer"`,
-		`{"format":"","c":[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]}`: "a column holds one datatype",
+		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `so write ""`,
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)
@@ -44,9 +41,18 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 	tree := map[string]string{
 		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x"}]`,
-		"src": `{"format":"","score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+		"src": `{"format":"","code":[null,"200","2x"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 	}
 	for _, c := range []struct{ name, column, want string }{
+		{"an item beside a typed one", `[{"format":"1","datatype":"integer"},"x"]`, `write it as {"format":"x","datatype":"integer"}`},
+		{"a weighted item beside a typed one", `[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]`, `give it "datatype": "integer"`},
+		{"items of two datatypes", `[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]`, "a column holds one datatype"},
+		{"an item beside a typed column it reads", `["{/src.score}","x"]`, `write it as {"format":"x","datatype":"integer"}`},
+		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `item "{/src.code}" declares no datatype beside one declaring integer`},
+		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
+		{"another datatype over a typed column", `{"format":"{/src.score}","datatype":"number"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
+		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
+		{"a null read into text", `{"format":"{x}","x":"{/src.score}","datatype":"integer"}`, "reads a null"},
 		{"a sample with leading zeros", `{"format":"{digits(3)}","datatype":"integer"}`, "{digits(3)} prints text, not an integer"},
 		{"a fraction", `{"format":"{v}","v":["1","1.5"],"datatype":"integer"}`, `"1.5" is not an integer`},
 		{"past int64", `{"format":"9223372036854775808","datatype":"integer"}`, "past the int64 range"},
@@ -55,7 +61,6 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a sign before a sample", `{"format":"-{int(1,9)}","datatype":"integer"}`, "is not one value"},
 		{"a repeat", `{"format":"{int(1,9)}","repeat":2,"separator":",","datatype":"integer"}`, "carries a repeat"},
 		{"through a reference", `{"format":"{/cat.code}","datatype":"integer"}`, `"2x" is not an integer`},
-		{"a null through a reference", `{"format":"{/src.score}","datatype":"integer"}`, "reads a null"},
 		{"a bare dot", `{"format":".5","datatype":"number"}`, `".5" is not a number`},
 		{"a plus sign", `{"format":"+1","datatype":"number"}`, `"+1" is not a number`},
 		{"a text sample", `{"format":"{hex(4)}","datatype":"number"}`, "{hex(4)} prints text, not a number"},
@@ -120,9 +125,11 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{calc(a / (b + 1), 2)}","a":"{int(1,9)}","b":"{digits(2)}","datatype":"number"}`,
 		`{"format":"{calc(a / b, 0)}","a":"{int(1,9)}","b":"{int(1,9)}","datatype":"integer"}`,
 		`{"format":"{calc(sub * 1.25, 2)}","sub":{"format":"{calc(a * b)}","a":"{int(1,9)}","b":"{float(0,5,2)}"},"datatype":"number"}`,
+		`{"format":"{/src.code}","datatype":"integer"}`,
 	} {
 		row := `{"format":"","col":` + column + `}`
-		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})), WithSeed(1))
+		src := `{"format":"","code":["200","404"]}`
+		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it loaded", column, err)
 			continue

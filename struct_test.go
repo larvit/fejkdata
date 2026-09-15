@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -53,8 +54,41 @@ func structData(t *testing.T) *Generator {
 	return newGenerator(t, writeData(t, map[string]string{
 		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`,
 		"place":  `[{"format":"{city}","city":"Stockholm","zip":"111 22"},{"format":"{city}","city":"Tranås","zip":"573 31"}]`,
+		"src":    `{"format":"","code":[null,"200","404"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 		"trip":   `{"format":"","leg":[{"format":"{to}","to":"Oslo"},{"format":"{to}","to":"Rome"}]}`,
 	}), WithSeed(1))
+}
+
+func TestFakeStructReadsAColumnWhole(t *testing.T) {
+	f := structData(t)
+	nils := map[string]int{}
+	for i := 0; i < 200; i++ {
+		var v struct {
+			Code  *string `fake:"src.code"`
+			Label string  `fake:"n={/src.score}"`
+			Score *int64  `fake:"src.score"`
+		}
+		if err := f.FakeStruct(&v); err != nil {
+			t.Fatal(err)
+		}
+		switch {
+		case v.Code == nil:
+			nils["code"]++
+		case *v.Code != "200" && *v.Code != "404":
+			t.Fatalf("Code = %q, want nil or a code, never a null's \"\"", *v.Code)
+		}
+		switch {
+		case v.Score == nil && v.Label == "n=":
+			nils["score"]++
+		case v.Score == nil || *v.Score < 1 || *v.Score > 9 || v.Label != "n="+strconv.FormatInt(*v.Score, 10):
+			t.Fatalf("%+v, want Score nil beside Label n=, or one digit in both", v)
+		}
+	}
+	for _, name := range []string{"code", "score"} {
+		if n := nils[name]; n == 0 || n == 200 {
+			t.Errorf("%s was nil %d times in 200 fills, want both outcomes", name, n)
+		}
+	}
 }
 
 func TestFakeStructFillsTaggedFields(t *testing.T) {
@@ -166,6 +200,15 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A int `fake:"[null,\"{int(1,9)}\"]"`
 		}{}, "can draw null, which int cannot hold; make it *int"},
+		{&struct {
+			A int64 `fake:"src.score"`
+		}{}, "can draw null, which int64 cannot hold; make it *int64"},
+		{&struct {
+			A string `fake:"src.code"`
+		}{}, "can draw null, which string cannot hold; make it *string"},
+		{&struct {
+			A *bool `fake:"src.score"`
+		}{}, ".A (*bool): {int(1,9)} prints an integer, not a boolean"},
 		{&struct {
 			A int `fake:"{digits(3)}"`
 		}{}, ".A (int): {digits(3)} prints text, not an integer"},

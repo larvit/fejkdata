@@ -382,6 +382,62 @@ func TestRecordBareReferenceStaysIndependent(t *testing.T) {
 	}
 }
 
+func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"mid": `{"format":"","score":"{/src.score}"}`,
+		"row": `{"format":"","chain":"{/mid.score}","code":{"format":"{/src.code}","datatype":"integer"},"label":"n={/src.score}","same":"{/src.score}","score":"{/src.score}","text":"{/src.code}"}`,
+		"src": `{"format":"","code":[null,"200","404"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	inline, err := f.NewRecordTemplate(`{"format":"","score":"{/src.score}"}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nulls := map[string]int{}
+	for i := 0; i < 200; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		cols := map[string]Column{}
+		for _, c := range r.Columns() {
+			cols[c.Name] = c
+		}
+		score, code := cols["score"], cols["code"]
+		agree := func(name string, want Column) bool {
+			return cols[name].Null == want.Null && cols[name].Value == want.Value
+		}
+		switch {
+		case score.DataType != DataTypeInteger || cols["chain"].DataType != DataTypeInteger || code.DataType != DataTypeInteger || cols["label"].DataType != DataTypeString || cols["text"].DataType != DataTypeString:
+			t.Fatalf("%s: want score, chain and code integer columns, label and text string ones", r.JSON())
+		case score.Null == (len(score.Value) == 1 && score.Value >= "1" && score.Value <= "9"):
+			t.Fatalf("score = %+v, want null or a digit from src.score", score)
+		case code.Null == (code.Value == "200" || code.Value == "404"):
+			t.Fatalf("code = %+v, want null or a code from src.code", code)
+		case !agree("same", score) || !agree("chain", score) || !agree("text", code):
+			t.Fatalf("%s: want every read of one src column one draw, through mid too", r.JSON())
+		case cols["label"].Null || cols["label"].Value != "n="+score.Value:
+			t.Fatalf("label = %+v beside score %+v, want the text of the read, a null as \"\"", cols["label"], score)
+		case strings.Contains(r.JSON(), `"score":null`) != score.Null:
+			t.Fatalf("JSON() = %s, want a null score written null", r.JSON())
+		}
+		ic := inline.Fake().Columns()[0]
+		if ic.DataType != DataTypeInteger || ic.Null == (len(ic.Value) == 1) {
+			t.Fatalf("inline score = %+v, want an integer column, null or a digit", ic)
+		}
+		for name, c := range map[string]Column{"code": code, "inline": ic, "score": score} {
+			if c.Null {
+				nulls[name]++
+			}
+		}
+	}
+	for _, name := range []string{"code", "inline", "score"} {
+		if n := nulls[name]; n == 0 || n == 200 {
+			t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
+		}
+	}
+}
+
 func TestRecordSQLQuotesIdentifiers(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"row": `{"format": "", "postal-code": "1", "street-number": "2"}`,
