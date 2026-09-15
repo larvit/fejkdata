@@ -53,6 +53,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
 		{"a datatype a typed column's values reject", `{"format":"{/src.score}","datatype":"boolean"}`, "{int(1,9)} prints an integer, not a boolean"},
 		{"two typed columns it reads", `["{/src.score}","{/src.flag}"]`, `so to read "{/src.score}" as text, write {"format":"{text}","text":"{/src.score}"}`},
+		{"a typed column read that holds the datatype declared beside it", `[{"format":"1.5","datatype":"number"},"{/src.score}"]`, `so write "{/src.score}" as {"format":"{/src.score}","datatype":"number"}`},
 		{"text beside a weighted typed column read", `[{"format":"{/src.score}","weight":3},"n/a"]`, `to read that column as text, set its "format" to "{text}" and add "text": "{/src.score}"`},
 		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
 		{"a null read into text", `{"format":"{x}","x":"{/src.score}","datatype":"integer"}`, "reads a null"},
