@@ -134,19 +134,21 @@ func TestRecordCSV(t *testing.T) {
 }
 
 func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
-	for _, body := range []string{`{"format": "", "note": ""}`, `{"format": "", "note": null}`} {
-		f := newGenerator(t, writeData(t, map[string]string{"blank": body}), WithSeed(1))
-		r, err := f.FakeRecord("blank")
-		if err != nil {
-			t.Fatal(err)
-		}
-		rows, err := csv.NewReader(strings.NewReader(r.CSVHeader() + "\n" + r.CSVLine() + "\n")).ReadAll()
-		if err != nil {
-			t.Fatalf("csv: %v", err)
-		}
-		if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
-			t.Fatalf("%s: one empty column parsed to %v, want a header and one row of one empty field", body, rows)
-		}
+	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`, "gone": `{"format": "", "note": null}`})
+	f := newGenerator(t, dir, WithSeed(1))
+	r, err := f.FakeRecord("blank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows, err := csv.NewReader(strings.NewReader(r.CSVHeader() + "\n" + r.CSVLine() + "\n")).ReadAll()
+	if err != nil {
+		t.Fatalf("csv: %v", err)
+	}
+	if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
+		t.Fatalf("one empty column parsed to %v, want a header and one row of one empty field", rows)
+	}
+	if r, err := f.FakeRecord("gone"); err != nil || r.CSVLine() != "" {
+		t.Fatalf("a lone null column wrote %q, %v; want the blank line PostgreSQL's COPY reads as null", r.CSVLine(), err)
 	}
 }
 
