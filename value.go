@@ -92,7 +92,9 @@ func (p *valueProof) template(t *template) proven {
 	case t.fixed:
 		return literalValue(t.lit)
 	case len(t.ops) != 1:
-		return unproven(fmt.Sprintf("%q is not one value; write one literal or one {int()}, {float()}, {seq()} or {calc()}, or read one", t.format))
+		v := unproven(notOneValue(t.format, "{int()}, {float()}, {seq()} or {calc()}"))
+		v.notNumber = notOneValue(t.format, "{int()}, {float()}, {seq()}, {digits()} or {calc()}")
+		return v
 	}
 	body := t.format[1 : len(t.format)-1]
 	name, args, isFunc := funcCall(body)
@@ -225,6 +227,10 @@ func printing(token string, prints DataType, v proven) proven {
 		}
 	}
 	return v
+}
+
+func notOneValue(format, calls string) string {
+	return fmt.Sprintf("%q is not one value; write one literal or one %s, or read one", format, calls)
 }
 
 // unproven is a render no datatype and no calc can take, for why.

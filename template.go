@@ -73,7 +73,7 @@ type builtin struct {
 	// for a builtin that reads none.
 	operands func(args []string) []string
 	// number bounds the number a call prints and names the datatype its text is; nil
-	// for a builtin that prints text.
+	// for a builtin whose text is no number.
 	number func(args []string) (proven, DataType)
 }
 
