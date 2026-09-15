@@ -75,6 +75,25 @@ func TestNoRecordAllocRegression(t *testing.T) {
 	}
 }
 
+func TestNoStructAllocRegression(t *testing.T) {
+	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(`{"format":"","a":"x","b":"y","c":"z"}`)}}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v struct {
+		A string `fake:"x.a"`
+		B string `fake:"x.b"`
+		C string `fake:"x.c"`
+	}
+	if err := f.FakeStruct(&v); err != nil {
+		t.Fatal(err)
+	}
+	const base = 5.0
+	if allocs := testing.AllocsPerRun(10000, func() { f.FakeStruct(&v) }); allocs > base*1.10 {
+		t.Errorf("FakeStruct: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); compiling the type per call is the usual cause", allocs, base*1.10, base)
+	}
+}
+
 func BenchmarkNestedDepth25(b *testing.B)  { benchPath(b, tmpData(b, "deep", nestedJSON(25)), "deep") }
 func BenchmarkNestedDepth100(b *testing.B) { benchPath(b, tmpData(b, "deep", nestedJSON(100)), "deep") }
 func BenchmarkWideTokens100(b *testing.B) {
