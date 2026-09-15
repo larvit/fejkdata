@@ -59,7 +59,7 @@ func structData(t *testing.T) *Generator {
 	}), WithSeed(1))
 }
 
-func TestFakeStructReadsAColumnWhole(t *testing.T) {
+func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
 	f := structData(t)
 	nils := map[string]int{}
 	for i := 0; i < 200; i++ {
