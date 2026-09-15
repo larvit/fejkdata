@@ -32,7 +32,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := bindInline(n, "template", f.categories); err != nil {
+	if err := bindInline(n, "template", f.categories, checkScope); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -133,14 +133,14 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-// bindInline links an inline node's references against root and runs the fences over it,
-// naming its nodes from label.
-func bindInline(n node, label string, root map[string]node) error {
+// bindInline links an inline node's references against root and runs check over it, naming its
+// nodes from label.
+func bindInline(n node, label string, root map[string]node, check func(nodeScope) error) error {
 	scope := inlineScope(n, label)
 	if err := linkNodeRefs(scope, root); err != nil {
 		return err
 	}
-	return checkScope(scope)
+	return check(scope)
 }
 
 // linkNodeRefs binds the references in an inline node's templates against the

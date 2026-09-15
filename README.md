@@ -627,7 +627,8 @@ tokens add cost in proportion to the output.
   its columns from a struct instead, because a Go caller has already written that
   schema: the fields name the columns and their types are the datatypes, so a tag
   says only what to draw, and a `datatype` in it would be a second spelling of the
-  type.
+  type. The Go type is a struct column's one datatype, so its items need not agree on
+  one among themselves; each must only hold that type.
 - **A struct's records follow Go's field access, and compile on first use.** The
   fields an embedded struct promotes are the struct's own — `e.First`, as
   `encoding/json` and SQL mappers read them — so they are columns of its record and

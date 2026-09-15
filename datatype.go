@@ -64,18 +64,41 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 	return 0, fmt.Errorf(`datatype takes "integer", "number" or "boolean", got %q`, name)
 }
 
-// checkColumns rejects a record column whose items hold different datatypes.
-func checkColumns(path string, n node) error {
-	t, ok := n.(*template)
-	if !ok || !t.record {
-		return nil
-	}
-	for _, name := range recordColumns(t) {
-		if _, err := columnDatatype(t.fields[name]); err != nil {
+// checkColumns rejects a record column whose items hold different datatypes, checking a column
+// after the columns its items read, so a column read is named before its readers.
+func checkColumns(s nodeScope) error {
+	checked := map[node]bool{}
+	var check func(path, name string, column node) error
+	check = func(path, name string, column node) error {
+		if checked[column] {
+			return nil
+		}
+		checked[column] = true
+		items, _ := columnItems(column)
+		for _, it := range items {
+			if r := it.readsColumn; r != nil {
+				if err := check(r.a.key[1:], r.a.tail[0], r.column); err != nil {
+					return err
+				}
+			}
+		}
+		if _, err := columnDatatype(column); err != nil {
 			return fmt.Errorf("%s: field %q: %w", path, name, err)
 		}
+		return nil
 	}
-	return nil
+	return s(func(path string, n node) error {
+		t, ok := n.(*template)
+		if !ok || !t.record {
+			return nil
+		}
+		for _, name := range recordColumns(t) {
+			if err := check(path, name, t.fields[name]); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // columnDatatype is the datatype a column's items hold. They must agree, since a
@@ -136,13 +159,15 @@ func columnItems(n node) (items []*template, nullable bool) {
 
 // disagreement names the fix for two items of one column holding different datatypes.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
-	bare, want := b, da
+	bare, typed, want := b, a, da
 	if da == DataTypeString {
-		bare, want = a, db
+		bare, typed, want = a, b, db
 	}
 	switch {
 	case da != DataTypeString && db != DataTypeString:
 		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
+	case typed.datatype == DataTypeString && (&valueProof{}).columnItem(bare).not[want] != "":
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, write {"format":"{text}","text":%q}`, bare.format, dataTypeNouns[want], typed.format, typed.format)
 	case bare.fromString: // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
 	}

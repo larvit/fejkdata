@@ -258,7 +258,7 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	if err := bindInline(n, label, root); err != nil {
+	if err := bindInline(n, label, root, checkRenders); err != nil {
 		return err
 	}
 	record, columns, err := recordOf(n)

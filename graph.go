@@ -177,14 +177,19 @@ func inlineScope(n node, label string) nodeScope {
 	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// checkScope runs the per-node fences over a scope, each over the whole scope
+// checkScope runs every fence over a scope: checkColumns, then checkRenders.
+func checkScope(s nodeScope) error {
+	if err := checkColumns(s); err != nil {
+		return err
+	}
+	return checkRenders(s)
+}
+
+// checkRenders runs the per-node fences over a scope, each over the whole scope
 // before the next, so which of several broken nodes is reported does not depend on
 // the walk. It runs after checkNoCycles, whose guarantee is what lets the walks
 // terminate.
-func checkScope(s nodeScope) error {
-	if err := s(checkColumns); err != nil {
-		return err
-	}
+func checkRenders(s nodeScope) error {
 	mem := reachMemo{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err
