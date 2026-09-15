@@ -217,7 +217,7 @@ func recordOf(n node) (*template, []Column, error) {
 	}
 	columns := make([]Column, len(names))
 	for i, name := range names {
-		datatype, _ := columnDatatype(t.fields[name]) // compile refused a column whose items disagree
+		datatype, _ := columnDatatype(t.fields[name]) // checkColumns refused a column whose items disagree
 		columns[i] = Column{Name: name, DataType: datatype}
 	}
 	return t, columns, nil
@@ -300,14 +300,25 @@ func renderRecord(s *session, t *template, columns []Column) *Record {
 	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
-		n := drawn(s, t.fields[r.columns[i].Name])
-		if _, isNull := n.(*null); isNull {
-			r.columns[i].Null = true
-		} else {
-			r.columns[i].Value = render(s, n, scope)
-		}
+		r.columns[i].Value, r.columns[i].Null = renderColumn(s, t.fields[r.columns[i].Name], scope)
 	}
 	return r
+}
+
+// renderColumn draws a column and reports whether the draw is null: a null item, or an item
+// reading whole a column that scope drew null.
+func renderColumn(s *session, column node, scope *draws) (string, bool) {
+	n := drawn(s, column)
+	value, isNull := "", true
+	if _, drewNull := n.(*null); !drewNull {
+		value = render(s, n, scope)
+		t, _ := n.(*template)
+		isNull = t != nil && t.inherits != nil && scope != nil && scope.nulls[t.inherits]
+	}
+	if isNull && scope != nil {
+		scope.drewNull(column)
+	}
+	return value, isNull
 }
 
 // recordColumns is the sorted non-reference field names — the columns a record

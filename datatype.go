@@ -64,22 +64,55 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 	return 0, fmt.Errorf(`datatype takes "integer", "number" or "boolean", got %q`, name)
 }
 
-// columnDatatype is the datatype a column's items declare. They must agree, since a
+// checkColumns rejects a record column whose items hold different datatypes.
+func checkColumns(path string, n node) error {
+	t, ok := n.(*template)
+	if !ok || !t.record {
+		return nil
+	}
+	for _, name := range recordColumns(t) {
+		if _, err := columnDatatype(t.fields[name]); err != nil {
+			return fmt.Errorf("%s: field %q: %w", path, name, err)
+		}
+	}
+	return nil
+}
+
+// columnDatatype is the datatype a column's items hold. They must agree, since a
 // column holds one; a column only ever null is a string.
 func columnDatatype(n node) (DataType, error) {
 	items, _ := columnItems(n)
 	if len(items) == 0 {
 		return DataTypeString, nil
 	}
+	first := itemDatatype(items[0])
 	for _, t := range items[1:] {
-		if t.datatype != items[0].datatype {
-			return items[0].datatype, disagreement(items[0], t)
+		if d := itemDatatype(t); d != first {
+			return first, disagreement(items[0], first, t, d)
 		}
 	}
-	return items[0].datatype, nil
+	return first, nil
 }
 
-// columnItems is a column's template items, its choices unwrapped, and whether one is null.
+// itemDatatype is the datatype a column item declares, else that of the column it reads whole.
+func itemDatatype(t *template) DataType {
+	if t.datatype != DataTypeString {
+		return t.datatype
+	}
+	return readDatatype(t)
+}
+
+// readDatatype is the datatype of the column t reads whole; a string when it reads none.
+func readDatatype(t *template) DataType {
+	if t.inherits == nil {
+		return DataTypeString
+	}
+	d, _ := columnDatatype(t.inherits) // checkColumns refuses that column where it sits
+	return d
+}
+
+// columnItems is a column's template items, its choices unwrapped, and whether one is null
+// or reads whole a column that can be.
 func columnItems(n node) (items []*template, nullable bool) {
 	var collect func(node)
 	collect = func(n node) {
@@ -90,6 +123,10 @@ func columnItems(n node) (items []*template, nullable bool) {
 			}
 		case *template:
 			items = append(items, n)
+			if n.inherits != nil {
+				_, inherited := columnItems(n.inherits)
+				nullable = nullable || inherited
+			}
 		case *null:
 			nullable = true
 		}
@@ -98,17 +135,17 @@ func columnItems(n node) (items []*template, nullable bool) {
 	return items, nullable
 }
 
-// disagreement names the fix for two items of one column declaring different datatypes.
-func disagreement(a, b *template) error {
-	typed, bare := a, b
-	if typed.datatype == DataTypeString {
-		typed, bare = b, a
+// disagreement names the fix for two items of one column holding different datatypes.
+func disagreement(a *template, da DataType, b *template, db DataType) error {
+	bare, want := b, da
+	if da == DataTypeString {
+		bare, want = a, db
 	}
 	switch {
-	case bare.datatype != DataTypeString:
-		return fmt.Errorf("its items declare %s and %s; a column holds one datatype", a.datatype, b.datatype)
+	case da != DataTypeString && db != DataTypeString:
+		return fmt.Errorf("its items declare %s and %s; a column holds one datatype", da, db)
 	case bare.fields == nil: // a JSON string; an object, which may carry a weight, has a fields map
-		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, typed.datatype)
+		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
 	}
-	return fmt.Errorf(`an item declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, typed.datatype, typed.datatype)
+	return fmt.Errorf(`item %q declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, bare.format, want, want)
 }

@@ -23,24 +23,38 @@ type valueProof struct {
 	memo map[node]proven
 }
 
-// checkDatatype rejects a typed column some render of which is not text of its datatype.
+// checkDatatype rejects a typed column item some render of which is not text of its datatype,
+// and one declaring a datatype over the typed column it reads whole.
 func (p *valueProof) checkDatatype(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
-	if err := p.prove(t, t.datatype); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
+	if d := readDatatype(t); d != DataTypeString {
+		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, d)
+	}
+	if reason := p.columnItem(t).not[t.datatype]; reason != "" {
+		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
 	}
 	return nil
 }
 
-// prove reports why some render of n is not text of datatype d.
-func (p *valueProof) prove(n node, d DataType) error {
-	if reason := p.of(n).not[d]; reason != "" {
-		return fmt.Errorf("datatype %s: %s", d, reason)
+// columnItem proves a column item: what it renders, or, reading a column whole, that column's
+// items, whose nulls it draws as null rather than rendering them.
+func (p *valueProof) columnItem(t *template) proven {
+	if t.inherits == nil {
+		return p.of(t)
 	}
-	return nil
+	var v proven
+	items, _ := columnItems(t.inherits)
+	for i, it := range items {
+		if w := p.columnItem(it); i == 0 {
+			v = w
+		} else {
+			v = v.or(w)
+		}
+	}
+	return v
 }
 
 func (p *valueProof) of(n node) proven {
@@ -66,16 +80,21 @@ func (p *valueProof) of(n node) proven {
 func (p *valueProof) unite(nodes []node) proven {
 	v := p.of(nodes[0])
 	for _, n := range nodes[1:] {
-		w := p.of(n)
-		v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
-		v.integral = v.integral && w.integral
-		if v.notOperand == "" {
-			v.notOperand = w.notOperand
-		}
-		for d := range v.not {
-			if v.not[d] == "" {
-				v.not[d] = w.not[d]
-			}
+		v = v.or(p.of(n))
+	}
+	return v
+}
+
+// or is what a proof knows of a render that is either v or w.
+func (v proven) or(w proven) proven {
+	v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
+	v.integral = v.integral && w.integral
+	if v.notOperand == "" {
+		v.notOperand = w.notOperand
+	}
+	for d := range v.not {
+		if v.not[d] == "" {
+			v.not[d] = w.not[d]
 		}
 	}
 	return v

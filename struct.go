@@ -269,9 +269,6 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 	s.fields = make([][]int, len(columns))
 	for i, c := range columns {
 		sf, _ := t.FieldByName(c.Name)
-		if c.DataType != DataTypeString {
-			return fmt.Errorf("%s.%s: its Go type %s sets the datatype; drop \"datatype\"", label, c.Name, sf.Type)
-		}
 		if err := proof.checkField(label+"."+c.Name, sf.Type, record.fields[c.Name]); err != nil {
 			return err
 		}
@@ -318,10 +315,15 @@ func (k columnKind) holds(v proven) bool {
 	return v.lo >= k.lo && v.hi <= k.hi
 }
 
-// checkField rejects a column some render of which a field of Go type ft cannot hold: a null
-// outside a pointer, or a value its kind's datatype or range refuses.
+// checkField rejects a column a field of Go type ft cannot fill: a datatype, which the Go type
+// sets, a null outside a pointer, or a value its kind's datatype or range refuses.
 func (p *valueProof) checkField(label string, ft reflect.Type, column node) error {
 	items, nullable := columnItems(column)
+	for _, it := range items {
+		if it.datatype != DataTypeString {
+			return fmt.Errorf("%s: its Go type %s sets the datatype; drop \"datatype\"", label, ft)
+		}
+	}
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
@@ -333,7 +335,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 		return nil
 	}
 	for _, it := range items {
-		v := p.of(it)
+		v := p.columnItem(it)
 		if reason := v.not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}

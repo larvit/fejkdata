@@ -59,6 +59,9 @@ type template struct {
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
 	held map[string]bool
+	// inherits is the column a format of one reference alone reads, taking its datatype and null.
+	inherits node
+	record   bool // compiled at the top without a repeat, so its fields are record columns
 }
 
 func (*template) isNode() {}
@@ -244,7 +247,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err := checkTokens(o.format, fields); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, record: fieldPos == inColumn}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -307,9 +310,6 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 			return nil, fmt.Errorf("field %w", err)
 		}
 		n, err := compileAt(m[k], pos)
-		if err == nil && pos == inColumn {
-			_, err = columnDatatype(n)
-		}
 		if err != nil {
 			return nil, fmt.Errorf("field %q: %w", k, err)
 		}

@@ -107,7 +107,22 @@ func linkTemplateRefs(folder []string, path string, t *template, root map[string
 	if err := t.compileFormat(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
+	t.inherits = columnRead(t)
 	return nil
+}
+
+// columnRead is the column t reads whole: its format is one reference alone, reading a field of
+// a record, so what that column draws is what t draws.
+func columnRead(t *template) node {
+	if t.repeat != 1 || len(t.ops) != 1 || t.ops[0].kind != 'f' || len(t.ops[0].arms) != 1 {
+		return nil
+	}
+	a := t.ops[0].arms[0]
+	target, isTemplate := t.fields[a.key].(*template)
+	if !isRef(a.name) || !isTemplate || !target.record || len(a.tail) != 1 {
+		return nil
+	}
+	return target.fields[a.tail[0]]
 }
 
 // eachTemplate calls fn once per template, with the folder its category sits in

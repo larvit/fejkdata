@@ -253,11 +253,20 @@ func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding)
 }
 
 // draws is what an expansion has already drawn for its held names: the variant each
-// was drawn as, so every path under it reads one row, and the value each read, by
-// its one spelling, so the same read written twice reads one value.
+// was drawn as, so every path under it reads one row, the value each read, by its one
+// spelling, so the same read written twice reads one value, and the columns drawn null,
+// so a read of one whole is null too.
 type draws struct {
 	variant map[string]node
 	value   map[string]string
+	nulls   map[node]bool
+}
+
+func (d *draws) drewNull(column node) {
+	if d.nulls == nil {
+		d.nulls = map[node]bool{}
+	}
+	d.nulls[column] = true
 }
 
 // readField renders one arm of a token. An arm's key is a sibling field or a
@@ -299,7 +308,7 @@ func readField(s *session, t *template, held, refScope *draws, a arm) string {
 			}
 			return []node{n}, nil
 		},
-		leaf: func(n node) error { v = render(s, n, refScope); return nil },
+		leaf: func(n node) error { v, _ = renderColumn(s, n, refScope); return nil },
 	})
 	d.value[a.path] = v
 	return v

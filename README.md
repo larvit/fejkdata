@@ -310,6 +310,12 @@ order.id: datatype integer: {digits(3)} prints text, not an integer
 order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {int()}, {float()}, {seq()} or {calc()}, or read one
 ```
 
+A column of one reference alone to another record's column — `"score": "{/src.score}"`,
+or a struct field tagged `src.score` — is that column: it takes the column's datatype
+and is null, or nil, where the column is. A `datatype` of its own types a string
+column's values, and over a typed column is refused naming the datatype it takes. Any
+other read renders the column's text, a null as `""`.
+
 A typed column's `{calc()}` must be proven to print a number: each operand a number
 literal, an `{int()}`, `{float()}`, `{seq()}` or `{digits()}` call, a calc, or a read of
 such values, whose bounds keep every divisor from zero and the result within `1e300`.
@@ -663,6 +669,11 @@ tokens add cost in proportion to the output.
 - **A typed column holds one value, not composed text.** Its bounds come from a
   literal or a call's arguments, so a load error names a real value, a range check is
   one comparison, and `1{digits(2)}` is a second spelling of `{int(100,199)}`.
+- **A column of one reference alone is the column it reads.** `{/src.score}` renders
+  exactly what `src.score` draws, so it takes that column's datatype and null rather
+  than restating them, and a `datatype` restating a typed column is a second spelling.
+  Over a string column a `datatype` still types the values — the one way to type a
+  column someone else wrote.
 - **A typed column's calc is refused unless proven.** Operand bounds must keep each
   divisor from zero and the result finite; what they cannot show is refused rather
   than trusted, since a bare `NaN` breaks the JSON and SQL it lands in.

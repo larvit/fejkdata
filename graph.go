@@ -182,6 +182,9 @@ func inlineScope(n node, label string) nodeScope {
 // the walk. It runs after checkNoCycles, whose guarantee is what lets the walks
 // terminate.
 func checkScope(s nodeScope) error {
+	if err := s(checkColumns); err != nil {
+		return err
+	}
 	mem := reachMemo{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err
