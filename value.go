@@ -205,7 +205,7 @@ func magnitude(v proven) float64 { return math.Max(math.Abs(v.lo), math.Abs(v.hi
 // and within int64, else a number.
 func printedNumber(token string, v proven, dp int) proven {
 	if dp >= 0 {
-		half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64) // math.Pow(10, -dp) can land below the tie and let a printed zero through
+		half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64)
 		v = proven{lo: v.lo - half, hi: v.hi + half, nonZero: math.Max(0, v.nonZero-half), integral: v.integral || dp == 0}
 	}
 	if dp != 0 && !(dp < 0 && v.integral) {
@@ -271,7 +271,8 @@ func literalValue(text string) proven {
 
 // signedZero refuses a zero written with a sign as a typed value, naming it unsigned.
 func signedZero(text string, v proven) proven {
-	if !strings.HasPrefix(text, "-") || v.notOperand != "" || v.lo != 0 {
+	mantissa, _, _ := strings.Cut(strings.ToLower(text), "e")
+	if !strings.HasPrefix(text, "-") || v.notOperand != "" || strings.Trim(mantissa, "-0.") != "" {
 		return v
 	}
 	for _, d := range []DataType{DataTypeInteger, DataTypeNumber} {
