@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"encoding/csv"
 	"encoding/json"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -133,18 +134,52 @@ func TestRecordCSV(t *testing.T) {
 }
 
 func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
-	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`})
-	f := newGenerator(t, dir, WithSeed(1))
-	r, err := f.FakeRecord("blank")
+	for _, body := range []string{`{"format": "", "note": ""}`, `{"format": "", "note": null}`} {
+		f := newGenerator(t, writeData(t, map[string]string{"blank": body}), WithSeed(1))
+		r, err := f.FakeRecord("blank")
+		if err != nil {
+			t.Fatal(err)
+		}
+		rows, err := csv.NewReader(strings.NewReader(r.CSVHeader() + "\n" + r.CSVLine() + "\n")).ReadAll()
+		if err != nil {
+			t.Fatalf("csv: %v", err)
+		}
+		if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
+			t.Fatalf("%s: one empty column parsed to %v, want a header and one row of one empty field", body, rows)
+		}
+	}
+}
+
+func TestRecordWritesTypedAndNullColumns(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"name":"O'Brien","nick":"","paid":{"format":"true","datatype":"boolean"},"price":{"format":"19.99","datatype":"number"}}`,
+	})
+	r, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("row")
 	if err != nil {
 		t.Fatal(err)
 	}
-	rows, err := csv.NewReader(strings.NewReader(r.CSVHeader() + "\n" + r.CSVLine() + "\n")).ReadAll()
-	if err != nil {
-		t.Fatalf("csv: %v", err)
+	want := []Column{
+		{Name: "age", DataType: DataTypeInteger, Value: "42"},
+		{Name: "gone", Null: true},
+		{Name: "name", Value: "O'Brien"},
+		{Name: "nick"},
+		{Name: "paid", DataType: DataTypeBoolean, Value: "true"},
+		{Name: "price", DataType: DataTypeNumber, Value: "19.99"},
 	}
-	if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
-		t.Fatalf("one empty column parsed to %v, want a header and one row of one empty field", rows)
+	if got := r.Columns(); !reflect.DeepEqual(got, want) {
+		t.Errorf("Columns() = %+v, want %+v", got, want)
+	}
+	if got, want := r.JSON(), `{"age":42,"gone":null,"name":"O'Brien","nick":"","paid":true,"price":19.99}`; got != want {
+		t.Errorf("JSON() = %s, want %s", got, want)
+	}
+	if got, want := r.SQLInsert("t"), `INSERT INTO "t" ("age", "gone", "name", "nick", "paid", "price") VALUES (42, NULL, 'O''Brien', '', true, 19.99);`; got != want {
+		t.Errorf("SQLInsert() = %s, want %s", got, want)
+	}
+	if got, want := r.CSVLine(), `42,,O'Brien,"",true,19.99`; got != want {
+		t.Errorf("CSVLine() = %s, want %s: null an unquoted empty field, an empty string quoted", got, want)
+	}
+	if got := DataTypeNumber.String(); got != "number" {
+		t.Errorf("DataTypeNumber.String() = %q, want the data's spelling", got)
 	}
 }
 

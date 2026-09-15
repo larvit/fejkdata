@@ -30,12 +30,13 @@ func TestRepeatedChoiceItemIsRejected(t *testing.T) {
 
 func TestInertObjectIsRejected(t *testing.T) {
 	for src, want := range map[string]string{
-		`{"format":"Malmö"}`:                                 `write "Malmö"`,
-		`{"format":"{digits(3)}"}`:                           `write "{digits(3)}"`,
-		`[{"format":"a","weight":1},"b"]`:                    "weight 1",
-		`{"format":"{x}","x":"v","repeat":1}`:                "repeat 1",
-		`{"format":"{x}","x":"v","separator":","}`:           "separator",
-		`{"format":"{x}","x":"v","repeat":2,"separator":""}`: "default",
+		`{"format":"Malmö"}`:                                   `write "Malmö"`,
+		`{"format":"{digits(3)}"}`:                             `write "{digits(3)}"`,
+		`[{"format":"a","weight":1},"b"]`:                      "weight 1",
+		`{"format":"{x}","x":"v","repeat":1}`:                  "repeat 1",
+		`{"format":"{x}","x":"v","separator":","}`:             "separator",
+		`{"format":"{x}","x":"v","repeat":2,"separator":""}`:   "default",
+		`{"format":"","n":{"format":"1","datatype":"string"}}`: `datatype "string" is the default`,
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)

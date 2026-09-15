@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"os"
 	"regexp"
 	"strings"
@@ -85,5 +86,45 @@ func TestReadmeSQLExampleOutput(t *testing.T) {
 	}
 	if got := fake(t, f, "sql"); got != want[1] {
 		t.Errorf("README SQL example with seed 1 = %q, README prints %q", got, want[1])
+	}
+}
+
+func TestReadmeDatatypeExample(t *testing.T) {
+	src := readme(t)
+	i := strings.Index(src, "### Datatype")
+	if i < 0 {
+		t.Fatal("README lost the Datatype section")
+	}
+	block := jsonBlock.FindStringSubmatch(src[i:])
+	f, err := New(WithDataPath(writeData(t, map[string]string{"order": block[1]})), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.FakeRecord("order")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(r.JSON()), &m); err != nil {
+		t.Fatalf("JSON() = %s: %v", r.JSON(), err)
+	}
+	shown := map[DataType]bool{}
+	for _, c := range r.Columns() {
+		shown[c.DataType] = true
+		var ok bool
+		switch c.DataType {
+		case DataTypeBoolean:
+			_, ok = m[c.Name].(bool)
+		case DataTypeInteger, DataTypeNumber:
+			_, ok = m[c.Name].(float64)
+		default:
+			_, ok = m[c.Name].(string)
+		}
+		if !ok {
+			t.Errorf("column %q, datatype %s, written as %s", c.Name, c.DataType, r.JSON())
+		}
+	}
+	if !shown[DataTypeInteger] || !shown[DataTypeNumber] || !shown[DataTypeBoolean] {
+		t.Errorf("README Datatype example shows %v, want an integer, a number and a boolean column", shown)
 	}
 }
