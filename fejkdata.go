@@ -142,10 +142,10 @@ func (f *Generator) List() []string {
 }
 
 // paths lists the dot paths addressable from n, relative to it, where "" is n
-// itself. A group has no value of its own, so it contributes only its children's.
+// itself. A folder has no value of its own, so it contributes only its children's.
 func paths(n node) []string {
 	switch n := n.(type) {
-	case *group:
+	case *folder:
 		var out []string
 		for _, name := range sortedNames(n.children) {
 			for _, p := range paths(n.children[name]) {

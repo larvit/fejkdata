@@ -20,11 +20,11 @@ type rng interface {
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	n, err := descend(f.rand, &group{children: f.categories}, strings.Split(path, "."))
+	n, err := descend(f.rand, &folder{children: f.categories}, strings.Split(path, "."))
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	if _, ok := n.(*group); ok {
+	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
 	return renderOnce(f.rand, n), nil

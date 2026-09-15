@@ -13,12 +13,12 @@ import (
 // re-sums weights.
 type node interface{ isNode() }
 
-// group is a namespace of named children, built from a directory of JSON files
+// folder is a namespace of named children, built from a directory of JSON files
 // and subdirectories. It has no value of its own: descend into a named child by
 // dot path; rendering one is an error (see Fake).
-type group struct{ children map[string]node }
+type folder struct{ children map[string]node }
 
-func (*group) isNode() {}
+func (*folder) isNode() {}
 
 // choice picks one of its items. cum holds cumulative weights for a weighted
 // pick; when nil the choice is uniform and selection is O(1). shared is the set of

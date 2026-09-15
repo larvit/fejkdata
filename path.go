@@ -16,7 +16,7 @@ type pathWalk struct {
 	leaf   func(n node) error
 }
 
-// walkPath descends tail from n: a group or template by its next segment, a
+// walkPath descends tail from n: a folder or template by its next segment, a
 // choice by w.choice, which consumes no segment. A missing segment is an error,
 // so no walk reaches past what the data holds. A table-shaped dispatch, one case
 // per node kind, kept whole on purpose.
@@ -28,7 +28,7 @@ func walkPath(n node, tail []string, w pathWalk) error {
 		return nil
 	}
 	switch n := n.(type) {
-	case *group:
+	case *folder:
 		child, ok := n.children[tail[0]]
 		if !ok {
 			return fmt.Errorf("no entry %q", tail[0])

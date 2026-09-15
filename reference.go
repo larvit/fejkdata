@@ -162,17 +162,17 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 		}
 		return nil
 	}
-	var inFolder func(folder []string, children map[string]node) error
-	inFolder = func(folder []string, children map[string]node) error {
+	var inFolder func(dir []string, children map[string]node) error
+	inFolder = func(dir []string, children map[string]node) error {
 		for _, name := range sortedNames(children) {
-			path := join(strings.Join(folder, "."), name)
-			if g, ok := children[name].(*group); ok {
-				if err := inFolder(append(folder[:len(folder):len(folder)], name), g.children); err != nil {
+			path := join(strings.Join(dir, "."), name)
+			if g, ok := children[name].(*folder); ok {
+				if err := inFolder(append(dir[:len(dir):len(dir)], name), g.children); err != nil {
 					return err
 				}
 				continue
 			}
-			if err := inCategory(folder, path, children[name]); err != nil {
+			if err := inCategory(dir, path, children[name]); err != nil {
 				return err
 			}
 		}
@@ -183,13 +183,13 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 
 // resolveCategory walks a dotted path through the folders to the category it
 // names, returning that head, the node, and the tail left to read into it. A
-// descent of its own rather than a walkPath: it walks groups only and returns
+// descent of its own rather than a walkPath: it walks folders only and returns
 // where they end, not a leaf.
 func resolveCategory(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
-	var n node = &group{children: root}
+	var n node = &folder{children: root}
 	i := 0
 	for ; i < len(segments); i++ {
-		g, ok := n.(*group)
+		g, ok := n.(*folder)
 		if !ok {
 			break
 		}
@@ -199,7 +199,7 @@ func resolveCategory(root map[string]node, segments []string) (head []string, ta
 		}
 		n = child
 	}
-	if _, ok := n.(*group); ok {
+	if _, ok := n.(*folder); ok {
 		return nil, nil, nil, fmt.Errorf("names a folder, not a value")
 	}
 	return segments[:i], n, segments[i:], nil

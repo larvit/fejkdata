@@ -28,10 +28,10 @@ func (s dataSource) name(p string) string {
 }
 
 // loadData loads every source into one namespace tree and returns its root
-// children. A directory becomes a group; each *.json file in it compiles to a node
+// children. A directory becomes a folder; each *.json file in it compiles to a node
 // keyed by its base name (address.json -> "address"); each subdirectory becomes a
-// nested group, so folders turn into dot-path segments. Sources merge left to right:
-// matching groups merge by their children, and any other clash is won by the last
+// nested folder, so folders turn into dot-path segments. Sources merge left to right:
+// matching folders merge by their children, and any other clash is won by the last
 // source loaded. Once merged, linkRefs binds every reference against the
 // final tree.
 func loadData(sources []dataSource) (map[string]node, error) {
@@ -74,15 +74,15 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	return root, nil
 }
 
-// loadDir compiles one directory into a group. fs.ReadDir yields entries sorted
+// loadDir compiles one directory into a folder. fs.ReadDir yields entries sorted
 // by name, so the tree is built deterministically. Empty subdirectories (no JSON
 // anywhere under them) are skipped rather than added as empty namespaces.
-func loadDir(src dataSource, dir string) (*group, error) {
+func loadDir(src dataSource, dir string) (*folder, error) {
 	entries, err := fs.ReadDir(src.fsys, dir)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", src.name(dir), err)
 	}
-	g := &group{children: map[string]node{}}
+	g := &folder{children: map[string]node{}}
 	for _, e := range entries {
 		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
 			continue
@@ -99,8 +99,8 @@ func loadDir(src dataSource, dir string) (*group, error) {
 	return g, nil
 }
 
-// loadFolder adds a subdirectory as a nested group, unless nothing under it is data.
-func loadFolder(src dataSource, g *group, full, name string) error {
+// loadFolder adds a subdirectory as a nested folder, unless nothing under it is data.
+func loadFolder(src dataSource, g *folder, full, name string) error {
 	child, err := loadDir(src, full)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func loadFolder(src dataSource, g *group, full, name string) error {
 
 // loadFile compiles a *.json file into a category named after it; any other file
 // is skipped.
-func loadFile(src dataSource, g *group, full, file string) error {
+func loadFile(src dataSource, g *folder, full, file string) error {
 	if !strings.HasSuffix(file, ".json") {
 		return nil
 	}
@@ -141,13 +141,13 @@ func loadFile(src dataSource, g *group, full, file string) error {
 	return nil
 }
 
-// mergeChildren overlays src onto dst. Two groups under the same key merge
+// mergeChildren overlays src onto dst. Two folders under the same key merge
 // recursively (so locales/categories from several paths combine); every other
 // key is replaced, making the last-loaded directory win on a conflict.
 func mergeChildren(dst, src map[string]node) {
 	for k, v := range src {
-		if dg, ok := dst[k].(*group); ok {
-			if sg, ok := v.(*group); ok {
+		if dg, ok := dst[k].(*folder); ok {
+			if sg, ok := v.(*folder); ok {
 				mergeChildren(dg.children, sg.children)
 				continue
 			}
