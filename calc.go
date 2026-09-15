@@ -195,7 +195,7 @@ func calcPrep(args []string) callFn {
 	placed := indexVars(expr, at)
 	dp := calcDecimals(args)
 	return func(_ *session, _ string, operands []string) string {
-		return strconv.FormatFloat(placed.eval(operands), 'f', dp, 64)
+		return formatFloat(placed.eval(operands), dp)
 	}
 }
 

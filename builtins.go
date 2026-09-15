@@ -31,8 +31,8 @@ var builtins = map[string]builtin{
 	"ulid":   {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, check: posIntArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, check: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789"), number: func(a []string) (proven, DataType) {
-		return bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true), DataTypeString
+	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789"), number: func(token string, a []string) proven {
+		return printing(token, DataTypeString, bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, check: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
 	"lower": {arity: 1, check: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
@@ -45,16 +45,16 @@ var builtins = map[string]builtin{
 	"int": {arity: 2, check: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *session, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, number: func(a []string) (proven, DataType) {
-		return bounded(float64(atoi(a[0])), float64(atoi(a[1])), true), DataTypeInteger
+	}, number: func(token string, a []string) proven {
+		return printing(token, DataTypeInteger, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
 	"float": {arity: 3, check: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *session, _ string, _ []string) string {
-			return strconv.FormatFloat(lo+s.Float64()*(hi-lo), 'f', dp, 64)
+			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, number: func(a []string) (proven, DataType) {
-		return printedNumber(bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
+	}, number: func(token string, a []string) proven {
+		return printedNumber(token, bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
 	"iban": {arity: 1, check: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
@@ -75,8 +75,8 @@ var builtins = map[string]builtin{
 		return func(s *session, _ string, _ []string) string {
 			return strconv.FormatUint(s.next(key), 10)
 		}
-	}, number: func([]string) (proven, DataType) {
-		return bounded(1, math.MaxInt64, true), DataTypeInteger
+	}, number: func(token string, _ []string) proven {
+		return printing(token, DataTypeInteger, bounded(1, math.MaxInt64, true))
 	}},
 }
 
@@ -103,6 +103,15 @@ func chars(alphabet string) func([]string) callFn {
 }
 
 const hexDigits = "0123456789abcdef"
+
+// formatFloat prints v to dp decimals, -1 for the shortest form, and a zero unsigned.
+func formatFloat(v float64, dp int) string {
+	s := strconv.FormatFloat(v, 'f', dp, 64)
+	if strings.HasPrefix(s, "-") && strings.Trim(s, "-0.") == "" {
+		return s[1:]
+	}
+	return s
+}
 
 // transforms are the builtins that rewrite one operand's value; they nest, so
 // {lowercase(ascii(x))} folds then lowers.

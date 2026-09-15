@@ -11,16 +11,14 @@ import (
 // proven is what a proof knows of every render of a node: bounds on the number each
 // reads as, and per datatype why some render's text is not one ("" when none).
 type proven struct {
-	lo, hi    float64
-	nonZero   float64 // every value is at least this far from zero; 0 when one can be zero
-	integral  bool
-	notNumber string // why some render reads as no finite number, the way calc reads it
-	not       [len(dataTypeNames)]string
+	lo, hi     float64
+	nonZero    float64 // every value is at least this far from zero; 0 when one can be zero
+	integral   bool
+	notOperand string // why some render reads as no finite number, the way calc reads it
+	not        [len(dataTypeNames)]string
 }
 
-// valueProof proves what typed columns and their calc operands hold, each node once per
-// scope. A typed column holds one value: a literal, one value builtin, one calc, or a
-// read of such values.
+// valueProof proves what typed columns and their calc operands hold, each node once per scope.
 type valueProof struct {
 	memo map[node]proven
 }
@@ -71,8 +69,8 @@ func (p *valueProof) unite(nodes []node) proven {
 		w := p.of(n)
 		v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
 		v.integral = v.integral && w.integral
-		if v.notNumber == "" {
-			v.notNumber = w.notNumber
+		if v.notOperand == "" {
+			v.notOperand = w.notOperand
 		}
 		for d := range v.not {
 			if v.not[d] == "" {
@@ -93,7 +91,7 @@ func (p *valueProof) template(t *template) proven {
 		return literalValue(t.lit)
 	case len(t.ops) != 1:
 		v := unproven(notOneValue(t.format, "{int()}, {float()}, {seq()} or {calc()}"))
-		v.notNumber = notOneValue(t.format, "{int()}, {float()}, {seq()}, {digits()} or {calc()}")
+		v.notOperand = notOneValue(t.format, "{int()}, {float()}, {seq()}, {digits()} or {calc()}")
 		return v
 	}
 	body := t.format[1 : len(t.format)-1]
@@ -108,12 +106,11 @@ func (p *valueProof) template(t *template) proven {
 	case name == "calc":
 		return p.calc(t, body, args)
 	case builtins[name].number != nil:
-		v, prints := builtins[name].number(args)
-		return printing(body, prints, v)
+		return builtins[name].number(body, args)
 	case isTransform:
 		return unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
 	}
-	return printing(body, DataTypeString, proven{notNumber: fmt.Sprintf("{%s} prints text, not a number", body)})
+	return printing(body, DataTypeString, proven{notOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
 func (p *valueProof) calc(t *template, body string, args []string) proven {
@@ -128,8 +125,7 @@ func (p *valueProof) calc(t *template, body string, args []string) proven {
 	if doubt != "" {
 		return unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
-	v, prints := printedNumber(v, calcDecimals(args))
-	return printing(body, prints, v)
+	return printedNumber(body, v, calcDecimals(args))
 }
 
 // calcLimit is the largest magnitude a proof accepts as finite, far enough below
@@ -144,8 +140,8 @@ func (p *valueProof) expr(n calcNode, fields map[string]node) (proven, string) {
 		return bounded(v, v, v == math.Trunc(v)), ""
 	case calcVar:
 		v := p.of(fields[string(n)])
-		if v.notNumber != "" {
-			return proven{}, fmt.Sprintf("operand %q: %s", string(n), v.notNumber)
+		if v.notOperand != "" {
+			return proven{}, fmt.Sprintf("operand %q: %s", string(n), v.notOperand)
 		}
 		return proven{lo: v.lo, hi: v.hi, nonZero: v.nonZero, integral: v.integral}, ""
 	case calcNeg:
@@ -205,17 +201,21 @@ func bounded(lo, hi float64, integral bool) proven {
 
 func magnitude(v proven) float64 { return math.Max(math.Abs(v.lo), math.Abs(v.hi)) }
 
-// printedNumber is v once strconv.FormatFloat prints it to dp decimals, and the datatype
-// that text is: an integer when whole and within int64, else a number.
-func printedNumber(v proven, dp int) (proven, DataType) {
+// printedNumber is what a token printing v to dp decimals holds: an integer when whole
+// and within int64, else a number.
+func printedNumber(token string, v proven, dp int) proven {
 	if dp >= 0 {
-		half := math.Pow(10, -float64(dp)) / 2
+		half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64) // math.Pow(10, -dp) can land below the tie and let a printed zero through
 		v = proven{lo: v.lo - half, hi: v.hi + half, nonZero: math.Max(0, v.nonZero-half), integral: v.integral || dp == 0}
 	}
-	if (dp == 0 || dp < 0 && v.integral) && magnitude(v) < math.MaxInt64 {
-		return v, DataTypeInteger
+	if dp != 0 && !(dp < 0 && v.integral) {
+		return printing(token, DataTypeNumber, v)
 	}
-	return v, DataTypeNumber
+	v = printing(token, DataTypeInteger, v)
+	if !(magnitude(v) < math.MaxInt64) {
+		v.not[DataTypeInteger] = fmt.Sprintf("{%s} is not proven within int64", token)
+	}
+	return v
 }
 
 // printing is v for a token whose every render is text of datatype prints, with a reason
@@ -235,7 +235,7 @@ func notOneValue(format, calls string) string {
 
 // unproven is a render no datatype and no calc can take, for why.
 func unproven(why string) proven {
-	v := proven{notNumber: why}
+	v := proven{notOperand: why}
 	for d := DataTypeInteger; d <= DataTypeBoolean; d++ {
 		v.not[d] = why
 	}
@@ -251,7 +251,7 @@ var (
 func literalValue(text string) proven {
 	var v proven
 	if f, err := strconv.ParseFloat(strings.TrimSpace(text), 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
-		v.notNumber = fmt.Sprintf("%q is not a number", text)
+		v.notOperand = fmt.Sprintf("%q is not a number", text)
 	} else {
 		v = bounded(f, f, f == math.Trunc(f))
 	}
@@ -260,11 +260,24 @@ func literalValue(text string) proven {
 	} else if err != nil {
 		v.not[DataTypeInteger] = fmt.Sprintf("%q is past the int64 range", text)
 	}
-	if v.notNumber != "" || !numberText.MatchString(text) {
+	if v.notOperand != "" || !numberText.MatchString(text) {
 		v.not[DataTypeNumber] = fmt.Sprintf("%q is not a number", text)
 	}
 	if text != "true" && text != "false" {
 		v.not[DataTypeBoolean] = fmt.Sprintf("%q is not a boolean", text)
+	}
+	return signedZero(text, v)
+}
+
+// signedZero refuses a zero written with a sign as a typed value, naming it unsigned.
+func signedZero(text string, v proven) proven {
+	if !strings.HasPrefix(text, "-") || v.notOperand != "" || v.lo != 0 {
+		return v
+	}
+	for _, d := range []DataType{DataTypeInteger, DataTypeNumber} {
+		if v.not[d] == "" {
+			v.not[d] = fmt.Sprintf("%q is zero written with a sign; write %q", text, text[1:])
+		}
 	}
 	return v
 }

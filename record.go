@@ -1,12 +1,13 @@
 package fejkdata
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 // Column is one rendered column of a record. Value is the rendered text, which a
@@ -73,15 +74,16 @@ func (r *Record) CSVLine() string {
 	return strings.Join(fields, ",")
 }
 
+// csvField quotes a field where encoding/csv would, and an empty one too.
 func csvField(s string) string {
-	if s == "" {
+	first, _ := utf8.DecodeRuneInString(s)
+	switch {
+	case s == "":
 		return `""`
+	case s == `\.` || strings.ContainsAny(s, "\",\r\n") || unicode.IsSpace(first):
+		return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 	}
-	var b strings.Builder
-	w := csv.NewWriter(&b)
-	_ = w.Write([]string{s})
-	w.Flush()
-	return strings.TrimSuffix(b.String(), "\n")
+	return s
 }
 
 // SQLInsert renders the record as one INSERT statement into table, identifiers in ANSI
@@ -104,9 +106,7 @@ func quoteIdent(s string) string {
 	return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 }
 
-// literal spells a column the way a serializer writes it: quoted for a string, bare for
-// any other datatype, whose every render the load check proved a literal, and nullText
-// for a null.
+// literal writes a string column quoted, a proven typed one bare, and a null as nullText.
 func literal(c Column, quote func(string) string, nullText string) string {
 	switch {
 	case c.Null:

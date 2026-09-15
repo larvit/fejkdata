@@ -100,7 +100,7 @@ func disagreement(a, b *template) error {
 	switch {
 	case bare.datatype != DataTypeString:
 		return fmt.Errorf("its items declare %s and %s; a column holds one datatype", a.datatype, b.datatype)
-	case len(bare.fields) == 0 && bare.repeat == 1:
+	case bare.fields == nil: // a JSON string; an object, which may carry a weight, has a fields map
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, typed.datatype)
 	}
 	return fmt.Errorf(`an item declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, typed.datatype, typed.datatype)

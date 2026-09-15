@@ -32,8 +32,7 @@ type choice struct {
 
 func (*choice) isNode() {}
 
-// null is a record column's missing value, rendered as "". It is not zero-sized, so two
-// nulls are two map keys.
+// null is a column's missing value, rendered ""; sized so two nulls are two map keys.
 type null struct{ _ byte }
 
 func (*null) isNode() {}
@@ -215,6 +214,9 @@ func checkNoRepeatedItem(items []any) error {
 		if j, dup := seen[key]; dup {
 			if s, isString := raw.(string); isString {
 				return fmt.Errorf("choice item %q is repeated; skew the odds with a weight instead: { \"format\": %q, \"weight\": 2 }", s, s)
+			}
+			if raw == nil {
+				return fmt.Errorf("choice item %d repeats null; a null takes no weight, so weight the other items instead", i)
 			}
 			return fmt.Errorf("choice item %d repeats item %d; skew the odds with a weight on one of them instead", i, j)
 		}

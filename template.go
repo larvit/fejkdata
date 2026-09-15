@@ -72,9 +72,9 @@ type builtin struct {
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// number bounds the number a call prints and names the datatype its text is; nil
-	// for a builtin whose text is no number.
-	number func(args []string) (proven, DataType)
+	// number proves what a call prints, token its body: the bounds of its number and the
+	// datatype of its text; nil for a builtin whose text is no number.
+	number func(token string, args []string) proven
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false

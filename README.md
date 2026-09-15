@@ -273,8 +273,8 @@ Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top
 template, or an item of a choice standing in for one; `datatype` anywhere else is a
 load error. A typed column holds one value, alone in its format: a literal, one
 `{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
-values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
-`0` decimals — `number` a JSON number, `boolean` `true` or `false`. A value its
+values. `integer` is an int64 written `0|-?[1-9][0-9]*` — `{float()}` prints one at
+`0` decimals within int64 — `number` a JSON number, `boolean` `true` or `false`. A value its
 datatype cannot hold is a load error naming it:
 
 ```text
@@ -287,7 +287,7 @@ literal, an `{int()}`, `{float()}`, `{seq()}` or `{digits()}` call, a calc, or a
 such values, whose bounds keep every divisor from zero and the result within `1e300`.
 What the bounds cannot show is refused — `{calc(a / b)}: divides by b, which is not
 proven nonzero`. The calc fills an `integer` column at `0` decimals, or over whole
-operands with no `/`.
+operands with no `/`, while its bounds stay within int64.
 
 ### Null
 
@@ -365,7 +365,8 @@ hyphenated field can't be an operand.
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `19.99 x 3 = 59.97`. An operand that can never be a number (`"abc"`,
+Renders e.g. `19.99 x 3 = 59.97`. A result that rounds to zero prints unsigned — `0`,
+`0.00` — as `{float()}`'s does. An operand that can never be a number (`"abc"`,
 or a choice of such) is rejected at load, as is a division by a constant zero
 (`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
 `NaN`, and a division by one that is not constant `Inf` — both print rather than
