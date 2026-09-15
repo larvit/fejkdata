@@ -200,13 +200,22 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 }
 
 func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
-	cat := `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
+	cat := `{"format":"{a}","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
+	for _, c := range []struct{ name, row string }{
+		{"through a column repeat, which draws anew", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
+		{"in a group of its own", `{"format":"","whole":{"format":"{/cat.a}","group":"g"},"inner":"{/cat.a.b}"}`},
+	} {
+		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
+		if _, err := f.FakeRecord("row"); err != nil {
+			t.Errorf("%s: FakeRecord = %v, want it accepted", c.name, err)
+		}
+	}
 	for _, c := range []struct{ name, row string }{
 		{"sibling columns", `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`},
 		{"through a nested template", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b} {x}","x":"1"}}`},
-		{"through a column repeat", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
 		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b} {x}","x":"1"},{"format":"{/cat.a.b}! {x}","x":"2"}]}`},
 		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
+		{"a bare reference beside a path", `{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`},
 	} {
 		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
 		_, err := f.FakeRecord("row")
@@ -311,9 +320,10 @@ func TestRecordRejectsFieldDescent(t *testing.T) {
 func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€"}]`,
-		"price":    `{"format":"","code":"{/currency.code}","symbol":"{/currency.symbol}"}`,
+		"price":    `{"format":"{code} {symbol}","code":"{/currency.code}","symbol":"{/currency.symbol}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
+	symbols := map[string]string{"AUD": "$", "EUR": "€"}
 	for i := 0; i < 100; i++ {
 		r, err := f.FakeRecord("price")
 		if err != nil {
@@ -323,48 +333,63 @@ func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 		for _, c := range r.Columns() {
 			m[c.Name] = c.Value
 		}
-		switch m["code"] {
-		case "AUD":
-			if m["symbol"] != "$" {
-				t.Fatalf("record %q: code AUD but symbol %q, want one currency draw across columns", r.JSON(), m["symbol"])
-			}
-		case "EUR":
-			if m["symbol"] != "€" {
-				t.Fatalf("record %q: code EUR but symbol %q, want one currency draw across columns", r.JSON(), m["symbol"])
-			}
-		default:
-			t.Fatalf("record %q has unexpected code %q", r.JSON(), m["code"])
+		if symbol, known := symbols[m["code"]]; !known || m["symbol"] != symbol {
+			t.Fatalf("record %s, want one currency draw across columns", r.JSON())
+		}
+		v := fake(t, f, "price")
+		if code, symbol, _ := strings.Cut(v, " "); symbol == "" || symbols[code] != symbol {
+			t.Fatalf("Fake(price) = %q, want its fields one currency draw, as the record's columns are", v)
 		}
 	}
 }
 
-func TestRecordSharesAReferenceIntoAColumnRepeat(t *testing.T) {
+func TestRepeatIterationsDrawReferencesAnew(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"currency": `[{"format":"{code}","code":"AUD"},{"format":"{code}","code":"EUR"}]`,
-		"order":    `{"format":"","codes":{"format":"{/currency.code}","repeat":3,"separator":"-"}}`,
+		"party":  `{"format":"{host}: {guests}","guests":{"format":"{/person.first} {/person.last}","repeat":3,"separator":", "},"host":"{/person.first} {/person.last}"}`,
+		"person": drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	for i := 0; i < 50; i++ {
-		r, err := f.FakeRecord("order")
+	differed := map[[2]int]bool{}
+	check := func(view string, names []string) {
+		t.Helper()
+		if len(names) != 4 {
+			t.Fatalf("%s rendered %q, want a host and three guests", view, names)
+		}
+		for i, name := range names {
+			if !onePerson(name) {
+				t.Fatalf("%s rendered %q, want each name one person", view, names)
+			}
+			for j := range names[:i] {
+				differed[[2]int{j, i}] = differed[[2]int{j, i}] || names[j] != name
+			}
+		}
+	}
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("party")
 		if err != nil {
 			t.Fatal(err)
 		}
-		parts := strings.Split(r.Columns()[0].Value, "-")
-		if len(parts) != 3 || parts[0] != parts[1] || parts[1] != parts[2] {
-			t.Fatalf("codes column = %q, want one shared draw across its repeat", r.Columns()[0].Value)
+		guests, host := r.Columns()[0].Value, r.Columns()[1].Value
+		check("FakeRecord", append([]string{host}, strings.Split(guests, ", ")...))
+		host, guests, _ = strings.Cut(fake(t, f, "party"), ": ")
+		check("Fake", append([]string{host}, strings.Split(guests, ", ")...))
+	}
+	for pair, ok := range differed {
+		if !ok {
+			t.Errorf("names %v never differed in 200 renders; the host and each repeat iteration are a draw of their own, so four people", pair)
 		}
 	}
 }
 
-func TestRecordBareReferenceStaysIndependent(t *testing.T) {
+func TestRecordGroupsDrawApart(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"currency": `[{"format":"{code}","code":"AUD"},{"format":"{code}","code":"EUR"}]`,
-		"order":    `{"format":"","whole":"{/currency}","code":"{/currency.code}"}`,
+		"person":   drawPeople,
+		"transfer": `{"format":"{from_first} {from_last} to {to_first} {to_last}","from_first":{"format":"{/person.first}","group":"from"},"from_last":{"format":"{/person.last}","group":"from"},"to_first":{"format":"{/person.first}","group":"to"},"to_last":{"format":"{/person.last}","group":"to"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	sawMismatch := false
+	apart := map[string]bool{}
 	for i := 0; i < 100; i++ {
-		r, err := f.FakeRecord("order")
+		r, err := f.FakeRecord("transfer")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -372,13 +397,18 @@ func TestRecordBareReferenceStaysIndependent(t *testing.T) {
 		for _, c := range r.Columns() {
 			m[c.Name] = c.Value
 		}
-		if m["whole"] != m["code"] {
-			sawMismatch = true
-			break
+		from, to, _ := strings.Cut(fake(t, f, "transfer"), " to ")
+		for view, pair := range map[string][2]string{"FakeRecord": {m["from_first"] + " " + m["from_last"], m["to_first"] + " " + m["to_last"]}, "Fake": {from, to}} {
+			if !onePerson(pair[0]) || !onePerson(pair[1]) {
+				t.Fatalf("%s drew %q and %q, want each group one person", view, pair[0], pair[1])
+			}
+			apart[view] = apart[view] || pair[0] != pair[1]
 		}
 	}
-	if !sawMismatch {
-		t.Fatal("a bare {/currency} column never disagreed with a tailed {/currency.code} column; a bare reference should draw independently")
+	for _, view := range []string{"FakeRecord", "Fake"} {
+		if !apart[view] {
+			t.Errorf("%s: groups from and to drew one person in 100 renders, want a draw each", view)
+		}
 	}
 }
 

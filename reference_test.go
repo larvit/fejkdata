@@ -255,14 +255,72 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 }
 
 func TestReferenceOverlapIsRejected(t *testing.T) {
+	p := `[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]`
 	for name, file := range map[string]string{
-		"head beside a path":                   `{"format":"{/cat.p} {/cat.p.first}","p":[{"format":"{first}","first":"A"},{"format":"{first}","first":"B"}]}`,
-		"sibling path beside a reference path": `{"format":"{p.first} {/cat.p.last}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
+		"head beside a path":                                        `{"format":"{/cat.p} {/cat.p.first}","p":` + p + `}`,
+		"sibling path beside a reference path":                      `{"format":"{p.first} {/cat.p.last}","p":` + p + `}`,
+		"sibling fields reading a level and a path into it":         `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}","p":` + p + `}`,
+		"a field rendering the level a nested reference reads into": `{"format":"{x} {p}","x":"{/cat.p.first}","p":` + p + `}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat": `{"format":"{a} {b}","a":{"format":"{/cat.p}","group":"g"},"b":"{/cat.p.first}","p":` + p + `}`,
+	}))); err != nil {
+		t.Errorf("New = %v, want a level and a path into it accepted in groups of their own", err)
+	}
+}
+
+const drawPeople = `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"},{"format":"{first} {last}","first":"Cy","last":"Young"}]`
+
+// onePerson reports whether name is the first name and surname of one drawPeople row.
+func onePerson(name string) bool {
+	first, last, _ := strings.Cut(name, " ")
+	return last != "" && map[string]string{"Ada": "Lovelace", "Bo": "Ek", "Cy": "Young"}[first] == last
+}
+
+func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"apart":   `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":{"format":"{/person.first} {/person.last}","group":"y"}}`,
+		"contact": `{"format":"{first} {last} <{email}>","email":"{lowercase(/person.first)}.{lowercase(/person.last)}@example.com","first":"{/person.first}","last":"{/person.last}"}`,
+		"nested":  `{"format":"{/person.first} {inner}","inner":"{/person.last}"}`,
+		"pair":    `{"format":"{a} & {b}","a":"{/person.first} {/person.last}","b":"{/person.first} {/person.last}"}`,
+		"person":  drawPeople,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	apart := false
+	for i := 0; i < 100; i++ {
+		if got := fake(t, f, "nested"); !onePerson(got) {
+			t.Fatalf("nested = %q, want a nested template's path one draw with its parent's", got)
+		}
+		name, email, _ := strings.Cut(fake(t, f, "contact"), " <")
+		first, last, _ := strings.Cut(name, " ")
+		if !onePerson(name) || email != strings.ToLower(first)+"."+strings.ToLower(last)+"@example.com>" {
+			t.Fatalf("contact = %q <%s, want first, last and email one person", name, email)
+		}
+		r, err := f.FakeRecord("contact")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := r.Columns()
+		if !onePerson(c[1].Value+" "+c[2].Value) || c[0].Value != strings.ToLower(c[1].Value)+"."+strings.ToLower(c[2].Value)+"@example.com" {
+			t.Fatalf("contact record %s, want first, last and email one person", r.JSON())
+		}
+		a, b, _ := strings.Cut(fake(t, f, "pair"), " & ")
+		if !onePerson(a) || a != b {
+			t.Fatalf("pair = %q & %q, want both fields one person", a, b)
+		}
+		a, b, _ = strings.Cut(fake(t, f, "apart"), " & ")
+		if !onePerson(a) || !onePerson(b) {
+			t.Fatalf("apart = %q & %q, want each group one person", a, b)
+		}
+		apart = apart || a != b
+	}
+	if !apart {
+		t.Error("groups x and y drew one person in 100 renders, want a draw each")
 	}
 }
 

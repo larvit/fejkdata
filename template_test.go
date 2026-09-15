@@ -38,7 +38,7 @@ func compiled(t *testing.T, s string) node {
 
 func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
-	return render(f.rand, compiled(t, s), nil)
+	return renderOnce(f.rand, compiled(t, s))
 }
 
 func TestStringIsAFormat(t *testing.T) {
@@ -315,7 +315,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
-			if got := len(expand(f.rand, tmpl, nil)); got < tmpl.grow {
+			if got := len(expand(f.rand, tmpl, drawScope{set: &drawSet{}})); got < tmpl.grow {
 				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.grow)
 			}
 		}

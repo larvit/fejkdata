@@ -404,6 +404,13 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "repeat") {
 		t.Fatalf("New = %v, want a path into a repeating level rejected", err)
 	}
+	_, err = New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat":  `{"format":"[{p.a}]","p":{"format":"{a}","a":"{/word.w}","group":"g"}}`,
+		"word": `{"format":"{w}","w":["x","y"]}`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), `the level "p" carries a group`) {
+		t.Fatalf("New = %v, want a path into a level carrying a group rejected", err)
+	}
 }
 
 func TestPathIntoAPlainTemplateNamesTheMissingField(t *testing.T) {
@@ -718,6 +725,6 @@ func TestReadFieldPanicsOnAnUnheldPath(t *testing.T) {
 		t.Fatal("not a template")
 	}
 	mustPanic(t, "unheld arm with a path", func() {
-		readField(engine(1).rand, tm, nil, nil, arm{name: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
+		readField(engine(1).rand, tm, nil, drawScope{}, arm{name: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
 	})
 }
