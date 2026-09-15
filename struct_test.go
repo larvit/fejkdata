@@ -54,7 +54,8 @@ func structData(t *testing.T) *Generator {
 	return newGenerator(t, writeData(t, map[string]string{
 		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`,
 		"place":  `[{"format":"{city}","city":"Stockholm","zip":"111 22"},{"format":"{city}","city":"Tranås","zip":"573 31"}]`,
-		"src":    `{"format":"","code":[null,"200","404"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+		"mid":    `{"format":"","score":["{/src.score}",{"format":"5","datatype":"integer"}]}`,
+		"src":    `{"format":"","code":[null,"200","404"],"del":null,"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 		"trip":   `{"format":"","leg":[{"format":"{to}","to":"Oslo"},{"format":"{to}","to":"Rome"}]}`,
 	}), WithSeed(1))
 }
@@ -62,14 +63,38 @@ func structData(t *testing.T) *Generator {
 func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
 	f := structData(t)
 	nils := map[string]int{}
+	show := func(p any) string {
+		switch p := p.(type) {
+		case *string:
+			if p != nil {
+				return *p
+			}
+		case *int64:
+			if p != nil {
+				return strconv.FormatInt(*p, 10)
+			}
+		}
+		return "nil"
+	}
 	for i := 0; i < 200; i++ {
 		var v struct {
 			Code  *string `fake:"src.code"`
+			Codes *string `fake:"[\"{/src.score}\",\"{/src.code}\"]"`
+			Del   *int64  `fake:"src.del"`
 			Label string  `fake:"n={/src.score}"`
+			Mixed *string `fake:"[\"{/src.score}\",\"x\"]"`
+			Pair  *int64  `fake:"[\"{/src.score}\",\"5\"]"`
 			Score *int64  `fake:"src.score"`
 		}
 		if err := f.FakeStruct(&v); err != nil {
 			t.Fatal(err)
+		}
+		score, code := show(v.Score), show(v.Code)
+		switch {
+		case show(v.Del) != "nil":
+			t.Fatalf("Del = %s, want nil from a column only ever null", show(v.Del))
+		case show(v.Mixed) != "x" && show(v.Mixed) != score, show(v.Pair) != "5" && show(v.Pair) != score, show(v.Codes) != score && show(v.Codes) != code:
+			t.Fatalf("Mixed %s, Pair %s, Codes %s beside score %s and code %s: want each the literal or the draw of the column it reads", show(v.Mixed), show(v.Pair), show(v.Codes), score, code)
 		}
 		switch {
 		case v.Code == nil:
@@ -209,6 +234,9 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A *bool `fake:"src.score"`
 		}{}, ".A (*bool): {int(1,9)} prints an integer, not a boolean"},
+		{&struct {
+			A int64 `fake:"mid.score"`
+		}{}, "can draw null, which int64 cannot hold; make it *int64"},
 		{&struct {
 			A int `fake:"{digits(3)}"`
 		}{}, ".A (int): {digits(3)} prints text, not an integer"},

@@ -49,6 +49,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"items of two datatypes", `[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]`, "a column holds one datatype"},
 		{"an item beside a typed column it reads", `["{/src.score}","x"]`, `write it as {"format":"x","datatype":"integer"}`},
 		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `write it as {"format":"{/src.code}","datatype":"integer"}`},
+		{"text beside a typed column it reads", `["{/src.score}","n/a"]`, `to read that column as text, write {"format":"{text}","text":"{/src.score}"}`},
 		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
 		{"another datatype over a typed column", `{"format":"{/src.score}","datatype":"number"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
 		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
@@ -97,6 +98,13 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		if _, err := f.NewTemplate(row); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: NewTemplate = %v, want the inline template refused the same way", c.name, err)
 		}
+	}
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"a": `{"format":"","c":["{/b.x}",{"format":"1","datatype":"integer"}]}`,
+		"b": `{"format":"","x":["2",{"format":"1","datatype":"integer"}]}`,
+	})))
+	if want := `b: field "x": item "2"`; err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("a column reading one whose items disagree: New = %v, want the column read reported first, containing %q", err, want)
 	}
 }
 
