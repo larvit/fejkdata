@@ -22,6 +22,10 @@ The record API lands first, so the data update can use it.
   - `code` and `symbol` sibling fields reading `currency`, as `{code} {symbol}` → a matching pair
   - `{a} & {b}`, each reading `person` → one person, or two when `a` and `b` name different groups
   - two bare `{/sv_SE.word}` → two words
+- Reference inheritance — settle whether a column that is exactly one reference to
+  another record's column, like `{/src.score}`, takes that column's datatype and
+  null. Today a null there writes `""`, and a typed column reading it is refused.
+  Settle before draw groups and the data update.
 
 ### Data
 

@@ -271,25 +271,31 @@ string:
 
 Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
 template, or an item of a choice standing in for one; `datatype` anywhere else is a
-load error. So is a column that can render text its datatype rejects — `integer` takes
-`-?(0|[1-9][0-9]*)`, `number` a JSON number, `boolean` `true` or `false` — and the
-error shows such a render:
+load error. A typed column holds one value, alone in its format: a literal, one
+`{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
+values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
+`0` decimals — `number` a JSON number, `boolean` `true` or `false`. A value its
+datatype cannot hold is a load error naming it:
 
 ```text
-order.id: datatype integer, but it can render "000", which is not an integer
+order.id: datatype integer: {digits(3)} prints text, not an integer
+order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {int()}, {float()}, {seq()} or {calc()}, or read one
 ```
 
-A `{calc()}` fills an `integer` or `number` column only where it provably prints no
-`NaN` or `Inf`: each operand is a plain decimal — a sign, digits, one dot — of at most
-300 bytes, or a field holding only such a calc, and no divisor can be zero. An
-`integer` column also needs a decimals count of `0`, or integer operands and no `/`.
+A typed column's `{calc()}` must be proven to print a number: each operand a number
+literal, an `{int()}`, `{float()}`, `{seq()}` or `{digits()}` call, a calc, or a read of
+such values, whose bounds keep every divisor from zero and the result within `1e300`.
+What the bounds cannot show is refused — `{calc(a / b)}: divides by b, which is not
+proven nonzero`. The calc fills an `integer` column at `0` decimals, or over whole
+operands with no `/`.
 
 ### Null
 
 A `null` item draws a record column as null: `json` writes `null`, `sql` `NULL`, and
-`csv` an empty field, with an empty string written `""` so PostgreSQL's `COPY … CSV`
-reads both back. `Fake` renders a null as `""`. The other items' weights skew its
-odds:
+`csv` an empty field, with an empty string written `""` — the convention PostgreSQL's
+`COPY … CSV` reads. A record of one null column is a blank line, which `COPY` reads as
+null but most CSV readers skip, so write such a record as `json` or `sql`. `Fake`
+renders a null as `""`. The other items' weights skew its odds:
 
 ```json
 { "format": "", "deleted_at": null, "middle": [null, { "format": "{n}", "n": ["Ann", "Eva"], "weight": 3 }] }
@@ -363,7 +369,7 @@ Renders e.g. `19.99 x 3 = 59.97`. An operand that can never be a number (`"abc"`
 or a choice of such) is rejected at load, as is a division by a constant zero
 (`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
 `NaN`, and a division by one that is not constant `Inf` — both print rather than
-fail.
+fail, except in a [typed column](#datatype), which must prove neither happens.
 
 ### Transforms
 
@@ -556,11 +562,13 @@ tokens add cost in proportion to the output.
 - **64-bit targets only.** The gate builds amd64, and the buffer sizing a render
   pre-computes (renders × bytes) assumes a 64-bit int; on a 32-bit target it could
   overflow and panic.
-- **A constant zero divisor is a load error; a divisor that is not constant prints
-  `Inf`.** `1/0` and a fixed `"0"` field are decidable, so they join the
-  never-numeric operand as a load error; the fold stops where an operand varies,
+- **A constant zero divisor is a load error; in a string column a divisor that is not
+  constant prints `Inf`.** `1/0` and a fixed `"0"` field are decidable, so they join
+  the never-numeric operand as a load error; the fold stops where an operand varies,
   so `a/(b*c)` with `b` fixed at `0` and `c` varying loads and prints `Inf` every
-  draw — catching it needs zero-absorbing algebra for a shape nobody writes.
+  draw — catching it needs zero-absorbing algebra for a shape nobody writes. A
+  [typed column](#datatype) bounds its operands instead and refuses a divisor it
+  cannot keep from zero.
 - **In data, a default written out and a constant spelled as a sample are load
   errors.** `weight: 1`, `repeat: 1`, `separator: ""`, `datatype: "string"`,
   `int(5,5)`, `float(1,1,2)`,
@@ -605,6 +613,17 @@ tokens add cost in proportion to the output.
 - **Null is a `null` item, not a rate.** A null is one more outcome of a column's
   draw, so a choice's weights skew it like any other; a null-rate option would be a
   second way to state odds.
+- **A typed column holds one value, not composed text.** Its bounds come from a
+  literal or a call's arguments, so a load error names a real value, a range check is
+  one comparison, and `1{digits(2)}` is a second spelling of `{int(100,199)}`.
+- **A typed column's calc is refused unless proven.** Operand bounds must keep each
+  divisor from zero and the result finite; what they cannot show is refused rather
+  than trusted, since a bare `NaN` breaks the JSON and SQL it lands in.
+- **`Column` carries text, not a Go value.** `Value` is the rendered string beside
+  `DataType` and `Null`, which each serializer writes as the load check proved it; a
+  `Value any` would hand every caller a type switch.
+- **The package stays flat.** Go ties a package to one directory, so folders would
+  split the API into packages.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
   is deterministic across machines, so a ±10% ceiling does not flake under CI load,
   while time varies with the machine and its neighbours. A rendering slowdown
@@ -660,9 +679,9 @@ hold.go         the hold: one draw per expansion for paths and operands, and its
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations
-calc.go         the {calc()} arithmetic evaluator: parser, eval, validation, and the proof a typed column's calc is finite
-datatype.go     column datatypes: DataType, where datatype and null may sit, and the load check every typed render passes
-renderlang.go   what text a node can render, as relations over a scalar's grammar
+calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
+datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
+value.go        the value proof: what a typed column or calc operand holds, checked at load
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON), embedded at build: locale folders + a misc folder

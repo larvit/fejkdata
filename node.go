@@ -229,7 +229,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 		return nil, err
 	}
 	fieldPos := inFormat
-	if pos == atTop && o.repeat == 1 {
+	if pos == atTop && projectsColumns(o.repeat) {
 		fieldPos = inColumn
 	}
 	fields, err := compileFields(m, fieldPos)

@@ -63,16 +63,14 @@ func (r *Record) CSVHeader() string {
 }
 
 // CSVLine renders the column values as one CSV row: a null column an empty field and an
-// empty string "", the convention PostgreSQL's COPY reads a null by.
+// empty string "", the convention PostgreSQL's COPY reads a null by. A record of one null
+// column is a blank line, which COPY reads as null and most CSV readers skip.
 func (r *Record) CSVLine() string {
 	fields := make([]string, len(r.columns))
 	for i, c := range r.columns {
 		fields[i] = literal(c, csvField, "")
 	}
-	if line := strings.Join(fields, ","); line != "" {
-		return line
-	}
-	return `""` // a blank line is a row every CSV reader drops
+	return strings.Join(fields, ",")
 }
 
 func csvField(s string) string {
@@ -207,7 +205,7 @@ func recordOf(n node) (*template, []Column, error) {
 	if !ok {
 		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 	}
-	if t.repeat != 1 {
+	if !projectsColumns(t.repeat) {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
 	names := recordColumns(t)
@@ -224,6 +222,10 @@ func recordOf(n node) (*template, []Column, error) {
 	}
 	return t, columns, nil
 }
+
+// projectsColumns reports whether a category or inline template with this repeat is a
+// record, its fields the columns; a repeat composes the format into one string instead.
+func projectsColumns(repeat int) bool { return repeat == 1 }
 
 // checkColumnRefs rejects the reference reads a record's shared draw cannot answer
 // for: one column rendering a level another reads a path into, and a column

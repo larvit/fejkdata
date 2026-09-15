@@ -189,7 +189,7 @@ func checkScope(s nodeScope) error {
 	if err := s(heldCheck); err != nil {
 		return err
 	}
-	return s((&datatypeCheck{}).check)
+	return s((&valueProof{}).checkDatatype)
 }
 
 type reachMemo map[node]int

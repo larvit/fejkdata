@@ -16,7 +16,10 @@ const (
 	DataTypeBoolean
 )
 
-var dataTypeNames = [...]string{"string", "integer", "number", "boolean"}
+var (
+	dataTypeNames = [...]string{"string", "integer", "number", "boolean"}
+	dataTypeNouns = [...]string{"text", "an integer", "a number", "a boolean"}
+)
 
 // String is the datatype as data spells it.
 func (d DataType) String() string {
@@ -32,7 +35,7 @@ type position int
 
 const (
 	inFormat position = iota // rendered by a format, so neither
-	atTop                    // a category or an inline template, whose fields are the columns
+	atTop                    // a category or an inline template, whose fields may be columns
 	inColumn                 // a column, or a choice item standing in for one
 )
 
@@ -64,7 +67,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 // columnDatatype is the datatype a column's items declare. They must agree, since a
 // column holds one; a column only ever null is a string.
 func columnDatatype(n node) (DataType, error) {
-	var declared []DataType
+	var items []*template
 	var collect func(node)
 	collect = func(n node) {
 		switch n := n.(type) {
@@ -73,68 +76,32 @@ func columnDatatype(n node) (DataType, error) {
 				collect(it)
 			}
 		case *template:
-			declared = append(declared, n.datatype)
+			items = append(items, n)
 		}
 	}
 	collect(n)
-	if len(declared) == 0 {
+	if len(items) == 0 {
 		return DataTypeString, nil
 	}
-	for _, d := range declared {
-		if d != declared[0] {
-			return declared[0], fmt.Errorf("its items declare %s and %s; a column holds one datatype, so give every item the same", declared[0], d)
+	for _, t := range items[1:] {
+		if t.datatype != items[0].datatype {
+			return items[0].datatype, disagreement(items[0], t)
 		}
 	}
-	return declared[0], nil
+	return items[0].datatype, nil
 }
 
-// datatypeSpec is what a datatype's text must satisfy: a grammar, the states a render
-// may end in, and how an error names the datatype.
-type datatypeSpec struct {
-	grammar *grammar
-	accept  uint32
-	noun    string
-}
-
-var datatypeSpecs = map[DataType]datatypeSpec{
-	DataTypeInteger: {numberGrammar, integerAccept, "an integer"},
-	DataTypeNumber:  {numberGrammar, numberAccept, "a number"},
-	DataTypeBoolean: {booleanGrammar, booleanAccept, "a boolean"},
-}
-
-// datatypeCheck proves every render of a typed column is text its datatype takes. One
-// check covers a scope, so a node several columns reach is read once per grammar.
-type datatypeCheck struct {
-	languages map[*grammar]*textLanguage
-	proof     *calcProof
-}
-
-func (c *datatypeCheck) check(path string, n node) error {
-	t, ok := n.(*template)
-	if !ok || t.datatype == DataTypeString {
-		return nil
+// disagreement names the fix for two items of one column declaring different datatypes.
+func disagreement(a, b *template) error {
+	typed, bare := a, b
+	if typed.datatype == DataTypeString {
+		typed, bare = b, a
 	}
-	spec := datatypeSpecs[t.datatype]
-	w, escapes := c.language(spec.grammar).node(t, nil).escape(spec.accept)
-	if !escapes {
-		return nil
+	switch {
+	case bare.datatype != DataTypeString:
+		return fmt.Errorf("its items declare %s and %s; a column holds one datatype", a.datatype, b.datatype)
+	case len(bare.fields) == 0 && bare.repeat == 1:
+		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, typed.datatype)
 	}
-	msg := fmt.Sprintf("%s: datatype %s, but it can render %s, which is not %s", path, t.datatype, w, spec.noun)
-	if w.why != "" {
-		msg += ": " + w.why
-	}
-	return errors.New(msg)
-}
-
-func (c *datatypeCheck) language(g *grammar) *textLanguage {
-	if c.proof == nil {
-		c.proof = newCalcProof()
-		c.languages = map[*grammar]*textLanguage{}
-	}
-	l, made := c.languages[g]
-	if !made {
-		l = newTextLanguage(g, c.proof)
-		c.languages[g] = l
-	}
-	return l
+	return fmt.Errorf(`an item declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, typed.datatype, typed.datatype)
 }
