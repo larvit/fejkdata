@@ -6,11 +6,6 @@ The record API lands first, so the data update can use it.
 
 ### Record API
 
-- Typed columns — a column declares its type, so `json` writes `42` rather than
-  `"42"` and `sql` an unquoted literal: string, integer, number, boolean, and a
-  way to write null. A template that can render a value its type rejects is a
-  load error. The option key is reserved from then on, so a common column name
-  like `type` is a poor pick.
 - Struct-filling — fill a Go struct from `fake:"…"` tags holding a path or an
   inline template, for parity with gofakeit and go-faker. The field's Go type is
   the column type, through the same conversion and load checks as typed columns,

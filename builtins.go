@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -24,36 +25,36 @@ const (
 // samples read only the rng. A time-based id (uuid v7, ulid) draws its timestamp
 // from the rng, not the wall clock, so seeded output stays reproducible.
 var builtins = map[string]builtin{
-	"luhn":   {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
-	"mod11":  {arity: 0, prep: derive(mod11Check)},
-	"ean":    {arity: 0, prep: derive(eanCheck)},
-	"uuid":   {arity: 0, prep: sample(uuidV7)},
-	"ulid":   {arity: 0, prep: sample(ulid)},
-	"nanoid": {arity: 1, check: posIntArg, prep: chars(nanoidAlphabet)},
-	"hex":    {arity: 1, check: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789")},
-	"upper":  {arity: 1, check: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-	"lower":  {arity: 1, check: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
+	"luhn":   {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) }), emits: always(textShape{{{decimalDigits, 1, 1}}})},
+	"mod11":  {arity: 0, prep: derive(mod11Check), emits: always(textShape{{{decimalDigits + "X", 1, 1}}})},
+	"ean":    {arity: 0, prep: derive(eanCheck), emits: always(textShape{{{decimalDigits, 1, 1}}})},
+	"uuid":   {arity: 0, prep: sample(uuidV7), emits: always(uuidShape)},
+	"ulid":   {arity: 0, prep: sample(ulid), emits: always(textShape{{{crockford[:8], 1, 1}, {crockford, 25, 25}}})},
+	"nanoid": sampleOf(nanoidAlphabet),
+	"hex":    sampleOf(hexDigits),
+	"digits": sampleOf(decimalDigits),
+	"upper":  sampleOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+	"lower":  sampleOf("abcdefghijklmnopqrstuvwxyz"),
 	"base64": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
 		n := atoi(a[0])
 		return func(s *session, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
-	}},
+	}, emits: base64Shape},
 	"int": {arity: 2, check: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *session, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}},
+	}, emits: intShape},
 	"float": {arity: 3, check: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *session, _ string, _ []string) string {
 			return strconv.FormatFloat(lo+s.Float64()*(hi-lo), 'f', dp, 64)
 		}
-	}},
+	}, emits: func(a []string) textShape { return printedFloat(atof(a[0]), atof(a[1]), atoi(a[2]), false) }},
 	"iban": {arity: 1, check: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
 		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
-	}},
+	}, emits: ibanShape},
 	"calc":      {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
 	"lowercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToLower), operands: transformOperand},
 	"uppercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToUpper), operands: transformOperand},
@@ -69,7 +70,7 @@ var builtins = map[string]builtin{
 		return func(s *session, _ string, _ []string) string {
 			return strconv.FormatUint(s.next(key), 10)
 		}
-	}},
+	}, emits: always(textShape{{{nonZeroDigits, 1, 1}, {decimalDigits, 0, 19}}})},
 }
 
 // derive and sample are the two argument-free builtin shapes: a derivation reads
@@ -94,6 +95,82 @@ func chars(alphabet string) func([]string) callFn {
 	}
 }
 
+// sampleOf is the builtin that draws n characters from an alphabet.
+func sampleOf(alphabet string) builtin {
+	return builtin{arity: 1, check: posIntArg, prep: chars(alphabet), emits: func(a []string) textShape {
+		n := atoi(a[0])
+		return textShape{{{alphabet, n, n}}}
+	}}
+}
+
+// always is the emits of a builtin whose args do not change what it can print.
+func always(s textShape) func([]string) textShape {
+	return func([]string) textShape { return s }
+}
+
+var uuidShape = textShape{{{hexDigits, 8, 8}, {"-", 1, 1}, {hexDigits, 4, 4}, {"-", 1, 1}, {"7", 1, 1}, {hexDigits, 3, 3}, {"-", 1, 1}, {"89ab", 1, 1}, {hexDigits, 3, 3}, {"-", 1, 1}, {hexDigits, 12, 12}}}
+
+const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+func base64Shape(a []string) textShape {
+	n := atoi(a[0])
+	pad := (3 - n%3) % 3
+	size := 4*((n+2)/3) - pad
+	return textShape{{{base64Alphabet, size, size}, {"=", pad, pad}}}
+}
+
+// intShape is what int prints: a sign only below zero, and no leading zero.
+func intShape(a []string) textShape {
+	lo, hi := atoi(a[0]), atoi(a[1])
+	var s textShape
+	if lo <= 0 && hi >= 0 {
+		s = append(s, []charRun{{"0", 1, 1}})
+	}
+	if hi > 0 {
+		s = append(s, []charRun{{nonZeroDigits, 1, 1}, {decimalDigits, 0, len(a[1]) - 1}})
+	}
+	if lo < 0 {
+		s = append(s, []charRun{{"-", 1, 1}, {nonZeroDigits, 1, 1}, {decimalDigits, 0, len(a[0]) - 2}})
+	}
+	return s
+}
+
+func ibanShape(a []string) textShape {
+	cc, digits := a[0], ibanLen[a[0]]-2
+	return textShape{{{cc[:1], 1, 1}, {cc[1:], 1, 1}, {decimalDigits, digits, digits}}}
+}
+
+// shortestFraction bounds the fraction FormatFloat's shortest form prints: at most 17
+// significant digits after up to 323 zeros.
+const shortestFraction = 340
+
+// printedFloat is what strconv.FormatFloat(v, 'f', dp, 64) prints for a v in [lo, hi]
+// that is whole when integral.
+func printedFloat(lo, hi float64, dp int, integral bool) textShape {
+	digits := len(strconv.FormatFloat(math.Floor(math.Max(math.Abs(lo), math.Abs(hi))), 'f', 0, 64)) + 1 // one more for a rounding carry
+	wholes := [][]charRun{{{"0", 1, 1}}, {{nonZeroDigits, 1, 1}, {decimalDigits, 0, digits - 1}}}
+	fractions := [][]charRun{nil}
+	switch {
+	case dp > 0:
+		fractions = [][]charRun{{{".", 1, 1}, {decimalDigits, dp, dp}}}
+	case dp < 0 && !integral:
+		fractions = append(fractions, []charRun{{".", 1, 1}, {decimalDigits, 1, shortestFraction}})
+	}
+	signs := [][]charRun{nil}
+	if lo < 0 || math.Signbit(lo) {
+		signs = append(signs, []charRun{{"-", 1, 1}})
+	}
+	var s textShape
+	for _, sign := range signs {
+		for _, whole := range wholes {
+			for _, fraction := range fractions {
+				s = append(s, slices.Concat(sign, whole, fraction))
+			}
+		}
+	}
+	return s
+}
+
 const hexDigits = "0123456789abcdef"
 
 // transforms are the builtins that rewrite one operand's value; they nest, so
@@ -106,20 +183,19 @@ var transforms = map[string]func(string) string{
 
 // unwrapTransform peels nested transform calls off an operand arg, returning the
 // field it finally names and the transforms to apply, innermost last.
-func unwrapTransform(arg string) (leaf string, chain []func(string) string, err error) {
+func unwrapTransform(arg string) (leaf string, chain []string, err error) {
 	for {
 		name, args, isCall := funcCall(arg)
 		if !isCall {
 			return arg, chain, nil
 		}
-		fn, isTransform := transforms[name]
-		if !isTransform {
+		if _, isTransform := transforms[name]; !isTransform {
 			return "", nil, fmt.Errorf("%s(%s) is not a transform, so it cannot be an operand", name, strings.Join(args, ","))
 		}
 		if len(args) != 1 {
 			return "", nil, fmt.Errorf("%s takes 1 arg, got %d", name, len(args))
 		}
-		chain = append(chain, fn)
+		chain = append(chain, name)
 		arg = args[0]
 	}
 }
@@ -150,10 +226,14 @@ func transformPrep(outer func(string) string) func([]string) callFn {
 		if err != nil {
 			panic(fmt.Sprintf("fejkdata: transform arg %q reached prep unvalidated: %v", a[0], err))
 		}
+		fns := make([]func(string) string, len(chain))
+		for i, name := range chain {
+			fns[i] = transforms[name]
+		}
 		return func(_ *session, _ string, operands []string) string {
 			v := operands[0]
-			for i := len(chain) - 1; i >= 0; i-- {
-				v = chain[i](v)
+			for i := len(fns) - 1; i >= 0; i-- {
+				v = fns[i](v)
 			}
 			return outer(v)
 		}

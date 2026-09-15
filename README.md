@@ -82,8 +82,8 @@ For structured output a record writes the row for you.
 
 A record is a template seen as columns: its fields are the columns, its `format`
 the whole. `--format json|ndjson|csv|sql` writes the records; the library's
-`FakeRecord` (below) hands back the columns. Every column is a string — typed scalars
-are on the release checklist, see [`todo.md`](todo.md). Save
+`FakeRecord` (below) hands back the columns. A column is a string unless it declares a
+[datatype](#datatype), and a [`null`](#null) item draws it as null. Save
 `mydata/users.json`:
 
 ```json
@@ -164,7 +164,8 @@ r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + ren
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
 
-A `*Record` carries its columns via `Columns()`, and serializes them with `JSON()`
+A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
+`DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
 CLI's `--format` writes. `FakeRecord` and `FakeRecordTemplate` take a record; a
 path or template that is not one — a bare string, a choice, or a folder — errors.
@@ -255,10 +256,53 @@ Renders e.g. `bar foo baz`. Rejected at load: a `separator` without a `repeat`,
 a `separator` of `""` (the default), and a `repeat` that multiplies to more than
 1 048 576 renders along any path of nested repeats.
 
+### Datatype
+
+A record column may declare `datatype` — `integer`, `number` or `boolean` — so `json`
+writes `42` rather than `"42"` and `sql` a bare literal; a column without one is a
+string:
+
+```json
+{ "format": "",
+  "id": { "format": "{seq()}", "datatype": "integer" },
+  "paid": { "format": "{p}", "p": ["true", "false"], "datatype": "boolean" },
+  "total": { "format": "{calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"], "datatype": "number" } }
+```
+
+Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
+template, or an item of a choice standing in for one; `datatype` anywhere else is a
+load error. So is a column that can render text its datatype rejects — `integer` takes
+`-?(0|[1-9][0-9]*)`, `number` a JSON number, `boolean` `true` or `false` — and the
+error shows such a render:
+
+```text
+order.id: datatype integer, but it can render "000", which is not an integer
+```
+
+A `{calc()}` fills an `integer` or `number` column only where it provably prints no
+`NaN` or `Inf`: each operand is a plain decimal — a sign, digits, one dot — of at most
+300 bytes, or a field holding only such a calc, and no divisor can be zero. An
+`integer` column also needs a decimals count of `0`, or integer operands and no `/`.
+
+### Null
+
+A `null` item draws a record column as null: `json` writes `null`, `sql` `NULL`, and
+`csv` an empty field, with an empty string written `""` so PostgreSQL's `COPY … CSV`
+reads both back. `Fake` renders a null as `""`. The other items' weights skew its
+odds:
+
+```json
+{ "format": "", "deleted_at": null, "middle": [null, { "format": "{n}", "n": ["Ann", "Eva"], "weight": 3 }] }
+```
+
+`deleted_at` is null every draw, `middle` a name three draws in four. Rejected at
+load: `null` anywhere but a column, naming `""`, and a column whose items declare
+different datatypes.
+
 ### Options and fields
 
-`format`, `weight`, `repeat` and `separator` are the only options; **any other
-key is a field** (see [Decisions](#decisions)). An object that does nothing a
+`format`, `weight`, `repeat`, `separator` and `datatype` are the only options; **any
+other key is a field** (see [Decisions](#decisions)). An object that does nothing a
 string can't — only a `format` — is rejected naming the string, as is a one-item
 choice naming its item.
 
@@ -437,8 +481,8 @@ tokens add cost in proportion to the output.
 
 ## Decisions
 
-- **Options and fields share one namespace.** `format`, `weight`, `repeat` and
-  `separator` are reserved; every other key is a field. Nesting fields under a
+- **Options and fields share one namespace.** `format`, `weight`, `repeat`,
+  `separator` and `datatype` are reserved; every other key is a field. Nesting fields under a
   key, or prefixing options, would tax every template to guard against a
   misspelt option.
 - **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
@@ -518,7 +562,8 @@ tokens add cost in proportion to the output.
   so `a/(b*c)` with `b` fixed at `0` and `c` varying loads and prints `Inf` every
   draw — catching it needs zero-absorbing algebra for a shape nobody writes.
 - **In data, a default written out and a constant spelled as a sample are load
-  errors.** `weight: 1`, `repeat: 1`, `separator: ""`, `int(5,5)`, `float(1,1,2)`,
+  errors.** `weight: 1`, `repeat: 1`, `separator: ""`, `datatype: "string"`,
+  `int(5,5)`, `float(1,1,2)`,
   `+5` and `05` each spell what a shorter form already spells, so each is rejected
   naming that form. The CLI's numbers follow the shell instead: `--seed 007` and
   `--repeat +3` are 7 and 3, as every command line reads them.
@@ -557,6 +602,9 @@ tokens add cost in proportion to the output.
   row — would vary per draw. A fixed column set is what the CSV and `INSERT`
   contracts rest on, so the restriction holds even where a particular choice would
   happen to agree.
+- **Null is a `null` item, not a rate.** A null is one more outcome of a column's
+  draw, so a choice's weights skew it like any other; a null-rate option would be a
+  second way to state odds.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`
   is deterministic across machines, so a ±10% ceiling does not flake under CI load,
   while time varies with the machine and its neighbours. A rendering slowdown
@@ -612,7 +660,9 @@ hold.go         the hold: one draw per expansion for paths and operands, and its
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations
-calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
+calc.go         the {calc()} arithmetic evaluator: parser, eval, validation, and the proof a typed column's calc is finite
+datatype.go     column datatypes: DataType, where datatype and null may sit, and the load check every typed render passes
+renderlang.go   what text a node can render, as relations over a scalar's grammar
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON), embedded at build: locale folders + a misc folder

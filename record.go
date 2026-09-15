@@ -9,10 +9,14 @@ import (
 	"strings"
 )
 
-// Column is one rendered column of a record.
+// Column is one rendered column of a record. Value is the rendered text, which a
+// serializer quotes for DataTypeString and writes bare for any other datatype; a Null
+// column has no Value.
 type Column struct {
-	Name  string
-	Value string
+	Name     string
+	DataType DataType
+	Value    string
+	Null     bool
 }
 
 // Record is one record rendered from a template: every direct field is a column,
@@ -28,68 +32,91 @@ func (r *Record) Columns() []Column {
 	return append([]Column(nil), r.columns...)
 }
 
-// JSON renders the record as one JSON object, every column a string.
+// JSON renders the record as one JSON object.
 func (r *Record) JSON() string {
-	m := make(map[string]string, len(r.columns))
-	for _, c := range r.columns {
-		m[c.Name] = c.Value
+	var b strings.Builder
+	b.WriteByte('{')
+	for i, c := range r.columns {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(jsonString(c.Name))
+		b.WriteByte(':')
+		b.WriteString(literal(c, jsonString, "null"))
 	}
-	b, _ := json.Marshal(m)
+	b.WriteByte('}')
+	return b.String()
+}
+
+func jsonString(s string) string {
+	b, _ := json.Marshal(s)
 	return string(b)
 }
 
 // CSVHeader renders the column names as one CSV header line.
 func (r *Record) CSVHeader() string {
-	return csvLine(r.names())
+	fields := make([]string, len(r.columns))
+	for i, c := range r.columns {
+		fields[i] = csvField(c.Name)
+	}
+	return strings.Join(fields, ",")
 }
 
-// CSVLine renders the column values as one CSV row.
+// CSVLine renders the column values as one CSV row: a null column an empty field and an
+// empty string "", the convention PostgreSQL's COPY reads a null by.
 func (r *Record) CSVLine() string {
-	return csvLine(r.values())
-}
-
-func (r *Record) names() []string {
-	out := make([]string, len(r.columns))
+	fields := make([]string, len(r.columns))
 	for i, c := range r.columns {
-		out[i] = c.Name
+		fields[i] = literal(c, csvField, "")
 	}
-	return out
+	if line := strings.Join(fields, ","); line != "" {
+		return line
+	}
+	return `""` // a blank line is a row every CSV reader drops
 }
 
-func (r *Record) values() []string {
-	out := make([]string, len(r.columns))
-	for i, c := range r.columns {
-		out[i] = c.Value
+func csvField(s string) string {
+	if s == "" {
+		return `""`
 	}
-	return out
-}
-
-func csvLine(cols []string) string {
 	var b strings.Builder
 	w := csv.NewWriter(&b)
-	_ = w.Write(cols)
+	_ = w.Write([]string{s})
 	w.Flush()
-	line := strings.TrimSuffix(b.String(), "\n")
-	if line == "" {
-		return `""` // a blank line is a row every CSV reader drops
-	}
-	return line
+	return strings.TrimSuffix(b.String(), "\n")
 }
 
-// SQLInsert renders the record as one INSERT statement into table: identifiers in
-// ANSI double quotes, every value a single-quoted string literal.
+// SQLInsert renders the record as one INSERT statement into table, identifiers in ANSI
+// double quotes.
 func (r *Record) SQLInsert(table string) string {
 	cols := make([]string, len(r.columns))
 	vals := make([]string, len(r.columns))
 	for i, c := range r.columns {
 		cols[i] = quoteIdent(c.Name)
-		vals[i] = "'" + strings.ReplaceAll(c.Value, "'", "''") + "'"
+		vals[i] = literal(c, sqlString, "NULL")
 	}
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", quoteIdent(table), strings.Join(cols, ", "), strings.Join(vals, ", "))
 }
 
+func sqlString(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
+}
+
 func quoteIdent(s string) string {
 	return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
+}
+
+// literal spells a column the way a serializer writes it: quoted for a string, bare for
+// any other datatype, whose every render the load check proved a literal, and nullText
+// for a null.
+func literal(c Column, quote func(string) string, nullText string) string {
+	switch {
+	case c.Null:
+		return nullText
+	case c.DataType == DataTypeString:
+		return quote(c.Value)
+	}
+	return c.Value
 }
 
 // FakeRecord renders a path as one record: the template it names, with each direct
@@ -116,7 +143,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 // columns, or why it is not a record.
 type recordShape struct {
 	t       *template
-	columns []string
+	columns []Column
 	err     error
 }
 
@@ -140,7 +167,7 @@ func (f *Generator) recordShapeOf(n node) recordShape {
 type RecordTemplate struct {
 	g       *Generator
 	t       *template
-	columns []string
+	columns []Column
 }
 
 // Fake renders the record with one draw.
@@ -175,7 +202,7 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 
 // recordOf is the fence both record entry points pass. The columns come back with
 // the template, fixed for every draw the caller goes on to make.
-func recordOf(n node) (*template, []string, error) {
+func recordOf(n node) (*template, []Column, error) {
 	t, ok := n.(*template)
 	if !ok {
 		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
@@ -183,12 +210,17 @@ func recordOf(n node) (*template, []string, error) {
 	if t.repeat != 1 {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	columns := recordColumns(t)
-	if len(columns) == 0 {
+	names := recordColumns(t)
+	if len(names) == 0 {
 		return nil, nil, errors.New("has no fields, so no columns")
 	}
-	if err := checkColumnRefs(t, columns); err != nil {
+	if err := checkColumnRefs(t, names); err != nil {
 		return nil, nil, err
+	}
+	columns := make([]Column, len(names))
+	for i, name := range names {
+		datatype, _ := columnDatatype(t.fields[name]) // compile refused a column whose items disagree
+		columns[i] = Column{Name: name, DataType: datatype}
 	}
 	return t, columns, nil
 }
@@ -262,11 +294,16 @@ func columnRefs(t *template, columns []string) ([]columnRef, error) {
 
 // renderRecord draws each column once, in the name order recordOf fixed, over one
 // reference scope shared across them.
-func renderRecord(s *session, t *template, columns []string) *Record {
+func renderRecord(s *session, t *template, columns []Column) *Record {
 	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
-	r := &Record{columns: make([]Column, len(columns))}
-	for i, name := range columns {
-		r.columns[i] = Column{Name: name, Value: render(s, t.fields[name], scope)}
+	r := &Record{columns: append([]Column(nil), columns...)}
+	for i := range r.columns {
+		n := drawn(s, t.fields[r.columns[i].Name])
+		if _, isNull := n.(*null); isNull {
+			r.columns[i].Null = true
+		} else {
+			r.columns[i].Value = render(s, n, scope)
+		}
 	}
 	return r
 }

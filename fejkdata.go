@@ -162,6 +162,8 @@ func paths(n node) []string {
 			}
 		}
 		return out
+	case *null:
+		return []string{""}
 	case *choice:
 		out := []string{""}
 		for p := range n.shared {

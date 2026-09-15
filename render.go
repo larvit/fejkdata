@@ -56,6 +56,8 @@ func render(s *session, n node, refScope *draws) string {
 	switch n := n.(type) {
 	case *choice:
 		return render(s, pick(s, n), refScope)
+	case *null:
+		return ""
 	case *template:
 		if n.repeat == 1 {
 			if n.fixed {

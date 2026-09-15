@@ -60,7 +60,7 @@ func walkPath(n node, tail []string, w pathWalk) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("cannot descend into %T at %q", n, tail[0])
+	return fmt.Errorf("no field %q", tail[0])
 }
 
 // carriedByAll is the choice rule a path that must resolve on every call obeys:

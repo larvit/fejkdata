@@ -72,6 +72,9 @@ type builtin struct {
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
+	// emits is the text a call can print, for the datatype check; nil for calc and the
+	// transforms, whose text the check derives from what they read.
+	emits func(args []string) textShape
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false

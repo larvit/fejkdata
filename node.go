@@ -32,6 +32,12 @@ type choice struct {
 
 func (*choice) isNode() {}
 
+// null is a record column's missing value, rendered as "". It is not zero-sized, so two
+// nulls are two map keys.
+type null struct{ _ byte }
+
+func (*null) isNode() {}
+
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
@@ -41,6 +47,7 @@ type template struct {
 	fields    map[string]node
 	repeat    int
 	separator string
+	datatype  DataType
 	ops       []op                  // format compiled once (see compileOps); what expand walks
 	grow      int                   // minimum output size, to size the render buffer
 	fixed     bool                  // no op varies, so every render is lit
@@ -66,26 +73,37 @@ func (t *template) field(seg string) (node, bool) {
 	return n, ok
 }
 
-// compile converts parsed JSON into a node tree, validating structure up front.
-// Only a choice's items carry a weight, so one here would be inert whatever its type.
+// compile converts parsed JSON — a category or an inline template — into a node tree,
+// validating structure up front.
 func compile(v any) (node, error) {
+	return compileAt(v, atTop)
+}
+
+// compileAt compiles a node that is no choice's item. Only a choice's items carry a
+// weight, so one here would be inert whatever its type.
+func compileAt(v any, pos position) (node, error) {
 	if m, ok := v.(map[string]any); ok {
 		if _, weighted := m["weight"]; weighted {
 			return nil, fmt.Errorf("weight only skews a choice's items, so it has no effect here; it is an option and can never be a field")
 		}
 	}
-	return compileItem(v)
+	return compileItem(v, pos)
 }
 
 // compileItem compiles one node, allowing the weight a choice item may carry.
-func compileItem(v any) (node, error) {
+func compileItem(v any, pos position) (node, error) {
 	switch v := v.(type) {
 	case string:
 		return compileString(v)
 	case []any:
-		return compileChoice(v)
+		return compileChoice(v, pos)
 	case map[string]any:
-		return compileTemplate(v)
+		return compileTemplate(v, pos)
+	case nil:
+		if pos != inColumn {
+			return nil, fmt.Errorf(`null is a record column's value; here it only renders "", so write ""`)
+		}
+		return &null{}, nil
 	default:
 		return nil, fmt.Errorf("a template value must be a string, a list or an object, not %s", jsonKind(v))
 	}
@@ -99,8 +117,6 @@ func jsonKind(v any) string {
 		return "a number"
 	case bool:
 		return "a boolean"
-	case nil:
-		return "null"
 	}
 	return fmt.Sprintf("%T", v)
 }
@@ -136,7 +152,11 @@ func (t *template) compileFormat() error {
 	return checkNoRepeatedRead(t.format, c, t.refs)
 }
 
-func compileChoice(items []any) (node, error) {
+func compileChoice(items []any, pos position) (node, error) {
+	itemPos := inFormat
+	if pos == inColumn {
+		itemPos = inColumn
+	}
 	if len(items) == 0 {
 		return nil, fmt.Errorf("empty choice")
 	}
@@ -160,7 +180,7 @@ func compileChoice(items []any) (node, error) {
 		}
 		total += w
 		cum[i] = total
-		n, err := compileItem(raw)
+		n, err := compileItem(raw, itemPos)
 		if err != nil {
 			return nil, err
 		}
@@ -203,22 +223,26 @@ func checkNoRepeatedItem(items []any) error {
 	return nil
 }
 
-func compileTemplate(m map[string]any) (node, error) {
-	o, err := readOptions(m)
+func compileTemplate(m map[string]any, pos position) (node, error) {
+	o, err := readOptions(m, pos)
 	if err != nil {
 		return nil, err
 	}
-	fields, err := compileFields(m)
+	fieldPos := inFormat
+	if pos == atTop && o.repeat == 1 {
+		fieldPos = inColumn
+	}
+	fields, err := compileFields(m, fieldPos)
 	if err != nil {
 		return nil, err
 	}
-	if len(fields) == 0 && o.repeat == 1 && !o.weighted {
+	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
 	if err := checkTokens(o.format, fields); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -227,13 +251,14 @@ func compileTemplate(m map[string]any) (node, error) {
 
 // templateOptions is what a template object's option keys say.
 type templateOptions struct {
+	datatype  DataType
 	format    string
 	repeat    int
 	separator string
 	weighted  bool
 }
 
-func readOptions(m map[string]any) (templateOptions, error) {
+func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	var o templateOptions
 	format, ok := m["format"].(string)
 	if !ok {
@@ -245,6 +270,9 @@ func readOptions(m map[string]any) (templateOptions, error) {
 		return o, err
 	}
 	o.repeat = repeat
+	if o.datatype, err = datatypeOf(m, pos); err != nil {
+		return o, err
+	}
 	if sv, ok := m["separator"]; ok {
 		if o.separator, ok = sv.(string); !ok {
 			return o, fmt.Errorf("separator must be a string, got %T", sv)
@@ -262,7 +290,7 @@ func readOptions(m map[string]any) (templateOptions, error) {
 
 // compileFields compiles every non-option key of a template object, in name order
 // so which of several bad fields is reported does not vary.
-func compileFields(m map[string]any) (map[string]node, error) {
+func compileFields(m map[string]any, pos position) (map[string]node, error) {
 	fields := make(map[string]node, len(m))
 	keys := make([]string, 0, len(m))
 	for k := range m {
@@ -276,7 +304,10 @@ func compileFields(m map[string]any) (map[string]node, error) {
 		if err := checkName(k); err != nil {
 			return nil, fmt.Errorf("field %w", err)
 		}
-		n, err := compile(m[k])
+		n, err := compileAt(m[k], pos)
+		if err == nil && pos == inColumn {
+			_, err = columnDatatype(n)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("field %q: %w", k, err)
 		}
@@ -360,10 +391,10 @@ func checkName(name string) error {
 }
 
 // isOption reports whether a template key configures the node instead of naming a
-// field. These four names can never be fields.
+// field. These names can never be fields.
 func isOption(name string) bool {
 	switch name {
-	case "format", "repeat", "separator", "weight":
+	case "datatype", "format", "repeat", "separator", "weight":
 		return true
 	}
 	return false

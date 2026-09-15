@@ -186,7 +186,10 @@ func checkScope(s nodeScope) error {
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err
 	}
-	return s(heldCheck)
+	if err := s(heldCheck); err != nil {
+		return err
+	}
+	return s((&datatypeCheck{}).check)
 }
 
 type reachMemo map[node]int
