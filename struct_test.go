@@ -19,12 +19,28 @@ type structUser struct {
 	Home   structPlace
 	ID     int64   `fake:"{seq()}"`
 	Last   string  `fake:"person.last"`
+	Level  uint8   `fake:"{float(0,255,0)}"`
 	Nick   *string `fake:"[null,\"bo\"]"`
 	Note   string
-	Rank   *int    `fake:"{\"format\":\"{r}\",\"r\":[\"1\",\"2\"]}"`
-	Score  float32 `fake:"{float(0,1,2)}"`
+	Rank   *int         `fake:"{\"format\":\"{r}\",\"r\":[\"1\",\"2\"]}"`
+	Score  float32      `fake:"{float(0,1,2)}"`
+	Skip   *structPlace `fake:"-"`
 	Work   *structPlace
 	hidden structPlace
+}
+
+type structGiven struct {
+	First string `fake:"person.first"`
+}
+
+type StructFamily struct {
+	Last string `fake:"person.last"`
+}
+
+type structEmployee struct {
+	structGiven
+	*StructFamily
+	Email string `fake:"{lowercase(/person.first)}@example.com"`
 }
 
 type structLink struct {
@@ -63,7 +79,7 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 			t.Fatalf("places %+v, %+v, want each nested struct one place, the pointer allocated", u.Home, u.Work)
 		case u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2):
 			t.Fatalf("typed fields %+v, want each the value its tag draws", u)
-		case u.Nick != nil && *u.Nick != "bo", u.Note != "keep", u.hidden != (structPlace{}):
+		case u.Nick != nil && *u.Nick != "bo", u.Note != "keep", u.hidden != (structPlace{}), u.Skip != nil:
 			t.Fatalf("%+v: want Nick nil or bo, and the untagged fields left as they were", u)
 		}
 		if u.Active {
@@ -75,6 +91,20 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 	}
 	if actives == 0 || actives == 100 || nils == 0 || nils == 100 {
 		t.Errorf("100 draws gave %d active and %d nil nicks, want both outcomes of each", actives, nils)
+	}
+}
+
+func TestFakeStructFillsEmbeddedFieldsIntoItsRecord(t *testing.T) {
+	f := structData(t)
+	people := map[string]string{"Ada": "Lovelace", "Bo": "Ek"}
+	for i := 0; i < 100; i++ {
+		var e structEmployee
+		if err := f.FakeStruct(&e); err != nil {
+			t.Fatal(err)
+		}
+		if e.StructFamily == nil || people[e.First] != e.Last || e.Email != strings.ToLower(e.First)+"@example.com" {
+			t.Fatalf("%+v, %+v: want the promoted fields one person with the struct's own, the embedded pointer allocated", e, e.StructFamily)
+		}
 	}
 }
 
@@ -136,13 +166,16 @@ func TestFakeStructErrors(t *testing.T) {
 		}{}, `"Ada" is not an integer`},
 		{&struct {
 			A int8 `fake:"{int(0,300)}"`
-		}{}, `"{int(0,300)}" is not proven within int8`},
+		}{}, `"{int(0,300)}" can reach 300, past int8; make it int64`},
 		{&struct {
 			A uint `fake:"{int(-1,5)}"`
-		}{}, `"{int(-1,5)}" is not proven within uint`},
+		}{}, `"{int(-1,5)}" can reach -1, past uint; make it int64`},
 		{&struct {
 			A float32 `fake:"[\"1\",\"1e39\"]"`
-		}{}, `"1e39" is not proven within float32`},
+		}{}, `"1e39" can reach 1e+39, past float32; make it float64`},
+		{&struct {
+			A int32 `fake:"{seq()}"`
+		}{}, `"{seq()}" can reach 9.223372036854776e+18, past int32; make it int64`},
 		{&struct {
 			A bool `fake:"{int(0,1)}"`
 		}{}, "prints an integer, not a boolean"},
@@ -151,10 +184,10 @@ func TestFakeStructErrors(t *testing.T) {
 		}{}, `no entry "nope"`},
 		{&struct {
 			A string `fake:"{/person.first}"`
-		}{}, `write fake:"person.first"`},
+		}{}, "is the path person.first written as a template; write person.first"},
 		{&struct {
 			A string `fake:"\"{/person.first}\""`
-		}{}, `write fake:"person.first"`},
+		}{}, "is the path person.first written as a template; write person.first"},
 		{&struct {
 			A string `fake:"a|b"`
 		}{}, `contains "|"`},
@@ -165,8 +198,19 @@ func TestFakeStructErrors(t *testing.T) {
 			A string `fake:"[abc]"`
 		}{}, `holds a "["`},
 		{&struct {
-			A string `fake:"{.person.first}"`
+			A string `fake:"{.person.first} x"`
 		}{}, "write {/person.first}"},
+		{&struct {
+			A string `fake:"/person.first"`
+		}{}, "write person.first"},
+		{&struct {
+			A string `fake:"-"`
+		}{}, `fake:"-" leaves a struct field unfilled`},
+		{&struct{ *structGiven }{}, "an embedded pointer to an unexported type"},
+		{&struct {
+			structGiven
+			First string `fake:"person.last"`
+		}{}, "struct.structGiven.First: hidden by another field named First"},
 		{&struct {
 			A string `fake:"{x}"`
 		}{}, `no field "x"`},
@@ -178,7 +222,7 @@ func TestFakeStructErrors(t *testing.T) {
 			Trip struct {
 				A int `fake:"{digits(3)}"`
 			}
-		}{}, ".Trip.A (int): {digits(3)} prints text"},
+		}{}, ": struct.Trip.A (int): {digits(3)} prints text"},
 	} {
 		if err := f.FakeStruct(c.v); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeStruct(%T) = %v, want an error containing %q", c.v, err, c.want)

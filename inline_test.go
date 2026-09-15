@@ -150,6 +150,44 @@ func TestNewTemplateReusable(t *testing.T) {
 	}
 }
 
+func TestIsTemplate(t *testing.T) {
+	for arg, want := range map[string]bool{
+		"sv_SE.person":    false,
+		"person.last":     false,
+		"name: {x}":       true,
+		`{"format":"x"}`:  true,
+		`["a","b"]`:       true,
+		`[1, 2]`:          true,
+		` ["a","b"]`:      true, // padding is the template's own error, not a shape verdict
+		`"hello"`:         true,
+		"{/a}{/b}":        true,
+		"{/a|/b}":         true,
+		"{uppercase(/a)}": true,
+		"{{/a}}":          true,
+		`"{/a} x"`:        true,
+	} {
+		if got, err := IsTemplate(arg); err != nil || got != want {
+			t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
+		}
+	}
+	for arg, want := range map[string]string{
+		"[abc]":                `holds a "["`,
+		"[abc].field":          `holds a "["`,
+		"x[1]":                 `holds a "["`,
+		"a]b":                  `holds a "]"`,
+		"a}b":                  `holds a "}"`,
+		`"abc`:                 `holds a "\""`,
+		`"a]b`:                 `holds a "\""`, // the opener the reader typed, not the bracket behind it
+		"{/sv_SE.person.last}": "{/sv_SE.person.last} is the path sv_SE.person.last written as a template; write sv_SE.person.last",
+		`"{/sv_SE.person}"`:    "write sv_SE.person",
+		"{.person.last}":       "write person.last",
+	} {
+		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)
+		}
+	}
+}
+
 func TestFakeTemplateRepeatBound(t *testing.T) {
 	f := shipped(t)
 	_, err := f.FakeTemplate(`{"format":"{x}","repeat":200,"x":{"format":"{y}","repeat":200,"y":{"format":"z","repeat":200}}}`)

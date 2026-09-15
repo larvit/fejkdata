@@ -305,42 +305,22 @@ func TestRunShippedDataByDefault(t *testing.T) {
 }
 
 func TestClassify(t *testing.T) {
-	for arg, want := range map[string]argKind{
-		"sv_SE.person":   argPath,
-		"person.last":    argPath,
-		"name: {x}":      argTemplate, // a { token: a path can never carry a brace
-		`{"format":"x"}`: argTemplate,
-		`["a","b"]`:      argTemplate, // a JSON array carries no brace
-		`[1, 2]`:         argTemplate,
-		` ["a","b"]`:     argTemplate, // padding is the template's own error, not a shape verdict
-		`"hello"`:        argTemplate, // a JSON string, the spelling a format-only object names
-	} {
-		got, err := classify(arg)
-		if err != nil || got != want {
+	for arg, want := range map[string]argKind{"sv_SE.person": argPath, "name: {x}": argTemplate} {
+		if got, err := classify(arg); err != nil || got != want {
 			t.Errorf("classify(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
-	for arg, want := range map[string]string{
-		"[abc]":       `holds a "["`,
-		"[abc].field": `holds a "["`,
-		"x[1]":        `holds a "["`,
-		"a]b":         `holds a "]"`,
-		"a}b":         `holds a "}"`,
-		`"abc`:        `holds a "\""`,
-		`"a]b`:        `holds a "\""`, // the opener the reader typed, not the bracket behind it
-	} {
-		_, err := classify(arg)
-		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("classify(%q) = %v; want it rejected naming %s", arg, err, want)
-		}
+	if _, err := classify("[abc]"); err == nil || !strings.Contains(err.Error(), `holds a "["`) {
+		t.Errorf("classify([abc]) = %v; want it rejected naming the bracket", err)
 	}
 }
 
 func TestUsageReferencesResolve(t *testing.T) {
 	for _, token := range regexp.MustCompile(`\{/[^}]+\}`).FindAllString(usage, -1) {
-		code, out, errb := runOut("--seed", "1", token)
+		path := token[2 : len(token)-1]
+		code, out, errb := runOut("--seed", "1", path)
 		if code != 0 || strings.TrimSpace(out) == "" {
-			t.Errorf("usage advertises %s: run = %d, %q, stderr %q", token, code, out, errb)
+			t.Errorf("usage advertises %s: run %s = %d, %q, stderr %q", token, path, code, out, errb)
 		}
 	}
 }
@@ -373,12 +353,13 @@ func TestRunInlineTemplate(t *testing.T) {
 
 func TestRunTemplateMisuse(t *testing.T) {
 	for arg, want := range map[string]string{
-		"{bad":            "unterminated",
-		"[red,green]":     "names no template either",
-		`{"format":"x"}`:  "is a string",
-		"{/no.such.path}": "no entry",
-		"x[1]":            "names no template either",
-		` ["a","b"] `:     "may not be padded",
+		"{bad":                  "unterminated",
+		"[red,green]":           "names no template either",
+		`{"format":"x"}`:        "is a string",
+		"name: {/no.such.path}": "no entry",
+		"{/sv_SE.person}":       "write sv_SE.person",
+		"x[1]":                  "names no template either",
+		` ["a","b"] `:           "may not be padded",
 	} {
 		code, out, errb := runOut("--seed", "1", arg)
 		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
