@@ -21,6 +21,7 @@ import (
 	"io/fs"
 	"math/rand/v2"
 	"os"
+	"reflect"
 	"sort"
 	"sync"
 )
@@ -46,6 +47,7 @@ type Generator struct {
 	rand       *session
 	categories map[string]node
 	records    map[node]recordShape
+	structs    map[reflect.Type]structResult
 }
 
 // session is one generator's mutable render state: the seeded rng plus the {seq()}

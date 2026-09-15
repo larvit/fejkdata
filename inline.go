@@ -32,11 +32,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	scope := inlineScope(n)
-	if err := linkNodeRefs(scope, f.categories); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	if err := checkScope(scope); err != nil {
+	if err := bindInline(n, "template", f.categories); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -53,17 +49,61 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 	return t.Fake(), nil
 }
 
-// compileInput compiles an inline template: a JSON value, or a bare format string
-// when the input is not JSON.
+// IsTemplate reports whether arg is an inline template rather than a path, by its shape: a {
+// token, or a JSON object, array or string, is a template, and anything else is a path. A
+// name never holds a bracket, a brace or a quote, so an arg holding one that is not valid
+// JSON names neither, and errors.
+func IsTemplate(arg string) (bool, error) {
+	inline, err := isTemplate(arg)
+	if err != nil {
+		return false, fmt.Errorf("fejkdata: %w", err)
+	}
+	return inline, nil
+}
+
+func isTemplate(arg string) (bool, error) {
+	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
+		return true, nil
+	}
+	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
+		return false, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
+	}
+	return false, nil
+}
+
+func isJSONStart(arg string) bool {
+	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
+}
+
 func compileInput(input string) (node, error) {
+	v, err := inputValue(input)
+	if err != nil {
+		return nil, err
+	}
+	return compile(v)
+}
+
+// inputValue reads an inline template as the value compile takes: the JSON value it holds, or
+// the input itself as a format string when it is not JSON.
+func inputValue(input string) (any, error) {
 	var raw any
 	if err := json.Unmarshal([]byte(input), &raw); err != nil {
-		return compile(input)
+		return input, nil
 	}
 	if trimmed := strings.TrimSpace(input); trimmed != input {
 		return nil, fmt.Errorf("a JSON template may not be padded with spaces, which a format string would render; write %s", trimmed)
 	}
-	return compile(raw)
+	return raw, nil
+}
+
+// bindInline links an inline node's references against root and runs the fences over it,
+// naming its nodes from label.
+func bindInline(n node, label string, root map[string]node) error {
+	scope := inlineScope(n, label)
+	if err := linkNodeRefs(scope, root); err != nil {
+		return err
+	}
+	return checkScope(scope)
 }
 
 // linkNodeRefs binds the references in an inline node's templates against the

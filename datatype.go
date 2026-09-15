@@ -67,19 +67,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 // columnDatatype is the datatype a column's items declare. They must agree, since a
 // column holds one; a column only ever null is a string.
 func columnDatatype(n node) (DataType, error) {
-	var items []*template
-	var collect func(node)
-	collect = func(n node) {
-		switch n := n.(type) {
-		case *choice:
-			for _, it := range n.items {
-				collect(it)
-			}
-		case *template:
-			items = append(items, n)
-		}
-	}
-	collect(n)
+	items, _ := columnItems(n)
 	if len(items) == 0 {
 		return DataTypeString, nil
 	}
@@ -89,6 +77,25 @@ func columnDatatype(n node) (DataType, error) {
 		}
 	}
 	return items[0].datatype, nil
+}
+
+// columnItems is a column's template items, its choices unwrapped, and whether one is null.
+func columnItems(n node) (items []*template, nullable bool) {
+	var collect func(node)
+	collect = func(n node) {
+		switch n := n.(type) {
+		case *choice:
+			for _, it := range n.items {
+				collect(it)
+			}
+		case *template:
+			items = append(items, n)
+		case *null:
+			nullable = true
+		}
+	}
+	collect(n)
+	return items, nullable
 }
 
 // disagreement names the fix for two items of one column declaring different datatypes.

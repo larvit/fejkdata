@@ -155,6 +155,8 @@ v = t.Fake()                                              // render many times, 
 r, err := f.FakeRecord("users")           // one record: each field a column
 s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
+err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
+ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
 ```
 
 | Option | |
@@ -169,6 +171,28 @@ A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
 CLI's `--format` writes. `FakeRecord` and `FakeRecordTemplate` take a record; a
 path or template that is not one — a bare string, a choice, or a folder — errors.
+
+```go
+type User struct {
+	ID   int64   `fake:"{seq()}"`
+	Last string  `fake:"sv_SE.person.last"`
+	Age  uint8   `fake:"{int(18,99)}"`
+	Nick *string `fake:"[null, \"{/sv_SE.username}\"]"`
+	Home Address // filled from Address's own tags
+}
+```
+
+`FakeStruct` fills a struct through a pointer: each exported field tagged `fake:"…"` is
+a column of one record, its tag a path or an inline template — told apart by
+`IsTemplate`, as the CLI tells an argument — and its Go type the column's
+[datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
+which a [`null`](#null) item leaves nil. A value the kind cannot hold, such as
+`{int(0,300)}` in a `uint8`, is refused as a typed column's is. A struct field, or a
+pointer to one, fills from its own tags as a record of its own, so its references draw
+apart from its parent's. Untagged fields keep their values, and so does a pointer back
+to a struct already being filled. The first call for a type compiles its tags and
+reports what they get wrong: a tag holding only `{/path}` names the path to write, and
+a `datatype` in a tag names the Go type that already sets it.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
@@ -473,7 +497,8 @@ tokens add cost in proportion to the output.
    one is a load error naming the right one.
 3. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
    the inline template; on a loaded generator `Fake` fails only for an unknown
-   path, and `Template.Fake` cannot fail at all.
+   path, `FakeStruct` only for a type its tags do not describe, and
+   `Template.Fake` cannot fail at all.
 4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
@@ -579,13 +604,17 @@ tokens add cost in proportion to the output.
 - **Samples say what they emit, transforms what they do.** `{upper(2)}` is two
   letters, `{uppercase(x)}` is `x` upper-cased; one name for both would turn on
   whether the argument looks like a number.
-- **A record is a template seen as columns, not a second schema format.** A
+- **A record is a template seen as columns; a Go struct is the one second schema.** A
   template's `format` composes its fields into one string; `FakeRecord` and
   `--format` project the same fields as columns. Two views of one dataset, so a
   record author writes the same JSON they already know, and a column is the same
   field `Fake` renders by dotted path. The `format` is inert to a record — a
   record-only template writes `"format": ""` — but it is compiled and fenced, so
-  a template that loads renders as whichever shape is asked for.
+  a template that loads renders as whichever shape is asked for. `FakeStruct` takes
+  its columns from a struct instead, because a Go caller has already written that
+  schema: the fields name the columns and their types are the datatypes, so a tag
+  says only what to draw, and a `datatype` in it would be a second spelling of the
+  type.
 - **A record shares one reference draw per category.** Two columns that reference
   one category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of
   it, so a record's facts agree the way a template's [correlated
@@ -674,7 +703,8 @@ node.go         the node model and JSON -> node compilation
 path.go         the dotted-path walk, and proving a path resolves
 render.go       Fake and the recursive renderer (choices, format strings, expansions)
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, and their compile and link
+struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and its fences
 reference.go    reference sigils, and binding references across the tree

@@ -173,8 +173,8 @@ func treeScope(root map[string]node) nodeScope {
 	return func(fn func(path string, n node) error) error { return walkNodes(root, fn) }
 }
 
-func inlineScope(n node) nodeScope {
-	return func(fn func(path string, m node) error) error { return eachNode(n, "template", fn) }
+func inlineScope(n node, label string) nodeScope {
+	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
 }
 
 // checkScope runs the per-node fences over a scope, each over the whole scope

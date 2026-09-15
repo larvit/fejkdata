@@ -9,7 +9,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -415,20 +414,13 @@ const (
 	argTemplate
 )
 
-// classify reads what a positional argument names by its shape: a { token, or a
-// JSON object, array or string, is an inline template; anything else is a path.
+// classify reads what a positional argument names by its shape (see fejkdata.IsTemplate).
 func classify(arg string) (argKind, error) {
-	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
-		return argTemplate, nil
+	inline, err := fejkdata.IsTemplate(arg)
+	if inline {
+		return argTemplate, err
 	}
-	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
-		return argPath, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
-	}
-	return argPath, nil
-}
-
-func isJSONStart(arg string) bool {
-	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
+	return argPath, err
 }
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }

@@ -6,11 +6,6 @@ The record API lands first, so the data update can use it.
 
 ### Record API
 
-- Struct-filling — fill a Go struct from `fake:"…"` tags holding a path or an
-  inline template, for parity with gofakeit and go-faker. The field's Go type is
-  the column type, through the same conversion and load checks as typed columns,
-  and a nested struct is its own draw group. Revise the Decision "A record is a
-  template seen as columns, not a second schema format" with that reason.
 - Draw groups — references into one category share one draw per render (one
   record, or one `Fake`) in both views; each `repeat` iteration draws anew, and a
   bare reference draws each time. An option naming a draw group splits a render
