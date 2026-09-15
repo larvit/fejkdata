@@ -171,20 +171,32 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	case bare.fromString: // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
 	}
-	return fmt.Errorf(`item %q declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, bare.format, want, want)
+	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, bare.format, want, want)
 }
 
-// bothTyped names the fix for two items holding different datatypes: reading one that takes its
-// datatype from the column it reads as text, since only a declared datatype can be edited away.
+// bothTyped names the fix for two items holding different datatypes: the one taking its datatype
+// from the column it reads is typed as the other where its values prove it, else read as text.
 func bothTyped(a *template, da DataType, b *template, db DataType) error {
-	read := a
+	read, other := a, db
 	if a.datatype != DataTypeString {
-		read = b
+		read, other = b, da
 	}
-	if read.datatype != DataTypeString {
+	switch {
+	case read.datatype != DataTypeString:
 		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
+	case (&valueProof{}).columnItem(read).not[other] == "":
+		return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so %s", da, db, typedAs(read, other))
 	}
 	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so to read %q as text, %s", da, db, read.format, asText(read))
+}
+
+// typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
+// item carries.
+func typedAs(t *template, d DataType) string {
+	if t.fromString {
+		return fmt.Sprintf(`write %q as {"format":%q,"datatype":%q}`, t.format, t.format, d)
+	}
+	return fmt.Sprintf(`give %q "datatype": %q`, t.format, d)
 }
 
 // asText names the spelling that reads the column a column-read item reads as text, keeping the
