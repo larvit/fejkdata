@@ -48,7 +48,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a weighted item beside a typed one", `[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]`, `give it "datatype": "integer"`},
 		{"items of two datatypes", `[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]`, "a column holds one datatype"},
 		{"an item beside a typed column it reads", `["{/src.score}","x"]`, `write it as {"format":"x","datatype":"integer"}`},
-		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `item "{/src.code}" declares no datatype beside one declaring integer`},
+		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `write it as {"format":"{/src.code}","datatype":"integer"}`},
 		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
 		{"another datatype over a typed column", `{"format":"{/src.score}","datatype":"number"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
 		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
