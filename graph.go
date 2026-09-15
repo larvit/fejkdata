@@ -196,6 +196,9 @@ func checkRenders(s nodeScope) error {
 	if err := s(heldCheck); err != nil {
 		return err
 	}
+	if err := s((&drawCheck{}).check); err != nil {
+		return err
+	}
 	return s((&valueProof{}).checkDatatype)
 }
 

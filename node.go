@@ -62,6 +62,7 @@ type template struct {
 	fromString  bool        // written as a JSON string rather than an object
 	readsColumn *columnRead // set when the format is one reference alone reading a record's column
 	record      bool        // compiled at the top without a repeat, so its fields are record columns
+	drawGroup   string      // the group its render reads reference paths in; "" keeps its caller's
 }
 
 func (*template) isNode() {}
@@ -241,13 +242,13 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString {
+	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString && o.group == "" {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
 	if err := checkTokens(o.format, fields); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, record: fieldPos == inColumn}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -258,6 +259,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 type templateOptions struct {
 	datatype  DataType
 	format    string
+	group     string
 	repeat    int
 	separator string
 	weighted  bool
@@ -276,6 +278,9 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	}
 	o.repeat = repeat
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
+		return o, err
+	}
+	if o.group, err = groupOf(m); err != nil {
 		return o, err
 	}
 	if sv, ok := m["separator"]; ok {
@@ -410,7 +415,7 @@ func checkPathNames(path string) error {
 // field. These names can never be fields.
 func isOption(name string) bool {
 	switch name {
-	case "datatype", "format", "repeat", "separator", "weight":
+	case "datatype", "format", "group", "repeat", "separator", "weight":
 		return true
 	}
 	return false

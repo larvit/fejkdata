@@ -89,9 +89,9 @@ func unreachableInChoice(c *choice, want string) error {
 
 // checkPath proves a dotted tail resolves whichever way the draws go — a choice
 // must carry the rest of the path in the set every variant shares — and that no
-// level a path reads carries a repeat, which one draw of it could not apply. So a
-// path that validates here resolves on every render, and a typo is a New-time
-// error.
+// level a path reads carries a repeat or a group, which one draw of it could not
+// apply. So a path that validates here resolves on every render, and a typo is a
+// New-time error.
 func checkPath(n node, tail []string, level string) error {
 	return walkPath(n, tail, pathWalk{
 		choice: func(c *choice, rest []string) ([]node, error) {
@@ -101,8 +101,12 @@ func checkPath(n node, tail []string, level string) error {
 			return c.items, nil
 		},
 		level: func(t *template, rest []string) error {
-			if t.repeat > 1 {
-				return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", join(level, strings.Join(tail[:len(tail)-len(rest)], ".")))
+			name := join(level, strings.Join(tail[:len(tail)-len(rest)], "."))
+			switch {
+			case t.repeat > 1:
+				return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", name)
+			case t.drawGroup != "":
+				return fmt.Errorf("the level %q carries a group, which a path reading into it cannot apply", name)
 			}
 			return nil
 		},

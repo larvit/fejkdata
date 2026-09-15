@@ -2,22 +2,6 @@
 
 ## Before v0.1.0
 
-The record API lands first, so the data update can use it.
-
-### Record API
-
-- Draw groups — references into one category share one draw per render (one
-  record, or one `Fake`) in both views; each `repeat` iteration draws anew, and a
-  bare reference draws each time. An option naming a draw group splits a render
-  into several entities. Replaces the Decision "A record shares one reference draw
-  per category". Each expectation becomes a test:
-  - `first`, `last` and `email` reading `person` → one person
-  - `from_first`/`from_last` grouped `from`, `to_first`/`to_last` grouped `to` → two people
-  - `host`, plus `guests` repeated 3 times → four people
-  - `code` and `symbol` sibling fields reading `currency`, as `{code} {symbol}` → a matching pair
-  - `{a} & {b}`, each reading `person` → one person, or two when `a` and `b` name different groups
-  - two bare `{/sv_SE.word}` → two words
-
 ### Data
 
 - Major data update. Shipped categories render as records with their building

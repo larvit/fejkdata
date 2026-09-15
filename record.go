@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -23,7 +22,7 @@ type Column struct {
 // Record is one record rendered from a template: every direct field is a column,
 // listed in name order. Each column is its own expansion, so a sibling field is
 // local to it, while a reference that reads a path is drawn once for the whole
-// record.
+// record, per group.
 type Record struct {
 	columns []Column
 }
@@ -212,7 +211,7 @@ func recordOf(n node) (*template, []Column, error) {
 	if !t.record {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if err := checkColumnRefs(t, names); err != nil {
+	if err := checkColumnDraws(t, names); err != nil {
 		return nil, nil, err
 	}
 	columns := make([]Column, len(names))
@@ -223,80 +222,13 @@ func recordOf(n node) (*template, []Column, error) {
 	return t, columns, nil
 }
 
-// checkColumnRefs rejects the reference reads a record's shared draw cannot answer
-// for: one column rendering a level another reads a path into, and a column
-// reading the record back through its own path.
-func checkColumnRefs(t *template, columns []string) error {
-	reads, err := columnRefs(t, columns)
-	if err != nil {
-		return err
-	}
-	sort.Slice(reads, func(i, j int) bool {
-		if reads[i].a.path != reads[j].a.path {
-			return reads[i].a.path < reads[j].a.path
-		}
-		return reads[i].column < reads[j].column
-	})
-	for i, level := range reads {
-		for _, into := range reads[i+1:] {
-			if strings.HasPrefix(into.a.path, level.a.path+".") {
-				return fmt.Errorf("column %q renders {%s}, a level column %q reads a path into with {%s}; name the fields you want instead",
-					level.column, level.a.name, into.column, into.a.name)
-			}
-		}
-	}
-	return nil
-}
-
-// columnRef is one held reference read, and the column whose render reaches it.
-type columnRef struct {
-	column string
-	a      arm
-}
-
-// columnRefs lists every reference that reads a path, anywhere a column renders,
-// following the same edges expand does. A reference landing back on the record
-// itself is reported rather than collected, whether it reads a path or the record
-// whole: either way the column describes a draw other than its neighbours'.
-func columnRefs(t *template, columns []string) ([]columnRef, error) {
-	var out []columnRef
-	var err error
-	for _, name := range columns {
-		seen := map[node]bool{}
-		var walk func(n node)
-		walk = func(n node) {
-			if n == nil || seen[n] || err != nil {
-				return
-			}
-			seen[n] = true
-			if tm, ok := n.(*template); ok {
-				for _, ref := range refTokens(tm.format) {
-					a := splitArm(ref, tm.refs)
-					if tm.fields[a.key] == node(t) {
-						err = fmt.Errorf("column %q reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", name, a.name)
-						return
-					}
-					if len(a.tail) > 0 {
-						out = append(out, columnRef{name, a})
-					}
-				}
-			}
-			for _, e := range renderEdges(n) {
-				walk(e.to)
-			}
-		}
-		walk(t.fields[name])
-	}
-	return out, err
-}
-
-// renderRecord draws each column once, in the name order recordOf fixed, over one
-// reference scope shared across them.
+// renderRecord draws each column once, in the name order recordOf fixed, as one render.
 func renderRecord(s *session, t *template, columns []Column) *Record {
-	scope := &draws{variant: map[string]node{}, value: map[string]draw{}}
+	set := newDrawSet()
+	sc := drawScope{set: &set}.in(t)
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
-		column := renderLeaf(s, t.fields[r.columns[i].Name], scope)
+		column := renderLeaf(s, t.fields[r.columns[i].Name], sc)
 		r.columns[i].Value, r.columns[i].Null = column.text, column.null
 	}
 	return r

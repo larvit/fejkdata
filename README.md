@@ -124,11 +124,11 @@ string and a backslash as an escape.
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: it
 renders nothing by `Fake`, and is compiled only so the tree's fences still run.
-The columns are the point, and their facts stay together: two columns that read a
-path into one category — `{/currency.code}` and `{/currency.symbol}` — share one
-draw of it, so the record is internally consistent. A bare `{/currency}` names no
-field, so it keeps drawing on its own. That one draw is also why two
-columns may not read overlapping reference *paths* — `{/cat.a}` beside
+The columns are the point, and their facts stay together: a record is one render, so
+columns that read a path into one category — `{/currency.code}` and
+`{/currency.symbol}` — read one draw of it ([References](#references)), and a
+[group](#group) draws a column apart. That one draw is also why the columns of one
+record may not overlap — `{/cat.a}`, or a bare `{/cat}` rendering it, beside
 `{/cat.a.b}` is refused, naming the fields to write instead, as
 [One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single
 format. A column may not reference the record it belongs to by any spelling: `{/users.first}`
@@ -341,8 +341,8 @@ different datatypes.
 
 ### Options and fields
 
-`format`, `weight`, `repeat`, `separator` and `datatype` are the only options; **any
-other key is a field** (see [Decisions](#decisions)). An object that does nothing a
+`format`, `weight`, `repeat`, `separator`, `datatype` and `group` are the only options;
+**any other key is a field** (see [Decisions](#decisions)). An object that does nothing a
 string can't — only a `format` — is rejected naming the string, as is a one-item
 choice naming its item.
 
@@ -438,14 +438,35 @@ without naming `sv_SE`:
 "Hej, {/en_US.person}!"
 ```
 
-Renders e.g. `Hej, Pat Smith!`. A reference into a category is held like a
-[correlated](#correlated-fields) path — `{.person.femalefirst} {.person.last}` name
-one person, `{lowercase(.person.femalefirst)}` reads that same draw, and
-`{.person.femalefirst}` beside `{/sv_SE.person.last}` in `sv_SE` is one person too — while a bare
-`{/misc.uuid} {/misc.uuid}` is two draws. Rejected at `New`: a path that is
+Renders e.g. `Hej, Pat Smith!`. A reference path into a category is held like a
+[correlated](#correlated-fields) path, but for the whole render — one `Fake`, or one
+record — rather than one format: `{.person.femalefirst} {.person.last}` name one
+person, as do the same two references in sibling fields or a nested template, and
+`{lowercase(.person.femalefirst)}` reads that same draw. Each `repeat` iteration is
+a render of its own, so it draws anew, and a [group](#group) holds a draw apart. A
+bare reference names no field and draws each time: `{/misc.uuid} {/misc.uuid}` is
+two draws. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, or reads a field not every variant
 of a choice carries, and a reference that leads back to its own value, directly,
 mutually or through a chain.
+
+### Group
+
+A template may carry `group` to hold its reference draws apart: every reference path
+it renders, however deep, reads the draw of that group, and the templates naming one
+group in a render read one draw. A nested `group` names another.
+
+```json
+{ "format": "{payer} pays {payee}; signed {signature}",
+  "payer": { "format": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}", "group": "payer" },
+  "payee": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}",
+  "signature": { "format": "{/sv_SE.person.last}", "group": "payer" } }
+```
+
+Renders e.g. `Sara Eriksson pays Ebba Lind; signed Eriksson`: the signature reads the
+payer's draw, while the payee is drawn apart. Rejected at load: a `group` of `""` (the
+default), one on a template that renders no reference path, and a path reading into a
+level that carries one.
 
 ### Correlated fields
 
@@ -478,12 +499,14 @@ The sub-fields stay addressable — `Fake("address.place.locality")` renders, an
 ### One draw, one spelling
 
 A name any token reads as a path (`{p.first}`) or as an operand (`{calc(net * 2)}`,
-`{uppercase(w)}`) is drawn **once per expansion**, and every other route to it —
-a bare `{p}`, a second bare `{w}`, `{/cat.net}`, a nested template rendering
-`{/cat.p.last}`, at any depth — is a load error naming the spelling to use. A
-name nothing reads that way is drawn each time: `{word} {word}` differs. An
-expansion is one render of one format, so each `repeat` iteration and each nested
-template draws again.
+`{uppercase(w)}`) is drawn **once per expansion**, a reference path (`{/cat.p.first}`)
+**once per render** in its [group](#group), and every other route to either — a bare
+`{p}`, a second bare `{w}`, `{/cat.net}`, a nested template rendering `{/cat.p.last}`
+beside `{p.first}`, a bare `{/cat}` rendering what `{/cat.p.first}` reads, at any
+depth — is a load error naming the spelling to use. A name nothing reads that way is
+drawn each time: `{word} {word}` differs. An expansion is one render of one format, so
+each nested template draws its own names again; a render is one `Fake` or one record,
+and each `repeat` iteration is an expansion and a render of its own.
 
 ```text
 token {p} renders a level that {p.first} reads a path into; name the fields you want instead
@@ -524,7 +547,7 @@ tokens add cost in proportion to the output.
 ## Decisions
 
 - **Options and fields share one namespace.** `format`, `weight`, `repeat`,
-  `separator` and `datatype` are reserved; every other key is a field. Nesting fields under a
+  `separator`, `datatype` and `group` are reserved; every other key is a field. Nesting fields under a
   key, or prefixing options, would tax every template to guard against a
   misspelt option.
 - **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
@@ -571,10 +594,10 @@ tokens add cost in proportion to the output.
   to have would make `--seed 42` machine-dependent. Data still lives in `data/`
   as JSON; `--data-path` layers over it.
 - **A bare reference draws each time; a reference path is held.** `{/p} {/p}`
-  is two draws, as `{word} {word}` is, while `{/p.first}` beside a nested template
-  rendering `{/p.first}` is a load error: a bare token is by contract an
-  independent draw, a path pins its level, and any route into a pinned level from
-  another expansion could show another row.
+  is two draws, as `{word} {word}` is, while every `{/p.first}` in one render reads
+  one draw, and a bare `{/p}` rendering it beside them is a load error: a bare token
+  is by contract an independent draw, a path pins its level, and a fresh draw of a
+  pinned level could show another row.
 - **Reference sigils follow the filesystem.** `/` is the root, `.` this file's
   folder, `..` the folder above — what those spellings already mean to anyone who
   has typed a path. A locale's files reach each other without naming the locale,
@@ -640,24 +663,16 @@ tokens add cost in proportion to the output.
   see a caller's types, so the first `FakeStruct` for a type compiles its tags and the
   answer, error included, is kept per type: a test's first call is its load, and no
   `NewStruct` handle is needed, as the cache already compiles once.
-- **A record shares one reference draw per category.** Two columns that reference
-  one category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of
-  it, so a record's facts agree the way a template's [correlated
-  fields](#correlated-fields) do. The draw is one per record, so it spans a
-  column's `repeat` and nested templates too (one record is one coherent unit);
-  a bare reference — `{/currency}`, no field — stays an independent draw every
-  time, the rule a format string already follows. Only references share: a sibling
-  field is local to its own column, so a `first` column does not silently bind to
-  a `first` in the column next to it.
-
-  The string view of that same template does not share. `Fake` renders each
-  sibling field as its own expansion, so a `{/currency.code}` field beside a
-  `{/currency.symbol}` field is two draws and may render `EUR $`; writing both
-  references in one `format` holds them together, as
-  [One draw, one spelling](#one-draw-one-spelling) says. The scope is what makes a
-  row coherent when the columns *are* the output, and there the caller cannot fall
-  back on one format string. Widening it to every render would change what `Fake`
-  has emitted since the start, for a correlation a single format already reaches.
+- **A render shares one reference draw per category, per group.** Every reference
+  path into a category in one `Fake`, or one record, reads one draw of it, so a
+  value's facts agree across its fields, nested templates and columns alike —
+  `{/currency.code}` in one field and `{/currency.symbol}` in another name one
+  currency, whichever view renders them. A `repeat` iteration is a render of its
+  own, since repeating asks for another entity, and a [group](#group) names further
+  entities within one render, so a payer and a payee are two groups over one
+  `person` rather than two copies of it. Only references share: a sibling field is
+  local to its own expansion, so a `first` column does not silently bind to a
+  `first` in the column next to it.
 - **A record's column set is fixed before the first draw.** Only a category-level
   template is a record: a path descending into a field, or naming a folder or a
   choice, errors. A tail may pass through a choice whose variants carry different
@@ -737,6 +752,7 @@ struct.go       structs: FakeStruct, fake tags, and a field's Go type as its col
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and its fences
+draw.go         one reference draw per render and group: draw sets, the group option, and its fence
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations
