@@ -118,6 +118,13 @@ func TestFakeIsSafeForConcurrentUse(t *testing.T) {
 					return
 				}
 				tmpl.Fake()
+				var u struct {
+					Last string `fake:"sv_SE.person.last"`
+				}
+				if err := f.FakeStruct(&u); err != nil {
+					t.Error(err)
+					return
+				}
 			}
 		}()
 	}

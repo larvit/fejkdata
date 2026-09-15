@@ -171,17 +171,20 @@ func TestIsTemplate(t *testing.T) {
 		}
 	}
 	for arg, want := range map[string]string{
-		"[abc]":                `holds a "["`,
-		"[abc].field":          `holds a "["`,
-		"x[1]":                 `holds a "["`,
-		"a]b":                  `holds a "]"`,
-		"a}b":                  `holds a "}"`,
-		`"abc`:                 `holds a "\""`,
-		`"a]b`:                 `holds a "\""`, // the opener the reader typed, not the bracket behind it
-		"{/sv_SE.person.last}": "{/sv_SE.person.last} is the path sv_SE.person.last written as a template; write sv_SE.person.last",
-		`"{/sv_SE.person}"`:    "write sv_SE.person",
-		"{.person.last}":       "write person.last",
-		"/sv_SE.person":        "write sv_SE.person",
+		"[abc]":                        `holds a "["`,
+		"[abc].field":                  `holds a "["`,
+		"x[1]":                         `holds a "["`,
+		"a]b":                          `holds a "]"`,
+		"a}b":                          `holds a "}"`,
+		`"abc`:                         `holds a "\""`,
+		`"a]b`:                         `holds a "\""`, // the opener the reader typed, not the bracket behind it
+		"{/sv_SE.person.last}":         "{/sv_SE.person.last} is the path sv_SE.person.last written as a template; write sv_SE.person.last",
+		`"{/sv_SE.person}"`:            "write sv_SE.person",
+		"{.person.last}":               "write person.last",
+		"/sv_SE.person":                "write sv_SE.person",
+		` "{/sv_SE.person}"`:           "write sv_SE.person",
+		`{"format":"{/sv_SE.person}"}`: "write sv_SE.person",
+		"//sv_SE.person":               "write sv_SE.person",
 	} {
 		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)

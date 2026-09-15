@@ -63,7 +63,8 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 	zips := map[string]string{"Stockholm": "111 22", "Tranås": "573 31"}
 	actives, nils := 0, 0
 	for i := 0; i < 100; i++ {
-		u, twin := structUser{Note: "keep"}, structUser{Note: "keep"}
+		oldNick, oldTwinNick := "old", "old"
+		u, twin := structUser{Nick: &oldNick, Note: "keep"}, structUser{Nick: &oldTwinNick, Note: "keep"}
 		if err := a.FakeStruct(&u); err != nil {
 			t.Fatal(err)
 		}
@@ -79,7 +80,7 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 			t.Fatalf("places %+v, %+v, want each nested struct one place, the pointer allocated", u.Home, u.Work)
 		case u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2):
 			t.Fatalf("typed fields %+v, want each the value its tag draws", u)
-		case u.Nick != nil && *u.Nick != "bo", u.Note != "keep", u.hidden != (structPlace{}), u.Skip != nil:
+		case u.Nick != nil && *u.Nick != "bo", u.Note != "keep", u.hidden != (structPlace{}), u.Skip != nil, oldNick != "old":
 			t.Fatalf("%+v: want Nick nil or bo, and the untagged fields left as they were", u)
 		}
 		if u.Active {
@@ -173,16 +174,16 @@ func TestFakeStructErrors(t *testing.T) {
 		}{}, `"Ada" is not an integer`},
 		{&struct {
 			A int8 `fake:"{int(0,300)}"`
-		}{}, `"{int(0,300)}" can reach 300, past int8; make it int64`},
+		}{}, `"{int(0,300)}" is not proven within int8; make it int64`},
 		{&struct {
 			A uint `fake:"{int(-1,5)}"`
-		}{}, `"{int(-1,5)}" can reach -1, past uint; make it int64`},
+		}{}, `"{int(-1,5)}" is not proven within uint; make it int64`},
 		{&struct {
 			A float32 `fake:"[\"1\",\"1e39\"]"`
-		}{}, `"1e39" can reach 1e+39, past float32; make it float64`},
+		}{}, `"1e39" is not proven within float32; make it float64`},
 		{&struct {
 			A int32 `fake:"{seq()}"`
-		}{}, `"{seq()}" can reach 9.223372036854776e+18, past int32; make it int64`},
+		}{}, `"{seq()}" is not proven within int32; make it int64`},
 		{&struct {
 			A bool `fake:"{int(0,1)}"`
 		}{}, "prints an integer, not a boolean"},
@@ -213,7 +214,7 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A string `fake:"-"`
 		}{}, `fake:"-" leaves a struct field unfilled`},
-		{&struct{ *structGiven }{}, "an embedded pointer to an unexported type"},
+		{&struct{ *structGiven }{}, "an unexported embedded pointer field cannot be set"},
 		{&struct {
 			structGiven
 			First string `fake:"person.last"`
@@ -231,8 +232,28 @@ func TestFakeStructErrors(t *testing.T) {
 			}
 		}{}, ": struct.Trip.A (int): {digits(3)} prints text"},
 	} {
-		if err := f.FakeStruct(c.v); err == nil || !strings.Contains(err.Error(), c.want) {
+		err := f.FakeStruct(c.v)
+		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("FakeStruct(%T) = %v, want an error containing %q", c.v, err, c.want)
+			continue
+		}
+		if again := f.FakeStruct(c.v); again == nil || again.Error() != err.Error() {
+			t.Errorf("FakeStruct(%T) again = %v, want the first call's error, %v", c.v, again, err)
+		}
+	}
+}
+
+func TestFakeStructBoundsTheRecordsATypeReaches(t *testing.T) {
+	f := structData(t)
+	tree := reflect.TypeOf(structPlace{})
+	for depth := 1; depth <= 10; depth++ {
+		tree = reflect.StructOf([]reflect.StructField{{Name: "L", Type: reflect.PointerTo(tree)}, {Name: "R", Type: reflect.PointerTo(tree)}})
+		err := f.FakeStruct(reflect.New(tree).Interface())
+		switch {
+		case depth < 10 && err != nil:
+			t.Fatalf("a tree %d deep, %d records: FakeStruct = %v, want it filled", depth, 1<<(depth+1)-1, err)
+		case depth == 10 && (err == nil || !strings.Contains(err.Error(), "more than 1024 records") || !strings.Contains(err.Error(), `fake:"-"`)):
+			t.Errorf("a tree 10 deep, 2047 records: FakeStruct = %v, want it refused naming the cap and fake:\"-\"", err)
 		}
 	}
 }
