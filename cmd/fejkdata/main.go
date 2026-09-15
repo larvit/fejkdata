@@ -418,7 +418,7 @@ const (
 func classify(arg string) (argKind, error) {
 	inline, err := fejkdata.IsTemplate(arg)
 	if inline {
-		return argTemplate, err
+		return argTemplate, nil
 	}
 	return argPath, err
 }

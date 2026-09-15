@@ -31,11 +31,14 @@ func (f *Generator) FakeStruct(v any) error {
 	return nil
 }
 
-// structResult is what compiling a struct type settled: its shape, or why it cannot be filled.
 type structResult struct {
 	shape *structShape
 	err   error
 }
+
+// maxStructRecords caps the records one struct type fills, which pointers between struct
+// types multiply along every path.
+const maxStructRecords = 1 << 10
 
 // structShapeOf compiles a struct type once and remembers the answer. Callers hold the
 // generator's lock.
@@ -47,7 +50,8 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	shape, err := compileStruct(f.categories, t, label, map[reflect.Type]bool{})
+	sc := &structCompile{root: f.categories, visiting: map[reflect.Type]bool{}, records: maxStructRecords}
+	shape, err := sc.record(t, label)
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
 	}
@@ -75,29 +79,38 @@ type nestedStruct struct {
 
 func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 0 }
 
-// structFields gathers what one struct type fills: its tagged fields, those its embedded
-// structs promote included, as the tags of one record, and its named struct fields as nested
-// records. visiting holds the types compiling or embedded above, so a pointer back to one is
-// left alone rather than filled without end.
-type structFields struct {
+// structCompile is what compiling one struct type shares across the records it reaches: the
+// loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
+// rather than filled without end, and how many more records it may build.
+type structCompile struct {
 	root     map[string]node
-	t        reflect.Type
-	label    string
 	visiting map[reflect.Type]bool
-	tags     map[string]any
-	shape    *structShape
+	records  int
 }
 
-// compileStruct compiles struct type t, naming its fields from label.
-func compileStruct(root map[string]node, t reflect.Type, label string, visiting map[reflect.Type]bool) (*structShape, error) {
-	visiting[t] = true
-	defer delete(visiting, t)
-	c := &structFields{root: root, t: t, label: label, visiting: visiting, tags: map[string]any{}, shape: &structShape{}}
+// structFields gathers what one struct type fills: its tagged fields, those its embedded
+// structs promote included, as the tags of one record, and its named struct fields as nested
+// records.
+type structFields struct {
+	*structCompile
+	t     reflect.Type
+	label string
+	tags  map[string]any
+	shape *structShape
+}
+
+func (sc *structCompile) record(t reflect.Type, label string) (*structShape, error) {
+	if sc.records--; sc.records < 0 {
+		return nil, fmt.Errorf(`%s: the struct fields reach more than %d records; leave a pointer unfilled with fake:"-"`, label, maxStructRecords)
+	}
+	sc.visiting[t] = true
+	defer delete(sc.visiting, t)
+	c := &structFields{structCompile: sc, t: t, label: label, tags: map[string]any{}, shape: &structShape{}}
 	if err := c.walk(t, nil); err != nil {
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		if err := c.shape.compileRecord(root, t, label, c.tags); err != nil {
+		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
 			return nil, err
 		}
 	}
@@ -170,7 +183,6 @@ func fieldPath(t reflect.Type, index []int) string {
 	return strings.Join(names, ".")
 }
 
-// embed gathers the fields an embedded struct promotes into c's record.
 func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
 	c.visiting[elem] = true
 	defer delete(c.visiting, elem)
@@ -179,14 +191,13 @@ func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
 		return err
 	}
 	if sf.Type.Kind() == reflect.Pointer && !sf.IsExported() && (len(c.tags) > tags || len(c.shape.nested) > nested) {
-		return fmt.Errorf("%s.%s: an embedded pointer to an unexported type cannot be allocated, so the tags beneath it cannot fill; embed %s by value", c.label, fieldPath(c.t, sf.Index), elem)
+		return fmt.Errorf("%s.%s: an unexported embedded pointer field cannot be set, so the tags beneath it cannot fill; embed %s by value", c.label, fieldPath(c.t, sf.Index), elem)
 	}
 	return nil
 }
 
-// nest adds a named struct field, or a pointer to one, that carries tags as a record of its own.
 func (c *structFields) nest(sf reflect.StructField, elem reflect.Type) error {
-	nested, err := compileStruct(c.root, elem, c.label+"."+sf.Name, c.visiting)
+	nested, err := c.record(elem, c.label+"."+sf.Name)
 	if err != nil || nested.empty() {
 		return err
 	}
@@ -264,7 +275,7 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 }
 
 // columnKind is what a field of one Go kind holds: the datatype its text proves as, the range a
-// number of it stays in, and the kind to name when a value can pass that range.
+// number of it stays in, and the kind to name when a value is not proven within that range.
 type columnKind struct {
 	datatype DataType
 	lo, hi   float64
@@ -288,23 +299,16 @@ var columnKinds = map[reflect.Kind]columnKind{
 	reflect.Uint8:   {DataTypeInteger, 0, math.MaxUint8, reflect.Int64},
 }
 
-// past is the bound of v a field of this kind cannot hold, if either is. An integer prints
+// holds reports whether a field of this kind holds every value v proves. An integer prints
 // whole, so its bounds round inward first.
-func (k columnKind) past(v proven) (float64, bool) {
-	lo, hi := v.lo, v.hi
+func (k columnKind) holds(v proven) bool {
 	switch k.datatype {
 	case DataTypeString, DataTypeBoolean:
-		return 0, false
+		return true
 	case DataTypeInteger:
-		lo, hi = math.Ceil(lo), math.Floor(hi)
+		return math.Ceil(v.lo) >= k.lo && math.Floor(v.hi) <= k.hi
 	}
-	switch {
-	case lo < k.lo:
-		return lo, true
-	case hi > k.hi:
-		return hi, true
-	}
-	return 0, false
+	return v.lo >= k.lo && v.hi <= k.hi
 }
 
 // checkField rejects a column some render of which a field of Go type ft cannot hold: a null
@@ -326,8 +330,8 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 		if reason := v.not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}
-		if bound, over := kind.past(v); over {
-			return fmt.Errorf("%s (%s): %q can reach %s, past %s; make it %s", label, ft, it.format, strconv.FormatFloat(bound, 'g', -1, 64), elem.Kind(), kind.wider)
+		if !kind.holds(v) {
+			return fmt.Errorf("%s (%s): %q is not proven within %s; make it %s", label, ft, it.format, elem.Kind(), kind.wider)
 		}
 	}
 	return nil

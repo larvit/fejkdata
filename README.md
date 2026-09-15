@@ -538,10 +538,10 @@ tokens add cost in proportion to the output.
   whole — though only a leading one could collide — keeps one simple name rule
   instead of a leading-position special case. The JSON string is what makes the
   library's own advice reachable: the error for an object holding only a format
-  names `"…"`, and that spelling has to work where it is printed. One reference alone,
-  `{/users}`, is refused naming the path `users`: both render the same text, and only
-  the path names a record. `IsTemplate` exports the rule, so the CLI, struct tags and
-  any other caller read one.
+  names `"…"`, and that spelling has to work where it is printed. An argument or struct
+  tag of one reference alone, `{/users}`, is refused naming the path `users`: both
+  render the same text, and only the path names a record. `IsTemplate` exports the
+  rule, so the CLI, struct tags and any other caller read one.
 - **An inline template skips the cycle fence, and only that one.** `New` proves the
   loaded tree acyclic, an inline node is a finite tree of its own, and nothing in
   the tree can reference it, so no render of it reaches itself. Every other fence

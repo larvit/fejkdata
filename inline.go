@@ -72,8 +72,8 @@ func isTemplate(arg string) (bool, error) {
 	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
 		return false, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
 	}
-	if len(arg) > 1 && strings.HasPrefix(arg, "/") {
-		return false, fmt.Errorf("path %s starts with /, and every path starts at the root already; write %s", arg, arg[1:])
+	if path := strings.TrimLeft(arg, "/"); path != arg && path != "" {
+		return false, fmt.Errorf("path %s starts with /, and every path starts at the root already; write %s", arg, path)
 	}
 	return false, nil
 }
@@ -82,14 +82,19 @@ func isJSONStart(arg string) bool {
 	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
 }
 
-// loneReference is the path a template spells when it is one reference token and nothing else.
+// loneReference is the path a template spells when the value it holds — a format string, a
+// JSON string, or an object holding only a format — is one reference token and nothing else.
 func loneReference(arg string) (string, bool) {
-	format := arg
-	if strings.HasPrefix(arg, `"`) && json.Unmarshal([]byte(arg), &format) != nil {
-		return "", false
+	var raw any
+	if json.Unmarshal([]byte(arg), &raw) != nil {
+		raw = arg
 	}
+	if m, isObject := raw.(map[string]any); isObject && len(m) == 1 {
+		raw = m["format"]
+	}
+	format, isString := raw.(string)
 	var units []ftoken
-	if eachToken(format, func(t ftoken) error { units = append(units, t); return nil }) != nil || len(units) != 1 {
+	if !isString || eachToken(format, func(t ftoken) error { units = append(units, t); return nil }) != nil || len(units) != 1 {
 		return "", false
 	}
 	body := units[0].body
