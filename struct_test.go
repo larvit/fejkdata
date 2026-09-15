@@ -106,6 +106,13 @@ func TestFakeStructFillsEmbeddedFieldsIntoItsRecord(t *testing.T) {
 			t.Fatalf("%+v, %+v: want the promoted fields one person with the struct's own, the embedded pointer allocated", e, e.StructFamily)
 		}
 	}
+	var skipped struct {
+		structGiven `fake:"-"`
+		Email       string `fake:"{lowercase(/person.first)}@example.com"`
+	}
+	if err := f.FakeStruct(&skipped); err != nil || skipped.First != "" || skipped.Email == "" {
+		t.Errorf("FakeStruct = %v, %+v; want the embedded struct under fake:\"-\" left unfilled beside the filled field", err, skipped)
+	}
 }
 
 func TestFakeStructDrawsANestedStructApart(t *testing.T) {

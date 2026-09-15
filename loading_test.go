@@ -298,6 +298,10 @@ func TestNewErrors(t *testing.T) {
 			map[string]string{"a(b/cat": `"1"`},
 			`folder "a(b" contains "("`,
 		},
+		"field name a struct tag reserves": {
+			map[string]string{"a": `{"format":"{x}","x":"1","-":"2"}`},
+			`field "-" is reserved`,
+		},
 		// A repeated arm skews an alternation, which weight is the spelling for.
 		"repeated alternation arm": {
 			map[string]string{"a": `{"format":"{x|x}","x":"1"}`},
