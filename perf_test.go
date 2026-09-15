@@ -68,6 +68,10 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		if allocs := testing.AllocsPerRun(10000, func() { f.FakeRecord("x") }); allocs > base*1.10 {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
 		}
+		r, _ := f.FakeRecord("x")
+		if allocs := testing.AllocsPerRun(10000, func() { _ = r.CSVLine() }); allocs > 2 {
+			t.Errorf("%s: CSVLine() makes %.1f allocs/op, want 2: the fields slice and the joined line", s.name, allocs)
+		}
 	}
 }
 

@@ -69,6 +69,9 @@ func TestBuiltinFloat(t *testing.T) {
 		if got := mustRender(t, f, `"{float(1,2,3)}"`); !re.MatchString(got) {
 			t.Fatalf("float(1,2,3) = %q, want d.ddd in [1,2]", got)
 		}
+		if got := mustRender(t, f, `"{float(-1,1,0)}"`); got == "-0" {
+			t.Fatalf("float(-1,1,0) = %q, want a zero printed unsigned", got)
+		}
 	}
 }
 

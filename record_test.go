@@ -134,7 +134,7 @@ func TestRecordCSV(t *testing.T) {
 }
 
 func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
-	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`, "gone": `{"format": "", "note": null}`})
+	dir := writeData(t, map[string]string{"blank": `{"format": "", "note": ""}`})
 	f := newGenerator(t, dir, WithSeed(1))
 	r, err := f.FakeRecord("blank")
 	if err != nil {
@@ -146,9 +146,6 @@ func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
 	}
 	if len(rows) != 2 || len(rows[1]) != 1 || rows[1][0] != "" {
 		t.Fatalf("one empty column parsed to %v, want a header and one row of one empty field", rows)
-	}
-	if r, err := f.FakeRecord("gone"); err != nil || r.CSVLine() != "" {
-		t.Fatalf("a lone null column wrote %q, %v; want the blank line PostgreSQL's COPY reads as null", r.CSVLine(), err)
 	}
 }
 
@@ -182,6 +179,13 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 	}
 	if got := DataTypeNumber.String(); got != "number" {
 		t.Errorf("DataTypeNumber.String() = %q, want the data's spelling", got)
+	}
+	lone, err := newGenerator(t, writeData(t, map[string]string{"gone": `{"format":"","note":null}`})).FakeRecord("gone")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := lone.CSVLine(); got != "" {
+		t.Errorf("a lone null column wrote CSVLine() = %q, want the blank line PostgreSQL's COPY reads as null", got)
 	}
 }
 

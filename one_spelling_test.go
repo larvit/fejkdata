@@ -18,6 +18,7 @@ func TestRepeatedChoiceItemIsRejected(t *testing.T) {
 		`["a", "a", "b"]`: `{ "format": "a", "weight": 2 }`,
 		`[{"format":"{x}","x":"1"},{"format":"{x}","x":"1"}]`: "repeats item",
 		`{"format":"{w}","w":["", "", "x"]}`:                  `{ "format": "", "weight": 2 }`,
+		`{"format":"","w":[null,null,"a"]}`:                   "a null takes no weight",
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error naming %s", src, err, want)

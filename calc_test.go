@@ -36,6 +36,7 @@ func TestCalcAuto(t *testing.T) {
 		`"{calc(10 / 3)}"`: "3.3333333333333335",
 		`"{calc(6 / 2)}"`:  "3",
 		`"{calc(1 / 4)}"`:  "0.25",
+		`"{calc(0 * -1)}"`: "0",
 	}
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {
@@ -52,6 +53,7 @@ func TestCalcDecimals(t *testing.T) {
 		`"{calc(10 / 3, 2)}"`: "3.33",
 		`"{calc(10 / 3, 0)}"`: "3",
 		`"{calc(2 * 3, 2)}"`:  "6.00",
+		`"{calc(-0.001, 2)}"`: "0.00",
 	}
 	for tmpl, want := range cases {
 		if got := mustRender(t, f, tmpl); got != want {

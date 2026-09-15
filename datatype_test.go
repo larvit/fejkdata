@@ -32,6 +32,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 		`null`: `so write ""`,
 		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`:                                           `so write ""`,
 		`{"format":"","c":[{"format":"1","datatype":"integer"},"x"]}`:                                    `write it as {"format":"x","datatype":"integer"}`,
+		`{"format":"","c":[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]}`:              `give it "datatype": "integer"`,
 		`{"format":"","c":[{"format":"1","datatype":"integer"},{"format":"true","datatype":"boolean"}]}`: "a column holds one datatype",
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
@@ -66,6 +67,17 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"an overflow", `{"format":"{calc(a * a)}","a":"{digits(200)}","datatype":"number"}`, "is not proven within 1e300"},
 		{"a division in an integer column", `{"format":"{calc(a / b)}","a":"{int(1,9)}","b":"{int(1,9)}","datatype":"integer"}`, "prints a number, not an integer"},
 		{"a composed operand", `{"format":"{calc(n * 2)}","n":"{int(1,99)}.{digits(2)}","datatype":"number"}`, "{seq()}, {digits()} or {calc()}"},
+		{"a divisor that prints as zero", `{"format":"{calc(1 / b, 2)}","b":"{float(4.9999999999999994e-79,5e-79,78)}","datatype":"number"}`, "divides by b, which is not proven nonzero"},
+		{"a divisor that rounds to zero", `{"format":"{calc(a / b)}","a":"{int(1,9)}","b":"{float(0.1,1,0)}","datatype":"number"}`, "divides by b, which is not proven nonzero"},
+		{"a zero among a divisor's literals", `{"format":"{calc(a / b)}","a":"{int(1,9)}","b":["0","5"],"datatype":"number"}`, "divides by b, which is not proven nonzero"},
+		{"a negated divisor crossing zero", `{"format":"{calc(a / (-b + 10))}","a":"{int(1,9)}","b":"{int(1,20)}","datatype":"number"}`, "which is not proven nonzero"},
+		{"a subtracted divisor crossing zero", `{"format":"{calc(a / (10 - b))}","a":"{int(1,9)}","b":"{int(1,20)}","datatype":"number"}`, "which is not proven nonzero"},
+		{"a quotient past the limit", `{"format":"{calc(a / b / b)}","a":"{digits(300)}","b":"{float(0.000001,1,6)}","datatype":"number"}`, "is not proven within 1e300"},
+		{"an operand past the limit", `{"format":"{calc(a)}","a":"{digits(400)}","datatype":"number"}`, "is not proven within 1e300"},
+		{"a whole calc past int64", `{"format":"{calc(a * 2)}","a":"{seq()}","datatype":"integer"}`, "{calc(a * 2)} is not proven within int64"},
+		{"a whole float past int64", `{"format":"{float(0,1e19,0)}","datatype":"integer"}`, "{float(0,1e19,0)} is not proven within int64"},
+		{"a signed zero integer", `{"format":"-0","datatype":"integer"}`, `"-0" is zero written with a sign; write "0"`},
+		{"a signed zero number", `{"format":"-0.00","datatype":"number"}`, `"-0.00" is zero written with a sign; write "0.00"`},
 	} {
 		row := `{"format":"","col":` + c.column + `}`
 		files := map[string]string{"row": row}
@@ -83,7 +95,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 	}
 }
 
-var jsonInteger = regexp.MustCompile(`^-?(0|[1-9][0-9]*)$`)
+var jsonInteger = regexp.MustCompile(`^(0|-?[1-9][0-9]*)$`)
 
 func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 	cat := `[{"format":"{code}","code":"200"},{"format":"{code}","code":"404"}]`
@@ -94,6 +106,9 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{/cat.code}","datatype":"integer"}`,
 		`{"format":"{a|b}","a":"1","b":"{int(5,9)}","datatype":"integer"}`,
 		`{"format":"{float(-1.5,9.5,0)}","datatype":"integer"}`,
+		`{"format":"{float(-1,1,0)}","datatype":"integer"}`,
+		`{"format":"{calc(a * b)}","a":"{int(-9,-1)}","b":"{int(0,9)}","datatype":"integer"}`,
+		`{"format":"{calc(x + 1)}","x":"{float(0,9,0)}","datatype":"integer"}`,
 		`{"format":"{float(-1,1,2)}","datatype":"number"}`,
 		`{"format":"{v}","v":["1","2.5","6.022e23"],"datatype":"number"}`,
 		`{"format":"{b}","b":["true","false"],"datatype":"boolean"}`,
