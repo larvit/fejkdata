@@ -55,11 +55,15 @@ func TestInertObjectIsRejected(t *testing.T) {
 func TestAGroupThatSplitsNothingIsRejected(t *testing.T) {
 	files := map[string]string{"mail": `"{/word.w}@example.com"`, "word": `{"format":"{w}","w":["a","b"]}`}
 	for src, want := range map[string]string{
-		`{"format":"{x}","x":{"format":"{y}","y":["a","b"],"group":"g"}}`:              `group "g" splits nothing`,
-		`{"format":"{x}","x":{"format":"{/word}","group":"g"}}`:                        `group "g" splits nothing`,
-		`{"format":"{/word.w}","group":"g"}`:                                           "",
-		`{"format":"{x}","x":{"format":"{/mail}","group":"g"}}`:                        "",
-		`{"format":"{x}","x":{"format":"{y}","y":"{/word.w}","repeat":2,"group":"g"}}`: "",
+		`{"format":"{x}","x":{"format":"{y}","y":["a","b"],"group":"g"}}`:                                                                    `group "g" splits nothing`,
+		`{"format":"{x}","x":{"format":"{/word}","group":"g"}}`:                                                                              `group "g" splits nothing`,
+		`{"format":"{x}","x":{"format":"{r}","group":"g","r":{"format":"{/word.w}","repeat":2}}}`:                                            `group "g" splits nothing`,
+		`{"format":"{x}","x":{"format":"{y}","y":"{/word.w}","repeat":2,"group":"g"}}`:                                                       `group "g" on a repeat`,
+		`{"format":"{x}","x":{"format":"{/word.w} {y}","group":"g","y":{"format":"{/word.w}!","group":"g"}}}`:                                `"y" names group "g", the group this template draws in already`,
+		`{"format":"{/word.w}","group":"g"}`:                                                                                                 "",
+		`{"format":"{x}","x":{"format":"{/mail}","group":"g"}}`:                                                                              "",
+		`{"format":"{x}","x":{"format":"{/word.w} {y}","group":"g","y":{"format":"{/word.w}!","group":"h"}}}`:                                "",
+		`{"format":"{x}","x":{"format":"{/word.w} {r}","group":"g","r":{"format":"{y}","repeat":2,"y":{"format":"{/word.w}","group":"g"}}}}`: "",
 	} {
 		files["cat"] = src
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))

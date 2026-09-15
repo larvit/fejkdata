@@ -261,8 +261,9 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 		"sibling path beside a reference path":                      `{"format":"{p.first} {/cat.p.last}","p":` + p + `}`,
 		"sibling fields reading a level and a path into it":         `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}","p":` + p + `}`,
 		"a field rendering the level a nested reference reads into": `{"format":"{x} {p}","x":"{/cat.p.first}","p":` + p + `}`,
+		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/other}","b":"{/other.p.first}"}`,
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file, "other": `{"format":"x","p":` + p + `}`})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
@@ -284,15 +285,28 @@ func onePerson(name string) bool {
 
 func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"apart":   `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":{"format":"{/person.first} {/person.last}","group":"y"}}`,
-		"contact": `{"format":"{first} {last} <{email}>","email":"{lowercase(/person.first)}.{lowercase(/person.last)}@example.com","first":"{/person.first}","last":"{/person.last}"}`,
-		"nested":  `{"format":"{/person.first} {inner}","inner":"{/person.last}"}`,
-		"pair":    `{"format":"{a} & {b}","a":"{/person.first} {/person.last}","b":"{/person.first} {/person.last}"}`,
-		"person":  drawPeople,
+		"apart":      `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":{"format":"{/person.first} {/person.last}","group":"y"}}`,
+		"caller":     `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":"{/pay}"}`,
+		"contact":    `{"format":"{first} {last} <{email}>","email":"{lowercase(/person.first)}.{lowercase(/person.last)}@example.com","first":"{/person.first}","last":"{/person.last}"}`,
+		"iterations": `{"format":"{/person.first} {r}","group":"outer","r":{"format":"{a}={b}","repeat":3,"separator":",","a":"{/person.first}","b":{"format":"{/person.first}","group":"outer"}}}`,
+		"nested":     `{"format":"{/person.first} {inner}","inner":"{/person.last}"}`,
+		"pair":       `{"format":"{a} & {b}","a":"{/person.first} {/person.last}","b":"{/person.first} {/person.last}"}`,
+		"pay":        `{"format":"{p}","p":{"format":"{/person.first} {/person.last}","group":"x"}}`,
+		"person":     drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	apart := false
+	apart, local, noGroup := false, false, false
 	for i := 0; i < 100; i++ {
+		a, b, _ := strings.Cut(fake(t, f, "caller"), " & ")
+		if !onePerson(a) || !onePerson(b) {
+			t.Fatalf("caller = %q & %q, want each one person", a, b)
+		}
+		local = local || a != b
+		_, iterations, _ := strings.Cut(fake(t, f, "iterations"), " ")
+		for _, pair := range strings.Split(iterations, ",") {
+			a, b, _ := strings.Cut(pair, "=")
+			noGroup = noGroup || a != b
+		}
 		if got := fake(t, f, "nested"); !onePerson(got) {
 			t.Fatalf("nested = %q, want a nested template's path one draw with its parent's", got)
 		}
@@ -309,7 +323,7 @@ func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
 		if !onePerson(c[1].Value+" "+c[2].Value) || c[0].Value != strings.ToLower(c[1].Value)+"."+strings.ToLower(c[2].Value)+"@example.com" {
 			t.Fatalf("contact record %s, want first, last and email one person", r.JSON())
 		}
-		a, b, _ := strings.Cut(fake(t, f, "pair"), " & ")
+		a, b, _ = strings.Cut(fake(t, f, "pair"), " & ")
 		if !onePerson(a) || a != b {
 			t.Fatalf("pair = %q & %q, want both fields one person", a, b)
 		}
@@ -321,6 +335,12 @@ func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
 	}
 	if !apart {
 		t.Error("groups x and y drew one person in 100 renders, want a draw each")
+	}
+	if !local {
+		t.Error("group x in caller and group x in the pay it references drew one person in 100 renders; a group name is local to its category")
+	}
+	if !noGroup {
+		t.Error("an iteration's plain read and its group outer always agreed; a repeat iteration renders in no group, so they are a draw each")
 	}
 }
 
