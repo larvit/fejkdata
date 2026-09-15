@@ -41,7 +41,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 	tree := map[string]string{
 		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x"}]`,
-		"src": `{"format":"","code":[null,"200","2x"],"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+		"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 	}
 	for _, c := range []struct{ name, column, want string }{
 		{"an item beside a typed one", `[{"format":"1","datatype":"integer"},"x"]`, `write it as {"format":"x","datatype":"integer"}`},
@@ -51,7 +51,9 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `write it as {"format":"{/src.code}","datatype":"integer"}`},
 		{"text beside a typed column it reads", `["{/src.score}","n/a"]`, `to read that column as text, write {"format":"{text}","text":"{/src.score}"}`},
 		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
-		{"another datatype over a typed column", `{"format":"{/src.score}","datatype":"number"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
+		{"a datatype a typed column's values reject", `{"format":"{/src.score}","datatype":"boolean"}`, "{int(1,9)} prints an integer, not a boolean"},
+		{"two typed columns it reads", `["{/src.score}","{/src.flag}"]`, `so to read "{/src.score}" as text, write {"format":"{text}","text":"{/src.score}"}`},
+		{"text beside a weighted typed column read", `[{"format":"{/src.score}","weight":3},"n/a"]`, `to read that column as text, set its "format" to "{text}" and add "text": "{/src.score}"`},
 		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
 		{"a null read into text", `{"format":"{x}","x":"{/src.score}","datatype":"integer"}`, "reads a null"},
 		{"a sample with leading zeros", `{"format":"{digits(3)}","datatype":"integer"}`, "{digits(3)} prints text, not an integer"},
@@ -134,9 +136,10 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{calc(a / b, 0)}","a":"{int(1,9)}","b":"{int(1,9)}","datatype":"integer"}`,
 		`{"format":"{calc(sub * 1.25, 2)}","sub":{"format":"{calc(a * b)}","a":"{int(1,9)}","b":"{float(0,5,2)}"},"datatype":"number"}`,
 		`{"format":"{/src.code}","datatype":"integer"}`,
+		`{"format":"{/src.n}","datatype":"number"}`,
 	} {
 		row := `{"format":"","col":` + column + `}`
-		src := `{"format":"","code":["200","404"]}`
+		src := `{"format":"","code":["200","404"],"n":{"format":"{int(1,9)}","datatype":"integer"}}`
 		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it loaded", column, err)
