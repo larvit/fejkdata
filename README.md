@@ -31,9 +31,9 @@ spot. Its tokens reach the data by reference from the root —
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike
 available. An inline template sits in no folder, so the folder-relative `{.name}`
 and `{..name}` are rejected naming the root spelling, and one reference alone —
-`{/sv_SE.person}` — is the path written as a template, rejected naming the path. A
-path never contains a brace, a bracket or a quote, so the two cannot collide (see
-[Decisions](#decisions)).
+`{/sv_SE.person}` — is the path written as a template, rejected naming the path, as is
+a path written `/sv_SE.person`. A path never contains a brace, a bracket or a quote,
+so the two cannot collide (see [Decisions](#decisions)).
 
 | Flag | |
 |------|--|
@@ -191,9 +191,9 @@ which a [`null`](#null) item leaves nil. An integer stays within int64 whatever 
 kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
 naming a kind that holds it. The fields an embedded struct promotes are columns of the
 same record; a named struct field, or a pointer to one, fills from its own tags as a
-record of its own, so its references draw apart from its parent's, and `fake:"-"`
-leaves it unfilled. Untagged fields keep their values, and so does a pointer back to a
-struct already being filled. The first call for a type compiles its tags and reports
+record of its own, so its references draw apart from its parent's. `fake:"-"` leaves a
+struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
+their values, and so does a pointer back to a struct already being filled. The first call for a type compiles its tags and reports
 what they get wrong, with the same error on every later call; a `datatype` in a tag
 names the Go type that already sets it.
 
@@ -209,8 +209,8 @@ work with no data on disk. A directory is a namespace: each JSON file is a
 category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`;
-dot-prefixed entries are skipped, so a data directory can also be a checkout.
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be
+`-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `person`, `phone`, `price`, `sentence`, `ssn`, `time`, `url`, `username`,
@@ -625,9 +625,9 @@ tokens add cost in proportion to the output.
   fields an embedded struct promotes are the struct's own — `e.First`, as
   `encoding/json` and SQL mappers read them — so they are columns of its record and
   share its draws; a tagged field that another field hides is refused, not dropped. A
-  named struct field is another entity and a record of its own; `fake:"-"` leaves it
-  unfilled, whatever a category named `-` holds, and a pointer back to a struct
-  already being filled is left alone, since filling it would never end. `New` cannot
+  named struct field is another entity and a record of its own. `fake:"-"` leaves a
+  struct field, embedded or named, unfilled, so no name may be `-`; a pointer back to
+  a struct already being filled is left alone, since filling it would never end. `New` cannot
   see a caller's types, so the first `FakeStruct` for a type compiles its tags and the
   answer, error included, is kept per type: a test's first call is its load, and no
   `NewStruct` handle is needed, as the cache already compiles once.

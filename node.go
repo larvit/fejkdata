@@ -378,12 +378,16 @@ const reservedInName = ".|({}/[]\""
 // reservedList spells reservedInName for an error message, so the two cannot drift.
 var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
 
-// checkName rejects a name the dot path, {token} and JSON grammars cannot spell.
+// checkName rejects a name the dot path, {token} and JSON grammars cannot spell, or a struct
+// tag cannot read.
 // Both a category or folder and a field go through it, so there is one answer to
 // what a name may contain.
 func checkName(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
+	}
+	if name == "-" {
+		return fmt.Errorf(`%q is reserved: the struct tag fake:"-" leaves a field unfilled, so no tag could read it; rename it`, name)
 	}
 	if i := strings.IndexAny(name, reservedInName); i >= 0 {
 		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",

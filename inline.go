@@ -52,8 +52,8 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 // IsTemplate reports whether arg is an inline template rather than a path, by its shape: a {
 // token, or a JSON object, array or string, is a template, and anything else is a path. A
 // name never holds a bracket, a brace or a quote, so an arg holding one that is not valid
-// JSON names neither, and errors; so does a template of one reference alone, which is a path
-// written as a template.
+// JSON names neither, and errors; so do a template of one reference alone, which is a path
+// written as a template, and a path written with a leading /.
 func IsTemplate(arg string) (bool, error) {
 	inline, err := isTemplate(arg)
 	if err != nil {
@@ -71,6 +71,9 @@ func isTemplate(arg string) (bool, error) {
 	}
 	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
 		return false, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
+	}
+	if len(arg) > 1 && strings.HasPrefix(arg, "/") {
+		return false, fmt.Errorf("path %s starts with /, and every path starts at the root already; write %s", arg, arg[1:])
 	}
 	return false, nil
 }

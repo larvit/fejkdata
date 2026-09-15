@@ -206,8 +206,6 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 		return nil, err
 	case inline:
 		return inputValue(tag)
-	case strings.HasPrefix(tag, "/"):
-		return nil, fmt.Errorf("path %q starts with /, and every path starts at the root already; write %s", tag, tag[1:])
 	}
 	for _, seg := range strings.Split(tag, ".") {
 		if err := checkName(seg); err != nil {
@@ -290,13 +288,23 @@ var columnKinds = map[reflect.Kind]columnKind{
 	reflect.Uint8:   {DataTypeInteger, 0, math.MaxUint8, reflect.Int64},
 }
 
-// reach is the least and greatest value v proves a field of this kind receives. An integer
-// prints whole, so its bounds round inward.
-func (k columnKind) reach(v proven) (lo, hi float64) {
-	if k.datatype == DataTypeInteger {
-		return math.Ceil(v.lo), math.Floor(v.hi)
+// past is the bound of v a field of this kind cannot hold, if either is. An integer prints
+// whole, so its bounds round inward first.
+func (k columnKind) past(v proven) (float64, bool) {
+	lo, hi := v.lo, v.hi
+	switch k.datatype {
+	case DataTypeString, DataTypeBoolean:
+		return 0, false
+	case DataTypeInteger:
+		lo, hi = math.Ceil(lo), math.Floor(hi)
 	}
-	return v.lo, v.hi
+	switch {
+	case lo < k.lo:
+		return lo, true
+	case hi > k.hi:
+		return hi, true
+	}
+	return 0, false
 }
 
 // checkField rejects a column some render of which a field of Go type ft cannot hold: a null
@@ -318,15 +326,8 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 		if reason := v.not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}
-		if kind.datatype == DataTypeBoolean {
-			continue
-		}
-		if lo, hi := kind.reach(v); lo < kind.lo || hi > kind.hi {
-			past := hi
-			if lo < kind.lo {
-				past = lo
-			}
-			return fmt.Errorf("%s (%s): %q can reach %s, past %s; make it %s", label, ft, it.format, strconv.FormatFloat(past, 'g', -1, 64), elem.Kind(), kind.wider)
+		if bound, over := kind.past(v); over {
+			return fmt.Errorf("%s (%s): %q can reach %s, past %s; make it %s", label, ft, it.format, strconv.FormatFloat(bound, 'g', -1, 64), elem.Kind(), kind.wider)
 		}
 	}
 	return nil
