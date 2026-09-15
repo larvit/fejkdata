@@ -185,6 +185,9 @@ func TestIsTemplate(t *testing.T) {
 		` "{/sv_SE.person}"`:           "write sv_SE.person",
 		`{"format":"{/sv_SE.person}"}`: "write sv_SE.person",
 		"//sv_SE.person":               "write sv_SE.person",
+		"{//sv_SE.person}":             "{//sv_SE.person} is the path sv_SE.person written as a template; write sv_SE.person",
+		"/sv_SE/person":                `path "sv_SE/person" contains "/"`,
+		"{/-}":                         `path "-" is reserved`,
 	} {
 		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)

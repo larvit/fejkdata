@@ -243,17 +243,20 @@ func TestFakeStructErrors(t *testing.T) {
 	}
 }
 
-func TestFakeStructBoundsTheRecordsATypeReaches(t *testing.T) {
+func TestFakeStructBoundsTheStructsATypeReaches(t *testing.T) {
 	f := structData(t)
-	tree := reflect.TypeOf(structPlace{})
-	for depth := 1; depth <= 10; depth++ {
+	place := reflect.TypeOf(structPlace{})
+	tree := place
+	for depth := 1; depth <= 8; depth++ {
 		tree = reflect.StructOf([]reflect.StructField{{Name: "L", Type: reflect.PointerTo(tree)}, {Name: "R", Type: reflect.PointerTo(tree)}})
-		err := f.FakeStruct(reflect.New(tree).Interface())
-		switch {
-		case depth < 10 && err != nil:
-			t.Fatalf("a tree %d deep, %d records: FakeStruct = %v, want it filled", depth, 1<<(depth+1)-1, err)
-		case depth == 10 && (err == nil || !strings.Contains(err.Error(), "more than 1024 records") || !strings.Contains(err.Error(), `fake:"-"`)):
-			t.Errorf("a tree 10 deep, 2047 records: FakeStruct = %v, want it refused naming the cap and fake:\"-\"", err)
-		}
+	}
+	fields := []reflect.StructField{{Name: "L", Type: reflect.PointerTo(tree)}, {Name: "R", Type: reflect.PointerTo(tree)}, {Name: "P", Type: place}}
+	if err := f.FakeStruct(reflect.New(reflect.StructOf(fields)).Interface()); err != nil {
+		t.Fatalf("a type reaching 1024 structs: FakeStruct = %v, want it filled", err)
+	}
+	embedded := reflect.StructField{Name: "StructFamily", Type: reflect.TypeOf(StructFamily{}), Anonymous: true}
+	err := f.FakeStruct(reflect.New(reflect.StructOf(append(fields, embedded))).Interface())
+	if err == nil || !strings.Contains(err.Error(), "more than 1024 structs") || !strings.Contains(err.Error(), `leave a struct field unfilled with fake:"-"`) {
+		t.Errorf("a type reaching 1025 structs, the last embedded: FakeStruct = %v, want it refused naming the cap and fake:\"-\"", err)
 	}
 }
