@@ -65,6 +65,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a divisor that can be zero", `{"format":"{calc(a / b)}","a":"{int(1,9)}","b":"{int(0,9)}","datatype":"number"}`, "divides by b, which is not proven nonzero"},
 		{"an overflow", `{"format":"{calc(a * a)}","a":"{digits(200)}","datatype":"number"}`, "is not proven within 1e300"},
 		{"a division in an integer column", `{"format":"{calc(a / b)}","a":"{int(1,9)}","b":"{int(1,9)}","datatype":"integer"}`, "prints a number, not an integer"},
+		{"a composed operand", `{"format":"{calc(n * 2)}","n":"{int(1,99)}.{digits(2)}","datatype":"number"}`, "{seq()}, {digits()} or {calc()}"},
 	} {
 		row := `{"format":"","col":` + c.column + `}`
 		files := map[string]string{"row": row}
