@@ -65,7 +65,7 @@ func IsTemplate(arg string) (bool, error) {
 func isTemplate(arg string) (bool, error) {
 	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
 		if path, lone := loneReference(arg); lone {
-			return false, fmt.Errorf("%s is the path %s written as a template; write %s", arg, path, path)
+			return false, pathAdvice(path, fmt.Sprintf("%s is the path %s written as a template", arg, path))
 		}
 		return true, nil
 	}
@@ -73,13 +73,21 @@ func isTemplate(arg string) (bool, error) {
 		return false, fmt.Errorf("%q holds a %q, which no path may, and it is not valid JSON, so it names no template either", arg, arg[i:i+1])
 	}
 	if path := strings.TrimLeft(arg, "/"); path != arg && path != "" {
-		return false, fmt.Errorf("path %s starts with /, and every path starts at the root already; write %s", arg, path)
+		return false, pathAdvice(path, fmt.Sprintf("path %s starts with /, and every path starts at the root already", arg))
 	}
 	return false, nil
 }
 
 func isJSONStart(arg string) bool {
 	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
+}
+
+// pathAdvice refuses a spelling of path, naming path to write, or why no name can spell it.
+func pathAdvice(path, refusal string) error {
+	if err := checkPathNames(path); err != nil {
+		return err
+	}
+	return fmt.Errorf("%s; write %s", refusal, path)
 }
 
 // loneReference is the path a template spells when the value it holds — a format string, a
@@ -100,6 +108,9 @@ func loneReference(arg string) (string, bool) {
 	body := units[0].body
 	if units[0].kind != 'b' || !isRef(body) || strings.ContainsAny(body, "|(") {
 		return "", false
+	}
+	if strings.HasPrefix(body, "/") {
+		body = "/" + strings.TrimLeft(body, "/")
 	}
 	_, path, err := refShape(body)
 	return path, err == nil

@@ -36,9 +36,8 @@ type structResult struct {
 	err   error
 }
 
-// maxStructRecords caps the records one struct type fills, which pointers between struct
-// types multiply along every path.
-const maxStructRecords = 1 << 10
+// maxStructs caps the structs compiling one type walks through its fields.
+const maxStructs = 1 << 10
 
 // structShapeOf compiles a struct type once and remembers the answer. Callers hold the
 // generator's lock.
@@ -50,7 +49,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	sc := &structCompile{root: f.categories, visiting: map[reflect.Type]bool{}, records: maxStructRecords}
+	sc := &structCompile{root: f.categories, visiting: map[reflect.Type]bool{}, structs: maxStructs}
 	shape, err := sc.record(t, label)
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
@@ -79,13 +78,13 @@ type nestedStruct struct {
 
 func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 0 }
 
-// structCompile is what compiling one struct type shares across the records it reaches: the
+// structCompile is what compiling one struct type shares across the structs it reaches: the
 // loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
-// rather than filled without end, and how many more records it may build.
+// rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
 	root     map[string]node
 	visiting map[reflect.Type]bool
-	records  int
+	structs  int
 }
 
 // structFields gathers what one struct type fills: its tagged fields, those its embedded
@@ -100,8 +99,8 @@ type structFields struct {
 }
 
 func (sc *structCompile) record(t reflect.Type, label string) (*structShape, error) {
-	if sc.records--; sc.records < 0 {
-		return nil, fmt.Errorf(`%s: the struct fields reach more than %d records; leave a pointer unfilled with fake:"-"`, label, maxStructRecords)
+	if err := sc.spend(label); err != nil {
+		return nil, err
 	}
 	sc.visiting[t] = true
 	defer delete(sc.visiting, t)
@@ -115,6 +114,13 @@ func (sc *structCompile) record(t reflect.Type, label string) (*structShape, err
 		}
 	}
 	return c.shape, nil
+}
+
+func (sc *structCompile) spend(label string) error {
+	if sc.structs--; sc.structs >= 0 {
+		return nil
+	}
+	return fmt.Errorf(`%s: the struct fields reach more than %d structs; leave a struct field unfilled with fake:"-"`, label, maxStructs)
 }
 
 // walk gathers the fields of struct type t, which sits at index within c.t.
@@ -184,6 +190,9 @@ func fieldPath(t reflect.Type, index []int) string {
 }
 
 func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
+	if err := c.spend(c.label + "." + fieldPath(c.t, sf.Index)); err != nil {
+		return err
+	}
 	c.visiting[elem] = true
 	defer delete(c.visiting, elem)
 	tags, nested := len(c.tags), len(c.shape.nested)
@@ -218,10 +227,8 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 	case inline:
 		return inputValue(tag)
 	}
-	for _, seg := range strings.Split(tag, ".") {
-		if err := checkName(seg); err != nil {
-			return nil, fmt.Errorf("path %w", err)
-		}
+	if err := checkPathNames(tag); err != nil {
+		return nil, err
 	}
 	return "{/" + tag + "}", nil
 }

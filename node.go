@@ -396,6 +396,16 @@ func checkName(name string) error {
 	return nil
 }
 
+// checkPathNames rejects a dotted path with a segment no name may be.
+func checkPathNames(path string) error {
+	for _, seg := range strings.Split(path, ".") {
+		if err := checkName(seg); err != nil {
+			return fmt.Errorf("path %w", err)
+		}
+	}
+	return nil
+}
+
 // isOption reports whether a template key configures the node instead of naming a
 // field. These names can never be fields.
 func isOption(name string) bool {

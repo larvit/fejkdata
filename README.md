@@ -193,9 +193,10 @@ naming a kind that holds it. The fields an embedded struct promotes are columns 
 same record; a named struct field, or a pointer to one, fills from its own tags as a
 record of its own, so its references draw apart from its parent's. `fake:"-"` leaves a
 struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
-their values, and so does a pointer back to a struct already being filled. The first call for a type compiles its tags and reports
-what they get wrong, with the same error on every later call; a `datatype` in a tag
-names the Go type that already sets it.
+their values, and so does a pointer back to a struct already being filled; a type
+whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
+first call for a type compiles its tags and reports what they get wrong, with the same
+error on every later call; a `datatype` in a tag names the Go type that already sets it.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
