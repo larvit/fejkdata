@@ -52,7 +52,8 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 // IsTemplate reports whether arg is an inline template rather than a path, by its shape: a {
 // token, or a JSON object, array or string, is a template, and anything else is a path. A
 // name never holds a bracket, a brace or a quote, so an arg holding one that is not valid
-// JSON names neither, and errors.
+// JSON names neither, and errors; so does a template of one reference alone, which is a path
+// written as a template.
 func IsTemplate(arg string) (bool, error) {
 	inline, err := isTemplate(arg)
 	if err != nil {
@@ -63,6 +64,9 @@ func IsTemplate(arg string) (bool, error) {
 
 func isTemplate(arg string) (bool, error) {
 	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
+		if path, lone := loneReference(arg); lone {
+			return false, fmt.Errorf("%s is the path %s written as a template; write %s", arg, path, path)
+		}
 		return true, nil
 	}
 	if i := strings.IndexAny(arg, `[]}"`); i >= 0 {
@@ -73,6 +77,24 @@ func isTemplate(arg string) (bool, error) {
 
 func isJSONStart(arg string) bool {
 	return strings.HasPrefix(arg, "[") || strings.HasPrefix(arg, `"`)
+}
+
+// loneReference is the path a template spells when it is one reference token and nothing else.
+func loneReference(arg string) (string, bool) {
+	format := arg
+	if strings.HasPrefix(arg, `"`) && json.Unmarshal([]byte(arg), &format) != nil {
+		return "", false
+	}
+	var units []ftoken
+	if eachToken(format, func(t ftoken) error { units = append(units, t); return nil }) != nil || len(units) != 1 {
+		return "", false
+	}
+	body := units[0].body
+	if units[0].kind != 'b' || !isRef(body) || strings.ContainsAny(body, "|(") {
+		return "", false
+	}
+	_, path, err := refShape(body)
+	return path, err == nil
 }
 
 func compileInput(input string) (node, error) {

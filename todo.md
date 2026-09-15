@@ -19,8 +19,9 @@ The record API lands first, so the data update can use it.
   - two bare `{/sv_SE.word}` → two words
 - Reference inheritance — settle whether a column that is exactly one reference to
   another record's column, like `{/src.score}`, takes that column's datatype and
-  null. Today a null there writes `""`, and a typed column reading it is refused.
-  Settle before draw groups and the data update.
+  null. Today a null there writes `""`, a `*T` struct field reading it gets `""`
+  rather than nil, and a typed column reading it is refused. Settle before draw
+  groups and the data update.
 
 ### Data
 

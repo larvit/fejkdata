@@ -30,8 +30,9 @@ a JSON object, array or string, or that carries a `{` token, is instead an
 spot. Its tokens reach the data by reference from the root —
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike
 available. An inline template sits in no folder, so the folder-relative `{.name}`
-and `{..name}` are rejected naming the root spelling. A path never contains a
-brace, a bracket or a quote, so the two cannot collide (see
+and `{..name}` are rejected naming the root spelling, and one reference alone —
+`{/sv_SE.person}` — is the path written as a template, rejected naming the path. A
+path never contains a brace, a bracket or a quote, so the two cannot collide (see
 [Decisions](#decisions)).
 
 | Flag | |
@@ -186,13 +187,15 @@ type User struct {
 a column of one record, its tag a path or an inline template — told apart by
 `IsTemplate`, as the CLI tells an argument — and its Go type the column's
 [datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
-which a [`null`](#null) item leaves nil. A value the kind cannot hold, such as
-`{int(0,300)}` in a `uint8`, is refused as a typed column's is. A struct field, or a
-pointer to one, fills from its own tags as a record of its own, so its references draw
-apart from its parent's. Untagged fields keep their values, and so does a pointer back
-to a struct already being filled. The first call for a type compiles its tags and
-reports what they get wrong: a tag holding only `{/path}` names the path to write, and
-a `datatype` in a tag names the Go type that already sets it.
+which a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
+kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
+naming a kind that holds it. The fields an embedded struct promotes are columns of the
+same record; a named struct field, or a pointer to one, fills from its own tags as a
+record of its own, so its references draw apart from its parent's, and `fake:"-"`
+leaves it unfilled. Untagged fields keep their values, and so does a pointer back to a
+struct already being filled. The first call for a type compiles its tags and reports
+what they get wrong, with the same error on every later call; a `datatype` in a tag
+names the Go type that already sets it.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
@@ -497,8 +500,8 @@ tokens add cost in proportion to the output.
    one is a load error naming the right one.
 3. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
    the inline template; on a loaded generator `Fake` fails only for an unknown
-   path, `FakeStruct` only for a type its tags do not describe, and
-   `Template.Fake` cannot fail at all.
+   path, `FakeStruct` only for a non-struct argument or a type its tags do not
+   describe, with the same error every call, and `Template.Fake` cannot fail at all.
 4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
@@ -535,7 +538,10 @@ tokens add cost in proportion to the output.
   whole — though only a leading one could collide — keeps one simple name rule
   instead of a leading-position special case. The JSON string is what makes the
   library's own advice reachable: the error for an object holding only a format
-  names `"…"`, and that spelling has to work where it is printed.
+  names `"…"`, and that spelling has to work where it is printed. One reference alone,
+  `{/users}`, is refused naming the path `users`: both render the same text, and only
+  the path names a record. `IsTemplate` exports the rule, so the CLI, struct tags and
+  any other caller read one.
 - **An inline template skips the cycle fence, and only that one.** `New` proves the
   loaded tree acyclic, an inline node is a finite tree of its own, and nothing in
   the tree can reference it, so no render of it reaches itself. Every other fence
@@ -615,6 +621,16 @@ tokens add cost in proportion to the output.
   schema: the fields name the columns and their types are the datatypes, so a tag
   says only what to draw, and a `datatype` in it would be a second spelling of the
   type.
+- **A struct's records follow Go's field access, and compile on first use.** The
+  fields an embedded struct promotes are the struct's own — `e.First`, as
+  `encoding/json` and SQL mappers read them — so they are columns of its record and
+  share its draws; a tagged field that another field hides is refused, not dropped. A
+  named struct field is another entity and a record of its own; `fake:"-"` leaves it
+  unfilled, whatever a category named `-` holds, and a pointer back to a struct
+  already being filled is left alone, since filling it would never end. `New` cannot
+  see a caller's types, so the first `FakeStruct` for a type compiles its tags and the
+  answer, error included, is kept per type: a test's first call is its load, and no
+  `NewStruct` handle is needed, as the cache already compiles once.
 - **A record shares one reference draw per category.** Two columns that reference
   one category — `{/currency.code}` beside `{/currency.symbol}` — read one draw of
   it, so a record's facts agree the way a template's [correlated

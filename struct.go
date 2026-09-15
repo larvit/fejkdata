@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 // FakeStruct fills the struct v points to. Each exported field tagged `fake:"…"` is a
 // column of one record: its tag a path or an inline template, told apart as [IsTemplate]
-// tells them, and its Go type the column's datatype. A struct field, or a pointer to one,
-// fills from its own tags as a record of its own. The first call for a type compiles its
-// tags, so a later call for that type fails only as the first did.
+// tells them, and its Go type the column's datatype. The fields an embedded struct promotes
+// are columns of that record too, while a named struct field, or a pointer to one, fills
+// from its own tags as a record of its own. The first call for a type compiles its tags,
+// so a later call for that type fails only as the first did.
 func (f *Generator) FakeStruct(v any) error {
 	p := reflect.ValueOf(v)
 	if p.Kind() != reflect.Pointer || p.IsNil() || p.Elem().Kind() != reflect.Struct {
@@ -41,7 +43,11 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if r, done := f.structs[t]; done {
 		return r.shape, r.err
 	}
-	shape, err := compileStruct(f.categories, t, t.String(), map[reflect.Type]bool{})
+	label := t.Name()
+	if label == "" {
+		label = "struct"
+	}
+	shape, err := compileStruct(f.categories, t, label, map[reflect.Type]bool{})
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
 	}
@@ -53,66 +59,138 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 }
 
 // structShape is a struct type compiled to fill: its tagged fields as one record, the field
-// index each column fills, and the struct fields carrying tags of their own.
+// index path each column fills, and the struct fields carrying tags of their own.
 type structShape struct {
 	record  *template
 	columns []Column
-	fields  []int
+	fields  [][]int
 	nested  []nestedStruct
 }
 
-// nestedStruct is a struct field, or a pointer to one, filled as a record of its own.
+// nestedStruct is a named struct field, or a pointer to one, filled as a record of its own.
 type nestedStruct struct {
-	index int
+	index []int
 	shape *structShape
 }
 
 func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 0 }
 
-// compileStruct compiles struct type t, naming its fields from label. visiting holds the types
-// compiling above t, so a pointer back to one is left alone rather than filled without end.
+// structFields gathers what one struct type fills: its tagged fields, those its embedded
+// structs promote included, as the tags of one record, and its named struct fields as nested
+// records. visiting holds the types compiling or embedded above, so a pointer back to one is
+// left alone rather than filled without end.
+type structFields struct {
+	root     map[string]node
+	t        reflect.Type
+	label    string
+	visiting map[reflect.Type]bool
+	tags     map[string]any
+	shape    *structShape
+}
+
+// compileStruct compiles struct type t, naming its fields from label.
 func compileStruct(root map[string]node, t reflect.Type, label string, visiting map[reflect.Type]bool) (*structShape, error) {
 	visiting[t] = true
 	defer delete(visiting, t)
-	shape := &structShape{}
-	tags := map[string]any{}
-	for i := 0; i < t.NumField(); i++ {
-		sf := t.Field(i)
-		tag, tagged := sf.Tag.Lookup("fake")
-		if !tagged {
-			if err := shape.addNested(root, sf, label, visiting); err != nil {
-				return nil, err
-			}
-			continue
-		}
-		v, err := tagValue(sf, tag)
-		if err != nil {
-			return nil, fmt.Errorf("%s.%s: %w", label, sf.Name, err)
-		}
-		tags[sf.Name] = v
+	c := &structFields{root: root, t: t, label: label, visiting: visiting, tags: map[string]any{}, shape: &structShape{}}
+	if err := c.walk(t, nil); err != nil {
+		return nil, err
 	}
-	if len(tags) > 0 {
-		if err := shape.compileRecord(root, t, label, tags); err != nil {
+	if len(c.tags) > 0 {
+		if err := c.shape.compileRecord(root, t, label, c.tags); err != nil {
 			return nil, err
 		}
 	}
-	return shape, nil
+	return c.shape, nil
 }
 
-// addNested adds an untagged exported struct field, or a pointer to one, that carries tags.
-func (s *structShape) addNested(root map[string]node, sf reflect.StructField, label string, visiting map[reflect.Type]bool) error {
-	t := sf.Type
+// walk gathers the fields of struct type t, which sits at index within c.t.
+func (c *structFields) walk(t reflect.Type, index []int) error {
+	for i := 0; i < t.NumField(); i++ {
+		sf := t.Field(i)
+		sf.Index = append(index[:len(index):len(index)], i)
+		if err := c.field(sf); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *structFields) field(sf reflect.StructField) error {
+	tag, tagged := sf.Tag.Lookup("fake")
+	elem := structOf(sf.Type)
+	switch {
+	case tagged && tag == "-":
+		if elem == nil {
+			return fmt.Errorf(`%s.%s: fake:"-" leaves a struct field unfilled, and any other untagged field keeps its value already; drop the tag`, c.label, sf.Name)
+		}
+		return nil
+	case tagged:
+		return c.column(sf, tag)
+	case elem == nil || c.visiting[elem]:
+		return nil
+	case sf.Anonymous:
+		return c.embed(sf, elem)
+	case sf.IsExported():
+		return c.nest(sf, elem)
+	}
+	return nil
+}
+
+// structOf is the struct type a field holds, by value or through a pointer; nil when none.
+func structOf(t reflect.Type) reflect.Type {
 	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
-	if !sf.IsExported() || t.Kind() != reflect.Struct || visiting[t] {
+	if t.Kind() != reflect.Struct {
 		return nil
 	}
-	nested, err := compileStruct(root, t, label+"."+sf.Name, visiting)
+	return t
+}
+
+// column adds a tagged field's tag to the record, refusing one another field hides.
+func (c *structFields) column(sf reflect.StructField, tag string) error {
+	if visible, ok := c.t.FieldByName(sf.Name); !ok || !slices.Equal(visible.Index, sf.Index) {
+		return fmt.Errorf("%s.%s: hidden by another field named %s, so its fake tag cannot fill it; rename one", c.label, fieldPath(c.t, sf.Index), sf.Name)
+	}
+	v, err := tagValue(sf, tag)
+	if err != nil {
+		return fmt.Errorf("%s.%s: %w", c.label, sf.Name, err)
+	}
+	c.tags[sf.Name] = v
+	return nil
+}
+
+// fieldPath names the field at index within t through each struct it is embedded in.
+func fieldPath(t reflect.Type, index []int) string {
+	names := make([]string, len(index))
+	for i := range index {
+		names[i] = t.FieldByIndex(index[:i+1]).Name
+	}
+	return strings.Join(names, ".")
+}
+
+// embed gathers the fields an embedded struct promotes into c's record.
+func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
+	c.visiting[elem] = true
+	defer delete(c.visiting, elem)
+	tags, nested := len(c.tags), len(c.shape.nested)
+	if err := c.walk(elem, sf.Index); err != nil {
+		return err
+	}
+	if sf.Type.Kind() == reflect.Pointer && !sf.IsExported() && (len(c.tags) > tags || len(c.shape.nested) > nested) {
+		return fmt.Errorf("%s.%s: an embedded pointer to an unexported type cannot be allocated, so the tags beneath it cannot fill; embed %s by value", c.label, fieldPath(c.t, sf.Index), elem)
+	}
+	return nil
+}
+
+// nest adds a named struct field, or a pointer to one, that carries tags as a record of its own.
+func (c *structFields) nest(sf reflect.StructField, elem reflect.Type) error {
+	nested, err := compileStruct(c.root, elem, c.label+"."+sf.Name, c.visiting)
 	if err != nil || nested.empty() {
 		return err
 	}
-	s.nested = append(s.nested, nestedStruct{sf.Index[0], nested})
+	c.shape.nested = append(c.shape.nested, nestedStruct{sf.Index, nested})
 	return nil
 }
 
@@ -123,45 +201,35 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 		return nil, err
 	}
 	inline, err := isTemplate(tag)
-	if err != nil {
+	switch {
+	case err != nil:
 		return nil, err
+	case inline:
+		return inputValue(tag)
+	case strings.HasPrefix(tag, "/"):
+		return nil, fmt.Errorf("path %q starts with /, and every path starts at the root already; write %s", tag, tag[1:])
 	}
-	if !inline {
-		for _, seg := range strings.Split(tag, ".") {
-			if err := checkName(seg); err != nil {
-				return nil, fmt.Errorf("path %w", err)
-			}
+	for _, seg := range strings.Split(tag, ".") {
+		if err := checkName(seg); err != nil {
+			return nil, fmt.Errorf("path %w", err)
 		}
-		return "{/" + tag + "}", nil
 	}
-	v, err := inputValue(tag)
-	if s, isString := v.(string); isString && isLoneReference(s) {
-		path := s[2 : len(s)-1]
-		return nil, fmt.Errorf("%s is the path %s written as a template; write fake:%q", s, path, path)
-	}
-	return v, err
-}
-
-// isLoneReference reports whether a format is one {/path} token alone, which a path tag spells.
-func isLoneReference(format string) bool {
-	return len(format) > len("{/}") && strings.HasPrefix(format, "{/") && strings.HasSuffix(format, "}") &&
-		!strings.ContainsAny(format[1:len(format)-1], "{}|(")
+	return "{/" + tag + "}", nil
 }
 
 // checkTaggedType rejects a tagged field no column can fill.
 func checkTaggedType(sf reflect.StructField) error {
-	elem := sf.Type
-	if elem.Kind() == reflect.Pointer {
-		elem = elem.Elem()
+	_, holds := columnKinds[sf.Type.Kind()]
+	if sf.Type.Kind() == reflect.Pointer {
+		_, holds = columnKinds[sf.Type.Elem().Kind()]
 	}
-	_, holds := columnKinds[elem.Kind()]
 	switch {
 	case !sf.IsExported():
 		return errors.New("unexported, so its fake tag cannot fill it")
 	case holds:
 		return nil
-	case elem.Kind() == reflect.Struct:
-		return errors.New("a struct field fills from the tags on its own fields; drop this one")
+	case structOf(sf.Type) != nil:
+		return errors.New(`a struct field fills from the tags on its own fields; drop this one, or write fake:"-" to leave it unfilled`)
 	}
 	return fmt.Errorf("a fake tag fills a string, bool, integer or float field, or a pointer to one, not %s", sf.Type)
 }
@@ -182,7 +250,7 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 		return fmt.Errorf("%s: %w", label, err)
 	}
 	proof := &valueProof{}
-	s.fields = make([]int, len(columns))
+	s.fields = make([][]int, len(columns))
 	for i, c := range columns {
 		sf, _ := t.FieldByName(c.Name)
 		if c.DataType != DataTypeString {
@@ -191,34 +259,44 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 		if err := proof.checkField(label+"."+c.Name, sf.Type, record.fields[c.Name]); err != nil {
 			return err
 		}
-		s.fields[i] = sf.Index[0]
+		s.fields[i] = sf.Index
 	}
 	s.record, s.columns = record, columns
 	return nil
 }
 
-// columnKind is what a field of one Go kind holds: the datatype its text proves as, and the
-// range its value stays in.
+// columnKind is what a field of one Go kind holds: the datatype its text proves as, the range a
+// number of it stays in, and the kind to name when a value can pass that range.
 type columnKind struct {
 	datatype DataType
 	lo, hi   float64
+	wider    reflect.Kind
 }
 
 var columnKinds = map[reflect.Kind]columnKind{
-	reflect.Bool:    {DataTypeBoolean, -math.MaxFloat64, math.MaxFloat64},
-	reflect.Float32: {DataTypeNumber, -math.MaxFloat32, math.MaxFloat32},
-	reflect.Float64: {DataTypeNumber, -math.MaxFloat64, math.MaxFloat64},
-	reflect.Int:     {DataTypeInteger, math.MinInt, math.MaxInt},
-	reflect.Int16:   {DataTypeInteger, math.MinInt16, math.MaxInt16},
-	reflect.Int32:   {DataTypeInteger, math.MinInt32, math.MaxInt32},
-	reflect.Int64:   {DataTypeInteger, math.MinInt64, math.MaxInt64},
-	reflect.Int8:    {DataTypeInteger, math.MinInt8, math.MaxInt8},
-	reflect.String:  {DataTypeString, -math.MaxFloat64, math.MaxFloat64},
-	reflect.Uint:    {DataTypeInteger, 0, math.MaxUint},
-	reflect.Uint16:  {DataTypeInteger, 0, math.MaxUint16},
-	reflect.Uint32:  {DataTypeInteger, 0, math.MaxUint32},
-	reflect.Uint64:  {DataTypeInteger, 0, math.MaxUint64},
-	reflect.Uint8:   {DataTypeInteger, 0, math.MaxUint8},
+	reflect.Bool:    {datatype: DataTypeBoolean},
+	reflect.Float32: {DataTypeNumber, -math.MaxFloat32, math.MaxFloat32, reflect.Float64},
+	reflect.Float64: {DataTypeNumber, -math.MaxFloat64, math.MaxFloat64, reflect.Float64},
+	reflect.Int:     {DataTypeInteger, math.MinInt, math.MaxInt, reflect.Int64},
+	reflect.Int16:   {DataTypeInteger, math.MinInt16, math.MaxInt16, reflect.Int64},
+	reflect.Int32:   {DataTypeInteger, math.MinInt32, math.MaxInt32, reflect.Int64},
+	reflect.Int64:   {DataTypeInteger, math.MinInt64, math.MaxInt64, reflect.Int64},
+	reflect.Int8:    {DataTypeInteger, math.MinInt8, math.MaxInt8, reflect.Int64},
+	reflect.String:  {datatype: DataTypeString},
+	reflect.Uint:    {DataTypeInteger, 0, math.MaxUint, reflect.Int64},
+	reflect.Uint16:  {DataTypeInteger, 0, math.MaxUint16, reflect.Int64},
+	reflect.Uint32:  {DataTypeInteger, 0, math.MaxUint32, reflect.Int64},
+	reflect.Uint64:  {DataTypeInteger, 0, math.MaxUint64, reflect.Int64},
+	reflect.Uint8:   {DataTypeInteger, 0, math.MaxUint8, reflect.Int64},
+}
+
+// reach is the least and greatest value v proves a field of this kind receives. An integer
+// prints whole, so its bounds round inward.
+func (k columnKind) reach(v proven) (lo, hi float64) {
+	if k.datatype == DataTypeInteger {
+		return math.Ceil(v.lo), math.Floor(v.hi)
+	}
+	return v.lo, v.hi
 }
 
 // checkField rejects a column some render of which a field of Go type ft cannot hold: a null
@@ -237,12 +315,18 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	}
 	for _, it := range items {
 		v := p.of(it)
-		reason := v.not[kind.datatype]
-		if reason == "" && (v.lo < kind.lo || v.hi > kind.hi) {
-			reason = fmt.Sprintf("%q is not proven within %s", it.format, elem.Kind())
-		}
-		if reason != "" {
+		if reason := v.not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
+		}
+		if kind.datatype == DataTypeBoolean {
+			continue
+		}
+		if lo, hi := kind.reach(v); lo < kind.lo || hi > kind.hi {
+			past := hi
+			if lo < kind.lo {
+				past = lo
+			}
+			return fmt.Errorf("%s (%s): %q can reach %s, past %s; make it %s", label, ft, it.format, strconv.FormatFloat(past, 'g', -1, 64), elem.Kind(), kind.wider)
 		}
 	}
 	return nil
@@ -252,11 +336,11 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 func (s *structShape) fill(sess *session, v reflect.Value) {
 	if s.record != nil {
 		for i, c := range renderRecord(sess, s.record, s.columns).columns {
-			setColumn(v.Field(s.fields[i]), c)
+			setColumn(fieldAt(v, s.fields[i]), c)
 		}
 	}
 	for _, n := range s.nested {
-		field := v.Field(n.index)
+		field := fieldAt(v, n.index)
 		if field.Kind() == reflect.Pointer {
 			if field.IsNil() {
 				field.Set(reflect.New(field.Type().Elem()))
@@ -265,6 +349,20 @@ func (s *structShape) fill(sess *session, v reflect.Value) {
 		}
 		n.shape.fill(sess, field)
 	}
+}
+
+// fieldAt is v's field at index, allocating each nil embedded pointer on the way.
+func fieldAt(v reflect.Value, index []int) reflect.Value {
+	for _, i := range index {
+		if v.Kind() == reflect.Pointer {
+			if v.IsNil() {
+				v.Set(reflect.New(v.Type().Elem()))
+			}
+			v = v.Elem()
+		}
+		v = v.Field(i)
+	}
+	return v
 }
 
 // setColumn writes a drawn column into its field: a null as a nil pointer, a value through a
