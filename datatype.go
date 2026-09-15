@@ -165,11 +165,33 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	}
 	switch {
 	case da != DataTypeString && db != DataTypeString:
-		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
+		return bothTyped(a, da, b, db)
 	case typed.datatype == DataTypeString && (&valueProof{}).columnItem(bare).not[want] != "":
-		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, write {"format":"{text}","text":%q}`, bare.format, dataTypeNouns[want], typed.format, typed.format)
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, bare.format, dataTypeNouns[want], typed.format, asText(typed))
 	case bare.fromString: // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
 	}
 	return fmt.Errorf(`item %q declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, bare.format, want, want)
+}
+
+// bothTyped names the fix for two items holding different datatypes: reading one that takes its
+// datatype from the column it reads as text, since only a declared datatype can be edited away.
+func bothTyped(a *template, da DataType, b *template, db DataType) error {
+	read := a
+	if a.datatype != DataTypeString {
+		read = b
+	}
+	if read.datatype != DataTypeString {
+		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
+	}
+	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so to read %q as text, %s", da, db, read.format, asText(read))
+}
+
+// asText names the spelling that reads the column a column-read item reads as text, keeping the
+// other keys an object item carries.
+func asText(t *template) string {
+	if t.fromString {
+		return fmt.Sprintf(`write {"format":"{text}","text":%q}`, t.format)
+	}
+	return fmt.Sprintf(`set its "format" to "{text}" and add "text": %q`, t.format)
 }

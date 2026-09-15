@@ -26,13 +26,13 @@ type valueProof struct {
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
-// and one declaring a datatype over the typed column it is.
+// and one restating the datatype of the column it is.
 func (p *valueProof) checkDatatype(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
-	if d := readDatatype(t); d != DataTypeString {
+	if d := readDatatype(t); d == t.datatype {
 		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, d)
 	}
 	if reason := p.columnItem(t).not[t.datatype]; reason != "" {

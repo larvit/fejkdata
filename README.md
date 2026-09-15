@@ -312,9 +312,9 @@ order.id: datatype integer: "1{digits(2)}" is not one value; write one literal o
 
 A column of one reference alone to another record's column — `"score": "{/src.score}"`
 — is that column: it takes the column's datatype and is null where the column is, and
-a struct field tagged `src.score` is nil there. A `datatype` of its own types a string
-column's values, and over a typed column is refused naming the datatype it takes. Any
-other read renders the column's text, a null as `""`.
+a struct field tagged `src.score` is nil there. A `datatype` of its own types the
+column's values where they prove it, and one restating the datatype it takes is refused.
+Any other read renders the column's text, a null as `""`.
 
 A typed column's `{calc()}` must be proven to print a number: each operand a number
 literal, an `{int()}`, `{float()}`, `{seq()}` or `{digits()}` call, a calc, or a read of
@@ -549,10 +549,11 @@ tokens add cost in proportion to the output.
   tag of one reference alone, `{/users}`, is refused naming the path `users`: both
   render the same text, and only the path names a record. `IsTemplate` exports the
   rule, so the CLI, struct tags and any other caller read one.
-- **An inline template skips the cycle fence, and only that one.** `New` proves the
-  loaded tree acyclic, an inline node is a finite tree of its own, and nothing in
-  the tree can reference it, so no render of it reaches itself. Every other fence
-  runs over both, from one `checkScope`.
+- **An inline template skips the cycle fence.** `New` proves the loaded tree
+  acyclic, an inline node is a finite tree of its own, and nothing in the tree can
+  reference it, so no render of it reaches itself. Every other fence runs over both,
+  from one `checkScope`, except that struct tags leave column agreement to their Go
+  types.
 - **An inline template that does not compile is misuse (exit 2), including a
   reference that resolves to nothing** — the whole argument is the spelling under
   test, and `NewTemplate` compiles, links and validates as one step. An unknown
@@ -672,9 +673,9 @@ tokens add cost in proportion to the output.
   one comparison, and `1{digits(2)}` is a second spelling of `{int(100,199)}`.
 - **A column of one reference alone is the column it reads.** `{/src.score}` renders
   exactly what `src.score` draws, so it takes that column's datatype and null rather
-  than restating them, and a `datatype` restating a typed column is a second spelling.
-  Over a string column a `datatype` still types the values — the one way to type a
-  column someone else wrote.
+  than restating them, and a `datatype` restating the one it takes is a second
+  spelling. Any other `datatype` still types the values — the one way to type a column
+  someone else wrote.
 - **A typed column's calc is refused unless proven.** Operand bounds must keep each
   divisor from zero and the result finite; what they cannot show is refused rather
   than trusted, since a bare `NaN` breaks the JSON and SQL it lands in.

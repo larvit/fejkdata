@@ -177,7 +177,6 @@ func inlineScope(n node, label string) nodeScope {
 	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// checkScope runs every fence over a scope: checkColumns, then checkRenders.
 func checkScope(s nodeScope) error {
 	if err := checkColumns(s); err != nil {
 		return err
