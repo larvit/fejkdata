@@ -131,6 +131,16 @@ func TestRecordCSV(t *testing.T) {
 	if len(seen) != 4 {
 		t.Fatalf("round-tripped %d of the 4 values; the comma, quote and newline shapes must each survive", len(seen))
 	}
+	for value, want := range map[string]string{`\.`: `"\."`, " x": `" x"`, " x": "\" x\"", "a\rb": "\"a\rb\""} {
+		body, _ := json.Marshal(map[string]string{"format": "", "v": value})
+		r, err := newGenerator(t, writeData(t, map[string]string{"q": string(body)})).FakeRecord("q")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := r.CSVLine(); got != want {
+			t.Errorf("CSVLine() of %q = %q, want %q, quoted where encoding/csv quotes", value, got, want)
+		}
+	}
 }
 
 func TestRecordCSVEmptyValueStaysARow(t *testing.T) {

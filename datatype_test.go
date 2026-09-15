@@ -111,6 +111,7 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 		`{"format":"{calc(x + 1)}","x":"{float(0,9,0)}","datatype":"integer"}`,
 		`{"format":"{float(-1,1,2)}","datatype":"number"}`,
 		`{"format":"{v}","v":["1","2.5","6.022e23"],"datatype":"number"}`,
+		`{"format":"{v}","v":["-1e-400","0.5"],"datatype":"number"}`,
 		`{"format":"{b}","b":["true","false"],"datatype":"boolean"}`,
 		`{"format":"{calc(net * qty, 2)}","net":["19.99","5.00"],"qty":["3","7"],"datatype":"number"}`,
 		`{"format":"{calc(a + b)}","a":"{int(1,9)}","b":"{int(-9,9)}","datatype":"integer"}`,
