@@ -318,7 +318,7 @@ func (k columnKind) holds(v proven) bool {
 // checkField rejects a column a field of Go type ft cannot fill: a datatype, which the Go type
 // sets, a null outside a pointer, or a value its kind's datatype or range refuses.
 func (p *valueProof) checkField(label string, ft reflect.Type, column node) error {
-	items, nullable := columnItems(column)
+	items, _ := columnItems(column)
 	for _, it := range items {
 		if it.datatype != DataTypeString {
 			return fmt.Errorf("%s: its Go type %s sets the datatype; drop \"datatype\"", label, ft)
@@ -327,7 +327,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
-	} else if nullable {
+	} else if p.column(column).null {
 		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
 	}
 	kind := columnKinds[elem.Kind()]

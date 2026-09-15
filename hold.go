@@ -253,20 +253,17 @@ func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding)
 }
 
 // draws is what an expansion has already drawn for its held names: the variant each
-// was drawn as, so every path under it reads one row, the value each read, by its one
-// spelling, so the same read written twice reads one value, and the columns drawn null,
-// so a read of one whole is null too.
+// was drawn as, so every path under it reads one row, and the draw each read made, by
+// its one spelling, so the same read written twice reads one draw.
 type draws struct {
 	variant map[string]node
-	value   map[string]string
-	nulls   map[node]bool
+	value   map[string]draw
 }
 
-func (d *draws) drewNull(column node) {
-	if d.nulls == nil {
-		d.nulls = map[node]bool{}
-	}
-	d.nulls[column] = true
+// draw is what one read drew: its text, and whether it landed on a null.
+type draw struct {
+	text string
+	null bool
 }
 
 // readField renders one arm of a token. An arm's key is a sibling field or a
@@ -276,23 +273,18 @@ func (d *draws) drewNull(column node) {
 // gives one value, and a shown operand is the operand computed. Every other name is
 // drawn afresh, so {word} {word} still draws twice. checkTokens, checkPath and
 // linkRefs prove every step, so the walk cannot fail.
-func readField(s *session, t *template, held, refScope *draws, a arm) string {
+func readField(s *session, t *template, held, refScope *draws, a arm) draw {
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
 		}
-		return render(s, t.fields[a.key], refScope)
+		return draw{text: render(s, t.fields[a.key], refScope)}
 	}
-	// A reference that reads a path reads the caller's scope, so its draw outlives
-	// this expansion; a sibling, and a reference read whole, stay local to it.
-	d := held
-	if isRef(a.key) && refScope != nil && len(a.tail) > 0 {
-		d = refScope
+	d := readScope(held, refScope, a)
+	if r, done := d.value[a.path]; done {
+		return r
 	}
-	if v, read := d.value[a.path]; read {
-		return v
-	}
-	var v string
+	var r draw
 	_ = walkPath(t.fields[a.key], a.tail, pathWalk{
 		// Hold the draw at every level passed through, so two paths sharing a
 		// prefix share it.
@@ -308,10 +300,35 @@ func readField(s *session, t *template, held, refScope *draws, a arm) string {
 			}
 			return []node{n}, nil
 		},
-		leaf: func(n node) error { v, _ = renderColumn(s, n, refScope); return nil },
+		leaf: func(n node) error { r = renderLeaf(s, n, refScope); return nil },
 	})
-	d.value[a.path] = v
-	return v
+	d.value[a.path] = r
+	return r
+}
+
+// readScope is the draws a held read keeps its draw in: for a reference that reads a path,
+// refScope, so its draw outlives this expansion; for a sibling, or a reference read whole, held.
+func readScope(held, refScope *draws, a arm) *draws {
+	if isRef(a.key) && refScope != nil && len(a.tail) > 0 {
+		return refScope
+	}
+	return held
+}
+
+// renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
+// reference alone whose read drew null.
+func renderLeaf(s *session, n node, scope *draws) draw {
+	n = drawn(s, n)
+	if _, isNull := n.(*null); isNull {
+		return draw{null: true}
+	}
+	r := draw{text: render(s, n, scope)}
+	if t, _ := n.(*template); t != nil && t.readsColumn != nil {
+		if d := readScope(nil, scope, t.readsColumn.a); d != nil {
+			r.null = d.value[t.readsColumn.a.path].null
+		}
+	}
+	return r
 }
 
 // drawn resolves a choice to one variant, so a bound head is a concrete node the

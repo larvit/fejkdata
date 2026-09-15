@@ -101,12 +101,8 @@ func loneReference(arg string) (string, bool) {
 		raw = m["format"]
 	}
 	format, isString := raw.(string)
-	var units []ftoken
-	if !isString || eachToken(format, func(t ftoken) error { units = append(units, t); return nil }) != nil || len(units) != 1 {
-		return "", false
-	}
-	body := units[0].body
-	if units[0].kind != 'b' || !isRef(body) || strings.ContainsAny(body, "|(") {
+	body, lone := loneRef(format)
+	if !isString || !lone {
 		return "", false
 	}
 	if strings.HasPrefix(body, "/") {

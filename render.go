@@ -103,7 +103,7 @@ func expand(s *session, t *template, refScope *draws) string {
 	if len(t.held) > 0 {
 		held = &draws{
 			variant: make(map[string]node, len(t.held)),
-			value:   make(map[string]string, len(t.held)),
+			value:   make(map[string]draw, len(t.held)),
 		}
 	}
 	for i := range t.ops {
@@ -112,7 +112,7 @@ func expand(s *session, t *template, refScope *draws) string {
 		case 'l':
 			b.WriteString(o.lit)
 		case 'f':
-			b.WriteString(readField(s, t, held, refScope, o.arms[s.IntN(len(o.arms))]))
+			b.WriteString(readField(s, t, held, refScope, o.arms[s.IntN(len(o.arms))]).text)
 		case 'b':
 			// Read before the call, so the value a calc computes is the value the
 			// format showed. calcVars fixed the order op.operands holds.
@@ -120,7 +120,7 @@ func expand(s *session, t *template, refScope *draws) string {
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))
 				for j, a := range o.operands {
-					operands[j] = readField(s, t, held, refScope, a)
+					operands[j] = readField(s, t, held, refScope, a).text
 				}
 			}
 			b.WriteString(o.call(s, b.String(), operands)) // b.String() is the output so far

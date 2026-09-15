@@ -58,10 +58,10 @@ type template struct {
 	bound map[string]string
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
-	held map[string]bool
-	// inherits is the column a format of one reference alone reads, taking its datatype and null.
-	inherits node
-	record   bool // compiled at the top without a repeat, so its fields are record columns
+	held        map[string]bool
+	fromString  bool        // written as a JSON string rather than an object
+	readsColumn *columnRead // set when the format is one reference alone reading a record's column
+	record      bool        // compiled at the top without a repeat, so its fields are record columns
 }
 
 func (*template) isNode() {}
@@ -127,7 +127,7 @@ func compileString(s string) (node, error) {
 	if err := checkTokens(s, nil); err != nil {
 		return nil, err
 	}
-	t := &template{format: s, repeat: 1}
+	t := &template{format: s, repeat: 1, fromString: true}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 		return nil, err
 	}
 	fieldPos := inFormat
-	if pos == atTop && projectsColumns(o.repeat) {
+	if pos == atTop && o.repeat == 1 {
 		fieldPos = inColumn
 	}
 	fields, err := compileFields(m, fieldPos)

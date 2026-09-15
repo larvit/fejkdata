@@ -205,12 +205,12 @@ func recordOf(n node) (*template, []Column, error) {
 	if !ok {
 		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 	}
-	if !projectsColumns(t.repeat) {
-		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
-	}
 	names := recordColumns(t)
 	if len(names) == 0 {
 		return nil, nil, errors.New("has no fields, so no columns")
+	}
+	if !t.record {
+		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
 	if err := checkColumnRefs(t, names); err != nil {
 		return nil, nil, err
@@ -222,10 +222,6 @@ func recordOf(n node) (*template, []Column, error) {
 	}
 	return t, columns, nil
 }
-
-// projectsColumns reports whether a category or inline template with this repeat is a
-// record, its fields the columns; a repeat composes the format into one string instead.
-func projectsColumns(repeat int) bool { return repeat == 1 }
 
 // checkColumnRefs rejects the reference reads a record's shared draw cannot answer
 // for: one column rendering a level another reads a path into, and a column
@@ -297,28 +293,13 @@ func columnRefs(t *template, columns []string) ([]columnRef, error) {
 // renderRecord draws each column once, in the name order recordOf fixed, over one
 // reference scope shared across them.
 func renderRecord(s *session, t *template, columns []Column) *Record {
-	scope := &draws{variant: map[string]node{}, value: map[string]string{}}
+	scope := &draws{variant: map[string]node{}, value: map[string]draw{}}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
-		r.columns[i].Value, r.columns[i].Null = renderColumn(s, t.fields[r.columns[i].Name], scope)
+		column := renderLeaf(s, t.fields[r.columns[i].Name], scope)
+		r.columns[i].Value, r.columns[i].Null = column.text, column.null
 	}
 	return r
-}
-
-// renderColumn draws a column and reports whether the draw is null: a null item, or an item
-// reading whole a column that scope drew null.
-func renderColumn(s *session, column node, scope *draws) (string, bool) {
-	n := drawn(s, column)
-	value, isNull := "", true
-	if _, drewNull := n.(*null); !drewNull {
-		value = render(s, n, scope)
-		t, _ := n.(*template)
-		isNull = t != nil && t.inherits != nil && scope != nil && scope.nulls[t.inherits]
-	}
-	if isNull && scope != nil {
-		scope.drewNull(column)
-	}
-	return value, isNull
 }
 
 // recordColumns is the sorted non-reference field names — the columns a record

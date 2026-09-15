@@ -310,9 +310,9 @@ order.id: datatype integer: {digits(3)} prints text, not an integer
 order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {int()}, {float()}, {seq()} or {calc()}, or read one
 ```
 
-A column of one reference alone to another record's column — `"score": "{/src.score}"`,
-or a struct field tagged `src.score` — is that column: it takes the column's datatype
-and is null, or nil, where the column is. A `datatype` of its own types a string
+A column of one reference alone to another record's column — `"score": "{/src.score}"`
+— is that column: it takes the column's datatype and is null where the column is, and
+a struct field tagged `src.score` is nil there. A `datatype` of its own types a string
 column's values, and over a typed column is refused naming the datatype it takes. Any
 other read renders the column's text, a null as `""`.
 
@@ -336,7 +336,7 @@ renders a null as `""`. The other items' weights skew its odds:
 ```
 
 `deleted_at` is null every draw, `middle` a name three draws in four. Rejected at
-load: `null` anywhere but a column, naming `""`, and a column whose items declare
+load: `null` anywhere but a column, naming `""`, and a column whose items hold
 different datatypes.
 
 ### Options and fields

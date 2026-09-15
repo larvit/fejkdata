@@ -24,7 +24,9 @@ The record API lands first, so the data update can use it.
   blocks as columns (`sv_SE.person` → `femalefirst`, `malefirst`; `misc.uuid` →
   `variant`), and `sv_SE.address` draws its postal code apart from its locality.
   It also settles what a version promises about shipped data: its paths, its
-  record columns, and whether a seed renders the same output across versions.
+  record columns with their datatypes and nulls — a column of one reference alone
+  takes both, so typing a column or adding a null breaks its readers — and whether
+  a seed renders the same output across versions.
 - `email.local` and `username` share their handle lists, while their name
   variants differ on purpose. Share the lists only if that is a clean win.
 

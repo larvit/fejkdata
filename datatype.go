@@ -94,7 +94,7 @@ func columnDatatype(n node) (DataType, error) {
 	return first, nil
 }
 
-// itemDatatype is the datatype a column item declares, else that of the column it reads whole.
+// itemDatatype is the datatype a column item declares, else that of the column it is.
 func itemDatatype(t *template) DataType {
 	if t.datatype != DataTypeString {
 		return t.datatype
@@ -102,17 +102,20 @@ func itemDatatype(t *template) DataType {
 	return readDatatype(t)
 }
 
-// readDatatype is the datatype of the column t reads whole; a string when it reads none.
+// readDatatype is the datatype of the column t is, reading it by one reference alone; a string
+// when t reads none.
 func readDatatype(t *template) DataType {
-	if t.inherits == nil {
+	if t.readsColumn == nil {
 		return DataTypeString
 	}
-	d, _ := columnDatatype(t.inherits) // checkColumns refuses that column where it sits
-	return d
+	items, _ := columnItems(t.readsColumn.column)
+	if len(items) == 0 {
+		return DataTypeString
+	}
+	return itemDatatype(items[0]) // checkColumns refuses that column where its items disagree
 }
 
-// columnItems is a column's template items, its choices unwrapped, and whether one is null
-// or reads whole a column that can be.
+// columnItems is a column's template items, its choices unwrapped, and whether one is null.
 func columnItems(n node) (items []*template, nullable bool) {
 	var collect func(node)
 	collect = func(n node) {
@@ -123,10 +126,6 @@ func columnItems(n node) (items []*template, nullable bool) {
 			}
 		case *template:
 			items = append(items, n)
-			if n.inherits != nil {
-				_, inherited := columnItems(n.inherits)
-				nullable = nullable || inherited
-			}
 		case *null:
 			nullable = true
 		}
@@ -143,8 +142,8 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	}
 	switch {
 	case da != DataTypeString && db != DataTypeString:
-		return fmt.Errorf("its items declare %s and %s; a column holds one datatype", da, db)
-	case bare.fields == nil: // a JSON string; an object, which may carry a weight, has a fields map
+		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
+	case bare.fromString: // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
 	}
 	return fmt.Errorf(`item %q declares no datatype beside one declaring %s; a column holds one, so give it "datatype": %q`, bare.format, want, want)

@@ -16,15 +16,17 @@ type proven struct {
 	integral   bool
 	notOperand string // why some render reads as no finite number, the way calc reads it
 	not        [len(dataTypeNames)]string
+	null       bool // some draw of a column is null
 }
 
 // valueProof proves what typed columns and their calc operands hold, each node once per scope.
 type valueProof struct {
-	memo map[node]proven
+	memo    map[node]proven
+	columns map[node]proven
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
-// and one declaring a datatype over the typed column it reads whole.
+// and one declaring a datatype over the typed column it is.
 func (p *valueProof) checkDatatype(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
@@ -39,14 +41,25 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	return nil
 }
 
-// columnItem proves a column item: what it renders, or, reading a column whole, that column's
-// items, whose nulls it draws as null rather than rendering them.
+// columnItem proves a column item: what it renders, or, when it is a column it reads, that column.
 func (p *valueProof) columnItem(t *template) proven {
-	if t.inherits == nil {
+	if t.readsColumn == nil {
 		return p.of(t)
 	}
+	return p.column(t.readsColumn.column)
+}
+
+// column proves a column over what its items draw, a null item marking it null rather than
+// rendering "".
+func (p *valueProof) column(n node) proven {
+	if v, done := p.columns[n]; done {
+		return v
+	}
+	if p.columns == nil {
+		p.columns = map[node]proven{}
+	}
+	items, nullable := columnItems(n)
 	var v proven
-	items, _ := columnItems(t.inherits)
 	for i, it := range items {
 		if w := p.columnItem(it); i == 0 {
 			v = w
@@ -54,6 +67,8 @@ func (p *valueProof) columnItem(t *template) proven {
 			v = v.or(w)
 		}
 	}
+	v.null = v.null || nullable
+	p.columns[n] = v
 	return v
 }
 
@@ -88,7 +103,7 @@ func (p *valueProof) unite(nodes []node) proven {
 // or is what a proof knows of a render that is either v or w.
 func (v proven) or(w proven) proven {
 	v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
-	v.integral = v.integral && w.integral
+	v.integral, v.null = v.integral && w.integral, v.null || w.null
 	if v.notOperand == "" {
 		v.notOperand = w.notOperand
 	}

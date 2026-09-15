@@ -107,22 +107,42 @@ func linkTemplateRefs(folder []string, path string, t *template, root map[string
 	if err := t.compileFormat(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
-	t.inherits = columnRead(t)
+	t.readsColumn = columnReadOf(t)
 	return nil
 }
 
-// columnRead is the column t reads whole: its format is one reference alone, reading a field of
-// a record, so what that column draws is what t draws.
-func columnRead(t *template) node {
-	if t.repeat != 1 || len(t.ops) != 1 || t.ops[0].kind != 'f' || len(t.ops[0].arms) != 1 {
+// columnRead is a record's column read by a format of that one reference alone, which is the
+// column: it takes the column's datatype and null.
+type columnRead struct {
+	a      arm
+	column node
+}
+
+func columnReadOf(t *template) *columnRead {
+	name, lone := loneRef(t.format)
+	if !lone || t.repeat != 1 {
 		return nil
 	}
-	a := t.ops[0].arms[0]
+	a := splitArm(name, t.refs)
 	target, isTemplate := t.fields[a.key].(*template)
-	if !isRef(a.name) || !isTemplate || !target.record || len(a.tail) != 1 {
+	if !isTemplate || !target.record || len(a.tail) != 1 {
 		return nil
 	}
-	return target.fields[a.tail[0]]
+	return &columnRead{a: a, column: target.fields[a.tail[0]]}
+}
+
+// loneRef is the reference a format of one reference token and nothing else reads.
+func loneRef(format string) (string, bool) {
+	units, body := 0, ""
+	err := eachToken(format, func(t ftoken) error {
+		units++
+		body = t.body
+		return nil
+	})
+	if err != nil || units != 1 || !isRef(body) || strings.ContainsAny(body, "|(") {
+		return "", false
+	}
+	return body, true
 }
 
 // eachTemplate calls fn once per template, with the folder its category sits in
