@@ -559,7 +559,8 @@ with no breaking change. From `v2` the module path carries `/vN`, so fences ship
 batched into as few majors as possible.
 
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
-category's format and each column's datatype and nullability; a pull request that
+category's format and the categories it reads, and each column's datatype and
+nullability; a pull request that
 changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
 renamed or retyped line is a major.
 
@@ -667,10 +668,11 @@ renamed or retyped line is a major.
 - **Raising the lowest supported Go is a major.** A consumer building on it breaks,
   which is the one test every rule above applies; Go's convention of a minor is not
   followed.
-- **A release is a Gitea release built from the changelog.** The tag alone serves
-  `go get`, but prebuilt binaries need release assets, and the body being the tag's
-  changelog section keeps one text; a tag with no heading fails the workflow
-  rather than publishing an empty release.
+- **The changelog heading is the one spelling of a release; CI cuts the tag.** A
+  tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
+  heading is burnt, not fixed. The heading on a gate-passed `main` commit is the
+  trigger instead: the tag can land only there, and the Gitea release the same job
+  publishes keeps one text as its body and is where prebuilt binaries will attach.
 - **A `--data-path` override rebinds every reference to the category it
   replaces.** References bind against the merged tree, so once shipped data uses
   `{.person}`, a consumer's `sv_SE/person.json` is what every shipped reference
@@ -837,13 +839,10 @@ in its own commit:
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 ```
 
-To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
-merge, then tag `main`; the release workflow publishes the Gitea release with that
-section as its body:
-
-```sh
-git tag -a v0.1.0 -m v0.1.0 && git push origin v0.1.0
-```
+To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
+and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
+the Gitea release with the section as its body. A top heading of `[Unreleased]`
+publishes nothing.
 
 ## Layout
 
@@ -867,7 +866,7 @@ value.go        the value proof: what a typed column or calc operand holds, chec
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON), embedded at build: locale folders + a misc folder
-release-tooling/ the Gitea release a tag publishes
+release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
