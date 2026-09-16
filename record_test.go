@@ -217,17 +217,13 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
 		{"a bare reference beside a path", `{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`},
 	} {
-		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
-		_, err := f.FakeRecord("row")
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": c.row})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
-			t.Errorf("%s: FakeRecord = %v, want the overlap rejected the way one format is", c.name, err)
+			t.Errorf("%s: New = %v, want the overlap refused at load, the way one format is", c.name, err)
 			continue
 		}
 		if !strings.Contains(err.Error(), `"whole"`) || !strings.Contains(err.Error(), `"inner"`) {
 			t.Errorf("%s: error %q names neither column; it must name both", c.name, err)
-		}
-		if _, err := f.Fake("row"); err != nil {
-			t.Errorf("%s: Fake(row) = %v, want the string view untouched", c.name, err)
 		}
 	}
 }
@@ -250,9 +246,9 @@ func TestRecordRejectsAColumnReadingItsOwnRecord(t *testing.T) {
 		{"the record as an operand", `"up":"{uppercase(/person)}"`},
 	} {
 		person := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],` + c.column + `}`
-		f := newGenerator(t, writeData(t, map[string]string{"person": person}), WithSeed(1))
-		if _, err := f.FakeRecord("person"); err == nil || !strings.Contains(err.Error(), "points back at this record") {
-			t.Errorf("%s: FakeRecord = %v, want it refused; the column would contradict the columns beside it", c.name, err)
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"person": person})))
+		if err == nil || !strings.Contains(err.Error(), "names the category it sits in") {
+			t.Errorf("%s: New = %v, want it refused at load; the column would contradict the columns beside it", c.name, err)
 		}
 	}
 }

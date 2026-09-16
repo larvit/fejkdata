@@ -91,17 +91,28 @@ func TestReferenceNamingABoundLevelIsRejected(t *testing.T) {
 	// A reference can name a bound level from the data root, which renders it
 	// afresh beside the path that reads its held draw — the same overlap by
 	// another spelling.
-	rejected := map[string]string{
-		"reference names the head": `{"format":"{p.first}|{/cat.p}","p":{"format":"{first}","first":["Anna","Bo"]}}`,
-		"reference names the leaf": `{"format":"{p.addr}|{/cat.p.addr}","p":{"format":"x","addr":["A","B","C","D"]}}`,
+	// A category never references itself, so each reference back into cat sits in a
+	// second category cat renders.
+	rejected := map[string]map[string]string{
+		"reference names the head": {
+			"cat": `{"format":"{p.first}|{/hop}","p":{"format":"{first}","first":["Anna","Bo"]}}`,
+			"hop": `"{/cat.p}"`,
+		},
+		"reference names the leaf": {
+			"cat": `{"format":"{p.addr}|{/hop}","p":{"format":"x","addr":["A","B","C","D"]}}`,
+			"hop": `"{/cat.p.addr}"`,
+		},
 		// The reference need not sit in the format that binds: any field it renders
 		// reaches the level just the same, however deep.
-		"reference from a sibling field": `{"format":"{p.first}|{inner}","p":[` +
-			`{"format":"{first}-{last}","first":"A","last":"1"},{"format":"{first}-{last}","first":"B","last":"2"}],` +
-			`"inner":"{/cat.p}"}`,
+		"reference from a sibling field": {
+			"cat": `{"format":"{p.first}|{inner}","p":[` +
+				`{"format":"{first}-{last}","first":"A","last":"1"},{"format":"{first}-{last}","first":"B","last":"2"}],` +
+				`"inner":"{/hop}"}`,
+			"hop": `"{/cat.p}"`,
+		},
 	}
-	for name, file := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+	for name, files := range rejected {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the reference rejected as an overlap", name, err)
 		}
@@ -120,7 +131,8 @@ func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
 	// cycle walk has to follow it there. A head whose own format names nothing
 	// would otherwise hide the cycle until render, where it is fatal.
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"a": `{"format":"{p.x}","p":{"format":"static","x":"{/a}"}}`,
+		"a": `{"format":"{p.x}","p":{"format":"static","x":"{/b}"}}`,
+		"b": `"{/a}"`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "reference cycle") {
 		t.Fatalf("New = %v, want the cycle through {p.x} rejected", err)
@@ -131,8 +143,9 @@ func TestALevelRenderedOnlyByAPathTokenIsHeld(t *testing.T) {
 	// {p.a} renders q, so it is a route to the level {q.x} holds — even though p's
 	// own format names nothing.
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"thing": `{"format":"{p.a} {q.x}","p":{"format":"static","a":"{/thing.q}"},` +
+		"thing": `{"format":"{p.a} {q.x}","p":{"format":"static","a":"{/hop}"},` +
 			`"q":{"format":"{x}","x":["1","2"]}}`,
+		"hop": `"{/thing.q}"`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 		t.Fatalf("New = %v, want the second route to q rejected", err)
@@ -149,16 +162,20 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		files map[string]string
 		want  string // the route the error names, spelled as the author wrote it
 	}{
+		// A category never references itself, so each route back into cat sits in a
+		// second category cat renders.
 		"a reference beside the operand": {
 			map[string]string{
-				"cat": `{"format":"{/cat.net} x 2 = {calc(net * 2, 2)}","net":["10.00","20.00"]}`,
+				"cat": `{"format":"{/hop} x 2 = {calc(net * 2, 2)}","net":["10.00","20.00"]}`,
+				"hop": `"{/cat.net}"`,
 			},
-			`{/cat.net} renders "net"`,
+			`{/hop} renders "net"`,
 		},
 		"a reference one level down": {
 			map[string]string{
 				"cat": `{"format":"{calc(net * 2, 2)} {q}","net":["10.00","20.00"],` +
-					`"q":"{/cat.net}"}`,
+					`"q":"{/hop}"}`,
+				"hop": `"{/cat.net}"`,
 			},
 			`{q} renders "net"`,
 		},
@@ -167,7 +184,8 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		"a reference to an operand wrapped in a choice": {
 			map[string]string{
 				"cat": `{"format":"{calc(n * 2, 2)} {q}","n":{"format":"{v}","v":["1","2"]},` +
-					`"q":"{/cat.n}"}`,
+					`"q":"{/hop}"}`,
+				"hop": `"{/cat.n}"`,
 			},
 			`{q} renders "n"`,
 		},
@@ -176,7 +194,8 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		"an operand reaching another operand": {
 			map[string]string{
 				"cat": `{"format":"{calc(a + b, 0)}","a":{"format":"{x}","x":["1","2"]},` +
-					`"b":"{/cat.a}"}`,
+					`"b":"{/hop}"}`,
+				"hop": `"{/cat.a}"`,
 			},
 			`calc operand "b" renders "a"`,
 		},
@@ -185,15 +204,17 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		// rejected, so the reference spelling has to be.
 		"a reference into the operand": {
 			map[string]string{
-				"cat": `{"format":"{calc(net * 2, 2)}|{/cat.net.v}",` +
+				"cat": `{"format":"{calc(net * 2, 2)}|{/hop}",` +
 					`"net":{"format":"{v}","v":["10.00","20.00"]}}`,
+				"hop": `"{/cat.net.v}"`,
 			},
-			`{/cat.net.v} renders "net"`,
+			`{/hop} renders "net"`,
 		},
 		"a reference into the operand one level down": {
 			map[string]string{
 				"cat": `{"format":"{calc(net * 2, 2)}|{q}","net":{"format":"{v}","v":["10.00","20.00"]},` +
-					`"q":"{/cat.net.v}"}`,
+					`"q":"{/hop}"}`,
+				"hop": `"{/cat.net.v}"`,
 			},
 			`{q} renders "net"`,
 		},
@@ -203,7 +224,8 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		"a violation on the second of two held heads": {
 			map[string]string{
 				"cat": `{"format":"{calc(a + b, 0)} {w}","a":{"format":"{x}","x":["1","2"]},` +
-					`"b":{"format":"{y}","y":["3","4"]},"w":"{/cat.b}"}`,
+					`"b":{"format":"{y}","y":["3","4"]},"w":"{/hop}"}`,
+				"hop": `"{/cat.b}"`,
 			},
 			`{w} renders "b"`,
 		},
@@ -230,7 +252,8 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		"a reference to a sibling the operand never renders": {
 			"cat": `{"format":"{calc(net * 2, 2)} {unit}",` +
 				`"net":{"format":"{v}","v":["1","2"],"spare":["kg","lb"]},` +
-				`"unit":"{/cat.net.spare}"}`,
+				`"unit":"{/hop}"}`,
+			"hop": `"{/cat.net.spare}"`,
 		},
 		// Two operands drawing from one source are two names, so two draws: each is
 		// held under its own name and shown once, and neither can disagree.
@@ -247,7 +270,8 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 		},
 		// A fixed string cannot disagree with itself, so it needs no fence.
 		"a literal operand named twice": {
-			"cat": `{"format":"{calc(n * 2, 0)} {/cat.n}","n":"5"}`,
+			"cat": `{"format":"{calc(n * 2, 0)} {/hop}","n":"5"}`,
+			"hop": `"{/cat.n}"`,
 		},
 		// One node reached twice while walking the operand: the walk must not
 		// revisit it, and the repeat is not a second route to anything.
@@ -267,19 +291,28 @@ func TestAPathReachesEveryVariantItMightDraw(t *testing.T) {
 	// all of them. Reaching only the first leaves whatever hides in a later
 	// variant to be found at render — a cycle there is fatal, and a second route
 	// to a held level disagrees silently.
-	rejected := map[string]struct{ file, want string }{
+	rejected := map[string]struct {
+		files map[string]string
+		want  string
+	}{
 		"a cycle in a later variant": {
-			`{"format":"{p.x}","p":[{"format":"h","x":"safe"},{"format":"h","x":"{/cat}"}]}`,
+			map[string]string{
+				"cat": `{"format":"{p.x}","p":[{"format":"h","x":"safe"},{"format":"h","x":"{/hop}"}]}`,
+				"hop": `"{/cat}"`,
+			},
 			"reference cycle",
 		},
 		"a second route in a later variant": {
-			`{"format":"{p.x} {q.y}","p":[{"format":"h","x":"safe"},{"format":"h","x":"{/cat.q}"}],` +
-				`"q":{"format":"{y}","y":["1","2"]}}`,
+			map[string]string{
+				"cat": `{"format":"{p.x} {q.y}","p":[{"format":"h","x":"safe"},{"format":"h","x":"{/hop}"}],` +
+					`"q":{"format":"{y}","y":["1","2"]}}`,
+				"hop": `"{/cat.q}"`,
+			},
 			"reads a path into",
 		},
 	}
 	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": c.file})))
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
 		}
@@ -289,15 +322,22 @@ func TestAPathReachesEveryVariantItMightDraw(t *testing.T) {
 func TestALevelAPathNeverRendersIsAccepted(t *testing.T) {
 	// A path token does not expand its head's format, so a reference sitting in
 	// that format is not a second route to anything: it is never rendered by the
-	// path at all. Both orders must load.
-	accepted := map[string]string{
-		"reference in the head's own format": `{"format":"{p.first} {q.a}",` +
-			`"p":{"format":"{first} {/thing.q}","first":["A","B"]},"q":{"format":"{a}","a":["1","2"]}}`,
-		"the mirror shape": `{"format":"{p.first} {q.a}",` +
-			`"p":{"format":"{first}","first":["A","B"]},"q":{"format":"{a} {/thing.p}","a":["1","2"]}}`,
+	// path at all. Both orders must load. p and q sit one level down, so they are
+	// one column of thing rather than two that would read one another.
+	accepted := map[string]map[string]string{
+		"reference in the head's own format": {
+			"thing": `{"format":"{inner}","inner":{"format":"{p.first} {q.a}",` +
+				`"p":{"format":"{first} {/hop}","first":["A","B"]},"q":{"format":"{a}","a":["1","2"]}}}`,
+			"hop": `"{/thing.inner.q}"`,
+		},
+		"the mirror shape": {
+			"thing": `{"format":"{inner}","inner":{"format":"{p.first} {q.a}",` +
+				`"p":{"format":"{first}","first":["A","B"]},"q":{"format":"{a} {/hop}","a":["1","2"]}}}`,
+			"hop": `"{/thing.inner.p}"`,
+		},
 	}
-	for name, file := range accepted {
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"thing": file}))); err != nil {
+	for name, files := range accepted {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 		}
 	}
@@ -673,7 +713,8 @@ func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
 	// must be caught at New. Reaching render would be fatal: the recursion never
 	// terminates, and a stack overflow cannot be recovered.
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"a": `{"format":"{p.x}","p":{"format":"{x}","x":"{/a}"}}`,
+		"a": `{"format":"{p.x}","p":{"format":"{x}","x":"{/b}"}}`,
+		"b": `"{/a}"`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "reference cycle") {
 		t.Fatalf("New = %v, want the cycle through {p.x} rejected", err)

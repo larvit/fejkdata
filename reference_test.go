@@ -83,27 +83,25 @@ func TestReferenceErrors(t *testing.T) {
 			"card": `"{/who.f}"`,
 		},
 		"empty reference path": {"card": `"{/}"`},
-		// A reference that leads back to its own value never terminates at render,
-		// so New must reject the cycle up front (direct, mutual, or chained).
-		"direct cycle": {"a": `"x{/a}"`},
-		"mutual cycle": {"a": `"{/b}"`, "b": `"{/a}"`},
-		"chain cycle":  {"a": `"{/b}"`, "b": `"{/c}"`, "c": `"{/a}"`},
-		// calc renders its operands, so a cycle through one must be caught too.
-		"calc operand cycle": {"x": `{"format":"{calc(y)}","y":"{/x}"}`},
+		// A reference that leads back to its own value never terminates at render, so
+		// New must reject the cycle up front (mutual or chained). One into its own
+		// category is refused before the cycle walk reaches it, as a unit rule.
+		"a category referencing itself": {"a": `"x{/a}"`},
+		"mutual cycle":                  {"a": `"{/b}"`, "b": `"{/a}"`},
+		"chain cycle":                   {"a": `"{/b}"`, "b": `"{/c}"`, "c": `"{/a}"`},
+		// calc renders its operands, so a reference through one is caught too.
+		"a calc operand into its own category": {"x": `{"format":"{calc(y)}","y":"{/x}"}`},
 		// A field its parent's format never renders is still reachable by dot path,
-		// so a cycle hiding in one must fail at New rather than at render.
-		"cycle in an unrendered field": {"cat": `{"format":"hi","x":"{/cat.x}"}`},
-		"mutual cycle between unrendered fields": {
+		// so what hides in one must fail at New rather than at render.
+		"an unrendered field into its own category": {"cat": `{"format":"hi","x":"{/cat.x}"}`},
+		"two unrendered fields into their own category": {
 			"cat": `{"format":"hi","x":"{/cat.y}","y":"{/cat.x}"}`,
 		},
-		"cycle in an unrendered field of a choice arm": {
-			"cat": `{"format":"hi","x":"{/cat.x}"}`,
-		},
-		// The shipped layout puts categories in folders, so a cycle one level down
-		// is the common case, not an edge case.
-		"cycle in a subfolder":            {"sv_SE/a": `"x{/sv_SE.a}"`},
-		"mutual cycle within a subfolder": {"sv_SE/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/sv_SE.a}"`},
-		"mutual cycle across two folders": {"en_US/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/en_US.a}"`},
+		// The shipped layout puts categories in folders, so one level down is the
+		// common case, not an edge case.
+		"a category in a subfolder referencing itself": {"sv_SE/a": `"x{/sv_SE.a}"`},
+		"mutual cycle within a subfolder":              {"sv_SE/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/sv_SE.a}"`},
+		"mutual cycle across two folders":              {"en_US/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/en_US.a}"`},
 		// ".." is reserved for bound references, so an authored key using it would
 		// name a node nothing can reach and nothing would validate.
 		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{/nope}"}`},
@@ -131,17 +129,26 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 	}
 }
 
-// TestReferenceFromUnrenderedFieldTerminates guards the cycle check against
-// over-rejecting: a field the format never renders may point back at its own
-// category, which terminates, and stays renderable by path.
-func TestReferenceFromUnrenderedFieldTerminates(t *testing.T) {
-	dir := writeData(t, map[string]string{"cat": `{"format":"hi","x":"see {/cat}"}`})
-	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "cat"); got != "hi" {
-		t.Fatalf("cat = %q, want hi", got)
+// TestReferenceIntoItsOwnCategoryIsRejected pins the unit a category is: a reference
+// back into it describes a draw other than the fields beside it, whether the format
+// renders that field or not, so it is refused at load rather than left to disagree in
+// the record view.
+func TestReferenceIntoItsOwnCategoryIsRejected(t *testing.T) {
+	for name, file := range map[string]string{
+		"the category whole":      `{"format":"hi","x":"see {/cat}"}`,
+		"a field of its own":      `{"format":"hi","x":"{/cat.y}","y":"1"}`,
+		"a path the format reads": `{"format":"{/cat.y}","y":"1"}`,
+	} {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+		if err == nil || !strings.Contains(err.Error(), "names the category it sits in") {
+			t.Errorf("%s: New = %v, want the reference into its own category refused", name, err)
+		}
 	}
-	if got := fake(t, f, "cat.x"); got != "see hi" {
-		t.Fatalf("cat.x = %q, want \"see hi\"", got)
+	// Reading a sibling as a path is the spelling that stays.
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat": `{"format":"{y.v}","y":{"format":"{v}","v":["1","2"]}}`,
+	}))); err != nil {
+		t.Errorf("New = %v, want the sibling path accepted", err)
 	}
 }
 
@@ -189,9 +196,9 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		want  string
 	}{
 		{
-			"cycle inside a choice arm",
-			map[string]string{"cat": `{"format":"hi","x":"{/cat.x}"}`},
-			"fejkdata: reference cycle: cat.x -> /cat.x",
+			"cycle through another category",
+			map[string]string{"cat": `{"format":"hi","x":"{/hop}"}`, "hop": `"{/cat.x}"`},
+			"fejkdata: reference cycle: cat.x -> /hop -> /cat.x",
 		},
 		{
 			"bad reference reached through another reference",
@@ -255,21 +262,30 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 }
 
 func TestReferenceOverlapIsRejected(t *testing.T) {
-	p := `[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]`
-	for name, file := range map[string]string{
-		"head beside a path":                                        `{"format":"{/cat.p} {/cat.p.first}","p":` + p + `}`,
-		"sibling path beside a reference path":                      `{"format":"{p.first} {/cat.p.last}","p":` + p + `}`,
-		"sibling fields reading a level and a path into it":         `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}","p":` + p + `}`,
-		"a field rendering the level a nested reference reads into": `{"format":"{x} {p}","x":"{/cat.p.first}","p":` + p + `}`,
-		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/other}","b":"{/other.p.first}"}`,
+	// A category never references itself, so the reads sit in a second category.
+	cat := `{"format":"x","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`
+	for name, row := range map[string]string{
+		"head beside a path": `"{/cat.p} {/cat.p.first}"`,
+		"sibling fields reading a level and a path into it":         `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}"}`,
+		"a field rendering the level a nested reference reads into": `{"format":"{x} {p}","x":"{/cat.p.first}","p":"{/cat.p}"}`,
+		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`,
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file, "other": `{"format":"x","p":` + p + `}`})))
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
 	}
+	// A sibling path and a reference into the level it holds are the same overlap,
+	// and the reference reaches it from a category row renders.
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"cat": `{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}","p":` + p + `}`,
+		"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
+		"hop": `"{/row.p.last}"`,
+	}))); err == nil || !strings.Contains(err.Error(), "reads a path into") {
+		t.Errorf("New = %v, want a sibling path beside a reference into it rejected", err)
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat": cat,
+		"row": `{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}"}`,
 	}))); err != nil {
 		t.Errorf("New = %v, want a level and a path into it accepted in groups of their own", err)
 	}
