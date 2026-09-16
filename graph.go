@@ -197,9 +197,6 @@ func checkRenders(s nodeScope) error {
 		return err
 	}
 	fence := &drawCheck{}
-	// One pass refuses a draw group that splits nothing and notes whether the scope binds a
-	// reference at all: weighing what a render's draws hold walks every node it renders, and
-	// with nothing bound there is no draw to share, so the shipped set pays for neither walk.
 	refs := false
 	if err := s(func(path string, n node) error {
 		if t, ok := n.(*template); ok && len(t.refs) > 0 {

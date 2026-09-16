@@ -154,8 +154,7 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 	if !ok || !t.record {
 		return nil
 	}
-	// A record's columns are its fields, which its format need not render at all, so the
-	// reads to weigh are theirs rather than the template's own.
+	// A record-only template's format renders nothing, so weigh the columns, not the format.
 	columns := recordColumns(t)
 	reads := false
 	for _, name := range columns {

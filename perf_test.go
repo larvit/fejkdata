@@ -51,11 +51,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// A record's fences read the compiled tree, so they belong to New, not to a draw.
-// A reference path read across a repeat, and one read in a named draw group. The repeat
-// prices both measures that keep a render's draw set off the heap — inlining expandAnew
-// into render's loop, or keying a draw group's map with the scope's own string, costs an
-// allocation an iteration — while the draw group holds the group path's own count.
+// The repeat shape prices both escape measures: dropping either costs an alloc an iteration.
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {
@@ -78,6 +74,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 	}
 }
 
+// A record's fences read the compiled tree, so they belong to New, not to a draw.
 func TestNoRecordAllocRegression(t *testing.T) {
 	for _, s := range []struct{ name, json string }{
 		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},

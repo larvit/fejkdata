@@ -709,7 +709,9 @@ tokens add cost in proportion to the output.
   category, which both reference. That settled, a record's column fences run at `New`
   too, so a category that loads renders as whichever shape is asked for, and a reference
   reaching back into a category through another one is refused there as the overlap it
-  is.
+  is. Which reads those fences weigh differs on purpose: a record-only template's inert
+  format renders nothing, so a `drawGroup` on it can never matter and is refused, while
+  one on a rendering format can matter to a caller that bare-references it.
 - **A record's column set is fixed before the first draw.** Only a category-level
   template is a record: a path descending into a field, or naming a folder or a
   choice, errors. A tail may pass through a choice whose variants carry different
