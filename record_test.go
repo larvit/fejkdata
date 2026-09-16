@@ -203,7 +203,7 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 	cat := `{"format":"{a}","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
 	for _, c := range []struct{ name, row string }{
 		{"through a column repeat, which draws anew", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
-		{"in a group of its own", `{"format":"","whole":{"format":"{/cat.a}","group":"g"},"inner":"{/cat.a.b}"}`},
+		{"in a group of its own", `{"format":"","whole":{"format":"{/cat.a}","drawGroup":"g"},"inner":"{/cat.a.b}"}`},
 	} {
 		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
 		if _, err := f.FakeRecord("row"); err != nil {
@@ -384,7 +384,7 @@ func TestRepeatIterationsDrawReferencesAnew(t *testing.T) {
 func TestRecordGroupsDrawApart(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person":   drawPeople,
-		"transfer": `{"format":"{from_first} {from_last} to {to_first} {to_last}","from_first":{"format":"{/person.first}","group":"from"},"from_last":{"format":"{/person.last}","group":"from"},"to_first":{"format":"{/person.first}","group":"to"},"to_last":{"format":"{/person.last}","group":"to"}}`,
+		"transfer": `{"format":"{from_first} {from_last} to {to_first} {to_last}","from_first":{"format":"{/person.first}","drawGroup":"from"},"from_last":{"format":"{/person.last}","drawGroup":"from"},"to_first":{"format":"{/person.first}","drawGroup":"to"},"to_last":{"format":"{/person.last}","drawGroup":"to"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	apart := map[string]bool{}

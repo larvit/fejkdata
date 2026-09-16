@@ -269,7 +269,7 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 		}
 	}
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"cat": `{"format":"{a} {b}","a":{"format":"{/cat.p}","group":"g"},"b":"{/cat.p.first}","p":` + p + `}`,
+		"cat": `{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}","p":` + p + `}`,
 	}))); err != nil {
 		t.Errorf("New = %v, want a level and a path into it accepted in groups of their own", err)
 	}
@@ -285,13 +285,13 @@ func onePerson(name string) bool {
 
 func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"apart":      `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":{"format":"{/person.first} {/person.last}","group":"y"}}`,
-		"caller":     `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","group":"x"},"b":"{/pay}"}`,
+		"apart":      `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","drawGroup":"x"},"b":{"format":"{/person.first} {/person.last}","drawGroup":"y"}}`,
+		"caller":     `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","drawGroup":"x"},"b":"{/pay}"}`,
 		"contact":    `{"format":"{first} {last} <{email}>","email":"{lowercase(/person.first)}.{lowercase(/person.last)}@example.com","first":"{/person.first}","last":"{/person.last}"}`,
-		"iterations": `{"format":"{/person.first} {r}","group":"outer","r":{"format":"{a}={b}","repeat":3,"separator":",","a":"{/person.first}","b":{"format":"{/person.first}","group":"outer"}}}`,
+		"iterations": `{"format":"{/person.first} {r}","drawGroup":"outer","r":{"format":"{a}={b}","repeat":3,"separator":",","a":"{/person.first}","b":{"format":"{/person.first}","drawGroup":"outer"}}}`,
 		"nested":     `{"format":"{/person.first} {inner}","inner":"{/person.last}"}`,
 		"pair":       `{"format":"{a} & {b}","a":"{/person.first} {/person.last}","b":"{/person.first} {/person.last}"}`,
-		"pay":        `{"format":"{p}","p":{"format":"{/person.first} {/person.last}","group":"x"}}`,
+		"pay":        `{"format":"{p}","p":{"format":"{/person.first} {/person.last}","drawGroup":"x"}}`,
 		"person":     drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))

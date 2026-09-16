@@ -405,10 +405,10 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 		t.Fatalf("New = %v, want a path into a repeating level rejected", err)
 	}
 	_, err = New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"cat":  `{"format":"[{p.a}]","p":{"format":"{a}","a":"{/word.w}","group":"g"}}`,
+		"cat":  `{"format":"[{p.a}]","p":{"format":"{a}","a":"{/word.w}","drawGroup":"g"}}`,
 		"word": `{"format":"{w}","w":["x","y"]}`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), `the level "p" carries a group`) {
+	if err == nil || !strings.Contains(err.Error(), `the level "p" carries a drawGroup`) {
 		t.Fatalf("New = %v, want a path into a level carrying a group rejected", err)
 	}
 }
