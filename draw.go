@@ -133,11 +133,28 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	if !ok || !c.readsPath(t) {
 		return nil
 	}
-	w := newDrawWalk(nil)
+	w := newDrawWalk()
 	for _, e := range renderEdges(t) {
 		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
 	}
 	if err := w.check(); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	return nil
+}
+
+// checkRecordDraws fences the columns of a record — a template compiled at the top without a
+// repeat — so a load proves the record view of it as well as the string view.
+func (c *drawCheck) checkRecordDraws(path string, n node) error {
+	t, ok := n.(*template)
+	if !ok || !t.record {
+		return nil
+	}
+	columns := recordColumns(t)
+	if len(columns) == 0 {
+		return nil
+	}
+	if err := checkColumnDraws(t, columns); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
@@ -206,7 +223,7 @@ func refRead(n node, label string) (arm, node, bool) {
 
 // checkColumnDraws fences a record's columns as one render.
 func checkColumnDraws(t *template, columns []string) error {
-	w := newDrawWalk(t)
+	w := newDrawWalk()
 	for _, name := range columns {
 		w.walk(t.fields[name], drawAt{group: t.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
@@ -214,14 +231,12 @@ func checkColumnDraws(t *template, columns []string) error {
 }
 
 // drawWalk gathers what one render reads by reference and what it draws afresh, each by draw group,
-// for check to compare. record is set for a record's columns, which may not read the record back.
+// for check to compare.
 type drawWalk struct {
-	record *template
-	reads  []pathRead
-	read   map[drawKey]bool
-	fresh  []freshDraw
-	seen   map[drawVisit]bool
-	err    error
+	reads []pathRead
+	read  map[drawKey]bool
+	fresh []freshDraw
+	seen  map[drawVisit]bool
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
@@ -259,15 +274,15 @@ type drawKey struct {
 	key   any
 }
 
-func newDrawWalk(record *template) *drawWalk {
-	return &drawWalk{record: record, read: map[drawKey]bool{}, seen: map[drawVisit]bool{}}
+func newDrawWalk() *drawWalk {
+	return &drawWalk{read: map[drawKey]bool{}, seen: map[drawVisit]bool{}}
 }
 
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
 	v := drawVisit{n, at.group, at.held}
-	if w.seen[v] || w.err != nil {
+	if w.seen[v] {
 		return
 	}
 	w.seen[v] = true
@@ -287,12 +302,8 @@ func (w *drawWalk) walk(n node, at drawAt) {
 
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	a, target, reads := refRead(from, e.label)
-	switch {
-	case !reads:
+	if !reads {
 		w.walk(e.to, at)
-		return
-	case w.record != nil && target == node(w.record):
-		w.err = fmt.Errorf("%s reads {%s}, which points back at this record; a column cannot read another column — move the shared value into its own category and reference that", at.route.spelling, a.name)
 		return
 	}
 	if k := (drawKey{at.group, a.path}); !w.read[k] {
@@ -306,9 +317,6 @@ func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 // check refuses what one draw per reference path cannot answer for, reads compared in path order so
 // which pair is reported does not vary.
 func (w *drawWalk) check() error {
-	if w.err != nil {
-		return w.err
-	}
 	sort.SliceStable(w.reads, func(i, j int) bool {
 		if w.reads[i].at.group != w.reads[j].at.group {
 			return w.reads[i].at.group < w.reads[j].at.group

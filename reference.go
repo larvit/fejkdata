@@ -72,15 +72,17 @@ func refSegments(name string, folder []string) ([]string, error) {
 // error, never a random render-time one.
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
-		t.keyDrawGroup(strings.Join(strings.Split(path, ".")[:len(folder)+1], "."))
-		return linkTemplateRefs(folder, path, t, root)
+		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
+		t.keyDrawGroup(category)
+		return linkTemplateRefs(folder, path, category, t, root)
 	})
 }
 
-// linkTemplateRefs binds one template's references against root. A template with
-// none is left untouched, so an inline format that references nothing costs only
-// the refTokens scan.
-func linkTemplateRefs(folder []string, path string, t *template, root map[string]node) error {
+// linkTemplateRefs binds one template's references against root, refusing one that names the
+// category it sits in: a category is a unit, and a reference back into it describes a draw other
+// than the fields beside it. A template with no reference is left untouched, so an inline format
+// that references nothing costs only the refTokens scan.
+func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
 	names := refTokens(t.format)
 	if len(names) == 0 {
 		return nil
@@ -99,6 +101,9 @@ func linkTemplateRefs(folder []string, path string, t *template, root map[string
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
 		key := "/" + strings.Join(head, ".")
+		if category != "" && key == "/"+category {
+			return fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
+		}
 		if err := checkPath(target, tail, key); err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}

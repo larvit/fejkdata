@@ -164,6 +164,6 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", path, name, rest)
 			}
 		}
-		return linkTemplateRefs(nil, path, t, root)
+		return linkTemplateRefs(nil, path, "", t, root)
 	})
 }

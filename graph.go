@@ -203,6 +203,9 @@ func checkRenders(s nodeScope) error {
 	if err := s(fence.checkDraws); err != nil {
 		return err
 	}
+	if err := s(fence.checkRecordDraws); err != nil {
+		return err
+	}
 	return s((&valueProof{}).checkDatatype)
 }
 

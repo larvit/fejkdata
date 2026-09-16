@@ -211,9 +211,6 @@ func recordOf(n node) (*template, []Column, error) {
 	if !t.record {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if err := checkColumnDraws(t, names); err != nil {
-		return nil, nil, err
-	}
 	columns := make([]Column, len(names))
 	for i, name := range names {
 		datatype, _ := columnDatatype(t.fields[name]) // checkColumns refused items that disagree wherever DataType is read

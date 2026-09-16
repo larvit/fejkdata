@@ -131,9 +131,10 @@ columns that read a path into one category — `{/currency.code}` and
 record may not overlap — `{/cat.a}`, or a bare `{/cat}`, beside
 `{/cat.a.b}` is refused, naming the fields to write instead, as
 [One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single
-format. A column may not reference the record it belongs to by any spelling: `{/users.first}`
-or a bare `{/users}` inside `users` describes a draw other than the columns beside
-it, so put a value two columns share in its own category and reference that. A field hold, transform or
+format. Both fences run at load, so a category that loads renders as either shape. A
+category never references itself — `{/users.first}` or a bare `{/users}` inside `users`
+describes a draw other than the fields beside it — so read a sibling as a path, and put
+a value two fields share in its own category and reference that. A field hold, transform or
 operand ties fields together within one column as always (see
 [Correlated fields](#correlated-fields) and [Decisions](#decisions)).
 
@@ -447,9 +448,9 @@ a render of its own, in no group, so it draws anew, and a [draw group](#draw-gro
 draw apart. A bare reference names no field and makes its own picks each time —
 `{/misc.uuid} {/misc.uuid}` is two draws — while the reference paths inside what it
 renders still read the render's draws. Rejected at `New`: a path that is
-unknown, names a folder, has no folder above, or reads a field not every variant
-of a choice carries, and a reference that leads back to its own value, directly,
-mutually or through a chain.
+unknown, names a folder, has no folder above, reads a field not every variant
+of a choice carries, or names the category the reference sits in, and a reference
+that leads back to its own value, directly, mutually or through a chain.
 
 ### Draw group
 
@@ -690,6 +691,14 @@ tokens add cost in proportion to the output.
   different things — an operand pins the value its own render produced and stops at a
   reference, a path pins every level it passes through — so one walk would carry both
   rules and both scopes anyway, and tell them apart at every step.
+- **A category never references itself, and a record's fences run at load.** A category
+  is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
+  draw other than the fields beside it, so `New` refuses it and the sibling path stays
+  the one spelling for a field of one's own. A value two fields share goes in its own
+  category, which both reference. That settled, a record's column fences run at `New`
+  too, so a category that loads renders as whichever shape is asked for, and a reference
+  reaching back into a category through another one is refused there as the overlap it
+  is.
 - **A record's column set is fixed before the first draw.** Only a category-level
   template is a record: a path descending into a field, or naming a folder or a
   choice, errors. A tail may pass through a choice whose variants carry different
