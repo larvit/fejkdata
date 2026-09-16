@@ -201,11 +201,12 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 
 func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 	cat := `{"format":"{a}","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
+	mid := `"{/cat.a}"`
 	for _, c := range []struct{ name, row string }{
 		{"through a column repeat, which draws anew", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
 		{"in a group of its own", `{"format":"","whole":{"format":"{/cat.a}","drawGroup":"g"},"inner":"{/cat.a.b}"}`},
 	} {
-		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "row": c.row}), WithSeed(1))
+		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "mid": mid, "row": c.row}), WithSeed(1))
 		if _, err := f.FakeRecord("row"); err != nil {
 			t.Errorf("%s: FakeRecord = %v, want it accepted", c.name, err)
 		}
@@ -216,8 +217,9 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b} {x}","x":"1"},{"format":"{/cat.a.b}! {x}","x":"2"}]}`},
 		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
 		{"a bare reference beside a path", `{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`},
+		{"a column reaching back through another category", `{"format":"","whole":"{/mid}","inner":"{/cat.a.b}"}`},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": c.row})))
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "mid": mid, "row": c.row})))
 		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
 			t.Errorf("%s: New = %v, want the overlap refused at load, the way one format is", c.name, err)
 			continue
