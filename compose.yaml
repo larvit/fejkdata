@@ -24,6 +24,7 @@ x-go: &go
     HOME: /cache
     GOCACHE: /cache/build
     GOMODCACHE: /cache/mod
+    REPIN: ${REPIN:-}
 
 services:
   test:

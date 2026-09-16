@@ -529,6 +529,37 @@ then costs about what its output costs: an unweighted pick is O(1) whatever the
 list's length, a weighted one O(log n), and long formats, deep nesting and many
 tokens add cost in proportion to the output.
 
+## Versioning
+
+Semver tags on `main`, `v0.1.0` first; one version covers the shipped data, the
+library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
+changed. A consumer's data, code and scripts keep working across a minor or a patch:
+a minor only adds, and a major is the only release that changes what exists.
+
+| Surface | Major | Minor |
+|---------|-------|-------|
+| Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another | a path, a locale, a value in a list |
+| Records | remove, rename, retype or add a column; let a column be null | a record, as a new category |
+| Data format | a fence: a spelling `New` rejects that it accepted; an option, since it reserves a field name | a builtin |
+| CLI | remove or rename a flag, or change its default; change what an exit code means; change the bytes a `--format` writes, the `--list` layout, or what an error names | a flag, a format |
+| Library | change or remove an exported name; raise the lowest supported Go | an exported name, an option |
+
+Seeded output is a promise within one version: same seed, same version, same
+data, same output. Any release may shift a stream, since a value added to a list
+moves every draw after it, so pin fixtures per version. An error's wording may
+improve in a minor; the path, rejected spelling and replacement it names may not.
+
+Before `v1.0.0` a minor is the breaking unit: `0.(x+1).0` may carry a major's
+changes, each named in the changelog, and a `0.x.y` patch may not. `v1.0.0` is
+cut once the shipped data is in its record shape and one full minor has shipped
+with no breaking change. From `v2` the module path carries `/vN`, so fences ship
+batched into as few majors as possible.
+
+[`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
+category's format and each column's datatype and nullability; a pull request that
+changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
+renamed or retyped line is a major.
+
 ## Goals
 
 1. **Valid by construction** — every value passes the check its real consumer
@@ -613,14 +644,30 @@ tokens add cost in proportion to the output.
   folder, `..` the folder above — what those spellings already mean to anyone who
   has typed a path. A locale's files reach each other without naming the locale,
   so a folder renames and copies without editing its references.
-- **After the first tag, a new fence is a major version.** Data files are the
-  public API, and one spelling per result grows by tightening, so every fence
-  invalidates some file. Each such release names the rejected spelling and its
-  replacement in the changelog and in the load error, and that is the whole
-  migration: a fence rejects one spelling with one replacement, so the fix is
-  local to each site. A fence that would need a non-local rewrite ships a
-  converter with its release instead. Before the first tag there is no
-  compatibility promise.
+- **A change to what exists is a major; a minor only adds.** Data files, the CLI
+  and the Go API are the public API, and a consumer must be able to take a minor
+  without an edit — so an added column is a major, since it changes the CSV header
+  and the `INSERT` column list, as is a removed value, which changes what a fixture
+  holds, and a new option, which reserves a field name. One spelling per result
+  grows by tightening, so every fence invalidates some file. Each such release
+  names the rejected spelling and its replacement in the changelog and in the load
+  error, and that is the whole migration: a fence rejects one spelling with one
+  replacement, so the fix is local to each site. A fence that would need a
+  non-local rewrite ships a converter with its release instead. Before `v1.0.0` a
+  minor carries what a major would.
+- **Seeded output is promised within one version.** Any edit to a category shifts
+  its stream and everything drawn after it, so a promise across versions would
+  freeze every shipped list; a fixture is re-pinned on a bump, as this repo's own are.
+- **An error is a contract by what it names, not its bytes.** A script branches on
+  the exit code and reads the named path or spelling, so those hold; wording improves
+  in a minor.
+- **Raising the lowest supported Go is a major.** A consumer building on it breaks,
+  which is the one test every rule above applies; Go's convention of a minor is not
+  followed.
+- **A release is a Gitea release built from the changelog.** The tag alone serves
+  `go get`, but prebuilt binaries need release assets, and the body being the tag's
+  changelog section keeps one text; a tag with no heading fails the workflow
+  rather than publishing an empty release.
 - **A `--data-path` override rebinds every reference to the category it
   replaces.** References bind against the merged tree, so once shipped data uses
   `{.person}`, a consumer's `sv_SE/person.json` is what every shipped reference
@@ -779,6 +826,21 @@ docker build --build-arg GO_VERSION=1.22.12 .   # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test # the same tests, without the image build
 ```
 
+A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
+in its own commit:
+
+```sh
+REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
+```
+
+To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
+merge, then tag `main`; the release workflow publishes the Gitea release with that
+section as its body:
+
+```sh
+git tag -a v0.1.0 -m v0.1.0 && git push origin v0.1.0
+```
+
 ## Layout
 
 ```
@@ -801,6 +863,8 @@ value.go        the value proof: what a typed column or calc operand holds, chec
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON), embedded at build: locale folders + a misc folder
+release-tooling/ the Gitea release a tag publishes
+testdata/       the pinned shipped shape (see Versioning)
 ```
 
 ## License

@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Gitea release from CHANGELOG.md
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - run: python3 release-tooling/publish_release.py
+        env:
+          GITEA_API_URL: ${{ github.api_url }}
+          GITEA_REPOSITORY: ${{ github.repository }}
+          GITEA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
