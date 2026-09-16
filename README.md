@@ -602,7 +602,7 @@ tokens add cost in proportion to the output.
   as JSON; `--data-path` layers over it.
 - **A bare reference draws each time; a reference path is held.** `{/p} {/p}`
   is two draws, as `{word} {word}` is, while every `{/p.first}` in one render reads
-  one draw, and a bare `{/p}` rendering it beside them is a load error: a bare token
+  one draw, and a bare `{/p}` beside them is a load error: a bare token
   is by contract an independent draw, a path pins its level, and a fresh draw of a
   pinned level could show another row.
 - **Reference sigils follow the filesystem.** `/` is the root, `.` this file's
@@ -691,6 +691,12 @@ tokens add cost in proportion to the output.
   different things — an operand pins the value its own render produced and stops at a
   reference, a path pins every level it passes through — so one walk would carry both
   rules and both scopes anyway, and tell them apart at every step.
+- **A record makes its draw maps up front, a `Fake` on its first read.** A record's
+  columns always read through the render's draws, so making the maps where the set is
+  declared keeps them on that frame's stack. A `Fake` often reads no reference path at
+  all, and making them anyway cost about a fifth of the cheapest render, so it makes
+  them on the first read instead — which the allocation gate prices at two heap
+  allocations, paid only by a render that shares a draw.
 - **A category never references itself, and a record's fences run at load.** A category
   is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
   draw other than the fields beside it, so `New` refuses it and the sibling path stays

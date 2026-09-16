@@ -89,7 +89,7 @@ func unreachableInChoice(c *choice, want string) error {
 
 // checkPath proves a dotted tail resolves whichever way the draws go — a choice
 // must carry the rest of the path in the set every variant shares — and that no
-// level a path reads carries a repeat or a group, which one draw of it could not
+// level a path reads carries a repeat or a drawGroup, which one draw of it could not
 // apply. So a path that validates here resolves on every render, and a typo is a
 // New-time error.
 func checkPath(n node, tail []string, level string) error {

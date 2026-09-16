@@ -115,8 +115,13 @@ func checkNestedDrawGroup(fields map[string]node, group string) error {
 // drawCheck fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
 type drawCheck struct {
-	reads  map[node]bool
-	splits map[node]bool
+	memo map[readsMemo]bool
+}
+
+// readsMemo is one answer reads has given: for a node, and for each place it stops.
+type readsMemo struct {
+	n           node
+	stopAtGroup bool
 }
 
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
@@ -162,41 +167,30 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 
 // readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
 // over draws of its own.
-func (c *drawCheck) readsPath(n node) bool {
-	if r, done := c.reads[n]; done {
-		return r
-	}
-	r := false
-	for _, e := range renderEdges(n) {
-		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && c.readsPath(e.to)) {
-			r = true
-			break
-		}
-	}
-	if c.reads == nil {
-		c.reads = map[node]bool{}
-	}
-	c.reads[n] = r
-	return r
-}
+func (c *drawCheck) readsPath(n node) bool { return c.reads(n, false) }
 
 // splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
 // for: one outside a repeat and outside a nested draw group, which hold their own draws.
-func (c *drawCheck) splitsDraws(n node) bool {
-	if r, done := c.splits[n]; done {
+func (c *drawCheck) splitsDraws(n node) bool { return c.reads(n, true) }
+
+// reads walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
+// draw group when stopAtGroup — since each holds draws of its own.
+func (c *drawCheck) reads(n node, stopAtGroup bool) bool {
+	k := readsMemo{n, stopAtGroup}
+	if r, done := c.memo[k]; done {
 		return r
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && !grouped(e.to) && c.splitsDraws(e.to)) {
+		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && !(stopAtGroup && grouped(e.to)) && c.reads(e.to, stopAtGroup)) {
 			r = true
 			break
 		}
 	}
-	if c.splits == nil {
-		c.splits = map[node]bool{}
+	if c.memo == nil {
+		c.memo = map[readsMemo]bool{}
 	}
-	c.splits[n] = r
+	c.memo[k] = r
 	return r
 }
 
