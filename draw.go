@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// drawSet is one render's reference draws: the unnamed group's, and each named group's.
+// drawSet is one render's reference draws: the unnamed draw group's, and each named one's.
 type drawSet struct {
 	unnamed draws
 	named   map[string]*draws
 }
 
-// drawScope is where a render reads its reference paths: a draw set, in the group of the
+// drawScope is where a render reads its reference paths: a draw set, in the draw group of the
 // template rendering.
 type drawScope struct {
 	set   *drawSet
@@ -31,15 +31,15 @@ func renderOnce(s *session, n node) string {
 	return render(s, n, drawScope{set: &set})
 }
 
-// in is the scope t renders in: its group where it names one, else its caller's.
+// in is the scope t renders in: its draw group where it names one, else its caller's.
 func (sc drawScope) in(t *template) drawScope {
-	if t.groupKey != "" {
-		sc.group = t.groupKey
+	if t.drawGroupKey != "" {
+		sc.group = t.drawGroupKey
 	}
 	return sc
 }
 
-// draws is the set's draws for sc's group.
+// draws is the set's draws for sc's draw group.
 func (sc drawScope) draws() *draws {
 	if sc.group == "" {
 		return &sc.set.unnamed
@@ -55,36 +55,36 @@ func (sc drawScope) draws() *draws {
 	return d
 }
 
-// groupOf reads a template's "group" (default ""), which a repeat cannot carry: each iteration
-// renders in no group.
-func groupOf(m map[string]any, repeat int) (string, error) {
-	v, ok := m["group"]
+// drawGroupOf reads a template's "drawGroup" (default ""), which a repeat cannot carry: each
+// iteration renders in no draw group.
+func drawGroupOf(m map[string]any, repeat int) (string, error) {
+	v, ok := m["drawGroup"]
 	if !ok {
 		return "", nil
 	}
 	name, ok := v.(string)
 	switch {
 	case !ok:
-		return "", fmt.Errorf("group must be a string, got %T", v)
+		return "", fmt.Errorf("drawGroup must be a string, got %T", v)
 	case name == "":
-		return "", fmt.Errorf(`group "" is the default, so it has no effect; drop it`)
+		return "", fmt.Errorf(`drawGroup "" is the default, so it has no effect; drop it`)
 	case repeat > 1:
-		return "", fmt.Errorf("group %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
+		return "", fmt.Errorf("drawGroup %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
 	}
 	return name, nil
 }
 
-// keyGroup keys t's group by the category t sits in, "" for an inline template, so a group name is
-// local to its category.
-func (t *template) keyGroup(category string) {
-	if t.group != "" {
-		t.groupKey = category + "/" + t.group
+// keyDrawGroup keys t's draw group by the category t sits in, "" for an inline template, so a name
+// is local to its category.
+func (t *template) keyDrawGroup(category string) {
+	if t.drawGroup != "" {
+		t.drawGroupKey = category + "/" + t.drawGroup
 	}
 }
 
-// checkNestedGroup refuses a template beneath one drawing in group that names group again, short of
-// a repeat or another group.
-func checkNestedGroup(fields map[string]node, group string) error {
+// checkNestedDrawGroup refuses a template beneath one drawing in group that names group again,
+// short of a repeat or another draw group.
+func checkNestedDrawGroup(fields map[string]node, group string) error {
 	if group == "" {
 		return nil
 	}
@@ -92,9 +92,9 @@ func checkNestedGroup(fields map[string]node, group string) error {
 	walk = func(path string, n node) error {
 		t, isTemplate := n.(*template)
 		switch {
-		case isTemplate && t.group == group:
-			return fmt.Errorf("%q names group %q, the group this template draws in already; drop it", path, group)
-		case isTemplate && (t.group != "" || t.repeat > 1):
+		case isTemplate && t.drawGroup == group:
+			return fmt.Errorf("%q names drawGroup %q, the draw group this template draws in already; drop it", path, group)
+		case isTemplate && (t.drawGroup != "" || t.repeat > 1):
 			return nil
 		}
 		for _, c := range contained(n) {
@@ -115,14 +115,15 @@ func checkNestedGroup(fields map[string]node, group string) error {
 // drawCheck fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
 type drawCheck struct {
-	reads map[node]bool
+	reads  map[node]bool
+	splits map[node]bool
 }
 
-// checkGroup refuses a group that splits nothing: one whose render reads no reference path short of
-// a repeat.
-func (c *drawCheck) checkGroup(path string, n node) error {
-	if t, ok := n.(*template); ok && t.group != "" && !c.readsPath(t) {
-		return fmt.Errorf("%s: group %q splits nothing, since nothing it renders reads a reference path; drop it", path, t.group)
+// checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
+// path inside a repeat or a nested draw group, which draw apart from it whatever it names.
+func (c *drawCheck) checkDrawGroup(path string, n node) error {
+	if t, ok := n.(*template); ok && t.drawGroup != "" && !c.splitsDraws(t) {
+		return fmt.Errorf("%s: drawGroup %q splits nothing, since nothing it renders reads a reference path outside a repeat or a nested drawGroup; drop it", path, t.drawGroup)
 	}
 	return nil
 }
@@ -134,7 +135,7 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	}
 	w := newDrawWalk(nil)
 	for _, e := range renderEdges(t) {
-		w.edge(t, e, drawAt{group: t.groupKey, route: drawRoute{e.reached(), e.label}})
+		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
 	}
 	if err := w.check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
@@ -142,8 +143,8 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	return nil
 }
 
-// readsPath reports whether rendering n reads a reference path, short of a repeat, which renders over
-// draws of its own.
+// readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
+// over draws of its own.
 func (c *drawCheck) readsPath(n node) bool {
 	if r, done := c.reads[n]; done {
 		return r
@@ -162,9 +163,34 @@ func (c *drawCheck) readsPath(n node) bool {
 	return r
 }
 
+// splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
+// for: one outside a repeat and outside a nested draw group, which hold their own draws.
+func (c *drawCheck) splitsDraws(n node) bool {
+	if r, done := c.splits[n]; done {
+		return r
+	}
+	r := false
+	for _, e := range renderEdges(n) {
+		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && !grouped(e.to) && c.splitsDraws(e.to)) {
+			r = true
+			break
+		}
+	}
+	if c.splits == nil {
+		c.splits = map[node]bool{}
+	}
+	c.splits[n] = r
+	return r
+}
+
 func repeats(n node) bool {
 	t, isTemplate := n.(*template)
 	return isTemplate && t.repeat > 1
+}
+
+func grouped(n node) bool {
+	t, isTemplate := n.(*template)
+	return isTemplate && t.drawGroup != ""
 }
 
 // refRead is the reference an edge of n reads, and the node it is bound to; false when the edge
@@ -182,13 +208,13 @@ func refRead(n node, label string) (arm, node, bool) {
 func checkColumnDraws(t *template, columns []string) error {
 	w := newDrawWalk(t)
 	for _, name := range columns {
-		w.walk(t.fields[name], drawAt{group: t.groupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
+		w.walk(t.fields[name], drawAt{group: t.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
 	return w.check()
 }
 
-// drawWalk gathers what one render reads by reference and what it draws afresh, each by group, for
-// check to compare. record is set for a record's columns, which may not read the record back.
+// drawWalk gathers what one render reads by reference and what it draws afresh, each by draw group,
+// for check to compare. record is set for a record's columns, which may not read the record back.
 type drawWalk struct {
 	record *template
 	reads  []pathRead
@@ -198,7 +224,7 @@ type drawWalk struct {
 	err    error
 }
 
-// drawAt is where a walk stands: the group it draws in, how the render's root reached it, the
+// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
 // reference it last crossed, and whether it renders inside a reference path's draw.
 type drawAt struct {
 	group string
@@ -251,8 +277,8 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	if repeats(n) {
 		return
 	}
-	if t, isTemplate := n.(*template); isTemplate && t.groupKey != "" {
-		at.group = t.groupKey
+	if t, isTemplate := n.(*template); isTemplate && t.drawGroupKey != "" {
+		at.group = t.drawGroupKey
 	}
 	for _, e := range renderEdges(n) {
 		w.edge(n, e, at)
@@ -331,7 +357,7 @@ func (w *drawWalk) checkFreshDraws() error {
 }
 
 func overlapError(route drawRoute, ref string, into pathRead) error {
-	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a group", route.spelled(ref), into.at.route.spelled(into.a.name))
+	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.name))
 }
 
 // spelled names the route, and the reference it reaches a draw by where its root edge is not that

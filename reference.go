@@ -72,7 +72,7 @@ func refSegments(name string, folder []string) ([]string, error) {
 // error, never a random render-time one.
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
-		t.keyGroup(strings.Join(strings.Split(path, ".")[:len(folder)+1], "."))
+		t.keyDrawGroup(strings.Join(strings.Split(path, ".")[:len(folder)+1], "."))
 		return linkTemplateRefs(folder, path, t, root)
 	})
 }

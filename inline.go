@@ -136,8 +136,8 @@ func inputValue(input string) (any, error) {
 // bindInline links an inline node's references against root and runs check over it, naming its
 // nodes from label.
 func bindInline(n node, label string, root map[string]node, check func(nodeScope) error) error {
-	if t, isTemplate := n.(*template); isTemplate && t.group != "" {
-		return fmt.Errorf("%s: group %q names nothing, since nothing can reference an inline template; drop it", label, t.group)
+	if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
+		return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
 	}
 	scope := inlineScope(n, label)
 	if err := linkNodeRefs(scope, root); err != nil {
@@ -154,7 +154,7 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 		if !ok {
 			return nil
 		}
-		t.keyGroup("")
+		t.keyDrawGroup("")
 		for _, name := range refTokens(t.format) {
 			sigil, rest, err := refShape(name)
 			if err != nil {

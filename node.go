@@ -58,12 +58,12 @@ type template struct {
 	bound map[string]string
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
-	held        map[string]bool
-	fromString  bool        // written as a JSON string rather than an object
-	readsColumn *columnRead // set when the format is one reference alone reading a record's column
-	record      bool        // compiled at the top without a repeat, so its fields are record columns
-	group       string      // the group it draws in, as written; "" keeps its caller's
-	groupKey    string      // group keyed by its category once linked, what a render reads its reference paths under
+	held         map[string]bool
+	fromString   bool        // written as a JSON string rather than an object
+	readsColumn  *columnRead // set when the format is one reference alone reading a record's column
+	record       bool        // compiled at the top without a repeat, so its fields are record columns
+	drawGroup    string      // the draw group it draws in, as written; "" keeps its caller's
+	drawGroupKey string      // its draw group keyed by its category once linked: what a render reads its reference paths under
 }
 
 func (*template) isNode() {}
@@ -249,10 +249,10 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err := checkTokens(o.format, fields); err != nil {
 		return nil, err
 	}
-	if err := checkNestedGroup(fields, o.group); err != nil {
+	if err := checkNestedDrawGroup(fields, o.group); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, group: o.group, record: fieldPos == inColumn}
+	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
 	if err := t.compileFormat(); err != nil {
 		return nil, err
 	}
@@ -284,7 +284,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
 		return o, err
 	}
-	if o.group, err = groupOf(m, repeat); err != nil {
+	if o.group, err = drawGroupOf(m, repeat); err != nil {
 		return o, err
 	}
 	if sv, ok := m["separator"]; ok {
@@ -419,7 +419,7 @@ func checkPathNames(path string) error {
 // field. These names can never be fields.
 func isOption(name string) bool {
 	switch name {
-	case "datatype", "format", "group", "repeat", "separator", "weight":
+	case "datatype", "drawGroup", "format", "repeat", "separator", "weight":
 		return true
 	}
 	return false

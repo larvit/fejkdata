@@ -127,8 +127,8 @@ renders nothing by `Fake`, and is compiled only so the tree's fences still run.
 The columns are the point, and their facts stay together: a record is one render, so
 columns that read a path into one category — `{/currency.code}` and
 `{/currency.symbol}` — read one draw of it ([References](#references)), and a
-[group](#group) draws a column apart. That one draw is also why the columns of one
-record may not overlap — `{/cat.a}`, or a bare `{/cat}` rendering it, beside
+[draw group](#draw-group) draws a column apart. That one draw is also why the columns of one
+record may not overlap — `{/cat.a}`, or a bare `{/cat}`, beside
 `{/cat.a.b}` is refused, naming the fields to write instead, as
 [One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single
 format. A column may not reference the record it belongs to by any spelling: `{/users.first}`
@@ -341,7 +341,7 @@ different datatypes.
 
 ### Options and fields
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `group` are the only options;
+`format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are the only options;
 **any other key is a field** (see [Decisions](#decisions)). An object that does nothing a
 string can't — only a `format` — is rejected naming the string, as is a one-item
 choice naming its item.
@@ -443,7 +443,7 @@ Renders e.g. `Hej, Pat Smith!`. A reference path into a category is held like a
 record — rather than one format: `{.person.femalefirst} {.person.last}` name one
 person, as do the same two references in sibling fields or a nested template, and
 `{lowercase(.person.femalefirst)}` reads that same draw. Each `repeat` iteration is
-a render of its own, in no group, so it draws anew, and a [group](#group) holds a
+a render of its own, in no group, so it draws anew, and a [draw group](#draw-group) holds a
 draw apart. A bare reference names no field and makes its own picks each time —
 `{/misc.uuid} {/misc.uuid}` is two draws — while the reference paths inside what it
 renders still read the render's draws. Rejected at `New`: a path that is
@@ -451,27 +451,28 @@ unknown, names a folder, has no folder above, or reads a field not every variant
 of a choice carries, and a reference that leads back to its own value, directly,
 mutually or through a chain.
 
-### Group
+### Draw group
 
-A template may carry `group` to hold its reference draws apart: every reference path
-it renders, however deep short of a `repeat`, reads the draw of that group, and the
-templates of one category naming one group read one draw. A group name is local to
-its category, so a category another one references never joins its groups by name;
-the unnamed group spans them all.
+A template may carry `drawGroup` to hold its reference draws apart: every reference path
+it renders, however deep short of a `repeat` or a nested `drawGroup`, reads the draw of
+that group, and the templates of one category naming one group in one render read one
+draw. A name is local to its category, so a category another one references never joins
+its groups by name; the unnamed group spans them all.
 
 ```json
 { "format": "{payer} pays {payee}; signed {signature}",
-  "payer": { "format": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}", "group": "payer" },
+  "payer": { "format": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}", "drawGroup": "payer" },
   "payee": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}",
-  "signature": { "format": "{/sv_SE.person.last}", "group": "payer" } }
+  "signature": { "format": "{/sv_SE.person.last}", "drawGroup": "payer" } }
 ```
 
 Renders e.g. `Sara Eriksson pays Ebba Lind; signed Eriksson`: the signature reads the
 payer's draw, while the payee is drawn apart. Rejected at load, each naming nothing: a
-`group` of `""` (the default); one naming the group its template already draws in; one
-on a template that renders no reference path short of a `repeat`, on a `repeat` itself —
-each iteration renders in no group — or on an inline template's root, which nothing
-references. So is a path reading into a level that carries a `group`.
+`drawGroup` of `""` (the default); one naming the draw group its template already draws
+in; one on a template that renders no reference path short of a `repeat` or a nested
+`drawGroup`, on a `repeat` itself — each iteration renders in no draw group — or on an
+inline template's root, which nothing references. So is a path reading into a level that
+carries a `drawGroup`.
 
 ### Correlated fields
 
@@ -505,9 +506,9 @@ The sub-fields stay addressable — `Fake("address.place.locality")` renders, an
 
 A name any token reads as a path (`{p.first}`) or as an operand (`{calc(net * 2)}`,
 `{uppercase(w)}`) is drawn **once per expansion**, a reference path (`{/cat.p.first}`)
-**once per render** in its [group](#group), and every other route to either — a bare
+**once per render** in its [draw group](#draw-group), and every other route to either — a bare
 `{p}`, a second bare `{w}`, `{/cat.net}`, a nested template rendering `{/cat.p.last}`
-beside `{p.first}`, a bare `{/cat}` rendering what `{/cat.p.first}` reads, at any
+beside `{p.first}`, a bare `{/cat}` beside `{/cat.p.first}`, at any
 depth — is a load error naming the spelling to use. A name nothing reads that way is
 drawn each time: `{word} {word}` differs. An expansion is one render of one format, so
 each nested template draws its own names again; a render is one `Fake` or one record,
@@ -552,7 +553,7 @@ tokens add cost in proportion to the output.
 ## Decisions
 
 - **Options and fields share one namespace.** `format`, `weight`, `repeat`,
-  `separator`, `datatype` and `group` are reserved; every other key is a field. Nesting fields under a
+  `separator`, `datatype` and `drawGroup` are reserved; every other key is a field. Nesting fields under a
   key, or prefixing options, would tax every template to guard against a
   misspelt option.
 - **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
@@ -673,16 +674,22 @@ tokens add cost in proportion to the output.
   value's facts agree across its fields, nested templates and columns alike —
   `{/currency.code}` in one field and `{/currency.symbol}` in another name one
   currency, whichever view renders them. A `repeat` iteration is a render of its
-  own, since repeating asks for another entity, and a [group](#group) names further
+  own, since repeating asks for another entity, and a [draw group](#draw-group) names further
   entities within one render, so a payer and a payee are two groups over one
   `person` rather than two copies of it. Only references share: a sibling field is
   local to its own expansion, so a `first` column does not silently bind to a
   `first` in the column next to it.
-- **A group name is local to its category.** A category's groups are its own
+- **A draw group name is local to its category.** A category's groups are its own
   entities, so a caller naming a group the same way never joins them by accident,
   and renaming a group inside one file changes no render elsewhere. The unnamed
   group still spans categories, since facts that belong together across categories
   must agree.
+- **The expansion hold and the render's draws are two fences.** One proves a sibling
+  path or an operand is reached only by its readers within an expansion, the other
+  does the same for reference paths across a render and its draw groups. They pin
+  different things — an operand pins the value its own render produced and stops at a
+  reference, a path pins every level it passes through — so one walk would carry both
+  rules and both scopes anyway, and tell them apart at every step.
 - **A record's column set is fixed before the first draw.** Only a category-level
   template is a record: a path descending into a field, or naming a folder or a
   choice, errors. A tail may pass through a choice whose variants carry different

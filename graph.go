@@ -197,7 +197,7 @@ func checkRenders(s nodeScope) error {
 		return err
 	}
 	fence := &drawCheck{}
-	if err := s(fence.checkGroup); err != nil {
+	if err := s(fence.checkDrawGroup); err != nil {
 		return err
 	}
 	if err := s(fence.checkDraws); err != nil {
