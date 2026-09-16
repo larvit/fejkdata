@@ -522,7 +522,9 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
-Each file is parsed, validated and weight-indexed once, in `New`. A `Fake` call
+Each file is parsed, validated and weight-indexed once, in `New`. Proving the draw
+fences adds one pass over the loaded tree, and walks what a render reads only where
+data binds a reference, so a set that binds none pays for the pass alone. A `Fake` call
 then costs about what its output costs: an unweighted pick is O(1) whatever the
 list's length, a weighted one O(log n), and long formats, deep nesting and many
 tokens add cost in proportion to the output.
@@ -604,7 +606,9 @@ tokens add cost in proportion to the output.
   is two draws, as `{word} {word}` is, while every `{/p.first}` in one render reads
   one draw, and a bare `{/p}` beside them is a load error: a bare token
   is by contract an independent draw, a path pins its level, and a fresh draw of a
-  pinned level could show another row.
+  pinned level could show another row. A builtin's operand holds what it reads for
+  its expansion, references included, so `{uppercase(/p)} {/p}` is one draw — the
+  rule every operand follows.
 - **Reference sigils follow the filesystem.** `/` is the root, `.` this file's
   folder, `..` the folder above — what those spellings already mean to anyone who
   has typed a path. A locale's files reach each other without naming the locale,
@@ -695,8 +699,9 @@ tokens add cost in proportion to the output.
   columns always read through the render's draws, so making the maps where the set is
   declared keeps them on that frame's stack. A `Fake` often reads no reference path at
   all, and making them anyway cost about a fifth of the cheapest render, so it makes
-  them on the first read instead — which the allocation gate prices at two heap
-  allocations, paid only by a render that shares a draw.
+  them on the first read instead, at two heap allocations for a render that does share
+  a draw. The allocation gate over a repeat of a reference path and over a named draw
+  group prices that, and pins the two measures that keep a draw set off the heap.
 - **A category never references itself, and a record's fences run at load.** A category
   is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
   draw other than the fields beside it, so `New` refuses it and the sibling path stays

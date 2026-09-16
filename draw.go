@@ -118,7 +118,6 @@ type drawCheck struct {
 	memo map[readsMemo]bool
 }
 
-// readsMemo is one answer reads has given: for a node, and for each place it stops.
 type readsMemo struct {
 	n           node
 	stopAtGroup bool
@@ -155,8 +154,14 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 	if !ok || !t.record {
 		return nil
 	}
+	// A record's columns are its fields, which its format need not render at all, so the
+	// reads to weigh are theirs rather than the template's own.
 	columns := recordColumns(t)
-	if len(columns) == 0 {
+	reads := false
+	for _, name := range columns {
+		reads = reads || c.readsPath(t.fields[name])
+	}
+	if !reads {
 		return nil
 	}
 	if err := checkColumnDraws(t, columns); err != nil {
@@ -182,7 +187,7 @@ func (c *drawCheck) reads(n node, stopAtGroup bool) bool {
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if a, _, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && !(stopAtGroup && grouped(e.to)) && c.reads(e.to, stopAtGroup)) {
+		if a, isRef := refRead(n, e.label); (isRef && len(a.tail) > 0) || (!repeats(e.to) && !(stopAtGroup && grouped(e.to)) && c.reads(e.to, stopAtGroup)) {
 			r = true
 			break
 		}
@@ -201,18 +206,17 @@ func repeats(n node) bool {
 
 func grouped(n node) bool {
 	t, isTemplate := n.(*template)
-	return isTemplate && t.drawGroup != ""
+	return isTemplate && t.drawGroupKey != ""
 }
 
-// refRead is the reference an edge of n reads, and the node it is bound to; false when the edge
-// reads none.
-func refRead(n node, label string) (arm, node, bool) {
+// refRead is the reference an edge of n reads; false when the edge reads none.
+func refRead(n node, label string) (arm, bool) {
 	t, isTemplate := n.(*template)
 	if !isTemplate {
-		return arm{}, nil, false
+		return arm{}, false
 	}
 	a := splitArm(label, t.refs)
-	return a, t.fields[a.key], isRef(a.key)
+	return a, isRef(a.key)
 }
 
 // checkColumnDraws fences a record's columns as one render.
@@ -224,22 +228,17 @@ func checkColumnDraws(t *template, columns []string) error {
 	return w.check()
 }
 
-// drawWalk gathers what one render reads by reference and what it draws afresh, each by draw group,
-// for check to compare.
+// drawWalk gathers the references one render reads, by draw group, for check to compare.
 type drawWalk struct {
 	reads []pathRead
 	read  map[drawKey]bool
-	fresh []freshDraw
 	seen  map[drawVisit]bool
 }
 
-// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
-// reference it last crossed, and whether it renders inside a reference path's draw.
+// drawAt is where a walk stands: the draw group it draws in, and how the render's root reached it.
 type drawAt struct {
 	group string
 	route drawRoute
-	via   string
-	held  bool
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -247,25 +246,18 @@ type drawRoute struct{ spelling, label string }
 
 // pathRead is one reference a render reads: a path, or a bare reference with no tail.
 type pathRead struct {
-	at     drawAt
-	a      arm
-	target node
-}
-
-type freshDraw struct {
 	at drawAt
-	n  node
+	a  arm
 }
 
 type drawVisit struct {
 	n     node
 	group string
-	held  bool
 }
 
 type drawKey struct {
 	group string
-	key   any
+	path  string
 }
 
 func newDrawWalk() *drawWalk {
@@ -275,14 +267,11 @@ func newDrawWalk() *drawWalk {
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := drawVisit{n, at.group, at.held}
+	v := drawVisit{n, at.group}
 	if w.seen[v] {
 		return
 	}
 	w.seen[v] = true
-	if !at.held {
-		w.fresh = append(w.fresh, freshDraw{at, n})
-	}
 	if repeats(n) {
 		return
 	}
@@ -295,21 +284,18 @@ func (w *drawWalk) walk(n node, at drawAt) {
 }
 
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
-	a, target, reads := refRead(from, e.label)
-	if !reads {
-		w.walk(e.to, at)
-		return
+	if a, reads := refRead(from, e.label); reads {
+		if k := (drawKey{at.group, a.path}); !w.read[k] {
+			w.read[k] = true
+			w.reads = append(w.reads, pathRead{at, a})
+		}
 	}
-	if k := (drawKey{at.group, a.path}); !w.read[k] {
-		w.read[k] = true
-		w.reads = append(w.reads, pathRead{at, a, target})
-	}
-	at.via, at.held = a.name, len(a.tail) > 0
 	w.walk(e.to, at)
 }
 
-// check refuses what one draw per reference path cannot answer for, reads compared in path order so
-// which pair is reported does not vary.
+// check refuses what one draw per reference path cannot answer for: a read of a level beside a path
+// another read takes into it. Reads are compared in path order, so which pair is reported does not
+// vary.
 func (w *drawWalk) check() error {
 	sort.SliceStable(w.reads, func(i, j int) bool {
 		if w.reads[i].at.group != w.reads[j].at.group {
@@ -317,42 +303,11 @@ func (w *drawWalk) check() error {
 		}
 		return w.reads[i].a.path < w.reads[j].a.path
 	})
-	if err := w.checkOverlaps(); err != nil {
-		return err
-	}
-	return w.checkFreshDraws()
-}
-
-// checkOverlaps refuses a read of a level beside a path another read takes into it.
-func (w *drawWalk) checkOverlaps() error {
 	for i, level := range w.reads {
 		for _, into := range w.reads[i+1:] {
 			if into.at.group == level.at.group && strings.HasPrefix(into.a.path, level.a.path+".") {
 				return overlapError(level.at.route, level.a.name, into)
 			}
-		}
-	}
-	return nil
-}
-
-// checkFreshDraws refuses a node drawn afresh where a reference path's draw holds it.
-func (w *drawWalk) checkFreshDraws() error {
-	pins := map[drawKey]pathRead{}
-	for _, r := range w.reads {
-		if len(r.a.tail) == 0 {
-			continue
-		}
-		held := map[node]bool{}
-		coverPath(r.target, r.a.tail, held)
-		for n := range held {
-			if _, pinned := pins[drawKey{r.at.group, n}]; !pinned {
-				pins[drawKey{r.at.group, n}] = r
-			}
-		}
-	}
-	for _, f := range w.fresh {
-		if r, pinned := pins[drawKey{f.at.group, f.n}]; pinned {
-			return overlapError(f.at.route, f.at.via, r)
 		}
 	}
 	return nil
