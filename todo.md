@@ -15,7 +15,7 @@
 
 - CLI without Go — investigate prebuilt binaries: GoReleaser attaching them to
   the Gitea release the tag workflow publishes, a container image, Homebrew and
-  Scoop. A `--version` flag lands with them.
+  Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag.
 - Homepage — a simple page for fejkdata with an in-browser generator: the library
   compiled to WebAssembly, so visitors generate as much data as they like in their
   own browser.

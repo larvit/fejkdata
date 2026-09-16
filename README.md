@@ -538,11 +538,14 @@ a minor only adds, and a major is the only release that changes what exists.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
-| Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another | a path, a locale, a value in a list |
+| Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another | a path outside a record's columns, a locale, a value in a list |
 | Records | remove, rename, retype or add a column; let a column be null | a record, as a new category |
-| Data format | a fence: a spelling `New` rejects that it accepted; an option, since it reserves a field name | a builtin |
-| CLI | remove or rename a flag, or change its default; change what an exit code means; change the bytes a `--format` writes, the `--list` layout, or what an error names | a flag, a format |
-| Library | change or remove an exported name; raise the lowest supported Go | an exported name, an option |
+| Data format | a fence: a spelling `New` rejects that it accepted; a template option, since it reserves a field name | a builtin |
+| CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
+| Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
+
+A patch changes no row of this table: performance, docs, or a fix inside a promised
+behaviour that changes no value, path, format or spelling.
 
 Seeded output is a promise within one version: same seed, same version, same
 data, same output. Any release may shift a stream, since a value added to a list
@@ -817,8 +820,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged — unless it changes none of
 the files the build and its tests read, nor the workflow itself, in which case
-it's skipped (see [Decisions](#decisions)). That build is the whole gate — vet,
-complexity, format check and tests — so run it locally before pushing:
+it's skipped (see [Decisions](#decisions)). That build is the whole gate but the
+changelog check, which CI runs against the PR base — vet, complexity, format check
+and tests — so run it locally before pushing:
 
 ```sh
 docker build .                                  # latest

@@ -31,6 +31,10 @@ jobs:
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+      - name: CHANGELOG entry for data changes
+        run: |
+          base='${{ steps.changes.outputs.base }}'
           if ! git diff --quiet "$base"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
             echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
