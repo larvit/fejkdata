@@ -1,0 +1,141 @@
+en_US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"
+en_US.address.locality	string
+en_US.address.postal-code	string
+en_US.address.region	string
+en_US.address.street	string
+en_US.address.street-number	string
+en_US.address.street.name
+en_US.address.street.suffix
+en_US.color
+en_US.company	format "{base} {suffix}"
+en_US.company.base	string
+en_US.company.suffix	string
+en_US.date	format "{month}/{day}/{year}"
+en_US.date.day	string
+en_US.date.month	string
+en_US.date.year	string
+en_US.email	format "{local}@{domain}"
+en_US.email.domain	string
+en_US.email.local	string
+en_US.email.local.n
+en_US.ip
+en_US.person	format "{prefix}{femalefirst|malefirst} {last}"
+en_US.person.femalefirst	string
+en_US.person.last	string
+en_US.person.malefirst	string
+en_US.person.prefix	string
+en_US.phone
+en_US.phone.area
+en_US.phone.exch
+en_US.phone.line
+en_US.price	format "${amt}.{cents}"
+en_US.price.amt	string
+en_US.price.cents	string
+en_US.sentence
+en_US.sentence.adj
+en_US.sentence.noun
+en_US.sentence.prep
+en_US.sentence.verb
+en_US.ssn	format "{int(100,999)}-{digits(2)}-{digits(4)}"
+en_US.time	format "{hour}:{minute} {ampm}"
+en_US.time.ampm	string
+en_US.time.hour	string
+en_US.time.minute	string
+en_US.time.minute.t
+en_US.url	format "https://{host}{path}"
+en_US.url.host	string
+en_US.url.path	string
+en_US.username
+en_US.username.n
+en_US.version	format "{pre}{n}.{n}.{n}{suffix}"
+en_US.version.n	string
+en_US.version.pre	string
+en_US.version.suffix	string
+en_US.word
+misc.car
+misc.car.maker
+misc.car.model
+misc.coordinate	format "{lat}, {lon}"
+misc.coordinate.lat	string
+misc.coordinate.lon	string
+misc.country
+misc.country.alpha2
+misc.country.alpha3
+misc.country.name
+misc.creditcard
+misc.creditcard.d
+misc.currency
+misc.currency.code
+misc.currency.name
+misc.currency.symbol
+misc.emoji
+misc.httpstatus
+misc.httpstatus.code
+misc.httpstatus.reason
+misc.language
+misc.language.code
+misc.language.name
+misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
+misc.mimetype
+misc.mimetype.ext
+misc.mimetype.type
+misc.objectid	format "{hex(24)}"
+misc.timezone
+misc.useragent
+misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
+misc.uuid.variant	string
+sv_SE.address	format "{street} {street-number}\n{postal-code} {locality}"
+sv_SE.address.locality	string
+sv_SE.address.postal-code	string
+sv_SE.address.street	string
+sv_SE.address.street-number	string
+sv_SE.color
+sv_SE.company	format "{base} {suffix}"
+sv_SE.company.base	string
+sv_SE.company.suffix	string
+sv_SE.date	format "{year}-{month}-{day}"
+sv_SE.date.day	string
+sv_SE.date.month	string
+sv_SE.date.year	string
+sv_SE.email	format "{local}@{domain}"
+sv_SE.email.domain	string
+sv_SE.email.local	string
+sv_SE.email.local.n
+sv_SE.ip
+sv_SE.person	format "{prefix}{femalefirst|malefirst} {last}"
+sv_SE.person.femalefirst	string
+sv_SE.person.last	string
+sv_SE.person.malefirst	string
+sv_SE.person.prefix	string
+sv_SE.phone
+sv_SE.phone.a
+sv_SE.phone.b
+sv_SE.phone.c
+sv_SE.phone.prefix
+sv_SE.price	format "{amt}{ore} kr"
+sv_SE.price.amt	string
+sv_SE.price.ore	string
+sv_SE.sentence
+sv_SE.sentence.adj
+sv_SE.sentence.noun
+sv_SE.sentence.prep
+sv_SE.sentence.verb
+sv_SE.ssn	format "{digits(2)}{mmdd}-{digits(3)}{luhn()}"
+sv_SE.ssn.mmdd	string
+sv_SE.ssn.mmdd.d
+sv_SE.ssn.mmdd.m
+sv_SE.time	format "{hour}:{minute}{sec}"
+sv_SE.time.hour	string
+sv_SE.time.minute	string
+sv_SE.time.minute.t
+sv_SE.time.sec	string
+sv_SE.url	format "https://{host}{path}"
+sv_SE.url.host	string
+sv_SE.url.path	string
+sv_SE.username
+sv_SE.username.n
+sv_SE.version	format "{pre}{n}.{n}.{n}{suffix}"
+sv_SE.version.n	string
+sv_SE.version.pre	string
+sv_SE.version.suffix	string
+sv_SE.word
