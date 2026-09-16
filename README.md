@@ -559,8 +559,8 @@ with no breaking change. From `v2` the module path carries `/vN`, so fences ship
 batched into as few majors as possible.
 
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
-category's format and the categories it reads, and each column's datatype and
-nullability; a pull request that
+template category's format, the categories each category reads, and each column's
+datatype and nullability; a pull request that
 changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
 renamed or retyped line is a major.
 

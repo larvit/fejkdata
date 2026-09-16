@@ -10,9 +10,7 @@ import (
 
 const shapePin = "testdata/shipped_shape.txt"
 
-// TestShippedShapeIsPinned pins what a version promises about the shipped data (see
-// the README's Versioning): every path, each category's format and the categories it
-// reads, and each record column's datatype and nullability. REPIN=1 rewrites the pin.
+// REPIN=1 rewrites the pin.
 func TestShippedShapeIsPinned(t *testing.T) {
 	f, err := New(WithSeed(1))
 	if err != nil {
@@ -34,9 +32,6 @@ func TestShippedShapeIsPinned(t *testing.T) {
 	}
 }
 
-// shippedShape lists every path Fake accepts, one per line. A category carries the
-// categories it references, a category-level template its format, and each of its
-// columns its datatype and whether it may be null.
 func shippedShape(f *Generator) string {
 	facts := map[string]string{}
 	var walk func(prefix string, n node)
@@ -108,10 +103,11 @@ func TestShippedShapeNamesReads(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
 		"a":     `{"format":"{x}","x":["{/b}",{"format":"{/c.v}","weight":2}]}`,
 		"b":     `"y"`,
-		"c":     `{"format":"{v}","v":["z","w"]}`,
-		"d/pos": `["{/b}","q"]`,
+		"c":     `{"format":"{v} {n}","n":[null,{"format":"{int(1,9)}","datatype":"integer"}],"v":["z","w"]}`,
+		"d/pos": `["{.q}","{/b}"]`,
+		"d/q":   `"r"`,
 	}))
-	want := "a\tformat \"{x}\"\treads b c\na.x\tstring\nb\tformat \"y\"\nc\tformat \"{v}\"\nc.v\tstring\nd.pos\treads b\n"
+	want := "a\tformat \"{x}\"\treads b c\na.x\tstring\nb\tformat \"y\"\nc\tformat \"{v} {n}\"\nc.n\tinteger null\nc.v\tstring\nd.pos\treads b d.q\nd.q\tformat \"r\"\n"
 	if got := shippedShape(f); got != want {
 		t.Fatalf("shippedShape =\n%s\nwant\n%s", got, want)
 	}
