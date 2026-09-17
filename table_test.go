@@ -44,6 +44,21 @@ var (
 	regionOf       = map[string]string{"0180": "01", "0184": "01", "1280": "12", "1281": "12", "1480": "14"}
 )
 
+// siblings adds two child tables under locality: postal-code, keyed, and street, keyless.
+func siblings() map[string]string {
+	return with(geo(), map[string]string{
+		"postal-code.json": `{"format":"{code}","rows":"postal-code.tsv","key":"code","parent":"locality"}`,
+		"postal-code.tsv":  "code\tlocality\n111 20\tL1\n111 21\tL1\n171 41\tL2\n211 20\tL3\n221 00\tL4\n223 50\tL4\n411 01\tL5\n417 05\tL6\n247 45\tL7\n170 71\tL8\n",
+		"street.json":      `{"format":"{name}","rows":"street.tsv","parent":"locality","weight":"segments"}`,
+		"street.tsv":       "name\tlocality\tsegments\nDrottninggatan\tL1\t30\nSveavägen\tL1\t12\nRåsundavägen\tL2\t8\nStorgatan\tL3\t20\nStora Södergatan\tL4\t9\nKlostergatan\tL4\t4\nAvenyn\tL5\t15\nHisingsgatan\tL6\t3\nSandbyvägen\tL7\t2\nSandbyvägen\tL8\t2\n",
+	})
+}
+
+var (
+	localityOfCode   = map[string]string{"111 20": "L1", "111 21": "L1", "171 41": "L2", "211 20": "L3", "221 00": "L4", "223 50": "L4", "411 01": "L5", "417 05": "L6", "247 45": "L7", "170 71": "L8"}
+	localityOfStreet = map[string][]string{"Drottninggatan": {"L1"}, "Sveavägen": {"L1"}, "Råsundavägen": {"L2"}, "Storgatan": {"L3"}, "Stora Södergatan": {"L4"}, "Klostergatan": {"L4"}, "Avenyn": {"L5"}, "Hisingsgatan": {"L6"}, "Sandbyvägen": {"L7", "L8"}}
+)
+
 func with(files map[string]string, more map[string]string) map[string]string {
 	out := map[string]string{}
 	for k, v := range files {
@@ -267,6 +282,41 @@ func TestLinkedTablesDrawApartAcrossGroupsAndRepeats(t *testing.T) {
 		}
 		if !differ {
 			t.Fatalf("%s: every draw agreed in 100 renders, want groups and repeat iterations drawn apart", path)
+		}
+	}
+}
+
+func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
+	files := with(siblings(), map[string]string{
+		"addr.json": `{"format":"{s}|{p}|{l}","s":"{/street.name}","p":"{/postal-code.code}","l":"{/locality.code}"}`,
+	})
+	f := newGenerator(t, writeFiles(t, files), WithSeed(3))
+	seen := map[string]bool{}
+	for i := 0; i < 300; i++ {
+		parts := strings.Split(fake(t, f, "addr"), "|")
+		if s, p, l := parts[0], parts[1], parts[2]; !slices.Contains(localityOfStreet[s], l) || localityOfCode[p] != l {
+			t.Fatalf("addr = %v, want the street and the postal code inside the locality", parts)
+		}
+		seen[parts[2]] = true
+	}
+	if len(seen) < 4 {
+		t.Fatalf("only %v drawn in 300 renders", seen)
+	}
+	for i := 0; i < 100; i++ {
+		if s := fake(t, f, "locality[L4].street.name"); s != "Stora Södergatan" && s != "Klostergatan" {
+			t.Fatalf("locality[L4].street.name = %q, outside L4", s)
+		}
+		if p := fake(t, f, "region[01].postal-code"); localityOfCode[p] != "L1" && localityOfCode[p] != "L2" && localityOfCode[p] != "L8" {
+			t.Fatalf("region[01].postal-code = %q, outside region 01", p)
+		}
+	}
+	if _, err := f.Fake("street[Avenyn]"); err == nil || !strings.Contains(err.Error(), "no key") {
+		t.Fatalf("Fake(street[Avenyn]) = %v, want no column to select by", err)
+	}
+	paths := f.List()
+	for _, p := range []string{"locality.postal-code", "locality.street", "region.municipality.locality.street.name"} {
+		if !slices.Contains(paths, p) {
+			t.Fatalf("List() lacks %s: %v", p, paths)
 		}
 	}
 }
