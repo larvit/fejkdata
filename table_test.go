@@ -377,52 +377,55 @@ func TestTableFences(t *testing.T) {
 		files map[string]string
 		want  string
 	}{
-		"rows names a missing file":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`}, "t.tsv"},
-		"a TSV nothing names":                          {with(base, map[string]string{"stray.tsv": "a\nx\n"}), "stray.tsv"},
-		"rows outside its folder":                      {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"../region.tsv"}`}), "beside"},
-		"rows not a tsv":                               {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"region.txt"}`, "region.txt": "code\n1\n"}), ".tsv"},
-		"key names no column":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"name names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"weight names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"parent names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"key equals name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"a"}`, "t.tsv": "a\nx\ny\n"}, "drop"},
-		"duplicate key":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx\nx\n"}, `"x"`},
-		"empty key":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\n\ty\nx\tz\n"}, "empty"},
-		"a bracket in a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
-		"a brace in a name":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
-		"name without a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
-		"a name that is another row's key":             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
-		"a cell reading its family":                    {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}), "family"},
-		"a format reading its family":                  {with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}), "family"},
-		"a descendant named like an ancestor's column": {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
-		"weight not a number":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},
-		"weight zero":                                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}, "0"},
-		"weight negative":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t-1\ny\t2\n"}, "-1"},
-		"reserved column name":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb.c\nx\ty\n"}, `"b.c"`},
-		"duplicate column":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\ta\nx\ty\n"}, `"a"`},
-		"empty column name":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\t\nx\ty\n"}, "empty"},
-		"short row":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\ty\nz\n"}, "line 3"},
-		"no rows":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n"}, "no rows"},
-		"one row":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n"}, "one row"},
-		"empty file":                                   {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": ""}, "header"},
-		"parent is not a table":                        {map[string]string{"p.json": `"x"`, "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, "not a table"},
-		"parent does not exist":                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, `"p"`},
-		"parent in another folder":                     {map[string]string{"g/p.json": `{"format":"{k}","rows":"p.tsv","key":"k"}`, "g/p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, `"p"`},
-		"parent has no key":                            {map[string]string{"p.json": `{"format":"{k}","rows":"p.tsv"}`, "p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, "key"},
-		"dangling link":                                {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t99\n"}), `"99"`},
-		"childless parent row":                         {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t01\n"}), `"12"`},
-		"parent cycle":                                 {map[string]string{"a.json": `{"format":"{k}","rows":"a.tsv","key":"k","parent":"b"}`, "a.tsv": "k\tb\nx\tx\ny\ty\n", "b.json": `{"format":"{k}","rows":"b.tsv","key":"k","parent":"a"}`, "b.tsv": "k\ta\nx\tx\ny\ty\n"}, "cycle"},
-		"child named like a column":                    {with(base, map[string]string{"name.json": `{"format":"{a}","rows":"name.tsv","parent":"region"}`, "name.tsv": "a\tregion\nx\t01\ny\t12\n"}), `"name"`},
-		"rows nested in a field":                       {map[string]string{"t.json": `{"format":"{x}","x":{"format":"{a}","rows":"x.tsv"}}`, "x.tsv": "a\nx\ny\n"}, "category"},
-		"rows in a choice item":                        {map[string]string{"t.json": `[{"format":"{a}","rows":"t.tsv"},"y"]`, "t.tsv": "a\nx\ny\n"}, "category"},
-		"unknown table option":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","fields":"a"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"repeat on a table":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","repeat":2}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"drawGroup on a table":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","drawGroup":"g"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"option not a string":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":1}`, "t.tsv": "a\nx\ny\n"}, "string"},
-		"format names no column":                       {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
-		"format reads into a column":                   {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
-		"a reference into a column":                    {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
-		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
+		"rows names a missing file":                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`}, "t.tsv"},
+		"a TSV nothing names":                            {with(base, map[string]string{"stray.tsv": "a\nx\n"}), "stray.tsv"},
+		"rows outside its folder":                        {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"../region.tsv"}`}), "beside"},
+		"rows not a tsv":                                 {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"region.txt"}`, "region.txt": "code\n1\n"}), ".tsv"},
+		"key names no column":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"name names no column":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"weight names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"parent names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"key equals name":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"a"}`, "t.tsv": "a\nx\ny\n"}, "drop"},
+		"duplicate key":                                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx\nx\n"}, `"x"`},
+		"empty key":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\n\ty\nx\tz\n"}, "empty"},
+		"a bracket in a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
+		"a brace in a name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
+		"name without a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
+		"a name that is another row's key":               {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
+		"a cell reading its family":                      {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}), "family"},
+		"a format reading its family":                    {with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}), "family"},
+		"a descendant named like an ancestor's column":   {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
+		"weight not a number":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},
+		"weight zero":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}, "0"},
+		"weight negative":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t-1\ny\t2\n"}, "-1"},
+		"reserved column name":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb.c\nx\ty\n"}, `"b.c"`},
+		"duplicate column":                               {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\ta\nx\ty\n"}, `"a"`},
+		"empty column name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\t\nx\ty\n"}, "empty"},
+		"short row":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\ty\nz\n"}, "line 3"},
+		"no rows":                                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n"}, "no rows"},
+		"a blank line after the rows":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n\n"}, "line 4"},
+		"a blank line in one column":                     {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n\ny\n"}, "line 3"},
+		"a table reaching its family through a template": {with(geo(), map[string]string{"addr.json": `"{/locality.name}"`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}), "family"},
+		"one row":                                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n"}, "one row"},
+		"empty file":                                     {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": ""}, "header"},
+		"parent is not a table":                          {map[string]string{"p.json": `"x"`, "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, "not a table"},
+		"parent does not exist":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, `"p"`},
+		"parent in another folder":                       {map[string]string{"g/p.json": `{"format":"{k}","rows":"p.tsv","key":"k"}`, "g/p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, `"p"`},
+		"parent has no key":                              {map[string]string{"p.json": `{"format":"{k}","rows":"p.tsv"}`, "p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, "key"},
+		"dangling link":                                  {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t99\n"}), `"99"`},
+		"childless parent row":                           {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t01\n"}), `"12"`},
+		"parent cycle":                                   {map[string]string{"a.json": `{"format":"{k}","rows":"a.tsv","key":"k","parent":"b"}`, "a.tsv": "k\tb\nx\tx\ny\ty\n", "b.json": `{"format":"{k}","rows":"b.tsv","key":"k","parent":"a"}`, "b.tsv": "k\ta\nx\tx\ny\ty\n"}, "cycle"},
+		"child named like a column":                      {with(base, map[string]string{"name.json": `{"format":"{a}","rows":"name.tsv","parent":"region"}`, "name.tsv": "a\tregion\nx\t01\ny\t12\n"}), `"name"`},
+		"rows nested in a field":                         {map[string]string{"t.json": `{"format":"{x}","x":{"format":"{a}","rows":"x.tsv"}}`, "x.tsv": "a\nx\ny\n"}, "category"},
+		"rows in a choice item":                          {map[string]string{"t.json": `[{"format":"{a}","rows":"t.tsv"},"y"]`, "t.tsv": "a\nx\ny\n"}, "category"},
+		"unknown table option":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","fields":"a"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
+		"repeat on a table":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","repeat":2}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
+		"drawGroup on a table":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","drawGroup":"g"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
+		"option not a string":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":1}`, "t.tsv": "a\nx\ny\n"}, "string"},
+		"format names no column":                         {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
+		"format reads into a column":                     {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
+		"a reference into a column":                      {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
+		"a category referencing itself":                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, c.files)))
@@ -444,6 +447,17 @@ func TestTableFences(t *testing.T) {
 	bom := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "\xEF\xBB\xBFa\tb\nx\t1\ny\t2\n"}), WithSeed(1))
 	if v := fake(t, bom, "t[x].b"); v != "1" {
 		t.Fatalf("t[x].b under a BOM header = %q, want the mark stripped", v)
+	}
+	crlf := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\r\nx\t1\r\ny\t2\r\n"}), WithSeed(1))
+	if v := fake(t, crlf, "t[y].b"); v != "2" {
+		t.Fatalf("t[y].b in a CRLF file = %q, want the carriage return stripped", v)
+	}
+	a, b := newGenerator(t, writeFiles(t, geo()), WithSeed(1)), newGenerator(t, writeFiles(t, geo()), WithSeed(1))
+	if _, err := a.Fake("region.nope"); err == nil {
+		t.Fatal("Fake(region.nope) = nil error")
+	}
+	if x, y := fake(t, a, "region.name"), fake(t, b, "region.name"); x != y {
+		t.Fatalf("a failed Fake shifted the seeded stream: %q != %q", x, y)
 	}
 	empty := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n"}), WithSeed(1))
 	if v := fake(t, empty, "t"); v != "" {
