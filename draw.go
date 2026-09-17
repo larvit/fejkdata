@@ -270,10 +270,18 @@ type drawWalk struct {
 	seen  map[drawVisit]bool
 }
 
-// drawAt is where a walk stands: the draw group it draws in, and how the render's root reached it.
+// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, and
+// the table cell it entered, if any: the cells of one column are alternatives, as a choice's items
+// are, so reads in two of them never meet.
 type drawAt struct {
 	group string
 	route drawRoute
+	cell  node
+}
+
+// alternatives reports whether two reads sit in different cells of one column.
+func alternatives(a, b drawAt) bool {
+	return a.cell != nil && b.cell != nil && a.cell != b.cell
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -314,7 +322,11 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	if t, isTemplate := n.(*template); isTemplate && t.drawGroupKey != "" {
 		at.group = t.drawGroupKey
 	}
+	_, isColumn := n.(*column)
 	for _, e := range renderEdges(n) {
+		if isColumn {
+			at.cell = e.to
+		}
 		w.edge(n, e, at)
 	}
 }
@@ -341,7 +353,7 @@ func (w *drawWalk) check() error {
 	})
 	for i, level := range w.reads {
 		for _, into := range w.reads[i+1:] {
-			if into.at.group != level.at.group {
+			if into.at.group != level.at.group || alternatives(level.at, into.at) {
 				continue
 			}
 			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.whole) {

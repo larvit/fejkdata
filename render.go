@@ -43,6 +43,11 @@ func (f *Generator) Fake(path string) (string, error) {
 // carries before a variant is picked — a path that resolves at all resolves on
 // every call.
 func descend(s *session, root node, segments []string, sc drawScope) (node, error) {
+	// Walked once without drawing first, so a path that fails moves no seeded stream.
+	var probe draws
+	if _, err := walkPath(root, segments, pathWalk{pins: &probe}); err != nil {
+		return nil, err
+	}
 	return walkPath(root, segments, pathWalk{pins: sc.draws(s)})
 }
 

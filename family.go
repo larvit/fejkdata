@@ -227,26 +227,47 @@ func (r *tableRead) selected(t *table) (tableSel, bool) {
 // a table one read draws that another pins, and two reads pinning different rows.
 // The reads come sorted by group and path, so which pair is reported does not vary.
 func checkFamilies(reads []pathRead) error {
-	shared := map[string]*draws{}
 	for i, r := range reads {
 		if r.tr == nil {
 			continue
 		}
 		for _, o := range reads[:i] {
-			if o.tr == nil || o.at.group != r.at.group || o.tr.head.family() != r.tr.head.family() {
+			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.head.family() != r.tr.head.family() {
 				continue
 			}
 			if err := checkFamilyPair(o, r); err != nil {
 				return err
 			}
 		}
-		d := shared[r.at.group]
-		if d == nil {
-			d = &draws{}
-			shared[r.at.group] = d
+	}
+	return replayAlternatives(reads)
+}
+
+// replayAlternatives replays the reads of each draw group into one draws per cell
+// alternative — the reads outside any cell, then the cell's own — so two cells of
+// one column are never replayed together.
+func replayAlternatives(reads []pathRead) error {
+	type alt struct {
+		group string
+		cell  node
+	}
+	var alts []alt
+	seen := map[alt]bool{}
+	for _, r := range reads {
+		if a := (alt{r.at.group, r.at.cell}); r.tr != nil && !seen[a] {
+			seen[a] = true
+			alts = append(alts, a)
 		}
-		if err := r.tr.replay(d); err != nil {
-			return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
+	}
+	for _, a := range alts {
+		var d draws
+		for _, r := range reads {
+			if r.tr == nil || r.at.group != a.group || r.at.cell != nil && r.at.cell != a.cell {
+				continue
+			}
+			if err := r.tr.replay(&d); err != nil {
+				return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
+			}
 		}
 	}
 	return nil

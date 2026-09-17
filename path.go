@@ -189,11 +189,14 @@ func (w pathWalk) atLeaf(n node) error {
 // by the pins' session where the walk names no choice action.
 func walkChoice(c *choice, tail []string, w pathWalk) (node, error) {
 	if w.choice == nil {
-		if w.pins == nil || w.pins.s == nil {
+		if w.pins == nil {
 			return nil, nil
 		}
 		if err := carriedByAll(c, tail); err != nil {
 			return nil, err
+		}
+		if w.pins.s == nil { // a probe: every variant carries the tail, so any one proves it
+			return walkPath(c.items[0], tail, w)
 		}
 		return walkPath(pick(w.pins.s, c), tail, w)
 	}

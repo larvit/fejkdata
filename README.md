@@ -378,7 +378,9 @@ numbers that skews the draw, and `parent` the table a column links to
 columns are the [record](#records)'s columns, so `--format csv` writes the rows and
 `--list` shows `country.alpha2`. A cell is a string node: `1{digits(2)} {digits(2)}`
 in a cell draws digits and `{/misc.uuid}` reads a reference, while `{name}` in a cell
-is refused, since a cell has no sibling. `New` proves the header, the options and every
+is refused, since a cell has no sibling. Each cell may select its own row of another
+table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbol}`
+on the next, since only one row renders. `New` proves the header, the options and every
 cell token, and refuses a TSV no category names, a key that is empty or repeats, a
 weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
 `"` or `|`, which a selector cannot spell; the rows are indexed on the first draw that
@@ -956,6 +958,16 @@ renamed or retyped line is a major.
   against the parent's keys and a key's uniqueness is a data mistake, so both are
   load-time; the name index and the per-parent child lists serve only a draw or a
   selection, so they wait for the first one, keeping `New` linear in the bytes read.
+- **Two categories may name one TSV.** Each is a view of the file with its own
+  format and options, at the cost of holding the rows twice, which is what a
+  category over a register with two natural formats asks for; a TSV nothing names
+  stays a load error, since that one is a file forgotten rather than shared.
+- **The cells of one column are alternatives.** Only one row renders, so two cells
+  selecting different rows of another table never meet, as two items of a choice
+  never do; the family fence replays the reads of each cell apart, together with
+  the reads outside any cell. A path is walked once without drawing before it is
+  walked for real, so a path that fails below its first level moves no seeded
+  stream.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is
