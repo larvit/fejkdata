@@ -543,17 +543,33 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 		"a cell reaching a table whose rows are alternatives": {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y.sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 		"a cell agreeing with the row it selects":             {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 		"a selected row's cell beside the row it agrees with": {"z.json": `"{/country[SE].money} {/cur[SEK].sym}"`},
+		"a selected row whole beside the row it agrees with":  {"z.json": `"{/country[SE]} {/cur[SEK].sym}"`},
+		"a column under a selected ancestor": {
+			"city.json": `{"format":"{name} {money}","rows":"city.tsv","key":"name","parent":"country"}`,
+			"city.tsv":  "name\tcountry\tmoney\nHelsinki\tFI\t{/cur[EUR].sym}\nMalmö\tSE\t{/cur[SEK].sym}\nLund\tSE\t{/cur[SEK].sym}\n",
+			"z.json":    `"{/country[SE].city.money} {/cur[SEK].sym}"`,
+		},
 	}
+	symbols := regexp.MustCompile(`€|kr|\$`)
 	for name, more := range accepted {
 		g, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 			continue
 		}
+		paths := []string{"country", "country[FI]"}
+		if _, defined := more["z.json"]; defined {
+			paths = append(paths, "z")
+		}
 		for i := 0; i < 50; i++ {
-			for _, path := range []string{"country", "country[FI]"} {
-				if v := fake(t, g, path); strings.Contains(v, "€") && strings.Contains(v, "$") || strings.Contains(v, "kr") && strings.Contains(v, "$") {
-					t.Fatalf("%s: %s = %q, want one currency per row", name, path, v)
+			for _, path := range paths {
+				v := fake(t, g, path)
+				seen := map[string]bool{}
+				for _, s := range symbols.FindAllString(v, -1) {
+					seen[s] = true
+				}
+				if len(seen) > 1 {
+					t.Fatalf("%s: %s = %q, want one currency per render", name, path, v)
 				}
 			}
 		}
