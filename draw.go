@@ -271,23 +271,54 @@ type drawWalk struct {
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, and
-// the table row it entered, if any.
+// the table rows it entered.
 type drawAt struct {
 	group string
 	route drawRoute
-	alt   rowAlt
+	alt   rowSet
 }
 
-// rowAlt is one row of a table as an alternative: only one row renders, so reads in two rows of
-// one table never meet, while reads in one row, across its columns and whatever they reach, do.
-type rowAlt struct {
-	t   *table
-	row int
+// rowSet is the rows a walk entered, one per table: only one row of a table renders, so reads in
+// two rows of one table never meet, while reads in one row, across its columns and whatever they
+// reach, do.
+type rowSet []tablePin
+
+func (s rowSet) rowOf(t *table) (int, bool) {
+	for _, p := range s {
+		if p.t == t {
+			return p.row, true
+		}
+	}
+	return 0, false
+}
+
+// enter is s with row r of t, where t is not in it yet; the set is copied, since walks branch.
+func (s rowSet) enter(t *table, r int) rowSet {
+	if _, in := s.rowOf(t); in {
+		return s
+	}
+	out := append(append(make(rowSet, 0, len(s)+1), s...), tablePin{t, r})
+	sort.Slice(out, func(i, j int) bool { return out[i].t.category < out[j].t.category })
+	return out
+}
+
+// key spells the set for a map, by the tables' identities.
+func (s rowSet) key() string {
+	var b strings.Builder
+	for _, p := range s {
+		fmt.Fprintf(&b, "%p[%d]", p.t, p.row)
+	}
+	return b.String()
 }
 
 // alternatives reports whether two reads sit in different rows of one table.
 func alternatives(a, b drawAt) bool {
-	return a.alt.t != nil && a.alt.t == b.alt.t && a.alt.row != b.alt.row
+	for _, p := range a.alt {
+		if r, in := b.alt.rowOf(p.t); in && r != p.row {
+			return true
+		}
+	}
+	return false
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -303,13 +334,13 @@ type pathRead struct {
 type drawVisit struct {
 	n     node
 	group string
-	alt   rowAlt
+	alt   string
 }
 
 type drawKey struct {
 	group string
 	path  string
-	alt   rowAlt
+	alt   string
 }
 
 func newDrawWalk() *drawWalk {
@@ -319,7 +350,7 @@ func newDrawWalk() *drawWalk {
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := drawVisit{n, at.group, at.alt}
+	v := drawVisit{n, at.group, at.alt.key()}
 	if w.seen[v] {
 		return
 	}
@@ -330,22 +361,35 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	if t, isTemplate := n.(*template); isTemplate && t.drawGroupKey != "" {
 		at.group = t.drawGroupKey
 	}
-	_, isColumn := n.(*column)
 	for _, e := range renderEdges(n) {
-		// The outermost row is kept: a cell reached through another row's cell renders with it.
-		edgeAt := at
-		if cell, _ := e.to.(*template); isColumn && at.alt.t == nil {
-			edgeAt.alt = rowAlt{cell.cellOf, cell.cellRow}
+		if cell, isCell := e.to.(*template); isCell && cell.cellOf != nil {
+			// A row already entered renders only its own cell of this column.
+			if r, in := at.alt.rowOf(cell.cellOf); in && r != cell.cellRow {
+				continue
+			}
+			w.edge(n, e, drawAt{at.group, at.route, at.alt.enter(cell.cellOf, cell.cellRow)})
+			continue
 		}
-		w.edge(n, e, edgeAt)
+		w.edge(n, e, at)
 	}
 }
 
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
+	var tr *tableRead
 	if a, reads := refRead(from, e.label); reads {
-		if k := (drawKey{at.group, a.path, at.alt}); !w.read[k] {
+		tr = tableReadOf(from.(*template).fields[a.key], a, e.to)
+		if k := (drawKey{at.group, a.path, at.alt.key()}); !w.read[k] {
 			w.read[k] = true
-			w.reads = append(w.reads, pathRead{at, a, tableReadOf(from.(*template).fields[a.key], a, e.to)})
+			w.reads = append(w.reads, pathRead{at, a, tr})
+		}
+	}
+	// A read that pins the column's table renders that row's cell alone.
+	if c, isColumn := e.to.(*column); isColumn && tr != nil {
+		if r, pinned := tr.pins.pinned(c.t); pinned {
+			if cell := c.t.cellNode(r, c.i); cell != nil {
+				w.walk(cell, drawAt{at.group, at.route, at.alt.enter(c.t, r)})
+			}
+			return
 		}
 	}
 	w.walk(e.to, at)

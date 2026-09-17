@@ -240,57 +240,35 @@ func checkFamilies(reads []pathRead) error {
 			}
 		}
 	}
-	return replayAlternatives(reads)
+	return replayPairs(reads)
 }
 
-// replayAlternatives replays the reads of each draw group into one draws per row
-// alternative — the reads outside any row, then the row's own — so two rows of one
-// table are never replayed together.
-func replayAlternatives(reads []pathRead) error {
-	type alt struct {
-		group string
-		row   rowAlt
-	}
-	var alts []alt
-	outside, inside := map[string][]pathRead{}, map[alt][]pathRead{}
-	for _, r := range reads {
+// replayPairs replays every two reads of one draw group that can render together into
+// one draws, the earlier read first. A pin conflicts with one earlier pin, never with a
+// combination, so pairs find every conflict a full replay would.
+func replayPairs(reads []pathRead) error {
+	for i, r := range reads {
 		if r.tr == nil {
 			continue
 		}
-		if r.at.alt.t == nil {
-			outside[r.at.group] = append(outside[r.at.group], r)
-			continue
-		}
-		a := alt{r.at.group, r.at.alt}
-		if inside[a] == nil {
-			alts = append(alts, a)
-		}
-		inside[a] = append(inside[a], r)
-	}
-	for group := range outside {
-		alts = append(alts, alt{group, rowAlt{}})
-	}
-	sort.Slice(alts, func(i, j int) bool {
-		return altOrder(alts[i].group, alts[i].row) < altOrder(alts[j].group, alts[j].row)
-	})
-	for _, a := range alts {
-		var d draws
-		for _, r := range append(append([]pathRead(nil), outside[a.group]...), inside[a]...) {
+		for _, o := range reads[i+1:] {
+			if o.tr == nil || o.at.group != r.at.group || alternatives(r.at, o.at) {
+				continue
+			}
+			var d draws
 			if err := r.tr.replay(&d); err != nil {
-				return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
+				return conflict(r, err)
+			}
+			if err := o.tr.replay(&d); err != nil {
+				return conflict(o, err)
 			}
 		}
 	}
 	return nil
 }
 
-// altOrder sorts alternatives by group, the reads outside any row first, then by table and row,
-// so which conflict is reported does not vary.
-func altOrder(group string, r rowAlt) string {
-	if r.t == nil {
-		return group + "\x00"
-	}
-	return fmt.Sprintf("%s\x01%s\x00%08d", group, r.t.category, r.row)
+func conflict(r pathRead, err error) error {
+	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.
