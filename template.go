@@ -81,19 +81,20 @@ type builtin struct {
 // for a plain field or alternation body. A '(' without a trailing ')' yields
 // ok=false; checkFunc reports it as malformed at compile time.
 func funcCall(body string) (name string, args []string, ok bool) {
-	lp := strings.IndexByte(body, '(')
+	lp := indexOutside(body, '(')
 	if lp < 0 || !strings.HasSuffix(body, ")") {
 		return "", nil, false
 	}
 	return body[:lp], splitArgs(body[lp+1 : len(body)-1]), true
 }
 
-// splitArgs parses a function arg list: comma-separated, trimmed; empty -> none.
+// splitArgs parses a function arg list: comma-separated outside a selector,
+// trimmed; empty -> none.
 func splitArgs(s string) []string {
 	if strings.TrimSpace(s) == "" {
 		return nil
 	}
-	args := strings.Split(s, ",")
+	args := splitOutside(s, ',')
 	for i := range args {
 		args[i] = strings.TrimSpace(args[i])
 	}
@@ -132,10 +133,10 @@ func checkTokens(format string, fields map[string]node) error {
 		if t.kind != 'b' {
 			return nil
 		}
-		if strings.IndexByte(t.body, '(') >= 0 { // a function token, not a field
+		if indexOutside(t.body, '(') >= 0 { // a function token, not a field
 			return checkFunc(t.body, fields)
 		}
-		names := strings.Split(t.body, "|")
+		names := splitOutside(t.body, '|')
 		for _, name := range names {
 			if isRef(name) {
 				if _, _, err := refShape(name); err != nil {
@@ -187,12 +188,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 // hintableRef reports whether {/name} is a reference the grammar accepts, so the
 // hint never names a spelling that fails too.
 func hintableRef(name string) bool {
-	for _, seg := range strings.Split(name, ".") {
-		if checkName(seg) != nil {
-			return false
-		}
-	}
-	return true
+	return checkPathNames(name) == nil
 }
 
 // tokenOperands lists the fields one {token} body reads as operands, empty for a
@@ -244,8 +240,8 @@ func checkNoRepeatedArm(body string, names []string) error {
 func fieldTokens(format string) []string {
 	var names []string
 	_ = eachToken(format, func(t ftoken) error {
-		if t.kind == 'b' && strings.IndexByte(t.body, '(') < 0 {
-			names = append(names, strings.Split(t.body, "|")...)
+		if t.kind == 'b' && indexOutside(t.body, '(') < 0 {
+			names = append(names, splitOutside(t.body, '|')...)
 		}
 		return nil
 	})
@@ -279,11 +275,11 @@ func splitArm(name string, refs map[string]refBinding) arm {
 		}
 		return pathArm(name, b.key, b.tail)
 	}
-	head, tail, dotted := strings.Cut(name, ".")
-	if !dotted {
+	segs, err := splitPath(name)
+	if err != nil || len(segs) == 1 {
 		return arm{name: name, key: name, path: name}
 	}
-	return pathArm(name, head, strings.Split(tail, "."))
+	return pathArm(name, segs[0], segs[1:])
 }
 
 func pathArm(name, key string, segs []string) arm {
@@ -296,7 +292,7 @@ func pathArm(name, key string, segs []string) arm {
 
 // splitArms splits a token body's '|' alternatives.
 func splitArms(body string, refs map[string]refBinding) []arm {
-	parts := strings.Split(body, "|")
+	parts := splitOutside(body, '|')
 	arms := make([]arm, len(parts))
 	for i, p := range parts {
 		arms[i] = splitArm(p, refs)
@@ -347,11 +343,12 @@ type op struct {
 // it, for error messages. The maps are nil when the format holds nothing, so data
 // that holds nothing carries no render-time cost.
 type formatOps struct {
-	ops    []op
-	grow   int
-	bound  map[string]string
-	held   map[string]bool
-	holder map[string]string
+	ops       []op
+	grow      int
+	bound     map[string]string
+	held      map[string]bool
+	holder    map[string]string
+	heldLocal bool // some held name is kept by the expansion itself rather than the render's draws
 }
 
 func (c *formatOps) hold(a arm, label string) {
@@ -360,6 +357,9 @@ func (c *formatOps) hold(a arm, label string) {
 		c.holder = map[string]string{}
 	}
 	c.held[a.key] = true
+	if !isRef(a.key) || len(a.tail) == 0 {
+		c.heldLocal = true
+	}
 	if _, named := c.holder[a.key]; !named {
 		c.holder[a.key] = label
 	}

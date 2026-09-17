@@ -62,6 +62,9 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
+	if err := linkTables(root); err != nil {
+		return nil, err
+	}
 	if err := linkRefs(root); err != nil {
 		return nil, err
 	}
@@ -83,20 +86,54 @@ func loadDir(src dataSource, dir string) (*folder, error) {
 		return nil, fmt.Errorf("%s: %w", src.name(dir), err)
 	}
 	g := &folder{children: map[string]node{}}
+	files := &categoryFiles{src: src, dir: dir, tsv: map[string]bool{}}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
+			files.tsv[e.Name()] = false
+		}
+	}
 	for _, e := range entries {
 		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
 			continue
 		}
 		full := path.Join(dir, e.Name())
-		load := loadFile
 		if e.IsDir() {
-			load = loadFolder
+			if err := loadFolder(src, g, full, e.Name()); err != nil {
+				return nil, err
+			}
+			continue
 		}
-		if err := load(src, g, full, e.Name()); err != nil {
+		if err := loadFile(src, g, full, e.Name(), files); err != nil {
 			return nil, err
 		}
 	}
+	for name, named := range files.tsv {
+		if !named && !strings.HasPrefix(name, ".") {
+			return nil, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", src.name(path.Join(dir, name)))
+		}
+	}
 	return g, nil
+}
+
+// categoryFiles is what a category may name beside itself: the rows files of its
+// directory, each marked once a category names it.
+type categoryFiles struct {
+	src dataSource
+	dir string
+	tsv map[string]bool
+}
+
+// rows reads the rows file a category names beside it.
+func (c *categoryFiles) rows(name string) (string, error) {
+	if _, present := c.tsv[name]; !present {
+		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.name(c.dir))
+	}
+	c.tsv[name] = true
+	b, err := fs.ReadFile(c.src.fsys, path.Join(c.dir, name))
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", c.src.name(path.Join(c.dir, name)), err)
+	}
+	return string(b), nil
 }
 
 // loadFolder adds a subdirectory as a nested folder, unless nothing under it is data.
@@ -117,7 +154,7 @@ func loadFolder(src dataSource, g *folder, full, name string) error {
 
 // loadFile compiles a *.json file into a category named after it; any other file
 // is skipped.
-func loadFile(src dataSource, g *folder, full, file string) error {
+func loadFile(src dataSource, g *folder, full, file string, files *categoryFiles) error {
 	if !strings.HasSuffix(file, ".json") {
 		return nil
 	}
@@ -133,7 +170,7 @@ func loadFile(src dataSource, g *folder, full, file string) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return fmt.Errorf("%s: %w", src.name(full), err)
 	}
-	n, err := compile(raw)
+	n, err := compileCategory(raw, name, files)
 	if err != nil {
 		return fmt.Errorf("%s: %w", src.name(full), err)
 	}

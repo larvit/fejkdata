@@ -43,6 +43,11 @@ func shippedShape(f *Generator) string {
 			}
 		case *choice:
 			facts[prefix] = reads(n)
+		case *table:
+			facts[prefix] = "\tformat " + strconv.Quote(n.format.format) + tableFacts(n) + reads(n)
+			for _, name := range n.columns {
+				facts[join(prefix, name)] = "\tstring"
+			}
 		case *template:
 			facts[prefix] = "\tformat " + strconv.Quote(n.format) + reads(n)
 			if _, columns, err := recordOf(n); err == nil {
@@ -66,6 +71,20 @@ func shippedShape(f *Generator) string {
 	return b.String()
 }
 
+// tableFacts names the columns a table's options read.
+func tableFacts(t *table) string {
+	var b strings.Builder
+	for _, o := range []struct {
+		name string
+		col  int
+	}{{"key", t.key}, {"name", t.name}, {"weight", t.weight}, {"parent", t.parent}} {
+		if o.col >= 0 {
+			b.WriteString("\t" + o.name + " " + t.columns[o.col])
+		}
+	}
+	return b.String()
+}
+
 // reads names the categories any template under n references, sorted.
 func reads(n node) string {
 	set := map[string]bool{}
@@ -75,6 +94,11 @@ func reads(n node) string {
 		case *choice:
 			for _, it := range n.items {
 				collect(it)
+			}
+		case *table:
+			collect(n.format)
+			for _, cell := range n.tokens {
+				collect(cell)
 			}
 		case *template:
 			for _, b := range n.refs {

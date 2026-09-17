@@ -3,7 +3,6 @@ package fejkdata
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
 // walkNodes calls fn once per contained node, passing the dot path that reaches it,
@@ -61,6 +60,19 @@ func contained(n node) []namedNode {
 		return out
 	case *template:
 		return named(n.fields)
+	case *table:
+		return append([]namedNode{{node: n.format}}, named(n.fields)...)
+	case *column:
+		if n.i < 0 {
+			return nil
+		}
+		var out []namedNode
+		for r := 0; r < n.t.rows(); r++ {
+			if cell := n.t.cellNode(r, n.i); cell != nil {
+				out = append(out, namedNode{node: cell})
+			}
+		}
+		return out
 	default:
 		return nil
 	}
@@ -142,11 +154,22 @@ func renderEdges(n node) []renderEdge {
 				}
 				return nil
 			}
-			for _, name := range strings.Split(t.body, "|") {
+			for _, name := range splitOutside(t.body, '|') {
 				add(name, "")
 			}
 			return nil
 		})
+		return es
+	case *table:
+		return []renderEdge{{to: n.format, label: "format"}}
+	case *column:
+		if n.i < 0 {
+			return []renderEdge{{to: n.t.format, label: "format"}}
+		}
+		var es []renderEdge
+		for _, c := range contained(n) {
+			es = append(es, renderEdge{to: c.node, label: n.t.columns[n.i]})
+		}
 		return es
 	default:
 		return nil
@@ -158,7 +181,7 @@ func renderEdges(n node) []renderEdge {
 // already proved the tail resolves in every variant.
 func pathLeaves(n node, tail []string) []node {
 	var out []node
-	_ = walkPath(n, tail, pathWalk{
+	_, _ = walkPath(n, tail, pathWalk{
 		choice: func(c *choice, _ []string) ([]node, error) { return c.items, nil },
 		leaf:   func(n node) error { out = append(out, n); return nil },
 	})

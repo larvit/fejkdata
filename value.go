@@ -85,10 +85,34 @@ func (p *valueProof) of(n node) proven {
 		v = p.unite(n.items)
 	case *template:
 		v = p.template(n)
+	case *column:
+		v = p.cells(n)
 	default:
 		v = unproven(`it reads a null, which renders "" outside its own column`)
 	}
 	p.memo[n] = v
+	return v
+}
+
+// cells proves a table column over every cell it may render.
+func (p *valueProof) cells(c *column) proven {
+	if c.i < 0 {
+		return unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", c.t.format.format, c.t.category))
+	}
+	var v proven
+	for r := 0; r < c.t.rows(); r++ {
+		var w proven
+		if cell := c.t.cellNode(r, c.i); cell != nil {
+			w = p.of(cell)
+		} else {
+			w = literalValue(c.t.cell(r, c.i))
+		}
+		if r == 0 {
+			v = w
+		} else {
+			v = v.or(w)
+		}
+	}
 	return v
 }
 

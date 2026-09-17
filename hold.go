@@ -109,7 +109,7 @@ func operandReader(t *template, head string) string {
 // coverPath collects what holding one path pins: every choice level the path
 // passes through, whole, and the leaf it renders.
 func coverPath(n node, tail []string, into map[node]bool) {
-	_ = walkPath(n, tail, pathWalk{
+	_, _ = walkPath(n, tail, pathWalk{
 		choice: func(c *choice, _ []string) ([]node, error) { cover(c, into, false); return nil, nil },
 		leaf:   func(n node) error { cover(n, into, false); return nil },
 	})
@@ -262,6 +262,16 @@ func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding)
 type draws struct {
 	variant map[string]node
 	value   map[string]draw
+	pins    [4]tablePin // the rows pinned, inline so a render pinning a few tables stays off the heap
+	npins   int
+	more    map[*table]int // the rows pinned past the inline four
+	s       *session       // what draws a row; nil where a walk only proves selectors
+}
+
+// tablePin is one table's pinned row.
+type tablePin struct {
+	t   *table
+	row int
 }
 
 // draw is what one read drew: its text, and whether it landed on a null.
@@ -284,12 +294,11 @@ func readField(s *session, t *template, held *draws, sc drawScope, a arm) draw {
 		}
 		return draw{text: render(s, t.fields[a.key], sc)}
 	}
-	d := readScope(held, sc, a)
+	d := readScope(s, held, sc, a)
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	var r draw
-	_ = walkPath(t.fields[a.key], a.tail, pathWalk{
+	leaf, _ := walkPath(t.fields[a.key], a.tail, pathWalk{
 		// Hold the draw at every level passed through, so two paths sharing a
 		// prefix share it.
 		choice: func(c *choice, rest []string) ([]node, error) {
@@ -307,8 +316,9 @@ func readField(s *session, t *template, held *draws, sc drawScope, a arm) draw {
 			}
 			return []node{n}, nil
 		},
-		leaf: func(n node) error { r = renderLeaf(s, n, sc); return nil },
+		pins: d,
 	})
+	r := renderLeaf(s, leaf, sc)
 	if d.value == nil {
 		d.value = map[string]draw{}
 	}
@@ -319,9 +329,9 @@ func readField(s *session, t *template, held *draws, sc drawScope, a arm) draw {
 // readScope is the draws a held read keeps its draw in: for a reference that reads a path,
 // the render's draws for its group, so its draw spans the render; for a sibling, or a
 // reference read whole, held.
-func readScope(held *draws, sc drawScope, a arm) *draws {
+func readScope(s *session, held *draws, sc drawScope, a arm) *draws {
 	if isRef(a.key) && len(a.tail) > 0 {
-		return sc.draws()
+		return sc.draws(s)
 	}
 	return held
 }
@@ -335,7 +345,7 @@ func renderLeaf(s *session, n node, sc drawScope) draw {
 	}
 	r := draw{text: render(s, n, sc)}
 	if t, _ := n.(*template); t != nil && t.readsColumn != nil {
-		r.null = sc.in(t).draws().value[t.readsColumn.a.path].null
+		r.null = sc.in(t).draws(s).value[t.readsColumn.a.path].null
 	}
 	return r
 }

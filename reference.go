@@ -35,7 +35,11 @@ func refShape(name string) (sigil, rest string, err error) {
 	if strings.HasPrefix(rest, ".") {
 		return "", "", fmt.Errorf("a reference starts with / (the root), . (this folder) or .. (the folder above)")
 	}
-	for _, seg := range strings.Split(rest, ".") {
+	segs, err := splitPath(rest)
+	if err != nil {
+		return "", "", err
+	}
+	for _, seg := range segs {
 		if seg == "" {
 			return "", "", fmt.Errorf("path has an empty segment")
 		}
@@ -59,7 +63,8 @@ func refSegments(name string, folder []string) ([]string, error) {
 		}
 		base = folder[:len(folder)-1]
 	}
-	return append(append([]string{}, base...), strings.Split(rest, ".")...), nil
+	segs, _ := splitPath(rest) // refShape proved it splits
+	return append(append([]string{}, base...), segs...), nil
 }
 
 // linkRefs resolves every reference in the assembled tree. The head of the path —
@@ -198,6 +203,9 @@ func resolveCategory(root map[string]node, segments []string) (head []string, ta
 		g, ok := n.(*folder)
 		if !ok {
 			break
+		}
+		if isSelector(segments[i]) {
+			return nil, nil, nil, fmt.Errorf("%s is a folder, not a table, so it has no row to select", strings.Join(segments[:i], "."))
 		}
 		child, ok := g.children[segments[i]]
 		if !ok {

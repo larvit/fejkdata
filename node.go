@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -59,9 +60,11 @@ type template struct {
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
 	held         map[string]bool
+	heldLocal    bool        // some held name is kept by the expansion itself, so expand makes its draws
 	fromString   bool        // written as a JSON string rather than an object
 	readsColumn  *columnRead // set when the format is one reference alone reading a record's column
 	record       bool        // compiled at the top without a repeat, so its fields are record columns
+	table        *table      // the table whose format this is, whose columns are the fields
 	drawGroup    string      // the draw group it draws in, as written; "" keeps its caller's
 	drawGroupKey string      // its draw group keyed by its category once linked: what a render reads its reference paths under
 }
@@ -81,6 +84,70 @@ func (t *template) field(seg string) (node, bool) {
 // validating structure up front.
 func compile(v any) (node, error) {
 	return compileAt(v, atTop)
+}
+
+// compileCategory compiles a data file's value, which may be a table over a rows
+// file beside it, and refuses a choice that is a table written as templates.
+func compileCategory(v any, name string, files *categoryFiles) (node, error) {
+	if m, ok := v.(map[string]any); ok {
+		if _, isTable := m["rows"]; isTable {
+			return compileTable(m, name, files)
+		}
+	}
+	if items, ok := v.([]any); ok {
+		if err := checkNotRows(items, name); err != nil {
+			return nil, err
+		}
+	}
+	return compile(v)
+}
+
+// checkNotRows refuses a choice of templates sharing one format and one set of
+// string fields: each item is a row, and the rows file is the spelling for that.
+func checkNotRows(items []any, name string) error {
+	var format string
+	var fields []string
+	weighted := false
+	for i, raw := range items {
+		f, keys, w, isRow := rowShape(raw)
+		if !isRow || i > 0 && (f != format || !slices.Equal(keys, fields)) {
+			return nil
+		}
+		format, fields, weighted = f, keys, weighted || w
+	}
+	if len(items) < 2 || len(fields) == 0 {
+		return nil
+	}
+	weight := ""
+	if weighted {
+		weight = `, a weight column, and "weight" naming it`
+	}
+	return fmt.Errorf("a choice of %d templates with one format and the fields %v is a table; write the rows in %s.tsv with the header %q%s, and the category as {\"format\": %q, \"rows\": \"%s.tsv\"}",
+		len(items), fields, name, strings.Join(fields, "\t"), weight, format, name)
+}
+
+// rowShape reads a choice item as a row: a template whose every field is a string,
+// with its format, its sorted field names, and whether it carries a weight.
+func rowShape(raw any) (format string, fields []string, weighted, isRow bool) {
+	m, ok := raw.(map[string]any)
+	if !ok {
+		return "", nil, false, false
+	}
+	format, _ = m["format"].(string)
+	for k, v := range m {
+		if k == "weight" {
+			weighted = true
+			continue
+		}
+		if _, isString := v.(string); !isString || isOption(k) && k != "format" {
+			return "", nil, false, false
+		}
+		if k != "format" {
+			fields = append(fields, k)
+		}
+	}
+	sort.Strings(fields)
+	return format, fields, weighted, true
 }
 
 // compileAt compiles a node that is no choice's item. Only a choice's items carry a
@@ -140,7 +207,7 @@ func compileString(s string) (node, error) {
 // applies the fences that need the compiled reads.
 func (t *template) compileFormat() error {
 	c := compileOps(t.format, t.refs)
-	t.ops, t.grow, t.bound, t.held = c.ops, c.grow, c.bound, c.held
+	t.ops, t.grow, t.bound, t.held, t.heldLocal = c.ops, c.grow, c.bound, c.held, c.heldLocal
 	t.fixed = true
 	for _, o := range t.ops {
 		if o.kind != 'l' {
@@ -231,6 +298,9 @@ func checkNoRepeatedItem(items []any) error {
 }
 
 func compileTemplate(m map[string]any, pos position) (node, error) {
+	if _, isTable := m["rows"]; isTable {
+		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
+	}
 	o, err := readOptions(m, pos)
 	if err != nil {
 		return nil, err
@@ -407,7 +477,11 @@ func checkName(name string) error {
 
 // checkPathNames rejects a dotted path with a segment no name may be.
 func checkPathNames(path string) error {
-	for _, seg := range strings.Split(path, ".") {
+	segs, err := splitPath(path)
+	if err != nil {
+		return err
+	}
+	for _, seg := range names(segs) {
 		if err := checkName(seg); err != nil {
 			return fmt.Errorf("path %w", err)
 		}

@@ -13,14 +13,14 @@ func TestWalkPathStopsAtAMissingSegment(t *testing.T) {
 		level: func(tm *template, rest []string) error { seen = append(seen, "level:"+rest[0]); return nil },
 		leaf:  func(n node) error { seen = append(seen, "leaf"); return nil },
 	}
-	if err := walkPath(n, []string{"a", "b"}, walk); err != nil {
+	if _, err := walkPath(n, []string{"a", "b"}, walk); err != nil {
 		t.Fatalf("walkPath(a.b) = %v", err)
 	}
 	if want := []string{"level:a", "level:b", "leaf"}; !slices.Equal(seen, want) {
 		t.Errorf("walk visited %v, want %v", seen, want)
 	}
 	seen = nil
-	err := walkPath(n, []string{"a", "nope", "deeper"}, walk)
+	_, err := walkPath(n, []string{"a", "nope", "deeper"}, walk)
 	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
 		t.Errorf("walkPath(a.nope.deeper) = %v, want the missing segment named", err)
 	}
@@ -32,7 +32,7 @@ func TestWalkPathStopsAtAMissingSegment(t *testing.T) {
 func TestWalkPathChoiceConsumesNoSegment(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	var leaves []node
-	err := walkPath(n, []string{"f"}, pathWalk{
+	_, err := walkPath(n, []string{"f"}, pathWalk{
 		choice: func(c *choice, rest []string) ([]node, error) {
 			if len(rest) != 1 || rest[0] != "f" {
 				t.Errorf("choice saw rest %v, want [f]", rest)
@@ -74,7 +74,7 @@ func TestDescendIntoStringErrors(t *testing.T) {
 // one call and failing on the next: every variant must carry the rest of the path.
 func TestPathThroughChoice(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"every":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`,
+		"every":  `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2","g":"x"}]`,
 		"notall": `[{"format":"{f}","f":"1"},"plain"]`,
 		"some":   `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2","extra":"x"}]`,
 	})

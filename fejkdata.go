@@ -46,6 +46,8 @@ type Generator struct {
 	mu         sync.Mutex
 	rand       *session
 	categories map[string]node
+	root       *folder // the categories as the node a path walks from
+	set        drawSet // one Fake's draws, owned here so a walk pinning rows keeps them off the heap
 	records    map[node]recordShape
 	structs    map[reflect.Type]structResult
 }
@@ -123,7 +125,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: rng, categories: cats}, nil
+	return &Generator{rand: rng, categories: cats, root: &folder{children: cats}}, nil
 }
 
 // List returns the sorted dotted paths Fake can render: every category, the dotted
@@ -166,6 +168,10 @@ func paths(n node) []string {
 		return out
 	case *null:
 		return []string{""}
+	case *table:
+		return tablePaths(n)
+	case *column:
+		return []string{""}
 	case *choice:
 		out := []string{""}
 		for p := range n.shared {
@@ -174,6 +180,24 @@ func paths(n node) []string {
 		return out
 	}
 	return nil
+}
+
+// tablePaths is a table's columns, then each table linked to it under its name: the
+// direct descents, a step at a time.
+func tablePaths(t *table) []string {
+	out := append([]string{""}, t.columns...)
+	sort.Strings(out[1:])
+	children := make([]string, 0, len(t.children))
+	for name := range t.children {
+		children = append(children, name)
+	}
+	sort.Strings(children)
+	for _, name := range children {
+		for _, p := range paths(t.children[name]) {
+			out = append(out, join(name, p))
+		}
+	}
+	return out
 }
 
 // sharedPaths is the sub-paths every item carries — the only ones a path may step

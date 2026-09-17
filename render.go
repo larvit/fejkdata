@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -20,33 +19,33 @@ type rng interface {
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	n, err := descend(f.rand, &folder{children: f.categories}, strings.Split(path, "."))
+	segments, err := splitPath(path)
+	if err != nil {
+		return "", fmt.Errorf("fejkdata: %w", err)
+	}
+	f.set = drawSet{unnamed: draws{s: f.rand}}
+	sc := drawScope{set: &f.set}
+	if f.root == nil {
+		f.root = &folder{children: f.categories}
+	}
+	n, err := descend(f.rand, f.root, segments, sc)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	return renderOnce(f.rand, n), nil
+	return render(f.rand, n, sc), nil
 }
 
-// descend walks named fields to the node a path names. It is the one render-side
-// step that can fail, because the path comes from the caller and may name a field
-// that does not exist. A choice consumes no segment, so the rest of the path must
-// be one every variant carries before a variant is picked — a path that resolves
-// at all resolves on every call.
-func descend(s *session, root node, segments []string) (node, error) {
-	var found node
-	err := walkPath(root, segments, pathWalk{
-		choice: func(c *choice, rest []string) ([]node, error) {
-			if err := carriedByAll(c, rest); err != nil {
-				return nil, err
-			}
-			return []node{pick(s, c)}, nil
-		},
-		leaf: func(n node) error { found = n; return nil },
-	})
-	return found, err
+// descend walks named fields to the node a path names, pinning the table rows it
+// selects or draws in sc. It is the one render-side step that can fail, because the
+// path comes from the caller and may name a field or a row that does not exist. A
+// choice consumes no segment, so the rest of the path must be one every variant
+// carries before a variant is picked — a path that resolves at all resolves on
+// every call.
+func descend(s *session, root node, segments []string, sc drawScope) (node, error) {
+	return walkPath(root, segments, pathWalk{pins: sc.draws(s)})
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
@@ -58,6 +57,20 @@ func render(s *session, n node, sc drawScope) string {
 		return render(s, pick(s, n), sc)
 	case *null:
 		return ""
+	case *table:
+		sc.t, sc.row = n, n.draw(s)
+		return expand(s, n.format, sc)
+	case *column:
+		if sc.t != n.t {
+			sc.t, sc.row = n.t, sc.draws(s).mustRow(n.t)
+		}
+		if n.i < 0 {
+			return expand(s, n.t.format, sc)
+		}
+		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
+			return render(s, cell, sc)
+		}
+		return n.t.cell(sc.row, n.i)
 	case *template:
 		sc = sc.in(n)
 		if n.repeat == 1 {
@@ -85,20 +98,20 @@ func render(s *session, n node, sc drawScope) string {
 //
 //go:noinline
 func expandAnew(s *session, t *template) string {
-	var set drawSet
+	set := drawSet{unnamed: draws{s: s}}
 	return expand(s, t, drawScope{set: &set})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights. compile guarantees a
 // non-empty choice and a finite positive total, so the index is always in range.
-func pick(r rng, c *choice) node {
+// The session is concrete rather than the rng interface, which would make the
+// walk that draws through it leak its draw set to the heap.
+func pick(s *session, c *choice) node {
 	if c.cum == nil {
-		return c.items[r.IntN(len(c.items))]
+		return c.items[s.IntN(len(c.items))]
 	}
-	x := r.Float64() * c.cum[len(c.cum)-1]
-	i := sort.Search(len(c.cum), func(i int) bool { return c.cum[i] > x })
-	return c.items[i]
+	return c.items[pickCum(s, c.cum)]
 }
 
 // expand renders a template's compiled ops. compile validated every token, so this
@@ -110,7 +123,7 @@ func expand(s *session, t *template, sc drawScope) string {
 	// repeat iteration get their own, since each is its own expansion. A reference
 	// path reads the render's draws in sc instead.
 	var held *draws
-	if len(t.held) > 0 {
+	if t.heldLocal {
 		held = &draws{
 			variant: make(map[string]node, len(t.held)),
 			value:   make(map[string]draw, len(t.held)),

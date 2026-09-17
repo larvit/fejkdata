@@ -122,18 +122,48 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	_, n, tail, err := resolveCategory(f.categories, strings.Split(path, "."))
+	segments, err := splitPath(path)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %w", err)
+	}
+	_, n, tail, err := resolveCategory(f.categories, segments)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	if len(tail) > 0 {
+	set := newDrawSet(f.rand)
+	sc := drawScope{set: &set}
+	if t, isTable := n.(*table); isTable {
+		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
+			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
+		}
+	} else if len(tail) > 0 {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	shape := f.recordShapeOf(n)
 	if shape.err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
 	}
-	return renderRecord(f.rand, shape.t, shape.columns), nil
+	return renderRecord(f.rand, shape.t, shape.columns, sc), nil
+}
+
+// tableRecord walks a path's tail from a table to the table whose row is the record,
+// pinning the rows it selects or draws.
+func tableRecord(s *session, t *table, tail []string, sc drawScope) (node, error) {
+	n, err := descend(s, t, tail, sc)
+	if err != nil {
+		return nil, err
+	}
+	switch n := n.(type) {
+	case *table:
+		sc.draws(s).rowOf(n)
+		return n, nil
+	case *column:
+		if n.i < 0 {
+			return n.t, nil
+		}
+		return nil, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.columns[n.i])
+	}
+	return n, nil
 }
 
 // recordShape is what recordOf settled about a node: the template to project, its
@@ -171,7 +201,8 @@ type RecordTemplate struct {
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderRecord(t.g.rand, t.t, t.columns)
+	set := newDrawSet(t.g.rand)
+	return renderRecord(t.g.rand, t.t, t.columns, drawScope{set: &set})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -200,6 +231,9 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // recordOf is the fence both record entry points pass. The columns come back with
 // the template, fixed for every draw the caller goes on to make.
 func recordOf(n node) (*template, []Column, error) {
+	if tb, isTable := n.(*table); isTable {
+		n = tb.format
+	}
 	t, ok := n.(*template)
 	if !ok {
 		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
@@ -219,10 +253,13 @@ func recordOf(n node) (*template, []Column, error) {
 	return t, columns, nil
 }
 
-// renderRecord draws each column once, in the name order recordOf fixed, as one render.
-func renderRecord(s *session, t *template, columns []Column) *Record {
-	set := newDrawSet()
-	sc := drawScope{set: &set}.in(t)
+// renderRecord draws each column once, in the name order recordOf fixed, as one render
+// over sc's draws; a table's columns read the row pinned there.
+func renderRecord(s *session, t *template, columns []Column, sc drawScope) *Record {
+	sc = sc.in(t)
+	if t.table != nil {
+		sc.t, sc.row = t.table, sc.draws(s).mustRow(t.table)
+	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
 		column := renderLeaf(s, t.fields[r.columns[i].Name], sc)

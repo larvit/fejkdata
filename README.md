@@ -17,6 +17,7 @@ fejkdata sv_SE.person.last                     # Eriksson
 fejkdata --seed 42 sv_SE.address               # the same address every run
 fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
+fejkdata 'misc.country[SE].capital'            # Stockholm — a table's row, selected by key or name
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
 fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
@@ -24,7 +25,8 @@ fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse or name: l
 ```
 
 A path names a category, or a field inside one: each dot segment descends one
-level — folders, then the category (a JSON file), then fields. An argument that is
+level — folders, then the category (a JSON file), then fields — and `[SE]` after a
+[table](#table) selects its row. An argument that is
 a JSON object, array or string, or that carries a `{` token, is instead an
 **inline template**: a format string or a JSON value compiled and rendered on the
 spot. Its tokens reach the data by reference from the root —
@@ -32,8 +34,8 @@ spot. Its tokens reach the data by reference from the root —
 available. An inline template sits in no folder, so the folder-relative `{.name}`
 and `{..name}` are rejected naming the root spelling, and one reference alone —
 `{/sv_SE.person}` — is the path written as a template, rejected naming the path, as is
-a path written `/sv_SE.person`. A path never contains a brace, a bracket or a quote,
-so the two cannot collide (see [Decisions](#decisions)).
+a path written `/sv_SE.person`. A path never contains a brace or a quote, and a
+bracket only as a selector after a name, so the two cannot collide (see [Decisions](#decisions)).
 
 | Flag | |
 |------|--|
@@ -220,7 +222,10 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `country` (ISO 3166), `creditcard` (Luhn-valid), `currency` (ISO 4217), `emoji`,
 `httpstatus`, `language` (ISO 639), `mac`, `mimetype`, `objectid`, `timezone`
 (IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
-`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows.
+`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
+`currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
+`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
+[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 ## Data format
 
@@ -231,6 +236,7 @@ Every value is a **node**, nestable without limit:
 | string | `"Malmö"` | its text, with any `{…}` tokens expanded |
 | choice | `["a", "b", …]` | one item, picked at random |
 | template | `{"format": "…", …}` | its format, with `{name}` tokens rendering the named fields |
+| table | `{"format": "…", "rows": "x.tsv", …}` | its format over one row of the TSV beside it ([Table](#table)) |
 
 ### Format string
 
@@ -340,10 +346,105 @@ renders a null as `""`. The other items' weights skew its odds:
 load: `null` anywhere but a column, naming `""`, and a column whose items hold
 different datatypes.
 
+### Table
+
+A table is a category whose rows come from a TSV beside its JSON file: the header
+names the columns, each line below it is one row, and the format renders the row
+drawn. Save `mydata/country.tsv` and `mydata/country.json`:
+
+```tsv
+alpha2	name	population
+DK	Denmark	5900000
+NO	Norway	5500000
+SE	Sweden	10500000
+```
+
+```json
+{ "format": "{name} ({alpha2})", "rows": "country.tsv", "key": "alpha2", "name": "name", "weight": "population" }
+```
+
+```sh
+fejkdata -d ./mydata country                    # Sweden (SE), about half the time
+fejkdata -d ./mydata country.alpha2             # NO
+fejkdata -d ./mydata 'country[SE]'              # Sweden (SE)
+fejkdata -d ./mydata 'country[Norway].alpha2'   # NO
+fejkdata -d ./mydata --format csv country       # alpha2,name,population  →  SE,Sweden,10500000
+```
+
+`rows` names the TSV beside the category file; `key` names the column a path
+selects a row by, `name` a column it also selects by, `weight` a column of positive
+numbers that skews the draw, and `parent` the table a column links to
+([Linked tables](#linked-tables)). The format's `{tokens}` read the columns, and the
+columns are the [record](#records)'s columns, so `--format csv` writes the rows and
+`--list` shows `country.alpha2`. A cell is a string node: `1{digits(2)} {digits(2)}`
+in a cell draws digits and `{/misc.uuid}` reads a reference, while `{name}` in a cell
+is refused, since a cell has no sibling. `New` proves the header, the options and every
+cell token, and refuses a TSV no category names, a key that is empty or repeats, a
+weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
+`"` or `|`, which a selector cannot spell; the rows are indexed on the first draw that
+selects one. The table's options are its own — `rows`, `key`, `name`, `weight` and
+`parent` — so a column may be named `name`, as one usually is.
+
+A choice of templates sharing one format and one set of string fields is a table
+written by hand, and `New` refuses it in a data file naming the TSV to write; an
+inline template has no file beside it, so there it stays a choice.
+
+### Row selection
+
+`[key]` or `[name]` after a table's name selects one row: `misc.country[SE]` and
+`misc.country[Sweden]` name one row, and `misc.country[SE].capital` reads its column.
+A key wins over a name that spells the same, and a name naming several rows is an
+error listing their keys, unless a row selected before it settles which
+([Linked tables](#linked-tables)). A selector is part of the path, so it works
+wherever a path does: `Fake`, `FakeRecord`, a `{/misc.country[SE].capital}` reference
+and a struct tag. A dot inside the brackets belongs to the key or name, so
+`city[St. Louis]` selects it. A path starts with a name, and `[` still opens a JSON
+array at the start of a CLI argument, so `'[SE]'` alone names nothing.
+
+### Linked tables
+
+A table's `parent` names a column and, by the same name, the table beside it that the
+column links to by key. Save `mydata/city.tsv` and `mydata/city.json` beside the
+`country` table above:
+
+```tsv
+name	country	population
+Copenhagen	DK	660000
+Göteborg	SE	600000
+Oslo	NO	710000
+Stockholm	SE	990000
+```
+
+```json
+{ "format": "{name}", "rows": "city.tsv", "key": "name", "parent": "country", "weight": "population" }
+```
+
+```sh
+fejkdata -d ./mydata 'country[SE].city'      # Stockholm or Göteborg
+fejkdata -d ./mydata country.city.name       # a country drawn, then a city inside it
+fejkdata -d ./mydata 'city[Oslo].country'    # NO — the link column's cell
+fejkdata -d ./mydata '{/city.name}, {/country.name}'   # Oslo, Norway — one consistent draw
+```
+
+A path descends from a row to a linked table by name, at any depth, and `--list`
+advertises each direct step. Within one render and [draw group](#draw-group), linked
+tables agree: the first table a reference path reads pins its ancestors, and a
+descendant read after it is drawn inside them, so `{/city.name}` and
+`{/country.name}` are a city and its country whichever is read first. A selected row
+pins the render the same way, so every reference path into one family of linked
+tables in one render and group selects the same rows: one that selects none beside
+one that does is refused naming the spelling that does, `{/country[SE].city.name}`
+beside `{/country[SE].name}`, and two selecting different rows are refused naming a
+`drawGroup` to draw them apart in. A bare `{/city}` beside a path into its family is
+refused too, since a bare reference draws each time. `New` also refuses a link cell
+that is no key of the parent, a parent row no child links to, a chain of parents that
+closes, and a child named like one of its parent's columns.
+
 ### Options and fields
 
 `format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are the only options;
-**any other key is a field** (see [Decisions](#decisions)). An object that does nothing a
+**any other key is a field** (see [Decisions](#decisions)), and `rows` makes a category
+a [table](#table), so no template carries a field of that name. An object that does nothing a
 string can't — only a `format` — is rejected naming the string, as is a one-item
 choice naming its item.
 
@@ -470,10 +571,11 @@ its groups by name; the unnamed group spans them all.
 Renders e.g. `Sara Eriksson pays Ebba Lind; signed Eriksson`: the signature reads the
 payer's draw, while the payee is drawn apart. Rejected at load, each naming nothing: a
 `drawGroup` of `""` (the default); one naming the draw group its template already draws
-in; one on a template that renders no reference path short of a `repeat` or a nested
-`drawGroup`, on a `repeat` itself — each iteration renders in no draw group — or on an
-inline template's root, which nothing references. So is a path reading into a level that
-carries a `drawGroup`.
+in; one on a template that renders no reference path — a bare reference to a
+[table](#table) counts, since the group answers for the family it draws in — short of a
+`repeat` or a nested `drawGroup`, on a `repeat` itself — each iteration renders in no
+draw group — or on an inline template's root, which nothing references. So is a path
+reading into a level that carries a `drawGroup`.
 
 ### Correlated fields
 
@@ -538,7 +640,7 @@ a minor only adds, and a major is the only release that changes what exists.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
-| Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another | a path outside a record's columns, a locale, a value in a list |
+| Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another; change a table's key, name, weight or parent column, or remove a row | a path outside a record's columns, a locale, a value in a list, a row |
 | Records | remove, rename, retype or add a column; let a column be null | a record, as a new category |
 | Data format | a fence: a spelling `New` rejects that it accepted; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
@@ -559,8 +661,8 @@ with no breaking change. From `v2` the module path carries `/vN`, so fences ship
 batched into as few majors as possible.
 
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) pins every path, each
-template category's format, the categories each category reads, and each column's
-datatype and nullability; a pull request that
+template category's format, the categories each category reads, each column's
+datatype and nullability, and each table's key, name, weight and parent columns; a pull request that
 changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
 renamed or retyped line is a major.
 
@@ -796,6 +898,52 @@ renamed or retyped line is a major.
   almost always costs an allocation too (a lost pre-size, a per-item map, an extra
   copy). The benchmark suite (see Development) reports time for a human, not as a
   pass/fail gate.
+- **Rows live in a TSV, the shape in JSON.** `New` allocates once per node, so a
+  register of thirty thousand rows written as JSON objects would cost it a second;
+  a TSV is one allocation whose cells are substrings, and the JSON says only how a
+  row is composed. The TSV sits beside its category file, named by `rows`, so a
+  data directory stays a directory of categories, and one nothing names is a
+  load error rather than a file silently ignored.
+- **A selector is bracketed, and a dot inside it is literal.** `municipality[0180]`
+  reads as selection to anyone who has indexed an array, and `[St. Louis]` keeps a
+  name whole where a colon or a dot-separated spelling could not; zsh needs the
+  brackets quoted, which the README's examples show. A key wins over a name that
+  spells the same, since a key names one row by contract and a name may not.
+- **A table read into is pinned; a table rendered whole draws afresh.** A path into a
+  table pins its row for the render and group, as a reference path pins its level,
+  and a bare `{/city}` draws each time, as a bare reference does; so a bare table
+  beside a path into its family is refused like a bare reference beside a path into
+  it. A bare table reference still counts as a read for a `drawGroup`, since the group
+  is what draws it apart from the family's pins.
+- **Every reference path into one family selects the same rows, per render and
+  group.** A selector pins rows for the render, and a read that draws freely before it
+  could pin a row the selector contradicts, so accepting both would make the result
+  depend on which token rendered first. Requiring one selection per family per group
+  is checkable at load with no data lookup beyond the selectors themselves, and the
+  error names the rewrite. Two selectors naming one row by key and by name compare
+  equal, since the load check resolves them.
+- **A parent row with no child row is a load error.** A descendant is drawn inside the
+  nearest pinned ancestor, so every ancestor row must lead to a row at every level
+  below it, or a render could find nothing to draw. The import script drops or fills
+  such rows; the alternative, falling back to a free draw, would break the consistency
+  the link exists for without saying so.
+- **The choice-of-rows fence guards a data file's root, and requires string fields.**
+  A table is a category with a TSV beside its file, so only a root choice has the
+  spelling the fence names; a nested choice of same-shaped templates and an inline
+  one keep loading. Fields must all be strings because a cell is a string node: a
+  choice whose items carry a nested choice, as `misc.car` does, is not one table but
+  two linked ones, which a later conversion writes.
+- **A table is a record of string columns.** Its columns are the CSV header and the
+  `INSERT` column list, fixed by the TSV header, so a table is a record by
+  construction; every column is a string until a typed column option earns its place.
+- **The key index is built at load, the rest on first draw.** A link is proved
+  against the parent's keys and a key's uniqueness is a data mistake, so both are
+  load-time; the name index and the per-parent child lists serve only a draw or a
+  selection, so they wait for the first one, keeping `New` linear in the bytes read.
+- **`List` advertises direct descents only.** `region.municipality.locality` is
+  listed, and `region.locality` resolves too but is not: the set of every descent
+  through a chain of five tables is every subsequence of it, and the direct chain is
+  the one a reader can predict from the tables' parents.
 
 ## Development
 
@@ -839,6 +987,15 @@ in its own commit:
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 ```
 
+A shipped table built from a source is rebuilt by its script under
+[`data-import/`](data-import), one command per dataset, fetching the source named in
+[`DATA-LICENSES.md`](DATA-LICENSES.md):
+
+```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
+```
+
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the Gitea release with the section as its body. A top heading of `[Unreleased]`
@@ -849,7 +1006,8 @@ publishes nothing.
 ```
 fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
-path.go         the dotted-path walk, and proving a path resolves
+table.go        tables: the rows TSV, its options and links, row selection and draws
+path.go         the dotted-path walk with its selectors, and proving a path resolves
 render.go       Fake and the recursive renderer (choices, format strings, expansions)
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
@@ -865,7 +1023,8 @@ datatype.go     column datatypes: DataType, where datatype and null may sit, a c
 value.go        the value proof: what a typed column or calc operand holds, checked at load
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
-data/           shipped data (JSON), embedded at build: locale folders + a misc folder
+data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders + a misc folder
+data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)
 ```

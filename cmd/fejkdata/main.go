@@ -23,16 +23,17 @@ import (
 
 const usage = `Usage: fejkdata [flags] <path|template>
 
-  <path>                 a category, or a dotted path into one (person, person.last)
+  <path>                 a category, or a dotted path into one (person, person.last);
+                         a table's row by key or name: 'misc.country[SE]', 'misc.country[Sweden].tld'
   <template>             a format string or JSON value to render inline, e.g.
                          'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
 
 An argument containing a { token, or a JSON object, array or string, is a
-template; any other argument is a path (a path never contains a brace, a bracket
-or a quote). Templates reach the data by reference from the root —
-{/sv_SE.person.last} — whether the data is shipped or layered with --data-path. An
-argument carrying a bracket, a closing brace or a quote but no valid JSON names
-neither.
+template; any other argument is a path (a path never contains a brace or a quote,
+and a bracket only as a [selector] after a table's name). Templates reach the
+data by reference from the root — {/sv_SE.person.last} — whether the data is
+shipped or layered with --data-path. An argument carrying a closing brace or a
+quote but no valid JSON names neither.
 
 With --format json, ndjson, csv or sql the argument must name a record — a
 template whose fields are its columns — and the rows are written as one JSON
@@ -396,7 +397,18 @@ func defaultTable(arg string, kind argKind) string {
 	if kind == argTemplate {
 		return "records"
 	}
-	segments := strings.Split(arg, ".")
+	var names strings.Builder // the path with its [selectors] cut out
+	for depth, i := 0, 0; i < len(arg); i++ {
+		switch {
+		case arg[i] == '[':
+			depth++
+		case arg[i] == ']':
+			depth--
+		case depth == 0:
+			names.WriteByte(arg[i])
+		}
+	}
+	segments := strings.Split(names.String(), ".")
 	return segments[len(segments)-1]
 }
 
