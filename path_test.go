@@ -130,8 +130,8 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 // single-variant choice always picks the same item, so it needs no every-variant
 // guard and the error can name the field that is missing.
 func TestMissingFieldNamesItself(t *testing.T) {
-	f := newGenerator(t, "data/sv_SE", WithSeed(1))
-	_, err := f.Fake("person.typo")
+	f := newGenerator(t, "data", WithSeed(1))
+	_, err := f.Fake("sv_SE.person.typo")
 	if err == nil || !strings.Contains(err.Error(), `no field "typo"`) {
 		t.Errorf("Fake(person.typo) = %v, want it to name the missing field", err)
 	}

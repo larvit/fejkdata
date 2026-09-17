@@ -51,14 +51,13 @@ func TestShippedDataCategories(t *testing.T) {
 			regexp.MustCompile(`^\d{1,3}( \d{3})?(,\d{2})? kr$`)},
 	}
 
-	en := newGenerator(t, "data/en_US", WithSeed(1))
-	sv := newGenerator(t, "data/sv_SE", WithSeed(1))
+	f := newGenerator(t, "data", WithSeed(1))
 	for _, c := range cases {
 		for i := 0; i < 200; i++ {
-			if v := fake(t, en, c.path); !c.en.MatchString(v) {
+			if v := fake(t, f, "en_US."+c.path); !c.en.MatchString(v) {
 				t.Fatalf("en_US %s = %q, want %s", c.path, v, c.en)
 			}
-			if v := fake(t, sv, c.path); !c.sv.MatchString(v) {
+			if v := fake(t, f, "sv_SE."+c.path); !c.sv.MatchString(v) {
 				t.Fatalf("sv_SE %s = %q, want %s", c.path, v, c.sv)
 			}
 		}
@@ -134,8 +133,8 @@ func TestShippedMiscReferenceData(t *testing.T) {
 // TestSwedishPersonNamesHaveNoTripleLetter pins an orthographic rule the shape
 // regexes miss: no generated name repeats a character three times over.
 func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
-	f := newGenerator(t, "data/sv_SE", WithSeed(11))
-	for _, path := range []string{"person", "person.last"} {
+	f := newGenerator(t, "data", WithSeed(11))
+	for _, path := range []string{"sv_SE.person", "sv_SE.person.last"} {
 		for i := 0; i < 20000; i++ {
 			name := fake(t, f, path)
 			r := []rune(name)
@@ -152,10 +151,10 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 // is a real calendar date (so month-length variants never emit e.g. Apr 31 or
 // Feb 30) and the trailing digit is a valid Luhn checksum over the other nine.
 func TestSwedishPersonnummer(t *testing.T) {
-	sv := newGenerator(t, "data/sv_SE", WithSeed(1))
+	sv := newGenerator(t, "data", WithSeed(1))
 	sawLongMonthEnd := false
 	for i := 0; i < 2000; i++ {
-		v := fake(t, sv, "ssn")
+		v := fake(t, sv, "sv_SE.ssn")
 		d := digitsOnly(v)
 		if len(d) != 10 {
 			t.Fatalf("ssn %q has %d digits, want 10", v, len(d))
@@ -176,49 +175,49 @@ func TestSwedishPersonnummer(t *testing.T) {
 }
 
 func TestShippedSwedishPhone(t *testing.T) {
-	f := newGenerator(t, "data/sv_SE", WithSeed(11))
+	f := newGenerator(t, "data", WithSeed(11))
 	re := regexp.MustCompile(`^0\d{1,2}-\d{3} \d{2} \d{2}$`)
 	for i := 0; i < 50; i++ {
-		if n := fake(t, f, "phone"); !re.MatchString(n) {
+		if n := fake(t, f, "sv_SE.phone"); !re.MatchString(n) {
 			t.Fatalf("phone %q does not match %s", n, re)
 		}
 	}
 }
 
 func TestShippedSwedishAddress(t *testing.T) {
-	f := newGenerator(t, "data/sv_SE", WithSeed(3))
+	f := newGenerator(t, "data", WithSeed(3))
 	digit := regexp.MustCompile(`\d`)
 	for i := 0; i < 30; i++ {
-		a := fake(t, f, "address")
+		a := fake(t, f, "sv_SE.address")
 		if !regexp.MustCompile(`\n`).MatchString(a) || !digit.MatchString(a) {
 			t.Fatalf("address %q is not a multi-line address with a number", a)
 		}
 	}
 
-	locality := regexp.MustCompile(`^\p{L}+( \p{L}+)*$`)
+	locality := regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 	for i := 0; i < 30; i++ {
-		if c := fake(t, f, "address.locality"); !locality.MatchString(c) {
+		if c := fake(t, f, "sv_SE.address.locality"); !locality.MatchString(c) {
 			t.Fatalf("locality %q is not a Swedish place name", c)
 		}
 	}
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
-	for _, dir := range []string{"data/sv_SE", "data/en_US"} {
-		f := newGenerator(t, dir, WithSeed(7))
+	f := newGenerator(t, "data", WithSeed(7))
+	for _, path := range []string{"sv_SE.person", "en_US.person"} {
 		for i := 0; i < 30; i++ {
-			if name := fake(t, f, "person"); len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
-				t.Fatalf("%s person %q lacks first and last name", dir, name)
+			if name := fake(t, f, path); len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
+				t.Fatalf("%s %q lacks first and last name", path, name)
 			}
 		}
 	}
 }
 
 func TestShippedUSPhone(t *testing.T) {
-	f := newGenerator(t, "data/en_US", WithSeed(11))
+	f := newGenerator(t, "data", WithSeed(11))
 	re := regexp.MustCompile(`^(\(\d{3}\) \d{3}-\d{4}|\d{3}-\d{3}-\d{4})$`)
 	for i := 0; i < 50; i++ {
-		if n := fake(t, f, "phone"); !re.MatchString(n) {
+		if n := fake(t, f, "en_US.phone"); !re.MatchString(n) {
 			t.Fatalf("phone %q does not match %s", n, re)
 		}
 	}
@@ -270,11 +269,11 @@ func luhnValid(s string) bool {
 // tests so shipped name lists can grow without re-enumerating them here.
 var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 
-func TestShippedStreetComposition(t *testing.T) {
-	// street is a choice of composed {first}{last} templates and literal names.
-	f := newGenerator(t, "data/sv_SE", WithSeed(5))
+func TestShippedStreetIsARegisteredName(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(5))
+	street := regexp.MustCompile(`^\p{L}[\p{L}\d:.-]*([ -][\p{L}\d:.-]+)*$`)
 	for i := 0; i < 300; i++ {
-		if s := fake(t, f, "address.street"); !swedishName.MatchString(s) {
+		if s := fake(t, f, "sv_SE.address.street"); !street.MatchString(s) {
 			t.Fatalf("street %q is not a Swedish street name", s)
 		}
 	}
@@ -283,9 +282,9 @@ func TestShippedStreetComposition(t *testing.T) {
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
-	f := newGenerator(t, "data/sv_SE", WithSeed(6))
+	f := newGenerator(t, "data", WithSeed(6))
 	for i := 0; i < 300; i++ {
-		if s := fake(t, f, "person.last"); !swedishName.MatchString(s) {
+		if s := fake(t, f, "sv_SE.person.last"); !swedishName.MatchString(s) {
 			t.Fatalf("last name %q is not a Swedish surname", s)
 		}
 	}
@@ -293,10 +292,10 @@ func TestShippedLastNameComposition(t *testing.T) {
 
 func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
-	f := newGenerator(t, "data/sv_SE", WithSeed(8))
+	f := newGenerator(t, "data", WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
 	for i := 0; i < 300; i++ {
-		if n := fake(t, f, "address.street-number"); !re.MatchString(n) {
+		if n := fake(t, f, "sv_SE.address.street-number"); !re.MatchString(n) {
 			t.Fatalf("street-number %q does not match %s", n, re)
 		}
 	}

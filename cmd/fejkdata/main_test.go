@@ -14,6 +14,7 @@ import (
 const (
 	svSE = "../../data/sv_SE"
 	enUS = "../../data/en_US"
+	misc = "../../data/misc"
 )
 
 func runOut(args ...string) (int, string, string) {
@@ -405,14 +406,14 @@ func TestRunTemplateMisuse(t *testing.T) {
 }
 
 func TestRunNoShippedData(t *testing.T) {
-	code, list, errb := runOut("--no-shipped-data", "-d", svSE, "--list")
+	code, list, errb := runOut("--no-shipped-data", "-d", misc, "--list")
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	if strings.Contains(list, "en_US") || !strings.Contains(list, "person\n") {
+	if strings.Contains(list, "sv_SE") || !strings.Contains(list, "uuid\n") {
 		t.Errorf("--no-shipped-data --list = %q, want only the given dir", list)
 	}
-	code, out, _ := runOut("--no-shipped-data", "-d", svSE, "-s", "3", "person")
+	code, out, _ := runOut("--no-shipped-data", "-d", misc, "-s", "3", "uuid")
 	if code != 0 || strings.TrimSpace(out) == "" {
 		t.Errorf("run = %d, out=%q", code, out)
 	}

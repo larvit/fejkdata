@@ -64,18 +64,18 @@ func TestNewReportsAnEntropyFailure(t *testing.T) {
 }
 
 func TestWithSeedIsDeterministic(t *testing.T) {
-	a, b := newGenerator(t, "data/sv_SE", WithSeed(42)), newGenerator(t, "data/sv_SE", WithSeed(42))
+	a, b := newGenerator(t, "data", WithSeed(42)), newGenerator(t, "data", WithSeed(42))
 	for i := 0; i < 50; i++ {
-		if x, y := fake(t, a, "person"), fake(t, b, "person"); x != y {
+		if x, y := fake(t, a, "sv_SE.person"), fake(t, b, "sv_SE.person"); x != y {
 			t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
 		}
 	}
 }
 
 func TestDifferentSeedsDiffer(t *testing.T) {
-	a, b := newGenerator(t, "data/en_US", WithSeed(1)), newGenerator(t, "data/en_US", WithSeed(2))
+	a, b := newGenerator(t, "data", WithSeed(1)), newGenerator(t, "data", WithSeed(2))
 	for i := 0; i < 50; i++ {
-		if fake(t, a, "person") != fake(t, b, "person") {
+		if fake(t, a, "en_US.person") != fake(t, b, "en_US.person") {
 			return
 		}
 	}
