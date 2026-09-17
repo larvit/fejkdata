@@ -96,6 +96,25 @@ func TestNoTableAllocRegression(t *testing.T) {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row index built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
 		}
 	}
+	// Five linked tables, the depth a country's geo tree has: every pin must stay inline.
+	deep := fstest.MapFS{"addr.json": {Data: []byte(`"{/e.v} {/d.v} {/c.v} {/b.v} {/a.v}"`)}}
+	for i, name := range []string{"a", "b", "c", "d", "e"} {
+		rows, category := "k\tv\n1\tx\n2\ty\n", `{"format":"{v}","rows":"`+name+`.tsv","key":"k"}`
+		if i > 0 {
+			parent := string(rune('a' + i - 1))
+			rows = "k\tv\t" + parent + "\n1\tx\t1\n2\ty\t2\n"
+			category = `{"format":"{v}","rows":"` + name + `.tsv","key":"k","parent":"` + parent + `"}`
+		}
+		deep[name+".json"], deep[name+".tsv"] = &fstest.MapFile{Data: []byte(category)}, &fstest.MapFile{Data: []byte(rows)}
+	}
+	f, err = New(WithoutShippedData(), WithDataFS(deep))
+	if err != nil {
+		t.Fatal(err)
+	}
+	const base = 13.0
+	if allocs := testing.AllocsPerRun(10000, func() { f.Fake("addr") }); allocs > base*1.10 {
+		t.Errorf("five linked tables: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a pin spilling past the inline set is the usual cause", allocs, base*1.10, base)
+	}
 }
 
 // A record's fences read the compiled tree, so they belong to New, not to a draw.
