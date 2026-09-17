@@ -54,10 +54,10 @@ countries; the README maps each to the native term.
 | Table | SE | US | Weight |
 |---|---|---|---|
 | `region` | län (21) | state and DC (50; Hawaii has no incorporated place) | population |
-| `municipality` | kommun (290) | county with a shipped place (666) | population |
-| `locality` | postort (1,522), tätort population | place of 25,000+ (1,601) | population |
-| `postal-code` | postnummer with street delivery (13,712) | ZCTA of a shipped place (7,401) | one; address ranges |
-| `street` | gatunamn, top 10 per postort (14,764) | street name, top 10 per place (16,010) | segments; address ranges |
+| `municipality` | kommun (290) | county with a shipped place (663) | population |
+| `locality` | postort (1,522), tätort population | place of 25,000+ (1,579) | population |
+| `postal-code` | postnummer with street delivery (13,712) | ZCTA of a shipped place (5,946) | one; address ranges |
+| `street` | gatunamn, top 10 per postort (14,764) | street name, top 10 per place (15,790) | segments; address ranges |
 
 - Shipped in step 2, README Data. `geo.SE.address` is a record over one consistent
   draw. Each region row carries its timezone, each locality its centroid.

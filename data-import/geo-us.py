@@ -2,11 +2,6 @@
 """Rebuild data/geo/US/*.tsv from the Census Bureau's Gazetteer, population estimates, ZCTA relationships and TIGER/Line files (public domain).
 
     data-import/geo-us.py [--cache DIR] [--min-population N] [--streets-per-locality N] [--out DIR]
-
-A locality is an incorporated place, or a consolidated city's balance, of at least N
-people, in the county holding most of it. Its postal codes are the ZCTAs mostly inside
-it, weighted by their TIGER address ranges, and its streets the N names with most
-address ranges in those codes.
 """
 import argparse
 import collections
@@ -32,10 +27,10 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "US"
 CACHE = Path(__file__).resolve().parent / "cache"
 ESTIMATE = "POPESTIMATE2025"
 CDP = "57"
+HIGHWAY = re.compile(r"\b(I- |Hwy |Rte |Route |Rd )\d")
 SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|comunidad|zona urbana|metropolitan government|metro government|consolidated government|unified government|urban county|corporation|plantation)( \(balance\))?$")
 # Places whose Census name is a merged government's; the postal city is what an address carries.
 NAMES = {"1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4752006": "Nashville"}
-# The predominant zone of each state.
 TIMEZONES = {
     "AK": "America/Anchorage", "AL": "America/Chicago", "AR": "America/Chicago", "AZ": "America/Phoenix",
     "CA": "America/Los_Angeles", "CO": "America/Denver", "CT": "America/New_York", "DC": "America/New_York",
@@ -122,7 +117,7 @@ def localities(cache, min_population, counties):
     out = {}
     for r in gazetteer(cache, "place"):
         geoid, population = r["GEOID"], place_population.get(r["GEOID"], 0)
-        if r["FUNCSTAT"] not in "AFN" or r["LSAD"] == CDP or population < min_population or not county_part.get(geoid):
+        if r["FUNCSTAT"] not in ("A", "F", "N") or r["LSAD"] == CDP or population < min_population or not county_part.get(geoid):
             continue
         county = max(county_part[geoid])[1]
         if county not in counties:
@@ -133,12 +128,13 @@ def localities(cache, min_population, counties):
 
 
 def postal_codes(cache, localities):
-    """Each ZCTA and the shipped place holding most of its land."""
+    """Each ZCTA whose largest part inside any place lies in a shipped place."""
     parts = {}
     for r in csv.DictReader(io.StringIO(text(tsv.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
-        if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] in localities:
+        if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"]:
             parts.setdefault(r["GEOID_ZCTA5_20"], []).append((int(r["AREALAND_PART"]), r["GEOID_PLACE_20"]))
-    return {zcta: max(p)[1] for zcta, p in parts.items()}
+    largest = {zcta: max(p)[1] for zcta, p in parts.items()}
+    return {zcta: place for zcta, place in largest.items() if place in localities}
 
 
 def streets(cache, counties, locality_of_zcta, per_locality):
@@ -153,7 +149,7 @@ def streets(cache, counties, locality_of_zcta, per_locality):
                 zips[r["TLID"]].add(r["ZIP"])
                 addresses[r["ZIP"]] += 1
         for r in tiger(cache, "featnames", county, {"TLID", "FULLNAME", "PAFLAG"}):
-            if r["PAFLAG"] == "P" and r["FULLNAME"]:
+            if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
                 for z in zips.get(r["TLID"], ()):
                     count[(locality_of_zcta[z], r["FULLNAME"])] += 1
     of = collections.defaultdict(list)

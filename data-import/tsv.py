@@ -20,10 +20,10 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
                 body = r.read()
         except OSError:
             body = b""
-        if body.startswith(magic) and b"Request Rejected" not in body[:512]:
+        if body and body.startswith(magic) and b"Request Rejected" not in body[:512]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(body)
-        else:
+        elif attempt < 5:
             time.sleep(10 * attempt)
     sys.exit(f"{source}: no valid download in 5 attempts")
 
@@ -33,7 +33,8 @@ def write(path, columns, rows):
     lines = ["\t".join(columns)]
     for row in rows:
         cells = [str(row[c]) for c in columns]
-        assert all(cells) and not any(re.search(r"[\t\n{}]", c) for c in cells), row
+        if not all(cells) or any(re.search(r"[\t\n{}]", c) for c in cells):
+            raise ValueError(f"{path}: a cell is empty or holds a tab, newline or brace: {row}")
         lines.append("\t".join(cells))
     Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"{path}: {len(lines) - 1} rows", file=sys.stderr)

@@ -2,12 +2,6 @@
 """Rebuild data/geo/SE/*.tsv from SCB (CC0), GeoNames (CC BY 4.0) and Trafikverket NVDB (CC0).
 
     TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--streets-per-locality N] [--out DIR]
-
-A locality is a GeoNames postort, placed in the municipality it names, else of its
-tätort, else of most of its codes, and weighted by its tätort's population, else its
-municipality's, else 200. Box codes are dropped by the digit after the postort's own
-prefix. Each NVDB street segment goes to the nearest postal code centroid; a locality
-keeps the N names with most segments.
 """
 import argparse
 import collections
@@ -95,7 +89,7 @@ def geonames(cache):
 def nvdb_segments(cache, key):
     path = cache / "nvdb-gatunamn.tsv"
     if not path.exists():
-        with open(path, "w", encoding="utf-8") as out:
+        with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
             change = "0"
             while True:
                 query = (
@@ -116,6 +110,7 @@ def nvdb_segments(cache, key):
                 change = result["INFO"]["LASTCHANGEID"]
                 if len(rows) < NVDB_PAGE:
                     break
+        path.with_suffix(".part").rename(path)
     for line in path.read_text(encoding="utf-8").splitlines():
         name, lon, lat = line.split("\t")
         yield name, float(lat), float(lon)
@@ -208,7 +203,8 @@ def streets(segments, codes, localities, per_locality):
     nearest = Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
     count = collections.Counter()
     for name, lat, lon in segments:
-        count[(nearest.find(lat, lon), name)] += 1
+        if name[0].isalpha():
+            count[(nearest.find(lat, lon), name)] += 1
     of = collections.defaultdict(list)
     for (locality, name), n in count.items():
         of[locality].append((n, name))

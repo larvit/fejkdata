@@ -1014,8 +1014,9 @@ renamed or retyped line is a major.
   whole.** `data/sv_SE` alone no longer loads: a test loads `data` and prefixes
   the locale, and `--no-shipped-data -d` takes the whole `data` folder or a set of
   one's own.
-- **The default embed holds every Swedish postort and the US places of 25,000 or
-  more.** Sweden fits whole in 700 KB; every US place of 10,000 would pass a
+- **The default embed holds every Swedish postort the import can place and give a
+  street-delivery code and a street, and the US places of 25,000 or more.** Sweden
+  fits whole in 700 KB; every US place of 10,000 would pass a
   megabyte and fetch 1,200 counties of TIGER files, so the threshold sits where the
   two countries match in size, and `--min-population` and
   `--streets-per-locality` on the import scripts build a fuller set. The two trees
@@ -1030,6 +1031,13 @@ renamed or retyped line is a major.
   carries stale spellings; the nearest code across a border named the wrong kommun
   half the time it was tried, so a postort none of the three rules place is
   dropped, as is one not cased like a place name.
+- **A highway designation is not a street, and a US postal code belongs to the place
+  holding most of its land inside places.** `I- 55 Bus` and `US Hwy 1` carry the
+  most address ranges in many places and would head every address, so the import
+  drops names spelled as a route. A ZCTA goes to the place its largest in-place part
+  lies in, and ships only when that place does; counting the land outside every
+  place too would drop a quarter of the places, whose codes straddle unincorporated
+  land, for a postal city the USPS mostly names the same way.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is

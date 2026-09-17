@@ -44,7 +44,6 @@ var (
 	regionOf       = map[string]string{"0180": "01", "0184": "01", "1280": "12", "1281": "12", "1480": "14"}
 )
 
-// siblings adds two child tables under locality: postal-code, keyed, and street, keyless.
 func siblings() map[string]string {
 	return with(geo(), map[string]string{
 		"postal-code.json": `{"format":"{code}","rows":"postal-code.tsv","key":"code","parent":"locality"}`,
