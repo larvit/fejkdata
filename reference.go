@@ -109,9 +109,6 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 		if category != "" && key == "/"+category {
 			return fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
 		}
-		if err := checkNotOwnFamily(root, category, target); err != nil {
-			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
-		}
 		if err := checkPath(target, tail, key); err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
@@ -123,22 +120,6 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 	}
 	t.readsColumn = columnReadOf(t)
 	return nil
-}
-
-// checkNotOwnFamily refuses a reference from a table's format or cell into a table of
-// its own family: a table rendered whole draws its row without pinning it, so the
-// family would draw apart from the row being rendered.
-func checkNotOwnFamily(root map[string]node, category string, target node) error {
-	if category == "" {
-		return nil
-	}
-	_, own, _, err := resolveCategory(root, strings.Split(category, "."))
-	from, isTable := own.(*table)
-	into, targetIsTable := target.(*table)
-	if err != nil || !isTable || !targetIsTable || from.family() != into.family() {
-		return nil
-	}
-	return fmt.Errorf("a cell or format of %s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", from.category, into.category, from.category)
 }
 
 // columnRead is a record's column read by a format of that one reference alone, which is the

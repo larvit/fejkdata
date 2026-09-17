@@ -21,7 +21,8 @@ replacement, and each removed path, column or flag.
 - `New` refuses a root choice of templates sharing one format and one set of string
   fields, naming the rows TSV to write instead.
 - `misc.country`, `misc.currency`, `misc.language`, `misc.httpstatus` and
-  `misc.mimetype` are tables. `misc.country` is the full ISO 3166 register with the
-  columns `calling-code`, `capital`, `currency`, `flag`, `languages`, `numeric` and
-  `tld` added; `misc.currency` the current ISO 4217 list with `decimals` and
-  `numeric` added, and its symbols from CLDR. `DATA-LICENSES.md` lists each source.
+  `misc.mimetype` are tables. `misc.country` is every ISO 3166 country that has a
+  capital, a currency and a TLD, with the columns `calling-code`, `capital`,
+  `currency`, `flag`, `languages`, `numeric` and `tld` added; `misc.currency` the
+  current ISO 4217 currencies with a minor unit, with `decimals` and `numeric`
+  added, and its symbols from CLDR. `DATA-LICENSES.md` lists each source.

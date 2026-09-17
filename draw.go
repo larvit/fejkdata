@@ -144,8 +144,30 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	for _, e := range renderEdges(t) {
 		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
 	}
+	if err := w.checkOwnFamily(t); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
 	if err := w.check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
+	}
+	return nil
+}
+
+// checkOwnFamily refuses a table's format or cell that reads, however many templates
+// away, a table of its own family: a row rendered whole draws its row without
+// pinning it, so the family would draw apart from the row being rendered.
+func (w *drawWalk) checkOwnFamily(t *template) error {
+	own := t.table
+	if own == nil {
+		own = t.cellOf
+	}
+	if own == nil {
+		return nil
+	}
+	for _, r := range w.reads {
+		if r.tr != nil && r.tr.head.family() == own.family() {
+			return fmt.Errorf("%s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", r.at.route.spelled(r.a.name), r.tr.head.category, own.category)
+		}
 	}
 	return nil
 }

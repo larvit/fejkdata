@@ -12,7 +12,3 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 | `misc/mimetype.tsv` | curated (IANA media types are facts) | — | — | — |
 
 Every other category is hand-written JSON under [`data/`](data), MIT like the code.
-
-```sh
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
-```

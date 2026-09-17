@@ -65,6 +65,7 @@ type template struct {
 	readsColumn  *columnRead // set when the format is one reference alone reading a record's column
 	record       bool        // compiled at the top without a repeat, so its fields are record columns
 	table        *table      // the table whose format this is, whose columns are the fields
+	cellOf       *table      // the table whose cell this is
 	drawGroup    string      // the draw group it draws in, as written; "" keeps its caller's
 	drawGroupKey string      // its draw group keyed by its category once linked: what a render reads its reference paths under
 }

@@ -171,21 +171,36 @@ func (t *table) parseRows(data string) error {
 	}
 	m := len(t.columns)
 	t.cells = make([]string, 0, m*(strings.Count(rest, "\n")+1))
-	for line, n := 2, 0; rest != ""; line++ {
-		var row string
-		row, rest, _ = strings.Cut(rest, "\n")
+	for line := 2; ; line++ {
+		row, more, found := strings.Cut(rest, "\n")
 		row = strings.TrimSuffix(row, "\r")
-		for n = 0; n < m; n++ {
-			cell, more, tab := strings.Cut(row, "\t")
-			if !tab && n < m-1 || tab && n == m-1 {
-				return fmt.Errorf("line %d has %s cells than the %d columns", line, map[bool]string{true: "more", false: "fewer"}[tab], m)
-			}
-			t.cells = append(t.cells, cell)
-			row = more
+		if err := t.appendRow(row, line); err != nil {
+			return err
 		}
+		if !found {
+			break
+		}
+		rest = more
 	}
-	if t.rows() == 1 {
+	if t.rows() < 2 {
 		return fmt.Errorf("has one row, which is a template; write it as one")
+	}
+	return nil
+}
+
+// appendRow splits one line into as many cells as the header has columns.
+func (t *table) appendRow(row string, line int) error {
+	if row == "" {
+		return fmt.Errorf("line %d is empty; every line below the header is a row", line)
+	}
+	m := len(t.columns)
+	for n := 0; n < m; n++ {
+		cell, next, tab := strings.Cut(row, "\t")
+		if !tab && n < m-1 || tab && n == m-1 {
+			return fmt.Errorf("line %d has %s cells than the %d columns", line, map[bool]string{true: "more", false: "fewer"}[tab], m)
+		}
+		t.cells = append(t.cells, cell)
+		row = next
 	}
 	return nil
 }
@@ -280,6 +295,7 @@ func (t *table) checkCells() error {
 			t.tokens = map[int]*template{}
 		}
 		t.tokens[i] = n.(*template)
+		t.tokens[i].cellOf = t
 	}
 	return nil
 }
@@ -395,7 +411,8 @@ func (t *table) indexed() *tableIndex {
 				for k, rows := range t.index.children {
 					cum, total := make([]float64, len(rows)), 0.0
 					for i, r := range rows {
-						total += t.cum[r] - t.cumBefore(r)
+						w, _ := strconv.ParseFloat(t.cell(r, t.weight), 64) // sumWeights proved it
+						total += w
 						cum[i] = total
 					}
 					t.index.childCum[k] = cum
@@ -404,13 +421,6 @@ func (t *table) indexed() *tableIndex {
 		}
 	})
 	return &t.index
-}
-
-func (t *table) cumBefore(r int) float64 {
-	if r == 0 {
-		return 0
-	}
-	return t.cum[r-1]
 }
 
 // draw picks a row over the whole table. The session is concrete rather than the rng
@@ -424,7 +434,7 @@ func (t *table) draw(s *session) int {
 
 func pickCum(s *session, cum []float64) int {
 	x := s.Float64() * cum[len(cum)-1]
-	return sort.Search(len(cum), func(i int) bool { return cum[i] > x })
+	return min(sort.Search(len(cum), func(i int) bool { return cum[i] > x }), len(cum)-1) // x can round up to the total
 }
 
 // drawUnder picks a row among those linked to parent row pr.

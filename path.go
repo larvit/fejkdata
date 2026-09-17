@@ -141,8 +141,7 @@ type pathWalk struct {
 // walkPath descends tail from n and returns the node it ends at: a folder or
 // template by its next segment, a choice by w.choice, which consumes no segment, a
 // table by walkTable. A missing segment is an error, so no walk reaches past what
-// the data holds. A table-shaped dispatch, one case per node kind, kept whole on
-// purpose.
+// the data holds.
 func walkPath(n node, tail []string, w pathWalk) (node, error) {
 	if len(tail) == 0 {
 		return n, w.atLeaf(n)
@@ -216,33 +215,57 @@ func walkChoice(c *choice, tail []string, w pathWalk) (node, error) {
 // table was reached from another; a table reached whole, with no selector, is left
 // to a render's own draw.
 func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error) {
-	sel := ""
-	if len(tail) > 0 && isSelector(tail[0]) {
-		sel, tail = selectorOf(tail[0]), tail[1:]
-		if len(tail) > 0 && isSelector(tail[0]) {
-			return nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.category, sel)
-		}
+	sel, tail, err := t.selector(tail)
+	if err != nil {
+		return nil, err
 	}
-	// A selector further down pins this table by ancestry, so the walk draws only
+	column, child, err := t.step(tail)
+	if err != nil {
+		return nil, err
+	}
+	// Resolved before any draw, so a path that fails moves no seeded stream. A
+	// selector further down pins this table by ancestry, so the walk draws only
 	// where none follows; drawing first could pick a row the selector is not inside.
 	if w.pins != nil {
 		if err := readRow(w.pins, t, sel, (descended || len(tail) > 0) && !hasSelector(tail)); err != nil {
 			return nil, err
 		}
 	}
-	if len(tail) == 0 {
-		if sel == "" && !descended {
-			return walkPath(t, nil, w)
-		}
+	switch {
+	case len(tail) == 0 && sel == "" && !descended:
+		return walkPath(t, nil, w)
+	case len(tail) == 0:
 		return walkPath(t.whole, nil, w)
-	}
-	if i, ok := t.col[tail[0]]; ok {
-		return walkPath(t.fields[t.columns[i]], tail[1:], w)
-	}
-	if child := t.descendant(tail[0]); child != nil {
+	case child != nil:
 		return walkTable(child, tail[1:], w, true)
 	}
-	return nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.category)
+	return walkPath(column, tail[1:], w)
+}
+
+// selector splits the selector a tail starts with from the rest of it.
+func (t *table) selector(tail []string) (sel string, rest []string, err error) {
+	if len(tail) == 0 || !isSelector(tail[0]) {
+		return "", tail, nil
+	}
+	sel, rest = selectorOf(tail[0]), tail[1:]
+	if len(rest) > 0 && isSelector(rest[0]) {
+		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.category, sel)
+	}
+	return sel, rest, nil
+}
+
+// step is what a tail's first segment names in t: a column, or a table linked to it.
+func (t *table) step(tail []string) (column node, child *table, err error) {
+	if len(tail) == 0 {
+		return nil, nil, nil
+	}
+	if i, ok := t.col[tail[0]]; ok {
+		return t.fields[t.columns[i]], nil, nil
+	}
+	if child = t.descendant(tail[0]); child == nil {
+		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.category)
+	}
+	return nil, child, nil
 }
 
 // readRow pins the row a path reads of t: the one its selector names, or, where the
