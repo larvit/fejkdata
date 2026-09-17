@@ -23,6 +23,8 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+import tsv
+
 CODES = "https://www.scb.se/contentassets/7a89e48960f741e08918e489ea36354a/kommunlankod-2026.xlsx"
 POPULATION = "https://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy"
 POPULATION_QUERY = {
@@ -45,15 +47,6 @@ UNMATCHED_POPULATION = 200
 XLSX_NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 
-def fetch(url, cache, name, data=None, headers=None):
-    path = cache / name
-    if not path.exists():
-        req = urllib.request.Request(url, data=data, headers=headers or {})
-        with urllib.request.urlopen(req, timeout=300) as r:
-            path.write_bytes(r.read())
-    return path.read_bytes()
-
-
 def xlsx_rows(data):
     z = zipfile.ZipFile(io.BytesIO(data))
     strings = ["".join(t.text or "" for t in si.iter("{%s}t" % XLSX_NS["m"])) for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", XLSX_NS)]
@@ -68,7 +61,7 @@ def xlsx_rows(data):
 
 def scb_codes(cache):
     regions, municipalities = {}, {}
-    for cells in xlsx_rows(fetch(CODES, cache, "kommunlankod.xlsx")):
+    for cells in xlsx_rows(tsv.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
         if len(cells) < 2 or not re.fullmatch(r"\d{2}|\d{4}", cells[0]):
             continue
         (regions if len(cells[0]) == 2 else municipalities)[cells[0]] = cells[1].strip()
@@ -77,12 +70,12 @@ def scb_codes(cache):
 
 def scb_population(cache):
     body = json.dumps(POPULATION_QUERY).encode()
-    data = fetch(POPULATION, cache, "befolkning.json", data=body, headers={"Content-Type": "application/json"})
+    data = tsv.fetch(POPULATION, cache, "befolkning.json", data=body, headers={"Content-Type": "application/json"})
     return {row["key"][0]: row["values"][0] for row in json.loads(data.decode("utf-8-sig"))["data"]}
 
 
 def scb_tatorter(cache):
-    text = fetch(TATORTER, cache, "tatorter.csv").decode("utf-8")
+    text = tsv.fetch(TATORTER, cache, "tatorter.csv").decode("utf-8")
     by_name = collections.defaultdict(list)
     for r in csv.DictReader(io.StringIO(text)):
         by_name[r["tatort"]].append((r["kommun"], int(r["bef"])))
@@ -90,7 +83,7 @@ def scb_tatorter(cache):
 
 
 def geonames(cache):
-    z = zipfile.ZipFile(io.BytesIO(fetch(POSTAL_CODES, cache, "SE.zip")))
+    z = zipfile.ZipFile(io.BytesIO(tsv.fetch(POSTAL_CODES, cache, "SE.zip", magic=b"PK")))
     rows = []
     for line in z.read("SE.txt").decode("utf-8").splitlines():
         f = line.split("\t")
@@ -190,14 +183,36 @@ def well_cased(name):
     return all(part[:1].isupper() and (len(part) == 1 or not part.isupper()) for part in re.split(r"[ -]", name))
 
 
-def write(path, columns, rows):
-    lines = ["\t".join(columns)]
-    for row in rows:
-        cells = [str(row[c]) for c in columns]
-        assert not any(re.search(r"[\t\n{}]", c) for c in cells), row
-        lines.append("\t".join(cells))
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"{path}: {len(rows)} rows", file=sys.stderr)
+def localities(codes, tatorter, municipalities, population):
+    """Each postort with its municipality, weight, centroid and street-delivery codes."""
+    by_locality = collections.defaultdict(list)
+    for r in codes:
+        by_locality[r["locality"]].append(r)
+    out, how = {}, collections.Counter()
+    for name, rows in by_locality.items():
+        municipality, method = municipality_of(name, rows, tatorter, municipalities)
+        how[method] += 1
+        kept = street_delivery(name, [r["code"].replace(" ", "") for r in rows])
+        with_point = [r for r in rows if r["lat"] is not None]
+        if municipality is None or not kept or not with_point or not well_cased(name):
+            continue
+        lat = sum(r["lat"] for r in with_point) / len(with_point)
+        lon = sum(r["lon"] for r in with_point) / len(with_point)
+        out[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, tatorter, municipalities, population), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
+    print(f"municipality by {dict(how)}; {len(by_locality) - len(out)} postorter dropped", file=sys.stderr)
+    return out
+
+
+def streets(segments, codes, localities, per_locality):
+    """The names with most segments per locality, each segment at its nearest code centroid."""
+    nearest = Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
+    count = collections.Counter()
+    for name, lat, lon in segments:
+        count[(nearest.find(lat, lon), name)] += 1
+    of = collections.defaultdict(list)
+    for (locality, name), n in count.items():
+        of[locality].append((n, name))
+    return {locality: [{"name": name, "locality": locality, "segments": n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, named in of.items()}
 
 
 def main():
@@ -216,48 +231,19 @@ def main():
 
     regions, municipalities = scb_codes(cache)
     population = scb_population(cache)
-    tatorter = scb_tatorter(cache)
     codes = geonames(cache)
-
-    by_locality = collections.defaultdict(list)
-    for r in codes:
-        by_locality[r["locality"]].append(r)
-    localities, how = {}, collections.Counter()
-    for name, rows in by_locality.items():
-        municipality, method = municipality_of(name, rows, tatorter, municipalities)
-        how[method] += 1
-        kept = street_delivery(name, [r["code"].replace(" ", "") for r in rows])
-        with_point = [r for r in rows if r["lat"] is not None]
-        if municipality is None or not kept or not with_point or not well_cased(name):
-            continue
-        lat = sum(r["lat"] for r in with_point) / len(with_point)
-        lon = sum(r["lon"] for r in with_point) / len(with_point)
-        localities[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, tatorter, municipalities, population), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
-    print(f"municipality by {dict(how)}; {len(by_locality) - len(localities)} postorter dropped", file=sys.stderr)
-
-    centroids = [(r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities]
-    nearest_locality = Nearest(centroids)
-    segments = collections.Counter()
-    for name, lat, lon in nvdb_segments(cache, key):
-        segments[(nearest_locality.find(lat, lon), name)] += 1
-    streets_of = collections.defaultdict(list)
-    for (locality, name), n in segments.items():
-        streets_of[locality].append((n, name))
-    streets = []
-    for locality in sorted(streets_of):
-        for n, name in sorted(streets_of[locality], key=lambda s: (-s[0], s[1]))[: a.streets_per_locality]:
-            streets.append({"name": name, "locality": locality, "segments": n})
-    for name in [l for l in localities if l not in streets_of]:
-        del localities[name]
-
-    empty = sorted(m for m in municipalities if not any(l["municipality"] == m for l in localities.values()))
+    places = localities(codes, scb_tatorter(cache), municipalities, population)
+    named = streets(nvdb_segments(cache, key), codes, places, a.streets_per_locality)
+    places = {name: l for name, l in places.items() if name in named}
+    empty = sorted(m for m in municipalities if not any(l["municipality"] == m for l in places.values()))
     if empty:
         sys.exit(f"municipalities without a locality: {empty}")
-    write(out / "region.tsv", ["code", "name", "population", "timezone"], [{"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in sorted(regions.items())])
-    write(out / "municipality.tsv", ["code", "name", "region", "population"], [{"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in sorted(municipalities.items())])
-    write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(localities.items())])
-    write(out / "postal-code.tsv", ["code", "locality"], sorted(({"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in localities.values() for c in l["codes"]), key=lambda r: r["code"]))
-    write(out / "street.tsv", ["name", "locality", "segments"], streets)
+
+    tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [{"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in sorted(regions.items())])
+    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [{"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in sorted(municipalities.items())])
+    tsv.write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
+    tsv.write(out / "postal-code.tsv", ["code", "locality"], sorted(({"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in places.values() for c in l["codes"]), key=lambda r: r["code"]))
+    tsv.write(out / "street.tsv", ["name", "locality", "segments"], [s for locality in sorted(named) for s in named[locality]])
 
 
 if __name__ == "__main__":

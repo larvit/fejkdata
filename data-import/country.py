@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
 """Rebuild data/misc/country.tsv from datasets/country-codes (PDDL).
 
-    data-import/country.py [--source URL_OR_FILE] [--out FILE]
+    data-import/country.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 """
 import argparse
 import csv
 import io
 import re
-import sys
-import urllib.request
 from pathlib import Path
+
+import tsv
 
 SOURCE = "https://raw.githubusercontent.com/datasets/country-codes/main/data/country-codes.csv"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "country.tsv"
+CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["alpha2", "alpha3", "calling-code", "capital", "currency", "flag", "languages", "name", "numeric", "tld"]
 # Gaps in the source, keyed by alpha2.
 FIXUPS = {"TR": {"currency": "TRY"}}
-
-
-def read(source):
-    if re.match(r"^https?://", source):
-        with urllib.request.urlopen(source, timeout=60) as r:
-            return r.read().decode("utf-8")
-    return Path(source).read_text(encoding="utf-8")
 
 
 def flag(alpha2):
@@ -58,23 +52,14 @@ def rows(text):
             yield row
 
 
-def write(out, table):
-    lines = ["\t".join(COLUMNS)]
-    for row in sorted(table, key=lambda r: r["alpha2"]):
-        cells = [row[c] for c in COLUMNS]
-        assert not any("\t" in c or "\n" in c for c in cells), row
-        lines.append("\t".join(cells))
-    Path(out).write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return len(lines) - 1
-
-
 def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
-    n = write(a.out, rows(read(a.source)))
-    print(f"{a.out}: {n} rows", file=sys.stderr)
+    table = rows(tsv.fetch(a.source, a.cache, "country-codes.csv").decode("utf-8"))
+    tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["alpha2"]))
 
 
 if __name__ == "__main__":
