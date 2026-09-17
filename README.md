@@ -444,9 +444,10 @@ table another path in the group selects a row of, `{/city.name}` beside
 `{/country[SE].name}`, which the first token rendered would otherwise decide. `New`
 also refuses a link cell that is no key of the parent, a parent row no child links
 to, a chain of parents that closes, a table named like a column of any table above
-it, and a cell or format of a table that references a table of its own family, since
-a row rendered whole would draw the family apart from itself: read the family from a
-template beside it, or add the value as a column.
+it, and a cell or format of a table that references a table of its own family, through
+any template, a `repeat` or a `drawGroup` included, since a row rendered whole would
+draw the family apart from itself: read the family from a template beside it, or add
+the value as a column.
 
 ### Options and fields
 
@@ -969,6 +970,16 @@ renamed or retyped line is a major.
   they sit in two rows of one table, or in a row outside a selected ancestor's. A
   choice's items get no such treatment yet: two items selecting different rows
   are still refused.
+- **A table never reaches its own family, by any route.** A `repeat` iteration and a
+  `drawGroup` each draw apart on purpose, but a row that lists three localities from
+  other regions is the output the family exists to prevent, so the own-family fence
+  walks through both rather than stopping where the draw fences do.
+- **Tables carrying token cells stay small.** The family fence compares the reads of
+  every pair of rows that can render together, so a table whose every row's cell
+  selects a row of another table loads in time quadratic in its rows: about a
+  second at four thousand rows. No shipped table carries such cells, and a register
+  is a column set rather than a set of references, so the fence is left as it is
+  until a real data set needs the indexed form.
 - **A path is walked once without drawing before it is walked for real.** A path
   that fails below its first level then moves no seeded stream, at the cost of one
   draw-free walk per call, which allocates nothing.

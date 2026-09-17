@@ -137,15 +137,18 @@ func (c *drawCheck) checkDrawGroup(path string, n node) error {
 
 func (c *drawCheck) checkDraws(path string, n node) error {
 	t, ok := n.(*template)
-	if !ok || !c.readsPath(t) {
+	if !ok {
+		return nil
+	}
+	if err := checkOwnFamily(t); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	if !c.readsPath(t) {
 		return nil
 	}
 	w := newDrawWalk()
 	for _, e := range renderEdges(t) {
 		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
-	}
-	if err := w.checkOwnFamily(t); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
 	}
 	if err := w.check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
@@ -154,9 +157,10 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 }
 
 // checkOwnFamily refuses a table's format or cell that reads, however many templates
-// away, a table of its own family: a row rendered whole draws its row without
-// pinning it, so the family would draw apart from the row being rendered.
-func (w *drawWalk) checkOwnFamily(t *template) error {
+// away and through a repeat or a draw group too, a table of its own family: a row
+// rendered whole draws its row without pinning it, so the family would draw apart
+// from the row being rendered, whichever draws the reaching template holds.
+func checkOwnFamily(t *template) error {
 	own := t.table
 	if own == nil {
 		own = t.cellOf
@@ -164,10 +168,27 @@ func (w *drawWalk) checkOwnFamily(t *template) error {
 	if own == nil {
 		return nil
 	}
-	for _, r := range w.reads {
-		if r.tr != nil && r.tr.head.family() == own.family() {
-			return fmt.Errorf("%s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", r.at.route.spelled(r.a.name), r.tr.head.category, own.category)
+	seen := map[node]bool{}
+	var find func(n node) (renderEdge, *table, bool)
+	find = func(n node) (renderEdge, *table, bool) {
+		if seen[n] {
+			return renderEdge{}, nil, false
 		}
+		seen[n] = true
+		for _, e := range renderEdges(n) {
+			if a, isRef := refRead(n, e.label); isRef {
+				if head, isTable := n.(*template).fields[a.key].(*table); isTable && head.family() == own.family() {
+					return e, head, true
+				}
+			}
+			if e, head, found := find(e.to); found {
+				return e, head, true
+			}
+		}
+		return renderEdge{}, nil, false
+	}
+	if e, head, found := find(t); found {
+		return fmt.Errorf("%s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
 	}
 	return nil
 }
