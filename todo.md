@@ -19,9 +19,12 @@ node, so real-world tables cannot ship as nested JSON objects.
   cell token.
 - Reject a choice of same-shaped templates naming the table spelling, and convert
   `misc.country`, `currency`, `language`, `httpstatus`, `mimetype`, `timezone`, `car`.
-- Let a path select a row by key, `geo.SE.municipality[0180]`, and descend to a
-  linked table by name, `geo.SE.region[01].street`; a key or a linked table name
-  may not equal a column name (load error).
+- Let a path select a row by key or by name, `geo.SE.municipality[0180]` and
+  `geo.SE.municipality[Stockholm]`, and descend to a linked table by name,
+  `geo.SE.region[Skåne län].street`; a key or a linked table name may not equal
+  a column name (load error). A name that matches several rows outside a pinned
+  parent is an error listing the keys; inside one, `region[IL].locality[Springfield]`
+  resolves.
 - Draw linked tables consistently within one render and draw group: the first
   table drawn pins its ancestors, and a descendant is drawn inside them.
 - Keep country data under `geo/<alpha2>/`; a locale's `address` reads its
@@ -51,11 +54,10 @@ countries; the README maps each to the native term.
 
 - `geo.SE.address` is a record over one consistent draw: street, number, postal
   code, locality; `geo.SE.locality[stockholm].address` stays inside Stockholm.
-- Countries, in order: SE, US, then NO, DK, FI, NL, FR, AU, CA, ES, GB, DE.
-- Sweden's street ↔ postnummer pairing is not open: Lantmäteriet's addresses need
-  an approved application under personal-data terms and PostNord's register is
-  commercial. Decide: apply as larvit, compose NVDB streets with GeoNames
-  postnummer per postort (approximate pairing), or both.
+- v0.1.0 ships SE and US; then NO, DK, FI, NL, FR, AU, CA, ES, GB, DE.
+- SE streets come from NVDB per kommun and postnummer from GeoNames per postort,
+  box codes dropped by the third-digit rule; the pairing is approximate. Revisit
+  an application to Lantmäteriet for the exact pairing after v0.1.0.
 
 #### Sources (`research-geo-se.md`, `research-geo-world.md`)
 
