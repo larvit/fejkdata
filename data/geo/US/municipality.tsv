@@ -255,7 +255,6 @@ code	name	region	population
 23001	Androscoggin County	ME	116487
 23005	Cumberland County	ME	317222
 23019	Penobscot County	ME	157967
-24003	Anne Arundel County	MD	603380
 24021	Frederick County	MD	302883
 24031	Montgomery County	MD	1074582
 24033	Prince George's County	MD	970374
@@ -389,7 +388,6 @@ code	name	region	population
 36067	Onondaga County	NY	466584
 36071	Orange County	NY	417669
 36083	Rensselaer County	NY	160510
-36087	Rockland County	NY	357397
 36091	Saratoga County	NY	241343
 36093	Schenectady County	NY	162581
 36103	Suffolk County	NY	1546090
@@ -603,7 +601,6 @@ code	name	region	population
 51540	Charlottesville city	VA	44388
 51550	Chesapeake city	VA	255332
 51590	Danville city	VA	41647
-51600	Fairfax city	VA	26772
 51630	Fredericksburg city	VA	30393
 51650	Hampton city	VA	137315
 51660	Harrisonburg city	VA	50839
