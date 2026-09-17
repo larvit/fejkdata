@@ -453,11 +453,20 @@ func TestTableFences(t *testing.T) {
 		t.Fatalf("t[y].b in a CRLF file = %q, want the carriage return stripped", v)
 	}
 	a, b := newGenerator(t, writeFiles(t, geo()), WithSeed(1)), newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	if _, err := a.Fake("region.nope"); err == nil {
-		t.Fatal("Fake(region.nope) = nil error")
+	for _, path := range []string{"region.nope", "region.locality.nope", "region.municipality[9999]", "region[12].locality[L1]"} {
+		if _, err := a.Fake(path); err == nil {
+			t.Fatalf("Fake(%s) = nil error", path)
+		}
+		if _, err := a.FakeRecord(path); err == nil {
+			t.Fatalf("FakeRecord(%s) = nil error", path)
+		}
 	}
-	if x, y := fake(t, a, "region.name"), fake(t, b, "region.name"); x != y {
+	if x, y := fake(t, a, "region.locality.name"), fake(t, b, "region.locality.name"); x != y {
 		t.Fatalf("a failed Fake shifted the seeded stream: %q != %q", x, y)
+	}
+	two := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"capital.json": `{"format":"{timezone}","rows":"region.tsv","key":"code"}`})), WithSeed(1))
+	if v := fake(t, two, "capital[12]"); v != "Europe/Stockholm" {
+		t.Fatalf("capital[12] over region.tsv = %q, want a second category over one file", v)
 	}
 	empty := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n"}), WithSeed(1))
 	if v := fake(t, empty, "t"); v != "" {
@@ -511,6 +520,28 @@ func TestTableInAStructTag(t *testing.T) {
 	}
 	if v.Region != "Skåne län" || regionOf[municipalityOf[v.Locality]] != "12" || v.Any != "Europe/Stockholm-x" {
 		t.Fatalf("FakeStruct = %+v, want the selected rows", v)
+	}
+}
+
+// The cells of one column are alternatives, as a choice's items are: only one row
+// renders, so two cells selecting different rows of another table never meet.
+func TestColumnCellsAreAlternatives(t *testing.T) {
+	files := map[string]string{
+		"cur.json":     `{"format":"{code}","rows":"cur.tsv","key":"code"}`,
+		"cur.tsv":      "code\tsym\nEUR\t€\nSEK\tkr\n",
+		"country.json": `{"format":"{name} {money}","rows":"country.tsv","key":"alpha2"}`,
+		"country.tsv":  "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n",
+	}
+	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+	if v := fake(t, f, "country[SE]"); v != "Sweden kr" {
+		t.Fatalf("country[SE] = %q", v)
+	}
+	if v := fake(t, f, "country[FI].money"); v != "€" {
+		t.Fatalf("country[FI].money = %q", v)
+	}
+	files["country.tsv"] = "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), "drawGroup") {
+		t.Fatalf("New = %v, want one cell selecting two rows refused", err)
 	}
 }
 
