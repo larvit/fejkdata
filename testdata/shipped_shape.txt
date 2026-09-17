@@ -1,11 +1,9 @@
-en_US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"
+en_US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.address
 en_US.address.locality	string
 en_US.address.postal-code	string
 en_US.address.region	string
 en_US.address.street	string
 en_US.address.street-number	string
-en_US.address.street.name
-en_US.address.street.suffix
 en_US.color
 en_US.company	format "{base} {suffix}"
 en_US.company.base	string
@@ -52,6 +50,147 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
+geo.SE.address	format "{street} {number}\n{postal-code} {locality}"	reads geo.SE.locality geo.SE.postal-code geo.SE.street
+geo.SE.address.locality	string
+geo.SE.address.number	string
+geo.SE.address.postal-code	string
+geo.SE.address.street	string
+geo.SE.locality	format "{name}"	key name	weight population	parent municipality
+geo.SE.locality.lat	string
+geo.SE.locality.lon	string
+geo.SE.locality.municipality	string
+geo.SE.locality.name	string
+geo.SE.locality.population	string
+geo.SE.locality.postal-code
+geo.SE.locality.postal-code.code
+geo.SE.locality.postal-code.locality
+geo.SE.locality.street
+geo.SE.locality.street.locality
+geo.SE.locality.street.name
+geo.SE.locality.street.segments
+geo.SE.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.SE.municipality.code	string
+geo.SE.municipality.locality
+geo.SE.municipality.locality.lat
+geo.SE.municipality.locality.lon
+geo.SE.municipality.locality.municipality
+geo.SE.municipality.locality.name
+geo.SE.municipality.locality.population
+geo.SE.municipality.locality.postal-code
+geo.SE.municipality.locality.postal-code.code
+geo.SE.municipality.locality.postal-code.locality
+geo.SE.municipality.locality.street
+geo.SE.municipality.locality.street.locality
+geo.SE.municipality.locality.street.name
+geo.SE.municipality.locality.street.segments
+geo.SE.municipality.name	string
+geo.SE.municipality.population	string
+geo.SE.municipality.region	string
+geo.SE.postal-code	format "{code}"	key code	parent locality
+geo.SE.postal-code.code	string
+geo.SE.postal-code.locality	string
+geo.SE.region	format "{name}"	key code	name name	weight population
+geo.SE.region.code	string
+geo.SE.region.municipality
+geo.SE.region.municipality.code
+geo.SE.region.municipality.locality
+geo.SE.region.municipality.locality.lat
+geo.SE.region.municipality.locality.lon
+geo.SE.region.municipality.locality.municipality
+geo.SE.region.municipality.locality.name
+geo.SE.region.municipality.locality.population
+geo.SE.region.municipality.locality.postal-code
+geo.SE.region.municipality.locality.postal-code.code
+geo.SE.region.municipality.locality.postal-code.locality
+geo.SE.region.municipality.locality.street
+geo.SE.region.municipality.locality.street.locality
+geo.SE.region.municipality.locality.street.name
+geo.SE.region.municipality.locality.street.segments
+geo.SE.region.municipality.name
+geo.SE.region.municipality.population
+geo.SE.region.municipality.region
+geo.SE.region.name	string
+geo.SE.region.population	string
+geo.SE.region.timezone	string
+geo.SE.street	format "{name}"	weight segments	parent locality
+geo.SE.street.locality	string
+geo.SE.street.name	string
+geo.SE.street.segments	string
+geo.US.address	format "{number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality geo.US.postal-code geo.US.region geo.US.street
+geo.US.address.locality	string
+geo.US.address.number	string
+geo.US.address.postal-code	string
+geo.US.address.region	string
+geo.US.address.street	string
+geo.US.locality	format "{name}"	key code	name name	weight population	parent municipality
+geo.US.locality.code	string
+geo.US.locality.lat	string
+geo.US.locality.lon	string
+geo.US.locality.municipality	string
+geo.US.locality.name	string
+geo.US.locality.population	string
+geo.US.locality.postal-code
+geo.US.locality.postal-code.addresses
+geo.US.locality.postal-code.code
+geo.US.locality.postal-code.locality
+geo.US.locality.street
+geo.US.locality.street.addresses
+geo.US.locality.street.locality
+geo.US.locality.street.name
+geo.US.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.US.municipality.code	string
+geo.US.municipality.locality
+geo.US.municipality.locality.code
+geo.US.municipality.locality.lat
+geo.US.municipality.locality.lon
+geo.US.municipality.locality.municipality
+geo.US.municipality.locality.name
+geo.US.municipality.locality.population
+geo.US.municipality.locality.postal-code
+geo.US.municipality.locality.postal-code.addresses
+geo.US.municipality.locality.postal-code.code
+geo.US.municipality.locality.postal-code.locality
+geo.US.municipality.locality.street
+geo.US.municipality.locality.street.addresses
+geo.US.municipality.locality.street.locality
+geo.US.municipality.locality.street.name
+geo.US.municipality.name	string
+geo.US.municipality.population	string
+geo.US.municipality.region	string
+geo.US.postal-code	format "{code}"	key code	weight addresses	parent locality
+geo.US.postal-code.addresses	string
+geo.US.postal-code.code	string
+geo.US.postal-code.locality	string
+geo.US.region	format "{name}"	key abbr	name name	weight population
+geo.US.region.abbr	string
+geo.US.region.code	string
+geo.US.region.municipality
+geo.US.region.municipality.code
+geo.US.region.municipality.locality
+geo.US.region.municipality.locality.code
+geo.US.region.municipality.locality.lat
+geo.US.region.municipality.locality.lon
+geo.US.region.municipality.locality.municipality
+geo.US.region.municipality.locality.name
+geo.US.region.municipality.locality.population
+geo.US.region.municipality.locality.postal-code
+geo.US.region.municipality.locality.postal-code.addresses
+geo.US.region.municipality.locality.postal-code.code
+geo.US.region.municipality.locality.postal-code.locality
+geo.US.region.municipality.locality.street
+geo.US.region.municipality.locality.street.addresses
+geo.US.region.municipality.locality.street.locality
+geo.US.region.municipality.locality.street.name
+geo.US.region.municipality.name
+geo.US.region.municipality.population
+geo.US.region.municipality.region
+geo.US.region.name	string
+geo.US.region.population	string
+geo.US.region.timezone	string
+geo.US.street	format "{name}"	weight addresses	parent locality
+geo.US.street.addresses	string
+geo.US.street.locality	string
+geo.US.street.name	string
 misc.car
 misc.car.maker
 misc.car.model
@@ -93,7 +232,7 @@ misc.timezone
 misc.useragent
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
-sv_SE.address	format "{street} {street-number}\n{postal-code} {locality}"
+sv_SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.address
 sv_SE.address.locality	string
 sv_SE.address.postal-code	string
 sv_SE.address.street	string
