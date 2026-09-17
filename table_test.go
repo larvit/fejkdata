@@ -131,7 +131,7 @@ func TestTableCellsAreStringNodes(t *testing.T) {
 	}
 	bad := writeFiles(t, map[string]string{
 		"place.json": `{"format":"{name}","rows":"place.tsv"}`,
-		"place.tsv":  "name\tzip\nA\t{name}\n",
+		"place.tsv":  "name\tzip\nA\t{name}\nB\t2\n",
 	})
 	if _, err := New(WithoutShippedData(), WithDataPath(bad)); err == nil || !strings.Contains(err.Error(), "place.tsv") || !strings.Contains(err.Error(), `no field "name"`) {
 		t.Fatalf("New = %v, want a cell reading a column refused, naming the file", err)
@@ -413,7 +413,7 @@ func TestTableFences(t *testing.T) {
 func TestSameShapedChoiceIsATable(t *testing.T) {
 	rows := `[{"format":"{name}","name":"Sweden","alpha2":"SE"},{"format":"{name}","name":"Norway","alpha2":"NO"},{"format":"{name}","name":"Denmark","alpha2":"DK"}]`
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"country": rows})))
-	for _, want := range []string{"country.tsv", `"rows"`, "alpha2\tname", "3 "} {
+	for _, want := range []string{"country.tsv", `"rows"`, `alpha2\tname`, "3 "} {
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Fatalf("New(same-shaped choice) = %v, want it refused mentioning %q", err, want)
 		}
@@ -446,12 +446,12 @@ func TestTableInAStructTag(t *testing.T) {
 	var v struct {
 		Region   string `fake:"region[12].name"`
 		Locality string `fake:"region[12].locality.code"`
-		Any      string `fake:"{/municipality[Lund].code}"`
+		Any      string `fake:"{/region[Skåne län].timezone}-x"` // the row region[12] names, by name
 	}
 	if err := f.FakeStruct(&v); err != nil {
 		t.Fatal(err)
 	}
-	if v.Region != "Skåne län" || regionOf[municipalityOf[v.Locality]] != "12" || v.Any != "1281" {
+	if v.Region != "Skåne län" || regionOf[municipalityOf[v.Locality]] != "12" || v.Any != "Europe/Stockholm-x" {
 		t.Fatalf("FakeStruct = %+v, want the selected rows", v)
 	}
 }

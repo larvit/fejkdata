@@ -387,11 +387,11 @@ func TestRunInlineTemplate(t *testing.T) {
 func TestRunTemplateMisuse(t *testing.T) {
 	for arg, want := range map[string]string{
 		"{bad":                  "unterminated",
-		"[red,green]":           "names no template either",
+		"[red,green]":           `starts with "["`,
 		`{"format":"x"}`:        "is a string",
 		"name: {/no.such.path}": "no entry",
 		"{/sv_SE.person}":       "write sv_SE.person",
-		"x[1]":                  "names no template either",
+		"x[1]y":                 `"]"`,
 		` ["a","b"] `:           "may not be padded",
 	} {
 		code, out, errb := runOut("--seed", "1", arg)

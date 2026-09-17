@@ -9,13 +9,15 @@ import (
 )
 
 var (
-	jsonBlock = regexp.MustCompile("(?s)```json\n(.*?)```")
-	tsvBlock  = regexp.MustCompile("(?s)```tsv\n(.*?)```")
-	rowsFile  = regexp.MustCompile(`"rows":\s*"([^"]+)"`)
+	jsonBlock  = regexp.MustCompile("(?s)```json\n(.*?)```")
+	tsvBlock   = regexp.MustCompile("(?s)```tsv\n(.*?)```")
+	rowsFile   = regexp.MustCompile(`"rows":\s*"([^"]+)"`)
+	parentName = regexp.MustCompile(`"parent":\s*"([^"]+)"`)
 )
 
-// exampleFiles is a README json block as a data directory's files: the category, and
-// the rows TSV it names, taken from the nearest tsv block above it.
+// exampleFiles is a README json block as a data directory's files: the category, the
+// rows TSV it names, taken from the nearest tsv block above it, and the parent table it
+// names, taken from the nearest json block above it whose rows file is the parent's.
 func exampleFiles(t *testing.T, src string, at int, body string) map[string]string {
 	t.Helper()
 	files := map[string]string{"example.json": body}
@@ -25,6 +27,21 @@ func exampleFiles(t *testing.T, src string, at int, body string) map[string]stri
 			t.Fatalf("README example names %s with no tsv block above it", m[1])
 		}
 		files[m[1]] = tsv[len(tsv)-1][1]
+	}
+	if m := parentName.FindStringSubmatch(body); m != nil {
+		blocks := jsonBlock.FindAllStringSubmatchIndex(src[:at], -1)
+		for i := len(blocks) - 1; i >= 0; i-- {
+			parent := src[blocks[i][2]:blocks[i][3]]
+			if strings.Contains(parent, `"rows": "`+m[1]+`.tsv"`) {
+				for name, content := range exampleFiles(t, src, blocks[i][0], parent) {
+					if name == "example.json" {
+						name = m[1] + ".json"
+					}
+					files[name] = content
+				}
+				break
+			}
+		}
 	}
 	return files
 }
