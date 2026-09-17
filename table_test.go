@@ -523,12 +523,12 @@ func TestTableInAStructTag(t *testing.T) {
 	}
 }
 
-// The cells of one column are alternatives, as a choice's items are: only one row
-// renders, so two cells selecting different rows of another table never meet.
-func TestColumnCellsAreAlternatives(t *testing.T) {
+func TestTableRowsAreAlternatives(t *testing.T) {
 	files := map[string]string{
 		"cur.json":     `{"format":"{code}","rows":"cur.tsv","key":"code"}`,
-		"cur.tsv":      "code\tsym\nEUR\t€\nSEK\tkr\n",
+		"cur.tsv":      "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n",
+		"y.json":       `{"format":"{sym}","rows":"y.tsv","key":"k"}`,
+		"y.tsv":        "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n",
 		"country.json": `{"format":"{name} {money}","rows":"country.tsv","key":"alpha2"}`,
 		"country.tsv":  "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n",
 	}
@@ -539,8 +539,28 @@ func TestColumnCellsAreAlternatives(t *testing.T) {
 	if v := fake(t, f, "country[FI].money"); v != "€" {
 		t.Fatalf("country[FI].money = %q", v)
 	}
+	accepted := map[string]map[string]string{
+		"a cell reaching a table whose rows are alternatives": {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y.sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+		"a cell agreeing with the row it selects":             {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+		"a selected row's cell beside the row it agrees with": {"z.json": `"{/country[SE].money} {/cur[SEK].sym}"`},
+	}
+	for name, more := range accepted {
+		g, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
+		if err != nil {
+			t.Errorf("%s: New = %v, want it accepted", name, err)
+			continue
+		}
+		for i := 0; i < 50; i++ {
+			for _, path := range []string{"country", "country[FI]"} {
+				if v := fake(t, g, path); strings.Contains(v, "€") && strings.Contains(v, "$") || strings.Contains(v, "kr") && strings.Contains(v, "$") {
+					t.Fatalf("%s: %s = %q, want one currency per row", name, path, v)
+				}
+			}
+		}
+	}
 	rejected := map[string]map[string]string{
 		"one cell selecting two rows":     {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+		"two tables' cells in one render": {"z.json": `"{/country.money} {/y.sym}"`},
 		"the format beside a cell":        {"country.json": `{"format":"{money} {/cur[SEK].sym}","rows":"country.tsv","key":"alpha2"}`},
 		"two columns of one row":          {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur[SEK].sym}\t{/cur[EUR].sym}\nSE\t{/cur[EUR].sym}\t{/cur[SEK].sym}\n"},
 		"a whole read beside a path":      {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur}\t{/cur[EUR].sym}\nSE\t{/cur}\t{/cur[SEK].sym}\n"},
