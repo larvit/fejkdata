@@ -1,0 +1,16 @@
+ext	type
+.gz	application/gzip
+.json	application/json
+.pdf	application/pdf
+.xml	application/xml
+.zip	application/zip
+.mp3	audio/mpeg
+.gif	image/gif
+.jpg	image/jpeg
+.png	image/png
+.svg	image/svg+xml
+.webp	image/webp
+.csv	text/csv
+.html	text/html
+.txt	text/plain
+.mp4	video/mp4

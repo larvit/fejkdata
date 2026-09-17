@@ -1,0 +1,169 @@
+code	decimals	name	numeric	symbol
+AED	2	UAE Dirham	784	AED
+AFN	2	Afghani	971	؋
+ALL	2	Lek	008	ALL
+AMD	2	Armenian Dram	051	֏
+AOA	2	Kwanza	973	Kz
+ARS	2	Argentine Peso	032	$
+AUD	2	Australian Dollar	036	$
+AWG	2	Aruban Florin	533	AWG
+AZN	2	Azerbaijan Manat	944	₼
+BAM	2	Convertible Mark	977	KM
+BBD	2	Barbados Dollar	052	$
+BDT	2	Taka	050	৳
+BHD	3	Bahraini Dinar	048	BHD
+BIF	0	Burundi Franc	108	BIF
+BMD	2	Bermudian Dollar	060	$
+BND	2	Brunei Dollar	096	$
+BOB	2	Boliviano	068	Bs
+BOV	2	Mvdol	984	BOV
+BRL	2	Brazilian Real	986	R$
+BSD	2	Bahamian Dollar	044	$
+BTN	2	Ngultrum	064	BTN
+BWP	2	Pula	072	P
+BYN	2	Belarusian Ruble	933	BYN
+BZD	2	Belize Dollar	084	$
+CAD	2	Canadian Dollar	124	$
+CDF	2	Congolese Franc	976	CDF
+CHE	2	WIR Euro	947	CHE
+CHF	2	Swiss Franc	756	Fr.
+CHW	2	WIR Franc	948	CHW
+CLF	4	Unidad de Fomento	990	CLF
+CLP	0	Chilean Peso	152	$
+CNY	2	Yuan Renminbi	156	¥
+COP	2	Colombian Peso	170	$
+COU	2	Unidad de Valor Real	970	COU
+CRC	2	Costa Rican Colon	188	₡
+CUP	2	Cuban Peso	192	$
+CVE	2	Cabo Verde Escudo	132	CVE
+CZK	2	Czech Koruna	203	Kč
+DJF	0	Djibouti Franc	262	DJF
+DKK	2	Danish Krone	208	kr
+DOP	2	Dominican Peso	214	$
+DZD	2	Algerian Dinar	012	DZD
+EGP	2	Egyptian Pound	818	E£
+ERN	2	Nakfa	232	ERN
+ETB	2	Ethiopian Birr	230	ETB
+EUR	2	Euro	978	€
+FJD	2	Fiji Dollar	242	$
+FKP	2	Falkland Islands Pound	238	£
+GBP	2	Pound Sterling	826	£
+GEL	2	Lari	981	₾
+GHS	2	Ghana Cedi	936	GH₵
+GIP	2	Gibraltar Pound	292	£
+GMD	2	Dalasi	270	GMD
+GNF	0	Guinean Franc	324	FG
+GTQ	2	Quetzal	320	Q
+GYD	2	Guyana Dollar	328	$
+HKD	2	Hong Kong Dollar	344	$
+HNL	2	Lempira	340	L
+HTG	2	Gourde	332	HTG
+HUF	2	Forint	348	Ft
+IDR	2	Rupiah	360	Rp
+ILS	2	New Israeli Sheqel	376	₪
+INR	2	Indian Rupee	356	₹
+IQD	3	Iraqi Dinar	368	IQD
+IRR	2	Iranian Rial	364	IRR
+ISK	0	Iceland Krona	352	kr
+JMD	2	Jamaican Dollar	388	$
+JOD	3	Jordanian Dinar	400	JOD
+JPY	0	Yen	392	¥
+KES	2	Kenyan Shilling	404	KES
+KGS	2	Som	417	⃀
+KHR	2	Riel	116	៛
+KMF	0	Comorian Franc 	174	CF
+KPW	2	North Korean Won	408	₩
+KRW	0	Won	410	₩
+KWD	3	Kuwaiti Dinar	414	KWD
+KYD	2	Cayman Islands Dollar	136	$
+KZT	2	Tenge	398	₸
+LAK	2	Lao Kip	418	₭
+LBP	2	Lebanese Pound	422	L£
+LKR	2	Sri Lanka Rupee	144	Rs
+LRD	2	Liberian Dollar	430	$
+LSL	2	Loti	426	LSL
+LYD	3	Libyan Dinar	434	LYD
+MAD	2	Moroccan Dirham	504	MAD
+MDL	2	Moldovan Leu	498	MDL
+MGA	2	Malagasy Ariary	969	Ar
+MKD	2	Denar	807	MKD
+MMK	2	Kyat	104	K
+MNT	2	Tugrik	496	₮
+MOP	2	Pataca	446	MOP
+MRU	2	Ouguiya	929	MRU
+MUR	2	Mauritius Rupee	480	Rs
+MVR	2	Rufiyaa	462	MVR
+MWK	2	Malawi Kwacha	454	MWK
+MXN	2	Mexican Peso	484	$
+MXV	2	Mexican Unidad de Inversion (UDI)	979	MXV
+MYR	2	Malaysian Ringgit	458	RM
+MZN	2	Mozambique Metical	943	MZN
+NAD	2	Namibia Dollar	516	$
+NGN	2	Naira	566	₦
+NIO	2	Cordoba Oro	558	C$
+NOK	2	Norwegian Krone	578	kr
+NPR	2	Nepalese Rupee	524	Rs
+NZD	2	New Zealand Dollar	554	$
+OMR	3	Rial Omani	512	OMR
+PAB	2	Balboa	590	PAB
+PEN	2	Sol	604	PEN
+PGK	2	Kina	598	PGK
+PHP	2	Philippine Peso	608	₱
+PKR	2	Pakistan Rupee	586	Rs
+PLN	2	Zloty	985	zł
+PYG	0	Guarani	600	₲
+QAR	2	Qatari Rial	634	QAR
+RON	2	Romanian Leu	946	lei
+RSD	2	Serbian Dinar	941	RSD
+RUB	2	Russian Ruble	643	₽
+RWF	0	Rwanda Franc	646	RF
+SAR	2	Saudi Riyal	682	SAR
+SBD	2	Solomon Islands Dollar	090	$
+SCR	2	Seychelles Rupee	690	SCR
+SDG	2	Sudanese Pound	938	SDG
+SEK	2	Swedish Krona	752	kr
+SGD	2	Singapore Dollar	702	$
+SHP	2	Saint Helena Pound	654	£
+SLE	2	Leone	925	SLE
+SOS	2	Somali Shilling	706	SOS
+SRD	2	Surinam Dollar	968	$
+SSP	2	South Sudanese Pound	728	£
+STN	2	Dobra	930	Db
+SVC	2	El Salvador Colon	222	SVC
+SYP	2	Syrian Pound	760	£
+SZL	2	Lilangeni	748	SZL
+THB	2	Baht	764	฿
+TJS	2	Somoni	972	TJS
+TMT	2	Turkmenistan New Manat	934	TMT
+TND	3	Tunisian Dinar	788	TND
+TOP	2	Pa’anga	776	T$
+TRY	2	Turkish Lira	949	₺
+TTD	2	Trinidad and Tobago Dollar	780	$
+TWD	2	New Taiwan Dollar	901	$
+TZS	2	Tanzanian Shilling	834	TZS
+UAH	2	Hryvnia	980	₴
+UGX	0	Uganda Shilling	800	UGX
+USD	2	US Dollar	840	$
+USN	2	US Dollar (Next day)	997	USN
+UYI	0	Uruguay Peso en Unidades Indexadas (UI)	940	UYI
+UYU	2	Peso Uruguayo	858	$
+UYW	4	Unidad Previsional	927	UYW
+UZS	2	Uzbekistan Sum	860	UZS
+VED	2	Bolívar Soberano	926	VED
+VES	2	Bolívar Soberano	928	VES
+VND	0	Dong	704	₫
+VUV	0	Vatu	548	VUV
+WST	2	Tala	882	WST
+XAD	2	Arab Accounting Dinar	396	XAD
+XAF	0	CFA Franc BEAC	950	FCFA
+XCD	2	East Caribbean Dollar	951	$
+XCG	2	Caribbean Guilder	532	Cg.
+XDR	-	SDR (Special Drawing Right)	960	XDR
+XOF	0	CFA Franc BCEAO	952	F CFA
+XPF	0	CFP Franc	953	CFPF
+XSU	-	Sucre	994	XSU
+XUA	-	ADB Unit of Account	965	XUA
+YER	2	Yemeni Rial	886	YER
+ZAR	2	Rand	710	R
+ZMW	2	Zambian Kwacha	967	ZK
+ZWG	2	Zimbabwe Gold	924	ZWG
