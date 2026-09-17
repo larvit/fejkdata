@@ -1,7 +1,7 @@
 {
   "format": "{street-number} {street}\n{locality}, {region} {postal-code}",
   "street": "{/geo.US.address.street}",
-  "street-number": "{/geo.US.address.number}",
+  "street-number": "{/geo.US.address.street-number}",
   "locality": "{/geo.US.address.locality}",
   "region": "{/geo.US.address.region}",
   "postal-code": "{/geo.US.address.postal-code}"

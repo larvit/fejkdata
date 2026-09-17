@@ -229,22 +229,25 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
-[linked tables](#linked-tables) named alike, so a template ports across countries,
-and an `address` record over one consistent draw of them, which the locale's
-`address` reads.
+[linked tables](#linked-tables) named alike, and an `address` record over one
+consistent draw of them, which the locale's `address` reads.
 
 | Table | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name | incorporated place of 25,000 people or more, by GEOID or name; Hawaii has none | population |
+| `locality` | postort, by name | incorporated place of 25,000 people or more, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
 | `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
 `geo.US.region[IL].locality[Springfield]` settles which Springfield. A region row
-carries its `timezone`, a locality its `lat` and `lon`.
+carries its `timezone`, the state's predominant zone, and a locality its `lat` and
+`lon`. What ports across countries is the five table names, the `name` column,
+selection by name, and the `address` record's columns `street`, `street-number`,
+`postal-code` and `locality`; every other column is the country's own, `code` on a
+Swedish region but `abbr` on a US one.
 
 ## Data format
 
@@ -1017,6 +1020,11 @@ renamed or retyped line is a major.
   two countries match in size, and `--min-population` and
   `--streets-per-locality` on the import scripts build a fuller set. The two trees
   add about 20 ms to `New`, which loads the shipped set in about 45 ms.
+- **A locale's `address` restates its country record's format.** A record cannot
+  read another whole and keep its columns, so `sv_SE.address` names the same four
+  columns as `geo.SE.address`, each a reference into it, and the format appears
+  twice; a column is spelled the same in both, `street-number`, so the two never
+  disagree on a name.
 - **A postort's kommun comes from its name, its tätort or its codes, never from
   distance.** GeoNames leaves a fifth of Sweden's codes without a kommun and
   carries stale spellings; the nearest code across a border named the wrong kommun
@@ -1071,7 +1079,11 @@ REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 
 A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, fetching the source named in
-[`DATA-LICENSES.md`](DATA-LICENSES.md):
+[`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
+`data-import/cache/`, so delete it to fetch afresh; `geo-us.py` fetches two
+TIGER/Line files per county it ships, a few hundred megabytes, and `geo-se.py` needs
+a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
+in `TRAFIKVERKET_API_KEY` or a `--key-file`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
@@ -1108,7 +1120,7 @@ datatype.go     column datatypes: DataType, where datatype and null may sit, a c
 value.go        the value proof: what a typed column or calc operand holds, checked at load
 data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
 cmd/fejkdata/   the fejkdata CLI
-data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders + a misc folder
+data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)

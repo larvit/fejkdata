@@ -66,6 +66,9 @@ countries; the README maps each to the native term.
   outer selector's pins seed every draw group of the render.
 - Ship the fuller sets, every US place of 10,000 and more streets per locality, as
   packs; `--min-population` and `--streets-per-locality` on the scripts build them.
+- Fill the 398 Swedish localities weighted 200 from SCB småorter before v0.1.0.
+- Give the address records one column set across countries: `region` and
+  `municipality` as building-block columns on `geo.SE.address` too, in step 6.
 - v0.1.0 ships SE and US; then NO, DK, FI, NL, FR, AU, CA, ES, GB, DE.
 - Revisit an application to Lantmäteriet for the exact street to postnummer
   pairing after v0.1.0; today a street goes to the nearest postal code centroid.

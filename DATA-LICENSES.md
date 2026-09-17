@@ -1,12 +1,8 @@
 # Data licenses
 
 Every shipped dataset, its source, its licence and the attribution it asks for. A
-`data-import/` script rebuilds each sourced table; a curated one is hand-written.
-The scripts run through `docker compose run --rm data-import data-import/<name>.py`
-and cache their downloads under `data-import/cache/`; `geo-se.py` needs a
-Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
-in `TRAFIKVERKET_API_KEY` or a `--key-file`; `geo-us.py` fetches two TIGER/Line
-files per county it ships, a few hundred megabytes in all.
+`data-import/` script rebuilds each sourced table, run as the README's
+[Development](README.md#development) section says; a curated one is hand-written.
 
 | Table | Source | Licence | Attribution | Rebuild |
 |-------|--------|---------|-------------|---------|

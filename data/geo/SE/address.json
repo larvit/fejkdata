@@ -1,7 +1,7 @@
 {
-  "format": "{street} {number}\n{postal-code} {locality}",
+  "format": "{street} {street-number}\n{postal-code} {locality}",
   "street": "{.street.name}",
-  "number": [
+  "street-number": [
     "{int(1,9)}",
     "{int(10,99)}",
     { "format": "{int(100,999)}", "weight": 0.2 },
