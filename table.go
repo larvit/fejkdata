@@ -285,7 +285,7 @@ func (t *table) checkCells() error {
 		if (col == t.key || col == t.name) && strings.ContainsAny(cell, inSelector) {
 			return fmt.Errorf("line %d: %s %q contains %q, which a selector cannot spell", row+2, t.columns[col], cell, cell[strings.IndexAny(cell, inSelector):][:1])
 		}
-		if !strings.ContainsAny(cell, "{}") {
+		if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 			continue
 		}
 		n, err := compileString(cell)

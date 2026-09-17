@@ -63,6 +63,9 @@ func contained(n node) []namedNode {
 	case *table:
 		return append([]namedNode{{node: n.format}}, named(n.fields)...)
 	case *column:
+		if len(n.t.tokens) == 0 {
+			return nil
+		}
 		var out []namedNode
 		for r := 0; r < n.t.rows(); r++ {
 			if cell := n.t.cellNode(r, n.i); cell != nil {
