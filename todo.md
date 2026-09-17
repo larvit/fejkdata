@@ -53,19 +53,22 @@ countries; the README maps each to the native term.
 
 | Table | SE | US | Weight |
 |---|---|---|---|
-| `region` | län (21) | state (56) | population |
-| `municipality` | kommun (290) | county (3,234) | population |
-| `locality` | postort (~1,780), tätort population | place (~19,500) | population |
-| `postal-code` | postnummer (~10,500 deliverable) | ZCTA (33,791) | address count or 1 |
-| `street` | gatunamn, top N per locality | street name, top N per place | address count |
+| `region` | län (21) | state and DC (50; Hawaii has no incorporated place) | population |
+| `municipality` | kommun (290) | county with a shipped place (666) | population |
+| `locality` | postort (1,522), tätort population | place of 25,000+ (1,601) | population |
+| `postal-code` | postnummer with street delivery (13,712) | ZCTA of a shipped place (7,401) | one; address ranges |
+| `street` | gatunamn, top 10 per postort (14,764) | street name, top 10 per place (16,010) | segments; address ranges |
 
-- `geo.SE.address` is a record over one consistent draw: street, number, postal
-  code, locality; `geo.SE.locality[Lund].address` stays inside Lund. Each region
-  row carries its timezone, each locality its centroid.
+- Shipped in step 2, README Data. `geo.SE.address` is a record over one consistent
+  draw. Each region row carries its timezone, each locality its centroid.
+- Let `geo.SE.locality[Lund].address` descend from a selected row into the
+  template beside the family: the path step must reach a sibling category and the
+  outer selector's pins seed every draw group of the render.
+- Ship the fuller sets, every US place of 10,000 and more streets per locality, as
+  packs; `--min-population` and `--streets-per-locality` on the scripts build them.
 - v0.1.0 ships SE and US; then NO, DK, FI, NL, FR, AU, CA, ES, GB, DE.
-- SE streets come from NVDB per kommun and postnummer from GeoNames per postort,
-  box codes dropped by the third-digit rule; the pairing is approximate. Revisit
-  an application to Lantmäteriet for the exact pairing after v0.1.0.
+- Revisit an application to Lantmäteriet for the exact street to postnummer
+  pairing after v0.1.0; today a street goes to the nearest postal code centroid.
 
 #### Builtins the data cannot express
 
@@ -157,8 +160,8 @@ address, phone, national id, company and date names each.
 #### Order of work
 
 1. Table node, key and name selection, parent links, consistent draws, the
-   choice-of-rows fence, `DATA-LICENSES.md`, `data-import/`.
-2. `geo/SE` and `geo/US`, and `address` in both locales on top of them.
+   choice-of-rows fence, `DATA-LICENSES.md`, `data-import/` — done.
+2. `geo/SE` and `geo/US`, and `address` in both locales on top of them — done.
 3. Weighted person names and valid ids in both locales; `date()`.
 4. `misc` conversions and the new `misc` tables.
 5. The remaining locale categories: company, phone, finance, vehicle, words.

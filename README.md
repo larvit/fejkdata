@@ -18,6 +18,7 @@ fejkdata --seed 42 sv_SE.address               # the same address every run
 fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
 fejkdata 'misc.country[SE].capital'            # Stockholm — a table's row, selected by key or name
+fejkdata 'geo.SE.locality[Lund].street'         # Fjelievägen — a linked table, drawn inside the row
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
 fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
@@ -226,6 +227,24 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
 `currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
 `misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
+
+A `geo` folder holds one tree per country under its alpha-2 code: five
+[linked tables](#linked-tables) named alike, so a template ports across countries,
+and an `address` record over one consistent draw of them, which the locale's
+`address` reads.
+
+| Table | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|--------|
+| `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
+| `municipality` | kommun, by code or name | county, by FIPS code or name | population |
+| `locality` | postort, by name | incorporated place of 25,000 people or more, by GEOID or name; Hawaii has none | population |
+| `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
+| `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
+
+`geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
+`geo.SE.locality[Lund].street` a street in Lund, and
+`geo.US.region[IL].locality[Springfield]` settles which Springfield. A region row
+carries its `timezone`, a locality its `lat` and `lon`.
 
 ## Data format
 
@@ -983,6 +1002,26 @@ renamed or retyped line is a major.
 - **A path is walked once without drawing before it is walked for real.** A path
   that fails below its first level then moves no seeded stream, at the cost of one
   draw-free walk per call, which allocates nothing.
+- **A country's postal codes and streets are siblings under its locality.** No open
+  source pairs a Swedish street with its postnummer, and pairing the US through its
+  ZIPs would shape the two trees differently, so both draw inside the pinned
+  locality and an address agrees at that level. A street's own code is the exact
+  pairing to add when a source carries it.
+- **A locale's `address` reads its country's `geo` tree, so the shipped set loads
+  whole.** `data/sv_SE` alone no longer loads: a test loads `data` and prefixes
+  the locale, and `--no-shipped-data -d` takes the whole `data` folder or a set of
+  one's own.
+- **The default embed holds every Swedish postort and the US places of 25,000 or
+  more.** Sweden fits whole in 700 KB; every US place of 10,000 would pass a
+  megabyte and fetch 1,200 counties of TIGER files, so the threshold sits where the
+  two countries match in size, and `--min-population` and
+  `--streets-per-locality` on the import scripts build a fuller set. The two trees
+  add about 20 ms to `New`, which loads the shipped set in about 45 ms.
+- **A postort's kommun comes from its name, its tätort or its codes, never from
+  distance.** GeoNames leaves a fifth of Sweden's codes without a kommun and
+  carries stale spellings; the nearest code across a border named the wrong kommun
+  half the time it was tried, so a postort none of the three rules place is
+  dropped, as is one not cased like a place name.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is
@@ -1037,6 +1076,8 @@ A shipped table built from a source is rebuilt by its script under
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
