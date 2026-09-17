@@ -150,10 +150,11 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 func (t *table) parseRows(data string) error {
 	data = strings.TrimSuffix(strings.TrimPrefix(data, "\xEF\xBB\xBF"), "\n")
 	header, rest, _ := strings.Cut(data, "\n")
-	if data == "" {
+	header = strings.TrimSuffix(header, "\r")
+	if header == "" {
 		return fmt.Errorf("has no header line naming its columns")
 	}
-	t.columns = strings.Split(strings.TrimSuffix(header, "\r"), "\t")
+	t.columns = strings.Split(header, "\t")
 	t.col = make(map[string]int, len(t.columns))
 	t.fields = make(map[string]node, len(t.columns))
 	for i, name := range t.columns {

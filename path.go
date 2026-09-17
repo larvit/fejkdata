@@ -223,8 +223,7 @@ func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error
 	if err != nil {
 		return nil, err
 	}
-	// Resolved before any draw, so a path that fails moves no seeded stream. A
-	// selector further down pins this table by ancestry, so the walk draws only
+	// A selector further down pins this table by ancestry, so the walk draws only
 	// where none follows; drawing first could pick a row the selector is not inside.
 	if w.pins != nil {
 		if err := readRow(w.pins, t, sel, (descended || len(tail) > 0) && !hasSelector(tail)); err != nil {
