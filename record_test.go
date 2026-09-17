@@ -257,7 +257,7 @@ func TestRecordRejectsAColumnReadingItsOwnRecord(t *testing.T) {
 
 func TestRecordBareReferenceStaysIndependentAsAnOperand(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"cur": `[{"format":"{code}","code":"aud"},{"format":"{code}","code":"eur"}]`,
+		"cur": `[{"format":"{code}","code":"aud"},{"format":"{code}","code":"eur","symbol":"€"}]`,
 		"row": `{"format":"","up":"{uppercase(/cur)}","low":"{lowercase(/cur)}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
@@ -305,7 +305,7 @@ func TestRecordSQLInsert(t *testing.T) {
 func TestRecordRejectsFieldDescent(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"cat": `{"format":"{sub}","sub":{"format":"{x}","x":"1"}}`,
-		"row": `[{"format":"{x}","x":"1"},{"format":"{x}","x":"2"}]`,
+		"row": `[{"format":"{x}","x":"1"},{"format":"{x}","x":"2","y":"b"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for _, path := range []string{"cat.sub", "row.x"} {
@@ -317,7 +317,7 @@ func TestRecordRejectsFieldDescent(t *testing.T) {
 
 func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€"}]`,
+		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€","name":"Euro"}]`,
 		"price":    `{"format":"{code} {symbol}","code":"{/currency.code}","symbol":"{/currency.symbol}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))

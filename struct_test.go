@@ -52,8 +52,8 @@ type structLink struct {
 func structData(t *testing.T) *Generator {
 	t.Helper()
 	return newGenerator(t, writeData(t, map[string]string{
-		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`,
-		"place":  `[{"format":"{city}","city":"Stockholm","zip":"111 22"},{"format":"{city}","city":"Tranås","zip":"573 31"}]`,
+		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1815"}]`,
+		"place":  `[{"format":"{city}","city":"Stockholm","zip":"111 22"},{"format":"{city}","city":"Tranås","zip":"573 31","region":"F"}]`,
 		"mid":    `{"format":"","score":["{/src.score}",{"format":"5","datatype":"integer"}]}`,
 		"src":    `{"format":"","code":[null,"200","404"],"del":null,"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 		"trip":   `{"format":"","leg":[{"format":"{to}","to":"Oslo"},{"format":"{to}","to":"Rome"}]}`,
@@ -275,7 +275,7 @@ func TestFakeStructErrors(t *testing.T) {
 		}{}, "is empty"},
 		{&struct {
 			A string `fake:"[abc]"`
-		}{}, `holds a "["`},
+		}{}, `"["`},
 		{&struct {
 			A string `fake:"{.person.first} x"`
 		}{}, "write {/person.first}"},

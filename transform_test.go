@@ -27,7 +27,7 @@ func TestTransformReadsTheHeldDraw(t *testing.T) {
 
 func TestTransformOverAReference(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"person": `[{"format":"{first} {last}","first":"Åsa","last":"Öberg"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`,
+		"person": `[{"format":"{first} {last}","first":"Åsa","last":"Öberg"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
 		"email":  `"{/person.first} {/person.last} <{lowercase(ascii(/person.first))}.{lowercase(ascii(/person.last))}@example.com>"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))

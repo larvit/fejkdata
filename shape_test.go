@@ -112,3 +112,17 @@ func TestShippedShapeNamesReads(t *testing.T) {
 		t.Fatalf("shippedShape =\n%s\nwant\n%s", got, want)
 	}
 }
+
+func TestShippedShapeNamesTables(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"w.json": `"x"`,
+		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code","name":"name","weight":"w"}`,
+		"r.tsv":  "code\tname\tw\n1\ta\t2\n2\tb\t3\n",
+		"m.json": `{"format":"{name} {/w}","rows":"m.tsv","key":"code","parent":"r"}`,
+		"m.tsv":  "code\tname\tr\n10\tc\t1\n20\td\t2\n",
+	}))
+	want := "m\tformat \"{name} {/w}\"\tkey code\tparent r\treads w\nm.code\tstring\nm.name\tstring\nm.r\tstring\nr\tformat \"{name}\"\tkey code\tname name\tweight w\nr.code\tstring\nr.m\nr.m.code\nr.m.name\nr.m.r\nr.name\tstring\nr.w\tstring\nw\tformat \"x\"\n"
+	if got := shippedShape(f); got != want {
+		t.Fatalf("shippedShape =\n%s\nwant\n%s", got, want)
+	}
+}

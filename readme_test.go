@@ -8,7 +8,26 @@ import (
 	"testing"
 )
 
-var jsonBlock = regexp.MustCompile("(?s)```json\n(.*?)```")
+var (
+	jsonBlock = regexp.MustCompile("(?s)```json\n(.*?)```")
+	tsvBlock  = regexp.MustCompile("(?s)```tsv\n(.*?)```")
+	rowsFile  = regexp.MustCompile(`"rows":\s*"([^"]+)"`)
+)
+
+// exampleFiles is a README json block as a data directory's files: the category, and
+// the rows TSV it names, taken from the nearest tsv block above it.
+func exampleFiles(t *testing.T, src string, at int, body string) map[string]string {
+	t.Helper()
+	files := map[string]string{"example.json": body}
+	if m := rowsFile.FindStringSubmatch(body); m != nil {
+		tsv := tsvBlock.FindAllStringSubmatch(src[:at], -1)
+		if tsv == nil {
+			t.Fatalf("README example names %s with no tsv block above it", m[1])
+		}
+		files[m[1]] = tsv[len(tsv)-1][1]
+	}
+	return files
+}
 
 func readme(t *testing.T) string {
 	t.Helper()
@@ -21,12 +40,13 @@ func readme(t *testing.T) string {
 
 func TestReadmeExamplesLoadAndRender(t *testing.T) {
 	n := 0
-	for _, m := range jsonBlock.FindAllStringSubmatch(readme(t), -1) {
-		body := m[1]
+	src := readme(t)
+	for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
+		body := src[at[2]:at[3]]
 		if strings.Contains(body, "…") {
 			continue
 		}
-		f, err := New(WithDataPath(writeData(t, map[string]string{"example": body})), WithSeed(1))
+		f, err := New(WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1))
 		if err != nil {
 			t.Errorf("README example does not load: %v\n%s", err, body)
 			continue
@@ -126,5 +146,31 @@ func TestReadmeDatatypeExample(t *testing.T) {
 	}
 	if !shown[DataTypeInteger] || !shown[DataTypeNumber] || !shown[DataTypeBoolean] {
 		t.Errorf("README Datatype example shows %v, want an integer, a number and a boolean column", shown)
+	}
+}
+
+func TestReadmeTableExample(t *testing.T) {
+	src := readme(t)
+	i := strings.Index(src, "### Table")
+	if i < 0 {
+		t.Fatal("README lost the Table section")
+	}
+	at := jsonBlock.FindStringSubmatchIndex(src[i:])
+	if at == nil {
+		t.Fatal("README Table section has no json block")
+	}
+	body := src[i:][at[2]:at[3]]
+	f, err := New(WithDataPath(writeFiles(t, exampleFiles(t, src, i+at[0], body))), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for path, want := range map[string]string{"example[SE]": "Sweden (SE)", "example[Norway].alpha2": "NO"} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("README table example: Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	r, err := f.FakeRecord("example")
+	if err != nil || r.CSVHeader() != "alpha2,name,population" {
+		t.Fatalf("README table example as a record: %q, %v", r.CSVHeader(), err)
 	}
 }

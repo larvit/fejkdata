@@ -220,7 +220,7 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 
 func TestReferencePathIsHeld(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg"}]`,
+		"person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg","born":"1980"}]`,
 		"card":   `"{/person.first} {/person.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
@@ -291,7 +291,7 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 	}
 }
 
-const drawPeople = `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"},{"format":"{first} {last}","first":"Cy","last":"Young"}]`
+const drawPeople = `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"},{"format":"{first} {last}","first":"Cy","last":"Young","born":"1867"}]`
 
 // onePerson reports whether name is the first name and surname of one drawPeople row.
 func onePerson(name string) bool {
@@ -381,7 +381,7 @@ func TestRelativeReferences(t *testing.T) {
 
 func TestRelativeAndRootSpellingsBindOneDraw(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"sv_SE/person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg"}]`,
+		"sv_SE/person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg","born":"1980"}]`,
 		"sv_SE/card":   `"{.person.first} {/sv_SE.person.last}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
@@ -408,7 +408,7 @@ func TestReferenceSigilErrors(t *testing.T) {
 }
 
 func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
-	person := `[{"format":"{first} {last}","first":"Ada","last":"Byron"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`
+	person := `[{"format":"{first} {last}","first":"Ada","last":"Byron"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"sv_SE/person": person,
 		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,

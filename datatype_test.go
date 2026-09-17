@@ -40,7 +40,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 
 func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 	tree := map[string]string{
-		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x"}]`,
+		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x","note":"n"}]`,
 		"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 	}
 	for _, c := range []struct{ name, column, want string }{
@@ -114,7 +114,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 var jsonInteger = regexp.MustCompile(`^(0|-?[1-9][0-9]*)$`)
 
 func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
-	cat := `[{"format":"{code}","code":"200"},{"format":"{code}","code":"404"}]`
+	cat := `[{"format":"{code}","code":"200"},{"format":"{code}","code":"404","reason":"Not Found"}]`
 	for _, column := range []string{
 		`{"format":"{int(1,99)}","datatype":"integer"}`,
 		`{"format":"{int(-9,-1)}","datatype":"integer"}`,

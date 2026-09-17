@@ -74,6 +74,30 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 	}
 }
 
+// A table read pins a row in the render's draws and reads its cells in place.
+func TestNoTableAllocRegression(t *testing.T) {
+	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+		"region.json": {Data: []byte(`{"format":"{name}","rows":"region.tsv","key":"code","weight":"population"}`)},
+		"region.tsv":  {Data: []byte("code\tname\tpopulation\n01\tStockholms län\t2400000\n12\tSkåne län\t1400000\n14\tVästra Götalands län\t1750000\n")},
+		"x.json":      {Data: []byte(`"{/region.name}, {/region.code}"`)},
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, s := range []struct {
+		name, path string
+		base       float64
+	}{
+		{"a table drawn", "region", 2},
+		{"a row selected", "region[12]", 2},
+		{"two columns of one draw", "x", 10},
+	} {
+		if allocs := testing.AllocsPerRun(10000, func() { f.Fake(s.path) }); allocs > s.base*1.10 {
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row index built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
+		}
+	}
+}
+
 // A record's fences read the compiled tree, so they belong to New, not to a draw.
 func TestNoRecordAllocRegression(t *testing.T) {
 	for _, s := range []struct{ name, json string }{

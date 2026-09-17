@@ -55,7 +55,7 @@ func TestFakeTemplateJSONArray(t *testing.T) {
 
 func TestFakeTemplateCorrelatedReferences(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek"}]`,
+		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 100; i++ {
@@ -166,15 +166,19 @@ func TestIsTemplate(t *testing.T) {
 		"{uppercase(/a)}": true,
 		"{{/a}}":          true,
 		`"{/a} x"`:        true,
+		"x[1]":            false, // a row selected by key or name
+		"x[St. Louis].y":  false,
 	} {
 		if got, err := IsTemplate(arg); err != nil || got != want {
 			t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
 	for arg, want := range map[string]string{
-		"[abc]":                        `holds a "["`,
-		"[abc].field":                  `holds a "["`,
-		"x[1]":                         `holds a "["`,
+		"[abc]":                        `starts with "["`,
+		"[abc].field":                  `starts with "["`,
+		"x[1]y":                        `"]"`,
+		"x[[1]]":                       `"["`,
+		"x[]":                          "empty",
 		"a]b":                          `holds a "]"`,
 		"a}b":                          `holds a "}"`,
 		`"abc`:                         `holds a "\""`,

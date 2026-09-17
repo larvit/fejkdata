@@ -310,8 +310,41 @@ func TestClassify(t *testing.T) {
 			t.Errorf("classify(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
-	if _, err := classify("[abc]"); err == nil || !strings.Contains(err.Error(), `holds a "["`) {
-		t.Errorf("classify([abc]) = %v; want it rejected naming the bracket", err)
+	if _, err := classify("[abc]"); err == nil || !strings.Contains(err.Error(), `"["`) || !strings.Contains(err.Error(), "JSON") {
+		t.Errorf("classify([abc]) = %v; want it rejected naming the leading bracket", err)
+	}
+	if got, err := classify("geo.SE.municipality[St. Louis].name"); err != nil || got != argPath {
+		t.Errorf("classify(a selecting path) = %v, %v; want a path", got, err)
+	}
+}
+
+func TestRunSelectsATableRow(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
+		"region.tsv":  "code\tname\n01\tStockholms län\n12\tSkåne län\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if code, out, errb := runOut("--no-shipped-data", "-d", dir, "region[12]"); code != 0 || out != "Skåne län\n" {
+		t.Fatalf("region[12] = %d, %q, stderr=%q", code, out, errb)
+	}
+	if code, out, _ := runOut("--no-shipped-data", "-d", dir, "region[Skåne län].code"); code != 0 || out != "12\n" {
+		t.Fatalf("region[Skåne län].code = %d, %q", code, out)
+	}
+	if code, out, _ := runOut("--no-shipped-data", "-d", dir, "--format", "sql", "region[12]"); code != 0 || out != `INSERT INTO "region" ("code", "name") VALUES ('12', 'Skåne län');`+"\n" {
+		t.Fatalf("--format sql region[12] = %d, %q, want the table named without its selector", code, out)
+	}
+	if code, _, errb := runOut("--no-shipped-data", "-d", dir, "region[99]"); code != 1 || !strings.Contains(errb, `"99"`) {
+		t.Fatalf("region[99] = %d, stderr=%q, want a runtime error naming the row", code, errb)
+	}
+	if code, _, errb := runOut("--no-shipped-data", "-d", dir, "[Skåne län]"); code != 2 || !strings.Contains(errb, "JSON") {
+		t.Fatalf("[Skåne län] = %d, stderr=%q, want misuse: a leading bracket that is no JSON names nothing", code, errb)
+	}
+	if code, out, _ := runOut("--seed", "1", "--format", "csv", "misc.country[SE]"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
+		t.Fatalf("--format csv misc.country[SE] = %d, %q", code, out)
 	}
 }
 
