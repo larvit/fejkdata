@@ -1,0 +1,1 @@
+{ "format": "{code}", "rows": "postal-code.tsv", "key": "code", "parent": "locality" }

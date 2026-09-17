@@ -1,0 +1,1 @@
+{ "format": "{name}", "rows": "region.tsv", "key": "code", "name": "name", "weight": "population" }
