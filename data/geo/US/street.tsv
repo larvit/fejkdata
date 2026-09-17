@@ -83,22 +83,22 @@ S Greeno Rd	0125240	63
 Fairhope Ave	0125240	42
 Main St	0125240	39
 S Section St	0125240	33
-Scenic Highway 98	0125240	33
 Morphy Ave	0125240	28
 Nichols Ave	0125240	24
 Twin Beach Rd	0125240	23
 S Ingleside St	0125240	21
 Twin Beech Rd	0125240	21
+Oberg Rd	0125240	19
 Huntsville Rd	0126896	61
-Chisholm Rd	0126896	44
+Cloverdale Rd	0126896	59
+Chisholm Rd	0126896	54
 Hermitage Dr	0126896	41
+Lauderdale County 6	0126896	41
+Lauderdale County 15	0126896	40
 Veterans Dr	0126896	39
+Lauderdale County 7	0126896	37
 N Wood Ave	0126896	36
 Florence Blvd	0126896	34
-Woodard Ave	0126896	32
-Cole Ave	0126896	28
-Mars Hill Rd	0126896	26
-Sherrod Ave	0126896	26
 McKenzie St	0126992	33
 Miflin Rd	0126992	33
 N Alston St	0126992	32
@@ -139,16 +139,16 @@ Alford Ave	0135896	27
 Meadow Brook Rd	0135896	27
 Riverchase Pkwy W	0135896	27
 Legacy Dr	0135896	26
-Wall Triana Hwy	0137000	151
+Wall Triana Hwy	0137000	213
+Jordan Ln NW	0137000	192
+Old Railroad Bed Rd	0137000	154
 University Dr NW	0137000	139
-Jordan Ln NW	0137000	131
-County Line Rd	0137000	124
+County Line Rd	0137000	128
 Old Big Cove Rd	0137000	120
 Memorial Pkwy SW	0137000	116
+Moores Mill Rd	0137000	111
 Pulaski Pike	0137000	109
-Pulaski Pike NW	0137000	92
-Hobbs Island Rd SE	0137000	91
-Moores Mill Rd	0137000	86
+Jeff Rd NW	0137000	108
 Madison Blvd	0145784	79
 Slaughter Rd	0145784	65
 Hughes Rd	0145784	58
@@ -166,9 +166,9 @@ Old Shell Rd	0150000	157
 Moffett Rd	0150000	111
 Spring Hill Ave	0150000	104
 Dauphin St	0150000	103
+Halls Mill Rd	0150000	99
 Bellingrath Rd	0150000	94
-Halls Mill Rd	0150000	91
-Government Blvd	0150000	89
+Government Blvd	0150000	91
 Atlanta Hwy	0151000	100
 Mobile Hwy	0151000	88
 Wares Ferry Rd	0151000	77
@@ -220,7 +220,6 @@ S Railroad St	0159472	28
 14th St	0159472	26
 12th Ave	0159472	25
 Autauga County 40	0162328	53
-Al Highway 14 W	0162328	48
 S Memorial Dr	0162328	44
 Autauga County 21	0162328	41
 Autauga County 19	0162328	34
@@ -229,6 +228,7 @@ E Main St	0162328	27
 Upper Kingston Rd	0162328	22
 Autauga County 69	0162328	19
 Bridge Creek Rd	0162328	18
+Durden Rd	0162328	18
 Gadsden Hwy	0176944	70
 Advent Cir	0176944	48
 Happy Hollow Rd	0176944	39
@@ -269,16 +269,16 @@ Spenard Rd	0203000	50
 Debarr Rd	0203000	48
 Raspberry Rd	0203000	47
 E Northern Lights Blvd	0203000	46
-599th St	0224230	7
-600th St	0224230	7
-Neely Rd	0224230	6
-White St	0224230	5
-102nd St	0224230	3
-9th St	0224230	3
-Alsace Loop	0224230	3
-Apple St	0224230	3
-Balsam St	0224230	3
-Beechnut St	0224230	3
+Chena Hot Springs Rd	0224230	103
+Steese Hwy	0224230	65
+Goldstream Rd	0224230	46
+Old Steese Hwy N	0224230	45
+College Rd	0224230	41
+Farmers Loop Rd	0224230	40
+Chena Ridge Rd	0224230	29
+Peger Rd	0224230	29
+D St	0224230	28
+S Cushman St	0224230	28
 Glacier Hwy	0236400	115
 Mendenhall Loop Rd	0236400	64
 N Douglas Hwy	0236400	33
@@ -338,7 +338,7 @@ W Arica Rd	0410530	47
 N Colorado St	0410530	46
 E McMurray Blvd	0410530	45
 W Hopi Dr	0410530	45
-N Kadota Ave	0410530	38
+W Selma Hwy	0410530	41
 W Hunt Hwy	0412000	90
 E Riggs Rd	0412000	79
 S Cooper Rd	0412000	62
@@ -360,25 +360,25 @@ N El Frio St	0422220	20
 N Litchfield Rd	0422220	19
 W Columbine Dr	0422220	19
 Townsend-Winona Rd	0423620	54
+E Butler Ave	0423620	50
+N Fort Valley Rd	0423620	50
 E Linda Vista Dr	0423620	47
+Lake Mary Rd	0423620	40
 Stardust Trl	0423620	32
 N 4th St	0423620	31
 E Lockett Rd	0423620	30
-Lake Mary Rd	0423620	30
+S Woodlands Village Blvd	0423620	29
 Slayton Ranch Rd	0423620	29
-Hutton Ranch Rd	0423620	25
-Leupp Rd	0423620	25
-S Clubhouse Cir	0423620	25
 Pinal Pioneer Pkwy	0423760	52
+N Felix Rd	0423760	38
+E Bella Vista Rd	0423760	33
 N Diffen Rd	0423760	27
-N Felix Rd	0423760	26
 E Orville St	0423760	25
+N Gary Rd	0423760	25
+E Arizona Farms Rd	0423760	24
+E Hunt Hwy	0423760	24
 N Hohokam Rd	0423760	24
 N Wildwood Rd	0423760	24
-E Javelina Dr	0423760	23
-E Butte Ave	0423760	22
-E Cactus Forest Rd	0423760	22
-S Main St	0423760	22
 S Val Vista Dr	0427400	66
 S Lindsay Rd	0427400	61
 E Elliot Rd	0427400	54
@@ -398,7 +398,7 @@ N 55th Ave	0427820	143
 N 63rd Ave	0427820	142
 N 57th Ave	0427820	127
 N 61st Ave	0427820	127
-N 53rd Ave	0427820	117
+W Glendale Ave	0427820	119
 N Ralston Rd	0428380	75
 W Farrell Rd	0428380	60
 N Warren Rd	0428380	51
@@ -429,16 +429,16 @@ Daytona Ave	0439370	40
 N Lake Havasu Ave	0439370	40
 Jamaica Blvd S	0439370	39
 Kiowa Blvd S	0439370	33
-N Anway Rd	0444270	48
-S Cattle Tank Rd	0444270	42
-N Trico Rd	0444270	38
-W Moore Rd	0444270	38
-W Avra Valley Rd	0444270	36
-S Estancia Dr	0444270	35
-S Twin Hawk Ln	0444270	35
-S Owl Head Ranch Rd	0444270	31
-N Derringer Rd	0444270	29
-S Davis Ranch Rd	0444270	28
+N Casa Grande Hwy	0444270	89
+N Thornydale Rd	0444270	73
+W Ina Rd	0444270	66
+W Orange Grove Rd	0444270	66
+N Silverbell Rd	0444270	63
+N Sandario Rd	0444270	54
+W Magee Rd	0444270	54
+N Cam de la Tierra	0444270	50
+W Massingale Rd	0444270	50
+N Shannon Rd	0444270	49
 N Porter Rd	0444410	43
 W Honeycutt Rd	0444410	33
 W Farrell Rd	0444410	29
@@ -459,46 +459,46 @@ E Baseline Rd	0446000	110
 E Adobe Rd	0446000	94
 N Mesa Dr	0446000	88
 E Pueblo Ave	0446000	85
+N Oracle Rd	0451600	140
+N La Canada Dr	0451600	72
 W Moore Rd	0451600	30
 W Tangerine Rd	0451600	29
+W Ina Rd	0451600	26
+N La Cholla Blvd	0451600	25
+Edwin Rd	0451600	24
 N Copper Spring Trl	0451600	24
+W River Rd	0451600	24
 N Woodburne Ave	0451600	23
-N Oracle Rd	0451600	20
-N Copper Creek Dr	0451600	17
-N Monterra Vista Dr	0451600	17
-N Rancho Vistoso Blvd	0451600	17
-W Vistoso Highlands Dr	0451600	17
-E Rancho Vistoso Blvd	0451600	16
 N 89th Ave	0454050	111
 N 71st Ave	0454050	106
 N 87th Ave	0454050	103
+N 107th Ave	0454050	100
 N 91st Ave	0454050	98
+N 103rd Ave	0454050	87
 N 85th Ave	0454050	87
+N 99th Ave	0454050	87
 N 83rd Ave	0454050	83
-N 81st Ave	0454050	66
-N 87th Dr	0454050	65
-N 93rd Ave	0454050	62
-N 73rd Ave	0454050	60
-N Central Ave	0455000	296
-N 7th St	0455000	287
-N 12th St	0455000	274
-N 31st Ave	0455000	268
-N 35th Ave	0455000	264
-N 7th Ave	0455000	264
-N 15th Ave	0455000	259
+N 111th Ave	0454050	77
+N Central Ave	0455000	301
+N 12th St	0455000	300
+N 7th St	0455000	299
+N 7th Ave	0455000	279
+N 31st Ave	0455000	275
+N 35th Ave	0455000	273
+N 15th Ave	0455000	271
 N 19th Ave	0455000	259
-N 33rd Ave	0455000	241
-N 16th St	0455000	233
-Willow Creek Rd	0457380	52
+N 33rd Ave	0455000	245
+N Black Canyon Hwy	0455000	238
+N Williamson Valley Rd	0457380	93
+Willow Creek Rd	0457380	56
+Iron Springs Rd	0457380	40
 Copper Basin Rd	0457380	38
+Thumb Butte Rd	0457380	34
+W Dillon Wash Rd	0457380	33
+W Gurley St	0457380	27
 White Spar Rd	0457380	24
 Delano Ave	0457380	23
-E Old Black Canyon Hwy	0457380	21
-E Gurley St	0457380	20
-Willow Lake Rd	0457380	20
-Demerse Ave	0457380	19
-E Sheldon St	0457380	19
-S Senator Hwy	0457380	19
+N Skyline Dr	0457380	23
 N Robert Rd	0457450	35
 E Spouse Dr	0457450	33
 E Lakeshore Dr	0457450	31
@@ -510,25 +510,25 @@ E Mummy View Dr	0457450	23
 N Lawrence Ln	0457450	22
 N Poquito Valley Rd	0457450	22
 E Hunt Hwy	0458150	56
+E Ocotillo Rd	0458150	56
 E Riggs Rd	0458150	50
 E San Tan Blvd	0458150	48
 S Sossaman Rd	0458150	48
 E Happy Rd	0458150	43
 N Gary Rd	0458150	40
-E Ocotillo Rd	0458150	39
 E Mews Rd	0458150	38
 S Ellsworth Rd	0458150	37
 S Rittenhouse Rd	0458150	35
-S La Canada Dr	0462140	35
+S La Canada Dr	0462140	49
+S Abrego Dr	0462140	36
 S Wilmot Rd	0462140	29
 S Cam de Las Quintas	0462140	25
 S Mann Ave	0462140	24
+N La Canoa	0462140	23
 W Pima Mine Rd	0462140	23
+N La Canada Dr	0462140	21
+N Abrego Dr	0462140	20
 S Country Club Rd	0462140	19
-S La Villita Rd	0462140	19
-W McGee Ranch Rd	0462140	18
-E Sahuarita Rd	0462140	17
-W Helmet Peak Rd	0462140	17
 S Ave B	0463470	32
 W County 16th St	0463470	31
 W County 15th St	0463470	29
@@ -549,26 +549,26 @@ N 87th St	0465000	105
 N Miller Rd	0465000	102
 N Pima Rd	0465000	95
 E Shea Blvd	0465000	93
+S Moson Rd	0466820	45
+E Ramsey Rd	0466820	35
+E Barataria Blvd	0466820	25
 E Fry Blvd	0466820	24
 N 7th St	0466820	24
 S El Camino Real	0466820	23
+S Equestrian Ave	0466820	21
+S San Pedro Ave	0466820	21
+E Canada Dr	0466820	20
 E Busby Dr	0466820	19
-E Wilcox Dr	0466820	19
-E Tacoma St	0466820	16
-S Coronado Dr	0466820	16
-Foothills Dr	0466820	15
-N Lenzner Ave	0466820	14
-Cam del Norte	0466820	13
+W Jomax Rd	0471510	94
 W Bell Rd	0471510	72
-W Jomax Rd	0471510	71
 W Patton Rd	0471510	70
+W Dixileta Dr	0471510	65
 W Greenway Rd	0471510	64
 W Waddell Rd	0471510	53
 W Lone Mountain Rd	0471510	51
 N 211th Ave	0471510	50
 W Paradise Ln	0471510	48
-W Dixileta Dr	0471510	47
-N 223rd Ave	0471510	44
+N 147th Dr	0471510	44
 S Hardy Dr	0473000	105
 S McClintock Dr	0473000	88
 S Priest Dr	0473000	82
@@ -584,11 +584,11 @@ S Wilmot Rd	0477000	128
 E Broadway Blvd	0477000	127
 E 5th St	0477000	120
 E 22nd St	0477000	107
+N 1st Ave	0477000	105
+N Campbell Ave	0477000	90
 S 6th Ave	0477000	87
+E Fort Lowell Rd	0477000	86
 E Valencia Rd	0477000	86
-S Park Ave	0477000	85
-E Irvington Rd	0477000	84
-E 29th St	0477000	83
 W 8th St	0485540	98
 S Ave B	0485540	92
 S Ave A	0485540	90
@@ -799,16 +799,16 @@ Garland Ave	0568810	42
 Dooley Ferry Rd	0568810	41
 Genoa Rd	0568810	40
 Sugar Hill Rd	0568810	37
+Sheep Creek Rd	0600296	110
+Johnson Rd	0600296	108
 El Mirage Rd	0600296	92
-Bellflower St	0600296	53
-Bartlett Ave	0600296	52
-Adelanto Rd	0600296	47
-Pearmain St	0600296	47
-Aster Rd	0600296	40
-Colusa Rd	0600296	40
-Crippen Ave	0600296	40
-Koala Rd	0600296	38
-Raccoon Ave	0600296	35
+Phelan Rd	0600296	72
+Rancho Rd	0600296	72
+Wilson Ranch Rd	0600296	65
+Del Rosa Rd	0600296	62
+Beekley Rd	0600296	61
+Palmdale Rd	0600296	61
+Smoke Tree Rd	0600296	61
 Lincoln Ave	0600562	78
 Buena Vista Ave	0600562	77
 Santa Clara Ave	0600562	76
@@ -909,16 +909,16 @@ W Gladstone St	0603386	21
 N Citrus Ave	0603386	19
 N Pasadena Ave	0603386	19
 S Azusa Ave	0603386	19
+Rosedale Hwy	0603526	121
+Stockdale Hwy	0603526	92
 S Union Ave	0603526	80
 White Ln	0603526	72
 Panama Ln	0603526	71
+Coffee Rd	0603526	70
+Round Mountain Rd	0603526	70
 Ming Ave	0603526	68
+7th Standard Rd	0603526	66
 Maricopa Hwy	0603526	66
-Stine Rd	0603526	63
-Weedpatch Hwy	0603526	63
-Wible Rd	0603526	63
-Truxtun Ave	0603526	62
-S H St	0603526	58
 W Wilson St	0603820	36
 W Ramsey St	0603820	34
 W Williams St	0603820	32
@@ -1049,16 +1049,16 @@ W Magnolia Blvd	0608954	47
 W Verdugo Ave	0608954	47
 N Hollywood Way	0608954	46
 N Kenneth Rd	0608954	42
+Heber Ave	0609710	24
 Rockwood Ave	0609710	24
 S Imperial Ave	0609710	23
-E 2nd St	0609710	16
+Bowker Rd	0609710	20
+E 2nd St	0609710	17
 Grant St	0609710	16
+Heffernan Ave	0609710	16
 Carr Rd	0609710	14
+Meadows Rd	0609710	14
 G Anaya Ave	0609710	13
-Heber Ave	0609710	13
-Paulin Ave	0609710	13
-Rancho Frontera Ave	0609710	13
-Blair Ave	0609710	12
 Santa Rosa Rd	0610046	63
 Presilla Rd	0610046	27
 Las Posas Rd	0610046	26
@@ -1099,16 +1099,16 @@ E Dominguez St	0611530	34
 Santa Fe Ave	0611530	34
 E Turmont St	0611530	33
 E Sepulveda Blvd	0611530	29
-Ramon Rd	0612048	36
+Ramon Rd	0612048	53
 Cathedral Canyon Dr	0612048	31
 Date Palm Dr	0612048	28
+30th Ave	0612048	25
 E Palm Canyon Dr	0612048	24
+Varner Rd	0612048	24
 McCallum Way	0612048	22
 Pso Real	0612048	21
 Ave Maravilla	0612048	20
 Ave la Paz	0612048	17
-30th Ave	0612048	16
-Bel Air Dr	0612048	16
 E Whitmore Ave	0612524	41
 Central Ave	0612524	38
 Faith Home Rd	0612524	28
@@ -1129,16 +1129,16 @@ Rose St	0612552	25
 Carmenita Rd	0612552	24
 South St	0612552	23
 Andy St	0612552	20
-Manzanita Ave	0613014	37
-W Sacramento Ave	0613014	33
-Esplanade	0613014	31
+Cohasset Rd	0613014	77
+Esplanade	0613014	56
+W Sacramento Ave	0613014	42
+Centerville Rd	0613014	38
+Manzanita Ave	0613014	38
+E 8th St	0613014	33
+Keefer Rd	0613014	30
 E 1st Ave	0613014	29
-East Ave	0613014	27
-Vallombrosa Ave	0613014	24
-Nord Ave	0613014	23
-E Lindo Ave	0613014	18
-Filbert Ave	0613014	18
-Hooker Oak Ave	0613014	17
+Nord Ave	0613014	29
+East Ave	0613014	28
 Riverside Dr	0613210	58
 Chino Ave	0613210	57
 Walnut Ave	0613210	48
@@ -1159,26 +1159,26 @@ Pipeline Ave	0613214	19
 Eucalyptus Ave	0613214	17
 Bayberry Dr	0613214	16
 Scenic Ridge Dr	0613214	15
+Otay Lakes Rd	0613392	55
 Hilltop Dr	0613392	54
 4th Ave	0613392	53
 Broadway	0613392	50
 1st Ave	0613392	45
 E J St	0613392	45
 2nd Ave	0613392	44
-Otay Lakes Rd	0613392	44
 Telegraph Canyon Rd	0613392	44
 3rd Ave	0613392	42
 5th Ave	0613392	39
+Fair Oaks Blvd	0613588	88
 Mariposa Ave	0613588	58
 Auburn Blvd	0613588	56
+Walnut Ave	0613588	52
+Mission Ave	0613588	44
+Garfield Ave	0613588	42
 Sunrise Blvd	0613588	42
 Greenback Ln	0613588	36
-Old Auburn Rd	0613588	31
-Twin Oaks Ave	0613588	30
-Van Maren Ln	0613588	26
-Oak Ave	0613588	20
-Antelope Rd	0613588	19
-San Juan Ave	0613588	18
+Kenneth Ave	0613588	35
+California Ave	0613588	32
 N Mills Ave	0613756	42
 N Mountain Ave	0613756	41
 N Indian Hill Blvd	0613756	37
@@ -1196,9 +1196,9 @@ E Herndon Ave	0614218	46
 E Shepherd Ave	0614218	45
 E Bullard Ave	0614218	44
 N Peach Ave	0614218	39
+Millerton Rd	0614218	37
 Minnewawa Ave	0614218	36
 Santa Ana Ave	0614218	36
-Stanford Ave	0614218	35
 Ave 52	0614260	45
 Ave 50	0614260	26
 Harrison St	0614260	26
@@ -1239,6 +1239,7 @@ Monument Blvd	0616000	27
 Grant St	0616000	25
 Lynwood Dr	0616000	25
 Olive Dr	0616000	25
+Temescal Canyon Rd	0616350	46
 S Main St	0616350	40
 Rimpau Ave	0616350	38
 Magnolia Ave	0616350	37
@@ -1248,7 +1249,6 @@ Garretson Ave	0616350	27
 W Ontario Ave	0616350	27
 Border Ave	0616350	24
 S Belle Ave	0616350	24
-Avenida del Vis	0616350	23
 Santa Ana Ave	0616532	77
 Harbor Blvd	0616532	50
 Orange Ave	0616532	48
@@ -1319,16 +1319,16 @@ Atlantic Ave	0617946	15
 Blue Lantern St	0617946	14
 Del Obispo St	0617946	14
 Violet Lantern St	0617946	12
-Diablo Rd	0617988	28
+Cam Tassajara	0617988	52
+Diablo Rd	0617988	32
 El Capitan Dr	0617988	25
 El Pintado Rd	0617988	23
 Greenbrook Dr	0617988	22
+Blackhawk Dr	0617988	20
+Blackhawk Rd	0617988	19
 Brookside Dr	0617988	18
-Cam Tassajara	0617988	16
+Lawrence Rd	0617988	16
 Camino Ramon Pl	0617988	15
-Contada Cir	0617988	15
-San Ramon Valley Blvd	0617988	14
-Paraiso Dr	0617988	13
 Russell Blvd	0618100	37
 Sycamore Ln	0618100	26
 2nd St	0618100	24
@@ -1409,16 +1409,16 @@ Scholar Way	0621230	14
 Sumner Ave	0621230	13
 Citrus St	0621230	11
 Oakdale St	0621230	10
-E Chase Ave	0621712	28
-N Cuyamaca St	0621712	21
-W Main St	0621712	20
-W Chase Ave	0621712	19
-Weld Blvd	0621712	17
-El Cajon Blvd	0621712	16
-Fuerte Dr	0621712	16
-Emerald Ave	0621712	15
-Fletcher Pkwy	0621712	15
-Magnolia Ave	0621712	15
+Dehesa Rd	0621712	77
+Greenfield Dr	0621712	56
+Pepper Dr	0621712	51
+E Madison Ave	0621712	50
+E Main St	0621712	42
+Jamacha Rd	0621712	38
+E Lexington Ave	0621712	31
+Graves Ave	0621712	31
+Granite Hills Dr	0621712	30
+E Chase Ave	0621712	29
 S Clark Rd	0621782	28
 E Ross Rd	0621782	26
 W Main St	0621782	26
@@ -1439,16 +1439,16 @@ Schmidt Ln	0621796	18
 Fairmount Ave	0621796	17
 Liberty St	0621796	17
 Stockton Ave	0621796	17
+Elk Grove Florin Rd	0622020	50
 Elk Grove Blvd	0622020	46
 Bruceville Rd	0622020	45
 Grant Line Rd	0622020	41
+Bradshaw Rd	0622020	40
 Sheldon Rd	0622020	39
-Elk Grove Florin Rd	0622020	30
 Bond Rd	0622020	28
 Laguna Park Dr	0622020	28
 Franklin Blvd	0622020	26
 W Stockton Blvd	0622020	26
-Babson Dr	0622020	23
 Cogswell Rd	0622230	58
 Durfee Ave	0622230	48
 Maxson Rd	0622230	47
@@ -1470,7 +1470,6 @@ Vine St	0622300	38
 Linne Rd	0622300	34
 Vineyard Dr	0622300	33
 Manchester Ave	0622678	35
-N Coast Highway 101	0622678	31
 Encinitas Blvd	0622678	28
 Rancho Santa Fe Rd	0622678	28
 Birmingham Dr	0622678	25
@@ -1479,26 +1478,27 @@ Willowspring Dr N	0622678	25
 Leucadia Blvd	0622678	24
 Santa Fe Dr	0622678	23
 La Costa Ave	0622678	22
+Lone Jack Rd	0622678	21
+Valley Center Rd	0622804	79
+Lilac Rd	0622804	65
+Cole Grade Rd	0622804	64
 N Broadway	0622804	64
 Del Dios Hwy	0622804	61
 San Pasqual Valley Rd	0622804	61
 E Washington Ave	0622804	52
 E Valley Pkwy	0622804	49
 Bear Valley Pkwy	0622804	48
-E Mission Ave	0622804	43
-N Ash St	0622804	43
-S Escondido Blvd	0622804	37
-S Juniper St	0622804	36
-Redwood Hwy	0623042	73
-F St	0623042	42
-E St	0623042	40
-C St	0623042	38
-H St	0623042	36
-Myrtle Ave	0623042	36
-I St	0623042	35
-G St	0623042	34
-D St	0623042	32
-J St	0623042	31
+W Lilac Rd	0622804	44
+Redwood Hwy	0623042	94
+Myrtle Ave	0623042	72
+F St	0623042	58
+Harris St	0623042	53
+E St	0623042	51
+D St	0623042	46
+G St	0623042	44
+H St	0623042	44
+C St	0623042	43
+Walnut Dr	0623042	40
 Pennsylvania Ave	0623182	46
 Rockville Rd	0623182	45
 Green Valley Rd	0623182	40
@@ -1511,14 +1511,14 @@ Cordelia Rd	0623182	28
 Dover Ave	0623182	24
 Willow Creek Dr	0624638	26
 American River Canyon Dr	0624638	23
+Guadalupe Dr	0624638	21
+Jackson Rd	0624638	20
 E Bidwell St	0624638	19
 Halidon Way	0624638	19
+Puerto Dr	0624638	19
 Briggs Ranch Dr	0624638	18
 E Natoma St	0624638	18
 Blue Ravine Rd	0624638	17
-Iron Point Rd	0624638	17
-Riley St	0624638	17
-Sibley St	0624638	17
 Cherry Ave	0624680	75
 Sierra Ave	0624680	69
 Citrus Ave	0624680	68
@@ -1622,13 +1622,13 @@ Miller Ave	0629504	30
 San Fernando Rd	0630000	78
 W Glenoaks Blvd	0630000	63
 N Verdugo Rd	0630000	61
-La Crescenta Ave	0630000	54
+La Crescenta Ave	0630000	57
 E Glenoaks Blvd	0630000	52
 W Kenneth Rd	0630000	47
 E Chevy Chase Dr	0630000	43
 Ramsdell Ave	0630000	42
-S Brand Blvd	0630000	38
-Boston Ave	0630000	35
+Honolulu Ave	0630000	40
+Rosemont Ave	0630000	40
 E Foothill Blvd	0630014	35
 S Grand Ave	0630014	34
 S Glendora Ave	0630014	30
@@ -1639,16 +1639,16 @@ E Sierra Madre Ave	0630014	23
 E Ada Ave	0630014	21
 S Lone Hill Ave	0630014	21
 E Carroll Ave	0630014	19
-Hollister Ave	0630378	61
-Cll Real	0630378	56
-Cathedral Oaks Rd	0630378	30
+Hollister Ave	0630378	83
+Cll Real	0630378	68
+Cathedral Oaks Rd	0630378	56
+N Patterson Ave	0630378	29
+N San Marcos Rd	0630378	23
+N Kellogg Ave	0630378	22
 Refugio Rd	0630378	22
 Stow Canyon Rd	0630378	21
 N Fairview Ave	0630378	20
 S Los Carneros Rd	0630378	18
-Carlo Dr	0630378	15
-Berkeley Rd	0630378	13
-N La Patera Ln	0630378	13
 Hanford Armona Rd	0631960	66
 Houston Ave	0631960	54
 10th Ave	0631960	53
@@ -1672,53 +1672,53 @@ W 135th St	0632548	30
 Mission Blvd	0633000	88
 Hesperian Blvd	0633000	71
 D St	0633000	63
+Redwood Rd	0633000	63
+Grove Way	0633000	60
 Meekland Ave	0633000	51
+A St	0633000	45
 Huntwood Ave	0633000	45
 2nd St	0633000	44
-B St	0633000	42
-A St	0633000	41
-W Tennyson Rd	0633000	40
-W Winton Ave	0633000	37
-W Florida Ave	0633182	30
-S State St	0633182	26
-W Devonshire Ave	0633182	25
-N Lyon Ave	0633182	24
-Fruitvale Ave	0633182	23
-S San Jacinto St	0633182	23
-S Santa Fe St	0633182	23
-S Lyon Ave	0633182	22
-S Palm Ave	0633182	22
-Menlo Ave	0633182	21
+Castro Valley Blvd	0633000	44
+Florida Ave	0633182	68
+Sage Rd	0633182	54
+E Mayberry Ave	0633182	52
+E Acacia Ave	0633182	50
+Whittier Ave	0633182	47
+Girard St	0633182	38
+Stetson Ave	0633182	34
+Hemet St	0633182	33
+Cornell St	0633182	31
+Palm Ave	0633182	31
+San Pablo Ave	0633308	33
 Refugio Valley Rd	0633308	26
-San Pablo Ave	0633308	19
 Lupine Rd	0633308	18
 Pheasant Dr	0633308	16
+Railroad Ave	0633308	16
 Redwood Rd	0633308	15
 Valley Run	0633308	15
 Turquoise Dr	0633308	14
-Railroad Ave	0633308	11
-S Wildwood	0633308	11
-Devonwood	0633308	10
-Ranchero Rd	0633434	64
+John Muir Pkwy	0633308	13
+3rd St	0633308	12
+Ranchero Rd	0633434	99
+Mesquite St	0633434	61
+Maple Ave	0633434	59
 Live Oak St	0633434	58
+Muscatel St	0633434	58
 3rd Ave	0633434	56
+Farmington St	0633434	56
 Peach Ave	0633434	56
 I Ave	0633434	55
 Main St	0633434	55
-7th Ave	0633434	53
-Cottonwood Ave	0633434	51
-Maple Ave	0633434	44
-C Ave	0633434	41
 Baseline St	0633588	49
 Highland Ave	0633588	37
 Orange St	0633588	30
+Mill Creek Rd	0633588	27
 Pacific St	0633588	26
 Cloverhill Dr	0633588	25
 Church St	0633588	21
 Cole Ave	0633588	20
 E Piedmont Dr	0633588	20
 Victoria Ave	0633588	20
-Central Ave	0633588	19
 Fairview Rd	0634120	76
 Cienega Rd	0634120	70
 Southside Rd	0634120	61
@@ -1759,26 +1759,26 @@ Donax Ave	0636294	25
 Seacoast Dr	0636294	25
 9th St	0636294	23
 Ebony Ave	0636294	19
+Dillon Rd	0636448	97
 Ave 46	0636448	49
 Indio Blvd	0636448	42
 Monroe St	0636448	42
 Jackson St	0636448	40
+20th Ave	0636448	39
 Ave 44	0636448	32
+18th Ave	0636448	29
 Ave 42	0636448	28
 Miles Ave	0636448	27
-Madison St	0636448	23
-Ave 40	0636448	21
-Jefferson St	0636448	21
+W 104th St	0636546	57
 Prairie Ave	0636546	47
+W Imperial Hwy	0636546	46
 W Manchester Blvd	0636546	46
+S La Cienega Blvd	0636546	43
 W Arbor Vitae St	0636546	41
+W Century Blvd	0636546	38
+Inglewood Ave	0636546	37
 S Van Ness Ave	0636546	35
-W 104th St	0636546	34
-S La Cienega Blvd	0636546	31
-S Crenshaw Blvd	0636546	27
-Inglewood Ave	0636546	26
-S 8th Ave	0636546	26
-W 64th St	0636546	26
+W 111th St	0636546	29
 Alton Pkwy	0636770	52
 Culver Dr	0636770	50
 Michelson Dr	0636770	44
@@ -1869,16 +1869,16 @@ Arbor Rd	0639892	36
 Ashworth St	0639892	35
 Harvey Way	0639892	35
 Hedda St	0639892	28
+Lemon Ave	0640004	42
+Fuerte Dr	0640004	37
 La Mesa Blvd	0640004	28
-University Ave	0640004	26
+University Ave	0640004	28
+Grossmont Blvd	0640004	26
+Jackson Dr	0640004	25
 Lake Murray Blvd	0640004	23
-Baltimore Dr	0640004	19
-Jackson Dr	0640004	19
-Dallas St	0640004	16
-El Cajon Blvd	0640004	15
-Harbinson Ave	0640004	15
-El Paso St	0640004	13
-Severin Dr	0640004	13
+Baltimore Dr	0640004	21
+Bancroft Dr	0640004	20
+Avocado Blvd	0640004	18
 La Mirada Blvd	0640032	37
 Foster Rd	0640032	27
 Rosecrans Ave	0640032	27
@@ -1909,26 +1909,26 @@ E Nelson Ave	0640340	22
 Maplegrove St	0640340	20
 N Stimson Ave	0640340	20
 Evanwood Ave	0640340	19
+58th Ave	0640354	55
+Pierce St	0640354	54
+62nd Ave	0640354	53
+Airport Blvd	0640354	45
+Fillmore St	0640354	38
+66th Ave	0640354	31
+Marina Dr	0640354	29
+Polk St	0640354	29
 Ave Bermudas	0640354	28
-Ave Montezuma	0640354	23
-Eisenhower Dr	0640354	23
-Monroe St	0640354	20
-Madison St	0640354	19
-Riviera	0640354	19
-Washington St	0640354	19
-Adams St	0640354	18
-Ave Obregon	0640354	18
-Cll Durango	0640354	18
-Manthey Rd	0640704	25
+54th Ave	0640354	27
+Manthey Rd	0640704	37
+McKinley Ave	0640704	35
 O St	0640704	23
+S Harlan Rd	0640704	21
+W Mathews Rd	0640704	20
 Louise Ave	0640704	17
 Cambridge Dr	0640704	16
 Fifth St	0640704	15
 Harlan Rd	0640704	14
-McKinley Ave	0640704	12
-Seventh St	0640704	12
-Thomsen Rd	0640704	12
-Garden Farms Ave	0640704	11
+French Camp Rd	0640704	12
 Wheeler Ave	0640830	49
 White Ave	0640830	31
 Esperanza Dr	0640830	26
@@ -2040,15 +2040,15 @@ Saint Joseph Ave	0643280	13
 Creston Dr	0643280	12
 Oak Ave	0643280	12
 W Sunset Blvd	0644000	291
-S Vermont Ave	0644000	248
+S Vermont Ave	0644000	286
+S Main St	0644000	229
 Venice Blvd	0644000	229
+S Figueroa St	0644000	225
 W Pico Blvd	0644000	212
+S Broadway	0644000	210
 S Normandie Ave	0644000	205
 S Western Ave	0644000	199
-S Main St	0644000	190
-S Figueroa St	0644000	187
-W Olympic Blvd	0644000	186
-Vanowen St	0644000	182
+S San Pedro St	0644000	193
 Henry Miller Rd	0644028	61
 Mercey Springs Rd	0644028	56
 Billy Wright Rd	0644028	50
@@ -2079,16 +2079,16 @@ Harris Ave	0644574	31
 Bullis Rd	0644574	29
 State St	0644574	27
 Carlin Ave	0644574	25
-Ave 14	0645022	37
-Ave 13	0645022	36
-Ave 6	0645022	34
-Golden State Blvd	0645022	34
-Ripperdan Ave	0645022	33
-S Granada Dr	0645022	33
-Ave 12	0645022	31
-Ave 7	0645022	29
-Ave 8	0645022	28
-Ave 11	0645022	27
+Ave 12	0645022	74
+Ave 13	0645022	61
+Ave 17	0645022	61
+Ave 14	0645022	52
+Ave 11	0645022	47
+Ave 9	0645022	43
+Ave 16	0645022	42
+Ave 13 1/2	0645022	39
+Ave 18	0645022	39
+Raymond Rd	0645022	39
 Ocean Dr	0645400	80
 N Highland Ave	0645400	70
 Crest Dr	0645400	69
@@ -2120,15 +2120,15 @@ Estudillo St	0646114	23
 Berrellessa St	0646114	20
 Marina Vista Ave	0646114	17
 Murrieta Rd	0646842	47
+Scott Rd	0646842	47
 Bradley Rd	0646842	44
+Briggs Rd	0646842	44
 Antelope Rd	0646842	42
 Sun City Blvd	0646842	40
-Scott Rd	0646842	39
-Garbani Rd	0646842	36
-Briggs Rd	0646842	35
+Garbani Rd	0646842	37
+Holland Rd	0646842	33
+Newport Rd	0646842	31
 Canyon Lake Dr N	0646842	30
-McCall Blvd	0646842	30
-Menifee Rd	0646842	30
 Santa Cruz Ave	0646870	41
 Willow Rd	0646870	28
 Valparaiso Ave	0646870	25
@@ -2249,16 +2249,16 @@ Alessandro Blvd	0649270	50
 Perris Blvd	0649270	43
 Indian St	0649270	40
 Pigeon Pass Rd	0649270	40
-W Grant Line Rd	0649582	13
-W Questa Trl	0649582	13
-Prosperity St	0649582	11
-Tradition St	0649582	10
-W Aventino Ave	0649582	10
-Las Brisas Dr	0649582	9
-S Shields Ave	0649582	9
-Mountain House Pkwy	0649582	8
-W Esplanade Dr	0649582	8
-W Moraga St	0649582	8
+Foothill Ave	0649278	29
+Center Ave	0649278	26
+E San Martin Ave	0649278	24
+Columbet Ave	0649278	23
+Llagas Ave	0649278	22
+Monterey Rd	0649278	22
+Church Ave	0649278	21
+Murphy Ave	0649278	20
+E Middle Ave	0649278	18
+W San Martin Ave	0649278	18
 W El Camino Real	0649670	53
 California St	0649670	39
 N Shoreline Blvd	0649670	31
@@ -2369,16 +2369,16 @@ Delta Rd	0653070	18
 Empire Rd	0653070	16
 Knightsen Ave	0653070	13
 Laurel Rd	0653070	13
+Mission Ave	0653322	65
 Oceanside Blvd	0653322	51
-Mission Ave	0653322	39
+S El Camino Real	0653322	40
 Mesa Dr	0653322	38
 Vista Way	0653322	38
 College Blvd	0653322	36
-S El Camino Real	0653322	34
+N River Rd	0653322	34
+Douglas Dr	0653322	29
 S Coast Hwy	0653322	28
 Cassidy St	0653322	26
-Missouri Ave	0653322	25
-Thunder Dr	0653322	25
 S Euclid Ave	0653896	45
 E 4th St	0653896	38
 N Euclid Ave	0653896	38
@@ -2419,16 +2419,16 @@ Francisco Blvd	0654806	14
 Reina del Mar Ave	0654806	14
 Coast Hwy	0654806	13
 Oceana Blvd	0654806	13
+E Ave R	0655156	128
 E Ave Q	0655156	121
 E Palmdale Blvd	0655156	111
-E Ave R	0655156	104
+E Ave S	0655156	86
 Elizabeth Lake Rd	0655156	69
+E Ave R12	0655156	61
+Pearblossom Hwy	0655156	56
 E Ave P	0655156	55
-E Ave S	0655156	53
-E Ave R12	0655156	48
+E Ave T	0655156	55
 W Ave N	0655156	47
-Sierra Hwy	0655156	45
-E Ave O	0655156	42
 Cook St	0655184	33
 Portola Ave	0655184	31
 Country Club Dr	0655184	25
@@ -2445,20 +2445,20 @@ N Indian Canyon Dr	0655254	40
 E Palm Canyon Dr	0655254	39
 E Via Escuela	0655254	38
 E Ramon Rd	0655254	37
+Banning-Idyllwild Panoramic Hwy	0655254	33
 N Sunrise Way	0655254	33
 E Mesquite Ave	0655254	30
 Cll Palo Fierro	0655254	28
-N Hermosa Dr	0655254	28
 El Camino Real	0655282	66
+Skyline Blvd	0655282	58
 Middlefield Rd	0655282	57
 Cowper St	0655282	48
+Summit Rd	0655282	48
 University Ave	0655282	45
 Bryant St	0655282	44
 Waverley St	0655282	43
 Alma St	0655282	40
 Embarcadero Rd	0655282	38
-Emerson St	0655282	37
-Greer Rd	0655282	36
 Somerset Blvd	0655618	56
 Alondra Blvd	0655618	37
 Downey Ave	0655618	34
@@ -2471,14 +2471,14 @@ Jackson St	0655618	27
 Paramount Blvd	0655618	25
 E Colorado Blvd	0656000	70
 E Del Mar Blvd	0656000	55
+N Allen Ave	0656000	53
+N Marengo Ave	0656000	53
 E Washington Blvd	0656000	51
 E Walnut St	0656000	50
 E Villa St	0656000	49
+N Fair Oaks Ave	0656000	48
+N Altadena Dr	0656000	45
 E Orange Grove Blvd	0656000	43
-San Pasqual St	0656000	43
-E California Blvd	0656000	42
-N Allen Ave	0656000	39
-E Mountain St	0656000	37
 Del Puerto Canyon Rd	0656112	23
 Sycamore Ave	0656112	22
 Elm Ave	0656112	18
@@ -2489,26 +2489,26 @@ S Del Puerto Ave	0656112	14
 Howard Rd	0656112	13
 Walnut Ave	0656112	13
 Baldwin Rd	0656112	12
+Cajalco Rd	0656700	54
+Clark St	0656700	38
+Brown St	0656700	32
 Wilson Ave	0656700	29
-N Perris Blvd	0656700	24
-Ramona Expy	0656700	15
-El Nido Ave	0656700	14
-Orange Ave	0656700	13
-Evans Rd	0656700	12
-Murrieta Rd	0656700	12
-Redlands Ave	0656700	12
-E Nuevo Rd	0656700	11
-E Rider St	0656700	10
+Markham St	0656700	28
+Rider St	0656700	28
+Day St	0656700	27
+Mountain Ave	0656700	27
+N Perris Blvd	0656700	26
+Alexander St	0656700	24
+Bodega Ave	0656784	58
 Lakeville Hwy	0656784	41
+Petaluma Blvd N	0656784	40
 Old Adobe Rd	0656784	36
 N McDowell Blvd	0656784	35
+Roblar Rd	0656784	33
+Valley Ford Rd	0656784	31
+Middle Two Rock Rd	0656784	28
+Chileno Valley Rd	0656784	27
 Maria Dr	0656784	26
-Garfield Dr	0656784	24
-S McDowell Blvd	0656784	22
-Ely Blvd S	0656784	21
-Crinella Dr	0656784	20
-Ely Rd N	0656784	19
-Corona Rd	0656784	17
 Passons Blvd	0656924	52
 Paramount Blvd	0656924	47
 Pico Vista Rd	0656924	37
@@ -2580,15 +2580,15 @@ W Henderson Ave	0658240	39
 S Main St	0658240	35
 W Mulberry Ave	0658240	34
 Pomerado Rd	0658520	53
+San Vicente Rd	0658520	46
 Poway Rd	0658520	43
 Espola Rd	0658520	41
+Mussey Grade Rd	0658520	39
 Midland Rd	0658520	30
-Twin Peaks Rd	0658520	24
-Community Rd	0658520	20
-Garden Rd	0658520	18
-Tierra Bonita Rd	0658520	15
-Carriage Rd	0658520	13
-Acton Ave	0658520	12
+Highland Valley Rd	0658520	29
+Old Julian Hwy	0658520	26
+Black Canyon Rd	0658520	25
+Ramona St	0658520	24
 Folsom Blvd	0659444	42
 Coloma Rd	0659444	35
 White Rock Rd	0659444	30
@@ -2598,7 +2598,7 @@ Klamath River Dr	0659444	23
 Malaga Way	0659444	23
 Ambassador Dr	0659444	20
 Mira del Rio Dr	0659444	20
-Sunrise Blvd	0659444	20
+Old Placerville Rd	0659444	20
 Baseline Rd	0659451	95
 Banyan St	0659451	79
 Foothill Blvd	0659451	68
@@ -2619,16 +2619,16 @@ Palos Verdes Dr S	0659514	13
 W Toscanini Dr	0659514	13
 Ganado Dr	0659514	12
 Highridge Rd	0659514	11
+Vis del Verde	0659587	26
+Ortega Hwy	0659587	24
+Trabuco Oaks Dr	0659587	22
+Plano Trabuco Dr	0659587	21
+Saddleback Ranch Rd	0659587	15
 Ave de Las Banderas	0659587	14
-Antonio Pkwy	0659587	11
-Plano Trabuco Dr	0659587	11
-Via Amistosa	0659587	10
-Via Serena	0659587	10
-Ave Empresa	0659587	9
-Seacountry Ln	0659587	9
-Alma Aldea	0659587	8
-Alondra	0659587	8
-Los Alisos Blvd	0659587	8
+Ridgeline Rd	0659587	13
+Live Oak Canyon Rd	0659587	12
+Mill Stream Rd	0659587	12
+Rancho Cielo	0659587	12
 Churn Creek Rd	0659920	108
 Placer St	0659920	72
 Old Oregon Trl	0659920	65
@@ -2681,14 +2681,14 @@ S Alta Ave	0660242	22
 E South Ave	0660242	21
 N Riverside Ave	0660466	53
 N Sycamore Ave	0660466	46
+Cedar Ave	0660466	40
+S Riverside Ave	0660466	40
 N Linden Ave	0660466	39
 N Acacia Ave	0660466	35
+W Randall Ave	0660466	34
 N Lilac Ave	0660466	33
 N Willow Ave	0660466	33
-S Riverside Ave	0660466	28
-N Driftwood Ave	0660466	26
-N Eucalyptus Ave	0660466	26
-W 2nd St	0660466	26
+S Lilac Ave	0660466	32
 San Pablo Ave	0660620	77
 San Pablo Dam Rd	0660620	73
 W Macdonald Ave	0660620	59
@@ -2759,36 +2759,36 @@ Hellman Ave	0662896	26
 Mission Dr	0662896	26
 Ivar Ave	0662896	25
 Marshall St	0662896	25
+Douglas Blvd	0662938	68
+Eureka Rd	0662938	43
+Auburn Folsom Rd	0662938	42
 Pleasant Grove Blvd	0662938	41
-Douglas Blvd	0662938	34
+Barton Rd	0662938	38
+E Roseville Pkwy	0662938	34
 Vernon St	0662938	29
+Cavitt Stallman Rd	0662938	27
 Cirby Way	0662938	27
 Pleasant Grove Rd	0662938	26
-Vista Creek Dr	0662938	25
-Base Line Rd	0662938	22
-Timberrose Way	0662938	22
-Woodcreek Oaks Blvd	0662938	22
-Fiddyment Rd	0662938	21
-24th St	0664000	139
+24th St	0664000	150
 Franklin Blvd	0664000	122
-Fruitridge Rd	0664000	114
+Fruitridge Rd	0664000	117
+Watt Ave	0664000	111
 Riverside Blvd	0664000	107
-Stockton Blvd	0664000	106
+Stockton Blvd	0664000	107
 Folsom Blvd	0664000	104
 Broadway St	0664000	101
 21st St	0664000	99
-T St	0664000	85
-J St	0664000	84
+Rio Linda Blvd	0664000	93
 N Main St	0664224	36
 E Alisal St	0664224	34
+San Juan Grade Rd	0664224	34
 Market Way	0664224	33
 E Laurel Dr	0664224	32
 Cherokee Dr	0664224	28
+Langley Canyon Rd	0664224	26
 Abbott St	0664224	24
 W Alisal St	0664224	24
-N Sanborn Rd	0664224	23
-Pajaro St	0664224	22
-W Acacia St	0664224	22
+Echo Valley Rd	0664224	23
 N Mountain View Ave	0665000	77
 N E St	0665000	65
 N Sierra Way	0665000	61
@@ -2869,26 +2869,36 @@ California St	0667000	88
 Van Ness Ave	0667000	84
 Alemany Blvd	0667000	80
 San Jose Ave	0667000	68
+S San Gabriel Blvd	0667042	39
 S Del Mar Ave	0667042	34
-S San Gabriel Blvd	0667042	28
+N Muscatel Ave	0667042	31
 E Broadway	0667042	26
-E Las Tunas Dr	0667042	17
-E Live Oak St	0667042	17
-E Wells St	0667042	17
-S California St	0667042	17
-E Valley Blvd	0667042	16
-S Walnut Grove Ave	0667042	16
-W Las Tunas Dr	0667042	16
+Rosemead Blvd	0667042	24
+E Hermosa Dr	0667042	21
+Duarte Rd	0667042	19
+E Fairview Ave	0667042	19
+N Vista St	0667042	19
+N Willard Ave	0667042	18
+E Trimmer Springs Rd	0667056	48
+E Kings Canyon Rd	0667056	38
+Faller Ave	0667056	27
+5th St	0667056	25
+E North Ave	0667056	24
+Greenwood Ave	0667056	24
+10th St	0667056	23
+7th St	0667056	23
+9th St	0667056	23
+Academy Ave	0667056	23
 W 7th St	0667112	28
 Cottonwood Ave	0667112	21
+Hansen Ave	0667112	21
 W Esplanade Ave	0667112	19
 State St	0667112	18
 E Washington Ave	0667112	17
 Idyllwild Dr	0667112	17
 N Ramona Blvd	0667112	17
-S San Jacinto Ave	0667112	15
-De Anza Dr	0667112	14
-E 7th St	0667112	14
+Nuevo Rd	0667112	17
+Juniper Flats Rd	0667112	16
 Meridian Ave	0668000	118
 Monterey Rd	0668000	103
 Camden Ave	0668000	89
@@ -2911,14 +2921,14 @@ Mariner Dr	0668028	14
 Village Rd	0668028	12
 E 14th St	0668084	111
 Bancroft Ave	0668084	58
-Washington Ave	0668084	54
+Washington Ave	0668084	57
+Hesperian Blvd	0668084	37
 Williams St	0668084	37
+Bockman Rd	0668084	33
 Doolittle Dr	0668084	33
 Alvarado St	0668084	31
 Davis St	0668084	30
 Farnsworth St	0668084	27
-San Leandro Blvd	0668084	27
-Wicks Blvd	0668084	25
 Broad St	0668154	69
 Orcutt Rd	0668154	60
 Los Osos Valley Rd	0668154	48
@@ -2972,23 +2982,23 @@ Santander Dr	0668378	15
 W 1st St	0669000	89
 W Edinger Ave	0669000	74
 W McFadden Ave	0669000	64
+E 17th St	0669000	57
 W 5th St	0669000	55
 W 17th St	0669000	51
+E Fairhaven Ave	0669000	48
 S Harbor Blvd	0669000	48
 S Main St	0669000	47
 W Warner Ave	0669000	47
-S Raitt St	0669000	46
-S Fairview St	0669000	44
-State St	0669070	56
+Foothill Rd	0669070	115
+State St	0669070	61
 Cliff Dr	0669070	43
-Foothill Rd	0669070	39
 Bath St	0669070	38
+Cll Real	0669070	37
+Modoc Rd	0669070	37
 De la Vina St	0669070	33
 Chapala St	0669070	31
 Anacapa St	0669070	30
 Castillo St	0669070	30
-Santa Barbara St	0669070	28
-Garden St	0669070	27
 Lafayette St	0669084	67
 Benton St	0669084	62
 El Camino Real	0669084	59
@@ -2999,36 +3009,36 @@ Homestead Rd	0669084	45
 Los Padres Blvd	0669084	41
 Scott Blvd	0669084	38
 Cabrillo Ave	0669084	32
-Soledad Canyon Rd	0669088	97
-Sierra Hwy	0669088	61
+Sierra Hwy	0669088	174
+Bouquet Canyon Rd	0669088	127
+Soledad Canyon Rd	0669088	120
+The Old Rd	0669088	82
+San Francisquito Canyon Rd	0669088	71
 Sand Canyon Rd	0669088	56
-Bouquet Canyon Rd	0669088	38
+Agua Dulce Canyon Rd	0669088	53
+Hasley Canyon Rd	0669088	46
+Copper Hill Dr	0669088	38
 Newhall Ave	0669088	38
-Placerita Canyon Rd	0669088	37
-Lyons Ave	0669088	30
-Copper Hill Dr	0669088	29
-Valencia Blvd	0669088	29
-Oak Spring Canyon Rd	0669088	28
-E Cliff Dr	0669112	59
-Soquel Ave	0669112	49
+E Cliff Dr	0669112	63
+Branciforte Dr	0669112	58
+Empire Grade	0669112	54
+Soquel Ave	0669112	51
 Capitola Rd	0669112	43
-17th Ave	0669112	33
+Mission St	0669112	36
+17th Ave	0669112	35
 30th Ave	0669112	33
 Portola Dr	0669112	33
 38th Ave	0669112	32
-7th Ave	0669112	31
-Brommer St	0669112	31
-Chanticleer Ave	0669112	22
+S Bradley Rd	0669196	60
 Old Tepusquet Rd	0669196	49
 W Main St	0669196	47
 N Broadway	0669196	45
-Foxen Canyon Rd	0669196	42
+Foxen Canyon Rd	0669196	43
+E Clark Ave	0669196	39
+S Blosser Rd	0669196	39
 S Broadway	0669196	39
+W Betteravia Rd	0669196	34
 Boone St	0669196	29
-E Main St	0669196	28
-S Blosser Rd	0669196	28
-E Alvin Ave	0669196	27
-El Camino St	0669196	26
 Arizona Ave	0670000	59
 Broadway	0670000	54
 Montana Ave	0670000	54
@@ -3059,16 +3069,16 @@ Fulton Rd	0670098	50
 Petaluma Hill Rd	0670098	48
 Stony Point Rd	0670098	47
 Montecito Ave	0670098	43
-Prospect Ave	0670224	48
+Prospect Ave	0670224	52
 Magnolia Ave	0670224	39
 Mast Blvd	0670224	39
+Winter Gardens Blvd	0670224	35
 Mission Gorge Rd	0670224	32
+El Nopal	0670224	29
+Woodside Ave	0670224	28
 Carlton Oaks Dr	0670224	27
-Fanita Dr	0670224	20
-Pebble Beach Dr	0670224	18
-Cottonwood Ave	0670224	17
-El Nopal	0670224	17
-Carlton Hills Blvd	0670224	16
+Los Coches Rd	0670224	26
+Wildcat Canyon Rd	0670224	26
 Saratoga Ave	0670280	47
 Saratoga Sunnyvale Rd	0670280	39
 Quito Rd	0670280	37
@@ -3152,13 +3162,13 @@ Santa Rosalia St	0673962	12
 N El Dorado St	0675000	95
 N Pershing Ave	0675000	76
 California St	0675000	70
+E Main St	0675000	66
+E Fremont St	0675000	65
 Commerce St	0675000	62
-E Harding Way	0675000	49
+99 Frontage Rd	0675000	56
+E Mariposa Rd	0675000	55
+E Harding Way	0675000	50
 Acacia St	0675000	48
-Alpine Ave	0675000	47
-N Sutter St	0675000	47
-S Airport Way	0675000	47
-E Eight Mile Rd	0675000	46
 Grizzly Island Rd	0675630	46
 Pintail Dr	0675630	23
 Main St	0675630	15
@@ -3181,14 +3191,14 @@ Morse Ave	0677000	25
 N Mathilda Ave	0677000	25
 De Portola Rd	0678120	91
 Rancho California Rd	0678120	69
+De Luz Rd	0678120	65
+S Mission Rd	0678120	51
+E Mission Rd	0678120	44
 Carancho Rd	0678120	43
 Pauba Rd	0678120	43
-De Luz Rd	0678120	33
-Anza Rd	0678120	30
-Margarita Rd	0678120	29
-Sandia Creek Dr	0678120	29
-Via Vaquero Rd	0678120	24
-Ynez Rd	0678120	21
+Reche Rd	0678120	41
+Sandia Creek Dr	0678120	41
+Olive Hill Rd	0678120	39
 Olive St	0678148	30
 Lower Azusa Rd	0678148	27
 Encinita Ave	0678148	25
@@ -3269,7 +3279,9 @@ Mesa Dr	0680994	75
 Adobe Rd	0680994	59
 Morongo Rd	0680994	55
 Twentynine Palms Hwy	0680994	53
+Palomares Rd	0681204	43
 Alvarado Niles Rd	0681204	37
+Crow Canyon Rd	0681204	34
 Whipple Rd	0681204	33
 Regents Blvd	0681204	26
 Perry Rd	0681204	22
@@ -3277,8 +3289,6 @@ Almaden Blvd	0681204	19
 H St	0681204	19
 Union City Blvd	0681204	19
 San Andreas Dr	0681204	18
-Cabello St	0681204	17
-Jean Dr	0681204	17
 N Euclid Ave	0681344	50
 N Mountain Ave	0681344	41
 N San Antonio Ave	0681344	38
@@ -3350,15 +3360,15 @@ Golden Springs Dr	0683332	14
 Vejar Rd	0683332	14
 Fairway Dr	0683332	13
 Walnut Blvd	0683346	45
+Stone Valley Rd	0683346	41
 N Main St	0683346	35
 Arbolado Dr	0683346	33
 Ygnacio Valley Rd	0683346	31
+Danville Blvd	0683346	30
+Oak Rd	0683346	26
+Livorna Rd	0683346	24
 Tice Valley Blvd	0683346	24
-Oak Rd	0683346	23
 Terra Granada Dr	0683346	22
-Wiget Ln	0683346	22
-Geary Rd	0683346	21
-San Miguel Dr	0683346	21
 Paso Robles Hwy	0683542	49
 Palm Ave	0683542	29
 Gun Club Rd	0683542	26
@@ -3369,16 +3379,16 @@ Broadway	0683542	21
 D St	0683542	21
 Jackson Ave	0683542	20
 Poplar Ave	0683542	20
-Freedom Blvd	0683668	11
-Airport Blvd	0683668	8
-Green Valley Rd	0683668	7
-Bowker Rd	0683668	6
-Buena Vista Dr	0683668	6
-Carey Ave	0683668	6
-Fuchsia Dr	0683668	4
-Landis Ave	0683668	4
-Roache Rd	0683668	4
-Ross Ave	0683668	4
+Freedom Blvd	0683668	57
+Green Valley Rd	0683668	56
+San Andreas Rd	0683668	36
+San Miguel Canyon Rd	0683668	34
+Buena Vista Dr	0683668	31
+E Lake Ave	0683668	30
+Riverside Dr	0683668	29
+Eureka Canyon Rd	0683668	28
+Casserly Rd	0683668	26
+Lincoln St	0683668	26
 E Cameron Ave	0684200	52
 S Azusa Ave	0684200	38
 E Vine Ave	0684200	37
@@ -3390,15 +3400,15 @@ E Garvey Ave S	0684200	24
 S Glendora Ave	0684200	24
 W Workman Ave	0684200	24
 Westminster Blvd	0684550	77
-Hazard Ave	0684550	49
-Beach Blvd	0684550	48
-Bolsa Ave	0684550	40
+Bolsa Ave	0684550	66
+Hazard Ave	0684550	59
+Beach Blvd	0684550	51
+McFadden Ave	0684550	41
 Goldenwest St	0684550	40
 Trask Ave	0684550	35
 Magnolia St	0684550	34
-McFadden Ave	0684550	31
+Newland St	0684550	31
 Springdale St	0684550	28
-Edwards St	0684550	26
 Jefferson Blvd	0684816	41
 S River Rd	0684816	30
 W Capitol Ave	0684816	28
@@ -3409,16 +3419,16 @@ Sacramento Ave	0684816	15
 Stone Blvd	0684816	15
 6th St	0684816	14
 Evergreen Ave	0684816	14
-Whittier Blvd	0685292	101
+Whittier Blvd	0685292	119
+Norwalk Blvd	0685292	68
+Broadway	0685292	67
 Painter Ave	0685292	66
+Leffingwell Rd	0685292	65
 Mar Vista St	0685292	60
+Lambert Rd	0685292	55
 Workman Mill Rd	0685292	54
 La Cuarta St	0685292	50
-Greenleaf Ave	0685292	44
-Carmenita Rd	0685292	42
-Beverly Blvd	0685292	40
-Philadelphia St	0685292	37
-Laurel Ave	0685292	36
+Mulberry Dr	0685292	49
 Grand Ave	0685446	40
 Bundy Canyon Rd	0685446	34
 Palomar St	0685446	33
@@ -3430,15 +3440,15 @@ Central St	0685446	14
 Gruwell St	0685446	14
 Harvest Way	0685446	14
 Old Redwood Hwy	0685922	39
+River Rd	0685922	33
 Starr Rd	0685922	33
 Windsor Rd	0685922	28
+Pocket Canyon Hwy	0685922	21
 Windsor River Rd	0685922	20
 Hembree Ln	0685922	17
+Trenton Rd	0685922	16
+Woolsey Rd	0685922	16
 Decanter Cir	0685922	15
-Mark West Station Rd	0685922	15
-Mitchell Ln	0685922	15
-Shiloh Rd	0685922	15
-Woolsey Rd	0685922	15
 Gibson Rd	0686328	36
 West St	0686328	36
 Ashley Ave	0686328	30
@@ -3480,14 +3490,14 @@ Wildwood Canyon Rd	0687042	36
 3rd St	0687042	29
 California St	0687042	28
 Sheridan Blvd	0803455	126
-W 64th Ave	0803455	106
+W 64th Ave	0803455	110
 W 72nd Ave	0803455	98
 W 68th Ave	0803455	95
-W 58th Ave	0803455	83
-W 66th Ave	0803455	82
-W 60th Ave	0803455	76
-Indiana St	0803455	71
-W 62nd Ave	0803455	66
+W 60th Ave	0803455	92
+Indiana St	0803455	91
+W 58th Ave	0803455	91
+W 66th Ave	0803455	87
+W 62nd Ave	0803455	67
 W 82nd Ave	0803455	62
 E 6th Ave	0804000	90
 E 11th Ave	0804000	85
@@ -3499,16 +3509,16 @@ E Mississippi Ave	0804000	66
 E 19th Ave	0804000	61
 E Hampden Ave	0804000	61
 E Yale Ave	0804000	59
-Baseline Rd	0807850	66
-28th St	0807850	62
+Baseline Rd	0807850	95
+Arapahoe Ave	0807850	78
+Broadway St	0807850	77
+28th St	0807850	64
+Sunshine Canyon Dr	0807850	60
+19th St	0807850	59
 S Boulder Rd	0807850	59
 30th St	0807850	54
 55th St	0807850	53
 Valmont Rd	0807850	52
-Broadway St	0807850	51
-Table Mesa Dr	0807850	48
-63rd St	0807850	46
-Arapahoe Ave	0807850	45
 Longs Peak St	0808675	39
 E 136th Ave	0808675	35
 E 168th Ave	0808675	34
@@ -3529,6 +3539,7 @@ Dillon Rd	0809280	37
 Main St	0809280	31
 Huron St	0809280	28
 W 136th Ave	0809280	28
+S Russellville Rd	0812415	30
 S Lake Gulch Rd	0812415	29
 Front St	0812415	26
 W Wolfensberger Rd	0812415	25
@@ -3537,8 +3548,7 @@ Castle Butte Dr	0812415	20
 E Wolfensburger Rd	0812415	19
 Mount Royal Dr	0812415	16
 N Meadows Dr	0812415	16
-Garton Rd	0812415	15
-South St	0812415	15
+E Tomichi Dr	0812415	15
 E Arapahoe Rd	0812815	110
 E Dry Creek Rd	0812815	72
 E Orchard Rd	0812815	57
@@ -3550,15 +3560,15 @@ E Belleview Pl	0812815	43
 S Holly St	0812815	42
 S Broadway	0812815	41
 N Academy Blvd	0816000	130
+Constitution Ave	0816000	125
 N Nevada Ave	0816000	111
+Palmer Park Blvd	0816000	110
+Black Forest Rd	0816000	99
 E Pikes Peak Ave	0816000	84
 N Union Blvd	0816000	84
 E Fountain Blvd	0816000	77
+E Platte Ave	0816000	76
 E Uintah St	0816000	76
-Constitution Ave	0816000	74
-E San Miguel St	0816000	70
-E Platte Ave	0816000	68
-E Bijou St	0816000	66
 Monaco St	0816495	65
 E 104th Ave	0816495	59
 E 112th Ave	0816495	57
@@ -3569,16 +3579,16 @@ E 88th Ave	0816495	40
 Tower Rd	0816495	37
 Dahlia St	0816495	36
 E 72nd Ave	0816495	35
+Federal Blvd	0820000	161
 E Mississippi Ave	0820000	136
 E Yale Ave	0820000	131
 E 6th Ave	0820000	125
 E 56th Ave	0820000	109
 E 17th Ave	0820000	108
+S Lowell Blvd	0820000	104
 E 29th Ave	0820000	101
-Federal Blvd	0820000	100
 E 11th Ave	0820000	99
 E 12th Ave	0820000	99
-E 13th Ave	0820000	99
 W Dartmouth Ave	0824785	36
 W Hampden Ave	0824785	36
 S Federal Blvd	0824785	35
@@ -3609,26 +3619,26 @@ N Taft Hill Rd	0827425	68
 S Shields St	0827425	66
 E Mulberry St	0827425	64
 E Harmony Rd	0827425	60
+Security Blvd	0827865	37
+Bradley Rd	0827865	26
+Hallam Ave	0827865	26
 Fountain Mesa Rd	0827865	25
 Southmoor Dr	0827865	25
 Milne Rd	0827865	24
 Old Pueblo Rd	0827865	23
 Hanover Rd	0827865	22
-N Santa Fe Ave	0827865	20
-S Peyton Hwy	0827865	19
-Ray Nixon Rd	0827865	18
-Indian Village Hts	0827865	17
-Myers Rd	0827865	17
+Fontaine Blvd	0827865	20
+Main St	0827865	20
+Broadway	0831660	68
+29 Rd	0831660	55
+30 Rd	0831660	52
 Bookcliff Ave	0831660	50
 Patterson Rd	0831660	50
 Orchard Ave	0831660	47
-30 Rd	0831660	46
+C Rd	0831660	46
+B 1/2 Rd	0831660	44
 F 1/2 Rd	0831660	41
 Gunnison Ave	0831660	41
-29 Rd	0831660	39
-North Ave	0831660	39
-Walnut Ave	0831660	37
-N 15th St	0831660	36
 W 16th St	0832155	65
 W 4th St	0832155	56
 W 20th St	0832155	55
@@ -3659,16 +3669,16 @@ W 26th Ave	0843000	76
 W Florida Ave	0843000	69
 S Wadsworth Blvd	0843000	66
 West Virginia Ave	0843000	52
+S Platte Canyon Rd	0845255	55
 S Windermere St	0845255	44
-S Elati St	0845255	37
+S Elati St	0845255	38
+W Chatfield Ave	0845255	37
+W Ken Caryl Ave	0845255	37
 S Prince St	0845255	36
+W Powers Ave	0845255	36
+S Simms St	0845255	32
 S Santa Fe Dr	0845255	31
-W Littleton Blvd	0845255	25
-W Powers Ave	0845255	25
-S Gallup St	0845255	24
-S Datura St	0845255	20
-S Hill St	0845255	20
-W Berry Ave	0845255	20
+S Kipling St	0845255	29
 Mountain View Ave	0845970	61
 NE County Line Rd	0845970	58
 9th Ave	0845970	54
@@ -3749,16 +3759,16 @@ County Line Rd	0885485	16
 Grand Ave	0885485	16
 S County Line Rd	0885485	14
 Crooked Stick Dr	0885485	13
-Park Ave	0908000	88
-Main St	0908000	83
-Madison Ave	0908000	74
+Main St	0908000	147
+Madison Ave	0908000	129
+Park Ave	0908000	94
+Old Town Rd	0908000	64
 Fairfield Ave	0908000	60
 North Ave	0908000	59
 E Main St	0908000	57
-Old Town Rd	0908000	46
+Huntington Tpke	0908000	47
 Boston Ave	0908000	43
-Noble Ave	0908000	33
-Wood Ave	0908000	31
+Reservoir Ave	0908000	37
 Farmington Ave	0908420	55
 Camp St	0908420	50
 Stafford Ave	0908420	32
@@ -3769,16 +3779,17 @@ Lake Ave	0908420	23
 Broad St	0908420	22
 East St	0908420	22
 Jerome Ave	0908420	22
+Federal Rd	0918430	38
 Main St	0918430	33
 Great Plain Rd	0918430	27
+Whisconier Rd	0918430	26
+Candlewood Lake Rd	0918430	25
 White St	0918430	24
 Stadley Rough Rd	0918430	22
 Middle River Rd	0918430	21
 Clapboard Ridge Rd	0918430	18
 Osborne St	0918430	16
-Shelter Rock Rd	0918430	16
-South St	0918430	16
-E Pembroke Rd	0918430	14
+New Britain Ave	0937000	74
 Windsor Ave	0937000	65
 Broad St	0937000	53
 Poquonock Ave	0937000	49
@@ -3786,7 +3797,6 @@ Main St	0937000	48
 Albany Ave	0937000	37
 Park St	0937000	37
 Bloomfield Ave	0937000	36
-New Britain Ave	0937000	35
 Wethersfield Ave	0937000	33
 Franklin Ave	0937000	32
 E Main St	0946450	47
@@ -3830,25 +3840,25 @@ Christian Rd	0949880	17
 Field St	0949880	17
 May St	0949880	17
 Stanley St	0950370	58
+Farmington Ave	0950370	57
 Corbin Ave	0950370	43
 East St	0950370	37
+Main St	0950370	36
 Slater Rd	0950370	32
-Farmington Ave	0950370	28
 W Main St	0950370	27
 Allen St	0950370	21
 Osgood Ave	0950370	20
-Lincoln St	0950370	19
-South St	0950370	16
+Scott Swamp Rd	0950370	20
 Dixwell Ave	0952000	73
 Chapel St	0952000	55
+Main St	0952000	44
 Whalley Ave	0952000	44
 Ella T Grasso Blvd	0952000	36
 State St	0952000	33
+Townsend Ave	0952000	33
 Edgewood Ave	0952000	30
 Quinnipiac Ave	0952000	30
 Sherman Ave	0952000	30
-Foxon Rd	0952000	29
-Grand Ave	0952000	27
 Ocean Ave	0952280	49
 Montauk Ave	0952280	37
 Williams St	0952280	28
@@ -3859,16 +3869,16 @@ Broad St	0952280	21
 Colman St	0952280	19
 Lincoln Ave	0952280	15
 Vauxhall St	0952280	15
+Main St	0955990	57
+Sturges Hwy	0955990	50
+Post Rd E	0955990	45
 Rowayton Ave	0955990	36
-Newtown Ave	0955990	27
-East Ave	0955990	26
-Fillow St	0955990	26
-Silvermine Ave	0955990	24
-Dry Hill Rd	0955990	23
-E Rocks Rd	0955990	21
-Flax Hill Rd	0955990	21
-Highland Ave	0955990	21
-Strawberry Hill Ave	0955990	21
+Valley Rd	0955990	36
+Ponus Rdg	0955990	34
+East Ave	0955990	33
+North Ave	0955990	31
+Compo Rd S	0955990	30
+Oenoke Rdg	0955990	29
 Boswell Ave	0956200	32
 New London Tpke	0956200	31
 W Thames St	0956200	27
@@ -3949,26 +3959,26 @@ Bunker Hill Rd	1047030	15
 S Dupont Pkwy	1047030	14
 Springmill Dr	1047030	14
 Boyds Corner Rd	1047030	13
+S College Ave	1050670	41
 Kirkwood Hwy	1050670	38
+Old Baltimore Pike	1050670	36
+Pulaski Hwy	1050670	36
 Paper Mill Rd	1050670	35
-Elkton Rd	1050670	32
+Elkton Rd	1050670	34
 New London Rd	1050670	31
-E Main St	1050670	22
-Nottingham Rd	1050670	20
-S College Ave	1050670	19
-Academy St	1050670	13
-Corner Ketch Rd	1050670	13
-Polly Drummond Hill Rd	1050670	13
+S Chapel St	1050670	30
+Salem Church Rd	1050670	29
+E Main St	1050670	25
 N Washington St	1077580	58
 Concord Pike	1077580	55
 N Market St	1077580	51
 Governor Printz Blvd	1077580	49
+Kennett Pike	1077580	46
 W 2nd St	1077580	46
 Delaware Ave	1077580	44
+Lancaster Pike	1077580	40
+W 6th St	1077580	40
 N Jefferson St	1077580	39
-W 4th St	1077580	39
-W 6th St	1077580	39
-N Adams St	1077580	37
 Southern Ave SE	1150000	132
 14th St NW	1150000	118
 16th St NW	1150000	103
@@ -3991,9 +4001,9 @@ Spring Valley Rd	1200950	14
 Hattaway Dr	1200950	13
 Plymouth Sorrento Rd	1201700	85
 W Kelly Park Rd	1201700	68
-W Orange Blossom Trl	1201700	57
+W Orange Blossom Trl	1201700	58
+W Ponkan Rd	1201700	46
 Rock Springs Rd	1201700	45
-W Ponkan Rd	1201700	42
 E Semoran Blvd	1201700	41
 S Orange Blossom Trl	1201700	41
 S Hawthorne Ave	1201700	33
@@ -4040,25 +4050,25 @@ W Boynton Beach Blvd	1207875	27
 S Federal Hwy	1207875	24
 Old Boynton Rd	1207875	22
 Manatee Ave W	1207950	86
+Cortez Rd W	1207950	71
 Manatee Ave E	1207950	64
 9th Ave W	1207950	62
+75th St W	1207950	56
 14th St W	1207950	54
 17th Ave W	1207950	54
-75th St W	1207950	53
+34th St W	1207950	54
 1st Ave W	1207950	51
 11th Ave W	1207950	47
-21st Ave W	1207950	47
-15th St E	1207950	46
 Del Prado Blvd S	1210275	91
 Country Club Blvd	1210275	89
 SE 10th Ave	1210275	73
 Coronado Pkwy	1210275	59
+Hancock Bridge Pkwy	1210275	54
 SW 2nd Ave	1210275	52
 SE 6th Ave	1210275	50
 S Chiquita Blvd	1210275	49
 SE 16th Pl	1210275	49
-Santa Barbara Blvd N	1210275	48
-SW 3rd Ave	1210275	44
+N Tamiami Trl	1210275	48
 Seminola Blvd	1211050	26
 Semoran Blvd	1211050	20
 Eagle Cir	1211050	18
@@ -4080,15 +4090,15 @@ N Betty Ln	1212875	48
 Lakeview Rd	1212875	46
 Nursery Rd	1212875	43
 Lakeshore Dr	1212925	31
+Greater Groves Blvd	1212925	20
 East Ave	1212925	19
 Hartwood Marsh Rd	1212925	19
 Spring Lake Dr	1212925	19
 Bloxam Ave	1212925	18
 Montevista Rd	1212925	18
+Woodcrest Way	1212925	16
 12th St	1212925	15
-Chestnut St	1212925	15
-Princeton Dr	1212925	15
-Grand Hwy	1212925	14
+Blazing Star Cir	1212925	15
 NW 45th Ave	1213275	41
 NW 39th Ave	1213275	33
 Lyons Rd	1213275	29
@@ -4219,26 +4229,26 @@ NW 109th Ave	1217935	30
 NW 102nd Ave	1217935	29
 NW 108th Ave	1217935	27
 NW 112th Ct	1217935	26
+Bayshore Blvd	1218575	73
+New York Ave	1218575	38
 Main St	1218575	34
-New York Ave	1218575	32
 Douglas Ave	1218575	31
 Patricia Ave	1218575	30
-Bayshore Blvd	1218575	26
+Tampa Rd	1218575	27
 Union St	1218575	26
+Belcher Rd	1218575	25
+Omaha St	1218575	25
 Michigan Blvd	1218575	24
-Milwaukee Ave	1218575	24
-Highland Ave	1218575	23
-Palm Blvd	1218575	20
+S Tamiami Trl	1221150	74
+San Carlos Blvd	1221150	62
+Gladiolus Dr	1221150	34
 Corkscrew Rd	1221150	32
-S Tamiami Trl	1221150	27
+McGregor Blvd	1221150	32
+Iona Rd	1221150	31
+Oriole Rd	1221150	30
+Phlox Dr	1221150	22
+Caloosa Rd	1221150	19
 Stoneybrook Golf Dr	1221150	19
-Fountain Lakes Blvd	1221150	16
-Corkscrew Shores Blvd	1221150	15
-Cumberland Ct	1221150	13
-Wildcat Run Dr	1221150	13
-Ashcomb Way	1221150	10
-Bella Terra Blvd	1221150	10
-Broadway Ave W	1221150	10
 Burlington Ave	1221350	54
 E Orange Ave	1221350	44
 S Grove St	1221350	43
@@ -4259,16 +4269,16 @@ W Broward Blvd	1224000	68
 S Federal Hwy	1224000	65
 Davie Blvd	1224000	60
 NW 27th Ave	1224000	59
-McGregor Blvd	1224125	62
-Cleveland Ave	1224125	60
-Dr Martin Luther King Blvd	1224125	50
+McGregor Blvd	1224125	113
+Cleveland Ave	1224125	105
+Palm Beach Blvd	1224125	100
+Lee Blvd	1224125	65
+Dr Martin Luther King Blvd	1224125	55
+7th St W	1224125	53
 Metro Pkwy	1224125	49
-Evans Ave	1224125	42
-Central Ave	1224125	37
-Fowler St	1224125	37
-Winkler Ave	1224125	37
-Broadway	1224125	36
-Palm Beach Blvd	1224125	36
+Winkler Rd	1224125	49
+Colonial Blvd	1224125	44
+2nd St W	1224125	43
 Oleander Ave	1224300	107
 S 25th St	1224300	84
 Sunrise Blvd	1224300	78
@@ -4369,36 +4379,36 @@ Normandy Blvd	1235000	91
 Philips Hwy	1235000	91
 University Blvd N	1235000	82
 Park St	1235000	81
+W Indiantown Rd	1235875	64
 Center St	1235875	46
 Loxahatchee River Rd	1235875	34
-W Indiantown Rd	1235875	28
-Via Royale	1235875	21
-N Egret Cir	1235875	19
-Ocean Blvd	1235875	19
-Military Trl	1235875	18
-Sweet Bay Cir	1235875	17
-Marlberry Cir	1235875	15
-S Egret Cir	1235875	15
+Randolph Siding Rd	1235875	25
+150th Ct N	1235875	23
+164th Ct N	1235875	23
+Alexander Run	1235875	23
+165th Rd N	1235875	22
+Sandy Run Rd	1235875	22
+169th Ct N	1235875	21
 Space Coast Pkwy	1236950	95
-Boggy Creek Rd	1236950	74
+Boggy Creek Rd	1236950	75
 W Irlo Bronson Memorial Hwy	1236950	70
 N John Young Pkwy	1236950	58
 Neptune Rd	1236950	54
 Michigan Ave	1236950	49
 Pleasant Hill Rd	1236950	48
+Royal Palm Dr	1236950	36
 N Orange Blossom Trl	1236950	34
 W Donegan Ave	1236950	34
-N Thacker Ave	1236950	30
-Bartow Rd	1238250	155
+Bartow Rd	1238250	183
+S Florida Ave	1238250	90
 W Memorial Blvd	1238250	76
 Lakeland Hills Blvd	1238250	75
-County Line Rd	1238250	68
+County Line Rd	1238250	69
+Kathleen Rd	1238250	68
 E Memorial Blvd	1238250	66
 N Florida Ave	1238250	64
-S Florida Ave	1238250	59
 New Tampa Hwy	1238250	56
 N Socrum Loop Rd	1238250	52
-E Main St	1238250	49
 N A St	1239081	34
 N Dixie Hwy	1239081	34
 N Federal Hwy	1239081	31
@@ -4449,9 +4459,9 @@ NW 66th Ave	1243125	25
 NW 18th St	1243125	22
 NW 69th Ave	1243125	21
 Banks Rd	1243125	20
+N Wickham Rd	1243975	87
 Aurora Rd	1243975	77
 Croton Rd	1243975	51
-N Wickham Rd	1243975	50
 S Babcock St	1243975	41
 W Eau Gallie Blvd	1243975	38
 Lake Washington Rd	1243975	35
@@ -4459,26 +4469,26 @@ Post Rd	1243975	35
 Parkway Dr	1243975	33
 S Harbor City Blvd	1243975	31
 Sarno Rd	1243975	29
+NW 22nd Ave	1245000	147
+NW 12th Ave	1245000	144
 N Miami Ave	1245000	142
 Biscayne Blvd	1245000	140
+NW 27th Ave	1245000	140
 NE 2nd Ave	1245000	139
 NW 7th St	1245000	135
-NW 12th Ave	1245000	133
 NW 2nd Ave	1245000	132
-NW 7th Ave	1245000	118
-NW 10th Ave	1245000	109
-W Flagler St	1245000	103
-NW 1st Ave	1245000	98
+NW 17th Ave	1245000	131
+NW 32nd Ave	1245000	125
 Collins Ave	1245025	99
 Alton Rd	1245025	67
 Meridian Ave	1245025	37
 Pine Tree Dr	1245025	36
 Indian Creek Dr	1245025	29
 Washington Ave	1245025	29
+Fisher Island Dr	1245025	27
 N Bay Rd	1245025	25
 West Ave	1245025	23
 Jefferson Ave	1245025	20
-71st St	1245025	19
 NW 191st St	1245060	81
 NW 37th Ave	1245060	65
 NW 183rd St	1245060	59
@@ -4489,16 +4499,16 @@ NW 7th Ave	1245060	47
 NW 2nd Ave	1245060	46
 NW 47th Ave	1245060	46
 NW 179th St	1245060	44
-NW 67th Ave	1245100	26
-N Red Rd	1245100	25
+NW 67th Ave	1245100	47
+N Red Rd	1245100	34
 W 68th St	1245100	25
 W 8th Ave	1245100	24
 Miami Lakeway S	1245100	20
-W 76th St	1245100	19
-W 72nd St	1245100	17
-W 16th Ave	1245100	16
-W 6th Ave	1245100	16
-W 84th St	1245100	13
+NW 179th St	1245100	20
+NW 85th Ave	1245100	20
+W 76th St	1245100	20
+NW 186th St	1245100	19
+NW 78th Ave	1245100	19
 Miramar Pkwy	1245975	87
 Pembroke Rd	1245975	81
 SW 21st St	1245975	52
@@ -4532,33 +4542,33 @@ SW 70th Way	1249425	19
 W Dixie Hwy	1249450	79
 Biscayne Blvd	1249450	70
 NW 10th Ave	1249450	57
+NW 12th Ave	1249450	53
 NE 16th Ave	1249450	52
 NE 6th Ave	1249450	49
-NW 12th Ave	1249450	49
 NW 7th Ave	1249450	49
 NE 2nd Ave	1249450	48
 NE 12th Ave	1249450	46
 NW 11th Ave	1249450	45
-NE 10th Ave	1249475	43
-NE 6th Ave	1249475	35
-NE 12th Ave	1249475	34
-NE 14th Ave	1249475	34
-NE 8th Ave	1249475	34
-NE 16th Ave	1249475	33
-NE 163rd St	1249475	32
-NE 15th Ave	1249475	31
-NE 171st St	1249475	31
-NE 18th Ave	1249475	30
+NE 12th Ave	1249475	60
+NE 10th Ave	1249475	54
+NE 14th Ave	1249475	52
+NE 2nd Ave	1249475	51
+NE 18th Ave	1249475	40
+NE 8th Ave	1249475	39
+NE 16th Ave	1249475	38
+NE 21st Ave	1249475	38
+NE 6th Ave	1249475	38
+NE 13th Ave	1249475	36
 S Tamiami Trl	1249675	76
 Circlewood Dr	1249675	41
 N Salford Blvd	1249675	36
+Englewood Rd	1249675	35
 S Biscayne Dr	1249675	32
 W Price Blvd	1249675	32
 Shamrock Dr	1249675	30
 N Cranberry Blvd	1249675	29
 Pan American Blvd	1249675	29
 S Salford Blvd	1249675	29
-Tropicaire Blvd	1249675	29
 NE 6th Ave	1250575	43
 NE 18th Ave	1250575	42
 NE 15th Ave	1250575	41
@@ -4570,26 +4580,28 @@ NE 5th Ave	1250575	32
 NE 13th Ave	1250575	27
 NE 17th Ave	1250575	27
 S Pine Ave	1250750	74
+S Magnolia Ave	1250750	63
 E Fort King St	1250750	61
 SE 8th St	1250750	59
 SE 58th Ave	1250750	57
 SE 38th St	1250750	53
-NE 7th St	1250750	47
-NW 14th St	1250750	45
-NW Gainesville Rd	1250750	44
-NE 3rd St	1250750	43
-W Silver Springs Blvd	1250750	42
-E Silver Star Rd	1251075	37
-W Colonial Dr	1251075	37
+SW 27th Ave	1250750	53
+NE Jacksonville Rd	1250750	48
+NE 25th Ave	1250750	47
+NE 35th St	1250750	47
+W Colonial Dr	1251075	57
+N Hiawassee Rd	1251075	50
+N Powers Dr	1251075	50
+E Silver Star Rd	1251075	42
+Clarcona Ocoee Rd	1251075	34
+Old Winter Garden Rd	1251075	26
+N Apopka Vineland Rd	1251075	25
+Silver Star Rd	1251075	25
 Ocoee Apopka Rd	1251075	24
 Adair St	1251075	20
-E Crown Point Rd	1251075	20
-Maguire Rd	1251075	20
-1st St	1251075	18
-Center St	1251075	18
-Lakewood Ave	1251075	18
-Russell Dr	1251075	17
+W Colonial Dr	1253000	96
 E Colonial Dr	1253000	93
+S Orange Ave	1253000	93
 S Semoran Blvd	1253000	93
 Curry Ford Rd	1253000	92
 Narcoossee Rd	1253000	80
@@ -4597,8 +4609,6 @@ S Conway Rd	1253000	78
 S Kirkman Rd	1253000	76
 Edgewater Dr	1253000	73
 S Goldenrod Rd	1253000	69
-Conroy Rd	1253000	66
-Old Winter Garden Rd	1253000	66
 John Anderson Dr	1253150	81
 Ocean Shore Blvd	1253150	78
 W Granada Blvd	1253150	59
@@ -4689,16 +4699,17 @@ NW 72nd Ave	1255775	38
 NW 19th St	1255775	37
 NW 68th Ave	1255775	35
 NW 15th St	1255775	34
-N 9th Ave	1255925	86
-N Davis Hwy	1255925	72
-N Palafox St	1255925	65
+N Davis Hwy	1255925	107
+N 9th Ave	1255925	102
+N Palafox St	1255925	97
+Scenic Hwy	1255925	68
 N 12th Ave	1255925	59
+E Olive Rd	1255925	58
+N W St	1255925	56
+E Nine Mile Rd	1255925	54
+E Johnson Ave	1255925	53
 Langley Ave	1255925	51
-Bayou Blvd	1255925	48
-Creighton Rd	1255925	48
-Scenic Hwy	1255925	45
-N 10th Ave	1255925	39
-E Lakeview Ave	1255925	38
+49th St N	1256975	87
 66th St	1256975	81
 62nd Ave N	1256975	75
 60th St	1256975	60
@@ -4708,7 +4719,6 @@ Park Blvd	1256975	59
 70th Ave N	1256975	57
 58th St	1256975	54
 82nd Ave	1256975	51
-62nd St N	1256975	47
 W Broward Blvd	1257425	78
 W Sunrise Blvd	1257425	57
 N Pine Island Rd	1257425	40
@@ -4802,13 +4812,13 @@ Lakeshore Blvd	1262625	36
 9th St N	1263000	130
 4th St N	1263000	125
 Central Ave	1263000	110
-38th Ave N	1263000	99
+38th Ave N	1263000	105
 1st St NE	1263000	95
 30th Ave N	1263000	94
 34th Ave N	1263000	91
 5th Ave N	1263000	89
 9th Ave N	1263000	89
-7th St N	1263000	84
+16th St N	1263000	84
 S Sanford Ave	1263650	88
 E 25th St	1263650	47
 S Park Ave	1263650	45
@@ -4819,26 +4829,26 @@ W 25th St	1263650	38
 S Palmetto Ave	1263650	36
 W Airport Blvd	1263650	36
 S French Ave	1263650	34
+S Tamiami Trl	1264175	109
+Midnight Pass Rd	1264175	77
 S Tuttle Ave	1264175	73
+Bahia Vista St	1264175	66
+Fruitville Rd	1264175	66
+Webber St	1264175	63
+University Pkwy	1264175	61
+S Lockwood Ridge Rd	1264175	58
 Central Ave	1264175	54
-Cocoanut Ave	1264175	45
-N Washington Blvd	1264175	45
-N Lockwood Ridge Rd	1264175	44
-N Orange Ave	1264175	43
-S Osprey Ave	1264175	43
-17th St	1264175	41
-S Tamiami Trl	1264175	38
-Dr Martin Luther King Way	1264175	36
+Beneva Rd	1264175	52
+45th St	1264825	68
+Old Dixie Hwy	1264825	57
 Barber St	1264825	49
+41st St	1264825	47
 Roseland Rd	1264825	45
-Old Dixie Hwy	1264825	28
-Sebastian Blvd	1264825	26
-Schumann Dr	1264825	25
-Concha Dr	1264825	21
-George St	1264825	19
-Periwinkle Dr	1264825	19
-Main St	1264825	17
-Wimbrow Dr	1264825	17
+85th St	1264825	40
+87th St	1264825	35
+58th Ave	1264825	32
+69th St	1264825	30
+65th St	1264825	27
 NW 115th Ter	1269700	34
 N Pine Island Rd	1269700	31
 NW 44th St	1269700	30
@@ -4869,26 +4879,26 @@ NW 61st St	1270675	30
 NW 72nd Ave	1270675	28
 NW 74th Ave	1270675	27
 NW 57th Ct	1270675	26
-N Nebraska Ave	1271000	167
-N Armenia Ave	1271000	151
-N Florida Ave	1271000	143
-N Rome Ave	1271000	117
+N Nebraska Ave	1271000	185
+N Armenia Ave	1271000	163
+N Florida Ave	1271000	163
+N 15th St	1271000	145
+N 22nd St	1271000	144
+N Rome Ave	1271000	131
+W Waters Ave	1271000	118
 Bayshore Blvd	1271000	108
-S West Shore Blvd	1271000	100
-S Macdill Ave	1271000	99
-N 12th St	1271000	96
-N Central Ave	1271000	96
-N 22nd St	1271000	88
+W Hillsborough Ave	1271000	108
+N 19th St	1271000	106
+Keystone Rd	1271150	31
 Riverside Dr	1271150	30
 Anclote Rd	1271150	29
 S Pinellas Ave	1271150	25
 N Pinellas Ave	1271150	24
 Dixie Hwy	1271150	21
 Beckett Way	1271150	20
+E Lake St	1271150	16
 N Jasmine Ave	1271150	16
-Meres Blvd	1271150	15
-S Florida Ave	1271150	15
-Curlew Pl	1271150	14
+Colonial Blvd	1271150	15
 N 56th St	1271400	54
 N Riverhills Dr	1271400	41
 E Fowler Ave	1271400	38
@@ -4905,20 +4915,20 @@ South St	1271900	49
 S Hopkins Ave	1271900	48
 Garden St	1271900	47
 Cheney Hwy	1271900	39
+Curtis Blvd	1271900	37
+Grissom Pkwy	1271900	31
 Knox McRae Dr	1271900	31
-N Carpenter Rd	1271900	30
-S Park Ave	1271900	30
-Tropic St	1271900	28
+Fay Blvd	1271900	30
 E Venice Ave	1273900	35
 Harbor Dr S	1273900	32
 Capri Isles Blvd	1273900	30
+Bayshore Rd	1273900	29
+Laurel Rd E	1273900	29
 Center Rd	1273900	24
+Bee Ridge Rd	1273900	22
+Myakka Valley Trl	1273900	22
+S Tamiami Trl	1273900	22
 Venice Farm Rd	1273900	22
-Nokomis Ave S	1273900	17
-N Jackson Rd	1273900	15
-Park Blvd S	1273900	14
-Zacapa Ave	1273900	14
-Cockrill St	1273900	13
 Range Line Rd	1275812	30
 Polo Club Rd	1275812	26
 Shoma Dr	1275812	25
@@ -4959,26 +4969,36 @@ Parker Ave	1276600	65
 Lake Ave	1276600	61
 Haverhill Rd	1276600	59
 S Flagler Dr	1276600	56
+Avalon Rd	1278250	82
+W Colonial Dr	1278250	64
+9th St	1278250	36
+W Plant St	1278250	26
+E Bay St	1278250	22
+W Story Rd	1278250	21
+E Maple St	1278250	20
+E Story Rd	1278250	20
+Vineland Rd	1278250	20
+Hull Island Dr	1278250	18
+Cypress Gardens Blvd	1278275	60
+Spirit Lake Rd	1278275	44
 Dundee Rd	1278275	39
-Cypress Gardens Blvd	1278275	38
+Ave G NW	1278275	37
+Thornhill Rd	1278275	36
+S Rifle Range Rd	1278275	34
 Havendale Blvd NW	1278275	31
 Old Lucerne Park Rd	1278275	31
 Eloise Loop Rd	1278275	30
-Overlook Dr	1278275	24
-Lake Alfred Rd	1278275	22
-34th St NW	1278275	21
-6th St NW	1278275	20
-Ave T NE	1278275	20
+7th St SW	1278275	28
+Aloma Ave	1278300	79
+Howell Branch Rd	1278300	51
 W Fairbanks Ave	1278300	35
 Lee Rd	1278300	31
+N Goldenrod Rd	1278300	29
+N Lakemont Ave	1278300	27
+Dike Rd	1278300	26
 Minnesota Ave	1278300	25
+Palmer Ave	1278300	23
 N Park Ave	1278300	22
-S Orlando Ave	1278300	22
-Clay St	1278300	21
-Temple Dr	1278300	21
-Palmer Ave	1278300	20
-N Phelps Ave	1278300	18
-S Pennsylvania Ave	1278300	18
 Northern Way	1278325	27
 Tuskawilla Rd	1278325	25
 Winter Springs Blvd	1278325	22
@@ -4989,16 +5009,16 @@ Seneca Blvd	1278325	12
 Casa Park Cir	1278325	11
 Orange Ave	1278325	11
 Hayes Rd	1278325	10
+Radium Springs Rd	1301052	65
 Gillionville Rd	1301052	57
 Newton Rd	1301052	57
 N Slappey Blvd	1301052	50
+Moultrie Rd	1301052	45
+Clark Ave	1301052	40
 W Broad Ave	1301052	40
 S Madison St	1301052	38
-Martin Luther King Jr Dr	1301052	35
-Dawson Rd	1301052	34
-W Gordon Ave	1301052	33
-N Jefferson St	1301052	31
-Old Dawson Rd	1301052	30
+E Broad Ave	1301052	37
+Sylvester Hwy	1301052	36
 Old Milton Pkwy	1301696	43
 McGinnis Ferry Rd	1301696	38
 Mayfield Rd	1301696	33
@@ -5039,16 +5059,16 @@ Windsor Spring Rd	1304204	58
 Old Waynesboro Rd	1304204	54
 Central Ave	1304204	51
 Hephzibah McBean Rd	1304204	50
+Briarcliff Rd NE	1310944	43
+N Druid Hills Rd NE	1310944	43
 Ashford Dunwoody Rd NE	1310944	30
+Clairmont Rd NE	1310944	29
 Drew Valley Rd NE	1310944	24
-N Druid Hills Rd NE	1310944	24
+Buford Hwy	1310944	23
 Dresden Dr NE	1310944	23
 Osborne Rd NE	1310944	23
+Lavista Rd NE	1310944	22
 Peachtree Rd NE	1310944	20
-W Nancy Creek Dr NE	1310944	19
-Caldwell Rd NE	1310944	18
-Mabry Rd NE	1310944	16
-Windsor Pkwy NE	1310944	15
 Knox Bridge Hwy	1312988	46
 Ball Ground Hwy	1312988	41
 Bells Ferry Rd	1312988	39
@@ -5059,7 +5079,6 @@ Bridgemill Ave	1312988	26
 Sixes Rd	1312988	26
 Ridge Rd	1312988	23
 Fate Conn Rd	1312988	22
-E Highway 166 Cutoff Rd	1313492	55
 Lovvorn Rd	1313492	48
 Horsley Mill Rd	1313492	46
 N Park St	1313492	45
@@ -5069,6 +5088,7 @@ Stripling Chapel Rd	1313492	36
 Maple St	1313492	34
 Newnan Rd	1313492	33
 Hickory Level Rd	1313492	32
+Beulah Church Rd	1313492	25
 Euharlee Rd SW	1313688	51
 Mission Rd SW	1313688	43
 Sugar Valley Rd SW	1313688	35
@@ -5093,7 +5113,7 @@ Hamilton Rd	1319000	87
 Warm Springs Rd	1319000	72
 Veterans Pkwy	1319000	66
 Buena Vista Rd	1319000	64
-Macon Rd	1319000	58
+Macon Rd	1319000	59
 Victory Dr	1319000	50
 3rd Ave	1319000	44
 Cusseta Rd	1319000	44
@@ -5119,16 +5139,16 @@ Clairemont Ave	1322052	17
 Commerce Dr	1322052	17
 Derrydown Way	1322052	16
 Midway Rd	1322052	16
-Bill Arp Rd	1323900	60
+Bill Arp Rd	1323900	62
+Bankhead Hwy	1323900	60
 Fairburn Rd	1323900	57
 Chapel Hill Rd	1323900	47
-Bankhead Hwy	1323900	38
+Duncan Memorial Hwy	1323900	41
+Post Rd	1323900	40
 Central Church Rd	1323900	34
 Stewart Mill Rd	1323900	32
-Duncan Memorial Hwy	1323900	31
+Mount Vernon Rd	1323900	30
 Bright Star Rd	1323900	28
-Kings Hwy	1323900	27
-Bomar Rd	1323900	24
 Buford Hwy	1324600	38
 Pleasant Hill Rd	1324600	32
 Old Norcross Rd	1324600	26
@@ -5219,16 +5239,6 @@ Duluth Hwy	1345488	33
 Five Forks Trickum Rd	1345488	33
 Scenic Hwy	1345488	33
 Old Peachtree Rd NE	1345488	31
-Veterans Memorial Pkwy SW	1348288	63
-S Gordon Rd	1348288	41
-Mableton Pkwy SE	1348288	32
-Buckner Rd	1348288	26
-Old Alabama Rd SW	1348288	26
-Oakdale Rd SE	1348288	25
-Veterans Memorial Pkwy SE	1348288	25
-Pebblebrook Rd	1348288	21
-Riverside Pkwy	1348288	21
-Clay Rd SW	1348288	20
 Keys Rd	1348624	77
 Airline Rd	1348624	38
 Conyers Rd	1348624	36
@@ -5361,14 +5371,14 @@ Martin Luther King Jr Blvd	1369000	64
 E Broad St	1369000	61
 S Cobb Dr	1371492	75
 Atlanta Rd SE	1371492	55
+Cooper Lake Rd SE	1371492	41
 Old Concord Rd SE	1371492	40
+Veterans Memorial Pkwy SW	1371492	33
+Mableton Pkwy SE	1371492	32
 Concord Rd SE	1371492	31
+Oakdale Rd SE	1371492	30
 King Springs Rd	1371492	28
-Cooper Lake Rd SE	1371492	27
-Spring Rd SE	1371492	22
-Powder Springs St SE	1371492	21
-Windy Hill Rd SE	1371492	21
-Hawthorne Ave SE	1371492	19
+Buckner Rd	1371492	26
 Roosevelt Hwy	1372122	83
 Fairburn Rd SW	1372122	55
 Stonewall Tell Rd	1372122	52
@@ -5401,14 +5411,14 @@ Davis Rd	1373704	23
 Walt Stephens Rd	1373704	21
 Covington Hwy	1373784	58
 Marbut Rd	1373784	42
+Wesley Chapel Rd	1373784	38
 Panola Rd	1373784	36
 Treecrest Pkwy	1373784	34
 Browns Mill Rd	1373784	31
+Snapfinger Rd	1373784	31
 Evans Mill Rd	1373784	30
 S Deshon Rd	1373784	30
-S Stone Mtn Lithonia Rd	1373784	28
-Rock Springs Rd	1373784	25
-Rock Chapel Rd	1373784	22
+Flat Shoals Pkwy	1373784	28
 Rockbridge Rd	1377652	105
 Lawrenceville Hwy	1377652	59
 Lavista Rd	1377652	38
@@ -5429,16 +5439,16 @@ Oakley Industrial Blvd	1378324	12
 Lester Rd	1378324	11
 Gresham St	1378324	10
 Lower Dixie Lake Rd	1378324	10
+Bemiss Rd	1378800	79
 Madison Hwy	1378800	73
+N Forrest St	1378800	45
 N Patterson St	1378800	40
 S Patterson St	1378800	39
-N Forrest St	1378800	38
 N Oak St	1378800	36
 Old Clyattville Rd	1378800	36
 N Ashley St	1378800	35
+Cat Creek Rd	1378800	33
 Baytree Rd	1378800	27
-N Troup St	1378800	27
-St Augustine Rd	1378800	27
 Watson Blvd	1380508	63
 Elberta Rd	1380508	45
 Feagin Mill Rd	1380508	45
@@ -5468,7 +5478,7 @@ S Maple Grove Rd	1608830	61
 S Cole Rd	1608830	60
 Fairview Ave	1608830	59
 W Ustick Rd	1608830	57
-S Cloverdale Rd	1608830	55
+S Federal Way	1608830	56
 Homedale Rd	1612250	78
 Farmway Rd	1612250	76
 Wagner Rd	1612250	54
@@ -5560,15 +5570,15 @@ Franklin Rd	1656260	65
 N Middleton Rd	1656260	60
 Lone Star Rd	1656260	58
 W Buckskin Rd	1664090	47
+Bannock Hwy	1664090	46
 W Pocatello Creek Rd	1664090	45
+N Main St	1664090	42
 E Center St	1664090	39
+N Mink Creek Rd	1664090	39
 E Day St	1664090	35
+S 2nd Ave	1664090	35
+S 5th Ave	1664090	31
 E Bonneville St	1664090	29
-E Clark St	1664090	29
-Satterfield Dr	1664090	27
-E Lander St	1664090	25
-E Fremont St	1664090	24
-Pole Line Rd	1664090	24
 W Prairie Ave	1664810	58
 E 16th Ave	1664810	47
 E 12th Ave	1664810	44
@@ -6307,8 +6317,8 @@ W State Rd	1765000	64
 5th Ave	1765078	42
 30th St	1765078	39
 6th Ave	1765078	39
+78th Ave W	1765078	38
 13th Ave	1765078	37
-15th Ave	1765078	37
 Belmont Dr	1765442	26
 W Normantown Rd	1765442	25
 W Romeo Rd	1765442	25
@@ -6511,14 +6521,14 @@ Romeo Dr	1802908	10
 Bradford Rd	1802908	9
 W 3rd St	1805860	67
 S Rockport Rd	1805860	58
-S Rogers St	1805860	55
+S Rogers St	1805860	56
+S Old State Road 37	1805860	53
+E 3rd St	1805860	51
 E 10th St	1805860	46
+S Fairfax Rd	1805860	43
 N Old State Road 37	1805860	39
 N Walnut St	1805860	32
 E 7th St	1805860	29
-N Dunn St	1805860	29
-S Old State Road 37	1805860	29
-W Vernal Pike	1805860	29
 E Main St	1808416	38
 S Green St	1808416	20
 Odell St	1808416	19
@@ -6759,16 +6769,16 @@ E Barker Ave	1848798	29
 Greenwood Ave	1848798	29
 Maple St	1848798	28
 Oak St	1848798	25
+Adams Rd	1849932	71
 Lincolnway E	1849932	70
-N Main St	1849932	54
+N Main St	1849932	57
+Ash Rd	1849932	52
+Cleveland Rd	1849932	49
 E 3rd St	1849932	45
 E 4th St	1849932	41
+Grape Rd	1849932	39
+Fir Rd	1849932	37
 W 6th St	1849932	37
-Lincoln Way W	1849932	35
-Division St	1849932	34
-Sarah St	1849932	33
-Milburn Blvd	1849932	32
-Jefferson Blvd	1849932	31
 W Jackson St	1851876	75
 100 S	1851876	69
 N Walnut St	1851876	63
@@ -6844,21 +6854,21 @@ Lincoln Way W	1871000	83
 W Western Ave	1871000	78
 Ford St	1871000	75
 Fellows St	1871000	73
+Edison Rd	1871000	69
 S Michigan St	1871000	69
-Edison Rd	1871000	68
 Miami St	1871000	68
 Carroll St	1871000	59
 W Sample St	1871000	55
 Wabash Ave	1875428	112
 S 3rd St	1875428	70
+N 13th St	1875428	69
 Hulman Dr	1875428	68
+N 25th St	1875428	68
 S 7th St	1875428	64
 Locust St	1875428	61
+N 15th St	1875428	59
 E Poplar St	1875428	57
-8th Ave	1875428	56
-Buckeye St	1875428	56
-Crawford St	1875428	55
-Linden St	1875428	55
+N 16th St	1875428	57
 Campbell St	1878326	55
 N Calumet Ave	1878326	48
 Silhavy Rd	1878326	39
@@ -7249,12 +7259,12 @@ Midland Dr	2064500	46
 Nieman Rd	2064500	45
 W 53rd St	2064500	41
 W 71st St	2064500	41
-Topeka Blvd	2071000	137
+Topeka Blvd	2071000	156
 SW 21st St	2071000	116
 SW 10th Ave	2071000	110
 SW 29th St	2071000	105
+SW Wanamaker Rd	2071000	93
 SW Gage Blvd	2071000	85
-SW Wanamaker Rd	2071000	83
 SW 37th St	2071000	79
 SW 17th St	2071000	78
 SW 6th Ave	2071000	74
@@ -7265,10 +7275,10 @@ E Central Ave	2079000	133
 W Douglas Ave	2079000	132
 W Maple St	2079000	131
 E 13th St N	2079000	129
+E Pawnee St	2079000	119
 E Lincoln St	2079000	116
 W 13th St N	2079000	116
 W 21st St N	2079000	107
-E Pawnee St	2079000	106
 Louisville Rd	2108902	88
 Morgantown Rd	2108902	87
 Nashville Rd	2108902	83
@@ -7450,25 +7460,25 @@ Pride Baywood Rd	2213960	23
 Denham Rd	2213960	22
 Main St	2213960	19
 Grand Caillou Rd	2236255	114
+Bayou Blue Rd	2236255	91
+W Park Ave	2236255	68
 Main St	2236255	61
-W Main St	2236255	56
+W Main St	2236255	58
 Bayou Dularge Rd	2236255	54
+Coteau Rd	2236255	50
 Bayou Black Dr	2236255	42
 Southdown Mandalay Rd	2236255	41
-Little Bayou Black Dr	2236255	34
-Barrow St	2236255	28
-Park Ave	2236255	23
-Acadian Dr	2236255	22
+Park Ave	2236255	39
 Williams Blvd	2239475	88
-Veterans Memorial Blvd	2239475	55
+Veterans Memorial Blvd	2239475	76
+W Metairie Ave	2239475	57
+Airline Dr	2239475	46
 Roosevelt Blvd	2239475	43
-27th St	2239475	37
+27th St	2239475	40
+David Dr	2239475	39
+21st St	2239475	33
 Loyola Dr	2239475	33
-21st St	2239475	32
 3rd St	2239475	28
-31st St	2239475	26
-32nd St	2239475	25
-E Loyola Dr	2239475	24
 Lake St	2241155	83
 Common St	2241155	81
 Ryan St	2241155	58
@@ -7520,15 +7530,15 @@ W 70th St	2270000	93
 Jewella Ave	2270000	85
 Greenwood Rd	2270000	82
 Old Spanish Trl	2270805	46
+Fish Hatchery Rd	2270805	40
 Front St	2270805	38
 Brownswitch Rd	2270805	33
 Gause Blvd	2270805	33
 Robert Blvd	2270805	33
 Pontchartrain Dr	2270805	31
 Gause Blvd W	2270805	30
+Ronald Reagan Hwy	2270805	30
 Bayou Liberty Rd	2270805	28
-Fremaux Ave	2270805	28
-Cross Gates Blvd	2270805	25
 Hotel Rd	2302060	38
 S Main St	2302060	33
 Turner St	2302060	32
@@ -7542,13 +7552,13 @@ Washington St	2302060	19
 Union St	2302795	76
 Ohio St	2302795	67
 Broadway	2302795	52
+Western Ave	2302795	49
 State St	2302795	46
 Hammond St	2302795	45
+Kennebec Rd	2302795	36
 Pushaw Rd	2302795	33
 Fuller Rd	2302795	31
 Hudson Rd	2302795	26
-Main St	2302795	26
-Stillwater Ave	2302795	24
 Sabattus St	2338740	66
 Lisbon St	2338740	63
 Main St	2338740	48
@@ -7579,26 +7589,36 @@ Ocean St	2371990	27
 Preble St	2371990	27
 Cottage Rd	2371990	25
 Mitchell Rd	2371990	24
-Harford Rd	2404000	116
+West St	2401600	51
+Forest Dr	2401600	32
+Bay Ridge Ave	2401600	31
+Hillsmere Dr	2401600	26
+Spa Rd	2401600	25
+Defense Hwy	2401600	22
+Riva Rd	2401600	22
+Hilltop Ln	2401600	21
+Arundel on the Bay Rd	2401600	19
+Bestgate Rd	2401600	19
+Harford Rd	2404000	136
 Reisterstown Rd	2404000	108
 Eastern Ave	2404000	101
 Edmondson Ave	2404000	101
 Belair Rd	2404000	98
 N Charles St	2404000	92
-Park Heights Ave	2404000	83
-E Northern Pkwy	2404000	80
+Park Heights Ave	2404000	89
+E Northern Pkwy	2404000	81
+Frederick Ave	2404000	80
 E Monument St	2404000	79
-E Pratt St	2404000	78
+Central Ave	2408775	73
+Old Chapel Rd	2408775	53
+Church Rd	2408775	50
+Crain Hwy	2408775	47
+Annapolis Rd	2408775	46
+Enterprise Rd	2408775	43
 Mitchellville Rd	2408775	38
-Annapolis Rd	2408775	32
+Laurel Bowie Rd	2408775	32
 Collington Rd	2408775	31
 Race Track Rd	2408775	31
-Belair Dr	2408775	30
-Old Chapel Rd	2408775	30
-Laurel Bowie Rd	2408775	29
-Millstream Dr	2408775	24
-Peach Walker Dr	2408775	18
-Northview Dr	2408775	16
 W City Ave	2418750	79
 Rhode Island Ave	2418750	43
 51st Ave	2418750	26
@@ -7610,55 +7630,55 @@ University Blvd	2418750	18
 49th Ave	2418750	17
 48th Ave	2418750	16
 Liberty Rd	2430325	56
+Urbana Pike	2430325	48
+Baltimore National Pike	2430325	47
+Ballenger Creek Pike	2430325	40
+Buckeystown Pike	2430325	39
 Opossumtown Pike	2430325	38
-Baltimore National Pike	2430325	34
 Bethel Rd	2430325	33
 Gambrill Park Rd	2430325	33
+New Design Rd	2430325	32
 N Market St	2430325	31
-Old Annapolis Rd	2430325	30
-Gas House Pike	2430325	29
-Rocky Springs Rd	2430325	28
-Rosemont Ave	2430325	28
 Darnestown Rd	2431175	42
+Frederick Rd	2431175	33
 Quince Orchard Rd	2431175	27
 Emory Grove Rd	2431175	26
+Watkins Mill Rd	2431175	25
+Goshen Rd	2431175	24
 Main St	2431175	24
 Turkey Foot Rd	2431175	19
 Washington Grove Ln	2431175	19
 Dufief Dr	2431175	18
-Frederick Rd	2431175	17
-Chestertown St	2431175	16
-Dufief Mill Rd	2431175	16
 Baltimore National Pike	2436075	79
+Mount Aetna Rd	2436075	67
 National Pike	2436075	64
+Pennsylvania Ave	2436075	61
 Greencastle Pike	2436075	51
 Broadfording Rd	2436075	46
 Virginia Ave	2436075	45
+Leitersburg Pike	2436075	39
 W Washington St	2436075	38
-Salem Ave	2436075	35
-Sharpsburg Pike	2436075	31
-Cearfoss Pike	2436075	30
-Beaver Creek Rd	2436075	29
-Baltimore Ave	2445900	40
-Contee Rd	2445900	26
+Jefferson Blvd	2436075	35
+Laurel Bowie Rd	2445900	54
+Contee Rd	2445900	42
+Baltimore Ave	2445900	41
+Cherry Ln	2445900	31
 Brooklyn Bridge Rd	2445900	25
 Old Sandy Spring Rd	2445900	25
-Cherry Ln	2445900	24
+Muirkirk Rd	2445900	23
 Van Dusen Rd	2445900	23
 Main St	2445900	22
 Washington Blvd	2445900	18
-4th St	2445900	17
-Montgomery St	2445900	16
-Glen Mill Rd	2467675	23
-Travilah Rd	2467675	23
-Veirs Mill Rd	2467675	21
-Baltimore Rd	2467675	20
-E Gude Dr	2467675	20
-Broadwood Dr	2467675	19
-Monroe St	2467675	19
-Wootton Pkwy	2467675	19
-Darnestown Rd	2467675	18
-Edmonston Dr	2467675	18
+Falls Rd	2467675	59
+River Rd	2467675	47
+Rockville Pike	2467675	44
+Tuckerman Ln	2467675	40
+Glen Mill Rd	2467675	36
+Travilah Rd	2467675	35
+Seven Locks Rd	2467675	32
+Muncaster Mill Rd	2467675	31
+Veirs Mill Rd	2467675	28
+Gainsborough Rd	2467675	26
 Old Ocean City Rd	2469925	69
 Mount Hermon Rd	2469925	66
 Nanticoke Rd	2469925	65
@@ -7699,16 +7719,16 @@ N Main St	2502690	30
 Thacher St	2502690	29
 Oakhill Ave	2502690	24
 Pleasant St	2502690	24
-Main St	2503690	118
-Falmouth Rd	2503690	114
-Cranberry Hwy	2503690	99
-Iyannough Rd	2503690	58
+Cranberry Hwy	2503690	171
+Main St	2503690	170
+Falmouth Rd	2503690	115
+Iyannough Rd	2503690	60
 Phinneys Ln	2503690	43
+W Yarmouth Rd	2503690	42
 Old Stage Rd	2503690	38
+Service Rd	2503690	38
 Craigville Beach Rd	2503690	37
-Race Ln	2503690	33
-W Main St	2503690	32
-Bearses Way	2503690	31
+Pine St	2503690	34
 Hale St	2505595	71
 Cabot St	2505595	60
 Essex St	2505595	53
@@ -7719,16 +7739,16 @@ Rantoul St	2505595	20
 Sohier Rd	2505595	16
 Brimbal Ave	2505595	13
 Lothrop St	2505595	12
-Washington St	2507000	309
-Centre St	2507000	169
-Commonwealth Ave	2507000	149
+Washington St	2507000	340
+Centre St	2507000	173
+Commonwealth Ave	2507000	151
+Beacon St	2507000	125
 Blue Hill Ave	2507000	112
 Dorchester Ave	2507000	109
+Harvard St	2507000	98
 River St	2507000	93
 Tremont St	2507000	85
-Columbia Rd	2507000	71
-Adams St	2507000	68
-Beacon St	2507000	66
+Boylston St	2507000	78
 Washington St	2507740	79
 Liberty St	2507740	48
 Commercial St	2507740	29
@@ -7752,13 +7772,13 @@ Main St	2508130	16
 N Main St	2509000	79
 Pleasant St	2509000	61
 Main St	2509000	60
-Belmont St	2509000	45
+Belmont St	2509000	47
 Crescent St	2509000	44
 Centre St	2509000	41
 Ash St	2509000	40
 Warren Ave	2509000	37
-W Chestnut St	2509000	33
-Court St	2509000	32
+Oak St	2509000	34
+Pearl St	2509000	34
 Massachusetts Ave	2511000	143
 Cambridge St	2511000	51
 Mount Auburn St	2511000	41
@@ -7799,26 +7819,26 @@ Shute St	2521990	18
 Bucknam St	2521990	17
 Revere Beach Pkwy	2521990	17
 Bradford St	2521990	14
+Grand Army Hwy	2523000	86
+Highland Ave	2523000	75
 N Main St	2523000	73
+Drift Rd	2523000	61
+Pleasant St	2523000	47
 Stafford Rd	2523000	46
-Pleasant St	2523000	44
+Main Rd	2523000	44
 S Main St	2523000	44
+Sanford Rd	2523000	43
 Plymouth Ave	2523000	41
-Bedford St	2523000	39
-Brayton Ave	2523000	39
-Highland Ave	2523000	39
-Locust St	2523000	39
-Bay St	2523000	36
+Massachusetts Ave	2523875	35
+Main St	2523875	31
 South St	2523875	30
-Main St	2523875	28
+Lunenburg St	2523875	27
+Summer St	2523875	27
 Water St	2523875	27
-Lunenburg St	2523875	26
-Summer St	2523875	26
 Oak Hill Rd	2523875	25
 Franklin Rd	2523875	24
 Westminster Hill Rd	2523875	22
-Blossom St	2523875	19
-Rollstone St	2523875	18
+Electric Ave	2523875	20
 Concord St	2524960	62
 Worcester Rd	2524960	53
 Waverly St	2524960	34
@@ -7899,16 +7919,16 @@ School St	2537000	40
 Boston Rd	2537000	39
 Princeton Blvd	2537000	38
 Lawrence St	2537000	35
-Western Ave	2537490	67
-Boston St	2537490	54
-Essex St	2537490	45
+Essex St	2537490	76
+Western Ave	2537490	71
+Boston St	2537490	55
+Central St	2537490	51
+Walnut St	2537490	51
+Summer St	2537490	48
 Lynnfield St	2537490	41
-Summer St	2537490	40
+Lincoln Ave	2537490	38
+Chestnut St	2537490	36
 Chatham St	2537490	32
-Walnut St	2537490	32
-Chestnut St	2537490	31
-Broadway	2537490	27
-Washington St	2537490	27
 Salem St	2537875	52
 Main St	2537875	45
 Highland Ave	2537875	30
@@ -7950,25 +7970,25 @@ Lynn Fells Pkwy	2540115	17
 Vinton St	2540115	17
 Franklin St	2540115	16
 Acushnet Ave	2545000	158
-County St	2545000	68
-Rockdale Ave	2545000	63
+County St	2545000	69
+Rockdale Ave	2545000	64
 Ashley Blvd	2545000	55
+Elm St	2545000	51
+Main St	2545000	51
+Dartmouth St	2545000	50
 Purchase St	2545000	49
 Mount Pleasant St	2545000	48
-Belleville Ave	2545000	41
-Brock Ave	2545000	40
-Kempton St	2545000	38
-Allen St	2545000	33
-Commonwealth Ave	2545560	101
+Russells Mills Rd	2545000	43
+Commonwealth Ave	2545560	119
 Washington St	2545560	89
-Beacon St	2545560	62
-Walnut St	2545560	60
+Beacon St	2545560	79
+Boylston St	2545560	63
+Walnut St	2545560	61
 Centre St	2545560	52
 Chestnut St	2545560	47
 Watertown St	2545560	36
-Boylston St	2545560	34
+Grove St	2545560	34
 Dedham St	2545560	31
-Parker St	2545560	26
 Prospect St	2546330	30
 Bridge Rd	2546330	25
 Elm St	2546330	24
@@ -7989,16 +8009,16 @@ N Washington St	2546598	17
 Towne St	2546598	17
 Paine Rd	2546598	15
 Arnold Rd	2546598	14
-Lowell St	2552490	65
+Lowell St	2552490	78
+Main St	2552490	56
+Summer St	2552490	40
+Salem St	2552490	35
+Lynnfield St	2552490	31
 Lynn St	2552490	30
-Lynnfield St	2552490	29
 Washington St	2552490	26
+Newburyport Tpke	2552490	24
+Walnut St	2552490	24
 Winona St	2552490	23
-Margin St	2552490	20
-Russell St	2552490	19
-Tremont St	2552490	16
-Bartholomew St	2552490	15
-Central St	2552490	15
 North St	2553960	59
 W Housatonic St	2553960	52
 Dalton Ave	2553960	46
@@ -8020,15 +8040,15 @@ E Squantum St	2555745	30
 Beale St	2555745	25
 Billings Rd	2555745	25
 N Main St	2556000	59
-High St	2556000	38
+Canton Ave	2556000	57
+Brook Rd	2556000	44
+Blue Hill Ave	2556000	43
+Brush Hill Rd	2556000	39
+High St	2556000	39
+Blue Hills Pkwy	2556000	38
 North St	2556000	38
-Canton St	2556000	29
-S Main St	2556000	24
-Oak St	2556000	19
-Grove St	2556000	18
-Highland Ave	2556000	18
-Center St	2556000	16
-Mill St	2556000	16
+Pleasant St	2556000	36
+Adams St	2556000	32
 N Shore Rd	2556585	54
 Washington Ave	2556585	40
 Broadway	2556585	38
@@ -8039,16 +8059,16 @@ Beach St	2556585	27
 Mountain Ave	2556585	24
 Squire Rd	2556585	22
 Park Ave	2556585	20
-Essex St	2559105	36
+Humphrey St	2559105	69
+Essex St	2559105	59
+Atlantic Ave	2559105	48
+Lafayette St	2559105	44
+Ocean Ave	2559105	35
+Bridge St	2559105	32
 Highland Ave	2559105	32
-Bridge St	2559105	31
-Loring Ave	2559105	27
-North St	2559105	27
-Lafayette St	2559105	26
-Jefferson Ave	2559105	21
-Derby St	2559105	19
-Canal St	2559105	17
-Boston St	2559105	14
+Puritan Rd	2559105	31
+Loring Ave	2559105	30
+Washington St	2559105	30
 Broadway	2562535	116
 Somerville Ave	2562535	39
 Highland Ave	2562535	33
@@ -8067,9 +8087,10 @@ Sumner Ave	2567000	67
 Allen St	2567000	65
 Boston Rd	2567000	64
 State St	2567000	60
+Longmeadow St	2567000	56
 Page Blvd	2567000	55
-Roosevelt Ave	2567000	52
 Bay St	2569170	55
+Broadway St	2569170	50
 Tremont St	2569170	50
 Winthrop St	2569170	50
 Somerset Ave	2569170	42
@@ -8077,8 +8098,7 @@ Middleboro Ave	2569170	34
 Washington St	2569170	32
 Cohannet St	2569170	29
 Williams St	2569170	28
-Broadway St	2569170	26
-County St	2569170	23
+Oak St	2569170	27
 Trapelo Rd	2572600	65
 Main St	2572600	58
 Lexington St	2572600	37
@@ -8279,66 +8299,66 @@ Bock St	2631420	27
 Craig Ave	2631420	27
 Ford Rd	2631420	27
 Hubbard St	2631420	26
+Plainfield Ave NE	2634000	105
+Coit Ave NE	2634000	78
 Fulton St E	2634000	73
 Leonard St NW	2634000	71
 Eastern Ave SE	2634000	66
+E Beltline Ave NE	2634000	65
+Fuller Ave NE	2634000	65
 Hall St SE	2634000	64
+Knapp St NE	2634000	63
 Division Ave S	2634000	62
-Lake Dr SE	2634000	62
-Fuller Ave NE	2634000	60
-Plainfield Ave NE	2634000	57
-Wealthy St SE	2634000	51
-Burton St SE	2634000	47
+Lakeshore Dr N	2638640	57
+136th Ave	2638640	51
+James St	2638640	51
 S Shore Dr	2638640	49
+Riley St	2638640	48
 W 32nd St	2638640	47
+New Holland St	2638640	45
+Ottawa Beach Rd	2638640	40
+112th Ave	2638640	39
 E 8th St	2638640	39
-Central Ave	2638640	31
-Columbia Ave	2638640	30
-Lincoln Ave	2638640	23
-Van Raalte Ave	2638640	23
-E 16th St	2638640	22
-E 24th St	2638640	22
-Pine Ave	2638640	22
-Francis St	2641420	52
+Lansing Ave	2641420	64
+Francis St	2641420	56
+Page Ave	2641420	52
+Brooklyn Rd	2641420	45
+Cooper St	2641420	44
+4th St	2641420	41
 W Morrell St	2641420	41
-Lansing Ave	2641420	40
-4th St	2641420	39
-Page Ave	2641420	34
-Wildwood Ave	2641420	31
-W North St	2641420	30
-Cooper St	2641420	26
-Horton Rd	2641420	26
-S West Ave	2641420	26
+E Michigan Ave	2641420	40
+Wildwood Ave	2641420	38
+E Ganson St	2641420	34
 W Main St	2642160	86
+E Michigan Ave	2642160	63
 Portage St	2642160	61
 S Westnedge Ave	2642160	56
+E Main St	2642160	54
 W Michigan Ave	2642160	51
 S Burdick St	2642160	46
 S Rose St	2642160	46
-Douglas Ave	2642160	43
-N Westnedge Ave	2642160	42
-S Park St	2642160	42
-Oakland Dr	2642160	40
+E G Ave	2642160	45
+Gull Rd	2642160	45
 Eastern Ave SE	2642820	73
 Kalamazoo Ave SE	2642820	72
+Cascade Rd SE	2642820	64
+Burton St SE	2642820	61
 44th St SE	2642820	52
+28th St SE	2642820	51
+E Paris Ave SE	2642820	48
+Breton Rd SE	2642820	45
 52nd St SE	2642820	44
-28th St SE	2642820	41
-60th St SE	2642820	38
-Broadmoor Ave SE	2642820	37
-Breton Rd SE	2642820	34
-32nd St SE	2642820	26
-E Paris Ave SE	2642820	26
+Thornapple River Dr SE	2642820	44
+Aurelius Rd	2646000	69
 S Pennsylvania Ave	2646000	61
+S Waverly Rd	2646000	55
 S Washington Ave	2646000	54
-Aurelius Rd	2646000	53
-S Waverly Rd	2646000	42
+Holt Rd	2646000	41
+W Grand River Ave	2646000	39
+W Willow St	2646000	39
 N Logan St	2646000	37
 E Kalamazoo St	2646000	35
 E Mount Hope Ave	2646000	35
-Pleasant Grove Rd	2646000	35
-Moores River Dr	2646000	34
-Logan St S	2646000	33
 Fort St	2647800	72
 Dix Hwy	2647800	56
 Lafayette Blvd	2647800	49
@@ -8370,15 +8390,15 @@ Concord Dr	2650560	17
 E 11 Mile Rd	2650560	17
 Stephenson Hwy	2650560	17
 N Saginaw Rd	2653780	47
+W Freeland Rd	2653780	43
 N Jefferson Rd	2653780	42
+S Saginaw Rd	2653780	40
 N Eastman Rd	2653780	39
+Rockwell Dr	2653780	38
 Eastman Ave	2653780	37
 Jefferson Ave	2653780	37
-S Saginaw Rd	2653780	37
-Washington St	2653780	33
-N Waldo Rd	2653780	32
-S Poseyville Rd	2653780	32
-E Ashman St	2653780	31
+E Brooks Rd	2653780	35
+Flajole Rd	2653780	33
 Apple Ave	2656320	57
 Evanston Ave	2656320	56
 E Laketon Ave	2656320	49
@@ -8439,16 +8459,16 @@ E Milham Ave	2665560	29
 Romence Rd	2665560	29
 W Centre Ave	2665560	29
 Lovers Ln	2665560	27
+Lakeshore Rd	2665820	97
+State Rd	2665820	48
 24th St	2665820	35
 10th Ave	2665820	33
+Gratiot Ave	2665820	33
 Stone St	2665820	33
 16th St	2665820	32
 13th St	2665820	31
+Krafft Rd	2665820	30
 10th St	2665820	29
-Gratiot Ave	2665820	27
-W Water St	2665820	27
-11th St	2665820	25
-12th St	2665820	25
 S Livernois Rd	2669035	45
 Walton Blvd	2669035	43
 W Tienken Rd	2669035	41
@@ -8479,16 +8499,16 @@ N Campbell Rd	2670040	36
 W 13 Mile Rd	2670040	36
 E Lincoln Ave	2670040	34
 Crooks Rd	2670040	33
+Weiss St	2670520	76
 E Holland Ave	2670520	71
+Mackinaw Rd	2670520	60
+State St	2670520	57
+Shattuck Rd	2670520	48
 Hess Ave	2670520	47
 Janes Ave	2670520	46
 Webber St	2670520	45
-Mackinaw Rd	2670520	42
-Weiss St	2670520	41
+Davenport Ave	2670520	40
 E Genesee Ave	2670520	40
-S Washington Ave	2670520	40
-Brockway Rd	2670520	38
-Congress Ave	2670520	38
 Jefferson Ave	2670760	191
 Harper Ave	2670760	146
 Greater Mack Ave	2670760	104
@@ -8549,16 +8569,16 @@ N Adams Rd	2680700	41
 E Big Beaver Rd	2680700	36
 W Wattles Rd	2680700	35
 E Long Lake Rd	2680700	34
+Alpine Ave NW	2682960	63
 Lake Michigan Dr NW	2682960	59
 Leonard St NW	2682960	43
 3 Mile Rd NW	2682960	33
+Pine Island Dr NE	2682960	33
+4 Mile Rd NW	2682960	32
 Kenowa Ave SW	2682960	30
-Butterworth St SW	2682960	26
-Kinney Ave NW	2682960	25
-8th Ave NW	2682960	23
-Peach Ridge Ave NW	2682960	23
-Walker Ave NW	2682960	23
-O Brien St SW	2682960	21
+W River Dr NE	2682960	29
+Division Ave N	2682960	28
+Walker Ave NW	2682960	28
 Dequindre Rd	2684000	126
 E 11 Mile Rd	2684000	117
 Schoenherr Rd	2684000	102
@@ -8580,9 +8600,9 @@ Ford Rd	2686000	39
 N Wildwood St	2686000	37
 N Wayne Rd	2686000	33
 Division Ave S	2688940	116
-Clyde Park Ave SW	2688940	65
-Burlingame Ave SW	2688940	56
-Byron Center Ave SW	2688940	48
+Clyde Park Ave SW	2688940	95
+Burlingame Ave SW	2688940	87
+Byron Center Ave SW	2688940	77
 28th St SW	2688940	47
 44th St SW	2688940	46
 Madison Ave SE	2688940	46
@@ -9399,7 +9419,7 @@ Cook Rd	2964550	54
 S 24th St	2964550	49
 Olive St	2964550	48
 S 11th St	2964550	48
-S Broadway	2965000	140
+S Broadway	2965000	170
 Gravois Ave	2965000	120
 N Broadway	2965000	116
 Hampton Ave	2965000	113
@@ -9460,25 +9480,25 @@ Babler Park Dr	2979820	22
 Old Eatherton Rd	2979820	22
 Wilson Ave	2979820	22
 Rimrock Rd	3006550	105
-Grand Ave	3006550	84
-Poly Dr	3006550	72
+Grand Ave	3006550	92
+Poly Dr	3006550	82
 King Ave W	3006550	68
 Central Ave	3006550	67
+Broadwater Ave	3006550	56
+Monad Rd	3006550	55
+Colton Blvd	3006550	50
 Lake Elmo Dr	3006550	50
-Main St	3006550	48
-Bench Blvd	3006550	47
-Colton Blvd	3006550	45
-Monad Rd	3006550	45
+Pryor Rd	3006550	49
 Bridger Canyon Rd	3008950	86
-S 3rd Ave	3008950	43
-Jackson Creek Rd	3008950	40
-N 7th Ave	3008950	38
-Sourdough Rd	3008950	33
-W College St	3008950	33
-Kelly Canyon Rd	3008950	30
-Bozeman Trail Rd	3008950	29
-Huffine Ln	3008950	29
-Brackett Creek Rd	3008950	26
+S Cottonwood Rd	3008950	73
+Huffine Ln	3008950	66
+W Durston Rd	3008950	66
+W Babcock St	3008950	65
+S 19th Rd	3008950	50
+Frontage Rd	3008950	48
+Baxter Ln	3008950	45
+Gallatin Rd	3008950	45
+Norris Rd	3008950	43
 Continental Dr	3011397	61
 Cobban St	3011397	37
 S Montana St	3011397	35
@@ -9499,16 +9519,16 @@ Central Ave W	3032800	46
 3rd Ave N	3032800	44
 7th Ave S	3032800	44
 13th St S	3032800	43
+York Rd	3035600	129
+N Montana Ave	3035600	126
+Green Meadow Dr	3035600	88
+Canyon Ferry Rd	3035600	68
+Birdseye Rd	3035600	59
+Applegate Dr	3035600	44
+Hauser Dam Rd	3035600	41
 Euclid Ave	3035600	38
+Austin Rd	3035600	36
 E Broadway St	3035600	36
-Rimini Rd	3035600	34
-Grizzly Gulch Dr	3035600	32
-Le Grande Cannon Blvd	3035600	29
-Hauser Blvd	3035600	28
-Knight St	3035600	27
-N Montana Ave	3035600	27
-Stuart St	3035600	27
-Flowerree St	3035600	26
 Farm To Market Rd	3040075	56
 Whitefish Stage Rd	3040075	52
 Ashley Lake Rd	3040075	50
@@ -9520,15 +9540,15 @@ Airport Rd	3040075	35
 W Reserve Dr	3040075	31
 W Valley Dr	3040075	31
 Mullan Rd	3050200	105
+South Ave W	3050200	64
+S 3rd St W	3050200	60
+S Reserve St	3050200	54
 Grant Creek Rd	3050200	51
 Rattlesnake Dr	3050200	51
+North Ave W	3050200	49
+S 7th St W	3050200	49
 Fas 210	3050200	48
 39th St	3050200	45
-Miller Creek Rd	3050200	43
-S Russell St	3050200	43
-Brooks St	3050200	39
-S Reserve St	3050200	37
-Eaton St	3050200	35
 Harrison St	3103950	122
 S 36th St	3103950	100
 S 25th St	3103950	94
@@ -9590,15 +9610,15 @@ E 39th St	3125055	57
 W 39th St	3125055	53
 6th Ave	3125055	51
 S 27th St	3128000	134
+O St	3128000	131
 Holdrege St	3128000	118
-O St	3128000	110
+A St	3128000	109
 Vine St	3128000	108
 South St	3128000	102
 N 70th St	3128000	99
 Adams St	3128000	94
 Old Cheney Rd	3128000	94
 S 56th St	3128000	94
-N 56th St	3128000	92
 Benjamin Ave	3134615	53
 Omaha Ave	3134615	53
 W Norfolk Ave	3134615	51
@@ -9619,16 +9639,16 @@ Burt St	3137000	122
 Leavenworth St	3137000	119
 Ames Ave	3137000	117
 F St	3137000	114
+Harrison St	3138295	52
+Cornhusker Rd	3138295	46
+Schram Rd	3138295	45
 S 72nd St	3138295	37
-Schram Rd	3138295	35
+S 132nd St	3138295	34
 Platteview Rd	3138295	33
 S Washington St	3138295	30
-Cornhusker Rd	3138295	28
+S 144th St	3138295	28
+Giles Rd	3138295	24
 S 48th St	3138295	21
-S 84th St	3138295	21
-W Lincoln St	3138295	21
-N Beadle St	3138295	18
-S 90th St	3138295	18
 E Nye Ln	3209700	38
 S Carson St	3209700	36
 N Carson St	3209700	30
@@ -9640,35 +9660,35 @@ S Curry St	3209700	24
 Sherman Ln	3209700	23
 N Mountain St	3209700	22
 Farm District Rd	3224900	38
+California Emigrant Trl	3224900	26
+Elm St	3224900	25
+Iroquois Trl	3224900	25
+7th St	3224900	19
 Emigrant Way	3224900	17
+Santa Fe Trl	3224900	17
+9th St	3224900	16
 Jenny's Ln	3224900	16
 Shadow Ln	3224900	16
-Winnies Ln	3224900	16
-Miller Ln	3224900	14
-Jennys Ln	3224900	13
-Sage St	3224900	12
-Fremont St	3224900	11
-Canal Dr	3224900	10
+S Eastern Ave	3231900	65
+Gilespie St	3231900	57
+E Russell Rd	3231900	56
 W Warm Springs Rd	3231900	54
 W Horizon Ridge Pkwy	3231900	51
+Bermuda Rd	3231900	49
+E Sunset Rd	3231900	47
 Wigwam Pkwy	3231900	47
-Greenway Rd	3231900	37
-S Green Valley Pkwy	3231900	37
-E Lake Mead Pkwy	3231900	36
-N Green Valley Pkwy	3231900	35
-Windmill Pkwy	3231900	33
-N Valle Verde Dr	3231900	32
-High Mesa Dr	3231900	30
+E Eldorado Ln	3231900	46
+E Hacienda Ave	3231900	42
+W Charleston Blvd	3240000	149
 W Washington Ave	3240000	114
 N Jones Blvd	3240000	113
-W Charleston Blvd	3240000	101
 N Torrey Pines Dr	3240000	99
 N Tenaya Way	3240000	98
+E Charleston Blvd	3240000	94
 Vegas Dr	3240000	93
 Alta Dr	3240000	91
+E Stewart Ave	3240000	89
 W Lone Mountain Rd	3240000	89
-N Decatur Blvd	3240000	86
-N Rainbow Blvd	3240000	86
 N Pecos Rd	3251800	76
 N 5th St	3251800	61
 Las Vegas Blvd N	3251800	58
@@ -9689,7 +9709,7 @@ W 4th St	3260600	49
 W Plumb Ln	3260600	47
 Mill St	3260600	45
 Kietzke Ln	3260600	41
-Pyramid Way	3268400	68
+Pyramid Way	3268400	73
 4th St	3268400	40
 Prater Way	3268400	31
 Wedekind Rd	3268400	30
@@ -9729,16 +9749,16 @@ Beech St	3345140	46
 Chestnut St	3345140	44
 Candia Rd	3345140	43
 Pine St	3345140	43
+Daniel Webster Hwy	3350260	92
+Amherst St	3350260	66
 W Hollis St	3350260	65
-Amherst St	3350260	64
 Main St	3350260	50
 Broad St	3350260	44
-Daniel Webster Hwy	3350260	34
+Baboosic Lake Rd	3350260	37
 E Dunstable Rd	3350260	33
 Lake St	3350260	29
 Concord St	3350260	26
 Main Dunstable Rd	3350260	25
-Coburn Woods	3350260	24
 Portland St	3365140	33
 Salmon Falls Rd	3365140	27
 Milton Rd	3365140	25
@@ -9819,16 +9839,16 @@ Oakdene Ave	3413570	11
 Lawton Ave	3413570	10
 Columbia Ave	3413570	7
 Lincoln Ave	3413570	7
+Valley Rd	3413690	78
 Bloomfield Ave	3413690	58
 Passaic Ave	3413690	51
+Grove St	3413690	50
 Van Houten Ave	3413690	50
 Clifton Ave	3413690	48
-Valley Rd	3413690	43
 Broad St	3413690	41
 Passaic County 601	3413690	33
+Highland Ave	3413690	30
 Franklin Ave	3413690	28
-Hazel St	3413690	27
-Grove St	3413690	26
 Springdale Ave	3419390	26
 Park Ave	3419390	23
 Central Ave	3419390	22
@@ -10071,24 +10091,24 @@ Grove St	3463000	13
 Prospect St	3463000	13
 Main St	3465790	56
 Washington Rd	3465790	54
-Bordentown Ave	3465790	38
+Bordentown Ave	3465790	45
+Englishtown Rd	3465790	39
+Cindy St	3465790	35
+Marlboro Rd	3465790	28
 Ernston Rd	3465790	24
 Washington Ave	3465790	23
 S Pine Ave	3465790	22
-Princeton Rd	3465790	15
-S Feltus St	3465790	14
-Winding Wood Dr	3465790	13
-Athens Ave	3465790	12
-Liberty St	3474000	61
+Southwood Dr	3465790	17
+S Broad St	3474000	78
+Brunswick Ave	3474000	66
+Liberty St	3474000	63
+Lawrenceville Rd	3474000	62
+S Clinton Ave	3474000	61
+S Olden Ave	3474000	60
+Princeton Ave	3474000	48
 Hamilton Ave	3474000	44
 Parkway Ave	3474000	40
-Stuyvesant Ave	3474000	38
-Greenwood Ave	3474000	37
-Princeton Ave	3474000	37
-Lower Ferry Rd	3474000	36
-Prospect St	3474000	35
-N Olden Ave	3474000	32
-Parkside Ave	3474000	32
+Greenwood Ave	3474000	39
 Bergenline Ave	3474630	56
 New York Ave	3474630	53
 Palisade Ave	3474630	52
@@ -10139,13 +10159,13 @@ N White Sands Blvd	3501780	29
 Oregon Ave	3501780	26
 E 12th St	3501780	24
 Hamilton Rd	3501780	23
-Central Ave	3502000	168
+Central Ave	3502000	196
+4th St NW	3502000	157
 Candelaria Rd NE	3502000	157
-4th St NW	3502000	156
-Edith Blvd NE	3502000	134
+Edith Blvd NE	3502000	135
 Indian School Rd NE	3502000	134
 Lomas Blvd NE	3502000	133
-Rio Grande Blvd NW	3502000	120
+Rio Grande Blvd NW	3502000	121
 Comanche Rd NE	3502000	118
 2nd St NW	3502000	115
 Menaul Blvd NE	3502000	112
@@ -10179,16 +10199,16 @@ E 20th St	3525800	34
 W Main St	3525800	31
 La Plata Hwy	3525800	30
 E 30th St	3525800	29
-N Dal Paso St	3532520	52
-N Fowler St	3532520	45
-N Grimes St	3532520	39
+N Dal Paso St	3532520	79
+N Grimes St	3532520	79
+N Fowler St	3532520	60
 N Jefferson St	3532520	37
-N Lovington Hwy	3532520	34
+N Lovington Hwy	3532520	35
 E Sanger St	3532520	33
 E Marland St	3532520	30
+W Alabama St	3532520	29
 W Bender Blvd	3532520	29
-N Houston St	3532520	27
-W Marland Blvd	3532520	27
+N Houston St	3532520	28
 N Valley Dr	3539380	159
 Dona Ana Rd	3539380	116
 W Picacho Ave	3539380	60
@@ -10199,16 +10219,16 @@ Holman Rd	3539380	49
 E Lohman Ave	3539380	47
 E Idaho Ave	3539380	42
 Elks Dr	3539380	42
-Cherry Rd NE	3563460	21
-Willow Creek Rd NE	3563460	20
-Rio Vista Dr NE	3563460	14
-Glen Hills Dr NE	3563460	13
-Oasis Springs Rd NE	3563460	13
-Kim Rd NE	3563460	12
-Monterrey Rd NE	3563460	12
-Roadrunner Loop NE	3563460	12
-Saratoga Dr NE	3563460	12
-Iris Rd NE	3563460	11
+Coors Blvd SW	3563460	58
+Southern Blvd SE	3563460	51
+Northern Blvd NW	3563460	36
+Rainbow Blvd NE	3563460	32
+Northern Blvd NE	3563460	29
+Gonzales Rd SW	3563460	27
+Saratoga Dr NE	3563460	26
+Sunset Gardens Rd SW	3563460	26
+Tower Rd SW	3563460	26
+Willow Creek Rd NE	3563460	26
 W 2nd St	3564930	81
 E 2nd St	3564930	57
 W Alameda St	3564930	55
@@ -10223,22 +10243,22 @@ Agua Fria St	3570500	144
 Old Santa Fe Trl	3570500	74
 W Alameda St	3570500	73
 Cerrillos Rd	3570500	49
+Bishops Lodge Rd	3570500	46
 Siringo Rd	3570500	46
 Rufina St	3570500	42
 Galisteo St	3570500	39
-Pso de Peralta	3570500	37
-Old Las Vegas Hwy	3570500	36
-S Saint Francis Dr	3570500	34
+S Richards Ave	3570500	38
+Cundiyo Rd	3570500	37
 Western Ave	3601000	97
 Washington Ave	3601000	83
-New Scotland Ave	3601000	59
+New Scotland Ave	3601000	61
+Albany Shaker Rd	3601000	46
 Hackett Blvd	3601000	44
+Krumkill Rd	3601000	43
 Delaware Ave	3601000	37
 S Manning Blvd	3601000	37
 Madison Ave	3601000	34
-2nd Ave	3601000	33
-Broadway	3601000	33
-Whitehall Rd	3601000	33
+New Scotland Rd	3601000	34
 Turnpike Rd	3603078	37
 W Lake Rd	3603078	34
 Genesee St	3603078	30
@@ -10249,36 +10269,36 @@ Grant Ave Rd	3603078	21
 North St	3603078	21
 Rockefeller Rd	3603078	21
 Clark Street Rd	3603078	19
+Chenango St	3606607	74
+Court St	3606607	45
 Conklin Ave	3606607	35
+Front St	3606607	35
+River Rd	3606607	33
+Robinson St	3606607	31
 Park Ave	3606607	30
 Vestal Ave	3606607	30
-Court St	3606607	27
-Old State Rd	3606607	27
-Robinson St	3606607	26
-Colesville Rd	3606607	23
-Main St	3606607	23
-Riverside Dr	3606607	23
-Upper Front St	3606607	21
+Old State Rd	3606607	28
+State St	3606607	26
 Main St	3611000	104
 Bailey Ave	3611000	100
 Broadway St	3611000	97
 Seneca St	3611000	88
 S Park Ave	3611000	80
 Genesee St	3611000	79
+Kenmore Ave	3611000	77
 William St	3611000	76
 Clinton St	3611000	71
 Delaware Ave	3611000	66
-Hertel Ave	3611000	66
+W Water St	3624229	48
 College Ave	3624229	40
-Davis St	3624229	35
+Pennsylvania Ave	3624229	40
+Davis St	3624229	38
+Maple Ave	3624229	36
+W Church St	3624229	35
 Lake St	3624229	30
-Sullivan St	3624229	23
-N Main St	3624229	22
-Walnut St	3624229	21
-Oneida Rd	3624229	17
-E 2nd St	3624229	16
-E Water St	3624229	16
-Oak St	3624229	16
+Walnut St	3624229	29
+S Main St	3624229	26
+Broadway St	3624229	25
 Guy Lombardo Ave	3627485	29
 S Bayview Ave	3627485	25
 S Main St	3627485	25
@@ -10309,26 +10329,26 @@ Halstead Ave	3632402	14
 Adelphi Ave	3632402	11
 Nelson Ave	3632402	11
 Union Ave	3632402	11
-Front St	3633139	33
-Fulton Ave	3633139	32
+Front St	3633139	55
+Jerusalem Ave	3633139	42
+Uniondale Ave	3633139	36
+Fulton Ave	3633139	33
+Cedar St	3633139	26
 Long Beach Rd	3633139	26
 S Franklin St	3633139	26
 Greenwich St	3633139	20
 Baldwin Rd	3633139	19
-Jerusalem Ave	3633139	18
-Clinton St	3633139	17
-Milburn Ave	3633139	16
-Westbury Blvd	3633139	14
-Campus Rd	3638077	3
-Central Ave	3638077	3
-Sisson Pl	3638077	2
-University Ave	3638077	2
-West Ave	3638077	2
-Balch Dr	3638077	1
-Country Club Rd	3638077	1
-Donlon Hall Loop	3638077	1
-East Ave	3638077	1
-Farrier Rd	3638077	1
+Maple Ave	3633139	18
+Danby Rd	3638077	43
+Hanshaw Rd	3638077	41
+Taughannock Blvd	3638077	34
+Warren Rd	3638077	34
+Dryden Rd	3638077	33
+N Triphammer Rd	3638077	29
+Coddington Rd	3638077	28
+E Shore Dr	3638077	28
+Slaterville Rd	3638077	28
+Ellis Hollow Rd	3638077	27
 Fairmount Ave	3638264	54
 E 2nd St	3638264	36
 N Main St	3638264	33
@@ -10379,16 +10399,26 @@ E Prospect Ave	3649121	17
 E 4th St	3649121	16
 S Fulton Ave	3649121	16
 Westchester Ave	3649121	16
+Union Ave	3650034	60
+Little Britain Rd	3650034	35
+Gidney Ave	3650034	32
+S Plank Rd	3650034	31
+South St	3650034	30
+Albany Post Rd	3650034	28
+Broadway	3650034	28
+Liberty St	3650034	27
+River Rd	3650034	26
+Blooming Grove Tpke	3650034	25
 North Ave	3650617	71
 Webster Ave	3650617	44
 Boston Post Rd	3650617	39
+Lincoln Ave	3650617	24
 Pelham Rd	3650617	23
+White Plains Rd	3650617	23
 Stratton Rd	3650617	22
 5th Ave	3650617	21
 Wilmot Rd	3650617	18
 Eastchester Rd	3650617	17
-Liberty Ave	3650617	16
-Lincoln Ave	3650617	16
 Bedford Ave	3651000	156
 3rd Ave	3651000	144
 Atlantic Ave	3651000	141
@@ -10429,36 +10459,36 @@ Somerstown Rd	3655530	11
 Spring Valley Rd	3655530	11
 Kitchawan Rd	3655530	10
 Narragansett Ave	3655530	10
+Washington St	3656979	38
+Maple Ave	3656979	34
+Oregon Rd	3656979	30
+Crompond Rd	3656979	27
 Main St	3656979	26
+Furnace Dock Rd	3656979	24
 N Division St	3656979	20
-Washington St	3656979	19
-Crompond Rd	3656979	16
+Croton Ave	3656979	19
 Hudson Ave	3656979	16
-Elm St	3656979	12
-Highland Ave	3656979	12
-Maple Ave	3656979	11
-Union Ave	3656979	11
-Park St	3656979	10
+Watch Hill Rd	3656979	16
+Main St	3659641	40
 South Rd	3659641	38
-Main St	3659641	28
+Vassar Rd	3659641	32
+East-West Arterial	3659641	31
+Dutchess Tpke	3659641	30
+Hooker Ave	3659641	30
+Salt Point Tpke	3659641	29
+Spackenkill Rd	3659641	29
 Violet Ave	3659641	28
-East-West Arterial	3659641	24
-Creek Rd	3659641	20
-Mansion St	3659641	19
-Salt Point Tpke	3659641	16
-Haviland Rd	3659641	15
-E Dorsey Ln	3659641	14
-Fairview Ave	3659641	13
-Dewey Ave	3663000	113
+Noxon Rd	3659641	27
+Dewey Ave	3663000	114
 Chili Ave	3663000	104
+Ridge Rd W	3663000	100
+East Ave	3663000	91
 Lake Ave	3663000	88
+Culver Rd	3663000	79
 Latta Rd	3663000	71
-Clifford Ave	3663000	65
-Norton St	3663000	64
-Clinton Ave N	3663000	60
-Lyell Ave	3663000	60
-Mount Read Blvd	3663000	60
-Main St E	3663000	58
+Clinton Ave N	3663000	69
+Long Pond Rd	3663000	69
+Saint Paul Blvd	3663000	69
 Hempstead Ave	3663264	40
 N Long Beach Rd	3663264	32
 N Village Ave	3663264	32
@@ -10491,24 +10521,24 @@ Louden Rd	3665255	21
 Caroline St	3665255	19
 State St	3665508	91
 Albany St	3665508	87
+Union St	3665508	54
+Curry Rd	3665508	49
+Guilderland Ave	3665508	43
+Mariaville Rd	3665508	40
+Broadway	3665508	38
+Helderberg Ave	3665508	37
+Nott St	3665508	37
 Consaul Rd	3665508	36
-Union St	3665508	32
-Nott St	3665508	25
-Van Vranken Ave	3665508	21
-Central Ave	3665508	19
-Eastern Ave	3665508	19
-Watt St	3665508	19
-Erie Blvd	3665508	17
 S Salina St	3673000	82
-Erie Blvd E	3673000	56
+Erie Blvd E	3673000	80
+W Genesee St	3673000	70
+E Genesee St	3673000	64
+Bellevue Ave	3673000	58
 James St	3673000	55
 Court St	3673000	46
 Grant Blvd	3673000	46
 W Seneca Tpke	3673000	43
 Burnet Ave	3673000	41
-Midland Ave	3673000	40
-E Genesee St	3673000	39
-Teall Ave	3673000	39
 6th Ave	3675484	64
 5th Ave	3675484	53
 7th Ave	3675484	36
@@ -10579,16 +10609,16 @@ Old Liberty Rd	3702080	28
 E Salisbury St	3702080	25
 Old Cox Rd	3702080	25
 Lassiter Mill Rd	3702080	23
+Hendersonville Rd	3702140	86
+Brevard Rd	3702140	78
 Smokey Park Hwy	3702140	59
-Hendersonville Rd	3702140	58
 Pisgah Hwy	3702140	56
 Tunnel Rd	3702140	55
 New Leicester Hwy	3702140	52
-Brevard Rd	3702140	45
+Sweeten Creek Rd	3702140	50
 Patton Ave	3702140	45
 Sand Hill Rd	3702140	44
 Haywood Rd	3702140	43
-Riceville Rd	3702140	38
 S Church St	3709060	63
 Alamance Rd	3709060	45
 Maple Ave	3709060	45
@@ -10716,9 +10746,9 @@ E Elm St	3726880	32
 N William St	3726880	32
 Rosewood Rd	3726880	32
 Salem Church Rd	3726880	30
+Old Mount Olive Hwy	3726880	29
 S John St	3726880	29
 S Slocumb St	3726880	29
-Central Heights Rd	3726880	28
 W Market St	3728000	111
 W Friendly Ave	3728000	95
 Summit Ave	3728000	93
@@ -10728,7 +10758,7 @@ S Holden Rd	3728000	74
 W Wendover Ave	3728000	70
 W Gate City Blvd	3728000	66
 N Church St	3728000	65
-Spring Garden St	3728000	60
+McConnell Rd	3728000	64
 E 10th St	3728080	71
 Dickinson Ave	3728080	56
 Stantonsburg Rd	3728080	47
@@ -10779,11 +10809,11 @@ Mount Holly-Huntersville Rd	3733120	27
 Hambright Rd	3733120	26
 Asbury Chapel Rd	3733120	24
 Ramah Church Rd	3733120	23
-Freedom Way	3734200	77
+Freedom Way	3734200	101
 Gum Branch Rd	3734200	69
 Richlands Hwy	3734200	65
+Piney Green Rd	3734200	63
 Wilmington Hwy	3734200	58
-Piney Green Rd	3734200	48
 Burgaw Hwy	3734200	46
 Western Blvd	3734200	41
 Blue Creek Rd	3734200	39
@@ -10849,16 +10879,16 @@ E Franklin St	3743920	27
 Pageland Hwy	3743920	27
 Lancaster Ave	3743920	26
 Wolf Pond Rd	3743920	26
+Charlotte Hwy	3744220	85
+Brawley School Rd	3744220	83
 Mecklenburg Hwy	3744220	46
+River Hwy	3744220	41
 Mt Ulla Hwy	3744220	40
 Oak Ridge Farm Hwy	3744220	38
 Shearers Rd	3744220	35
 Faith Rd	3744220	33
+Williamson Rd	3744220	31
 Deal Rd	3744220	28
-Shinnville Rd	3744220	27
-Coddle Creek Hwy	3744220	24
-Charlotte Hwy	3744220	23
-Kistler Farm Rd	3744220	19
 Chapel Hill Rd	3744520	42
 Church St	3744520	35
 Page Rd	3744520	31
@@ -10950,15 +10980,15 @@ Durham Rd	3770540	29
 N Main St	3770540	27
 Averette Rd	3770540	26
 Carolina Beach Rd	3774440	161
+Market St	3774440	156
 Wrightsville Ave	3774440	116
-Market St	3774440	110
 S College Rd	3774440	107
 Oleander Dr	3774440	78
 Park Ave	3774440	57
 River Rd	3774440	53
+Middle Sound Loop Rd	3774440	52
 S 17th St	3774440	45
 Shipyard Blvd	3774440	44
-Myrtle Grove Rd	3774440	43
 Ward Blvd	3774540	87
 Nash St NW	3774540	43
 Raleigh Road Pkwy W	3774540	41
@@ -11129,13 +11159,13 @@ N Carpenter Rd	3909680	24
 W 130th St	3909680	21
 Hadcock Rd	3909680	16
 Substation Rd	3909680	16
+Market Ave N	3912000	97
 Fulton Rd NW	3912000	85
 Cleveland Ave NW	3912000	84
 Tuscarawas St W	3912000	74
 Navarre Rd SW	3912000	69
 Mahoning Rd NE	3912000	68
 Cleveland Ave SW	3912000	67
-Market Ave N	3912000	67
 4th St NW	3912000	66
 11th St SW	3912000	63
 Rowland Ave NE	3912000	62
@@ -11150,15 +11180,15 @@ Mad River Rd	3913190	25
 Dayton Lebanon Pike	3913190	23
 Wilmington Pike	3913190	22
 Reading Rd	3915000	105
-Harrison Ave	3915000	81
+Harrison Ave	3915000	88
+Colerain Ave	3915000	83
 Madison Rd	3915000	81
 Glenway Ave	3915000	80
+W North Bend Rd	3915000	69
 Vine St	3915000	67
 Erie Ave	3915000	59
 Hamilton Ave	3915000	58
-Colerain Ave	3915000	56
 Spring Grove Ave	3915000	56
-W North Bend Rd	3915000	52
 Saint Clair Ave	3916000	151
 Lorain Ave	3916000	139
 Euclid Ave	3916000	119
@@ -11450,15 +11480,15 @@ Cox Smith Rd	3948188	19
 Kings Mills Rd	3948188	19
 Columbia Rd	3948188	18
 Lincoln Way E	3948244	73
-Lincoln St W	3948244	45
+Lincoln St W	3948244	59
 Wales Ave NW	3948244	41
 Jackson Ave NW	3948244	31
+Orrville St NW	3948244	31
 Amherst Rd NE	3948244	30
 Erie St S	3948244	29
 1st St NE	3948244	27
 3rd St SE	3948244	27
 Tremont Ave SW	3948244	27
-Amherst Ave NW	3948244	26
 Medina Rd	3948790	40
 Lafayette Rd	3948790	32
 W Smith Rd	3948790	31
@@ -11639,16 +11669,16 @@ W Lane Ave	3979002	35
 Tremont Rd	3979002	31
 Zollinger Rd	3979002	27
 W Henderson Rd	3979002	25
+E Market St	3980892	63
 Mahoning Ave NW	3980892	56
 Elm Rd NE	3980892	52
+Youngstown Rd SE	3980892	44
+Niles Rd SE	3980892	36
+South St SE	3980892	36
 North Rd NE	3980892	35
+North Rd SE	3980892	34
+W Market St	3980892	34
 N Park Ave	3980892	31
-E Market St	3980892	29
-Parkman Rd NW	3980892	29
-South St SE	3980892	29
-Atlantic St NE	3980892	25
-Tod Ave NW	3980892	25
-Highland Ave SW	3980892	22
 N State St	3983342	44
 Central College Rd	3983342	34
 Walnut St	3983342	34
@@ -11702,13 +11732,13 @@ Hillman St	3988000	50
 Dresden Rd	3988084	57
 Maple Ave	3988084	54
 East Pike	3988084	50
+Newark Rd	3988084	49
 Adamsville Rd	3988084	46
 Linden Ave	3988084	36
 N River Rd	3988084	36
 Pine St	3988084	35
+Frazeysburg Rd	3988084	34
 Coopermill Rd	3988084	31
-Maysville Pike	3988084	30
-Chandlersville Rd	3988084	28
 SE Adams Blvd	4004450	64
 E Tuxedo Blvd	4004450	61
 E Frank Phillips Blvd	4004450	55
@@ -11882,13 +11912,13 @@ Pacific Blvd SE	4101000	28
 SW Farmington Rd	4105350	90
 SW Scholls Ferry Rd	4105350	68
 SW Murray Blvd	4105350	66
+SW 185th Ave	4105350	51
 SW Walker Rd	4105350	48
 SW Hart Rd	4105350	46
+SW Tualatin Valley Hwy	4105350	46
+SW 175th Ave	4105350	44
 SW 155th Ave	4105350	41
 SW Allen Blvd	4105350	41
-SW Hall Blvd	4105350	39
-SW Beaverton-Hillsdale Hwy	4105350	38
-SW Baseline Rd	4105350	34
 McKenzie-bend Hwy	4105800	86
 Central Oregon Hwy	4105800	59
 NE Butler Market Rd	4105800	45
@@ -11909,6 +11939,7 @@ NW Highland Dr	4115800	30
 NW Van Buren Ave	4115800	30
 SW Philomath Blvd	4115800	30
 NW Polk Ave	4115800	29
+River Rd	4123850	118
 Willamette St	4123850	73
 Fox Hollow Rd	4123850	70
 Franklin Blvd	4123850	69
@@ -11918,7 +11949,6 @@ Hilyard St	4123850	60
 W 18th Ave	4123850	59
 Gilham Rd	4123850	57
 Coburg Rd	4123850	53
-Territorial Hwy	4123850	53
 Nehalem Hwy	4126200	33
 Pacific Ave	4126200	30
 Willamina Ave	4126200	30
@@ -11949,26 +11979,26 @@ NE Division St	4131250	25
 NE Kane Dr	4131250	24
 SE Powell Valley Rd	4131250	24
 NW 1st St	4131250	23
+SE Sunnyside Rd	4132050	80
+Clackamas Hwy	4132050	73
 SE Clatsop St	4132050	66
-SE Sunnyside Rd	4132050	56
-SE 172nd Ave	4132050	41
+SE 172nd Ave	4132050	48
+SE Foster Rd	4132050	40
 SE 82nd Ave	4132050	39
 SE 132nd Ave	4132050	33
+SE Tillstrom Rd	4132050	29
+Clackamas-Boring Hwy No 174	4132050	28
 SE Mather Rd	4132050	28
-SE 82nd Dr	4132050	25
-SE William Otty Rd	4132050	23
-SE 126th Ave	4132050	22
-SE 152nd Ave	4132050	22
 E Main St	4134100	41
 NW Cornelius Pass Rd	4134100	39
 SE Maple St	4134100	35
+SW Blanton St	4134100	35
+SW Kinnaman Rd	4134100	34
 SW Hillsboro Hwy	4134100	33
 SW Bald Peak Rd	4134100	32
+SW Rosa Rd	4134100	32
+SW 198th Ave	4134100	30
 NW Evergreen Rd	4134100	29
-NW West Union Rd	4134100	28
-SE Walnut St	4134100	28
-NE Lincoln St	4134100	27
-SW Baseline Rd	4134100	26
 River Rd N	4138500	47
 Wheatland Rd N	4138500	43
 River Rd NE	4138500	37
@@ -12123,12 +12153,12 @@ W Liberty St	4202000	91
 W Chew St	4202000	86
 W Tilghman St	4202000	86
 W Walnut St	4202000	80
+Lehigh St	4202000	73
 Early St	4202000	66
 Andrew St	4202000	63
 Page St	4202000	61
+Union St	4202000	61
 James St	4202000	60
-Utica St	4202000	60
-W Washington St	4202000	60
 Kettle Rd	4202184	56
 E Pleasant Valley Blvd	4202184	50
 5th Ave	4202184	48
@@ -12149,16 +12179,16 @@ Ridge Rd	4206064	24
 Kings School Rd	4206064	22
 Logan Rd	4206064	22
 Corrigan Dr	4206064	20
-Linden St	4206088	60
+Linden St	4206088	72
+Easton Ave	4206088	55
 Main St	4206088	52
 Schoenersville Rd	4206088	44
 Broadway	4206088	41
 Center St	4206088	40
-Easton Ave	4206088	40
 W North St	4206088	37
 W Union Blvd	4206088	37
+Washington St	4206088	34
 W Market St	4206088	32
-W Raspberry St	4206088	32
 W 2nd St	4213208	51
 Mary St	4213208	36
 W 3rd St	4213208	36
@@ -12169,16 +12199,17 @@ Concord Ave	4213208	31
 Upland St	4213208	27
 W 6th St	4213208	26
 W 12th St	4213208	25
-Northampton St	4221648	46
+Northampton St	4221648	55
+Freemansburg Rd	4221648	41
 Ferry St	4221648	37
-Spring Garden St	4221648	32
-Bushkill St	4221648	29
+Spring Garden St	4221648	34
+S 25th St	4221648	33
+Bushkill St	4221648	30
 Pine St	4221648	29
 Morgan Hill Rd	4221648	27
 Butler St	4221648	26
 Lehigh St	4221648	26
-S Delaware Dr	4221648	25
-Church St	4221648	24
+E Lake Rd	4224000	109
 Peach St	4224000	104
 W Lake Rd	4224000	72
 W 38th St	4224000	70
@@ -12188,7 +12219,6 @@ W 12th St	4224000	67
 W 32nd St	4224000	63
 W 6th St	4224000	61
 Buffalo Rd	4224000	57
-State St	4224000	53
 N 6th St	4232800	74
 N Front St	4232800	70
 N 3rd St	4232800	67
@@ -12299,16 +12329,16 @@ Luzerne St	4269000	42
 Herz Ct	4269000	41
 Cedar Ave	4269000	40
 Vine St	4269000	39
+N Atherton St	4273808	45
 S Atherton St	4273808	31
 W College Ave	4273808	28
+Circleville Rd	4273808	27
 E College Ave	4273808	27
 S Allen St	4273808	25
 W Whitehall Rd	4273808	23
 University Dr	4273808	20
+N Allen St	4273808	19
 S Pugh St	4273808	19
-W Beaver Ave	4273808	19
-Westerly Pkwy	4273808	18
-W Foster Ave	4273808	17
 Bear Creek Blvd	4285152	52
 Scott St	4285152	49
 N Main St	4285152	41
@@ -12330,15 +12360,15 @@ W 3rd St	4285312	34
 Hepburn St	4285312	33
 High St	4285312	33
 W Market St	4287048	52
+S Queen St	4287048	51
 W Philadelphia St	4287048	39
 W Clarke Ave	4287048	37
+S Pine St	4287048	36
+E Princess St	4287048	34
 W King St	4287048	34
 W Princess St	4287048	34
 Roosevelt Ave	4287048	33
 W Mason Ave	4287048	32
-W College Ave	4287048	29
-Greenbriar Rd	4287048	27
-N Beaver St	4287048	20
 Cranston St	4419180	89
 Pontiac Ave	4419180	85
 Phenix Ave	4419180	65
@@ -12409,16 +12439,16 @@ Powderhouse Rd SE	4500550	37
 Colleton Ave SE	4500550	36
 S Boundary Ave SE	4500550	36
 Wagener Rd	4500550	35
+Whitehall Rd	4501360	59
+Dobbins Bridge Rd	4501360	49
+W Whitner St	4501360	47
 N Main St	4501360	46
+Sayre St	4501360	45
+Centerville Rd	4501360	44
 Abbeville Hwy	4501360	39
 E River St	4501360	39
-W Whitner St	4501360	36
+Clemson Blvd	4501360	37
 Concord Rd	4501360	35
-Airline Rd	4501360	34
-S Main St	4501360	34
-E Calhoun St	4501360	33
-Old Williamston Rd	4501360	33
-Clemson Blvd	4501360	32
 May River Rd	4507210	56
 Fording Island Rd	4507210	35
 Alljoy Rd	4507210	26
@@ -12439,16 +12469,16 @@ King St	4513330	66
 Seabrook Island Rd	4513330	63
 Riverland Dr	4513330	61
 Fort Johnson Rd	4513330	60
-Garners Ferry Rd	4516000	153
+Garners Ferry Rd	4516000	176
+Bluff Rd	4516000	113
+Leesburg Rd	4516000	88
 Farrow Rd	4516000	83
-Bluff Rd	4516000	80
 Monticello Rd	4516000	80
 Broad River Rd	4516000	79
+Notch Rd	4516000	74
 Bush River Rd	4516000	66
-Leesburg Rd	4516000	64
+Two Notch Rd	4516000	66
 Rosewood Dr	4516000	62
-Blossom St	4516000	60
-N Main St	4516000	59
 Long Ave Exd	4516405	57
 Pee Dee Hwy	4516405	54
 Church St	4516405	50
@@ -12459,26 +12489,26 @@ Old Reaves Ferry Rd	4516405	39
 Cates Bay Hwy	4516405	37
 Juniper Bay Rd	4516405	37
 Dunn Short Cut Rd	4516405	33
-Calhoun Memorial Hwy	4521985	63
+Calhoun Memorial Hwy	4521985	64
+Pelzer Hwy	4521985	49
 Saluda Dam Rd	4521985	46
+Powdersville Rd	4521985	41
 Farrs Bridge Rd	4521985	40
 Dacusville Hwy	4521985	39
 Dacusville Rd	4521985	36
+Brushy Creek Rd	4521985	32
+Crestview Rd	4521985	29
 Jameson Rd	4521985	25
-Gentry Memorial Hwy	4521985	24
-Robert P Jeanes Rd	4521985	23
-Hunts Bridge Rd	4521985	22
-Highland Rd	4521985	19
+S Irby St	4525810	93
 E Palmetto St	4525810	85
 W Palmetto St	4525810	82
-Pamplico Hwy	4525810	61
+Pamplico Hwy	4525810	67
 E National Cemetery Rd	4525810	56
-S Irby St	4525810	54
+Francis Marion Rd	4525810	55
+Alligator Rd	4525810	54
 3rd Loop Rd	4525810	52
 2nd Loop Rd	4525810	48
 N Williston Rd	4525810	46
-W Sumter St	4525810	41
-E Old Marion Hwy	4525810	38
 Dobys Bridge Rd	4526890	34
 Regent Pkwy	4526890	23
 Steele St	4526890	23
@@ -12499,26 +12529,26 @@ Old Back River Rd	4529815	26
 Hamlet Cir	4529815	23
 College Park Rd	4529815	22
 Crowfield Blvd	4529815	22
+White Horse Rd	4530850	85
+E North St	4530850	69
 Laurens Rd	4530850	58
+Pelham Rd	4530850	52
 N Pleasantburg Dr	4530850	50
 Poinsett Hwy	4530850	48
+Augusta St	4530850	46
+Anderson Rd	4530850	45
+Wade Hampton Blvd	4530850	45
 Rutherford Rd	4530850	43
-Old Buncombe Rd	4530850	39
-Woodruff Rd	4530850	36
-E North St	4530850	35
-Paris Mountain Rd	4530850	32
-State Park Rd	4530850	30
-Parkins Mill Rd	4530850	28
+Brushy Creek Rd	4530985	54
 County Rd	4530985	53
+Wade Hampton Blvd	4530985	53
 S Buncombe Rd	4530985	42
+Locust Hill Rd	4530985	41
 W Wade Hampton Blvd	4530985	41
 Brockman McClimon Rd	4530985	40
 Abner Creek Rd	4530985	39
-Brushy Creek Rd	4530985	33
+E Lee Rd	4530985	35
 Victor Hill Rd	4530985	32
-E Wade Hampton Blvd	4530985	31
-Devenger Rd	4530985	29
-S Main St	4530985	27
 William Hilton Pkwy	4534045	46
 Seabrook Dr	4534045	30
 Long Cove Dr	4534045	27
@@ -12529,16 +12559,16 @@ Spanish Wells Rd	4534045	22
 Wedgefield Dr	4534045	20
 Greenwood Dr	4534045	19
 S Sea Pines Dr	4534045	19
+S Lake Dr	4541335	62
+Two Notch Rd	4541335	49
 Sunset Blvd	4541335	48
 Old Cherokee Rd	4541335	47
+Calks Ferry Rd	4541335	43
+Mineral Springs Rd	4541335	43
+Platt Springs Rd	4541335	43
 N Lake Dr	4541335	38
+Old Orangeburg Rd	4541335	37
 Augusta Hwy	4541335	31
-Old Chapin Rd	4541335	30
-Barr Rd	4541335	27
-Park Rd	4541335	27
-Calks Ferry Rd	4541335	23
-Corley Mill Rd	4541335	23
-S Lake Dr	4541335	23
 Ashmore Bridge Rd	4545115	24
 E Butler Rd	4545115	23
 Brooks Rd	4545115	15
@@ -12561,24 +12591,24 @@ Frontage Rd	4548535	22
 Chuck Dawley Blvd	4548535	21
 N Kings Hwy	4549075	117
 N Ocean Blvd	4549075	85
+Forestbrook Rd	4549075	51
 S Kings Hwy	4549075	51
 Oak St	4549075	35
+Enterprise Rd	4549075	34
 Kings Rd	4549075	34
+Dick Pond Rd	4549075	32
 S Ocean Blvd	4549075	30
-Yaupon Dr	4549075	30
-Porcher Dr	4549075	23
-48th Ave N	4549075	20
-Howard Ave	4549075	20
+Socastee Blvd	4549075	30
 Edgefield Rd	4550695	64
 Georgia Ave	4550695	42
+Atomic Rd	4550695	38
+Jefferson Davis Hwy	4550695	36
 W Martintown Rd	4550695	33
 Five Notch Rd	4550695	32
-Audubon Cir	4550695	20
-E Buena Vista Ave	4550695	20
-W Woodlawn Ave	4550695	20
-Cherokee Dr	4550695	19
-E Martintown Rd	4550695	19
-Ridge Rd	4550695	19
+Pine Logging Rd	4550695	32
+Storm Branch Rd	4550695	32
+Sand Bar Ferry Rd	4550695	23
+Williston Rd	4550695	21
 Dorchester Rd	4550875	195
 Rivers Ave	4550875	152
 Ashley Phosphate Rd	4550875	52
@@ -12599,26 +12629,26 @@ S Anderson Rd	4561405	38
 Ogden Rd	4561405	35
 Saluda Rd	4561405	33
 Porter Rd	4561405	31
-W Georgia Rd	4566580	44
+Woodruff Rd	4566580	52
+W Georgia Rd	4566580	48
+Jonesville Rd	4566580	42
 New Neely Ferry Rd	4566580	41
-Fairview Rd	4566580	29
-Fork Shoals Rd	4566580	20
-Farming Creek Dr	4566580	18
-Grandview Dr	4566580	18
-Davenport Rd	4566580	17
-Brentwood Way	4566580	16
-Harrison Bridge Rd	4566580	15
-E Standing Springs Rd	4566580	12
-Reidville Rd	4568290	74
+NE Main St	4566580	32
+Fairview Rd	4566580	30
+Scuffletown Rd	4566580	28
+E Georgia Rd	4566580	27
+Bethel Rd	4566580	24
+Holland Rd	4566580	23
+Reidville Rd	4568290	94
+Southport Rd	4568290	72
 S Pine St	4568290	63
-Southport Rd	4568290	60
 S 31	4568290	56
+Chesnee Hwy	4568290	53
 E Main St	4568290	52
+Asheville Hwy	4568290	50
 Union St	4568290	40
-Country Club Rd	4568290	33
-Carolina Country Club Rd	4568290	32
-S Church St	4568290	31
-Willis Rd	4568290	27
+E Blackstock Rd	4568290	39
+Carolina Country Club Rd	4568290	35
 Orangeburg Rd	4570270	58
 Boone Hill Rd	4570270	46
 Central Ave	4570270	46
@@ -12629,16 +12659,16 @@ Embassy Dr	4570270	19
 Renau Blvd	4570270	19
 N Maple St	4570270	17
 Simmons Ave	4570270	17
-Broad St	4570405	113
+Broad St	4570405	184
 N Main St	4570405	89
 Myrtle Beach Hwy	4570405	84
+Camden Hwy	4570405	82
+Pinewood Rd	4570405	76
+Peach Orchard Rd	4570405	75
+McCrays Mill Rd	4570405	60
 Boulevard Rd	4570405	51
 Oswego Hwy	4570405	49
-Camden Hwy	4570405	47
-Old Manning Rd	4570405	45
-Loring Mill Rd	4570405	43
-Alice Dr	4570405	41
-S Guignard Dr	4570405	36
+Queen Chapel Rd	4570405	47
 382nd Ave	4600100	38
 132nd St	4600100	37
 133rd St	4600100	35
@@ -12730,15 +12760,15 @@ Rossview Rd	4715160	37
 Trenton Rd	4715160	33
 Dotsonville Rd	4715160	32
 Georgetown Rd NW	4715400	70
+Waterlevel Hwy	4715400	60
+Spring Place Rd SE	4715400	58
 Keith St NW	4715400	56
-Blue Springs Rd	4715400	52
+Blue Springs Rd	4715400	53
 N Ocoee St	4715400	52
+Dalton Pike	4715400	47
+Bates Pike SE	4715400	46
+Benton Pike NE	4715400	46
 Mouse Creek Rd NW	4715400	45
-Harrison Pike	4715400	38
-Peerless Rd NW	4715400	38
-S Lee Hwy	4715400	35
-Lead Mine Valley Rd SW	4715400	32
-Freewill Rd NW	4715400	31
 W Poplar Ave	4716420	34
 Halle Pkwy	4716420	31
 E Shelby Dr	4716420	28
@@ -12840,25 +12870,25 @@ Cherokee Rd	4738320	40
 W Walnut St	4738320	39
 E Oakland Ave	4738320	38
 Fort Henry Dr	4739560	103
-Bloomingdale Pike	4739560	90
+Bloomingdale Pike	4739560	96
+Memorial Blvd	4739560	93
 E Stone Dr	4739560	77
-Memorial Blvd	4739560	62
+Bristol Hwy	4739560	70
 Lynn Garden Dr	4739560	50
 Rock Springs Rd	4739560	49
 Orebank Rd	4739560	44
 E Center St	4739560	43
-W Stone Dr	4739560	35
-Moreland Dr	4739560	31
+Island Rd	4739560	39
+Asheville Hwy	4740000	120
 Kingston Pike	4740000	116
-Asheville Hwy	4740000	107
 S Northshore Dr	4740000	105
+Strawberry Plains Pike	4740000	88
+Middlebrook Pike	4740000	86
 Chapman Hwy	4740000	82
 N Broadway St	4740000	79
-Strawberry Plains Pike	4740000	75
+Clinton Hwy	4740000	78
+Thorn Grove Pike	4740000	78
 Washington Pike NE	4740000	70
-Westland Dr	4740000	70
-Thorn Grove Pike	4740000	68
-Middlebrook Pike	4740000	63
 Murfreesboro Rd	4741200	49
 Waldron Rd	4741200	24
 Bill Stewart Blvd	4741200	21
@@ -12900,15 +12930,15 @@ E Raines Rd	4748000	109
 S 3rd St	4748000	103
 S Pkwy E	4748000	102
 W Andrew Johnson Hwy	4750280	94
-E Morris Blvd	4750280	77
+E Morris Blvd	4750280	80
+E Andrew Johnson Hwy	4750280	58
 S Davy Crockett Pkwy	4750280	41
+Brights Pike	4750280	39
+Fish Hatchery Rd	4750280	35
 Cherokee Dr	4750280	33
-E Andrew Johnson Hwy	4750280	33
 Sulphur Springs Rd	4750280	32
-Brights Pike	4750280	27
+Old Kentucky Rd	4750280	27
 Kidwell Ridge Rd	4750280	25
-Panther Creek Rd	4750280	25
-W 1st North St	4750280	25
 Lebanon Rd	4750780	62
 Central Pike	4750780	56
 Beckwith Rd	4750780	50
@@ -13059,16 +13089,16 @@ Platte Dr	4805372	18
 Shepherd Ln	4805372	16
 Spring Oak Dr	4805372	13
 Ambassador Way	4805372	12
+N Main St	4806128	113
 Garth Rd	4806128	95
-N Main St	4806128	90
 N Alexander Dr	4806128	58
+E Wallisville Rd	4806128	55
 Decker Dr	4806128	50
-East Fwy	4806128	45
+East Fwy	4806128	46
 W Baker Rd	4806128	44
 Bayway Dr	4806128	41
+S Main St	4806128	39
 W Cedar Bayou Lynchburg Rd	4806128	38
-Cedar Bayou Rd	4806128	33
-Park St	4806128	30
 College St	4807000	78
 Washington Blvd	4807000	74
 Calder Ave	4807000	69
@@ -13169,16 +13199,16 @@ Choate Pkwy	4813684	15
 Smiley Rd	4813684	15
 N Preston Rd	4813684	13
 Sunset Blvd	4813684	13
-Green Valley Rd	4814920	39
-Haeckerville Rd	4814920	35
+Green Valley Rd	4814920	63
+Weil Rd	4814920	41
+Haeckerville Rd	4814920	36
+Lower Seguin Rd	4814920	30
+Bolton Rd	4814920	27
+Country Ln	4814920	25
 FM 1103	4814920	24
+Marion Rd	4814920	24
+S Santa Clara Rd	4814920	20
 Schaefer Rd	4814920	20
-Country Ln	4814920	17
-Columbia	4814920	16
-Lower Seguin Rd	4814920	16
-E FM 78	4814920	14
-Old Wiederstein Rd	4814920	14
-Cherry Tree Dr	4814920	13
 E Henderson St	4815364	68
 N Main St	4815364	64
 FM 1434	4815364	52
@@ -13349,26 +13379,26 @@ Main St	4821892	24
 Las Quintas Blvd	4821892	23
 E Garrison St	4821892	22
 N Bibb Ave	4821892	22
+E Canton Rd	4822660	57
 S Closner Blvd	4822660	45
+E University Dr	4822660	43
 S Sugar Rd	4822660	36
-N Closner Blvd	4822660	27
-N Sugar Rd	4822660	26
-W Monte Cristo Rd	4822660	26
-W University Dr	4822660	26
-W Schunior St	4822660	25
-W Freddy Gonzalez Dr	4822660	24
-W Mile 17 1/2 Rd	4822660	24
-W Sprague St	4822660	24
+E Trenton Rd	4822660	35
+Doolittle Rd	4822660	30
+E Monte Cristo Rd	4822660	29
+S Alamo Rd	4822660	29
+N Closner Blvd	4822660	28
+FM 2812	4822660	27
+Montana Ave	4824000	254
 Dyer St	4824000	192
-Montana Ave	4824000	174
 Alameda Ave	4824000	168
 N Mesa St	4824000	160
 E Paisano Dr	4824000	118
-Montwood Dr	4824000	115
+Montwood Dr	4824000	117
+Doniphan Dr	4824000	116
 N Yarbrough Dr	4824000	113
+Edgemere Blvd	4824000	105
 N Loop Dr	4824000	104
-Edgemere Blvd	4824000	101
-Gateway Blvd E	4824000	92
 FM 660	4824348	41
 FM 1181	4824348	38
 Ensign Rd	4824348	34
@@ -13459,16 +13489,16 @@ Eldorado Pkwy	4827684	26
 Canoe Rd	4827684	22
 Independence Pkwy	4827684	22
 Preston Rd	4827684	22
+FM 359	4827876	59
+FM 723 Rd	4827876	35
+Bois D Arc Ln	4827876	29
+McCrary Rd	4827876	26
+Pitts Rd	4827876	21
+Skinner Ln	4827876	21
+FM 1093	4827876	20
+Colonel Court Dr	4827876	18
 Bowser Rd	4827876	17
-FM 1093	4827876	17
-Weston Dr	4827876	16
-Westerdale Dr	4827876	13
-Pool Hill Rd	4827876	12
-James Ln	4827876	9
-N Main St	4827876	8
-Rogers Rd	4827876	8
-Wellspring Lake Dr	4827876	8
-Wentworth Dr	4827876	8
+Old South Dr	4827876	17
 Broadway St	4828068	82
 Seawall Blvd	4828068	80
 Stewart Rd	4828068	69
@@ -13570,15 +13600,15 @@ Roslyn Dr	4834832	15
 Emerald Creek Dr	4834832	14
 Desert Sage Dr	4834832	13
 Westheimer Rd	4835000	278
+Sam Houston Pkwy	4835000	235
 Katy Fwy	4835000	234
-Sam Houston Pkwy	4835000	231
 Memorial Dr	4835000	220
+East Fwy	4835000	213
 Gulf Fwy	4835000	212
+Eastex Fwy	4835000	206
+Bellaire Blvd	4835000	191
 Richmond Ave	4835000	190
 Cullen Blvd	4835000	189
-Eastex Fwy	4835000	176
-S Loop Fwy	4835000	176
-Airline Dr	4835000	175
 S Sam Houston Ave	4835528	45
 FM 980	4835528	39
 FM 1374 Rd	4835528	33
@@ -13758,7 +13788,7 @@ Pine Tree Rd	4843888	43
 S Martin Luther King Jr Blvd	4843888	43
 Bill Owens Pkwy	4843888	41
 N 4th St	4843888	40
-W Loop 281	4843888	40
+S Green St	4843888	39
 University Ave	4845000	155
 Quaker Ave	4845000	138
 19th St	4845000	130
@@ -13832,13 +13862,13 @@ Faithon P Lucas Sr Blvd	4847892	28
 W Illinois Ave	4848072	57
 N Lamesa Rd	4848072	55
 N Midkiff Rd	4848072	54
-W Loop 250 N	4848072	50
 W Wall St	4848072	49
 N Big Spring St	4848072	48
 Neely Ave	4848072	46
 W Industrial Ave	4848072	45
 W Wadley Ave	4848072	45
 S Midkiff Rd	4848072	44
+W Golf Course Rd	4848072	44
 Plainview Rd	4848096	39
 Shiloh Rd	4848096	34
 S Joe Wilson Rd	4848096	30
@@ -13849,16 +13879,16 @@ FM 875	4848096	23
 McAlpin Rd	4848096	23
 Mockingbird Ln	4848096	23
 Old Fort Worth Rd	4848096	23
-W Business Highway 83	4848768	30
+N La Homa Rd	4848768	79
+N Moorefield Rd	4848768	67
+N Bentsen Palm Dr	4848768	51
+N Bryan Rd	4848768	31
+N Holland Ave	4848768	30
+N Shary Rd	4848768	30
 N Conway Blvd	4848768	29
-N Holland Ave	4848768	23
-N Bryan Rd	4848768	22
-E Griffin Pkwy	4848768	21
-N Shary Rd	4848768	21
-Miller Ave	4848768	19
-Barnes St	4848768	18
-N Los Ebanos Rd	4848768	18
-W Griffin Pkwy	4848768	17
+N Doffing Rd	4848768	29
+E Mile 2 Rd	4848768	28
+Goodwin Rd	4848768	26
 Cartwright Rd	4848804	54
 Lexington Blvd	4848804	32
 Texas Pkwy	4848804	32
@@ -13879,16 +13909,16 @@ Center Rd	4850256	35
 South St	4850256	33
 FM 343	4850256	32
 Appleby Sand Rd	4850256	31
+River Rd	4850820	57
+FM 306	4850820	51
+FM 2722	4850820	46
 W San Antonio St	4850820	37
 FM 1044	4850820	33
+FM 1863	4850820	30
 FM 725	4850820	29
 Gruene Rd	4850820	29
-W County Line Rd	4850820	25
-E Common St	4850820	23
-FM 1101	4850820	23
-S Seguin Ave	4850820	20
-S Walnut Ave	4850820	20
-N Walnut Ave	4850820	18
+FM 482	4850820	27
+Wegner Rd	4850820	26
 Davis Blvd	4852356	51
 Precinct Line Rd	4852356	49
 Glenview Dr	4852356	45
@@ -13896,19 +13926,19 @@ Blvd 26	4852356	42
 Rufe Snow Dr	4852356	38
 Smithfield Rd	4852356	36
 Holiday Ln	4852356	29
-NE Loop 820	4852356	27
 Starnes Rd	4852356	26
 Chapman Dr	4852356	22
+Bridge St	4852356	21
+N Co Rd W	4853388	76
+W University Blvd	4853388	74
+W 16th St	4853388	71
 S Grant Ave	4853388	67
-Andrews Hwy	4853388	65
+Andrews Hwy	4853388	66
 E University Blvd	4853388	61
+W 3rd St	4853388	61
+W 10th St	4853388	58
 N Dixie Blvd	4853388	57
-E 8th St	4853388	37
-N Tom Green Ave	4853388	37
-N Grandview Ave	4853388	36
-Maple Ave	4853388	35
-E 17th St	4853388	34
-E 42nd St	4853388	34
+Golder Ave	4853388	50
 Pine Mill Rd	4855080	57
 FM 195	4855080	48
 Bonham St	4855080	43
@@ -13918,7 +13948,7 @@ N Main St	4855080	37
 Lamar Rd	4855080	32
 Graham St	4855080	31
 Lamar Ave	4855080	29
-NE Loop 286	4855080	27
+W Kaufman St	4855080	27
 Red Bluff Rd	4856000	105
 Spencer Hwy	4856000	94
 Pasadena Blvd	4856000	88
@@ -14071,15 +14101,15 @@ Creek Crossing Ln	4864064	9
 Quail Hollow Dr	4864064	9
 Knickerbocker Rd	4864472	88
 N Chadbourne St	4864472	56
+Grape Creek Rd	4864472	53
+W Ave N	4864472	47
 FM 765	4864472	41
-W Ave N	4864472	40
+Arden Rd	4864472	40
+Sherwood Way	4864472	40
+W Beauregard Ave	4864472	40
 N Oakes St	4864472	39
 Paint Rock Rd	4864472	38
-FM 380	4864472	36
-Pecan St	4864472	36
-FM 388	4864472	35
-S Chadbourne St	4864472	35
-Blanco Rd	4865000	222
+Blanco Rd	4865000	241
 Bandera Rd	4865000	212
 Culebra Rd	4865000	182
 San Pedro Ave	4865000	165
@@ -14119,10 +14149,10 @@ Lower Seguin Rd	4866128	15
 Lookout Rd	4866128	13
 Savannah Dr	4866128	12
 John E Peterson Blvd	4866128	11
+FM 725	4866644	55
 Capote Rd	4866644	51
 FM 467	4866644	44
 N Austin St	4866644	44
-FM 725	4866644	39
 FM 1117	4866644	38
 W Kingsbury St	4866644	38
 Old Seguin Luling Rd	4866644	36
@@ -14189,7 +14219,7 @@ Buchanan Loop Rd	4872368	44
 Olive St	4872368	41
 N Kings Hwy	4872368	38
 New Boston Rd	4872368	38
-Texas Ave	4872392	107
+Texas Ave	4872392	108
 23rd St N	4872392	73
 21st St N	4872392	62
 FM 517 Rd E	4872392	52
@@ -14215,30 +14245,30 @@ E 5th St	4874144	60
 W Front St	4874144	59
 Old Noonday Rd	4874144	53
 Old Omen Rd	4874144	52
-E Southeast Loop 323	4874144	48
 Paluxy Dr	4874144	48
 Old Bullard Rd	4874144	46
 Troup Hwy	4874144	45
-FM 1686	4875428	59
+Old Henderson Hwy	4874144	44
+FM 1686	4875428	60
 Upper Mission Valley Rd	4875428	52
 N Laurent St	4875428	48
 N Ben Jordan St	4875428	46
 Lower Mission Valley Rd	4875428	45
 N Navarro St	4875428	45
 San Antonio River Rd	4875428	44
+J-2 Ranch Rd	4875428	43
+Salem Rd	4875428	42
 Sam Houston Dr	4875428	42
-Salem Rd	4875428	38
-E Red River St	4875428	37
 Bosque Blvd	4876000	91
 W Waco Dr	4876000	90
 Gholson Rd	4876000	68
 Sanger Ave	4876000	48
+China Spring Rd	4876000	46
 Trice Ave	4876000	44
 Woodway Dr	4876000	44
 N 19th St	4876000	43
 N 27th St	4876000	43
 Colcord Ave	4876000	41
-Franklin Ave	4876000	41
 Brown St	4876816	35
 FM 55	4876816	30
 Old Buena Vista Rd	4876816	29
@@ -14474,11 +14504,11 @@ Adams Ave	4955980	34
 Madison Ave	4955980	34
 27th St	4955980	29
 Jefferson Ave	4955980	29
+Nordic Valley Way	4955980	29
 36th St	4955980	28
 28th St	4955980	25
+N 3300 E	4955980	24
 Skyline Dr	4955980	23
-Taylor Ave	4955980	23
-29th St	4955980	22
 N 400 East St	4957300	43
 S 400 W	4957300	36
 N 800 West St	4957300	34
@@ -14679,7 +14709,7 @@ Colchester Ave	5010675	18
 S Prospect St	5010675	18
 Pearl St	5010675	17
 S Union St	5010675	15
-Duke St	5101000	91
+Duke St	5101000	92
 King St	5101000	61
 Commonwealth Ave	5101000	47
 W Braddock Rd	5101000	43
@@ -14687,8 +14717,8 @@ Russell Rd	5101000	42
 Mount Vernon Ave	5101000	37
 Jefferson Davis Hwy	5101000	36
 Seminary Rd	5101000	30
-George Washington Memorial Pkwy	5101000	27
-Cameron Mills Rd	5101000	22
+Edsall Rd	5101000	28
+Braddock Rd	5101000	27
 Mount Tabor Rd	5107784	78
 S Main St	5107784	61
 Prices Fork Rd	5107784	56
@@ -14729,6 +14759,16 @@ Halifax Rd	5121344	26
 Claiborne St	5121344	23
 Franklin Tpke	5121344	23
 S Main St	5121344	20
+Braddock Rd	5126496	73
+Lee Hwy	5126496	72
+Main St	5126496	54
+Chain Bridge Rd	5126496	33
+Fairfax Blvd	5126496	32
+Guinea Rd	5126496	25
+Popes Head Rd	5126496	25
+University Dr	5126496	25
+Sideburn Rd	5126496	24
+Gainsborough Dr	5126496	23
 Lafayette Blvd	5129744	44
 Princess Anne St	5129744	33
 Jefferson Davis Hwy	5129744	29
@@ -14760,15 +14800,15 @@ Port Republic Rd	5135624	24
 Virginia Ave	5135624	22
 S Dogwood Dr	5135624	21
 Leesburg Pike	5136648	39
+Old Ox Rd	5136648	39
 Elden St	5136648	29
 Herndon Pkwy	5136648	25
+Pacific Blvd	5136648	24
 Van Buren St	5136648	24
 Dranesville Rd	5136648	20
 Alabama Dr	5136648	18
 Monroe St	5136648	18
-Sadlers Wells Dr	5136648	15
-Spring St	5136648	14
-Grant St	5136648	13
+Atlantic Blvd	5136648	16
 James Monroe Hwy	5144984	69
 Evergreen Mills Rd	5144984	47
 Watson Rd	5144984	33
@@ -14842,23 +14882,23 @@ George Washington Hwy	5164000	44
 W Broad St	5167000	91
 Grove Ave	5167000	90
 Patterson Ave	5167000	80
+Brook Rd	5167000	79
 Forest Hill Ave	5167000	73
 Jefferson Davis Hwy	5167000	64
+Chamberlayne Ave	5167000	62
 Monument Ave	5167000	60
+E Broad St	5167000	59
 Midlothian Tpke	5167000	55
-Hull St	5167000	50
-Decatur St	5167000	46
-W Cary St	5167000	46
 Melrose Ave NW	5168000	79
-Franklin Rd SW	5168000	67
+Franklin Rd SW	5168000	72
 Williamson Rd NE	5168000	66
+Peters Creek Rd NW	5168000	65
 10th St NW	5168000	54
 Orange Ave NE	5168000	54
 Shenandoah Ave NW	5168000	51
-S Jefferson St	5168000	43
-Hershberger Rd NW	5168000	41
-Brandon Ave SW	5168000	39
-Salem Tpke NW	5168000	37
+Brandon Ave SW	5168000	50
+Grandin Rd SW	5168000	45
+Cove Rd NW	5168000	43
 W Main St	5170000	52
 E Main St	5170000	40
 Roanoke Blvd	5170000	38
@@ -14999,16 +15039,16 @@ Olympic View Dr	5320750	37
 220th St SW	5320750	30
 92nd Ave W	5320750	30
 224th St SW	5320750	26
-Broadway Ave	5322640	57
+Broadway Ave	5322640	98
 Colby Ave	5322640	57
 Wetmore Ave	5322640	55
 Rucker Ave	5322640	48
+Snohomish Woodinville Hwy	5322640	43
 Hoyt Ave	5322640	42
 W Mukilteo Blvd	5322640	42
 Grand Ave	5322640	41
 Lombard Ave	5322640	41
 4th Ave W	5322640	40
-Rockefeller Ave	5322640	38
 Pacific Hwy S	5323515	70
 1st Ave S	5323515	54
 21st Ave SW	5323515	45
@@ -15019,36 +15059,36 @@ SW Dash Point Rd	5323515	40
 6th Ave SW	5323515	36
 8th Ave SW	5323515	34
 30th Ave SW	5323515	28
+Issaquah Hobart Rd SE	5333805	44
+SE May Valley Rd	5333805	32
+SE Newport Way	5333805	32
 SE Issaquah Fall City Rd	5333805	30
-242nd Ave SE	5333805	19
-25th Ave NE	5333805	16
-E Lake Sammamish Pkwy SE	5333805	15
-SE Duthie Hill Rd	5333805	15
-NE Katsura St	5333805	14
-SE Black Nugget Rd	5333805	14
-NE Park Dr	5333805	12
-SE 43rd Way	5333805	12
-Providence Point Dr SE	5333805	10
+NW Gilman Blvd	5333805	23
+Tiger Mountain Rd SE	5333805	22
+Upper Preston Rd SE	5333805	22
+242nd Ave SE	5333805	21
+SE Tiger Mountain Rd	5333805	20
+25th Ave NE	5333805	17
 W 10th Ave	5335275	91
 W 4th Ave	5335275	68
+S Olympia St	5335275	51
+W 19th Ave	5335275	51
 W Clearwater Ave	5335275	49
 W Kennewick Ave	5335275	49
 W Canal Dr	5335275	44
+S Vancouver St	5335275	43
 W 5th Ave	5335275	43
-W 1st Ave	5335275	37
-W 6th Ave	5335275	37
-W 7th Ave	5335275	35
-W Deschutes Ave	5335275	34
+S Rainier St	5335275	40
 124th Ave SE	5335415	72
 108th Ave SE	5335415	70
 116th Ave SE	5335415	64
+SE Kent Kangley Rd	5335415	53
 104th Ave SE	5335415	51
 100th Ave SE	5335415	42
 120th Ave SE	5335415	42
 68th Ave S	5335415	35
 112th Ave SE	5335415	33
 S 272nd St	5335415	31
-Military Rd S	5335415	29
 124th Ave NE	5335940	68
 132nd Ave NE	5335940	67
 116th Ave NE	5335940	66
@@ -15059,16 +15099,16 @@ NE 124th St	5335940	56
 126th Ave NE	5335940	47
 100th Ave NE	5335940	39
 Juanita Dr NE	5335940	39
-Carpenter Rd SE	5336745	46
+Carpenter Rd SE	5336745	51
+Mullen Rd SE	5336745	51
+Ruddell Rd SE	5336745	46
 College St SE	5336745	45
+Yelm Hwy SE	5336745	45
 Martin Way E	5336745	43
 Pacific Ave SE	5336745	40
-Ruddell Rd SE	5336745	37
 Marvin Rd NE	5336745	35
 Johnson Point Rd NE	5336745	34
-Mullen Rd SE	5336745	28
-Marvin Rd SE	5336745	24
-25th Ave SE	5336745	20
+Steilacoom Rd SE	5336745	34
 Vernon Rd	5337900	41
 123rd Ave NE	5337900	36
 S Lake Stevens Rd	5337900	32
@@ -15099,16 +15139,26 @@ Beech St	5340245	28
 32nd Ave	5340245	27
 Hudson St	5340245	27
 Washington Way	5340245	26
-Larch Way	5340840	51
-44th Ave W	5340840	48
+44th Ave W	5340840	67
+Larch Way	5340840	66
+Pacific Hwy	5340840	59
+164th St SW	5340840	51
+36th Ave W	5340840	49
 196th St SW	5340840	45
-36th Ave W	5340840	44
-Pacific Hwy	5340840	43
 204th St SW	5340840	40
 52nd Ave W	5340840	40
 56th Ave W	5340840	35
 176th St SW	5340840	34
-188th St SW	5340840	31
+Maple Valley Hwy	5343150	41
+244th Ave SE	5343150	34
+Witte Rd SE	5343150	32
+SE 208th St	5343150	31
+SE 248th St	5343150	29
+SE 216th St	5343150	26
+SE 224th St	5343150	23
+216th Ave SE	5343150	21
+SE 276th St	5343150	21
+Cedar Grove Rd SE	5343150	19
 51st Ave NE	5343955	71
 67th Ave NE	5343955	50
 Smokey Point Blvd	5343955	41
@@ -15149,16 +15199,16 @@ Rd K NE	5347245	21
 212th St SW	5347490	21
 220th St SW	5347490	21
 232nd St SW	5347490	21
+E Division St	5347560	56
 E Fir St	5347560	31
 E College Way	5347560	29
 Memorial Hwy	5347560	28
 McLean Rd	5347560	26
+E Blackburn Rd	5347560	24
+E Section St	5347560	23
+Bulson Rd	5347560	22
+Cedardale Rd	5347560	22
 Bayview Edison Rd	5347560	21
-Best Rd	5347560	21
-Hoag Rd	5347560	20
-N Laventure Rd	5347560	20
-Dike Rd	5347560	19
-Fir Island Rd	5347560	18
 Cooper Point Rd NW	5351300	67
 Boston Harbor Rd NE	5351300	44
 Steamboat Island Rd NW	5351300	42
@@ -15189,36 +15239,36 @@ NW Davis Way	5356625	13
 Johnson Rd	5356625	12
 NE Stadium Way	5356625	12
 NW Terre View Dr	5356625	12
-Meridian Ave E	5356695	27
-W Pioneer Ave	5356695	26
-W Stewart Ave	5356695	22
-96th St E	5356695	21
-9th St SW	5356695	21
-Canyon Rd E	5356695	19
-W Main Ave	5356695	19
-7th Ave SW	5356695	18
-84th St E	5356695	18
-S Meridian	5356695	18
+128th St E	5356695	52
+122nd St E	5356695	48
+Canyon Rd E	5356695	46
+Woodland Ave E	5356695	46
+86th Ave E	5356695	41
+136th St E	5356695	39
+112th St E	5356695	37
+136th Ave E	5356695	36
+62nd Ave E	5356695	35
+122nd Ave E	5356695	30
+NE Union Hill Rd	5357535	59
 Redmond Way	5357535	47
 172nd Ave NE	5357535	46
+NE 116th St	5357535	42
 148th Ave NE	5357535	41
 Avondale Rd NE	5357535	40
+NE 80th St	5357535	40
+Redmond Fall City Rd NE	5357535	40
+NE 95th St	5357535	39
 W Lake Sammamish Pkwy NE	5357535	38
-NE 95th St	5357535	36
-166th Ave NE	5357535	35
-180th Ave NE	5357535	34
-NE 116th St	5357535	31
-164th Ave NE	5357535	28
 Talbot Rd S	5357745	56
+196th Ave SE	5357745	51
+SE Petrovitsky Rd	5357745	51
+116th Ave SE	5357745	50
+Union Ave NE	5357745	50
+SE 128th St	5357745	46
+SE 192nd St	5357745	46
 Edmonds Ave NE	5357745	39
-Park Ave N	5357745	31
-Lind Ave SW	5357745	29
-Morris Ave S	5357745	29
-NE 12th St	5357745	29
-NE Sunset Blvd	5357745	28
-108th Ave SE	5357745	27
-SE May Creek Park Dr	5357745	27
-Lake Washington Blvd N	5357745	26
+NE Sunset Blvd	5357745	37
+SE 144th St	5357745	36
 George Washington Way	5358235	64
 Thayer Dr	5358235	37
 Stevens Dr	5358235	35
@@ -15249,16 +15299,16 @@ Air Cargo Rd S	5362288	1
 Alaska Svc Rd	5362288	1
 Pacific Hwy S	5362288	1
 S 156th Way	5362288	1
+Beacon Ave S	5363000	138
+Rainier Ave S	5363000	124
 Aurora Ave N	5363000	117
-Beacon Ave S	5363000	116
-Rainier Ave S	5363000	105
-Martin Luther King Jr Way S	5363000	85
+Martin Luther King Jr Way S	5363000	89
+Renton Ave S	5363000	84
 NE 65th St	5363000	83
 5th Ave NE	5363000	80
 Roosevelt Way NE	5363000	76
 15th Ave NE	5363000	71
 1st Ave NE	5363000	70
-8th Ave NE	5363000	68
 Aurora Ave N	5363960	73
 Meridian Ave N	5363960	69
 1st Ave NW	5363960	61
@@ -15269,36 +15319,36 @@ Ashworth Ave N	5363960	51
 Corliss Ave N	5363960	48
 Greenwood Ave N	5363960	48
 Linden Ave N	5363960	48
-N Division St	5367000	136
-N Perry St	5367000	131
-N Standard St	5367000	128
+N Division St	5367000	161
+N Perry St	5367000	134
+N Standard St	5367000	130
 N Cincinnati St	5367000	117
+N Nevada St	5367000	107
 N Cedar St	5367000	106
-N Pittsburg St	5367000	97
+N Pittsburg St	5367000	100
+N Wall St	5367000	98
 N Crestline St	5367000	96
-N Nevada St	5367000	96
-N Morton St	5367000	95
-N Helena St	5367000	93
-E Trent Ave	5367167	126
+N Madison St	5367000	95
+E Trent Ave	5367167	141
 E Mission Ave	5367167	89
 E 8th Ave	5367167	87
 E Sprague Ave	5367167	87
 E 4th Ave	5367167	78
+E Wellesley Ave	5367167	75
 E Broadway Ave	5367167	73
 E 16th Ave	5367167	69
 E Valleyway Ave	5367167	59
 E Upriver Dr	5367167	55
-E 12th Ave	5367167	51
-Pacific Ave	5370000	69
+Pacific Ave	5370000	130
+S Sheridan Ave	5370000	75
+A St	5370000	70
 S 12th St	5370000	67
-S Sheridan Ave	5370000	65
+S J St	5370000	66
+S Yakima Ave	5370000	65
+Golden Given Rd E	5370000	63
 S 19th St	5370000	63
-A St	5370000	62
-S J St	5370000	62
 6th Ave	5370000	61
-E Portland Ave	5370000	59
-S Tacoma Way	5370000	59
-S Yakima Ave	5370000	59
+S G St	5370000	60
 Littlerock Rd SW	5372905	66
 Delphi Rd SW	5372905	63
 Boulevard Rd SE	5372905	40
@@ -15319,16 +15369,16 @@ Grandview Dr W	5373465	34
 Alameda Ave W	5373465	27
 44th St W	5373465	25
 27th St W	5373465	22
+NE 99th St	5374060	75
 SE Evergreen Hwy	5374060	68
+NE Fourth Plain Rd	5374060	67
+NE 58th St	5374060	64
+NE 88th St	5374060	64
+NE 76th St	5374060	63
+NE 78th St	5374060	59
 E Mill Plain Blvd	5374060	55
 NE 124th Ave	5374060	54
 NE 49th St	5374060	52
-NE 152nd Ave	5374060	51
-E Fourth Plain Blvd	5374060	50
-Columbia St	5374060	44
-Main St	5374060	44
-NE 58th St	5374060	44
-NE 28th St	5374060	43
 S 3rd Ave	5375775	43
 E Isaacs Ave	5375775	33
 E Alder St	5375775	31
@@ -15359,16 +15409,16 @@ Tieton Dr	5380010	51
 W Yakima Ave	5380010	44
 W Viola Ave	5380010	42
 W Mead Ave	5380010	39
-Pennsylvania Ave	5414600	88
+Pennsylvania Ave	5414600	89
+Sissonville Dr	5414600	88
 Maccorkle Ave SE	5414600	74
-Washington St W	5414600	61
+Washington St W	5414600	64
 Kanawha Ave SE	5414600	55
 Kanawha Blvd E	5414600	48
 Washington St E	5414600	46
+Wolf Pen Dr	5414600	41
 7th Ave	5414600	40
-Greenbrier St	5414600	38
-Smith Rd	5414600	32
-Virginia Ave SE	5414600	30
+Campbells Creek Dr	5414600	38
 5th Ave	5439460	54
 3rd Ave	5439460	48
 Norway Ave	5439460	45
@@ -15379,20 +15429,20 @@ Norway Ave	5439460	45
 7th Ave	5439460	38
 8th Ave	5439460	38
 Washington Blvd	5439460	35
+Grafton Rd	5455756	81
 University Ave	5455756	72
-Hartman Run Rd	5455756	24
-Stewart St	5455756	24
-Van Voorhis Rd	5455756	24
-Collins Ferry Rd	5455756	22
-Stewartstown Rd	5455756	22
-Chestnut Ridge Rd	5455756	20
-Richwood Ave	5455756	20
-Willowdale Rd	5455756	17
-Sabraton Ave	5455756	15
+Stewartstown Rd	5455756	55
+Kingwood Pike	5455756	54
+Smithtown Rd	5455756	45
+Tyrone Rd	5455756	42
+Summers School Rd	5455756	39
+Canyon Rd	5455756	36
+Van Voorhis Rd	5455756	33
+Earl L Core Rd	5455756	31
 Emerson Ave	5462140	99
 Camden Ave	5462140	76
+Pike St	5462140	65
 7th St	5462140	58
-Pike St	5462140	43
 Murdoch Ave	5462140	41
 16th St	5462140	40
 Gihon Rd	5462140	40
@@ -15749,26 +15799,26 @@ W Washington St	5585350	21
 Chestnut St	5585350	20
 W Paradise Dr	5585350	20
 Green Tree Rd	5585350	19
-Cy Ave	5613150	51
-E 12th St	5613150	50
+E 12th St	5613150	75
+E 2nd St	5613150	69
+E 15th St	5613150	66
+Cy Ave	5613150	62
+S Poplar St	5613150	58
+E 21st St	5613150	52
 Poison Spider Rd	5613150	48
-E 2nd St	5613150	41
-S Robertson Rd	5613150	36
-W Zero Rd	5613150	32
-E 15th St	5613150	29
-W 13th St	5613150	28
-S Beverly St	5613150	27
-W Yellowstone Hwy	5613150	26
-E Pershing Blvd	5613900	76
-E Lincolnway	5613900	56
+W 13th St	5613150	44
+Salt Creek Hwy	5613150	43
+E A St	5613150	42
+E Pershing Blvd	5613900	86
+Dell Range Blvd	5613900	65
+E Lincolnway	5613900	62
+Ridge Rd	5613900	57
+N College Dr	5613900	54
+E Four Mile Rd	5613900	44
 Carey Ave	5613900	41
-Bent Ave	5613900	36
-S Greeley Hwy	5613900	35
-Central Ave	5613900	34
-Snyder Ave	5613900	33
-Warren Ave	5613900	33
-E 12th St	5613900	32
-Cleveland Ave	5613900	31
+Yellowstone Rd	5613900	41
+Central Ave	5613900	38
+Happy Jack Rd	5613900	38
 S Douglas Hwy	5631855	68
 Hilight Rd	5631855	58
 Clarkelen Rd	5631855	47
