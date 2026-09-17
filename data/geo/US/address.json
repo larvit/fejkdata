@@ -1,0 +1,13 @@
+{
+  "format": "{number} {street}\n{locality}, {region} {postal-code}",
+  "street": "{.street.name}",
+  "number": [
+    "{int(10,99)}",
+    { "format": "{int(100,999)}", "weight": 2 },
+    { "format": "{int(1000,9999)}", "weight": 0.5 },
+    { "format": "{int(10,99)}{int(100,999)}", "weight": 0.3 }
+  ],
+  "locality": "{.locality.name}",
+  "region": "{.region.abbr}",
+  "postal-code": "{.postal-code.code}"
+}

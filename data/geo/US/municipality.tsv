@@ -1,0 +1,667 @@
+code	name	region	population
+01001	Autauga County	AL	61920
+01003	Baldwin County	AL	267761
+01031	Coffee County	AL	56953
+01055	Etowah County	AL	103886
+01069	Houston County	AL	110318
+01073	Jefferson County	AL	665742
+01077	Lauderdale County	AL	97135
+01081	Lee County	AL	189881
+01083	Limestone County	AL	122928
+01089	Madison County	AL	433516
+01097	Mobile County	AL	411658
+01101	Montgomery County	AL	225891
+01103	Morgan County	AL	126483
+01113	Russell County	AL	58898
+01117	Shelby County	AL	238552
+01125	Tuscaloosa County	AL	241368
+02020	Anchorage Municipality	AK	287155
+02090	Fairbanks North Star Borough	AK	93972
+02110	Juneau City and Borough	AK	31609
+04003	Cochise County	AZ	126332
+04005	Coconino County	AZ	144368
+04013	Maricopa County	AZ	4689558
+04015	Mohave County	AZ	228102
+04019	Pima County	AZ	1074685
+04021	Pinal County	AZ	539380
+04025	Yavapai County	AZ	252552
+04027	Yuma County	AZ	224449
+05007	Benton County	AR	332554
+05031	Craighead County	AR	116957
+05045	Faulkner County	AR	133979
+05051	Garland County	AR	99695
+05055	Greene County	AR	47411
+05069	Jefferson County	AR	62987
+05085	Lonoke County	AR	76664
+05091	Miller County	AR	42357
+05115	Pope County	AR	64976
+05119	Pulaski County	AR	404611
+05125	Saline County	AR	133288
+05131	Sebastian County	AR	130641
+05143	Washington County	AR	271213
+06001	Alameda County	CA	1636630
+06007	Butte County	CA	209211
+06013	Contra Costa County	CA	1170070
+06019	Fresno County	CA	1035456
+06023	Humboldt County	CA	131647
+06025	Imperial County	CA	181411
+06029	Kern County	CA	927068
+06031	Kings County	CA	154327
+06037	Los Angeles County	CA	9694934
+06039	Madera County	CA	167927
+06041	Marin County	CA	253694
+06047	Merced County	CA	297260
+06053	Monterey County	CA	433729
+06055	Napa County	CA	132949
+06059	Orange County	CA	3149507
+06061	Placer County	CA	442081
+06065	Riverside County	CA	2544916
+06067	Sacramento County	CA	1618460
+06069	San Benito County	CA	70082
+06071	San Bernardino County	CA	2224091
+06073	San Diego County	CA	3282248
+06075	San Francisco County	CA	826079
+06077	San Joaquin County	CA	823815
+06079	San Luis Obispo County	CA	282367
+06081	San Mateo County	CA	743568
+06083	Santa Barbara County	CA	442065
+06085	Santa Clara County	CA	1914391
+06087	Santa Cruz County	CA	258852
+06089	Shasta County	CA	181648
+06095	Solano County	CA	455376
+06097	Sonoma County	CA	486444
+06099	Stanislaus County	CA	557719
+06101	Sutter County	CA	98787
+06107	Tulare County	CA	485146
+06111	Ventura County	CA	830851
+06113	Yolo County	CA	224410
+08001	Adams County	CO	554668
+08005	Arapahoe County	CO	673820
+08013	Boulder County	CO	328560
+08014	Broomfield County	CO	79174
+08031	Denver County	CO	740613
+08035	Douglas County	CO	399396
+08041	El Paso County	CO	757040
+08059	Jefferson County	CO	580451
+08069	Larimer County	CO	377292
+08077	Mesa County	CO	162845
+08101	Pueblo County	CO	169277
+08123	Weld County	CO	378426
+09110	Capitol Planning Region	CT	994115
+09120	Greater Bridgeport Planning Region	CT	337697
+09130	Lower Connecticut River Valley Planning Region	CT	177311
+09140	Naugatuck Valley Planning Region	CT	463349
+09160	Northwest Hills Planning Region	CT	114690
+09170	South Central Connecticut Planning Region	CT	578741
+09180	Southeastern Connecticut Planning Region	CT	284015
+09190	Western Connecticut Planning Region	CT	640482
+10001	Kent County	DE	194786
+10003	New Castle County	DE	588026
+11001	District of Columbia	DC	693645
+12001	Alachua County	FL	290028
+12005	Bay County	FL	204479
+12009	Brevard County	FL	663982
+12011	Broward County	FL	2013317
+12031	Duval County	FL	1062963
+12033	Escambia County	FL	333834
+12035	Flagler County	FL	140360
+12057	Hillsborough County	FL	1574115
+12061	Indian River County	FL	172799
+12069	Lake County	FL	456068
+12071	Lee County	FL	875607
+12073	Leon County	FL	299048
+12081	Manatee County	FL	468200
+12083	Marion County	FL	442660
+12086	Miami-Dade County	FL	2802029
+12091	Okaloosa County	FL	221810
+12095	Orange County	FL	1528002
+12097	Osceola County	FL	481718
+12099	Palm Beach County	FL	1575726
+12103	Pinellas County	FL	948563
+12105	Polk County	FL	874790
+12111	St. Lucie County	FL	402449
+12115	Sarasota County	FL	479958
+12117	Seminole County	FL	491884
+12127	Volusia County	FL	606573
+13015	Bartow County	GA	120800
+13021	Bibb County	GA	157556
+13031	Bulloch County	GA	86949
+13045	Carroll County	GA	131036
+13051	Chatham County	GA	311855
+13057	Cherokee County	GA	299273
+13059	Clarke County	GA	129921
+13067	Cobb County	GA	793345
+13077	Coweta County	GA	160240
+13089	DeKalb County	GA	774394
+13095	Dougherty County	GA	82616
+13097	Douglas County	GA	154293
+13113	Fayette County	GA	125156
+13115	Floyd County	GA	101378
+13121	Fulton County	GA	1098791
+13135	Gwinnett County	GA	1018099
+13139	Hall County	GA	226568
+13151	Henry County	GA	264922
+13153	Houston County	GA	178214
+13179	Liberty County	GA	70313
+13185	Lowndes County	GA	122867
+13215	Muscogee County	GA	202171
+13245	Richmond County	GA	206559
+13285	Troup County	GA	72844
+13313	Whitfield County	GA	106212
+16001	Ada County	ID	546141
+16005	Bannock County	ID	91591
+16019	Bonneville County	ID	135771
+16027	Canyon County	ID	275123
+16055	Kootenai County	ID	191864
+16057	Latah County	ID	41842
+16065	Madison County	ID	55172
+16069	Nez Perce County	ID	42905
+16083	Twin Falls County	ID	97539
+17001	Adams County	IL	64267
+17007	Boone County	IL	53568
+17019	Champaign County	IL	209972
+17031	Cook County	IL	5194625
+17037	DeKalb County	IL	101835
+17043	DuPage County	IL	934298
+17089	Kane County	IL	525757
+17093	Kendall County	IL	145470
+17095	Knox County	IL	47767
+17097	Lake County	IL	719339
+17111	McHenry County	IL	317751
+17113	McLean County	IL	171419
+17115	Macon County	IL	99300
+17119	Madison County	IL	263110
+17143	Peoria County	IL	178553
+17161	Rock Island County	IL	141869
+17163	St. Clair County	IL	250708
+17167	Sangamon County	IL	194170
+17179	Tazewell County	IL	130049
+17183	Vermilion County	IL	71259
+17197	Will County	IL	712253
+17201	Winnebago County	IL	283674
+18003	Allen County	IN	402329
+18005	Bartholomew County	IN	85729
+18011	Boone County	IN	80689
+18019	Clark County	IN	130451
+18035	Delaware County	IN	113106
+18039	Elkhart County	IN	208774
+18043	Floyd County	IN	82153
+18053	Grant County	IN	66524
+18057	Hamilton County	IN	387036
+18059	Hancock County	IN	90969
+18063	Hendricks County	IN	193510
+18067	Howard County	IN	83904
+18081	Johnson County	IN	174262
+18089	Lake County	IN	504612
+18091	LaPorte County	IN	111294
+18095	Madison County	IN	135088
+18097	Marion County	IN	992196
+18105	Monroe County	IN	143345
+18127	Porter County	IN	176049
+18141	St. Joseph County	IN	272861
+18157	Tippecanoe County	IN	190456
+18163	Vanderburgh County	IN	181995
+18167	Vigo County	IN	106512
+18177	Wayne County	IN	66169
+19013	Black Hawk County	IA	131532
+19033	Cerro Gordo County	IA	42372
+19049	Dallas County	IA	118457
+19061	Dubuque County	IA	99381
+19103	Johnson County	IA	160044
+19113	Linn County	IA	232028
+19127	Marshall County	IA	39890
+19153	Polk County	IA	516546
+19155	Pottawattamie County	IA	92996
+19163	Scott County	IA	175259
+19169	Story County	IA	101291
+19179	Wapello County	IA	35210
+19193	Woodbury County	IA	106649
+20045	Douglas County	KS	120920
+20055	Finney County	KS	37505
+20057	Ford County	KS	33993
+20091	Johnson County	KS	636906
+20103	Leavenworth County	KS	84590
+20155	Reno County	KS	61539
+20161	Riley County	KS	72598
+20169	Saline County	KS	53377
+20173	Sedgwick County	KS	538433
+20177	Shawnee County	KS	178607
+20209	Wyandotte County	KS	170597
+21015	Boone County	KY	145316
+21047	Christian County	KY	70115
+21059	Daviess County	KY	104898
+21067	Fayette County	KY	329751
+21073	Franklin County	KY	52649
+21093	Hardin County	KY	113482
+21101	Henderson County	KY	44255
+21111	Jefferson County	KY	795222
+21113	Jessamine County	KY	57147
+21117	Kenton County	KY	175779
+21145	McCracken County	KY	67553
+21151	Madison County	KY	101696
+21209	Scott County	KY	62262
+21227	Warren County	KY	149375
+22015	Bossier Parish	LA	131867
+22017	Caddo Parish	LA	224226
+22019	Calcasieu Parish	LA	208466
+22033	East Baton Rouge Parish	LA	456180
+22045	Iberia Parish	LA	66846
+22051	Jefferson Parish	LA	431398
+22071	Orleans Parish	LA	362154
+22073	Ouachita Parish	LA	158542
+22079	Rapides Parish	LA	125877
+22103	St. Tammany Parish	LA	279108
+22109	Terrebonne Parish	LA	104163
+23001	Androscoggin County	ME	116487
+23005	Cumberland County	ME	317222
+23019	Penobscot County	ME	157967
+24003	Anne Arundel County	MD	603380
+24021	Frederick County	MD	302883
+24031	Montgomery County	MD	1074582
+24033	Prince George's County	MD	970374
+24043	Washington County	MD	157731
+24045	Wicomico County	MD	106899
+24510	Baltimore city	MD	569997
+25001	Barnstable County	MA	233539
+25003	Berkshire County	MA	128224
+25005	Bristol County	MA	593640
+25009	Essex County	MA	826653
+25013	Hampden County	MA	464338
+25015	Hampshire County	MA	164065
+25017	Middlesex County	MA	1669979
+25021	Norfolk County	MA	739749
+25023	Plymouth County	MA	546829
+25025	Suffolk County	MA	791891
+25027	Worcester County	MA	888502
+26017	Bay County	MI	102123
+26025	Calhoun County	MI	133408
+26049	Genesee County	MI	401093
+26065	Ingham County	MI	289709
+26075	Jackson County	MI	159552
+26077	Kalamazoo County	MI	263795
+26081	Kent County	MI	675232
+26099	Macomb County	MI	886221
+26111	Midland County	MI	83754
+26121	Muskegon County	MI	177901
+26125	Oakland County	MI	1288337
+26139	Ottawa County	MI	308459
+26145	Saginaw County	MI	187688
+26147	St. Clair County	MI	160486
+26161	Washtenaw County	MI	370214
+26163	Wayne County	MI	1769038
+27003	Anoka County	MN	381605
+27013	Blue Earth County	MN	70634
+27019	Carver County	MN	114379
+27027	Clay County	MN	67734
+27037	Dakota County	MN	457710
+27053	Hennepin County	MN	1284784
+27099	Mower County	MN	40971
+27109	Olmsted County	MN	166731
+27123	Ramsey County	MN	541623
+27131	Rice County	MN	69939
+27137	St. Louis County	MN	200518
+27139	Scott County	MN	159017
+27141	Sherburne County	MN	104194
+27145	Stearns County	MN	164110
+27147	Steele County	MN	37464
+27163	Washington County	MN	286895
+27169	Winona County	MN	50523
+28033	DeSoto County	MS	197918
+28035	Forrest County	MS	79034
+28047	Harrison County	MS	217136
+28049	Hinds County	MS	211888
+28071	Lafayette County	MS	59597
+28075	Lauderdale County	MS	70317
+28081	Lee County	MS	83731
+28089	Madison County	MS	116298
+28105	Oktibbeha County	MS	51896
+28121	Rankin County	MS	162181
+28151	Washington County	MS	40446
+29019	Boone County	MO	191746
+29021	Buchanan County	MO	83540
+29031	Cape Girardeau County	MO	83999
+29037	Cass County	MO	115859
+29043	Christian County	MO	96725
+29047	Clay County	MO	265032
+29051	Cole County	MO	77908
+29077	Greene County	MO	309286
+29095	Jackson County	MO	732994
+29097	Jasper County	MO	127428
+29183	St. Charles County	MO	426499
+29189	St. Louis County	MO	990911
+29510	St. Louis city	MO	278144
+30013	Cascade County	MT	85029
+30029	Flathead County	MT	115429
+30031	Gallatin County	MT	128740
+30049	Lewis and Clark County	MT	75331
+30063	Missoula County	MT	123513
+30093	Silver Bow County	MT	36118
+30111	Yellowstone County	MT	172692
+31001	Adams County	NE	31071
+31019	Buffalo County	NE	51172
+31053	Dodge County	NE	38057
+31055	Douglas County	NE	606460
+31079	Hall County	NE	63633
+31109	Lancaster County	NE	334049
+31119	Madison County	NE	36106
+31141	Platte County	NE	35649
+31153	Sarpy County	NE	208303
+32003	Clark County	NV	2407226
+32019	Lyon County	NV	65088
+32031	Washoe County	NV	509386
+32510	Carson City	NV	58571
+33011	Hillsborough County	NH	433415
+33013	Merrimack County	NH	158078
+33017	Strafford County	NH	135043
+34001	Atlantic County	NJ	278657
+34003	Bergen County	NJ	977026
+34007	Camden County	NJ	535799
+34011	Cumberland County	NJ	157148
+34013	Essex County	NJ	896379
+34017	Hudson County	NJ	735033
+34021	Mercer County	NJ	399289
+34023	Middlesex County	NJ	883335
+34025	Monmouth County	NJ	651035
+34031	Passaic County	NJ	531624
+34039	Union County	NJ	601863
+35001	Bernalillo County	NM	667601
+35005	Chaves County	NM	63364
+35009	Curry County	NM	46655
+35013	Doña Ana County	NM	229091
+35015	Eddy County	NM	62509
+35025	Lea County	NM	74749
+35035	Otero County	NM	70368
+35043	Sandoval County	NM	159565
+35045	San Juan County	NM	120340
+35049	Santa Fe County	NM	156907
+36001	Albany County	NY	321225
+36007	Broome County	NY	195736
+36011	Cayuga County	NY	74365
+36013	Chautauqua County	NY	124126
+36015	Chemung County	NY	80415
+36027	Dutchess County	NY	300708
+36029	Erie County	NY	946741
+36047	Kings County	NY	2653963
+36055	Monroe County	NY	750506
+36059	Nassau County	NY	1398939
+36063	Niagara County	NY	208912
+36065	Oneida County	NY	226392
+36067	Onondaga County	NY	466584
+36071	Orange County	NY	417669
+36083	Rensselaer County	NY	160510
+36087	Rockland County	NY	357397
+36091	Saratoga County	NY	241343
+36093	Schenectady County	NY	162581
+36103	Suffolk County	NY	1546090
+36109	Tompkins County	NY	104047
+36119	Westchester County	NY	1015743
+37001	Alamance County	NC	186177
+37019	Brunswick County	NC	174702
+37021	Buncombe County	NC	277417
+37025	Cabarrus County	NC	249725
+37035	Catawba County	NC	170172
+37049	Craven County	NC	105025
+37051	Cumberland County	NC	338473
+37057	Davidson County	NC	180182
+37063	Durham County	NC	347240
+37067	Forsyth County	NC	401718
+37071	Gaston County	NC	246558
+37081	Guilford County	NC	562234
+37097	Iredell County	NC	211798
+37101	Johnston County	NC	256448
+37105	Lee County	NC	70258
+37119	Mecklenburg County	NC	1233383
+37127	Nash County	NC	99365
+37129	New Hanover County	NC	245959
+37133	Onslow County	NC	217175
+37135	Orange County	NC	152498
+37147	Pitt County	NC	182936
+37151	Randolph County	NC	149516
+37159	Rowan County	NC	155096
+37179	Union County	NC	267674
+37183	Wake County	NC	1257235
+37191	Wayne County	NC	122278
+37195	Wilson County	NC	81150
+38015	Burleigh County	ND	103251
+38017	Cass County	ND	201794
+38035	Grand Forks County	ND	74501
+38059	Morton County	ND	34601
+38089	Stark County	ND	34013
+38101	Ward County	ND	68233
+38105	Williams County	ND	41767
+39003	Allen County	OH	100881
+39009	Athens County	OH	63197
+39017	Butler County	OH	400128
+39023	Clark County	OH	135340
+39035	Cuyahoga County	OH	1232925
+39041	Delaware County	OH	242032
+39045	Fairfield County	OH	169752
+39049	Franklin County	OH	1361536
+39057	Greene County	OH	174322
+39061	Hamilton County	OH	838418
+39063	Hancock County	OH	75034
+39085	Lake County	OH	232217
+39089	Licking County	OH	185564
+39093	Lorain County	OH	323219
+39095	Lucas County	OH	423347
+39099	Mahoning County	OH	224706
+39101	Marion County	OH	65115
+39103	Medina County	OH	185025
+39109	Miami County	OH	112634
+39113	Montgomery County	OH	539598
+39119	Muskingum County	OH	87014
+39133	Portage County	OH	163404
+39139	Richland County	OH	124893
+39151	Stark County	OH	373771
+39153	Summit County	OH	538376
+39155	Trumbull County	OH	198972
+39159	Union County	OH	73446
+39165	Warren County	OH	257181
+39169	Wayne County	OH	116758
+39173	Wood County	OH	134176
+40027	Cleveland County	OK	303973
+40031	Comanche County	OK	122158
+40047	Garfield County	OK	61779
+40101	Muskogee County	OK	66708
+40109	Oklahoma County	OK	822125
+40119	Payne County	OK	83889
+40125	Pottawatomie County	OK	75102
+40143	Tulsa County	OK	698782
+40147	Washington County	OK	54037
+41003	Benton County	OR	97728
+41005	Clackamas County	OR	426280
+41017	Deschutes County	OR	213072
+41029	Jackson County	OR	221795
+41033	Josephine County	OR	87867
+41039	Lane County	OR	381584
+41043	Linn County	OR	132843
+41047	Marion County	OR	355777
+41051	Multnomah County	OR	795391
+41067	Washington County	OR	611708
+41071	Yamhill County	OR	110024
+42003	Allegheny County	PA	1225035
+42011	Berks County	PA	440072
+42013	Blair County	PA	119541
+42027	Centre County	PA	157393
+42043	Dauphin County	PA	293351
+42045	Delaware County	PA	580937
+42049	Erie County	PA	265832
+42069	Lackawanna County	PA	216502
+42071	Lancaster County	PA	563159
+42075	Lebanon County	PA	146380
+42077	Lehigh County	PA	384383
+42079	Luzerne County	PA	332126
+42081	Lycoming County	PA	112587
+42091	Montgomery County	PA	877643
+42095	Northampton County	PA	324411
+42101	Philadelphia County	PA	1574281
+42133	York County	PA	473197
+44003	Kent County	RI	173495
+44007	Providence County	RI	678179
+45003	Aiken County	SC	181515
+45007	Anderson County	SC	219930
+45013	Beaufort County	SC	204433
+45015	Berkeley County	SC	274666
+45019	Charleston County	SC	436200
+45035	Dorchester County	SC	178397
+45041	Florence County	SC	138504
+45045	Greenville County	SC	583125
+45051	Horry County	SC	427551
+45063	Lexington County	SC	317588
+45077	Pickens County	SC	139198
+45079	Richland County	SC	434956
+45083	Spartanburg County	SC	380857
+45085	Sumter County	SC	105067
+45091	York County	SC	306887
+46011	Brookings County	SD	37635
+46013	Brown County	SD	37561
+46099	Minnehaha County	SD	212691
+46103	Pennington County	SD	116792
+47001	Anderson County	TN	82066
+47003	Bedford County	TN	55273
+47009	Blount County	TN	143820
+47011	Bradley County	TN	115465
+47037	Davidson County	TN	745904
+47063	Hamblen County	TN	68843
+47065	Hamilton County	TN	390833
+47093	Knox County	TN	511453
+47113	Madison County	TN	100790
+47119	Maury County	TN	118131
+47125	Montgomery County	TN	249935
+47141	Putnam County	TN	86612
+47149	Rutherford County	TN	386352
+47157	Shelby County	TN	910226
+47163	Sullivan County	TN	163759
+47165	Sumner County	TN	215538
+47179	Washington County	TN	141199
+47187	Williamson County	TN	272061
+47189	Wilson County	TN	175033
+48005	Angelina County	TX	88154
+48027	Bell County	TX	402248
+48029	Bexar County	TX	2160088
+48037	Bowie County	TX	92696
+48039	Brazoria County	TX	419080
+48041	Brazos County	TX	249088
+48061	Cameron County	TX	433946
+48085	Collin County	TX	1297179
+48091	Comal County	TX	209166
+48099	Coryell County	TX	85592
+48113	Dallas County	TX	2661397
+48121	Denton County	TX	1069346
+48135	Ector County	TX	173801
+48139	Ellis County	TX	240867
+48141	El Paso County	TX	877858
+48157	Fort Bend County	TX	975191
+48167	Galveston County	TX	372207
+48181	Grayson County	TX	153613
+48183	Gregg County	TX	126095
+48187	Guadalupe County	TX	201111
+48201	Harris County	TX	5045026
+48209	Hays County	TX	304390
+48215	Hidalgo County	TX	921549
+48231	Hunt County	TX	123336
+48245	Jefferson County	TX	254321
+48251	Johnson County	TX	218048
+48257	Kaufman County	TX	209235
+48265	Kerr County	TX	54037
+48277	Lamar County	TX	51503
+48303	Lubbock County	TX	328906
+48309	McLennan County	TX	272020
+48323	Maverick County	TX	58823
+48329	Midland County	TX	187855
+48339	Montgomery County	TX	781194
+48347	Nacogdoches County	TX	66035
+48349	Navarro County	TX	57181
+48355	Nueces County	TX	352992
+48367	Parker County	TX	184767
+48381	Randall County	TX	152351
+48397	Rockwall County	TX	140738
+48423	Smith County	TX	252549
+48439	Tarrant County	TX	2248466
+48441	Taylor County	TX	150077
+48451	Tom Green County	TX	120602
+48453	Travis County	TX	1389670
+48465	Val Verde County	TX	47835
+48469	Victoria County	TX	92656
+48471	Walker County	TX	83842
+48479	Webb County	TX	281224
+48485	Wichita County	TX	129555
+48491	Williamson County	TX	752827
+49005	Cache County	UT	145000
+49011	Davis County	UT	381227
+49021	Iron County	UT	67141
+49035	Salt Lake County	UT	1220916
+49045	Tooele County	UT	87461
+49049	Utah County	UT	759859
+49053	Washington County	UT	213670
+49057	Weber County	UT	278174
+50007	Chittenden County	VT	169115
+51059	Fairfax County	VA	1167873
+51107	Loudoun County	VA	449749
+51121	Montgomery County	VA	98434
+51510	Alexandria city	VA	160662
+51540	Charlottesville city	VA	44388
+51550	Chesapeake city	VA	255332
+51590	Danville city	VA	41647
+51600	Fairfax city	VA	26772
+51630	Fredericksburg city	VA	30393
+51650	Hampton city	VA	137315
+51660	Harrisonburg city	VA	50839
+51680	Lynchburg city	VA	81347
+51683	Manassas city	VA	44332
+51700	Newport News city	VA	183230
+51710	Norfolk city	VA	231013
+51730	Petersburg city	VA	33734
+51740	Portsmouth city	VA	96777
+51760	Richmond city	VA	237257
+51770	Roanoke city	VA	99111
+51775	Salem city	VA	25816
+51790	Staunton city	VA	26801
+51800	Suffolk city	VA	104699
+51810	Virginia Beach city	VA	453737
+51840	Winchester city	VA	28272
+53005	Benton County	WA	221722
+53007	Chelan County	WA	81941
+53011	Clark County	WA	532119
+53015	Cowlitz County	WA	114885
+53021	Franklin County	WA	102612
+53025	Grant County	WA	105727
+53033	King County	WA	2344939
+53035	Kitsap County	WA	283374
+53053	Pierce County	WA	946288
+53057	Skagit County	WA	132975
+53061	Snohomish County	WA	870656
+53063	Spokane County	WA	558344
+53067	Thurston County	WA	304261
+53071	Walla Walla County	WA	62361
+53073	Whatcom County	WA	236392
+53075	Whitman County	WA	48512
+53077	Yakima County	WA	259185
+54011	Cabell County	WV	91183
+54039	Kanawha County	WV	172381
+54061	Monongalia County	WV	107991
+54069	Ohio County	WV	40496
+54107	Wood County	WV	82385
+55009	Brown County	WI	275803
+55025	Dane County	WI	590375
+55031	Douglas County	WI	43990
+55035	Eau Claire County	WI	109033
+55039	Fond du Lac County	WI	104669
+55059	Kenosha County	WI	168448
+55063	La Crosse County	WI	121339
+55071	Manitowoc County	WI	81710
+55073	Marathon County	WI	139432
+55079	Milwaukee County	WI	924216
+55087	Outagamie County	WI	195894
+55089	Ozaukee County	WI	94346
+55097	Portage County	WI	71943
+55101	Racine County	WI	198919
+55105	Rock County	WI	166472
+55117	Sheboygan County	WI	118047
+55131	Washington County	WI	139238
+55133	Waukesha County	WI	417210
+55139	Winnebago County	WI	174218
+56001	Albany County	WY	38558
+56005	Campbell County	WY	48145
+56021	Laramie County	WY	102938
+56025	Natrona County	WY	80526

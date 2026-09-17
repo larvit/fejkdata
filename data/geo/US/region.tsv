@@ -1,0 +1,51 @@
+abbr	code	name	population	timezone
+AK	02	Alaska	737270	America/Anchorage
+AL	01	Alabama	5193088	America/Chicago
+AR	05	Arkansas	3114791	America/Chicago
+AZ	04	Arizona	7623818	America/Phoenix
+CA	06	California	39355309	America/Los_Angeles
+CO	08	Colorado	6012561	America/Denver
+CT	09	Connecticut	3688496	America/New_York
+DC	11	District of Columbia	693645	America/New_York
+DE	10	Delaware	1059952	America/New_York
+FL	12	Florida	23462518	America/New_York
+GA	13	Georgia	11302748	America/New_York
+IA	19	Iowa	3238387	America/Chicago
+ID	16	Idaho	2029733	America/Boise
+IL	17	Illinois	12719141	America/Chicago
+IN	18	Indiana	6973333	America/Indiana/Indianapolis
+KS	20	Kansas	2977220	America/Chicago
+KY	21	Kentucky	4606864	America/New_York
+LA	22	Louisiana	4618189	America/Chicago
+MA	25	Massachusetts	7154084	America/New_York
+MD	24	Maryland	6265347	America/New_York
+ME	23	Maine	1414874	America/New_York
+MI	26	Michigan	10127884	America/Detroit
+MN	27	Minnesota	5830405	America/Chicago
+MO	29	Missouri	6270541	America/Chicago
+MS	28	Mississippi	2954160	America/Chicago
+MT	30	Montana	1144694	America/Denver
+NC	37	North Carolina	11197968	America/New_York
+ND	38	North Dakota	799358	America/Chicago
+NE	31	Nebraska	2018006	America/Chicago
+NH	33	New Hampshire	1415342	America/New_York
+NJ	34	New Jersey	9548215	America/New_York
+NM	35	New Mexico	2125498	America/Denver
+NV	32	Nevada	3282188	America/Los_Angeles
+NY	36	New York	20002427	America/New_York
+OH	39	Ohio	11900510	America/New_York
+OK	40	Oklahoma	4123288	America/Chicago
+OR	41	Oregon	4273586	America/Los_Angeles
+PA	42	Pennsylvania	13059432	America/New_York
+RI	44	Rhode Island	1114521	America/New_York
+SC	45	South Carolina	5570274	America/New_York
+SD	46	South Dakota	935094	America/Chicago
+TN	47	Tennessee	7315076	America/Chicago
+TX	48	Texas	31709821	America/Chicago
+UT	49	Utah	3538904	America/Denver
+VA	51	Virginia	8880107	America/New_York
+VT	50	Vermont	644663	America/New_York
+WA	53	Washington	8001020	America/Los_Angeles
+WI	55	Wisconsin	5972787	America/Chicago
+WV	54	West Virginia	1766147	America/New_York
+WY	56	Wyoming	588753	America/Denver
