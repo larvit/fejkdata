@@ -539,9 +539,18 @@ func TestColumnCellsAreAlternatives(t *testing.T) {
 	if v := fake(t, f, "country[FI].money"); v != "€" {
 		t.Fatalf("country[FI].money = %q", v)
 	}
-	files["country.tsv"] = "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), "drawGroup") {
-		t.Fatalf("New = %v, want one cell selecting two rows refused", err)
+	rejected := map[string]map[string]string{
+		"one cell selecting two rows":     {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+		"the format beside a cell":        {"country.json": `{"format":"{money} {/cur[SEK].sym}","rows":"country.tsv","key":"alpha2"}`},
+		"two columns of one row":          {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur[SEK].sym}\t{/cur[EUR].sym}\nSE\t{/cur[EUR].sym}\t{/cur[SEK].sym}\n"},
+		"a whole read beside a path":      {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur}\t{/cur[EUR].sym}\nSE\t{/cur}\t{/cur[SEK].sym}\n"},
+		"a cell reaching another's cells": {"y.json": `{"format":"{sym}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n", "cur.tsv": "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n", "country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+	}
+	for name, more := range rejected {
+		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))))
+		if err == nil || !strings.Contains(err.Error(), "drawGroup") {
+			t.Errorf("%s: New = %v, want it refused", name, err)
+		}
 	}
 }
 
