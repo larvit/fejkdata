@@ -63,9 +63,6 @@ func contained(n node) []namedNode {
 	case *table:
 		return append([]namedNode{{node: n.format}}, named(n.fields)...)
 	case *column:
-		if n.i < 0 {
-			return nil
-		}
 		var out []namedNode
 		for r := 0; r < n.t.rows(); r++ {
 			if cell := n.t.cellNode(r, n.i); cell != nil {
@@ -162,10 +159,9 @@ func renderEdges(n node) []renderEdge {
 		return es
 	case *table:
 		return []renderEdge{{to: n.format, label: "format"}}
+	case *row:
+		return []renderEdge{{to: n.t.format, label: "format"}}
 	case *column:
-		if n.i < 0 {
-			return []renderEdge{{to: n.t.format, label: "format"}}
-		}
 		var es []renderEdge
 		for _, c := range contained(n) {
 			es = append(es, renderEdge{to: c.node, label: n.t.columns[n.i]})

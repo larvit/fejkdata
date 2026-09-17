@@ -46,7 +46,7 @@ type Generator struct {
 	mu         sync.Mutex
 	rand       *session
 	categories map[string]node
-	root       *folder // the categories as the node a path walks from
+	root       folder  // the categories as the node a path walks from, owned here so a walk allocates none
 	set        drawSet // one Fake's draws, owned here so a walk pinning rows keeps them off the heap
 	records    map[node]recordShape
 	structs    map[reflect.Type]structResult
@@ -125,7 +125,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: rng, categories: cats, root: &folder{children: cats}}, nil
+	return &Generator{rand: rng, categories: cats}, nil
 }
 
 // List returns the sorted dotted paths Fake can render: every category, the dotted
@@ -170,7 +170,7 @@ func paths(n node) []string {
 		return []string{""}
 	case *table:
 		return tablePaths(n)
-	case *column:
+	case *column, *row:
 		return []string{""}
 	case *choice:
 		out := []string{""}

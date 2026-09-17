@@ -337,11 +337,11 @@ func TestTableSelectionFences(t *testing.T) {
 // table are refused at load rather than found at render.
 func TestTableFamilyFenceReplaysPins(t *testing.T) {
 	accepted := map[string]string{
-		"skip-level selectors":     `"{/region[12].locality[L4].name}|{/region[12].name}"`,
-		"descendant then ancestor": `"{/locality[L4].name}|{/region[12].name}"`,
-		"two selected levels":      `"{/municipality[1281].name}|{/locality[L4].name}"`,
-		"nested prefixes":          `"{/region[12].municipality[1281].name}|{/municipality[1281].locality[L4].name}"`,
-		"selected above a draw":    `"{/region[12].locality[L4].name}|{/region[12].municipality.code}"`,
+		"skip-level selectors":       `"{/region[12].locality[L4].name}|{/region[12].name}"`,
+		"descendant then ancestor":   `"{/locality[L4].name}|{/region[12].name}"`,
+		"two selected levels":        `"{/municipality[1281].name}|{/locality[L4].name}"`,
+		"nested prefixes":            `"{/region[12].municipality[1281].name}|{/municipality[1281].locality[L4].name}"`,
+		"a draw under the selection": `"{/region[12].name}|{/region[12].municipality.locality[L4].name}"`,
 	}
 	for name, json := range accepted {
 		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
@@ -358,7 +358,7 @@ func TestTableFamilyFenceReplaysPins(t *testing.T) {
 	}
 	rejected := map[string]struct{ json, want string }{
 		"two rows of one table":             {`"{/region[12].locality[L4].name} {/region[12].locality[L7].name}"`, "drawGroup"},
-		"a row outside a selected ancestor": {`"{/region[14].name} {/locality[L4].name}"`, "not inside"},
+		"a row outside a selected ancestor": {`"{/region[14].name} {/locality[L4].name}"`, "drawGroup"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": c.json}))))
@@ -392,7 +392,7 @@ func TestTableFences(t *testing.T) {
 		"a brace in a name":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
 		"name without a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
 		"a name that is another row's key":             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
-		"a cell reading its family":                    {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\nL1\t{/municipality.code}\t0180\nL2\tSolna\t0184\nL3\tMalmö\t1280\nL4\tLund\t1281\nL5\tGöteborg\t1480\n"}), "family"},
+		"a cell reading its family":                    {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}), "family"},
 		"a format reading its family":                  {with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}), "family"},
 		"a descendant named like an ancestor's column": {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
 		"weight not a number":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},

@@ -102,6 +102,15 @@ func splitOutside(s string, c byte) []string {
 // isSelector reports whether a segment is a [key or name] rather than a name.
 func isSelector(seg string) bool { return strings.HasPrefix(seg, "[") }
 
+func hasSelector(segs []string) bool {
+	for _, s := range segs {
+		if isSelector(s) {
+			return true
+		}
+	}
+	return false
+}
+
 // selectorOf is the key or name a selector segment holds.
 func selectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
@@ -214,8 +223,10 @@ func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error
 			return nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.category, sel)
 		}
 	}
+	// A selector further down pins this table by ancestry, so the walk draws only
+	// where none follows; drawing first could pick a row the selector is not inside.
 	if w.pins != nil {
-		if err := readRow(w.pins, t, sel, descended || len(tail) > 0); err != nil {
+		if err := readRow(w.pins, t, sel, (descended || len(tail) > 0) && !hasSelector(tail)); err != nil {
 			return nil, err
 		}
 	}

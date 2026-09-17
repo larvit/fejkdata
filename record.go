@@ -157,10 +157,9 @@ func tableRecord(s *session, t *table, tail []string, sc drawScope) (node, error
 	case *table:
 		sc.draws(s).rowOf(n)
 		return n, nil
+	case *row:
+		return n.t, nil
 	case *column:
-		if n.i < 0 {
-			return n.t, nil
-		}
 		return nil, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.columns[n.i])
 	}
 	return n, nil

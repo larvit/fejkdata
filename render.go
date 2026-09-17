@@ -25,10 +25,8 @@ func (f *Generator) Fake(path string) (string, error) {
 	}
 	f.set = drawSet{unnamed: draws{s: f.rand}}
 	sc := drawScope{set: &f.set}
-	if f.root == nil {
-		f.root = &folder{children: f.categories}
-	}
-	n, err := descend(f.rand, f.root, segments, sc)
+	f.root.children = f.categories
+	n, err := descend(f.rand, &f.root, segments, sc)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
@@ -60,12 +58,12 @@ func render(s *session, n node, sc drawScope) string {
 	case *table:
 		sc.t, sc.row = n, n.draw(s)
 		return expand(s, n.format, sc)
+	case *row:
+		sc.t, sc.row = n.t, sc.draws(s).mustRow(n.t)
+		return expand(s, n.t.format, sc)
 	case *column:
 		if sc.t != n.t {
 			sc.t, sc.row = n.t, sc.draws(s).mustRow(n.t)
-		}
-		if n.i < 0 {
-			return expand(s, n.t.format, sc)
 		}
 		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
 			return render(s, cell, sc)

@@ -382,8 +382,10 @@ is refused, since a cell has no sibling. `New` proves the header, the options an
 cell token, and refuses a TSV no category names, a key that is empty or repeats, a
 weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
 `"` or `|`, which a selector cannot spell; the rows are indexed on the first draw that
-selects one. The table's options are its own — `rows`, `key`, `name`, `weight` and
-`parent` — so a column may be named `name`, as one usually is.
+selects one. A `name` needs a `key`, since a name naming several rows is reported by
+their keys, and a name spelling another row's key is refused, since the key would
+select first and the name never. The table's options are its own — `rows`, `key`,
+`name`, `weight` and `parent` — so a column may be named `name`, as one usually is.
 
 A choice of templates sharing one format and one set of string fields is a table
 written by hand, and `New` refuses it in a data file naming the TSV to write; an
@@ -393,9 +395,8 @@ inline template has no file beside it, so there it stays a choice.
 
 `[key]` or `[name]` after a table's name selects one row: `misc.country[SE]` and
 `misc.country[Sweden]` name one row, and `misc.country[SE].capital` reads its column.
-A key wins over a name that spells the same, and a name naming several rows is an
-error listing their keys, unless a row selected before it settles which
-([Linked tables](#linked-tables)). A selector is part of the path, so it works
+A name naming several rows is an error listing their keys, unless a row selected
+before it settles which ([Linked tables](#linked-tables)). A selector is part of the path, so it works
 wherever a path does: `Fake`, `FakeRecord`, a `{/misc.country[SE].capital}` reference
 and a struct tag. A dot inside the brackets belongs to the key or name, so
 `city[St. Louis]` selects it. A path starts with a name, and `[` still opens a JSON
@@ -436,9 +437,14 @@ tables in one render and group selects the same rows: one that selects none besi
 one that does is refused naming the spelling that does, `{/country[SE].city.name}`
 beside `{/country[SE].name}`, and two selecting different rows are refused naming a
 `drawGroup` to draw them apart in. A bare `{/city}` beside a path into its family is
-refused too, since a bare reference draws each time. `New` also refuses a link cell
-that is no key of the parent, a parent row no child links to, a chain of parents that
-closes, and a child named like one of its parent's columns.
+refused too, since a bare reference draws each time, and so is a path that draws a
+table another path in the group selects a row of, `{/city.name}` beside
+`{/country[SE].name}`, which the first token rendered would otherwise decide. `New`
+also refuses a link cell that is no key of the parent, a parent row no child links
+to, a chain of parents that closes, a table named like a column of any table above
+it, and a cell or format of a table that references a table of its own family, since
+a row rendered whole would draw the family apart from itself: read the family from a
+template beside it, or add the value as a column.
 
 ### Options and fields
 
@@ -907,8 +913,18 @@ renamed or retyped line is a major.
 - **A selector is bracketed, and a dot inside it is literal.** `municipality[0180]`
   reads as selection to anyone who has indexed an array, and `[St. Louis]` keeps a
   name whole where a colon or a dot-separated spelling could not; zsh needs the
-  brackets quoted, which the README's examples show. A key wins over a name that
-  spells the same, since a key names one row by contract and a name may not.
+  brackets quoted, which the README's examples show. A name that spells another
+  row's key is refused at load rather than shadowed: a key names one row by
+  contract, so the name could never select its own, and the check is one lookup per
+  row against the key index that already exists.
+- **`parent` names the link column and the table alike.** One word says both, so a
+  child table sits in its parent's folder and links on a column of the parent's
+  name; the geo plan wants exactly that, and a table needing another folder or
+  another column name would be asking for a second spelling.
+- **After a row, a path names a column or a linked table.** `locality[Lund].address`,
+  a template beside the family under a selected row, is refused today; admitting it
+  later is additive, since a refused spelling gains a meaning and no accepted one
+  changes, so the door stays open for the address records the plan describes.
 - **A table read into is pinned; a table rendered whole draws afresh.** A path into a
   table pins its row for the render and group, as a reference path pins its level,
   and a bare `{/city}` draws each time, as a bare reference does; so a bare table
@@ -1015,6 +1031,7 @@ inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplat
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and its fences
 draw.go         one reference draw per render and group: draw sets, the group option, and its fence
+family.go       a family of linked tables: the rows a render pins, and the fence over paths into one family
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations

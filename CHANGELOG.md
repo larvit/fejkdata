@@ -13,7 +13,11 @@ replacement, and each removed path, column or flag.
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.country[SE]`, and descends to a linked table by name; linked tables draw
   consistently within one render and draw group. `rows` is an option, so no
-  template may carry a field of that name.
+  template may carry a field of that name. Refused at `New`: a `name` without a
+  `key`, a name spelling another row's key, a table named like a column of any
+  table above it, a table whose format or cell references its own family, and,
+  within one render and draw group, a path drawing a table another path selects a
+  row of, or two paths pinning different rows of one table.
 - `New` refuses a root choice of templates sharing one format and one set of string
   fields, naming the rows TSV to write instead.
 - `misc.country`, `misc.currency`, `misc.language`, `misc.httpstatus` and

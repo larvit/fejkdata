@@ -19,7 +19,7 @@ type table struct {
 	columns  []string
 	col      map[string]int
 	fields   map[string]node // column nodes, the format's fields
-	whole    *column         // the pinned row rendered by the format
+	whole    *row            // the pinned row rendered by the format
 	cells    []string        // rows × columns, flat
 	tokens   map[int]*template
 	key      int // column index, or -1
@@ -44,14 +44,18 @@ type tableIndex struct {
 
 func (*table) isNode() {}
 
-// column is one column of a table, rendered as the cell of the row the render
-// pinned; i < 0 is the whole row rendered by the table's format.
+// column is one column of a table, rendered as the cell of the row the render pinned.
 type column struct {
 	t *table
 	i int
 }
 
 func (*column) isNode() {}
+
+// row is the row of a table the render pinned, rendered by the table's format.
+type row struct{ t *table }
+
+func (*row) isNode() {}
 
 func (t *table) rows() int { return len(t.cells) / len(t.columns) }
 
@@ -144,7 +148,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 // parseRows reads the TSV: the header line names the columns, each following line
 // is a row of as many cells. Cells are substrings of data, so the file is held once.
 func (t *table) parseRows(data string) error {
-	data = strings.TrimSuffix(data, "\n")
+	data = strings.TrimSuffix(strings.TrimPrefix(data, "\xEF\xBB\xBF"), "\n")
 	header, rest, _ := strings.Cut(data, "\n")
 	if data == "" {
 		return fmt.Errorf("has no header line naming its columns")
@@ -202,6 +206,9 @@ func (t *table) bindOptions(o tableOptionValues) error {
 		}
 		*opt.into = i
 	}
+	if t.name >= 0 && t.key < 0 {
+		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column; add key")
+	}
 	if err := t.indexKeys(); err != nil {
 		return err
 	}
@@ -223,6 +230,13 @@ func (t *table) indexKeys() error {
 			return fmt.Errorf("%s line %d: key %q repeats line %d; a key selects one row", t.file, r+2, k, first+2)
 		}
 		t.byKey[k] = r
+	}
+	for r := 0; r < t.rows() && t.name >= 0; r++ {
+		if n := t.cell(r, t.name); t.byKey[n] != r {
+			if other, isKey := t.byKey[n]; isKey {
+				return fmt.Errorf("%s line %d: name %q is the key of line %d, which a selector reads first, so the name could never select this row", t.file, r+2, n, other+2)
+			}
+		}
 	}
 	return nil
 }
@@ -282,7 +296,7 @@ func (t *table) compileFormat(format string) error {
 		return err
 	}
 	t.format = &template{format: format, fields: t.fields, repeat: 1, record: true, table: t}
-	t.whole = &column{t, -1}
+	t.whole = &row{t}
 	return t.format.compileFormat()
 }
 
@@ -300,7 +314,6 @@ func linkTables(root map[string]node) error {
 					return err
 				}
 			case *table:
-				n.category = name
 				if n.parent < 0 {
 					continue
 				}
@@ -325,17 +338,21 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	case p.key < 0:
 		return fmt.Errorf("parent %q has no key column to link to", name)
 	}
+	var ancestors []*table
 	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.columns[q.parent]].(*table) {
 		if seen[q] {
 			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.category)
 		}
 		seen[q] = true
+		ancestors = append(ancestors, q)
 		if q.parent < 0 {
 			break
 		}
 	}
-	if _, clash := p.col[t.category]; clash {
-		return fmt.Errorf("%q is named like a column of its parent %q, so %s.%s could read either; rename one", t.category, name, name, t.category)
+	for _, q := range ancestors {
+		if _, clash := q.col[t.category]; clash {
+			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.category, q.category, q.category, t.category)
+		}
 	}
 	linked := make(map[string]bool, p.rows())
 	for r := 0; r < t.rows(); r++ {
@@ -450,8 +467,8 @@ func (t *table) under(r int, a *table, pr int) bool {
 // find is the row a selector names: by key first, then by name, where a name
 // naming several rows resolves inside the ancestors pinned in d.
 func (t *table) find(sel string, d *draws) (int, error) {
-	if t.key < 0 && t.name < 0 {
-		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.category)
+	if t.key < 0 {
+		return 0, fmt.Errorf("%s has no key column to select a row by", t.category)
 	}
 	if r, ok := t.byKey[sel]; ok {
 		return r, nil
@@ -479,8 +496,5 @@ func (t *table) find(sel string, d *draws) (int, error) {
 
 // selectorSpelling is how a path writes a selected row, for messages.
 func (t *table) selectorSpelling(r int) string {
-	if t.key >= 0 {
-		return t.category + "[" + t.cell(r, t.key) + "]"
-	}
-	return t.category + "[" + t.cell(r, t.name) + "]"
+	return t.category + "[" + t.cell(r, t.key) + "]"
 }

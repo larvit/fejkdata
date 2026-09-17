@@ -262,16 +262,10 @@ func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding)
 type draws struct {
 	variant map[string]node
 	value   map[string]draw
-	pins    [4]tablePin // the rows pinned, inline so a render pinning a few tables stays off the heap
+	pins    [8]tablePin // the rows pinned, inline so a render over a country's five-deep geo tree stays off the heap
 	npins   int
-	more    map[*table]int // the rows pinned past the inline four
+	more    map[*table]int // the rows pinned past the inline eight
 	s       *session       // what draws a row; nil where a walk only proves selectors
-}
-
-// tablePin is one table's pinned row.
-type tablePin struct {
-	t   *table
-	row int
 }
 
 // draw is what one read drew: its text, and whether it landed on a null.
@@ -298,7 +292,7 @@ func readField(s *session, t *template, held *draws, sc drawScope, a arm) draw {
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	leaf, _ := walkPath(t.fields[a.key], a.tail, pathWalk{
+	leaf, err := walkPath(t.fields[a.key], a.tail, pathWalk{
 		// Hold the draw at every level passed through, so two paths sharing a
 		// prefix share it.
 		choice: func(c *choice, rest []string) ([]node, error) {
@@ -318,6 +312,9 @@ func readField(s *session, t *template, held *draws, sc drawScope, a arm) draw {
 		},
 		pins: d,
 	})
+	if err != nil {
+		panic(fmt.Sprintf("fejkdata: %q: %v; a fence should have refused this at New", a.name, err))
+	}
 	r := renderLeaf(s, leaf, sc)
 	if d.value == nil {
 		d.value = map[string]draw{}
