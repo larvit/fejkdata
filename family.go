@@ -243,34 +243,54 @@ func checkFamilies(reads []pathRead) error {
 	return replayAlternatives(reads)
 }
 
-// replayAlternatives replays the reads of each draw group into one draws per cell
-// alternative — the reads outside any cell, then the cell's own — so two cells of
-// one column are never replayed together.
+// replayAlternatives replays the reads of each draw group into one draws per row
+// alternative — the reads outside any row, then the row's own — so two rows of one
+// table are never replayed together.
 func replayAlternatives(reads []pathRead) error {
 	type alt struct {
 		group string
-		cell  node
+		row   rowAlt
 	}
 	var alts []alt
-	seen := map[alt]bool{}
+	outside, inside := map[string][]pathRead{}, map[alt][]pathRead{}
 	for _, r := range reads {
-		if a := (alt{r.at.group, r.at.cell}); r.tr != nil && !seen[a] {
-			seen[a] = true
+		if r.tr == nil {
+			continue
+		}
+		if r.at.alt.t == nil {
+			outside[r.at.group] = append(outside[r.at.group], r)
+			continue
+		}
+		a := alt{r.at.group, r.at.alt}
+		if inside[a] == nil {
 			alts = append(alts, a)
 		}
+		inside[a] = append(inside[a], r)
 	}
+	for group := range outside {
+		alts = append(alts, alt{group, rowAlt{}})
+	}
+	sort.Slice(alts, func(i, j int) bool {
+		return altOrder(alts[i].group, alts[i].row) < altOrder(alts[j].group, alts[j].row)
+	})
 	for _, a := range alts {
 		var d draws
-		for _, r := range reads {
-			if r.tr == nil || r.at.group != a.group || r.at.cell != nil && r.at.cell != a.cell {
-				continue
-			}
+		for _, r := range append(append([]pathRead(nil), outside[a.group]...), inside[a]...) {
 			if err := r.tr.replay(&d); err != nil {
 				return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
 			}
 		}
 	}
 	return nil
+}
+
+// altOrder sorts alternatives by group, the reads outside any row first, then by table and row,
+// so which conflict is reported does not vary.
+func altOrder(group string, r rowAlt) string {
+	if r.t == nil {
+		return group + "\x00"
+	}
+	return fmt.Sprintf("%s\x01%s\x00%08d", group, r.t.category, r.row)
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.

@@ -271,17 +271,23 @@ type drawWalk struct {
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, and
-// the table cell it entered, if any: the cells of one column are alternatives, as a choice's items
-// are, so reads in two of them never meet.
+// the table row it entered, if any.
 type drawAt struct {
 	group string
 	route drawRoute
-	cell  node
+	alt   rowAlt
 }
 
-// alternatives reports whether two reads sit in different cells of one column.
+// rowAlt is one row of a table as an alternative: only one row renders, so reads in two rows of
+// one table never meet, while reads in one row, across its columns and whatever they reach, do.
+type rowAlt struct {
+	t   *table
+	row int
+}
+
+// alternatives reports whether two reads sit in different rows of one table.
 func alternatives(a, b drawAt) bool {
-	return a.cell != nil && b.cell != nil && a.cell != b.cell
+	return a.alt.t != nil && a.alt.t == b.alt.t && a.alt.row != b.alt.row
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -297,11 +303,13 @@ type pathRead struct {
 type drawVisit struct {
 	n     node
 	group string
+	alt   rowAlt
 }
 
 type drawKey struct {
 	group string
 	path  string
+	alt   rowAlt
 }
 
 func newDrawWalk() *drawWalk {
@@ -311,7 +319,7 @@ func newDrawWalk() *drawWalk {
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := drawVisit{n, at.group}
+	v := drawVisit{n, at.group, at.alt}
 	if w.seen[v] {
 		return
 	}
@@ -324,16 +332,18 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	}
 	_, isColumn := n.(*column)
 	for _, e := range renderEdges(n) {
-		if isColumn {
-			at.cell = e.to
+		// The outermost row is kept: a cell reached through another row's cell renders with it.
+		edgeAt := at
+		if cell, _ := e.to.(*template); isColumn && at.alt.t == nil {
+			edgeAt.alt = rowAlt{cell.cellOf, cell.cellRow}
 		}
-		w.edge(n, e, at)
+		w.edge(n, e, edgeAt)
 	}
 }
 
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	if a, reads := refRead(from, e.label); reads {
-		if k := (drawKey{at.group, a.path}); !w.read[k] {
+		if k := (drawKey{at.group, a.path, at.alt}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tableReadOf(from.(*template).fields[a.key], a, e.to)})
 		}

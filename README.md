@@ -962,12 +962,15 @@ renamed or retyped line is a major.
   format and options, at the cost of holding the rows twice, which is what a
   category over a register with two natural formats asks for; a TSV nothing names
   stays a load error, since that one is a file forgotten rather than shared.
-- **The cells of one column are alternatives.** Only one row renders, so two cells
-  selecting different rows of another table never meet, as two items of a choice
-  never do; the family fence replays the reads of each cell apart, together with
-  the reads outside any cell. A path is walked once without drawing before it is
-  walked for real, so a path that fails below its first level moves no seeded
-  stream.
+- **The rows of a table are alternatives.** Only one row renders, so a cell in one
+  row and a cell in another never meet, and each may select its own row of another
+  table; the cells of one row, and whatever they reach, do meet, and so does the
+  format beside them. The family fence replays the reads of each row apart,
+  together with the reads outside any row. A choice's items get no such treatment
+  yet: two items selecting different rows are still refused.
+- **A path is walked once without drawing before it is walked for real.** A path
+  that fails below its first level then moves no seeded stream, at the cost of one
+  draw-free walk per call, which allocates nothing.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is

@@ -296,7 +296,7 @@ func (t *table) checkCells() error {
 			t.tokens = map[int]*template{}
 		}
 		t.tokens[i] = n.(*template)
-		t.tokens[i].cellOf = t
+		t.tokens[i].cellOf, t.tokens[i].cellRow = t, row
 	}
 	return nil
 }
