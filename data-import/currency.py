@@ -46,7 +46,7 @@ def rows(text, symbol):
     seen = set()
     for r in csv.DictReader(io.StringIO(text)):
         code = r["AlphabeticCode"]
-        if not code or code in seen or r["WithdrawalDate"] or r["Entity"].startswith("ZZ"):
+        if not code or code in seen or r["WithdrawalDate"] or r["Entity"].startswith("ZZ") or not r["MinorUnit"].isdigit():
             continue
         seen.add(code)
         yield {
