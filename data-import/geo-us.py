@@ -27,7 +27,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "US"
 CACHE = Path(__file__).resolve().parent / "cache"
 ESTIMATE = "POPESTIMATE2025"
 CDP = "57"
-HIGHWAY = re.compile(r"\b(I- |Hwy |Rte |Route |Rd )\d")
+HIGHWAY = re.compile(r"\b(I- |Hwy |Highway |Loop |Rte |Route |Rd )\d")
 SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|comunidad|zona urbana|metropolitan government|metro government|consolidated government|unified government|urban county|corporation|plantation)( \(balance\))?$")
 # Places whose Census name is a merged government's; the postal city is what an address carries.
 NAMES = {"1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4752006": "Nashville"}
@@ -128,10 +128,10 @@ def localities(cache, min_population, counties):
 
 
 def postal_codes(cache, localities):
-    """Each ZCTA whose largest part inside any place lies in a shipped place."""
+    """Each ZCTA whose largest part inside an incorporated place lies in a shipped place."""
     parts = {}
     for r in csv.DictReader(io.StringIO(text(tsv.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
-        if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"]:
+        if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
             parts.setdefault(r["GEOID_ZCTA5_20"], []).append((int(r["AREALAND_PART"]), r["GEOID_PLACE_20"]))
     largest = {zcta: max(p)[1] for zcta, p in parts.items()}
     return {zcta: place for zcta, place in largest.items() if place in localities}

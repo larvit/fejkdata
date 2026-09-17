@@ -236,7 +236,7 @@ consistent draw of them, which the locale's `address` reads.
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name | incorporated place of 25,000 people or more, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `locality` | postort, by name | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
 | `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
 
@@ -1035,9 +1035,11 @@ renamed or retyped line is a major.
   holding most of its land inside places.** `I- 55 Bus` and `US Hwy 1` carry the
   most address ranges in many places and would head every address, so the import
   drops names spelled as a route. A ZCTA goes to the place its largest in-place part
-  lies in, and ships only when that place does; counting the land outside every
-  place too would drop a quarter of the places, whose codes straddle unincorporated
-  land, for a postal city the USPS mostly names the same way.
+  lies in, census-designated places left out since they never ship, and ships only
+  when that place does, so a few dozen places whose every code lies mostly in a
+  bigger neighbour ship no address; counting the land outside every place too would
+  drop a quarter of the places, whose codes straddle unincorporated land, for a
+  postal city the USPS mostly names the same way.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is
