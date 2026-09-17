@@ -965,9 +965,10 @@ renamed or retyped line is a major.
 - **The rows of a table are alternatives.** Only one row renders, so a cell in one
   row and a cell in another never meet, and each may select its own row of another
   table; the cells of one row, and whatever they reach, do meet, and so does the
-  format beside them. The family fence replays the reads of each row apart,
-  together with the reads outside any row. A choice's items get no such treatment
-  yet: two items selecting different rows are still refused.
+  format beside them. The rule the fence applies is that two reads meet unless
+  they sit in two rows of one table, or in a row outside a selected ancestor's. A
+  choice's items get no such treatment yet: two items selecting different rows
+  are still refused.
 - **A path is walked once without drawing before it is walked for real.** A path
   that fails below its first level then moves no seeded stream, at the cost of one
   draw-free walk per call, which allocates nothing.

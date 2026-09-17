@@ -363,8 +363,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	}
 	for _, e := range renderEdges(n) {
 		if cell, isCell := e.to.(*template); isCell && cell.cellOf != nil {
-			// A row already entered renders only its own cell of this column.
-			if r, in := at.alt.rowOf(cell.cellOf); in && r != cell.cellRow {
+			if at.alt.excludes(cell) {
 				continue
 			}
 			w.edge(n, e, drawAt{at.group, at.route, at.alt.enter(cell.cellOf, cell.cellRow)})
@@ -374,22 +373,31 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	}
 }
 
+// excludes reports whether a cell's row cannot render with the rows entered: another
+// row of its table, or a row outside an entered ancestor's.
+func (s rowSet) excludes(cell *template) bool {
+	for _, p := range s {
+		if p.t == cell.cellOf {
+			return p.row != cell.cellRow
+		}
+		if cell.cellOf.descends(p.t) && !cell.cellOf.under(cell.cellRow, p.t, p.row) {
+			return true
+		}
+	}
+	return false
+}
+
+// edge records the reference an edge reads, then walks on with every row the read
+// pins entered, so a selected row renders only its own cells.
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
-	var tr *tableRead
 	if a, reads := refRead(from, e.label); reads {
-		tr = tableReadOf(from.(*template).fields[a.key], a, e.to)
+		tr := tableReadOf(from.(*template).fields[a.key], a, e.to)
 		if k := (drawKey{at.group, a.path, at.alt.key()}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}
-	}
-	// A read that pins the column's table renders that row's cell alone.
-	if c, isColumn := e.to.(*column); isColumn && tr != nil {
-		if r, pinned := tr.pins.pinned(c.t); pinned {
-			if cell := c.t.cellNode(r, c.i); cell != nil {
-				w.walk(cell, drawAt{at.group, at.route, at.alt.enter(c.t, r)})
-			}
-			return
+		if tr != nil {
+			tr.pins.each(func(t *table, r int) { at.alt = at.alt.enter(t, r) })
 		}
 	}
 	w.walk(e.to, at)

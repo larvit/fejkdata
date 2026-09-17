@@ -465,6 +465,16 @@ func (t *table) descendant(name string) *table {
 // parentRow is the row of t's parent that row r links to.
 func (t *table) parentRow(r int) int { return t.parentT.byKey[t.cell(r, t.parent)] }
 
+// descends reports whether a is an ancestor of t.
+func (t *table) descends(a *table) bool {
+	for p := t.parentT; p != nil; p = p.parentT {
+		if p == a {
+			return true
+		}
+	}
+	return false
+}
+
 // under reports whether row r of t sits inside row pr of ancestor a.
 func (t *table) under(r int, a *table, pr int) bool {
 	for c, row := t, r; c.parentT != nil; c, row = c.parentT, c.parentRow(row) {
