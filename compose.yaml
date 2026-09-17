@@ -64,5 +64,13 @@ services:
     <<: *go
     command: sh
 
+  # Rebuilds a shipped TSV from its source: docker compose run --rm data-import data-import/country.py
+  data-import:
+    image: python:3.14.7-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    entrypoint: python3
+
 volumes:
   gocache:
