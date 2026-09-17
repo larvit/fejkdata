@@ -50,11 +50,11 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
-geo.SE.address	format "{street} {number}\n{postal-code} {locality}"	reads geo.SE.locality geo.SE.postal-code geo.SE.street
+geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality geo.SE.postal-code geo.SE.street
 geo.SE.address.locality	string
-geo.SE.address.number	string
 geo.SE.address.postal-code	string
 geo.SE.address.street	string
+geo.SE.address.street-number	string
 geo.SE.locality	format "{name}"	key name	weight population	parent municipality
 geo.SE.locality.lat	string
 geo.SE.locality.lon	string
@@ -116,12 +116,12 @@ geo.SE.street	format "{name}"	weight segments	parent locality
 geo.SE.street.locality	string
 geo.SE.street.name	string
 geo.SE.street.segments	string
-geo.US.address	format "{number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality geo.US.postal-code geo.US.region geo.US.street
+geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality geo.US.postal-code geo.US.region geo.US.street
 geo.US.address.locality	string
-geo.US.address.number	string
 geo.US.address.postal-code	string
 geo.US.address.region	string
 geo.US.address.street	string
+geo.US.address.street-number	string
 geo.US.locality	format "{name}"	key code	name name	weight population	parent municipality
 geo.US.locality.code	string
 geo.US.locality.lat	string
