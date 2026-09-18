@@ -28,7 +28,9 @@ by a `data-import/` script, as README goal 10 asks.
   beside the family: require the path step to reach a sibling category, and seed every
   draw group of the render from the outer selector's pins.
 - Read `email.local`'s and `username`'s handles from the shipped name tables, which
-  goal 10 asks for and the hand-written list they use today does not meet.
+  goal 10 asks for and the hand-written list they use today does not meet. Keep the
+  handle shape: `username` shortens a surname to `ahl` or `sjo`, and the US one draws
+  unisex given names, neither of which falls out of the tables unaided.
 - Decide whether `email.local` and `username` share one list: a reference between
   shipped categories breaks a consumer once tagged, so it rides a 0.(x+1).0 after that.
 
@@ -108,10 +110,9 @@ by a `data-import/` script, as README goal 10 asks.
 - Decide whether `parent: territory` stays, given a `--data-path` override of
   `misc.territory` now fails `New` unless `misc.timezone` is overridden with it.
 - Decide whether the shipped `url` and `email` domains are restricted to RFC 2606's
-  reserved names: 17 of the 40 are not, and `.se`, `.nu`, `.io` and `.co` are live
-  ccTLDs anyone can register, while `.dev` and `.app` are HSTS-preloaded, so a browser
-  forces `http://example.dev` to HTTPS. Restricting them costs the locale flavour
-  `example.se` and `.nu` were chosen for.
+  reserved names: 17 of the 40 distinct ones are not, sitting on `.se`, `.nu`, `.io`
+  and `.co`, which are live ccTLDs anyone can register. Restricting them costs the
+  locale flavour `example.se` and `.nu` were chosen for.
 - Record why fejkdata ships no pop-culture catalogue. README Decisions states the
   choice with no reason, because goal 10 does not supply one: it admits a hand-written
   set where no register exists, and Wikidata, MusicBrainz and the Gutenberg catalog are
@@ -146,8 +147,10 @@ by a `data-import/` script, as README goal 10 asks.
 
 ## v0.3.0
 
-- Ship nothing breaking, which is what v1.0.0 waits for: v0.2.0 rewrites shipped rows
-  when it pairs a street with its exact postnummer.
+Names no items yet, so planning it is a chunk of its own: it takes the additive work
+that lands after v0.2.0, and it has to add something, since a minor only adds. Its job
+is to be the release with no breaking change that v1.0.0 waits on — v0.2.0 cannot be,
+because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## v1.0.0
 
