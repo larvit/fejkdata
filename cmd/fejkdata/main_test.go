@@ -223,6 +223,14 @@ func TestRunMisuse(t *testing.T) {
 			t.Errorf("run(%v) stdout = %q, want nothing", args, out)
 		}
 	}
+	// A template a shell split names both quotings, since which one cures it turns
+	// on whether the argument carries a double-quoted JSON.
+	_, _, errb := runOut("{date(1990-01-01,2010-12-31,", "January", "2,", "2006)}")
+	for _, want := range []string{`wrap the whole argument in "…"`, `or in '…'`} {
+		if !strings.Contains(errb, want) {
+			t.Errorf("a split template stderr = %q, want it to name %s", errb, want)
+		}
+	}
 }
 
 func TestRunMultipleDataPaths(t *testing.T) {
