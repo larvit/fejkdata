@@ -62,6 +62,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
+	setTablePaths(root)
 	if err := linkTables(root); err != nil {
 		return nil, err
 	}

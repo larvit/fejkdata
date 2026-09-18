@@ -14,7 +14,7 @@ import (
 // cell of the row a render pinned; a cell carrying tokens compiles to a string node.
 type table struct {
 	category string
-	path     string // the category's path from the data root, set when the tables are linked
+	path     string // the category's path from the data root, which a selector is written at
 	file     string
 	format   *template // fields are the column nodes
 	columns  []string
@@ -340,6 +340,23 @@ func (t *table) compileFormat(format string) error {
 // linkTables binds every table's parent to the table beside it, and proves the
 // links: a parent has a key, every link cell is one, every parent row is linked
 // to, no chain of parents closes, and no child is named like a parent's column.
+// setTablePaths gives every table the path a selector on it is written at, before a
+// link or a draw can name one.
+func setTablePaths(root map[string]node) {
+	var walk func(dir string, children map[string]node)
+	walk = func(dir string, children map[string]node) {
+		for name, child := range children {
+			switch n := child.(type) {
+			case *folder:
+				walk(join(dir, name), n.children)
+			case *table:
+				n.path = join(dir, name)
+			}
+		}
+	}
+	walk("", root)
+}
+
 func linkTables(root map[string]node) error {
 	var walk func(dir string, children map[string]node) error
 	walk = func(dir string, children map[string]node) error {
@@ -351,7 +368,6 @@ func linkTables(root map[string]node) error {
 					return err
 				}
 			case *table:
-				n.path = path
 				if n.parent < 0 {
 					continue
 				}
@@ -510,7 +526,7 @@ func (t *table) under(r int, a *table, pr int) bool {
 // naming several rows resolves inside the ancestors pinned in d.
 func (t *table) find(sel string, d *draws) (int, error) {
 	if t.key < 0 && t.name < 0 {
-		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.spelledPath())
+		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.path)
 	}
 	if r, ok := t.byKey[sel]; ok {
 		return r, nil
@@ -523,34 +539,31 @@ func (t *table) find(sel string, d *draws) (int, error) {
 	case 1:
 		return rows[0], nil
 	case 0:
-		return 0, fmt.Errorf("no row of %s has key or name %q", t.spelledPath(), sel)
+		return 0, fmt.Errorf("no row of %s has key or name %q", t.path, sel)
 	}
-	keys := make([]string, len(rows))
+	return 0, t.ambiguous(sel, rows)
+}
+
+// ambiguous names each row a selector could have meant: a keyed table by its keys,
+// and one told apart only by its parent by the path that selects it.
+func (t *table) ambiguous(sel string, rows []int) error {
+	spellings := make([]string, len(rows))
 	for i, r := range rows {
 		if t.key < 0 {
-			keys[i] = t.selectorSpelling(r)
+			spellings[i] = t.selectorSpelling(r)
 		} else {
-			keys[i] = t.cell(r, t.key)
+			spellings[i] = t.cell(r, t.key)
 		}
 	}
-	listed := strings.Join(keys, ", ")
+	listed := strings.Join(spellings, ", ")
 	if t.key < 0 {
-		return 0, fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %s", sel, len(rows), t.spelledPath(), t.parentT.spelledPath(), listed)
+		return fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %s", sel, len(rows), t.path, t.parentT.path, listed)
 	}
 	inside := ""
 	if t.parentT != nil {
-		inside = fmt.Sprintf(", or select it inside its %s", t.parentT.category)
+		inside = fmt.Sprintf(", or select it inside its %s", t.parentT.path)
 	}
-	return 0, fmt.Errorf("%q names %d rows of %s; select one by key, one of %s%s", sel, len(rows), t.spelledPath(), listed, inside)
-}
-
-// spelledPath is the path a selector on t is written at, the category's own name
-// until the tables are linked.
-func (t *table) spelledPath() string {
-	if t.path == "" {
-		return t.category
-	}
-	return t.path
+	return fmt.Errorf("%q names %d rows of %s; select one by key, one of %s%s", sel, len(rows), t.path, listed, inside)
 }
 
 // selectorSpelling is how a path writes a selected row, for messages: by key, or
@@ -558,7 +571,7 @@ func (t *table) spelledPath() string {
 func (t *table) selectorSpelling(r int) string {
 	switch {
 	case t.key >= 0:
-		return t.spelledPath() + "[" + t.cell(r, t.key) + "]"
+		return t.path + "[" + t.cell(r, t.key) + "]"
 	case t.name >= 0:
 		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.name) + "]"
 	}

@@ -28,6 +28,9 @@ const usage = `Usage: fejkdata [flags] <path|template>
   <template>             a format string or JSON value to render inline, e.g.
                          'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
 
+A layout inside a template is single-quoted, so quote the whole argument with " to
+keep it: "{date(1990-01-01,2010-12-31,'2006-01-02')}".
+
 An argument containing a { token, or a JSON object, array or string, is a
 template; any other argument is a path (a path never contains a brace or a quote,
 and a bracket only as a [selector] after a table's name). Templates reach the

@@ -141,8 +141,8 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	}
 	shape := f.recordShapeOf(n)
 	if errors.Is(shape.err, errNoColumns) {
-		column := path[strings.LastIndex(path, ".")+1:]
-		return nil, fmt.Errorf("fejkdata: %s %w; render it as a column of one: '{\"format\":\"\",\"%s\":\"{/%s}\"}'", path, shape.err, column, path)
+		ns := names(segments)
+		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, shape.err, ns[len(ns)-1], path)
 	}
 	if shape.err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)

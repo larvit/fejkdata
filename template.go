@@ -112,6 +112,13 @@ func splitArgs(s string) []string {
 	return append(args, strings.TrimSpace(s[start:]))
 }
 
+func plural(n int) string {
+	if n == 1 {
+		return ""
+	}
+	return "s"
+}
+
 // checkFunc validates a function token at compile time: well-formed, naming a
 // known builtin, with the arg count that builtin takes and args its check accepts.
 // fields is passed through for the one builtin (calc) that validates against them.

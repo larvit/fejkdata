@@ -97,7 +97,7 @@ func (d *draws) rowOf(t *table) int {
 // pinRow pins row r of t where it agrees with the rows pinned before it.
 func (d *draws) pinRow(t *table, r int) error {
 	if pr, ok := d.pinned(t); ok && pr != r {
-		return fmt.Errorf("%s and %s are two rows of %s", t.selectorSpelling(pr), t.selectorSpelling(r), t.category)
+		return fmt.Errorf("%s and %s are two rows of %s", t.selectorSpelling(pr), t.selectorSpelling(r), t.path)
 	}
 	for a := t.parentT; a != nil; a = a.parentT {
 		if pa, ok := d.pinned(a); ok && !t.under(r, a, pa) {
