@@ -32,7 +32,7 @@ value is composed; TSV says which values exist.
 - Draw linked tables consistently within one render and draw group: the first
   table drawn pins its ancestors, and a descendant is drawn inside them.
 - Keep country data under `geo/<alpha2>/`; a locale's `address` reads its
-  country's tree by reference, and a locale's `country` table carries the
+  country's tree by reference, and a locale's `territory` table carries the
   localised names keyed by alpha2.
 - Ship full registers as packs, each a Go module with its own `embed.FS` and a
   zip for `--data-path`; the default embed stays under ~1 MB per country and
@@ -109,7 +109,7 @@ ids. Shape: T = table, t = template, c = choice.
 | `word` noun, verb, adjective, adverb; `sentence` | T+t | SALDO | CC BY 4.0 |
 | `date`, `time`, month and weekday names, `holiday` | t+T | CLDR sv, lag 1989:253 | Unicode |
 | `price` `1 234,56 kr`, `email` domains, `url` `.se`/`.nu` | t | curated | — |
-| `country` localised names keyed by alpha2 | T | CLDR sv territory names | Unicode |
+| `territory` localised names keyed by alpha2 | T | CLDR sv territory names | Unicode |
 | `address` | t | `{/geo.SE…}` | — |
 
 `en_US` (`research-sources-world.md`, part1–4)
@@ -131,10 +131,10 @@ ids. Shape: T = table, t = template, c = choice.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
-| `country` name, alpha2, alpha3, numeric, calling code, TLD, capital, currency, flag, languages | T | datasets/country-codes | PDDL |
+| `territory` name, alpha2, alpha3, numeric, calling code, TLD, capital, country, currency, flag, languages | T | datasets/country-codes | PDDL |
 | `currency` code, numeric, name, symbol, decimals | T | ISO 4217 list-one, CLDR symbols | free, Unicode |
 | `language` ISO 639-1/2 | T | LoC | public domain |
-| `timezone` zone, country, offset | T | tzdb zone1970.tab | public domain |
+| `timezone` zone, territory, offset | T | tzdb zone.tab | public domain |
 | `mimetype` type, extensions | T | IANA + mime-db | CC0, MIT |
 | `httpstatus`, `httpmethod`, `port`, `tld`, `protocol`, `loglevel` | T/c | IANA | CC0 |
 | `useragent` per browser | T | top-user-agents | MIT |
@@ -172,8 +172,12 @@ address, phone, national id, company and date names each.
    spelling a tag takes rather than the reference spelling.
 4. `misc` conversions and the new `misc` tables. Convert `timezone`, `car` and
    `useragent`, and add the new `misc` tables.
-5. The remaining locale categories: company, phone, finance, vehicle, words.
-6. Records with building-block columns across the shipped set; shape re-pin.
+5. Give the hand-written sets a source, as goal 10 asks: read `misc.emoji` from
+   the Unicode emoji-test.txt register, and `misc.car` from an international make
+   and model source, vPIC and Mobility Sweden being national and so `en_US.car`'s
+   and `sv_SE.car`'s.
+6. The remaining locale categories: company, phone, finance, vehicle, words.
+7. Records with building-block columns across the shipped set; shape re-pin.
 
 ### Release
 

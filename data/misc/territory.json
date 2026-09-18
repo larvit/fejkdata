@@ -1,1 +1,1 @@
-{ "format": "{name}", "rows": "country.tsv", "key": "alpha2", "name": "name" }
+{ "format": "{name}", "rows": "territory.tsv", "key": "alpha2", "name": "name" }

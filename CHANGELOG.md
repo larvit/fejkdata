@@ -11,7 +11,7 @@ replacement, and each removed path, column or flag.
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
-  `misc.country[SE]`, and descends to a linked table by name; linked tables draw
+  `misc.territory[SE]`, and descends to a linked table by name; linked tables draw
   consistently within one render and draw group. `rows` is an option, so no
   template may carry a field of that name. A `name` without a `key` resolves
   inside the table's `parent`. Refused at `New`: a `name` without a `key` or a
@@ -21,10 +21,12 @@ replacement, and each removed path, column or flag.
   row of, or two paths pinning different rows of one table.
 - `New` refuses a root choice of templates sharing one format and one set of string
   fields, naming the rows TSV to write instead.
-- `misc.country`, `misc.currency`, `misc.language`, `misc.httpstatus` and
-  `misc.mimetype` are tables. `misc.country` is every ISO 3166 country that has a
-  capital, a currency and a TLD, with the columns `calling-code`, `capital`,
-  `currency`, `flag`, `languages`, `numeric` and `tld` added; `misc.currency` the
+- `misc.territory`, `misc.currency`, `misc.language`, `misc.httpstatus` and
+  `misc.mimetype` are tables. `misc.territory` is every ISO 3166-1 territory that has
+  a capital, a currency and a TLD, with the columns `calling-code`, `capital`,
+  `country`, `currency`, `flag`, `languages`, `numeric` and `tld` added, `country`
+  naming the sovereign state it belongs to and itself where it is one;
+  `misc.currency` the
   current ISO 4217 currencies with a minor unit, with `decimals` and `numeric`
   added, and its symbols from CLDR; `misc.language` every ISO 639-2 entry carrying a
   639-1 code, with a `code3` column holding its 639-2/T code; `misc.httpstatus` each

@@ -17,8 +17,8 @@ fejkdata sv_SE.person.last                     # Eriksson
 fejkdata --seed 42 sv_SE.address               # the same address every run
 fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
 fejkdata --list                                # every path the data offers
-fejkdata 'misc.country[SE].capital'            # Stockholm — a table's row, selected by key or name
-fejkdata 'geo.SE.locality[Lund].street'         # Fjelievägen — a linked table, drawn inside the row
+fejkdata 'misc.territory[SE].capital'          # Stockholm — a table's row, selected by key or name
+fejkdata 'geo.SE.locality[Lund].street'        # Fjelievägen — a linked table, drawn inside the row
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
 fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
@@ -161,14 +161,19 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
-carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
-`currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
-(ISO 639-1, with its 639-2/T code), `mac`, `mimetype`, `objectid`, `timezone`
+carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
+`datetime` (RFC 3339), `emoji`, `httpstatus`, `language` (ISO 639-1, with its
+639-2/T code), `mac`, `mimetype`, `objectid`, `territory` (ISO 3166-1), `timezone`
 (IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
-`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
-`currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
-`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
+`misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `currency`,
+`httpstatus`, `language`, `mimetype` and `territory` are [tables](#table), so
+`misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row;
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
+
+ISO 3166-1 codes territories, not sovereign states, so that is what the table is
+called: Greenland and Åland have codes of their own, and `misc.territory.country`
+names the state each belongs to — `DK` for Greenland, `FI` for Åland, and its own
+code for a sovereign one.
 
 `sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
 SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
@@ -447,11 +452,11 @@ inline template has no file beside it, so there it stays a choice.
 
 ### Row selection
 
-`[key]` or `[name]` after a table's name selects one row: `misc.country[SE]` and
-`misc.country[Sweden]` name one row, and `misc.country[SE].capital` reads its column.
+`[key]` or `[name]` after a table's name selects one row: `misc.territory[SE]` and
+`misc.territory[Sweden]` name one row, and `misc.territory[SE].capital` reads its column.
 A name naming several rows is an error listing their keys, unless a row selected
 before it settles which ([Linked tables](#linked-tables)). A selector is part of the path, so it works
-wherever a path does: `Fake`, `FakeRecord`, a `{/misc.country[SE].capital}` reference
+wherever a path does: `Fake`, `FakeRecord`, a `{/misc.territory[SE].capital}` reference
 and a struct tag. A dot inside the brackets belongs to the key or name, so
 `city[St. Louis]` selects it. A path starts with a name, and `[` still opens a JSON
 array at the start of a CLI argument, so `'[SE]'` alone names nothing.
@@ -772,6 +777,13 @@ App developers writing tests and fixtures, in Go and at a shell:
 9. **Fast enough to be free** — a value renders in about a microsecond and `New`
    parses and validates the whole set once upfront, so generating fixtures stays
    noise against a test's own runtime.
+10. **Data is sourced, or on its way there** — a shipped fact, a name, place,
+    code, id or classification, is read from a register or open dataset by a
+    [`data-import/`](data-import) script wherever one exists to read; where none
+    does yet a small hand-written set ships and [`todo.md`](todo.md) carries the
+    step that replaces it. Only non-factual copy stays authored. A sourced table
+    holds the rows its source holds: none is added by hand, and one is dropped
+    only by a rule the script states.
 
 ## Decisions
 
@@ -1124,11 +1136,40 @@ App developers writing tests and fixtures, in Go and at a shell:
   tells the two apart, `sex[f].first-name[Kim]`, the ambiguity error spells each
   row inside its parent, and a name repeating inside one parent row is refused at
   load, since nothing could then select it.
-- **`misc.country` carries a currency code, it does not link to `misc.currency`.**
+- **`misc` is what every locale shares.** A category whose facts differ by country
+  belongs in that country's locale, read from the register that country's own
+  records use; `misc` takes only sources that are international. So NHTSA vPIC
+  builds `en_US.car` and Mobility Sweden's registrations `sv_SE.car`, never
+  `misc.car`.
+- **A register's canonical spelling loses to the one its domain writes.** Where a
+  source offers several spellings of one fact, the shipped one is what records in
+  that domain carry. `misc.timezone` reads `zone.tab` and not the `zone1970.tab`
+  that supersedes it, because the latter keeps one zone per set of countries that
+  have agreed since 1970: it spells Sweden `Europe/Berlin`, and no Swedish system
+  writes that. For the same reason `misc.language` takes the ISO 639-2 register's
+  first synonym over CLDR, which says "Chinese, Mandarin" for `zh`.
+- **`misc.territory` is the spine, and a `misc` table naming a territory links to
+  it.** Where every territory row has a child the column is a `parent`, and the
+  import drops the child rows whose territory the set does not ship — 17 of
+  `misc.timezone`'s, Antarctica's ten among them. Agreement across a record is
+  worth more than the last rows of a table. Where no such link can hold the fact
+  stays a column.
+- **`misc.territory` names its sovereign in a column, and there is no `misc.country`
+  table.** ISO 3166-1 codes territories, so `territory` is the honest name, and
+  `is_independent` in the register gives each one's state. A second table of the 195
+  sovereigns would hold a `DK` row beside the territory `DK` row, both carrying
+  Denmark's capital, currency, flag and TLD — two owners for one fact, drifting at
+  the next import. Splitting the columns to avoid that is worse: put `capital` on
+  the territory alone and a country row can no longer name Copenhagen. The column
+  cannot be a `parent`, since a table never reaches its own family; a test proves
+  every value names a row instead. A territory the register records no state for
+  stands alone, which is `EH` alone, and naming one for it would be a claim
+  fejkdata has no business making.
+- **`misc.territory` carries a currency code, it does not link to `misc.currency`.**
   A `parent` demands a child for every parent row, and ISO 4217 registers codes no
   country's row can name: the funds codes (Mvdol, WIR Euro, US Dollar (Next day)),
   and VED beside VES, both Venezuela's, of which a country row names one. Linking
-  would trade the register for the link, and `misc.country.currency` already pairs a
+  would trade the register for the link, and `misc.territory.currency` already pairs a
   country with its currency in one draw.
 - **An extension may name two media types.** `.xml`, `.rtf`, `.sub`, `.mpp` and `.ac`
   each name two rows of `misc.mimetype`. Separating them would mean dropping a
@@ -1207,7 +1248,7 @@ and `names-us.py` rejects a client for a while after a burst, so `--surnames` ta
 a copy of the surname file:
 
 ```sh
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py

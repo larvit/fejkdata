@@ -1,242 +1,242 @@
-alpha2	alpha3	calling-code	capital	currency	flag	languages	name	numeric	tld
-AD	AND	376	Andorra la Vella	EUR	🇦🇩	ca	Andorra	020	.ad
-AE	ARE	971	Abu Dhabi	AED	🇦🇪	ar-AE,fa,en,hi,ur	United Arab Emirates	784	.ae
-AF	AFG	93	Kabul	AFN	🇦🇫	fa-AF,ps,uz-AF,tk	Afghanistan	004	.af
-AG	ATG	1-268	St. John's	XCD	🇦🇬	en-AG	Antigua & Barbuda	028	.ag
-AI	AIA	1-264	The Valley	XCD	🇦🇮	en-AI	Anguilla	660	.ai
-AL	ALB	355	Tirana	ALL	🇦🇱	sq,el	Albania	008	.al
-AM	ARM	374	Yerevan	AMD	🇦🇲	hy	Armenia	051	.am
-AO	AGO	244	Luanda	AOA	🇦🇴	pt-AO	Angola	024	.ao
-AR	ARG	54	Buenos Aires	ARS	🇦🇷	es-AR,en,it,de,fr,gn	Argentina	032	.ar
-AS	ASM	1-684	Pago Pago	USD	🇦🇸	en-AS,sm,to	American Samoa	016	.as
-AT	AUT	43	Vienna	EUR	🇦🇹	de-AT,hr,hu,sl	Austria	040	.at
-AU	AUS	61	Canberra	AUD	🇦🇺	en-AU	Australia	036	.au
-AW	ABW	297	Oranjestad	AWG	🇦🇼	nl-AW,pap,es,en	Aruba	533	.aw
-AX	ALA	358	Mariehamn	EUR	🇦🇽	sv-AX	Åland Islands	248	.ax
-AZ	AZE	994	Baku	AZN	🇦🇿	az,ru,hy	Azerbaijan	031	.az
-BA	BIH	387	Sarajevo	BAM	🇧🇦	bs,hr-BA,sr-BA	Bosnia	070	.ba
-BB	BRB	1-246	Bridgetown	BBD	🇧🇧	en-BB	Barbados	052	.bb
-BD	BGD	880	Dhaka	BDT	🇧🇩	bn-BD,en	Bangladesh	050	.bd
-BE	BEL	32	Brussels	EUR	🇧🇪	nl-BE,fr-BE,de-BE	Belgium	056	.be
-BF	BFA	226	Ouagadougou	XOF	🇧🇫	fr-BF,mos	Burkina Faso	854	.bf
-BG	BGR	359	Sofia	EUR	🇧🇬	bg,tr-BG,rom	Bulgaria	100	.bg
-BH	BHR	973	Manama	BHD	🇧🇭	ar-BH,en,fa,ur	Bahrain	048	.bh
-BI	BDI	257	Gitega	BIF	🇧🇮	fr-BI,rn	Burundi	108	.bi
-BJ	BEN	229	Porto-Novo	XOF	🇧🇯	fr-BJ	Benin	204	.bj
-BL	BLM	590	Gustavia	EUR	🇧🇱	fr	St. Barthélemy	652	.gp
-BM	BMU	1-441	Hamilton	BMD	🇧🇲	en-BM,pt	Bermuda	060	.bm
-BN	BRN	673	Bandar Seri Begawan	BND	🇧🇳	ms-BN,en-BN	Brunei	096	.bn
-BO	BOL	591	Sucre	BOB	🇧🇴	es-BO,qu,ay	Bolivia	068	.bo
-BR	BRA	55	Brasilia	BRL	🇧🇷	pt-BR,es,en,fr	Brazil	076	.br
-BS	BHS	1-242	Nassau	BSD	🇧🇸	en-BS	Bahamas	044	.bs
-BT	BTN	975	Thimphu	INR	🇧🇹	dz	Bhutan	064	.bt
-BW	BWA	267	Gaborone	BWP	🇧🇼	en-BW,tn-BW	Botswana	072	.bw
-BY	BLR	375	Minsk	BYN	🇧🇾	be,ru	Belarus	112	.by
-BZ	BLZ	501	Belmopan	BZD	🇧🇿	en-BZ,es	Belize	084	.bz
-CA	CAN	1	Ottawa	CAD	🇨🇦	en-CA,fr-CA,iu	Canada	124	.ca
-CC	CCK	61	West Island	AUD	🇨🇨	ms-CC,en	Cocos Islands	166	.cc
-CD	COD	243	Kinshasa	CDF	🇨🇩	fr-CD,ln,ktu,kg,sw,lua	Congo - Kinshasa	180	.cd
-CF	CAF	236	Bangui	XAF	🇨🇫	fr-CF,sg,ln,kg	Central African Republic	140	.cf
-CG	COG	242	Brazzaville	XAF	🇨🇬	fr-CG,kg,ln-CG	Congo - Brazzaville	178	.cg
-CH	CHE	41	Bern	CHF	🇨🇭	de-CH,fr-CH,it-CH,rm	Switzerland	756	.ch
-CI	CIV	225	Yamoussoukro	XOF	🇨🇮	fr-CI	Côte d’Ivoire	384	.ci
-CK	COK	682	Avarua	NZD	🇨🇰	en-CK,mi	Cook Islands	184	.ck
-CL	CHL	56	Santiago	CLP	🇨🇱	es-CL	Chile	152	.cl
-CM	CMR	237	Yaounde	XAF	🇨🇲	en-CM,fr-CM	Cameroon	120	.cm
-CN	CHN	86	Beijing	CNY	🇨🇳	zh-CN,yue,wuu,dta,ug,za	China	156	.cn
-CO	COL	57	Bogota	COP	🇨🇴	es-CO	Colombia	170	.co
-CR	CRI	506	San Jose	CRC	🇨🇷	es-CR,en	Costa Rica	188	.cr
-CU	CUB	53	Havana	CUP	🇨🇺	es-CU,pap	Cuba	192	.cu
-CV	CPV	238	Praia	CVE	🇨🇻	pt-CV	Cape Verde	132	.cv
-CW	CUW	599	 Willemstad	XCG	🇨🇼	nl,pap	Curaçao	531	.cw
-CX	CXR	61	Flying Fish Cove	AUD	🇨🇽	en,zh,ms-CX	Christmas Island	162	.cx
-CY	CYP	357	Nicosia	EUR	🇨🇾	el-CY,tr-CY,en	Cyprus	196	.cy
-CZ	CZE	420	Prague	CZK	🇨🇿	cs,sk	Czechia	203	.cz
-DE	DEU	49	Berlin	EUR	🇩🇪	de	Germany	276	.de
-DJ	DJI	253	Djibouti	DJF	🇩🇯	fr-DJ,ar,so-DJ,aa	Djibouti	262	.dj
-DK	DNK	45	Copenhagen	DKK	🇩🇰	da-DK,en,fo,de-DK	Denmark	208	.dk
-DM	DMA	1-767	Roseau	XCD	🇩🇲	en-DM	Dominica	212	.dm
-DO	DOM	1-809	Santo Domingo	DOP	🇩🇴	es-DO	Dominican Republic	214	.do
-DZ	DZA	213	Algiers	DZD	🇩🇿	ar-DZ	Algeria	012	.dz
-EC	ECU	593	Quito	USD	🇪🇨	es-EC	Ecuador	218	.ec
-EE	EST	372	Tallinn	EUR	🇪🇪	et,ru	Estonia	233	.ee
-EG	EGY	20	Cairo	EGP	🇪🇬	ar-EG,en,fr	Egypt	818	.eg
-EH	ESH	212	El-Aaiun	MAD	🇪🇭	ar,mey	Western Sahara	732	.eh
-ER	ERI	291	Asmara	ERN	🇪🇷	aa-ER,ar,tig,kun,ti-ER	Eritrea	232	.er
-ES	ESP	34	Madrid	EUR	🇪🇸	es-ES,ca,gl,eu,oc	Spain	724	.es
-ET	ETH	251	Addis Ababa	ETB	🇪🇹	am,en-ET,om-ET,ti-ET,so-ET,sid	Ethiopia	231	.et
-FI	FIN	358	Helsinki	EUR	🇫🇮	fi-FI,sv-FI,smn	Finland	246	.fi
-FJ	FJI	679	Suva	FJD	🇫🇯	en-FJ,fj	Fiji	242	.fj
-FK	FLK	500	Stanley	FKP	🇫🇰	en-FK	Falkland Islands	238	.fk
-FM	FSM	691	Palikir	USD	🇫🇲	en-FM,chk,pon,yap,kos,uli,woe,nkr,kpg	Micronesia	583	.fm
-FO	FRO	298	Torshavn	DKK	🇫🇴	fo,da-FO	Faroe Islands	234	.fo
-FR	FRA	33	Paris	EUR	🇫🇷	fr-FR,frp,br,co,ca,eu,oc	France	250	.fr
-GA	GAB	241	Libreville	XAF	🇬🇦	fr-GA	Gabon	266	.ga
-GB	GBR	44	London	GBP	🇬🇧	en-GB,cy-GB,gd	UK	826	.uk
-GD	GRD	1-473	St. George's	XCD	🇬🇩	en-GD	Grenada	308	.gd
-GE	GEO	995	Tbilisi	GEL	🇬🇪	ka,ru,hy,az	Georgia	268	.ge
-GF	GUF	594	Cayenne	EUR	🇬🇫	fr-GF	French Guiana	254	.gf
-GG	GGY	44	St Peter Port	GBP	🇬🇬	en,nrf	Guernsey	831	.gg
-GH	GHA	233	Accra	GHS	🇬🇭	en-GH,ak,ee,tw	Ghana	288	.gh
-GI	GIB	350	Gibraltar	GIP	🇬🇮	en-GI,es,it,pt	Gibraltar	292	.gi
-GL	GRL	299	Nuuk	DKK	🇬🇱	kl,da-GL,en	Greenland	304	.gl
-GM	GMB	220	Banjul	GMD	🇬🇲	en-GM,mnk,wof,wo,ff	Gambia	270	.gm
-GN	GIN	224	Conakry	GNF	🇬🇳	fr-GN	Guinea	324	.gn
-GP	GLP	590	Basse-Terre	EUR	🇬🇵	fr-GP	Guadeloupe	312	.gp
-GQ	GNQ	240	Ciudad de la Paz	XAF	🇬🇶	es-GQ,fr,pt	Equatorial Guinea	226	.gq
-GR	GRC	30	Athens	EUR	🇬🇷	el-GR,en,fr	Greece	300	.gr
-GT	GTM	502	Guatemala City	GTQ	🇬🇹	es-GT	Guatemala	320	.gt
-GU	GUM	1-671	Hagatna	USD	🇬🇺	en-GU,ch-GU	Guam	316	.gu
-GW	GNB	245	Bissau	XOF	🇬🇼	pt-GW,pov	Guinea-Bissau	624	.gw
-GY	GUY	592	Georgetown	GYD	🇬🇾	en-GY	Guyana	328	.gy
-HK	HKG	852	Hong Kong	HKD	🇭🇰	zh-HK,yue,zh,en	Hong Kong	344	.hk
-HN	HND	504	Tegucigalpa	HNL	🇭🇳	es-HN,cab,miq	Honduras	340	.hn
-HR	HRV	385	Zagreb	EUR	🇭🇷	hr-HR,sr	Croatia	191	.hr
-HT	HTI	509	Port-au-Prince	HTG	🇭🇹	ht,fr-HT	Haiti	332	.ht
-HU	HUN	36	Budapest	HUF	🇭🇺	hu-HU	Hungary	348	.hu
-ID	IDN	62	Jakarta	IDR	🇮🇩	id,en,nl,jv	Indonesia	360	.id
-IE	IRL	353	Dublin	EUR	🇮🇪	en-IE,ga-IE	Ireland	372	.ie
-IL	ISR	972	Jerusalem	ILS	🇮🇱	he,ar-IL,en-IL	Israel	376	.il
-IM	IMN	44	Douglas	GBP	🇮🇲	en,gv	Isle of Man	833	.im
-IN	IND	91	New Delhi	INR	🇮🇳	en-IN,hi,bn,te,mr,ta,ur,gu,kn,ml,or,pa,as,bh,sat,ks,ne,sd,kok,doi,mni,sit,sa,fr,lus,inc	India	356	.in
-IO	IOT	246	Diego Garcia	USD	🇮🇴	en-IO	British Indian Ocean Territory	086	.io
-IQ	IRQ	964	Baghdad	IQD	🇮🇶	ar-IQ,ku,hy	Iraq	368	.iq
-IR	IRN	98	Tehran	IRR	🇮🇷	fa-IR,ku	Iran	364	.ir
-IS	ISL	354	Reykjavik	ISK	🇮🇸	is,en,de,da,sv,no	Iceland	352	.is
-IT	ITA	39	Rome	EUR	🇮🇹	it-IT,de-IT,fr-IT,sc,ca,co,sl	Italy	380	.it
-JE	JEY	44	Saint Helier	GBP	🇯🇪	en,fr,nrf	Jersey	832	.je
-JM	JAM	1-876	Kingston	JMD	🇯🇲	en-JM	Jamaica	388	.jm
-JO	JOR	962	Amman	JOD	🇯🇴	ar-JO,en	Jordan	400	.jo
-JP	JPN	81	Tokyo	JPY	🇯🇵	ja	Japan	392	.jp
-KE	KEN	254	Nairobi	KES	🇰🇪	en-KE,sw-KE	Kenya	404	.ke
-KG	KGZ	996	Bishkek	KGS	🇰🇬	ky,uz,ru	Kyrgyzstan	417	.kg
-KH	KHM	855	Phnom Penh	KHR	🇰🇭	km,fr,en	Cambodia	116	.kh
-KI	KIR	686	Tarawa	AUD	🇰🇮	en-KI,gil	Kiribati	296	.ki
-KM	COM	269	Moroni	KMF	🇰🇲	ar,fr-KM	Comoros	174	.km
-KN	KNA	1-869	Basseterre	XCD	🇰🇳	en-KN	St. Kitts & Nevis	659	.kn
-KP	PRK	850	Pyongyang	KPW	🇰🇵	ko-KP	North Korea	408	.kp
-KR	KOR	82	Seoul	KRW	🇰🇷	ko-KR,en	South Korea	410	.kr
-KW	KWT	965	Kuwait City	KWD	🇰🇼	ar-KW,en	Kuwait	414	.kw
-KY	CYM	1-345	George Town	KYD	🇰🇾	en-KY	Cayman Islands	136	.ky
-KZ	KAZ	7	Nur-Sultan	KZT	🇰🇿	kk,ru	Kazakhstan	398	.kz
-LA	LAO	856	Vientiane	LAK	🇱🇦	lo,fr,en	Laos	418	.la
-LB	LBN	961	Beirut	LBP	🇱🇧	ar-LB,fr-LB,en,hy	Lebanon	422	.lb
-LC	LCA	1-758	Castries	XCD	🇱🇨	en-LC	St. Lucia	662	.lc
-LI	LIE	423	Vaduz	CHF	🇱🇮	de-LI	Liechtenstein	438	.li
-LK	LKA	94	Colombo	LKR	🇱🇰	si,ta,en	Sri Lanka	144	.lk
-LR	LBR	231	Monrovia	LRD	🇱🇷	en-LR	Liberia	430	.lr
-LS	LSO	266	Maseru	LSL	🇱🇸	en-LS,st,zu,xh	Lesotho	426	.ls
-LT	LTU	370	Vilnius	EUR	🇱🇹	lt,ru,pl	Lithuania	440	.lt
-LU	LUX	352	Luxembourg	EUR	🇱🇺	lb,de-LU,fr-LU	Luxembourg	442	.lu
-LV	LVA	371	Riga	EUR	🇱🇻	lv,ru,lt	Latvia	428	.lv
-LY	LBY	218	Tripoli	LYD	🇱🇾	ar-LY,it,en	Libya	434	.ly
-MA	MAR	212	Rabat	MAD	🇲🇦	ar-MA,ber,fr	Morocco	504	.ma
-MC	MCO	377	Monaco	EUR	🇲🇨	fr-MC,en,it	Monaco	492	.mc
-MD	MDA	373	Chisinau	MDL	🇲🇩	ro,ru,gag,tr	Moldova	498	.md
-ME	MNE	382	Podgorica	EUR	🇲🇪	sr,hu,bs,sq,hr,rom	Montenegro	499	.me
-MF	MAF	590	Marigot	EUR	🇲🇫	fr	St. Martin	663	.gp
-MG	MDG	261	Antananarivo	MGA	🇲🇬	fr-MG,mg	Madagascar	450	.mg
-MH	MHL	692	Majuro	USD	🇲🇭	mh,en-MH	Marshall Islands	584	.mh
-MK	MKD	389	Skopje	MKD	🇲🇰	mk,sq,tr,rmm,sr	North Macedonia	807	.mk
-ML	MLI	223	Bamako	XOF	🇲🇱	fr-ML,bm	Mali	466	.ml
-MM	MMR	95	Nay Pyi Taw	MMK	🇲🇲	my	Myanmar	104	.mm
-MN	MNG	976	Ulaanbaatar	MNT	🇲🇳	mn,ru	Mongolia	496	.mn
-MO	MAC	853	Macao	MOP	🇲🇴	zh,zh-MO,pt	Macao	446	.mo
-MP	MNP	1-670	Saipan	USD	🇲🇵	fil,tl,zh,ch-MP,en-MP	Northern Mariana Islands	580	.mp
-MQ	MTQ	596	Fort-de-France	EUR	🇲🇶	fr-MQ	Martinique	474	.mq
-MR	MRT	222	Nouakchott	MRU	🇲🇷	ar-MR,fuc,snk,fr,mey,wo	Mauritania	478	.mr
-MS	MSR	1-664	Plymouth	XCD	🇲🇸	en-MS	Montserrat	500	.ms
-MT	MLT	356	Valletta	EUR	🇲🇹	mt,en-MT	Malta	470	.mt
-MU	MUS	230	Port Louis	MUR	🇲🇺	en-MU,bho,fr	Mauritius	480	.mu
-MV	MDV	960	Male	MVR	🇲🇻	dv,en	Maldives	462	.mv
-MW	MWI	265	Lilongwe	MWK	🇲🇼	ny,yao,tum,swk	Malawi	454	.mw
-MX	MEX	52	Mexico City	MXN	🇲🇽	es-MX	Mexico	484	.mx
-MY	MYS	60	Kuala Lumpur	MYR	🇲🇾	ms-MY,en,zh,ta,te,ml,pa,th	Malaysia	458	.my
-MZ	MOZ	258	Maputo	MZN	🇲🇿	pt-MZ,vmw	Mozambique	508	.mz
-NA	NAM	264	Windhoek	NAD	🇳🇦	en-NA,af,de,hz,naq	Namibia	516	.na
-NC	NCL	687	Noumea	XPF	🇳🇨	fr-NC	New Caledonia	540	.nc
-NE	NER	227	Niamey	XOF	🇳🇪	fr-NE,ha,kr,dje	Niger	562	.ne
-NF	NFK	672	Kingston	AUD	🇳🇫	en-NF	Norfolk Island	574	.nf
-NG	NGA	234	Abuja	NGN	🇳🇬	en-NG,ha,yo,ig,ff	Nigeria	566	.ng
-NI	NIC	505	Managua	NIO	🇳🇮	es-NI,en	Nicaragua	558	.ni
-NL	NLD	31	Amsterdam	EUR	🇳🇱	nl-NL,fy-NL	Netherlands	528	.nl
-NO	NOR	47	Oslo	NOK	🇳🇴	no,nb,nn,se,fi	Norway	578	.no
-NP	NPL	977	Kathmandu	NPR	🇳🇵	ne,en	Nepal	524	.np
-NR	NRU	674	Yaren	AUD	🇳🇷	na,en-NR	Nauru	520	.nr
-NU	NIU	683	Alofi	NZD	🇳🇺	niu,en-NU	Niue	570	.nu
-NZ	NZL	64	Wellington	NZD	🇳🇿	en-NZ,mi	New Zealand	554	.nz
-OM	OMN	968	Muscat	OMR	🇴🇲	ar-OM,en,bal,ur	Oman	512	.om
-PA	PAN	507	Panama City	PAB	🇵🇦	es-PA,en	Panama	591	.pa
-PE	PER	51	Lima	PEN	🇵🇪	es-PE,qu,ay	Peru	604	.pe
-PF	PYF	689	Papeete	XPF	🇵🇫	fr-PF,ty	French Polynesia	258	.pf
-PG	PNG	675	Port Moresby	PGK	🇵🇬	en-PG,ho,meu,tpi	Papua New Guinea	598	.pg
-PH	PHL	63	Manila	PHP	🇵🇭	tl,en-PH,fil,ceb,ilo,hil,war,pam,bik,bcl,pag,mrw,tsg,mdh,cbk,krj,sgd,msb,akl,ibg,yka,mta,abx	Philippines	608	.ph
-PK	PAK	92	Islamabad	PKR	🇵🇰	ur-PK,en-PK,pa,sd,ps,brh	Pakistan	586	.pk
-PL	POL	48	Warsaw	PLN	🇵🇱	pl	Poland	616	.pl
-PM	SPM	508	Saint-Pierre	EUR	🇵🇲	fr-PM	St. Pierre & Miquelon	666	.pm
-PN	PCN	870	Adamstown	NZD	🇵🇳	en-PN	Pitcairn	612	.pn
-PR	PRI	1	San Juan	USD	🇵🇷	en-PR,es-PR	Puerto Rico	630	.pr
-PT	PRT	351	Lisbon	EUR	🇵🇹	pt-PT,mwl	Portugal	620	.pt
-PW	PLW	680	Melekeok	USD	🇵🇼	pau,sov,en-PW,tox,ja,fil,zh	Palau	585	.pw
-PY	PRY	595	Asuncion	PYG	🇵🇾	es-PY,gn	Paraguay	600	.py
-QA	QAT	974	Doha	QAR	🇶🇦	ar-QA,es	Qatar	634	.qa
-RE	REU	262	Saint-Denis	EUR	🇷🇪	fr-RE	Réunion	638	.re
-RO	ROU	40	Bucharest	RON	🇷🇴	ro,hu,rom	Romania	642	.ro
-RS	SRB	381	Belgrade	RSD	🇷🇸	sr,hu,bs,rom	Serbia	688	.rs
-RU	RUS	7	Moscow	RUB	🇷🇺	ru,tt,xal,cau,ady,kv,ce,tyv,cv,udm,tut,mns,bua,myv,mdf,chm,ba,inh,kbd,krc,av,sah,nog	Russia	643	.ru
-RW	RWA	250	Kigali	RWF	🇷🇼	rw,en-RW,fr-RW,sw	Rwanda	646	.rw
-SA	SAU	966	Riyadh	SAR	🇸🇦	ar-SA	Saudi Arabia	682	.sa
-SB	SLB	677	Honiara	SBD	🇸🇧	en-SB,tpi	Solomon Islands	090	.sb
-SC	SYC	248	Victoria	SCR	🇸🇨	en-SC,fr-SC	Seychelles	690	.sc
-SD	SDN	249	Khartoum	SDG	🇸🇩	ar-SD,en,fia	Sudan	729	.sd
-SE	SWE	46	Stockholm	SEK	🇸🇪	sv-SE,se,sma,fi-SE	Sweden	752	.se
-SG	SGP	65	Singapore	SGD	🇸🇬	cmn,en-SG,ms-SG,ta-SG,zh-SG	Singapore	702	.sg
-SH	SHN	290	Jamestown	SHP	🇸🇭	en-SH	St. Helena	654	.sh
-SI	SVN	386	Ljubljana	EUR	🇸🇮	sl,sh	Slovenia	705	.si
-SJ	SJM	47	Longyearbyen	NOK	🇸🇯	no,ru	Svalbard & Jan Mayen	744	.sj
-SK	SVK	421	Bratislava	EUR	🇸🇰	sk,hu	Slovakia	703	.sk
-SL	SLE	232	Freetown	SLE	🇸🇱	en-SL,men,tem	Sierra Leone	694	.sl
-SM	SMR	378	San Marino	EUR	🇸🇲	it-SM	San Marino	674	.sm
-SN	SEN	221	Dakar	XOF	🇸🇳	fr-SN,wo,fuc,mnk	Senegal	686	.sn
-SO	SOM	252	Mogadishu	SOS	🇸🇴	so-SO,ar-SO,it,en-SO	Somalia	706	.so
-SR	SUR	597	Paramaribo	SRD	🇸🇷	nl-SR,en,srn,hns,jv	Suriname	740	.sr
-SS	SSD	211	Juba	SSP	🇸🇸	en	South Sudan	728	.ss
-ST	STP	239	Sao Tome	STN	🇸🇹	pt-ST	São Tomé & Príncipe	678	.st
-SV	SLV	503	San Salvador	SVC	🇸🇻	es-SV	El Salvador	222	.sv
-SX	SXM	1-721	Philipsburg	XCG	🇸🇽	nl,en	Sint Maarten	534	.sx
-SY	SYR	963	Damascus	SYP	🇸🇾	ar-SY,ku,hy,arc,fr,en	Syria	760	.sy
-SZ	SWZ	268	Mbabane	SZL	🇸🇿	en-SZ,ss-SZ	Eswatini	748	.sz
-TC	TCA	1-649	Cockburn Town	USD	🇹🇨	en-TC	Turks & Caicos Islands	796	.tc
-TD	TCD	235	N'Djamena	XAF	🇹🇩	fr-TD,ar-TD,sre	Chad	148	.td
-TF	ATF	262	Port-aux-Francais	EUR	🇹🇫	fr	French Southern Territories	260	.tf
-TG	TGO	228	Lome	XOF	🇹🇬	fr-TG,ee,hna,kbp,dag,ha	Togo	768	.tg
-TH	THA	66	Bangkok	THB	🇹🇭	th,en	Thailand	764	.th
-TJ	TJK	992	Dushanbe	TJS	🇹🇯	tg,ru	Tajikistan	762	.tj
-TL	TLS	670	Dili	USD	🇹🇱	tet,pt-TL,id,en	Timor-Leste	626	.tl
-TM	TKM	993	Ashgabat	TMT	🇹🇲	tk,ru,uz	Turkmenistan	795	.tm
-TN	TUN	216	Tunis	TND	🇹🇳	ar-TN,fr	Tunisia	788	.tn
-TO	TON	676	Nuku'alofa	TOP	🇹🇴	to,en-TO	Tonga	776	.to
-TR	TUR	90	Ankara	TRY	🇹🇷	tr-TR,ku,diq,az,av	Türkiye	792	.tr
-TT	TTO	1-868	Port of Spain	TTD	🇹🇹	en-TT,hns,fr,es,zh	Trinidad & Tobago	780	.tt
-TV	TUV	688	Funafuti	AUD	🇹🇻	tvl,en,sm,gil	Tuvalu	798	.tv
-TW	TWN	886	Taipei	TWD	🇹🇼	zh-TW,zh,nan,hak	Taiwan	158	.tw
-TZ	TZA	255	Dodoma	TZS	🇹🇿	sw-TZ,en,ar	Tanzania	834	.tz
-UA	UKR	380	Kyiv	UAH	🇺🇦	uk,ru-UA,rom,pl,hu	Ukraine	804	.ua
-UG	UGA	256	Kampala	UGX	🇺🇬	en-UG,lg,sw,ar	Uganda	800	.ug
-US	USA	1	Washington	USD	🇺🇸	en-US,es-US,haw,fr	US	840	.us
-UY	URY	598	Montevideo	UYU	🇺🇾	es-UY	Uruguay	858	.uy
-UZ	UZB	998	Tashkent	UZS	🇺🇿	uz,ru,tg	Uzbekistan	860	.uz
-VA	VAT	39	Vatican City	EUR	🇻🇦	la,it,fr	Vatican City	336	.va
-VC	VCT	1-784	Kingstown	XCD	🇻🇨	en-VC,fr	St. Vincent & Grenadines	670	.vc
-VE	VEN	58	Caracas	VES	🇻🇪	es-VE	Venezuela	862	.ve
-VG	VGB	1-284	Road Town	USD	🇻🇬	en-VG	British Virgin Islands	092	.vg
-VI	VIR	1-340	Charlotte Amalie	USD	🇻🇮	en-VI	U.S. Virgin Islands	850	.vi
-VN	VNM	84	Hanoi	VND	🇻🇳	vi,en,fr,zh,km	Vietnam	704	.vn
-VU	VUT	678	Port Vila	VUV	🇻🇺	bi,en-VU,fr-VU	Vanuatu	548	.vu
-WF	WLF	681	Mata Utu	XPF	🇼🇫	wls,fud,fr-WF	Wallis & Futuna	876	.wf
-WS	WSM	685	Apia	WST	🇼🇸	sm,en-WS	Samoa	882	.ws
-YE	YEM	967	Sanaa	YER	🇾🇪	ar-YE	Yemen	887	.ye
-YT	MYT	262	Mamoudzou	EUR	🇾🇹	fr-YT	Mayotte	175	.yt
-ZA	ZAF	27	Pretoria	ZAR	🇿🇦	zu,xh,af,nso,en-ZA,tn,st,ts,ss,ve,nr	South Africa	710	.za
-ZM	ZMB	260	Lusaka	ZMW	🇿🇲	en-ZM,bem,loz,lun,lue,ny,toi	Zambia	894	.zm
-ZW	ZWE	263	Harare	ZWG	🇿🇼	en-ZW,sn,nr,nd	Zimbabwe	716	.zw
+alpha2	alpha3	calling-code	capital	country	currency	flag	languages	name	numeric	tld
+AD	AND	376	Andorra la Vella	AD	EUR	🇦🇩	ca	Andorra	020	.ad
+AE	ARE	971	Abu Dhabi	AE	AED	🇦🇪	ar-AE,fa,en,hi,ur	United Arab Emirates	784	.ae
+AF	AFG	93	Kabul	AF	AFN	🇦🇫	fa-AF,ps,uz-AF,tk	Afghanistan	004	.af
+AG	ATG	1-268	St. John's	AG	XCD	🇦🇬	en-AG	Antigua & Barbuda	028	.ag
+AI	AIA	1-264	The Valley	GB	XCD	🇦🇮	en-AI	Anguilla	660	.ai
+AL	ALB	355	Tirana	AL	ALL	🇦🇱	sq,el	Albania	008	.al
+AM	ARM	374	Yerevan	AM	AMD	🇦🇲	hy	Armenia	051	.am
+AO	AGO	244	Luanda	AO	AOA	🇦🇴	pt-AO	Angola	024	.ao
+AR	ARG	54	Buenos Aires	AR	ARS	🇦🇷	es-AR,en,it,de,fr,gn	Argentina	032	.ar
+AS	ASM	1-684	Pago Pago	US	USD	🇦🇸	en-AS,sm,to	American Samoa	016	.as
+AT	AUT	43	Vienna	AT	EUR	🇦🇹	de-AT,hr,hu,sl	Austria	040	.at
+AU	AUS	61	Canberra	AU	AUD	🇦🇺	en-AU	Australia	036	.au
+AW	ABW	297	Oranjestad	NL	AWG	🇦🇼	nl-AW,pap,es,en	Aruba	533	.aw
+AX	ALA	358	Mariehamn	FI	EUR	🇦🇽	sv-AX	Åland Islands	248	.ax
+AZ	AZE	994	Baku	AZ	AZN	🇦🇿	az,ru,hy	Azerbaijan	031	.az
+BA	BIH	387	Sarajevo	BA	BAM	🇧🇦	bs,hr-BA,sr-BA	Bosnia	070	.ba
+BB	BRB	1-246	Bridgetown	BB	BBD	🇧🇧	en-BB	Barbados	052	.bb
+BD	BGD	880	Dhaka	BD	BDT	🇧🇩	bn-BD,en	Bangladesh	050	.bd
+BE	BEL	32	Brussels	BE	EUR	🇧🇪	nl-BE,fr-BE,de-BE	Belgium	056	.be
+BF	BFA	226	Ouagadougou	BF	XOF	🇧🇫	fr-BF,mos	Burkina Faso	854	.bf
+BG	BGR	359	Sofia	BG	EUR	🇧🇬	bg,tr-BG,rom	Bulgaria	100	.bg
+BH	BHR	973	Manama	BH	BHD	🇧🇭	ar-BH,en,fa,ur	Bahrain	048	.bh
+BI	BDI	257	Gitega	BI	BIF	🇧🇮	fr-BI,rn	Burundi	108	.bi
+BJ	BEN	229	Porto-Novo	BJ	XOF	🇧🇯	fr-BJ	Benin	204	.bj
+BL	BLM	590	Gustavia	FR	EUR	🇧🇱	fr	St. Barthélemy	652	.gp
+BM	BMU	1-441	Hamilton	GB	BMD	🇧🇲	en-BM,pt	Bermuda	060	.bm
+BN	BRN	673	Bandar Seri Begawan	BN	BND	🇧🇳	ms-BN,en-BN	Brunei	096	.bn
+BO	BOL	591	Sucre	BO	BOB	🇧🇴	es-BO,qu,ay	Bolivia	068	.bo
+BR	BRA	55	Brasilia	BR	BRL	🇧🇷	pt-BR,es,en,fr	Brazil	076	.br
+BS	BHS	1-242	Nassau	BS	BSD	🇧🇸	en-BS	Bahamas	044	.bs
+BT	BTN	975	Thimphu	BT	INR	🇧🇹	dz	Bhutan	064	.bt
+BW	BWA	267	Gaborone	BW	BWP	🇧🇼	en-BW,tn-BW	Botswana	072	.bw
+BY	BLR	375	Minsk	BY	BYN	🇧🇾	be,ru	Belarus	112	.by
+BZ	BLZ	501	Belmopan	BZ	BZD	🇧🇿	en-BZ,es	Belize	084	.bz
+CA	CAN	1	Ottawa	CA	CAD	🇨🇦	en-CA,fr-CA,iu	Canada	124	.ca
+CC	CCK	61	West Island	AU	AUD	🇨🇨	ms-CC,en	Cocos Islands	166	.cc
+CD	COD	243	Kinshasa	CD	CDF	🇨🇩	fr-CD,ln,ktu,kg,sw,lua	Congo - Kinshasa	180	.cd
+CF	CAF	236	Bangui	CF	XAF	🇨🇫	fr-CF,sg,ln,kg	Central African Republic	140	.cf
+CG	COG	242	Brazzaville	CG	XAF	🇨🇬	fr-CG,kg,ln-CG	Congo - Brazzaville	178	.cg
+CH	CHE	41	Bern	CH	CHF	🇨🇭	de-CH,fr-CH,it-CH,rm	Switzerland	756	.ch
+CI	CIV	225	Yamoussoukro	CI	XOF	🇨🇮	fr-CI	Côte d’Ivoire	384	.ci
+CK	COK	682	Avarua	NZ	NZD	🇨🇰	en-CK,mi	Cook Islands	184	.ck
+CL	CHL	56	Santiago	CL	CLP	🇨🇱	es-CL	Chile	152	.cl
+CM	CMR	237	Yaounde	CM	XAF	🇨🇲	en-CM,fr-CM	Cameroon	120	.cm
+CN	CHN	86	Beijing	CN	CNY	🇨🇳	zh-CN,yue,wuu,dta,ug,za	China	156	.cn
+CO	COL	57	Bogota	CO	COP	🇨🇴	es-CO	Colombia	170	.co
+CR	CRI	506	San Jose	CR	CRC	🇨🇷	es-CR,en	Costa Rica	188	.cr
+CU	CUB	53	Havana	CU	CUP	🇨🇺	es-CU,pap	Cuba	192	.cu
+CV	CPV	238	Praia	CV	CVE	🇨🇻	pt-CV	Cape Verde	132	.cv
+CW	CUW	599	 Willemstad	NL	XCG	🇨🇼	nl,pap	Curaçao	531	.cw
+CX	CXR	61	Flying Fish Cove	AU	AUD	🇨🇽	en,zh,ms-CX	Christmas Island	162	.cx
+CY	CYP	357	Nicosia	CY	EUR	🇨🇾	el-CY,tr-CY,en	Cyprus	196	.cy
+CZ	CZE	420	Prague	CZ	CZK	🇨🇿	cs,sk	Czechia	203	.cz
+DE	DEU	49	Berlin	DE	EUR	🇩🇪	de	Germany	276	.de
+DJ	DJI	253	Djibouti	DJ	DJF	🇩🇯	fr-DJ,ar,so-DJ,aa	Djibouti	262	.dj
+DK	DNK	45	Copenhagen	DK	DKK	🇩🇰	da-DK,en,fo,de-DK	Denmark	208	.dk
+DM	DMA	1-767	Roseau	DM	XCD	🇩🇲	en-DM	Dominica	212	.dm
+DO	DOM	1-809	Santo Domingo	DO	DOP	🇩🇴	es-DO	Dominican Republic	214	.do
+DZ	DZA	213	Algiers	DZ	DZD	🇩🇿	ar-DZ	Algeria	012	.dz
+EC	ECU	593	Quito	EC	USD	🇪🇨	es-EC	Ecuador	218	.ec
+EE	EST	372	Tallinn	EE	EUR	🇪🇪	et,ru	Estonia	233	.ee
+EG	EGY	20	Cairo	EG	EGP	🇪🇬	ar-EG,en,fr	Egypt	818	.eg
+EH	ESH	212	El-Aaiun	EH	MAD	🇪🇭	ar,mey	Western Sahara	732	.eh
+ER	ERI	291	Asmara	ER	ERN	🇪🇷	aa-ER,ar,tig,kun,ti-ER	Eritrea	232	.er
+ES	ESP	34	Madrid	ES	EUR	🇪🇸	es-ES,ca,gl,eu,oc	Spain	724	.es
+ET	ETH	251	Addis Ababa	ET	ETB	🇪🇹	am,en-ET,om-ET,ti-ET,so-ET,sid	Ethiopia	231	.et
+FI	FIN	358	Helsinki	FI	EUR	🇫🇮	fi-FI,sv-FI,smn	Finland	246	.fi
+FJ	FJI	679	Suva	FJ	FJD	🇫🇯	en-FJ,fj	Fiji	242	.fj
+FK	FLK	500	Stanley	GB	FKP	🇫🇰	en-FK	Falkland Islands	238	.fk
+FM	FSM	691	Palikir	FM	USD	🇫🇲	en-FM,chk,pon,yap,kos,uli,woe,nkr,kpg	Micronesia	583	.fm
+FO	FRO	298	Torshavn	DK	DKK	🇫🇴	fo,da-FO	Faroe Islands	234	.fo
+FR	FRA	33	Paris	FR	EUR	🇫🇷	fr-FR,frp,br,co,ca,eu,oc	France	250	.fr
+GA	GAB	241	Libreville	GA	XAF	🇬🇦	fr-GA	Gabon	266	.ga
+GB	GBR	44	London	GB	GBP	🇬🇧	en-GB,cy-GB,gd	UK	826	.uk
+GD	GRD	1-473	St. George's	GD	XCD	🇬🇩	en-GD	Grenada	308	.gd
+GE	GEO	995	Tbilisi	GE	GEL	🇬🇪	ka,ru,hy,az	Georgia	268	.ge
+GF	GUF	594	Cayenne	FR	EUR	🇬🇫	fr-GF	French Guiana	254	.gf
+GG	GGY	44	St Peter Port	GB	GBP	🇬🇬	en,nrf	Guernsey	831	.gg
+GH	GHA	233	Accra	GH	GHS	🇬🇭	en-GH,ak,ee,tw	Ghana	288	.gh
+GI	GIB	350	Gibraltar	GB	GIP	🇬🇮	en-GI,es,it,pt	Gibraltar	292	.gi
+GL	GRL	299	Nuuk	DK	DKK	🇬🇱	kl,da-GL,en	Greenland	304	.gl
+GM	GMB	220	Banjul	GM	GMD	🇬🇲	en-GM,mnk,wof,wo,ff	Gambia	270	.gm
+GN	GIN	224	Conakry	GN	GNF	🇬🇳	fr-GN	Guinea	324	.gn
+GP	GLP	590	Basse-Terre	FR	EUR	🇬🇵	fr-GP	Guadeloupe	312	.gp
+GQ	GNQ	240	Ciudad de la Paz	GQ	XAF	🇬🇶	es-GQ,fr,pt	Equatorial Guinea	226	.gq
+GR	GRC	30	Athens	GR	EUR	🇬🇷	el-GR,en,fr	Greece	300	.gr
+GT	GTM	502	Guatemala City	GT	GTQ	🇬🇹	es-GT	Guatemala	320	.gt
+GU	GUM	1-671	Hagatna	US	USD	🇬🇺	en-GU,ch-GU	Guam	316	.gu
+GW	GNB	245	Bissau	GW	XOF	🇬🇼	pt-GW,pov	Guinea-Bissau	624	.gw
+GY	GUY	592	Georgetown	GY	GYD	🇬🇾	en-GY	Guyana	328	.gy
+HK	HKG	852	Hong Kong	CN	HKD	🇭🇰	zh-HK,yue,zh,en	Hong Kong	344	.hk
+HN	HND	504	Tegucigalpa	HN	HNL	🇭🇳	es-HN,cab,miq	Honduras	340	.hn
+HR	HRV	385	Zagreb	HR	EUR	🇭🇷	hr-HR,sr	Croatia	191	.hr
+HT	HTI	509	Port-au-Prince	HT	HTG	🇭🇹	ht,fr-HT	Haiti	332	.ht
+HU	HUN	36	Budapest	HU	HUF	🇭🇺	hu-HU	Hungary	348	.hu
+ID	IDN	62	Jakarta	ID	IDR	🇮🇩	id,en,nl,jv	Indonesia	360	.id
+IE	IRL	353	Dublin	IE	EUR	🇮🇪	en-IE,ga-IE	Ireland	372	.ie
+IL	ISR	972	Jerusalem	IL	ILS	🇮🇱	he,ar-IL,en-IL	Israel	376	.il
+IM	IMN	44	Douglas	GB	GBP	🇮🇲	en,gv	Isle of Man	833	.im
+IN	IND	91	New Delhi	IN	INR	🇮🇳	en-IN,hi,bn,te,mr,ta,ur,gu,kn,ml,or,pa,as,bh,sat,ks,ne,sd,kok,doi,mni,sit,sa,fr,lus,inc	India	356	.in
+IO	IOT	246	Diego Garcia	GB	USD	🇮🇴	en-IO	British Indian Ocean Territory	086	.io
+IQ	IRQ	964	Baghdad	IQ	IQD	🇮🇶	ar-IQ,ku,hy	Iraq	368	.iq
+IR	IRN	98	Tehran	IR	IRR	🇮🇷	fa-IR,ku	Iran	364	.ir
+IS	ISL	354	Reykjavik	IS	ISK	🇮🇸	is,en,de,da,sv,no	Iceland	352	.is
+IT	ITA	39	Rome	IT	EUR	🇮🇹	it-IT,de-IT,fr-IT,sc,ca,co,sl	Italy	380	.it
+JE	JEY	44	Saint Helier	GB	GBP	🇯🇪	en,fr,nrf	Jersey	832	.je
+JM	JAM	1-876	Kingston	JM	JMD	🇯🇲	en-JM	Jamaica	388	.jm
+JO	JOR	962	Amman	JO	JOD	🇯🇴	ar-JO,en	Jordan	400	.jo
+JP	JPN	81	Tokyo	JP	JPY	🇯🇵	ja	Japan	392	.jp
+KE	KEN	254	Nairobi	KE	KES	🇰🇪	en-KE,sw-KE	Kenya	404	.ke
+KG	KGZ	996	Bishkek	KG	KGS	🇰🇬	ky,uz,ru	Kyrgyzstan	417	.kg
+KH	KHM	855	Phnom Penh	KH	KHR	🇰🇭	km,fr,en	Cambodia	116	.kh
+KI	KIR	686	Tarawa	KI	AUD	🇰🇮	en-KI,gil	Kiribati	296	.ki
+KM	COM	269	Moroni	KM	KMF	🇰🇲	ar,fr-KM	Comoros	174	.km
+KN	KNA	1-869	Basseterre	KN	XCD	🇰🇳	en-KN	St. Kitts & Nevis	659	.kn
+KP	PRK	850	Pyongyang	KP	KPW	🇰🇵	ko-KP	North Korea	408	.kp
+KR	KOR	82	Seoul	KR	KRW	🇰🇷	ko-KR,en	South Korea	410	.kr
+KW	KWT	965	Kuwait City	KW	KWD	🇰🇼	ar-KW,en	Kuwait	414	.kw
+KY	CYM	1-345	George Town	GB	KYD	🇰🇾	en-KY	Cayman Islands	136	.ky
+KZ	KAZ	7	Nur-Sultan	KZ	KZT	🇰🇿	kk,ru	Kazakhstan	398	.kz
+LA	LAO	856	Vientiane	LA	LAK	🇱🇦	lo,fr,en	Laos	418	.la
+LB	LBN	961	Beirut	LB	LBP	🇱🇧	ar-LB,fr-LB,en,hy	Lebanon	422	.lb
+LC	LCA	1-758	Castries	LC	XCD	🇱🇨	en-LC	St. Lucia	662	.lc
+LI	LIE	423	Vaduz	LI	CHF	🇱🇮	de-LI	Liechtenstein	438	.li
+LK	LKA	94	Colombo	LK	LKR	🇱🇰	si,ta,en	Sri Lanka	144	.lk
+LR	LBR	231	Monrovia	LR	LRD	🇱🇷	en-LR	Liberia	430	.lr
+LS	LSO	266	Maseru	LS	LSL	🇱🇸	en-LS,st,zu,xh	Lesotho	426	.ls
+LT	LTU	370	Vilnius	LT	EUR	🇱🇹	lt,ru,pl	Lithuania	440	.lt
+LU	LUX	352	Luxembourg	LU	EUR	🇱🇺	lb,de-LU,fr-LU	Luxembourg	442	.lu
+LV	LVA	371	Riga	LV	EUR	🇱🇻	lv,ru,lt	Latvia	428	.lv
+LY	LBY	218	Tripoli	LY	LYD	🇱🇾	ar-LY,it,en	Libya	434	.ly
+MA	MAR	212	Rabat	MA	MAD	🇲🇦	ar-MA,ber,fr	Morocco	504	.ma
+MC	MCO	377	Monaco	MC	EUR	🇲🇨	fr-MC,en,it	Monaco	492	.mc
+MD	MDA	373	Chisinau	MD	MDL	🇲🇩	ro,ru,gag,tr	Moldova	498	.md
+ME	MNE	382	Podgorica	ME	EUR	🇲🇪	sr,hu,bs,sq,hr,rom	Montenegro	499	.me
+MF	MAF	590	Marigot	FR	EUR	🇲🇫	fr	St. Martin	663	.gp
+MG	MDG	261	Antananarivo	MG	MGA	🇲🇬	fr-MG,mg	Madagascar	450	.mg
+MH	MHL	692	Majuro	MH	USD	🇲🇭	mh,en-MH	Marshall Islands	584	.mh
+MK	MKD	389	Skopje	MK	MKD	🇲🇰	mk,sq,tr,rmm,sr	North Macedonia	807	.mk
+ML	MLI	223	Bamako	ML	XOF	🇲🇱	fr-ML,bm	Mali	466	.ml
+MM	MMR	95	Nay Pyi Taw	MM	MMK	🇲🇲	my	Myanmar	104	.mm
+MN	MNG	976	Ulaanbaatar	MN	MNT	🇲🇳	mn,ru	Mongolia	496	.mn
+MO	MAC	853	Macao	CN	MOP	🇲🇴	zh,zh-MO,pt	Macao	446	.mo
+MP	MNP	1-670	Saipan	US	USD	🇲🇵	fil,tl,zh,ch-MP,en-MP	Northern Mariana Islands	580	.mp
+MQ	MTQ	596	Fort-de-France	FR	EUR	🇲🇶	fr-MQ	Martinique	474	.mq
+MR	MRT	222	Nouakchott	MR	MRU	🇲🇷	ar-MR,fuc,snk,fr,mey,wo	Mauritania	478	.mr
+MS	MSR	1-664	Plymouth	GB	XCD	🇲🇸	en-MS	Montserrat	500	.ms
+MT	MLT	356	Valletta	MT	EUR	🇲🇹	mt,en-MT	Malta	470	.mt
+MU	MUS	230	Port Louis	MU	MUR	🇲🇺	en-MU,bho,fr	Mauritius	480	.mu
+MV	MDV	960	Male	MV	MVR	🇲🇻	dv,en	Maldives	462	.mv
+MW	MWI	265	Lilongwe	MW	MWK	🇲🇼	ny,yao,tum,swk	Malawi	454	.mw
+MX	MEX	52	Mexico City	MX	MXN	🇲🇽	es-MX	Mexico	484	.mx
+MY	MYS	60	Kuala Lumpur	MY	MYR	🇲🇾	ms-MY,en,zh,ta,te,ml,pa,th	Malaysia	458	.my
+MZ	MOZ	258	Maputo	MZ	MZN	🇲🇿	pt-MZ,vmw	Mozambique	508	.mz
+NA	NAM	264	Windhoek	NA	NAD	🇳🇦	en-NA,af,de,hz,naq	Namibia	516	.na
+NC	NCL	687	Noumea	FR	XPF	🇳🇨	fr-NC	New Caledonia	540	.nc
+NE	NER	227	Niamey	NE	XOF	🇳🇪	fr-NE,ha,kr,dje	Niger	562	.ne
+NF	NFK	672	Kingston	AU	AUD	🇳🇫	en-NF	Norfolk Island	574	.nf
+NG	NGA	234	Abuja	NG	NGN	🇳🇬	en-NG,ha,yo,ig,ff	Nigeria	566	.ng
+NI	NIC	505	Managua	NI	NIO	🇳🇮	es-NI,en	Nicaragua	558	.ni
+NL	NLD	31	Amsterdam	NL	EUR	🇳🇱	nl-NL,fy-NL	Netherlands	528	.nl
+NO	NOR	47	Oslo	NO	NOK	🇳🇴	no,nb,nn,se,fi	Norway	578	.no
+NP	NPL	977	Kathmandu	NP	NPR	🇳🇵	ne,en	Nepal	524	.np
+NR	NRU	674	Yaren	NR	AUD	🇳🇷	na,en-NR	Nauru	520	.nr
+NU	NIU	683	Alofi	NZ	NZD	🇳🇺	niu,en-NU	Niue	570	.nu
+NZ	NZL	64	Wellington	NZ	NZD	🇳🇿	en-NZ,mi	New Zealand	554	.nz
+OM	OMN	968	Muscat	OM	OMR	🇴🇲	ar-OM,en,bal,ur	Oman	512	.om
+PA	PAN	507	Panama City	PA	PAB	🇵🇦	es-PA,en	Panama	591	.pa
+PE	PER	51	Lima	PE	PEN	🇵🇪	es-PE,qu,ay	Peru	604	.pe
+PF	PYF	689	Papeete	FR	XPF	🇵🇫	fr-PF,ty	French Polynesia	258	.pf
+PG	PNG	675	Port Moresby	PG	PGK	🇵🇬	en-PG,ho,meu,tpi	Papua New Guinea	598	.pg
+PH	PHL	63	Manila	PH	PHP	🇵🇭	tl,en-PH,fil,ceb,ilo,hil,war,pam,bik,bcl,pag,mrw,tsg,mdh,cbk,krj,sgd,msb,akl,ibg,yka,mta,abx	Philippines	608	.ph
+PK	PAK	92	Islamabad	PK	PKR	🇵🇰	ur-PK,en-PK,pa,sd,ps,brh	Pakistan	586	.pk
+PL	POL	48	Warsaw	PL	PLN	🇵🇱	pl	Poland	616	.pl
+PM	SPM	508	Saint-Pierre	FR	EUR	🇵🇲	fr-PM	St. Pierre & Miquelon	666	.pm
+PN	PCN	870	Adamstown	GB	NZD	🇵🇳	en-PN	Pitcairn	612	.pn
+PR	PRI	1	San Juan	US	USD	🇵🇷	en-PR,es-PR	Puerto Rico	630	.pr
+PT	PRT	351	Lisbon	PT	EUR	🇵🇹	pt-PT,mwl	Portugal	620	.pt
+PW	PLW	680	Melekeok	PW	USD	🇵🇼	pau,sov,en-PW,tox,ja,fil,zh	Palau	585	.pw
+PY	PRY	595	Asuncion	PY	PYG	🇵🇾	es-PY,gn	Paraguay	600	.py
+QA	QAT	974	Doha	QA	QAR	🇶🇦	ar-QA,es	Qatar	634	.qa
+RE	REU	262	Saint-Denis	FR	EUR	🇷🇪	fr-RE	Réunion	638	.re
+RO	ROU	40	Bucharest	RO	RON	🇷🇴	ro,hu,rom	Romania	642	.ro
+RS	SRB	381	Belgrade	RS	RSD	🇷🇸	sr,hu,bs,rom	Serbia	688	.rs
+RU	RUS	7	Moscow	RU	RUB	🇷🇺	ru,tt,xal,cau,ady,kv,ce,tyv,cv,udm,tut,mns,bua,myv,mdf,chm,ba,inh,kbd,krc,av,sah,nog	Russia	643	.ru
+RW	RWA	250	Kigali	RW	RWF	🇷🇼	rw,en-RW,fr-RW,sw	Rwanda	646	.rw
+SA	SAU	966	Riyadh	SA	SAR	🇸🇦	ar-SA	Saudi Arabia	682	.sa
+SB	SLB	677	Honiara	SB	SBD	🇸🇧	en-SB,tpi	Solomon Islands	090	.sb
+SC	SYC	248	Victoria	SC	SCR	🇸🇨	en-SC,fr-SC	Seychelles	690	.sc
+SD	SDN	249	Khartoum	SD	SDG	🇸🇩	ar-SD,en,fia	Sudan	729	.sd
+SE	SWE	46	Stockholm	SE	SEK	🇸🇪	sv-SE,se,sma,fi-SE	Sweden	752	.se
+SG	SGP	65	Singapore	SG	SGD	🇸🇬	cmn,en-SG,ms-SG,ta-SG,zh-SG	Singapore	702	.sg
+SH	SHN	290	Jamestown	GB	SHP	🇸🇭	en-SH	St. Helena	654	.sh
+SI	SVN	386	Ljubljana	SI	EUR	🇸🇮	sl,sh	Slovenia	705	.si
+SJ	SJM	47	Longyearbyen	NO	NOK	🇸🇯	no,ru	Svalbard & Jan Mayen	744	.sj
+SK	SVK	421	Bratislava	SK	EUR	🇸🇰	sk,hu	Slovakia	703	.sk
+SL	SLE	232	Freetown	SL	SLE	🇸🇱	en-SL,men,tem	Sierra Leone	694	.sl
+SM	SMR	378	San Marino	SM	EUR	🇸🇲	it-SM	San Marino	674	.sm
+SN	SEN	221	Dakar	SN	XOF	🇸🇳	fr-SN,wo,fuc,mnk	Senegal	686	.sn
+SO	SOM	252	Mogadishu	SO	SOS	🇸🇴	so-SO,ar-SO,it,en-SO	Somalia	706	.so
+SR	SUR	597	Paramaribo	SR	SRD	🇸🇷	nl-SR,en,srn,hns,jv	Suriname	740	.sr
+SS	SSD	211	Juba	SS	SSP	🇸🇸	en	South Sudan	728	.ss
+ST	STP	239	Sao Tome	ST	STN	🇸🇹	pt-ST	São Tomé & Príncipe	678	.st
+SV	SLV	503	San Salvador	SV	SVC	🇸🇻	es-SV	El Salvador	222	.sv
+SX	SXM	1-721	Philipsburg	NL	XCG	🇸🇽	nl,en	Sint Maarten	534	.sx
+SY	SYR	963	Damascus	SY	SYP	🇸🇾	ar-SY,ku,hy,arc,fr,en	Syria	760	.sy
+SZ	SWZ	268	Mbabane	SZ	SZL	🇸🇿	en-SZ,ss-SZ	Eswatini	748	.sz
+TC	TCA	1-649	Cockburn Town	GB	USD	🇹🇨	en-TC	Turks & Caicos Islands	796	.tc
+TD	TCD	235	N'Djamena	TD	XAF	🇹🇩	fr-TD,ar-TD,sre	Chad	148	.td
+TF	ATF	262	Port-aux-Francais	FR	EUR	🇹🇫	fr	French Southern Territories	260	.tf
+TG	TGO	228	Lome	TG	XOF	🇹🇬	fr-TG,ee,hna,kbp,dag,ha	Togo	768	.tg
+TH	THA	66	Bangkok	TH	THB	🇹🇭	th,en	Thailand	764	.th
+TJ	TJK	992	Dushanbe	TJ	TJS	🇹🇯	tg,ru	Tajikistan	762	.tj
+TL	TLS	670	Dili	TL	USD	🇹🇱	tet,pt-TL,id,en	Timor-Leste	626	.tl
+TM	TKM	993	Ashgabat	TM	TMT	🇹🇲	tk,ru,uz	Turkmenistan	795	.tm
+TN	TUN	216	Tunis	TN	TND	🇹🇳	ar-TN,fr	Tunisia	788	.tn
+TO	TON	676	Nuku'alofa	TO	TOP	🇹🇴	to,en-TO	Tonga	776	.to
+TR	TUR	90	Ankara	TR	TRY	🇹🇷	tr-TR,ku,diq,az,av	Türkiye	792	.tr
+TT	TTO	1-868	Port of Spain	TT	TTD	🇹🇹	en-TT,hns,fr,es,zh	Trinidad & Tobago	780	.tt
+TV	TUV	688	Funafuti	TV	AUD	🇹🇻	tvl,en,sm,gil	Tuvalu	798	.tv
+TW	TWN	886	Taipei	TW	TWD	🇹🇼	zh-TW,zh,nan,hak	Taiwan	158	.tw
+TZ	TZA	255	Dodoma	TZ	TZS	🇹🇿	sw-TZ,en,ar	Tanzania	834	.tz
+UA	UKR	380	Kyiv	UA	UAH	🇺🇦	uk,ru-UA,rom,pl,hu	Ukraine	804	.ua
+UG	UGA	256	Kampala	UG	UGX	🇺🇬	en-UG,lg,sw,ar	Uganda	800	.ug
+US	USA	1	Washington	US	USD	🇺🇸	en-US,es-US,haw,fr	US	840	.us
+UY	URY	598	Montevideo	UY	UYU	🇺🇾	es-UY	Uruguay	858	.uy
+UZ	UZB	998	Tashkent	UZ	UZS	🇺🇿	uz,ru,tg	Uzbekistan	860	.uz
+VA	VAT	39	Vatican City	VA	EUR	🇻🇦	la,it,fr	Vatican City	336	.va
+VC	VCT	1-784	Kingstown	VC	XCD	🇻🇨	en-VC,fr	St. Vincent & Grenadines	670	.vc
+VE	VEN	58	Caracas	VE	VES	🇻🇪	es-VE	Venezuela	862	.ve
+VG	VGB	1-284	Road Town	GB	USD	🇻🇬	en-VG	British Virgin Islands	092	.vg
+VI	VIR	1-340	Charlotte Amalie	US	USD	🇻🇮	en-VI	U.S. Virgin Islands	850	.vi
+VN	VNM	84	Hanoi	VN	VND	🇻🇳	vi,en,fr,zh,km	Vietnam	704	.vn
+VU	VUT	678	Port Vila	VU	VUV	🇻🇺	bi,en-VU,fr-VU	Vanuatu	548	.vu
+WF	WLF	681	Mata Utu	FR	XPF	🇼🇫	wls,fud,fr-WF	Wallis & Futuna	876	.wf
+WS	WSM	685	Apia	WS	WST	🇼🇸	sm,en-WS	Samoa	882	.ws
+YE	YEM	967	Sanaa	YE	YER	🇾🇪	ar-YE	Yemen	887	.ye
+YT	MYT	262	Mamoudzou	FR	EUR	🇾🇹	fr-YT	Mayotte	175	.yt
+ZA	ZAF	27	Pretoria	ZA	ZAR	🇿🇦	zu,xh,af,nso,en-ZA,tn,st,ts,ss,ve,nr	South Africa	710	.za
+ZM	ZMB	260	Lusaka	ZM	ZMW	🇿🇲	en-ZM,bem,loz,lun,lue,ny,toi	Zambia	894	.zm
+ZW	ZWE	263	Harare	ZW	ZWG	🇿🇼	en-ZW,sn,nr,nd	Zimbabwe	716	.zw
