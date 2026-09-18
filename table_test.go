@@ -738,6 +738,13 @@ func TestShippedTables(t *testing.T) {
 			t.Fatalf("%q: a territory and a timezone in one render disagree on the territory", got)
 		}
 	}
+	zones := map[string]int{}
+	for i := 0; i < 2000; i++ {
+		zones[fake(t, f, "territory[US].timezone")]++
+	}
+	if peopled := zones["America/New_York"] + zones["America/Chicago"] + zones["America/Los_Angeles"] + zones["America/Denver"]; peopled < 1600 {
+		t.Fatalf("the four zones most Americans live in take %d of 2000 US draws, want the population weight to favour them", peopled)
+	}
 }
 
 // TestEveryTerritoryNamesAShippedCountry proves what no parent can: the sovereign a

@@ -108,6 +108,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		"timezone":           regexp.MustCompile(`^[A-Za-z]+(/[A-Za-z0-9_+-]+)+$`),
 		"timezone.offset":    regexp.MustCompile(`^[+-](0\d|1[0-4]):[0-5]\d$`),
 		"timezone.territory": regexp.MustCompile(`^[A-Z]{2}$`),
+		"timezone.weight":    regexp.MustCompile(`^[1-9]\d*$`),
 		"mimetype":           regexp.MustCompile(`^[a-z]+/[a-z0-9.+-]+$`),
 		"mimetype.ext":       regexp.MustCompile(`^\.[a-z0-9_-]+$`),
 		"httpstatus":         regexp.MustCompile(`^[1-5]\d{2} \S.*$`),
