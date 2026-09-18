@@ -53,7 +53,8 @@ replacement, and each removed path, column or flag.
   ranges the SSA assigns and carries the columns `area`, `group` and `serial`, so
   `--format csv en_US.ssn` writes a header where it used to fail; `en_US.itin` is new
   and carries the same three. `person.prefix` is null where a person has no title,
-  where it used to be an empty string, so `--format sql` writes `NULL`.
+  where it used to be an empty string, so `--format sql` writes `NULL` and a `string`
+  struct field reading it becomes `*string`.
 - `ErrNoColumns` is exported, so a caller can tell the one record fence a path can
   answer from the rest.
 - An error names a spelling that runs: a layout is named single-quoted and free of

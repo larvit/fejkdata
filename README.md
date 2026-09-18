@@ -798,7 +798,9 @@ App developers writing tests and fixtures, in Go and at a shell:
   library's own advice reachable: the error for an object holding only a format
   names `"…"`, and that spelling has to work where it is printed. An argument or struct
   tag of one reference alone, `{/users}`, is refused naming the path `users`: both
-  render the same text, and only the path names a record. `IsTemplate` exports the
+  render the same text, and only the path names a record. A folder-relative `{.name}`
+  or `{..name}` is refused naming `{/name}`, since an inline template sits in no
+  folder. `IsTemplate` exports the
   rule, so the CLI, struct tags and any other caller read one.
 - **An inline template skips the cycle fence.** `New` proves the loaded tree
   acyclic, an inline node is a finite tree of its own, and nothing in the tree can
