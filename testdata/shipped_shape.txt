@@ -8,20 +8,27 @@ en_US.color
 en_US.company	format "{base} {suffix}"
 en_US.company.base	string
 en_US.company.suffix	string
-en_US.date	format "{month}/{day}/{year}"
-en_US.date.day	string
-en_US.date.month	string
-en_US.date.year	string
+en_US.date	format "{date(1970-01-01,2029-12-31,'01/02/2006')}"
 en_US.email	format "{local}@{domain}"
 en_US.email.domain	string
 en_US.email.local	string
 en_US.email.local.n
+en_US.first-name	format "{name}"	name name	weight count	parent sex
+en_US.first-name.count	string
+en_US.first-name.name	string
+en_US.first-name.sex	string
 en_US.ip
-en_US.person	format "{prefix}{femalefirst|malefirst} {last}"
-en_US.person.femalefirst	string
+en_US.itin	format "9{digits(2)}-{group}-{serial}"
+en_US.itin.group	string
+en_US.itin.serial	string
+en_US.last-name	format "{name}"	key name	weight count
+en_US.last-name.count	string
+en_US.last-name.name	string
+en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name en_US.sex
+en_US.person.first	string
 en_US.person.last	string
-en_US.person.malefirst	string
 en_US.person.prefix	string
+en_US.person.sex	string
 en_US.phone
 en_US.phone.area
 en_US.phone.exch
@@ -34,12 +41,18 @@ en_US.sentence.adj
 en_US.sentence.noun
 en_US.sentence.prep
 en_US.sentence.verb
-en_US.ssn	format "{int(100,999)}-{digits(2)}-{digits(4)}"
-en_US.time	format "{hour}:{minute} {ampm}"
-en_US.time.ampm	string
-en_US.time.hour	string
-en_US.time.minute	string
-en_US.time.minute.t
+en_US.sex	format "{name}"	key code	name name
+en_US.sex.code	string
+en_US.sex.first-name
+en_US.sex.first-name.count
+en_US.sex.first-name.name
+en_US.sex.first-name.sex
+en_US.sex.name	string
+en_US.ssn	format "{area}-{group}-{serial}"
+en_US.ssn.area	string
+en_US.ssn.group	string
+en_US.ssn.serial	string
+en_US.time	format "{time('3:04 PM')}"
 en_US.url	format "https://{host}{path}"
 en_US.url.host	string
 en_US.url.path	string
@@ -216,6 +229,7 @@ misc.currency.decimals	string
 misc.currency.name	string
 misc.currency.numeric	string
 misc.currency.symbol	string
+misc.datetime	format "{date(2000-01-01,2029-12-31,'2006-01-02T15:04:05Z')}"
 misc.emoji
 misc.httpstatus	format "{code} {reason}"	key code	name reason
 misc.httpstatus.code	string
@@ -241,20 +255,25 @@ sv_SE.color
 sv_SE.company	format "{base} {suffix}"
 sv_SE.company.base	string
 sv_SE.company.suffix	string
-sv_SE.date	format "{year}-{month}-{day}"
-sv_SE.date.day	string
-sv_SE.date.month	string
-sv_SE.date.year	string
+sv_SE.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
 sv_SE.email	format "{local}@{domain}"
 sv_SE.email.domain	string
 sv_SE.email.local	string
 sv_SE.email.local.n
+sv_SE.first-name	format "{name}"	name name	weight count	parent sex
+sv_SE.first-name.count	string
+sv_SE.first-name.name	string
+sv_SE.first-name.sex	string
 sv_SE.ip
-sv_SE.person	format "{prefix}{femalefirst|malefirst} {last}"
-sv_SE.person.femalefirst	string
+sv_SE.last-name	format "{name}"	key name	weight count
+sv_SE.last-name.count	string
+sv_SE.last-name.name	string
+sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.sex
+sv_SE.person.first	string
 sv_SE.person.last	string
-sv_SE.person.malefirst	string
 sv_SE.person.prefix	string
+sv_SE.person.sex	string
+sv_SE.personnummer	format "{date(1930-01-01,2025-12-31,'060102')}-{.sex.birth-number}{luhn()}"	reads sv_SE.sex
 sv_SE.phone
 sv_SE.phone.a
 sv_SE.phone.b
@@ -263,20 +282,21 @@ sv_SE.phone.prefix
 sv_SE.price	format "{amt}{ore} kr"
 sv_SE.price.amt	string
 sv_SE.price.ore	string
+sv_SE.samordningsnummer	format "{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}-{.sex.birth-number}{luhn()}"	reads sv_SE.sex
 sv_SE.sentence
 sv_SE.sentence.adj
 sv_SE.sentence.noun
 sv_SE.sentence.prep
 sv_SE.sentence.verb
-sv_SE.ssn	format "{digits(2)}{mmdd}-{digits(3)}{luhn()}"
-sv_SE.ssn.mmdd	string
-sv_SE.ssn.mmdd.d
-sv_SE.ssn.mmdd.m
-sv_SE.time	format "{hour}:{minute}{sec}"
-sv_SE.time.hour	string
-sv_SE.time.minute	string
-sv_SE.time.minute.t
-sv_SE.time.sec	string
+sv_SE.sex	format "{name}"	key code	name name
+sv_SE.sex.birth-number	string
+sv_SE.sex.code	string
+sv_SE.sex.first-name
+sv_SE.sex.first-name.count
+sv_SE.sex.first-name.name
+sv_SE.sex.first-name.sex
+sv_SE.sex.name	string
+sv_SE.time	format "{time('15:04')}"
 sv_SE.url	format "https://{host}{path}"
 sv_SE.url.host	string
 sv_SE.url.path	string
