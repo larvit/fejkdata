@@ -472,17 +472,14 @@ func iban(r rng, cc string) string {
 
 const dayLayout = "2006-01-02"
 
-// The two instants a layout is proved against: alike in nothing, so a layout that
-// formats them alike names no field, and one that tells their days apart at the same
-// clock names a date field.
+// Alike in no field; layoutDay differs from layoutProbe in its date fields only.
 var (
 	layoutProbe  = time.Date(2001, 2, 3, 4, 5, 6, 0, time.UTC)
 	layoutProbe2 = time.Date(2010, 11, 12, 13, 14, 15, 0, time.UTC)
 	layoutDay    = time.Date(2010, 11, 12, 4, 5, 6, 0, time.UTC)
 )
 
-// layoutArg is the Go layout a quoted arg holds; unquoted, it is refused naming the
-// quoted spelling, since a layout may carry the comma that splits args.
+// layoutArg is the Go layout a quoted arg holds, refused when unquoted or constant.
 func layoutArg(a string) (string, error) {
 	if len(a) < 2 || a[0] != '\'' || a[len(a)-1] != '\'' {
 		return "", fmt.Errorf("layout %s is not quoted; write '%s'", a, strings.Trim(a, "'"))
@@ -503,8 +500,8 @@ func layoutOf(a string) string {
 	return layout
 }
 
-// layoutArity checks a call that ends in a layout takes n args; an unquoted layout
-// carrying a comma splits into more, so the error names its quoted spelling.
+// layoutArity checks a call ending in a layout takes n args, naming the quoted
+// layout when an unquoted one split into more.
 func layoutArity(name string, n int, a []string) error {
 	if len(a) == n {
 		return nil
@@ -531,8 +528,14 @@ func dateArgs(_ map[string]node, a []string) error {
 	if !from.Before(to) {
 		return fmt.Errorf("date(from,to,layout): from %s is not before to %s", a[0], a[1])
 	}
-	_, err = layoutArg(a[2])
-	return err
+	layout, err := layoutArg(a[2])
+	if err != nil {
+		return err
+	}
+	if layoutProbe.Format(layout) == layoutDay.Format(layout) {
+		return fmt.Errorf("date(from,to,layout): '%s' names no date field; write time('%s')", layout, layout)
+	}
+	return nil
 }
 
 func timeArg(_ map[string]node, a []string) error {

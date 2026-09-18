@@ -243,7 +243,7 @@ func (t *table) proveNamesInsideParent() error {
 	for r := 0; r < t.rows(); r++ {
 		k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
 		if first, dup := inside[k]; dup {
-			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
+			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
 		}
 		inside[k] = r
 	}
