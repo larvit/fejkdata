@@ -621,3 +621,21 @@ func TestRunNumbersFollowTheShell(t *testing.T) {
 		t.Errorf("run(--seed 007 --repeat +3) = %d, %q, stderr %q; want the same as --seed 7 --repeat 3 %q", code, got, errb, want)
 	}
 }
+
+// TestRunRecordOfAFieldlessPath pins the way out of asking a category of one value
+// for columns: the record to write, and the quoting a shell needs to take it. The
+// argument is well-formed and only the data cannot serve it, so the code is 1.
+func TestRunRecordOfAFieldlessPath(t *testing.T) {
+	code, out, errb := runOut("--format", "csv", "sv_SE.personnummer")
+	if code != 1 {
+		t.Fatalf("run(--format csv sv_SE.personnummer) = %d, want 1", code)
+	}
+	for _, want := range []string{`{"format":"","personnummer":"{/sv_SE.personnummer}"}`, "single quotes"} {
+		if !strings.Contains(errb, want) {
+			t.Errorf("stderr = %q, want it to name %s", errb, want)
+		}
+	}
+	if out != "" {
+		t.Errorf("stdout = %q, want nothing", out)
+	}
+}
