@@ -222,8 +222,8 @@ func (t *table) bindOptions(o tableOptionValues) error {
 		}
 		*opt.into = i
 	}
-	if t.name >= 0 && t.key < 0 {
-		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column; add key")
+	if t.name >= 0 && t.key < 0 && t.parent < 0 {
+		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
 	}
 	if err := t.indexKeys(); err != nil {
 		return err
@@ -231,9 +231,18 @@ func (t *table) bindOptions(o tableOptionValues) error {
 	return t.sumWeights()
 }
 
-// indexKeys proves every key names one row, and keeps the index a link is proved by.
+// indexKeys proves every key names one row, and keeps the index a link is proved by;
+// without a key, a name names one row inside its parent.
 func (t *table) indexKeys() error {
 	if t.key < 0 {
+		inside := make(map[string]int, t.rows())
+		for r := 0; r < t.rows() && t.name >= 0; r++ {
+			k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
+			if first, dup := inside[k]; dup {
+				return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
+			}
+			inside[k] = r
+		}
 		return nil
 	}
 	t.byKey = make(map[string]int, t.rows())
@@ -488,8 +497,8 @@ func (t *table) under(r int, a *table, pr int) bool {
 // find is the row a selector names: by key first, then by name, where a name
 // naming several rows resolves inside the ancestors pinned in d.
 func (t *table) find(sel string, d *draws) (int, error) {
-	if t.key < 0 {
-		return 0, fmt.Errorf("%s has no key column to select a row by", t.category)
+	if t.key < 0 && t.name < 0 {
+		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.category)
 	}
 	if r, ok := t.byKey[sel]; ok {
 		return r, nil
@@ -506,7 +515,14 @@ func (t *table) find(sel string, d *draws) (int, error) {
 	}
 	keys := make([]string, len(rows))
 	for i, r := range rows {
-		keys[i] = t.cell(r, t.key)
+		if t.key < 0 {
+			keys[i] = t.selectorSpelling(r)
+		} else {
+			keys[i] = t.cell(r, t.key)
+		}
+	}
+	if t.key < 0 {
+		return 0, fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %v", sel, len(rows), t.category, t.parentT.category, keys)
 	}
 	inside := ""
 	if t.parentT != nil {
@@ -515,7 +531,14 @@ func (t *table) find(sel string, d *draws) (int, error) {
 	return 0, fmt.Errorf("%q names %d rows of %s; select one by key, one of %v%s", sel, len(rows), t.category, keys, inside)
 }
 
-// selectorSpelling is how a path writes a selected row, for messages.
+// selectorSpelling is how a path writes a selected row, for messages: by key, or
+// by name inside its parent's row.
 func (t *table) selectorSpelling(r int) string {
-	return t.category + "[" + t.cell(r, t.key) + "]"
+	switch {
+	case t.key >= 0:
+		return t.category + "[" + t.cell(r, t.key) + "]"
+	case t.name >= 0:
+		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.name) + "]"
+	}
+	return fmt.Sprintf("%s line %d", t.file, r+2)
 }

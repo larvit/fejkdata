@@ -7,6 +7,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -60,6 +61,8 @@ var builtins = map[string]builtin{
 		cc := a[0]
 		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
 	}},
+	"date":      {arity: 3, check: dateArgs, prep: datePrep},
+	"time":      {arity: 1, check: timeArg, prep: timePrep},
 	"calc":      {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
 	"lowercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToLower), operands: transformOperand},
 	"uppercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToUpper), operands: transformOperand},
@@ -465,4 +468,88 @@ func iban(r rng, cc string) string {
 	feed(0)
 	feed(0)
 	return fmt.Sprintf("%s%02d%s", cc, 98-rem, bban)
+}
+
+const dayLayout = "2006-01-02"
+
+// The two instants a layout is proved against: alike in nothing, so a layout that
+// formats them alike names no field, and one that tells their days apart at the same
+// clock names a date field.
+var (
+	layoutProbe  = time.Date(2001, 2, 3, 4, 5, 6, 0, time.UTC)
+	layoutProbe2 = time.Date(2010, 11, 12, 13, 14, 15, 0, time.UTC)
+	layoutDay    = time.Date(2010, 11, 12, 4, 5, 6, 0, time.UTC)
+)
+
+// layoutArg is the Go layout a quoted arg holds; unquoted, it is refused naming the
+// quoted spelling, since a layout may carry the comma that splits args.
+func layoutArg(a string) (string, error) {
+	if len(a) < 2 || a[0] != '\'' || a[len(a)-1] != '\'' {
+		return "", fmt.Errorf("layout %s is not quoted; write '%s'", a, strings.Trim(a, "'"))
+	}
+	layout := a[1 : len(a)-1]
+	if layoutProbe.Format(layout) == layoutProbe2.Format(layout) {
+		return "", fmt.Errorf("layout '%s' names no field, so it is the constant %q; write it as text", layout, layout)
+	}
+	return layout, nil
+}
+
+// layoutOf is layoutArg for an arg a check already validated.
+func layoutOf(a string) string {
+	layout, err := layoutArg(a)
+	if err != nil {
+		panic(fmt.Sprintf("fejkdata: builtin arg %q reached prep unvalidated: %v", a, err))
+	}
+	return layout
+}
+
+func dateArgs(_ map[string]node, a []string) error {
+	from, err := time.Parse(dayLayout, a[0])
+	if err != nil {
+		return fmt.Errorf("date(from,to,layout): from %q is not a YYYY-MM-DD date", a[0])
+	}
+	to, err := time.Parse(dayLayout, a[1])
+	if err != nil {
+		return fmt.Errorf("date(from,to,layout): to %q is not a YYYY-MM-DD date", a[1])
+	}
+	if !from.Before(to) {
+		return fmt.Errorf("date(from,to,layout): from %s is not before to %s", a[0], a[1])
+	}
+	_, err = layoutArg(a[2])
+	return err
+}
+
+func timeArg(_ map[string]node, a []string) error {
+	layout, err := layoutArg(a[0])
+	if err != nil {
+		return err
+	}
+	if layoutProbe.Format(layout) != layoutDay.Format(layout) {
+		return fmt.Errorf("time(layout): '%s' names a date field; write date(from,to,layout)", layout)
+	}
+	return nil
+}
+
+// datePrep draws a second in [from 00:00:00, to 23:59:59] UTC; the span is counted
+// in seconds, since a Duration overflows past 292 years.
+func datePrep(a []string) callFn {
+	from, err := time.Parse(dayLayout, a[0])
+	if err != nil {
+		panic(fmt.Sprintf("fejkdata: builtin arg %q reached prep unvalidated: %v", a[0], err))
+	}
+	to, err := time.Parse(dayLayout, a[1])
+	if err != nil {
+		panic(fmt.Sprintf("fejkdata: builtin arg %q reached prep unvalidated: %v", a[1], err))
+	}
+	layout, start, span := layoutOf(a[2]), from.Unix(), int(to.Unix()-from.Unix())+86400
+	return func(s *session, _ string, _ []string) string {
+		return time.Unix(start+int64(s.IntN(span)), 0).UTC().Format(layout)
+	}
+}
+
+func timePrep(a []string) callFn {
+	layout := layoutOf(a[0])
+	return func(s *session, _ string, _ []string) string {
+		return time.Unix(int64(s.IntN(86400)), 0).UTC().Format(layout)
+	}
 }

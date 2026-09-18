@@ -88,17 +88,28 @@ func funcCall(body string) (name string, args []string, ok bool) {
 	return body[:lp], splitArgs(body[lp+1 : len(body)-1]), true
 }
 
-// splitArgs parses a function arg list: comma-separated outside a selector,
-// trimmed; empty -> none.
+// splitArgs parses a function arg list: comma-separated outside a selector or a
+// quoted layout, trimmed; empty -> none.
 func splitArgs(s string) []string {
 	if strings.TrimSpace(s) == "" {
 		return nil
 	}
-	args := splitOutside(s, ',')
-	for i := range args {
-		args[i] = strings.TrimSpace(args[i])
+	var args []string
+	depth, quoted, start := 0, false, 0
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case c == '\'':
+			quoted = !quoted
+		case quoted:
+		case c == '[':
+			depth++
+		case c == ']' && depth > 0:
+			depth--
+		case c == ',' && depth == 0:
+			args, start = append(args, strings.TrimSpace(s[start:i])), i+1
+		}
 	}
-	return args
+	return append(args, strings.TrimSpace(s[start:]))
 }
 
 // checkFunc validates a function token at compile time: well-formed, naming a
