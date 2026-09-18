@@ -13,7 +13,6 @@ import os
 import re
 import sys
 import urllib.request
-import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
@@ -38,24 +37,9 @@ CACHE = Path(__file__).resolve().parent / "cache"
 TIMEZONE = "Europe/Stockholm"
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 UNMATCHED_POPULATION = 200
-XLSX_NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-
-
-def xlsx_rows(data):
-    z = zipfile.ZipFile(io.BytesIO(data))
-    strings = ["".join(t.text or "" for t in si.iter("{%s}t" % XLSX_NS["m"])) for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", XLSX_NS)]
-    sheet = ET.fromstring(z.read("xl/worksheets/sheet1.xml"))
-    for row in sheet.findall(".//m:row", XLSX_NS):
-        cells = []
-        for c in row.findall("m:c", XLSX_NS):
-            v = c.find("m:v", XLSX_NS)
-            cells.append("" if v is None else strings[int(v.text)] if c.get("t") == "s" else v.text)
-        yield cells
-
-
 def scb_codes(cache):
     regions, municipalities = {}, {}
-    for cells in xlsx_rows(tsv.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
+    for cells in tsv.xlsx_rows(tsv.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
         if len(cells) < 2 or not re.fullmatch(r"\d{2}|\d{4}", cells[0]):
             continue
         (regions if len(cells[0]) == 2 else municipalities)[cells[0]] = cells[1].strip()

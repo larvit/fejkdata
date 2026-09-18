@@ -1,0 +1,15 @@
+{
+  "format": "9{digits(2)}-{group}-{serial}",
+  "group": [
+    { "format": "{int(50,65)}", "weight": 16 },
+    { "format": "{int(70,88)}", "weight": 19 },
+    { "format": "{int(90,92)}", "weight": 3 },
+    { "format": "{int(94,99)}", "weight": 6 }
+  ],
+  "serial": [
+    { "format": "000{int(1,9)}", "weight": 9 },
+    { "format": "00{int(10,99)}", "weight": 90 },
+    { "format": "0{int(100,999)}", "weight": 900 },
+    { "format": "{int(1000,9999)}", "weight": 9000 }
+  ]
+}

@@ -1,1 +1,19 @@
-"{int(100,999)}-{digits(2)}-{digits(4)}"
+{
+  "format": "{area}-{group}-{serial}",
+  "area": [
+    { "format": "00{int(1,9)}", "weight": 9 },
+    { "format": "0{int(10,99)}", "weight": 90 },
+    { "format": "{int(100,665)}", "weight": 566 },
+    { "format": "{int(667,899)}", "weight": 233 }
+  ],
+  "group": [
+    { "format": "0{int(1,9)}", "weight": 9 },
+    { "format": "{int(10,99)}", "weight": 90 }
+  ],
+  "serial": [
+    { "format": "000{int(1,9)}", "weight": 9 },
+    { "format": "00{int(10,99)}", "weight": 90 },
+    { "format": "0{int(100,999)}", "weight": 900 },
+    { "format": "{int(1000,9999)}", "weight": 9000 }
+  ]
+}
