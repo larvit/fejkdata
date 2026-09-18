@@ -302,6 +302,7 @@ func TestBuiltinDateArgs(t *testing.T) {
 		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:     "write it as text",
 		`"{date(1990-01-01,1990-12-31,2006-01-02)}"`:       "'2006-01-02'",
 		`"{date(1990-01-01,1990-12-31,'January 2, 2006)}"`: "'",
+		`"{date(1990-01-01,1990-12-31,\"January 2, 2006\")}"`: "quoted: 'January 2, 2006'",
 		`"{date(1990-01-01,1990-12-31,'x')}"`:              "text",
 		`"{date(1990-01-01,1990-12-31,'')}"`:               "text",
 		`"{date(1990-01-01,1990-12-31)}"`:                  "3 arguments",
@@ -321,7 +322,7 @@ func TestBuiltinDateArgs(t *testing.T) {
 
 // TestBuiltinLayoutErrorsNameARunnableSpelling pins the two layout errors a user
 // can follow: a double-quoted layout is named single-quoted, without its own
-// quotes carried into the suggestion, and a bare one says a shell ate them.
+// quotes carried into the suggestion, whether it split on a comma or not.
 func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 	_, err := compile(parse(t, `"{date(1990-01-01,1990-12-31,\"2006-01-02\")}"`))
 	if err == nil || !strings.Contains(err.Error(), "write '2006-01-02'") {
@@ -329,6 +330,9 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 	}
 	if strings.Contains(err.Error(), `'"`) {
 		t.Errorf("%v names a layout that renders its own quotes", err)
+	}
+	if !strings.Contains(err.Error(), "is double-quoted") {
+		t.Errorf("%v does not say which quotes were wrong", err)
 	}
 	_, err = compile(parse(t, `"{time(15:04)}"`))
 	if err == nil || !strings.Contains(err.Error(), "write '15:04'") {

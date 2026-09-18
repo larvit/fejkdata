@@ -188,7 +188,8 @@ func TestSwedishPersonnummer(t *testing.T) {
 	}
 	for i := 0; i < 200; i++ {
 		got := fakeTemplate(t, sv, `{/sv_SE.person.sex} {/sv_SE.personnummer}`)
-		if f, m := strings.HasPrefix(got, "kvinna ") && got[14:17] == "238", strings.HasPrefix(got, "man ") && got[11:14] == "239"; !f && !m {
+		sex, id, _ := strings.Cut(got, " ")
+		if want := map[string]string{"kvinna": "238", "man": "239"}[sex]; want == "" || !strings.Contains(id, "-"+want) {
 			t.Fatalf("%q: a person and a personnummer in one render disagree on sex", got)
 		}
 	}
