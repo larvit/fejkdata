@@ -491,7 +491,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 func templateSplit(paths []string) string {
 	for _, p := range paths {
 		if strings.Contains(p, "{") {
-			return `; a template's spaces split the argument, so wrap the whole argument in "…"`
+			return `; a template's spaces split the argument, so wrap the whole argument in "…", or in '…' where it carries double quotes`
 		}
 	}
 	return ""
