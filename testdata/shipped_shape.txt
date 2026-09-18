@@ -279,7 +279,7 @@ sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
-sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.sex
+sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.sex sv_SE.title
 sv_SE.person.first	string
 sv_SE.person.last	string
 sv_SE.person.prefix	string
@@ -310,6 +310,9 @@ sv_SE.sex.first-name.name
 sv_SE.sex.first-name.sex
 sv_SE.sex.name	string
 sv_SE.time	format "{time('15:04')}"
+sv_SE.title	format "{name}"	key name	weight share
+sv_SE.title.name	string
+sv_SE.title.share	string
 sv_SE.url	format "https://{host}{path}"
 sv_SE.url.host	string
 sv_SE.url.path	string
