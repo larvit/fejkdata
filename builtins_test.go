@@ -310,6 +310,7 @@ func TestBuiltinDateArgs(t *testing.T) {
 		`"{time(15:04)}"`:                                  "'15:04'",
 		`"{time('2006-01-02 15:04')}"`:                     "date(",
 		`"{time('x')}"`:                                    "text",
+		`"{date(1990-01-01,1990-12-31,'15:04')}"`:          "time('15:04')",
 	} {
 		_, err := compile(parse(t, tmpl))
 		if err == nil || !strings.Contains(err.Error(), want) {
