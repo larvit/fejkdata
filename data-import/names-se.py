@@ -19,7 +19,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 SHEETS = {"f": "Tilltalsnamn kvinnor", "m": "Tilltalsnamn män"}
 SURNAMES = "Efternamn"
 NAME = re.compile(r"^[^\W\d_]{2,}([ '-][^\W\d_]{2,})*$")
-PARTICLES = {"af", "av", "de", "den", "der", "di", "du", "la", "le", "van", "von"}
+PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la", "le", "van", "von"}
 
 
 def cased(name):

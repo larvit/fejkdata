@@ -23,6 +23,7 @@ SURNAMES = "https://www2.census.gov/topics/genealogy/2010surnames/names.zip"
 OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
 CACHE = Path(__file__).resolve().parent / "cache"
 MC = re.compile(r"^Mc([a-z])")
+PLACEHOLDERS = {"Baby", "Female", "Infant", "Male", "Notnamed", "Unknown", "Unnamed"}
 
 
 def csv_or_zip_rows(data, member):
@@ -41,7 +42,7 @@ def csv_or_zip_rows(data, member):
 def given(data, from_year):
     counts = collections.Counter()
     for r in csv_or_zip_rows(data, r"yob\d{4}\.txt"):
-        if len(r) >= 4 and r[3].isdigit() and int(r[3]) >= from_year:
+        if len(r) >= 4 and r[3].isdigit() and int(r[3]) >= from_year and r[0] not in PLACEHOLDERS:
             counts[(r[0], r[1].lower())] += int(r[2])
     return counts
 
