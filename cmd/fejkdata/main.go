@@ -282,7 +282,7 @@ func (in invocation) check() (argKind, error) {
 		return argPath, nil
 	}
 	if len(in.paths) != 1 {
-		return argPath, fmt.Errorf("expected one path or template, got %d", len(in.paths))
+		return argPath, fmt.Errorf("expected one path or template, got %d%s", len(in.paths), templateSplit(in.paths))
 	}
 	return classify(in.paths[0])
 }
@@ -478,9 +478,23 @@ func run(args []string, stdout, stderr io.Writer) int {
 			return misuse(stderr, te.error)
 		}
 		fmt.Fprintln(stderr, err)
+		if errors.Is(err, fejkdata.ErrNoColumns) {
+			fmt.Fprintln(stderr, "wrap that JSON in single quotes, which keep a shell from expanding its braces")
+		}
 		return 1
 	}
 	return 0
+}
+
+// templateSplit names the cure for a template a shell split on its spaces, which is
+// what several arguments carrying a token mean.
+func templateSplit(paths []string) string {
+	for _, p := range paths {
+		if strings.Contains(p, "{") {
+			return `; a template's spaces split the argument, so wrap the whole argument in "…"`
+		}
+	}
+	return ""
 }
 
 func misuse(stderr io.Writer, err error) int {

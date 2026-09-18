@@ -225,7 +225,7 @@ func floatArgs(_ map[string]node, a []string) error {
 }
 func seqArg(_ map[string]node, a []string) error {
 	if len(a) > 1 {
-		return fmt.Errorf("seq takes at most one name, got %d args", len(a))
+		return fmt.Errorf("seq takes at most one name, got %d", len(a))
 	}
 	if len(a) == 1 && a[0] == "" {
 		return fmt.Errorf("seq name must not be empty")

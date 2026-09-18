@@ -43,7 +43,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 			}
 			info, err := os.Stat(src.path)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("data path %s: %w", src.path, err)
 			}
 			if !info.IsDir() {
 				return nil, fmt.Errorf("%s is not a directory", src.path)

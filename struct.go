@@ -340,7 +340,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}
 		if !kind.holds(v) {
-			return fmt.Errorf("%s (%s): %q is not proven within %s; make it %s", label, ft, it.format, elem.Kind(), kind.wider)
+			return fmt.Errorf("%s (%s): %q is not proven within %s; narrow it to that range, or make the field %s", label, ft, it.format, elem.Kind(), kind.wider)
 		}
 	}
 	return nil
