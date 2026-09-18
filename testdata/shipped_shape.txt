@@ -18,7 +18,8 @@ en_US.first-name.count	string
 en_US.first-name.name	string
 en_US.first-name.sex	string
 en_US.ip
-en_US.itin	format "9{digits(2)}-{group}-{serial}"
+en_US.itin	format "{area}-{group}-{serial}"
+en_US.itin.area	string
 en_US.itin.group	string
 en_US.itin.serial	string
 en_US.last-name	format "{name}"	key name	weight count
@@ -27,7 +28,7 @@ en_US.last-name.name	string
 en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name en_US.sex en_US.title
 en_US.person.first	string
 en_US.person.last	string
-en_US.person.prefix	string
+en_US.person.prefix	string null
 en_US.person.sex	string
 en_US.phone
 en_US.phone.area
@@ -282,7 +283,7 @@ sv_SE.last-name.name	string
 sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.sex sv_SE.title
 sv_SE.person.first	string
 sv_SE.person.last	string
-sv_SE.person.prefix	string
+sv_SE.person.prefix	string null
 sv_SE.person.sex	string
 sv_SE.personnummer	format "{date(1930-01-01,2025-12-31,'060102')}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.phone
