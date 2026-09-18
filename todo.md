@@ -27,11 +27,10 @@ by a `data-import/` script, as README goal 10 asks.
 - Let `geo.SE.locality[Lund].address` descend from a selected row into the template
   beside the family: require the path step to reach a sibling category, and seed every
   draw group of the render from the outer selector's pins.
-- Decide whether `email.local` and `username` share one handle list, and read the
-  handles from the shipped name tables rather than the hand-written list they use
-  today — a reference between shipped categories breaks a consumer once tagged, so it
-  lands before v0.1.0 or not at all. `price` and `url` stay curated: a price format is
-  no register fact, and the domains are RFC 2606's reserved ones.
+- Read `email.local`'s and `username`'s handles from the shipped name tables, which
+  goal 10 asks for and the hand-written list they use today does not meet.
+- Decide whether `email.local` and `username` share one list: a reference between
+  shipped categories breaks a consumer once tagged, so it rides a 0.(x+1).0 after that.
 
 `misc` (locale-neutral)
 
@@ -55,7 +54,7 @@ by a `data-import/` script, as README goal 10 asks.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-`sv_SE` (`research-sources-se.md`)
+`sv_SE` (source research: `research-sources-se.md`, in the handoff)
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -72,7 +71,7 @@ by a `data-import/` script, as README goal 10 asks.
 | month and weekday names, `holiday` | t+T | CLDR sv, lag 1989:253 | Unicode |
 | `territory` localised names keyed by alpha2 | T | CLDR sv territory names | Unicode |
 
-`en_US` (`research-sources-world.md`, part1–4)
+`en_US` (source research: `research-sources-world.md` part1–4, in the handoff)
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -108,6 +107,15 @@ by a `data-import/` script, as README goal 10 asks.
   breaks a consumer, so it rides a 0.(x+1).0.
 - Decide whether `parent: territory` stays, given a `--data-path` override of
   `misc.territory` now fails `New` unless `misc.timezone` is overridden with it.
+- Decide whether the shipped `url` and `email` domains are restricted to RFC 2606's
+  reserved names: 17 of the 40 are not, and `.se`, `.nu`, `.io` and `.co` are live
+  ccTLDs anyone can register, while `.dev` and `.app` are HSTS-preloaded, so a browser
+  forces `http://example.dev` to HTTPS. Restricting them costs the locale flavour
+  `example.se` and `.nu` were chosen for.
+- Record why fejkdata ships no pop-culture catalogue. README Decisions states the
+  choice with no reason, because goal 10 does not supply one: it admits a hand-written
+  set where no register exists, and Wikidata, MusicBrainz and the Gutenberg catalog are
+  registers this plan already reads for `book`, `instrument` and `animal`.
 
 ### Release
 
@@ -136,16 +144,24 @@ by a `data-import/` script, as README goal 10 asks.
   today a street goes to the nearest postal code centroid. It rewrites shipped rows, so
   it is a major once 1.0 is cut and a minor before that.
 
+## v0.3.0
+
+- Ship nothing breaking, which is what v1.0.0 waits for: v0.2.0 rewrites shipped rows
+  when it pairs a street with its exact postnummer.
+
 ## v1.0.0
 
 - Cut it once the shipped data is in its record shape and one full minor has shipped
-  with no breaking change, per the README's Versioning table. Nothing else is planned
-  for it: what it needs is v0.1.0's record-shape work, then a quiet minor.
+  with no breaking change, per the README's Versioning table. It plans no work of its
+  own: v0.1.0 settles the record shape and v0.3.0 is the quiet minor.
 
 ## Not release-bound
 
-- Give the Go services a `user:` so `/cache` stops collecting root-owned files: today
-  every command documented without `--user` writes as root and breaks the next
-  `--user` one, which the README answers with a chown a reader has to repeat.
+- Stop `/cache` collecting root-owned files, which today every command documented
+  without `--user` leaves for the next `--user` one to trip over, and which the README
+  answers with a chown a reader has to repeat. Put `--user` on all of them, or give the
+  `x-go` anchor a `user:` — that one needs a mechanism, since Compose interpolates from
+  the process environment and neither `UID` nor `GID` is exported there, so
+  `user: "${UID}:${GID}"` resolves to `":"`.
 - Publish a homepage with an in-browser generator: the library compiled to WebAssembly,
   so visitors generate as much data as they like in their own browser.

@@ -1152,9 +1152,7 @@ App developers writing tests and fixtures, in Go and at a shell:
   row inside its parent, and a name repeating inside one parent row is refused at
   load, since nothing could then select it.
 - **No pop-culture catalogues.** Every other faker ships film, band and character
-  names; fejkdata ships none. Goal 10 admits a list only from a register, and there is
-  none to read them from — so they would be authored, and authored lists are the one
-  thing goal 10 keeps to non-factual copy.
+  names; fejkdata ships none.
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
   records use; `misc` takes only sources that are international. NHTSA vPIC and
@@ -1244,7 +1242,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 
 A `--user` command answering `permission denied` on `/cache` has met root-owned
 files in the `gocache` volume: Docker creates the volume root-owned, and every
-command above that omits `--user` writes into it as root. Hand it back, and again
+command here that omits `--user` writes into it as root. Hand it back, and again
 whenever it recurs:
 
 ```sh
