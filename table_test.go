@@ -761,7 +761,7 @@ func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
 func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
 	head, rows := shippedRows(t, "useragent.tsv", "browser", "device", "os", "ua")
 	for _, token := range []struct{ in, browser string }{
-		{"Edg", "Edge"}, {"OPR/", "Opera"}, {"SamsungBrowser/", "Samsung Internet"}, {"FxiOS/", "Firefox"},
+		{"Edg", "Edge"}, {"OPR/", "Opera"}, {"SamsungBrowser/", "Samsung Internet"}, {"CriOS/", "Chrome"},
 	} {
 		for i, r := range rows {
 			if strings.Contains(r[head["ua"]], token.in) && r[head["browser"]] != token.browser {
