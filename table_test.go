@@ -644,17 +644,17 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 
 func TestTableOverridesByLayering(t *testing.T) {
 	mine := writeFiles(t, map[string]string{
-		"misc/territory.json": `{"format":"{name}","rows":"territory.tsv","key":"alpha2"}`,
-		"misc/territory.tsv":  "alpha2\tname\nXX\tNowhere\nYY\tElsewhere\n",
+		"misc/language.json": `{"format":"{name}","rows":"language.tsv","key":"code"}`,
+		"misc/language.tsv":  "code\tname\nxx\tNowhere\nyy\tElsewhere\n",
 	})
 	f, err := New(WithDataPath(mine), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v := fake(t, f, "misc.territory[XX]"); v != "Nowhere" {
-		t.Fatalf("misc.territory[XX] = %q, want the layered table", v)
+	if v := fake(t, f, "misc.language[xx]"); v != "Nowhere" {
+		t.Fatalf("misc.language[xx] = %q, want the layered table", v)
 	}
-	if paths := f.List(); slices.Contains(paths, "misc.territory.alpha3") {
+	if paths := f.List(); slices.Contains(paths, "misc.language.code3") {
 		t.Fatal("List() still offers the shipped table's columns under an overridden category")
 	}
 }
@@ -662,39 +662,45 @@ func TestTableOverridesByLayering(t *testing.T) {
 func TestShippedTables(t *testing.T) {
 	f := newGenerator(t, "data/misc", WithSeed(1))
 	for path, want := range map[string]string{
-		"territory[SE]":                    "Sweden",
-		"territory[Sweden].alpha3":         "SWE",
-		"territory[SE].numeric":            "752",
-		"territory[SE].tld":                ".se",
-		"territory[SE].calling-code":       "46",
-		"territory[SE].capital":            "Stockholm",
-		"territory[SE].currency":           "SEK",
-		"territory[SE].flag":               "🇸🇪",
-		"territory[SE].country":            "SE",
-		"territory[GL]":                    "Greenland",
-		"territory[GL].country":            "DK",
-		"territory[Åland Islands].country": "FI",
-		"currency[SEK].name":               "Swedish Krona",
-		"currency[SEK].symbol":             "kr",
-		"currency[SEK].numeric":            "752",
-		"currency[SEK].decimals":           "2",
-		"currency[Euro].code":              "EUR",
-		"language[sv]":                     "Swedish",
-		"language[sv].code3":               "swe",
-		"language[Swedish].code":           "sv",
-		"language[nl]":                     "Dutch",
-		"httpstatus[200]":                  "200 OK",
-		"httpstatus[404]":                  "404 Not Found",
-		"httpstatus[404].reason":           "Not Found",
-		"httpstatus[451].reason":           "Unavailable For Legal Reasons",
-		"httpstatus[500].reason":           "Internal Server Error",
-		"mimetype[application/json].ext":   ".json",
-		"mimetype[text/markdown].ext":      ".md",
-		"mimetype[.jpg]":                   "image/jpeg",
-		"mimetype[.mov]":                   "video/quicktime",
-		"mimetype[.mp3]":                   "audio/mpeg",
-		"mimetype[.mp4]":                   "video/mp4",
-		"mimetype[.ogg]":                   "audio/ogg",
+		"territory[SE]":                     "Sweden",
+		"territory[Sweden].alpha3":          "SWE",
+		"territory[SE].numeric":             "752",
+		"territory[SE].tld":                 ".se",
+		"territory[SE].calling-code":        "46",
+		"territory[SE].capital":             "Stockholm",
+		"territory[SE].currency":            "SEK",
+		"territory[SE].flag":                "🇸🇪",
+		"territory[SE].country":             "SE",
+		"territory[GL]":                     "Greenland",
+		"territory[GL].country":             "DK",
+		"territory[Åland Islands].country":  "FI",
+		"currency[SEK].name":                "Swedish Krona",
+		"currency[SEK].symbol":              "kr",
+		"currency[SEK].numeric":             "752",
+		"currency[SEK].decimals":            "2",
+		"currency[Euro].code":               "EUR",
+		"language[sv]":                      "Swedish",
+		"language[sv].code3":                "swe",
+		"language[Swedish].code":            "sv",
+		"language[nl]":                      "Dutch",
+		"httpstatus[200]":                   "200 OK",
+		"httpstatus[404]":                   "404 Not Found",
+		"httpstatus[404].reason":            "Not Found",
+		"httpstatus[451].reason":            "Unavailable For Legal Reasons",
+		"httpstatus[500].reason":            "Internal Server Error",
+		"mimetype[application/json].ext":    ".json",
+		"mimetype[text/markdown].ext":       ".md",
+		"mimetype[.jpg]":                    "image/jpeg",
+		"mimetype[.mov]":                    "video/quicktime",
+		"mimetype[.mp3]":                    "audio/mpeg",
+		"mimetype[.mp4]":                    "video/mp4",
+		"mimetype[.ogg]":                    "audio/ogg",
+		"timezone[Europe/Stockholm]":        "Europe/Stockholm",
+		"timezone[Europe/Stockholm].offset": "+01:00",
+		"timezone[Asia/Kathmandu].offset":   "+05:45",
+		"timezone[America/New_York].offset": "-05:00",
+		"territory[SE].timezone":            "Europe/Stockholm",
+		"territory[NP].timezone.offset":     "+05:45",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
