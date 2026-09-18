@@ -251,6 +251,9 @@ sv_SE.address.locality	string
 sv_SE.address.postal-code	string
 sv_SE.address.street	string
 sv_SE.address.street-number	string
+sv_SE.birth-number	format "{number}"	parent sex
+sv_SE.birth-number.number	string
+sv_SE.birth-number.sex	string
 sv_SE.color
 sv_SE.company	format "{base} {suffix}"
 sv_SE.company.base	string
@@ -273,7 +276,7 @@ sv_SE.person.first	string
 sv_SE.person.last	string
 sv_SE.person.prefix	string
 sv_SE.person.sex	string
-sv_SE.personnummer	format "{date(1930-01-01,2025-12-31,'060102')}-{.sex.birth-number}{luhn()}"	reads sv_SE.sex
+sv_SE.personnummer	format "{date(1930-01-01,2025-12-31,'060102')}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.phone
 sv_SE.phone.a
 sv_SE.phone.b
@@ -282,14 +285,16 @@ sv_SE.phone.prefix
 sv_SE.price	format "{amt}{ore} kr"
 sv_SE.price.amt	string
 sv_SE.price.ore	string
-sv_SE.samordningsnummer	format "{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}-{.sex.birth-number}{luhn()}"	reads sv_SE.sex
+sv_SE.samordningsnummer	format "{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.sentence
 sv_SE.sentence.adj
 sv_SE.sentence.noun
 sv_SE.sentence.prep
 sv_SE.sentence.verb
 sv_SE.sex	format "{name}"	key code	name name
-sv_SE.sex.birth-number	string
+sv_SE.sex.birth-number
+sv_SE.sex.birth-number.number
+sv_SE.sex.birth-number.sex
 sv_SE.sex.code	string
 sv_SE.sex.first-name
 sv_SE.sex.first-name.count
