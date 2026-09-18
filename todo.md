@@ -181,6 +181,10 @@ address, phone, national id, company and date names each.
 
 ### Release
 
+- Rewrite `[Unreleased]` as what v0.1.0 holds, not as a diff against `main`: nothing
+  has shipped, so "no longer paths", "where it used to fail" and "where it used to be
+  an empty string" describe versions no reader can have installed.
+
 - CLI without Go — investigate prebuilt binaries: GoReleaser attaching them to
   the Gitea release the tag workflow publishes, a container image, Homebrew and
   Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag.

@@ -25,8 +25,8 @@ replacement, and each removed path, column or flag.
   `misc.mimetype` are tables. `misc.territory` is every ISO 3166-1 territory that has
   a capital, a currency and a TLD, with the columns `calling-code`, `capital`,
   `country`, `currency`, `flag`, `languages`, `numeric` and `tld` added, `country`
-  naming the sovereign state it belongs to and itself where it is one;
-  `misc.currency` the
+  holding the alpha-2 code of the sovereign state it belongs to and its own where it
+  is one; `misc.currency` the
   current ISO 4217 currencies with a minor unit, with `decimals` and `numeric`
   added, and its symbols from CLDR; `misc.language` every ISO 639-2 entry carrying a
   639-1 code, with a `code3` column holding its 639-2/T code; `misc.httpstatus` each
@@ -38,12 +38,11 @@ replacement, and each removed path, column or flag.
   zone's standard UTC offset and `territory` linking to `misc.territory`, so
   `misc.territory[SE].timezone` draws `Europe/Stockholm`; zones of a territory
   `misc.territory` does not ship, Antarctica's among them, and the constant `UTC`
-  are gone. It draws from 401 zones where it drew from 27 common ones, and evenly,
-  so a bare `misc.timezone` now renders a sub-zone such as `America/Indiana/Knox`
-  far more often than a capital's: select inside a territory, or pin the zone.
-  `misc.useragent` is the top-user-agents desktop and mobile lists with `browser`,
-  `device` and `os` columns. `misc.car` keeps its makes and models, with
-  `misc.car.maker` renamed `misc.car.make`.
+  are gone; spell that one as the text `"UTC"`. A `weight` column carries the
+  population GeoNames records in each zone, so a draw favours the zones people live
+  in. `misc.useragent` is the top-user-agents desktop and mobile lists with `browser`,
+  `device` and `os` columns. `misc.car` keeps its makes and models in a `make` and a
+  `model` column.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an

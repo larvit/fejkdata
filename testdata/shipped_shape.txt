@@ -255,11 +255,13 @@ misc.territory.numeric	string
 misc.territory.timezone
 misc.territory.timezone.offset
 misc.territory.timezone.territory
+misc.territory.timezone.weight
 misc.territory.timezone.zone
 misc.territory.tld	string
-misc.timezone	format "{zone}"	key zone	parent territory
+misc.timezone	format "{zone}"	key zone	weight weight	parent territory
 misc.timezone.offset	string
 misc.timezone.territory	string
+misc.timezone.weight	string
 misc.timezone.zone	string
 misc.useragent	format "{ua}"
 misc.useragent.browser	string

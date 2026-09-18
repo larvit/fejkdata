@@ -1,402 +1,402 @@
-offset	territory	zone
-+00:00	CI	Africa/Abidjan
-+00:00	GH	Africa/Accra
-+03:00	ET	Africa/Addis_Ababa
-+01:00	DZ	Africa/Algiers
-+03:00	ER	Africa/Asmara
-+00:00	ML	Africa/Bamako
-+01:00	CF	Africa/Bangui
-+00:00	GM	Africa/Banjul
-+00:00	GW	Africa/Bissau
-+02:00	MW	Africa/Blantyre
-+01:00	CG	Africa/Brazzaville
-+02:00	BI	Africa/Bujumbura
-+02:00	EG	Africa/Cairo
-+00:00	MA	Africa/Casablanca
-+01:00	ES	Africa/Ceuta
-+00:00	GN	Africa/Conakry
-+00:00	SN	Africa/Dakar
-+03:00	TZ	Africa/Dar_es_Salaam
-+03:00	DJ	Africa/Djibouti
-+01:00	CM	Africa/Douala
-+00:00	EH	Africa/El_Aaiun
-+00:00	SL	Africa/Freetown
-+02:00	BW	Africa/Gaborone
-+02:00	ZW	Africa/Harare
-+02:00	ZA	Africa/Johannesburg
-+02:00	SS	Africa/Juba
-+03:00	UG	Africa/Kampala
-+02:00	SD	Africa/Khartoum
-+02:00	RW	Africa/Kigali
-+01:00	CD	Africa/Kinshasa
-+01:00	NG	Africa/Lagos
-+01:00	GA	Africa/Libreville
-+00:00	TG	Africa/Lome
-+01:00	AO	Africa/Luanda
-+02:00	CD	Africa/Lubumbashi
-+02:00	ZM	Africa/Lusaka
-+01:00	GQ	Africa/Malabo
-+02:00	MZ	Africa/Maputo
-+02:00	LS	Africa/Maseru
-+02:00	SZ	Africa/Mbabane
-+03:00	SO	Africa/Mogadishu
-+00:00	LR	Africa/Monrovia
-+03:00	KE	Africa/Nairobi
-+01:00	TD	Africa/Ndjamena
-+01:00	NE	Africa/Niamey
-+00:00	MR	Africa/Nouakchott
-+00:00	BF	Africa/Ouagadougou
-+01:00	BJ	Africa/Porto-Novo
-+00:00	ST	Africa/Sao_Tome
-+02:00	LY	Africa/Tripoli
-+01:00	TN	Africa/Tunis
-+02:00	NA	Africa/Windhoek
--10:00	US	America/Adak
--09:00	US	America/Anchorage
--04:00	AI	America/Anguilla
--04:00	AG	America/Antigua
--03:00	BR	America/Araguaina
--03:00	AR	America/Argentina/Buenos_Aires
--03:00	AR	America/Argentina/Catamarca
--03:00	AR	America/Argentina/Cordoba
--03:00	AR	America/Argentina/Jujuy
--03:00	AR	America/Argentina/La_Rioja
--03:00	AR	America/Argentina/Mendoza
--03:00	AR	America/Argentina/Rio_Gallegos
--03:00	AR	America/Argentina/Salta
--03:00	AR	America/Argentina/San_Juan
--03:00	AR	America/Argentina/San_Luis
--03:00	AR	America/Argentina/Tucuman
--03:00	AR	America/Argentina/Ushuaia
--04:00	AW	America/Aruba
--03:00	PY	America/Asuncion
--05:00	CA	America/Atikokan
--03:00	BR	America/Bahia
--06:00	MX	America/Bahia_Banderas
--04:00	BB	America/Barbados
--03:00	BR	America/Belem
--06:00	BZ	America/Belize
--04:00	CA	America/Blanc-Sablon
--04:00	BR	America/Boa_Vista
--05:00	CO	America/Bogota
--07:00	US	America/Boise
--07:00	CA	America/Cambridge_Bay
--04:00	BR	America/Campo_Grande
--05:00	MX	America/Cancun
--04:00	VE	America/Caracas
--03:00	GF	America/Cayenne
--05:00	KY	America/Cayman
--06:00	US	America/Chicago
--06:00	MX	America/Chihuahua
--07:00	MX	America/Ciudad_Juarez
--06:00	CR	America/Costa_Rica
--03:00	CL	America/Coyhaique
--07:00	CA	America/Creston
--04:00	BR	America/Cuiaba
--04:00	CW	America/Curacao
-+00:00	GL	America/Danmarkshavn
--07:00	CA	America/Dawson
--07:00	CA	America/Dawson_Creek
--07:00	US	America/Denver
--05:00	US	America/Detroit
--04:00	DM	America/Dominica
--06:00	CA	America/Edmonton
--05:00	BR	America/Eirunepe
--06:00	SV	America/El_Salvador
--07:00	CA	America/Fort_Nelson
--03:00	BR	America/Fortaleza
--04:00	CA	America/Glace_Bay
--04:00	CA	America/Goose_Bay
--05:00	TC	America/Grand_Turk
--04:00	GD	America/Grenada
--04:00	GP	America/Guadeloupe
--06:00	GT	America/Guatemala
--05:00	EC	America/Guayaquil
--04:00	GY	America/Guyana
--04:00	CA	America/Halifax
--05:00	CU	America/Havana
--07:00	MX	America/Hermosillo
--05:00	US	America/Indiana/Indianapolis
--06:00	US	America/Indiana/Knox
--05:00	US	America/Indiana/Marengo
--05:00	US	America/Indiana/Petersburg
--06:00	US	America/Indiana/Tell_City
--05:00	US	America/Indiana/Vevay
--05:00	US	America/Indiana/Vincennes
--05:00	US	America/Indiana/Winamac
--06:00	CA	America/Inuvik
--05:00	CA	America/Iqaluit
--05:00	JM	America/Jamaica
--09:00	US	America/Juneau
--05:00	US	America/Kentucky/Louisville
--05:00	US	America/Kentucky/Monticello
--04:00	BO	America/La_Paz
--05:00	PE	America/Lima
--08:00	US	America/Los_Angeles
--04:00	SX	America/Lower_Princes
--03:00	BR	America/Maceio
--06:00	NI	America/Managua
--04:00	BR	America/Manaus
--04:00	MF	America/Marigot
--04:00	MQ	America/Martinique
--06:00	MX	America/Matamoros
--07:00	MX	America/Mazatlan
--06:00	US	America/Menominee
--06:00	MX	America/Merida
--09:00	US	America/Metlakatla
--06:00	MX	America/Mexico_City
--03:00	PM	America/Miquelon
--04:00	CA	America/Moncton
--06:00	MX	America/Monterrey
--03:00	UY	America/Montevideo
--04:00	MS	America/Montserrat
--05:00	BS	America/Nassau
--05:00	US	America/New_York
--09:00	US	America/Nome
--02:00	BR	America/Noronha
--06:00	US	America/North_Dakota/Beulah
--06:00	US	America/North_Dakota/Center
--06:00	US	America/North_Dakota/New_Salem
--02:00	GL	America/Nuuk
--06:00	MX	America/Ojinaga
--05:00	PA	America/Panama
--03:00	SR	America/Paramaribo
--07:00	US	America/Phoenix
--05:00	HT	America/Port-au-Prince
--04:00	TT	America/Port_of_Spain
--04:00	BR	America/Porto_Velho
--04:00	PR	America/Puerto_Rico
--03:00	CL	America/Punta_Arenas
--06:00	CA	America/Rankin_Inlet
--03:00	BR	America/Recife
--06:00	CA	America/Regina
--06:00	CA	America/Resolute
--05:00	BR	America/Rio_Branco
--03:00	BR	America/Santarem
--04:00	CL	America/Santiago
--04:00	DO	America/Santo_Domingo
--03:00	BR	America/Sao_Paulo
--02:00	GL	America/Scoresbysund
--09:00	US	America/Sitka
--04:00	BL	America/St_Barthelemy
--03:30	CA	America/St_Johns
--04:00	KN	America/St_Kitts
--04:00	LC	America/St_Lucia
--04:00	VI	America/St_Thomas
--04:00	VC	America/St_Vincent
--06:00	CA	America/Swift_Current
--06:00	HN	America/Tegucigalpa
--04:00	GL	America/Thule
--08:00	MX	America/Tijuana
--05:00	CA	America/Toronto
--04:00	VG	America/Tortola
--07:00	CA	America/Vancouver
--07:00	CA	America/Whitehorse
--06:00	CA	America/Winnipeg
--09:00	US	America/Yakutat
-+10:00	AU	Antarctica/Macquarie
-+01:00	SJ	Arctic/Longyearbyen
-+03:00	YE	Asia/Aden
-+05:00	KZ	Asia/Almaty
-+03:00	JO	Asia/Amman
-+12:00	RU	Asia/Anadyr
-+05:00	KZ	Asia/Aqtau
-+05:00	KZ	Asia/Aqtobe
-+05:00	TM	Asia/Ashgabat
-+05:00	KZ	Asia/Atyrau
-+03:00	IQ	Asia/Baghdad
-+03:00	BH	Asia/Bahrain
-+04:00	AZ	Asia/Baku
-+07:00	TH	Asia/Bangkok
-+07:00	RU	Asia/Barnaul
-+02:00	LB	Asia/Beirut
-+06:00	KG	Asia/Bishkek
-+08:00	BN	Asia/Brunei
-+09:00	RU	Asia/Chita
-+05:30	LK	Asia/Colombo
-+03:00	SY	Asia/Damascus
-+06:00	BD	Asia/Dhaka
-+09:00	TL	Asia/Dili
-+04:00	AE	Asia/Dubai
-+05:00	TJ	Asia/Dushanbe
-+02:00	CY	Asia/Famagusta
-+07:00	VN	Asia/Ho_Chi_Minh
-+08:00	HK	Asia/Hong_Kong
-+07:00	MN	Asia/Hovd
-+08:00	RU	Asia/Irkutsk
-+07:00	ID	Asia/Jakarta
-+09:00	ID	Asia/Jayapura
-+02:00	IL	Asia/Jerusalem
-+04:30	AF	Asia/Kabul
-+12:00	RU	Asia/Kamchatka
-+05:00	PK	Asia/Karachi
-+05:45	NP	Asia/Kathmandu
-+09:00	RU	Asia/Khandyga
-+05:30	IN	Asia/Kolkata
-+07:00	RU	Asia/Krasnoyarsk
-+08:00	MY	Asia/Kuala_Lumpur
-+08:00	MY	Asia/Kuching
-+03:00	KW	Asia/Kuwait
-+08:00	MO	Asia/Macau
-+11:00	RU	Asia/Magadan
-+08:00	ID	Asia/Makassar
-+08:00	PH	Asia/Manila
-+04:00	OM	Asia/Muscat
-+02:00	CY	Asia/Nicosia
-+07:00	RU	Asia/Novokuznetsk
-+07:00	RU	Asia/Novosibirsk
-+06:00	RU	Asia/Omsk
-+05:00	KZ	Asia/Oral
-+07:00	KH	Asia/Phnom_Penh
-+07:00	ID	Asia/Pontianak
-+09:00	KP	Asia/Pyongyang
-+03:00	QA	Asia/Qatar
-+05:00	KZ	Asia/Qostanay
-+05:00	KZ	Asia/Qyzylorda
-+03:00	SA	Asia/Riyadh
-+11:00	RU	Asia/Sakhalin
-+05:00	UZ	Asia/Samarkand
-+09:00	KR	Asia/Seoul
-+08:00	CN	Asia/Shanghai
-+08:00	SG	Asia/Singapore
-+11:00	RU	Asia/Srednekolymsk
-+08:00	TW	Asia/Taipei
-+05:00	UZ	Asia/Tashkent
-+04:00	GE	Asia/Tbilisi
-+03:30	IR	Asia/Tehran
-+06:00	BT	Asia/Thimphu
-+09:00	JP	Asia/Tokyo
-+07:00	RU	Asia/Tomsk
-+08:00	MN	Asia/Ulaanbaatar
-+06:00	CN	Asia/Urumqi
-+10:00	RU	Asia/Ust-Nera
-+07:00	LA	Asia/Vientiane
-+10:00	RU	Asia/Vladivostok
-+09:00	RU	Asia/Yakutsk
-+06:30	MM	Asia/Yangon
-+05:00	RU	Asia/Yekaterinburg
-+04:00	AM	Asia/Yerevan
--01:00	PT	Atlantic/Azores
--04:00	BM	Atlantic/Bermuda
-+00:00	ES	Atlantic/Canary
--01:00	CV	Atlantic/Cape_Verde
-+00:00	FO	Atlantic/Faroe
-+00:00	PT	Atlantic/Madeira
-+00:00	IS	Atlantic/Reykjavik
-+00:00	SH	Atlantic/St_Helena
--03:00	FK	Atlantic/Stanley
-+09:30	AU	Australia/Adelaide
-+10:00	AU	Australia/Brisbane
-+09:30	AU	Australia/Broken_Hill
-+09:30	AU	Australia/Darwin
-+08:45	AU	Australia/Eucla
-+10:00	AU	Australia/Hobart
-+10:00	AU	Australia/Lindeman
-+10:30	AU	Australia/Lord_Howe
-+10:00	AU	Australia/Melbourne
-+08:00	AU	Australia/Perth
-+10:00	AU	Australia/Sydney
-+01:00	NL	Europe/Amsterdam
-+01:00	AD	Europe/Andorra
-+04:00	RU	Europe/Astrakhan
-+02:00	GR	Europe/Athens
-+01:00	RS	Europe/Belgrade
-+01:00	DE	Europe/Berlin
-+01:00	SK	Europe/Bratislava
-+01:00	BE	Europe/Brussels
-+02:00	RO	Europe/Bucharest
-+01:00	HU	Europe/Budapest
-+01:00	DE	Europe/Busingen
-+02:00	MD	Europe/Chisinau
-+01:00	DK	Europe/Copenhagen
-+01:00	IE	Europe/Dublin
-+01:00	GI	Europe/Gibraltar
-+00:00	GG	Europe/Guernsey
-+02:00	FI	Europe/Helsinki
-+00:00	IM	Europe/Isle_of_Man
-+03:00	TR	Europe/Istanbul
-+00:00	JE	Europe/Jersey
-+02:00	RU	Europe/Kaliningrad
-+03:00	RU	Europe/Kirov
-+02:00	UA	Europe/Kyiv
-+00:00	PT	Europe/Lisbon
-+01:00	SI	Europe/Ljubljana
-+00:00	GB	Europe/London
-+01:00	LU	Europe/Luxembourg
-+01:00	ES	Europe/Madrid
-+01:00	MT	Europe/Malta
-+02:00	AX	Europe/Mariehamn
-+03:00	BY	Europe/Minsk
-+01:00	MC	Europe/Monaco
-+03:00	RU	Europe/Moscow
-+01:00	NO	Europe/Oslo
-+01:00	FR	Europe/Paris
-+01:00	ME	Europe/Podgorica
-+01:00	CZ	Europe/Prague
-+02:00	LV	Europe/Riga
-+01:00	IT	Europe/Rome
-+04:00	RU	Europe/Samara
-+01:00	SM	Europe/San_Marino
-+01:00	BA	Europe/Sarajevo
-+04:00	RU	Europe/Saratov
-+03:00	UA	Europe/Simferopol
-+01:00	MK	Europe/Skopje
-+02:00	BG	Europe/Sofia
-+01:00	SE	Europe/Stockholm
-+02:00	EE	Europe/Tallinn
-+01:00	AL	Europe/Tirane
-+04:00	RU	Europe/Ulyanovsk
-+01:00	LI	Europe/Vaduz
-+01:00	VA	Europe/Vatican
-+01:00	AT	Europe/Vienna
-+02:00	LT	Europe/Vilnius
-+03:00	RU	Europe/Volgograd
-+01:00	PL	Europe/Warsaw
-+01:00	HR	Europe/Zagreb
-+01:00	CH	Europe/Zurich
-+03:00	MG	Indian/Antananarivo
-+06:00	IO	Indian/Chagos
-+07:00	CX	Indian/Christmas
-+06:30	CC	Indian/Cocos
-+03:00	KM	Indian/Comoro
-+05:00	TF	Indian/Kerguelen
-+04:00	SC	Indian/Mahe
-+05:00	MV	Indian/Maldives
-+04:00	MU	Indian/Mauritius
-+03:00	YT	Indian/Mayotte
-+04:00	RE	Indian/Reunion
-+13:00	WS	Pacific/Apia
-+12:00	NZ	Pacific/Auckland
-+11:00	PG	Pacific/Bougainville
-+12:45	NZ	Pacific/Chatham
-+10:00	FM	Pacific/Chuuk
--06:00	CL	Pacific/Easter
-+11:00	VU	Pacific/Efate
-+12:00	FJ	Pacific/Fiji
-+12:00	TV	Pacific/Funafuti
--06:00	EC	Pacific/Galapagos
--09:00	PF	Pacific/Gambier
-+11:00	SB	Pacific/Guadalcanal
-+10:00	GU	Pacific/Guam
--10:00	US	Pacific/Honolulu
-+13:00	KI	Pacific/Kanton
-+14:00	KI	Pacific/Kiritimati
-+11:00	FM	Pacific/Kosrae
-+12:00	MH	Pacific/Kwajalein
-+12:00	MH	Pacific/Majuro
--09:30	PF	Pacific/Marquesas
-+12:00	NR	Pacific/Nauru
--11:00	NU	Pacific/Niue
-+11:00	NF	Pacific/Norfolk
-+11:00	NC	Pacific/Noumea
--11:00	AS	Pacific/Pago_Pago
-+09:00	PW	Pacific/Palau
--08:00	PN	Pacific/Pitcairn
-+11:00	FM	Pacific/Pohnpei
-+10:00	PG	Pacific/Port_Moresby
--10:00	CK	Pacific/Rarotonga
-+10:00	MP	Pacific/Saipan
--10:00	PF	Pacific/Tahiti
-+12:00	KI	Pacific/Tarawa
-+13:00	TO	Pacific/Tongatapu
-+12:00	WF	Pacific/Wallis
+offset	territory	weight	zone
++00:00	CI	17496811	Africa/Abidjan
++00:00	GH	11277813	Africa/Accra
++03:00	ET	18690487	Africa/Addis_Ababa
++01:00	DZ	20111539	Africa/Algiers
++03:00	ER	798575	Africa/Asmara
++00:00	ML	7673493	Africa/Bamako
++01:00	CF	2582076	Africa/Bangui
++00:00	GM	1305981	Africa/Banjul
++00:00	GW	904776	Africa/Bissau
++02:00	MW	3030905	Africa/Blantyre
++01:00	CG	3748808	Africa/Brazzaville
++02:00	BI	1251675	Africa/Bujumbura
++02:00	EG	47242427	Africa/Cairo
++00:00	MA	22808531	Africa/Casablanca
++01:00	ES	85985	Africa/Ceuta
++00:00	GN	6679241	Africa/Conakry
++00:00	SN	10055356	Africa/Dakar
++03:00	TZ	21350525	Africa/Dar_es_Salaam
++03:00	DJ	1316108	Africa/Djibouti
++01:00	CM	8330801	Africa/Douala
++00:00	EH	374107	Africa/El_Aaiun
++00:00	SL	1752243	Africa/Freetown
++02:00	BW	1262880	Africa/Gaborone
++02:00	ZW	4508424	Africa/Harare
++02:00	ZA	47939803	Africa/Johannesburg
++02:00	SS	1679674	Africa/Juba
++03:00	UG	9664318	Africa/Kampala
++02:00	SD	11781926	Africa/Khartoum
++02:00	RW	2910190	Africa/Kigali
++01:00	CD	20651243	Africa/Kinshasa
++01:00	NG	75725576	Africa/Lagos
++01:00	GA	1731692	Africa/Libreville
++00:00	TG	3089219	Africa/Lome
++01:00	AO	23567341	Africa/Luanda
++02:00	CD	16660579	Africa/Lubumbashi
++02:00	ZM	8422414	Africa/Lusaka
++01:00	GQ	355840	Africa/Malabo
++02:00	MZ	8598836	Africa/Maputo
++02:00	LS	739682	Africa/Maseru
++02:00	SZ	191312	Africa/Mbabane
++03:00	SO	6165052	Africa/Mogadishu
++00:00	LR	2127307	Africa/Monrovia
++03:00	KE	16920989	Africa/Nairobi
++01:00	TD	3363418	Africa/Ndjamena
++01:00	NE	3689982	Africa/Niamey
++00:00	MR	2157288	Africa/Nouakchott
++00:00	BF	6125427	Africa/Ouagadougou
++01:00	BJ	4001576	Africa/Porto-Novo
++00:00	ST	53300	Africa/Sao_Tome
++02:00	LY	6105792	Africa/Tripoli
++01:00	TN	7314557	Africa/Tunis
++02:00	NA	983097	Africa/Windhoek
+-10:00	US	15000	America/Adak
+-09:00	US	366200	America/Anchorage
+-04:00	AI	2035	America/Anguilla
+-04:00	AG	51737	America/Antigua
+-03:00	BR	858988	America/Araguaina
+-03:00	AR	11817784	America/Argentina/Buenos_Aires
+-03:00	AR	580969	America/Argentina/Catamarca
+-03:00	AR	8998034	America/Argentina/Cordoba
+-03:00	AR	413866	America/Argentina/Jujuy
+-03:00	AR	237745	America/Argentina/La_Rioja
+-03:00	AR	695484	America/Argentina/Mendoza
+-03:00	AR	241619	America/Argentina/Rio_Gallegos
+-03:00	AR	2120781	America/Argentina/Salta
+-03:00	AR	518624	America/Argentina/San_Juan
+-03:00	AR	266728	America/Argentina/San_Luis
+-03:00	AR	788916	America/Argentina/Tucuman
+-03:00	AR	109506	America/Argentina/Ushuaia
+-04:00	AW	90927	America/Aruba
+-03:00	PY	3653883	America/Asuncion
+-05:00	CA	15000	America/Atikokan
+-03:00	BR	13131907	America/Bahia
+-06:00	MX	36253	America/Bahia_Banderas
+-04:00	BB	98511	America/Barbados
+-03:00	BR	7977349	America/Belem
+-06:00	BZ	132559	America/Belize
+-04:00	CA	15000	America/Blanc-Sablon
+-04:00	BR	550434	America/Boa_Vista
+-05:00	CO	37243567	America/Bogota
+-07:00	US	748802	America/Boise
+-07:00	CA	15000	America/Cambridge_Bay
+-04:00	BR	2429053	America/Campo_Grande
+-05:00	MX	1328961	America/Cancun
+-04:00	VE	28324666	America/Caracas
+-03:00	GF	155245	America/Cayenne
+-05:00	KY	44705	America/Cayman
+-06:00	US	55510713	America/Chicago
+-06:00	MX	1533843	America/Chihuahua
+-07:00	MX	1512450	America/Ciudad_Juarez
+-06:00	CR	1458629	America/Costa_Rica
+-03:00	CL	62723	America/Coyhaique
+-07:00	CA	15000	America/Creston
+-04:00	BR	2960376	America/Cuiaba
+-04:00	CW	145838	America/Curacao
++00:00	GL	15000	America/Danmarkshavn
+-07:00	CA	15000	America/Dawson
+-07:00	CA	21465	America/Dawson_Creek
+-07:00	US	9069711	America/Denver
+-05:00	US	4344725	America/Detroit
+-04:00	DM	16571	America/Dominica
+-06:00	CA	3518059	America/Edmonton
+-05:00	BR	142900	America/Eirunepe
+-06:00	SV	2571611	America/El_Salvador
+-07:00	CA	15000	America/Fort_Nelson
+-03:00	BR	21824546	America/Fortaleza
+-04:00	CA	122883	America/Glace_Bay
+-04:00	CA	15000	America/Goose_Bay
+-05:00	TC	27489	America/Grand_Turk
+-04:00	GD	7500	America/Grenada
+-04:00	GP	250260	America/Guadeloupe
+-06:00	GT	7302205	America/Guatemala
+-05:00	EC	11564603	America/Guayaquil
+-04:00	GY	314746	America/Guyana
+-04:00	CA	843888	America/Halifax
+-05:00	CU	11972822	America/Havana
+-07:00	MX	2215048	America/Hermosillo
+-05:00	US	2672398	America/Indiana/Indianapolis
+-06:00	US	15000	America/Indiana/Knox
+-05:00	US	15000	America/Indiana/Marengo
+-05:00	US	15000	America/Indiana/Petersburg
+-06:00	US	15000	America/Indiana/Tell_City
+-05:00	US	15000	America/Indiana/Vevay
+-05:00	US	15451	America/Indiana/Vincennes
+-05:00	US	15000	America/Indiana/Winamac
+-06:00	CA	15000	America/Inuvik
+-05:00	CA	15000	America/Iqaluit
+-05:00	JM	2069735	America/Jamaica
+-09:00	US	31555	America/Juneau
+-05:00	US	909379	America/Kentucky/Louisville
+-05:00	US	15000	America/Kentucky/Monticello
+-04:00	BO	6958595	America/La_Paz
+-05:00	PE	21406340	America/Lima
+-08:00	US	46301242	America/Los_Angeles
+-04:00	SX	1400	America/Lower_Princes
+-03:00	BR	4805317	America/Maceio
+-06:00	NI	2621115	America/Managua
+-04:00	BR	3918958	America/Manaus
+-04:00	MF	5700	America/Marigot
+-04:00	MQ	243860	America/Martinique
+-06:00	MX	1899165	America/Matamoros
+-07:00	MX	2951216	America/Mazatlan
+-06:00	US	15000	America/Menominee
+-06:00	MX	4154924	America/Merida
+-09:00	US	15000	America/Metlakatla
+-06:00	MX	61603325	America/Mexico_City
+-03:00	PM	6200	America/Miquelon
+-04:00	CA	381536	America/Moncton
+-06:00	MX	9714766	America/Monterrey
+-03:00	UY	2457462	America/Montevideo
+-04:00	MS	1000	America/Montserrat
+-05:00	BS	319054	America/Nassau
+-05:00	US	88988896	America/New_York
+-09:00	US	15000	America/Nome
+-02:00	BR	15000	America/Noronha
+-06:00	US	15000	America/North_Dakota/Beulah
+-06:00	US	15000	America/North_Dakota/Center
+-06:00	US	21382	America/North_Dakota/New_Salem
+-02:00	GL	14798	America/Nuuk
+-06:00	MX	50784	America/Ojinaga
+-05:00	PA	1692726	America/Panama
+-03:00	SR	454064	America/Paramaribo
+-07:00	US	6541994	America/Phoenix
+-05:00	HT	5328623	America/Port-au-Prince
+-04:00	TT	456832	America/Port_of_Spain
+-04:00	BR	1551818	America/Porto_Velho
+-04:00	PR	1605968	America/Puerto_Rico
+-03:00	CL	135935	America/Punta_Arenas
+-06:00	CA	15000	America/Rankin_Inlet
+-03:00	BR	8832691	America/Recife
+-06:00	CA	982810	America/Regina
+-06:00	CA	15000	America/Resolute
+-05:00	BR	794527	America/Rio_Branco
+-03:00	BR	1403419	America/Santarem
+-04:00	CL	15912038	America/Santiago
+-04:00	DO	7521391	America/Santo_Domingo
+-03:00	BR	129186469	America/Sao_Paulo
+-02:00	GL	15000	America/Scoresbysund
+-09:00	US	15000	America/Sitka
+-04:00	BL	5988	America/St_Barthelemy
+-03:30	CA	202443	America/St_Johns
+-04:00	KN	12920	America/St_Kitts
+-04:00	LC	45210	America/St_Lucia
+-04:00	VI	70601	America/St_Thomas
+-04:00	VC	48723	America/St_Vincent
+-06:00	CA	16604	America/Swift_Current
+-06:00	HN	4808928	America/Tegucigalpa
+-04:00	GL	15000	America/Thule
+-08:00	MX	3797218	America/Tijuana
+-05:00	CA	24763654	America/Toronto
+-04:00	VG	8449	America/Tortola
+-07:00	CA	6340886	America/Vancouver
+-07:00	CA	28201	America/Whitehorse
+-06:00	CA	922566	America/Winnipeg
+-09:00	US	15000	America/Yakutat
++10:00	AU	15000	Antarctica/Macquarie
++01:00	SJ	2368	Arctic/Longyearbyen
++03:00	YE	6904010	Asia/Aden
++05:00	KZ	9055499	Asia/Almaty
++03:00	JO	4950859	Asia/Amman
++12:00	RU	15604	Asia/Anadyr
++05:00	KZ	282409	Asia/Aqtau
++05:00	KZ	598827	Asia/Aqtobe
++05:00	TM	2706037	Asia/Ashgabat
++05:00	KZ	388248	Asia/Atyrau
++03:00	IQ	29681856	Asia/Baghdad
++03:00	BH	815447	Asia/Bahrain
++04:00	AZ	5491302	Asia/Baku
++07:00	TH	49896297	Asia/Bangkok
++07:00	RU	1413356	Asia/Barnaul
++02:00	LB	4467748	Asia/Beirut
++06:00	KG	2233412	Asia/Bishkek
++08:00	BN	230416	Asia/Brunei
++09:00	RU	486311	Asia/Chita
++05:30	LK	4297175	Asia/Colombo
++03:00	SY	10939175	Asia/Damascus
++06:00	BD	35955225	Asia/Dhaka
++09:00	TL	311685	Asia/Dili
++04:00	AE	12931222	Asia/Dubai
++05:00	TJ	2578933	Asia/Dushanbe
++02:00	CY	109959	Asia/Famagusta
++07:00	VN	42129036	Asia/Ho_Chi_Minh
++08:00	HK	24678261	Asia/Hong_Kong
++07:00	MN	122174	Asia/Hovd
++08:00	RU	2231790	Asia/Irkutsk
++07:00	ID	68794489	Asia/Jakarta
++09:00	ID	2512221	Asia/Jayapura
++02:00	IL	7901151	Asia/Jerusalem
++04:30	AF	8764027	Asia/Kabul
++12:00	RU	247112	Asia/Kamchatka
++05:00	PK	88744953	Asia/Karachi
++05:45	NP	5913313	Asia/Kathmandu
++09:00	RU	15000	Asia/Khandyga
++05:30	IN	365373326	Asia/Kolkata
++07:00	RU	2615869	Asia/Krasnoyarsk
++08:00	MY	33322164	Asia/Kuala_Lumpur
++08:00	MY	4013140	Asia/Kuching
++03:00	KW	1662180	Asia/Kuwait
++08:00	MO	1236695	Asia/Macau
++11:00	RU	92782	Asia/Magadan
++08:00	ID	12458359	Asia/Makassar
++08:00	PH	64227523	Asia/Manila
++04:00	OM	3290021	Asia/Muscat
++02:00	CY	679420	Asia/Nicosia
++07:00	RU	2355475	Asia/Novokuznetsk
++07:00	RU	2119272	Asia/Novosibirsk
++06:00	RU	1243165	Asia/Omsk
++05:00	KZ	364799	Asia/Oral
++07:00	KH	4111780	Asia/Phnom_Penh
++07:00	ID	1819584	Asia/Pontianak
++09:00	KP	12876883	Asia/Pyongyang
++03:00	QA	1566088	Asia/Qatar
++05:00	KZ	529104	Asia/Qostanay
++05:00	KZ	511391	Asia/Qyzylorda
++03:00	SA	23913997	Asia/Riyadh
++11:00	RU	326982	Asia/Sakhalin
++05:00	UZ	3864475	Asia/Samarkand
++09:00	KR	47400555	Asia/Seoul
++08:00	CN	861293141	Asia/Shanghai
++08:00	SG	11621053	Asia/Singapore
++11:00	RU	15000	Asia/Srednekolymsk
++08:00	TW	26394699	Asia/Taipei
++05:00	UZ	7452125	Asia/Tashkent
++04:00	GE	1827911	Asia/Tbilisi
++03:30	IR	50648371	Asia/Tehran
++06:00	BT	170210	Asia/Thimphu
++09:00	JP	141330654	Asia/Tokyo
++07:00	RU	783576	Asia/Tomsk
++08:00	MN	1438738	Asia/Ulaanbaatar
++06:00	CN	12667986	Asia/Urumqi
++10:00	RU	15000	Asia/Ust-Nera
++07:00	LA	1561716	Asia/Vientiane
++10:00	RU	2534711	Asia/Vladivostok
++09:00	RU	902983	Asia/Yakutsk
++06:30	MM	18836338	Asia/Yangon
++05:00	RU	15407217	Asia/Yekaterinburg
++04:00	AM	2880620	Asia/Yerevan
+-01:00	PT	20056	Atlantic/Azores
+-04:00	BM	902	Atlantic/Bermuda
++00:00	ES	2054431	Atlantic/Canary
+-01:00	CV	252678	Atlantic/Cape_Verde
++00:00	FO	13200	Atlantic/Faroe
++00:00	PT	213794	Atlantic/Madeira
++00:00	IS	245356	Atlantic/Reykjavik
++00:00	SH	637	Atlantic/St_Helena
+-03:00	FK	2213	Atlantic/Stanley
++09:30	AU	1706678	Australia/Adelaide
++10:00	AU	5807246	Australia/Brisbane
++09:30	AU	17456	Australia/Broken_Hill
++09:30	AU	199509	Australia/Darwin
++08:45	AU	15000	Australia/Eucla
++10:00	AU	392450	Australia/Hobart
++10:00	AU	15000	Australia/Lindeman
++10:30	AU	15000	Australia/Lord_Howe
++10:00	AU	9304158	Australia/Melbourne
++08:00	AU	3086441	Australia/Perth
++10:00	AU	9352313	Australia/Sydney
++01:00	NL	13892513	Europe/Amsterdam
++01:00	AD	36283	Europe/Andorra
++04:00	RU	644812	Europe/Astrakhan
++02:00	GR	6286690	Europe/Athens
++01:00	RS	5756549	Europe/Belgrade
++01:00	DE	62740682	Europe/Berlin
++01:00	SK	2548401	Europe/Bratislava
++01:00	BE	9038306	Europe/Brussels
++02:00	RO	11070040	Europe/Bucharest
++01:00	HU	9366333	Europe/Budapest
++01:00	DE	15000	Europe/Busingen
++02:00	MD	1460347	Europe/Chisinau
++01:00	DK	3885672	Europe/Copenhagen
++01:00	IE	2720758	Europe/Dublin
++01:00	GI	26544	Europe/Gibraltar
++00:00	GG	16488	Europe/Guernsey
++02:00	FI	5265184	Europe/Helsinki
++00:00	IM	26218	Europe/Isle_of_Man
++03:00	TR	77554557	Europe/Istanbul
++00:00	JE	28000	Europe/Jersey
++02:00	RU	664545	Europe/Kaliningrad
++03:00	RU	782604	Europe/Kirov
++02:00	UA	35633582	Europe/Kyiv
++00:00	PT	6372176	Europe/Lisbon
++01:00	SI	552127	Europe/Ljubljana
++00:00	GB	57817786	Europe/London
++01:00	LU	131322	Europe/Luxembourg
++01:00	ES	42918247	Europe/Madrid
++01:00	MT	141714	Europe/Malta
++02:00	AX	10682	Europe/Mariehamn
++03:00	BY	6105410	Europe/Minsk
++01:00	MC	48977	Europe/Monaco
++03:00	RU	69342062	Europe/Moscow
++01:00	NO	3296711	Europe/Oslo
++01:00	FR	33093827	Europe/Paris
++01:00	ME	398494	Europe/Podgorica
++01:00	CZ	5924565	Europe/Prague
++02:00	LV	1206422	Europe/Riga
++01:00	IT	34033666	Europe/Rome
++04:00	RU	3546813	Europe/Samara
++01:00	SM	4500	Europe/San_Marino
++01:00	BA	1905798	Europe/Sarajevo
++04:00	RU	1705529	Europe/Saratov
++03:00	UA	1620906	Europe/Simferopol
++01:00	MK	1754303	Europe/Skopje
++02:00	BG	4111057	Europe/Sofia
++01:00	SE	7149541	Europe/Stockholm
++02:00	EE	1106943	Europe/Tallinn
++01:00	AL	1629643	Europe/Tirane
++04:00	RU	814189	Europe/Ulyanovsk
++01:00	LI	5197	Europe/Vaduz
++01:00	VA	829	Europe/Vatican
++01:00	AT	5274040	Europe/Vienna
++02:00	LT	2103133	Europe/Vilnius
++03:00	RU	1837053	Europe/Volgograd
++01:00	PL	22720110	Europe/Warsaw
++01:00	HR	1650334	Europe/Zagreb
++01:00	CH	3461664	Europe/Zurich
++03:00	MG	6115943	Indian/Antananarivo
++06:00	IO	15000	Indian/Chagos
++07:00	CX	1355	Indian/Christmas
++06:30	CC	120	Indian/Cocos
++03:00	KM	118353	Indian/Comoro
++05:00	TF	45	Indian/Kerguelen
++04:00	SC	22881	Indian/Mahe
++05:00	MV	103693	Indian/Maldives
++04:00	MU	701493	Indian/Mauritius
++03:00	YT	138967	Indian/Mayotte
++04:00	RE	804329	Indian/Reunion
++13:00	WS	40407	Pacific/Apia
++12:00	NZ	5203989	Pacific/Auckland
++11:00	PG	40266	Pacific/Bougainville
++12:45	NZ	15000	Pacific/Chatham
++10:00	FM	15000	Pacific/Chuuk
+-06:00	CL	15000	Pacific/Easter
++11:00	VU	35901	Pacific/Efate
++12:00	FJ	334403	Pacific/Fiji
++12:00	TV	6320	Pacific/Funafuti
+-06:00	EC	15000	Pacific/Galapagos
+-09:00	PF	15000	Pacific/Gambier
++11:00	SB	194707	Pacific/Guadalcanal
++10:00	GU	121094	Pacific/Guam
+-10:00	US	1569453	Pacific/Honolulu
++13:00	KI	15000	Pacific/Kanton
++14:00	KI	15000	Pacific/Kiritimati
++11:00	FM	15000	Pacific/Kosrae
++12:00	MH	15000	Pacific/Kwajalein
++12:00	MH	45701	Pacific/Majuro
+-09:30	PF	15000	Pacific/Marquesas
++12:00	NR	1100	Pacific/Nauru
+-11:00	NU	624	Pacific/Niue
++11:00	NF	880	Pacific/Norfolk
++11:00	NC	137086	Pacific/Noumea
+-11:00	AS	11500	Pacific/Pago_Pago
++09:00	PW	15000	Pacific/Palau
+-08:00	PN	46	Pacific/Pitcairn
++11:00	FM	6942	Pacific/Pohnpei
++10:00	PG	588589	Pacific/Port_Moresby
+-10:00	CK	13373	Pacific/Rarotonga
++10:00	MP	48220	Pacific/Saipan
+-10:00	PF	81958	Pacific/Tahiti
++12:00	KI	40311	Pacific/Tarawa
++13:00	TO	22400	Pacific/Tongatapu
++12:00	WF	1200	Pacific/Wallis

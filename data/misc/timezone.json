@@ -1,1 +1,1 @@
-{ "format": "{zone}", "rows": "timezone.tsv", "key": "zone", "parent": "territory" }
+{ "format": "{zone}", "rows": "timezone.tsv", "key": "zone", "parent": "territory", "weight": "weight" }

@@ -172,12 +172,16 @@ carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 name, so they are drawn from rather than selected in.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
-`misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for
-most of them to dozens for the largest, with the territory's code and the zone's
-standard offset, not the offset in force on any given date, which a zone name is what you
-store precisely to avoid. It links to `misc.territory`, so `misc.territory[SE].timezone`
-is `Europe/Stockholm` and a drawn territory and zone agree. `misc.useragent` carries
-`browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`.
+`misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
+of them to dozens for the largest, weighted by the population GeoNames records in each,
+so `misc.territory[US].timezone` draws `America/New_York` far more often than
+`America/Nome`. It links to `misc.territory`, so `misc.territory[SE].timezone` is
+`Europe/Stockholm` and a drawn territory and zone agree. Its `offset` is the zone's
+*standard* offset, so do not pair it with a drawn `misc.datetime`: half the year it is
+the wrong one, which is what storing a zone name avoids. There is no `UTC` row, tzdb
+giving that name no territory — spell it as the text `"UTC"`. `misc.useragent` carries
+`browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`,
+32 pairs until an international source replaces them.
 
 ISO 3166-1 codes territories, not sovereign states, so that is what the table is
 called: Greenland and Åland have codes of their own, and `misc.territory.country`
@@ -1164,6 +1168,10 @@ App developers writing tests and fixtures, in Go and at a shell:
   worth more than the last rows of a table. Where no such link can hold the fact
   stays a column. Layer your own `misc.territory` over the shipped one and you
   must layer `misc.timezone` too, or the link fails at load naming the row.
+- **`misc.car` is one flat table, not a make linked to its models.** A row is a make
+  and a model drawn together, so no render pairs a Volvo with a RAV4. Two linked
+  tables would reach the same pairs and add a selector nothing asks for; a make alone
+  is `misc.car.make`.
 - **`misc.territory` names its sovereign in a column, and there is no `misc.country`
   table.** ISO 3166-1 codes territories, so `territory` is the honest name, and
   `is_independent` in the register gives each one's state. A second table of the 195

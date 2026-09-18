@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/timezone.tsv from the IANA tzdb tarball (public domain).
+"""Rebuild data/misc/timezone.tsv from the IANA tzdb tarball (public domain) and GeoNames (CC BY 4.0).
 
-    data-import/timezone.py [--source URL_OR_FILE] [--cache DIR] [--out FILE] [--territories FILE]
+    data-import/timezone.py [--source URL_OR_FILE] [--cities URL_OR_FILE] [--cache DIR] [--out FILE] [--territories FILE]
 
 The offset is the zone's standard offset, the first field of its Zone rule's last
-continuation line, with a Link resolved to its target.
+continuation line, with a Link resolved to its target. The weight is the population
+GeoNames records in the zone's cities of 15,000 or more, and that threshold for a
+zone holding none, so a drawn zone is one people live in.
 """
 import argparse
 import csv
@@ -12,17 +14,21 @@ import io
 import re
 import sys
 import tarfile
+import zipfile
 from pathlib import Path
 
 import source
 import tsv
 
 SOURCE = "https://data.iana.org/time-zones/tzdata-latest.tar.gz"
+CITIES = "https://download.geonames.org/export/dump/cities15000.zip"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "timezone.tsv"
 TERRITORIES = Path(__file__).resolve().parent.parent / "data" / "misc" / "territory.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
-COLUMNS = ["offset", "territory", "zone"]
+COLUMNS = ["offset", "territory", "weight", "zone"]
 REGIONS = ["africa", "antarctica", "asia", "australasia", "backward", "etcetera", "europe", "northamerica", "southamerica"]
+# GeoNames' own cutoff, so a zone it records no city in weighs less than one would.
+FLOOR = 15000
 
 
 def member(tar, name):
@@ -75,7 +81,20 @@ def utc_offset(raw):
     return f"{'-' if m.group(1) else '+'}{int(m.group(2)):02d}:{m.group(3) or '00'}"
 
 
-def rows(tar, territories):
+def population(body):
+    """The population GeoNames records per timezone, summed over its cities."""
+    with zipfile.ZipFile(io.BytesIO(body)) as z:
+        text = z.read("cities15000.txt").decode("utf-8")
+    per = {}
+    for city in csv.reader(io.StringIO(text), delimiter="\t", quoting=csv.QUOTE_NONE):
+        if len(city) > 17 and city[17]:
+            per[city[17]] = per.get(city[17], 0) + int(city[14] or 0)
+    if not per:
+        sys.exit("cities15000.txt: no city carried a timezone; the column order has moved")
+    return per
+
+
+def rows(tar, territories, pop):
     std, links = offsets(tar)
     for line in member(tar, "zone.tab").splitlines():
         if line.startswith("#") or not line.strip():
@@ -92,7 +111,7 @@ def rows(tar, territories):
         offset = utc_offset(raw)
         if offset is None:
             sys.exit(f"{zone}: standard offset {raw!r} is not a ±HH:MM the table can spell")
-        yield {"offset": offset, "territory": territory, "zone": zone}
+        yield {"offset": offset, "territory": territory, "weight": pop.get(zone) or FLOOR, "zone": zone}
 
 
 def main():
@@ -100,12 +119,14 @@ def main():
     p.add_argument("--cache", default=str(CACHE))
     p.add_argument("--source", default=SOURCE)
     p.add_argument("--out", default=str(OUT))
+    p.add_argument("--cities", default=CITIES)
     p.add_argument("--territories", default=str(TERRITORIES))
     a = p.parse_args()
     shipped = {r["alpha2"] for r in csv.DictReader(io.StringIO(Path(a.territories).read_text(encoding="utf-8")), delimiter="\t")}
+    pop = population(source.fetch(a.cities, a.cache, "cities15000.zip", magic=b"PK"))
     body = source.fetch(a.source, a.cache, "tzdata-latest.tar.gz", magic=b"\x1f\x8b")
     with tarfile.open(fileobj=io.BytesIO(body)) as tar:
-        table = sorted(rows(tar, shipped), key=lambda r: r["zone"])
+        table = sorted(rows(tar, shipped, pop), key=lambda r: r["zone"])
         print(f"tzdb {tar.extractfile('version').read().decode('utf-8').strip()}", file=sys.stderr)
     linked = {r["territory"] for r in table}
     if missing := shipped - linked:
