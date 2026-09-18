@@ -81,3 +81,14 @@ func TestDifferentSeedsDiffer(t *testing.T) {
 	}
 	t.Fatal("seeds 1 and 2 produced identical sequences")
 }
+
+// fakeTemplate renders an inline template against a loaded generator, so its
+// references resolve.
+func fakeTemplate(t *testing.T, f *Generator, s string) string {
+	t.Helper()
+	got, err := f.FakeTemplate(s)
+	if err != nil {
+		t.Fatalf("FakeTemplate(%s) = %v", s, err)
+	}
+	return got
+}

@@ -30,7 +30,7 @@ func BenchmarkPerson(b *testing.B)     { benchPath(b, "data", "sv_SE.person") }
 func BenchmarkAddress(b *testing.B)    { benchPath(b, "data", "sv_SE.address") }
 func BenchmarkWord(b *testing.B)       { benchPath(b, "data", "sv_SE.word") }
 func BenchmarkCreditcard(b *testing.B) { benchPath(b, "data", "misc.creditcard") }
-func BenchmarkSSN(b *testing.B)        { benchPath(b, "data", "sv_SE.ssn") }
+func BenchmarkSSN(b *testing.B)        { benchPath(b, "data", "sv_SE.personnummer") }
 func BenchmarkUUIDv7(b *testing.B)     { benchPath(b, "data", "misc.uuid") }
 
 func tmpData(b *testing.B, name, body string) string {

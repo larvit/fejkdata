@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestBuiltinIDGenerators(t *testing.T) {
@@ -41,6 +43,7 @@ func TestBuiltinSamplesReproducible(t *testing.T) {
 		`"{uuid()}"`, `"{ulid()}"`,
 		`"{nanoid(12)}"`, `"{int(1,1000000)}"`,
 		`"{float(0,1,6)}"`, `"{base64(12)}"`, `"{iban(SE)}"`,
+		`"{date(2000-01-01,2020-12-31,'2006-01-02 15:04:05')}"`, `"{time('15:04:05')}"`,
 	} {
 		if a, b := mustRender(t, engine(7), tmpl), mustRender(t, engine(7), tmpl); a != b {
 			t.Fatalf("%s not reproducible: %q != %q", tmpl, a, b)
@@ -230,6 +233,85 @@ func TestClassBuiltinArgs(t *testing.T) {
 	for _, ok := range []string{`"{digits(1048576)}"`, `"{upper(1)}"`, `"{lower(26)}"`} {
 		if _, err := compile(parse(t, ok)); err != nil {
 			t.Errorf("compile(%s) = %v", ok, err)
+		}
+	}
+}
+
+// TestBuiltinDateAndTime pins the two clock-free samples: date draws a second in
+// [from 00:00:00, to 23:59:59], both days reachable, and renders it in the quoted Go
+// layout, commas and English names included; time draws a second within one day.
+func TestBuiltinDateAndTime(t *testing.T) {
+	f := engine(1)
+	seen := map[string]bool{}
+	for i := 0; i < 500; i++ {
+		got := mustRender(t, f, `"{date(1990-01-01,1990-12-31,'2006-01-02')}"`)
+		if d, err := time.Parse("2006-01-02", got); err != nil || d.Year() != 1990 {
+			t.Fatalf("date = %q, want a 1990 calendar date (err %v)", got, err)
+		}
+		seen[got] = true
+	}
+	if len(seen) < 200 {
+		t.Fatalf("date drew %d distinct days of 365 in 500, want a uniform spread", len(seen))
+	}
+	lo, hi := false, false
+	for i := 0; i < 200; i++ {
+		got := mustRender(t, f, `"{date(2020-02-28,2020-02-29,'2006-01-02')}"`)
+		if got != "2020-02-28" && got != "2020-02-29" {
+			t.Fatalf("date(2020-02-28,2020-02-29) = %q, out of range", got)
+		}
+		lo, hi = lo || got == "2020-02-28", hi || got == "2020-02-29"
+	}
+	if !lo || !hi {
+		t.Fatalf("date never hit a bound: lo=%v hi=%v (bounds must be inclusive)", lo, hi)
+	}
+	if got := mustRender(t, f, `"{date(2020-07-04,2020-07-05,'January 2, 2006')}"`); got != "July 4, 2020" && got != "July 5, 2020" {
+		t.Fatalf("date with a comma in its layout = %q", got)
+	}
+	rfc := regexp.MustCompile(`^2021-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
+	clock := regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)
+	ampm := regexp.MustCompile(`^(1[0-2]|[1-9]):[0-5]\d (AM|PM)$`)
+	seconds := map[string]bool{}
+	for i := 0; i < 300; i++ {
+		got := mustRender(t, f, `"{date(2021-01-01,2021-12-31,'2006-01-02T15:04:05Z07:00')}"`)
+		if !rfc.MatchString(got) {
+			t.Fatalf("date in an RFC 3339 layout = %q, want %s", got, rfc)
+		}
+		seconds[got[17:19]] = true
+		if got := mustRender(t, f, `"{time('15:04')}"`); !clock.MatchString(got) {
+			t.Fatalf("time('15:04') = %q, want %s", got, clock)
+		}
+		if got := mustRender(t, f, `"{time('3:04 PM')}"`); !ampm.MatchString(got) {
+			t.Fatalf("time('3:04 PM') = %q, want %s", got, ampm)
+		}
+		got = mustRender(t, f, `"{date(1950-01-01,2000-12-31,'060102')}-238{luhn()}"`)
+		if d := digitsOnly(got); len(d) != 10 || !luhnValid(d) {
+			t.Fatalf("a personnummer over date() = %q, want ten Luhn-valid digits", got)
+		}
+	}
+	if len(seconds) < 30 {
+		t.Fatalf("date drew %d distinct seconds in 300, want the whole day, not midnight", len(seconds))
+	}
+}
+
+// TestBuiltinDateArgs pins the New-time checks: bounds are calendar dates in order,
+// the layout is quoted, names a field, and for time names no date field.
+func TestBuiltinDateArgs(t *testing.T) {
+	for tmpl, want := range map[string]string{
+		`"{date(1990-13-01,1990-12-31,'2006-01-02')}"`:     "1990-13-01",
+		`"{date(1990-12-31,1990-01-01,'2006-01-02')}"`:     "before",
+		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:     "before",
+		`"{date(1990-01-01,1990-12-31,2006-01-02)}"`:       "'2006-01-02'",
+		`"{date(1990-01-01,1990-12-31,'January 2, 2006)}"`: "'",
+		`"{date(1990-01-01,1990-12-31,'x')}"`:              "text",
+		`"{date(1990-01-01,1990-12-31,'')}"`:               "text",
+		`"{date(1990-01-01,1990-12-31)}"`:                  "3 args",
+		`"{time(15:04)}"`:                                  "'15:04'",
+		`"{time('2006-01-02 15:04')}"`:                     "date(",
+		`"{time('x')}"`:                                    "text",
+	} {
+		_, err := compile(parse(t, tmpl))
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
 		}
 	}
 }

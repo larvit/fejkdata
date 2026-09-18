@@ -10,7 +10,7 @@ import (
 
 // TestShippedDataCategories asserts every shipped locale emits only well-formed
 // values for each data category. en and sv patterns differ where the format is
-// locale-specific (date, time, ssn, company, price, ...); the rest are shared.
+// locale-specific (date, time, company, price, ...); the rest are shared.
 func TestShippedDataCategories(t *testing.T) {
 	letters := regexp.MustCompile(`^[\pL'-]+$`)
 	semver := regexp.MustCompile(`^v?\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$`)
@@ -33,10 +33,7 @@ func TestShippedDataCategories(t *testing.T) {
 			regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`)},
 		{"time",
 			regexp.MustCompile(`^([1-9]|1[0-2]):[0-5]\d (AM|PM)$`),
-			regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$`)},
-		{"ssn",
-			regexp.MustCompile(`^[1-9]\d{2}-\d{2}-\d{4}$`),
-			regexp.MustCompile(`^\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])-\d{4}$`)},
+			regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)},
 		{"version", semver, semver},
 		{"email", email, email},
 		{"ip", ip, ip},
@@ -72,7 +69,11 @@ func TestShippedMiscCategories(t *testing.T) {
 	v4 := regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 	mac := regexp.MustCompile(`^([0-9a-f]{2}:){5}[0-9a-f]{2}$`)
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
+	datetime := regexp.MustCompile(`^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$`)
 	for i := 0; i < 200; i++ {
+		if v := fake(t, f, "datetime"); !datetime.MatchString(v) {
+			t.Fatalf("misc datetime %q is not an RFC 3339 UTC instant", v)
+		}
 		if v := fake(t, f, "objectid"); !objectid.MatchString(v) {
 			t.Fatalf("misc objectid %q is not 24 hex chars", v)
 		}
@@ -147,30 +148,121 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 	}
 }
 
-// TestSwedishPersonnummer checks the two rules the shape regex can't: the date
-// is a real calendar date (so month-length variants never emit e.g. Apr 31 or
-// Feb 30) and the trailing digit is a valid Luhn checksum over the other nine.
+// TestSwedishPersonnummer checks what the shape regex can't: the date is a real
+// calendar date, the birth number is Skatteverket's test series (238 female, 239
+// male), the trailing digit is a Luhn checksum over the other nine, and a
+// samordningsnummer is the same with 60 added to the day.
 func TestSwedishPersonnummer(t *testing.T) {
 	sv := newGenerator(t, "data", WithSeed(1))
-	sawLongMonthEnd := false
+	re := regexp.MustCompile(`^\d{6}-23[89]\d$`)
+	sawLongMonthEnd, birth := false, map[string]bool{}
 	for i := 0; i < 2000; i++ {
-		v := fake(t, sv, "sv_SE.ssn")
+		v := fake(t, sv, "sv_SE.personnummer")
 		d := digitsOnly(v)
-		if len(d) != 10 {
-			t.Fatalf("ssn %q has %d digits, want 10", v, len(d))
+		if !re.MatchString(v) {
+			t.Fatalf("personnummer %q, want YYMMDD-238C or YYMMDD-239C", v)
 		}
-		if _, err := time.Parse("060102", d[:6]); err != nil { // 2-digit year, real-date check
-			t.Fatalf("ssn %q is not a valid calendar date: %v", v, err)
+		if _, err := time.Parse("060102", d[:6]); err != nil {
+			t.Fatalf("personnummer %q is not a valid calendar date: %v", v, err)
 		}
 		if !luhnValid(d) {
-			t.Fatalf("ssn %q fails the Luhn check", v)
+			t.Fatalf("personnummer %q fails the Luhn check", v)
 		}
-		if d[4:6] == "31" {
-			sawLongMonthEnd = true
+		sawLongMonthEnd = sawLongMonthEnd || d[4:6] == "31"
+		birth[d[6:9]] = true
+		s := fake(t, sv, "sv_SE.samordningsnummer")
+		sd := digitsOnly(s)
+		day, err := strconv.Atoi(sd[4:6])
+		if !re.MatchString(s) || err != nil || day < 61 || day > 88 || !luhnValid(sd) {
+			t.Fatalf("samordningsnummer %q, want YYMM(61-88)-23[89]C, Luhn-valid", s)
+		}
+		if _, err := time.Parse("0601", sd[:4]); err != nil {
+			t.Fatalf("samordningsnummer %q is not a valid year and month: %v", s, err)
 		}
 	}
 	if !sawLongMonthEnd {
-		t.Fatal("never generated a 31st — 31-day months are not reaching their last day")
+		t.Fatal("never generated a 31st")
+	}
+	if !birth["238"] || !birth["239"] {
+		t.Fatalf("birth numbers drawn %v, want both 238 and 239", birth)
+	}
+	for i := 0; i < 200; i++ {
+		got := fakeTemplate(t, sv, `{/sv_SE.person.sex} {/sv_SE.personnummer}`)
+		if f, m := strings.HasPrefix(got, "kvinna ") && got[14:17] == "238", strings.HasPrefix(got, "man ") && got[11:14] == "239"; !f && !m {
+			t.Fatalf("%q: a person and a personnummer in one render disagree on sex", got)
+		}
+	}
+}
+
+// TestShippedUSTaxIds pins the SSA and IRS ranges: an SSN's area is 001-899 but
+// 666, its group 01-99 and its serial 0001-9999; an ITIN is 9XX-GG-XXXX with GG
+// in 50-65, 70-88, 90-92 or 94-99.
+func TestShippedUSTaxIds(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(5))
+	ssn := regexp.MustCompile(`^(\d{3})-(\d{2})-(\d{4})$`)
+	itin := regexp.MustCompile(`^9\d{2}-(5\d|6[0-5]|7\d|8[0-8]|9[0-24-9])-\d{4}$`)
+	for i := 0; i < 2000; i++ {
+		v := fake(t, f, "en_US.ssn")
+		m := ssn.FindStringSubmatch(v)
+		if m == nil {
+			t.Fatalf("ssn %q, want AAA-GG-SSSS", v)
+		}
+		area, _ := strconv.Atoi(m[1])
+		group, _ := strconv.Atoi(m[2])
+		serial, _ := strconv.Atoi(m[3])
+		if area < 1 || area > 899 || area == 666 || group < 1 || serial < 1 {
+			t.Fatalf("ssn %q is in a range the SSA never assigns", v)
+		}
+		if v := fake(t, f, "en_US.itin"); !itin.MatchString(v) {
+			t.Fatalf("itin %q, want %s", v, itin)
+		}
+	}
+}
+
+// TestShippedPersonNames pins the name tables: a sex pins its first names, a name
+// both sexes carry appears under both, and the record's sex agrees with its name.
+func TestShippedPersonNames(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(9))
+	for path, want := range map[string]string{
+		"sv_SE.sex[f]":                        "kvinna",
+		"sv_SE.sex[man].code":                 "m",
+		"en_US.sex[f]":                        "female",
+		"sv_SE.sex[f].first-name[Anna]":       "Anna",
+		"sv_SE.sex[m].first-name[Erik].sex":   "m",
+		"en_US.sex[m].first-name[James]":      "James",
+		"en_US.sex[f].first-name[Taylor].sex": "f",
+		"en_US.sex[m].first-name[Taylor].sex": "m",
+		"sv_SE.last-name[Andersson]":          "Andersson",
+		"sv_SE.last-name[Andersson].count":    "",
+		"en_US.last-name[Smith]":              "Smith",
+	} {
+		got := fake(t, f, path)
+		if want == "" && !regexp.MustCompile(`^[1-9]\d*$`).MatchString(got) {
+			t.Errorf("Fake(%q) = %q, want a count", path, got)
+		} else if want != "" && got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	if _, err := f.Fake("en_US.first-name[Taylor]"); err == nil || !strings.Contains(err.Error(), "sex[f].first-name[Taylor]") {
+		t.Fatalf("Fake(en_US.first-name[Taylor]) = %v, want both sexes' rows listed", err)
+	}
+	for _, locale := range []string{"sv_SE", "en_US"} {
+		seen := map[string]bool{}
+		for i := 0; i < 2000; i++ {
+			seen[fake(t, f, locale+".sex[f].first-name")] = true
+			first, sex := fake(t, f, locale+".person.first"), fake(t, f, locale+".person.sex")
+			if first == "" || sex == "" {
+				t.Fatalf("%s.person lacks a first name or a sex", locale)
+			}
+		}
+		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" {
+			t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
+		}
+		got := fakeTemplate(t, f, `{/`+locale+`.sex.code}|{/`+locale+`.person.first}`)
+		code, first, _ := strings.Cut(got, "|")
+		if v := fake(t, f, locale+".sex["+code+"].first-name["+first+"]"); v != first {
+			t.Fatalf("%s: %q drawn as a %s name is not one", locale, first, code)
+		}
 	}
 }
 

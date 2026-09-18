@@ -440,6 +440,7 @@ func TestTableFences(t *testing.T) {
 		"a bracket in a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
 		"a brace in a name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
 		"name without a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
+		"a name repeating inside one parent row":         {with(siblings(), map[string]string{"street.json": `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality"}`, "street.tsv": "name\tlocality\nAvenyn\tL1\nAvenyn\tL1\nStorgatan\tL2\nStorgatan\tL3\nStorgatan\tL4\nStorgatan\tL5\nStorgatan\tL6\nStorgatan\tL7\nStorgatan\tL8\n"}), `"Avenyn"`},
 		"a name that is another row's key":               {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
 		"a cell reading its family":                      {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}), "family"},
 		"a format reading its family":                    {with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}), "family"},
@@ -707,5 +708,39 @@ func TestShippedTables(t *testing.T) {
 	}
 	if len(count) < 200 {
 		t.Fatalf("country draws %d distinct rows in 5000, want the full register", len(count))
+	}
+}
+
+// TestNamedTableWithoutAKeyResolvesInsideItsParent pins a table whose rows are
+// told apart only by their parent: a name selects a row inside the parent pinned
+// before it, an ambiguous one is listed by its parent's spelling, and a name
+// repeating inside one parent row is a load error (see TestTableFences).
+func TestNamedTableWithoutAKeyResolvesInsideItsParent(t *testing.T) {
+	files := siblings()
+	files["street.json"] = `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality","weight":"segments"}`
+	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+	for path, want := range map[string]string{
+		"street[Avenyn]":                                                   "Avenyn",
+		"street[Avenyn].locality":                                          "L5",
+		"locality[L7].street[Sandbyvägen]":                                 "Sandbyvägen",
+		"locality[L7].street[Sandbyvägen].segments":                        "2",
+		"municipality[0184].locality[Sandby].street[Sandbyvägen]":          "Sandbyvägen",
+		"municipality[0184].locality[Sandby].street[Sandbyvägen].locality": "L8",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	for path, want := range map[string]string{
+		"street[Sandbyvägen]":         "locality[L7].street[Sandbyvägen]",
+		"locality[L1].street[Avenyn]": "not inside",
+		"street[Kungsgatan]":          `"Kungsgatan"`,
+	} {
+		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
+		}
+	}
+	if got := fakeTemplate(t, f, `{/locality[L8].name}: {/locality[L8].street[Sandbyvägen].name}`); got != "Sandby: Sandbyvägen" {
+		t.Fatalf("a name selected inside a pinned parent = %q", got)
 	}
 }
