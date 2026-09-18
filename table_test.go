@@ -732,30 +732,77 @@ func TestShippedTables(t *testing.T) {
 	if len(count) < 200 {
 		t.Fatalf("territory draws %d distinct rows in 5000, want the full register", len(count))
 	}
+	for i := 0; i < 200; i++ {
+		got := fakeTemplate(t, f, `{/territory.alpha2} {/timezone.territory}`)
+		if drawn, zone, _ := strings.Cut(got, " "); drawn != zone {
+			t.Fatalf("%q: a territory and a timezone in one render disagree on the territory", got)
+		}
+	}
 }
 
 // TestEveryTerritoryNamesAShippedCountry proves what no parent can: the sovereign a
 // territory names is a row of the same table, which a link would make a cycle.
 func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("data", "misc", "territory.tsv"))
+	head, rows := shippedRows(t, "territory.tsv", "alpha2", "country")
+	keys := map[string]bool{}
+	for _, r := range rows {
+		keys[r[head["alpha2"]]] = true
+	}
+	for i, r := range rows {
+		if c := r[head["country"]]; !keys[c] {
+			t.Errorf("territory.tsv line %d: country %q is no alpha2 of the table", i+2, c)
+		}
+	}
+}
+
+// TestEveryUserAgentColumnAgreesWithItsString pins what the column regexes cannot:
+// every Chromium fork carries Chrome's token, so a mis-ordered pattern relabels a
+// row rather than dropping it.
+func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
+	head, rows := shippedRows(t, "useragent.tsv", "browser", "device", "os", "ua")
+	for _, token := range []struct{ in, browser string }{
+		{"Edg", "Edge"}, {"OPR/", "Opera"}, {"SamsungBrowser/", "Samsung Internet"}, {"FxiOS/", "Firefox"},
+	} {
+		for i, r := range rows {
+			if strings.Contains(r[head["ua"]], token.in) && r[head["browser"]] != token.browser {
+				t.Errorf("useragent.tsv line %d: %q carries %q but is labelled %q", i+2, r[head["ua"]], token.in, r[head["browser"]])
+			}
+		}
+	}
+	for i, r := range rows {
+		if r[head["device"]] == "mobile" && r[head["os"]] != "Android" && r[head["os"]] != "iOS" {
+			t.Errorf("useragent.tsv line %d: a mobile row runs %q", i+2, r[head["os"]])
+		}
+	}
+}
+
+// shippedRows reads a shipped misc TSV as the loader does, proving it names the
+// columns asked for and that every row fills them.
+func shippedRows(t *testing.T, file string, want ...string) (map[string]int, [][]string) {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("data", "misc", file))
 	if err != nil {
 		t.Fatal(err)
 	}
 	lines := strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
-	head := strings.Split(lines[0], "\t")
-	alpha2, country := slices.Index(head, "alpha2"), slices.Index(head, "country")
-	if alpha2 < 0 || country < 0 {
-		t.Fatalf("territory.tsv columns %v, want alpha2 and country", head)
+	head := map[string]int{}
+	for i, name := range strings.Split(lines[0], "\t") {
+		head[name] = i
 	}
-	keys := map[string]bool{}
-	for _, line := range lines[1:] {
-		keys[strings.Split(line, "\t")[alpha2]] = true
-	}
-	for i, line := range lines[1:] {
-		if c := strings.Split(line, "\t")[country]; !keys[c] {
-			t.Errorf("territory.tsv line %d: country %q is no alpha2 of the table", i+2, c)
+	for _, name := range want {
+		if _, ok := head[name]; !ok {
+			t.Fatalf("%s columns %v, want %v", file, lines[0], want)
 		}
 	}
+	rows := make([][]string, 0, len(lines)-1)
+	for i, line := range lines[1:] {
+		cells := strings.Split(line, "\t")
+		if len(cells) != len(head) {
+			t.Fatalf("%s line %d has %d cells, want %d", file, i+2, len(cells), len(head))
+		}
+		rows = append(rows, cells)
+	}
+	return head, rows
 }
 
 // TestNamedTableWithoutAKeyResolvesInsideItsParent pins a table whose rows are
