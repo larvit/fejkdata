@@ -2,6 +2,6 @@
   "format": "{prefix}{first} {last}",
   "first": "{.first-name.name}",
   "last": "{.last-name.name}",
-  "prefix": ["", { "format": "{.title.name} ", "weight": 0.1 }],
+  "prefix": [null, { "format": "{.title.name} ", "weight": 0.1 }],
   "sex": "{.sex.name}"
 }

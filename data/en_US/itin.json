@@ -1,5 +1,6 @@
 {
-  "format": "9{digits(2)}-{group}-{serial}",
+  "format": "{area}-{group}-{serial}",
+  "area": "9{digits(2)}",
   "group": [
     { "format": "{int(50,65)}", "weight": 16 },
     { "format": "{int(70,88)}", "weight": 19 },
