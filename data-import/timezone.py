@@ -5,8 +5,8 @@
 
 The offset is the zone's standard offset, the first field of its Zone rule's last
 continuation line, with a Link resolved to its target. The weight is the population
-GeoNames records in the zone's cities of 15,000 or more, and that threshold for a
-zone holding none, so a drawn zone is one people live in.
+GeoNames records in the zone's cities of 15,000 or more, never below that threshold,
+so a drawn zone is one people live in.
 """
 import argparse
 import csv
@@ -87,10 +87,8 @@ def population(body):
         text = z.read("cities15000.txt").decode("utf-8")
     per = {}
     for city in csv.reader(io.StringIO(text), delimiter="\t", quoting=csv.QUOTE_NONE):
-        if len(city) > 17 and city[17]:
-            per[city[17]] = per.get(city[17], 0) + int(city[14] or 0)
-    if not per:
-        sys.exit("cities15000.txt: no city carried a timezone; the column order has moved")
+        if len(city) > 17 and city[17] and city[14].isdigit():
+            per[city[17]] = per.get(city[17], 0) + int(city[14])
     return per
 
 
@@ -111,7 +109,7 @@ def rows(tar, territories, pop):
         offset = utc_offset(raw)
         if offset is None:
             sys.exit(f"{zone}: standard offset {raw!r} is not a ±HH:MM the table can spell")
-        yield {"offset": offset, "territory": territory, "weight": pop.get(zone) or FLOOR, "zone": zone}
+        yield {"offset": offset, "territory": territory, "weight": max(pop.get(zone, 0), FLOOR), "zone": zone}
 
 
 def main():
@@ -131,6 +129,8 @@ def main():
     linked = {r["territory"] for r in table}
     if missing := shipped - linked:
         sys.exit(f"no zone for {sorted(missing)}; a parent row without a child is a load error")
+    if (floored := sum(1 for r in table if r["weight"] == FLOOR)) > len(table) // 2:
+        sys.exit(f"{floored} of {len(table)} zones fell to the floor; GeoNames' population or timezone column has moved")
     tsv.write(a.out, COLUMNS, table)
 
 

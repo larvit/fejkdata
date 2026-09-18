@@ -177,11 +177,14 @@ of them to dozens for the largest, weighted by the population GeoNames records i
 so `misc.territory[US].timezone` draws `America/New_York` far more often than
 `America/Nome`. It links to `misc.territory`, so `misc.territory[SE].timezone` is
 `Europe/Stockholm` and a drawn territory and zone agree. Its `offset` is the zone's
-*standard* offset, so do not pair it with a drawn `misc.datetime`: half the year it is
-the wrong one, which is what storing a zone name avoids. There is no `UTC` row, tzdb
+*standard* offset, so do not pair it with a drawn `misc.datetime`: in a zone that
+observes DST it is the wrong one half the year, which is what storing a zone name
+avoids. A zone tzdb named recently — `Europe/Kyiv`, `America/Ciudad_Juarez` — is
+rejected outright by a consumer resolving it against older tzdata, so where the
+consumer validates the zone, pin one rather than draw it. There is no `UTC` row, tzdb
 giving that name no territory — spell it as the text `"UTC"`. `misc.useragent` carries
 `browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`,
-32 pairs until an international source replaces them.
+until an international source replaces them.
 
 ISO 3166-1 codes territories, not sovereign states, so that is what the table is
 called: Greenland and Åland have codes of their own, and `misc.territory.country`
