@@ -22,6 +22,7 @@ fejkdata 'geo.SE.locality[Lund].street'         # Fjelievägen — a linked tabl
 fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list  # only your data
 fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
+fejkdata "{date(1990-01-01,2010-12-31,'2006-01-02')}"  # 2003-11-27 — the argument in "…", the layout in '…'
 fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse or name: lina
 ```
 
@@ -237,7 +238,16 @@ draws a woman's name, and a name both sexes carry is a row under each, so
 `person` reads one draw of the three, so its `first` and `sex` columns agree, and so
 does a `personnummer` in the same render: its birth number, `sv_SE.birth-number`
 under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no
-real person is ever given.
+real person is ever given. `en_US.title` links to `sex` too, so a person's prefix
+never contradicts it.
+
+A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
+`last-name` — while a shipped `personnummer` agrees with the sex its own render
+*drew*, not with one a path selects. That test series is also small: a personnummer
+is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
+fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
+your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
+`misc.datetime` over 2000-01-01 to 2029-12-31.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record over one
@@ -536,12 +546,14 @@ them a birthdate:
 Renders e.g. `811218-2389`. A layout is Go's: the reference time `Mon Jan 2
 15:04:05 MST 2006` spelled as the output should look, quoted, since a layout may
 carry the comma that separates arguments, with English names. Every second
-between the two days is reachable, so a layout with a clock draws the time too.
+between the two days is reachable, so a layout with a clock draws the time too, and
+`from` may equal `to`, which is that one day. The instant is UTC, so a zone in the
+layout prints `UTC` or `Z`.
 The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. Rejected at `New`: a bound that is no calendar date, or not
-before the other; an unquoted layout, naming the quoted one; a layout naming no field, which is text;
-for `date` a layout naming no date field, naming `time`; and for `time` a layout
-naming a date field, naming `date`. `{seq()}` spans `Fake`
+before the other; an unquoted layout, naming the single-quoted one; a layout naming no field, which is
+text, as is one day in a layout with no clock; for `date` a layout naming no date
+field, naming `time`; and for `time` a layout naming a date field, naming `date`. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above.
 
@@ -720,6 +732,15 @@ template category's format, the categories each category reads, each column's
 datatype and nullability, and each table's key, name, weight and parent columns; a pull request that
 changes it or `data/` adds its `CHANGELOG.md` entry, which CI checks. A removed,
 renamed or retyped line is a major.
+
+## Audience
+
+App developers writing tests and fixtures, in Go and at a shell:
+
+- a **bulk fixture author**, thousands of rows into CSV or SQL
+- a **Go test author**, filling a struct with `FakeStruct`
+- a **hand fixture author**, one value at a shell
+- a **validator-facing author**, who needs a value a real checker accepts
 
 ## Goals
 
@@ -1063,12 +1084,21 @@ renamed or retyped line is a major.
   bigger neighbour ship no address; counting the land outside every place too would
   drop a quarter of the places, whose codes straddle unincorporated land, for a
   postal city the USPS mostly names the same way.
+- **`--list` stays a plain list of paths.** It is what a script reads, so every line
+  has to be a path that `Fake` takes; a marker for the tables a `[selector]` follows,
+  or a legend above them, would make the output something to parse before use.
+  `--help` names the selector spelling instead, and the Table section teaches it.
 - **A layout is always quoted.** A layout may carry the comma that separates
   arguments, `'January 2, 2006'`, and one spelling for every layout beats a rule
   about which ones need the quotes, so the bare spelling is refused naming the
   quoted one. The layout is Go's reference time because the library renders with
   it and a Go caller already knows it; its names are English, and a locale's own
   month and weekday names are data.
+- **A title is a table under `sex`.** A prefix drawn apart would put `Mr` on a record
+  whose `sex` column says `female`, which is the disagreement the record exists to
+  prevent; the tables this set already has are what a title needs, so `en_US.title`
+  links to `sex` as `first-name` does. Swedish has no everyday sexed honorific, so
+  `sv_SE` keeps an unsexed `dr` and `prof`.
 - **No builtin reads the clock, so a date is bounded by days, never by an age.**
   An `age(min,max)` would make a seeded fixture change with the day it runs on,
   which is what a seed exists to prevent; a birthdate for someone 20 to 60 is

@@ -34,15 +34,24 @@ replacement, and each removed path, column or flag.
   `en_US.address` read those records, so `en_US.address.street` no longer carries
   `name` and `suffix`, and a locale folder loads only beside `geo`.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
-  within one, in a quoted Go layout. `sv_SE.date`, `en_US.date`, `sv_SE.time` and
-  `en_US.time` render through them, so `date.year`, `date.month`, `date.day` and
-  `time.hour` are no longer paths, and `misc.datetime` is an RFC 3339 instant.
+  within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.
+  `sv_SE.date`, `en_US.date`, `sv_SE.time` and `en_US.time` render through them, so
+  `date.year`, `date.month`, `date.day`, `time.hour`, `time.minute`, `time.minute.t`,
+  `time.sec` and `time.ampm` are no longer paths — a part of a date is now its own
+  `{date(…,'2006')}`. `misc.datetime` is an RFC 3339 instant.
 - `sex`, `first-name` and `last-name` tables in `sv_SE` and `en_US`, weighted by
   bearers from SCB, the SSA and the Census Bureau; `first-name` links to `sex`, and a
   name both sexes carry is a row under each. `person` reads them, so its columns are
-  `first`, `last`, `prefix` and `sex`, and `person.femalefirst` and
-  `person.malefirst` are no longer paths.
+  `first`, `last`, `prefix` and `sex`; `person.femalefirst` and `person.malefirst` are
+  no longer paths — draw `sex[f].first-name` and `sex[m].first-name` instead.
+  `en_US.title` links to `sex` as well, so `en_US.person.prefix` draws `Mr` or `Ms`
+  without contradicting the record's `sex`.
 - `sv_SE.personnummer` and `sv_SE.samordningsnummer`, Skatteverket's test series
-  from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`; `en_US.ssn`
-  in the ranges the SSA assigns, and `en_US.itin`. `en_US.person.prefix` no longer
-  draws `Mr`, `Mrs`, `Ms` or `Miss`, which could contradict the record's `sex`.
+  from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`, whose
+  `ssn.mmdd`, `ssn.mmdd.m` and `ssn.mmdd.d` go with it. `en_US.ssn` now draws the
+  ranges the SSA assigns and carries the columns `area`, `group` and `serial`, so
+  `--format csv en_US.ssn` writes a header where it used to fail; `en_US.itin` is new.
+- An error names a spelling that runs: a layout is named single-quoted and free of
+  its own quotes, a row of a table with no key is named as the path that selects it,
+  `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record
+  that gives it one.

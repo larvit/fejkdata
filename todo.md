@@ -164,9 +164,13 @@ address, phone, national id, company and date names each.
 1. Table node, key and name selection, parent links, consistent draws, the
    choice-of-rows fence, `DATA-LICENSES.md`, `data-import/` — done.
 2. `geo/SE` and `geo/US`, and `address` in both locales on top of them — done.
-3. Weighted person names and valid ids in both locales; `date()` — done. Middle
-   names wait for a draw group that shares its family's pins, so a second name
-   is drawn under the same sex.
+3. Weighted person names and valid ids in both locales; `date()` — done. Left for
+   later: middle names, and drawing a shipped `personnummer` inside a *selected*
+   sex, both of which want a draw group that shares its family's pins — until then
+   the conflict error can name a rewrite that returns a different value when the
+   read it conflicts with sits inside another category. Give the national ids one
+   record shape in step 6, and report a struct column's draw conflict with the path
+   spelling a tag takes rather than the reference spelling.
 4. `misc` conversions and the new `misc` tables.
 5. The remaining locale categories: company, phone, finance, vehicle, words.
 6. Records with building-block columns across the shipped set; shape re-pin.
