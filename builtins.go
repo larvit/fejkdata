@@ -61,8 +61,8 @@ var builtins = map[string]builtin{
 		cc := a[0]
 		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date":      {arity: 3, check: dateArgs, prep: datePrep},
-	"time":      {arity: 1, check: timeArg, prep: timePrep},
+	"date":      {arity: -1, check: dateArgs, prep: datePrep},
+	"time":      {arity: -1, check: timeArg, prep: timePrep},
 	"calc":      {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
 	"lowercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToLower), operands: transformOperand},
 	"uppercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToUpper), operands: transformOperand},
@@ -503,7 +503,23 @@ func layoutOf(a string) string {
 	return layout
 }
 
+// layoutArity checks a call that ends in a layout takes n args; an unquoted layout
+// carrying a comma splits into more, so the error names its quoted spelling.
+func layoutArity(name string, n int, a []string) error {
+	if len(a) == n {
+		return nil
+	}
+	hint := ""
+	if len(a) > n {
+		hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Join(a[n-1:], ", "))
+	}
+	return fmt.Errorf("%s takes %d args, got %d%s", name, n, len(a), hint)
+}
+
 func dateArgs(_ map[string]node, a []string) error {
+	if err := layoutArity("date", 3, a); err != nil {
+		return err
+	}
 	from, err := time.Parse(dayLayout, a[0])
 	if err != nil {
 		return fmt.Errorf("date(from,to,layout): from %q is not a YYYY-MM-DD date", a[0])
@@ -520,6 +536,9 @@ func dateArgs(_ map[string]node, a []string) error {
 }
 
 func timeArg(_ map[string]node, a []string) error {
+	if err := layoutArity("time", 1, a); err != nil {
+		return err
+	}
 	layout, err := layoutArg(a[0])
 	if err != nil {
 		return err
