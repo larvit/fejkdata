@@ -27,9 +27,12 @@ REGIONS = ["africa", "antarctica", "asia", "australasia", "backward", "etcetera"
 
 def member(tar, name):
     try:
-        return tar.extractfile(name).read().decode("utf-8")
+        f = tar.extractfile(name)
     except KeyError:
-        sys.exit(f"{name}: the tarball no longer holds it; the tzdb layout has moved")
+        f = None
+    if f is None:
+        sys.exit(f"{name}: the tarball no longer holds it as a file; the tzdb layout has moved")
+    return f.read().decode("utf-8")
 
 
 def offsets(tar):

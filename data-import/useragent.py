@@ -19,8 +19,7 @@ SOURCE = "https://raw.githubusercontent.com/microlinkhq/top-user-agents/master/s
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "useragent.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["browser", "device", "os", "ua"]
-# First match wins: every Chromium fork carries Chrome's token too, so one this list
-# does not name would ship as Chrome rather than be dropped.
+# First match wins: a Chromium fork this list does not name ships as Chrome.
 BROWSERS = [("Edge", r"Edg(A|iOS)?/"), ("Opera", r"OPR/"), ("Samsung Internet", r"SamsungBrowser/"),
             ("Chrome", r"(Chrome|CriOS)/"), ("Firefox", r"(Firefox|FxiOS)/"), ("Safari", r"Version/[\d.]+ .*Safari")]
 SYSTEMS = [("iOS", r"iPhone|iPad|CPU OS "), ("Android", r"Android"), ("ChromeOS", r"CrOS"),

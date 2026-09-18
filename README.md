@@ -172,9 +172,9 @@ carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 name, so they are drawn from rather than selected in.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
-`misc.timezone` is every zone tzdb gives a shipped territory — 401 of them, from one
-apiece for most to 29 for the US — with the territory's code and the zone's standard
-offset, not the offset in force on any given date, which a zone name is what you
+`misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for
+most of them to dozens for the largest, with the territory's code and the zone's
+standard offset, not the offset in force on any given date, which a zone name is what you
 store precisely to avoid. It links to `misc.territory`, so `misc.territory[SE].timezone`
 is `Europe/Stockholm` and a drawn territory and zone agree. `misc.useragent` carries
 `browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`.
