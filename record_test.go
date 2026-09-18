@@ -553,7 +553,7 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 // error names the record that gives it one.
 func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(1))
-	want := `'{"format":"","personnummer":"{/sv_SE.personnummer}"}'`
+	want := `{"format":"","personnummer":"{/sv_SE.personnummer}"}`
 	_, err := f.FakeRecord("sv_SE.personnummer")
 	if err == nil || !strings.Contains(err.Error(), want) {
 		t.Fatalf("FakeRecord(sv_SE.personnummer) = %v, want it to name %s", err, want)

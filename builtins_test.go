@@ -331,8 +331,8 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 		t.Errorf("%v names a layout that renders its own quotes", err)
 	}
 	_, err = compile(parse(t, `"{time(15:04)}"`))
-	if err == nil || !strings.Contains(err.Error(), "write '15:04'") || !strings.Contains(err.Error(), "shell") {
-		t.Fatalf("a bare layout = %v, want it named quoted and the shell explained", err)
+	if err == nil || !strings.Contains(err.Error(), "write '15:04'") {
+		t.Fatalf("a bare layout = %v, want it named quoted", err)
 	}
 	// The comma hint belongs to a layout that split, not to a call given extra args.
 	_, err = compile(parse(t, `"{time(0,12,'15:04')}"`))

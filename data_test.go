@@ -413,4 +413,10 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 			t.Errorf("en_US.person.prefix never drew %q in 3000 draws", want)
 		}
 	}
+	swedish := map[string]bool{"dr": true, "prof": true}
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "sv_SE.title"); !swedish[got] {
+			t.Fatalf("sv_SE.title = %q, want an unsexed Swedish honorific", got)
+		}
+	}
 }
