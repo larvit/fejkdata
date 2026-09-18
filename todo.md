@@ -1,16 +1,15 @@
 # Plan
 
-Ordered as the releases that ship it. Research notes:
-`~/code/claude-handoffs/fejkdata/2026-09-16/`.
+Ordered as the releases that ship it.
 
 ## v0.1.0
 
 ### Data
 
-Shape: T = table, t = template, c = choice. Every factual list is read from a
-register by a `data-import/` script, per README goal 10.
+Shape: T = table, t = template, c = choice. Read every factual list from a register
+by a `data-import/` script, as README goal 10 asks.
 
-- Add the remaining `misc` tables and templates from the table below, closing step 4.
+- Add the remaining `misc` tables and templates from the table below.
 - Read `misc.emoji` from the Unicode `emoji-test.txt` register, and `misc.car` from an
   international make and model source; vPIC and Mobility Sweden are national, so they
   build `en_US.car` and `sv_SE.car`.
@@ -26,11 +25,13 @@ register by a `data-import/` script, per README goal 10.
   another category, and report a struct column's draw conflict with the path spelling
   a tag takes.
 - Let `geo.SE.locality[Lund].address` descend from a selected row into the template
-  beside the family: the path step reaches a sibling category and the outer selector's
-  pins seed every draw group of the render.
-- Decide whether `email.local` and `username` share one handle list — a reference
-  between shipped categories is a major once tagged, so it lands before v0.1.0 or not
-  at all.
+  beside the family: require the path step to reach a sibling category, and seed every
+  draw group of the render from the outer selector's pins.
+- Decide whether `email.local` and `username` share one handle list, and read the
+  handles from the shipped name tables rather than the hand-written list they use
+  today — a reference between shipped categories breaks a consumer once tagged, so it
+  lands before v0.1.0 or not at all. `price` and `url` stay curated: a price format is
+  no register fact, and the domains are RFC 2606's reserved ones.
 
 `misc` (locale-neutral)
 
@@ -95,7 +96,8 @@ register by a `data-import/` script, per README goal 10.
 ### Open questions to settle
 
 - Decide whether `misc.browser` becomes a parent of `misc.useragent`, so
-  `misc.browser[Chrome].useragent` resolves. Adding a `parent` after v0.1.0 is a major.
+  `misc.browser[Chrome].useragent` resolves. Adding a `parent` after v0.1.0 breaks a
+  consumer, so it rides a 0.(x+1).0.
 - Decide whether `misc.timezone` keeps every zone tzdb names: one added recently,
   `Europe/Kyiv` among them, is rejected by a consumer resolving it against older
   tzdata, and the population weight makes that zone likelier, not rarer. Today the
@@ -103,7 +105,7 @@ register by a `data-import/` script, per README goal 10.
   alternative.
 - Decide whether `misc.territory.country` is renamed `sovereign`: it holds a code, and
   `country` collides with the `misc.country` path it replaced. A rename after v0.1.0
-  is a major.
+  breaks a consumer, so it rides a 0.(x+1).0.
 - Decide whether `parent: territory` stays, given a `--data-path` override of
   `misc.territory` now fails `New` unless `misc.timezone` is overridden with it.
 
@@ -126,10 +128,24 @@ register by a `data-import/` script, per README goal 10.
   `--min-population` and `--streets-per-locality`. The default embed stays under ~1 MB
   per country and `New` under ~50 ms.
 - Add the locales nb_NO, da_DK, fi_FI, de_DE, en_GB, nl_NL, fr_FR and es_ES, with
-  person, address, phone, national id, company and date names each, and the `geo` trees
-  NO, DK, FI, NL, FR, AU, CA, ES, GB and DE under them.
+  person, address, phone, national id, company and date names each, and the `geo/`
+  trees NO, DK, FI, NL, FR, AU, CA, ES, GB and DE their `address` reads by reference;
+  AU and CA get a tree with no locale of their own.
 - Add `{btc()}` and `{eth()}`, which need sha256 and keccak for Base58Check and EIP-55.
 - Pair a street with its exact postnummer, which needs an application to Lantmäteriet;
-  today a street goes to the nearest postal code centroid.
+  today a street goes to the nearest postal code centroid. It rewrites shipped rows, so
+  it is a major once 1.0 is cut and a minor before that.
+
+## v1.0.0
+
+- Cut it once the shipped data is in its record shape and one full minor has shipped
+  with no breaking change, per the README's Versioning table. Nothing else is planned
+  for it: what it needs is v0.1.0's record-shape work, then a quiet minor.
+
+## Not release-bound
+
+- Give the Go services a `user:` so `/cache` stops collecting root-owned files: today
+  every command documented without `--user` writes as root and breaks the next
+  `--user` one, which the README answers with a chown a reader has to repeat.
 - Publish a homepage with an in-browser generator: the library compiled to WebAssembly,
   so visitors generate as much data as they like in their own browser.

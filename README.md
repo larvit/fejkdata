@@ -1151,6 +1151,10 @@ App developers writing tests and fixtures, in Go and at a shell:
   tells the two apart, `sex[f].first-name[Kim]`, the ambiguity error spells each
   row inside its parent, and a name repeating inside one parent row is refused at
   load, since nothing could then select it.
+- **No pop-culture catalogues.** Every other faker ships film, band and character
+  names; fejkdata ships none. They are the one kind of value a fixture never needs to
+  be real, they carry trademarks a test database has no business holding, and the
+  weights that make a real register worth shipping do not exist for them.
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
   records use; `misc` takes only sources that are international. NHTSA vPIC and
@@ -1238,6 +1242,15 @@ docker compose run --rm --user "$(id -u):$(id -g)" fmt   # gofmt -w .
 docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
 ```
 
+A `--user` command answering `permission denied` on `/cache` has met root-owned
+files in the `gocache` volume: Docker creates the volume root-owned, and every
+command above that omits `--user` writes into it as root. Hand it back, and again
+whenever it recurs:
+
+```sh
+docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g)" /cache
+```
+
 Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged — unless it changes none of
 the files the build and its tests read, nor the workflow itself, in which case
@@ -1256,14 +1269,6 @@ in its own commit:
 
 ```sh
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
-```
-
-The `gocache` volume takes the uid of whichever command created it, so a fresh
-checkout whose first command ran as root answers this one with `permission denied`.
-Give it back:
-
-```sh
-docker run --rm -v "${PWD##*/}_gocache":/cache alpine:3.23.3 chown -R "$(id -u):$(id -g)" /cache
 ```
 
 A shipped table built from a source is rebuilt by its script under
