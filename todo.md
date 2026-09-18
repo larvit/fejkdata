@@ -42,7 +42,7 @@ value is composed; TSV says which values exist.
   and a `data-import/` directory of Python scripts that rebuild each TSV from its
   source, so a refresh is one command per dataset.
 - Make every shipped category a record with its building blocks as columns
-  (`sv_SE.person` → `femalefirst`, `malefirst`; `misc.uuid` → `variant`).
+  (`sv_SE.person` → `first`, `last`, `sex`, done in step 3; `misc.uuid` → `variant`).
 - Share the handle lists between `email.local` and `username` only if that is a
   clean win — a reference between shipped categories is a major once tagged.
 
@@ -75,9 +75,8 @@ countries; the README maps each to the native term.
 
 #### Builtins the data cannot express
 
-- `{date(from,to,layout)}`: a date in `[from, to]` in a Go layout, and `{age(min,max)}`
-  as the birthdate spelling; `{time(layout)}`. Personnummer, SSN, birthdate, card
-  expiry, unix time and ISO datetime all build on it.
+- `{date(from,to,'layout')}` and `{time('layout')}` shipped in step 3; `age()` is
+  rejected, README Decisions. Add a `unix` layout once something needs it.
 - Derivations: `{isin()}` (Luhn over letters expanded to digits), `{cusip()}`,
   `{aba()}` (3-7-1 weights), `{vin()}` (position 9 over the whole; a sample taking
   the WMI, since the check sits mid-string).
@@ -165,7 +164,9 @@ address, phone, national id, company and date names each.
 1. Table node, key and name selection, parent links, consistent draws, the
    choice-of-rows fence, `DATA-LICENSES.md`, `data-import/` — done.
 2. `geo/SE` and `geo/US`, and `address` in both locales on top of them — done.
-3. Weighted person names and valid ids in both locales; `date()`.
+3. Weighted person names and valid ids in both locales; `date()` — done. Middle
+   names wait for a draw group that shares its family's pins, so a second name
+   is drawn under the same sex.
 4. `misc` conversions and the new `misc` tables.
 5. The remaining locale categories: company, phone, finance, vehicle, words.
 6. Records with building-block columns across the shipped set; shape re-pin.

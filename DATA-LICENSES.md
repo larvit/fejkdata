@@ -11,6 +11,10 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 | `geo/SE/street.tsv` | [Trafikverket NVDB](https://www.trafikverket.se/) Gatunamn, through the open API | CC0 1.0 | none required | `data-import/geo-se.py` |
 | `geo/US/region.tsv`, `municipality.tsv`, `locality.tsv` | [Census Bureau](https://www.census.gov/) Gazetteer 2026 and population estimates 2025 | [public domain](https://www.usa.gov/government-works) | none required | `data-import/geo-us.py` |
 | `geo/US/postal-code.tsv`, `street.tsv` | Census Bureau ZCTA to place relationships 2020 and TIGER/Line 2025 address ranges and feature names | public domain | none required | `data-import/geo-us.py` |
+| `sv_SE/first-name.tsv`, `last-name.tsv` | [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022 | CC0 1.0 | "Källa: SCB" | `data-import/names-se.py` |
+| `en_US/first-name.tsv` | [SSA](https://www.ssa.gov/oact/babynames/) baby names, births 1930 to 2020, through [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names) | public domain | none required | `data-import/names-us.py` |
+| `en_US/last-name.tsv` | Census Bureau surnames occurring 100 or more times, 2010 | public domain | none required | `data-import/names-us.py` |
+| `sv_SE/sex.tsv`, `en_US/sex.tsv` | curated (Skatteverket's test birth numbers are facts) | — | — | — |
 | `misc/country.tsv` | [datasets/country-codes](https://github.com/datasets/country-codes) | [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/) | none required | `data-import/country.py` |
 | `misc/currency.tsv` | [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from [Unicode CLDR](https://github.com/unicode-org/cldr) `en.xml` and `root.xml` | PDDL 1.0; [Unicode License v3](https://www.unicode.org/license.txt) | CLDR: "Copyright © 1991-2025 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries." | `data-import/currency.py` |
 | `misc/httpstatus.tsv` | curated (IANA HTTP status codes are facts) | — | — | — |

@@ -217,16 +217,26 @@ Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be
 `-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
-Each locale carries `address`, `color`, `company`, `date`, `email`, `ip`,
-`person`, `phone`, `price`, `sentence`, `ssn`, `time`, `url`, `username`,
-`version` and `word`, formatted per locale. `misc` carries `car`, `coordinate`,
-`country` (ISO 3166), `creditcard` (Luhn-valid), `currency` (ISO 4217), `emoji`,
-`httpstatus`, `language` (ISO 639), `mac`, `mimetype`, `objectid`, `timezone`
-(IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
+`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
+`username`, `version` and `word`, formatted per locale; `sv_SE` adds
+`personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
+carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
+`currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
+(ISO 639), `mac`, `mimetype`, `objectid`, `timezone` (IANA), `useragent` and
+`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
 `misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
 `currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
 `misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
+
+`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
+SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+draws a woman's name, and a name both sexes carry is a row under each, so
+`en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
+`person` reads one draw of the three, so its `first` and `sex` columns agree, and so
+does a `personnummer` in the same render: its birth number is Skatteverket's test
+series, 238 for a woman and 239 for a man, which no real person is ever given.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record over one
@@ -407,7 +417,9 @@ cell token, and refuses a TSV no category names, a key that is empty or repeats,
 weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
 `"` or `|`, which a selector cannot spell; the rows are indexed on the first draw that
 selects one. A `name` needs a `key`, since a name naming several rows is reported by
-their keys, and a name spelling another row's key is refused, since the key would
+their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
+is settled by the `sex` selected before it and a name repeating inside one parent row
+is refused; a name spelling another row's key is refused, since the key would
 select first and the name never. The table's options are its own — `rows`, `key`,
 `name`, `weight` and `parent` — so a column may be named `name`, as one usually is.
 
@@ -505,21 +517,30 @@ stays reproducible.
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE |
+| `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
+| `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields ([Computation](#computation)) |
 | `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
 
 A derivation reads what is to its left, so place it after its payload; the
 buffer is per expansion, so a nested template keeps fixed parts out of the sum. A
-Swedish personnummer is a Luhn checksum over the nine digits before it:
+Swedish personnummer is a Luhn checksum over the nine digits before it, six of
+them a birthdate:
 
 ```json
-{ "format": "{century}{core}", "century": ["19", "20"],
-  "core": { "format": "{digits(2)}{mmdd}-{digits(3)}{luhn()}", "mmdd": ["0115", "0704", "1218"] } }
+{ "format": "{date(1930-01-01,2010-12-31,'060102')}-{birth}{luhn()}", "birth": ["238", "239"] }
 ```
 
-Renders e.g. `19811218-9876`. `{seq()}` spans `Fake` calls and `repeat`, resets
-with a new generator, and is the natural primary key for the SQL example above.
+Renders e.g. `811218-2389`. A layout is Go's: the reference time `Mon Jan 2
+15:04:05 MST 2006` spelled as the output should look, quoted, since a layout may
+carry the comma that separates arguments, with English names. Every second
+between the two days is reachable, so a layout with a clock draws the time too.
+Rejected at `New`: a bound that is no calendar date, or not before the other; an
+unquoted layout, naming the quoted one; a layout naming no field, which is text;
+and for `time` a layout naming a date field, naming `date`. `{seq()}` spans `Fake`
+calls and `repeat`, resets with a new generator, and is the natural primary key for
+the SQL example above.
 
 ### Computation
 
@@ -573,9 +594,9 @@ without naming `sv_SE`:
 
 Renders e.g. `Hej, Pat Smith!`. A reference path into a category is held like a
 [correlated](#correlated-fields) path, but for the whole render — one `Fake`, or one
-record — rather than one format: `{.person.femalefirst} {.person.last}` name one
+record — rather than one format: `{.person.first} {.person.last}` name one
 person, as do the same two references in sibling fields or a nested template, and
-`{lowercase(.person.femalefirst)}` reads that same draw. Each `repeat` iteration is
+`{lowercase(.person.first)}` reads that same draw. Each `repeat` iteration is
 a render of its own, in no group, so it draws anew, and a [draw group](#draw-group) holds a
 draw apart. A bare reference names no field and makes its own picks each time —
 `{/misc.uuid} {/misc.uuid}` is two draws — while the reference paths inside what it
@@ -594,8 +615,8 @@ its groups by name; the unnamed group spans them all.
 
 ```json
 { "format": "{payer} pays {payee}; signed {signature}",
-  "payer": { "format": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}", "drawGroup": "payer" },
-  "payee": "{/sv_SE.person.femalefirst} {/sv_SE.person.last}",
+    "payer": { "format": "{/sv_SE.person.first} {/sv_SE.person.last}", "drawGroup": "payer" },
+  "payee": "{/sv_SE.person.first} {/sv_SE.person.last}",
   "signature": { "format": "{/sv_SE.person.last}", "drawGroup": "payer" } }
 ```
 
@@ -728,8 +749,7 @@ renamed or retyped line is a major.
   key, or prefixing options, would tax every template to guard against a
   misspelt option.
 - **`{a|b}` stays beside nested choices.** `[[…], […]]` picks the same way, but
-  its arms are anonymous; `{femalefirst|malefirst}` keeps `person.femalefirst`
-  addressable.
+  its arms are anonymous; `{female|male}` keeps `person.female` addressable.
 - **Flags follow getopt_long.** `--name value` and `--name=value` both work; a
   short flag's value attaches or follows (`-s42`, `-s 42`) and short flags bundle
   (`-hn 3`), as every shell user expects. A single-dash long flag is rejected
@@ -1040,6 +1060,30 @@ renamed or retyped line is a major.
   bigger neighbour ship no address; counting the land outside every place too would
   drop a quarter of the places, whose codes straddle unincorporated land, for a
   postal city the USPS mostly names the same way.
+- **A layout is always quoted.** A layout may carry the comma that separates
+  arguments, `'January 2, 2006'`, and one spelling for every layout beats a rule
+  about which ones need the quotes, so the bare spelling is refused naming the
+  quoted one. The layout is Go's reference time because the library renders with
+  it and a Go caller already knows it; its names are English, and a locale's own
+  month and weekday names are data.
+- **No builtin reads the clock, so a date is bounded by days, never by an age.**
+  An `age(min,max)` would make a seeded fixture change with the day it runs on,
+  which is what a seed exists to prevent; a birthdate for someone 20 to 60 is
+  `date(1966-01-01,2006-12-31,…)`, re-pinned as any fixture is.
+- **A name column without a key resolves inside its parent.** A given name both
+  sexes carry is a row under each, so `name` cannot be the key; the parent's row
+  tells the two apart, `sex[f].first-name[Kim]`, the ambiguity error spells each
+  row inside its parent, and a name repeating inside one parent row is refused at
+  load, since nothing could then select it.
+- **The Swedish ids draw Skatteverket's test series.** A Luhn-valid personnummer
+  over a random birth number may be a living person's; 238 and 239 after any date
+  are blocked from assignment, so the shipped `personnummer` and
+  `samordningsnummer` use those, read from the `sex` table's `birth-number`
+  column so the number and the name agree on sex.
+- **The US given names come from a mirror of the SSA file.** ssa.gov refuses a
+  client outside the US, so `names-us.py` reads a GitHub copy that ends at 2020,
+  which a count over the births since 1930 barely feels; `--names` takes the
+  official zip.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is
@@ -1091,15 +1135,19 @@ A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, fetching the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
 `data-import/cache/`, so delete it to fetch afresh; `geo-us.py` fetches two
-TIGER/Line files per county it ships, a few hundred megabytes, and `geo-se.py` needs
+TIGER/Line files per county it ships, a few hundred megabytes, `geo-se.py` needs
 a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
-in `TRAFIKVERKET_API_KEY` or a `--key-file`:
+in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
+and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
+a copy of the surname file:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/country.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`

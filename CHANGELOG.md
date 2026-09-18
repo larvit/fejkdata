@@ -13,8 +13,9 @@ replacement, and each removed path, column or flag.
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.country[SE]`, and descends to a linked table by name; linked tables draw
   consistently within one render and draw group. `rows` is an option, so no
-  template may carry a field of that name. Refused at `New`: a `name` without a
-  `key`, a name spelling another row's key, a table named like a column of any
+  template may carry a field of that name. A `name` without a `key` resolves
+  inside the table's `parent`. Refused at `New`: a `name` without a `key` or a
+  `parent`, a name repeating inside one parent row, a name spelling another row's key, a table named like a column of any
   table above it, a table whose format or cell references its own family, and,
   within one render and draw group, a path drawing a table another path selects a
   row of, or two paths pinning different rows of one table.
@@ -31,4 +32,16 @@ replacement, and each removed path, column or flag.
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
   `address` record over one consistent draw of them. `sv_SE.address` and
   `en_US.address` read those records, so `en_US.address.street` no longer carries
-  `name` and `suffix`, and a locale folder loads only beside `geo`.
+    `name` and `suffix`, and a locale folder loads only beside `geo`.
+- `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
+  within one, in a quoted Go layout. `sv_SE.date`, `en_US.date`, `sv_SE.time` and
+  `en_US.time` render through them, so `date.year`, `date.month`, `date.day` and
+  `time.hour` are no longer paths, and `misc.datetime` is an RFC 3339 instant.
+- `sex`, `first-name` and `last-name` tables in `sv_SE` and `en_US`, weighted by
+  bearers from SCB, the SSA and the Census Bureau; `first-name` links to `sex`, and a
+  name both sexes carry is a row under each. `person` reads them, so its columns are
+  `first`, `last`, `prefix` and `sex`, and `person.femalefirst` and
+  `person.malefirst` are no longer paths.
+- `sv_SE.personnummer` and `sv_SE.samordningsnummer`, Skatteverket's test series
+  over the sex the render drew, in place of `sv_SE.ssn`; `en_US.ssn` in the ranges
+  the SSA assigns, and `en_US.itin`.
