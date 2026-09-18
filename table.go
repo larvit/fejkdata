@@ -228,21 +228,31 @@ func (t *table) bindOptions(o tableOptionValues) error {
 	if err := t.indexKeys(); err != nil {
 		return err
 	}
+	if err := t.proveNamesInsideParent(); err != nil {
+		return err
+	}
 	return t.sumWeights()
 }
 
-// indexKeys proves every key names one row, and keeps the index a link is proved by;
-// without a key, a name names one row inside its parent.
+// proveNamesInsideParent proves a name without a key names one row inside its parent.
+func (t *table) proveNamesInsideParent() error {
+	if t.key >= 0 || t.name < 0 {
+		return nil
+	}
+	inside := make(map[string]int, t.rows())
+	for r := 0; r < t.rows(); r++ {
+		k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
+		if first, dup := inside[k]; dup {
+			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
+		}
+		inside[k] = r
+	}
+	return nil
+}
+
+// indexKeys proves every key names one row, and keeps the index a link is proved by.
 func (t *table) indexKeys() error {
 	if t.key < 0 {
-		inside := make(map[string]int, t.rows())
-		for r := 0; r < t.rows() && t.name >= 0; r++ {
-			k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
-			if first, dup := inside[k]; dup {
-				return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
-			}
-			inside[k] = r
-		}
 		return nil
 	}
 	t.byKey = make(map[string]int, t.rows())

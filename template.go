@@ -98,7 +98,7 @@ func splitArgs(s string) []string {
 	depth, quoted, start := 0, false, 0
 	for i := 0; i < len(s); i++ {
 		switch c := s[i]; {
-		case c == '\'':
+		case c == '\'' && depth == 0:
 			quoted = !quoted
 		case quoted:
 		case c == '[':
