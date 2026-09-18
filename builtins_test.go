@@ -298,8 +298,8 @@ func TestBuiltinDateAndTime(t *testing.T) {
 func TestBuiltinDateArgs(t *testing.T) {
 	for tmpl, want := range map[string]string{
 		`"{date(1990-13-01,1990-12-31,'2006-01-02')}"`:     "1990-13-01",
-		`"{date(1990-12-31,1990-01-01,'2006-01-02')}"`:     "before",
-		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:     "before",
+		`"{date(1990-12-31,1990-01-01,'2006-01-02')}"`:     "is after",
+		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:     "write it as text",
 		`"{date(1990-01-01,1990-12-31,2006-01-02)}"`:       "'2006-01-02'",
 		`"{date(1990-01-01,1990-12-31,'January 2, 2006)}"`: "'",
 		`"{date(1990-01-01,1990-12-31,'x')}"`:              "text",
@@ -316,5 +316,51 @@ func TestBuiltinDateArgs(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
 		}
+	}
+}
+
+// TestBuiltinLayoutErrorsNameARunnableSpelling pins the two layout errors a user
+// can follow: a double-quoted layout is named single-quoted, without its own
+// quotes carried into the suggestion, and a bare one says a shell ate them.
+func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
+	_, err := compile(parse(t, `"{date(1990-01-01,1990-12-31,\"2006-01-02\")}"`))
+	if err == nil || !strings.Contains(err.Error(), "write '2006-01-02'") {
+		t.Fatalf("a double-quoted layout = %v, want it named single-quoted", err)
+	}
+	if strings.Contains(err.Error(), `'"`) {
+		t.Errorf("%v names a layout that renders its own quotes", err)
+	}
+	_, err = compile(parse(t, `"{time(15:04)}"`))
+	if err == nil || !strings.Contains(err.Error(), "write '15:04'") || !strings.Contains(err.Error(), "shell") {
+		t.Fatalf("a bare layout = %v, want it named quoted and the shell explained", err)
+	}
+	// The comma hint belongs to a layout that split, not to a call given extra args.
+	_, err = compile(parse(t, `"{time(0,12,'15:04')}"`))
+	if err == nil || !strings.Contains(err.Error(), "takes 1 argument, got 3") {
+		t.Fatalf("time with three args = %v, want the count named in the singular", err)
+	}
+	if strings.Contains(err.Error(), "holding a comma") {
+		t.Errorf("%v offers the comma hint though the layout is already quoted", err)
+	}
+}
+
+// TestBuiltinDateSpansOneDay pins that from == to is a day: with a clock layout it
+// draws every second of it, and without one it could only emit one value.
+func TestBuiltinDateSpansOneDay(t *testing.T) {
+	f := engine(1)
+	seen := map[string]bool{}
+	for i := 0; i < 500; i++ {
+		got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02 15:04:05')}"`)
+		if !strings.HasPrefix(got, "2026-01-01 ") {
+			t.Fatalf("date over one day = %q, out of range", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) < 400 {
+		t.Fatalf("date over one day drew %d distinct seconds in 500, want the whole day", len(seen))
+	}
+	_, err := compile(parse(t, `"{date(2026-01-01,2026-01-01,'2006-01-02')}"`))
+	if err == nil || !strings.Contains(err.Error(), "write it as text") {
+		t.Fatalf("one day in a date-only layout = %v, want it named a constant", err)
 	}
 }

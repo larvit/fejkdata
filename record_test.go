@@ -547,3 +547,18 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 		t.Errorf("NewTemplate on the same input = %v, want the string view to still compile", err)
 	}
 }
+
+// TestRecordOfAFieldlessCategoryNamesTheWrapper pins the way out of the first
+// command a fixture author types: a category of one value has no columns, and the
+// error names the record that gives it one.
+func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(1))
+	want := `'{"format":"","personnummer":"{/sv_SE.personnummer}"}'`
+	_, err := f.FakeRecord("sv_SE.personnummer")
+	if err == nil || !strings.Contains(err.Error(), want) {
+		t.Fatalf("FakeRecord(sv_SE.personnummer) = %v, want it to name %s", err, want)
+	}
+	if _, err := f.FakeRecordTemplate(`{"format":"","personnummer":"{/sv_SE.personnummer}"}`); err != nil {
+		t.Fatalf("the named wrapper does not render: %v", err)
+	}
+}

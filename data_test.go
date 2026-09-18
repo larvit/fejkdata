@@ -392,3 +392,25 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 		}
 	}
 }
+
+// TestShippedUSTitleAgreesWithSex pins that one person's title and sex agree, and
+// that the everyday titles are reachable.
+func TestShippedUSTitleAgreesWithSex(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(4))
+	female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
+	seen := map[string]bool{}
+	for i := 0; i < 3000; i++ {
+		got := fakeTemplate(t, f, `{/en_US.person.prefix}|{/en_US.person.sex}`)
+		title, sex, _ := strings.Cut(got, "|")
+		title = strings.TrimSpace(title)
+		seen[title] = true
+		if title == "Mr" && sex != "male" || female[title] && sex != "female" {
+			t.Fatalf("%q: the title contradicts the sex", got)
+		}
+	}
+	for _, want := range []string{"", "Mr", "Ms"} {
+		if !seen[want] {
+			t.Errorf("en_US.person.prefix never drew %q in 3000 draws", want)
+		}
+	}
+}

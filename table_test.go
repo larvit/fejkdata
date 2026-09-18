@@ -172,7 +172,7 @@ func TestTableSelectsARowByKeyOrName(t *testing.T) {
 	}
 	for path, want := range map[string]string{
 		"region[99]":                    `"99"`,
-		"locality[Sandby]":              "L7 L8",
+		"locality[Sandby]":              "L7, L8",
 		"region[12].code[1]":            "not a table",
 		"region[]":                      "empty",
 		"region[12":                     "]",
@@ -334,7 +334,7 @@ func TestTableSelectorInAReference(t *testing.T) {
 	}
 	for name, c := range map[string]struct{ json, want string }{
 		"unknown row":          {`"{/region[99].name}"`, `"99"`},
-		"ambiguous name":       {`"{/locality[Sandby].name}"`, "L7 L8"},
+		"ambiguous name":       {`"{/locality[Sandby].name}"`, "L7, L8"},
 		"not inside":           {`"{/region[12].municipality[0180].name}"`, "not inside"},
 		"selector on template": {`"{/x[1].a}"`, "not a table"},
 	} {
@@ -742,5 +742,34 @@ func TestNamedTableWithoutAKeyResolvesInsideItsParent(t *testing.T) {
 	}
 	if got := fakeTemplate(t, f, `{/locality[L8].name}: {/locality[L8].street[Sandbyvägen].name}`); got != "Sandby: Sandbyvägen" {
 		t.Fatalf("a name selected inside a pinned parent = %q", got)
+	}
+}
+
+// TestAmbiguousNameNamesARunnablePath pins what a shell user reads: each row is
+// named as the path they can type, from the root, and the rows are listed plainly.
+func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
+	files := map[string]string{}
+	for name, body := range siblings() {
+		files["se/"+name] = body
+	}
+	files["se/street.json"] = `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality","weight":"segments"}`
+	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
+	_, err := f.Fake("se.street[Sandbyvägen]")
+	if err == nil {
+		t.Fatal("se.street[Sandbyvägen] resolved, though two rows carry that name")
+	}
+	for _, want := range []string{"se.locality[L7].street[Sandbyvägen]", "se.locality[L8].street[Sandbyvägen]"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("%v does not name %s", err, want)
+		}
+		if got := fake(t, f, want); got != "Sandbyvägen" {
+			t.Errorf("Fake(%q) = %q, want the named path to run", want, got)
+		}
+	}
+	if strings.Contains(err.Error(), "[se.locality") {
+		t.Errorf("%v lists the rows as a Go slice; separate them with commas", err)
+	}
+	if _, err := f.Fake("se.locality[Sandby]"); err == nil || !strings.Contains(err.Error(), "one of L7, L8") {
+		t.Fatalf("se.locality[Sandby] = %v, want its keys listed plainly", err)
 	}
 }
