@@ -540,7 +540,8 @@ between the two days is reachable, so a layout with a clock draws the time too.
 The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. Rejected at `New`: a bound that is no calendar date, or not
 before the other; an unquoted layout, naming the quoted one; a layout naming no field, which is text;
-and for `time` a layout naming a date field, naming `date`. `{seq()}` spans `Fake`
+for `date` a layout naming no date field, naming `time`; and for `time` a layout
+naming a date field, naming `date`. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above.
 
@@ -617,7 +618,7 @@ its groups by name; the unnamed group spans them all.
 
 ```json
 { "format": "{payer} pays {payee}; signed {signature}",
-    "payer": { "format": "{/sv_SE.person.first} {/sv_SE.person.last}", "drawGroup": "payer" },
+  "payer": { "format": "{/sv_SE.person.first} {/sv_SE.person.last}", "drawGroup": "payer" },
   "payee": "{/sv_SE.person.first} {/sv_SE.person.last}",
   "signature": { "format": "{/sv_SE.person.last}", "drawGroup": "payer" } }
 ```
@@ -1079,11 +1080,13 @@ renamed or retyped line is a major.
   load, since nothing could then select it.
 - **The Swedish ids draw Skatteverket's test series.** A Luhn-valid personnummer
   over a random birth number may be a living person's; 238 and 239 after any date
-    are blocked from assignment, so the shipped `personnummer` and
+  are blocked from assignment, so the shipped `personnummer` and
   `samordningsnummer` use those. They sit in a `birth-number` table under `sex`
   rather than as a column of it: the render's shared draw of the family is what
   makes the number and the name agree on sex, and `sex` stays one shape across
-  locales instead of collecting every sex-keyed id fact.
+  locales instead of collecting every sex-keyed id fact. A samordningsnummer's
+  day, the birthday plus 60, is drawn from 61 to 88, valid in every month, rather
+  than computed from the date drawn.
 - **The US given names come from a mirror of the SSA file.** ssa.gov refuses a
   client outside the US, so `names-us.py` reads a GitHub copy that ends at 2020,
   which a count over the births since 1930 barely feels; `--names` takes the

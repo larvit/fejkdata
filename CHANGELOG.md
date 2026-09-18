@@ -32,7 +32,7 @@ replacement, and each removed path, column or flag.
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
   `address` record over one consistent draw of them. `sv_SE.address` and
   `en_US.address` read those records, so `en_US.address.street` no longer carries
-    `name` and `suffix`, and a locale folder loads only beside `geo`.
+  `name` and `suffix`, and a locale folder loads only beside `geo`.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
   within one, in a quoted Go layout. `sv_SE.date`, `en_US.date`, `sv_SE.time` and
   `en_US.time` render through them, so `date.year`, `date.month`, `date.day` and
