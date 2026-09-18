@@ -16,7 +16,6 @@ SOURCE = "https://raw.githubusercontent.com/jshttp/mime-db/master/db.json"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "mimetype.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["ext", "type"]
-# mime-db lists extensions in no particular order, so where the everyday one is not first, name it.
 FIXUPS = {"application/mp4": "mp4s", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/quicktime": "mov"}
 
 

@@ -163,8 +163,8 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
 carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
 `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
-(ISO 639-1, with its 639-2/T code), `mac`, `mimetype`, `objectid`, `timezone` (IANA),
-`useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+(ISO 639-1, with its 639-2/T code), `mac`, `mimetype`, `objectid`, `timezone`
+(IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
 `misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
 `currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
 `misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
@@ -1130,6 +1130,11 @@ App developers writing tests and fixtures, in Go and at a shell:
   and VED beside VES, both Venezuela's, of which a country row names one. Linking
   would trade the register for the link, and `misc.country.currency` already pairs a
   country with its currency in one draw.
+- **An extension may name two media types.** `.xml`, `.rtf`, `.sub`, `.mpp` and `.ac`
+  each name two rows of `misc.mimetype`. Separating them would mean dropping a
+  registered type, or naming one by an extension that is not its own — `.mpt` is
+  Project's template, not its document. Selecting such a name is an error listing
+  both keys; select by type instead.
 - **The Swedish ids draw Skatteverket's test series.** A Luhn-valid personnummer
   over a random birth number may be a living person's; 238 and 239 after any date
   are blocked from assignment, so the shipped `personnummer` and
