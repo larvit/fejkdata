@@ -1097,8 +1097,13 @@ App developers writing tests and fixtures, in Go and at a shell:
 - **A title is a table under `sex`.** A prefix drawn apart would put `Mr` on a record
   whose `sex` column says `female`, which is the disagreement the record exists to
   prevent; the tables this set already has are what a title needs, so `en_US.title`
-  links to `sex` as `first-name` does. Swedish has no everyday sexed honorific, so
-  `sv_SE` keeps an unsexed `dr` and `prof`.
+    links to `sex` as `first-name` does. Swedish has no everyday sexed honorific, so
+  `sv_SE.title` is a table as well but carries no `parent`.
+- **A table owns the spelling of a selector on it.** A reference reaches a table by a
+  path that carries no selector — `sv_SE.person.first` reads `first-name` through
+  `sex` — so the walk that resolved a name cannot say where a reader would type one.
+  The table's own location can, which is why it keeps its path, and why an ambiguity
+  error names `sv_SE.sex[f].first-name[Kim]` rather than the table's own name.
 - **No builtin reads the clock, so a date is bounded by days, never by an age.**
   An `age(min,max)` would make a seeded fixture change with the day it runs on,
   which is what a seed exists to prevent; a birthdate for someone 20 to 60 is
@@ -1119,8 +1124,10 @@ App developers writing tests and fixtures, in Go and at a shell:
   than computed from the date drawn.
 - **The US given names come from a mirror of the SSA file.** ssa.gov refuses a
   client outside the US, so `names-us.py` reads a GitHub copy that ends at 2020,
-  which a count over the births since 1930 barely feels; `--names` takes the
-  official zip.
+    which a count over the births since 1930 barely feels; `--names` takes the
+  official zip. The SSA's placeholder rows — `Unknown`, `Baby`, `Infant` — are
+  top-1000 entries that name nobody, so the import drops them by name rather than by
+  a rank a regeneration would move.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is
@@ -1210,6 +1217,9 @@ family.go       a family of linked tables: the rows a render pins, and the fence
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations
+layout.go       date and time layouts: the instants one is proved against, and the two samples
+checksum.go     the check characters a derivation appends, and the IBAN they sit inside
+transform.go    the builtins that rewrite an operand's value, and the ASCII folding
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 value.go        the value proof: what a typed column or calc operand holds, checked at load

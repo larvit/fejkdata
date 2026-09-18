@@ -8,4 +8,4 @@
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - A standing choice a reader would relitigate goes under Decisions in the README, not in a comment.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
-- Cyclomatic complexity is gated at 14: the table-shaped dispatches (`eachToken`, `calc.factor`, `walkPath`) sit at 13–14 and stay whole; anything else that reaches 14 is decomposed.
+- Cyclomatic complexity is gated at 14: the table-shaped dispatches (`linkParent`, `compileTemplate`, `renderEdges`) sit at it and stay whole; a function that would pass it is decomposed.
