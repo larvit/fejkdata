@@ -245,16 +245,16 @@ func TestFakeStructErrors(t *testing.T) {
 		}{}, `"Ada" is not an integer`},
 		{&struct {
 			A int8 `fake:"{int(0,300)}"`
-		}{}, `"{int(0,300)}" is not proven within int8; make it int64`},
+		}{}, `"{int(0,300)}" is not proven within int8; narrow it to that range, or make the field int64`},
 		{&struct {
 			A uint `fake:"{int(-1,5)}"`
-		}{}, `"{int(-1,5)}" is not proven within uint; make it int64`},
+		}{}, `"{int(-1,5)}" is not proven within uint; narrow it to that range, or make the field int64`},
 		{&struct {
 			A float32 `fake:"[\"1\",\"1e39\"]"`
-		}{}, `"1e39" is not proven within float32; make it float64`},
+		}{}, `"1e39" is not proven within float32; narrow it to that range, or make the field float64`},
 		{&struct {
 			A int32 `fake:"{seq()}"`
-		}{}, `"{seq()}" is not proven within int32; make it int64`},
+		}{}, `"{seq()}" is not proven within int32; narrow it to that range, or make the field int64`},
 		{&struct {
 			A bool `fake:"{int(0,1)}"`
 		}{}, "prints an integer, not a boolean"},
