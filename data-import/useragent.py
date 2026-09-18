@@ -9,6 +9,7 @@ parsed. A row ships when the string names a browser and an operating system both
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 import source
@@ -18,9 +19,9 @@ SOURCE = "https://raw.githubusercontent.com/microlinkhq/top-user-agents/master/s
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "useragent.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["browser", "device", "os", "ua"]
-# First match wins: Edge, Opera and Samsung Internet all carry Chrome's token too,
-# and an iPhone says "like Mac OS X".
-BROWSERS = [("Edge", r"Edg(iOS)?/"), ("Opera", r"OPR/"), ("Samsung Internet", r"SamsungBrowser/"),
+# First match wins: every Chromium fork carries Chrome's token too, so one this list
+# does not name would ship as Chrome rather than be dropped.
+BROWSERS = [("Edge", r"Edg(A|iOS)?/"), ("Opera", r"OPR/"), ("Samsung Internet", r"SamsungBrowser/"),
             ("Chrome", r"(Chrome|CriOS)/"), ("Firefox", r"(Firefox|FxiOS)/"), ("Safari", r"Version/[\d.]+ .*Safari")]
 SYSTEMS = [("iOS", r"iPhone|iPad|CPU OS "), ("Android", r"Android"), ("ChromeOS", r"CrOS"),
            ("Windows", r"Windows NT"), ("macOS", r"Macintosh|Mac OS X"), ("Linux", r"X11.*Linux|Ubuntu")]
@@ -34,11 +35,20 @@ def named(table, ua):
 
 
 def rows(desktop, mobile):
+    seen, kept = set(), []
     for device, uas in (("desktop", desktop), ("mobile", mobile)):
         for ua in uas:
             browser, os = named(BROWSERS, ua), named(SYSTEMS, ua)
-            if browser and os:
-                yield {"browser": browser, "device": device, "os": os, "ua": ua}
+            if not browser or not os:
+                print(f"dropped, naming no {'browser' if not browser else 'operating system'}: {ua}", file=sys.stderr)
+                continue
+            if ua in seen:
+                sys.exit(f"{ua}: listed twice, which would draw it twice as often")
+            seen.add(ua)
+            kept.append({"browser": browser, "device": device, "os": os, "ua": ua})
+    if len(kept) < 0.8 * (len(desktop) + len(mobile)):
+        sys.exit(f"only {len(kept)} of {len(desktop) + len(mobile)} strings named both; the tokens have moved")
+    return kept
 
 
 def main():

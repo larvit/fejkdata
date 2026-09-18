@@ -168,20 +168,21 @@ carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
 `currency`, `httpstatus`, `language`, `mimetype`, `territory`, `timezone` and
 `useragent` are [tables](#table), so `misc.territory[SE].capital` and
-`misc.currency[Euro].symbol` select a row;
+`misc.currency[Euro].symbol` select a row; `car` and `useragent` carry no key or
+name, so they are drawn from rather than selected in.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
-`misc.timezone` is tzdb's zone for a territory, with the territory's code and the
-zone's standard offset — not the offset in force on any given date, which a zone
-name is what you store precisely to avoid. It links to `misc.territory`, so
-`misc.territory[SE].timezone` is `Europe/Stockholm` and a drawn territory and zone
-agree. `misc.useragent` carries `browser`, `device` and `os` beside the string, and
-`misc.car` a `make` and a `model`.
+`misc.timezone` is every zone tzdb gives a shipped territory — 401 of them, from one
+apiece for most to 29 for the US — with the territory's code and the zone's standard
+offset, not the offset in force on any given date, which a zone name is what you
+store precisely to avoid. It links to `misc.territory`, so `misc.territory[SE].timezone`
+is `Europe/Stockholm` and a drawn territory and zone agree. `misc.useragent` carries
+`browser`, `device` and `os` beside the string, and `misc.car` a `make` and a `model`.
 
 ISO 3166-1 codes territories, not sovereign states, so that is what the table is
 called: Greenland and Åland have codes of their own, and `misc.territory.country`
 names the state each belongs to — `DK` for Greenland, `FI` for Åland, and its own
-code for a sovereign one.
+code for a sovereign one, or for one the register names no state for.
 
 `sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
 SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
@@ -1045,8 +1046,7 @@ App developers writing tests and fixtures, in Go and at a shell:
   A table is a category with a TSV beside its file, so only a root choice has the
   spelling the fence names; a nested choice of same-shaped templates and an inline
   one keep loading. Fields must all be strings because a cell is a string node: a
-  choice whose items carry a nested choice, as `misc.car` does, is not one table but
-  two linked ones, which a later conversion writes.
+  choice whose items carry a nested choice is not one table but two linked ones.
 - **A table is a record of string columns.** Its columns are the CSV header and the
   `INSERT` column list, fixed by the TSV header, so a table is a record by
   construction; every column is a string until a typed column option earns its place.
@@ -1146,9 +1146,10 @@ App developers writing tests and fixtures, in Go and at a shell:
   load, since nothing could then select it.
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
-  records use; `misc` takes only sources that are international. So NHTSA vPIC
-  builds `en_US.car` and Mobility Sweden's registrations `sv_SE.car`, never
-  `misc.car`.
+  records use; `misc` takes only sources that are international. NHTSA vPIC and
+  Mobility Sweden's registrations are national, so they build `en_US.car` and
+  `sv_SE.car`; `misc.car` waits for an international source rather than take one
+  of theirs.
 - **A register's canonical spelling loses to the one its domain writes.** Where a
   source offers several spellings of one fact, the shipped one is what records in
   that domain carry. `misc.timezone` reads `zone.tab` and not the `zone1970.tab`

@@ -18,6 +18,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "territory.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["alpha2", "alpha3", "calling-code", "capital", "country", "currency", "flag", "languages", "name", "numeric", "tld"]
 SOVEREIGN = re.compile(r"^(?:Part of|Territor(?:y|ies) of|Crown dependency of|Commonwealth of|Associated with) ([A-Z]{2})$")
+STANDALONE = {"In contention", "International"}
 # Gaps in the source, keyed by alpha2.
 FIXUPS = {"TR": {"currency": "TRY"}}
 
@@ -38,7 +39,11 @@ def languages(field):
 def country(alpha2, independent):
     """The sovereign state the register records; a territory it records none for stands alone."""
     m = SOVEREIGN.match(independent)
-    return m.group(1) if m else alpha2
+    if m:
+        return m.group(1)
+    if independent == "Yes" or independent in STANDALONE:
+        return alpha2
+    sys.exit(f"{alpha2}: is_independent {independent!r} names no sovereign this script can read")
 
 
 def rows(text):

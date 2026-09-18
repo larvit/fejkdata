@@ -3,9 +3,8 @@
 
     data-import/timezone.py [--source URL_OR_FILE] [--cache DIR] [--out FILE] [--territories FILE]
 
-zone.tab names one zone per territory, so Europe/Stockholm ships where zone1970.tab
-would spell Sweden Europe/Berlin. The offset is the zone's standard offset, the first
-field of its Zone rule's last continuation line, with a Link resolved to its target.
+The offset is the zone's standard offset, the first field of its Zone rule's last
+continuation line, with a Link resolved to its target.
 """
 import argparse
 import csv
@@ -26,12 +25,19 @@ COLUMNS = ["offset", "territory", "zone"]
 REGIONS = ["africa", "antarctica", "asia", "australasia", "backward", "etcetera", "europe", "northamerica", "southamerica"]
 
 
+def member(tar, name):
+    try:
+        return tar.extractfile(name).read().decode("utf-8")
+    except KeyError:
+        sys.exit(f"{name}: the tarball no longer holds it; the tzdb layout has moved")
+
+
 def offsets(tar):
     """Every zone's standard offset, and every link's target."""
     std, links = {}, {}
     for name in REGIONS:
         zone = None
-        for raw in tar.extractfile(name).read().decode("utf-8").splitlines():
+        for raw in member(tar, name).splitlines():
             line = raw.split("#")[0].rstrip()
             if not line.strip():
                 continue
@@ -59,19 +65,22 @@ def resolve(zone, std, links):
 
 
 def utc_offset(raw):
-    """±HH:MM from a tzdb STDOFF field; a zone still off by seconds is not one we can spell."""
-    m = re.match(r"^(-)?(\d{1,2}):(\d{2})(?::(\d{2}))?$", raw)
+    """±HH:MM from a tzdb STDOFF field, which writes the minutes and seconds only when it has them."""
+    m = re.match(r"^(-)?(\d{1,2})(?::(\d{2})(?::(\d{2}))?)?$", raw)
     if not m or (m.group(4) or "00") != "00":
         return None
-    return f"{'-' if m.group(1) else '+'}{int(m.group(2)):02d}:{m.group(3)}"
+    return f"{'-' if m.group(1) else '+'}{int(m.group(2)):02d}:{m.group(3) or '00'}"
 
 
 def rows(tar, territories):
     std, links = offsets(tar)
-    for line in tar.extractfile("zone.tab").read().decode("utf-8").splitlines():
+    for line in member(tar, "zone.tab").splitlines():
         if line.startswith("#") or not line.strip():
             continue
-        territory, _, zone = line.split("\t")[:3]
+        fields = line.split("\t")
+        if len(fields) < 3:
+            sys.exit(f"zone.tab: {line!r} has {len(fields)} fields; a row names a territory, a location and a zone")
+        territory, zone = fields[0], fields[2]
         if territory not in territories:
             continue
         raw = resolve(zone, std, links)
@@ -79,7 +88,7 @@ def rows(tar, territories):
             sys.exit(f"{zone}: the tarball gives it no Zone rule and no Link to one")
         offset = utc_offset(raw)
         if offset is None:
-            sys.exit(f"{zone}: standard offset {raw!r} is not a whole number of minutes")
+            sys.exit(f"{zone}: standard offset {raw!r} is not a ±HH:MM the table can spell")
         yield {"offset": offset, "territory": territory, "zone": zone}
 
 
