@@ -17,8 +17,8 @@ import zipfile
 from pathlib import Path
 
 import source
-import xlsx
 import tsv
+import xlsx
 
 CODES = "https://www.scb.se/contentassets/7a89e48960f741e08918e489ea36354a/kommunlankod-2026.xlsx"
 POPULATION = "https://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy"
@@ -39,6 +39,8 @@ CACHE = Path(__file__).resolve().parent / "cache"
 TIMEZONE = "Europe/Stockholm"
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 UNMATCHED_POPULATION = 200
+
+
 def scb_codes(cache):
     regions, municipalities = {}, {}
     for cells in xlsx.rows(source.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):

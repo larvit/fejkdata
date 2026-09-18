@@ -10,8 +10,8 @@ import re
 from pathlib import Path
 
 import source
-import xlsx
 import tsv
+import xlsx
 
 SOURCE = "https://www.scb.se/contentassets/9fe7dbb460994c72b835163dbc491ef9/namn-med-minst-tva-barare-31-december-2022.xlsx"
 OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"

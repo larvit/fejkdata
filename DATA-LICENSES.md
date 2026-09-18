@@ -14,7 +14,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 | `sv_SE/first-name.tsv`, `last-name.tsv` | [SCB](https://www.scb.se/) names with at least two bearers, 31 December 2022 | CC0 1.0 | "Källa: SCB" | `data-import/names-se.py` |
 | `en_US/first-name.tsv` | [SSA](https://www.ssa.gov/oact/babynames/) baby names, births 1930 to 2020, through [hackerb9/ssa-baby-names](https://github.com/hackerb9/ssa-baby-names) | public domain | none required | `data-import/names-us.py` |
 | `en_US/last-name.tsv` | Census Bureau surnames occurring 100 or more times, 2010 | public domain | none required | `data-import/names-us.py` |
-| `sv_SE/sex.tsv`, `sv_SE/birth-number.tsv`, `en_US/sex.tsv` | curated (Skatteverket's test birth numbers are facts) | — | — | — |
+| `sv_SE/sex.tsv`, `sv_SE/birth-number.tsv`, `sv_SE/title.tsv`, `en_US/sex.tsv`, `en_US/title.tsv` | curated (Skatteverket's test birth numbers are facts) | — | — | — |
 | `misc/country.tsv` | [datasets/country-codes](https://github.com/datasets/country-codes) | [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/) | none required | `data-import/country.py` |
 | `misc/currency.tsv` | [datasets/currency-codes](https://github.com/datasets/currency-codes); symbols from [Unicode CLDR](https://github.com/unicode-org/cldr) `en.xml` and `root.xml` | PDDL 1.0; [Unicode License v3](https://www.unicode.org/license.txt) | CLDR: "Copyright © 1991-2025 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries." | `data-import/currency.py` |
 | `misc/httpstatus.tsv` | curated (IANA HTTP status codes are facts) | — | — | — |

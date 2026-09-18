@@ -11,9 +11,9 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
     if not re.match(r"^https?://", source):
         return Path(source).read_bytes()
     path = Path(cache) / name
+    if path.exists():
+        return path.read_bytes()
     for attempt in range(1, 6):
-        if path.exists():
-            return path.read_bytes()
         req = urllib.request.Request(source, data=data, headers={"User-Agent": "fejkdata data-import", **(headers or {})})
         try:
             with urllib.request.urlopen(req, timeout=600) as r:
@@ -23,6 +23,7 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
         if body and body.startswith(magic) and b"Request Rejected" not in body[:512]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(body)
-        elif attempt < 5:
+            return body
+        if attempt < 5:
             time.sleep(10 * attempt)
     sys.exit(f"{source}: no valid download in 5 attempts")

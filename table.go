@@ -337,9 +337,6 @@ func (t *table) compileFormat(format string) error {
 	return t.format.compileFormat()
 }
 
-// linkTables binds every table's parent to the table beside it, and proves the
-// links: a parent has a key, every link cell is one, every parent row is linked
-// to, no chain of parents closes, and no child is named like a parent's column.
 // setTablePaths gives every table the path a selector on it is written at, before a
 // link or a draw can name one.
 func setTablePaths(root map[string]node) {
@@ -357,6 +354,9 @@ func setTablePaths(root map[string]node) {
 	walk("", root)
 }
 
+// linkTables binds every table's parent to the table beside it, and proves the
+// links: a parent has a key, every link cell is one, every parent row is linked
+// to, no chain of parents closes, and no child is named like a parent's column.
 func linkTables(root map[string]node) error {
 	var walk func(dir string, children map[string]node) error
 	walk = func(dir string, children map[string]node) error {

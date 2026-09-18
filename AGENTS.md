@@ -1,6 +1,6 @@
 # Rules
 
-- Go runs only through `docker compose run --rm <test|vet|fmt|build>`; the merge gate is `docker build .` plus CI's changelog check.
+- Go runs only through `docker compose run --rm <test|vet|fmt|build|cyclo>`; the merge gate is `docker build .` plus CI's changelog check.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change under `data/` or to the shape pin adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.

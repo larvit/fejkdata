@@ -44,7 +44,7 @@ replacement, and each removed path, column or flag.
   name both sexes carry is a row under each. `person` reads them, so its columns are
   `first`, `last`, `prefix` and `sex`; `person.femalefirst` and `person.malefirst` are
   no longer paths — draw `sex[f].first-name` and `sex[m].first-name` instead.
-    `en_US.title` links to `sex` as well, so `en_US.person.prefix` draws `Mr` or `Ms`
+  `en_US.title` links to `sex` as well, so `en_US.person.prefix` draws `Mr` or `Ms`
   without contradicting the record's `sex`; `sv_SE.title` is an unsexed table of the
   same shape.
 - `sv_SE.personnummer` and `sv_SE.samordningsnummer`, Skatteverket's test series

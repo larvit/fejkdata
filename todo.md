@@ -166,9 +166,9 @@ address, phone, national id, company and date names each.
 2. `geo/SE` and `geo/US`, and `address` in both locales on top of them — done.
 3. Weighted person names and valid ids in both locales; `date()` — done. Left for
    later: middle names, and drawing a shipped `personnummer` inside a *selected*
-   sex, both of which want a draw group that shares its family's pins — until then
-   the conflict error can name a rewrite that returns a different value when the
-   read it conflicts with sits inside another category. Give the national ids one
+   sex, both of which want a draw group that shares its family's pins; stop the
+   conflict error naming a rewrite that returns a different value where the read it
+   conflicts with sits inside another category. Give the national ids one
    record shape in step 6, and report a struct column's draw conflict with the path
    spelling a tag takes rather than the reference spelling.
 4. `misc` conversions and the new `misc` tables.

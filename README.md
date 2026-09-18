@@ -1097,8 +1097,10 @@ App developers writing tests and fixtures, in Go and at a shell:
 - **A title is a table under `sex`.** A prefix drawn apart would put `Mr` on a record
   whose `sex` column says `female`, which is the disagreement the record exists to
   prevent; the tables this set already has are what a title needs, so `en_US.title`
-    links to `sex` as `first-name` does. Swedish has no everyday sexed honorific, so
-  `sv_SE.title` is a table as well but carries no `parent`.
+  links to `sex` as `first-name` does. Swedish has no everyday sexed honorific, so
+  `sv_SE.title` is a table as well but carries no `parent`. Its weight column is
+  `share`, not the `count` a name table carries, because the values are a curated
+  proportion rather than bearers anyone counted.
 - **A table owns the spelling of a selector on it.** A reference reaches a table by a
   path that carries no selector — `sv_SE.person.first` reads `first-name` through
   `sex` — so the walk that resolved a name cannot say where a reader would type one.
@@ -1124,10 +1126,9 @@ App developers writing tests and fixtures, in Go and at a shell:
   than computed from the date drawn.
 - **The US given names come from a mirror of the SSA file.** ssa.gov refuses a
   client outside the US, so `names-us.py` reads a GitHub copy that ends at 2020,
-    which a count over the births since 1930 barely feels; `--names` takes the
-  official zip. The SSA's placeholder rows — `Unknown`, `Baby`, `Infant` — are
-  top-1000 entries that name nobody, so the import drops them by name rather than by
-  a rank a regeneration would move.
+  which a count over the births since 1930 barely feels; `--names` takes the
+  official zip. The SSA's placeholder rows are top-1000 entries that name nobody, so
+  the import drops them by name rather than by a rank a regeneration would move.
 - **`List` advertises direct descents only.** `region.municipality.locality` is
   listed, and `region.locality` resolves too but is not: the set of every descent
   through a chain of five tables is every subsequence of it, and the direct chain is

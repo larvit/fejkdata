@@ -66,7 +66,7 @@ func layoutArity(name string, n int, a []string) error {
 	}
 	hint := ""
 	if len(a) > n && !holdsQuotedLayout(a[n-1:]) {
-		hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Join(a[n-1:], ", "))
+		hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Trim(strings.Join(a[n-1:], ", "), `'"`))
 	}
 	return fmt.Errorf("%s takes %d argument%s, got %d%s", name, n, plural(n), len(a), hint)
 }
