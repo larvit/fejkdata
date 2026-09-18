@@ -22,7 +22,7 @@ value is composed; TSV says which values exist.
 - In a data file, refuse a choice whose items are templates with one identical
   field set, naming the TSV to write; an inline template is exempt, having no
   file. A choice of strings stays a choice.
-- Convert `misc.timezone`, `car` and `useragent` to tables.
+- Convert `misc.timezone`, `car` and `useragent` to tables — done in step 4.
 - Let a path select a row by key or by name, `geo.SE.municipality[0180]` and
   `geo.SE.municipality[Stockholm]`, and descend to a linked table by name,
   `geo.SE.region[Skåne län].street`; a key or a linked table name may not equal
@@ -137,7 +137,7 @@ ids. Shape: T = table, t = template, c = choice.
 | `timezone` zone, territory, offset | T | tzdb zone.tab | public domain |
 | `mimetype` type, extensions | T | IANA + mime-db | CC0, MIT |
 | `httpstatus`, `httpmethod`, `port`, `tld`, `protocol`, `loglevel` | T/c | IANA | CC0 |
-| `useragent` per browser | T | top-user-agents | MIT |
+| `useragent` browser, device, os; selection per browser once `browser` is a table | T | top-user-agents | MIT |
 | `ip` v4 documentation ranges, private, CIDR; `ipv6` `2001:db8::/32`; `mac` locally administered | t | RFC 5737, 1918, 9637 | facts |
 | `creditcard` per network: IIN, length, CVV, expiry | T+t | network rules, `{luhn()}` | facts |
 | `bic`, `iban` (exists), `isin`, `cusip` | t | structure rules | facts |

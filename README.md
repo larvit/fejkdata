@@ -165,10 +165,18 @@ carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `datetime` (RFC 3339), `emoji`, `httpstatus`, `language` (ISO 639-1, with its
 639-2/T code), `mac`, `mimetype`, `objectid`, `territory` (ISO 3166-1), `timezone`
 (IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
-`misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `currency`,
-`httpstatus`, `language`, `mimetype` and `territory` are [tables](#table), so
-`misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row;
+`misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
+`currency`, `httpstatus`, `language`, `mimetype`, `territory`, `timezone` and
+`useragent` are [tables](#table), so `misc.territory[SE].capital` and
+`misc.currency[Euro].symbol` select a row;
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
+
+`misc.timezone` is tzdb's zone for a territory, with the territory's code and the
+zone's standard offset — not the offset in force on any given date, which a zone
+name is what you store precisely to avoid. It links to `misc.territory`, so
+`misc.territory[SE].timezone` is `Europe/Stockholm` and a drawn territory and zone
+agree. `misc.useragent` carries `browser`, `device` and `os` beside the string, and
+`misc.car` a `make` and a `model`.
 
 ISO 3166-1 codes territories, not sovereign states, so that is what the table is
 called: Greenland and Åland have codes of their own, and `misc.territory.country`
@@ -1153,7 +1161,8 @@ App developers writing tests and fixtures, in Go and at a shell:
   import drops the child rows whose territory the set does not ship — 17 of
   `misc.timezone`'s, Antarctica's ten among them. Agreement across a record is
   worth more than the last rows of a table. Where no such link can hold the fact
-  stays a column.
+  stays a column. Layer your own `misc.territory` over the shipped one and you
+  must layer `misc.timezone` too, or the link fails at load naming the row.
 - **`misc.territory` names its sovereign in a column, and there is no `misc.country`
   table.** ISO 3166-1 codes territories, so `territory` is the honest name, and
   `is_independent` in the register gives each one's state. A second table of the 195
@@ -1248,15 +1257,17 @@ and `names-us.py` rejects a client for a while after a burst, so `--surnames` ta
 a copy of the surname file:
 
 ```sh
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpstatus.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/language.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`

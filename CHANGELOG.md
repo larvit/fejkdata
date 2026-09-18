@@ -33,6 +33,14 @@ replacement, and each removed path, column or flag.
   code the IANA registry lists with a plain reason phrase; and `misc.mimetype` each
   type mime-db records as IANA-registered and gives a filename extension.
   `DATA-LICENSES.md` lists each source.
+- `misc.timezone`, `misc.car` and `misc.useragent` are tables too. `misc.timezone`
+  is tzdb `zone.tab`'s zone for each shipped territory, with `offset` holding the
+  zone's standard UTC offset and `territory` linking to `misc.territory`, so
+  `misc.territory[SE].timezone` draws `Europe/Stockholm`; zones of a territory
+  `misc.territory` does not ship, Antarctica's among them, and the constant `UTC`
+  are gone. `misc.useragent` is the top-user-agents desktop and mobile lists with
+  `browser`, `device` and `os` columns. `misc.car` keeps its makes and models, with
+  `misc.car.maker` renamed `misc.car.make`.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
