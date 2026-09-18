@@ -15,6 +15,7 @@ import re
 import zipfile
 from pathlib import Path
 
+import source
 import tsv
 
 NAMES = "https://raw.githubusercontent.com/hackerb9/ssa-baby-names/master/alldata.txt"
@@ -24,7 +25,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 MC = re.compile(r"^Mc([a-z])")
 
 
-def csv_rows(data, member):
+def csv_or_zip_rows(data, member):
     """The rows of a CSV, or of every member of a zip named like member, name,sex,count[,year]."""
     if data.startswith(b"PK"):
         z = zipfile.ZipFile(io.BytesIO(data))
@@ -39,7 +40,7 @@ def csv_rows(data, member):
 
 def given(data, from_year):
     counts = collections.Counter()
-    for r in csv_rows(data, r"yob\d{4}\.txt"):
+    for r in csv_or_zip_rows(data, r"yob\d{4}\.txt"):
         if len(r) >= 4 and r[3].isdigit() and int(r[3]) >= from_year:
             counts[(r[0], r[1].lower())] += int(r[2])
     return counts
@@ -60,12 +61,12 @@ def main():
     p.add_argument("--out", default=str(OUT))
     p.add_argument("--surnames", default=SURNAMES)
     a = p.parse_args()
-    counts = given(tsv.fetch(a.names, a.cache, "ssa-names.txt"), a.from_year)
+    counts = given(source.fetch(a.names, a.cache, "ssa-names.txt"), a.from_year)
     first = []
     for sex in ("f", "m"):
         top = sorted(((n, c) for (n, s), c in counts.items() if s == sex), key=lambda n: (-n[1], n[0]))[:a.first]
         first += [{"name": n, "sex": sex, "count": c} for n, c in top]
-    rows = csv_rows(tsv.fetch(a.surnames, a.cache, "census-surnames-2010.zip"), r"Names_2010Census\.csv")
+    rows = csv_or_zip_rows(source.fetch(a.surnames, a.cache, "census-surnames-2010.zip"), r"Names_2010Census\.csv")
     last = [{"name": surname(r[0]), "count": int(r[2])} for r in rows if len(r) >= 3 and r[2].isdigit() and r[0].isalpha()]
     last = sorted(last, key=lambda r: (-r["count"], r["name"]))[:a.last]
     out = Path(a.out)

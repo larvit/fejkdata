@@ -9,6 +9,8 @@ import argparse
 import re
 from pathlib import Path
 
+import source
+import xlsx
 import tsv
 
 SOURCE = "https://www.scb.se/contentassets/9fe7dbb460994c72b835163dbc491ef9/namn-med-minst-tva-barare-31-december-2022.xlsx"
@@ -40,9 +42,9 @@ def main():
     p.add_argument("--out", default=str(OUT))
     p.add_argument("--source", default=SOURCE)
     a = p.parse_args()
-    data = tsv.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
-    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(tsv.xlsx_rows(data, sheet), a.first)]
-    last = [{"name": cased(n), "count": c} for n, c in counted(tsv.xlsx_rows(data, SURNAMES), a.last)]
+    data = source.fetch(a.source, a.cache, "scb-namn-2022.xlsx", magic=b"PK")
+    first = [{"name": cased(n), "sex": sex, "count": c} for sex, sheet in SHEETS.items() for n, c in counted(xlsx.rows(data, sheet), a.first)]
+    last = [{"name": cased(n), "count": c} for n, c in counted(xlsx.rows(data, SURNAMES), a.last)]
     out = Path(a.out)
     tsv.write(out / "first-name.tsv", ["name", "sex", "count"], sorted(first, key=lambda r: (r["name"], r["sex"])))
     tsv.write(out / "last-name.tsv", ["name", "count"], sorted(last, key=lambda r: r["name"]))

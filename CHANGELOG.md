@@ -43,5 +43,6 @@ replacement, and each removed path, column or flag.
   `first`, `last`, `prefix` and `sex`, and `person.femalefirst` and
   `person.malefirst` are no longer paths.
 - `sv_SE.personnummer` and `sv_SE.samordningsnummer`, Skatteverket's test series
-  over the sex the render drew, in place of `sv_SE.ssn`; `en_US.ssn` in the ranges
-  the SSA assigns, and `en_US.itin`.
+  from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`; `en_US.ssn`
+  in the ranges the SSA assigns, and `en_US.itin`. `en_US.person.prefix` no longer
+  draws `Mr`, `Mrs`, `Ms` or `Miss`, which could contradict the record's `sex`.

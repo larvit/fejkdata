@@ -14,6 +14,7 @@ import sys
 import zipfile
 from pathlib import Path
 
+import source
 import tsv
 
 GAZETTEER = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2026_Gazetteer/2026_Gaz_{}_national.zip"
@@ -56,14 +57,14 @@ def text(data):
 
 
 def gazetteer(cache, kind):
-    z = zipfile.ZipFile(io.BytesIO(tsv.fetch(GAZETTEER.format(kind), cache, f"gaz_{kind}.zip", magic=b"PK")))
+    z = zipfile.ZipFile(io.BytesIO(source.fetch(GAZETTEER.format(kind), cache, f"gaz_{kind}.zip", magic=b"PK")))
     rows = text(z.read(z.namelist()[0])).splitlines()
     header = [h.strip() for h in rows[0].split("|")]
     return [dict(zip(header, (c.strip() for c in row.split("|")))) for row in rows[1:]]
 
 
 def csv_rows(cache, url, name):
-    return list(csv.DictReader(io.StringIO(text(tsv.fetch(url, cache, name)))))
+    return list(csv.DictReader(io.StringIO(text(source.fetch(url, cache, name)))))
 
 
 def dbf_rows(data, wanted):
@@ -89,7 +90,7 @@ def dbf_rows(data, wanted):
 
 
 def tiger_zip(cache, kind, county):
-    return tsv.fetch(TIGER.format(kind.upper(), county, kind), cache, f"tl_{county}_{kind}.zip", magic=b"PK")
+    return source.fetch(TIGER.format(kind.upper(), county, kind), cache, f"tl_{county}_{kind}.zip", magic=b"PK")
 
 
 def tiger(cache, kind, county, wanted):
@@ -130,7 +131,7 @@ def localities(cache, min_population, counties):
 def postal_codes(cache, localities):
     """Each ZCTA whose largest part inside an incorporated place lies in a shipped place."""
     parts = {}
-    for r in csv.DictReader(io.StringIO(text(tsv.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
+    for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
         if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
             parts.setdefault(r["GEOID_ZCTA5_20"], []).append((int(r["AREALAND_PART"]), r["GEOID_PLACE_20"]))
     largest = {zcta: max(p)[1] for zcta, p in parts.items()}

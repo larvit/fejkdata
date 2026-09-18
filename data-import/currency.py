@@ -11,6 +11,7 @@ import io
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/datasets/currency-codes/main/data/codes-all.csv"
@@ -58,8 +59,8 @@ def main():
     p.add_argument("--symbols", nargs="+", default=SYMBOLS)
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
-    symbol = symbols(tsv.fetch(s, a.cache, Path(s).name).decode("utf-8") for s in a.symbols)
-    table = rows(tsv.fetch(a.source, a.cache, "codes-all.csv").decode("utf-8"), symbol)
+    symbol = symbols(source.fetch(s, a.cache, Path(s).name).decode("utf-8") for s in a.symbols)
+    table = rows(source.fetch(a.source, a.cache, "codes-all.csv").decode("utf-8"), symbol)
     tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["code"]))
 
 

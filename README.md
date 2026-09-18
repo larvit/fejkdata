@@ -235,8 +235,9 @@ SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-n
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` reads one draw of the three, so its `first` and `sex` columns agree, and so
-does a `personnummer` in the same render: its birth number is Skatteverket's test
-series, 238 for a woman and 239 for a man, which no real person is ever given.
+does a `personnummer` in the same render: its birth number, `sv_SE.birth-number`
+under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no
+real person is ever given.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record over one
@@ -536,8 +537,9 @@ Renders e.g. `811218-2389`. A layout is Go's: the reference time `Mon Jan 2
 15:04:05 MST 2006` spelled as the output should look, quoted, since a layout may
 carry the comma that separates arguments, with English names. Every second
 between the two days is reachable, so a layout with a clock draws the time too.
-Rejected at `New`: a bound that is no calendar date, or not before the other; an
-unquoted layout, naming the quoted one; a layout naming no field, which is text;
+The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
+argument stays a name. Rejected at `New`: a bound that is no calendar date, or not
+before the other; an unquoted layout, naming the quoted one; a layout naming no field, which is text;
 and for `time` a layout naming a date field, naming `date`. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above.
@@ -1077,9 +1079,11 @@ renamed or retyped line is a major.
   load, since nothing could then select it.
 - **The Swedish ids draw Skatteverket's test series.** A Luhn-valid personnummer
   over a random birth number may be a living person's; 238 and 239 after any date
-  are blocked from assignment, so the shipped `personnummer` and
-  `samordningsnummer` use those, read from the `sex` table's `birth-number`
-  column so the number and the name agree on sex.
+    are blocked from assignment, so the shipped `personnummer` and
+  `samordningsnummer` use those. They sit in a `birth-number` table under `sex`
+  rather than as a column of it: the render's shared draw of the family is what
+  makes the number and the name agree on sex, and `sex` stays one shape across
+  locales instead of collecting every sex-keyed id fact.
 - **The US given names come from a mirror of the SSA file.** ssa.gov refuses a
   client outside the US, so `names-us.py` reads a GitHub copy that ends at 2020,
   which a count over the births since 1930 barely feels; `--names` takes the

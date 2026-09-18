@@ -16,6 +16,8 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+import source
+import xlsx
 import tsv
 
 CODES = "https://www.scb.se/contentassets/7a89e48960f741e08918e489ea36354a/kommunlankod-2026.xlsx"
@@ -39,7 +41,7 @@ ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 UNMATCHED_POPULATION = 200
 def scb_codes(cache):
     regions, municipalities = {}, {}
-    for cells in tsv.xlsx_rows(tsv.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
+    for cells in xlsx.rows(source.fetch(CODES, cache, "kommunlankod.xlsx", magic=b"PK")):
         if len(cells) < 2 or not re.fullmatch(r"\d{2}|\d{4}", cells[0]):
             continue
         (regions if len(cells[0]) == 2 else municipalities)[cells[0]] = cells[1].strip()
@@ -48,12 +50,12 @@ def scb_codes(cache):
 
 def scb_population(cache):
     body = json.dumps(POPULATION_QUERY).encode()
-    data = tsv.fetch(POPULATION, cache, "befolkning.json", data=body, headers={"Content-Type": "application/json"})
+    data = source.fetch(POPULATION, cache, "befolkning.json", data=body, headers={"Content-Type": "application/json"})
     return {row["key"][0]: row["values"][0] for row in json.loads(data.decode("utf-8-sig"))["data"]}
 
 
 def scb_tatorter(cache):
-    text = tsv.fetch(TATORTER, cache, "tatorter.csv").decode("utf-8")
+    text = source.fetch(TATORTER, cache, "tatorter.csv").decode("utf-8")
     by_name = collections.defaultdict(list)
     for r in csv.DictReader(io.StringIO(text)):
         by_name[r["tatort"]].append((r["kommun"], int(r["bef"])))
@@ -61,7 +63,7 @@ def scb_tatorter(cache):
 
 
 def geonames(cache):
-    z = zipfile.ZipFile(io.BytesIO(tsv.fetch(POSTAL_CODES, cache, "SE.zip", magic=b"PK")))
+    z = zipfile.ZipFile(io.BytesIO(source.fetch(POSTAL_CODES, cache, "SE.zip", magic=b"PK")))
     rows = []
     for line in z.read("SE.txt").decode("utf-8").splitlines():
         f = line.split("\t")

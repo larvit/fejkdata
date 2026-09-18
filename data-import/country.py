@@ -9,6 +9,7 @@ import io
 import re
 from pathlib import Path
 
+import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/datasets/country-codes/main/data/country-codes.csv"
@@ -58,7 +59,7 @@ def main():
     p.add_argument("--source", default=SOURCE)
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
-    table = rows(tsv.fetch(a.source, a.cache, "country-codes.csv").decode("utf-8"))
+    table = rows(source.fetch(a.source, a.cache, "country-codes.csv").decode("utf-8"))
     tsv.write(a.out, COLUMNS, sorted(table, key=lambda r: r["alpha2"]))
 
 

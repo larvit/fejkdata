@@ -97,7 +97,7 @@ ids. Shape: T = table, t = template, c = choice.
 | Category | Shape | Source | Licence |
 |---|---|---|---|
 | `person` first (female, male, generic), middle, last, weighted | T | SCB 2022 whole-population xlsx, Skatteverket 2026 surnames | CC0, "Källa: SCB" |
-| `person` title, gender, birthdate, age, blood type weighted | t | geblod.nu distribution | facts |
+| `person` title, sex, birthdate, age, blood type weighted | t | geblod.nu distribution | facts |
 | `personnummer`, `samordningsnummer` | t | Skatteverket test series: date + 238/239, Luhn | CC0 |
 | `organisationsnummer` by form, `vat` | t | Bolagsverket group digits, Luhn, `SE…01` | facts |
 | `company` name patterns, legal form weighted | t | Bolagsverket registrations 2025 | CC BY 2.5 SE |
