@@ -51,7 +51,11 @@ replacement, and each removed path, column or flag.
   from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`, whose
   `ssn.mmdd`, `ssn.mmdd.m` and `ssn.mmdd.d` go with it. `en_US.ssn` now draws the
   ranges the SSA assigns and carries the columns `area`, `group` and `serial`, so
-  `--format csv en_US.ssn` writes a header where it used to fail; `en_US.itin` is new.
+  `--format csv en_US.ssn` writes a header where it used to fail; `en_US.itin` is new
+  and carries the same three. `person.prefix` is null where a person has no title,
+  where it used to be an empty string, so `--format sql` writes `NULL`.
+- `ErrNoColumns` is exported, so a caller can tell the one record fence a path can
+  answer from the rest.
 - An error names a spelling that runs: a layout is named single-quoted and free of
   its own quotes, a row of a table with no key is named as the path that selects it,
   `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record

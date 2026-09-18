@@ -33,11 +33,9 @@ a JSON object, array or string, or that carries a `{` token, is instead an
 **inline template**: a format string or a JSON value compiled and rendered on the
 spot. Its tokens reach the data by reference from the root —
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike
-available. An inline template sits in no folder, so the folder-relative `{.name}`
-and `{..name}` are rejected naming the root spelling, and one reference alone —
-`{/sv_SE.person}` — is the path written as a template, rejected naming the path, as is
-a path written `/sv_SE.person`. A path never contains a brace or a quote, and a
-bracket only as a selector after a name, so the two cannot collide (see [Decisions](#decisions)).
+available. A path never contains a brace or a quote, and a bracket only as a selector
+after a name, so the two spellings cannot collide; which spellings an inline template
+rejects, and what each names instead, is under [Decisions](#decisions).
 
 | Flag | |
 |------|--|
@@ -115,6 +113,12 @@ the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
 is fine.
 
+Columns are written in name order, whatever order the fields appear in. A category
+whose fields are the parts of one value — `sv_SE.price`, `sv_SE.version`, `misc.uuid` —
+projects those parts rather than the value, so for one column holding what `Fake`
+renders, write `{"format":"","price":"{/sv_SE.price}"}` as a fieldless category asks
+for.
+
 A column carrying a newline keeps it inside the quoted CSV field or the SQL string
 literal, so a row can span physical lines: read the stream with a CSV or SQL
 parser rather than splitting it on newlines.
@@ -141,6 +145,72 @@ describes a draw other than the fields beside it — so read a sibling as a path
 a value two fields share in its own category and reference that. A field hold, transform or
 operand ties fields together within one column as always (see
 [Correlated fields](#correlated-fields) and [Decisions](#decisions)).
+
+## Data
+
+The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`)
+plus a locale-neutral `misc` folder — is embedded, so the CLI and the library
+work with no data on disk. A directory is a namespace: each JSON file is a
+category named after the file, each subdirectory a dot-path segment, so
+`mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
+Sources merge in order; matching folders combine, any other clash is won by the
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be
+`-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
+
+Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
+`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
+`username`, `version` and `word`, formatted per locale; `sv_SE` adds
+`personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
+carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
+`currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
+(ISO 639), `mac`, `mimetype`, `objectid`, `timezone` (IANA), `useragent` and
+`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
+`currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
+`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
+[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
+
+`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
+SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+draws a woman's name, and a name both sexes carry is a row under each, so
+`en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
+`person` reads one draw of the three, so its `first` and `sex` columns agree, and so
+does a `personnummer` in the same render: its birth number, `sv_SE.birth-number`
+under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no
+real person is ever given. `en_US.title` links to `sex` too, so a person's prefix
+never contradicts it.
+
+A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
+`last-name` — while a shipped `personnummer` agrees with the sex its own render
+*drew*, not with one a path selects. That test series is also small: a personnummer
+is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
+fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
+your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
+`misc.datetime` over 2000-01-01 to 2029-12-31. What the two locales do not share:
+`en_US.address` carries a `region` column the Swedish one has no use for, and
+`sv_SE.title` has no `parent`, so it is selected as `sv_SE.title[dr]` rather than
+inside a sex.
+
+A `geo` folder holds one tree per country under its alpha-2 code: five
+[linked tables](#linked-tables) named alike, and an `address` record over one
+consistent draw of them, which the locale's `address` reads.
+
+| Table | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|--------|
+| `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
+| `municipality` | kommun, by code or name | county, by FIPS code or name | population |
+| `locality` | postort, by name | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
+| `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
+
+`geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
+`geo.SE.locality[Lund].street` a street in Lund, and
+`geo.US.region[IL].locality[Springfield]` settles which Springfield. A region row
+carries its `timezone`, the state's predominant zone, and a locality its `lat` and
+`lon`. What ports across countries is the five table names, the `name` column,
+selection by name, and the `address` record's columns `street`, `street-number`,
+`postal-code` and `locality`; every other column is the country's own, `code` on a
+Swedish region but `abbr` on a US one.
 
 ## Library
 
@@ -206,69 +276,6 @@ error on every later call; a `datatype` in a tag names the Go type that already 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
 stream for that value and everything drawn after it.
-
-## Data
-
-The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`)
-plus a locale-neutral `misc` folder — is embedded, so the CLI and the library
-work with no data on disk. A directory is a namespace: each JSON file is a
-category named after the file, each subdirectory a dot-path segment, so
-`mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
-Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be
-`-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
-
-Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
-`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
-`username`, `version` and `word`, formatted per locale; `sv_SE` adds
-`personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
-carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
-`currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
-(ISO 639), `mac`, `mimetype`, `objectid`, `timezone` (IANA), `useragent` and
-`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
-`misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
-`currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
-`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
-[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
-
-`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
-SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
-draws a woman's name, and a name both sexes carry is a row under each, so
-`en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
-`person` reads one draw of the three, so its `first` and `sex` columns agree, and so
-does a `personnummer` in the same render: its birth number, `sv_SE.birth-number`
-under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no
-real person is ever given. `en_US.title` links to `sex` too, so a person's prefix
-never contradicts it.
-
-A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name` — while a shipped `personnummer` agrees with the sex its own render
-*drew*, not with one a path selects. That test series is also small: a personnummer
-is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
-fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
-your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
-`misc.datetime` over 2000-01-01 to 2029-12-31.
-
-A `geo` folder holds one tree per country under its alpha-2 code: five
-[linked tables](#linked-tables) named alike, and an `address` record over one
-consistent draw of them, which the locale's `address` reads.
-
-| Table | `geo.SE` | `geo.US` | Weight |
-|-------|----------|----------|--------|
-| `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
-| `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
-| `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
-
-`geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
-`geo.SE.locality[Lund].street` a street in Lund, and
-`geo.US.region[IL].locality[Springfield]` settles which Springfield. A region row
-carries its `timezone`, the state's predominant zone, and a locality its `lat` and
-`lon`. What ports across countries is the five table names, the `name` column,
-selection by name, and the `address` record's columns `street`, `street-number`,
-`postal-code` and `locality`; every other column is the country's own, `code` on a
-Swedish region but `abbr` on a US one.
 
 ## Data format
 
