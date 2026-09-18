@@ -2,6 +2,6 @@
   "format": "{prefix}{first} {last}",
   "first": "{.first-name.name}",
   "last": "{.last-name.name}",
-  "prefix": ["", { "format": "{string} ", "string": ["dr", "prof"], "weight": 0.05 }],
+  "prefix": ["", { "format": "{title} ", "title": ["dr", "prof"], "weight": 0.05 }],
   "sex": "{.sex.name}"
 }
