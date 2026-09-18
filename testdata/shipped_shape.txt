@@ -245,6 +245,7 @@ misc.httpstatus.code	string
 misc.httpstatus.reason	string
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
+misc.language.code3	string
 misc.language.name	string
 misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
 misc.mimetype	format "{type}"	key type	name ext
