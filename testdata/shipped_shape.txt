@@ -24,7 +24,7 @@ en_US.itin.serial	string
 en_US.last-name	format "{name}"	key name	weight count
 en_US.last-name.count	string
 en_US.last-name.name	string
-en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name en_US.sex
+en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name en_US.sex en_US.title
 en_US.person.first	string
 en_US.person.last	string
 en_US.person.prefix	string
@@ -48,11 +48,19 @@ en_US.sex.first-name.count
 en_US.sex.first-name.name
 en_US.sex.first-name.sex
 en_US.sex.name	string
+en_US.sex.title
+en_US.sex.title.name
+en_US.sex.title.sex
+en_US.sex.title.share
 en_US.ssn	format "{area}-{group}-{serial}"
 en_US.ssn.area	string
 en_US.ssn.group	string
 en_US.ssn.serial	string
 en_US.time	format "{time('3:04 PM')}"
+en_US.title	format "{name}"	name name	weight share	parent sex
+en_US.title.name	string
+en_US.title.sex	string
+en_US.title.share	string
 en_US.url	format "https://{host}{path}"
 en_US.url.host	string
 en_US.url.path	string
