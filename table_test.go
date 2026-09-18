@@ -676,9 +676,15 @@ func TestShippedTables(t *testing.T) {
 		"currency[SEK].decimals":         "2",
 		"currency[Euro].code":            "EUR",
 		"language[sv]":                   "Swedish",
+		"language[sv].code3":             "swe",
+		"language[Swedish].code":         "sv",
+		"language[nl]":                   "Dutch",
 		"httpstatus[404]":                "404 Not Found",
 		"httpstatus[404].reason":         "Not Found",
+		"httpstatus[451].reason":         "Unavailable For Legal Reasons",
 		"mimetype[application/json].ext": ".json",
+		"mimetype[text/markdown].ext":    ".md",
+		"mimetype[.jpg]":                 "image/jpeg",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
