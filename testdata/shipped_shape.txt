@@ -213,9 +213,9 @@ geo.US.street	format "{name}"	weight addresses	parent locality
 geo.US.street.addresses	string
 geo.US.street.locality	string
 geo.US.street.name	string
-misc.car
-misc.car.maker
-misc.car.model
+misc.car	format "{make} {model}"
+misc.car.make	string
+misc.car.model	string
 misc.coordinate	format "{lat}, {lon}"
 misc.coordinate.lat	string
 misc.coordinate.lon	string
@@ -252,9 +252,20 @@ misc.territory.flag	string
 misc.territory.languages	string
 misc.territory.name	string
 misc.territory.numeric	string
+misc.territory.timezone
+misc.territory.timezone.offset
+misc.territory.timezone.territory
+misc.territory.timezone.zone
 misc.territory.tld	string
-misc.timezone
-misc.useragent
+misc.timezone	format "{zone}"	key zone	parent territory
+misc.timezone.offset	string
+misc.timezone.territory	string
+misc.timezone.zone	string
+misc.useragent	format "{ua}"
+misc.useragent.browser	string
+misc.useragent.device	string
+misc.useragent.os	string
+misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
 sv_SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.address
