@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -779,6 +780,21 @@ func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
 	for i, r := range rows {
 		if r[head["device"]] == "mobile" && r[head["os"]] != "Android" && r[head["os"]] != "iOS" {
 			t.Errorf("useragent.tsv line %d: a mobile row runs %q", i+2, r[head["os"]])
+		}
+	}
+}
+
+// TestEveryTimezoneRowIsWellFormed scans the file rather than drawing: the draw is
+// population-weighted, so it samples the populous head and leaves most rows unrendered.
+func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
+	head, rows := shippedRows(t, "timezone.tsv", "offset", "territory", "weight", "zone")
+	offset := regexp.MustCompile(`^[+-](0\d|1[0-4]):[0-5]\d$`)
+	for i, r := range rows {
+		if !offset.MatchString(r[head["offset"]]) {
+			t.Errorf("timezone.tsv line %d: offset %q is no ±HH:MM", i+2, r[head["offset"]])
+		}
+		if w, err := strconv.Atoi(r[head["weight"]]); err != nil || w < 1 {
+			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", i+2, r[head["weight"]])
 		}
 	}
 }
