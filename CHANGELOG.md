@@ -26,7 +26,10 @@ replacement, and each removed path, column or flag.
   capital, a currency and a TLD, with the columns `calling-code`, `capital`,
   `currency`, `flag`, `languages`, `numeric` and `tld` added; `misc.currency` the
   current ISO 4217 currencies with a minor unit, with `decimals` and `numeric`
-  added, and its symbols from CLDR. `DATA-LICENSES.md` lists each source.
+  added, and its symbols from CLDR; `misc.language` every ISO 639-1 language, with
+  a `code3` column carrying its ISO 639-2 code; `misc.httpstatus` every HTTP status
+  code in use in the IANA registry; and `misc.mimetype` every IANA media type that
+  has a filename extension. `DATA-LICENSES.md` lists each source.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
