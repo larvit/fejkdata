@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -376,6 +377,21 @@ func TestArgErrorsNameTheSpelling(t *testing.T) {
 	} {
 		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
+		}
+	}
+}
+
+// TestSplitArgsQuotesOutsideSelectors pins the arg grammar: a comma splits outside a
+// selector and outside a quoted layout, and a quote inside a selector is a name's text.
+func TestSplitArgsQuotesOutsideSelectors(t *testing.T) {
+	for in, want := range map[string][]string{
+		"a, b": {"a", "b"},
+		"1990-01-01,1990-12-31,'January 2, 2006'": {"1990-01-01", "1990-12-31", "'January 2, 2006'"},
+		"/geo.US.locality[O'Fallon].name, 2":      {"/geo.US.locality[O'Fallon].name", "2"},
+		"'[a,b]'":                                 {"'[a,b]'"},
+	} {
+		if got := splitArgs(in); !reflect.DeepEqual(got, want) {
+			t.Errorf("splitArgs(%q) = %q, want %q", in, got, want)
 		}
 	}
 }
