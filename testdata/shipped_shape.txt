@@ -219,17 +219,6 @@ misc.car.model
 misc.coordinate	format "{lat}, {lon}"
 misc.coordinate.lat	string
 misc.coordinate.lon	string
-misc.country	format "{name}"	key alpha2	name name
-misc.country.alpha2	string
-misc.country.alpha3	string
-misc.country.calling-code	string
-misc.country.capital	string
-misc.country.currency	string
-misc.country.flag	string
-misc.country.languages	string
-misc.country.name	string
-misc.country.numeric	string
-misc.country.tld	string
 misc.creditcard
 misc.creditcard.d
 misc.currency	format "{code}"	key code	name name
@@ -252,6 +241,18 @@ misc.mimetype	format "{type}"	key type	name ext
 misc.mimetype.ext	string
 misc.mimetype.type	string
 misc.objectid	format "{hex(24)}"
+misc.territory	format "{name}"	key alpha2	name name
+misc.territory.alpha2	string
+misc.territory.alpha3	string
+misc.territory.calling-code	string
+misc.territory.capital	string
+misc.territory.country	string
+misc.territory.currency	string
+misc.territory.flag	string
+misc.territory.languages	string
+misc.territory.name	string
+misc.territory.numeric	string
+misc.territory.tld	string
 misc.timezone
 misc.useragent
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
