@@ -1152,9 +1152,9 @@ App developers writing tests and fixtures, in Go and at a shell:
   row inside its parent, and a name repeating inside one parent row is refused at
   load, since nothing could then select it.
 - **No pop-culture catalogues.** Every other faker ships film, band and character
-  names; fejkdata ships none. They are the one kind of value a fixture never needs to
-  be real, they carry trademarks a test database has no business holding, and the
-  weights that make a real register worth shipping do not exist for them.
+  names; fejkdata ships none. Goal 10 admits a list only from a register, and there is
+  none to read them from — so they would be authored, and authored lists are the one
+  thing goal 10 keeps to non-factual copy.
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
   records use; `misc` takes only sources that are international. NHTSA vPIC and
