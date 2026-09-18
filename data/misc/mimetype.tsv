@@ -62,7 +62,7 @@ ext	type
 .musd	application/mmt-usd+xml
 .mods	application/mods+xml
 .m21	application/mp21
-.mp4	application/mp4
+.mp4s	application/mp4
 .doc	application/msword
 .mxf	application/mxf
 .nq	application/n-quads
@@ -511,8 +511,8 @@ ext	type
 .mka	audio/matroska
 .mxmf	audio/mobile-xmf
 .m4a	audio/mp4
-.mpga	audio/mpeg
-.oga	audio/ogg
+.mp3	audio/mpeg
+.ogg	audio/ogg
 .uva	audio/vnd.dece.audio
 .eol	audio/vnd.digital-winds
 .dra	audio/vnd.dra
@@ -688,7 +688,7 @@ ext	type
 .mp4	video/mp4
 .mpeg	video/mpeg
 .ogv	video/ogg
-.qt	video/quicktime
+.mov	video/quicktime
 .uvh	video/vnd.dece.hd
 .uvm	video/vnd.dece.mobile
 .uvp	video/vnd.dece.pd

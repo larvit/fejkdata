@@ -163,15 +163,12 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
 carries `car`, `coordinate`, `country` (ISO 3166), `creditcard` (Luhn-valid),
 `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpstatus`, `language`
-(ISO 639-1 and -2), `mac`, `mimetype`, `objectid`, `timezone` (IANA), `useragent` and
-`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+(ISO 639-1, with its 639-2/T code), `mac`, `mimetype`, `objectid`, `timezone` (IANA),
+`useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
 `misc.country.alpha2`, `misc.httpstatus.code` — which `--list` shows. `country`,
 `currency`, `httpstatus`, `language` and `mimetype` are [tables](#table), so
-`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row. Each
-holds its whole register: every ISO 3166 country, ISO 4217 currency and ISO 639-1
-language, every HTTP status code in use, and every IANA media type that has a
-filename extension. [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's
-source and licence.
+`misc.country[SE].capital` and `misc.currency[Euro].symbol` select a row;
+[`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
 SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`

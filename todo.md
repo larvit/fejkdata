@@ -22,8 +22,7 @@ value is composed; TSV says which values exist.
 - In a data file, refuse a choice whose items are templates with one identical
   field set, naming the TSV to write; an inline template is exempt, having no
   file. A choice of strings stays a choice.
-- Convert `misc.timezone`, `car` and `useragent` to tables; `country`, `currency`,
-  `language`, `httpstatus` and `mimetype` are done.
+- Convert `misc.timezone`, `car` and `useragent` to tables.
 - Let a path select a row by key or by name, `geo.SE.municipality[0180]` and
   `geo.SE.municipality[Stockholm]`, and descend to a linked table by name,
   `geo.SE.region[Skåne län].street`; a key or a linked table name may not equal
@@ -171,10 +170,8 @@ address, phone, national id, company and date names each.
    conflicts with sits inside another category. Give the national ids one
    record shape in step 6, and report a struct column's draw conflict with the path
    spelling a tag takes rather than the reference spelling.
-4. `misc` conversions and the new `misc` tables. `language`, `httpstatus` and
-   `mimetype` read their registers now, and `misc.country` keeps a currency code
-   rather than a `parent` link to `misc.currency` (README Decisions). Convert
-   `timezone`, `car` and `useragent`, and add the new `misc` tables.
+4. `misc` conversions and the new `misc` tables. Convert `timezone`, `car` and
+   `useragent`, and add the new `misc` tables.
 5. The remaining locale categories: company, phone, finance, vehicle, words.
 6. Records with building-block columns across the shipped set; shape re-pin.
 

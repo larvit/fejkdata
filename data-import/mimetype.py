@@ -3,7 +3,7 @@
 
     data-import/mimetype.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-Only IANA-registered types with a filename extension ship; the first extension is the one listed.
+Only types mime-db records as IANA-registered, with a filename extension, ship.
 """
 import argparse
 import json
@@ -16,12 +16,14 @@ SOURCE = "https://raw.githubusercontent.com/jshttp/mime-db/master/db.json"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "mimetype.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["ext", "type"]
+# mime-db lists extensions in no particular order, so where the everyday one is not first, name it.
+FIXUPS = {"application/mp4": "mp4s", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/quicktime": "mov"}
 
 
 def rows(db):
     for mimetype, entry in db.items():
         if entry.get("source") == "iana" and entry.get("extensions"):
-            yield {"ext": "." + entry["extensions"][0], "type": mimetype}
+            yield {"ext": "." + FIXUPS.get(mimetype, entry["extensions"][0]), "type": mimetype}
 
 
 def main():
