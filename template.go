@@ -125,7 +125,7 @@ func checkFunc(body string, fields map[string]node) error {
 		return fmt.Errorf("token {%s}: unknown function %q", body, name)
 	}
 	if b.arity >= 0 && len(args) != b.arity {
-		return fmt.Errorf("token {%s}: %s takes %d args, got %d", body, name, b.arity, len(args))
+		return fmt.Errorf("token {%s}: %s takes %d argument%s, got %d", body, name, b.arity, plural(b.arity), len(args))
 	}
 	if b.check != nil {
 		if err := b.check(fields, args); err != nil {

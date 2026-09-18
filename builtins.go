@@ -472,17 +472,28 @@ func iban(r rng, cc string) string {
 
 const dayLayout = "2006-01-02"
 
-// Alike in no field; layoutDay differs from layoutProbe in its date fields only.
+// Alike in no field; layoutDay differs from layoutProbe in its date fields only,
+// layoutClock in its clock fields only.
 var (
 	layoutProbe  = time.Date(2001, 2, 3, 4, 5, 6, 0, time.UTC)
 	layoutProbe2 = time.Date(2010, 11, 12, 13, 14, 15, 0, time.UTC)
 	layoutDay    = time.Date(2010, 11, 12, 4, 5, 6, 0, time.UTC)
+	layoutClock  = time.Date(2001, 2, 3, 13, 14, 15, 0, time.UTC)
 )
+
+// quotedLayout reports whether an arg carries the single quotes a layout is written in.
+func quotedLayout(a string) bool {
+	return len(a) >= 2 && a[0] == '\'' && a[len(a)-1] == '\''
+}
 
 // layoutArg is the Go layout a quoted arg holds, refused when unquoted or constant.
 func layoutArg(a string) (string, error) {
-	if len(a) < 2 || a[0] != '\'' || a[len(a)-1] != '\'' {
-		return "", fmt.Errorf("layout %s is not quoted; write '%s'", a, strings.Trim(a, "'"))
+	if !quotedLayout(a) {
+		bare := strings.Trim(a, `'"`)
+		if strings.HasPrefix(a, `"`) || strings.HasSuffix(a, `"`) {
+			return "", fmt.Errorf("layout %s is double-quoted; write '%s'", a, bare)
+		}
+		return "", fmt.Errorf("layout %s is not quoted; write '%s', which a shell keeps only inside a double-quoted argument", a, bare)
 	}
 	layout := a[1 : len(a)-1]
 	if layoutProbe.Format(layout) == layoutProbe2.Format(layout) {
@@ -501,17 +512,30 @@ func layoutOf(a string) string {
 }
 
 // layoutArity checks a call ending in a layout takes n args, naming the quoted
-// layout when an unquoted one split into more.
+// layout where an unquoted one split into more.
 func layoutArity(name string, n int, a []string) error {
 	if len(a) == n {
 		return nil
 	}
 	hint := ""
-	if len(a) > n {
+	if len(a) > n && !split(a[n-1:]) {
 		hint = fmt.Sprintf("; a layout holding a comma is quoted: '%s'", strings.Join(a[n-1:], ", "))
 	}
-	return fmt.Errorf("%s takes %d args, got %d%s", name, n, len(a), hint)
+	return fmt.Errorf("%s takes %d argument%s, got %d%s", name, n, plural(n), len(a), hint)
 }
+
+// split reports whether the surplus args already hold a quoted layout, which no
+// comma split apart.
+func split(a []string) bool {
+	for _, arg := range a {
+		if quotedLayout(arg) {
+			return true
+		}
+	}
+	return false
+}
+
+func plural(n int) string { return map[bool]string{true: "s"}[n != 1] }
 
 func dateArgs(_ map[string]node, a []string) error {
 	if err := layoutArity("date", 3, a); err != nil {
@@ -525,8 +549,8 @@ func dateArgs(_ map[string]node, a []string) error {
 	if err != nil {
 		return fmt.Errorf("date(from,to,layout): to %q is not a YYYY-MM-DD date", a[1])
 	}
-	if !from.Before(to) {
-		return fmt.Errorf("date(from,to,layout): from %s is not before to %s", a[0], a[1])
+	if to.Before(from) {
+		return fmt.Errorf("date(from,to,layout): from %s is after to %s", a[0], a[1])
 	}
 	layout, err := layoutArg(a[2])
 	if err != nil {
@@ -534,6 +558,9 @@ func dateArgs(_ map[string]node, a []string) error {
 	}
 	if layoutProbe.Format(layout) == layoutDay.Format(layout) {
 		return fmt.Errorf("date(from,to,layout): '%s' names no date field; write time('%s')", layout, layout)
+	}
+	if from.Equal(to) && layoutProbe.Format(layout) == layoutClock.Format(layout) {
+		return fmt.Errorf("date(%s,%s,'%s') is the constant %q; write it as text", a[0], a[1], layout, from.Format(layout))
 	}
 	return nil
 }

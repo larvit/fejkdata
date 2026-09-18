@@ -140,6 +140,10 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	shape := f.recordShapeOf(n)
+	if errors.Is(shape.err, errNoColumns) {
+		column := path[strings.LastIndex(path, ".")+1:]
+		return nil, fmt.Errorf("fejkdata: %s %w; render it as a column of one: '{\"format\":\"\",\"%s\":\"{/%s}\"}'", path, shape.err, column, path)
+	}
 	if shape.err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
 	}
@@ -227,6 +231,10 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
+// errNoColumns is the one record fence a path can answer, so its entry point names
+// the record to write instead.
+var errNoColumns = errors.New("has no fields, so no columns")
+
 // recordOf is the fence both record entry points pass. The columns come back with
 // the template, fixed for every draw the caller goes on to make.
 func recordOf(n node) (*template, []Column, error) {
@@ -239,7 +247,7 @@ func recordOf(n node) (*template, []Column, error) {
 	}
 	names := recordColumns(t)
 	if len(names) == 0 {
-		return nil, nil, errors.New("has no fields, so no columns")
+		return nil, nil, errNoColumns
 	}
 	if !t.record {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)

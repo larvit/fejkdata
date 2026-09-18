@@ -14,6 +14,7 @@ import (
 // cell of the row a render pinned; a cell carrying tokens compiles to a string node.
 type table struct {
 	category string
+	path     string // the category's path from the data root, set when the tables are linked
 	file     string
 	format   *template // fields are the column nodes
 	columns  []string
@@ -350,6 +351,7 @@ func linkTables(root map[string]node) error {
 					return err
 				}
 			case *table:
+				n.path = path
 				if n.parent < 0 {
 					continue
 				}
@@ -508,7 +510,7 @@ func (t *table) under(r int, a *table, pr int) bool {
 // naming several rows resolves inside the ancestors pinned in d.
 func (t *table) find(sel string, d *draws) (int, error) {
 	if t.key < 0 && t.name < 0 {
-		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.category)
+		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.spelledPath())
 	}
 	if r, ok := t.byKey[sel]; ok {
 		return r, nil
@@ -521,7 +523,7 @@ func (t *table) find(sel string, d *draws) (int, error) {
 	case 1:
 		return rows[0], nil
 	case 0:
-		return 0, fmt.Errorf("no row of %s has key or name %q", t.category, sel)
+		return 0, fmt.Errorf("no row of %s has key or name %q", t.spelledPath(), sel)
 	}
 	keys := make([]string, len(rows))
 	for i, r := range rows {
@@ -531,14 +533,24 @@ func (t *table) find(sel string, d *draws) (int, error) {
 			keys[i] = t.cell(r, t.key)
 		}
 	}
+	listed := strings.Join(keys, ", ")
 	if t.key < 0 {
-		return 0, fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %v", sel, len(rows), t.category, t.parentT.category, keys)
+		return 0, fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %s", sel, len(rows), t.spelledPath(), t.parentT.spelledPath(), listed)
 	}
 	inside := ""
 	if t.parentT != nil {
 		inside = fmt.Sprintf(", or select it inside its %s", t.parentT.category)
 	}
-	return 0, fmt.Errorf("%q names %d rows of %s; select one by key, one of %v%s", sel, len(rows), t.category, keys, inside)
+	return 0, fmt.Errorf("%q names %d rows of %s; select one by key, one of %s%s", sel, len(rows), t.spelledPath(), listed, inside)
+}
+
+// spelledPath is the path a selector on t is written at, the category's own name
+// until the tables are linked.
+func (t *table) spelledPath() string {
+	if t.path == "" {
+		return t.category
+	}
+	return t.path
 }
 
 // selectorSpelling is how a path writes a selected row, for messages: by key, or
@@ -546,7 +558,7 @@ func (t *table) find(sel string, d *draws) (int, error) {
 func (t *table) selectorSpelling(r int) string {
 	switch {
 	case t.key >= 0:
-		return t.category + "[" + t.cell(r, t.key) + "]"
+		return t.spelledPath() + "[" + t.cell(r, t.key) + "]"
 	case t.name >= 0:
 		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.name) + "]"
 	}
