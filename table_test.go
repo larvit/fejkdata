@@ -644,17 +644,17 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 
 func TestTableOverridesByLayering(t *testing.T) {
 	mine := writeFiles(t, map[string]string{
-		"misc/country.json": `{"format":"{name}","rows":"country.tsv","key":"alpha2"}`,
-		"misc/country.tsv":  "alpha2\tname\nXX\tNowhere\nYY\tElsewhere\n",
+		"misc/territory.json": `{"format":"{name}","rows":"territory.tsv","key":"alpha2"}`,
+		"misc/territory.tsv":  "alpha2\tname\nXX\tNowhere\nYY\tElsewhere\n",
 	})
 	f, err := New(WithDataPath(mine), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v := fake(t, f, "misc.country[XX]"); v != "Nowhere" {
-		t.Fatalf("misc.country[XX] = %q, want the layered table", v)
+	if v := fake(t, f, "misc.territory[XX]"); v != "Nowhere" {
+		t.Fatalf("misc.territory[XX] = %q, want the layered table", v)
 	}
-	if paths := f.List(); slices.Contains(paths, "misc.country.alpha3") {
+	if paths := f.List(); slices.Contains(paths, "misc.territory.alpha3") {
 		t.Fatal("List() still offers the shipped table's columns under an overridden category")
 	}
 }
@@ -662,50 +662,55 @@ func TestTableOverridesByLayering(t *testing.T) {
 func TestShippedTables(t *testing.T) {
 	f := newGenerator(t, "data/misc", WithSeed(1))
 	for path, want := range map[string]string{
-		"country[SE]":                    "Sweden",
-		"country[Sweden].alpha3":         "SWE",
-		"country[SE].numeric":            "752",
-		"country[SE].tld":                ".se",
-		"country[SE].calling-code":       "46",
-		"country[SE].capital":            "Stockholm",
-		"country[SE].currency":           "SEK",
-		"country[SE].flag":               "🇸🇪",
-		"currency[SEK].name":             "Swedish Krona",
-		"currency[SEK].symbol":           "kr",
-		"currency[SEK].numeric":          "752",
-		"currency[SEK].decimals":         "2",
-		"currency[Euro].code":            "EUR",
-		"language[sv]":                   "Swedish",
-		"language[sv].code3":             "swe",
-		"language[Swedish].code":         "sv",
-		"language[nl]":                   "Dutch",
-		"httpstatus[200]":                "200 OK",
-		"httpstatus[404]":                "404 Not Found",
-		"httpstatus[404].reason":         "Not Found",
-		"httpstatus[451].reason":         "Unavailable For Legal Reasons",
-		"httpstatus[500].reason":         "Internal Server Error",
-		"mimetype[application/json].ext": ".json",
-		"mimetype[text/markdown].ext":    ".md",
-		"mimetype[.jpg]":                 "image/jpeg",
-		"mimetype[.mov]":                 "video/quicktime",
-		"mimetype[.mp3]":                 "audio/mpeg",
-		"mimetype[.mp4]":                 "video/mp4",
-		"mimetype[.ogg]":                 "audio/ogg",
+		"territory[SE]":                    "Sweden",
+		"territory[Sweden].alpha3":         "SWE",
+		"territory[SE].numeric":            "752",
+		"territory[SE].tld":                ".se",
+		"territory[SE].calling-code":       "46",
+		"territory[SE].capital":            "Stockholm",
+		"territory[SE].currency":           "SEK",
+		"territory[SE].flag":               "🇸🇪",
+		"territory[SE].country":            "SE",
+		"territory[GL]":                    "Greenland",
+		"territory[GL].country":            "DK",
+		"territory[Åland Islands].country": "FI",
+		"currency[SEK].name":               "Swedish Krona",
+		"currency[SEK].symbol":             "kr",
+		"currency[SEK].numeric":            "752",
+		"currency[SEK].decimals":           "2",
+		"currency[Euro].code":              "EUR",
+		"language[sv]":                     "Swedish",
+		"language[sv].code3":               "swe",
+		"language[Swedish].code":           "sv",
+		"language[nl]":                     "Dutch",
+		"httpstatus[200]":                  "200 OK",
+		"httpstatus[404]":                  "404 Not Found",
+		"httpstatus[404].reason":           "Not Found",
+		"httpstatus[451].reason":           "Unavailable For Legal Reasons",
+		"httpstatus[500].reason":           "Internal Server Error",
+		"mimetype[application/json].ext":   ".json",
+		"mimetype[text/markdown].ext":      ".md",
+		"mimetype[.jpg]":                   "image/jpeg",
+		"mimetype[.mov]":                   "video/quicktime",
+		"mimetype[.mp3]":                   "audio/mpeg",
+		"mimetype[.mp4]":                   "video/mp4",
+		"mimetype[.ogg]":                   "audio/ogg",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 		}
 	}
 	re := map[string]*regexp.Regexp{
-		"country.numeric":      regexp.MustCompile(`^\d{3}$`),
-		"country.tld":          regexp.MustCompile(`^\.[a-z]{2}$`),
-		"country.calling-code": regexp.MustCompile(`^\d{1,4}(-\d{3})?$`),
-		"country.capital":      regexp.MustCompile(`\p{L}`),
-		"country.currency":     regexp.MustCompile(`^[A-Z]{3}$`),
-		"country.flag":         regexp.MustCompile(`^[\x{1F1E6}-\x{1F1FF}]{2}$`),
-		"country.languages":    regexp.MustCompile(`^[a-z]{2,3}(-[A-Z]{2})?(,[a-z]{2,3}(-[A-Z]{2})?)*$`),
-		"currency.numeric":     regexp.MustCompile(`^\d{3}$`),
-		"currency.decimals":    regexp.MustCompile(`^[0-4]$`),
+		"territory.numeric":      regexp.MustCompile(`^\d{3}$`),
+		"territory.tld":          regexp.MustCompile(`^\.[a-z]{2}$`),
+		"territory.calling-code": regexp.MustCompile(`^\d{1,4}(-\d{3})?$`),
+		"territory.capital":      regexp.MustCompile(`\p{L}`),
+		"territory.country":      regexp.MustCompile(`^[A-Z]{2}$`),
+		"territory.currency":     regexp.MustCompile(`^[A-Z]{3}$`),
+		"territory.flag":         regexp.MustCompile(`^[\x{1F1E6}-\x{1F1FF}]{2}$`),
+		"territory.languages":    regexp.MustCompile(`^[a-z]{2,3}(-[A-Z]{2})?(,[a-z]{2,3}(-[A-Z]{2})?)*$`),
+		"currency.numeric":       regexp.MustCompile(`^\d{3}$`),
+		"currency.decimals":      regexp.MustCompile(`^[0-4]$`),
 	}
 	for i := 0; i < 100; i++ {
 		for p, rx := range re {
@@ -716,10 +721,34 @@ func TestShippedTables(t *testing.T) {
 	}
 	count := map[string]bool{}
 	for i := 0; i < 5000; i++ {
-		count[fake(t, f, "country.alpha2")] = true
+		count[fake(t, f, "territory.alpha2")] = true
 	}
 	if len(count) < 200 {
-		t.Fatalf("country draws %d distinct rows in 5000, want the full register", len(count))
+		t.Fatalf("territory draws %d distinct rows in 5000, want the full register", len(count))
+	}
+}
+
+// TestEveryTerritoryNamesAShippedCountry proves what no parent can: the sovereign a
+// territory names is a row of the same table, which a link would make a cycle.
+func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("data", "misc", "territory.tsv"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
+	head := strings.Split(lines[0], "\t")
+	alpha2, country := slices.Index(head, "alpha2"), slices.Index(head, "country")
+	if alpha2 < 0 || country < 0 {
+		t.Fatalf("territory.tsv columns %v, want alpha2 and country", head)
+	}
+	keys := map[string]bool{}
+	for _, line := range lines[1:] {
+		keys[strings.Split(line, "\t")[alpha2]] = true
+	}
+	for i, line := range lines[1:] {
+		if c := strings.Split(line, "\t")[country]; !keys[c] {
+			t.Errorf("territory.tsv line %d: country %q is no alpha2 of the table", i+2, c)
+		}
 	}
 }
 

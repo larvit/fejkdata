@@ -154,7 +154,7 @@ func TestListedPathsAllRender(t *testing.T) {
 			}
 		}
 	}
-	for _, p := range []string{"misc.car.maker", "misc.country.alpha2", "misc.country.numeric", "misc.currency.symbol", "misc.httpstatus.code", "misc.mimetype.ext"} {
+	for _, p := range []string{"misc.car.maker", "misc.territory.alpha2", "misc.territory.numeric", "misc.currency.symbol", "misc.httpstatus.code", "misc.mimetype.ext"} {
 		if !slices.Contains(paths, p) {
 			t.Errorf("List() omits %q, which the README advertises and Fake renders", p)
 		}

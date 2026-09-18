@@ -352,8 +352,8 @@ func TestRunSelectsATableRow(t *testing.T) {
 	if code, _, errb := runOut("--no-shipped-data", "-d", dir, "[Skåne län]"); code != 2 || !strings.Contains(errb, "JSON") {
 		t.Fatalf("[Skåne län] = %d, stderr=%q, want misuse: a leading bracket that is no JSON names nothing", code, errb)
 	}
-	if code, out, _ := runOut("--seed", "1", "--format", "csv", "misc.country[SE]"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
-		t.Fatalf("--format csv misc.country[SE] = %d, %q", code, out)
+	if code, out, _ := runOut("--seed", "1", "--format", "csv", "misc.territory[SE]"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
+		t.Fatalf("--format csv misc.territory[SE] = %d, %q", code, out)
 	}
 }
 

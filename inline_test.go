@@ -108,9 +108,9 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
-		{`{/misc.country} {/misc.country.alpha2}`, "renders a level that {/misc.country.alpha2} reads a path into; name the fields you want instead, or draw them apart with a drawGroup"},
-		{`{"format":"{/misc.country.alpha2} {x}","x":"{/misc.country}"}`, "reads a path into"},
-		{`{"format":"{/misc.country.alpha2}","drawGroup":"g"}`, "nothing can reference"},
+		{`{/misc.territory} {/misc.territory.alpha2}`, "renders a level that {/misc.territory.alpha2} reads a path into; name the fields you want instead, or draw them apart with a drawGroup"},
+		{`{"format":"{/misc.territory.alpha2} {x}","x":"{/misc.territory}"}`, "reads a path into"},
+		{`{"format":"{/misc.territory.alpha2}","drawGroup":"g"}`, "nothing can reference"},
 	} {
 		_, err := f.FakeTemplate(c.input)
 		if err == nil || !strings.Contains(err.Error(), c.want) {
