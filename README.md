@@ -1258,6 +1258,14 @@ in its own commit:
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 ```
 
+The `gocache` volume takes the uid of whichever command created it, so a fresh
+checkout whose first command ran as root answers this one with `permission denied`.
+Give it back:
+
+```sh
+docker run --rm -v "${PWD##*/}_gocache":/cache alpine:3.23.3 chown -R "$(id -u):$(id -g)" /cache
+```
+
 A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, fetching the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
