@@ -176,8 +176,9 @@ than selected in.
 `misc.httpmethod` is the nine methods the HTTP core specification defines; the
 register's other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
 `idempotent` are `true` or `false`, so a Go `bool` reads them, though `--format json`
-and `sql` write them as text, a table column carrying no datatype. `misc.protocol` carries a `number` and a `name`,
-the keyword itself where the register spells none out, and selects by either spelling.
+and `sql` write them as text, a table column carrying no datatype. `misc.protocol`
+carries a `number` and a `name`, the keyword itself where the register spells none out,
+and selects by either spelling.
 `misc.port` is the TCP assignments, rendering the number a port field holds with the
 IANA `service` beside it, and selecting by number alone. A draw spans the whole
 register, so pin `misc.port[443]` where a fixture needs a port a reader recognises;

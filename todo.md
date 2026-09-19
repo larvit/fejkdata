@@ -112,7 +112,8 @@ by a `data-import/` script, as README goal 10 asks.
 - Let a table column carry a `datatype`, so `--format json` writes
   `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
   a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
-  everywhere else. It reserves a field name, so it is a fence and a major.
+  everywhere else. Typing a shipped column changes what `json` and `sql` write, so the
+  capability is a minor and applying it to `misc.httpmethod` is a major.
 
 ### Open questions to settle
 
