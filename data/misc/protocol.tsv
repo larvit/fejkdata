@@ -1,0 +1,140 @@
+keyword	name	number
+HOPOPT	IPv6 Hop-by-Hop Option	0
+ICMP	Internet Control Message	1
+IGMP	Internet Group Management	2
+GGP	Gateway-to-Gateway	3
+IPv4	IPv4 encapsulation	4
+ST	Stream	5
+TCP	Transmission Control	6
+CBT	CBT	7
+EGP	Exterior Gateway Protocol	8
+IGP	any private interior gateway (used by Cisco for their IGRP)	9
+BBN-RCC-MON	BBN RCC Monitoring	10
+NVP-II	Network Voice Protocol	11
+PUP	PUP	12
+EMCON	EMCON	14
+XNET	Cross Net Debugger	15
+CHAOS	Chaos	16
+UDP	User Datagram	17
+MUX	Multiplexing	18
+DCN-MEAS	DCN Measurement Subsystems	19
+HMP	Host Monitoring	20
+PRM	Packet Radio Measurement	21
+XNS-IDP	XEROX NS IDP	22
+TRUNK-1	Trunk-1	23
+TRUNK-2	Trunk-2	24
+LEAF-1	Leaf-1	25
+LEAF-2	Leaf-2	26
+RDP	Reliable Data Protocol	27
+IRTP	Internet Reliable Transaction	28
+ISO-TP4	ISO Transport Protocol Class 4	29
+NETBLT	Bulk Data Transfer Protocol	30
+MFE-NSP	MFE Network Services Protocol	31
+MERIT-INP	MERIT Internodal Protocol	32
+DCCP	Datagram Congestion Control Protocol	33
+3PC	Third Party Connect Protocol	34
+IDPR	Inter-Domain Policy Routing Protocol	35
+XTP	XTP	36
+DDP	Datagram Delivery Protocol	37
+IDPR-CMTP	IDPR Control Message Transport Proto	38
+TP++	TP++ Transport Protocol	39
+IL	IL Transport Protocol	40
+IPv6	IPv6 encapsulation	41
+SDRP	Source Demand Routing Protocol	42
+IPv6-Route	Routing Header for IPv6	43
+IPv6-Frag	Fragment Header for IPv6	44
+IDRP	Inter-Domain Routing Protocol	45
+RSVP	Reservation Protocol	46
+GRE	Generic Routing Encapsulation	47
+DSR	Dynamic Source Routing Protocol	48
+BNA	BNA	49
+ESP	Encap Security Payload	50
+AH	Authentication Header	51
+I-NLSP	Integrated Net Layer Security TUBA	52
+NARP	NBMA Address Resolution Protocol	54
+Min-IPv4	Minimal IPv4 Encapsulation	55
+TLSP	Transport Layer Security Protocol using Kryptonet key management	56
+SKIP	SKIP	57
+IPv6-ICMP	ICMP for IPv6	58
+IPv6-NoNxt	No Next Header for IPv6	59
+IPv6-Opts	Destination Options for IPv6	60
+CFTP	CFTP	62
+SAT-EXPAK	SATNET and Backroom EXPAK	64
+KRYPTOLAN	Kryptolan	65
+RVD	MIT Remote Virtual Disk Protocol	66
+IPPC	Internet Pluribus Packet Core	67
+SAT-MON	SATNET Monitoring	69
+VISA	VISA Protocol	70
+IPCV	Internet Packet Core Utility	71
+CPNX	Computer Protocol Network Executive	72
+CPHB	Computer Protocol Heart Beat	73
+WSN	Wang Span Network	74
+PVP	Packet Video Protocol	75
+BR-SAT-MON	Backroom SATNET Monitoring	76
+SUN-ND	SUN ND PROTOCOL-Temporary	77
+WB-MON	WIDEBAND Monitoring	78
+WB-EXPAK	WIDEBAND EXPAK	79
+ISO-IP	ISO Internet Protocol	80
+VMTP	VMTP	81
+SECURE-VMTP	SECURE-VMTP	82
+VINES	VINES	83
+IPTM	Internet Protocol Traffic Manager	84
+NSFNET-IGP	NSFNET-IGP	85
+DGP	Dissimilar Gateway Protocol	86
+TCF	TCF	87
+EIGRP	EIGRP	88
+OSPFIGP	OSPFIGP	89
+Sprite-RPC	Sprite RPC Protocol	90
+LARP	Locus Address Resolution Protocol	91
+MTP	Multicast Transport Protocol	92
+AX.25	AX.25 Frames	93
+IPIP	IP-within-IP Encapsulation Protocol	94
+SCC-SP	Semaphore Communications Sec. Pro.	96
+ETHERIP	Ethernet-within-IP Encapsulation	97
+ENCAP	Encapsulation Header	98
+GMTP	GMTP	100
+IFMP	Ipsilon Flow Management Protocol	101
+PNNI	PNNI over IP	102
+PIM	Protocol Independent Multicast	103
+ARIS	ARIS	104
+SCPS	SCPS	105
+QNX	QNX	106
+A/N	Active Networks	107
+IPComp	IP Payload Compression Protocol	108
+SNP	Sitara Networks Protocol	109
+Compaq-Peer	Compaq Peer Protocol	110
+IPX-in-IP	IPX in IP	111
+VRRP	Virtual Router Redundancy Protocol	112
+PGM	PGM Reliable Transport Protocol	113
+L2TP	Layer Two Tunneling Protocol	115
+DDX	D-II Data Exchange (DDX)	116
+IATP	Interactive Agent Transfer Protocol	117
+STP	Schedule Transfer Protocol	118
+SRP	SpectraLink Radio Protocol	119
+UTI	UTI	120
+SMP	Simple Message Protocol	121
+PTP	Performance Transparency Protocol	123
+ISIS over IPv4	ISIS over IPv4	124
+FIRE	FIRE	125
+CRTP	Combat Radio Transport Protocol	126
+CRUDP	Combat Radio User Datagram	127
+SSCOPMCE	SSCOPMCE	128
+IPLT	IPLT	129
+SPS	Secure Packet Shield	130
+PIPE	Private IP Encapsulation within IP	131
+SCTP	Stream Control Transmission Protocol	132
+FC	Fibre Channel	133
+RSVP-E2E-IGNORE	RSVP-E2E-IGNORE	134
+Mobility Header	Mobility Header	135
+UDPLite	UDPLite	136
+MPLS-in-IP	MPLS-in-IP	137
+manet	MANET Protocols	138
+HIP	Host Identity Protocol	139
+Shim6	Shim6 Protocol	140
+WESP	Wrapped Encapsulating Security Payload	141
+ROHC	Robust Header Compression	142
+Ethernet	Ethernet	143
+AGGFRAG	AGGFRAG encapsulation payload for ESP	144
+NSH	Network Service Header	145
+Homa	Homa	146
+BIT-EMU	Bit-stream Emulation	147

@@ -162,14 +162,18 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
 carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
-`datetime` (RFC 3339), `emoji`, `httpstatus`, `language` (ISO 639-1, with its
-639-2/T code), `mac`, `mimetype`, `objectid`, `territory` (ISO 3166-1), `timezone`
-(IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+`datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
+with its 639-2/T code), `mac`, `mimetype`, `objectid`, `port`, `protocol`,
+`territory` (ISO 3166-1), `timezone` (IANA), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
 `misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
 `currency`, `httpstatus`, `language`, `mimetype`, `territory`, `timezone` and
-`useragent` are [tables](#table), so `misc.territory[SE].capital` and
+`httpmethod`, `port`, `protocol` and `useragent` are [tables](#table), so
+`misc.territory[SE].capital` and
 `misc.currency[Euro].symbol` select a row; `car` and `useragent` carry no key or
-name, so they are drawn from rather than selected in.
+name, so they are drawn from rather than selected in. `misc.httpmethod`,
+`misc.protocol` and `misc.port` are IANA's registries: a method carries whether it
+is `safe` and `idempotent`, a protocol its `number`, and `misc.port` renders the
+number a port field holds, with the service `name` beside it.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -1296,11 +1300,14 @@ a copy of the surname file:
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpmethod.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpstatus.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/language.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py

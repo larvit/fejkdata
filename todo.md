@@ -9,7 +9,7 @@ Ordered as the releases that ship it.
 Shape: T = table, t = template, c = choice. Read every factual list from a register
 by a `data-import/` script, as README goal 10 asks.
 
-- Add the remaining `misc` tables and templates from the table below.
+- Add the remaining `misc` tables and templates, one row of the table below per chunk.
 - Read `misc.emoji` from the Unicode `emoji-test.txt` register, and `misc.car` from an
   international make and model source; vPIC and Mobility Sweden are national, so they
   build `en_US.car` and `sv_SE.car`.
@@ -46,7 +46,8 @@ by a `data-import/` script, as README goal 10 asks.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
-| `httpmethod`, `port`, `tld`, `protocol`, `loglevel` | T/c | IANA | CC0 |
+| `tld` | T | IANA root zone | CC0 |
+| `loglevel` | c | RFC 5424 severities | facts |
 | `ip` v4 documentation ranges, private, CIDR; `ipv6` `2001:db8::/32`; `mac` locally administered | t | RFC 5737, 1918, 9637 | facts |
 | `creditcard` per network: IIN, length, CVV, expiry | T+t | network rules, `{luhn()}` | facts |
 | `bic`, `isin`, `cusip` | t | structure rules | facts |
