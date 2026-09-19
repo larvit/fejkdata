@@ -103,10 +103,16 @@ by a `data-import/` script, as README goal 10 asks.
 - Add `{base64url(n)}` for JWT shapes.
 - Add a `unix` layout to `date()` once something needs it.
 
+### Library and CLI
+
 - Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
   `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
   and stop there, where a case-insensitive match could name the row that exists, and a
   table with no `name` column could say it selects by key alone.
+- Let a table column carry a `datatype`, so `--format json` writes
+  `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
+  a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
+  everywhere else. It reserves a field name, so it is a fence and a major.
 
 ### Open questions to settle
 

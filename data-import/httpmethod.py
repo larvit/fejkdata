@@ -4,9 +4,9 @@
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
 A method ships when the register cites the HTTP core specification for it, RFC 9110
-section 9.3 or RFC 5789, which is the nine a request carries; the WebDAV and DeltaV
-extensions the register also holds do not. The register's `yes` and `no` ship as `true`
-and `false`, which a consumer's boolean reads.
+section 9.3 or RFC 5789, which is the nine a request carries; the register's other
+entries do not. The register's `yes` and `no` ship as `true` and `false`, which a
+consumer's boolean reads.
 """
 import argparse
 import csv
@@ -24,6 +24,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["idempotent", "method", "safe"]
 CORE = re.compile(r"\[RFC9110, Section 9\.3\.|\[RFC5789, Section 2\]")
 BOOLEAN = {"yes": "true", "no": "false"}
+SELECTOR = '[]{}"|'  # mirrors inSelector in table.go
 EXPECTED = 9
 
 
@@ -32,6 +33,8 @@ def rows(text):
         method = (r["Method Name"] or "").strip()
         if not CORE.search(r["Reference"] or ""):
             continue
+        if set(method) & set(SELECTOR):
+            sys.exit(f"{method}: a method holding one of {SELECTOR} is one a selector cannot spell")
         answers = {}
         for column in ("Safe", "Idempotent"):
             answer = (r[column] or "").strip()

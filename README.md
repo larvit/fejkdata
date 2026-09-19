@@ -173,9 +173,10 @@ select a row; `car` and `useragent` carry no key or name, so they are drawn from
 than selected in.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
-`misc.httpmethod` is the nine methods the HTTP core specification defines, not the
-WebDAV extensions the register also holds, and its `safe` and `idempotent` are `true`
-or `false`, so a Go `bool` reads them. `misc.protocol` carries a `number` and a `name`,
+`misc.httpmethod` is the nine methods the HTTP core specification defines; the
+register's other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
+`idempotent` are `true` or `false`, so a Go `bool` reads them, though `--format json`
+and `sql` write them as text, a table column carrying no datatype. `misc.protocol` carries a `number` and a `name`,
 the keyword itself where the register spells none out, and selects by either spelling.
 `misc.port` is the TCP assignments, rendering the number a port field holds with the
 IANA `service` beside it, and selecting by number alone. A draw spans the whole
