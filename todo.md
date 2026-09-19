@@ -19,6 +19,14 @@ by a `data-import/` script, as README goal 10 asks.
 - Give the address records one column set across countries: `region` and
   `municipality` as columns on `geo.SE.address` too.
 - Fill the 398 Swedish localities weighted 200 from SCB småorter.
+- Give `url` and `email` a path that draws only domains nobody can register, keeping
+  the wide set as the default, per goal 12: 17 of the 40 distinct ones shipped today
+  sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's
+  `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost`
+  provably reach nothing.
+- Audit the rest of the shipped set against goal 12 and give each a never-reaching
+  path where it lacks one: `phone` draws live PTS and NANP ranges, `bankgiro`,
+  `plusgiro` and `routing` draw live prefixes.
 - Accept a middle name, and draw a shipped `personnummer` inside a *selected* sex;
   both want a draw group sharing its family's pins. Stop the conflict error naming a
   rewrite that returns a different value where the read it conflicts with sits inside
@@ -56,7 +64,7 @@ by a `data-import/` script, as README goal 10 asks.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-`sv_SE` (source research: `research-sources-se.md`, in the handoff)
+`sv_SE` ([source research](docs/research/research-sources-se.md))
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -73,7 +81,7 @@ by a `data-import/` script, as README goal 10 asks.
 | month and weekday names, `holiday` | t+T | CLDR sv, lag 1989:253 | Unicode |
 | `territory` localised names keyed by alpha2 | T | CLDR sv territory names | Unicode |
 
-`en_US` (source research: `research-sources-world.md` part1–4, in the handoff)
+`en_US` ([source research](docs/research/research-sources-world.md), and `part1`–`part4`)
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -109,20 +117,15 @@ by a `data-import/` script, as README goal 10 asks.
   breaks a consumer, so it rides a 0.(x+1).0.
 - Decide whether `parent: territory` stays, given a `--data-path` override of
   `misc.territory` now fails `New` unless `misc.timezone` is overridden with it.
-- Decide whether the shipped `url` and `email` domains are restricted to RFC 2606's
-  reserved names: 17 of the 40 distinct ones are not, sitting on `.se`, `.nu`, `.io`
-  and `.co`, which are live ccTLDs anyone can register. Restricting them costs the
-  locale flavour `example.se` and `.nu` were chosen for.
-- Record why fejkdata ships no pop-culture catalogue. README Decisions states the
-  choice with no reason, because goal 10 does not supply one: it admits a hand-written
-  set where no register exists, and Wikidata, MusicBrainz and the Gutenberg catalog are
-  registers this plan already reads for `book`, `instrument` and `animal`.
 
 ### Release
 
 - Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
   of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
-  README.
+  README. Carry the timezone weight's premise in with it: weighting by GeoNames city
+  population moved 300 seeded draws of `misc.territory[US].timezone` from 44 landing on
+  the four zones most Americans live in to 278, and dropped `America/Indiana/Petersburg`
+  (pop. 2,400) from 17 draws to 0.
 - Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds: nothing has shipped, so
   "no longer paths", "where it used to fail" and "where it used to be an empty string"
   describe versions no reader can have installed.

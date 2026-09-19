@@ -8,6 +8,9 @@
   offers fails with "is it still open?", as does a merge whose required checks are
   still pending, so read the checks before believing the style is the problem. Use
   `tea api /repos/{owner}/{repo}/pulls/<n>/merge -f Do=fast-forward-only`.
+- Gitea queues Actions runs that `/repos/{owner}/{repo}/actions/tasks` does not
+  list, so an empty task list says nothing about whether CI ran; read
+  `/repos/{owner}/{repo}/commits/<sha>/status`.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - A standing choice a reader would relitigate goes under Decisions in the README, not in a comment.

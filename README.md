@@ -770,6 +770,9 @@ App developers writing tests and fixtures, in Go and at a shell:
 - a **hand fixture author**, one value at a shell
 - a **validator-facing author**, who needs a value a real checker accepts
 
+and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
+the Development section below, and who ships a register the four above then draw from.
+
 ## Goals
 
 1. **Valid by construction** — every value passes the check its real consumer
@@ -800,6 +803,16 @@ App developers writing tests and fixtures, in Go and at a shell:
     step that replaces it. Only non-factual copy stays authored. A sourced table
     holds the rows its source holds: none is added by hand, and one is dropped
     only by a rule the script states.
+11. **Breadth follows what most systems store** — a category is added in proportion
+    to how many real schemas hold it: names, addresses, phones, ids, money and
+    timestamps before anything domain-specific, and a catalogue serving one niche
+    waits behind everything serving many.
+12. **Realism is the default, inertness is selectable** — where a value could reach
+    something real, a domain anyone may register or an account a bank could issue,
+    the realistic breadth ships *and* so does the subset that provably reaches
+    nothing, each on its own path. A fixture that looks nothing like production
+    tests nothing; the caller who needs a value that can touch nothing asks for it
+    by name.
 
 ## Decisions
 
@@ -1151,8 +1164,6 @@ App developers writing tests and fixtures, in Go and at a shell:
   tells the two apart, `sex[f].first-name[Kim]`, the ambiguity error spells each
   row inside its parent, and a name repeating inside one parent row is refused at
   load, since nothing could then select it.
-- **No pop-culture catalogues.** Every other faker ships film, band and character
-  names; fejkdata ships none.
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
   records use; `misc` takes only sources that are international. NHTSA vPIC and
@@ -1272,7 +1283,9 @@ REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, fetching the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
-`data-import/cache/`, so delete it to fetch afresh; `geo-us.py` fetches two
+`data-import/cache/`, which is ignored by version control and grows past a
+gigabyte, so pass `--cache DIR` to reuse a copy you already have and delete it to
+fetch afresh; `geo-us.py` fetches two
 TIGER/Line files per county it ships, a few hundred megabytes, `geo-se.py` needs
 a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
