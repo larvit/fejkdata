@@ -115,7 +115,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		"httpmethod.safe":       regexp.MustCompile(`^(yes|no)$`),
 		"httpmethod.idempotent": regexp.MustCompile(`^(yes|no)$`),
 		"port":                  regexp.MustCompile(`^[1-9]\d{0,4}$`),
-		"port.name":             regexp.MustCompile(`^\S+$`),
+		"port.service":          regexp.MustCompile(`^\S+$`),
 		"protocol":              regexp.MustCompile(`^\S+( \S+)*$`),
 		"protocol.name":         regexp.MustCompile(`\S`),
 		"protocol.number":       regexp.MustCompile(`^\d{1,3}$`),
