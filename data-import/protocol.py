@@ -21,7 +21,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "protocol.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")
-SELECTOR = '[]{}"|'  # table.go: what a key or name cell may not contain
+SELECTOR = '[]{}"|'  # mirrors inSelector in table.go
 
 
 def rows(text):
@@ -35,7 +35,7 @@ def rows(text):
 
 
 def refuse_an_unselectable_row(table):
-    """What the loader refuses at New, and a name that would select two rows rather than one."""
+    """What the loader refuses at New, and a name that names two rows rather than one."""
     keywords, names = {}, {}
     for r in table:
         for column in ("keyword", "name"):
