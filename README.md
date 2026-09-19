@@ -1198,6 +1198,12 @@ the Development section below, and who ships a register the four above then draw
   worth more than the last rows of a table. Where no such link can hold the fact
   stays a column. Layer your own `misc.territory` over the shipped one and you
   must layer `misc.timezone` too, or the link fails at load naming the row.
+- **A table whose register publishes no frequency draws evenly.** `misc.httpmethod`,
+  `misc.port`, `misc.httpstatus` and `misc.mimetype` weigh every row alike, so GET is
+  a ninth of the methods drawn. Goal 10 keeps an authored fact out of a sourced table,
+  and no register publishes how often a method or a port is used, so a weight here
+  would be invented. Where one exists it is read, as `misc.timezone` reads GeoNames
+  populations and `sv_SE.first-name` SCB bearers.
 - **`misc.port` selects by number, and carries no `name`.** 29 of its services sit on
   more than one port, `http-alt` on three, so `misc.port[http-alt]` could name no one
   row. The number is what a port field holds anyway, and `misc.port[443].service`

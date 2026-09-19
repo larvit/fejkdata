@@ -14,5 +14,7 @@
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - A standing choice a reader would relitigate goes under Decisions in the README, not in a comment.
+- Prose naming a source states what that source states: read the register's own field
+  before paraphrasing it.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
 - Cyclomatic complexity is gated at 14: the table-shaped dispatches (`linkParent`, `compileTemplate`, `renderEdges`) sit at it and stay whole; a function that would pass it is decomposed.

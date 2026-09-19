@@ -4,8 +4,8 @@
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
 A method ships when the register cites RFC 9110 section 9.3 or RFC 5789 for it, which
-is the eight HTTP defines and PATCH; the register's other entries do not. The register's `yes` and `no` ship as `true` and `false`, which a
-consumer's boolean reads.
+is the eight HTTP defines and PATCH; the register's other entries do not. The
+register's `yes` and `no` ship as `true` and `false`, which a consumer's boolean reads.
 """
 import argparse
 import csv
