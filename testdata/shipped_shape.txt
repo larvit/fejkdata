@@ -246,9 +246,9 @@ misc.mimetype.ext	string
 misc.mimetype.type	string
 misc.objectid	format "{hex(24)}"
 misc.port	format "{number}"	key number
-misc.port.name	string
 misc.port.number	string
-misc.protocol	format "{keyword}"	key keyword
+misc.port.service	string
+misc.protocol	format "{keyword}"	key keyword	name name
 misc.protocol.keyword	string
 misc.protocol.name	string
 misc.protocol.number	string
