@@ -701,11 +701,11 @@ func TestShippedTables(t *testing.T) {
 		"timezone[Asia/Kathmandu].offset":       "+05:45",
 		"timezone[America/New_York].offset":     "-05:00",
 		"territory[SE].timezone":                "Europe/Stockholm",
-		"httpmethod[GET].safe":                  "yes",
-		"httpmethod[GET].idempotent":            "yes",
-		"httpmethod[POST].safe":                 "no",
-		"httpmethod[POST].idempotent":           "no",
-		"httpmethod[PUT].idempotent":            "yes",
+		"httpmethod[GET].safe":                  "true",
+		"httpmethod[GET].idempotent":            "true",
+		"httpmethod[POST].safe":                 "false",
+		"httpmethod[POST].idempotent":           "false",
+		"httpmethod[PUT].idempotent":            "true",
 		"protocol[TCP].number":                  "6",
 		"protocol[UDP].number":                  "17",
 		"protocol[ICMP].name":                   "Internet Control Message",
@@ -753,6 +753,17 @@ func TestShippedTables(t *testing.T) {
 		if drawn, zone, _ := strings.Cut(got, " "); drawn != zone {
 			t.Fatalf("%q: a territory and a timezone in one render disagree on the territory", got)
 		}
+	}
+	var row struct {
+		Idempotent bool   `fake:"misc.httpmethod.idempotent"`
+		Method     string `fake:"misc.httpmethod.method"`
+		Safe       bool   `fake:"misc.httpmethod.safe"`
+	}
+	if err := newGenerator(t, "data", WithSeed(1)).FakeStruct(&row); err != nil {
+		t.Fatalf("FakeStruct into a bool = %v, want the register's yes and no shipped as true and false", err)
+	}
+	if row.Method == "GET" && !(row.Safe && row.Idempotent) {
+		t.Fatalf("GET drew safe=%v idempotent=%v", row.Safe, row.Idempotent)
 	}
 	zones := map[string]int{}
 	for i := 0; i < 2000; i++ {
