@@ -3,8 +3,10 @@
 
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-A row needs a name of letters and hyphens, which drops the registry's `*`, and both of
-the answers the registry gives for it.
+A method ships when the register cites the HTTP core specification for it, RFC 9110
+section 9.3 or RFC 5789, which is the nine a request carries; the WebDAV and DeltaV
+extensions the register also holds do not. The register's `yes` and `no` ship as `true`
+and `false`, which a consumer's boolean reads.
 """
 import argparse
 import csv
@@ -20,19 +22,23 @@ SOURCE = "https://www.iana.org/assignments/http-methods/methods.csv"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "httpmethod.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["idempotent", "method", "safe"]
-ANSWERS = ("yes", "no")
+CORE = re.compile(r"\[RFC9110, Section 9\.3\.|\[RFC5789, Section 2\]")
+BOOLEAN = {"yes": "true", "no": "false"}
+EXPECTED = 9
 
 
 def rows(text):
     for r in csv.DictReader(io.StringIO(text)):
         method = (r["Method Name"] or "").strip()
-        safe, idempotent = (r["Safe"] or "").strip(), (r["Idempotent"] or "").strip()
-        if not re.fullmatch(r"[A-Za-z][A-Za-z-]*", method) or not safe or not idempotent:
+        if not CORE.search(r["Reference"] or ""):
             continue
-        for column, answer in (("Safe", safe), ("Idempotent", idempotent)):
-            if answer not in ANSWERS:
+        answers = {}
+        for column in ("Safe", "Idempotent"):
+            answer = (r[column] or "").strip()
+            if answer not in BOOLEAN:
                 sys.exit(f"{method}: {column} {answer!r} is neither yes nor no")
-        yield {"idempotent": idempotent, "method": method, "safe": safe}
+            answers[column] = BOOLEAN[answer]
+        yield {"idempotent": answers["Idempotent"], "method": method, "safe": answers["Safe"]}
 
 
 def main():
@@ -42,6 +48,8 @@ def main():
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
     table = sorted(rows(source.fetch(a.source, a.cache, "http-methods.csv").decode("utf-8")), key=lambda r: r["method"])
+    if len(table) != EXPECTED:
+        sys.exit(f"{len(table)} methods cite the core specification, not {EXPECTED}; the register's Reference column has moved")
     tsv.write(a.out, COLUMNS, table)
 
 

@@ -44,10 +44,11 @@ replacement, and each removed path, column or flag.
   `device` and `os` columns. `misc.car` keeps its makes and models in a `make` and a
   `model` column.
 - `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries as tables.
-  `misc.httpmethod` carries `safe` and `idempotent` beside the method; `misc.protocol`
-  the keyword, its `number` and its `name`, selectable by either; `misc.port` renders a
-  TCP port number, with the IANA `service` name beside it, keeping the first service the
-  registry describes for a port so a number selects one row.
+  `misc.httpmethod` is the nine methods the HTTP core specification defines, carrying
+  `safe` and `idempotent` as `true` or `false`; `misc.protocol` the keyword, its
+  `number` and its `name`, selectable by either; `misc.port` renders a TCP port number,
+  with the IANA `service` name beside it, keeping the first service the registry
+  describes for a port so a number selects one row.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an

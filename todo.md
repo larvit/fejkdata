@@ -103,6 +103,11 @@ by a `data-import/` script, as README goal 10 asks.
 - Add `{base64url(n)}` for JWT shapes.
 - Add a `unix` layout to `date()` once something needs it.
 
+- Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
+  `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
+  and stop there, where a case-insensitive match could name the row that exists, and a
+  table with no `name` column could say it selects by key alone.
+
 ### Open questions to settle
 
 - Decide whether `misc.browser` becomes a parent of `misc.useragent`, so

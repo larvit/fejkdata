@@ -170,10 +170,18 @@ which `--list` shows. `car`, `currency`, `httpmethod`, `httpstatus`, `language`,
 `mimetype`, `port`, `protocol`, `territory`, `timezone` and `useragent` are
 [tables](#table), so `misc.territory[SE].capital` and `misc.currency[Euro].symbol`
 select a row; `car` and `useragent` carry no key or name, so they are drawn from rather
-than selected in. `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's
-registries: a method carries the register's `yes` or `no` for `safe` and `idempotent`,
-a protocol its `number` and its spelled-out `name`, and `misc.port` renders the number
-a port field holds, with the IANA `service` name beside it.
+than selected in.
+
+`misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
+`misc.httpmethod` is the nine methods the HTTP core specification defines, not the
+WebDAV extensions the register also holds, and its `safe` and `idempotent` are `true`
+or `false`, so a Go `bool` reads them. `misc.protocol` carries a `number` and a `name`,
+the keyword itself where the register spells none out, and selects by either spelling.
+`misc.port` is the TCP assignments, rendering the number a port field holds with the
+IANA `service` beside it, and selecting by number alone. A draw spans the whole
+register, so pin `misc.port[443]` where a fixture needs a port a reader recognises;
+it stops at 49150, IANA assigning nothing above, so an ephemeral source port is
+`{int(49152,65535)}`.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -1188,6 +1196,10 @@ the Development section below, and who ships a register the four above then draw
   worth more than the last rows of a table. Where no such link can hold the fact
   stays a column. Layer your own `misc.territory` over the shipped one and you
   must layer `misc.timezone` too, or the link fails at load naming the row.
+- **`misc.port` selects by number, and carries no `name`.** 29 of its services sit on
+  more than one port, `http-alt` on three, so `misc.port[http-alt]` could name no one
+  row. The number is what a port field holds anyway, and `misc.port[443].service`
+  reads the other way.
 - **`misc.car` is one flat table, not a make linked to its models.** A row is a make
   and a model drawn together, so no render pairs a Volvo with a RAV4. Two linked
   tables would reach the same pairs and add a selector nothing asks for; a make alone
