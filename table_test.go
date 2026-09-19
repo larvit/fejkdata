@@ -762,8 +762,13 @@ func TestShippedTables(t *testing.T) {
 	if err := newGenerator(t, "data", WithSeed(1)).FakeStruct(&row); err != nil {
 		t.Fatalf("FakeStruct into a bool = %v, want the register's yes and no shipped as true and false", err)
 	}
-	if row.Method == "GET" && !(row.Safe && row.Idempotent) {
-		t.Fatalf("GET drew safe=%v idempotent=%v", row.Safe, row.Idempotent)
+	want, named := map[string][2]bool{
+		"CONNECT": {false, false}, "DELETE": {false, true}, "GET": {true, true},
+		"HEAD": {true, true}, "OPTIONS": {true, true}, "PATCH": {false, false},
+		"POST": {false, false}, "PUT": {false, true}, "TRACE": {true, true},
+	}[row.Method]
+	if !named || row.Safe != want[0] || row.Idempotent != want[1] {
+		t.Fatalf("%s drew safe=%v idempotent=%v", row.Method, row.Safe, row.Idempotent)
 	}
 	zones := map[string]int{}
 	for i := 0; i < 2000; i++ {
