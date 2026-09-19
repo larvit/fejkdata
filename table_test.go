@@ -701,6 +701,18 @@ func TestShippedTables(t *testing.T) {
 		"timezone[Asia/Kathmandu].offset":   "+05:45",
 		"timezone[America/New_York].offset": "-05:00",
 		"territory[SE].timezone":            "Europe/Stockholm",
+		"httpmethod[GET].safe":              "yes",
+		"httpmethod[GET].idempotent":        "yes",
+		"httpmethod[POST].safe":             "no",
+		"httpmethod[POST].idempotent":       "no",
+		"httpmethod[PUT].idempotent":        "yes",
+		"protocol[TCP].number":              "6",
+		"protocol[UDP].number":              "17",
+		"protocol[ICMP].name":               "Internet Control Message",
+		"port[443]":                         "443",
+		"port[443].name":                    "https",
+		"port[22].name":                     "ssh",
+		"port[3306].name":                   "mysql",
 		"territory[NP].timezone.offset":     "+05:45",
 	} {
 		if got := fake(t, f, path); got != want {
