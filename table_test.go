@@ -713,6 +713,7 @@ func TestShippedTables(t *testing.T) {
 		"port[443].service":                     "https",
 		"port[22].service":                      "ssh",
 		"port[3306].service":                    "mysql",
+		"port[465].service":                     "urd",
 		"port[2049].service":                    "nfs",
 		"protocol[Transmission Control].number": "6",
 		"territory[NP].timezone.offset":         "+05:45",
