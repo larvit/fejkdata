@@ -1,1 +1,1 @@
-{ "format": "{keyword}", "rows": "protocol.tsv", "key": "keyword" }
+{ "format": "{keyword}", "rows": "protocol.tsv", "key": "keyword", "name": "name" }

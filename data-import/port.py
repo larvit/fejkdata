@@ -3,13 +3,14 @@
 
     data-import/port.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-What ships is the TCP assignments in use: a row needs a service name, a port number and
-a description the registry has filled in. A port the registry lists more than once keeps
-the first service, so a number selects one row.
+A row needs a service name and a numeric TCP port. A port the registry lists more than
+once keeps the first service it describes, or the first of them where it describes none,
+so a number selects one row.
 """
 import argparse
 import csv
 import io
+import sys
 from pathlib import Path
 
 import source
@@ -18,21 +19,24 @@ import tsv
 SOURCE = "https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv"
 OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "port.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
-COLUMNS = ["name", "number"]
-UNUSED = ("Reserved", "Unassigned", "IANA assigned this well-formed service name to replace an unregistered or squatted port.")
+COLUMNS = ["number", "service"]
+FLOOR = 4000
 
 
 def rows(text):
-    seen = set()
+    best, described = {}, set()
     for r in csv.DictReader(io.StringIO(text)):
-        name, number = r["Service Name"].strip(), r["Port Number"].strip()
-        described = (r["Description"] or "").strip()
-        if r["Transport Protocol"].strip() != "tcp" or not name or not number.isdigit():
+        service, number = (r["Service Name"] or "").strip(), (r["Port Number"] or "").strip()
+        transport, description = (r["Transport Protocol"] or "").strip(), (r["Description"] or "").strip()
+        if transport != "tcp" or not service or not number.isdigit():
             continue
-        if not described or described in UNUSED or number in seen:
-            continue
-        seen.add(number)
-        yield {"name": name, "number": number}
+        if not 1 <= int(number) <= 65535:
+            sys.exit(f"{service}: port {number} is outside 1-65535")
+        if number not in best or (description and number not in described):
+            best[number] = {"number": number, "service": service}
+        if description:
+            described.add(number)
+    return sorted(best.values(), key=lambda r: int(r["number"]))
 
 
 def main():
@@ -41,7 +45,9 @@ def main():
     p.add_argument("--source", default=SOURCE)
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
-    table = sorted(rows(source.fetch(a.source, a.cache, "service-names-port-numbers.csv").decode("utf-8")), key=lambda r: int(r["number"]))
+    table = rows(source.fetch(a.source, a.cache, "service-names-port-numbers.csv").decode("utf-8"))
+    if len(table) < FLOOR:
+        sys.exit(f"only {len(table)} ports named a TCP service; the registry's columns have moved")
     tsv.write(a.out, COLUMNS, table)
 
 
