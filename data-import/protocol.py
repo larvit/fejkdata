@@ -21,6 +21,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "protocol.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")
+SELECTOR = '[]{}"|'  # table.go: what a key or name cell may not contain
 
 
 def rows(text):
@@ -33,15 +34,22 @@ def rows(text):
         yield {"keyword": keyword, "name": " ".join((r["Protocol"] or "").split()) or keyword, "number": number}
 
 
-def refuse_a_name_the_loader_would(table):
-    """A name spelling another row's keyword, or a second row's name, is a load error for every consumer."""
-    keywords, seen = {r["keyword"] for r in table}, {}
+def refuse_an_unselectable_row(table):
+    """What the loader refuses at New, and a name that would select two rows rather than one."""
+    keywords, names = {}, {}
+    for r in table:
+        for column in ("keyword", "name"):
+            if set(r[column]) & set(SELECTOR):
+                sys.exit(f"{r['keyword']}: {column} {r[column]!r} holds one of {SELECTOR}, which a selector cannot spell")
+        if r["keyword"] in keywords:
+            sys.exit(f"{r['keyword']}: repeats the keyword of protocol {keywords[r['keyword']]}")
+        keywords[r["keyword"]] = r["number"]
     for r in table:
         if r["name"] != r["keyword"] and r["name"] in keywords:
             sys.exit(f"{r['keyword']}: name {r['name']!r} is another protocol's keyword")
-        if r["name"] in seen:
-            sys.exit(f"{r['keyword']}: name {r['name']!r} repeats {seen[r['name']]}'s")
-        seen[r["name"]] = r["keyword"]
+        if r["name"] in names:
+            sys.exit(f"{r['keyword']}: name {r['name']!r} repeats {names[r['name']]}'s, so it selects neither")
+        names[r["name"]] = r["keyword"]
 
 
 def main():
@@ -51,7 +59,7 @@ def main():
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
     table = sorted(rows(source.fetch(a.source, a.cache, "protocol-numbers-1.csv").decode("utf-8")), key=lambda r: int(r["number"]))
-    refuse_a_name_the_loader_would(table)
+    refuse_an_unselectable_row(table)
     tsv.write(a.out, COLUMNS, table)
 
 
