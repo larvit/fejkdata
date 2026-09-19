@@ -3,9 +3,8 @@
 
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-A method ships when the register cites the HTTP core specification for it, RFC 9110
-section 9.3 or RFC 5789, which is the nine a request carries; the register's other
-entries do not. The register's `yes` and `no` ship as `true` and `false`, which a
+A method ships when the register cites RFC 9110 section 9.3 or RFC 5789 for it, which
+is the eight HTTP defines and PATCH; the register's other entries do not. The register's `yes` and `no` ship as `true` and `false`, which a
 consumer's boolean reads.
 """
 import argparse
@@ -52,7 +51,7 @@ def main():
     a = p.parse_args()
     table = sorted(rows(source.fetch(a.source, a.cache, "http-methods.csv").decode("utf-8")), key=lambda r: r["method"])
     if len(table) != EXPECTED:
-        sys.exit(f"{len(table)} methods cite the core specification, not {EXPECTED}; the register's Reference column has moved")
+        sys.exit(f"{len(table)} methods cite RFC 9110 section 9.3 or RFC 5789, not {EXPECTED}; the register's Reference column has moved")
     tsv.write(a.out, COLUMNS, table)
 
 

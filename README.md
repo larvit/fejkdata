@@ -173,8 +173,8 @@ select a row; `car` and `useragent` carry no key or name, so they are drawn from
 than selected in.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
-`misc.httpmethod` is the nine methods the HTTP core specification defines; the
-register's other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
+`misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
+other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
 `idempotent` are `true` or `false`, so a Go `bool` reads them, though `--format json`
 and `sql` write them as text, a table column carrying no datatype. `misc.protocol`
 carries a `number` and a `name`, the keyword itself where the register spells none out,

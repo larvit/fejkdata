@@ -44,7 +44,7 @@ replacement, and each removed path, column or flag.
   `device` and `os` columns. `misc.car` keeps its makes and models in a `make` and a
   `model` column.
 - `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries as tables.
-  `misc.httpmethod` is the nine methods the HTTP core specification defines, carrying
+  `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH, carrying
   `safe` and `idempotent` as `true` or `false`; `misc.protocol` the keyword, its
   `number` and its `name`, selectable by either; `misc.port` renders a TCP port number,
   with the IANA `service` name beside it, keeping the first service the registry
