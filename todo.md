@@ -7,7 +7,7 @@ Ordered as the releases that ship it.
 ### Comprehension, until the panel scores 7.0
 
 Nothing else ships while the score is under 7.0 — no feature, no category, no data —
-bar a security fix and a dependency bump, per README goal 14. This section is one
+bar a security fix and a dependency bump, per README goal 2. This section is one
 round, replayed: the `comprehension-panel` skill's nine-seat findings run at depth 1,
 a PR per item it names, then the run again, until the score passes. The run is the
 nine-seat one: the round is meant to buy architectural change, and the four-seat
@@ -50,7 +50,7 @@ This round, in order:
 ### Data
 
 Shape: T = table, t = template, c = choice. Read every factual list from a register
-by a `data-import/` script, as README goal 11 asks.
+by a `data-import/` script, as README goal 12 asks.
 
 - Add the remaining `misc` tables and templates, one row of the table below per chunk.
 - Read `misc.emoji` from the Unicode `emoji-test.txt` register, and `misc.car` from an
@@ -63,16 +63,16 @@ by a `data-import/` script, as README goal 11 asks.
   `municipality` as columns on `geo.SE.address` too.
 - Fill the 398 Swedish localities weighted 200 from SCB småorter.
 - Give `url` and `email` a path that draws only domains nobody can register, keeping
-  the wide set as the default, per goal 13: 17 of the 40 distinct ones shipped today
+  the wide set as the default, per goal 14: 17 of the 40 distinct ones shipped today
   sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's
   `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost`
   provably reach nothing.
-- Audit the rest of the shipped set against goal 13 and give each a never-reaching
+- Audit the rest of the shipped set against goal 14 and give each a never-reaching
   path where it lacks one: `phone` draws live PTS and NANP ranges, `bankgiro`,
   `plusgiro` and `routing` draw live prefixes.
 - Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does
   not hold: ISO 3166 reserves it for Western Sahara and the root zone has never been
-  delegated it, so no resolver answers for it and goal 2 promises otherwise.
+  delegated it, so no resolver answers for it and goal 3 promises otherwise.
 - Draw `en_US.phone`'s `exch` as a NANP central office code: `{int(100,999)}` renders
   a leading 1 in about an eighth of draws, which libphonenumber rejects, and
   `TestShippedUSPhone` proves the shape rather than the rule. Assert the rule with it.
@@ -91,7 +91,7 @@ by a `data-import/` script, as README goal 11 asks.
   beside the family: require the path step to reach a sibling category, and seed every
   draw group of the render from the outer selector's pins.
 - Read `email.local`'s and `username`'s handles from the shipped name tables, which
-  goal 11 asks for and the hand-written list they use today does not meet. Keep the
+  goal 12 asks for and the hand-written list they use today does not meet. Keep the
   handle shape: `username` shortens a surname to `ahl` or `sjo`, and the US one draws
   unisex given names, neither of which falls out of the tables unaided.
 - Decide whether `email.local` and `username` share one list: a reference between
@@ -177,7 +177,7 @@ by a `data-import/` script, as README goal 11 asks.
   path is `gitea.larvit.se/larvit/fejkdata`, a developer looking for a fake-data
   library searches GitHub and pkg.go.dev, and a module path is a major to change.
 - Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
-  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 12 promises
+  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 13 promises
   the directory keeps growing.
 - Decide whether `misc.browser` becomes a parent of `misc.useragent`, so
   `misc.browser[Chrome].useragent` resolves. Adding a `parent` after v0.1.0 breaks a

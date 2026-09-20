@@ -806,51 +806,52 @@ the Development section below, and who ships a register the four above then draw
    worth switching to, and every goal below it is what that costs. Merit is only
    half the goal: once the grammar, the data and the CLI are complete and stable,
    it ships where those developers install from and is announced where they read.
-2. **Valid by construction** — every value passes the check its real consumer
+2. **Understanding the code is part of the product** — it is a compiler with static
+   fences behind a small API, it will grow, and the people who extend it will not be
+   the people who wrote it. So reading cost is judged alongside behaviour: reaching
+   the unit behind a symptom without asking a person, changing one piece without
+   holding the rest, names that tell the truth, and a file that stands with no second
+   document open beside it. A simulated reader panel scores those four, the score is a
+   ratchet no release lowers, and [`AGENTS.md`](AGENTS.md) says what each pull request
+   owes it.
+3. **Valid by construction** — every value passes the check its real consumer
    applies; facts that belong together come from one draw, within a value and
    across categories.
-3. **Text means what it says** — a format renders as written; only `{…}` varies,
+4. **Text means what it says** — a format renders as written; only `{…}` varies,
    random characters included (`{digits(3)}`). One spelling per result; the wrong
    one is a load error naming the right one.
-4. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
+5. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
    the inline template; on a loaded generator `Fake` fails only for an unknown
    path, `FakeStruct` only for a non-struct argument or a type its tags do not
    describe, with the same error every call, and `Template.Fake` cannot fail at all.
-5. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
+6. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
-6. **Data lives in JSON** — a builtin only for what data can't express.
-7. **Reproducible** — seed in, same stream out; no builtin reads a clock.
-8. **Zero dependencies** — standard library only.
-9. **Docs index the grammar** — every syntax feature is a heading; every example
-   runs under test and shows its output; a rule is stated once.
-10. **Fast enough to be free** — a value renders in about a microsecond and `New`
+7. **Data lives in JSON** — a builtin only for what data can't express.
+8. **Reproducible** — seed in, same stream out; no builtin reads a clock.
+9. **Zero dependencies** — standard library only.
+10. **Docs index the grammar** — every syntax feature is a heading; every example
+    runs under test and shows its output; a rule is stated once.
+11. **Fast enough to be free** — a value renders in about a microsecond and `New`
     parses and validates the whole set once upfront, so generating fixtures stays
     noise against a test's own runtime.
-11. **Data is sourced, or on its way there** — a shipped fact, a name, place,
+12. **Data is sourced, or on its way there** — a shipped fact, a name, place,
     code, id or classification, is read from a register or open dataset by a
     [`data-import/`](data-import) script wherever one exists to read; where none
     does yet a small hand-written set ships and [`todo.md`](todo.md) carries the
     step that replaces it. Only non-factual copy stays authored. A sourced table
     holds the rows its source holds: none is added by hand, and one is dropped
     only by a rule the script states.
-12. **Breadth follows what most systems store** — a category is added in proportion
+13. **Breadth follows what most systems store** — a category is added in proportion
     to how many real schemas hold it: names, addresses, phones, ids, money and
     timestamps before anything domain-specific, and a catalogue serving one niche
     waits behind everything serving many.
-13. **Realism is the default, inertness is selectable** — where a value could reach
+14. **Realism is the default, inertness is selectable** — where a value could reach
     something real, a domain anyone may register or an account a bank could issue,
     the realistic breadth ships *and* so does the subset that provably reaches
     nothing, each on its own path. A fixture that looks nothing like production
     tests nothing; the caller who needs a value that can touch nothing asks for it
     by name.
-14. **A cold reader lands in the right place** — the code is judged on what it costs
-    to read, not only on what it does: reaching the unit behind a symptom without
-    asking a person, changing one piece without holding the rest, a layout whose
-    names tell the truth, and a file that stands with no second document open beside
-    it. A simulated reader panel scores those four, the score is a ratchet no release
-    lowers, and [`AGENTS.md`](AGENTS.md) says how each pull request answers to it.
-
 ## Decisions
 
 - **Options and fields share one namespace.** `format`, `weight`, `repeat`,
@@ -1248,7 +1249,7 @@ the Development section below, and who ships a register the four above then draw
   fejkdata has no business making.
 - **`misc.loglevel` is a table keyed by the code, rendering POSIX's keyword.** A flat
   list of names carries neither the code a PRI encodes nor a selector reaching it, and
-  goal 2 draws the two as one fact. The canonical spelling losing to the one its domain
+  goal 3 draws the two as one fact. The canonical spelling losing to the one its domain
   writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
   `Informational` stays the `severity` column, and the code and the keyword hold the
   two selector slots.
@@ -1258,7 +1259,7 @@ the Development section below, and who ships a register the four above then draw
   host with no separator. `misc.tld[se]` misses for it, which `todo.md` carries.
 - **`misc.tld` is a table of its own, and `misc.territory.tld` stays a column.** A
   `parent` demands a child for every parent row, so linking them would drop every root
-  zone row naming no territory, which is most of them, and goal 11 holds a sourced
+  zone row naming no territory, which is most of them, and goal 12 holds a sourced
   table whole. The loader refuses the link outright anyway: `tld` is a column of
   `misc.territory`, and a table may not be named like a column of its ancestor.
 - **`misc.territory` carries a currency code, it does not link to `misc.currency`.**
