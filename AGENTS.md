@@ -11,6 +11,10 @@
 - Gitea queues Actions runs that `/repos/{owner}/{repo}/actions/tasks` does not
   list, so an empty task list says nothing about whether CI ran; read
   `/repos/{owner}/{repo}/commits/<sha>/status`.
+- Every pull request scores with the `comprehension-panel` skill's four-seat run at
+  depth 1 and answers it in the same PR, per README goal 13: at or above 7.0, address
+  the findings in one run; below it, fix what the panel names within this PR's reach
+  and re-score, looping while the score climbs. No merge lowers the last score.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - A standing choice a reader would relitigate goes under Decisions in the README, not in a comment.

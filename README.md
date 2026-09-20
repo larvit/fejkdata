@@ -839,6 +839,12 @@ the Development section below, and who ships a register the four above then draw
     nothing, each on its own path. A fixture that looks nothing like production
     tests nothing; the caller who needs a value that can touch nothing asks for it
     by name.
+13. **A cold reader lands in the right place** — the code is judged on what it costs
+    to read, not only on what it does: reaching the unit behind a symptom without
+    asking a person, changing one piece without holding the rest, a layout whose
+    names tell the truth, and a file that stands with no second document open beside
+    it. A simulated reader panel scores those four, the score is a ratchet no release
+    lowers, and [`AGENTS.md`](AGENTS.md) says how each pull request answers to it.
 
 ## Decisions
 
