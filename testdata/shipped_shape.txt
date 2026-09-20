@@ -274,6 +274,10 @@ misc.timezone.offset	string
 misc.timezone.territory	string
 misc.timezone.weight	string
 misc.timezone.zone	string
+misc.tld	format "{tld}"	key tld	name unicode
+misc.tld.tld	string
+misc.tld.type	string
+misc.tld.unicode	string
 misc.useragent	format "{ua}"
 misc.useragent.browser	string
 misc.useragent.device	string
