@@ -4,6 +4,40 @@ Ordered as the releases that ship it.
 
 ## v0.1.0
 
+### Reading the fence layer
+
+Nine readers scored the project 5.9 of 10 — Navigation 7.0, Locality 5.2, Shape 5.9,
+Self-sufficiency 5.7 — and eight of them capped on Locality or Self-sufficiency. Every
+one put `hold.go`, `draw.go` and `family.go` first for reading cost: 1,138 lines in
+which each file carries both a load-time fence and render-time machinery, so no file
+name says whether a unit runs at `New` or at `Fake`. One chunk per item, in this order.
+
+- Define the fence vocabulary where a reader of the code meets it: fence, hold, pin,
+  draw, draw group, expansion against render, family, whole. It exists only across five
+  README sections today, and every reader paid for it before the three files read at all.
+- Say on the `template` struct which pass fills which field, and that `compileFormat`
+  runs a second time once `linkTemplateRefs` binds the references: nine of its fields
+  are written by four other files, and the order lives only in `loadData`'s body.
+- State on `rowSet` that it simulates `(*draws).pin` and `rowOf`, and prove the two
+  agree with a test: the load-time walk reimplements the render-time pinning, nothing
+  catches them drifting, and the failure is data that loads and then renders a family
+  that disagrees.
+- Put `draws` and its methods in one file: it is declared in `hold.go:262` and all
+  eight of its methods sit in `family.go`, so a jump to the type lands where none of
+  the behaviour is.
+- Split `hold.go`, `draw.go` and `family.go` so each file holds one phase, the
+  load-time fences apart from the render-time machinery, changing no logic.
+- Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go` and refresh the
+  README Layout lines for `graph.go` and `data.go`: the order every load fence runs in
+  is the load path's spine, and no file name carries it.
+- Name the `draw` stem apart: the free `pinned` in `hold.go` is not `(*draws).pinned`
+  in `family.go`, `compileFormat` is a method on both `*template` and `*table`, and
+  `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`, `drawVisit` and
+  `drawRoute` no longer tell each other apart.
+- Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
+  hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
+  if the difference is deliberate.
+
 ### Data
 
 Shape: T = table, t = template, c = choice. Read every factual list from a register
@@ -122,34 +156,6 @@ by a `data-import/` script, as README goal 10 asks.
   on the leading dot its keys carry rather than on case, and `misc.loglevel[Error]`
   misses although a column carries `Error`, so the near miss is worth naming whatever
   shape it takes.
-- Split `hold.go`, `draw.go` and `family.go` by the phase each half runs in: every
-  one holds both a load-time fence and render-time machinery, `draws` is declared in
-  `hold.go` with its methods in `family.go`, and a reader cannot tell from a file name
-  whether a unit runs at `New` or at `Fake`. A comprehension panel of nine readers put
-  this cluster first for reading cost, unanimously.
-- Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go`, whose README
-  Layout line promises edges, cycles, the repeat bound and walks: the order every load
-  fence runs in is the load path's spine and no file name carries it.
-- Name the `draw` stem apart: the free `pinned` in `hold.go` is not `(*draws).pinned`
-  in `family.go`, `compileFormat` is a method on both `*template` and `*table`, and
-  `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`, `drawVisit` and
-  `drawRoute` no longer tell each other apart.
-- Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
-  hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
-  if the difference is deliberate.
-- Say on the `template` struct which pass fills which field, and that `compileFormat`
-  runs a second time once `linkTemplateRefs` binds the references: nine of its fields
-  are written by four other files and the order lives only in `loadData`'s body.
-- State on `rowSet` that it simulates `(*draws).pin` and `rowOf`, and prove the two
-  agree: the load-time walk reimplements the render-time pinning, and nothing catches
-  them drifting apart — the failure is data that loads and then renders a family that
-  disagrees.
-- Define the vocabulary the fences are written in — fence, hold, pin, draw, draw group,
-  expansion against render, family, whole — where a reader of `hold.go` meets it. Today
-  it exists only across five README sections, and every panel reader paid for it first.
-- Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
-  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 11 promises
-  the directory keeps growing.
 - Let a table column carry a `datatype`, so `--format json` writes
   `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
   a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
@@ -158,6 +164,9 @@ by a `data-import/` script, as README goal 10 asks.
 
 ### Open questions to settle
 
+- Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
+  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 11 promises
+  the directory keeps growing.
 - Decide whether `misc.browser` becomes a parent of `misc.useragent`, so
   `misc.browser[Chrome].useragent` resolves. Adding a `parent` after v0.1.0 breaks a
   consumer, so it rides a 0.(x+1).0.
