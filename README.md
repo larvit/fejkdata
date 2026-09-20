@@ -270,7 +270,7 @@ f, err := fejkdata.New(fejkdata.WithSeed(42))
 if err != nil {
 	log.Fatal(err)
 }
-v, err := f.Fake("sv_SE.address") // "Kungsvägen 68\n379 17 Stockholm"
+v, err := f.Fake("sv_SE.address") // "Järvedsvägen 43\n891 77 Järved"
 paths := f.List()                  // every path Fake accepts, sorted
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
@@ -1280,6 +1280,38 @@ the Development section below, and who ships a register the four above then draw
   through a chain of five tables is every subsequence of it, and the direct chain is
   the one a reader can predict from the tables' parents.
 
+## Layout
+
+```
+fejkdata.go     Generator, New, options, the embedded data set, List
+node.go         the node model and JSON -> node compilation
+table.go        tables: the rows TSV, its options and links, row selection and draws
+path.go         the dotted-path walk with its selectors, and proving a path resolves
+render.go       Fake and the recursive renderer (choices, format strings, expansions)
+record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
+struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
+template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
+hold.go         the hold: one draw per expansion for paths and operands, and its fences
+draw.go         one reference draw per render and group: draw sets, the group option, and its fence
+family.go       a family of linked tables: the rows a render pins, and the fence over paths into one family
+reference.go    reference sigils, and binding references across the tree
+graph.go        the render graph: edges, cycles, the repeat bound, tree walks
+builtins.go     the {name()} function registry and its implementations
+layout.go       date and time layouts: the instants one is proved against, and the two samples
+checksum.go     the check characters a derivation appends, and the IBAN they sit inside
+transform.go    the builtins that rewrite an operand's value, and the ASCII folding
+calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
+datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
+value.go        the value proof: what a typed column or calc operand holds, checked at load
+data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
+cmd/fejkdata/   the fejkdata CLI
+data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
+data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
+release-tooling/ the release CI publishes from the changelog heading
+testdata/       the pinned shipped shape (see Versioning)
+```
+
 ## Development
 
 Everything runs in Docker — **no local tooling beyond Docker is needed**.
@@ -1366,38 +1398,6 @@ To release, head `CHANGELOG.md` with the version's section in place of `Unreleas
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the Gitea release with the section as its body. A top heading of `[Unreleased]`
 publishes nothing.
-
-## Layout
-
-```
-fejkdata.go     Generator, New, options, the embedded data set, List
-node.go         the node model and JSON -> node compilation
-table.go        tables: the rows TSV, its options and links, row selection and draws
-path.go         the dotted-path walk with its selectors, and proving a path resolves
-render.go       Fake and the recursive renderer (choices, format strings, expansions)
-record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
-struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
-template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
-hold.go         the hold: one draw per expansion for paths and operands, and its fences
-draw.go         one reference draw per render and group: draw sets, the group option, and its fence
-family.go       a family of linked tables: the rows a render pins, and the fence over paths into one family
-reference.go    reference sigils, and binding references across the tree
-graph.go        the render graph: edges, cycles, the repeat bound, tree walks
-builtins.go     the {name()} function registry and its implementations
-layout.go       date and time layouts: the instants one is proved against, and the two samples
-checksum.go     the check characters a derivation appends, and the IBAN they sit inside
-transform.go    the builtins that rewrite an operand's value, and the ASCII folding
-calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
-datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
-value.go        the value proof: what a typed column or calc operand holds, checked at load
-data.go         data loading: fs.FS folders/files -> namespace tree, multi-source merge
-cmd/fejkdata/   the fejkdata CLI
-data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
-data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
-release-tooling/ the release CI publishes from the changelog heading
-testdata/       the pinned shipped shape (see Versioning)
-```
 
 ## License
 

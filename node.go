@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-// node is a compiled template element: a choice or a template. Compiling JSON
-// into these once (see compile) means rendering never re-inspects the raw JSON or
-// re-sums weights.
+// node is a compiled element of the namespace tree: a folder, choice, null,
+// template, table, column or row. Compiling JSON into these once (see compile)
+// means rendering never re-inspects the raw JSON or re-sums weights.
 type node interface{ isNode() }
 
 // folder is a namespace of named children, built from a directory of JSON files

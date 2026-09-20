@@ -5,8 +5,8 @@
 // then generate values by path:
 //
 //	f, _ := fejkdata.New(fejkdata.WithSeed(42))
-//	f.Fake("sv_SE.address")          // "Storgatan 12\n234 56 Göteborg"
-//	f.Fake("sv_SE.address.locality") // "Göteborg"
+//	f.Fake("sv_SE.address")          // "Järvedsvägen 43\n891 77 Järved"
+//	f.Fake("sv_SE.address.locality") // "Sundbyberg": a second call draws afresh
 //
 // Several sources merge in order, the last winning a name clash, so custom data
 // layers over the built-ins. The JSON template format is documented in the README.
@@ -29,8 +29,8 @@ import (
 //go:embed data
 var shippedFS embed.FS
 
-// MaxRepeat caps a repeat, and the renders nested repeats multiply to along any
-// path; the CLI's --repeat shares it.
+// MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
+// any one path; the CLI's --repeat shares it.
 const MaxRepeat = 1 << 20
 
 var _ [^uint(0)>>63 - 1]struct{} // 64-bit only, per the README's Decisions
@@ -40,8 +40,8 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 
 // Generator generates fake data from a loaded namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
-// from one goroutine. The compiled tree is immutable after [New], and Fake,
-// NewTemplate and List read it concurrently without a lock.
+// from one goroutine. The compiled tree is immutable after [New], so List reads it
+// without a lock; mu guards the rest, which every other entry point takes.
 type Generator struct {
 	mu         sync.Mutex
 	rand       *session

@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// rng is the randomness the renderer draws from. Passing it in keeps the render
-// functions a pure core over an explicit effect; *rand.Rand satisfies it.
+// rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
+// render path takes the concrete *session instead, for the reason below.
 type rng interface {
 	IntN(n int) int
 	Float64() float64

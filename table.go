@@ -23,7 +23,7 @@ type table struct {
 	whole    *row            // the pinned row rendered by the format
 	cells    []string        // rows × columns, flat
 	tokens   map[int]*template
-	key      int // column index, or -1
+	key      int // key, name, weight and parent are column indexes, or -1
 	name     int
 	weight   int
 	parent   int

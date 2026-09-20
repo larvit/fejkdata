@@ -30,6 +30,15 @@ by a `data-import/` script, as README goal 10 asks.
 - Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does
   not hold: ISO 3166 reserves it for Western Sahara and the root zone has never been
   delegated it, so no resolver answers for it and goal 1 promises otherwise.
+- Draw `en_US.phone`'s `exch` as a NANP central office code: `{int(100,999)}` renders
+  a leading 1 in about an eighth of draws, which libphonenumber rejects, and
+  `TestShippedUSPhone` proves the shape rather than the rule. Assert the rule with it.
+- Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop
+  drawing birthdates that reach 100: the format hard-codes `-`, and the 1930 floor
+  makes the oldest draws invalid from 2031.
+- Settle `en_US.ip` and `sv_SE.ip`, today byte-identical: either one `misc.ip` as the
+  decision "`misc` is what every locale shares" asks, or a decision saying why an
+  address that carries no locale stays per-locale.
 - Accept a middle name, and draw a shipped `personnummer` inside a *selected* sex;
   both want a draw group sharing its family's pins. Stop the conflict error naming a
   rewrite that returns a different value where the read it conflicts with sits inside
@@ -113,6 +122,34 @@ by a `data-import/` script, as README goal 10 asks.
   on the leading dot its keys carry rather than on case, and `misc.loglevel[Error]`
   misses although a column carries `Error`, so the near miss is worth naming whatever
   shape it takes.
+- Split `hold.go`, `draw.go` and `family.go` by the phase each half runs in: every
+  one holds both a load-time fence and render-time machinery, `draws` is declared in
+  `hold.go` with its methods in `family.go`, and a reader cannot tell from a file name
+  whether a unit runs at `New` or at `Fake`. A comprehension panel of nine readers put
+  this cluster first for reading cost, unanimously.
+- Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go`, whose README
+  Layout line promises edges, cycles, the repeat bound and walks: the order every load
+  fence runs in is the load path's spine and no file name carries it.
+- Name the `draw` stem apart: the free `pinned` in `hold.go` is not `(*draws).pinned`
+  in `family.go`, `compileFormat` is a method on both `*template` and `*table`, and
+  `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`, `drawVisit` and
+  `drawRoute` no longer tell each other apart.
+- Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
+  hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
+  if the difference is deliberate.
+- Say on the `template` struct which pass fills which field, and that `compileFormat`
+  runs a second time once `linkTemplateRefs` binds the references: nine of its fields
+  are written by four other files and the order lives only in `loadData`'s body.
+- State on `rowSet` that it simulates `(*draws).pin` and `rowOf`, and prove the two
+  agree: the load-time walk reimplements the render-time pinning, and nothing catches
+  them drifting apart — the failure is data that loads and then renders a family that
+  disagrees.
+- Define the vocabulary the fences are written in — fence, hold, pin, draw, draw group,
+  expansion against render, family, whole — where a reader of `hold.go` meets it. Today
+  it exists only across five README sections, and every panel reader paid for it first.
+- Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
+  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 11 promises
+  the directory keeps growing.
 - Let a table column carry a `datatype`, so `--format json` writes
   `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
   a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
