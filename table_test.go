@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"unicode"
 )
 
 // writeFiles writes a data directory from a map of relative file name, extension
@@ -833,6 +834,30 @@ func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
 		}
 		if w, err := strconv.Atoi(r[head["weight"]]); err != nil || w < 1 {
 			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", i+2, r[head["weight"]])
+		}
+	}
+}
+
+// TestEveryTldRowSpellsItsKey scans the file rather than drawing: 100 draws leave
+// most of 1438 rows unrendered, and the register wraps a right-to-left label in bidi
+// marks that belong to its display, not to the label.
+func TestEveryTldRowSpellsItsKey(t *testing.T) {
+	head, rows := shippedRows(t, "tld.tsv", "tld", "type", "unicode")
+	types := map[string]bool{"country-code": true, "generic": true, "generic-restricted": true, "infrastructure": true, "sponsored": true}
+	for i, r := range rows {
+		key, kind, shown := r[head["tld"]], r[head["type"]], r[head["unicode"]]
+		if !types[kind] {
+			t.Errorf("tld.tsv line %d: %s is typed %q, which the register assigns no TLD", i+2, key, kind)
+		}
+		for _, c := range shown {
+			if unicode.Is(unicode.Cf, c) {
+				t.Errorf("tld.tsv line %d: %s displays %q, carrying the format character %U", i+2, key, shown, c)
+			}
+		}
+		if idn := strings.HasPrefix(key, ".xn--"); idn && shown == key {
+			t.Errorf("tld.tsv line %d: the IDN %s displays its A-label, not a Unicode form", i+2, key)
+		} else if !idn && shown != key {
+			t.Errorf("tld.tsv line %d: the ASCII TLD %s displays %q", i+2, key, shown)
 		}
 	}
 }
