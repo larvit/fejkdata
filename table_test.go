@@ -716,6 +716,13 @@ func TestShippedTables(t *testing.T) {
 		"port[465].service":                     "urd",
 		"port[2049].service":                    "nfs",
 		"protocol[Transmission Control].number": "6",
+		"tld[.se]":                              ".se",
+		"tld[.se].type":                         "country-code",
+		"tld[.com].type":                        "generic",
+		"tld[.museum].type":                     "sponsored",
+		"tld[.arpa].type":                       "infrastructure",
+		"tld[.рф]":                              ".xn--p1ai",
+		"tld[.xn--p1ai].unicode":                ".рф",
 		"territory[NP].timezone.offset":         "+05:45",
 	} {
 		if got := fake(t, f, path); got != want {
