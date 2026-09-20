@@ -5,8 +5,8 @@
 
 Table 2 is the whole set, read between the facility table's caption and its own. The
 keyword is POSIX's severity macro less its `LOG_` prefix, lowercased, taken in the
-order POSIX lists them, which `LOG_UPTO` states is the severity order; each must be a
-prefix of the severity RFC 5424 numbers alike, so the two sources pin one pairing.
+order POSIX lists them; each must be a prefix of the severity RFC 5424 numbers alike,
+so the two sources pin one pairing.
 """
 import argparse
 import html
@@ -24,7 +24,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "keyword", "severity"]
 TABLE = re.compile(r"Table 1\.\s+Syslog Message Facilities(.*?)Table 2\.\s+Syslog Message Severities", re.S)
 ROW = re.compile(r"^ +(\d) +([A-Z][a-z]+): ", re.M)
-SEVERITIES = re.compile(r"severity level portion of the.*?macros:(.*?)The following shall be declared as functions", re.S)
+SECTION = re.compile(r"severity level portion of the.*?macros:(.*?)The following shall be declared as functions", re.S)
 MACRO = re.compile(r"\bLOG_([A-Z]+)\b")
 EXPECTED = 8
 
@@ -37,7 +37,7 @@ def severities(text):
 
 
 def keywords(page):
-    section = SEVERITIES.search(html.unescape(re.sub(r"<[^>]+>", "", page)))
+    section = SECTION.search(html.unescape(re.sub(r"<[^>]+>", "", page)))
     if not section:
         sys.exit("POSIX spells no severity list between its own caption and the function declarations; the page has moved")
     return [m.lower() for m in MACRO.findall(section.group(1))]

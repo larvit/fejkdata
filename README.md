@@ -1237,7 +1237,7 @@ the Development section below, and who ships a register the four above then draw
 - **`misc.loglevel` is a table keyed by the code, rendering POSIX's keyword.** A flat
   list of names carries neither the code a PRI encodes nor a selector reaching it, and
   goal 1 draws the two as one fact. RFC 5424 spells the severity `Informational`,
-  which no syslog, PSR-3 or `slog` checker accepts, so the shipped spelling is the one
+  which no syslog checker accepts, so the shipped spelling is the one
   a configuration writes, `info`, and the RFC's name stays the `severity` column. The
   code and the keyword take the two selector slots, so `misc.loglevel[Error]` misses.
 - **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**

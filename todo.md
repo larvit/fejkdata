@@ -110,8 +110,9 @@ by a `data-import/` script, as README goal 10 asks.
   `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
   and stop there, where a case-insensitive match could name the row that exists, and a
   table with no `name` column could say it selects by key alone. `misc.tld[se]` misses
-  on the leading dot its keys carry rather than on case, so the near miss is worth
-  naming whatever shape it takes.
+  on the leading dot its keys carry rather than on case, and `misc.loglevel[Error]`
+  although the table carries `Error` in a column, so the near miss is worth naming
+  whatever shape it takes.
 - Let a table column carry a `datatype`, so `--format json` writes
   `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
   a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
