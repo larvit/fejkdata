@@ -11,7 +11,7 @@
 - Gitea queues Actions runs that `/repos/{owner}/{repo}/actions/tasks` does not
   list, so an empty task list says nothing about whether CI ran; read
   `/repos/{owner}/{repo}/commits/<sha>/status`.
-- README goal 13 is gated at 7.0 on the `comprehension-panel` skill, and below it
+- README goal 14 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix and a
   dependency bump. `todo.md` carries the round: the nine-seat findings run at depth 1,
   a PR per item it names, then the run again, until the score passes. At or above 7.0

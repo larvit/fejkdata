@@ -801,45 +801,50 @@ the Development section below, and who ships a register the four above then draw
 
 ## Goals
 
-1. **Valid by construction** — every value passes the check its real consumer
+1. **The best fake-data tool available, and used because it is** — a developer
+   choosing a seed-data library or CLI, in any language, should find this the one
+   worth switching to, and every goal below it is what that costs. Merit is only
+   half the goal: once the grammar, the data and the CLI are complete and stable,
+   it ships where those developers install from and is announced where they read.
+2. **Valid by construction** — every value passes the check its real consumer
    applies; facts that belong together come from one draw, within a value and
    across categories.
-2. **Text means what it says** — a format renders as written; only `{…}` varies,
+3. **Text means what it says** — a format renders as written; only `{…}` varies,
    random characters included (`{digits(3)}`). One spelling per result; the wrong
    one is a load error naming the right one.
-3. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
+4. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
    the inline template; on a loaded generator `Fake` fails only for an unknown
    path, `FakeStruct` only for a non-struct argument or a type its tags do not
    describe, with the same error every call, and `Template.Fake` cannot fail at all.
-4. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
+5. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
-5. **Data lives in JSON** — a builtin only for what data can't express.
-6. **Reproducible** — seed in, same stream out; no builtin reads a clock.
-7. **Zero dependencies** — standard library only.
-8. **Docs index the grammar** — every syntax feature is a heading; every example
+6. **Data lives in JSON** — a builtin only for what data can't express.
+7. **Reproducible** — seed in, same stream out; no builtin reads a clock.
+8. **Zero dependencies** — standard library only.
+9. **Docs index the grammar** — every syntax feature is a heading; every example
    runs under test and shows its output; a rule is stated once.
-9. **Fast enough to be free** — a value renders in about a microsecond and `New`
-   parses and validates the whole set once upfront, so generating fixtures stays
-   noise against a test's own runtime.
-10. **Data is sourced, or on its way there** — a shipped fact, a name, place,
+10. **Fast enough to be free** — a value renders in about a microsecond and `New`
+    parses and validates the whole set once upfront, so generating fixtures stays
+    noise against a test's own runtime.
+11. **Data is sourced, or on its way there** — a shipped fact, a name, place,
     code, id or classification, is read from a register or open dataset by a
     [`data-import/`](data-import) script wherever one exists to read; where none
     does yet a small hand-written set ships and [`todo.md`](todo.md) carries the
     step that replaces it. Only non-factual copy stays authored. A sourced table
     holds the rows its source holds: none is added by hand, and one is dropped
     only by a rule the script states.
-11. **Breadth follows what most systems store** — a category is added in proportion
+12. **Breadth follows what most systems store** — a category is added in proportion
     to how many real schemas hold it: names, addresses, phones, ids, money and
     timestamps before anything domain-specific, and a catalogue serving one niche
     waits behind everything serving many.
-12. **Realism is the default, inertness is selectable** — where a value could reach
+13. **Realism is the default, inertness is selectable** — where a value could reach
     something real, a domain anyone may register or an account a bank could issue,
     the realistic breadth ships *and* so does the subset that provably reaches
     nothing, each on its own path. A fixture that looks nothing like production
     tests nothing; the caller who needs a value that can touch nothing asks for it
     by name.
-13. **A cold reader lands in the right place** — the code is judged on what it costs
+14. **A cold reader lands in the right place** — the code is judged on what it costs
     to read, not only on what it does: reaching the unit behind a symptom without
     asking a person, changing one piece without holding the rest, a layout whose
     names tell the truth, and a file that stands with no second document open beside
@@ -1243,7 +1248,7 @@ the Development section below, and who ships a register the four above then draw
   fejkdata has no business making.
 - **`misc.loglevel` is a table keyed by the code, rendering POSIX's keyword.** A flat
   list of names carries neither the code a PRI encodes nor a selector reaching it, and
-  goal 1 draws the two as one fact. The canonical spelling losing to the one its domain
+  goal 2 draws the two as one fact. The canonical spelling losing to the one its domain
   writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
   `Informational` stays the `severity` column, and the code and the keyword hold the
   two selector slots.
@@ -1253,7 +1258,7 @@ the Development section below, and who ships a register the four above then draw
   host with no separator. `misc.tld[se]` misses for it, which `todo.md` carries.
 - **`misc.tld` is a table of its own, and `misc.territory.tld` stays a column.** A
   `parent` demands a child for every parent row, so linking them would drop every root
-  zone row naming no territory, which is most of them, and goal 10 holds a sourced
+  zone row naming no territory, which is most of them, and goal 11 holds a sourced
   table whole. The loader refuses the link outright anyway: `tld` is a column of
   `misc.territory`, and a table may not be named like a column of its ancestor.
 - **`misc.territory` carries a currency code, it does not link to `misc.currency`.**
