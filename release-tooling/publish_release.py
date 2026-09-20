@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Publish the Gitea release that CHANGELOG.md's top heading names, tagging SHA.
+"""Publish the release that CHANGELOG.md's top heading names, tagging SHA.
 
 A top heading of `[Unreleased]`, or a version already released, publishes nothing.
-Env: GITEA_API_URL, GITEA_REPOSITORY (owner/repo), GITEA_TOKEN, SHA.
+Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA.
 """
 
 import json
@@ -17,9 +17,9 @@ HEADING = re.compile(r"^## \[([^\]]+)\].*?$\n?(.*?)(?=^## \[|\Z)", re.M | re.S)
 
 def request(path: str, data: dict | None = None):
 	req = urllib.request.Request(
-		f"{os.environ['GITEA_API_URL']}/repos/{os.environ['GITEA_REPOSITORY']}/{path}",
+		f"{os.environ['FORGE_API_URL']}/repos/{os.environ['FORGE_REPOSITORY']}/{path}",
 		data=json.dumps(data).encode() if data else None,
-		headers={"Authorization": f"token {os.environ['GITEA_TOKEN']}", "Content-Type": "application/json"},
+		headers={"Authorization": f"token {os.environ['FORGE_TOKEN']}", "Content-Type": "application/json"},
 	)
 	with urllib.request.urlopen(req) as resp:
 		return json.load(resp)

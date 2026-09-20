@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitea.larvit.se/larvit/fejkdata"
+	"github.com/larvit/fejkdata"
 )
 
 const usage = `Usage: fejkdata [flags] <path|template>

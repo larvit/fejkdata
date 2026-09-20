@@ -5,7 +5,7 @@ it as a Go library or the CLI — no data on disk, no dependencies, and a seed m
 reproducible.
 
 ```sh
-go install gitea.larvit.se/larvit/fejkdata/cmd/fejkdata@latest
+go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 fejkdata sv_SE.person          # Sara Eriksson
 ```
 
@@ -262,7 +262,7 @@ Swedish region but `abbr` on a US one.
 ## Library
 
 ```sh
-go get gitea.larvit.se/larvit/fejkdata   # Go 1.22+
+go get github.com/larvit/fejkdata   # Go 1.22+
 ```
 
 ```go
@@ -854,6 +854,13 @@ the Development section below, and who ships a register the four above then draw
     by name.
 ## Decisions
 
+- **GitHub is canonical, and the module path names it.** Goal 1 wants the usage the
+  tool earns and goal 2 expects extenders who did not write it; both need a stranger
+  to file an issue and open a pull request. Gitea has no anonymous issue, and no
+  cross-host pull request at all, so a contributor would need an account and a fork on
+  a personal instance. Valid while the project wants contribution from outside: the
+  workflow decided nothing, being portable already — `github.api_url` and
+  `secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
 - **Options and fields share one namespace.** `format`, `weight`, `repeat`,
   `separator`, `datatype` and `drawGroup` are reserved; every other key is a field. Nesting fields under a
   key, or prefixing options, would tax every template to guard against a

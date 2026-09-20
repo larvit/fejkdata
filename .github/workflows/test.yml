@@ -51,7 +51,7 @@ jobs:
         run: docker build --build-arg GO_VERSION=1.22.12 .
 
   release:
-    name: Gitea release from CHANGELOG.md
+    name: Release from CHANGELOG.md
     needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-24.04
@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
       - run: python3 release-tooling/publish_release.py
         env:
-          GITEA_API_URL: ${{ github.api_url }}
-          GITEA_REPOSITORY: ${{ github.repository }}
-          GITEA_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORGE_API_URL: ${{ github.api_url }}
+          FORGE_REPOSITORY: ${{ github.repository }}
+          FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}

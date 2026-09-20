@@ -4,16 +4,11 @@
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change under `data/` or to the shape pin adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
-- Merges are fast-forward only, which `tea pr merge` cannot spell — every style it
-  offers fails with "is it still open?", as does a merge whose required checks are
-  still pending, so read the checks before believing the style is the problem. Use
-  `tea api /repos/{owner}/{repo}/pulls/<n>/merge -f Do=fast-forward-only`.
-- Gitea queues Actions runs that `/repos/{owner}/{repo}/actions/tasks` does not
-  list, so an empty task list says nothing about whether CI ran; read
-  `/repos/{owner}/{repo}/commits/<sha>/status`.
+- GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
+  only, `gh pr merge --rebase` where the branch is already on top of main.
 - README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
-  nothing else merges — no feature, no category, no data — bar a security fix and a
-  dependency bump. `todo.md` carries the round: the nine-seat findings run at depth 1,
+  nothing else merges — no feature, no category, no data — bar a security fix, a
+  dependency bump and the infrastructure the round itself runs on. `todo.md` carries the round: the nine-seat findings run at depth 1,
   a PR per item it names, then the run again, until the score passes. At or above 7.0
   every pull request scores with the four-seat run and answers it in one run. No merge
   lowers the last score.
