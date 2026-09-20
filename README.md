@@ -163,14 +163,14 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
 carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
-with its 639-2/T code), `mac`, `mimetype`, `objectid`, `port`, `protocol`,
-`territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and
-`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
-`misc.httpstatus.code` — which `--list` shows. `car`, `currency`, `httpmethod`,
-`httpstatus`, `language`, `mimetype`, `port`, `protocol`, `territory`, `timezone`,
-`tld` and `useragent` are [tables](#table), so `misc.territory[SE].capital` and
-`misc.currency[Euro].symbol` select a row; `car` and `useragent` carry no key or name,
-so they are drawn from rather than selected in.
+with its 639-2/T code), `loglevel` (RFC 5424), `mac`, `mimetype`, `objectid`, `port`,
+`protocol`, `territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root zone),
+`useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+`misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
+`currency`, `httpmethod`, `httpstatus`, `language`, `loglevel`, `mimetype`, `port`,
+`protocol`, `territory`, `timezone`, `tld` and `useragent` are [tables](#table), so
+`misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
+`useragent` carry no key or name, so they are drawn from rather than selected in.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -191,6 +191,9 @@ its `unicode` the form the register displays, `.рф` for `.xn--p1ai` and the ke
 for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--p1ai`. A
 draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
 a fixture needs one a reader recognises.
+`misc.loglevel` is RFC 5424's eight severities, keyed by the numerical code a syslog
+PRI carries and named by the severity, so `misc.loglevel[3]` and `misc.loglevel[Error]`
+are one row and `misc.loglevel.code` the number beside the name.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -1230,6 +1233,11 @@ the Development section below, and who ships a register the four above then draw
   every value names a row instead. A territory the register records no state for
   stands alone, which is `EH` alone, and naming one for it would be a claim
   fejkdata has no business making.
+- **`misc.loglevel` is a table keyed by the code, not a list of names.** A syslog
+  message carries the severity as the number inside its PRI, so the code and the name
+  are one fact and goal 1 draws them together. The `emerg`, `err` and `info` an
+  rsyslog config takes are BSD's spellings, which RFC 5424 writes nowhere, so shipping
+  them would be the hand-written mapping goal 10 keeps out of a sourced table.
 - **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**
   The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
   bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a
@@ -1339,6 +1347,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-u
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpmethod.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpstatus.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/language.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py

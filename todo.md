@@ -49,7 +49,6 @@ by a `data-import/` script, as README goal 10 asks.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
-| `loglevel` | c | RFC 5424 severities | facts |
 | `ip` v4 documentation ranges, private, CIDR; `ipv6` `2001:db8::/32`; `mac` locally administered | t | RFC 5737, 1918, 9637 | facts |
 | `creditcard` per network: IIN, length, CVV, expiry | T+t | network rules, `{luhn()}` | facts |
 | `bic`, `isin`, `cusip` | t | structure rules | facts |

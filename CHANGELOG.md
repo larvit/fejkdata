@@ -53,6 +53,9 @@ replacement, and each removed path, column or flag.
   leading dot, `.se` and `.xn--p1ai`, the register's `type` beside it, and a `unicode`
   column holding the form the register displays, so `misc.tld[.рф]` selects the row
   `.xn--p1ai` renders. A delegation the register marks "Not assigned" does not ship.
+- `misc.loglevel` is RFC 5424's severity table: the eight levels a syslog PRI encodes,
+  keyed by the numerical `code` and rendering the `severity` the RFC spells, so
+  `misc.loglevel[3]` and `misc.loglevel[Error]` select one row.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
