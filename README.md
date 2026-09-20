@@ -163,9 +163,9 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
 carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
-with its 639-2/T code), `loglevel` (RFC 5424), `mac`, `mimetype`, `objectid`, `port`,
-`protocol`, `territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root zone),
-`useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
+with its 639-2/T code), `loglevel` (syslog severity), `mac`, `mimetype`, `objectid`,
+`port`, `protocol`, `territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root
+zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
 `misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
 `currency`, `httpmethod`, `httpstatus`, `language`, `loglevel`, `mimetype`, `port`,
 `protocol`, `territory`, `timezone`, `tld` and `useragent` are [tables](#table), so
@@ -191,9 +191,10 @@ its `unicode` the form the register displays, `.рф` for `.xn--p1ai` and the ke
 for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--p1ai`. A
 draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
 a fixture needs one a reader recognises.
-`misc.loglevel` is RFC 5424's eight severities, keyed by the numerical code a syslog
-PRI encodes and named by the severity, so `misc.loglevel[3]` and `misc.loglevel[Error]`
-are one row and `misc.loglevel.code` the number beside the name.
+`misc.loglevel` is the eight syslog severities, rendering the keyword a configuration
+writes, `err` and `info`, keyed by the numerical code a PRI encodes and selectable by
+either, so `misc.loglevel[3]` and `misc.loglevel[err]` are one row.
+`misc.loglevel.severity` is the name RFC 5424 spells, `Error` beside `err`.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -1233,10 +1234,12 @@ the Development section below, and who ships a register the four above then draw
   every value names a row instead. A territory the register records no state for
   stands alone, which is `EH` alone, and naming one for it would be a claim
   fejkdata has no business making.
-- **`misc.loglevel` is a table keyed by the code, not a list of names.** A syslog
-  message carries the severity as the number its PRI encodes, so the code and the name
-  are one fact and goal 1 draws them together; a flat list of names would carry
-  neither the code nor a selector reaching it.
+- **`misc.loglevel` is a table keyed by the code, rendering POSIX's keyword.** A flat
+  list of names carries neither the code a PRI encodes nor a selector reaching it, and
+  goal 1 draws the two as one fact. RFC 5424 spells the severity `Informational`,
+  which no syslog, PSR-3 or `slog` checker accepts, so the shipped spelling is the one
+  a configuration writes, `info`, and the RFC's name stays the `severity` column. The
+  code and the keyword take the two selector slots, so `misc.loglevel[Error]` misses.
 - **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**
   The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
   bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a

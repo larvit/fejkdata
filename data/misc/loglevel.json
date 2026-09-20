@@ -1,1 +1,1 @@
-{ "format": "{severity}", "rows": "loglevel.tsv", "key": "code", "name": "severity" }
+{ "format": "{keyword}", "rows": "loglevel.tsv", "key": "code", "name": "keyword" }
