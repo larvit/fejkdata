@@ -1235,9 +1235,8 @@ the Development section below, and who ships a register the four above then draw
   fejkdata has no business making.
 - **`misc.loglevel` is a table keyed by the code, not a list of names.** A syslog
   message carries the severity as the number its PRI encodes, so the code and the name
-  are one fact and goal 1 draws them together. The `emerg`, `err` and `info` an
-  rsyslog config takes are BSD's spellings, which RFC 5424 writes nowhere, so shipping
-  them would be the hand-written mapping goal 10 keeps out of a sourced table.
+  are one fact and goal 1 draws them together; a flat list of names would carry
+  neither the code nor a selector reaching it.
 - **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**
   The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
   bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a
