@@ -733,7 +733,7 @@ func TestShippedTables(t *testing.T) {
 		"loglevel[5]":                           "Notice",
 		"loglevel[6]":                           "Informational",
 		"loglevel[7]":                           "Debug",
-		"loglevel[Informational].code":          "6",
+		"loglevel[Error].code":                  "3",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)

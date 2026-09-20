@@ -3,9 +3,7 @@
 
     data-import/loglevel.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-Table 2 is the whole set, read between the facility table's caption and its own. The
-RFC describes both tables for informational purposes, so a severity is what an
-originator writes rather than something a collector rejects.
+Table 2 is the whole set, read between the facility table's caption and its own.
 """
 import argparse
 import re

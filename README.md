@@ -192,7 +192,7 @@ for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--
 draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
 a fixture needs one a reader recognises.
 `misc.loglevel` is RFC 5424's eight severities, keyed by the numerical code a syslog
-PRI carries and named by the severity, so `misc.loglevel[3]` and `misc.loglevel[Error]`
+PRI encodes and named by the severity, so `misc.loglevel[3]` and `misc.loglevel[Error]`
 are one row and `misc.loglevel.code` the number beside the name.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
@@ -1234,7 +1234,7 @@ the Development section below, and who ships a register the four above then draw
   stands alone, which is `EH` alone, and naming one for it would be a claim
   fejkdata has no business making.
 - **`misc.loglevel` is a table keyed by the code, not a list of names.** A syslog
-  message carries the severity as the number inside its PRI, so the code and the name
+  message carries the severity as the number its PRI encodes, so the code and the name
   are one fact and goal 1 draws them together. The `emerg`, `err` and `info` an
   rsyslog config takes are BSD's spellings, which RFC 5424 writes nowhere, so shipping
   them would be the hand-written mapping goal 10 keeps out of a sourced table.
