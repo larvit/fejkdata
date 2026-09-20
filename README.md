@@ -194,7 +194,8 @@ a fixture needs one a reader recognises.
 `misc.loglevel` is the eight syslog severities, rendering the keyword a configuration
 writes, `err` and `info`, keyed by the numerical code a PRI encodes and selectable by
 either, so `misc.loglevel[3]` and `misc.loglevel[err]` are one row.
-`misc.loglevel.severity` is the name RFC 5424 spells, `Error` beside `err`.
+`misc.loglevel.severity` is the name RFC 5424 spells, `Error` beside `err`; it
+selects nothing, the code and the keyword do.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -761,7 +762,7 @@ a minor only adds, and a major is the only release that changes what exists.
 | Surface | Major | Minor |
 |---------|-------|-------|
 | Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another; change a table's key, name, weight or parent column, or remove a row | a path outside a record's columns, a locale, a value in a list, a row |
-| Records | remove, rename, retype or add a column; let a column be null | a record, as a new category |
+| Records (a table is one) | remove, rename, retype or add a column; let a column be null | a record, as a new category |
 | Data format | a fence: a spelling `New` rejects that it accepted; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
@@ -1236,10 +1237,10 @@ the Development section below, and who ships a register the four above then draw
   fejkdata has no business making.
 - **`misc.loglevel` is a table keyed by the code, rendering POSIX's keyword.** A flat
   list of names carries neither the code a PRI encodes nor a selector reaching it, and
-  goal 1 draws the two as one fact. RFC 5424 spells the severity `Informational`,
-  which no syslog checker accepts, so the shipped spelling is the one
-  a configuration writes, `info`, and the RFC's name stays the `severity` column. The
-  code and the keyword take the two selector slots, so `misc.loglevel[Error]` misses.
+  goal 1 draws the two as one fact. The canonical spelling losing to the one its domain
+  writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
+  `Informational` stays the `severity` column, and the code and the keyword hold the
+  two selector slots.
 - **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**
   The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
   bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a

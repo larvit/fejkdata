@@ -3,10 +3,9 @@
 
     data-import/loglevel.py [--source URL_OR_FILE] [--posix URL_OR_FILE] [--cache DIR] [--out FILE]
 
-Table 2 is the whole set, read between the facility table's caption and its own. The
-keyword is POSIX's severity macro less its `LOG_` prefix, lowercased, taken in the
-order POSIX lists them; each must be a prefix of the severity RFC 5424 numbers alike,
-so the two sources pin one pairing.
+Every severity in Table 2 ships, paired to POSIX's keywords by the order each source
+lists them, which holds only because a keyword prefixes the severity RFC 5424 numbers
+alike.
 """
 import argparse
 import html
