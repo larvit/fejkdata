@@ -173,9 +173,6 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
-- Decide where the module is found from, before goal 1's announcement: the import
-  path is `gitea.larvit.se/larvit/fejkdata`, a developer looking for a fake-data
-  library searches GitHub and pkg.go.dev, and a module path is a major to change.
 - Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
   path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 13 promises
   the directory keeps growing.
@@ -241,6 +238,9 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## Not release-bound
 
+- Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub or retire it:
+  Gitea converts a repository to a mirror only by re-creating it, so until that runs
+  the copy there is a second owner of one history and goes stale from this commit.
 - Stop `/cache` collecting root-owned files, which today every command documented
   without `--user` leaves for the next `--user` one to trip over, and which the README
   answers with a chown a reader has to repeat. Put `--user` on all of them, or give the
