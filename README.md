@@ -1230,6 +1230,10 @@ the Development section below, and who ships a register the four above then draw
   every value names a row instead. A territory the register records no state for
   stands alone, which is `EH` alone, and naming one for it would be a claim
   fejkdata has no business making.
+- **`misc.tld` keys carry the leading dot, where other tables key on a bare code.**
+  The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
+  bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a
+  host with no separator. `misc.tld[se]` misses for it, which `todo.md` carries.
 - **`misc.tld` is a table of its own, and `misc.territory.tld` stays a column.** A
   `parent` demands a child for every parent row, so linking them would drop every root
   zone row naming no territory, which is most of them, and goal 10 holds a sourced
