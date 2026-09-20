@@ -4,13 +4,22 @@ Ordered as the releases that ship it.
 
 ## v0.1.0
 
-### Reading the fence layer
+### Comprehension, until the panel scores 7.0
 
-Nine readers scored the project 5.9 of 10 — Navigation 7.0, Locality 5.2, Shape 5.9,
-Self-sufficiency 5.7 — and eight of them capped on Locality or Self-sufficiency. Every
-one put `hold.go`, `draw.go` and `family.go` first for reading cost: 1,138 lines in
+Nothing else ships while the score is under 7.0 — no feature, no category, no data —
+bar a security fix and a dependency bump, per README goal 13. This section is one
+round, replayed: the `comprehension-panel` skill's nine-seat findings run at depth 1,
+a PR per item it names, then the run again, until the score passes. The run is the
+nine-seat one: the round is meant to buy architectural change, and the four-seat
+scoring run names too little to steer one. A fresh run replaces the items below.
+
+Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
+Self-sufficiency 5.7), eight of nine seats capped by Locality or Self-sufficiency, all
+nine naming `hold.go`, `draw.go` and `family.go` first for reading cost: 1,138 lines in
 which each file carries both a load-time fence and render-time machinery, so no file
-name says whether a unit runs at `New` or at `Fake`. One chunk per item, in this order.
+name says whether a unit runs at `New` or at `Fake`.
+
+This round, in order:
 
 - Define the fence vocabulary where a reader of the code meets it: fence, hold, pin,
   draw, draw group, expansion against render, family, whole. It exists only across five
