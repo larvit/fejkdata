@@ -119,6 +119,8 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		"protocol":              regexp.MustCompile(`^\S+( \S+)*$`),
 		"protocol.name":         regexp.MustCompile(`\S`),
 		"protocol.number":       regexp.MustCompile(`^\d{1,3}$`),
+		"loglevel":              regexp.MustCompile(`^(Alert|Critical|Debug|Emergency|Error|Informational|Notice|Warning)$`),
+		"loglevel.code":         regexp.MustCompile(`^[0-7]$`),
 		"tld":                   regexp.MustCompile(`^\.[a-z0-9]([a-z0-9-]*[a-z0-9])?$`),
 		"tld.type":              regexp.MustCompile(`^(country-code|generic|generic-restricted|infrastructure|sponsored)$`),
 		"tld.unicode":           regexp.MustCompile(`^\.\S+$`),

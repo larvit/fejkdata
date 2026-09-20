@@ -725,6 +725,15 @@ func TestShippedTables(t *testing.T) {
 		"tld[.рф]":                              ".xn--p1ai",
 		"tld[.xn--p1ai].unicode":                ".рф",
 		"territory[NP].timezone.offset":         "+05:45",
+		"loglevel[0]":                           "Emergency",
+		"loglevel[1]":                           "Alert",
+		"loglevel[2]":                           "Critical",
+		"loglevel[3]":                           "Error",
+		"loglevel[4]":                           "Warning",
+		"loglevel[5]":                           "Notice",
+		"loglevel[6]":                           "Informational",
+		"loglevel[7]":                           "Debug",
+		"loglevel[Informational].code":          "6",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
