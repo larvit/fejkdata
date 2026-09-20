@@ -240,8 +240,9 @@ misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
 misc.language.name	string
-misc.loglevel	format "{severity}"	key code	name severity
+misc.loglevel	format "{keyword}"	key code	name keyword
 misc.loglevel.code	string
+misc.loglevel.keyword	string
 misc.loglevel.severity	string
 misc.mac	format "{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}:{hex(2)}"
 misc.mimetype	format "{type}"	key type	name ext
