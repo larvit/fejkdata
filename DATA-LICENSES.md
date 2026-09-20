@@ -24,6 +24,7 @@ Every shipped dataset, its source, its licence and the attribution it asks for. 
 | `misc/protocol.tsv` | [IANA Protocol Numbers](https://www.iana.org/assignments/protocol-numbers/) | [public domain](https://www.iana.org/help/licensing-terms) | none required | `data-import/protocol.py` |
 | `misc/territory.tsv` | [datasets/country-codes](https://github.com/datasets/country-codes) | [PDDL 1.0](https://opendatacommons.org/licenses/pddl/1-0/) | none required | `data-import/territory.py` |
 | `misc/timezone.tsv` | [IANA tzdb](https://www.iana.org/time-zones) 2026d `zone.tab` and the standard offset of each zone; weights from [GeoNames](https://www.geonames.org/) `cities15000` populations | [public domain](https://data.iana.org/time-zones/tzdb/LICENSE); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | "Populations from GeoNames, www.geonames.org" | `data-import/timezone.py` |
+| `misc/tld.tsv` | [IANA Root Zone Database](https://www.iana.org/domains/root/db), checked against the root zone's [TLD list](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) | [public domain](https://www.iana.org/help/licensing-terms) | none required | `data-import/tld.py` |
 | `misc/useragent.tsv` | [top-user-agents](https://github.com/microlinkhq/top-user-agents) desktop and mobile lists | [MIT](https://github.com/microlinkhq/top-user-agents/blob/master/LICENSE.md) | "Copyright © 2020 Kiko Beats" | `data-import/useragent.py` |
 
 Every other category is hand-written under [`data/`](data), MIT like the code.

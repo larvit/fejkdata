@@ -27,6 +27,9 @@ by a `data-import/` script, as README goal 10 asks.
 - Audit the rest of the shipped set against goal 12 and give each a never-reaching
   path where it lacks one: `phone` draws live PTS and NANP ranges, `bankgiro`,
   `plusgiro` and `routing` draw live prefixes.
+- Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does
+  not hold: ISO 3166 reserves it for Western Sahara and the root zone has never been
+  delegated it, so no resolver answers for it and goal 1 promises otherwise.
 - Accept a middle name, and draw a shipped `personnummer` inside a *selected* sex;
   both want a draw group sharing its family's pins. Stop the conflict error naming a
   rewrite that returns a different value where the read it conflicts with sits inside
@@ -46,7 +49,6 @@ by a `data-import/` script, as README goal 10 asks.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
-| `tld` | T | IANA root zone | CC0 |
 | `loglevel` | c | RFC 5424 severities | facts |
 | `ip` v4 documentation ranges, private, CIDR; `ipv6` `2001:db8::/32`; `mac` locally administered | t | RFC 5737, 1918, 9637 | facts |
 | `creditcard` per network: IIN, length, CVV, expiry | T+t | network rules, `{luhn()}` | facts |

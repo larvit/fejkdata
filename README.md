@@ -164,13 +164,13 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
 with its 639-2/T code), `mac`, `mimetype`, `objectid`, `port`, `protocol`,
-`territory` (ISO 3166-1), `timezone` (IANA), `useragent` and `uuid` (v4). Many carry
-sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`, `misc.httpstatus.code` —
-which `--list` shows. `car`, `currency`, `httpmethod`, `httpstatus`, `language`,
-`mimetype`, `port`, `protocol`, `territory`, `timezone` and `useragent` are
-[tables](#table), so `misc.territory[SE].capital` and `misc.currency[Euro].symbol`
-select a row; `car` and `useragent` carry no key or name, so they are drawn from rather
-than selected in.
+`territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and
+`uuid` (v4). Many carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
+`misc.httpstatus.code` — which `--list` shows. `car`, `currency`, `httpmethod`,
+`httpstatus`, `language`, `mimetype`, `port`, `protocol`, `territory`, `timezone`,
+`tld` and `useragent` are [tables](#table), so `misc.territory[SE].capital` and
+`misc.currency[Euro].symbol` select a row; `car` and `useragent` carry no key or name,
+so they are drawn from rather than selected in.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -184,6 +184,13 @@ IANA `service` beside it, and selecting by number alone. A draw spans the whole
 register, so pin `misc.port[443]` where a fixture needs a port a reader recognises;
 it stops at 49150, IANA assigning nothing above, so an ephemeral source port is
 `{int(49152,65535)}`.
+`misc.tld` is the root zone's delegated TLDs, keyed with the leading dot
+`misc.territory.tld` already carries, `.se`. Its `type` is the register's —
+`country-code`, `generic`, `generic-restricted`, `infrastructure` or `sponsored` — and
+its `unicode` the form the register displays, `.рф` for `.xn--p1ai` and the key itself
+for an ASCII one, which selects the row too, so `misc.tld[.рф]` renders `.xn--p1ai`. A
+draw spans the whole zone, `.arpa` and `.zuerich` alike, so pin `misc.tld[.com]` where
+a fixture needs one a reader recognises.
 [`DATA-LICENSES.md`](DATA-LICENSES.md) names each table's source and licence.
 
 `misc.timezone` is every zone tzdb gives a shipped territory, from one apiece for most
@@ -1199,11 +1206,11 @@ the Development section below, and who ships a register the four above then draw
   stays a column. Layer your own `misc.territory` over the shipped one and you
   must layer `misc.timezone` too, or the link fails at load naming the row.
 - **A table whose register publishes no frequency draws evenly.** `misc.httpmethod`,
-  `misc.port`, `misc.httpstatus` and `misc.mimetype` weigh every row alike, so GET is
-  a ninth of the methods drawn. Goal 10 keeps an authored fact out of a sourced table,
-  and no register publishes how often a method or a port is used, so a weight here
-  would be invented. Where one exists it is read, as `misc.timezone` reads GeoNames
-  populations and `sv_SE.first-name` SCB bearers.
+  `misc.port`, `misc.httpstatus`, `misc.mimetype` and `misc.tld` weigh every row alike,
+  so GET is a ninth of the methods drawn. Goal 10 keeps an authored fact out of a
+  sourced table, and no register publishes how often a method, a port or a TLD is used,
+  so a weight here would be invented. Where one exists it is read, as `misc.timezone`
+  reads GeoNames populations and `sv_SE.first-name` SCB bearers.
 - **`misc.port` selects by number, and carries no `name`.** 29 of its services sit on
   more than one port, `http-alt` on three, so `misc.port[http-alt]` could name no one
   row. The number is what a port field holds anyway, and `misc.port[443].service`
@@ -1223,6 +1230,11 @@ the Development section below, and who ships a register the four above then draw
   every value names a row instead. A territory the register records no state for
   stands alone, which is `EH` alone, and naming one for it would be a claim
   fejkdata has no business making.
+- **`misc.tld` is a table of its own, and `misc.territory.tld` stays a column.** A
+  `parent` demands a child for every parent row, so linking them would drop every root
+  zone row naming no territory, which is most of them, and goal 10 holds a sourced
+  table whole. The loader refuses the link outright anyway: `tld` is a column of
+  `misc.territory`, and a table may not be named like a column of its ancestor.
 - **`misc.territory` carries a currency code, it does not link to `misc.currency`.**
   A `parent` demands a child for every parent row, and ISO 4217 registers codes no
   country's row can name: the funds codes (Mvdol, WIR Euro, US Dollar (Next day)),
@@ -1330,6 +1342,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
 
