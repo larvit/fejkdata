@@ -1309,6 +1309,7 @@ the Development section below, and who ships a register the four above then draw
 ## Layout
 
 ```
+doc.go          the package doc, and the vocabulary the rest of it uses for a render and its fences
 fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 table.go        tables: the rows TSV, its options and links, row selection and draws
