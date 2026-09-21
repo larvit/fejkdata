@@ -16,31 +16,23 @@ package fejkdata
 
 // Vocabulary
 //
-// The words the rest of the package uses, and the unit that owns each:
-//
-//   - draw — one pick from a choice, or one row taken from a table, and the value
-//     the pick produced: `pick` and `drawn` settle a choice, `table.draw` a row, and
-//     `draw` carries what a read produced.
-//   - expansion — one render of one format, by `expand`. A nested template is an
-//     expansion of its own.
+//   - draw — one pick from a choice, or one row taken from a table, and the value a
+//     read produced: `pick`, `drawn`, `table.draw`, `draw`.
+//   - expansion — one render of one format: `expand`.
 //   - render — what owns one `drawSet`, and so what one reference draw spans:
-//     `Generator.Fake`, `FakeRecord`, `FakeStruct`, `Template.Fake` and
-//     `RecordTemplate.Fake` each start one, as does `expandAnew` per iteration of a
-//     `template.repeat` — an iteration is an expansion and a render of its own.
-//   - hold — keeping one draw of a name, so every route to it reads that value.
-//     `template.held` lists what an expansion holds, `draws` keeps them and
-//     `readField` reads through it; a reference path is held for the whole render.
-//   - draw group — `template.drawGroup`, which gives the reference paths under it
-//     draws of their own inside the render. `drawSet` holds the unnamed group's and
-//     each named one's, and `drawScope` says which one a template renders in.
-//   - pin — fixing which row of a table the render uses. `draws.pin` pins it and the
-//     rows of its ancestors, and `draws.rowOf` draws one where none is pinned.
+//     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
+//     start one each, `FakeStruct` one per record, and `expandAnew` one per
+//     iteration of a `template.repeat`.
+//   - hold — keeping one draw of a name, so every route to it reads that value:
+//     `template.held`, `draws`, `readField`.
+//   - draw group — reference draws held apart inside one render:
+//     `template.drawGroup` as the data spells it, `template.drawGroupKey` as a
+//     render reads it, `drawSet`, `drawScope`.
+//   - pin — fixing which row of a table the render uses: `draws.pin`, `draws.rowOf`.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.family`.
 //   - whole — a read that lands on a `row`, so the row renders through its table's
 //     format: `tableRead.whole` says a read did, `table.whole` is the node.
-//   - fence — a load-time check refusing data that two routes to one draw would
-//     disagree in, which is why a render cannot fail: `heldCheck` over an
-//     expansion's held names, `drawCheck` over a render's reference paths, and
-//     `checkFamilies` over the rows they pin. `New` runs them over the data set,
-//     `NewTemplate` and `FakeStruct` over what those compile.
+//   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
+//     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
+//     compile. The draw fences are `heldCheck`, `drawCheck` and `checkFamilies`.

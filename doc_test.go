@@ -10,12 +10,10 @@ import (
 	"testing"
 )
 
-// Every backtick in the Vocabulary is a symbol, so an unrecognised spelling fails
-// rather than going unchecked.
-var backticked = regexp.MustCompile("`([^`]+)`")
+// Every backtick in the Vocabulary is a symbol.
+var backticked = regexp.MustCompile("`([^`\n]+)`")
 
-// TestVocabularyNamesDeclaredSymbols proves the Vocabulary names symbols this
-// package declares, so a renamed unit renames its entry with it.
+// TestVocabularyNamesDeclaredSymbols holds a renamed unit to its Vocabulary entry.
 func TestVocabularyNamesDeclaredSymbols(t *testing.T) {
 	files := sourceFiles(t)
 	declared := declaredSymbols(files)
@@ -50,23 +48,23 @@ func sourceFiles(t *testing.T) []*ast.File {
 
 func vocabulary(t *testing.T, files []*ast.File) string {
 	t.Helper()
-	var found strings.Builder
+	var sections strings.Builder
 	for _, f := range files {
 		for _, c := range f.Comments {
-			if section, is := strings.CutPrefix(c.Text(), "Vocabulary\n\n"); is {
-				found.WriteString(section)
+			section, found := strings.CutPrefix(c.Text(), "Vocabulary\n\n")
+			if found && c.Pos() > f.Package {
+				sections.WriteString(section)
 			}
 		}
 	}
-	if found.Len() == 0 {
-		t.Fatal("no comment opens with a Vocabulary heading, so fence, hold, pin and the rest are defined nowhere a reader of the code meets them")
+	if sections.Len() == 0 {
+		t.Fatal("no comment below a package clause opens with a Vocabulary heading, so the words the package is written in are defined nowhere a reader of the code meets them")
 	}
-	return found.String()
+	return sections.String()
 }
 
 // declaredSymbols is every name the package declares at the top level, a method and
-// a struct field keyed under its type: draws.pin, tableRead.whole. A name declared
-// inside a function body is not one a Vocabulary entry may name.
+// a struct field keyed under its type: draws.pin, tableRead.whole.
 func declaredSymbols(files []*ast.File) map[string]bool {
 	names := map[string]bool{}
 	for _, f := range files {
