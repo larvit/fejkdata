@@ -47,14 +47,13 @@ func sourceFiles(t *testing.T) []*ast.File {
 func vocabulary(t *testing.T, files []*ast.File) string {
 	t.Helper()
 	for _, f := range files {
-		if f.Doc == nil {
-			continue
-		}
-		if _, section, found := strings.Cut(f.Doc.Text(), "\n# Vocabulary\n"); found {
-			return section
+		for _, c := range f.Comments {
+			if section, found := strings.CutPrefix(c.Text(), "Vocabulary\n"); found {
+				return section
+			}
 		}
 	}
-	t.Fatal("no package doc carries a Vocabulary heading, so fence, hold, pin and the rest are defined nowhere a reader of the code meets them")
+	t.Fatal("no comment opens with a Vocabulary heading, so fence, hold, pin and the rest are defined nowhere a reader of the code meets them")
 	return ""
 }
 
