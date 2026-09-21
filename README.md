@@ -546,7 +546,8 @@ to, a chain of parents that closes, a table named like a column of any table abo
 it, and a cell or format of a table that references a table of its own family, through
 any template, a `repeat` or a `drawGroup` included, since a row rendered whole would
 draw the family apart from itself: read the family from a template beside it, or add
-the value as a column.
+the value as a column. Which reads a render must reconcile, a cell's included, is
+under [Decisions](#decisions).
 
 ### Options and fields
 
@@ -1106,10 +1107,10 @@ the Development section below, and who ships a register the four above then draw
 - **A table read into is pinned; a table read whole draws afresh.** A path into a
   table pins its row, and the ancestor rows it links to, for the render and group, as a
   reference path pins its level, and a bare `{/city}` draws a row each time and pins no
-  row of its family, as a bare reference does; so a bare table
-  beside a path into its family is refused like a bare reference beside a path into
-  it. A bare table reference still counts as a read for a `drawGroup`, since the group
-  is what draws it apart from the family's pins.
+  row of its family, as a bare reference does; so a bare table beside a path into its
+  family is refused like a bare reference beside a path into it. A bare table reference
+  still counts as a read for a `drawGroup`, since the group is what draws it apart from
+  the family's pins.
 - **Every reference path into one family selects the same rows, per render and
   group.** A selector pins rows for the render, and a read that draws freely before it
   could pin a row the selector contradicts, so accepting both would make the result
@@ -1138,14 +1139,13 @@ the Development section below, and who ships a register the four above then draw
   format and options, at the cost of holding the rows twice, which is what a
   category over a register with two natural formats asks for; a TSV nothing names
   stays a load error, since that one is a file forgotten rather than shared.
-- **The rows of a table are alternatives.** Only one row renders, so a cell in one
-  row and a cell in another never meet, and each may select its own row of another
-  table; the cells of one row, and whatever they reach, do meet, and so does the
-  format beside them. The rule the fence applies is that two reads meet unless they sit
-  in rows that never render together: two rows of one table, or rows under two different
-  rows of an ancestor a path pinned. A
-  choice's items get no such treatment yet: two items selecting different rows
-  are still refused.
+- **The rows of a table are alternatives.** Only one row renders per read, so within one
+  read a cell in one row and a cell in another never meet, and each may select its own
+  row of another table; the cells of one row, and whatever they reach, do meet, and so
+  does the format beside them. The rule the fence applies is that two reads meet unless
+  they sit in rows that never render together: rows falling under different rows of a
+  table a path pinned, two rows of that table itself included. A choice's items get no
+  such treatment yet: two items selecting different rows are still refused.
 - **A table never reaches its own family, by any route.** A `repeat` iteration and a
   `drawGroup` each draw apart on purpose, but a row that lists three localities from
   other regions is the output the family exists to prevent, so the own-family fence
