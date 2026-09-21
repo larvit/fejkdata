@@ -21,9 +21,6 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Say on the `template` struct which pass fills which field, and that `compileFormat`
-  runs a second time once `linkTemplateRefs` binds the references: nine of its fields
-  are written by four other files, and the order lives only in `loadData`'s body.
 - State on `rowSet` that it simulates `(*draws).pin` and `rowOf`, and prove the two
   agree with a test: the load-time walk reimplements the render-time pinning, nothing
   catches them drifting, and the failure is data that loads and then renders a family
