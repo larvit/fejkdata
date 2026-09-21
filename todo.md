@@ -15,9 +15,10 @@ scoring run names too little to steer one. A fresh run replaces the items below.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7), eight of nine seats capped by Locality or Self-sufficiency, all
-nine naming `hold.go`, `draw.go` and `family.go` first for reading cost: 1,138 lines in
-which each file carries both a load-time fence and render-time machinery, so no file
-name says whether a unit runs at `New` or at `Fake`.
+nine naming `hold.go`, `draw.go` — now `holdset.go` and `drawfence.go` — and
+`family.go` first for reading cost: 1,138 lines in which each file carries both a
+load-time fence and render-time machinery, so no file name says whether a unit runs at
+`New` or at `Fake`.
 
 This round, in order:
 

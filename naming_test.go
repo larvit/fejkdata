@@ -2,33 +2,41 @@ package fejkdata
 
 import (
 	"go/ast"
+	"slices"
 	"sort"
+	"strings"
 	"testing"
 )
 
-// TestNoFunctionSpellsAMethod holds a call to one unit. A method is written with
-// its receiver and a function bare, so one name on both reads alike at a call site
-// and greps as one unit; two types may share a method name, since the receiver
-// standing before it says which.
+// TestNoFunctionSpellsAMethod holds a call to one unit, over the tests as well,
+// since a test file is this package too.
 func TestNoFunctionSpellsAMethod(t *testing.T) {
-	_, files := sourceFiles(t)
-	funcs, methods := declaredCalls(files)
+	funcs, methods := declaredCalls(namespaceFiles(t))
 	names := make([]string, 0, len(funcs))
 	for name := range funcs {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		if recv := methods[name]; recv != "" {
-			t.Errorf("func %s and %s.%s are two units under one name; name them apart", name, recv, name)
+		if recv := methods[name]; len(recv) > 0 {
+			t.Errorf("func %s and %s are two units under one name; name them apart", name, strings.Join(recv, " and "))
 		}
 	}
 }
 
-// declaredCalls is every name the package declares as a function, and every name
-// it declares as a method with one type declaring it.
-func declaredCalls(files []*ast.File) (funcs map[string]bool, methods map[string]string) {
-	funcs, methods = map[string]bool{}, map[string]string{}
+// namespaceFiles is every file declaring into the package namespace, its in-package
+// tests included.
+func namespaceFiles(t *testing.T) []*ast.File {
+	t.Helper()
+	pkg := packageDir(t)
+	_, files := parseFiles(t, slices.Concat(pkg.GoFiles, pkg.TestGoFiles))
+	return files
+}
+
+// declaredCalls is what each name is called as: a function, and the methods
+// spelling it under the types declaring them.
+func declaredCalls(files []*ast.File) (funcs map[string]bool, methods map[string][]string) {
+	funcs, methods = map[string]bool{}, map[string][]string{}
 	for _, f := range files {
 		for _, decl := range f.Decls {
 			d, isFunc := decl.(*ast.FuncDecl)
@@ -36,7 +44,7 @@ func declaredCalls(files []*ast.File) (funcs map[string]bool, methods map[string
 				continue
 			}
 			if recv := receiverType(d.Recv); recv != "" {
-				methods[d.Name.Name] = recv
+				methods[d.Name.Name] = append(methods[d.Name.Name], recv+"."+d.Name.Name)
 				continue
 			}
 			funcs[d.Name.Name] = true

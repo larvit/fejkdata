@@ -369,7 +369,7 @@ type formatOps struct {
 	heldLocal bool // some held name is kept by the expansion itself rather than the render's draws
 }
 
-func (c *formatOps) hold(a arm, label string) {
+func (c *formatOps) holdName(a arm, label string) {
 	if c.held == nil {
 		c.held = map[string]bool{}
 		c.holder = map[string]string{}
@@ -396,7 +396,7 @@ func (c *formatOps) function(body string, refs map[string]refBinding) {
 	var operands []arm
 	for _, operand := range tokenOperands(body) {
 		a := splitArm(operand, refs)
-		c.hold(a, fmt.Sprintf("%s operand %q", name, operand))
+		c.holdName(a, fmt.Sprintf("%s operand %q", name, operand))
 		operands = append(operands, a)
 	}
 	c.ops = append(c.ops, op{kind: 'b', call: builtins[name].prep(args), operands: operands})
@@ -406,7 +406,7 @@ func (c *formatOps) field(body string, refs map[string]refBinding) {
 	arms := splitArms(body, refs)
 	for _, a := range arms {
 		if len(a.tail) > 0 {
-			c.hold(a, "token {"+a.name+"}")
+			c.holdName(a, "token {"+a.name+"}")
 		}
 	}
 	c.ops = append(c.ops, op{kind: 'f', arms: arms})

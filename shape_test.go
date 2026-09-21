@@ -42,14 +42,14 @@ func shippedShape(f *Generator) string {
 				walk(join(prefix, name), n.children[name])
 			}
 		case *choice:
-			facts[prefix] = reads(n)
+			facts[prefix] = readsFact(n)
 		case *table:
-			facts[prefix] = "\tformat " + strconv.Quote(n.format.format) + tableFacts(n) + reads(n)
+			facts[prefix] = "\tformat " + strconv.Quote(n.format.format) + tableFacts(n) + readsFact(n)
 			for _, name := range n.columns {
 				facts[join(prefix, name)] = "\tstring"
 			}
 		case *template:
-			facts[prefix] = "\tformat " + strconv.Quote(n.format) + reads(n)
+			facts[prefix] = "\tformat " + strconv.Quote(n.format) + readsFact(n)
 			if _, columns, err := recordOf(n); err == nil {
 				for _, c := range columns {
 					fact := "\t" + c.DataType.String()
@@ -85,8 +85,8 @@ func tableFacts(t *table) string {
 	return b.String()
 }
 
-// reads names the categories any template under n references, sorted.
-func reads(n node) string {
+// readsFact names the categories any template under n references, sorted.
+func readsFact(n node) string {
 	set := map[string]bool{}
 	var collect func(node)
 	collect = func(n node) {
