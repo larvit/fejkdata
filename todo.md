@@ -21,10 +21,6 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- State on `rowSet` that it simulates `(*draws).pin` and `rowOf`, and prove the two
-  agree with a test: the load-time walk reimplements the render-time pinning, nothing
-  catches them drifting, and the failure is data that loads and then renders a family
-  that disagrees.
 - Put `draws` and its methods in one file: it is declared in `hold.go:262` and all
   eight of its methods sit in `family.go`, so a jump to the type lands where none of
   the behaviour is.

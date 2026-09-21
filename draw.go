@@ -301,7 +301,8 @@ type drawAt struct {
 
 // rowSet is the rows a walk entered, one per table: only one row of a table renders, so reads in
 // two rows of one table never meet, while reads in one row, across its columns and whatever they
-// reach, do.
+// reach, do. It simulates what the render pins: enter is (*draws).pin and rowOf is its pinned, and
+// TestRowSetSimulatesPinning holds the two to one answer.
 type rowSet []tablePin
 
 func (s rowSet) rowOf(t *table) (int, bool) {
@@ -313,12 +314,23 @@ func (s rowSet) rowOf(t *table) (int, bool) {
 	return 0, false
 }
 
-// enter is s with row r of t, where t is not in it yet; the set is copied, since walks branch.
+// enter is s with row r of t and the ancestor rows it links to, where t is not in it yet; the set
+// is copied, since walks branch.
 func (s rowSet) enter(t *table, r int) rowSet {
 	if _, in := s.rowOf(t); in {
 		return s
 	}
-	out := append(append(make(rowSet, 0, len(s)+1), s...), tablePin{t, r})
+	out := append(make(rowSet, 0, len(s)+1), s...)
+	for {
+		if _, in := out.rowOf(t); in {
+			break
+		}
+		out = append(out, tablePin{t, r})
+		if t.parentT == nil {
+			break
+		}
+		t, r = t.parentT, t.parentRow(r)
+	}
 	sort.Slice(out, func(i, j int) bool { return out[i].t.category < out[j].t.category })
 	return out
 }
