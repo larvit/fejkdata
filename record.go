@@ -130,8 +130,8 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	set := newDrawSet(f.rand)
-	sc := drawScope{set: &set}
+	set := newHoldSet(f.rand)
+	sc := renderScope{set: &set}
 	if t, isTable := n.(*table); isTable {
 		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
 			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
@@ -152,14 +152,14 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 
 // tableRecord walks a path's tail from a table to the table whose row is the record,
 // pinning the rows it selects or draws.
-func tableRecord(s *session, t *table, tail []string, sc drawScope) (node, error) {
+func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, error) {
 	n, err := descend(s, t, tail, sc)
 	if err != nil {
 		return nil, err
 	}
 	switch n := n.(type) {
 	case *table:
-		sc.draws(s).rowOf(n)
+		sc.hold(s).rowOf(n)
 		return n, nil
 	case *row:
 		return n.t, nil
@@ -204,8 +204,8 @@ type RecordTemplate struct {
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	set := newDrawSet(t.g.rand)
-	return renderRecord(t.g.rand, t.t, t.columns, drawScope{set: &set})
+	set := newHoldSet(t.g.rand)
+	return renderRecord(t.g.rand, t.t, t.columns, renderScope{set: &set})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -262,10 +262,10 @@ func recordOf(n node) (*template, []Column, error) {
 
 // renderRecord draws each column once, in the name order recordOf fixed, as one render
 // over sc's draws; a table's columns read the row pinned there.
-func renderRecord(s *session, t *template, columns []Column, sc drawScope) *Record {
+func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.table != nil {
-		sc.t, sc.row = t.table, sc.draws(s).mustRow(t.table)
+		sc.t, sc.row = t.table, sc.hold(s).mustRow(t.table)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

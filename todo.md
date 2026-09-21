@@ -21,14 +21,10 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Name the `draw` stem apart: the free `pinned` in `holdfence.go` is not
-  `(*draws).pinned` in `hold.go`, `compileFormat` is a method on both `*template` and
-  `*table`, and `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`,
-  `drawVisit` and `drawRoute` no longer tell each other apart.
-- Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
-  hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
-  if the difference is deliberate, and put the draw set in one file: `draw.go` holds 57
-  lines after the split, and `render.go` two of the three sites.
+- Spell one fresh hold set one way: `newHoldSet` exists, and `render.go` and
+  `holdset.go` hand-roll `holdSet{unnamed: hold{s: s}}` at three sites; name the
+  lazy-map variant if the difference is deliberate, and put the hold set in one file:
+  `holdset.go` holds 57 lines after the split, and `render.go` two of the three sites.
 - Run the package doc's Go example under test, as `readme_test.go` runs the README's
   JSON blocks: `doc.go` and the README both print `Järvedsvägen 43\n891 77 Järved`
   for seed 42, and nothing renders either, so a draw that moves leaves both false.

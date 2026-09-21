@@ -23,8 +23,8 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	f.set = drawSet{unnamed: draws{s: f.rand}}
-	sc := drawScope{set: &f.set}
+	f.set = holdSet{unnamed: hold{s: f.rand}}
+	sc := renderScope{set: &f.set}
 	f.root.children = f.categories
 	n, err := descend(f.rand, &f.root, segments, sc)
 	if err != nil {
@@ -42,19 +42,19 @@ func (f *Generator) Fake(path string) (string, error) {
 // choice consumes no segment, so the rest of the path must be one every variant
 // carries before a variant is picked — a path that resolves at all resolves on
 // every call.
-func descend(s *session, root node, segments []string, sc drawScope) (node, error) {
+func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
 	// Walked once without drawing first, so a path that fails moves no seeded stream.
-	var probe draws
+	var probe hold
 	if _, err := walkPath(root, segments, pathWalk{pins: &probe}); err != nil {
 		return nil, err
 	}
-	return walkPath(root, segments, pathWalk{pins: sc.draws(s)})
+	return walkPath(root, segments, pathWalk{pins: sc.hold(s)})
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail. sc holds the reference draws the
 // render shares; each repeat iteration renders over draws of its own.
-func render(s *session, n node, sc drawScope) string {
+func render(s *session, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
 		return render(s, pick(s, n), sc)
@@ -64,11 +64,11 @@ func render(s *session, n node, sc drawScope) string {
 		sc.t, sc.row = n, n.draw(s)
 		return expand(s, n.format, sc)
 	case *row:
-		sc.t, sc.row = n.t, sc.draws(s).mustRow(n.t)
+		sc.t, sc.row = n.t, sc.hold(s).mustRow(n.t)
 		return expand(s, n.t.format, sc)
 	case *column:
 		if sc.t != n.t {
-			sc.t, sc.row = n.t, sc.draws(s).mustRow(n.t)
+			sc.t, sc.row = n.t, sc.hold(s).mustRow(n.t)
 		}
 		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
 			return render(s, cell, sc)
@@ -97,19 +97,19 @@ func render(s *session, n node, sc drawScope) string {
 }
 
 // expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
-// render's loop, its draw set would move to the heap.
+// render's loop, its hold set would move to the heap.
 //
 //go:noinline
 func expandAnew(s *session, t *template) string {
-	set := drawSet{unnamed: draws{s: s}}
-	return expand(s, t, drawScope{set: &set})
+	set := holdSet{unnamed: hold{s: s}}
+	return expand(s, t, renderScope{set: &set})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights. compile guarantees a
 // non-empty choice and a finite positive total, so the index is always in range.
 // The session is concrete rather than the rng interface, which would make the
-// walk that draws through it leak its draw set to the heap.
+// walk that draws through it leak its hold set to the heap.
 func pick(s *session, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
@@ -119,15 +119,15 @@ func pick(s *session, c *choice) node {
 
 // expand renders a template's compiled ops. compile validated every token, so this
 // cannot fail.
-func expand(s *session, t *template, sc drawScope) string {
+func expand(s *session, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.grow)
 	// One draw per held name, for this expansion only: a nested template and each
 	// repeat iteration get their own, since each is its own expansion. A reference
 	// path reads the render's draws in sc instead.
-	var held *draws
+	var held *hold
 	if t.heldLocal {
-		held = &draws{
+		held = &hold{
 			variant: make(map[string]node, len(t.held)),
 			value:   make(map[string]draw, len(t.held)),
 		}

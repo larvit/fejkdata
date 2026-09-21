@@ -11,7 +11,7 @@ import (
 // it lands on a row rendered whole.
 type tableRead struct {
 	head  *table
-	pins  draws
+	pins  hold
 	drawn map[*table]bool
 	sels  []tableSel
 	whole bool
@@ -125,7 +125,7 @@ func replayPairs(reads []pathRead) error {
 			if o.tr == nil || o.at.group != r.at.group || alternatives(r.at, o.at) {
 				continue
 			}
-			var d draws
+			var d hold
 			if err := r.tr.replay(&d); err != nil {
 				return conflict(r, err)
 			}
@@ -142,7 +142,7 @@ func conflict(r pathRead, err error) error {
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.
-func (r *tableRead) replay(d *draws) error {
+func (r *tableRead) replay(d *hold) error {
 	var err error
 	r.pins.each(func(t *table, row int) {
 		if err == nil {
@@ -178,7 +178,7 @@ func checkFamilyPair(a, b pathRead) error {
 }
 
 // drawnOf is a table the read draws that pins holds a row of, if any.
-func (r *tableRead) drawnOf(pins *draws) *table {
+func (r *tableRead) drawnOf(pins *hold) *table {
 	var found *table
 	pins.each(func(t *table, _ int) {
 		if found == nil && r.drawn[t] {

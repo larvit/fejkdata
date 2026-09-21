@@ -982,7 +982,7 @@ func TestRowSetSimulatesPinning(t *testing.T) {
 				t.Errorf("a drawn %s enters %v, want its own row alone", entered.selectorSpelling(row), drawn)
 			}
 			s := rowSet(nil).enter(entered, row, true)
-			var pinned draws
+			var pinned hold
 			held := 0
 			pinned.pin(entered, row)
 			pinned.each(func(tbl *table, r int) {
@@ -996,7 +996,7 @@ func TestRowSetSimulatesPinning(t *testing.T) {
 			}
 			for _, cand := range tables {
 				for cr := 0; cr < cand.rows(); cr++ {
-					var beside draws
+					var beside hold
 					beside.pin(entered, row)
 					refused := beside.pinRow(cand, cr) != nil
 					if got := s.excludes(&template{cellOf: cand, cellRow: cr}); got != refused {

@@ -1332,7 +1332,7 @@ inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplat
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per expansion for paths and operands, and the rows it pins
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
-draw.go         one reference draw per render and group: the draw set a render reads its paths through
+holdset.go      one reference draw per render and group: the hold set a render reads its paths through
 drawfence.go    the load fences over reference draws: the drawGroup option, and the walk over a render's reads
 family.go       a family of linked tables: what a reference path reads of one, and the fence over paths into it
 reference.go    reference sigils, and binding references across the tree
