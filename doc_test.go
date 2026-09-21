@@ -47,20 +47,25 @@ func namesAPass(t *testing.T, where, text string, declared, funcs map[string]boo
 	}
 }
 
-func goFiles(t *testing.T) []string {
+func packageDir(t *testing.T) *build.Package {
 	t.Helper()
 	pkg, err := build.ImportDir(".", 0)
 	if err != nil {
 		t.Fatalf("read the package directory: %v", err)
 	}
-	return pkg.GoFiles
+	return pkg
 }
 
 func sourceFiles(t *testing.T) (*token.FileSet, []*ast.File) {
 	t.Helper()
+	return parseFiles(t, packageDir(t).GoFiles)
+}
+
+func parseFiles(t *testing.T, names []string) (*token.FileSet, []*ast.File) {
+	t.Helper()
 	fset := token.NewFileSet()
 	var files []*ast.File
-	for _, name := range goFiles(t) {
+	for _, name := range names {
 		f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
 		if err != nil {
 			t.Fatalf("parse %s: %v", name, err)
@@ -88,7 +93,7 @@ func vocabulary(t *testing.T, files []*ast.File) string {
 }
 
 // declaredSymbols is every name the package declares at the top level, a method and
-// a struct field keyed under its type: draws.pin, tableRead.whole.
+// a struct field keyed under its type: hold.pin, tableRead.whole.
 func declaredSymbols(files []*ast.File) map[string]bool {
 	names := declaredFuncs(files)
 	for _, f := range files {

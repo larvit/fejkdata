@@ -1042,7 +1042,7 @@ the Development section below, and who ships a register the four above then draw
   all, and making them anyway cost about a fifth of the cheapest render, so it makes
   them on the first read instead, at two heap allocations for a render that does share
   a draw. The allocation gate over a repeat of a reference path and over a named draw
-  group prices that, and pins the two measures that keep a draw set off the heap.
+  group prices that, and pins the two measures that keep a hold set off the heap.
 - **A category never references itself, and a record's fences run at load.** A category
   is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
   draw other than the fields beside it, so `New` refuses it and the sibling path stays
@@ -1077,6 +1077,17 @@ the Development section below, and who ships a register the four above then draw
 - **`Column` carries text, not a Go value.** `Value` is the rendered string beside
   `DataType` and `Null`, which each serializer writes as the load check proved it; a
   `Value any` would hand every caller a type switch.
+- **`hold` names what a render keeps, `draw` what it draws.** Goal 2 wants a name to
+  reach one unit: `hold`, `holdSet` and `renderScope` are what a render holds while it
+  renders, and `draw`, `drawGroup` and `drawfence.go`'s units are the draws and the
+  load fence over them. So `holdset.go` is fenced by `drawfence.go`, which does not
+  pair by name as `hold.go` and `holdfence.go` do: that fence is over reference draws,
+  wherever a render keeps them. Valid while the load fences sit in files of their own.
+- **A function may not spell a method; two types may.** A call writes a method with
+  its receiver and a function bare, so one name on both greps as one unit, which is
+  the reaching cost goal 2 counts, while the receiver before a shared method name
+  says which type answers. A type is outside the rule, never being called.
+  `TestNoFunctionSpellsAMethod` holds it over the package, its tests included.
 - **The package stays flat.** Go ties a package to one directory, so folders would
   split the API into packages.
 - **The performance gate asserts allocations, not wall-clock time.** `AllocsPerRun`

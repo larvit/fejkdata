@@ -211,7 +211,7 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 			listed[name] = true
 		}
 	}
-	for _, name := range goFiles(t) {
+	for _, name := range packageDir(t).GoFiles {
 		if !listed[name] {
 			t.Errorf("the README Layout names no %s, so nothing says what it holds", name)
 		}
