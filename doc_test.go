@@ -123,3 +123,80 @@ func receiverType(recv *ast.FieldList) string {
 	}
 	return id.Name
 }
+
+// fillHeader opens the comment naming the pass that fills the fields below it.
+const fillHeader = "Filled by "
+
+// TestTemplateFieldsNameTheirPass holds every template field to a header naming the
+// pass that writes it.
+func TestTemplateFieldsNameTheirPass(t *testing.T) {
+	files := sourceFiles(t)
+	declared := declaredSymbols(files)
+	st, headers := templateStruct(t, files)
+	for _, field := range st.Fields.List {
+		for _, id := range field.Names {
+			header := headerAbove(headers, id.Pos())
+			if header == "" {
+				t.Errorf("template.%s sits under no %q header, so nothing says which pass fills it", id.Name, fillHeader)
+				continue
+			}
+			named := backticked.FindAllStringSubmatch(header, -1)
+			if len(named) == 0 {
+				t.Errorf("the header above template.%s names no function, so it names no pass", id.Name)
+			}
+			for _, m := range named {
+				if !declared[m[1]] {
+					t.Errorf("the header above template.%s names %s, which the package declares nowhere", id.Name, m[1])
+				}
+			}
+		}
+	}
+}
+
+// templateStruct is the template struct and the fill headers standing between its
+// fields, in source order.
+func templateStruct(t *testing.T, files []*ast.File) (*ast.StructType, []*ast.CommentGroup) {
+	t.Helper()
+	for _, f := range files {
+		for _, decl := range f.Decls {
+			d, isGen := decl.(*ast.GenDecl)
+			if !isGen {
+				continue
+			}
+			for _, spec := range d.Specs {
+				s, isType := spec.(*ast.TypeSpec)
+				if !isType || s.Name.Name != "template" {
+					continue
+				}
+				st, isStruct := s.Type.(*ast.StructType)
+				if !isStruct {
+					t.Fatal("template is not a struct")
+				}
+				return st, fillHeaders(f, st)
+			}
+		}
+	}
+	t.Fatal("the package declares no template struct")
+	return nil, nil
+}
+
+func fillHeaders(f *ast.File, st *ast.StructType) []*ast.CommentGroup {
+	var found []*ast.CommentGroup
+	for _, c := range f.Comments {
+		if c.Pos() > st.Pos() && c.End() < st.End() && strings.HasPrefix(c.Text(), fillHeader) {
+			found = append(found, c)
+		}
+	}
+	return found
+}
+
+// headerAbove is the last fill header standing above pos.
+func headerAbove(headers []*ast.CommentGroup, pos token.Pos) string {
+	text := ""
+	for _, c := range headers {
+		if c.Pos() < pos {
+			text = c.Text()
+		}
+	}
+	return text
+}
