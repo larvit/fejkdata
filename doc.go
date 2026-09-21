@@ -19,9 +19,11 @@
 //     the pick produced: `pick` and `drawn` settle a choice, `table.draw` a row, and
 //     `draw` carries what a read produced.
 //   - expansion — one render of one format, by `expand`. A nested template is an
-//     expansion of its own, and so is each iteration of a `template.repeat`.
-//   - render — one `Fake` call or one record, started by `renderOnce` where nothing
-//     outer started it. It owns one `drawSet`, so it is what a reference draw spans.
+//     expansion of its own.
+//   - render — what owns one `drawSet`, and so what one reference draw spans:
+//     `Generator.Fake`, `FakeRecord`, `FakeStruct`, `Template.Fake` and
+//     `RecordTemplate.Fake` each start one, as does `expandAnew` per iteration of a
+//     `template.repeat` — an iteration is an expansion and a render of its own.
 //   - hold — keeping one draw of a name, so every route to it reads that value.
 //     `template.held` lists what an expansion holds, `draws` keeps them and
 //     `readField` reads through it; a reference path is held for the whole render.
@@ -32,10 +34,11 @@
 //     rows of its ancestors, and `draws.rowOf` draws one where none is pinned.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.family`.
-//   - whole — a read that lands on a `row`, so the table's format renders every
-//     column of it: `tableRead.whole`.
+//   - whole — a read that lands on a `row`, so the row renders through its table's
+//     format: `tableRead.whole` says a read did, `table.whole` is the node.
 //   - fence — a load-time check refusing data that two routes to one draw would
-//     disagree in. Every one runs in `New`, which is why `Fake` cannot fail on
-//     loaded data: `heldCheck` over an expansion's held names, `drawCheck` over a
-//     render's reference paths, and `checkFamilies` over the rows they pin.
+//     disagree in, which is why a render cannot fail: `heldCheck` over an
+//     expansion's held names, `drawCheck` over a render's reference paths, and
+//     `checkFamilies` over the rows they pin. `New` runs them over the data set,
+//     `NewTemplate` and `FakeStruct` over what those compile.
 package fejkdata
