@@ -940,6 +940,13 @@ the Development section below, and who ships a register the four above then draw
 - **Raising the lowest supported Go is a major.** A consumer building on it breaks,
   which is the one test every rule above applies; Go's convention of a minor is not
   followed.
+- **The format check runs on the latest Go only.** `gofmt`'s output is the
+  toolchain's, not the code's: 1.27 stopped padding a map literal's values out to a
+  lone long key, so no source satisfies both it and 1.22's. A consumer on the lowest
+  supported Go depends on the code compiling and its tests passing there, which is
+  the `portable` stage, and never runs `gofmt` over this source, so the latest
+  toolchain alone defines the one canonical form goal 2 asks a reader to meet. Valid
+  while the lowest supported Go is not the latest.
 - **The changelog heading is the one spelling of a release; CI cuts the tag.** A
   tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
   heading is burnt, not fixed. The heading on a gate-passed `main` commit is the
@@ -1367,12 +1374,13 @@ supported Go, and must pass before it can be merged — unless it changes none o
 the files the build and its tests read, nor the workflow itself, in which case
 it's skipped (see [Decisions](#decisions)). That build is the whole gate but the
 changelog check, which CI runs against the PR base — vet, complexity, format check
-and tests — so run it locally before pushing:
+and tests — so run it locally before pushing. The lowest Go builds the `portable`
+stage, all of that bar the format check:
 
 ```sh
-docker build .                                  # latest
-docker build --build-arg GO_VERSION=1.22.12 .   # lowest supported
-GO_VERSION=1.22.12 docker compose run --rm test # the same tests, without the image build
+docker build .                                                  # latest
+docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
+GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
 A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
