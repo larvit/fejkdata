@@ -12,7 +12,7 @@
 # ownership when run with `--user "$(id -u):$(id -g)"`.
 #
 # GO_VERSION picks the toolchain image (default: latest stable). Test the lowest
-# supported Go with: GO_VERSION=1.22 docker compose run --rm test
+# supported Go with: GO_VERSION=1.22.12 docker compose run --rm test
 
 x-go: &go
   image: golang:${GO_VERSION:-1.27.1}
