@@ -546,8 +546,8 @@ to, a chain of parents that closes, a table named like a column of any table abo
 it, and a cell or format of a table that references a table of its own family, through
 any template, a `repeat` or a `drawGroup` included, since a row rendered whole would
 draw the family apart from itself: read the family from a template beside it, or add
-the value as a column. Which reads a render must reconcile, a cell's included, is
-under [Decisions](#decisions).
+the value as a column. A cell's reads are the render's too; which pairs are weighed
+against each other is under [Decisions](#decisions).
 
 ### Options and fields
 
@@ -1105,7 +1105,7 @@ the Development section below, and who ships a register the four above then draw
   later is additive, since a refused spelling gains a meaning and no accepted one
   changes, so the door stays open for the address records the plan describes.
 - **A table read into is pinned; a table read whole draws afresh.** A path into a
-  table pins its row, and the ancestor rows it links to, for the render and group, as a
+  table pins its row for the render and group, as a
   reference path pins its level, and a bare `{/city}` draws a row each time and pins no
   row of its family, as a bare reference does; so a bare table beside a path into its
   family is refused like a bare reference beside a path into it. A bare table reference

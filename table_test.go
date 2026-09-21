@@ -964,9 +964,8 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestRowSetSimulatesPinning proves the walk's row set answers what the render's pinning
-// answers: a path read pins a row and the ancestors it links to, a whole read draws a row
-// and pins none.
+// TestRowSetSimulatesPinning holds the walk's row set to the render's pinning: drift between
+// the two is data that loads and then renders a family that disagrees.
 func TestRowSetSimulatesPinning(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
@@ -1012,10 +1011,9 @@ func TestRowSetSimulatesPinning(t *testing.T) {
 	}
 }
 
-// TestCellReadsMeetWhereTheRenderPairsTheRows pins which cells' reads are one render's to
-// reconcile: a path read pins the row's ancestors, so a cell of region 01 and a cell of a
-// municipality of region 12 never render together, while a whole read draws its row and pins
-// no ancestor, so those same two cells do.
+// TestCellReadsMeetWhereTheRenderPairsTheRows reads what the TSVs below do not show: region 01's
+// note holds {/addr} and 1280's, under region 12, holds {/addr.city}, so the two meet only where
+// no read pins a region.
 func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
 	cells := with(geo(), map[string]string{
 		"addr.json":        `{"format":"{city}","city":["Lund","Malmö"]}`,
