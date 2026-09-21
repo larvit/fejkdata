@@ -958,7 +958,7 @@ the Development section below, and who ships a register the four above then draw
 - **The changelog heading is the one spelling of a release; CI cuts the tag.** A
   tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
   heading is burnt, not fixed. The heading on a gate-passed `main` commit is the
-  trigger instead: the tag can land only there, and the Gitea release the same job
+  trigger instead: the tag can land only there, and the GitHub release the same job
   publishes keeps one text as its body and is where prebuilt binaries will attach.
 - **A `--data-path` override rebinds every reference to the category it
   replaces.** References bind against the merged tree, so once shipped data uses
@@ -1344,6 +1344,7 @@ data.go         data loading: fs.FS folders/files -> namespace tree, multi-sourc
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
+docs/           the register research behind the shipped data, and the survey of other libraries
 release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)
 ```
@@ -1433,7 +1434,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
-the Gitea release with the section as its body. A top heading of `[Unreleased]`
+the GitHub release with the section as its body. A top heading of `[Unreleased]`
 publishes nothing.
 
 ## License
