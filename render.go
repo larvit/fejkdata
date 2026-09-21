@@ -53,7 +53,7 @@ func descend(s *session, root node, segments []string, sc renderScope) (node, er
 
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail. sc holds the reference draws the
-// render shares; each repeat iteration renders over draws of its own.
+// render shares; each repeat iteration renders over a hold set of its own.
 func render(s *session, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
@@ -124,7 +124,7 @@ func expand(s *session, t *template, sc renderScope) string {
 	b.Grow(t.grow)
 	// One draw per held name, for this expansion only: a nested template and each
 	// repeat iteration get their own, since each is its own expansion. A reference
-	// path reads the render's draws in sc instead.
+	// path reads the render's hold in sc instead.
 	var held *hold
 	if t.heldLocal {
 		held = &hold{

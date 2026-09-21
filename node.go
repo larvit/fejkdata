@@ -74,7 +74,7 @@ type template struct {
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
 	held      map[string]bool
-	heldLocal bool // some held name is kept by the expansion itself, so expand makes its draws
+	heldLocal bool // some held name is kept by the expansion itself, so expand makes its hold
 
 	// Filled by `linkTemplateRefs` and `keyDrawGroup`, from the assembled tree:
 	refs         map[string]refBinding // each reference the format reads -> what it is bound to

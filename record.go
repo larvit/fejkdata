@@ -261,7 +261,7 @@ func recordOf(n node) (*template, []Column, error) {
 }
 
 // renderRecord draws each column once, in the name order recordOf fixed, as one render
-// over sc's draws; a table's columns read the row pinned there.
+// over sc's hold; a table's columns read the row pinned there.
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.table != nil {
