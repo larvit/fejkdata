@@ -1334,7 +1334,7 @@ draw.go         one reference draw per render and group: the draw set a render r
 drawfence.go    the load fences over reference draws: the drawGroup option, and the walk over a render's reads
 family.go       a family of linked tables: what a reference path reads of one, and the fence over paths into it
 reference.go    reference sigils, and binding references across the tree
-graph.go        the graph the fences walk: containment and render edges, and the cycle and repeat fences
+graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 builtins.go     the {name()} function registry and its implementations
 layout.go       date and time layouts: the instants one is proved against, and the two samples
 checksum.go     the check characters a derivation appends, and the IBAN they sit inside
@@ -1342,7 +1342,7 @@ transform.go    the builtins that rewrite an operand's value, and the ASCII fold
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 value.go        the value proof: what a typed column or calc operand holds, checked at load
-data.go         the load path: fs.FS folders/files -> namespace tree, multi-source merge, then the fences in order
+data.go         the load path: fs.FS folders/files -> merged namespace tree, and the fence order every scope runs
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
