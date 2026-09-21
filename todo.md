@@ -43,6 +43,9 @@ This round, in order:
 - Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
   hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
   if the difference is deliberate.
+- Run the package doc's Go example under test, as `readme_test.go` runs the README's
+  JSON blocks: `doc.go` and the README both print `Järvedsvägen 43\n891 77 Järved`
+  for seed 42, and nothing renders either, so a draw that moves leaves both false.
 
 ### Data
 

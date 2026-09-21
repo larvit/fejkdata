@@ -863,11 +863,11 @@ the Development section below, and who ships a register the four above then draw
   `secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
 - **The vocabulary sits below `doc.go`'s package clause, not in the package doc.**
   Goal 1 is what a developer choosing a library reads first, and the package doc is
-  that page: a glossary of unexported units would fill two thirds of it with names
-  no consumer can call, and Go doc comments have no code markup, so each one would
+  that page: the glossary would fill two thirds of it with the render path's units,
+  mostly unexported, and Go doc comments have no code markup, so every name would
   render its backticks literally. Below the clause it reaches goal 2's reader — who
-  opens the file — and nothing else. Valid while the glossary names units a consumer
-  cannot reach; one that came to name the exported API would belong above the clause.
+  opens the file — and nothing else. Valid while the glossary's subject is the render
+  path; one written to teach the exported API belongs above the clause.
 - **Options and fields share one namespace.** `format`, `weight`, `repeat`,
   `separator`, `datatype` and `drawGroup` are reserved; every other key is a field. Nesting fields under a
   key, or prefixing options, would tax every template to guard against a
