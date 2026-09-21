@@ -21,8 +21,8 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Split `hold.go`, `draw.go` and `family.go` so each file holds one phase, the
-  load-time fences apart from the render-time machinery, changing no logic.
+- Split `hold.go` and `draw.go` so each file holds one phase, the load-time fences
+  apart from the render-time machinery, changing no logic.
 - Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go` and refresh the
   README Layout lines for `graph.go` and `data.go`: the order every load fence runs in
   is the load path's spine, and no file name carries it.
@@ -165,7 +165,7 @@ by a `data-import/` script, as README goal 12 asks.
 - Have the family fence offer only a rewrite that works: where the drawn table's rows select
   more than one row of the family, every `write {/terr[NO].name}` it offers fails the same
   way, so only the `drawGroup` it also names is left.
-- Spell a table one way across `family.go`'s errors: `checkFamilyPair` names
+- Spell a table one way across the family errors: `checkFamilyPair` names
   `drawn.category`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
   table is `territory` and `misc.territory`, and the short spelling names no file where two
   folders hold that name.
