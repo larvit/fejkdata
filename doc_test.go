@@ -47,15 +47,20 @@ func namesAPass(t *testing.T, where, text string, declared, funcs map[string]boo
 	}
 }
 
-func sourceFiles(t *testing.T) (*token.FileSet, []*ast.File) {
+func goFiles(t *testing.T) []string {
 	t.Helper()
 	pkg, err := build.ImportDir(".", 0)
 	if err != nil {
 		t.Fatalf("read the package directory: %v", err)
 	}
+	return pkg.GoFiles
+}
+
+func sourceFiles(t *testing.T) (*token.FileSet, []*ast.File) {
+	t.Helper()
 	fset := token.NewFileSet()
 	var files []*ast.File
-	for _, name := range pkg.GoFiles {
+	for _, name := range goFiles(t) {
 		f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
 		if err != nil {
 			t.Fatalf("parse %s: %v", name, err)
