@@ -14,12 +14,16 @@ import (
 // rather than going unchecked.
 var backticked = regexp.MustCompile("`([^`]+)`")
 
-// TestVocabularyNamesDeclaredSymbols proves the package doc's Vocabulary names
-// symbols this package declares, so a renamed unit renames its entry with it.
+// TestVocabularyNamesDeclaredSymbols proves the Vocabulary names symbols this
+// package declares, so a renamed unit renames its entry with it.
 func TestVocabularyNamesDeclaredSymbols(t *testing.T) {
 	files := sourceFiles(t)
 	declared := declaredSymbols(files)
-	for _, m := range backticked.FindAllStringSubmatch(vocabulary(t, files), -1) {
+	named := backticked.FindAllStringSubmatch(vocabulary(t, files), -1)
+	if len(named) == 0 {
+		t.Fatal("the Vocabulary names no symbol, so nothing holds a renamed unit to its entry")
+	}
+	for _, m := range named {
 		if !declared[m[1]] {
 			t.Errorf("the Vocabulary names %s, which the package declares nowhere", m[1])
 		}
@@ -46,15 +50,18 @@ func sourceFiles(t *testing.T) []*ast.File {
 
 func vocabulary(t *testing.T, files []*ast.File) string {
 	t.Helper()
+	var found strings.Builder
 	for _, f := range files {
 		for _, c := range f.Comments {
-			if section, found := strings.CutPrefix(c.Text(), "Vocabulary\n"); found {
-				return section
+			if section, is := strings.CutPrefix(c.Text(), "Vocabulary\n\n"); is {
+				found.WriteString(section)
 			}
 		}
 	}
-	t.Fatal("no comment opens with a Vocabulary heading, so fence, hold, pin and the rest are defined nowhere a reader of the code meets them")
-	return ""
+	if found.Len() == 0 {
+		t.Fatal("no comment opens with a Vocabulary heading, so fence, hold, pin and the rest are defined nowhere a reader of the code meets them")
+	}
+	return found.String()
 }
 
 // declaredSymbols is every name the package declares at the top level, a method and
