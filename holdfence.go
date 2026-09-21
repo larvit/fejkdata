@@ -8,10 +8,7 @@ import (
 
 // heldCheck rejects every route to a held sibling name except the ones that read its
 // draw. An expansion holds one draw of that name; anything else that renders it draws
-// again, and the two disagree. checkNoOverlap settles the spellings within one format
-// (a token, an operand); this settles the rest — a reference, whether it sits in that
-// format or in anything the format renders, however deep. A reference path is held
-// for the whole render instead, which drawCheck fences.
+// again, and the two disagree.
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || len(t.held) == 0 {

@@ -30,8 +30,8 @@ This round, in order:
   `drawVisit` and `drawRoute` no longer tell each other apart.
 - Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
   hand-roll `drawSet{unnamed: draws{s: s}}` at three sites; name the lazy-map variant
-  if the difference is deliberate, and say whether `draw.go`, 57 lines after the split,
-  still earns a file of its own.
+  if the difference is deliberate, and put the draw set in one file: `draw.go` holds 57
+  lines after the split, and `render.go` two of the three sites.
 - Run the package doc's Go example under test, as `readme_test.go` runs the README's
   JSON blocks: `doc.go` and the README both print `Järvedsvägen 43\n891 77 Järved`
   for seed 42, and nothing renders either, so a draw that moves leaves both false.
@@ -269,7 +269,12 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Name the draw fences at one level in `doc.go`: the Vocabulary calls them `heldCheck`,
   `drawCheck` and `checkFamilies`, where `checkFamilies` runs under `drawCheck` beside
   `checkOwnFamily` and `checkColumnDraws`, which it names nowhere — so a reader looking
-  for the fence over a record's columns finds no entry reaching it.
+  for the fence over a record's columns finds no entry reaching it. `holdfence.go` and
+  `drawfence.go` now index the fences by file, so deleting the sentence closes it too.
+- Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
+  in `todo.md` and the `gh` rule opens with the README's GitHub decision, so each is a
+  second copy that drifts. Split the comprehension rule while there, which packs the
+  gate, its exceptions, the round and the at-or-above-7.0 regime into one line.
 - Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
   Go at `Dockerfile:21`, and the shipped JSON under `data/` is two-space, so the rule as
   written is one no Go file can break and every data file does.

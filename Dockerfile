@@ -1,4 +1,4 @@
-# The merge gate: `docker build .` fails if vet, formatting or tests fail, and CI
+# The merge gate: `docker build .` fails if vet, complexity, formatting or tests fail, and CI
 # runs exactly this. Day-to-day, prefer `docker compose run` (bind-mounts source,
 # no rebuilds). GO_VERSION defaults to the latest stable Go; the lowest supported
 # version builds the `portable` stage, which every supported Go must pass:
