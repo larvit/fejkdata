@@ -9,9 +9,12 @@
 //	f.Fake("sv_SE.address.locality") // "Sundbyberg": a second call draws afresh
 //
 // Several sources merge in order, the last winning a name clash, so custom data
-// layers over the built-ins. The JSON template format is documented in the README.
+// layers over the built-ins. The JSON template format is documented in the [README].
 //
-// # Vocabulary
+// [README]: https://github.com/larvit/fejkdata#readme
+package fejkdata
+
+// Vocabulary
 //
 // The words the rest of the package uses, and the unit that owns each:
 //
@@ -41,4 +44,3 @@
 //     expansion's held names, `drawCheck` over a render's reference paths, and
 //     `checkFamilies` over the rows they pin. `New` runs them over the data set,
 //     `NewTemplate` and `FakeStruct` over what those compile.
-package fejkdata
