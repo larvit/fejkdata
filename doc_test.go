@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -17,22 +18,33 @@ var backticked = regexp.MustCompile("`([^`\n]+)`")
 func TestVocabularyNamesDeclaredSymbols(t *testing.T) {
 	_, files := sourceFiles(t)
 	declared := declaredSymbols(files)
-	if namesDeclared(t, "the Vocabulary", vocabulary(t, files), declared) == 0 {
+	if len(namesDeclared(t, "the Vocabulary", vocabulary(t, files), declared)) == 0 {
 		t.Fatal("the Vocabulary names no symbol, so nothing holds a renamed unit to its entry")
 	}
 }
 
-// namesDeclared reports how many symbols text backticks, failing for each one the
-// package declares nowhere.
-func namesDeclared(t *testing.T, where, text string, declared map[string]bool) int {
+// namesDeclared is every symbol text backticks, failing for each one the package
+// declares nowhere.
+func namesDeclared(t *testing.T, where, text string, declared map[string]bool) []string {
 	t.Helper()
-	named := backticked.FindAllStringSubmatch(text, -1)
-	for _, m := range named {
+	var named []string
+	for _, m := range backticked.FindAllStringSubmatch(text, -1) {
 		if !declared[m[1]] {
 			t.Errorf("%s names %s, which the package declares nowhere", where, m[1])
 		}
+		named = append(named, m[1])
 	}
-	return len(named)
+	return named
+}
+
+// namesAPass fails unless one symbol text backticks is a function: a field names
+// what a pass reads or writes, never the pass.
+func namesAPass(t *testing.T, where, text string, declared, funcs map[string]bool) {
+	t.Helper()
+	named := namesDeclared(t, where, text, declared)
+	if !slices.ContainsFunc(named, func(n string) bool { return funcs[n] }) {
+		t.Errorf("%s names no function, so it names no pass", where)
+	}
 }
 
 func sourceFiles(t *testing.T) (*token.FileSet, []*ast.File) {
@@ -73,17 +85,30 @@ func vocabulary(t *testing.T, files []*ast.File) string {
 // declaredSymbols is every name the package declares at the top level, a method and
 // a struct field keyed under its type: draws.pin, tableRead.whole.
 func declaredSymbols(files []*ast.File) map[string]bool {
+	names := declaredFuncs(files)
+	for _, f := range files {
+		for _, decl := range f.Decls {
+			if d, isGen := decl.(*ast.GenDecl); isGen {
+				addSpecs(names, d)
+			}
+		}
+	}
+	return names
+}
+
+// declaredFuncs is every function the package declares, a method keyed under its
+// type: template.compileFormat.
+func declaredFuncs(files []*ast.File) map[string]bool {
 	names := map[string]bool{}
 	for _, f := range files {
 		for _, decl := range f.Decls {
-			switch d := decl.(type) {
-			case *ast.FuncDecl:
-				names[d.Name.Name] = true
-				if recv := receiverType(d.Recv); recv != "" {
-					names[recv+"."+d.Name.Name] = true
-				}
-			case *ast.GenDecl:
-				addSpecs(names, d)
+			d, isFunc := decl.(*ast.FuncDecl)
+			if !isFunc {
+				continue
+			}
+			names[d.Name.Name] = true
+			if recv := receiverType(d.Recv); recv != "" {
+				names[recv+"."+d.Name.Name] = true
 			}
 		}
 	}
@@ -137,11 +162,9 @@ const fillHeader = "Filled by "
 // fills, and to the template doc.
 func TestTemplateFieldGroupsNameADeclaredPass(t *testing.T) {
 	fset, files := sourceFiles(t)
-	declared := declaredSymbols(files)
+	declared, funcs := declaredSymbols(files), declaredFuncs(files)
 	doc, st, headers := templateStruct(t, fset, files)
-	if namesDeclared(t, "the template doc", doc, declared) == 0 {
-		t.Error("the template doc names no pass, so nothing says when a field is final")
-	}
+	namesAPass(t, "the template doc", doc, declared, funcs)
 	for _, field := range st.Fields.List {
 		if len(field.Names) == 0 {
 			t.Error("an embedded field of template sits under no header, so nothing says which pass fills it")
@@ -152,9 +175,7 @@ func TestTemplateFieldGroupsNameADeclaredPass(t *testing.T) {
 				t.Errorf("template.%s sits under no %q header, so nothing says which pass fills it", id.Name, fillHeader)
 				continue
 			}
-			if namesDeclared(t, "the header above template."+id.Name, header, declared) == 0 {
-				t.Errorf("the header above template.%s names no symbol, so it names no pass", id.Name)
-			}
+			namesAPass(t, "the header above template."+id.Name, header, declared, funcs)
 		}
 	}
 }
