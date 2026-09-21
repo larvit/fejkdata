@@ -42,33 +42,45 @@ func (*null) isNode() {}
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
 // an independent pick.
+//
+// The groups below are filled in order: compiling the JSON writes the first and
+// calls compileFormat for the second, then the reference link writes the third and
+// calls compileFormat a second time, since a reference is a field the format reads
+// and the first compile ran before any was bound.
 type template struct {
-	format    string
-	fields    map[string]node
-	repeat    int
-	separator string
-	datatype  DataType
-	ops       []op                  // format compiled once (see compileOps); what expand walks
-	grow      int                   // minimum output size, to size the render buffer
-	fixed     bool                  // no op varies, so every render is lit
-	lit       string                // the whole output when fixed
-	refs      map[string]refBinding // each reference the format reads -> what it is bound to
+	// Filled by `compileString`, `compileTemplate`, `table.compileFormat` and
+	// `checkCells`, from what the JSON says:
+	format     string
+	fields     map[string]node
+	repeat     int
+	separator  string
+	datatype   DataType
+	drawGroup  string // the draw group it draws in, as written; "" keeps its caller's
+	fromString bool   // written as a JSON string rather than an object
+	record     bool   // compiled at the top without a repeat, so its fields are record columns
+	table      *table // the table whose format this is, whose columns are the fields
+	cellOf     *table // the table whose cell this is
+	cellRow    int    // the row the cell sits in
+
+	// Filled by `template.compileFormat`, from the format over the fields above:
+	ops   []op   // what expand walks
+	grow  int    // minimum output size, to size the render buffer
+	fixed bool   // no op varies, so every render is lit
+	lit   string // the whole output when fixed
 	// bound maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
 	bound map[string]string
 	// held is every name drawn once per expansion: the bound levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
-	held         map[string]bool
-	heldLocal    bool        // some held name is kept by the expansion itself, so expand makes its draws
-	fromString   bool        // written as a JSON string rather than an object
-	readsColumn  *columnRead // set when the format is one reference alone reading a record's column
-	record       bool        // compiled at the top without a repeat, so its fields are record columns
-	table        *table      // the table whose format this is, whose columns are the fields
-	cellOf       *table      // the table whose cell this is
-	cellRow      int         // the row the cell sits in
-	drawGroup    string      // the draw group it draws in, as written; "" keeps its caller's
-	drawGroupKey string      // its draw group keyed by its category once linked: what a render reads its reference paths under
+	held      map[string]bool
+	heldLocal bool // some held name is kept by the expansion itself, so expand makes its draws
+
+	// Filled by `linkRefs`, or `linkNodeRefs` for an inline template, from the
+	// assembled tree, which also add each bound reference to fields above:
+	refs         map[string]refBinding // each reference the format reads -> what it is bound to
+	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
+	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
 }
 
 func (*template) isNode() {}
