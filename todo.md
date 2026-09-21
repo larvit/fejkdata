@@ -196,7 +196,9 @@ by a `data-import/` script, as README goal 12 asks.
   README. Carry the timezone weight's premise in with it: weighting by GeoNames city
   population moved 300 seeded draws of `misc.territory[US].timezone` from 44 landing on
   the four zones most Americans live in to 278, and dropped `America/Indiana/Petersburg`
-  (pop. 2,400) from 17 draws to 0.
+  (pop. 2,400) from 17 draws to 0. Carry in the decision `linkTemplateRefs`'s doc holds
+  today, which no entry records: a category is a unit, so a reference back into it
+  describes a draw other than the fields beside it, which is what goal 3 asks for.
 - Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds: nothing has shipped, so
   "no longer paths", "where it used to fail" and "where it used to be an empty string"
   describe versions no reader can have installed.
@@ -237,6 +239,12 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## Not release-bound
 
+- Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
+  back to the clause it came from: the goal spells them out in prose while `todo.md`
+  records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
+- Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
+  Go at `Dockerfile:21`, and the shipped JSON under `data/` is two-space, so the rule as
+  written is one no Go file can break and every data file does.
 - Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub or retire it:
   Gitea converts a repository to a mirror only by re-creating it, so until that runs
   the copy there is a second owner of one history and goes stale from this commit.
