@@ -43,13 +43,11 @@ func (*null) isNode() {}
 // that many times and joins the results with separator (default ""), each render
 // an independent pick.
 //
-// The groups below are filled in order: compiling the JSON writes the first and
-// calls compileFormat for the second, then the reference link writes the third and
-// calls compileFormat a second time, since a reference is a field the format reads
-// and the first compile ran before any was bound.
+// Each group below names the pass that fills it. What `template.compileFormat`
+// fills is final only once `linkTemplateRefs` has run: where the format holds a
+// reference, that binds it and compiles the format again.
 type template struct {
-	// Filled by `compileString`, `compileTemplate`, `table.compileFormat` and
-	// `checkCells`, from what the JSON says:
+	// Filled by `compileString`, `compileTemplate` and `table.compileFormat`:
 	format     string
 	fields     map[string]node
 	repeat     int
@@ -59,10 +57,12 @@ type template struct {
 	fromString bool   // written as a JSON string rather than an object
 	record     bool   // compiled at the top without a repeat, so its fields are record columns
 	table      *table // the table whose format this is, whose columns are the fields
-	cellOf     *table // the table whose cell this is
-	cellRow    int    // the row the cell sits in
 
-	// Filled by `template.compileFormat`, from the format over the fields above:
+	// Filled by `checkCells`, after the cell's own format has compiled:
+	cellOf  *table // the table whose cell this is
+	cellRow int    // the row the cell sits in
+
+	// Filled by `template.compileFormat`, from `template.format` and `template.refs`:
 	ops   []op   // what expand walks
 	grow  int    // minimum output size, to size the render buffer
 	fixed bool   // no op varies, so every render is lit
@@ -76,8 +76,8 @@ type template struct {
 	held      map[string]bool
 	heldLocal bool // some held name is kept by the expansion itself, so expand makes its draws
 
-	// Filled by `linkRefs`, or `linkNodeRefs` for an inline template, from the
-	// assembled tree, which also add each bound reference to fields above:
+	// Filled by `linkTemplateRefs` and `keyDrawGroup` from the assembled tree;
+	// `linkTemplateRefs` adds each bound reference to `template.fields` too:
 	refs         map[string]refBinding // each reference the format reads -> what it is bound to
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
 	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
@@ -217,8 +217,8 @@ func compileString(s string) (node, error) {
 	return t, nil
 }
 
-// compileFormat compiles the format into ops once every field is in place, and
-// applies the fences that need the compiled reads.
+// compileFormat compiles the format into ops, and applies the fences that need the
+// compiled reads.
 func (t *template) compileFormat() error {
 	c := compileOps(t.format, t.refs)
 	t.ops, t.grow, t.bound, t.held, t.heldLocal = c.ops, c.grow, c.bound, c.held, c.heldLocal
