@@ -963,3 +963,70 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 		t.Fatalf("se.locality[Sandby] = %v, want its keys listed plainly", err)
 	}
 }
+
+// TestRowSetSimulatesPinning proves the load-time walk's rowSet answers what
+// (*draws).pin and pinned answer at render time: the rows one entry brings with it,
+// the cells that entry rules out, and which two entries are alternatives.
+func TestRowSetSimulatesPinning(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
+	var tables []*table
+	for _, category := range []string{"region", "municipality", "locality"} {
+		tbl, isTable := f.categories[category].(*table)
+		if !isTable {
+			t.Fatalf("%s is not a table", category)
+		}
+		tables = append(tables, tbl)
+	}
+	for _, entered := range tables {
+		for row := 0; row < entered.rows(); row++ {
+			s := rowSet(nil).enter(entered, row)
+			var pinned draws
+			pinned.pin(entered, row)
+			assertRowSetAgrees(t, s, pinned, entered, row, tables)
+		}
+	}
+}
+
+// assertRowSetAgrees compares the set entered with row of entered against the same
+// row pinned, over every row of tables.
+func assertRowSetAgrees(t *testing.T, s rowSet, pinned draws, entered *table, row int, tables []*table) {
+	t.Helper()
+	pinned.each(func(tbl *table, r int) {
+		got, in := s.rowOf(tbl)
+		if !in || got != r {
+			t.Errorf("entering %s leaves %s unset in the row set, though pinning it pins %s", entered.selectorSpelling(row), tbl.path, tbl.selectorSpelling(r))
+		}
+	})
+	for _, cand := range tables {
+		for cr := 0; cr < cand.rows(); cr++ {
+			var beside draws
+			beside.pin(entered, row)
+			refused := beside.pinRow(cand, cr) != nil
+			if got := s.excludes(&template{cellOf: cand, cellRow: cr}); got != refused {
+				t.Errorf("excludes(%s) = %v beside %s, but pinRow refuses it = %v", cand.selectorSpelling(cr), got, entered.selectorSpelling(row), refused)
+			}
+			a := drawAt{alt: s}
+			b := drawAt{alt: rowSet(nil).enter(cand, cr)}
+			if got := alternatives(a, b); got != refused {
+				t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
+			}
+		}
+	}
+}
+
+// TestCellsOfRowsThatNeverMeetAreNotCompared pins what the entered ancestors buy: a
+// cell of region 01 and a cell of a municipality of region 12 never render together,
+// so the reads inside them are not one render's to reconcile.
+func TestCellsOfRowsThatNeverMeetAreNotCompared(t *testing.T) {
+	files := with(geo(), map[string]string{
+		"addr.json":        `{"format":"{city}","city":"Lund"}`,
+		"municipality.tsv": "code\tname\tregion\tpopulation\tnote\n0180\tStockholm\t01\t980000\t-\n0184\tSolna\t01\t85000\t-\n1280\tMalmö\t12\t360000\t{/addr.city}\n1281\tLund\t12\t130000\t-\n1480\tGöteborg\t14\t590000\t-\n",
+		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t{/addr}\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
+		"x.json":           `"{/region.note} {/municipality.note}"`,
+	})
+	f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files)), WithSeed(1))
+	if err != nil {
+		t.Fatalf("New = %v, want the two cells accepted", err)
+	}
+	fake(t, f, "x")
+}
