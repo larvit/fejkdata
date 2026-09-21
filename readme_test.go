@@ -194,7 +194,6 @@ func TestReadmeTableExample(t *testing.T) {
 	}
 }
 
-// TestLayoutNamesEverySourceFile holds an added, renamed or split file to its Layout line.
 func TestLayoutNamesEverySourceFile(t *testing.T) {
 	src := readme(t)
 	i := strings.Index(src, "## Layout")
