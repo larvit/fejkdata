@@ -21,16 +21,13 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Put `draws` and its methods in one file: it is declared in `hold.go:262` and all
-  eight of its methods sit in `family.go`, so a jump to the type lands where none of
-  the behaviour is.
 - Split `hold.go`, `draw.go` and `family.go` so each file holds one phase, the
   load-time fences apart from the render-time machinery, changing no logic.
 - Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go` and refresh the
   README Layout lines for `graph.go` and `data.go`: the order every load fence runs in
   is the load path's spine, and no file name carries it.
 - Name the `draw` stem apart: the free `pinned` in `hold.go` is not `(*draws).pinned`
-  in `family.go`, `compileFormat` is a method on both `*template` and `*table`, and
+  beside it, `compileFormat` is a method on both `*template` and `*table`, and
   `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`, `drawVisit` and
   `drawRoute` no longer tell each other apart.
 - Spell one fresh draw set one way: `newDrawSet` exists, and `render.go` and `draw.go`
