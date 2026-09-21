@@ -1141,8 +1141,8 @@ the Development section below, and who ships a register the four above then draw
   row and a cell in another never meet, and each may select its own row of another
   table; the cells of one row, and whatever they reach, do meet, and so does the
   format beside them. The rule the fence applies is that two reads meet unless they
-  sit in two rows of one table, or in rows no render pins at once: a path read pins a
-  row's ancestors with it, while a table read whole draws a row and pins none. A
+  sit in two rows of one table, or in rows that never render together: a path read
+  pins a row's ancestors with it, while a table read whole draws a row and pins none. A
   choice's items get no such treatment yet: two items selecting different rows
   are still refused.
 - **A table never reaches its own family, by any route.** A `repeat` iteration and a
