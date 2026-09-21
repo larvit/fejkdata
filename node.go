@@ -43,13 +43,13 @@ func (*null) isNode() {}
 // that many times and joins the results with separator (default ""), each render
 // an independent pick.
 //
-// Each group below names the pass that fills it. What `template.compileFormat`
-// fills is final only once `linkTemplateRefs` has run: where the format holds a
-// reference, that binds it and compiles the format again.
+// What `template.compileFormat` fills is final only once `linkTemplateRefs` has
+// run: where the format holds a reference, that binds it and compiles the format
+// again.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileFormat`:
 	format     string
-	fields     map[string]node
+	fields     map[string]node // `linkTemplateRefs` adds each bound reference here
 	repeat     int
 	separator  string
 	datatype   DataType
@@ -76,8 +76,7 @@ type template struct {
 	held      map[string]bool
 	heldLocal bool // some held name is kept by the expansion itself, so expand makes its draws
 
-	// Filled by `linkTemplateRefs` and `keyDrawGroup` from the assembled tree;
-	// `linkTemplateRefs` adds each bound reference to `template.fields` too:
+	// Filled by `linkTemplateRefs` and `keyDrawGroup`, from the assembled tree:
 	refs         map[string]refBinding // each reference the format reads -> what it is bound to
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
 	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
