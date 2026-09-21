@@ -2,7 +2,7 @@
 # runs exactly this. Day-to-day, prefer `docker compose run` (bind-mounts source,
 # no rebuilds). GO_VERSION defaults to the latest stable Go; override it to test
 # the lowest supported version: docker build --build-arg GO_VERSION=1.22.12 .
-ARG GO_VERSION=1.26.4
+ARG GO_VERSION=1.27.1
 FROM golang:${GO_VERSION}
 
 WORKDIR /app
