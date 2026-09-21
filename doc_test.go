@@ -133,12 +133,15 @@ func receiverType(recv *ast.FieldList) string {
 
 const fillHeader = "Filled by "
 
-// TestTemplateFieldsNameTheirPass holds a renamed pass to the group it fills.
-func TestTemplateFieldsNameTheirPass(t *testing.T) {
+// TestTemplateFieldGroupsNameADeclaredPass holds a renamed pass to the group it
+// fills, and to the template doc.
+func TestTemplateFieldGroupsNameADeclaredPass(t *testing.T) {
 	fset, files := sourceFiles(t)
 	declared := declaredSymbols(files)
 	doc, st, headers := templateStruct(t, fset, files)
-	namesDeclared(t, "the template doc", doc, declared)
+	if namesDeclared(t, "the template doc", doc, declared) == 0 {
+		t.Error("the template doc names no pass, so nothing says when a field is final")
+	}
 	for _, field := range st.Fields.List {
 		if len(field.Names) == 0 {
 			t.Error("an embedded field of template sits under no header, so nothing says which pass fills it")
@@ -150,7 +153,7 @@ func TestTemplateFieldsNameTheirPass(t *testing.T) {
 				continue
 			}
 			if namesDeclared(t, "the header above template."+id.Name, header, declared) == 0 {
-				t.Errorf("the header above template.%s names no function, so it names no pass", id.Name)
+				t.Errorf("the header above template.%s names no symbol, so it names no pass", id.Name)
 			}
 		}
 	}
