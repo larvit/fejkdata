@@ -1103,9 +1103,10 @@ the Development section below, and who ships a register the four above then draw
   a template beside the family under a selected row, is refused today; admitting it
   later is additive, since a refused spelling gains a meaning and no accepted one
   changes, so the door stays open for the address records the plan describes.
-- **A table read into is pinned; a table rendered whole draws afresh.** A path into a
-  table pins its row for the render and group, as a reference path pins its level,
-  and a bare `{/city}` draws each time, as a bare reference does; so a bare table
+- **A table read into is pinned; a table read whole draws afresh.** A path into a
+  table pins its row, and the ancestor rows it links to, for the render and group, as a
+  reference path pins its level, and a bare `{/city}` draws a row each time and pins no
+  row of its family, as a bare reference does; so a bare table
   beside a path into its family is refused like a bare reference beside a path into
   it. A bare table reference still counts as a read for a `drawGroup`, since the group
   is what draws it apart from the family's pins.
@@ -1140,9 +1141,9 @@ the Development section below, and who ships a register the four above then draw
 - **The rows of a table are alternatives.** Only one row renders, so a cell in one
   row and a cell in another never meet, and each may select its own row of another
   table; the cells of one row, and whatever they reach, do meet, and so does the
-  format beside them. The rule the fence applies is that two reads meet unless they
-  sit in two rows of one table, or in rows that never render together: a path read
-  pins a row's ancestors with it, while a table read whole draws a row and pins none. A
+  format beside them. The rule the fence applies is that two reads meet unless they sit
+  in rows that never render together: two rows of one table, or rows under two different
+  rows of an ancestor a path pinned. A
   choice's items get no such treatment yet: two items selecting different rows
   are still refused.
 - **A table never reaches its own family, by any route.** A `repeat` iteration and a

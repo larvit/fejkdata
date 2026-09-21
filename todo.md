@@ -153,10 +153,22 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
-- Hold two whole reads of one table to one row, or refuse the pair: `{/region}|{/region}`
-  draws a row for each read, so cells of two rows render together while the fence counts
-  them alternatives and compares neither — a bare `{/addr}` in one row beside
-  `{/addr.city}` in another is the overlap it refuses everywhere else.
+- Refuse two whole reads of one table family in one render, which goal 5 promises is a
+  load error: `{/sel}|{/sel}` panics out of `Fake` with "a fence should have refused this
+  at New" where the two draws land on rows whose cells select different rows of another
+  table, and `{/geo.SE.locality}|{/geo.SE.municipality}` renders a locality outside the
+  municipality beside it. Each read draws its own row, so cells of two rows render
+  together, where the fence counts them alternatives and compares neither.
+- Name the cell a refused read sits in: where both reads come from TSV cells the overlap
+  error says `{area} with {/addr} renders a level that {where} with {/addr.city} reads a
+  path into`, naming neither table, row nor column, so the author greps a register-sized
+  file — and "name the fields you want instead" rewrites a cell that is not the one to fix.
+- Stop the family fence naming a rewrite that cannot work: where the drawn table's rows
+  select more than one row of the family, every `write {/terr[NO].name}` it offers fails
+  the same way, and only the `drawGroup` it also names is left.
+- Spell a table one way in an error: `family.go` names `drawn.category` in one message and
+  `t.path` in the next, so one table is `territory` and `misc.territory`, and the short
+  spelling names no file where two folders hold that name.
 - Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
   `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
   and stop there, where a case-insensitive match could name the row that exists, and a
@@ -172,6 +184,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide whether the README's Audience names the author who writes categories under
+  `--data-path`: the four personas listed consume the shipped set and the contributor
+  ships a register upstream, while "Your own data" is a README section, `-d` is a
+  first-class flag, and every load error the draw fences raise lands on that author.
 - Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
   path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 13 promises
   the directory keeps growing.
