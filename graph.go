@@ -185,58 +185,6 @@ func pathLeaves(n node, tail []string) []node {
 	return out
 }
 
-// nodeScope is the set of nodes one validation pass covers: a whole loaded tree,
-// or a single inline node.
-type nodeScope func(fn func(path string, n node) error) error
-
-func treeScope(root map[string]node) nodeScope {
-	return func(fn func(path string, n node) error) error { return walkNodes(root, fn) }
-}
-
-func inlineScope(n node, label string) nodeScope {
-	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
-}
-
-func checkScope(s nodeScope) error {
-	if err := checkColumns(s); err != nil {
-		return err
-	}
-	return checkRenders(s)
-}
-
-// checkRenders runs the per-node fences over a scope, each over the whole scope
-// before the next, so which of several broken nodes is reported does not depend on
-// the walk. It runs after checkNoCycles, whose guarantee is what lets the walks
-// terminate.
-func checkRenders(s nodeScope) error {
-	mem := reachMemo{}
-	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
-		return err
-	}
-	if err := s(heldCheck); err != nil {
-		return err
-	}
-	fence := &drawCheck{}
-	refs := false
-	if err := s(func(path string, n node) error {
-		if t, ok := n.(*template); ok && len(t.refs) > 0 {
-			refs = true
-		}
-		return fence.checkDrawGroup(path, n)
-	}); err != nil {
-		return err
-	}
-	if refs {
-		if err := s(fence.checkDraws); err != nil {
-			return err
-		}
-		if err := s(fence.checkRecordDraws); err != nil {
-			return err
-		}
-	}
-	return s((&valueProof{}).checkDatatype)
-}
-
 type reachMemo map[node]int
 
 func (m reachMemo) of(n node) int {

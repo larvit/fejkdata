@@ -21,9 +21,6 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Move `nodeScope`, `checkScope` and `checkRenders` out of `graph.go` and refresh the
-  README Layout lines for `graph.go` and `data.go`: the order every load fence runs in
-  is the load path's spine, and no file name carries it.
 - Name the `draw` stem apart: the free `pinned` in `holdfence.go` is not
   `(*draws).pinned` in `hold.go`, `compileFormat` is a method on both `*template` and
   `*table`, and `draws`, `drawSet`, `drawScope`, `drawWalk`, `drawAt`, `drawKey`,
