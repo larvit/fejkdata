@@ -250,8 +250,8 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 
 func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 	for src, want := range map[string]string{
-		`"{calc(1/0)}"`:                                  "divides by 0",
-		`"{calc(2/(1-1))}"`:                              "divides by (1 - 1)",
+		`"{calc(1/0)}"`:     "divides by 0",
+		`"{calc(2/(1-1))}"`: "divides by (1 - 1)",
 		`{"format":"{calc(x/y)}","x":"1","y":"0"}`:       "divides by y",
 		`{"format":"{calc(x/(y*2))}","x":"1","y":" 0 "}`: "divides by (y * 2)",
 		`{"format":"{calc((a/0)+b)}","a":"1","b":"2"}`:   "divides by 0",
