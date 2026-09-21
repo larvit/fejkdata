@@ -291,18 +291,20 @@ type drawWalk struct {
 	seen  map[drawVisit]bool
 }
 
-// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, and
-// the table rows it entered.
+// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
+// table rows it entered, and the table a whole read draws a row of.
 type drawAt struct {
 	group string
 	route drawRoute
 	alt   rowSet
+	drawn *table
 }
 
 // rowSet is the rows a walk entered, one per table: only one row of a table renders, so reads in
 // two rows of one table never meet, while reads in one row, across its columns and whatever they
-// reach, do. It simulates what the render pins: enter is (*draws).pin and rowOf is its pinned, and
-// TestRowSetSimulatesPinning holds the two to one answer.
+// reach, do. It stands in for the rows the render pins, so a row a path read pins enters with the
+// ancestors (*draws).pin pins alongside it, while a table read whole is drawn a row of and pins
+// none.
 type rowSet []tablePin
 
 func (s rowSet) rowOf(t *table) (int, bool) {
@@ -314,24 +316,24 @@ func (s rowSet) rowOf(t *table) (int, bool) {
 	return 0, false
 }
 
-// enter is s with row r of t and the ancestor rows it links to, where t is not in it yet; the set
-// is copied, since walks branch.
-func (s rowSet) enter(t *table, r int) rowSet {
+// enter is s with row r of t, where t is not in it yet, and, where pins says the render pins that
+// row rather than draws it, the ancestor rows it links to. The set is copied, since walks branch.
+func (s rowSet) enter(t *table, r int, pins bool) rowSet {
 	if _, in := s.rowOf(t); in {
 		return s
 	}
 	out := append(make(rowSet, 0, len(s)+1), s...)
 	for {
-		if _, in := out.rowOf(t); in {
-			break
-		}
 		out = append(out, tablePin{t, r})
-		if t.parentT == nil {
+		if !pins || t.parentT == nil {
 			break
 		}
 		t, r = t.parentT, t.parentRow(r)
+		if _, in := out.rowOf(t); in {
+			break
+		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].t.category < out[j].t.category })
+	sort.Slice(out, func(i, j int) bool { return out[i].t.path < out[j].t.path })
 	return out
 }
 
@@ -394,12 +396,15 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	if t, isTemplate := n.(*template); isTemplate && t.drawGroupKey != "" {
 		at.group = t.drawGroupKey
 	}
+	if t, isTable := n.(*table); isTable {
+		at.drawn = t
+	}
 	for _, e := range renderEdges(n) {
 		if cell, isCell := e.to.(*template); isCell && cell.cellOf != nil {
 			if at.alt.excludes(cell) {
 				continue
 			}
-			w.edge(n, e, drawAt{at.group, at.route, at.alt.enter(cell.cellOf, cell.cellRow)})
+			w.edge(n, e, drawAt{at.group, at.route, at.alt.enter(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn), at.drawn})
 			continue
 		}
 		w.edge(n, e, at)
@@ -430,7 +435,7 @@ func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.alt = at.alt.enter(t, r) })
+			tr.pins.each(func(t *table, r int) { at.alt = at.alt.enter(t, r, true) })
 		}
 	}
 	w.walk(e.to, at)
