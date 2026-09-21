@@ -21,9 +21,6 @@ name says whether a unit runs at `New` or at `Fake`.
 
 This round, in order:
 
-- Define the fence vocabulary where a reader of the code meets it: fence, hold, pin,
-  draw, draw group, expansion against render, family, whole. It exists only across five
-  README sections today, and every reader paid for it before the three files read at all.
 - Say on the `template` struct which pass fills which field, and that `compileFormat`
   runs a second time once `linkTemplateRefs` binds the references: nine of its fields
   are written by four other files, and the order lives only in `loadData`'s body.
