@@ -247,5 +247,10 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   `x-go` anchor a `user:` — that one needs a mechanism, since Compose interpolates from
   the process environment and neither `UID` nor `GID` is exported there, so
   `user: "${UID}:${GID}"` resolves to `":"`.
+- Spell the latest supported Go once: `Dockerfile`'s `ARG GO_VERSION` and
+  `compose.yaml`'s `golang:${GO_VERSION:-…}` pin one version twice, and a bump that
+  moved only the first left `docker compose run --rm fmt` formatting to a `gofmt` the
+  gate rejects. A `renovate.json` custom manager reads the second today; drop it with
+  the duplication.
 - Publish a homepage with an in-browser generator: the library compiled to WebAssembly,
   so visitors generate as much data as they like in their own browser.

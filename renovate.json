@@ -1,5 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "datasourceTemplate": "docker",
+      "description": "compose.yaml's Go, which the shell default hides from the docker-compose manager",
+      "managerFilePatterns": [
+        "/^compose\\.yaml$/"
+      ],
+      "matchStrings": [
+        "image: (?<depName>golang):\\$\\{GO_VERSION:-(?<currentValue>[^}]+)\\}"
+      ]
+    }
+  ],
   "extends": [
     "config:recommended"
   ]
