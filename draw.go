@@ -297,7 +297,7 @@ type drawAt struct {
 	group string
 	route drawRoute
 	alt   rowSet
-	drawn *table
+	drawn *table // only that table's own cells read it, which the own-family fence is what keeps true, so the visit keys leave it out
 }
 
 // rowSet is the rows a walk entered, one per table: only one row of a table renders, so reads in
@@ -404,7 +404,9 @@ func (w *drawWalk) walk(n node, at drawAt) {
 			if at.alt.excludes(cell) {
 				continue
 			}
-			w.edge(n, e, drawAt{at.group, at.route, at.alt.enter(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn), at.drawn})
+			in := at
+			in.alt = at.alt.enter(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn)
+			w.edge(n, e, in)
 			continue
 		}
 		w.edge(n, e, at)

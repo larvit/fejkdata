@@ -153,6 +153,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
+- Hold two whole reads of one table to one row, or refuse the pair: `{/region}|{/region}`
+  draws a row for each read, so cells of two rows render together while the fence counts
+  them alternatives and compares neither — a bare `{/addr}` in one row beside
+  `{/addr.city}` in another is the overlap it refuses everywhere else.
 - Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
   `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
   and stop there, where a case-insensitive match could name the row that exists, and a
