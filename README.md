@@ -747,11 +747,11 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 ### Performance
 
 Each file is parsed, validated and weight-indexed once, in `New`. Proving the draw
-fences adds one pass over the loaded tree, and walks what a render reads only where
-data binds a reference, so a set that binds none pays for the pass alone. A `Fake` call
-then costs about what its output costs: an unweighted pick is O(1) whatever the
-list's length, a weighted one O(log n), and long formats, deep nesting and many
-tokens add cost in proportion to the output.
+fences adds a pass over the loaded tree per fence, and walks what a render reads only
+where data binds a reference, so a set that binds none pays for the passes alone. A
+`Fake` call then costs about what its output costs: an unweighted pick is O(1)
+whatever the list's length, a weighted one O(log n), and long formats, deep nesting
+and many tokens add cost in proportion to the output.
 
 ## Versioning
 
@@ -1342,7 +1342,7 @@ transform.go    the builtins that rewrite an operand's value, and the ASCII fold
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 value.go        the value proof: what a typed column or calc operand holds, checked at load
-data.go         the load path: fs.FS folders/files -> merged namespace tree, and the fence order every scope runs
+data.go         the load path: fs.FS folders/files -> merged namespace tree, and the fence order a scope runs
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
