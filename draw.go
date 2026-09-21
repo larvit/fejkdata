@@ -297,14 +297,11 @@ type drawAt struct {
 	group string
 	route drawRoute
 	alt   rowSet
-	drawn *table // only that table's own cells read it, which the own-family fence is what keeps true, so the visit keys leave it out
+	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
 }
 
-// rowSet is the rows a walk entered, one per table: only one row of a table renders, so reads in
-// two rows of one table never meet, while reads in one row, across its columns and whatever they
-// reach, do. It stands in for the rows the render pins, so a row a path read pins enters with the
-// ancestors (*draws).pin pins alongside it, while a table read whole is drawn a row of and pins
-// none.
+// rowSet stands in at load for the rows (*draws).pin holds at render: a path read enters a row with
+// its ancestors, a whole read enters the drawn row alone.
 type rowSet []tablePin
 
 func (s rowSet) rowOf(t *table) (int, bool) {
@@ -316,8 +313,8 @@ func (s rowSet) rowOf(t *table) (int, bool) {
 	return 0, false
 }
 
-// enter is s with row r of t, where t is not in it yet, and, where pins says the render pins that
-// row rather than draws it, the ancestor rows it links to. The set is copied, since walks branch.
+// enter is s with row r of t, and with t's ancestors where the render pins that row rather than
+// drawing it; the set is copied, since walks branch.
 func (s rowSet) enter(t *table, r int, pins bool) rowSet {
 	if _, in := s.rowOf(t); in {
 		return s

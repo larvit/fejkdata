@@ -19,8 +19,8 @@ replacement, and each removed path, column or flag.
   table above it, a table whose format or cell references its own family, and,
   within one render and draw group, a path drawing a table another path selects a
   row of, or two paths pinning different rows of one table. Two cells are weighed
-  against each other only where they can render together: not two rows of one table, and
-  not rows under different rows of a table a path pinned.
+  against each other only where they can render together: never two rows of one table,
+  nor rows under different rows of a table a path pinned.
 - `New` refuses a root choice of templates sharing one format and one set of string
   fields, naming the rows TSV to write instead.
 - `misc.territory`, `misc.currency`, `misc.language`, `misc.httpstatus` and

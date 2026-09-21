@@ -6,8 +6,8 @@ Ordered as the releases that ship it.
 
 ### Comprehension, until the panel scores 7.0
 
-Nothing else ships while the score is under 7.0 — no feature, no category, no data —
-bar a security fix and a dependency bump, per README goal 2. This section is one
+Nothing else ships while the score is under 7.0 — no feature, no category, no data — bar
+what `AGENTS.md` excepts, per README goal 2. This section is one
 round, replayed: the `comprehension-panel` skill's nine-seat findings run at depth 1,
 a PR per item it names, then the run again, until the score passes. The run is the
 nine-seat one: the round is meant to buy architectural change, and the four-seat
@@ -165,12 +165,13 @@ by a `data-import/` script, as README goal 12 asks.
   error names the category and the two columns but no row, so the author greps a
   register-sized file for the cell — and "name the fields you want instead" rewrites a
   cell that is not the one to fix.
-- Stop the family fence naming a rewrite that cannot work: where the drawn table's rows
-  select more than one row of the family, every `write {/terr[NO].name}` it offers fails
-  the same way, and only the `drawGroup` it also names is left.
-- Spell a table one way in an error: `family.go` names `drawn.category` in one message and
-  `t.path` in the next, so one table is `territory` and `misc.territory`, and the short
-  spelling names no file where two folders hold that name.
+- Have the family fence offer only a rewrite that works: where the drawn table's rows select
+  more than one row of the family, every `write {/terr[NO].name}` it offers fails the same
+  way, so only the `drawGroup` it also names is left.
+- Spell a table one way across `family.go`'s errors: `checkFamilyPair` names
+  `drawn.category`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
+  table is `territory` and `misc.territory`, and the short spelling names no file where two
+  folders hold that name.
 - Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
   `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
   and stop there, where a case-insensitive match could name the row that exists, and a
@@ -186,9 +187,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
-- Decide whether a goal 5 violation joins the comprehension gate's exception list, beside
-  a security fix and a dependency bump: the panic above waits behind the whole round at
-  5.9, and `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile.
+- Decide whether a goal 5 violation joins the comprehension gate's exception list: the
+  `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
+  `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
+  repair restoring behaviour the repo already claims may already pass the gate as written.
 - Decide whether the README's Audience names the author who writes categories under
   `--data-path`: the four personas listed consume the shipped set and the contributor
   ships a register upstream, while "Your own data" is a README section, `-d` is a
