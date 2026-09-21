@@ -746,12 +746,14 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
-Each file is parsed, validated and weight-indexed once, in `New`. Proving the draw
-fences adds a pass over the loaded tree per fence, and walks what a render reads only
-where data binds a reference, so a set that binds none pays for the passes alone. A
-`Fake` call then costs about what its output costs: an unweighted pick is O(1)
-whatever the list's length, a weighted one O(log n), and long formats, deep nesting
-and many tokens add cost in proportion to the output.
+Each file is parsed, validated and weight-indexed once, in `New`, bar a table with a
+name or a parent column, which indexes its rows on the first `Fake` that selects or
+descends through it. Proving the draw fences adds a pass over the loaded tree per
+fence, and walks what a render reads only where data binds a reference, so a set that
+binds none pays for the passes alone. A `Fake` call then costs about what its output
+costs: an unweighted pick is O(1) whatever the list's length, a weighted one
+O(log n), and long formats, deep nesting and many tokens add cost in proportion to
+the output.
 
 ## Versioning
 
