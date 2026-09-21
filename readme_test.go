@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 )
 
 var (
 	jsonBlock  = regexp.MustCompile("(?s)```json\n(.*?)```")
+	plainBlock = regexp.MustCompile("(?s)```\n(.*?)```")
 	tsvBlock   = regexp.MustCompile("(?s)```tsv\n(.*?)```")
 	rowsFile   = regexp.MustCompile(`"rows":\s*"([^"]+)"`)
 	parentName = regexp.MustCompile(`"parent":\s*"([^"]+)"`)
@@ -189,5 +191,40 @@ func TestReadmeTableExample(t *testing.T) {
 	r, err := f.FakeRecord("example")
 	if err != nil || r.CSVHeader() != "alpha2,name,population" {
 		t.Fatalf("README table example as a record: %q, %v", r.CSVHeader(), err)
+	}
+}
+
+// TestLayoutNamesEverySourceFile holds an added, renamed or split file to its Layout
+// line, so the list a reader picks a file from stays the list on disk.
+func TestLayoutNamesEverySourceFile(t *testing.T) {
+	src := readme(t)
+	i := strings.Index(src, "## Layout")
+	if i < 0 {
+		t.Fatal("README lost the Layout section")
+	}
+	block := plainBlock.FindStringSubmatch(src[i:])
+	if block == nil {
+		t.Fatal("README Layout section has no block")
+	}
+	listed := map[string]bool{}
+	for _, line := range strings.Split(block[1], "\n") {
+		name, _, _ := strings.Cut(strings.TrimSpace(line), " ")
+		if strings.HasSuffix(name, ".go") {
+			listed[name] = true
+		}
+	}
+	for _, name := range goFiles(t) {
+		if !listed[name] {
+			t.Errorf("the README Layout names no %s, so nothing says what it holds", name)
+		}
+		delete(listed, name)
+	}
+	stale := make([]string, 0, len(listed))
+	for name := range listed {
+		stale = append(stale, name)
+	}
+	slices.Sort(stale)
+	for _, name := range stale {
+		t.Errorf("the README Layout names %s, which the package does not hold", name)
 	}
 }
