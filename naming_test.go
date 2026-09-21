@@ -23,8 +23,6 @@ func TestNoFunctionSpellsAMethod(t *testing.T) {
 	}
 }
 
-// namespaceFiles is every file declaring into the package namespace, its in-package
-// tests included.
 func namespaceFiles(t *testing.T) []*ast.File {
 	t.Helper()
 	pkg := packageDir(t)
@@ -32,8 +30,6 @@ func namespaceFiles(t *testing.T) []*ast.File {
 	return files
 }
 
-// declaredCalls is what each name is called as: a function, and the methods
-// spelling it under the types declaring them.
 func declaredCalls(files []*ast.File) (funcs map[string]bool, methods map[string][]string) {
 	funcs, methods = map[string]bool{}, map[string][]string{}
 	for _, f := range files {
