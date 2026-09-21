@@ -79,9 +79,7 @@ func contained(n node) []namedNode {
 }
 
 // named skips a bound {/path} key: it is a render edge, not containment, so using
-// it as a path segment would report a node under a path that does not reach it. Only
-// a template's fields hold bindings — loadDir skips a dot-prefixed entry, so a
-// folder's children never carry the prefix — so this one skip serves both.
+// it as a path segment would report a node under a path that does not reach it.
 func named(m map[string]node) []namedNode {
 	out := make([]namedNode, 0, len(m))
 	for _, name := range sortedNames(m) {
