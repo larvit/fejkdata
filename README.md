@@ -1328,9 +1328,9 @@ record.go       records: Record, the JSON/CSV/SQL serializers, and their entry p
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
-hold.go         the hold: one draw per expansion for paths and operands, and its fences
+hold.go         the hold: one draw per expansion for paths and operands, the rows a render pins, and its fences
 draw.go         one reference draw per render and group: draw sets, the group option, and its fence
-family.go       a family of linked tables: the rows a render pins, and the fence over paths into one family
+family.go       a family of linked tables: what a reference path reads of one, and the fence over paths into it
 reference.go    reference sigils, and binding references across the tree
 graph.go        the render graph: edges, cycles, the repeat bound, tree walks
 builtins.go     the {name()} function registry and its implementations
