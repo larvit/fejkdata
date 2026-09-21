@@ -158,11 +158,13 @@ by a `data-import/` script, as README goal 12 asks.
   at New" where the two draws land on rows whose cells select different rows of another
   table, and `{/geo.SE.locality}|{/geo.SE.municipality}` renders a locality outside the
   municipality beside it. Each read draws its own row, so cells of two rows render
-  together, where the fence counts them alternatives and compares neither.
-- Name the cell a refused read sits in: where both reads come from TSV cells the overlap
-  error says `{area} with {/addr} renders a level that {where} with {/addr.city} reads a
-  path into`, naming neither table, row nor column, so the author greps a register-sized
-  file — and "name the fields you want instead" rewrites a cell that is not the one to fix.
+  together, where the fence counts them alternatives and compares neither. Have the error
+  name the path spelling that holds, `{/geo.SE.locality.name}|{/geo.SE.municipality.name}`,
+  as the README's rule on a rejected spelling asks.
+- Name the row a refused read sits in: where both reads come from TSV cells the overlap
+  error names the category and the two columns but no row, so the author greps a
+  register-sized file for the cell — and "name the fields you want instead" rewrites a
+  cell that is not the one to fix.
 - Stop the family fence naming a rewrite that cannot work: where the drawn table's rows
   select more than one row of the family, every `write {/terr[NO].name}` it offers fails
   the same way, and only the `drawGroup` it also names is left.
@@ -184,6 +186,9 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide whether a goal 5 violation joins the comprehension gate's exception list, beside
+  a security fix and a dependency bump: the panic above waits behind the whole round at
+  5.9, and `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile.
 - Decide whether the README's Audience names the author who writes categories under
   `--data-path`: the four personas listed consume the shipped set and the contributor
   ships a register upstream, while "Your own data" is a README section, `-d` is a
