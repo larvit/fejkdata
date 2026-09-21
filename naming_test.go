@@ -8,8 +8,6 @@ import (
 	"testing"
 )
 
-// TestNoFunctionSpellsAMethod holds a call to one unit, over the tests as well,
-// since a test file is this package too.
 func TestNoFunctionSpellsAMethod(t *testing.T) {
 	funcs, methods := declaredCalls(namespaceFiles(t))
 	names := make([]string, 0, len(funcs))
@@ -19,7 +17,8 @@ func TestNoFunctionSpellsAMethod(t *testing.T) {
 	sort.Strings(names)
 	for _, name := range names {
 		if recv := methods[name]; len(recv) > 0 {
-			t.Errorf("func %s and %s are two units under one name; name them apart", name, strings.Join(recv, " and "))
+			sort.Strings(recv)
+			t.Errorf("func %s is spelled by %s too; name them apart", name, strings.Join(recv, " and "))
 		}
 	}
 }

@@ -463,7 +463,7 @@ func (t *table) indexed() *tableIndex {
 }
 
 // draw picks a row over the whole table. The session is concrete rather than the rng
-// interface so that a walk holding the draws allocates nothing.
+// interface so that a hold carrying it allocates nothing.
 func (t *table) draw(s *session) int {
 	if t.cum == nil {
 		return s.IntN(t.rows())

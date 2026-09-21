@@ -1080,9 +1080,9 @@ the Development section below, and who ships a register the four above then draw
 - **`hold` names what a render keeps, `draw` what it draws.** Goal 2 wants a name to
   reach one unit: `hold`, `holdSet` and `renderScope` are what a render holds while it
   renders, and `draw`, `drawGroup` and `drawfence.go`'s units are the draws and the
-  load fence over them. So `holdset.go` is fenced by `drawfence.go`, which does not
-  pair by name as `hold.go` and `holdfence.go` do: that fence is over reference draws,
-  wherever a render keeps them. Valid while the load fences sit in files of their own.
+  load fence over them, so `holdfence.go` fences the hold an expansion keeps and
+  `drawfence.go` the reference draws `holdset.go` keeps. Valid while the load fences
+  sit in files of their own.
 - **A function may not spell a method; two types may.** A call writes a method with
   its receiver and a function bare, so one name on both greps as one unit, which is
   the reaching cost goal 2 counts, while the receiver before a shared method name

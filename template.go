@@ -366,7 +366,7 @@ type formatOps struct {
 	bound     map[string]string
 	held      map[string]bool
 	holder    map[string]string
-	heldLocal bool // some held name is kept by the expansion itself rather than the render's draws
+	heldLocal bool // some held name is kept by the expansion itself rather than the render's hold
 }
 
 func (c *formatOps) holdName(a arm, label string) {
