@@ -262,6 +262,15 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
   back to the clause it came from: the goal spells them out in prose while `todo.md`
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
+- Put the round's nine-seat score and the four-seat score every later pull request
+  takes on one scale, or say in `AGENTS.md` that they are two ratchets: it gates the
+  round on the first and every merge after 7.0 on the second, then holds one "last
+  score" across both, where the `comprehension-panel` skill has two independent panels
+  drift unless a calibration seat reads the anchor project without its score.
+- Name the draw fences at one level in `doc.go`: the Vocabulary calls them `heldCheck`,
+  `drawCheck` and `checkFamilies`, where `checkFamilies` runs under `drawCheck` beside
+  `checkOwnFamily` and `checkColumnDraws`, which it names nowhere — so a reader looking
+  for the fence over a record's columns finds no entry reaching it.
 - Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
   Go at `Dockerfile:21`, and the shipped JSON under `data/` is two-space, so the rule as
   written is one no Go file can break and every data file does.
