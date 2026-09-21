@@ -68,8 +68,10 @@ by a `data-import/` script, as README goal 12 asks.
   `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost`
   provably reach nothing.
 - Audit the rest of the shipped set against goal 14 and give each a never-reaching
-  path where it lacks one: `phone` draws live PTS and NANP ranges, `bankgiro`,
-  `plusgiro` and `routing` draw live prefixes.
+  path where it lacks one: `phone` draws live PTS and NANP ranges — PTS's five
+  fiction series are the Swedish inert set, sourced in
+  [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one
+  still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
 - Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does
   not hold: ISO 3166 reserves it for Western Sahara and the root zone has never been
   delegated it, so no resolver answers for it and goal 3 promises otherwise.
