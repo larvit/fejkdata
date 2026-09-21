@@ -103,7 +103,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 	if err := t.checkCells(); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
-	if err := t.compileFormat(o.format); err != nil {
+	if err := t.compileWhole(o.format); err != nil {
 		return nil, err
 	}
 	return t, nil
@@ -321,8 +321,9 @@ func (t *table) checkCells() error {
 	return nil
 }
 
-// compileFormat compiles the format over the columns as its fields.
-func (t *table) compileFormat(format string) error {
+// compileWhole compiles the format a row renders whole through, over the columns
+// as its fields.
+func (t *table) compileWhole(format string) error {
 	for _, name := range fieldTokens(format) {
 		a := splitArm(name, nil)
 		if _, ok := t.col[a.key]; !ok && !isRef(a.key) && a.key != "" {
@@ -524,7 +525,7 @@ func (t *table) under(r int, a *table, pr int) bool {
 
 // find is the row a selector names: by key first, then by name, where a name
 // naming several rows resolves inside the ancestors pinned in d.
-func (t *table) find(sel string, d *draws) (int, error) {
+func (t *table) find(sel string, d *hold) (int, error) {
 	if t.key < 0 && t.name < 0 {
 		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.path)
 	}

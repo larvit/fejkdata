@@ -135,7 +135,7 @@ type pathWalk struct {
 	choice func(c *choice, rest []string) ([]node, error)
 	level  func(t *template, rest []string) error
 	leaf   func(n node) error
-	pins   *draws
+	pins   *hold
 }
 
 // walkPath descends tail from n and returns the node it ends at: a folder or
@@ -272,7 +272,7 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 
 // readRow pins the row a path reads of t: the one its selector names, or, where the
 // walk draws, one drawn where the path reads into the table.
-func readRow(d *draws, t *table, sel string, draw bool) error {
+func readRow(d *hold, t *table, sel string, draw bool) error {
 	if sel != "" {
 		return d.selectRow(t, sel)
 	}
@@ -312,7 +312,7 @@ func unreachableInChoice(c *choice, want string) error {
 // carries a repeat or a drawGroup, which one draw of it could not apply. So a path
 // that validates here resolves on every render, and a typo is a New-time error.
 func checkPath(n node, tail []string, level string) error {
-	var pins draws
+	var pins hold
 	_, err := walkPath(n, tail, pathWalk{
 		choice: func(c *choice, rest []string) ([]node, error) {
 			if err := carriedByAll(c, rest); err != nil {

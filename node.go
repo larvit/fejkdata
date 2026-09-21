@@ -47,7 +47,7 @@ func (*null) isNode() {}
 // run: where the format holds a reference, that binds it and compiles the format
 // again.
 type template struct {
-	// Filled by `compileString`, `compileTemplate` and `table.compileFormat`:
+	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
 	format     string
 	fields     map[string]node // `linkTemplateRefs` adds each bound reference here
 	repeat     int

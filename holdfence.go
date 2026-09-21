@@ -45,10 +45,10 @@ func heldHeads(t *template) []string {
 	return heads
 }
 
-// pinned collects what the hold of head answers for: a path pins the levels it
+// heldNodes is what the hold of head answers for: a path pins the levels it
 // passes through and the leaf it lands on, an operand exactly the value its render
 // produces.
-func pinned(t *template, head string, readers []reader) map[node]bool {
+func heldNodes(t *template, head string, readers []reader) map[node]bool {
 	held := map[node]bool{}
 	if _, isPath := t.bound[head]; !isPath {
 		operandDraw(t.fields[head], held)
@@ -66,7 +66,7 @@ func pinned(t *template, head string, readers []reader) map[node]bool {
 // holding it. One seen set across the edges: a node that cannot reach the level
 // cannot reach it by another route either, so it is walked once.
 func checkHeadHeld(t *template, head string, readers []reader) error {
-	held := pinned(t, head, readers)
+	held := heldNodes(t, head, readers)
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}

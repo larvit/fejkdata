@@ -35,7 +35,7 @@ type Generator struct {
 	rand       *session
 	categories map[string]node
 	root       folder  // the categories as the node a path walks from, owned here so a walk allocates none
-	set        drawSet // one Fake's draws, owned here so a walk pinning rows keeps them off the heap
+	set        holdSet // one Fake's hold set, owned here so a walk pinning rows keeps them off the heap
 	records    map[node]recordShape
 	structs    map[reflect.Type]structResult
 }

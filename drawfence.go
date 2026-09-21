@@ -235,8 +235,8 @@ func checkColumnDraws(t *template, columns []string) error {
 // drawWalk gathers the references one render reads, by draw group, for check to compare.
 type drawWalk struct {
 	reads []pathRead
-	read  map[drawKey]bool
-	seen  map[drawVisit]bool
+	read  map[readKey]bool
+	seen  map[nodeVisit]bool
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
@@ -248,7 +248,7 @@ type drawAt struct {
 	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
 }
 
-// rowSet stands in at load for the rows (*draws).pin holds at render: a path read enters a row with
+// rowSet stands in at load for the rows (*hold).pin holds at render: a path read enters a row with
 // its ancestors, a whole read enters the drawn row alone.
 type rowSet []tablePin
 
@@ -311,26 +311,26 @@ type pathRead struct {
 	tr *tableRead // set where the reference names a table
 }
 
-type drawVisit struct {
+type nodeVisit struct {
 	n     node
 	group string
 	alt   string
 }
 
-type drawKey struct {
+type readKey struct {
 	group string
 	path  string
 	alt   string
 }
 
 func newDrawWalk() *drawWalk {
-	return &drawWalk{read: map[drawKey]bool{}, seen: map[drawVisit]bool{}}
+	return &drawWalk{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}}
 }
 
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := drawVisit{n, at.group, at.alt.key()}
+	v := nodeVisit{n, at.group, at.alt.key()}
 	if w.seen[v] {
 		return
 	}
@@ -377,7 +377,7 @@ func (s rowSet) excludes(cell *template) bool {
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	if a, reads := refRead(from, e.label); reads {
 		tr := tableReadOf(from.(*template).fields[a.key], a, e.to)
-		if k := (drawKey{at.group, a.path, at.alt.key()}); !w.read[k] {
+		if k := (readKey{at.group, a.path, at.alt.key()}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}

@@ -316,7 +316,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
-			if got := len(expand(f.rand, tmpl, drawScope{set: &drawSet{}})); got < tmpl.grow {
+			if got := len(expand(f.rand, tmpl, renderScope{set: &holdSet{}})); got < tmpl.grow {
 				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.grow)
 			}
 		}
