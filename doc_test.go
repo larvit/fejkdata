@@ -15,20 +15,27 @@ var backticked = regexp.MustCompile("`([^`\n]+)`")
 
 // TestVocabularyNamesDeclaredSymbols holds a renamed unit to its Vocabulary entry.
 func TestVocabularyNamesDeclaredSymbols(t *testing.T) {
-	files := sourceFiles(t)
+	_, files := sourceFiles(t)
 	declared := declaredSymbols(files)
-	named := backticked.FindAllStringSubmatch(vocabulary(t, files), -1)
-	if len(named) == 0 {
+	if namesDeclared(t, "the Vocabulary", vocabulary(t, files), declared) == 0 {
 		t.Fatal("the Vocabulary names no symbol, so nothing holds a renamed unit to its entry")
-	}
-	for _, m := range named {
-		if !declared[m[1]] {
-			t.Errorf("the Vocabulary names %s, which the package declares nowhere", m[1])
-		}
 	}
 }
 
-func sourceFiles(t *testing.T) []*ast.File {
+// namesDeclared reports how many symbols text backticks, failing for each one the
+// package declares nowhere.
+func namesDeclared(t *testing.T, where, text string, declared map[string]bool) int {
+	t.Helper()
+	named := backticked.FindAllStringSubmatch(text, -1)
+	for _, m := range named {
+		if !declared[m[1]] {
+			t.Errorf("%s names %s, which the package declares nowhere", where, m[1])
+		}
+	}
+	return len(named)
+}
+
+func sourceFiles(t *testing.T) (*token.FileSet, []*ast.File) {
 	t.Helper()
 	pkg, err := build.ImportDir(".", 0)
 	if err != nil {
@@ -43,7 +50,7 @@ func sourceFiles(t *testing.T) []*ast.File {
 		}
 		files = append(files, f)
 	}
-	return files
+	return fset, files
 }
 
 func vocabulary(t *testing.T, files []*ast.File) string {
@@ -124,38 +131,34 @@ func receiverType(recv *ast.FieldList) string {
 	return id.Name
 }
 
-// fillHeader opens the comment naming the pass that fills the fields below it.
 const fillHeader = "Filled by "
 
-// TestTemplateFieldsNameTheirPass holds every template field to a header naming the
-// pass that writes it.
+// TestTemplateFieldsNameTheirPass holds a renamed pass to the group it fills.
 func TestTemplateFieldsNameTheirPass(t *testing.T) {
-	files := sourceFiles(t)
+	fset, files := sourceFiles(t)
 	declared := declaredSymbols(files)
-	st, headers := templateStruct(t, files)
+	doc, st, headers := templateStruct(t, fset, files)
+	namesDeclared(t, "the template doc", doc, declared)
 	for _, field := range st.Fields.List {
+		if len(field.Names) == 0 {
+			t.Error("an embedded field of template sits under no header, so nothing says which pass fills it")
+		}
 		for _, id := range field.Names {
 			header := headerAbove(headers, id.Pos())
 			if header == "" {
 				t.Errorf("template.%s sits under no %q header, so nothing says which pass fills it", id.Name, fillHeader)
 				continue
 			}
-			named := backticked.FindAllStringSubmatch(header, -1)
-			if len(named) == 0 {
+			if namesDeclared(t, "the header above template."+id.Name, header, declared) == 0 {
 				t.Errorf("the header above template.%s names no function, so it names no pass", id.Name)
-			}
-			for _, m := range named {
-				if !declared[m[1]] {
-					t.Errorf("the header above template.%s names %s, which the package declares nowhere", id.Name, m[1])
-				}
 			}
 		}
 	}
 }
 
-// templateStruct is the template struct and the fill headers standing between its
-// fields, in source order.
-func templateStruct(t *testing.T, files []*ast.File) (*ast.StructType, []*ast.CommentGroup) {
+// templateStruct is the template struct, its doc, and the fill headers standing
+// between its fields, in source order.
+func templateStruct(t *testing.T, fset *token.FileSet, files []*ast.File) (string, *ast.StructType, []*ast.CommentGroup) {
 	t.Helper()
 	for _, f := range files {
 		for _, decl := range f.Decls {
@@ -172,18 +175,27 @@ func templateStruct(t *testing.T, files []*ast.File) (*ast.StructType, []*ast.Co
 				if !isStruct {
 					t.Fatal("template is not a struct")
 				}
-				return st, fillHeaders(f, st)
+				return d.Doc.Text() + s.Doc.Text(), st, fillHeaders(fset, f, st)
 			}
 		}
 	}
 	t.Fatal("the package declares no template struct")
-	return nil, nil
+	return "", nil, nil
 }
 
-func fillHeaders(f *ast.File, st *ast.StructType) []*ast.CommentGroup {
+// fillHeaders skips a header trailing a field: it names that field, never the
+// fields below it.
+func fillHeaders(fset *token.FileSet, f *ast.File, st *ast.StructType) []*ast.CommentGroup {
+	trailing := map[int]bool{}
+	for _, field := range st.Fields.List {
+		trailing[fset.Position(field.End()).Line] = true
+	}
 	var found []*ast.CommentGroup
 	for _, c := range f.Comments {
-		if c.Pos() > st.Pos() && c.End() < st.End() && strings.HasPrefix(c.Text(), fillHeader) {
+		if c.Pos() < st.Pos() || c.End() > st.End() || trailing[fset.Position(c.Pos()).Line] {
+			continue
+		}
+		if strings.HasPrefix(c.Text(), fillHeader) {
 			found = append(found, c)
 		}
 	}
