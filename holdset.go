@@ -35,6 +35,15 @@ func renderOnce(s *session, n node) string {
 	return render(s, n, renderScope{set: &set})
 }
 
+// expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
+// render's loop, its hold set would move to the heap.
+//
+//go:noinline
+func expandAnew(s *session, t *template) string {
+	set := lazyHoldSet(s)
+	return expand(s, t, renderScope{set: &set})
+}
+
 // in is the scope t renders in: its draw group where it names one, else its caller's.
 func (sc renderScope) in(t *template) renderScope {
 	if t.drawGroupKey != "" {
