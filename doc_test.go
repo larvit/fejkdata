@@ -5,8 +5,10 @@ import (
 	"go/build"
 	"go/parser"
 	"go/token"
+	"os"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -245,4 +247,33 @@ func headerAbove(headers []*ast.CommentGroup, pos token.Pos) string {
 		}
 	}
 	return text
+}
+
+var printedFake = regexp.MustCompile(`f\.Fake\("([^"]+)"\)\s*// ("(?:[^"\\]|\\.)*")`)
+
+// TestGoExamplesPrintWhatTheyRender replays each Go example's printed Fake calls on seed 42.
+func TestGoExamplesPrintWhatTheyRender(t *testing.T) {
+	for _, name := range []string{"doc.go", "README.md"} {
+		src, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		calls := printedFake.FindAllStringSubmatch(string(src), -1)
+		if calls == nil {
+			t.Errorf("%s prints no seeded Fake, so nothing holds its example to a render", name)
+		}
+		f, err := New(WithSeed(42))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, c := range calls {
+			want, err := strconv.Unquote(c[2])
+			if err != nil {
+				t.Fatalf("%s prints %s: %v", name, c[2], err)
+			}
+			if got := fake(t, f, c[1]); got != want {
+				t.Errorf("%s prints Fake(%q) = %q for seed 42, it renders %q", name, c[1], want, got)
+			}
+		}
+	}
 }
