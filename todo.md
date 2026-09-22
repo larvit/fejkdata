@@ -14,14 +14,52 @@ nine-seat one: the round is meant to buy architectural change, and the four-seat
 scoring run names too little to steer one. A fresh run replaces the items below.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
-Self-sufficiency 5.7), eight of nine seats capped by Locality or Self-sufficiency, all
-nine naming `hold.go`, `draw.go` — now split into `holdset.go` and `drawfence.go` — and
-`family.go` first for reading cost: 1,138 lines in which each file carried both a
-load-time fence and render-time machinery, so no file name said whether a unit ran at
-`New` or at `Fake`.
+Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
+Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency. Eight of nine
+named `drawWalk.walk` and `rowSet` or `checkFamilies` hardest and least wanted to modify:
+a load-time copy of the pinning `hold.pin` and `hold.rowOf` do at render, tied to them
+by nothing but tests, whose premise lives only in the README's Decisions.
 
 This round, in order:
 
+- Gather the family fence in `family.go`: `alternatives`, `rowSet` and `checkOwnFamily`
+  beside `checkFamilies`, and the `drawGroup` option parsing out of `drawfence.go`, so
+  one question about a family opens one file.
+- Give render and the draw fences one pin model: a pin set `hold.pin`, `hold.rowOf`
+  and the fence's `rowSet` all use, so a change to how a render pins rows cannot leave
+  the fence proving the old rule, and `hold` stops being a proof scratchpad whenever its
+  session is nil.
+- Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
+  of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
+  README. Give each fence a bare link to the entry it enforces: every seat needed
+  "The rows of a table are alternatives", "The expansion hold and the render's draws
+  are two fences" or "A table read into is pinned" and found it by grepping 470 lines.
+  Carry the timezone weight's premise in with it: weighting by GeoNames city
+  population moved 300 seeded draws of `misc.territory[US].timezone` from 44 landing on
+  the four zones most Americans live in to 278, and dropped `America/Indiana/Petersburg`
+  (pop. 2,400) from 17 draws to 0. Carry in the decision `linkTemplateRefs`'s doc holds
+  today, which no entry records: a category is a unit, so a reference back into it
+  describes a draw other than the fields beside it, which is what goal 3 asks for.
+- Keep reference bindings out of `template.fields`, so no walk over a template's fields
+  needs the `isRef` filter `named`, `paths`, `recordColumns` and `template.field` carry.
+- Compile a template's format once: `compileFormat` runs again from `linkTemplateRefs`,
+  so `ops`, `bound` and `held` are provisional until linking and its fences run twice.
+- Parse a format once and have the fences read `t.ops`: `eachToken` rescans the format
+  in `fieldTokens`, `operandTokens`, `boundReaders`, `renderEdges`, `loneRef`,
+  `operandReader`, `checkNoRepeatedRead` and `compileOps`, and function-versus-field is
+  decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
+- Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
+  callbacks are nil and whether `pins.s` is, and `walkChoice` returns `nil, nil` where
+  none is set.
+- Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
+  `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
+  render calls the second. Derive the numeric builtins `valueProof.template` lists in
+  its error text from `builtin.number` while there.
+- Split `drawCheck.reads`'s six-term condition into named predicates.
+- Rename what names two things: `template.go` holds the token grammar while `template`
+  is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in
+  `ftoken` and a builtin in `op`; `hold`'s receiver is `d`; `drawAt.alt` holds the rows
+  a walk entered.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -29,6 +67,10 @@ This round, in order:
 Shape: T = table, t = template, c = choice. Read every factual list from a register
 by a `data-import/` script, as README goal 12 asks.
 
+- Place xlsx cells by their `r` reference in `data-import/xlsx.py`: a sheet omitting an
+  empty cell shifts every later column left.
+- Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone
+  `{digits(1)}` at `New`, naming that spelling: both render the same run.
 - Add the remaining `misc` tables and templates, one row of the table below per chunk.
 - Read `misc.emoji` from the Unicode `emoji-test.txt` register, and `misc.car` from an
   international make and model source; vPIC and Mobility Sweden are national, so they
@@ -137,6 +179,8 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
+- Report the same error every load for a table with two bad options:
+  `readTableOptions` returns on the first in Go's map order.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a
   load error: `{/sel}|{/sel}` panics out of `Fake` with "a fence should have refused this
   at New" where the two draws land on rows whose cells select different rows of another
@@ -198,14 +242,11 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Release
 
-- Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
-  of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
-  README. Carry the timezone weight's premise in with it: weighting by GeoNames city
-  population moved 300 seeded draws of `misc.territory[US].timezone` from 44 landing on
-  the four zones most Americans live in to 278, and dropped `America/Indiana/Petersburg`
-  (pop. 2,400) from 17 draws to 0. Carry in the decision `linkTemplateRefs`'s doc holds
-  today, which no entry records: a category is a unit, so a reference back into it
-  describes a draw other than the fields beside it, which is what goal 3 asks for.
+- Read the tag through `git/ref/tags/{tag}` in `publish_release.py`: GitHub answers
+  `tags/{tag}` with 404 whatever exists, so the burnt-version guard never fires and a
+  release lands on a tag already pointing at another commit.
+- Document `NewRecordTemplate` in the README's Library section, the one exported name
+  it does not name.
 - Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds: nothing has shipped, so
   "no longer paths", "where it used to fail" and "where it used to be an empty string"
   describe versions no reader can have installed.
@@ -246,6 +287,11 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## Not release-bound
 
+- Hold every change the charter says owes a `CHANGELOG.md` entry to one in CI: the
+  check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a
+  flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
+- Measure the allocation gate over the shipped `geo` trees too: `hold.pins [8]` is sized
+  for them, and `perf_test.go` checks a synthetic five-deep tree only.
 - Make a named draw group's hold lazy, `&hold{s: s}` in `renderScope.hold`: it escapes
   to the heap anyway, so its two eager maps buy no stack and cost two allocations per
   group that may never read through them. Check it against the alloc tests.
