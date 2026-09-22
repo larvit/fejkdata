@@ -130,7 +130,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	set := newHoldSet(f.rand)
+	set := eagerHoldSet(f.rand)
 	sc := renderScope{set: &set}
 	if t, isTable := n.(*table); isTable {
 		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
@@ -204,7 +204,7 @@ type RecordTemplate struct {
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	set := newHoldSet(t.g.rand)
+	set := eagerHoldSet(t.g.rand)
 	return renderRecord(t.g.rand, t.t, t.columns, renderScope{set: &set})
 }
 

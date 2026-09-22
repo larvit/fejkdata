@@ -23,7 +23,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	f.set = holdSet{unnamed: hold{s: f.rand}}
+	f.set = lazyHoldSet(f.rand)
 	sc := renderScope{set: &f.set}
 	f.root.children = f.categories
 	n, err := descend(f.rand, &f.root, segments, sc)
@@ -101,7 +101,7 @@ func render(s *session, n node, sc renderScope) string {
 //
 //go:noinline
 func expandAnew(s *session, t *template) string {
-	set := holdSet{unnamed: hold{s: s}}
+	set := lazyHoldSet(s)
 	return expand(s, t, renderScope{set: &set})
 }
 
