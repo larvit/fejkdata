@@ -249,7 +249,10 @@ func headerAbove(headers []*ast.CommentGroup, pos token.Pos) string {
 	return text
 }
 
-var printedFake = regexp.MustCompile(`f\.Fake\("([^"]+)"\)\s*// ("(?:[^"\\]|\\.)*")`)
+var (
+	printedCall = regexp.MustCompile(`(?m)^.*Fake\w*\(.*//\s*".*$`)
+	printedFake = regexp.MustCompile(`\.Fake\("([^"]+)"\)\s*//\s*("(?:[^"\\]|\\.)*")`)
+)
 
 // TestGoExamplesPrintWhatTheyRender replays each Go example's printed Fake calls on seed 42.
 func TestGoExamplesPrintWhatTheyRender(t *testing.T) {
@@ -258,15 +261,19 @@ func TestGoExamplesPrintWhatTheyRender(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		calls := printedFake.FindAllStringSubmatch(string(src), -1)
-		if calls == nil {
+		lines := printedCall.FindAllString(string(src), -1)
+		if lines == nil {
 			t.Errorf("%s prints no seeded Fake, so nothing holds its example to a render", name)
 		}
 		f, err := New(WithSeed(42))
 		if err != nil {
 			t.Fatal(err)
 		}
-		for _, c := range calls {
+		for _, line := range lines {
+			c := printedFake.FindStringSubmatch(line)
+			if c == nil {
+				t.Fatalf("%s prints a value this test cannot replay; spell it f.Fake(\"path\") // \"value\": %s", name, line)
+			}
 			want, err := strconv.Unquote(c[2])
 			if err != nil {
 				t.Fatalf("%s prints %s: %v", name, c[2], err)
