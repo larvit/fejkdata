@@ -19,15 +19,19 @@ type renderScope struct {
 	row   int
 }
 
-// newHoldSet makes the unnamed group's maps where the set is declared, keeping them on that frame's
-// stack for a render that reads through them; a zero holdSet makes them on its first read instead.
-func newHoldSet(s *session) holdSet {
+// eagerHoldSet makes the unnamed group's maps where the set is declared, keeping them on that frame's
+// stack for a render that reads through them; lazyHoldSet makes them on its first read instead.
+func eagerHoldSet(s *session) holdSet {
 	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]draw{}, s: s}}
+}
+
+func lazyHoldSet(s *session) holdSet {
+	return holdSet{unnamed: hold{s: s}}
 }
 
 // renderOnce renders n as one render, over a hold set of its own.
 func renderOnce(s *session, n node) string {
-	set := holdSet{unnamed: hold{s: s}}
+	set := lazyHoldSet(s)
 	return render(s, n, renderScope{set: &set})
 }
 
