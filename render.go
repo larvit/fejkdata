@@ -96,15 +96,6 @@ func render(s *session, n node, sc renderScope) string {
 	}
 }
 
-// expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
-// render's loop, its hold set would move to the heap.
-//
-//go:noinline
-func expandAnew(s *session, t *template) string {
-	set := lazyHoldSet(s)
-	return expand(s, t, renderScope{set: &set})
-}
-
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights. compile guarantees a
 // non-empty choice and a finite positive total, so the index is always in range.
