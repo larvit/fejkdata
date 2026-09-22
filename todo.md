@@ -22,9 +22,7 @@ load-time fence and render-time machinery, so no file name said whether a unit r
 
 This round, in order:
 
-- Run the package doc's Go example under test, as `readme_test.go` runs the README's
-  JSON blocks: `doc.go` and the README both print `Järvedsvägen 43\n891 77 Järved`
-  for seed 42, and nothing renders either, so a draw that moves leaves both false.
+- Run the nine-seat panel again and file what it names here.
 
 ### Data
 
