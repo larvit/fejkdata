@@ -1239,9 +1239,8 @@ the Development section below, and who ships a register the four above then draw
 - **`misc` is what every locale shares.** A category whose facts differ by country
   belongs in that country's locale, read from the register that country's own
   records use; `misc` takes only sources that are international. NHTSA vPIC and
-  Mobility Sweden's registrations are national, so they build `en_US.car` and
-  `sv_SE.car`; `misc.car` waits for an international source rather than take one
-  of theirs.
+  Mobility Sweden's registrations are national, so they are for `en_US.car` and
+  `sv_SE.car`, and `misc.car` waits for an international source.
 - **A register's canonical spelling loses to the one its domain writes.** Where a
   source offers several spellings of one fact, the shipped one is what records in
   that domain carry. `misc.timezone` reads `zone.tab` and not the `zone1970.tab`

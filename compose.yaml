@@ -4,8 +4,8 @@
 #   docker compose run --rm vet
 #   docker compose run --rm build
 #
-# The full gate — vet, formatting and tests — is `docker build .`, which is what
-# CI runs.
+# The full gate — vet, formatting, cyclomatic complexity and tests — is
+# `docker build .`, which is what CI runs.
 #
 # Build caches persist in the `gocache` volume, so re-runs are fast and the
 # host tree stays clean. Commands that rewrite source (fmt, tidy) keep your
