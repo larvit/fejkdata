@@ -248,6 +248,9 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## Not release-bound
 
+- Make a named draw group's hold lazy, `&hold{s: s}` in `renderScope.hold`: it escapes
+  to the heap anyway, so its two eager maps buy no stack and cost two allocations per
+  group that may never read through them. Check it against the alloc tests.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
   back to the clause it came from: the goal spells them out in prose while `todo.md`
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
