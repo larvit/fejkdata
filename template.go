@@ -60,8 +60,8 @@ func eachToken(format string, fn func(ftoken) error) error {
 // builtin is a format-string function invoked as {name(args)}. It receives the
 // session (its rng, and the {seq()} counters), the output emitted so far in the
 // current expansion (for derivations such as a checksum over preceding digits), and
-// the values of the operands it named (only calc names any). All must stay pure
-// over (rng, emitted, args) so seeded output is reproducible; seq advances
+// the values of the operands it named (calc and the transforms name them). All must
+// stay pure over (rng, emitted, args) so seeded output is reproducible; seq advances
 // per-session counter state, which is itself deterministic. arity is the exact arg
 // count, or -1 for variadic (then check does all the validation).
 type builtin struct {
@@ -121,7 +121,8 @@ func plural(n int) string {
 
 // checkFunc validates a function token at compile time: well-formed, naming a
 // known builtin, with the arg count that builtin takes and args its check accepts.
-// fields is passed through for the one builtin (calc) that validates against them.
+// fields is passed through for the builtins (calc, the transforms) that validate
+// against them.
 func checkFunc(body string, fields map[string]node) error {
 	name, args, ok := funcCall(body)
 	if !ok {
