@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -964,9 +965,11 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestRowSetSimulatesPinning holds the walk's row set to the render's pinning: drift between
-// the two is data that loads and then renders a family that disagrees.
-func TestRowSetSimulatesPinning(t *testing.T) {
+// TestPinSetIsOneModel holds the fence's walk to the render's pinning through the one
+// set both use: a drawn row is entered alone, a pinned row with its ancestors, a set
+// spells the same key whichever order pinned it, and entering leaves the set entered from
+// as it was, past the inline pins too.
+func TestPinSetIsOneModel(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
 	for _, category := range []string{"region", "municipality", "locality"} {
@@ -978,36 +981,45 @@ func TestRowSetSimulatesPinning(t *testing.T) {
 	}
 	for _, entered := range tables {
 		for row := 0; row < entered.rows(); row++ {
-			if drawn := rowSet(nil).enter(entered, row, false); len(drawn) != 1 || drawn[0] != (tablePin{entered, row}) {
-				t.Errorf("a drawn %s enters %v, want its own row alone", entered.selectorSpelling(row), drawn)
+			var alone, pinned pinSet
+			if drawn := alone.entered(entered, row, false); drawn.key() != fmt.Sprintf("%p[%d]", entered, row) {
+				t.Errorf("a drawn %s enters %s, want its own row alone", entered.selectorSpelling(row), drawn.key())
 			}
-			s := rowSet(nil).enter(entered, row, true)
-			var pinned hold
-			held := 0
 			pinned.pin(entered, row)
-			pinned.each(func(tbl *table, r int) {
-				held++
-				if got, in := s.rowOf(tbl); !in || got != r {
-					t.Errorf("entering %s leaves %s unset, though pinning it pins %s", entered.selectorSpelling(row), tbl.path, tbl.selectorSpelling(r))
-				}
-			})
-			if held != len(s) {
-				t.Errorf("entering %s holds %d rows, though pinning it pins %d", entered.selectorSpelling(row), len(s), held)
+			if got := alone.entered(entered, row, true); got.key() != pinned.key() {
+				t.Errorf("entering %s holds %s, though pinning it pins %s", entered.selectorSpelling(row), got.key(), pinned.key())
+			}
+			if alone.key() != "" {
+				t.Errorf("entering %s pinned %s in the set entered from", entered.selectorSpelling(row), alone.key())
 			}
 			for _, cand := range tables {
 				for cr := 0; cr < cand.rows(); cr++ {
-					var beside hold
-					beside.pin(entered, row)
-					refused := beside.pinRow(cand, cr) != nil
-					if got := s.excludes(&template{cellOf: cand, cellRow: cr}); got != refused {
-						t.Errorf("excludes(%s) = %v beside %s, but pinRow refuses it = %v", cand.selectorSpelling(cr), got, entered.selectorSpelling(row), refused)
-					}
-					if got := alternatives(drawAt{alt: s}, drawAt{alt: rowSet(nil).enter(cand, cr, true)}); got != refused {
+					refused := pinned.conflict(cand, cr) != nil
+					if got := alternatives(drawAt{alt: pinned}, drawAt{alt: alone.entered(cand, cr, true)}); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}
 				}
 			}
 		}
+	}
+	var spilled []*table
+	for i := 0; i < 10; i++ {
+		spilled = append(spilled, &table{path: fmt.Sprintf("t%d", i)})
+	}
+	var forward, backward pinSet
+	for i, tbl := range spilled {
+		forward.pin(tbl, i)
+		backward.pin(spilled[len(spilled)-1-i], len(spilled)-1-i)
+	}
+	if forward.key() != backward.key() {
+		t.Errorf("ten rows pinned forward spell %s, backward %s; want one key", forward.key(), backward.key())
+	}
+	before := forward.key()
+	if got := forward.entered(&table{path: "t10"}, 0, false); got.key() == before {
+		t.Errorf("entering an eleventh row left the copy at %s", before)
+	}
+	if forward.key() != before {
+		t.Errorf("entering an eleventh row changed the set entered from to %s", forward.key())
 	}
 }
 
