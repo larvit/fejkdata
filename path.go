@@ -143,7 +143,7 @@ type pathWalk struct {
 
 // pathDraws is what a walk draws with: the session, and, for a held read of a, the
 // hold keeping the variant drawn at each level, so paths sharing a prefix share it.
-// One pointer, the arm behind its own: a field one hop nearer the walk moves every hold set to the heap (TestNoRecordAllocRegression).
+// The arm behind its own pointer: inline, its level keys take an eager hold set to the heap (TestNoRecordAllocRegression).
 type pathDraws struct {
 	s    *session
 	held *hold

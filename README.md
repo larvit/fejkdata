@@ -1042,10 +1042,7 @@ the Development section below, and who ships a register the four above then draw
   all, and making them anyway cost about a fifth of the cheapest render, so it makes
   them on the first read instead, at two heap allocations for a render that does share
   a draw. The allocation gate over a repeat of a reference path and over a named draw
-  group prices that, and pins the three measures that keep a hold set off the heap:
-  the third is that what a path walk draws with sits behind one pointer, the arm behind
-  its own, since escape analysis is field-insensitive and a session or a level key one
-  hop nearer the walk sits at the depth of the hold's maps.
+  group prices that, and pins the two measures that keep a hold set off the heap.
 - **A category never references itself, and a record's fences run at load.** A category
   is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
   draw other than the fields beside it, so `New` refuses it and the sibling path stays
