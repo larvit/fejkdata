@@ -300,11 +300,9 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   round on the first and every merge after 7.0 on the second, then holds one "last
   score" across both, where the `comprehension-panel` skill has two independent panels
   drift unless a calibration seat reads the anchor project without its score.
-- Name the draw fences at one level in `doc.go`: the Vocabulary calls them `heldCheck`,
-  `drawCheck` and `checkFamilies`, where `checkFamilies` runs under `drawCheck` beside
-  `checkOwnFamily` and `checkColumnDraws`, which it names nowhere — so a reader looking
-  for the fence over a record's columns finds no entry reaching it. `holdfence.go`,
-  `drawfence.go` and `family.go` now index the fences by file, so deleting the sentence closes it too.
+- Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
+  a helper reached only through `drawWalk.check`, and misses `checkDrawGroup`,
+  `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
 - Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
   in `todo.md` and the `gh` rule opens with the README's GitHub decision, so each is a
   second copy that drifts. Split the comprehension rule while there, which packs the
