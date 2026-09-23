@@ -964,9 +964,10 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestRowSetSimulatesPinning holds the walk's row set to the render's pinning: drift between
-// the two is data that loads and then renders a family that disagrees.
-func TestRowSetSimulatesPinning(t *testing.T) {
+// TestEnteredRowsAgreeWithPinning holds what a fence walk decides about the rows it entered to what
+// pinning them refuses at render: drift between the two is data that loads and then renders a
+// family that disagrees.
+func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
 	for _, category := range []string{"region", "municipality", "locality"} {
@@ -976,33 +977,24 @@ func TestRowSetSimulatesPinning(t *testing.T) {
 		}
 		tables = append(tables, tbl)
 	}
+	var none pinSet
 	for _, entered := range tables {
 		for row := 0; row < entered.rows(); row++ {
-			if drawn := rowSet(nil).enter(entered, row, false); len(drawn) != 1 || drawn[0] != (tablePin{entered, row}) {
+			var drawn []tablePin
+			alone := none.entered(entered, row, false)
+			alone.each(func(tbl *table, r int) { drawn = append(drawn, tablePin{tbl, r}) })
+			if len(drawn) != 1 || drawn[0] != (tablePin{entered, row}) {
 				t.Errorf("a drawn %s enters %v, want its own row alone", entered.selectorSpelling(row), drawn)
 			}
-			s := rowSet(nil).enter(entered, row, true)
-			var pinned hold
-			held := 0
-			pinned.pin(entered, row)
-			pinned.each(func(tbl *table, r int) {
-				held++
-				if got, in := s.rowOf(tbl); !in || got != r {
-					t.Errorf("entering %s leaves %s unset, though pinning it pins %s", entered.selectorSpelling(row), tbl.path, tbl.selectorSpelling(r))
-				}
-			})
-			if held != len(s) {
-				t.Errorf("entering %s holds %d rows, though pinning it pins %d", entered.selectorSpelling(row), len(s), held)
-			}
+			s := none.entered(entered, row, true)
 			for _, cand := range tables {
 				for cr := 0; cr < cand.rows(); cr++ {
-					var beside hold
-					beside.pin(entered, row)
+					beside := s
 					refused := beside.pinRow(cand, cr) != nil
 					if got := s.excludes(&template{cellOf: cand, cellRow: cr}); got != refused {
 						t.Errorf("excludes(%s) = %v beside %s, but pinRow refuses it = %v", cand.selectorSpelling(cr), got, entered.selectorSpelling(row), refused)
 					}
-					if got := alternatives(drawAt{alt: s}, drawAt{alt: rowSet(nil).enter(cand, cr, true)}); got != refused {
+					if got := alternatives(drawAt{alt: s}, drawAt{alt: none.entered(cand, cr, true)}); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}
 				}
