@@ -285,7 +285,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
 - Measure the allocation gate over the shipped `geo` trees too: `pinSet.pins [8]` is sized
   for them, and `perf_test.go` checks a synthetic five-deep tree only.
-- Make a named draw group's hold lazy, `&hold{s: s}` in `renderScope.hold`: it escapes
+- Make a named draw group's hold lazy, `&hold{}` in `renderScope.hold`: it escapes
   to the heap anyway, so its two eager maps buy no stack and cost two allocations per
   group that may never read through them. Check it against the alloc tests.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps

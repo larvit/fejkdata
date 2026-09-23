@@ -143,9 +143,7 @@ type pathWalk struct {
 
 // pathDraws is what a walk draws with: the session, and, for a held read of a, the
 // hold keeping the variant drawn at each level, so paths sharing a prefix share it.
-// Both behind one pointer, and the arm behind its own, since escape analysis is
-// field-insensitive: a session or a level key one hop nearer the walk sits at the
-// hold's maps' depth and moves every hold set to the heap.
+// One pointer, the arm behind its own: a field one hop nearer the walk moves every hold set to the heap (TestNoRecordAllocRegression).
 type pathDraws struct {
 	s    *session
 	held *hold
@@ -206,10 +204,10 @@ func walkChoice(c *choice, tail []string, w pathWalk) (node, error) {
 		if w.pins == nil {
 			return nil, nil
 		}
-		if err := carriedByAll(c, tail); err != nil {
-			return nil, err
-		}
 		if w.draws == nil { // a probe: every variant carries the tail, so any one proves it
+			if err := carriedByAll(c, tail); err != nil {
+				return nil, err
+			}
 			return walkPath(c.items[0], tail, w)
 		}
 		return walkPath(w.draws.variant(c, tail), tail, w)

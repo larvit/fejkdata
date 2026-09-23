@@ -965,10 +965,7 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestPinSetIsOneModel holds the fence's walk to the render's pinning through the one
-// set both use: a drawn row is entered alone, a pinned row with its ancestors, a set
-// spells the same key whichever order pinned it, and entering leaves the set entered from
-// as it was, past the inline pins too.
+// The fence's walk and the render pin through one set.
 func TestPinSetIsOneModel(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
