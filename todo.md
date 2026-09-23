@@ -22,10 +22,6 @@ by nothing but tests, whose premise lives only in the README's Decisions.
 
 This round, in order:
 
-- Give render and the draw fences one pin model: a pin set `hold.pin`, `hold.rowOf`
-  and the fence's `rowSet` all use, so a change to how a render pins rows cannot leave
-  the fence proving the old rule, and `hold` stops being a proof scratchpad whenever its
-  session is nil.
 - Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
   of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
   README. Give each fence a bare link to the entry it enforces: every seat needed

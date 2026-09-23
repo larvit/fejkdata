@@ -994,7 +994,7 @@ func TestPinSetIsOneModel(t *testing.T) {
 			}
 			for _, cand := range tables {
 				for cr := 0; cr < cand.rows(); cr++ {
-					refused := pinned.conflict(cand, cr) != nil
+					refused := pinned.disagrees(cand, cr) != nil
 					if got := alternatives(drawAt{alt: pinned}, drawAt{alt: alone.entered(cand, cr, true)}); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}

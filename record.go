@@ -130,7 +130,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	set := eagerHoldSet(f.rand)
+	set := eagerHoldSet()
 	sc := renderScope{set: &set}
 	if t, isTable := n.(*table); isTable {
 		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
@@ -159,7 +159,7 @@ func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, err
 	}
 	switch n := n.(type) {
 	case *table:
-		sc.hold(s).rowOf(n)
+		sc.hold().rowOf(s, n)
 		return n, nil
 	case *row:
 		return n.t, nil
@@ -204,7 +204,7 @@ type RecordTemplate struct {
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	set := eagerHoldSet(t.g.rand)
+	set := eagerHoldSet()
 	return renderRecord(t.g.rand, t.t, t.columns, renderScope{set: &set})
 }
 
@@ -265,7 +265,7 @@ func recordOf(n node) (*template, []Column, error) {
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.table != nil {
-		sc.t, sc.row = t.table, sc.hold(s).mustRow(t.table)
+		sc.t, sc.row = t.table, sc.hold().mustRow(t.table)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

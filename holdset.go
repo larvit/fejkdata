@@ -1,8 +1,6 @@
 package fejkdata
 
-import (
-	"strings"
-)
+import "strings"
 
 // holdSet is one render's reference draws: the unnamed draw group's, and each named one's.
 type holdSet struct {
@@ -20,18 +18,14 @@ type renderScope struct {
 }
 
 // eagerHoldSet makes the unnamed group's maps where the set is declared, keeping them on that frame's
-// stack for a render that reads through them; lazyHoldSet makes them on its first read instead.
-func eagerHoldSet(s *session) holdSet {
-	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]draw{}, s: s}}
-}
-
-func lazyHoldSet(s *session) holdSet {
-	return holdSet{unnamed: hold{s: s}}
+// stack for a render that reads through them; a zero holdSet makes them on its first read instead.
+func eagerHoldSet() holdSet {
+	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]draw{}}}
 }
 
 // renderOnce renders n as one render, over a hold set of its own.
 func renderOnce(s *session, n node) string {
-	set := lazyHoldSet(s)
+	var set holdSet
 	return render(s, n, renderScope{set: &set})
 }
 
@@ -40,7 +34,7 @@ func renderOnce(s *session, n node) string {
 //
 //go:noinline
 func expandAnew(s *session, t *template) string {
-	set := lazyHoldSet(s)
+	var set holdSet
 	return expand(s, t, renderScope{set: &set})
 }
 
@@ -52,9 +46,8 @@ func (sc renderScope) in(t *template) renderScope {
 	return sc
 }
 
-// hold is the set's hold for sc's draw group. The session is passed in rather than
-// read out of the set: copying it from there would leak the set's maps to the heap.
-func (sc renderScope) hold(s *session) *hold {
+// hold is the set's hold for sc's draw group.
+func (sc renderScope) hold() *hold {
 	if sc.group == "" {
 		return &sc.set.unnamed
 	}
@@ -63,7 +56,7 @@ func (sc renderScope) hold(s *session) *hold {
 		if sc.set.named == nil {
 			sc.set.named = map[string]*hold{}
 		}
-		d = &hold{variant: map[string]node{}, value: map[string]draw{}, s: s}
+		d = &hold{variant: map[string]node{}, value: map[string]draw{}}
 		sc.set.named[strings.Clone(sc.group)] = d // a key from sc would leak sc, and with it every render's hold set, to the heap
 	}
 	return d

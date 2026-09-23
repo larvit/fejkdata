@@ -2,7 +2,9 @@ package fejkdata
 
 import (
 	"fmt"
+	"maps"
 	"sort"
+	"strings"
 )
 
 // tablePin is one table's pinned row.
@@ -11,17 +13,22 @@ type tablePin struct {
 	row int
 }
 
+// pinSet is the rows pinned: a render's, per draw group, and the draw fences' as they walk
+// what a render draws.
+type pinSet struct {
+	pins  [8]tablePin // inline so a render over a country's five-deep geo tree stays off the heap
+	npins int
+	more  map[*table]int // the rows pinned past the inline eight
+}
+
 // hold is what has already been drawn for held names: the variant each was drawn as,
 // so every path under it reads one row, and the draw each read made, by its one
 // spelling, so the same read written twice reads one draw. An expansion keeps one for
 // its sibling names, and a render one per group for its reference paths.
 type hold struct {
+	pinSet
 	variant map[string]node
 	value   map[string]draw
-	pins    [8]tablePin // the rows pinned, inline so a render over a country's five-deep geo tree stays off the heap
-	npins   int
-	more    map[*table]int // the rows pinned past the inline eight
-	s       *session       // what draws a row; nil where a walk only proves selectors
 }
 
 // draw is what one read drew: its text, and whether it landed on a null.
@@ -30,20 +37,20 @@ type draw struct {
 	null bool
 }
 
-// pinned is the row the render pinned for t, if any.
-func (d *hold) pinned(t *table) (int, bool) {
-	for _, p := range d.pins[:d.npins] {
-		if p.t == t {
-			return p.row, true
+// pinned is the row pinned for t, if any.
+func (p *pinSet) pinned(t *table) (int, bool) {
+	for _, pin := range p.pins[:p.npins] {
+		if pin.t == t {
+			return pin.row, true
 		}
 	}
-	r, ok := d.more[t]
+	r, ok := p.more[t]
 	return r, ok
 }
 
 // mustRow is the row pinned for t, which the walk reaching a column pinned.
-func (d *hold) mustRow(t *table) int {
-	r, ok := d.pinned(t)
+func (p *pinSet) mustRow(t *table) int {
+	r, ok := p.pinned(t)
 	if !ok {
 		panic(fmt.Sprintf("fejkdata: a column of %s is rendered with no row pinned", t.category))
 	}
@@ -51,94 +58,105 @@ func (d *hold) mustRow(t *table) int {
 }
 
 // pin pins row r of t, and the rows of t's ancestors it links to.
-func (d *hold) pin(t *table, r int) {
-	for {
-		if _, done := d.pinned(t); done {
-			return
-		}
-		if d.npins < len(d.pins) {
-			d.pins[d.npins] = tablePin{t, r}
-			d.npins++
-		} else {
-			if d.more == nil {
-				d.more = map[*table]int{}
-			}
-			d.more[t] = r
-		}
-		if t.parentT == nil {
-			return
-		}
+func (p *pinSet) pin(t *table, r int) {
+	for p.pinOne(t, r) && t.parentT != nil {
 		t, r = t.parentT, t.parentRow(r)
 	}
 }
 
-// each calls fn for every pinned row, in pin order, the spilled ones by table name.
-func (d *hold) each(fn func(t *table, r int)) {
-	for _, p := range d.pins[:d.npins] {
-		fn(p.t, p.row)
+// pinOne pins row r of t alone, and reports whether t was unpinned before.
+func (p *pinSet) pinOne(t *table, r int) bool {
+	if _, done := p.pinned(t); done {
+		return false
 	}
-	spilled := make([]*table, 0, len(d.more))
-	for t := range d.more {
+	if p.npins < len(p.pins) {
+		p.pins[p.npins] = tablePin{t, r}
+		p.npins++
+		return true
+	}
+	if p.more == nil {
+		p.more = map[*table]int{}
+	}
+	p.more[t] = r
+	return true
+}
+
+// each calls fn for every pinned row, in pin order, the spilled ones by table name.
+func (p *pinSet) each(fn func(t *table, r int)) {
+	for _, pin := range p.pins[:p.npins] {
+		fn(pin.t, pin.row)
+	}
+	spilled := make([]*table, 0, len(p.more))
+	for t := range p.more {
 		spilled = append(spilled, t)
 	}
 	sort.Slice(spilled, func(i, j int) bool { return spilled[i].category < spilled[j].category })
 	for _, t := range spilled {
-		fn(t, d.more[t])
+		fn(t, p.more[t])
 	}
 }
 
-// rowOf is the render's row of t: the one pinned, else one drawn inside the
+// rowOf is the render's row of t: the one pinned, else one s draws inside the
 // nearest pinned ancestor — its parent drawn inside that first where the ancestor
 // is further up — or over the whole table, and pinned with its ancestors.
-func (d *hold) rowOf(t *table) int {
-	if r, ok := d.pinned(t); ok {
+func (p *pinSet) rowOf(s *session, t *table) int {
+	if r, ok := p.pinned(t); ok {
 		return r
 	}
 	r := -1
 	for a := t.parentT; a != nil && r < 0; a = a.parentT {
-		if _, ok := d.pinned(a); !ok {
+		if _, ok := p.pinned(a); !ok {
 			continue
 		}
 		if t.parentT != a {
-			d.rowOf(t.parentT)
+			p.rowOf(s, t.parentT)
 		}
-		pr, _ := d.pinned(t.parentT)
-		r = t.drawUnder(d.s, pr)
+		pr, _ := p.pinned(t.parentT)
+		r = t.drawUnder(s, pr)
 	}
 	if r < 0 {
-		r = t.draw(d.s)
+		r = t.draw(s)
 	}
-	d.pin(t, r)
+	p.pin(t, r)
 	return r
 }
 
-// pinRow pins row r of t where it agrees with the rows pinned before it.
-func (d *hold) pinRow(t *table, r int) error {
-	if pr, ok := d.pinned(t); ok && pr != r {
+// disagrees is why row r of t cannot render with the rows pinned: another row of t is,
+// or an ancestor's row it sits outside; nil where it agrees with them.
+func (p *pinSet) disagrees(t *table, r int) error {
+	if pr, ok := p.pinned(t); ok && pr != r {
 		return fmt.Errorf("%s and %s are two rows of %s", t.selectorSpelling(pr), t.selectorSpelling(r), t.path)
 	}
 	for a := t.parentT; a != nil; a = a.parentT {
-		if pa, ok := d.pinned(a); ok && !t.under(r, a, pa) {
+		if pa, ok := p.pinned(a); ok && !t.under(r, a, pa) {
 			return fmt.Errorf("%s is not inside %s", t.selectorSpelling(r), a.selectorSpelling(pa))
 		}
 	}
-	d.pin(t, r)
+	return nil
+}
+
+// pinRow pins row r of t where it agrees with the rows pinned before it.
+func (p *pinSet) pinRow(t *table, r int) error {
+	if err := p.disagrees(t, r); err != nil {
+		return err
+	}
+	p.pin(t, r)
 	return nil
 }
 
 // selectRow pins the row a selector names.
-func (d *hold) selectRow(t *table, sel string) error {
-	r, err := t.find(sel, d)
+func (p *pinSet) selectRow(t *table, sel string) error {
+	r, err := t.find(sel, p)
 	if err != nil {
 		return err
 	}
-	return d.pinRow(t, r)
+	return p.pinRow(t, r)
 }
 
 // inside keeps the rows of t that sit inside every pinned ancestor.
-func (d *hold) inside(t *table, rows []int) []int {
+func (p *pinSet) inside(t *table, rows []int) []int {
 	for a := t.parentT; a != nil; a = a.parentT {
-		pa, ok := d.pinned(a)
+		pa, ok := p.pinned(a)
 		if !ok {
 			continue
 		}
@@ -151,6 +169,30 @@ func (d *hold) inside(t *table, rows []int) []int {
 		rows = kept
 	}
 	return rows
+}
+
+// entered is a copy of p with row r of t pinned, with its ancestors where the render pins
+// the row rather than drawing it; a fence's walk branches, so the set it walked from stays.
+func (p pinSet) entered(t *table, r int, ancestors bool) pinSet {
+	p.more = maps.Clone(p.more)
+	if ancestors {
+		p.pin(t, r)
+	} else {
+		p.pinOne(t, r)
+	}
+	return p
+}
+
+// key spells the set for a map, the same whichever order pinned it.
+func (p *pinSet) key() string {
+	pins := make([]tablePin, 0, p.npins+len(p.more))
+	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
+	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
+	var b strings.Builder
+	for _, pin := range pins {
+		fmt.Fprintf(&b, "%p[%d]", pin.t, pin.row)
+	}
+	return b.String()
 }
 
 // readField renders one arm of a token. An arm's key is a sibling field or a
@@ -167,30 +209,11 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 		}
 		return draw{text: render(s, t.fields[a.key], sc)}
 	}
-	d := readHold(s, held, sc, a)
+	d := readHold(held, sc, a)
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	leaf, err := walkPath(t.fields[a.key], a.tail, pathWalk{
-		// Hold the draw at every level passed through, so two paths sharing a
-		// prefix share it.
-		choice: func(c *choice, rest []string) ([]node, error) {
-			key := a.key
-			if consumed := len(a.tail) - len(rest); consumed > 0 {
-				key = a.steps[consumed-1]
-			}
-			n, drew := d.variant[key]
-			if !drew {
-				n = drawn(s, c)
-				if d.variant == nil {
-					d.variant = map[string]node{}
-				}
-				d.variant[key] = n
-			}
-			return []node{n}, nil
-		},
-		pins: d,
-	})
+	leaf, err := walkPath(t.fields[a.key], a.tail, pathWalk{pins: &d.pinSet, draws: &pathDraws{s: s, held: d, a: &a}})
 	if err != nil {
 		panic(fmt.Sprintf("fejkdata: %q: %v; a fence should have refused this at New", a.name, err))
 	}
@@ -205,9 +228,9 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 // readHold is the hold a held read keeps its draw in: for a reference that reads a path,
 // the render's hold for its group, so its draw spans the render; for a sibling, or a
 // reference read whole, held.
-func readHold(s *session, held *hold, sc renderScope, a arm) *hold {
+func readHold(held *hold, sc renderScope, a arm) *hold {
 	if isRef(a.key) && len(a.tail) > 0 {
-		return sc.hold(s)
+		return sc.hold()
 	}
 	return held
 }
@@ -221,7 +244,7 @@ func renderLeaf(s *session, n node, sc renderScope) draw {
 	}
 	r := draw{text: render(s, n, sc)}
 	if t, _ := n.(*template); t != nil && t.readsColumn != nil {
-		r.null = sc.in(t).hold(s).value[t.readsColumn.a.path].null
+		r.null = sc.in(t).hold().value[t.readsColumn.a.path].null
 	}
 	return r
 }
