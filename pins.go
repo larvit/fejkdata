@@ -163,10 +163,16 @@ func (p *pinSet) inside(t *table, rows []int) []int {
 	return rows
 }
 
+// clone is a copy of p that pins apart from it; a plain copy shares the spill map.
+func (p pinSet) clone() pinSet {
+	p.spill = maps.Clone(p.spill)
+	return p
+}
+
 // entered is p with row r of t: pinned where the render pins it, alone where the render draws it
 // to render whole. p is left as it was, since a fence walk branches.
 func (p pinSet) entered(t *table, r int, pins bool) pinSet {
-	p.spill = maps.Clone(p.spill)
+	p = p.clone()
 	switch _, in := p.pinned(t); {
 	case pins:
 		p.pin(t, r)

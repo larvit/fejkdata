@@ -43,7 +43,9 @@ This round, in order:
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
   callbacks are nil and whether its session is, and `walkChoice` returns `nil, nil` where
-  none is set. The mode may live in `pathWalk`; the session may not, since beside `pins` it
+  none is set. Have the check mode report the tables a read draws, so `tableRead.drawn`
+  and `entered`'s `pins` flag come from the walk rather than a second copy of
+  `walkTable`'s draw condition and `rowOf`'s ancestor rule. The mode may live in `pathWalk`; the session may not, since beside `pins` it
   moves the hold maps to the heap.
 - Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
   `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
