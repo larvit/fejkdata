@@ -15,10 +15,7 @@ scoring run names too little to steer one. A fresh run replaces the items below.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
-Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency. Eight of nine
-named `drawWalk.walk` and `rowSet` or `checkFamilies` hardest and least wanted to modify:
-a load-time copy of the pinning `hold.pin` and `hold.rowOf` do at render, tied to them
-by nothing but tests, whose premise lives only in the README's Decisions.
+Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
