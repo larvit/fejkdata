@@ -964,9 +964,9 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestEnteredRowsAgreeWithPinning holds what a fence walk decides about the rows it entered to what
-// pinning them refuses at render: drift between the two is data that loads and then renders a
-// family that disagrees.
+// TestEnteredRowsAgreeWithPinning holds what a fence walk decides about the rows it entered, and
+// the rows a render draws, to what pinning refuses: drift between them is data that loads and then
+// renders a family that disagrees.
 func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
@@ -988,12 +988,15 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 			}
 			s := none.entered(entered, row, true)
 			for _, cand := range tables {
+				for i := 0; i < 20; i++ {
+					drawing := s
+					if r := drawing.rowOf(f.rand, cand); s.clash(cand, r) != nil {
+						t.Errorf("rowOf draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
+					}
+				}
 				for cr := 0; cr < cand.rows(); cr++ {
 					beside := s
 					refused := beside.pinRow(cand, cr) != nil
-					if got := s.excludes(&template{cellOf: cand, cellRow: cr}); got != refused {
-						t.Errorf("excludes(%s) = %v beside %s, but pinRow refuses it = %v", cand.selectorSpelling(cr), got, entered.selectorSpelling(row), refused)
-					}
 					if got := alternatives(drawAt{alt: s}, drawAt{alt: none.entered(cand, cr, true)}); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}
