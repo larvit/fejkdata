@@ -143,8 +143,9 @@ type pathWalk struct {
 
 // pathDraws is what a walk draws with: the session, and, for a held read of a, the
 // hold keeping the variant drawn at each level, so paths sharing a prefix share it.
-// Behind one pointer, since escape analysis is field-insensitive: a session or arm
-// on the walk itself sits at the hold's maps' depth and moves every hold set to the heap.
+// Both behind one pointer, and the arm behind its own, since escape analysis is
+// field-insensitive: a session or a level key one hop nearer the walk sits at the
+// hold's maps' depth and moves every hold set to the heap.
 type pathDraws struct {
 	s    *session
 	held *hold
@@ -290,13 +291,38 @@ func readRow(p *pinSet, draws *pathDraws, t *table, sel string, draw bool) error
 		return p.selectRow(t, sel)
 	}
 	if draw && draws != nil {
-		p.rowOf(draws.s, t)
+		draws.row(p, t)
 	}
 	return nil
 }
 
+// row is the render's row of t: the one pinned in p, else one drawn inside the
+// nearest pinned ancestor — its parent drawn inside that first where the ancestor
+// is further up — or over the whole table, and pinned with its ancestors.
+func (d *pathDraws) row(p *pinSet, t *table) int {
+	if r, ok := p.pinned(t); ok {
+		return r
+	}
+	r := -1
+	for a := t.parentT; a != nil && r < 0; a = a.parentT {
+		if _, ok := p.pinned(a); !ok {
+			continue
+		}
+		if t.parentT != a {
+			d.row(p, t.parentT)
+		}
+		pr, _ := p.pinned(t.parentT)
+		r = t.drawUnder(d.s, pr)
+	}
+	if r < 0 {
+		r = t.draw(d.s)
+	}
+	p.pin(t, r)
+	return r
+}
+
 // variant is the variant of c the walk continues into: the one held for this level
-// of a, drawn once, where the walk holds its draws; else one drawn afresh.
+// of the read, drawn once, where the walk holds its draws; else one drawn afresh.
 func (d *pathDraws) variant(c *choice, rest []string) node {
 	if d.held == nil {
 		return pick(d.s, c)

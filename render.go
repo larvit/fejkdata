@@ -48,7 +48,7 @@ func descend(s *session, root node, segments []string, sc renderScope) (node, er
 	if _, err := walkPath(root, segments, pathWalk{pins: &probe}); err != nil {
 		return nil, err
 	}
-	return walkPath(root, segments, pathWalk{pins: &sc.hold().pinSet, draws: &pathDraws{s: s}})
+	return walkPath(root, segments, pathWalk{pins: &sc.hold().pins, draws: &pathDraws{s: s}})
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
@@ -64,11 +64,11 @@ func render(s *session, n node, sc renderScope) string {
 		sc.t, sc.row = n, n.draw(s)
 		return expand(s, n.format, sc)
 	case *row:
-		sc.t, sc.row = n.t, sc.hold().mustRow(n.t)
+		sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		return expand(s, n.t.format, sc)
 	case *column:
 		if sc.t != n.t {
-			sc.t, sc.row = n.t, sc.hold().mustRow(n.t)
+			sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		}
 		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
 			return render(s, cell, sc)
