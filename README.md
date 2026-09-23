@@ -1341,8 +1341,8 @@ template.go     the {token} grammar: scanning, tokens, operands, validation, com
 hold.go         the hold: one draw per expansion for paths and operands, and the rows it pins
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
 holdset.go      one reference draw per render and group: the hold set a render reads its paths through
-drawfence.go    the load fences over reference draws: the drawGroup option, and the walk over a render's reads
-family.go       a family of linked tables: what a reference path reads of one, and the fence over paths into it
+drawfence.go    the load fences over reference draws: the walk over a render's reads
+family.go       a family of linked tables: what a reference path reads of one, the rows a walk enters, and the fences over paths into it
 reference.go    reference sigils, and binding references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 builtins.go     the {name()} function registry and its implementations

@@ -433,6 +433,33 @@ func repeatOf(m map[string]any) (int, error) {
 	return int(r), nil
 }
 
+// drawGroupOf reads a template's "drawGroup" (default ""), which a repeat cannot carry: each
+// iteration renders in no draw group.
+func drawGroupOf(m map[string]any, repeat int) (string, error) {
+	v, ok := m["drawGroup"]
+	if !ok {
+		return "", nil
+	}
+	name, ok := v.(string)
+	switch {
+	case !ok:
+		return "", fmt.Errorf("drawGroup must be a string, got %T", v)
+	case name == "":
+		return "", fmt.Errorf(`drawGroup "" is the default, so it has no effect; drop it`)
+	case repeat > 1:
+		return "", fmt.Errorf("drawGroup %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
+	}
+	return name, nil
+}
+
+// keyDrawGroup keys t's draw group by the category t sits in, "" for an inline template, so a name
+// is local to its category.
+func (t *template) keyDrawGroup(category string) {
+	if t.drawGroup != "" {
+		t.drawGroupKey = category + "/" + t.drawGroup
+	}
+}
+
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only
 // template objects carry weight; a present one must be finite and positive.
 func weightOf(raw any) (float64, error) {
