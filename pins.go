@@ -14,7 +14,7 @@ type tablePin struct {
 }
 
 // pinSet is the rows of tables fixed so far: by a render, by a path read replayed at load, and by
-// a fence walk over the rows a render can enter.
+// a fence walk over the rows a render can enter, which also holds a row rendered whole, alone.
 type pinSet struct {
 	pins  [8]tablePin // inline, so a render over a country's five-deep geo tree stays off the heap
 	n     int

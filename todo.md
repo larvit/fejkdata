@@ -43,7 +43,8 @@ This round, in order:
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
   callbacks are nil and whether its session is, and `walkChoice` returns `nil, nil` where
-  none is set.
+  none is set. The mode may live in `pathWalk`; the session may not, since beside `pins` it
+  moves the hold maps to the heap.
 - Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
   `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
   render calls the second. Derive the numeric builtins `valueProof.template` lists in
@@ -285,7 +286,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
 - Measure the allocation gate over the shipped `geo` trees too: `pinSet.pins [8]` is sized
   for them, and `perf_test.go` checks a synthetic five-deep tree only.
-- Make a named draw group's hold lazy, `&hold{s: s}` in `renderScope.hold`: it escapes
+- Make a named draw group's hold lazy, `&hold{}` in `renderScope.hold`: it escapes
   to the heap anyway, so its two eager maps buy no stack and cost two allocations per
   group that may never read through them. Check it against the alloc tests.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
