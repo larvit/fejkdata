@@ -22,10 +22,6 @@ by nothing but tests, whose premise lives only in the README's Decisions.
 
 This round, in order:
 
-- Give render and the draw fences one pin model: a pin set `hold.pin`, `hold.rowOf`
-  and the fence's `rowSet` all use, so a change to how a render pins rows cannot leave
-  the fence proving the old rule, and `hold` stops being a proof scratchpad whenever its
-  session is nil.
 - Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
   of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
   README. Give each fence a bare link to the entry it enforces: every seat needed
@@ -46,7 +42,7 @@ This round, in order:
   `operandReader`, `checkNoRepeatedRead` and `compileOps`, and function-versus-field is
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
-  callbacks are nil and whether `pins.s` is, and `walkChoice` returns `nil, nil` where
+  callbacks are nil and whether `walkPath`'s session is, and `walkChoice` returns `nil, nil` where
   none is set.
 - Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
   `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
@@ -55,7 +51,7 @@ This round, in order:
 - Split `drawCheck.reads`'s six-term condition into named predicates.
 - Rename what names two things: `template.go` holds the token grammar while `template`
   is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in
-  `ftoken` and a builtin in `op`; `hold`'s receiver is `d`; `drawAt.alt` holds the rows
+  `ftoken` and a builtin in `op`; `drawAt.alt` holds the rows
   a walk entered.
 - Run the nine-seat panel again and file what it names here.
 
@@ -287,9 +283,9 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Hold every change the charter says owes a `CHANGELOG.md` entry to one in CI: the
   check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a
   flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
-- Measure the allocation gate over the shipped `geo` trees too: `hold.pins [8]` is sized
+- Measure the allocation gate over the shipped `geo` trees too: `pinSet.pins [8]` is sized
   for them, and `perf_test.go` checks a synthetic five-deep tree only.
-- Make a named draw group's hold lazy, `&hold{s: s}` in `renderScope.hold`: it escapes
+- Make a named draw group's hold lazy, `&hold{}` in `renderScope.hold`: it escapes
   to the heap anyway, so its two eager maps buy no stack and cost two allocations per
   group that may never read through them. Check it against the alloc tests.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps

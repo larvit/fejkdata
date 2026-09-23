@@ -180,7 +180,7 @@ type drawWalk struct {
 type drawAt struct {
 	group string
 	route drawRoute
-	alt   rowSet
+	alt   pinSet
 	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
 }
 

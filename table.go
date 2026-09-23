@@ -524,8 +524,8 @@ func (t *table) under(r int, a *table, pr int) bool {
 }
 
 // find is the row a selector names: by key first, then by name, where a name
-// naming several rows resolves inside the ancestors pinned in d.
-func (t *table) find(sel string, d *hold) (int, error) {
+// naming several rows resolves inside the ancestors pinned in p.
+func (t *table) find(sel string, p *pinSet) (int, error) {
 	if t.key < 0 && t.name < 0 {
 		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.path)
 	}
@@ -534,7 +534,7 @@ func (t *table) find(sel string, d *hold) (int, error) {
 	}
 	rows := t.indexed().byName[sel]
 	if len(rows) > 1 {
-		rows = d.inside(t, rows)
+		rows = p.inside(t, rows)
 	}
 	switch len(rows) {
 	case 1:
