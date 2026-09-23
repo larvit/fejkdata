@@ -225,7 +225,8 @@ func checkOwnFamily(t *template) error {
 	return nil
 }
 
-// alternatives reports whether two reads sit in different rows of one table.
+// alternatives reports whether two reads sit in different rows of one table. Not clash: a row drawn
+// whole is held without its ancestors, since the render draws it over the whole table.
 func alternatives(a, b drawAt) bool {
 	found := false
 	a.alt.each(func(t *table, r int) {
