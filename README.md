@@ -1036,13 +1036,11 @@ the Development section below, and who ships a register the four above then draw
   different things — an operand pins the value its own render produced and stops at a
   reference, a path pins every level it passes through — so one walk would carry both
   rules and both scopes anyway, and tell them apart at every step.
-- **A record makes its draw maps up front, a `Fake` on its first read.** A record's
-  columns always read through the render's draws, so making the maps where the set is
-  declared keeps them on that frame's stack. A `Fake` often reads no reference path at
-  all, and making them anyway cost about a fifth of the cheapest render, so it makes
-  them on the first read instead, at two heap allocations for a render that does share
-  a draw. The allocation gate over a repeat of a reference path and over a named draw
-  group prices that, and pins the two measures that keep a hold set off the heap.
+- **A `Fake` makes its draw maps on its first read, a record up front.** `Fake`'s hold
+  set is a `Generator` field, so its maps are heap either way, and a `Fake` that reads
+  no reference path would pay them for nothing — about a fifth of the cheapest render.
+  A record's set is a local, where maps made in the declaring frame stay on its stack.
+  The allocation gate over a repeat of a reference path prices the lazy maps.
 - **A category never references itself, and a record's fences run at load.** A category
   is one unit: a reference back into it — `{/users.first}` inside `users` — describes a
   draw other than the fields beside it, so `New` refuses it and the sibling path stays
