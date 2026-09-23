@@ -178,7 +178,7 @@ func renderEdges(n node) []renderEdge {
 // already proved the tail resolves in every variant.
 func pathLeaves(n node, tail []string) []node {
 	var out []node
-	_, _ = walkPath(n, tail, pathWalk{
+	_, _ = walkPath(nil, n, tail, pathWalk{
 		choice: func(c *choice, _ []string) ([]node, error) { return c.items, nil },
 		leaf:   func(n node) error { out = append(out, n); return nil },
 	})

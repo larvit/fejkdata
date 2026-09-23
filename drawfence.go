@@ -180,7 +180,7 @@ type drawWalk struct {
 type drawAt struct {
 	group string
 	route drawRoute
-	alt   rowSet
+	alt   pinSet
 	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
 }
 
@@ -233,7 +233,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 				continue
 			}
 			in := at
-			in.alt = at.alt.enter(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn)
+			in.alt = at.alt.entered(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn)
 			w.edge(n, e, in)
 			continue
 		}
@@ -251,7 +251,7 @@ func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.alt = at.alt.enter(t, r, true) })
+			tr.pins.each(func(t *table, r int) { at.alt = at.alt.entered(t, r, true) })
 		}
 	}
 	w.walk(e.to, at)

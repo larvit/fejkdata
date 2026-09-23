@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -12,7 +11,7 @@ import (
 // it lands on a row rendered whole.
 type tableRead struct {
 	head  *table
-	pins  hold
+	pins  pinSet
 	drawn map[*table]bool
 	sels  []tableSel
 	whole bool
@@ -34,7 +33,7 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 		return nil
 	}
 	tr := &tableRead{head: t, drawn: map[*table]bool{}}
-	_, _ = walkPath(t, a.tail, pathWalk{pins: &tr.pins})
+	_, _ = walkPath(nil, t, a.tail, pathWalk{pins: &tr.pins})
 	written := a.name[:len(a.name)-len(joinSegments(a.tail))]
 	cur := t
 	tr.draws(cur)
@@ -126,7 +125,7 @@ func replayPairs(reads []pathRead) error {
 			if o.tr == nil || o.at.group != r.at.group || alternatives(r.at, o.at) {
 				continue
 			}
-			var d hold
+			var d pinSet
 			if err := r.tr.replay(&d); err != nil {
 				return conflict(r, err)
 			}
@@ -143,7 +142,7 @@ func conflict(r pathRead, err error) error {
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.
-func (r *tableRead) replay(d *hold) error {
+func (r *tableRead) replay(d *pinSet) error {
 	var err error
 	r.pins.each(func(t *table, row int) {
 		if err == nil {
@@ -179,7 +178,7 @@ func checkFamilyPair(a, b pathRead) error {
 }
 
 // drawnOf is a table the read draws that pins holds a row of, if any.
-func (r *tableRead) drawnOf(pins *hold) *table {
+func (r *tableRead) drawnOf(pins *pinSet) *table {
 	var found *table
 	pins.each(func(t *table, _ int) {
 		if found == nil && r.drawn[t] {
@@ -226,69 +225,13 @@ func checkOwnFamily(t *template) error {
 	return nil
 }
 
-// rowSet stands in at load for the rows (*hold).pin holds at render: a path read enters a row with
-// its ancestors, a whole read enters the drawn row alone.
-type rowSet []tablePin
-
-func (s rowSet) rowOf(t *table) (int, bool) {
-	for _, p := range s {
-		if p.t == t {
-			return p.row, true
-		}
-	}
-	return 0, false
-}
-
-// enter is s with row r of t, and with t's ancestors where the render pins that row rather than
-// drawing it; the set is copied, since walks branch.
-func (s rowSet) enter(t *table, r int, pins bool) rowSet {
-	if _, in := s.rowOf(t); in {
-		return s
-	}
-	out := append(make(rowSet, 0, len(s)+1), s...)
-	for {
-		out = append(out, tablePin{t, r})
-		if !pins || t.parentT == nil {
-			break
-		}
-		t, r = t.parentT, t.parentRow(r)
-		if _, in := out.rowOf(t); in {
-			break
-		}
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].t.path < out[j].t.path })
-	return out
-}
-
-// key spells the set for a map, by the tables' identities.
-func (s rowSet) key() string {
-	var b strings.Builder
-	for _, p := range s {
-		fmt.Fprintf(&b, "%p[%d]", p.t, p.row)
-	}
-	return b.String()
-}
-
-// excludes reports whether a cell's row cannot render with the rows entered: another
-// row of its table, or a row outside an entered ancestor's.
-func (s rowSet) excludes(cell *template) bool {
-	for _, p := range s {
-		if p.t == cell.cellOf {
-			return p.row != cell.cellRow
-		}
-		if cell.cellOf.descends(p.t) && !cell.cellOf.under(cell.cellRow, p.t, p.row) {
-			return true
-		}
-	}
-	return false
-}
-
 // alternatives reports whether two reads sit in different rows of one table.
 func alternatives(a, b drawAt) bool {
-	for _, p := range a.alt {
-		if r, in := b.alt.rowOf(p.t); in && r != p.row {
-			return true
+	found := false
+	a.alt.each(func(t *table, r int) {
+		if br, in := b.alt.pinned(t); in && br != r {
+			found = true
 		}
-	}
-	return false
+	})
+	return found
 }

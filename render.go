@@ -23,7 +23,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	f.set = lazyHoldSet(f.rand)
+	f.set = holdSet{}
 	sc := renderScope{set: &f.set}
 	f.root.children = f.categories
 	n, err := descend(f.rand, &f.root, segments, sc)
@@ -44,11 +44,11 @@ func (f *Generator) Fake(path string) (string, error) {
 // every call.
 func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
 	// Walked once without drawing first, so a path that fails moves no seeded stream.
-	var probe hold
-	if _, err := walkPath(root, segments, pathWalk{pins: &probe}); err != nil {
+	var probe pinSet
+	if _, err := walkPath(nil, root, segments, pathWalk{pins: &probe}); err != nil {
 		return nil, err
 	}
-	return walkPath(root, segments, pathWalk{pins: sc.hold(s)})
+	return walkPath(s, root, segments, pathWalk{pins: &sc.hold().pins})
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
@@ -64,11 +64,11 @@ func render(s *session, n node, sc renderScope) string {
 		sc.t, sc.row = n, n.draw(s)
 		return expand(s, n.format, sc)
 	case *row:
-		sc.t, sc.row = n.t, sc.hold(s).mustRow(n.t)
+		sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		return expand(s, n.t.format, sc)
 	case *column:
 		if sc.t != n.t {
-			sc.t, sc.row = n.t, sc.hold(s).mustRow(n.t)
+			sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		}
 		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
 			return render(s, cell, sc)
