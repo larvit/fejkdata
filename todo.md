@@ -22,9 +22,6 @@ by nothing but tests, whose premise lives only in the README's Decisions.
 
 This round, in order:
 
-- Gather the family fence in `family.go`: `alternatives`, `rowSet` and `checkOwnFamily`
-  beside `checkFamilies`, and the `drawGroup` option parsing out of `drawfence.go`, so
-  one question about a family opens one file.
 - Give render and the draw fences one pin model: a pin set `hold.pin`, `hold.rowOf`
   and the fence's `rowSet` all use, so a change to how a render pins rows cannot leave
   the fence proving the old rule, and `hold` stops being a proof scratchpad whenever its

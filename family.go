@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -186,4 +187,108 @@ func (r *tableRead) drawnOf(pins *hold) *table {
 		}
 	})
 	return found
+}
+
+// checkOwnFamily refuses a table's format or cell that reads, however many templates
+// away and through a repeat or a draw group too, a table of its own family: a row
+// rendered whole draws its row without pinning it, so the family would draw apart
+// from the row being rendered, whichever draws the reaching template holds.
+func checkOwnFamily(t *template) error {
+	own := t.table
+	if own == nil {
+		own = t.cellOf
+	}
+	if own == nil {
+		return nil
+	}
+	seen := map[node]bool{}
+	var find func(n node) (renderEdge, *table, bool)
+	find = func(n node) (renderEdge, *table, bool) {
+		if seen[n] {
+			return renderEdge{}, nil, false
+		}
+		seen[n] = true
+		for _, e := range renderEdges(n) {
+			if a, isRef := refRead(n, e.label); isRef {
+				if head, isTable := n.(*template).fields[a.key].(*table); isTable && head.family() == own.family() {
+					return e, head, true
+				}
+			}
+			if e, head, found := find(e.to); found {
+				return e, head, true
+			}
+		}
+		return renderEdge{}, nil, false
+	}
+	if e, head, found := find(t); found {
+		return fmt.Errorf("%s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
+	}
+	return nil
+}
+
+// rowSet stands in at load for the rows (*hold).pin holds at render: a path read enters a row with
+// its ancestors, a whole read enters the drawn row alone.
+type rowSet []tablePin
+
+func (s rowSet) rowOf(t *table) (int, bool) {
+	for _, p := range s {
+		if p.t == t {
+			return p.row, true
+		}
+	}
+	return 0, false
+}
+
+// enter is s with row r of t, and with t's ancestors where the render pins that row rather than
+// drawing it; the set is copied, since walks branch.
+func (s rowSet) enter(t *table, r int, pins bool) rowSet {
+	if _, in := s.rowOf(t); in {
+		return s
+	}
+	out := append(make(rowSet, 0, len(s)+1), s...)
+	for {
+		out = append(out, tablePin{t, r})
+		if !pins || t.parentT == nil {
+			break
+		}
+		t, r = t.parentT, t.parentRow(r)
+		if _, in := out.rowOf(t); in {
+			break
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].t.path < out[j].t.path })
+	return out
+}
+
+// key spells the set for a map, by the tables' identities.
+func (s rowSet) key() string {
+	var b strings.Builder
+	for _, p := range s {
+		fmt.Fprintf(&b, "%p[%d]", p.t, p.row)
+	}
+	return b.String()
+}
+
+// excludes reports whether a cell's row cannot render with the rows entered: another
+// row of its table, or a row outside an entered ancestor's.
+func (s rowSet) excludes(cell *template) bool {
+	for _, p := range s {
+		if p.t == cell.cellOf {
+			return p.row != cell.cellRow
+		}
+		if cell.cellOf.descends(p.t) && !cell.cellOf.under(cell.cellRow, p.t, p.row) {
+			return true
+		}
+	}
+	return false
+}
+
+// alternatives reports whether two reads sit in different rows of one table.
+func alternatives(a, b drawAt) bool {
+	for _, p := range a.alt {
+		if r, in := b.alt.rowOf(p.t); in && r != p.row {
+			return true
+		}
+	}
+	return false
 }
