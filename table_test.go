@@ -989,13 +989,13 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 			s := none.entered(entered, row, true)
 			for _, cand := range tables {
 				for i := 0; i < 20; i++ {
-					drawing := s
+					drawing := s.clone()
 					if r := drawing.rowOf(f.rand, cand); s.clash(cand, r) != nil {
 						t.Errorf("rowOf draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
 					}
 				}
 				for cr := 0; cr < cand.rows(); cr++ {
-					beside := s
+					beside := s.clone()
 					refused := beside.pinRow(cand, cr) != nil
 					if got := alternatives(drawAt{alt: s}, drawAt{alt: none.entered(cand, cr, true)}); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
