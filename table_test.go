@@ -480,6 +480,7 @@ func TestTableFences(t *testing.T) {
 		"format reads into a column":    {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
 		"a reference into a column":     {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
 		"a category referencing itself": {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
+		"a cell repeating a reference":  {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}), "t.a, line 3: token {/region} is repeated"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, c.files)))
