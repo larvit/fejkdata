@@ -245,7 +245,7 @@ func recordOf(n node) (*template, []Column, error) {
 	if !ok {
 		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 	}
-	names := recordColumns(t)
+	names := sortedNames(t.fields)
 	if len(names) == 0 {
 		return nil, nil, ErrNoColumns
 	}
@@ -273,17 +273,4 @@ func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Re
 		r.columns[i].Value, r.columns[i].Null = column.text, column.null
 	}
 	return r
-}
-
-// recordColumns is the sorted non-reference field names — the columns a record
-// projects. A {/path} binding is carried in fields under its root path, so only a
-// name that is not a reference is a column.
-func recordColumns(t *template) []string {
-	var names []string
-	for _, name := range sortedNames(t.fields) {
-		if !isRef(name) {
-			names = append(names, name)
-		}
-	}
-	return names
 }

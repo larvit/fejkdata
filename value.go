@@ -158,7 +158,7 @@ func (p *valueProof) template(t *template) proven {
 	case !isFunc:
 		var leaves []node
 		for _, a := range splitArms(body, t.refs) {
-			leaves = append(leaves, pathLeaves(t.fields[a.key], a.tail)...)
+			leaves = append(leaves, pathLeaves(t.head(a.key), a.tail)...)
 		}
 		return p.unite(leaves)
 	case name == "calc":
