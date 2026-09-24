@@ -34,6 +34,7 @@ func quotedLayout(a string) bool {
 }
 
 // layoutArg is the Go layout a quoted arg holds, refused when unquoted or constant.
+// docs/decisions.md#a-layout-is-always-quoted
 func layoutArg(a string) (string, error) {
 	if !quotedLayout(a) {
 		bare := strings.Trim(a, `'"`)

@@ -206,6 +206,7 @@ func (m reachMemo) of(n node) int {
 
 // repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
 // path, so nested repeats cannot build what one repeat may not.
+// docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
 func repeatCheck(path string, n node, mem reachMemo) error {
 	if t, ok := n.(*template); ok && t.repeat > 1 && mem.of(n) > MaxRepeat {
 		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.of(n), MaxRepeat)

@@ -21,7 +21,7 @@ var shippedFS embed.FS
 // any one path; the CLI's --repeat shares it.
 const MaxRepeat = 1 << 20
 
-var _ [^uint(0)>>63 - 1]struct{} // 64-bit only, per the README's Decisions
+var _ [^uint(0)>>63 - 1]struct{} // docs/decisions.md#64-bit-targets-only
 
 // ErrNoData is returned by New when no source is loaded at all.
 var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")

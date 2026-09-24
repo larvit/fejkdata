@@ -84,8 +84,8 @@ func linkRefs(root map[string]node) error {
 }
 
 // linkTemplateRefs binds one template's references against root, refusing one that names the
-// category it sits in: a category is a unit, and a reference back into it describes a draw other
-// than the fields beside it.
+// category it sits in.
+// docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
 	names := refTokens(t.format)
 	if len(names) == 0 {

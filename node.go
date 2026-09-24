@@ -117,6 +117,7 @@ func compileCategory(v any, name string, files *categoryFiles) (node, error) {
 
 // checkNotRows refuses a choice of templates sharing one format and one set of
 // string fields: each item is a row, and the rows file is the spelling for that.
+// docs/decisions.md#the-choice-of-rows-fence-guards-a-data-files-root-and-requires-string-fields
 func checkNotRows(items []any, name string) error {
 	var format string
 	var fields []string

@@ -96,6 +96,7 @@ func (r *tableRead) selected(t *table) (tableSel, bool) {
 // read one consistent draw: a table rendered whole beside a path into the family,
 // a table one read draws that another pins, and two reads pinning different rows.
 // The reads come sorted by group and path, so which pair is reported does not vary.
+// docs/decisions.md#every-reference-path-into-one-family-selects-the-same-rows-per-render-and-group
 func checkFamilies(reads []pathRead) error {
 	for i, r := range reads {
 		if r.tr == nil {
@@ -155,6 +156,7 @@ func (r *tableRead) replay(d *pinSet) error {
 // checkFamilyPair refuses a table read whole beside a path into its family, and a
 // table one read draws that the other pins, since which token renders first would
 // then decide the row.
+// docs/decisions.md#a-table-read-into-is-pinned-a-table-read-whole-draws-afresh
 func checkFamilyPair(a, b pathRead) error {
 	for _, pair := range [][2]pathRead{{a, b}, {b, a}} {
 		x, y := pair[0], pair[1]
@@ -192,6 +194,7 @@ func (r *tableRead) drawnOf(pins *pinSet) *table {
 // away and through a repeat or a draw group too, a table of its own family: a row
 // rendered whole draws its row without pinning it, so the family would draw apart
 // from the row being rendered, whichever draws the reaching template holds.
+// docs/decisions.md#a-table-never-reaches-its-own-family-by-any-route
 func checkOwnFamily(t *template) error {
 	own := t.table
 	if own == nil {
@@ -227,6 +230,7 @@ func checkOwnFamily(t *template) error {
 
 // alternatives reports whether two reads sit in different rows of one table. Not clash: a row drawn
 // whole is held without its ancestors, since the render draws it over the whole table.
+// docs/decisions.md#the-rows-of-a-table-are-alternatives
 func alternatives(a, b drawAt) bool {
 	found := false
 	a.alt.each(func(t *table, r int) {

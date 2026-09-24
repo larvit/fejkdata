@@ -358,6 +358,7 @@ func setTablePaths(root map[string]node) {
 // linkTables binds every table's parent to the table beside it, and proves the
 // links: a parent has a key, every link cell is one, every parent row is linked
 // to, no chain of parents closes, and no child is named like a parent's column.
+// docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func linkTables(root map[string]node) error {
 	var walk func(dir string, children map[string]node) error
 	walk = func(dir string, children map[string]node) error {
