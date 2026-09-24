@@ -329,9 +329,12 @@ func (t *table) compileWhole(format string) error {
 		return err
 	}
 	for _, tok := range toks {
+		if tok.kind != 'f' {
+			continue
+		}
 		for _, name := range tok.names {
 			a := splitArm(name, nil)
-			if _, ok := t.col[a.key]; tok.kind == 'f' && !ok && !isRef(a.key) && a.key != "" {
+			if _, ok := t.col[a.key]; !ok && !isRef(a.key) && a.key != "" {
 				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.columns)
 			}
 		}

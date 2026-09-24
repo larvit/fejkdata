@@ -265,10 +265,10 @@ func hintableRef(name string) bool {
 }
 
 // builtinOperands lists the fields a call reads as operands, empty for a builtin that
-// reads none, or a call checkFunc refuses.
+// reads none or is unknown.
 func builtinOperands(name string, args []string) []string {
 	b, known := builtins[name]
-	if !known || b.operands == nil || (b.arity >= 0 && len(args) != b.arity) {
+	if !known || b.operands == nil {
 		return nil
 	}
 	return b.operands(args)

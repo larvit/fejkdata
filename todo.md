@@ -37,7 +37,8 @@ This round, in order:
 - Split `drawCheck.reads`'s six-term condition into named predicates.
 - Rename what names two things: `template.go` holds the token grammar while `template`
   is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in
-  `ftoken` and a builtin in `op`; `drawAt.alt` holds the rows
+  `ftoken` and a builtin in `formatToken` and `op`; `tokens` is a template's parsed format
+  and a table's cell templates; `drawAt.alt` holds the rows
   a walk entered.
 - Run the nine-seat panel again and file what it names here.
 
