@@ -127,29 +127,40 @@ func names(segs []string) []string {
 
 // pathWalk is what one walk of a dotted path does at each kind of level: choice
 // returns the variants to continue into (none stops the walk), and where it is nil
-// the walk draws one with s, takes the first where s is nil, or stops where pins is
-// nil too; level runs at each template a segment descends
+// the walk draws one with draws, takes the first where draws is nil, or stops where
+// pins is nil too; level runs at each template a segment descends
 // into; leaf runs where the tail ends; pins is where the walk pins the table rows
-// it selects and draws, nil skipping tables. A nil action is skipped. A render's
-// walk sets only pins, so it allocates nothing.
+// it selects and draws, nil skipping tables; draws is what draws the rows and
+// variants the path reads, nil proving instead that the path resolves whichever
+// are drawn. A nil action is skipped. A render's walk sets only pins and draws, so
+// it allocates nothing.
 type pathWalk struct {
 	choice func(c *choice, rest []string) ([]node, error)
 	level  func(t *template, rest []string) error
 	leaf   func(n node) error
 	pins   *pinSet
+	draws  *pathDraws
+}
+
+// pathDraws is what a walk draws with: the session, and, for a held read of a, the
+// hold keeping the variant drawn at each level, so paths sharing a prefix share it.
+// a is a pointer: held inline, its level keys take an eager hold set to the heap.
+type pathDraws struct {
+	s    *session
+	held *hold
+	a    *arm
 }
 
 // walkPath descends tail from n and returns the node it ends at: a folder or
 // template by its next segment, a choice by w.choice, which consumes no segment, a
 // table by walkTable. A missing segment is an error, so no walk reaches past what
-// the data holds. s draws rows and variants; where it is nil, only selectors pin.
-// s is a parameter: a pathWalk field beside pins moves the hold maps to the heap.
-func walkPath(s *session, n node, tail []string, w pathWalk) (node, error) {
+// the data holds.
+func walkPath(n node, tail []string, w pathWalk) (node, error) {
 	if len(tail) == 0 {
 		return n, w.atLeaf(n)
 	}
 	if t, isTable := n.(*table); isTable {
-		return walkTable(s, t, tail, w, false)
+		return walkTable(t, tail, w, false)
 	}
 	if isSelector(tail[0]) {
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", selectorOf(tail[0]))
@@ -160,7 +171,7 @@ func walkPath(s *session, n node, tail []string, w pathWalk) (node, error) {
 		if !ok {
 			return nil, fmt.Errorf("no entry %q", tail[0])
 		}
-		return walkPath(s, child, tail[1:], w)
+		return walkPath(child, tail[1:], w)
 	case *template:
 		if w.level != nil {
 			if err := w.level(n, tail); err != nil {
@@ -171,9 +182,9 @@ func walkPath(s *session, n node, tail []string, w pathWalk) (node, error) {
 		if !ok {
 			return nil, fmt.Errorf("no field %q", tail[0])
 		}
-		return walkPath(s, child, tail[1:], w)
+		return walkPath(child, tail[1:], w)
 	case *choice:
-		return walkChoice(s, n, tail, w)
+		return walkChoice(n, tail, w)
 	case *column:
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", tail[0], n.t.columns[n.i])
 	}
@@ -187,20 +198,20 @@ func (w pathWalk) atLeaf(n node) error {
 	return nil
 }
 
-// walkChoice continues a walk into the variants w.choice returns, or into one drawn
-// by s where the walk names no choice action.
-func walkChoice(s *session, c *choice, tail []string, w pathWalk) (node, error) {
+// walkChoice continues a walk into the variants w.choice returns, or into one
+// w.draws draws where the walk names no choice action.
+func walkChoice(c *choice, tail []string, w pathWalk) (node, error) {
 	if w.choice == nil {
 		if w.pins == nil {
 			return nil, nil
 		}
-		if err := carriedByAll(c, tail); err != nil {
-			return nil, err
+		if w.draws == nil { // a probe: every variant carries the tail, so any one proves it
+			if err := carriedByAll(c, tail); err != nil {
+				return nil, err
+			}
+			return walkPath(c.items[0], tail, w)
 		}
-		if s == nil { // a probe: every variant carries the tail, so any one proves it
-			return walkPath(s, c.items[0], tail, w)
-		}
-		return walkPath(s, pick(s, c), tail, w)
+		return walkPath(w.draws.variant(c, tail), tail, w)
 	}
 	next, err := w.choice(c, tail)
 	if err != nil {
@@ -208,7 +219,7 @@ func walkChoice(s *session, c *choice, tail []string, w pathWalk) (node, error) 
 	}
 	var last node
 	for _, item := range next {
-		if last, err = walkPath(s, item, tail, w); err != nil {
+		if last, err = walkPath(item, tail, w); err != nil {
 			return nil, err
 		}
 	}
@@ -219,7 +230,7 @@ func walkChoice(s *session, c *choice, tail []string, w pathWalk) (node, error) 
 // linked table by name. The walk reads a row wherever a segment follows or the
 // table was reached from another; a table reached whole, with no selector, is left
 // to a render's own draw.
-func walkTable(s *session, t *table, tail []string, w pathWalk, descended bool) (node, error) {
+func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error) {
 	sel, tail, err := t.selector(tail)
 	if err != nil {
 		return nil, err
@@ -231,19 +242,19 @@ func walkTable(s *session, t *table, tail []string, w pathWalk, descended bool) 
 	// A selector further down pins this table by ancestry, so the walk draws only
 	// where none follows; drawing first could pick a row the selector is not inside.
 	if w.pins != nil {
-		if err := readRow(s, w.pins, t, sel, (descended || len(tail) > 0) && !hasSelector(tail)); err != nil {
+		if err := readRow(w.pins, w.draws, t, sel, (descended || len(tail) > 0) && !hasSelector(tail)); err != nil {
 			return nil, err
 		}
 	}
 	switch {
 	case len(tail) == 0 && sel == "" && !descended:
-		return walkPath(s, t, nil, w)
+		return walkPath(t, nil, w)
 	case len(tail) == 0:
-		return walkPath(s, t.whole, nil, w)
+		return walkPath(t.whole, nil, w)
 	case child != nil:
-		return walkTable(s, child, tail[1:], w, true)
+		return walkTable(child, tail[1:], w, true)
 	}
-	return walkPath(s, column, tail[1:], w)
+	return walkPath(column, tail[1:], w)
 }
 
 // selector splits the selector a tail starts with from the rest of it.
@@ -274,14 +285,57 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 
 // readRow pins the row a path reads of t: the one its selector names, or, where the
 // walk draws, one drawn where the path reads into the table.
-func readRow(s *session, pins *pinSet, t *table, sel string, draw bool) error {
+func readRow(p *pinSet, draws *pathDraws, t *table, sel string, draw bool) error {
 	if sel != "" {
-		return pins.selectRow(t, sel)
+		return p.selectRow(t, sel)
 	}
-	if draw && s != nil {
-		pins.rowOf(s, t)
+	if draw && draws != nil {
+		draws.row(p, t)
 	}
 	return nil
+}
+
+// row is the render's row of t: the one pinned in p, else one drawn inside the
+// nearest pinned ancestor — its parent drawn inside that first where the ancestor
+// is further up — or over the whole table, and pinned with its ancestors.
+func (d *pathDraws) row(p *pinSet, t *table) int {
+	if r, ok := p.pinned(t); ok {
+		return r
+	}
+	r := -1
+	for a := t.parentT; a != nil && r < 0; a = a.parentT {
+		if _, ok := p.pinned(a); !ok {
+			continue
+		}
+		if t.parentT != a {
+			d.row(p, t.parentT)
+		}
+		pr, _ := p.pinned(t.parentT)
+		r = t.drawUnder(d.s, pr)
+	}
+	if r < 0 {
+		r = t.draw(d.s)
+	}
+	p.pin(t, r)
+	return r
+}
+
+// variant is the variant of c the walk continues into: the one held for this level
+// of the read, drawn once, where the walk holds its draws; else one drawn afresh.
+func (d *pathDraws) variant(c *choice, rest []string) node {
+	if d.held == nil {
+		return pick(d.s, c)
+	}
+	key := d.a.levels[len(d.a.tail)-len(rest)]
+	n, drew := d.held.variant[key]
+	if !drew {
+		n = drawn(d.s, c)
+		if d.held.variant == nil {
+			d.held.variant = map[string]node{}
+		}
+		d.held.variant[key] = n
+	}
+	return n
 }
 
 // carriedByAll is the choice rule a path that must resolve on every call obeys:
@@ -315,7 +369,7 @@ func unreachableInChoice(c *choice, want string) error {
 // that validates here resolves on every render, and a typo is a New-time error.
 func checkPath(n node, tail []string, level string) error {
 	var pins pinSet
-	_, err := walkPath(nil, n, tail, pathWalk{
+	_, err := walkPath(n, tail, pathWalk{
 		choice: func(c *choice, rest []string) ([]node, error) {
 			if err := carriedByAll(c, rest); err != nil {
 				return nil, err

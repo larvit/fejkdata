@@ -81,31 +81,6 @@ func (p *pinSet) each(fn func(t *table, r int)) {
 	}
 }
 
-// rowOf is the row of t: the one pinned, else one s draws inside the nearest pinned ancestor — its
-// parent drawn inside that first where the ancestor is further up — or over the whole table, and
-// pinned with its ancestors.
-func (p *pinSet) rowOf(s *session, t *table) int {
-	if r, ok := p.pinned(t); ok {
-		return r
-	}
-	r := -1
-	for a := t.parentT; a != nil && r < 0; a = a.parentT {
-		if _, ok := p.pinned(a); !ok {
-			continue
-		}
-		if t.parentT != a {
-			p.rowOf(s, t.parentT)
-		}
-		pr, _ := p.pinned(t.parentT)
-		r = t.drawUnder(s, pr)
-	}
-	if r < 0 {
-		r = t.draw(s)
-	}
-	p.pin(t, r)
-	return r
-}
-
 // clash is the table whose pinned row keeps row r of t out: t itself pinned to another row, or the
 // nearest ancestor pinned to a row r is not inside; nil where none does.
 func (p *pinSet) clash(t *table, r int) *table {

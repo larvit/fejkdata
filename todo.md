@@ -39,12 +39,12 @@ This round, in order:
   `operandReader`, `checkNoRepeatedRead` and `compileOps`, and function-versus-field is
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
-  callbacks are nil and whether `walkPath`'s session is, and `walkChoice` returns
-  `nil, nil` where none is set.
+  callbacks are nil and whether `draws` is, and `walkChoice` returns `nil, nil` where
+  none is set.
 - Have the check mode report the tables a read draws, so `tableRead.drawn` and
   `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
-  `rowOf`'s ancestor rule: a change to how a render draws rows still leaves the fence
-  proving the old rule. Hold a row rendered whole in `drawAt` beside `drawn`, so
+  `pathDraws.row`'s ancestor rule: a change to how a render draws rows still leaves the
+  fence proving the old rule. Hold a row rendered whole in `drawAt` beside `drawn`, so
   `pinSet` holds only what `pin` pins and `alternatives` needs no exception. Settle a
   cell of a municipality drawn whole beside a path pinning a region it is not in. Needs
   the item above.
