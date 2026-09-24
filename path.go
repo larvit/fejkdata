@@ -177,7 +177,7 @@ func walkPath(n node, tail []string, w pathWalk) (node, error) {
 				return nil, err
 			}
 		}
-		child, ok := n.field(tail[0])
+		child, ok := n.fields[tail[0]]
 		if !ok {
 			return nil, fmt.Errorf("no field %q", tail[0])
 		}

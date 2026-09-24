@@ -52,12 +52,12 @@ func heldHeads(t *template) []string {
 func heldNodes(t *template, head string, readers []reader) map[node]bool {
 	held := map[node]bool{}
 	if _, isPath := t.bound[head]; !isPath {
-		operandDraw(t.fields[head], held)
+		operandDraw(t.head(head), held)
 		return held
 	}
 	for _, r := range readers {
 		if a := splitArm(r.name, t.refs); a.key == head {
-			coverPath(t.fields[head], a.tail, held)
+			coverPath(t.head(head), a.tail, held)
 		}
 	}
 	return held

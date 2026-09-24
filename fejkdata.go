@@ -146,9 +146,6 @@ func paths(n node) []string {
 	case *template:
 		out := []string{""}
 		for _, name := range sortedNames(n.fields) {
-			if isRef(name) { // a binding, not a path segment
-				continue
-			}
 			for _, p := range paths(n.fields[name]) {
 				out = append(out, join(name, p))
 			}

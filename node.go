@@ -49,7 +49,7 @@ func (*null) isNode() {}
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
 	format     string
-	fields     map[string]node // `linkTemplateRefs` adds each bound reference here
+	fields     map[string]node
 	repeat     int
 	separator  string
 	datatype   DataType
@@ -78,19 +78,19 @@ type template struct {
 
 	// Filled by `linkTemplateRefs` and `keyDrawGroup`, from the assembled tree:
 	refs         map[string]refBinding // each reference the format reads -> what it is bound to
+	refHeads     map[string]node       // each refBinding.key -> the category it names
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
 	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
 }
 
 func (*template) isNode() {}
 
-// field is the node a path segment names; a binding is a render edge, not a field.
-func (t *template) field(seg string) (node, bool) {
-	if isRef(seg) {
-		return nil, false
+// head is the node an arm's key names: a sibling field, or a reference's category.
+func (t *template) head(key string) node {
+	if isRef(key) {
+		return t.refHeads[key]
 	}
-	n, ok := t.fields[seg]
-	return n, ok
+	return t.fields[key]
 }
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
@@ -277,8 +277,6 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		c.cum = cum
 	}
-	// Computed before linkRefs binds references into the items: a binding is keyed
-	// by a reference sigil, which paths skips, so the set is the same after.
 	c.shared = sharedPaths(c.items)
 	return c, nil
 }
