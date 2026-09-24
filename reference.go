@@ -87,7 +87,7 @@ func linkRefs(root map[string]node) error {
 // category it sits in.
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
-	names := refTokens(t.format)
+	names := refTokens(t.tokens)
 	if len(names) == 0 {
 		return nil
 	}
@@ -130,7 +130,7 @@ type columnRead struct {
 }
 
 func columnReadOf(t *template) *columnRead {
-	name, lone := loneRef(t.format)
+	name, lone := loneRef(t.tokens)
 	if !lone || t.repeat != 1 {
 		return nil
 	}
@@ -143,17 +143,11 @@ func columnReadOf(t *template) *columnRead {
 }
 
 // loneRef is the reference a format of one reference token and nothing else reads.
-func loneRef(format string) (string, bool) {
-	units, body := 0, ""
-	err := eachToken(format, func(t ftoken) error {
-		units++
-		body = t.body
-		return nil
-	})
-	if err != nil || units != 1 || !isRef(body) || strings.ContainsAny(body, "|(") {
+func loneRef(toks []formatToken) (string, bool) {
+	if len(toks) != 1 || toks[0].kind != 'f' || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
 		return "", false
 	}
-	return body, true
+	return toks[0].names[0], true
 }
 
 // eachTemplate calls fn once per template, with the folder its category sits in
@@ -220,13 +214,15 @@ func resolveCategory(root map[string]node, segments []string) (head []string, ta
 }
 
 // refTokens returns the reference names a format reads, as tokens or as operands.
-func refTokens(format string) []string {
+func refTokens(toks []formatToken) []string {
 	var refs []string
 	seen := map[string]bool{}
-	for _, name := range append(fieldTokens(format), operandTokens(format)...) {
-		if isRef(name) && !seen[name] {
-			seen[name] = true
-			refs = append(refs, name)
+	for _, tok := range toks {
+		for _, name := range tok.names {
+			if isRef(name) && !seen[name] {
+				seen[name] = true
+				refs = append(refs, name)
+			}
 		}
 	}
 	return refs

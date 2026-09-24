@@ -152,12 +152,12 @@ func (p *valueProof) template(t *template) proven {
 		v.notOperand = notOneValue(t.format, "{int()}, {float()}, {seq()}, {digits()} or {calc()}")
 		return v
 	}
-	body := t.format[1 : len(t.format)-1]
-	name, args, isFunc := funcCall(body)
+	o := t.ops[0]
+	body, name, args := o.body, o.fn, o.args
 	switch _, isTransform := transforms[name]; {
-	case !isFunc:
+	case o.kind == 'f':
 		var leaves []node
-		for _, a := range splitArms(body, t.refs) {
+		for _, a := range o.arms {
 			leaves = append(leaves, pathLeaves(t.head(a.key), a.tail)...)
 		}
 		return p.unite(leaves)

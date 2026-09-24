@@ -107,8 +107,15 @@ func loneReference(arg string) (string, bool) {
 		raw = m["format"]
 	}
 	format, isString := raw.(string)
-	body, lone := loneRef(format)
-	if !isString || !lone {
+	if !isString {
+		return "", false
+	}
+	toks, err := parseFormat(format)
+	if err != nil {
+		return "", false
+	}
+	body, lone := loneRef(toks)
+	if !lone {
 		return "", false
 	}
 	if strings.HasPrefix(body, "/") {
@@ -161,7 +168,7 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 			return nil
 		}
 		t.keyDrawGroup("")
-		for _, name := range refTokens(t.format) {
+		for _, name := range refTokens(t.tokens) {
 			sigil, rest, err := refShape(name)
 			if err != nil {
 				return fmt.Errorf("%s: reference {%s}: %w", path, name, err)

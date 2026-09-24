@@ -15,7 +15,7 @@ func heldCheck(path string, n node) error {
 	if !ok || len(t.held) == 0 {
 		return nil
 	}
-	readers := boundReaders(t.format, t.bound, t.refs)
+	readers := boundReaders(t.ops, t.bound)
 	for _, head := range heldHeads(t) {
 		if _, isPath := t.bound[head]; isPath && isRef(head) {
 			continue
@@ -87,21 +87,14 @@ func checkHeadHeld(t *template, head string, readers []reader) error {
 
 // operandReader names the builtin whose operand holds head.
 func operandReader(t *template, head string) string {
-	fn := ""
-	_ = eachToken(t.format, func(tok ftoken) error {
-		if tok.kind != 'b' || fn != "" {
-			return nil
-		}
-		if name, _, isFunc := funcCall(tok.body); isFunc {
-			for _, operand := range tokenOperands(tok.body) {
-				if splitArm(operand, t.refs).key == head {
-					fn = name
-				}
+	for _, o := range t.ops {
+		for _, a := range o.operands {
+			if a.key == head {
+				return o.fn
 			}
 		}
-		return nil
-	})
-	return fn
+	}
+	return ""
 }
 
 // coverPath collects what holding one path pins: every choice level the path
@@ -183,8 +176,8 @@ func renders(n node, want, seen map[node]bool) bool {
 // disagree. Reads are compared in sorted order, so which pair is reported does not
 // depend on where the tokens sit.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkNoOverlap(format string, bound map[string]string, refs map[string]refBinding) error {
-	names := boundReaders(format, bound, refs)
+func checkNoOverlap(ops []op, bound map[string]string) error {
+	names := boundReaders(ops, bound)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
 	sort.SliceStable(names, func(i, j int) bool { return names[i].path < names[j].path })
@@ -205,28 +198,20 @@ type reader struct{ name, path, label string }
 // boundReaders lists every way a format reaches a bound sibling field, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
-func boundReaders(format string, bound map[string]string, refs map[string]refBinding) []reader {
+func boundReaders(ops []op, bound map[string]string) []reader {
 	var names []reader
-	_ = eachToken(format, func(t ftoken) error {
-		if t.kind != 'b' {
-			return nil
-		}
-		if fn, _, isFunc := funcCall(t.body); isFunc {
-			for _, operand := range tokenOperands(t.body) {
-				a := splitArm(operand, refs)
-				if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
-					names = append(names, reader{a.name, a.path, fmt.Sprintf("%s operand %q", fn, operand)})
-				}
+	for _, o := range ops {
+		for _, a := range o.operands {
+			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
+				names = append(names, reader{a.name, a.path, fmt.Sprintf("%s operand %q", o.fn, a.name)})
 			}
-			return nil
 		}
-		for _, a := range splitArms(t.body, refs) {
+		for _, a := range o.arms {
 			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
 				names = append(names, reader{a.name, a.path, "token {" + a.name + "}"})
 			}
 		}
-		return nil
-	})
+	}
 	return names
 }
 
@@ -234,16 +219,10 @@ func boundReaders(format string, bound map[string]string, refs map[string]refBin
 // {uppercase(w)} would read one draw twice, where {w} {w} alone draws twice. The
 // error names the single-token spelling.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding) error {
+func checkNoRepeatedRead(c formatOps) error {
 	count := map[string]int{}
-	return eachToken(format, func(t ftoken) error {
-		if t.kind != 'b' {
-			return nil
-		}
-		if _, _, isFunc := funcCall(t.body); isFunc {
-			return nil
-		}
-		for _, a := range splitArms(t.body, refs) {
+	for _, o := range c.ops {
+		for _, a := range o.arms {
 			if len(a.tail) > 0 || !c.held[a.key] {
 				continue
 			}
@@ -251,6 +230,6 @@ func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding)
 				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.name, c.holder[a.key], a.key, a.name)
 			}
 		}
-		return nil
-	})
+	}
+	return nil
 }
