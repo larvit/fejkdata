@@ -335,7 +335,7 @@ func (t *table) compileWhole(format string) error {
 	}
 	t.format = &template{format: format, fields: t.fields, repeat: 1, record: true, table: t}
 	t.whole = &row{t}
-	return t.format.compileFormat()
+	return t.format.compileUnbound()
 }
 
 // setTablePaths gives every table the path a selector on it is written at, before a
