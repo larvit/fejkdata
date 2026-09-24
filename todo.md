@@ -49,8 +49,9 @@ This round, in order:
   `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
   `rowOf`'s ancestor rule: a change to how a render draws rows still leaves the fence
   proving the old rule. Hold a row rendered whole in `drawAt` beside `drawn`, so
-  `pinSet` holds only what `pin` pins and `alternatives` needs no exception. Needs the
-  item above.
+  `pinSet` holds only what `pin` pins and `alternatives` needs no exception. Settle a
+  cell of a municipality drawn whole beside a path pinning a region it is not in. Needs
+  the item above.
 - Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
   `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
   render calls the second. Derive the numeric builtins `valueProof.template` lists in
@@ -290,7 +291,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Hold every change the charter says owes a `CHANGELOG.md` entry to one in CI: the
   check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a
   flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
-- Measure the allocation gate over the shipped `geo` trees too: `pinSet.pins [8]` is sized
+- Measure the allocation gate over the shipped `geo` trees too: `pinSet.inline [8]` is sized
   for them, and `perf_test.go` checks a synthetic five-deep tree only.
 - Make a named draw group's hold lazy, `&hold{}` in `renderScope.hold`: it escapes
   to the heap anyway, so its two eager maps buy no stack and cost two allocations per

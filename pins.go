@@ -68,7 +68,7 @@ func (p *pinSet) pin(t *table, r int) {
 	}
 }
 
-// each calls fn for every pinned row, in pin order, the spilled ones by table name.
+// each calls fn for every pinned row, in pin order, the spilled ones by path.
 func (p *pinSet) each(fn func(t *table, r int)) {
 	for _, q := range p.inline[:p.n] {
 		fn(q.t, q.row)
@@ -77,7 +77,7 @@ func (p *pinSet) each(fn func(t *table, r int)) {
 	for t := range p.spill {
 		spilled = append(spilled, t)
 	}
-	sort.Slice(spilled, func(i, j int) bool { return spilled[i].category < spilled[j].category })
+	sort.Slice(spilled, func(i, j int) bool { return spilled[i].path < spilled[j].path })
 	for _, t := range spilled {
 		fn(t, p.spill[t])
 	}
