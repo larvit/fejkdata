@@ -40,7 +40,8 @@ This round, in order:
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
   callbacks are nil and whether `draws` is, and `walkChoice` returns `nil, nil` where
-  none is set.
+  none is set. Make the render mode reachable only through a proved path: a walk that
+  draws no longer checks `carriedByAll`, trusting its caller's probe or `New`'s fences.
 - Have the check mode report the tables a read draws, so `tableRead.drawn` and
   `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
   `table.drawIn`'s ancestor rule: a change to how a render draws rows still leaves the
