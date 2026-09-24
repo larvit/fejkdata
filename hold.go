@@ -20,8 +20,7 @@ type draw struct {
 	null bool
 }
 
-// readField renders one arm of a token. An arm's key is a sibling field or a
-// reference linkRefs bound into refHeads. A name the expansion holds — a level some
+// readField renders one arm of a token. A name the expansion holds — a level some
 // token addresses by dotted path, or a field an operand reads — is drawn once and
 // kept, so {place.postal-code} and {place.locality} read one row, either read twice
 // gives one value, and a shown operand is the operand computed. Every other name is
