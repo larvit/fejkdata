@@ -57,6 +57,52 @@ func eachToken(format string, fn func(ftoken) error) error {
 	return nil
 }
 
+// formatToken is one parsed unit of a format: a literal run, a field alternation or a
+// builtin call.
+type formatToken struct {
+	kind  byte     // 'l' literal run, 'f' field alternation, 'b' builtin call
+	lit   string   // kind 'l'
+	body  string   // the braces' content, as written
+	fn    string   // kind 'b'
+	args  []string // kind 'b'
+	names []string // kind 'f': the '|' arms; kind 'b': the operands its builtin reads
+}
+
+// parseFormat is the one reading of a format's tokens: a '(' outside a selector makes
+// a token a call.
+func parseFormat(format string) ([]formatToken, error) {
+	var toks []formatToken
+	var lit strings.Builder
+	flush := func() {
+		if lit.Len() > 0 {
+			toks = append(toks, formatToken{kind: 'l', lit: lit.String()})
+			lit.Reset()
+		}
+	}
+	err := eachToken(format, func(t ftoken) error {
+		if t.kind == 'l' {
+			lit.WriteRune(t.r)
+			return nil
+		}
+		flush()
+		if indexOutside(t.body, '(') < 0 {
+			toks = append(toks, formatToken{kind: 'f', body: t.body, names: splitOutside(t.body, '|')})
+			return nil
+		}
+		name, args, ok := funcCall(t.body)
+		if !ok {
+			return fmt.Errorf("malformed function token {%s}", t.body)
+		}
+		toks = append(toks, formatToken{kind: 'b', body: t.body, fn: name, args: args, names: builtinOperands(name, args)})
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	flush()
+	return toks, nil
+}
+
 // builtin is a format-string function invoked as {name(args)}. It receives the
 // session (its rng, and the {seq()} counters), the output emitted so far in the
 // current expansion (for derivations such as a checksum over preceding digits), and
@@ -119,15 +165,11 @@ func plural(n int) string {
 	return "s"
 }
 
-// checkFunc validates a function token at compile time: well-formed, naming a
-// known builtin, with the arg count that builtin takes and args its check accepts.
-// fields is passed through for the builtins (calc, the transforms) that validate
-// against them.
-func checkFunc(body string, fields map[string]node) error {
-	name, args, ok := funcCall(body)
-	if !ok {
-		return fmt.Errorf("malformed function token {%s}", body)
-	}
+// checkFunc validates a call at compile time: naming a known builtin, with the arg
+// count that builtin takes and args its check accepts. fields is passed through for
+// the builtins (calc, the transforms) that validate against them.
+func checkFunc(tok formatToken, fields map[string]node) error {
+	body, name, args := tok.body, tok.fn, tok.args
 	b, known := builtins[name]
 	if !known {
 		return fmt.Errorf("token {%s}: unknown function %q", body, name)
@@ -143,34 +185,38 @@ func checkFunc(body string, fields map[string]node) error {
 	return nil
 }
 
-// checkTokens validates a format string the way expand scans it, so every
-// "{token}" is balanced and names an existing field (or a known function). This
-// makes a typo'd or dangling reference a New-time error, never a random
-// render-time one.
-func checkTokens(format string, fields map[string]node) error {
-	return eachToken(format, func(t ftoken) error {
-		if t.kind != 'b' {
-			return nil
+// checkTokens proves every parsed token names an existing field or a known function,
+// so a typo'd or dangling reference is a New-time error.
+func checkTokens(toks []formatToken, fields map[string]node) error {
+	for _, t := range toks {
+		if err := checkToken(t, fields); err != nil {
+			return err
 		}
-		if indexOutside(t.body, '(') >= 0 { // a function token, not a field
-			return checkFunc(t.body, fields)
-		}
-		names := splitOutside(t.body, '|')
-		for _, name := range names {
+	}
+	return nil
+}
+
+func checkToken(t formatToken, fields map[string]node) error {
+	switch t.kind {
+	case 'b':
+		return checkFunc(t, fields)
+	case 'f':
+		for _, name := range t.names {
 			if isRef(name) {
 				if _, _, err := refShape(name); err != nil {
 					return fmt.Errorf("token {%s}: %w", t.body, err)
 				}
 				continue // its target is checked at New (see linkRefs)
 			}
-			if err := checkArm(name, fields, len(names) == 1); err != nil {
+			if err := checkArm(name, fields, len(t.names) == 1); err != nil {
 				return fmt.Errorf("token {%s}: %w", t.body, err)
 			}
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
-		return checkNoRepeatedArm(t.body, names)
-	})
+		return checkNoRepeatedArm(t.body, t.names)
+	}
+	return nil
 }
 
 // checkArm validates one sibling name or path against a template's fields.
@@ -210,30 +256,14 @@ func hintableRef(name string) bool {
 	return checkPathNames(name) == nil
 }
 
-// tokenOperands lists the fields one {token} body reads as operands, empty for a
-// field token or a builtin that reads none.
-func tokenOperands(body string) []string {
-	name, args, ok := funcCall(body)
-	if !ok {
-		return nil
-	}
+// builtinOperands lists the fields a call reads as operands, empty for a builtin that
+// reads none, or a call checkFunc refuses.
+func builtinOperands(name string, args []string) []string {
 	b, known := builtins[name]
-	if !known || b.operands == nil {
+	if !known || b.operands == nil || (b.arity >= 0 && len(args) != b.arity) {
 		return nil
 	}
 	return b.operands(args)
-}
-
-// operandTokens lists every operand the builtins in a format read.
-func operandTokens(format string) []string {
-	var names []string
-	_ = eachToken(format, func(t ftoken) error {
-		if t.kind == 'b' {
-			names = append(names, tokenOperands(t.body)...)
-		}
-		return nil
-	})
-	return names
 }
 
 // checkNoRepeatedArm rejects {a|a|b}: an alternation picks its arms evenly, so a
@@ -251,20 +281,6 @@ func checkNoRepeatedArm(body string, names []string) error {
 		seen[name] = true
 	}
 	return nil
-}
-
-// fieldTokens returns the field and reference names a format renders via {name}
-// or {a|..b} tokens (function tokens, which carry no field edges, are excluded).
-// These are exactly the child nodes expand recurses into, through readField.
-func fieldTokens(format string) []string {
-	var names []string
-	_ = eachToken(format, func(t ftoken) error {
-		if t.kind == 'b' && indexOutside(t.body, '(') < 0 {
-			names = append(names, splitOutside(t.body, '|')...)
-		}
-		return nil
-	})
-	return names
 }
 
 // arm is one alternative of a {a|b} token or one operand, split into the key
@@ -308,16 +324,6 @@ func pathArm(name, key string, segs []string) arm {
 	return arm{name: name, key: key, tail: segs, levels: levels, path: key + "." + strings.Join(segs, ".")}
 }
 
-// splitArms splits a token body's '|' alternatives.
-func splitArms(body string, refs map[string]refBinding) []arm {
-	parts := splitOutside(body, '|')
-	arms := make([]arm, len(parts))
-	for i, p := range parts {
-		arms[i] = splitArm(p, refs)
-	}
-	return arms
-}
-
 // checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
 // segment naming nothing. A field really named "" would otherwise make them
 // resolve, so a typo would read as a path that worked.
@@ -345,9 +351,8 @@ type callFn func(s *session, emitted string, operands []string) string
 // or a builtin already bound to its args. compile builds these so render never
 // re-scans the format.
 type op struct {
-	kind byte   // 'l' literal run, 'f' field alternation, 'b' builtin
-	lit  string // kind 'l'
-	arms []arm  // kind 'f': the '|' alternatives, split into key and path once
+	formatToken
+	arms []arm // kind 'f': the '|' alternatives, split into key and path once
 	call callFn
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.
@@ -391,53 +396,41 @@ func (c *formatOps) holdName(a arm, label string) {
 	}
 }
 
-func (c *formatOps) function(body string, refs map[string]refBinding) {
-	name, args, _ := funcCall(body)
+func (c *formatOps) function(tok formatToken, refs map[string]refBinding) {
 	var operands []arm
-	for _, operand := range tokenOperands(body) {
+	for _, operand := range tok.names {
 		a := splitArm(operand, refs)
-		c.holdName(a, fmt.Sprintf("%s operand %q", name, operand))
+		c.holdName(a, fmt.Sprintf("%s operand %q", tok.fn, operand))
 		operands = append(operands, a)
 	}
-	c.ops = append(c.ops, op{kind: 'b', call: builtins[name].prep(args), operands: operands})
+	c.ops = append(c.ops, op{formatToken: tok, call: builtins[tok.fn].prep(tok.args), operands: operands})
 }
 
-func (c *formatOps) field(body string, refs map[string]refBinding) {
-	arms := splitArms(body, refs)
-	for _, a := range arms {
-		if len(a.tail) > 0 {
-			c.holdName(a, "token {"+a.name+"}")
+func (c *formatOps) field(tok formatToken, refs map[string]refBinding) {
+	arms := make([]arm, len(tok.names))
+	for i, name := range tok.names {
+		arms[i] = splitArm(name, refs)
+		if len(arms[i].tail) > 0 {
+			c.holdName(arms[i], "token {"+arms[i].name+"}")
 		}
 	}
-	c.ops = append(c.ops, op{kind: 'f', arms: arms})
+	c.ops = append(c.ops, op{formatToken: tok, arms: arms})
 }
 
-// compileOps compiles a format string. Call checkTokens first: it is what proves
-// the scan and every token are valid.
-func compileOps(format string, refs map[string]refBinding) formatOps {
+// compileOps compiles a parsed format. Call checkTokens first: it is what proves
+// every token valid.
+func compileOps(toks []formatToken, refs map[string]refBinding) formatOps {
 	var c formatOps
-	var lit strings.Builder
-	flush := func() {
-		if lit.Len() > 0 {
-			c.grow += lit.Len()
-			c.ops = append(c.ops, op{kind: 'l', lit: lit.String()})
-			lit.Reset()
+	for _, tok := range toks {
+		switch tok.kind {
+		case 'l':
+			c.grow += len(tok.lit)
+			c.ops = append(c.ops, op{formatToken: tok})
+		case 'b':
+			c.function(tok, refs)
+		case 'f':
+			c.field(tok, refs)
 		}
 	}
-	_ = eachToken(format, func(t ftoken) error {
-		switch t.kind {
-		case 'l':
-			lit.WriteRune(t.r)
-		case 'b':
-			flush()
-			if _, _, isFunc := funcCall(t.body); isFunc {
-				c.function(t.body, refs)
-			} else {
-				c.field(t.body, refs)
-			}
-		}
-		return nil
-	})
-	flush()
 	return c
 }

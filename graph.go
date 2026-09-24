@@ -127,31 +127,23 @@ func renderEdges(n node) []renderEdge {
 		return es
 	case *template:
 		var es []renderEdge
-		add := func(name, operand string) {
-			a := splitArm(name, n.refs)
+		add := func(a arm, operand string) {
 			c := n.head(a.key)
 			if c == nil {
 				return
 			}
 			for _, leaf := range pathLeaves(c, a.tail) {
-				es = append(es, renderEdge{leaf, name, operand})
+				es = append(es, renderEdge{leaf, a.name, operand})
 			}
 		}
-		_ = eachToken(n.format, func(t ftoken) error {
-			if t.kind != 'b' {
-				return nil
+		for _, o := range n.ops {
+			for _, a := range o.operands {
+				add(a, o.fn)
 			}
-			if fn, _, isFunc := funcCall(t.body); isFunc {
-				for _, operand := range tokenOperands(t.body) {
-					add(operand, fn)
-				}
-				return nil
+			for _, a := range o.arms {
+				add(a, "")
 			}
-			for _, name := range splitOutside(t.body, '|') {
-				add(name, "")
-			}
-			return nil
-		})
+		}
 		return es
 	case *table:
 		return []renderEdge{{to: n.format, label: "format"}}

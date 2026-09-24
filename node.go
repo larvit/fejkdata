@@ -45,6 +45,7 @@ func (*null) isNode() {}
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
 	format     string
+	tokens     []formatToken
 	fields     map[string]node
 	repeat     int
 	separator  string
@@ -203,10 +204,14 @@ func jsonKind(v any) string {
 }
 
 func compileString(s string) (node, error) {
-	if err := checkTokens(s, nil); err != nil {
+	toks, err := parseFormat(s)
+	if err != nil {
 		return nil, err
 	}
-	t := &template{format: s, repeat: 1, fromString: true}
+	if err := checkTokens(toks, nil); err != nil {
+		return nil, err
+	}
+	t := &template{format: s, tokens: toks, repeat: 1, fromString: true}
 	if err := t.compileRefFree(); err != nil {
 		return nil, err
 	}
@@ -214,7 +219,7 @@ func compileString(s string) (node, error) {
 }
 
 func (t *template) compileRefFree() error {
-	if len(refTokens(t.format)) > 0 {
+	if len(refTokens(t.tokens)) > 0 {
 		return nil
 	}
 	return t.compileFormat()
@@ -223,7 +228,7 @@ func (t *template) compileRefFree() error {
 // compileFormat compiles the format into ops, and applies the fences that need the
 // compiled reads.
 func (t *template) compileFormat() error {
-	c := compileOps(t.format, t.refs)
+	c := compileOps(t.tokens, t.refs)
 	t.ops, t.grow, t.bound, t.held, t.heldLocal = c.ops, c.grow, c.bound, c.held, c.heldLocal
 	t.fixed = true
 	for _, o := range t.ops {
@@ -234,10 +239,10 @@ func (t *template) compileFormat() error {
 	if t.fixed && len(t.ops) == 1 {
 		t.lit = t.ops[0].lit
 	}
-	if err := checkNoOverlap(t.format, t.bound, t.refs); err != nil {
+	if err := checkNoOverlap(t.ops, t.bound); err != nil {
 		return err
 	}
-	return checkNoRepeatedRead(t.format, c, t.refs)
+	return checkNoRepeatedRead(c)
 }
 
 func compileChoice(items []any, pos position) (node, error) {
@@ -331,13 +336,17 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString && o.group == "" {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
-	if err := checkTokens(o.format, fields); err != nil {
+	toks, err := parseFormat(o.format)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkTokens(toks, fields); err != nil {
 		return nil, err
 	}
 	if err := checkNestedDrawGroup(fields, o.group); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
+	t := &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
 	if err := t.compileRefFree(); err != nil {
 		return nil, err
 	}

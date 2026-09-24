@@ -19,10 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Parse a format once and have the fences read `t.ops`: `eachToken` rescans the format
-  in `fieldTokens`, `operandTokens`, `boundReaders`, `renderEdges`, `loneRef`,
-  `operandReader`, `checkNoRepeatedRead` and `compileOps`, and function-versus-field is
-  decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
   callbacks are nil and whether `draws` is, and `walkChoice` returns `nil, nil` where
   none is set. Make the render mode reachable only through a proved path: a walk that

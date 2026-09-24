@@ -324,16 +324,22 @@ func (t *table) checkCells() error {
 // compileWhole compiles the format a row renders whole through, over the columns
 // as its fields.
 func (t *table) compileWhole(format string) error {
-	for _, name := range fieldTokens(format) {
-		a := splitArm(name, nil)
-		if _, ok := t.col[a.key]; !ok && !isRef(a.key) && a.key != "" {
-			return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.columns)
-		}
-	}
-	if err := checkTokens(format, t.fields); err != nil {
+	toks, err := parseFormat(format)
+	if err != nil {
 		return err
 	}
-	t.format = &template{format: format, fields: t.fields, repeat: 1, record: true, table: t}
+	for _, tok := range toks {
+		for _, name := range tok.names {
+			a := splitArm(name, nil)
+			if _, ok := t.col[a.key]; tok.kind == 'f' && !ok && !isRef(a.key) && a.key != "" {
+				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.columns)
+			}
+		}
+	}
+	if err := checkTokens(toks, t.fields); err != nil {
+		return err
+	}
+	t.format = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, record: true, table: t}
 	t.whole = &row{t}
 	return t.format.compileRefFree()
 }
