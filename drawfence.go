@@ -229,7 +229,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	}
 	for _, e := range renderEdges(n) {
 		if cell, isCell := e.to.(*template); isCell && cell.cellOf != nil {
-			if at.alt.excludes(cell) {
+			if at.alt.clash(cell.cellOf, cell.cellRow) != nil {
 				continue
 			}
 			in := at
