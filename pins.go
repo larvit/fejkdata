@@ -7,21 +7,19 @@ import (
 	"strings"
 )
 
-// tablePin is one table's pinned row.
 type tablePin struct {
 	t   *table
 	row int
 }
 
-// pinSet is the rows of tables fixed so far: by a render, by a path read replayed at load, and by
-// a fence walk over the rows a render can enter, which also holds a row rendered whole, alone.
+// pinSet is the table rows fixed so far. A fence walk's set also holds a row rendered whole alone,
+// which pin never does.
 type pinSet struct {
 	inline [8]tablePin // sized so a render over a country's five-deep geo tree stays off the heap
 	n      int
 	spill  map[*table]int
 }
 
-// pinned is the row pinned for t, if any.
 func (p *pinSet) pinned(t *table) (int, bool) {
 	for _, q := range p.inline[:p.n] {
 		if q.t == t {
@@ -136,7 +134,6 @@ func (p *pinSet) pinRow(t *table, r int) error {
 	return nil
 }
 
-// selectRow pins the row a selector names.
 func (p *pinSet) selectRow(t *table, sel string) error {
 	r, err := t.find(sel, p)
 	if err != nil {

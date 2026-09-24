@@ -19,8 +19,6 @@ type renderScope struct {
 	row   int
 }
 
-// eagerHoldSet makes the unnamed group's maps where the set is declared, keeping them on that frame's
-// stack for a render that reads through them; a zero holdSet makes them on its first read instead.
 func eagerHoldSet() holdSet {
 	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]draw{}}}
 }
@@ -48,7 +46,6 @@ func (sc renderScope) in(t *template) renderScope {
 	return sc
 }
 
-// hold is the set's hold for sc's draw group.
 func (sc renderScope) hold() *hold {
 	if sc.group == "" {
 		return &sc.set.unnamed

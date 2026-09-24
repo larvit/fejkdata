@@ -127,7 +127,8 @@ func names(segs []string) []string {
 
 // pathWalk is what one walk of a dotted path does at each kind of level: choice
 // returns the variants to continue into (none stops the walk), and where it is nil
-// the walk draws one, or stops; level runs at each template a segment descends
+// the walk draws one with s, takes the first where s is nil, or stops where pins is
+// nil too; level runs at each template a segment descends
 // into; leaf runs where the tail ends; pins is where the walk pins the table rows
 // it selects and draws, nil skipping tables. A nil action is skipped. A render's
 // walk sets only pins, so it allocates nothing.
@@ -141,7 +142,8 @@ type pathWalk struct {
 // walkPath descends tail from n and returns the node it ends at: a folder or
 // template by its next segment, a choice by w.choice, which consumes no segment, a
 // table by walkTable. A missing segment is an error, so no walk reaches past what
-// the data holds. s draws rows and variants; nil, the walk only proves the path.
+// the data holds. s draws rows and variants; where it is nil, only selectors pin.
+// s is a parameter: a pathWalk field beside pins moves the hold maps to the heap.
 func walkPath(s *session, n node, tail []string, w pathWalk) (node, error) {
 	if len(tail) == 0 {
 		return n, w.atLeaf(n)

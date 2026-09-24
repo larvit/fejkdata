@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-// hold is what has already been drawn for held names: the variant each was drawn as,
-// so every path under it reads one row, and the draw each read made, by its one
-// spelling, so the same read written twice reads one draw, and the table rows its reads pinned. An
-// expansion keeps one for its sibling names, and a render one per group for its reference paths.
+// hold is what has already been drawn for held names: the variant each was drawn as, so every
+// path under it reads one row; the draw each read made, by its one spelling, so the same read
+// written twice reads one draw; and the table rows those reads pinned. An expansion keeps one for
+// its sibling names, and a render one per group for its reference paths.
 type hold struct {
 	variant map[string]node
 	value   map[string]draw

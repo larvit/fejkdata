@@ -15,10 +15,7 @@ scoring run names too little to steer one. A fresh run replaces the items below.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
-Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency. Eight of nine
-named `drawWalk.walk` and `rowSet` or `checkFamilies` hardest and least wanted to modify:
-a load-time copy of the pinning `hold.pin` and `hold.rowOf` do at render, tied to them
-by nothing but tests, whose premise lives only in the README's Decisions.
+Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
@@ -42,9 +39,8 @@ This round, in order:
   `operandReader`, `checkNoRepeatedRead` and `compileOps`, and function-versus-field is
   decided by `indexOutside(body, '(')` in two of them and by `funcCall` in the rest.
 - Name `pathWalk`'s modes: render, probe, check and cover are chosen today by which
-  callbacks are nil and whether its session is, and `walkChoice` returns `nil, nil` where
-  none is set. The mode may live in `pathWalk`; the session may not, since beside `pins`
-  it moves the hold maps to the heap.
+  callbacks are nil and whether `walkPath`'s session is, and `walkChoice` returns
+  `nil, nil` where none is set.
 - Have the check mode report the tables a read draws, so `tableRead.drawn` and
   `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
   `rowOf`'s ancestor rule: a change to how a render draws rows still leaves the fence
@@ -59,7 +55,7 @@ This round, in order:
 - Split `drawCheck.reads`'s six-term condition into named predicates.
 - Rename what names two things: `template.go` holds the token grammar while `template`
   is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in
-  `ftoken` and a builtin in `op`; `hold`'s receiver is `d`; `drawAt.alt` holds the rows
+  `ftoken` and a builtin in `op`; `drawAt.alt` holds the rows
   a walk entered.
 - Run the nine-seat panel again and file what it names here.
 
@@ -307,6 +303,8 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
   a helper reached only through `drawWalk.check`, and misses `checkDrawGroup`,
   `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
+- Cut the README's Layout block to the lines that say what a file name cannot:
+  `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
 - Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
   in `todo.md` and the `gh` rule opens with the README's GitHub decision, so each is a
   second copy that drifts. Split the comprehension rule while there, which packs the
