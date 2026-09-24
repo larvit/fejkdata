@@ -96,8 +96,6 @@ func TestCalcReproducible(t *testing.T) {
 
 // TestParsedCallReadsOnlyAnOperandBuiltin pins the operands a parsed call carries for a
 // call that is not a calc, and for one whose expression does not parse: none, either way.
-// checkCalc is what reports a bad expression, so the callers that run after it
-// never meet one — but they must not have to depend on that order to be safe.
 func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
 	for _, format := range []string{"{luhn()}", "{calc()}", "{calc(1 +)}", "{calc(()}"} {
 		if toks, err := parseFormat(format); err != nil || len(toks) != 1 || toks[0].names != nil {
