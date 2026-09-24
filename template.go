@@ -185,6 +185,14 @@ func checkFunc(tok formatToken, fields map[string]node) error {
 	return nil
 }
 
+func parseChecked(format string, fields map[string]node) ([]formatToken, error) {
+	toks, err := parseFormat(format)
+	if err != nil {
+		return nil, err
+	}
+	return toks, checkTokens(toks, fields)
+}
+
 // checkTokens proves every parsed token names an existing field or a known function,
 // so a typo'd or dangling reference is a New-time error.
 func checkTokens(toks []formatToken, fields map[string]node) error {

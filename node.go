@@ -204,11 +204,8 @@ func jsonKind(v any) string {
 }
 
 func compileString(s string) (node, error) {
-	toks, err := parseFormat(s)
+	toks, err := parseChecked(s, nil)
 	if err != nil {
-		return nil, err
-	}
-	if err := checkTokens(toks, nil); err != nil {
 		return nil, err
 	}
 	t := &template{format: s, tokens: toks, repeat: 1, fromString: true}
@@ -336,11 +333,8 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString && o.group == "" {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
-	toks, err := parseFormat(o.format)
+	toks, err := parseChecked(o.format, fields)
 	if err != nil {
-		return nil, err
-	}
-	if err := checkTokens(toks, fields); err != nil {
 		return nil, err
 	}
 	if err := checkNestedDrawGroup(fields, o.group); err != nil {
