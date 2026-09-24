@@ -42,10 +42,6 @@ func (*null) isNode() {}
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
 // an independent pick.
-//
-// What `template.compileFormat` fills is final only once `linkTemplateRefs` has
-// run: where the format holds a reference, that binds it and compiles the format
-// again.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
 	format     string
@@ -211,10 +207,18 @@ func compileString(s string) (node, error) {
 		return nil, err
 	}
 	t := &template{format: s, repeat: 1, fromString: true}
-	if err := t.compileFormat(); err != nil {
+	if err := t.compileUnbound(); err != nil {
 		return nil, err
 	}
 	return t, nil
+}
+
+// compileUnbound compiles a format holding no reference; `linkTemplateRefs` compiles the rest.
+func (t *template) compileUnbound() error {
+	if len(refTokens(t.format)) > 0 {
+		return nil
+	}
+	return t.compileFormat()
 }
 
 // compileFormat compiles the format into ops, and applies the fences that need the
@@ -335,7 +339,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 		return nil, err
 	}
 	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
-	if err := t.compileFormat(); err != nil {
+	if err := t.compileUnbound(); err != nil {
 		return nil, err
 	}
 	return t, nil
