@@ -41,7 +41,7 @@ func (*null) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick.
+// an independent pick. A format holding a reference compiles in `linkTemplateRefs`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
 	format     string
@@ -207,14 +207,13 @@ func compileString(s string) (node, error) {
 		return nil, err
 	}
 	t := &template{format: s, repeat: 1, fromString: true}
-	if err := t.compileUnbound(); err != nil {
+	if err := t.compileRefFree(); err != nil {
 		return nil, err
 	}
 	return t, nil
 }
 
-// compileUnbound compiles a format holding no reference; `linkTemplateRefs` compiles the rest.
-func (t *template) compileUnbound() error {
+func (t *template) compileRefFree() error {
 	if len(refTokens(t.format)) > 0 {
 		return nil
 	}
@@ -339,7 +338,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 		return nil, err
 	}
 	t := &template{format: o.format, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
-	if err := t.compileUnbound(); err != nil {
+	if err := t.compileRefFree(); err != nil {
 		return nil, err
 	}
 	return t, nil
