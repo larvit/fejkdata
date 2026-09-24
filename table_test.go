@@ -1004,6 +1004,16 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 			}
 		}
 	}
+	var spilled pinSet
+	for i := 0; i <= len(spilled.inline); i++ {
+		spilled = spilled.entered(&table{path: strconv.Itoa(i)}, 0, false)
+	}
+	_ = spilled.entered(&table{path: "past"}, 0, false)
+	n := 0
+	spilled.each(func(*table, int) { n++ })
+	if n != len(spilled.inline)+1 {
+		t.Errorf("entering a row beside a spilled pin set leaves it holding %d rows, want %d", n, len(spilled.inline)+1)
+	}
 }
 
 // TestCellReadsMeetWhereTheRenderPairsTheRows reads what the TSVs below do not show: region 01's
