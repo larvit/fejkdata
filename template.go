@@ -268,8 +268,8 @@ func fieldTokens(format string) []string {
 }
 
 // arm is one alternative of a {a|b} token or one operand, split into the key
-// naming the node in a template's fields (a sibling field, or the head a
-// reference is bound under) and the tail of a dotted path into it. A non-empty
+// `template.head` resolves (a sibling field, or the head a reference is bound
+// under) and the tail of a dotted path into it. A non-empty
 // tail is what makes the arm a bound draw: its head is drawn once per expansion
 // (see compileOps).
 type arm struct {
