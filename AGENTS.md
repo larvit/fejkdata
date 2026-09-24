@@ -40,6 +40,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A change to what exists is a major; a minor only adds
 - Seeded output is promised within one version
 - An error is a contract by what it names, not its bytes
+- A format holding a reference is fenced at link, and its errors name its path
 - Raising the lowest supported Go is a major
 - The format check runs on the latest Go only
 - The changelog heading is the one spelling of a release; CI cuts the tag
