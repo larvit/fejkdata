@@ -38,26 +38,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	leaf, err := walkPath(s, t.fields[a.key], a.tail, pathWalk{
-		// Hold the draw at every level passed through, so two paths sharing a
-		// prefix share it.
-		choice: func(c *choice, rest []string) ([]node, error) {
-			key := a.key
-			if consumed := len(a.tail) - len(rest); consumed > 0 {
-				key = a.steps[consumed-1]
-			}
-			n, drew := d.variant[key]
-			if !drew {
-				n = drawn(s, c)
-				if d.variant == nil {
-					d.variant = map[string]node{}
-				}
-				d.variant[key] = n
-			}
-			return []node{n}, nil
-		},
-		pins: &d.pins,
-	})
+	leaf, err := walkPath(t.fields[a.key], a.tail, pathWalk{pins: &d.pins, draws: &pathDraws{s: s, held: d, a: &a}})
 	if err != nil {
 		panic(fmt.Sprintf("fejkdata: %q: %v; a fence should have refused this at New", a.name, err))
 	}
