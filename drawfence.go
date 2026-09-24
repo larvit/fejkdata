@@ -38,6 +38,8 @@ func checkNestedDrawGroup(fields map[string]node, group string) error {
 
 // drawCheck fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
+// docs/decisions.md#a-render-shares-one-reference-draw-per-category-per-group
+// docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
 type drawCheck struct {
 	memo map[readsMemo]bool
 }
@@ -79,6 +81,7 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
 // repeat — so a load proves the record view of it as well as the string view.
+// docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func (c *drawCheck) checkRecordDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || !t.record {

@@ -9,6 +9,7 @@ import (
 // heldCheck rejects every route to a held sibling name except the ones that read its
 // draw. An expansion holds one draw of that name; anything else that renders it draws
 // again, and the two disagree.
+// docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || len(t.held) == 0 {
@@ -181,6 +182,7 @@ func renders(n node, want, seen map[node]bool) bool {
 // level's held draw while rendering the level expands it afresh, so their values would
 // disagree. Reads are compared in sorted order, so which pair is reported does not
 // depend on where the tokens sit.
+// docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
 func checkNoOverlap(format string, bound map[string]string, refs map[string]refBinding) error {
 	names := boundReaders(format, bound, refs)
 	// Stable over one format-order scan, so two readers of one name (a token and a
@@ -231,6 +233,7 @@ func boundReaders(format string, bound map[string]string, refs map[string]refBin
 // checkNoRepeatedRead rejects a bare token repeated on a held name: {w} {w} beside
 // {uppercase(w)} would read one draw twice, where {w} {w} alone draws twice. The
 // error names the single-token spelling.
+// docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
 func checkNoRepeatedRead(format string, c formatOps, refs map[string]refBinding) error {
 	count := map[string]int{}
 	return eachToken(format, func(t ftoken) error {

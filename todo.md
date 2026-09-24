@@ -19,17 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Move the README's Decisions section to `docs/decisions.md`, leaving a one-line index
-  of the titles in `AGENTS.md`, and drop the `AGENTS.md` line pointing decisions at the
-  README. Give each fence a bare link to the entry it enforces: every seat needed
-  "The rows of a table are alternatives", "The expansion hold and the render's draws
-  are two fences" or "A table read into is pinned" and found it by grepping 470 lines.
-  Carry the timezone weight's premise in with it: weighting by GeoNames city
-  population moved 300 seeded draws of `misc.territory[US].timezone` from 44 landing on
-  the four zones most Americans live in to 278, and dropped `America/Indiana/Petersburg`
-  (pop. 2,400) from 17 draws to 0. Carry in the decision `linkTemplateRefs`'s doc holds
-  today, which no entry records: a category is a unit, so a reference back into it
-  describes a draw other than the fields beside it, which is what goal 3 asks for.
 - Keep reference bindings out of `template.fields`, so no walk over a template's fields
   needs the `isRef` filter `named`, `paths`, `recordColumns` and `template.field` carry.
 - Compile a template's format once: `compileFormat` runs again from `linkTemplateRefs`,
@@ -285,6 +274,8 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 
 ## Not release-bound
 
+- Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and
+  the premise it rests on; propose a goal for an entry that serves none.
 - Hold every change the charter says owes a `CHANGELOG.md` entry to one in CI: the
   check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a
   flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
