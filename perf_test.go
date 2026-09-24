@@ -38,6 +38,10 @@ func TestNoRenderAllocRegression(t *testing.T) {
 		{"nested depth 25", nestedJSON(25), 27},
 		{"nested depth 100", nestedJSON(100), 102},
 		{"wide 500 tokens", wideTokenJSON(500), 9},
+		{"two paths from one held draw", `{"format":"{p.a} {p.b}","p":[{"format":"x","a":"1","b":"2"},{"format":"y","a":"A","b":"B"}]}`, 2},
+		{"ten paths from one held draw", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
+			{"format":"x","a":"1","b":"2","c":"3","d":"4","e":"5","f":"6","g":"7","h":"8","i":"9","j":"0"},
+			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 6},
 	}
 	for _, s := range shapes {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))

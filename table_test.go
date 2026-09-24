@@ -990,8 +990,8 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 			for _, cand := range tables {
 				for i := 0; i < 20; i++ {
 					drawing := s.clone()
-					if r := drawing.rowOf(f.rand, cand); s.clash(cand, r) != nil {
-						t.Errorf("rowOf draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
+					if r := (&pathDraws{s: f.rand}).row(&drawing, cand); s.clash(cand, r) != nil {
+						t.Errorf("a render draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
 					}
 				}
 				for cr := 0; cr < cand.rows(); cr++ {
