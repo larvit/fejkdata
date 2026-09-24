@@ -159,7 +159,7 @@ func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, err
 	}
 	switch n := n.(type) {
 	case *table:
-		(&pathDraws{s: s}).row(&sc.hold().pins, n)
+		n.drawIn(s, &sc.hold().pins)
 		return n, nil
 	case *row:
 		return n.t, nil

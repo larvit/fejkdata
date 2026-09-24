@@ -487,6 +487,31 @@ func (t *table) drawUnder(s *session, pr int) int {
 	return rows[pickCum(s, ix.childCum[k])]
 }
 
+// drawIn is the render's row of t: the one pinned in p, else one drawn inside the nearest
+// pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
+// over the whole table, and pinned with its ancestors.
+func (t *table) drawIn(s *session, p *pinSet) int {
+	if r, ok := p.pinned(t); ok {
+		return r
+	}
+	r := -1
+	for a := t.parentT; a != nil && r < 0; a = a.parentT {
+		if _, ok := p.pinned(a); !ok {
+			continue
+		}
+		if t.parentT != a {
+			t.parentT.drawIn(s, p)
+		}
+		pr, _ := p.pinned(t.parentT)
+		r = t.drawUnder(s, pr)
+	}
+	if r < 0 {
+		r = t.draw(s)
+	}
+	p.pin(t, r)
+	return r
+}
+
 // descendant is the table named name among those linked to t, at any depth.
 func (t *table) descendant(name string) *table {
 	if c, ok := t.children[name]; ok {

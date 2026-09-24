@@ -43,7 +43,7 @@ This round, in order:
   none is set.
 - Have the check mode report the tables a read draws, so `tableRead.drawn` and
   `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
-  `pathDraws.row`'s ancestor rule: a change to how a render draws rows still leaves the
+  `table.drawIn`'s ancestor rule: a change to how a render draws rows still leaves the
   fence proving the old rule. Hold a row rendered whole in `drawAt` beside `drawn`, so
   `pinSet` holds only what `pin` pins and `alternatives` needs no exception. Settle a
   cell of a municipality drawn whole beside a path pinning a region it is not in. Needs

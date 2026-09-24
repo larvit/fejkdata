@@ -29,7 +29,7 @@ package fejkdata
 //     `template.drawGroup` as the data spells it, `template.drawGroupKey` as a
 //     render reads it, `holdSet`, `renderScope`.
 //   - pin — fixing which row of a table the render uses, which the draw fences replay:
-//     `pinSet`, `pinSet.pin`, `pathDraws.row`.
+//     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.family`.
 //   - whole — a read that lands on a `row`, so the row renders through its table's
