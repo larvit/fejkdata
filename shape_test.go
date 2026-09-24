@@ -104,10 +104,8 @@ func readsFact(n node) string {
 			for _, b := range n.refs {
 				set[strings.TrimPrefix(b.key, "/")] = true
 			}
-			for name, field := range n.fields {
-				if !isRef(name) {
-					collect(field)
-				}
+			for _, field := range n.fields {
+				collect(field)
 			}
 		}
 	}
