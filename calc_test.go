@@ -94,18 +94,18 @@ func TestCalcReproducible(t *testing.T) {
 	}
 }
 
-// TestTokenOperandsReadsOnlyAnOperandBuiltin pins what the helper answers for a body that
-// is not a calc, and for one whose expression does not parse: nothing, either way.
+// TestParsedCallReadsOnlyAnOperandBuiltin pins the operands a parsed call carries for a
+// call that is not a calc, and for one whose expression does not parse: none, either way.
 // checkCalc is what reports a bad expression, so the callers that run after it
 // never meet one — but they must not have to depend on that order to be safe.
-func TestTokenOperandsReadsOnlyAnOperandBuiltin(t *testing.T) {
-	for _, body := range []string{"plain", "luhn()", "calc()", "calc(1 +)", "calc(()"} {
-		if got := tokenOperands(body); got != nil {
-			t.Errorf("tokenOperands(%q) = %v, want none", body, got)
+func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
+	for _, format := range []string{"{luhn()}", "{calc()}", "{calc(1 +)}", "{calc(()}"} {
+		if toks, err := parseFormat(format); err != nil || len(toks) != 1 || toks[0].names != nil {
+			t.Errorf("parseFormat(%q) = %+v, %v, want one call reading no operand", format, toks, err)
 		}
 	}
-	if got := tokenOperands("calc(net * qty)"); len(got) != 2 {
-		t.Errorf("tokenOperands(calc(net * qty)) = %v, want both operands", got)
+	if toks, err := parseFormat("{calc(net * qty)}"); err != nil || len(toks) != 1 || len(toks[0].names) != 2 {
+		t.Errorf("parseFormat({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
 	}
 }
 
