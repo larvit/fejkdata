@@ -92,7 +92,7 @@ func checkColumns(s nodeScope) error {
 		if !ok || !t.record {
 			return nil
 		}
-		for _, name := range recordColumns(t) {
+		for _, name := range sortedNames(t.fields) {
 			if err := check(path, name, t.fields[name]); err != nil {
 				return err
 			}

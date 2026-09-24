@@ -68,7 +68,7 @@ func refSegments(name string, folder []string) ([]string, error) {
 }
 
 // linkRefs resolves every reference in the assembled tree. The head of the path —
-// up to the category it names — is bound into the referring template's fields
+// up to the category it names — is bound into the referring template's refHeads
 // under its root path, and the rest reads into it the way a sibling path does, so
 // a reference is held like a sibling and two spellings of one target are one
 // draw. It runs once, after all data is merged, so a reference sees the final
@@ -91,10 +91,8 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 	if len(names) == 0 {
 		return nil
 	}
-	if t.fields == nil {
-		t.fields = map[string]node{}
-	}
 	t.refs = make(map[string]refBinding, len(names))
+	t.refHeads = make(map[string]node, len(names))
 	for _, name := range names {
 		segments, err := refSegments(name, folder)
 		if err != nil {
@@ -111,7 +109,7 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 		if err := checkPath(target, tail, key); err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		t.fields[key] = target
+		t.refHeads[key] = target
 		t.refs[name] = refBinding{key, tail}
 	}
 	if err := t.compileFormat(); err != nil {
@@ -134,7 +132,7 @@ func columnReadOf(t *template) *columnRead {
 		return nil
 	}
 	a := splitArm(name, t.refs)
-	target, isTemplate := t.fields[a.key].(*template)
+	target, isTemplate := t.head(a.key).(*template)
 	if !isTemplate || !target.record || len(a.tail) != 1 {
 		return nil
 	}

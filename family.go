@@ -212,7 +212,7 @@ func checkOwnFamily(t *template) error {
 		seen[n] = true
 		for _, e := range renderEdges(n) {
 			if a, isRef := refRead(n, e.label); isRef {
-				if head, isTable := n.(*template).fields[a.key].(*table); isTable && head.family() == own.family() {
+				if head, isTable := n.(*template).head(a.key).(*table); isTable && head.family() == own.family() {
 					return e, head, true
 				}
 			}

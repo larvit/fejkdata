@@ -21,7 +21,7 @@ type draw struct {
 }
 
 // readField renders one arm of a token. An arm's key is a sibling field or a
-// reference linkRefs bound into fields. A name the expansion holds — a level some
+// reference linkRefs bound into refHeads. A name the expansion holds — a level some
 // token addresses by dotted path, or a field an operand reads — is drawn once and
 // kept, so {place.postal-code} and {place.locality} read one row, either read twice
 // gives one value, and a shown operand is the operand computed. Every other name is
@@ -32,13 +32,13 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
 		}
-		return draw{text: render(s, t.fields[a.key], sc)}
+		return draw{text: render(s, t.head(a.key), sc)}
 	}
 	d := readHold(held, sc, a)
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	leaf, err := walkPath(t.fields[a.key], a.tail, pathWalk{pins: &d.pins, draws: &pathDraws{s: s, held: d, a: &a}})
+	leaf, err := walkPath(t.head(a.key), a.tail, pathWalk{pins: &d.pins, draws: &pathDraws{s: s, held: d, a: &a}})
 	if err != nil {
 		panic(fmt.Sprintf("fejkdata: %q: %v; a fence should have refused this at New", a.name, err))
 	}

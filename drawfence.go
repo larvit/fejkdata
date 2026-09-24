@@ -88,7 +88,7 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 		return nil
 	}
 	// A record-only template's format renders nothing, so weigh the columns, not the format.
-	columns := recordColumns(t)
+	columns := sortedNames(t.fields)
 	reads := false
 	for _, name := range columns {
 		reads = reads || c.readsPath(t.fields[name])
@@ -148,7 +148,7 @@ func readsTable(n node, a arm) bool {
 	if !isTemplate {
 		return false
 	}
-	_, isTable := t.fields[a.key].(*table)
+	_, isTable := t.head(a.key).(*table)
 	return isTable
 }
 
@@ -248,7 +248,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 // pins entered, so a selected row renders only its own cells.
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	if a, reads := refRead(from, e.label); reads {
-		tr := tableReadOf(from.(*template).fields[a.key], a, e.to)
+		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
 		if k := (readKey{at.group, a.path, at.alt.key()}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tr})
