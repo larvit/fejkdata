@@ -104,10 +104,8 @@ func readsFact(n node) string {
 			for _, b := range n.refs {
 				set[strings.TrimPrefix(b.key, "/")] = true
 			}
-			for name, field := range n.fields {
-				if !isRef(name) {
-					collect(field)
-				}
+			for _, field := range n.fields {
+				collect(field)
 			}
 		}
 	}
@@ -130,8 +128,9 @@ func TestShippedShapeNamesReads(t *testing.T) {
 		"c":     `{"format":"{v} {n}","n":[null,{"format":"{int(1,9)}","datatype":"integer"}],"v":["z","w"]}`,
 		"d/pos": `["{.q}","{/b}"]`,
 		"d/q":   `"r"`,
+		"e":     `"{/a}"`,
 	}))
-	want := "a\tformat \"{x}\"\treads b c\na.x\tstring\nb\tformat \"y\"\nc\tformat \"{v} {n}\"\nc.n\tinteger null\nc.v\tstring\nd.pos\treads b d.q\nd.q\tformat \"r\"\n"
+	want := "a\tformat \"{x}\"\treads b c\na.x\tstring\nb\tformat \"y\"\nc\tformat \"{v} {n}\"\nc.n\tinteger null\nc.v\tstring\nd.pos\treads b d.q\nd.q\tformat \"r\"\ne\tformat \"{/a}\"\treads a\n"
 	if got := shippedShape(f); got != want {
 		t.Fatalf("shippedShape =\n%s\nwant\n%s", got, want)
 	}
