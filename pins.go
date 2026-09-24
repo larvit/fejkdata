@@ -16,14 +16,14 @@ type tablePin struct {
 // pinSet is the rows of tables fixed so far: by a render, by a path read replayed at load, and by
 // a fence walk over the rows a render can enter, which also holds a row rendered whole, alone.
 type pinSet struct {
-	pins  [8]tablePin // inline, so a render over a country's five-deep geo tree stays off the heap
-	n     int
-	spill map[*table]int
+	inline [8]tablePin // sized so a render over a country's five-deep geo tree stays off the heap
+	n      int
+	spill  map[*table]int
 }
 
 // pinned is the row pinned for t, if any.
 func (p *pinSet) pinned(t *table) (int, bool) {
-	for _, q := range p.pins[:p.n] {
+	for _, q := range p.inline[:p.n] {
 		if q.t == t {
 			return q.row, true
 		}
@@ -43,8 +43,8 @@ func (p *pinSet) mustRow(t *table) int {
 
 // add pins row r of t alone.
 func (p *pinSet) add(t *table, r int) {
-	if p.n < len(p.pins) {
-		p.pins[p.n] = tablePin{t, r}
+	if p.n < len(p.inline) {
+		p.inline[p.n] = tablePin{t, r}
 		p.n++
 		return
 	}
@@ -70,7 +70,7 @@ func (p *pinSet) pin(t *table, r int) {
 
 // each calls fn for every pinned row, in pin order, the spilled ones by table name.
 func (p *pinSet) each(fn func(t *table, r int)) {
-	for _, q := range p.pins[:p.n] {
+	for _, q := range p.inline[:p.n] {
 		fn(q.t, q.row)
 	}
 	spilled := make([]*table, 0, len(p.spill))
@@ -171,19 +171,16 @@ func (p pinSet) clone() pinSet {
 
 // entered is p with row r of t: pinned where the render pins it, alone where the render draws it
 // to render whole. p is left as it was, since a fence walk branches.
-func (p pinSet) entered(t *table, r int, pins bool) pinSet {
+func (p pinSet) entered(t *table, r int, pinsAncestors bool) pinSet {
 	p = p.clone()
 	switch _, in := p.pinned(t); {
-	case pins:
+	case pinsAncestors:
 		p.pin(t, r)
 	case !in:
 		p.add(t, r)
 	}
 	return p
 }
-
-// excludes reports whether a cell's row cannot render with the rows pinned.
-func (p *pinSet) excludes(cell *template) bool { return p.clash(cell.cellOf, cell.cellRow) != nil }
 
 // key spells the set for a map, by the tables' identities in path order.
 func (p *pinSet) key() string {
