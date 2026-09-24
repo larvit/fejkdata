@@ -91,6 +91,9 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 	if len(names) == 0 {
 		return nil
 	}
+	if t.cellOf != nil {
+		path = fmt.Sprintf("%s, line %d", path, t.cellRow+2)
+	}
 	t.refs = make(map[string]refBinding, len(names))
 	t.refHeads = make(map[string]node, len(names))
 	for _, name := range names {
