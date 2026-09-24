@@ -45,6 +45,9 @@ func transformArg(fields map[string]node, a []string) error {
 	return checkArm(leaf, fields, false)
 }
 func transformOperand(a []string) []string {
+	if len(a) != 1 {
+		return nil
+	}
 	leaf, _, err := unwrapTransform(a[0])
 	if err != nil {
 		return nil
