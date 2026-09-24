@@ -19,8 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Keep reference bindings out of `template.fields`, so no walk over a template's fields
-  needs the `isRef` filter `named`, `paths`, `recordColumns` and `template.field` carry.
 - Compile a template's format once: `compileFormat` runs again from `linkTemplateRefs`,
   so `ops`, `bound` and `held` are provisional until linking and its fences run twice.
 - Parse a format once and have the fences read `t.ops`: `eachToken` rescans the format
