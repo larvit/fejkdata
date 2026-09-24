@@ -147,7 +147,7 @@ type pathWalk struct {
 type pathDraws struct {
 	s    *session
 	held *hold
-	a    *arm // a pointer: its levels slice held here moves the render's hold set to the heap
+	a    *arm
 }
 
 // walkPath descends tail from n and returns the node it ends at: a folder or
