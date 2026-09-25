@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 	"testing"
@@ -10,6 +11,8 @@ func TestWalkPathStopsAtAMissingSegment(t *testing.T) {
 	n := compiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
 	var seen []string
 	walk := pathWalk{
+		mode:  walkEvery,
+		pins:  &pinSet{},
 		level: func(tm *template, rest []string) error { seen = append(seen, "level:"+rest[0]); return nil },
 		leaf:  func(n node) error { seen = append(seen, "leaf"); return nil },
 	}
@@ -33,17 +36,34 @@ func TestWalkPathChoiceConsumesNoSegment(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	var leaves []node
 	_, err := walkPath(n, []string{"f"}, pathWalk{
-		choice: func(c *choice, rest []string) ([]node, error) {
-			if len(rest) != 1 || rest[0] != "f" {
-				t.Errorf("choice saw rest %v, want [f]", rest)
-			}
-			return c.items, nil
-		},
+		mode: walkEvery,
+		pins: &pinSet{},
 		leaf: func(n node) error { leaves = append(leaves, n); return nil },
 	})
 	if err != nil || len(leaves) != 2 {
 		t.Fatalf("walkPath through a choice = %v, %d leaves, want both variants' f", err, len(leaves))
 	}
+}
+
+func TestWalkCoverStopsAtAChoice(t *testing.T) {
+	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
+	var leaves []node
+	_, err := walkPath(n, []string{"f"}, pathWalk{
+		mode: walkCover,
+		leaf: func(n node) error { leaves = append(leaves, n); return nil },
+	})
+	if err != nil || len(leaves) != 1 || leaves[0] != n {
+		t.Fatalf("cover through a choice = %v, leaves %v, want the choice alone", err, leaves)
+	}
+}
+
+func TestDrawPathPanicsOnAnUnprovedPath(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), `no field "f"`) {
+			t.Errorf("drawPath(plain, f) recovered %v, want a panic naming the missing field", r)
+		}
+	}()
+	drawPath(compiled(t, `"plain"`), []string{"f"}, &pinSet{}, &pathDraws{s: engine(1).rand})
 }
 
 func TestDeepDottedPath(t *testing.T) {
