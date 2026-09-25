@@ -49,7 +49,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	sc := &structCompile{categories: f.categories, visiting: map[reflect.Type]bool{}, structs: maxStructs}
+	sc := &structCompile{categories: f.categories, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
 	shape, err := sc.compileShape(t, label)
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
@@ -82,9 +82,9 @@ func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 
 // loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
 // rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
-	categories map[string]node
-	visiting   map[reflect.Type]bool
-	structs    int
+	categories  map[string]node
+	visiting    map[reflect.Type]bool
+	structsLeft int
 }
 
 // structFields gathers what one struct type fills: its tagged fields, those its embedded
@@ -117,7 +117,7 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 }
 
 func (sc *structCompile) spend(label string) error {
-	if sc.structs--; sc.structs >= 0 {
+	if sc.structsLeft--; sc.structsLeft >= 0 {
 		return nil
 	}
 	return fmt.Errorf(`%s: the struct fields reach more than %d structs; leave a struct field unfilled with fake:"-"`, label, maxStructs)
@@ -252,13 +252,13 @@ func checkTaggedType(sf reflect.StructField) error {
 
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
-func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label string, tags map[string]any) error {
+func (s *structShape) compileRecord(categories map[string]node, t reflect.Type, label string, tags map[string]any) error {
 	tags["format"] = ""
 	n, err := compile(tags)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	if err := bindInline(n, label, root, checkRenders); err != nil {
+	if err := bindInline(n, label, categories, checkRenders); err != nil {
 		return err
 	}
 	record, columns, err := recordOf(n)

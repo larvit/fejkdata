@@ -9,7 +9,7 @@ import (
 // {…} token.
 type ftoken struct {
 	kind byte // 'l' literal rune, 't' token body
-	r    rune
+	char rune
 	body string
 }
 
@@ -24,7 +24,7 @@ func eachToken(format string, fn func(ftoken) error) error {
 		switch c := rs[i]; c {
 		case '{':
 			if i+1 < len(rs) && rs[i+1] == '{' {
-				t.kind, t.r = 'l', '{'
+				t.kind, t.char = 'l', '{'
 				i++
 				break
 			}
@@ -42,13 +42,13 @@ func eachToken(format string, fn func(ftoken) error) error {
 			i = end
 		case '}':
 			if i+1 < len(rs) && rs[i+1] == '}' {
-				t.kind, t.r = 'l', '}'
+				t.kind, t.char = 'l', '}'
 				i++
 				break
 			}
 			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
 		default:
-			t.kind, t.r = 'l', c
+			t.kind, t.char = 'l', c
 		}
 		if err := fn(t); err != nil {
 			return err
@@ -81,7 +81,7 @@ func parseFormat(format string) ([]formatToken, error) {
 	}
 	err := eachToken(format, func(t ftoken) error {
 		if t.kind == 'l' {
-			lit.WriteRune(t.r)
+			lit.WriteRune(t.char)
 			return nil
 		}
 		flush()
@@ -301,7 +301,7 @@ type arm struct {
 	key      string
 	tail     []string
 	levels   []string // the key at each level the tail passes through, the head's first
-	path     string   // key and tail, the one spelling every way of writing this read shares
+	path     string   // key and tail, the one path every way of writing this read shares
 }
 
 // splitArm splits one name into key and tail. refs maps a reference to what

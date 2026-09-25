@@ -188,8 +188,8 @@ func checkNoOverlap(ops []op, bound map[string]string) error {
 	return nil
 }
 
-// reader is one way a format reaches a bound field: as written, by its one
-// spelling, and how to name it.
+// reader is one way a format reaches a bound field: as written, by its path,
+// and how to name it.
 type reader struct{ spelling, path, label string }
 
 // boundReaders lists every way a format reaches a bound sibling field, in the order the

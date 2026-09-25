@@ -13,11 +13,11 @@ import (
 // label prefixes file names in errors; onDisk marks path as a directory that must
 // exist.
 type dataSource struct {
-	fsys   fs.FS
-	label  string
-	onDisk bool
-	path   string
-	dir    string
+	fsys     fs.FS
+	label    string
+	onDisk   bool
+	diskPath string
+	baseDir  string
 }
 
 func (s dataSource) labelled(p string) string {
@@ -38,18 +38,18 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	root := map[string]node{}
 	for _, src := range sources {
 		if src.onDisk {
-			if src.path == "" {
+			if src.diskPath == "" {
 				return nil, fmt.Errorf("a data path is empty")
 			}
-			info, err := os.Stat(src.path)
+			info, err := os.Stat(src.diskPath)
 			if err != nil {
-				return nil, fmt.Errorf("data path %s: %w", src.path, err)
+				return nil, fmt.Errorf("data path %s: %w", src.diskPath, err)
 			}
 			if !info.IsDir() {
-				return nil, fmt.Errorf("%s is not a directory", src.path)
+				return nil, fmt.Errorf("%s is not a directory", src.diskPath)
 			}
 		}
-		dir := src.dir
+		dir := src.baseDir
 		if dir == "" {
 			dir = "."
 		}
