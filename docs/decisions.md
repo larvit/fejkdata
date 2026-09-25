@@ -412,7 +412,9 @@ another never meet, and each may select its own row of another table; the cells 
 row, and whatever they reach, do meet, and so does the format beside them. The rule the
 fence applies is that two reads meet unless they sit in rows that never render together:
 rows falling under different rows of a table a path pinned, two rows of that table
-itself included. A choice's items get no such treatment yet: two items selecting
+itself included. A table read whole draws its row apart from every pin, so its rows
+are alternatives only to each other, and a cell of one meets a read pinning a region
+the row is not in. A choice's items get no such treatment yet: two items selecting
 different rows are still refused.
 
 ## A table never reaches its own family, by any route

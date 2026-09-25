@@ -179,12 +179,14 @@ type drawWalk struct {
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
-// table rows it entered, and the table a whole read draws a row of.
+// table rows it pinned, the table a whole read draws a row of, and the row of it whose cells the
+// walk is in.
 type drawAt struct {
 	group string
 	route drawRoute
 	alt   pinSet
 	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
+	whole tablePin
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -216,7 +218,7 @@ func newDrawWalk() *drawWalk {
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := nodeVisit{n, at.group, at.alt.key()}
+	v := nodeVisit{n, at.group, at.rowsKey()}
 	if w.seen[v] {
 		return
 	}
@@ -231,17 +233,28 @@ func (w *drawWalk) walk(n node, at drawAt) {
 		at.drawn = t
 	}
 	for _, e := range renderEdges(n) {
-		if cell, isCell := e.to.(*template); isCell && cell.cellOf != nil {
-			if at.alt.clash(cell.cellOf, cell.cellRow) != nil {
-				continue
-			}
+		cell, isCell := e.to.(*template)
+		switch {
+		case !isCell || cell.cellOf == nil:
+			w.edge(n, e, at)
+		case cell.cellOf == at.drawn:
 			in := at
-			in.alt = at.alt.entered(cell.cellOf, cell.cellRow, cell.cellOf != at.drawn)
+			in.whole = tablePin{cell.cellOf, cell.cellRow}
 			w.edge(n, e, in)
-			continue
+		case at.alt.clash(cell.cellOf, cell.cellRow) == nil:
+			in := at
+			in.alt = at.alt.entered(cell.cellOf, cell.cellRow)
+			w.edge(n, e, in)
 		}
-		w.edge(n, e, at)
 	}
+}
+
+// rowsKey spells the rows the walk stands in, pinned and whole, for a map.
+func (at drawAt) rowsKey() string {
+	if at.whole.t == nil {
+		return at.alt.key()
+	}
+	return fmt.Sprintf("%s%p{%d}", at.alt.key(), at.whole.t, at.whole.row)
 }
 
 // edge records the reference an edge reads, then walks on with every row the read
@@ -249,12 +262,12 @@ func (w *drawWalk) walk(n node, at drawAt) {
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	if a, reads := refRead(from, e.label); reads {
 		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
-		if k := (readKey{at.group, a.path, at.alt.key()}); !w.read[k] {
+		if k := (readKey{at.group, a.path, at.rowsKey()}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.alt = at.alt.entered(t, r, true) })
+			tr.pins.each(func(t *table, r int) { at.alt = at.alt.entered(t, r) })
 		}
 	}
 	w.walk(e.to, at)

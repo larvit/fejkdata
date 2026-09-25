@@ -19,12 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Have the check mode report the tables a read draws, so `tableRead.drawn` and
-  `entered`'s `pinsAncestors` flag stop restating `walkTable`'s draw condition and
-  `table.drawIn`'s ancestor rule: a change to how a render draws rows still leaves the
-  fence proving the old rule. Hold a row rendered whole in `drawAt` beside `drawn`, so
-  `pinSet` holds only what `pin` pins and `alternatives` needs no exception. Settle a
-  cell of a municipality drawn whole beside a path pinning a region it is not in.
 - Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
   `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
   render calls the second. Derive the numeric builtins `valueProof.template` lists in

@@ -12,8 +12,7 @@ type tablePin struct {
 	row int
 }
 
-// pinSet is the table rows fixed so far. A fence walk's set also holds a row rendered whole alone,
-// which pin never does.
+// pinSet is the table rows fixed so far.
 type pinSet struct {
 	inline [8]tablePin // sized so a render over a country's five-deep geo tree stays off the heap
 	n      int
@@ -39,7 +38,6 @@ func (p *pinSet) mustRow(t *table) int {
 	return r
 }
 
-// add pins row r of t alone.
 func (p *pinSet) add(t *table, r int) {
 	if p.n < len(p.inline) {
 		p.inline[p.n] = tablePin{t, r}
@@ -54,16 +52,23 @@ func (p *pinSet) add(t *table, r int) {
 
 // pin pins row r of t, and the rows of t's ancestors it links to.
 func (p *pinSet) pin(t *table, r int) {
-	for {
-		if _, done := p.pinned(t); done {
-			return
-		}
+	for stop := p.nearestPinned(t); t != stop; t = t.parentT {
 		p.add(t, r)
-		if t.parentT == nil {
-			return
+		if t.parentT != stop {
+			r = t.parentRow(r)
 		}
-		t, r = t.parentT, t.parentRow(r)
 	}
+}
+
+// nearestPinned is the first of t and its ancestors p pins, where pinning a row of t stops; nil
+// where none is.
+func (p *pinSet) nearestPinned(t *table) *table {
+	for ; t != nil; t = t.parentT {
+		if _, ok := p.pinned(t); ok {
+			return t
+		}
+	}
+	return nil
 }
 
 // each calls fn for every pinned row, in pin order, the spilled ones by path.
@@ -141,16 +146,10 @@ func (p pinSet) clone() pinSet {
 	return p
 }
 
-// entered is p with row r of t: pinned where the render pins it, alone where the render draws it
-// to render whole. p is left as it was, since a fence walk branches.
-func (p pinSet) entered(t *table, r int, pinsAncestors bool) pinSet {
+// entered is p with row r of t pinned. p is left as it was, since a fence walk branches.
+func (p pinSet) entered(t *table, r int) pinSet {
 	p = p.clone()
-	switch _, in := p.pinned(t); {
-	case pinsAncestors:
-		p.pin(t, r)
-	case !in:
-		p.add(t, r)
-	}
+	p.pin(t, r)
 	return p
 }
 

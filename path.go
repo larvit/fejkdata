@@ -136,7 +136,8 @@ const (
 	// walkCover stops at a choice, handing it whole to leaf, and reads no row.
 	walkCover
 	// walkProbe proves as walkEvery does, walking one variant, so a path that
-	// resolves resolves whichever variants and rows are drawn.
+	// resolves resolves whichever variants and rows are drawn, and marks in drawn
+	// the tables a draw would pin.
 	walkProbe
 	// walkDraw draws the rows and variants a proved path reads; drawPath is its
 	// one entry.
@@ -150,6 +151,7 @@ type pathWalk struct {
 	level func(t *template, rest []string) error
 	leaf  func(n node) error
 	pins  *pinSet
+	drawn map[*table]bool
 	draws *pathDraws
 }
 
@@ -299,14 +301,19 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 	return nil, child, nil
 }
 
-// readRow pins the row a path reads of t: the one its selector names, or, where the
-// walk draws, one drawn where the path reads into the table.
+// readRow pins the row a path reads of t: the one its selector names, or one drawn
+// where the path reads into the table.
 func readRow(w pathWalk, t *table, sel string, draw bool) error {
-	if sel != "" {
+	switch {
+	case sel != "":
 		return w.pins.selectRow(t, sel)
-	}
-	if draw && w.mode == walkDraw {
+	case !draw:
+	case w.mode == walkDraw:
 		t.drawIn(w.draws.s, w.pins)
+	case w.drawn != nil:
+		for stop := w.pins.nearestPinned(t); t != stop; t = t.parentT {
+			w.drawn[t] = true
+		}
 	}
 	return nil
 }
