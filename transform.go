@@ -14,6 +14,13 @@ var transforms = map[string]func(string) string{
 	"uppercase": strings.ToUpper,
 }
 
+func withTransforms(builtins map[string]builtin) map[string]builtin {
+	for name, fn := range transforms {
+		builtins[name] = builtin{arity: 1, check: transformArg, prep: transformPrep(fn), operands: transformOperand}
+	}
+	return builtins
+}
+
 // unwrapTransform peels nested transform calls off an operand arg, returning the
 // field it finally names and the transforms to apply, innermost last.
 func unwrapTransform(arg string) (leaf string, chain []func(string) string, err error) {

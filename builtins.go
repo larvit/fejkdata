@@ -22,7 +22,7 @@ const (
 // emitted so far in the current expansion (place them after their payload);
 // samples read only the rng. A time-based id (uuid v7, ulid) draws its timestamp
 // from the rng, not the wall clock, so seeded output stays reproducible.
-var builtins = map[string]builtin{
+var builtins = withTransforms(map[string]builtin{
 	"luhn":   {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
 	"mod11":  {arity: 0, prep: derive(mod11Check)},
 	"ean":    {arity: 0, prep: derive(eanCheck)},
@@ -30,8 +30,8 @@ var builtins = map[string]builtin{
 	"ulid":   {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, check: posIntArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, check: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789"), number: func(token string, a []string) proven {
-		return printing(token, DataTypeString, bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
+	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789"), prints: DataTypeString, number: func(token string, prints DataType, a []string) proven {
+		return printing(token, prints, bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, check: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
 	"lower": {arity: 1, check: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
@@ -44,27 +44,24 @@ var builtins = map[string]builtin{
 	"int": {arity: 2, check: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *session, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, number: func(token string, a []string) proven {
-		return printing(token, DataTypeInteger, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
+	}, prints: DataTypeInteger, number: func(token string, prints DataType, a []string) proven {
+		return printing(token, prints, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
 	"float": {arity: 3, check: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *session, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, number: func(token string, a []string) proven {
+	}, prints: DataTypeNumber, number: func(token string, _ DataType, a []string) proven {
 		return printedNumber(token, bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
 	"iban": {arity: 1, check: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
 		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date":      {arity: -1, check: dateArgs, prep: datePrep},
-	"time":      {arity: -1, check: timeArg, prep: timePrep},
-	"calc":      {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
-	"lowercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToLower), operands: transformOperand},
-	"uppercase": {arity: 1, check: transformArg, prep: transformPrep(strings.ToUpper), operands: transformOperand},
-	"ascii":     {arity: 1, check: transformArg, prep: transformPrep(asciiFold), operands: transformOperand},
+	"date": {arity: -1, check: dateArgs, prep: datePrep},
+	"time": {arity: -1, check: timeArg, prep: timePrep},
+	"calc": {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-session counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
@@ -76,10 +73,10 @@ var builtins = map[string]builtin{
 		return func(s *session, _ string, _ []string) string {
 			return strconv.FormatUint(s.next(key), 10)
 		}
-	}, number: func(token string, _ []string) proven {
-		return printing(token, DataTypeInteger, bounded(1, math.MaxInt64, true))
+	}, prints: DataTypeInteger, number: func(token string, prints DataType, _ []string) proven {
+		return printing(token, prints, bounded(1, math.MaxInt64, true))
 	}},
-}
+})
 
 // derive and sample are the two argument-free builtin shapes: a derivation reads
 // the output emitted so far, a sample reads only the rng. chars is the shape of a

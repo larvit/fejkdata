@@ -413,7 +413,7 @@ datatype cannot hold is a load error naming it:
 
 ```text
 order.id: datatype integer: {digits(3)} prints text, not an integer
-order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {int()}, {float()}, {seq()} or {calc()}, or read one
+order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {float()}, {int()}, {seq()} or {calc()}, or read one
 ```
 
 A column of one reference alone to another record's column — `"score": "{/src.score}"`

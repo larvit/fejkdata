@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -148,8 +149,8 @@ func (p *valueProof) template(t *template) proven {
 	case t.fixed:
 		return literalValue(t.lit)
 	case len(t.ops) != 1:
-		v := unproven(notOneValue(t.format, "{int()}, {float()}, {seq()} or {calc()}"))
-		v.notOperand = notOneValue(t.format, "{int()}, {float()}, {seq()}, {digits()} or {calc()}")
+		v := unproven(notOneValue(t.format, numberCalls(false)))
+		v.notOperand = notOneValue(t.format, numberCalls(true))
 		return v
 	}
 	o := t.ops[0]
@@ -164,7 +165,7 @@ func (p *valueProof) template(t *template) proven {
 	case name == "calc":
 		return p.calc(t, body, args)
 	case builtins[name].number != nil:
-		return builtins[name].number(body, args)
+		return builtins[name].number(body, builtins[name].prints, args)
 	case isTransform:
 		return unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
 	}
@@ -285,6 +286,19 @@ func printing(token string, prints DataType, v proven) proven {
 		}
 	}
 	return v
+}
+
+// numberCalls lists the builtins printing a number, or with text also those whose text
+// is one.
+func numberCalls(text bool) string {
+	var calls []string
+	for name, b := range builtins {
+		if b.number != nil && (text || b.prints != DataTypeString) {
+			calls = append(calls, "{"+name+"()}")
+		}
+	}
+	slices.Sort(calls)
+	return strings.Join(calls, ", ") + " or {calc()}"
 }
 
 func notOneValue(format, calls string) string {
