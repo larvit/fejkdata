@@ -37,11 +37,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	leaf, err := walkPath(t.head(a.key), a.tail, pathWalk{pins: &d.pins, draws: &pathDraws{s: s, held: d, a: &a}})
-	if err != nil {
-		panic(fmt.Sprintf("fejkdata: %q: %v; a fence should have refused this at New", a.name, err))
-	}
-	r := renderLeaf(s, leaf, sc)
+	r := renderLeaf(s, drawPath(t.head(a.key), a.tail, &d.pins, &pathDraws{s: s, held: d, a: &a}), sc)
 	if d.value == nil {
 		d.value = map[string]draw{}
 	}
