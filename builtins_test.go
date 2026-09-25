@@ -368,3 +368,73 @@ func TestBuiltinDateSpansOneDay(t *testing.T) {
 		t.Fatalf("one day in a date-only layout = %v, want it named a constant", err)
 	}
 }
+
+func TestClassBuiltins(t *testing.T) {
+	cases := map[string]*regexp.Regexp{
+		`"{digits(1)}"`:          regexp.MustCompile(`^[0-9]$`),
+		`"{digits(3)}"`:          regexp.MustCompile(`^[0-9]{3}$`),
+		`"{int(1,9)}"`:           regexp.MustCompile(`^[1-9]$`),
+		`"{upper(1)}"`:           regexp.MustCompile(`^[A-Z]$`),
+		`"{lower(1)}"`:           regexp.MustCompile(`^[a-z]$`),
+		`"{upper(2)}{lower(2)}"`: regexp.MustCompile(`^[A-Z]{2}[a-z]{2}$`),
+	}
+	f := engine(7)
+	for tmpl, re := range cases {
+		for i := 0; i < 100; i++ {
+			if got := mustRender(t, f, tmpl); !re.MatchString(got) {
+				t.Fatalf("%s produced %q, want %s", tmpl, got, re)
+			}
+		}
+	}
+}
+
+func TestFunctionTokenLuhn(t *testing.T) {
+	// {luhn()} appends a Luhn check digit over the digits emitted so far in the
+	// current expansion (non-digits skipped but kept). It reads the output
+	// buffer, so a value is never re-rendered. Bodies are escaped to fix input.
+	f := engine(1)
+	cases := map[string]string{
+		`"811218987{luhn()}"`:                      "8112189876",  // personnummer body
+		`"7992739871{luhn()}"`:                     "79927398713", // classic Luhn vector
+		`"811218-987{luhn()}"`:                     "811218-9876", // '-' skipped, kept
+		`{"format":"{n}{luhn()}","n":"811218987"}`: "8112189876",  // over a rendered token
+	}
+	for tmpl, want := range cases {
+		if got := mustRender(t, f, tmpl); got != want {
+			t.Fatalf("%s = %q, want %q", tmpl, got, want)
+		}
+	}
+}
+
+func TestBuiltinCompileErrors(t *testing.T) {
+	for _, bad := range []string{
+		`"{digits(0)}"`,        // count must be positive
+		`"{upper(x)}"`,         // count must be an integer
+		`"{lower()}"`,          // wrong arity
+		`"{nope()}"`,           // unknown function
+		`"{luhn(x)}"`,          // function given args it takes none of
+		`"{int(1)}"`,           // wrong arity
+		`"{int(a,b)}"`,         // non-integer args
+		`"{int(5,1)}"`,         // min > max
+		`"{hex(0)}"`,           // count must be positive
+		`"{nanoid(-1)}"`,       // negative count
+		`"{base64(0)}"`,        // count must be positive
+		`"{float(1,2)}"`,       // wrong arity
+		`"{float(1,2,-1)}"`,    // negative decimals
+		`"{float(NaN,NaN,2)}"`, // bounds must be finite
+		`"{float(Inf,Inf,2)}"`, // same-sign infinities
+		`"{float(1,NaN,2)}"`,   // one NaN bound
+		`"{float(-Inf,1,2)}"`,  // one infinite bound
+		`"{digits(+5)}"`,       // a count is a plain integer
+		`"{digits(05)}"`,       // no leading zero
+		`"{int(+1,5)}"`,        // a bound is a plain integer
+		`"{int(5,5)}"`,         // a constant is written as text
+		`"{float(1,1,2)}"`,     // a constant is written as text
+		`"{iban(US)}"`,         // unsupported country
+		`"{seq(a,b)}"`,         // seq takes at most one name
+	} {
+		if _, err := compile(parse(t, bad)); err == nil {
+			t.Errorf("compile(%s) = nil error, want error", bad)
+		}
+	}
+}

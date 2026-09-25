@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"strings"
@@ -91,4 +92,38 @@ func fakeTemplate(t *testing.T, f *Generator, s string) string {
 		t.Fatalf("FakeTemplate(%s) = %v", s, err)
 	}
 	return got
+}
+
+// engine builds a seeded generator with no loaded categories, for rendering tests.
+func engine(seed uint64) *Generator {
+	s, err := newRand(seed, true)
+	if err != nil {
+		panic(err)
+	}
+	return &Generator{rand: s}
+}
+
+// parse unmarshals a JSON template fragment into its dynamic form.
+func parse(t *testing.T, s string) any {
+	t.Helper()
+	var v any
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		t.Fatalf("parse %q: %v", s, err)
+	}
+	return v
+}
+
+// compiled parses and compiles a JSON fragment into a node.
+func compiled(t *testing.T, s string) node {
+	t.Helper()
+	n, err := compile(parse(t, s))
+	if err != nil {
+		t.Fatalf("compile %q: %v", s, err)
+	}
+	return n
+}
+
+func mustRender(t *testing.T, f *Generator, s string) string {
+	t.Helper()
+	return renderOnce(f.rand, compiled(t, s))
 }
