@@ -123,7 +123,7 @@ wording improves in a minor.
 
 ## A format holding a reference is fenced at link, and its errors name its path
 
-2026-09-24, larv-review. Goal 2: a format compiles once, and one holding a reference
+2026-09-24, larv-review; approved 2026-09-25 by lilleman. Goal 2: a format compiles once, and one holding a reference
 can compile only once bound, so its fences fire at link and name the category path as
 every link error does, a cell's with its line; one without a reference still names its
 file at compile. Valid while compilation needs the bound references.
