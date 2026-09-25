@@ -310,11 +310,12 @@ file the stem of the units it holds.
 ## One name, one meaning
 
 Two declarations of any kind — function, method, field, type — share a name only where
-they name one thing: an interface's method, `Fake` on each template kind, a field
-holding what a same-named method returns, `renderScope.hold` answering with a `*hold`.
-A bare function never shares a name with a method, since grep cannot tell a bare call
-from a method's; `TestNoFunctionSpellsAMethod` holds that, and review judges the rest,
-which is meaning no test can see. Serves goal 2: names that tell the truth, and reaching
+one definition covers both: the same kind of value, counted or addressed the same way, so
+a reader landing on the wrong one concludes nothing false. `Fake` on each template kind
+renders one value from what it is called on; `renderScope.hold` returns the `*hold` it
+names. A bare function never shares a name with a method: a search for the name returns
+both, and a call site shows no receiver to tell them apart. `TestNoFunctionSpellsAMethod`
+holds that, and review judges the rest. Serves goal 2: names that tell the truth, and reaching
 the unit behind a symptom without asking a person. Decided 2026-09-25 by Lilleman; valid
 while goal 2 counts reading cost.
 
