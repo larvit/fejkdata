@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -967,7 +968,8 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 
 // TestEnteredRowsAgreeWithPinning holds what a fence walk decides about the rows it entered, and
 // the rows a render draws, to what pinning refuses: drift between them is data that loads and then
-// renders a family that disagrees.
+// renders a family that disagrees. A row rendered whole is drawn over the whole table, apart from
+// every pin, so it is an alternative only to another row of its own draw.
 func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
@@ -981,13 +983,8 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	var none pinSet
 	for _, entered := range tables {
 		for row := 0; row < entered.rows(); row++ {
-			var drawn []tablePin
-			alone := none.entered(entered, row, false)
-			alone.each(func(tbl *table, r int) { drawn = append(drawn, tablePin{tbl, r}) })
-			if len(drawn) != 1 || drawn[0] != (tablePin{entered, row}) {
-				t.Errorf("a drawn %s enters %v, want its own row alone", entered.selectorSpelling(row), drawn)
-			}
-			s := none.entered(entered, row, true)
+			whole := drawAt{drawn: entered, whole: tablePin{entered, row}}
+			s := none.entered(entered, row)
 			for _, cand := range tables {
 				for i := 0; i < 20; i++ {
 					drawing := s.clone()
@@ -998,8 +995,16 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 				for cr := 0; cr < cand.rows(); cr++ {
 					beside := s.clone()
 					refused := beside.pinRow(cand, cr) != nil
-					if got := alternatives(drawAt{alt: s}, drawAt{alt: none.entered(cand, cr, true)}); got != refused {
+					pinned := drawAt{alt: none.entered(cand, cr)}
+					if got := alternatives(drawAt{alt: s}, pinned); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
+					}
+					if alternatives(whole, pinned) || alternatives(pinned, whole) {
+						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
+					}
+					other := drawAt{drawn: cand, whole: tablePin{cand, cr}}
+					if want := cand == entered && cr != row; alternatives(whole, other) != want {
+						t.Errorf("alternatives(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), !want, want)
 					}
 				}
 			}
@@ -1007,14 +1012,63 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	}
 	var spilled pinSet
 	for i := 0; i <= len(spilled.inline); i++ {
-		spilled = spilled.entered(&table{path: strconv.Itoa(i)}, 0, false)
+		spilled = spilled.entered(&table{path: strconv.Itoa(i)}, 0)
 	}
-	_ = spilled.entered(&table{path: "past"}, 0, false)
+	_ = spilled.entered(&table{path: "past"}, 0)
 	n := 0
 	spilled.each(func(*table, int) { n++ })
 	if n != len(spilled.inline)+1 {
 		t.Errorf("entering a row beside a spilled pin set leaves it holding %d rows, want %d", n, len(spilled.inline)+1)
 	}
+}
+
+// TestProbeReportsTheTablesADrawPins holds the check mode to the render: the tables a probe says a
+// path draws are those a draw of it pins beyond what its selectors pin.
+func TestProbeReportsTheTablesADrawPins(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
+	for _, path := range []string{
+		"locality.code",
+		"municipality.locality.name",
+		"municipality[1281].locality.name",
+		"municipality.locality[L4].name",
+		"region",
+		"region.municipality.name",
+		"region[12].municipality.locality.code",
+		"region[12].name",
+	} {
+		segs, err := splitPath(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		head := f.categories[segs[0]].(*table)
+		var probed pinSet
+		drawn := map[*table]bool{}
+		if _, err := walkPath(head, segs[1:], pathWalk{mode: walkProbe, pins: &probed, drawn: drawn}); err != nil {
+			t.Fatalf("%s: %v", path, err)
+		}
+		for i := 0; i < 20; i++ {
+			var pins pinSet
+			drawPath(head, segs[1:], segs[0], &pins, &pathDraws{s: f.rand})
+			want := map[*table]bool{}
+			pins.each(func(tbl *table, _ int) {
+				if _, selected := probed.pinned(tbl); !selected {
+					want[tbl] = true
+				}
+			})
+			if !maps.Equal(drawn, want) {
+				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", path, categoriesOf(drawn), categoriesOf(want))
+			}
+		}
+	}
+}
+
+func categoriesOf(tables map[*table]bool) []string {
+	var out []string
+	for tbl := range tables {
+		out = append(out, tbl.category)
+	}
+	slices.Sort(out)
+	return out
 }
 
 // TestCellReadsMeetWhereTheRenderPairsTheRows reads what the TSVs below do not show: region 01's
