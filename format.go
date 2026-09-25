@@ -8,7 +8,7 @@ import (
 // ftoken is one unit of a scanned format string: a literal rune or the body of a
 // {…} token.
 type ftoken struct {
-	kind byte // 'l' literal rune, 'b' brace body
+	kind byte // 'l' literal rune, 't' token body
 	r    rune
 	body string
 }
@@ -38,7 +38,7 @@ func eachToken(format string, fn func(ftoken) error) error {
 			if end >= len(rs) {
 				return fmt.Errorf("unterminated '{' in %q", format)
 			}
-			t.kind, t.body = 'b', string(rs[i+1:end])
+			t.kind, t.body = 't', string(rs[i+1:end])
 			i = end
 		case '}':
 			if i+1 < len(rs) && rs[i+1] == '}' {

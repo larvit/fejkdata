@@ -63,7 +63,7 @@ func contained(n node) []namedNode {
 	case *table:
 		return append([]namedNode{{node: n.format}}, named(n.fields)...)
 	case *column:
-		if len(n.t.tokens) == 0 {
+		if len(n.t.cellTemplates) == 0 {
 			return nil
 		}
 		var out []namedNode

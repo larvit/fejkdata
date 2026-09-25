@@ -97,7 +97,7 @@ func readsFact(n node) string {
 			}
 		case *table:
 			collect(n.format)
-			for _, cell := range n.tokens {
+			for _, cell := range n.cellTemplates {
 				collect(cell)
 			}
 		case *template:

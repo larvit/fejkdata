@@ -870,7 +870,7 @@ render.go       Fake and the recursive renderer (choices, format strings, expans
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
-template.go     the {token} grammar: scanning, tokens, operands, validation, compiling a format
+format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per held name, and reading a field through it
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
 holdset.go      one reference draw per render and group: the hold set a render reads its paths through
