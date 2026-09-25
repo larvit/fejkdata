@@ -67,7 +67,7 @@ func contained(n node) []namedNode {
 			return nil
 		}
 		var out []namedNode
-		for r := 0; r < n.t.rows(); r++ {
+		for r := 0; r < n.t.rowCount(); r++ {
 			if cell := n.t.cellTemplate(r, n.i); cell != nil {
 				out = append(out, namedNode{node: cell})
 			}
@@ -171,13 +171,13 @@ func pathLeaves(n node, tail []string) []node {
 
 type reachMemo map[node]int
 
-func (m reachMemo) of(n node) int {
+func (m reachMemo) renderCount(n node) int {
 	if r, done := m[n]; done {
 		return r
 	}
 	r := 1
 	for _, e := range renderEdges(n) {
-		if c := m.of(e.to); c > r {
+		if c := m.renderCount(e.to); c > r {
 			r = c
 		}
 	}
@@ -192,8 +192,8 @@ func (m reachMemo) of(n node) int {
 // path, so nested repeats cannot build what one repeat may not.
 // docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
 func repeatCheck(path string, n node, mem reachMemo) error {
-	if t, ok := n.(*template); ok && t.repeat > 1 && mem.of(n) > MaxRepeat {
-		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.of(n), MaxRepeat)
+	if t, ok := n.(*template); ok && t.repeat > 1 && mem.renderCount(n) > MaxRepeat {
+		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.renderCount(n), MaxRepeat)
 	}
 	return nil
 }

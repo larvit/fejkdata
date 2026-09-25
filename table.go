@@ -58,7 +58,7 @@ type row struct{ t *table }
 
 func (*row) isNode() {}
 
-func (t *table) rows() int { return len(t.cells) / len(t.columns) }
+func (t *table) rowCount() int { return len(t.cells) / len(t.columns) }
 
 func (t *table) cell(row, col int) string { return t.cells[row*len(t.columns)+col] }
 
@@ -89,7 +89,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 	if err != nil {
 		return nil, err
 	}
-	data, err := files.rows(o.rows)
+	data, err := files.readRows(o.rows)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (t *table) parseRows(data string) error {
 		}
 		rest = more
 	}
-	if t.rows() < 2 {
+	if t.rowCount() < 2 {
 		return fmt.Errorf("has one row, which is a template; write it as one")
 	}
 	return nil
@@ -240,8 +240,8 @@ func (t *table) proveNamesInsideParent() error {
 	if t.key >= 0 || t.name < 0 {
 		return nil
 	}
-	inside := make(map[string]int, t.rows())
-	for r := 0; r < t.rows(); r++ {
+	inside := make(map[string]int, t.rowCount())
+	for r := 0; r < t.rowCount(); r++ {
 		k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
 		if first, dup := inside[k]; dup {
 			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
@@ -256,8 +256,8 @@ func (t *table) indexKeys() error {
 	if t.key < 0 {
 		return nil
 	}
-	t.byKey = make(map[string]int, t.rows())
-	for r := 0; r < t.rows(); r++ {
+	t.byKey = make(map[string]int, t.rowCount())
+	for r := 0; r < t.rowCount(); r++ {
 		k := t.cell(r, t.key)
 		if k == "" {
 			return fmt.Errorf("%s line %d: the key is empty", t.file, r+2)
@@ -267,7 +267,7 @@ func (t *table) indexKeys() error {
 		}
 		t.byKey[k] = r
 	}
-	for r := 0; r < t.rows() && t.name >= 0; r++ {
+	for r := 0; r < t.rowCount() && t.name >= 0; r++ {
 		if n := t.cell(r, t.name); t.byKey[n] != r {
 			if other, isKey := t.byKey[n]; isKey {
 				return fmt.Errorf("%s line %d: name %q is the key of line %d, which a selector reads first, so the name could never select this row", t.file, r+2, n, other+2)
@@ -282,7 +282,7 @@ func (t *table) sumWeights() error {
 	if t.weight < 0 {
 		return nil
 	}
-	t.cum = make([]float64, t.rows())
+	t.cum = make([]float64, t.rowCount())
 	total := 0.0
 	for r := range t.cum {
 		w, err := strconv.ParseFloat(t.cell(r, t.weight), 64)
@@ -419,15 +419,15 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.category, q.category, q.category, t.category)
 		}
 	}
-	linked := make(map[string]bool, p.rows())
-	for r := 0; r < t.rows(); r++ {
+	linked := make(map[string]bool, p.rowCount())
+	for r := 0; r < t.rowCount(); r++ {
 		k := t.cell(r, t.parent)
 		if _, ok := p.byKey[k]; !ok {
 			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, r+2, name, k, p.file)
 		}
 		linked[k] = true
 	}
-	for r := 0; r < p.rows(); r++ {
+	for r := 0; r < p.rowCount(); r++ {
 		if k := p.cell(r, p.key); !linked[k] {
 			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, r+2, p.file)
 		}
@@ -443,15 +443,15 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 func (t *table) indexed() *tableIndex {
 	t.once.Do(func() {
 		if t.name >= 0 {
-			t.index.byName = make(map[string][]int, t.rows())
-			for r := 0; r < t.rows(); r++ {
+			t.index.byName = make(map[string][]int, t.rowCount())
+			for r := 0; r < t.rowCount(); r++ {
 				n := t.cell(r, t.name)
 				t.index.byName[n] = append(t.index.byName[n], r)
 			}
 		}
 		if t.parent >= 0 {
 			t.index.children = map[string][]int{}
-			for r := 0; r < t.rows(); r++ {
+			for r := 0; r < t.rowCount(); r++ {
 				k := t.cell(r, t.parent)
 				t.index.children[k] = append(t.index.children[k], r)
 			}
@@ -476,7 +476,7 @@ func (t *table) indexed() *tableIndex {
 // interface so that the walk that draws through it keeps its hold set off the heap.
 func (t *table) draw(s *session) int {
 	if t.cum == nil {
-		return s.IntN(t.rows())
+		return s.IntN(t.rowCount())
 	}
 	return pickCum(s, t.cum)
 }

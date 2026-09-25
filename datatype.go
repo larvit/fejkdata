@@ -166,7 +166,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	switch {
 	case da != DataTypeString && db != DataTypeString:
 		return bothTyped(a, da, b, db)
-	case typed.datatype == DataTypeString && (&valueProof{}).columnItem(bare).not[want] != "":
+	case typed.datatype == DataTypeString && (&valueProof{}).proveColumnItem(bare).not[want] != "":
 		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, bare.format, dataTypeNouns[want], typed.format, asText(typed))
 	case bare.fromString: // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, bare.format, bare.format, want)
@@ -184,7 +184,7 @@ func bothTyped(a *template, da DataType, b *template, db DataType) error {
 	switch {
 	case read.datatype != DataTypeString:
 		return fmt.Errorf("its items hold %s and %s; a column holds one datatype", da, db)
-	case (&valueProof{}).columnItem(read).not[other] == "":
+	case (&valueProof{}).proveColumnItem(read).not[other] == "":
 		return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so %s", da, db, typedAs(read, other))
 	}
 	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so to read %q as text, %s", da, db, read.format, asText(read))
