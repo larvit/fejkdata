@@ -130,11 +130,11 @@ func names(segs []string) []string {
 type walkMode uint8
 
 const (
-	// walkCover stops at a choice, handing it whole to leaf, and reads no row.
-	walkCover walkMode = iota
 	// walkEvery proves every variant carries the rest of the path and walks each,
 	// pinning the rows it selects in pins.
-	walkEvery
+	walkEvery walkMode = iota
+	// walkCover stops at a choice, handing it whole to leaf, and reads no row.
+	walkCover
 	// walkProbe proves as walkEvery does, walking one variant, so a path that
 	// resolves resolves whichever variants and rows are drawn.
 	walkProbe
@@ -144,8 +144,7 @@ const (
 )
 
 // pathWalk is one walk of a dotted path: level runs at each template a segment
-// descends into, leaf where the walk ends, and a nil action is skipped. A render's
-// walk sets only pins and draws, so it allocates nothing.
+// descends into, leaf where the walk ends, and a nil action is skipped.
 type pathWalk struct {
 	mode  walkMode
 	level func(t *template, rest []string) error
@@ -211,10 +210,11 @@ func (w pathWalk) atLeaf(n node) error {
 
 // drawPath draws the rows and variants a path reads, pinning them in pins. The path
 // must be proved first, by a probe or by New's fences, so the walk cannot fail.
-func drawPath(n node, tail []string, pins *pinSet, draws *pathDraws) node {
+// head is what n is reached by, for the panic.
+func drawPath(n node, tail []string, head string, pins *pinSet, draws *pathDraws) node {
 	leaf, err := walkPath(n, tail, pathWalk{mode: walkDraw, pins: pins, draws: draws})
 	if err != nil {
-		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", joinSegments(tail), err))
+		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", join(head, joinSegments(tail)), err))
 	}
 	return leaf
 }
