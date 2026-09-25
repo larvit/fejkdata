@@ -131,15 +131,11 @@ func (c *drawCheck) reads(n node, stopAtGroup bool) bool {
 	return r
 }
 
-// readsOnEdge reports whether an edge of n is itself a reference path: a reference with a tail, or
-// one naming a table.
 func readsOnEdge(n node, label string) bool {
 	a, isRef := refRead(n, label)
 	return isRef && (len(a.tail) > 0 || readsTable(n, a))
 }
 
-// walksInto reports whether reads walks on into to, which it does short of a repeat, and of a draw
-// group when stopAtGroup.
 func walksInto(to node, stopAtGroup bool) bool {
 	return !repeats(to) && !(stopAtGroup && grouped(to))
 }
