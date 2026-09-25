@@ -409,13 +409,12 @@ shared.
 
 Only one row renders per read, so within one read a cell in one row and a cell in
 another never meet, and each may select its own row of another table; the cells of one
-row, and whatever they reach, do meet, and so does the format beside them. The rule the
-fence applies is that two reads meet unless they sit in rows that never render together:
-rows falling under different rows of a table a path pinned, two rows of that table
-itself included. A table read whole draws its row apart from every pin, so the rows of
-one whole read are alternatives only to each other, and a cell of one meets a read
-pinning an ancestor row the row is not under. A choice's items get no such treatment yet: two items selecting
-different rows are still refused.
+row, and whatever they reach, do meet, and so does the format beside them. Two reads
+meet unless they sit under different rows of one pinned table; pinning a row pins its
+ancestors too, so rows under different parents are alternatives as well. A table read
+whole draws its row apart from every pin, so the rows of one whole read are
+alternatives only to each other. A choice's items are not alternatives: two items
+selecting different rows of one family are refused.
 
 ## A table never reaches its own family, by any route
 
