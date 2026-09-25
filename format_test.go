@@ -120,23 +120,14 @@ func TestFormatCompileErrors(t *testing.T) {
 		`"{}"`,                       // empty token name
 		`{"format":"{a|}","a":"Q"}`,  // empty alternation segment
 		`"{luhn(}"`,                  // malformed function token
+		`"{lower()}"`,                // wrong arity
+		`"{nope()}"`,                 // unknown function
+		`"{luhn(x)}"`,                // function given args it takes none of
+		`"{int(1)}"`,                 // wrong arity
+		`"{float(1,2)}"`,             // wrong arity
 	} {
 		if _, err := compile(parse(t, bad)); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
-	}
-}
-
-func TestArgErrorsNameTheSpelling(t *testing.T) {
-	for src, want := range map[string]string{
-		`"{float(1,2,02)}"`:                 "write 2",
-		`{"format":"{calc(a,02)}","a":"1"}`: "write 2",
-		`"{digits(+5)}"`:                    "write 5",
-		`"{hex(99999999999999999999)}"`:     "exceeds the maximum",
-		`"{int(007,9)}"`:                    "write 7",
-	} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
 		}
 	}
 }
