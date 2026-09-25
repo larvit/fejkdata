@@ -19,11 +19,9 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Give `rows` and `field` one meaning each, per the decision "One name, one meaning":
-  `categoryFiles.rows` returns a TSV file name where `table.rows` counts rows, and
-  `formatOps.field` compiles a `{field}` token where `structFields.field` reads a Go
-  struct field. Rename every other shared name that names two things — `walk`,
-  `column`, `expr` and `of` included.
+- Rename the shared names left that name two things, per the decision "One name, one
+  meaning": judge each of `check`, `draw`, `drawn`, `head`, `key`, `name`, `named`,
+  `names`, `null`, `number`, `record` and `variant`.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data

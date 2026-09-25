@@ -982,7 +982,7 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	}
 	var none pinSet
 	for _, entered := range tables {
-		for row := 0; row < entered.rows(); row++ {
+		for row := 0; row < entered.rowCount(); row++ {
 			whole := drawAt{drawn: entered}
 			whole.whole.add(entered, row)
 			s := none.entered(entered, row)
@@ -993,7 +993,7 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 						t.Errorf("a render draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
 					}
 				}
-				for cr := 0; cr < cand.rows(); cr++ {
+				for cr := 0; cr < cand.rowCount(); cr++ {
 					beside := s.clone()
 					refused := beside.pinRow(cand, cr) != nil
 					candAt := drawAt{pins: none.entered(cand, cr)}

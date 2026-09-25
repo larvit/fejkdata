@@ -105,7 +105,7 @@ func (sc *structCompile) record(t reflect.Type, label string) (*structShape, err
 	sc.visiting[t] = true
 	defer delete(sc.visiting, t)
 	c := &structFields{structCompile: sc, t: t, label: label, tags: map[string]any{}, shape: &structShape{}}
-	if err := c.walk(t, nil); err != nil {
+	if err := c.gatherFields(t, nil); err != nil {
 		return nil, err
 	}
 	if len(c.tags) > 0 {
@@ -123,19 +123,19 @@ func (sc *structCompile) spend(label string) error {
 	return fmt.Errorf(`%s: the struct fields reach more than %d structs; leave a struct field unfilled with fake:"-"`, label, maxStructs)
 }
 
-// walk gathers the fields of struct type t, which sits at index within c.t.
-func (c *structFields) walk(t reflect.Type, index []int) error {
+// gatherFields gathers the fields of struct type t, which sits at index within c.t.
+func (c *structFields) gatherFields(t reflect.Type, index []int) error {
 	for i := 0; i < t.NumField(); i++ {
 		sf := t.Field(i)
 		sf.Index = append(index[:len(index):len(index)], i)
-		if err := c.field(sf); err != nil {
+		if err := c.addField(sf); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *structFields) field(sf reflect.StructField) error {
+func (c *structFields) addField(sf reflect.StructField) error {
 	tag, tagged := sf.Tag.Lookup("fake")
 	elem := structOf(sf.Type)
 	switch {
@@ -145,7 +145,7 @@ func (c *structFields) field(sf reflect.StructField) error {
 		}
 		return nil
 	case tagged:
-		return c.column(sf, tag)
+		return c.addTag(sf, tag)
 	case elem == nil || c.visiting[elem]:
 		return nil
 	case sf.Anonymous:
@@ -167,8 +167,8 @@ func structOf(t reflect.Type) reflect.Type {
 	return t
 }
 
-// column adds a tagged field's tag to the record, refusing one another field hides.
-func (c *structFields) column(sf reflect.StructField, tag string) error {
+// addTag adds a tagged field's tag to the record, refusing one another field hides.
+func (c *structFields) addTag(sf reflect.StructField, tag string) error {
 	if visible, ok := c.t.FieldByName(sf.Name); !ok || !slices.Equal(visible.Index, sf.Index) {
 		return fmt.Errorf("%s.%s: hidden by another field named %s, so its fake tag cannot fill it; rename one", c.label, fieldPath(c.t, sf.Index), sf.Name)
 	}
@@ -196,7 +196,7 @@ func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
 	c.visiting[elem] = true
 	defer delete(c.visiting, elem)
 	tags, nested := len(c.tags), len(c.shape.nested)
-	if err := c.walk(elem, sf.Index); err != nil {
+	if err := c.gatherFields(elem, sf.Index); err != nil {
 		return err
 	}
 	if sf.Type.Kind() == reflect.Pointer && !sf.IsExported() && (len(c.tags) > tags || len(c.shape.nested) > nested) {
@@ -327,7 +327,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
-	} else if p.column(column).null {
+	} else if p.proveColumn(column).null {
 		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
 	}
 	kind := columnKinds[elem.Kind()]
@@ -335,7 +335,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 		return nil
 	}
 	for _, it := range items {
-		v := p.columnItem(it)
+		v := p.proveColumnItem(it)
 		if reason := v.not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}

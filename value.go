@@ -37,23 +37,23 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	if d := readDatatype(t); d == t.datatype {
 		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, d)
 	}
-	if reason := p.columnItem(t).not[t.datatype]; reason != "" {
+	if reason := p.proveColumnItem(t).not[t.datatype]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
 	}
 	return nil
 }
 
-// columnItem proves a column item: what it renders, or, when it is a column it reads, that column.
-func (p *valueProof) columnItem(t *template) proven {
+// proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
+func (p *valueProof) proveColumnItem(t *template) proven {
 	if t.readsColumn == nil {
-		return p.of(t)
+		return p.prove(t)
 	}
-	return p.column(t.readsColumn.column)
+	return p.proveColumn(t.readsColumn.column)
 }
 
-// column proves a column over what its items draw, a null item marking it null rather than
+// proveColumn proves a column over what its items draw, a null item marking it null rather than
 // rendering "".
-func (p *valueProof) column(n node) proven {
+func (p *valueProof) proveColumn(n node) proven {
 	if v, done := p.columns[n]; done {
 		return v
 	}
@@ -63,7 +63,7 @@ func (p *valueProof) column(n node) proven {
 	items, nullable := columnItems(n)
 	var v proven
 	for i, it := range items {
-		if w := p.columnItem(it); i == 0 {
+		if w := p.proveColumnItem(it); i == 0 {
 			v = w
 		} else {
 			v = v.or(w)
@@ -74,7 +74,7 @@ func (p *valueProof) column(n node) proven {
 	return v
 }
 
-func (p *valueProof) of(n node) proven {
+func (p *valueProof) prove(n node) proven {
 	if v, done := p.memo[n]; done {
 		return v
 	}
@@ -84,11 +84,11 @@ func (p *valueProof) of(n node) proven {
 	var v proven
 	switch n := n.(type) {
 	case *choice:
-		v = p.unite(n.items)
+		v = p.proveUnion(n.items)
 	case *template:
-		v = p.template(n)
+		v = p.proveTemplate(n)
 	case *column:
-		v = p.cells(n)
+		v = p.proveCells(n)
 	case *row:
 		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.format.format, n.t.category))
 	default:
@@ -98,13 +98,13 @@ func (p *valueProof) of(n node) proven {
 	return v
 }
 
-// cells proves a table column over every cell it may render.
-func (p *valueProof) cells(c *column) proven {
+// proveCells proves a table column over every cell it may render.
+func (p *valueProof) proveCells(c *column) proven {
 	var v proven
-	for r := 0; r < c.t.rows(); r++ {
+	for r := 0; r < c.t.rowCount(); r++ {
 		var w proven
 		if cell := c.t.cellTemplate(r, c.i); cell != nil {
-			w = p.of(cell)
+			w = p.prove(cell)
 		} else {
 			w = literalValue(c.t.cell(r, c.i))
 		}
@@ -117,10 +117,10 @@ func (p *valueProof) cells(c *column) proven {
 	return v
 }
 
-func (p *valueProof) unite(nodes []node) proven {
-	v := p.of(nodes[0])
+func (p *valueProof) proveUnion(nodes []node) proven {
+	v := p.prove(nodes[0])
 	for _, n := range nodes[1:] {
-		v = v.or(p.of(n))
+		v = v.or(p.prove(n))
 	}
 	return v
 }
@@ -140,9 +140,9 @@ func (v proven) or(w proven) proven {
 	return v
 }
 
-// template proves a template that renders one value: fixed text, or a format that is
+// proveTemplate proves a template that renders one value: fixed text, or a format that is
 // one token alone.
-func (p *valueProof) template(t *template) proven {
+func (p *valueProof) proveTemplate(t *template) proven {
 	switch {
 	case t.repeat != 1:
 		return unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
@@ -161,9 +161,9 @@ func (p *valueProof) template(t *template) proven {
 		for _, a := range o.arms {
 			leaves = append(leaves, pathLeaves(t.head(a.key), a.tail)...)
 		}
-		return p.unite(leaves)
+		return p.proveUnion(leaves)
 	case name == "calc":
-		return p.calc(t, body, args)
+		return p.proveCalc(t, body, args)
 	case builtins[name].number != nil:
 		return builtins[name].number(body, builtins[name].prints, args)
 	case isTransform:
@@ -172,12 +172,12 @@ func (p *valueProof) template(t *template) proven {
 	return printing(body, DataTypeString, proven{notOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
-func (p *valueProof) calc(t *template, body string, args []string) proven {
+func (p *valueProof) proveCalc(t *template, body string, args []string) proven {
 	expr, err := parseCalc(args[0])
 	if err != nil {
 		panic(fmt.Sprintf("fejkdata: calc(%q) reached a proof unparsed: %v", args[0], err))
 	}
-	v, doubt := p.expr(expr, t.fields)
+	v, doubt := p.proveExpr(expr, t.fields)
 	if doubt == "" && !(magnitude(v) <= calcLimit) {
 		doubt = calcText(expr) + " is not proven within 1e300"
 	}
@@ -191,28 +191,28 @@ func (p *valueProof) calc(t *template, body string, args []string) proven {
 // math.MaxFloat64 that rounding in the bounds cannot hide an overflow.
 const calcLimit = 1e300
 
-// expr bounds a calc expression from its operands, or says why it cannot.
-func (p *valueProof) expr(n calcNode, fields map[string]node) (proven, string) {
+// proveExpr bounds a calc expression from its operands, or says why it cannot.
+func (p *valueProof) proveExpr(n calcNode, fields map[string]node) (proven, string) {
 	switch n := n.(type) {
 	case calcNum:
 		v := float64(n)
 		return bounded(v, v, v == math.Trunc(v)), ""
 	case calcVar:
-		v := p.of(fields[string(n)])
+		v := p.prove(fields[string(n)])
 		if v.notOperand != "" {
 			return proven{}, fmt.Sprintf("operand %q: %s", string(n), v.notOperand)
 		}
 		return proven{lo: v.lo, hi: v.hi, nonZero: v.nonZero, integral: v.integral}, ""
 	case calcNeg:
-		v, doubt := p.expr(n.x, fields)
+		v, doubt := p.proveExpr(n.x, fields)
 		v.lo, v.hi = -v.hi, -v.lo
 		return v, doubt
 	case calcBin:
-		l, doubt := p.expr(n.l, fields)
+		l, doubt := p.proveExpr(n.l, fields)
 		if doubt != "" {
 			return l, doubt
 		}
-		r, doubt := p.expr(n.r, fields)
+		r, doubt := p.proveExpr(n.r, fields)
 		if doubt != "" {
 			return r, doubt
 		}

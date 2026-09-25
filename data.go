@@ -124,8 +124,8 @@ type categoryFiles struct {
 	tsv map[string]bool
 }
 
-// rows reads the rows file a category names beside it.
-func (c *categoryFiles) rows(name string) (string, error) {
+// readRows reads the rows file a category names beside it.
+func (c *categoryFiles) readRows(name string) (string, error) {
 	if _, present := c.tsv[name]; !present {
 		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.name(c.dir))
 	}
