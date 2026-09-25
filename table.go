@@ -13,26 +13,26 @@ import (
 // columns, each row is one draw, and the format renders the drawn row. A column is a
 // cell of the row a render pinned; a cell carrying tokens compiles to a string node.
 type table struct {
-	category string
-	path     string // the category's path from the data root, which a selector is written at
-	file     string
-	format   *template // fields are the column nodes
-	columns  []string
-	col      map[string]int
-	fields   map[string]node // column nodes, the format's fields
-	whole    *row            // the pinned row rendered by the format
-	cells    []string        // rows × columns, flat
-	tokens   map[int]*template
-	key      int // key, name, weight and parent are column indexes, or -1
-	name     int
-	weight   int
-	parent   int
-	cum      []float64 // cumulative weights, nil when uniform
-	byKey    map[string]int
-	parentT  *table
-	children map[string]*table
-	once     sync.Once
-	index    tableIndex
+	category      string
+	path          string // the category's path from the data root, which a selector is written at
+	file          string
+	format        *template // fields are the column nodes
+	columns       []string
+	col           map[string]int
+	fields        map[string]node // column nodes, the format's fields
+	whole         *row            // the pinned row rendered by the format
+	cells         []string        // rows × columns, flat
+	cellTemplates map[int]*template
+	key           int // key, name, weight and parent are column indexes, or -1
+	name          int
+	weight        int
+	parent        int
+	cum           []float64 // cumulative weights, nil when uniform
+	byKey         map[string]int
+	parentT       *table
+	children      map[string]*table
+	once          sync.Once
+	index         tableIndex
 }
 
 // tableIndex is what selection and linked draws look up, built on the first draw
@@ -64,7 +64,7 @@ func (t *table) cell(row, col int) string { return t.cells[row*len(t.columns)+co
 
 // cellNode is what a cell renders: its compiled template where it carries tokens,
 // else nil for its text.
-func (t *table) cellNode(row, col int) *template { return t.tokens[row*len(t.columns)+col] }
+func (t *table) cellNode(row, col int) *template { return t.cellTemplates[row*len(t.columns)+col] }
 
 // tableOptions are the keys a table object takes; every other key is refused.
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
@@ -312,11 +312,11 @@ func (t *table) checkCells() error {
 		if err != nil {
 			return fmt.Errorf("line %d, %s: %w", row+2, t.columns[col], err)
 		}
-		if t.tokens == nil {
-			t.tokens = map[int]*template{}
+		if t.cellTemplates == nil {
+			t.cellTemplates = map[int]*template{}
 		}
-		t.tokens[i] = n.(*template)
-		t.tokens[i].cellOf, t.tokens[i].cellRow = t, row
+		t.cellTemplates[i] = n.(*template)
+		t.cellTemplates[i].cellOf, t.cellTemplates[i].cellRow = t, row
 	}
 	return nil
 }

@@ -19,11 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Rename what names two things: `template.go` holds the token grammar while `template`
-  is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in
-  `ftoken` and a builtin in `formatToken` and `op`; `tokens` is a template's parsed format
-  and a table's cell templates; `drawAt.alt` holds the rows
-  a walk entered.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
