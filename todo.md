@@ -19,9 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Hold only the `{token}` grammar's tests in `format_test.go`: move the helpers seven
-  other test files use (`engine`, `parse`, `compiled`, `mustRender`) and the weight,
-  recursion and path-navigation tests to files named for what they test.
 - Give `rows` and `field` one meaning each, per the decision "One name, one meaning":
   `categoryFiles.rows` returns a TSV file name where `table.rows` counts rows, and
   `formatOps.field` compiles a `{field}` token where `structFields.field` reads a Go

@@ -170,3 +170,22 @@ func TestBindingKeyIsNotAPathSegment(t *testing.T) {
 		t.Errorf("Fake(name./color) = %v, want a no-field error", err)
 	}
 }
+
+func TestFakePathNavigation(t *testing.T) {
+	f := engine(1)
+	f.categories = map[string]node{
+		"addr": compiled(t, `{"format":"{street}","street":"Main"}`),
+	}
+	if got, err := f.Fake("addr"); err != nil || !strings.Contains(got, "Main") {
+		t.Fatalf("Fake(addr) = %q, %v", got, err)
+	}
+	if got, err := f.Fake("addr.street"); err != nil || got != "Main" {
+		t.Fatalf("Fake(addr.street) = %q, %v, want Main", got, err)
+	}
+	if _, err := f.Fake("addr.nope"); err == nil {
+		t.Error("Fake(addr.nope) = nil error, want missing-field error")
+	}
+	if _, err := f.Fake("missing"); err == nil {
+		t.Error("Fake(missing) = nil error, want unknown-category error")
+	}
+}

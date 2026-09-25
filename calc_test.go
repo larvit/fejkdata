@@ -270,3 +270,22 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 	}
 	t.Fatal("a sometimes-zero divisor never printed +Inf in 50 draws")
 }
+
+func TestCalcCompileErrors(t *testing.T) {
+	for _, bad := range []string{
+		`"{calc(1/0)}"`, // a constant zero divisor
+		`{"format":"{calc(x/y)}","x":"1","y":"0"}`, // a fixed zero divisor
+		`"{calc()}"`,        // calc needs an expression
+		`"{calc(1 +)}"`,     // dangling operator
+		`"{calc((1 + 2)}"`,  // unbalanced parenthesis
+		`"{calc(1 2)}"`,     // two operands, no operator
+		`"{calc(price)}"`,   // operand names no field
+		`"{calc(1, 2, 3)}"`, // too many args
+		`"{calc(1, x)}"`,    // decimals arg not an integer
+		`"{calc(1, -1)}"`,   // decimals negative
+	} {
+		if _, err := compile(parse(t, bad)); err == nil {
+			t.Errorf("compile(%s) = nil error, want error", bad)
+		}
+	}
+}
