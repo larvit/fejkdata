@@ -14,11 +14,14 @@ var transforms = map[string]func(string) string{
 	"uppercase": strings.ToUpper,
 }
 
-func withTransforms(builtins map[string]builtin) map[string]builtin {
+func withTransforms(calls map[string]builtin) map[string]builtin {
 	for name, fn := range transforms {
-		builtins[name] = builtin{arity: 1, check: transformArg, prep: transformPrep(fn), operands: transformOperand}
+		if _, clash := calls[name]; clash {
+			panic("fejkdata: " + name + " is registered as a builtin and a transform")
+		}
+		calls[name] = builtin{arity: 1, check: transformArg, prep: transformPrep(fn), operands: transformOperand}
 	}
-	return builtins
+	return calls
 }
 
 // unwrapTransform peels nested transform calls off an operand arg, returning the

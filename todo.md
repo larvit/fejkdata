@@ -19,10 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Register a transform once: `transforms` restates the `lowercase`, `uppercase` and
-  `ascii` entries in `builtins`, and `valueProof.template` classifies by the first while
-  render calls the second. Derive the numeric builtins `valueProof.template` lists in
-  its error text from `builtin.number` while there.
 - Split `drawCheck.reads`'s six-term condition into named predicates.
 - Rename what names two things: `template.go` holds the token grammar while `template`
   is `node.go`'s type and `Template` `inline.go`'s; `kind` `'b'` is a brace body in

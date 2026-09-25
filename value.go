@@ -149,8 +149,8 @@ func (p *valueProof) template(t *template) proven {
 	case t.fixed:
 		return literalValue(t.lit)
 	case len(t.ops) != 1:
-		v := unproven(notOneValue(t.format, numberCalls(false)))
-		v.notOperand = notOneValue(t.format, numberCalls(true))
+		v := unproven(notOneValue(t.format, typedCalls))
+		v.notOperand = notOneValue(t.format, operandCalls)
 		return v
 	}
 	o := t.ops[0]
@@ -287,6 +287,8 @@ func printing(token string, prints DataType, v proven) proven {
 	}
 	return v
 }
+
+var typedCalls, operandCalls = numberCalls(false), numberCalls(true)
 
 // numberCalls lists the builtins printing a number, or with text also those whose text
 // is one.
