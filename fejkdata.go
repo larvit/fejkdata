@@ -72,7 +72,7 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, onDisk: true, path: dir})
+		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, onDisk: true, diskPath: dir})
 	}
 }
 
@@ -99,7 +99,7 @@ func New(opts ...Option) (*Generator, error) {
 	}
 	var sources []dataSource
 	if c.shipped {
-		sources = append(sources, dataSource{fsys: shippedFS, dir: "data"})
+		sources = append(sources, dataSource{fsys: shippedFS, baseDir: "data"})
 	}
 	sources = append(sources, c.sources...)
 	if len(sources) == 0 {

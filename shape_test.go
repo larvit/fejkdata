@@ -77,7 +77,7 @@ func tableFacts(t *table) string {
 	for _, o := range []struct {
 		name string
 		col  int
-	}{{"key", t.keyCol}, {"name", t.nameCol}, {"weight", t.weightCol}, {"parent", t.parentCol}} {
+	}{{"key", t.keyIndex}, {"name", t.nameIndex}, {"weight", t.weightIndex}, {"parent", t.parentIndex}} {
 		if o.col >= 0 {
 			b.WriteString("\t" + o.name + " " + t.header[o.col])
 		}
