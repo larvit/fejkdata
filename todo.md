@@ -19,10 +19,6 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
-- Rename the shared names left that name two things, per the decision "One name, one
-  meaning": judge each of `check`, `children`, `column`, `columns`, `draw`, `drawn`,
-  `fields`, `format`, `head`, `index`, `key`, `n`, `name`, `named`, `names`, `null`,
-  `number`, `op`, `reads`, `record`, `root`, `row`, `t`, `variant` and `whole`.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data

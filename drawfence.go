@@ -41,10 +41,10 @@ func checkNestedDrawGroup(fields map[string]node, group string) error {
 // docs/decisions.md#a-render-shares-one-reference-draw-per-category-per-group
 // docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
 type drawCheck struct {
-	memo map[readsMemo]bool
+	memo map[hasReadMemo]bool
 }
 
-type readsMemo struct {
+type hasReadMemo struct {
 	n           node
 	stopAtGroup bool
 }
@@ -84,7 +84,7 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func (c *drawCheck) checkRecordDraws(path string, n node) error {
 	t, ok := n.(*template)
-	if !ok || !t.record {
+	if !ok || !t.isRecord {
 		return nil
 	}
 	// A record-only template's format renders nothing, so weigh the columns, not the format.
@@ -104,28 +104,28 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 
 // readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
 // over draws of its own.
-func (c *drawCheck) readsPath(n node) bool { return c.reads(n, false) }
+func (c *drawCheck) readsPath(n node) bool { return c.hasRead(n, false) }
 
 // splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
 // for: one outside a repeat and outside a nested draw group, which hold their own draws.
-func (c *drawCheck) splitsDraws(n node) bool { return c.reads(n, true) }
+func (c *drawCheck) splitsDraws(n node) bool { return c.hasRead(n, true) }
 
-// reads walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
+// hasRead walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
 // draw group when stopAtGroup — since each holds draws of its own.
-func (c *drawCheck) reads(n node, stopAtGroup bool) bool {
-	k := readsMemo{n, stopAtGroup}
+func (c *drawCheck) hasRead(n node, stopAtGroup bool) bool {
+	k := hasReadMemo{n, stopAtGroup}
 	if r, done := c.memo[k]; done {
 		return r
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if readsOnEdge(n, e.label) || (walksInto(e.to, stopAtGroup) && c.reads(e.to, stopAtGroup)) {
+		if readsOnEdge(n, e.label) || (walksInto(e.to, stopAtGroup) && c.hasRead(e.to, stopAtGroup)) {
 			r = true
 			break
 		}
 	}
 	if c.memo == nil {
-		c.memo = map[readsMemo]bool{}
+		c.memo = map[hasReadMemo]bool{}
 	}
 	c.memo[k] = r
 	return r
@@ -191,11 +191,11 @@ type drawWalk struct {
 // table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
 // cells the walk is in.
 type drawAt struct {
-	group string
-	route drawRoute
-	pins  pinSet
-	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
-	whole pinSet
+	group      string
+	route      drawRoute
+	pins       pinSet
+	wholeTable *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
+	wholePins  pinSet
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -239,17 +239,17 @@ func (w *drawWalk) walk(n node, at drawAt) {
 		at.group = t.drawGroupKey
 	}
 	if t, isTable := n.(*table); isTable {
-		at.drawn = t
+		at.wholeTable = t
 	}
 	for _, e := range renderEdges(n) {
 		cell, isCell := e.to.(*template)
 		switch {
 		case !isCell || cell.cellOf == nil:
 			w.edge(n, e, at)
-		case cell.cellOf == at.drawn:
+		case cell.cellOf == at.wholeTable:
 			in := at
-			in.whole = at.whole.clone()
-			in.whole.add(cell.cellOf, cell.cellRow)
+			in.wholePins = at.wholePins.clone()
+			in.wholePins.add(cell.cellOf, cell.cellRow)
 			w.edge(n, e, in)
 		case at.pins.clash(cell.cellOf, cell.cellRow) == nil:
 			in := at
@@ -260,7 +260,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 }
 
 // rowsKey spells the rows the walk stands in, pinned and whole, for a map.
-func (at drawAt) rowsKey() string { return at.pins.key() + "|" + at.whole.key() }
+func (at drawAt) rowsKey() string { return at.pins.mapKey() + "|" + at.wholePins.mapKey() }
 
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.
@@ -293,8 +293,8 @@ func (w *drawWalk) check() error {
 			if into.at.group != level.at.group || alternatives(level.at, into.at) {
 				continue
 			}
-			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.whole) {
-				return overlapError(level.at.route, level.a.name, into)
+			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.landsWhole) {
+				return overlapError(level.at.route, level.a.spelling, into)
 			}
 		}
 	}
@@ -302,7 +302,7 @@ func (w *drawWalk) check() error {
 }
 
 func overlapError(route drawRoute, ref string, into pathRead) error {
-	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.name))
+	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.spelling))
 }
 
 // spelled names the route, and the reference it reaches a draw by where its root edge is not that

@@ -141,13 +141,13 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	}
 	shape := f.recordShapeOf(n)
 	if errors.Is(shape.err, ErrNoColumns) {
-		ns := names(segments)
+		ns := nameSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, shape.err, ns[len(ns)-1], path)
 	}
 	if shape.err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
 	}
-	return renderRecord(f.rand, shape.t, shape.columns, sc), nil
+	return renderRecord(f.rand, shape.template, shape.columns, sc), nil
 }
 
 // tableRecord walks a path's tail from a table to the table whose row is the record,
@@ -161,10 +161,10 @@ func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, err
 	case *table:
 		n.drawIn(s, &sc.hold().pins)
 		return n, nil
-	case *row:
+	case *tableRow:
 		return n.t, nil
-	case *column:
-		return nil, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.columns[n.i])
+	case *tableColumn:
+		return nil, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.header[n.i])
 	}
 	return n, nil
 }
@@ -172,9 +172,9 @@ func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, err
 // recordShape is what recordOf settled about a node: the template to project, its
 // columns, or why it is not a record.
 type recordShape struct {
-	t       *template
-	columns []Column
-	err     error
+	template *template
+	columns  []Column
+	err      error
 }
 
 // recordShapeOf fences a node once and remembers the answer. Callers hold the
@@ -184,7 +184,7 @@ func (f *Generator) recordShapeOf(n node) recordShape {
 		return shape
 	}
 	t, columns, err := recordOf(n)
-	shape := recordShape{t: t, columns: columns, err: err}
+	shape := recordShape{template: t, columns: columns, err: err}
 	if f.records == nil {
 		f.records = map[node]recordShape{}
 	}
@@ -195,9 +195,9 @@ func (f *Generator) recordShapeOf(n node) recordShape {
 // RecordTemplate is an inline record compiled, referenced and validated once,
 // ready to render many times with [RecordTemplate.Fake].
 type RecordTemplate struct {
-	g       *Generator
-	t       *template
-	columns []Column
+	g        *Generator
+	template *template
+	columns  []Column
 }
 
 // Fake renders the record with one draw.
@@ -205,7 +205,7 @@ func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
 	set := eagerHoldSet()
-	return renderRecord(t.g.rand, t.t, t.columns, renderScope{set: &set})
+	return renderRecord(t.g.rand, t.template, t.columns, renderScope{set: &set})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -219,7 +219,7 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: an inline record %w", err)
 	}
-	return &RecordTemplate{g: f, t: tm, columns: columns}, nil
+	return &RecordTemplate{g: f, template: tm, columns: columns}, nil
 }
 
 // FakeRecordTemplate compiles and renders an inline record in one call.
@@ -239,7 +239,7 @@ var ErrNoColumns = errors.New("has no fields, so no columns")
 // the template, fixed for every draw the caller goes on to make.
 func recordOf(n node) (*template, []Column, error) {
 	if tb, isTable := n.(*table); isTable {
-		n = tb.format
+		n = tb.formatTemplate
 	}
 	t, ok := n.(*template)
 	if !ok {
@@ -249,7 +249,7 @@ func recordOf(n node) (*template, []Column, error) {
 	if len(names) == 0 {
 		return nil, nil, ErrNoColumns
 	}
-	if !t.record {
+	if !t.isRecord {
 		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
 	columns := make([]Column, len(names))

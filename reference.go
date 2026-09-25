@@ -136,7 +136,7 @@ func columnReadOf(t *template) *columnRead {
 	}
 	a := splitArm(name, t.refs)
 	target, isTemplate := t.head(a.key).(*template)
-	if !isTemplate || !target.record || len(a.tail) != 1 {
+	if !isTemplate || !target.isRecord || len(a.tail) != 1 {
 		return nil
 	}
 	return &columnRead{a: a, column: target.fields[a.tail[0]]}

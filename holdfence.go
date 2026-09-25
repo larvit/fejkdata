@@ -56,7 +56,7 @@ func heldNodes(t *template, head string, readers []reader) map[node]bool {
 		return held
 	}
 	for _, r := range readers {
-		if a := splitArm(r.name, t.refs); a.key == head {
+		if a := splitArm(r.spelling, t.refs); a.key == head {
 			coverPath(t.head(head), a.tail, held)
 		}
 	}
@@ -181,7 +181,7 @@ func checkNoOverlap(ops []op, bound map[string]string) error {
 	for i, level := range names {
 		for _, path := range names[i+1:] {
 			if strings.HasPrefix(path.path, level.path+".") {
-				return fmt.Errorf("%s renders a level that {%s} reads a path into; name the fields you want instead", level.label, path.name)
+				return fmt.Errorf("%s renders a level that {%s} reads a path into; name the fields you want instead", level.label, path.spelling)
 			}
 		}
 	}
@@ -190,7 +190,7 @@ func checkNoOverlap(ops []op, bound map[string]string) error {
 
 // reader is one way a format reaches a bound field: as written, by its one
 // spelling, and how to name it.
-type reader struct{ name, path, label string }
+type reader struct{ spelling, path, label string }
 
 // boundReaders lists every way a format reaches a bound sibling field, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
@@ -200,12 +200,12 @@ func boundReaders(ops []op, bound map[string]string) []reader {
 	for _, o := range ops {
 		for _, a := range o.operands {
 			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
-				names = append(names, reader{a.name, a.path, fmt.Sprintf("%s operand %q", o.fn, a.name)})
+				names = append(names, reader{a.spelling, a.path, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
 			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
-				names = append(names, reader{a.name, a.path, "token {" + a.name + "}"})
+				names = append(names, reader{a.spelling, a.path, "token {" + a.spelling + "}"})
 			}
 		}
 	}
@@ -224,7 +224,7 @@ func checkNoRepeatedRead(c formatOps) error {
 				continue
 			}
 			if count[a.key]++; count[a.key] > 1 {
-				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.name, c.holder[a.key], a.key, a.name)
+				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.spelling, c.holder[a.key], a.key, a.spelling)
 			}
 		}
 	}

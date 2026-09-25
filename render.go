@@ -58,15 +58,15 @@ func render(s *session, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
 		return render(s, pick(s, n), sc)
-	case *null:
+	case *nullItem:
 		return ""
 	case *table:
-		sc.t, sc.row = n, n.draw(s)
-		return expand(s, n.format, sc)
-	case *row:
+		sc.t, sc.row = n, n.drawRow(s)
+		return expand(s, n.formatTemplate, sc)
+	case *tableRow:
 		sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
-		return expand(s, n.t.format, sc)
-	case *column:
+		return expand(s, n.t.formatTemplate, sc)
+	case *tableColumn:
 		if sc.t != n.t {
 			sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		}

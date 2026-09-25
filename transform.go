@@ -19,7 +19,7 @@ func withTransforms(calls map[string]builtin) map[string]builtin {
 		if _, clash := calls[name]; clash {
 			panic("fejkdata: " + name + " is registered as a builtin and a transform")
 		}
-		calls[name] = builtin{arity: 1, check: transformArg, prep: transformPrep(fn), operands: transformOperand}
+		calls[name] = builtin{arity: 1, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand}
 	}
 	return calls
 }

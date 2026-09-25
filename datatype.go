@@ -89,7 +89,7 @@ func checkColumns(s nodeScope) error {
 	}
 	return s(func(path string, n node) error {
 		t, ok := n.(*template)
-		if !ok || !t.record {
+		if !ok || !t.isRecord {
 			return nil
 		}
 		for _, name := range sortedNames(t.fields) {
@@ -149,7 +149,7 @@ func columnItems(n node) (items []*template, nullable bool) {
 			}
 		case *template:
 			items = append(items, n)
-		case *null:
+		case *nullItem:
 			nullable = true
 		}
 	}

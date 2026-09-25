@@ -17,10 +17,10 @@ type dataSource struct {
 	label  string
 	onDisk bool
 	path   string
-	root   string
+	dir    string
 }
 
-func (s dataSource) name(p string) string {
+func (s dataSource) labelled(p string) string {
 	if s.label == "" {
 		return p
 	}
@@ -49,7 +49,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 				return nil, fmt.Errorf("%s is not a directory", src.path)
 			}
 		}
-		dir := src.root
+		dir := src.dir
 		if dir == "" {
 			dir = "."
 		}
@@ -84,7 +84,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 func loadDir(src dataSource, dir string) (*folder, error) {
 	entries, err := fs.ReadDir(src.fsys, dir)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", src.name(dir), err)
+		return nil, fmt.Errorf("%s: %w", src.labelled(dir), err)
 	}
 	g := &folder{children: map[string]node{}}
 	files := &categoryFiles{src: src, dir: dir, tsv: map[string]bool{}}
@@ -110,7 +110,7 @@ func loadDir(src dataSource, dir string) (*folder, error) {
 	}
 	for name, named := range files.tsv {
 		if !named && !strings.HasPrefix(name, ".") {
-			return nil, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", src.name(path.Join(dir, name)))
+			return nil, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", src.labelled(path.Join(dir, name)))
 		}
 	}
 	return g, nil
@@ -127,12 +127,12 @@ type categoryFiles struct {
 // readRows reads the rows file a category names beside it.
 func (c *categoryFiles) readRows(name string) (string, error) {
 	if _, present := c.tsv[name]; !present {
-		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.name(c.dir))
+		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.labelled(c.dir))
 	}
 	c.tsv[name] = true
 	b, err := fs.ReadFile(c.src.fsys, path.Join(c.dir, name))
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", c.src.name(path.Join(c.dir, name)), err)
+		return "", fmt.Errorf("%s: %w", c.src.labelled(path.Join(c.dir, name)), err)
 	}
 	return string(b), nil
 }
@@ -147,7 +147,7 @@ func loadFolder(src dataSource, g *folder, full, name string) error {
 		return nil
 	}
 	if err := checkName(name); err != nil {
-		return fmt.Errorf("%s: folder %w", src.name(full), err)
+		return fmt.Errorf("%s: folder %w", src.labelled(full), err)
 	}
 	g.children[name] = child
 	return nil
@@ -161,19 +161,19 @@ func loadFile(src dataSource, g *folder, full, file string, files *categoryFiles
 	}
 	name := strings.TrimSuffix(file, ".json")
 	if err := checkName(name); err != nil {
-		return fmt.Errorf("%s: category %w", src.name(full), err)
+		return fmt.Errorf("%s: category %w", src.labelled(full), err)
 	}
 	b, err := fs.ReadFile(src.fsys, full)
 	if err != nil {
-		return fmt.Errorf("%s: %w", src.name(full), err)
+		return fmt.Errorf("%s: %w", src.labelled(full), err)
 	}
 	var raw any
 	if err := json.Unmarshal(b, &raw); err != nil {
-		return fmt.Errorf("%s: %w", src.name(full), err)
+		return fmt.Errorf("%s: %w", src.labelled(full), err)
 	}
 	n, err := compileCategory(raw, name, files)
 	if err != nil {
-		return fmt.Errorf("%s: %w", src.name(full), err)
+		return fmt.Errorf("%s: %w", src.labelled(full), err)
 	}
 	g.children[name] = n
 	return nil

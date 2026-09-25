@@ -10,11 +10,11 @@ import (
 // row pinned, and their unpinned ancestors — each selector's spelling, and whether
 // it lands on a row rendered whole.
 type tableRead struct {
-	head  *table
-	pins  pinSet
-	drawn map[*table]bool
-	sels  []tableSel
-	whole bool
+	headTable  *table
+	pins       pinSet
+	drawn      map[*table]bool
+	sels       []tableSel
+	landsWhole bool
 }
 
 // tableSel is one selector on the way: the table it selects a row of, and the path
@@ -32,9 +32,9 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 	if !isTable {
 		return nil
 	}
-	tr := &tableRead{head: t, drawn: map[*table]bool{}}
+	tr := &tableRead{headTable: t, drawn: map[*table]bool{}}
 	_, _ = walkPath(t, a.tail, pathWalk{mode: walkProbe, pins: &tr.pins, drawn: tr.drawn})
-	written := a.name[:len(a.name)-len(joinSegments(a.tail))]
+	written := a.spelling[:len(a.spelling)-len(joinSegments(a.tail))]
 	cur := t
 	for i, seg := range a.tail {
 		switch d := cur.descendant(seg); {
@@ -44,7 +44,7 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 			cur = d
 		}
 	}
-	_, tr.whole = leaf.(*row)
+	_, tr.landsWhole = leaf.(*tableRow)
 	return tr
 }
 
@@ -91,7 +91,7 @@ func checkFamilies(reads []pathRead) error {
 			continue
 		}
 		for _, o := range reads[:i] {
-			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.head.family() != r.tr.head.family() {
+			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.headTable.family() != r.tr.headTable.family() {
 				continue
 			}
 			if err := checkFamilyPair(o, r); err != nil {
@@ -127,7 +127,7 @@ func replayPairs(reads []pathRead) error {
 }
 
 func conflict(r pathRead, err error) error {
-	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.name), err)
+	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.spelling), err)
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.
@@ -149,19 +149,19 @@ func checkFamilyPair(a, b pathRead) error {
 	for _, pair := range [][2]pathRead{{a, b}, {b, a}} {
 		x, y := pair[0], pair[1]
 		if len(x.a.tail) == 0 && len(y.a.tail) > 0 {
-			return overlapError(x.at.route, x.a.name, y)
+			return overlapError(x.at.route, x.a.spelling, y)
 		}
 		if drawn := x.tr.drawnOf(&y.tr.pins); drawn != nil {
-			if s, ok := y.tr.selected(x.tr.head); ok && len(x.tr.sels) == 0 {
+			if s, ok := y.tr.selected(x.tr.headTable); ok && len(x.tr.sels) == 0 {
 				tail := x.a.tail
-				if s.t != x.tr.head {
-					tail = append([]string{x.tr.head.category}, tail...)
+				if s.t != x.tr.headTable {
+					tail = append([]string{x.tr.headTable.category}, tail...)
 				}
 				return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
-					x.at.route.spelled(x.a.name), drawn.category, y.at.route.spelled(y.a.name), s.spelling, joinSegments(tail))
+					x.at.route.spelled(x.a.spelling), drawn.category, y.at.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
 			}
 			return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
-				x.at.route.spelled(x.a.name), drawn.category, y.at.route.spelled(y.a.name))
+				x.at.route.spelled(x.a.spelling), drawn.category, y.at.route.spelled(y.a.spelling))
 		}
 	}
 	return nil
@@ -219,4 +219,6 @@ func checkOwnFamily(t *template) error {
 // alternatives reports whether two reads sit in different rows of one table: rows the walks pinned,
 // or rows of one whole draw.
 // docs/decisions.md#the-rows-of-a-table-are-alternatives
-func alternatives(a, b drawAt) bool { return a.pins.differs(&b.pins) || a.whole.differs(&b.whole) }
+func alternatives(a, b drawAt) bool {
+	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
+}

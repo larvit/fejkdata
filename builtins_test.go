@@ -194,7 +194,7 @@ func TestRegistryShapes(t *testing.T) {
 		if b.prep == nil {
 			t.Errorf("builtin %q has no prep: compileOps would call a nil func", name)
 		}
-		if b.arity != 0 && b.check == nil {
+		if b.arity != 0 && b.checkArgs == nil {
 			t.Errorf("builtin %q parses args in prep with no check", name)
 		}
 	}

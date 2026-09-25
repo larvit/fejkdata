@@ -650,8 +650,8 @@ import drops them by name rather than by a rank a regeneration would move.
 the set of every descent through a chain of five tables is every subsequence of it, and
 the direct chain is the one a reader can predict from the tables' parents.
 
-## Each entry point to `drawCheck.reads` says what its caller gets
+## Each entry point to `drawCheck.hasRead` says what its caller gets
 
 2026-09-25, larv-review; approved 2026-09-25 by lilleman. Goal 2: a reader lands on
 `readsPath` or `splitsDraws` from its caller, so each doc states where that walk stops,
-though `reads` states the same stop rule. Valid while the two differ in where they stop.
+though `hasRead` states the same stop rule. Valid while the two differ in where they stop.

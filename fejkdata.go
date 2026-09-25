@@ -99,7 +99,7 @@ func New(opts ...Option) (*Generator, error) {
 	}
 	var sources []dataSource
 	if c.shipped {
-		sources = append(sources, dataSource{fsys: shippedFS, root: "data"})
+		sources = append(sources, dataSource{fsys: shippedFS, dir: "data"})
 	}
 	sources = append(sources, c.sources...)
 	if len(sources) == 0 {
@@ -151,11 +151,11 @@ func paths(n node) []string {
 			}
 		}
 		return out
-	case *null:
+	case *nullItem:
 		return []string{""}
 	case *table:
 		return tablePaths(n)
-	case *column, *row:
+	case *tableColumn, *tableRow:
 		return []string{""}
 	case *choice:
 		out := []string{""}
@@ -170,7 +170,7 @@ func paths(n node) []string {
 // tablePaths is a table's columns, then each table linked to it under its name: the
 // direct descents, a step at a time.
 func tablePaths(t *table) []string {
-	out := append([]string{""}, t.columns...)
+	out := append([]string{""}, t.header...)
 	sort.Strings(out[1:])
 	children := make([]string, 0, len(t.children))
 	for name := range t.children {

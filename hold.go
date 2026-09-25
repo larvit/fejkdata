@@ -29,7 +29,7 @@ type draw struct {
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw {
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
-			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.name, a.key))
+			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
 		}
 		return draw{text: render(s, t.head(a.key), sc)}
 	}
@@ -58,8 +58,8 @@ func readHold(held *hold, sc renderScope, a arm) *hold {
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
 // reference alone whose read drew null.
 func renderLeaf(s *session, n node, sc renderScope) draw {
-	n = drawn(s, n)
-	if _, isNull := n.(*null); isNull {
+	n = resolveChoice(s, n)
+	if _, isNull := n.(*nullItem); isNull {
 		return draw{null: true}
 	}
 	r := draw{text: render(s, n, sc)}
@@ -69,10 +69,10 @@ func renderLeaf(s *session, n node, sc renderScope) draw {
 	return r
 }
 
-// drawn resolves a choice to one variant, so a bound head is a concrete node the
+// resolveChoice resolves a choice to one variant, so a bound head is a concrete node the
 // rest of the expansion shares. Nested choices unwrap too: a draw is one value, not
 // another set to pick from.
-func drawn(s *session, n node) node {
+func resolveChoice(s *session, n node) node {
 	for c, ok := n.(*choice); ok; c, ok = n.(*choice) {
 		n = pick(s, c)
 	}

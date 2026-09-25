@@ -19,8 +19,8 @@ type calcVar string  // a sibling-field name, before indexVars places it
 type calcIdx int     // an operand, by its position in the values expand read
 type calcNeg struct{ x calcNode }
 type calcBin struct { // a + - * / b
-	op   byte
-	l, r calcNode
+	operator byte
+	l, r     calcNode
 }
 
 func (n calcNum) eval([]string) float64 { return float64(n) }
@@ -45,7 +45,7 @@ func (n calcNeg) eval(operands []string) float64 { return -n.x.eval(operands) }
 
 func (n calcBin) eval(operands []string) float64 {
 	l, r := n.l.eval(operands), n.r.eval(operands)
-	switch n.op {
+	switch n.operator {
 	case '+':
 		return l + r
 	case '-':
@@ -100,7 +100,7 @@ func constantZeroDivisor(n calcNode, fields map[string]node) (string, bool) {
 	case calcNeg:
 		return constantZeroDivisor(n.x, fields)
 	case calcBin:
-		if n.op == '/' {
+		if n.operator == '/' {
 			if v, known := constantValue(n.r, fields); known && v == 0 {
 				return calcText(n.r), true
 			}
@@ -134,7 +134,7 @@ func constantValue(n calcNode, fields map[string]node) (float64, bool) {
 		if !lok || !rok {
 			return 0, false
 		}
-		return calcBin{n.op, calcNum(l), calcNum(r)}.eval(nil), true
+		return calcBin{n.operator, calcNum(l), calcNum(r)}.eval(nil), true
 	}
 	return 0, false
 }
@@ -149,7 +149,7 @@ func calcText(n calcNode) string {
 	case calcNeg:
 		return "-" + calcText(n.x)
 	case calcBin:
-		return "(" + calcText(n.l) + " " + string(n.op) + " " + calcText(n.r) + ")"
+		return "(" + calcText(n.l) + " " + string(n.operator) + " " + calcText(n.r) + ")"
 	}
 	return "?"
 }
@@ -158,7 +158,7 @@ func calcText(n calcNode) string {
 // does not parse, or a choice of only such items. text is one such render.
 func neverNumeric(n node) (text string, never bool) {
 	switch n := n.(type) {
-	case *null:
+	case *nullItem:
 		return "", true
 	case *template:
 		if !n.fixed || n.repeat > 1 {
@@ -220,7 +220,7 @@ func indexVars(n calcNode, at map[string]int) calcNode {
 	case calcNeg:
 		return calcNeg{indexVars(n.x, at)}
 	case calcBin:
-		return calcBin{n.op, indexVars(n.l, at), indexVars(n.r, at)}
+		return calcBin{n.operator, indexVars(n.l, at), indexVars(n.r, at)}
 	}
 	return n
 }
