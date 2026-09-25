@@ -63,7 +63,7 @@ func TestDrawPathPanicsOnAnUnprovedPath(t *testing.T) {
 			t.Errorf("drawPath(plain, f) recovered %v, want a panic naming the path and the missing field", r)
 		}
 	}()
-	drawPath(compiled(t, `"plain"`), []string{"f"}, "plain.f", &pinSet{}, &pathDraws{s: engine(1).rand})
+	drawPath(compiled(t, `"plain"`), []string{"f"}, "plain", &pinSet{}, &pathDraws{s: engine(1).rand})
 }
 
 func TestDeepDottedPath(t *testing.T) {
