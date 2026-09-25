@@ -218,7 +218,7 @@ func checkScope(s nodeScope) error {
 // the walk. Its walks terminate only where nothing renders itself, so run it over a
 // loaded tree after checkNoCycles.
 func checkRenders(s nodeScope) error {
-	mem := reachMemo{}
+	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err
 	}

@@ -123,19 +123,19 @@ func (sc *structCompile) spend(label string) error {
 	return fmt.Errorf(`%s: the struct fields reach more than %d structs; leave a struct field unfilled with fake:"-"`, label, maxStructs)
 }
 
-// gatherFields gathers the fields of struct type t, which sits at index within c.t.
+// t sits at index within c.t.
 func (c *structFields) gatherFields(t reflect.Type, index []int) error {
 	for i := 0; i < t.NumField(); i++ {
 		sf := t.Field(i)
 		sf.Index = append(index[:len(index):len(index)], i)
-		if err := c.addField(sf); err != nil {
+		if err := c.gatherField(sf); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *structFields) addField(sf reflect.StructField) error {
+func (c *structFields) gatherField(sf reflect.StructField) error {
 	tag, tagged := sf.Tag.Lookup("fake")
 	elem := structOf(sf.Type)
 	switch {
