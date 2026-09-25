@@ -169,9 +169,9 @@ func pathLeaves(n node, tail []string) []node {
 	return out
 }
 
-type reachMemo map[node]int
+type renderCounts map[node]int
 
-func (m reachMemo) renderCount(n node) int {
+func (m renderCounts) renderCount(n node) int {
 	if r, done := m[n]; done {
 		return r
 	}
@@ -191,7 +191,7 @@ func (m reachMemo) renderCount(n node) int {
 // repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
 // path, so nested repeats cannot build what one repeat may not.
 // docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
-func repeatCheck(path string, n node, mem reachMemo) error {
+func repeatCheck(path string, n node, mem renderCounts) error {
 	if t, ok := n.(*template); ok && t.repeat > 1 && mem.renderCount(n) > MaxRepeat {
 		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.renderCount(n), MaxRepeat)
 	}
