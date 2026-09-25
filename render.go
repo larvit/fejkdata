@@ -70,7 +70,7 @@ func render(s *session, n node, sc renderScope) string {
 		if sc.t != n.t {
 			sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		}
-		if cell := n.t.cellNode(sc.row, n.i); cell != nil {
+		if cell := n.t.cellTemplate(sc.row, n.i); cell != nil {
 			return render(s, cell, sc)
 		}
 		return n.t.cell(sc.row, n.i)

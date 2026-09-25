@@ -219,4 +219,4 @@ func checkOwnFamily(t *template) error {
 // alternatives reports whether two reads sit in different rows of one table: rows the walks pinned,
 // or rows of one whole draw.
 // docs/decisions.md#the-rows-of-a-table-are-alternatives
-func alternatives(a, b drawAt) bool { return a.pinned.differs(&b.pinned) || a.whole.differs(&b.whole) }
+func alternatives(a, b drawAt) bool { return a.pins.differs(&b.pins) || a.whole.differs(&b.whole) }

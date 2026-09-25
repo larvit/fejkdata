@@ -191,11 +191,11 @@ type drawWalk struct {
 // table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
 // cells the walk is in.
 type drawAt struct {
-	group  string
-	route  drawRoute
-	pinned pinSet
-	drawn  *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
-	whole  pinSet
+	group string
+	route drawRoute
+	pins  pinSet
+	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
+	whole pinSet
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -209,15 +209,15 @@ type pathRead struct {
 }
 
 type nodeVisit struct {
-	n     node
-	group string
-	rows  string
+	n       node
+	group   string
+	rowsKey string
 }
 
 type readKey struct {
-	group string
-	path  string
-	rows  string
+	group   string
+	path    string
+	rowsKey string
 }
 
 func newDrawWalk() *drawWalk {
@@ -251,16 +251,16 @@ func (w *drawWalk) walk(n node, at drawAt) {
 			in.whole = at.whole.clone()
 			in.whole.add(cell.cellOf, cell.cellRow)
 			w.edge(n, e, in)
-		case at.pinned.clash(cell.cellOf, cell.cellRow) == nil:
+		case at.pins.clash(cell.cellOf, cell.cellRow) == nil:
 			in := at
-			in.pinned = at.pinned.entered(cell.cellOf, cell.cellRow)
+			in.pins = at.pins.entered(cell.cellOf, cell.cellRow)
 			w.edge(n, e, in)
 		}
 	}
 }
 
 // rowsKey spells the rows the walk stands in, pinned and whole, for a map.
-func (at drawAt) rowsKey() string { return at.pinned.key() + "|" + at.whole.key() }
+func (at drawAt) rowsKey() string { return at.pins.key() + "|" + at.whole.key() }
 
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.
@@ -272,7 +272,7 @@ func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.pinned = at.pinned.entered(t, r) })
+			tr.pins.each(func(t *table, r int) { at.pins = at.pins.entered(t, r) })
 		}
 	}
 	w.walk(e.to, at)

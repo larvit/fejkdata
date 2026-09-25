@@ -996,11 +996,11 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 				for cr := 0; cr < cand.rows(); cr++ {
 					beside := s.clone()
 					refused := beside.pinRow(cand, cr) != nil
-					pinned := drawAt{pinned: none.entered(cand, cr)}
-					if got := alternatives(drawAt{pinned: s}, pinned); got != refused {
+					candAt := drawAt{pins: none.entered(cand, cr)}
+					if got := alternatives(drawAt{pins: s}, candAt); got != refused {
 						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}
-					if alternatives(whole, pinned) || alternatives(pinned, whole) {
+					if alternatives(whole, candAt) || alternatives(candAt, whole) {
 						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
 					}
 					other := drawAt{drawn: cand}

@@ -62,9 +62,9 @@ func (t *table) rows() int { return len(t.cells) / len(t.columns) }
 
 func (t *table) cell(row, col int) string { return t.cells[row*len(t.columns)+col] }
 
-// cellNode is what a cell renders: its compiled template where it carries tokens,
+// cellTemplate is what a cell renders: its compiled template where it carries tokens,
 // else nil for its text.
-func (t *table) cellNode(row, col int) *template { return t.cellTemplates[row*len(t.columns)+col] }
+func (t *table) cellTemplate(row, col int) *template { return t.cellTemplates[row*len(t.columns)+col] }
 
 // tableOptions are the keys a table object takes; every other key is refused.
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}

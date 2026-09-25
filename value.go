@@ -103,7 +103,7 @@ func (p *valueProof) cells(c *column) proven {
 	var v proven
 	for r := 0; r < c.t.rows(); r++ {
 		var w proven
-		if cell := c.t.cellNode(r, c.i); cell != nil {
+		if cell := c.t.cellTemplate(r, c.i); cell != nil {
 			w = p.of(cell)
 		} else {
 			w = literalValue(c.t.cell(r, c.i))
