@@ -307,13 +307,16 @@ writes as the load check proved it; a `Value any` would hand every caller a type
 Goal 2 wants a name to reach one unit, so a unit takes the stem of what it is, and a
 file the stem of the units it holds.
 
-## A function may not spell a method; two types may
+## One name, one meaning
 
-A call writes a method with its receiver and a function bare, so one name on both greps
-as one unit, which is the reaching cost goal 2 counts, while the receiver before a
-shared method name says which type answers. `TestNoFunctionSpellsAMethod` holds it. A
-type is outside the rule: `renderScope.hold` answers with a `*hold`, so the two spell
-one unit, which no test can judge.
+Two declarations of any kind — function, method, field, type — share a name only where
+they name one thing: an interface's method, `Fake` on each template kind, a field
+holding what a same-named method returns, `renderScope.hold` answering with a `*hold`.
+A bare function never shares a name with a method, since grep cannot tell a bare call
+from a method's; `TestNoFunctionSpellsAMethod` holds that, and review judges the rest,
+which is meaning no test can see. Serves goal 2: names that tell the truth, and reaching
+the unit behind a symptom without asking a person. Decided 2026-09-25 by Lilleman; valid
+while goal 2 counts reading cost.
 
 ## The package stays flat
 

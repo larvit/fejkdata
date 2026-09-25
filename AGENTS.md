@@ -64,7 +64,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A typed column's calc is refused unless proven
 - `Column` carries text, not a Go value
 - `hold` names what a draw is kept in, `draw` the draw itself
-- A function may not spell a method; two types may
+- One name, one meaning
 - The package stays flat
 - The performance gate asserts allocations, not wall-clock time
 - Rows live in a TSV, the shape in JSON
