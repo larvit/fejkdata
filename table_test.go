@@ -983,7 +983,8 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	var none pinSet
 	for _, entered := range tables {
 		for row := 0; row < entered.rows(); row++ {
-			whole := drawAt{drawn: entered, whole: tablePin{entered, row}}
+			whole := drawAt{drawn: entered}
+			whole.whole.add(entered, row)
 			s := none.entered(entered, row)
 			for _, cand := range tables {
 				for i := 0; i < 20; i++ {
@@ -1002,7 +1003,8 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 					if alternatives(whole, pinned) || alternatives(pinned, whole) {
 						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
 					}
-					other := drawAt{drawn: cand, whole: tablePin{cand, cr}}
+					other := drawAt{drawn: cand}
+					other.whole.add(cand, cr)
 					if want := cand == entered && cr != row; alternatives(whole, other) != want {
 						t.Errorf("alternatives(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), !want, want)
 					}
@@ -1033,6 +1035,8 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		"municipality.locality[L4].name",
 		"region",
 		"region.municipality.name",
+		"region.locality.name",
+		"region[12].locality.code",
 		"region[12].municipality.locality.code",
 		"region[12].name",
 	} {
@@ -1093,5 +1097,15 @@ func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
 	})
 	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.Contains(err.Error(), "reads a path into") {
 		t.Fatalf("New = %v, want the two drawn rows held to one draw of addr", err)
+	}
+	nested := with(whole, map[string]string{
+		"municipality.tsv": "code\tname\tregion\tpopulation\tnote\n0180\tStockholm\t01\t980000\t-\n0184\tSolna\t01\t85000\t-\n1280\tMalmö\t12\t360000\t{/shop}\n1281\tLund\t12\t130000\t{/addr.city}\n1480\tGöteborg\t14\t590000\t-\n",
+		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t-\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
+		"shop.json":        `{"format":"{name}={note}","rows":"shop.tsv","key":"code","name":"name"}`,
+		"shop.tsv":         "code\tname\tnote\nS1\tKiosk\t{/addr}\nS2\tBod\t-\n",
+		"x.json":           `"{/municipality}"`,
+	})
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, nested)), WithSeed(1)); err != nil {
+		t.Fatalf("New = %v, want 1280's shop and 1281's city kept apart, one draw of municipality rendering one of them", err)
 	}
 }
