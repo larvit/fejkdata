@@ -45,10 +45,10 @@ func (f *Generator) Fake(path string) (string, error) {
 func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
 	// Walked once without drawing first, so a path that fails moves no seeded stream.
 	var probe pinSet
-	if _, err := walkPath(root, segments, pathWalk{pins: &probe}); err != nil {
+	if _, err := walkPath(root, segments, pathWalk{mode: walkProbe, pins: &probe}); err != nil {
 		return nil, err
 	}
-	return walkPath(root, segments, pathWalk{pins: &sc.hold().pins, draws: &pathDraws{s: s}})
+	return drawPath(root, segments, &sc.hold().pins, &pathDraws{s: s}), nil
 }
 
 // render evaluates a compiled node to a string. compile validates every node up

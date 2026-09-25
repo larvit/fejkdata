@@ -100,10 +100,7 @@ func operandReader(t *template, head string) string {
 // coverPath collects what holding one path pins: every choice level the path
 // passes through, whole, and the leaf it renders.
 func coverPath(n node, tail []string, into map[node]bool) {
-	_, _ = walkPath(n, tail, pathWalk{
-		choice: func(c *choice, _ []string) ([]node, error) { cover(c, into, false); return nil, nil },
-		leaf:   func(n node) error { cover(n, into, false); return nil },
-	})
+	_, _ = walkPath(n, tail, pathWalk{mode: walkCover, leaf: func(n node) error { cover(n, into, false); return nil }})
 }
 
 // cover collects a level and everything contained in it. A fixed string outside a

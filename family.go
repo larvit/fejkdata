@@ -33,7 +33,7 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 		return nil
 	}
 	tr := &tableRead{head: t, drawn: map[*table]bool{}}
-	_, _ = walkPath(t, a.tail, pathWalk{pins: &tr.pins})
+	_, _ = walkPath(t, a.tail, pathWalk{mode: walkProbe, pins: &tr.pins})
 	written := a.name[:len(a.name)-len(joinSegments(a.tail))]
 	cur := t
 	tr.draws(cur)
