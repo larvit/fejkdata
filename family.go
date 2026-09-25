@@ -33,31 +33,19 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 		return nil
 	}
 	tr := &tableRead{head: t, drawn: map[*table]bool{}}
-	_, _ = walkPath(t, a.tail, pathWalk{mode: walkProbe, pins: &tr.pins})
+	_, _ = walkPath(t, a.tail, pathWalk{mode: walkProbe, pins: &tr.pins, drawn: tr.drawn})
 	written := a.name[:len(a.name)-len(joinSegments(a.tail))]
 	cur := t
-	tr.draws(cur)
 	for i, seg := range a.tail {
 		switch d := cur.descendant(seg); {
 		case isSelector(seg):
 			tr.sels = append(tr.sels, tableSel{cur, written + joinSegments(a.tail[:i+1])})
 		case d != nil:
 			cur = d
-			tr.draws(cur)
 		}
 	}
 	_, tr.whole = leaf.(*row)
 	return tr
-}
-
-// draws marks t and its ancestors drawn, up to the first the read pins.
-func (r *tableRead) draws(t *table) {
-	for ; t != nil; t = t.parentT {
-		if _, pinned := r.pins.pinned(t); pinned {
-			return
-		}
-		r.drawn[t] = true
-	}
 }
 
 // joinSegments spells segments as a path: a selector attaches to the name before it.
@@ -228,10 +216,13 @@ func checkOwnFamily(t *template) error {
 	return nil
 }
 
-// alternatives reports whether two reads sit in different rows of one table. Not clash: a row drawn
-// whole is held without its ancestors, since the render draws it over the whole table.
+// alternatives reports whether two reads sit in different rows of one table: rows the walks pinned,
+// or rows of one whole draw.
 // docs/decisions.md#the-rows-of-a-table-are-alternatives
 func alternatives(a, b drawAt) bool {
+	if a.whole.t != nil && a.whole.t == b.whole.t && a.whole.row != b.whole.row {
+		return true
+	}
 	found := false
 	a.alt.each(func(t *table, r int) {
 		if br, in := b.alt.pinned(t); in && br != r {
