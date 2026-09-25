@@ -68,7 +68,7 @@ func contained(n node) []namedNode {
 		}
 		var out []namedNode
 		for r := 0; r < n.t.rows(); r++ {
-			if cell := n.t.cellNode(r, n.i); cell != nil {
+			if cell := n.t.cellTemplate(r, n.i); cell != nil {
 				out = append(out, namedNode{node: cell})
 			}
 		}

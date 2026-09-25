@@ -19,6 +19,9 @@ Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
 
 This round, in order:
 
+- Hold only the `{token}` grammar's tests in `format_test.go`: move the helpers seven
+  other test files use (`engine`, `parse`, `compiled`, `mustRender`) and the weight,
+  recursion and path-navigation tests to files named for what they test.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
