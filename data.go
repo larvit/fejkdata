@@ -10,7 +10,7 @@ import (
 )
 
 // dataSource is one tree to load: an fs.FS and the directory in it to start from.
-// label prefixes file names in errors; onDisk marks path as a directory that must
+// label prefixes file names in errors; onDisk marks diskPath as a directory that must
 // exist.
 type dataSource struct {
 	fsys     fs.FS
