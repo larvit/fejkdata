@@ -179,14 +179,14 @@ type drawWalk struct {
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
-// table rows it pinned, the table a whole read draws a row of, and the row of it whose cells the
-// walk is in.
+// table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
+// cells the walk is in.
 type drawAt struct {
 	group string
 	route drawRoute
 	alt   pinSet
 	drawn *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
-	whole tablePin
+	whole pinSet
 }
 
 // drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
@@ -239,7 +239,8 @@ func (w *drawWalk) walk(n node, at drawAt) {
 			w.edge(n, e, at)
 		case cell.cellOf == at.drawn:
 			in := at
-			in.whole = tablePin{cell.cellOf, cell.cellRow}
+			in.whole = at.whole.clone()
+			in.whole.add(cell.cellOf, cell.cellRow)
 			w.edge(n, e, in)
 		case at.alt.clash(cell.cellOf, cell.cellRow) == nil:
 			in := at
@@ -250,12 +251,7 @@ func (w *drawWalk) walk(n node, at drawAt) {
 }
 
 // rowsKey spells the rows the walk stands in, pinned and whole, for a map.
-func (at drawAt) rowsKey() string {
-	if at.whole.t == nil {
-		return at.alt.key()
-	}
-	return fmt.Sprintf("%s%p{%d}", at.alt.key(), at.whole.t, at.whole.row)
-}
+func (at drawAt) rowsKey() string { return at.alt.key() + "|" + at.whole.key() }
 
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.

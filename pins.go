@@ -153,6 +153,17 @@ func (p pinSet) entered(t *table, r int) pinSet {
 	return p
 }
 
+// differs reports whether p and q hold different rows of one table.
+func (p *pinSet) differs(q *pinSet) bool {
+	found := false
+	p.each(func(t *table, r int) {
+		if qr, in := q.pinned(t); in && qr != r {
+			found = true
+		}
+	})
+	return found
+}
+
 // key spells the set for a map, by the tables' identities in path order.
 func (p *pinSet) key() string {
 	var pins []tablePin
