@@ -44,8 +44,8 @@ func shippedShape(f *Generator) string {
 		case *choice:
 			facts[prefix] = readsFact(n)
 		case *table:
-			facts[prefix] = "\tformat " + strconv.Quote(n.format.format) + tableFacts(n) + readsFact(n)
-			for _, name := range n.columns {
+			facts[prefix] = "\tformat " + strconv.Quote(n.formatTemplate.format) + tableFacts(n) + readsFact(n)
+			for _, name := range n.header {
 				facts[join(prefix, name)] = "\tstring"
 			}
 		case *template:
@@ -77,9 +77,9 @@ func tableFacts(t *table) string {
 	for _, o := range []struct {
 		name string
 		col  int
-	}{{"key", t.key}, {"name", t.name}, {"weight", t.weight}, {"parent", t.parent}} {
+	}{{"key", t.keyCol}, {"name", t.nameCol}, {"weight", t.weightCol}, {"parent", t.parentCol}} {
 		if o.col >= 0 {
-			b.WriteString("\t" + o.name + " " + t.columns[o.col])
+			b.WriteString("\t" + o.name + " " + t.header[o.col])
 		}
 	}
 	return b.String()
@@ -96,7 +96,7 @@ func readsFact(n node) string {
 				collect(it)
 			}
 		case *table:
-			collect(n.format)
+			collect(n.formatTemplate)
 			for _, cell := range n.cellTemplates {
 				collect(cell)
 			}

@@ -33,10 +33,10 @@ type choice struct {
 
 func (*choice) isNode() {}
 
-// null is a column's missing value, rendered ""; sized so two nulls are two map keys.
-type null struct{ _ byte }
+// nullItem is a column's missing value, rendered ""; sized so two nulls are two map keys.
+type nullItem struct{ _ byte }
 
-func (*null) isNode() {}
+func (*nullItem) isNode() {}
 
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
@@ -52,7 +52,7 @@ type template struct {
 	datatype   DataType
 	drawGroup  string // the draw group it draws in, as written; "" keeps its caller's
 	fromString bool   // written as a JSON string rather than an object
-	record     bool   // compiled at the top without a repeat, so its fields are record columns
+	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
 	table      *table // the table whose format this is, whose columns are the fields
 
 	// Filled by `checkCells`, after the cell's own format has compiled:
@@ -185,7 +185,7 @@ func compileItem(v any, pos position) (node, error) {
 		if pos != inColumn {
 			return nil, fmt.Errorf(`null is a record column's value; here it only renders "", so write ""`)
 		}
-		return &null{}, nil
+		return &nullItem{}, nil
 	default:
 		return nil, fmt.Errorf("a template value must be a string, a list or an object, not %s", jsonKind(v))
 	}
@@ -340,7 +340,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err := checkNestedDrawGroup(fields, o.group); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, record: fieldPos == inColumn}
+	t := &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn}
 	if err := t.compileRefFree(); err != nil {
 		return nil, err
 	}
@@ -526,7 +526,7 @@ func checkPathNames(path string) error {
 	if err != nil {
 		return err
 	}
-	for _, seg := range names(segs) {
+	for _, seg := range nameSegments(segs) {
 		if err := checkName(seg); err != nil {
 			return fmt.Errorf("path %w", err)
 		}

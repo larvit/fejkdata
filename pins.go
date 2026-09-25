@@ -15,12 +15,12 @@ type tablePin struct {
 // pinSet is the table rows fixed so far.
 type pinSet struct {
 	inline [8]tablePin // sized so a render over a country's five-deep geo tree stays off the heap
-	n      int
+	used   int
 	spill  map[*table]int
 }
 
 func (p *pinSet) pinned(t *table) (int, bool) {
-	for _, q := range p.inline[:p.n] {
+	for _, q := range p.inline[:p.used] {
 		if q.t == t {
 			return q.row, true
 		}
@@ -39,9 +39,9 @@ func (p *pinSet) mustRow(t *table) int {
 }
 
 func (p *pinSet) add(t *table, r int) {
-	if p.n < len(p.inline) {
-		p.inline[p.n] = tablePin{t, r}
-		p.n++
+	if p.used < len(p.inline) {
+		p.inline[p.used] = tablePin{t, r}
+		p.used++
 		return
 	}
 	if p.spill == nil {
@@ -73,7 +73,7 @@ func (p *pinSet) nearestPinned(t *table) *table {
 
 // each calls fn for every pinned row, in pin order, the spilled ones by path.
 func (p *pinSet) each(fn func(t *table, r int)) {
-	for _, q := range p.inline[:p.n] {
+	for _, q := range p.inline[:p.used] {
 		fn(q.t, q.row)
 	}
 	spilled := make([]*table, 0, len(p.spill))
@@ -164,8 +164,8 @@ func (p *pinSet) differs(q *pinSet) bool {
 	return found
 }
 
-// key spells the set for a map, by the tables' identities in path order.
-func (p *pinSet) key() string {
+// mapKey spells the set for a map, by the tables' identities in path order.
+func (p *pinSet) mapKey() string {
 	var pins []tablePin
 	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
 	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })

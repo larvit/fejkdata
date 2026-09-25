@@ -51,7 +51,7 @@ type namedNode struct {
 func contained(n node) []namedNode {
 	switch n := n.(type) {
 	case *folder:
-		return named(n.children)
+		return namedNodes(n.children)
 	case *choice:
 		out := make([]namedNode, len(n.items))
 		for i, it := range n.items {
@@ -59,10 +59,10 @@ func contained(n node) []namedNode {
 		}
 		return out
 	case *template:
-		return named(n.fields)
+		return namedNodes(n.fields)
 	case *table:
-		return append([]namedNode{{node: n.format}}, named(n.fields)...)
-	case *column:
+		return append([]namedNode{{node: n.formatTemplate}}, namedNodes(n.fields)...)
+	case *tableColumn:
 		if len(n.t.cellTemplates) == 0 {
 			return nil
 		}
@@ -78,7 +78,7 @@ func contained(n node) []namedNode {
 	}
 }
 
-func named(m map[string]node) []namedNode {
+func namedNodes(m map[string]node) []namedNode {
 	out := make([]namedNode, 0, len(m))
 	for _, name := range sortedNames(m) {
 		out = append(out, namedNode{name: name, node: m[name]})
@@ -133,7 +133,7 @@ func renderEdges(n node) []renderEdge {
 				return
 			}
 			for _, leaf := range pathLeaves(c, a.tail) {
-				es = append(es, renderEdge{leaf, a.name, operand})
+				es = append(es, renderEdge{leaf, a.spelling, operand})
 			}
 		}
 		for _, o := range n.ops {
@@ -146,13 +146,13 @@ func renderEdges(n node) []renderEdge {
 		}
 		return es
 	case *table:
-		return []renderEdge{{to: n.format, label: "format"}}
-	case *row:
-		return []renderEdge{{to: n.t.format, label: "format"}}
-	case *column:
+		return []renderEdge{{to: n.formatTemplate, label: "format"}}
+	case *tableRow:
+		return []renderEdge{{to: n.t.formatTemplate, label: "format"}}
+	case *tableColumn:
 		var es []renderEdge
 		for _, c := range contained(n) {
-			es = append(es, renderEdge{to: c.node, label: n.t.columns[n.i]})
+			es = append(es, renderEdge{to: c.node, label: n.t.header[n.i]})
 		}
 		return es
 	default:

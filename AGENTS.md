@@ -110,4 +110,4 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish ids draw Skatteverket's test series
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
-- Each entry point to `drawCheck.reads` says what its caller gets
+- Each entry point to `drawCheck.hasRead` says what its caller gets

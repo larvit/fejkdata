@@ -17,13 +17,13 @@ type proven struct {
 	integral   bool
 	notOperand string // why some render reads as no finite number, the way calc reads it
 	not        [len(dataTypeNames)]string
-	null       bool // some draw of a column is null
+	nullable   bool // some draw of a column is null
 }
 
 // valueProof proves what typed columns and their calc operands hold, each node once per scope.
 type valueProof struct {
-	memo    map[node]proven
-	columns map[node]proven
+	memo       map[node]proven
+	columnMemo map[node]proven
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
@@ -54,11 +54,11 @@ func (p *valueProof) proveColumnItem(t *template) proven {
 // proveColumn proves a column over what its items draw, a null item marking it null rather than
 // rendering "".
 func (p *valueProof) proveColumn(n node) proven {
-	if v, done := p.columns[n]; done {
+	if v, done := p.columnMemo[n]; done {
 		return v
 	}
-	if p.columns == nil {
-		p.columns = map[node]proven{}
+	if p.columnMemo == nil {
+		p.columnMemo = map[node]proven{}
 	}
 	items, nullable := columnItems(n)
 	var v proven
@@ -69,8 +69,8 @@ func (p *valueProof) proveColumn(n node) proven {
 			v = v.or(w)
 		}
 	}
-	v.null = v.null || nullable
-	p.columns[n] = v
+	v.nullable = v.nullable || nullable
+	p.columnMemo[n] = v
 	return v
 }
 
@@ -87,10 +87,10 @@ func (p *valueProof) prove(n node) proven {
 		v = p.proveUnion(n.items)
 	case *template:
 		v = p.proveTemplate(n)
-	case *column:
+	case *tableColumn:
 		v = p.proveCells(n)
-	case *row:
-		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.format.format, n.t.category))
+	case *tableRow:
+		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.category))
 	default:
 		v = unproven(`it reads a null, which renders "" outside its own column`)
 	}
@@ -99,7 +99,7 @@ func (p *valueProof) prove(n node) proven {
 }
 
 // proveCells proves a table column over every cell it may render.
-func (p *valueProof) proveCells(c *column) proven {
+func (p *valueProof) proveCells(c *tableColumn) proven {
 	var v proven
 	for r := 0; r < c.t.rowCount(); r++ {
 		var w proven
@@ -128,7 +128,7 @@ func (p *valueProof) proveUnion(nodes []node) proven {
 // or is what a proof knows of a render that is either v or w.
 func (v proven) or(w proven) proven {
 	v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
-	v.integral, v.null = v.integral && w.integral, v.null || w.null
+	v.integral, v.nullable = v.integral && w.integral, v.nullable || w.nullable
 	if v.notOperand == "" {
 		v.notOperand = w.notOperand
 	}
@@ -164,8 +164,8 @@ func (p *valueProof) proveTemplate(t *template) proven {
 		return p.proveUnion(leaves)
 	case name == "calc":
 		return p.proveCalc(t, body, args)
-	case builtins[name].number != nil:
-		return builtins[name].number(body, builtins[name].prints, args)
+	case builtins[name].proveNumber != nil:
+		return builtins[name].proveNumber(body, builtins[name].prints, args)
 	case isTransform:
 		return unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
 	}
@@ -225,7 +225,7 @@ func (p *valueProof) proveExpr(n calcNode, fields map[string]node) (proven, stri
 func combine(n calcBin, l, r proven) (proven, string) {
 	var v proven
 	integral := l.integral && r.integral
-	switch n.op {
+	switch n.operator {
 	case '+':
 		v = bounded(l.lo+r.lo, l.hi+r.hi, integral)
 	case '-':
@@ -295,7 +295,7 @@ var typedCalls, operandCalls = numberCalls(false), numberCalls(true)
 func numberCalls(text bool) string {
 	var calls []string
 	for name, b := range builtins {
-		if b.number != nil && (text || b.prints != DataTypeString) {
+		if b.proveNumber != nil && (text || b.prints != DataTypeString) {
 			calls = append(calls, "{"+name+"()}")
 		}
 	}

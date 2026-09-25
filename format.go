@@ -109,19 +109,19 @@ func parseFormat(format string) ([]formatToken, error) {
 // the values of the operands it named (calc and the transforms name them). All must
 // stay pure over (rng, emitted, args) so seeded output is reproducible; seq advances
 // per-session counter state, which is itself deterministic. arity is the exact arg
-// count, or -1 for variadic (then check does all the validation).
+// count, or -1 for variadic (then checkArgs does all the validation).
 type builtin struct {
 	arity int
 	// prep parses validated args once, at compile time, into the closure expand calls.
-	prep  func(args []string) callFn
-	check func(fields map[string]node, args []string) error
+	prep      func(args []string) callFn
+	checkArgs func(fields map[string]node, args []string) error
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// number proves what a call prints, token its body: the bounds of its number and the
+	// proveNumber proves what a call prints, token its body: the bounds of its number and the
 	// datatype of its text, prints or one inside it; nil for a builtin whose text is no number.
-	number func(token string, prints DataType, args []string) proven
-	prints DataType
+	proveNumber func(token string, prints DataType, args []string) proven
+	prints      DataType
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
@@ -178,8 +178,8 @@ func checkFunc(tok formatToken, fields map[string]node) error {
 	if b.arity >= 0 && len(args) != b.arity {
 		return fmt.Errorf("token {%s}: %s takes %d argument%s, got %d", body, name, b.arity, plural(b.arity), len(args))
 	}
-	if b.check != nil {
-		if err := b.check(fields, args); err != nil {
+	if b.checkArgs != nil {
+		if err := b.checkArgs(fields, args); err != nil {
 			return fmt.Errorf("token {%s}: %w", body, err)
 		}
 	}
@@ -297,11 +297,11 @@ func checkNoRepeatedArm(body string, names []string) error {
 // is what makes the arm a bound draw: its head is drawn once per expansion (see
 // compileOps).
 type arm struct {
-	name   string // as written, for messages
-	key    string
-	tail   []string
-	levels []string // the key at each level the tail passes through, the head's first
-	path   string   // key and tail, the one spelling every way of writing this read shares
+	spelling string // as written, for messages
+	key      string
+	tail     []string
+	levels   []string // the key at each level the tail passes through, the head's first
+	path     string   // key and tail, the one spelling every way of writing this read shares
 }
 
 // splitArm splits one name into key and tail. refs maps a reference to what
@@ -314,13 +314,13 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			if bound {
 				key = b.key
 			}
-			return arm{name: name, key: key, path: key}
+			return arm{spelling: name, key: key, path: key}
 		}
 		return pathArm(name, b.key, b.tail)
 	}
 	segs, err := splitPath(name)
 	if err != nil || len(segs) == 1 {
-		return arm{name: name, key: name, path: name}
+		return arm{spelling: name, key: name, path: name}
 	}
 	return pathArm(name, segs[0], segs[1:])
 }
@@ -330,7 +330,7 @@ func pathArm(name, key string, segs []string) arm {
 	for i := 0; i < len(segs)-1; i++ {
 		levels = append(levels, key+"."+strings.Join(segs[:i+1], "."))
 	}
-	return arm{name: name, key: key, tail: segs, levels: levels, path: key + "." + strings.Join(segs, ".")}
+	return arm{spelling: name, key: key, tail: segs, levels: levels, path: key + "." + strings.Join(segs, ".")}
 }
 
 // checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
@@ -400,7 +400,7 @@ func (c *formatOps) holdName(a arm, label string) {
 			c.bound = map[string]string{}
 		}
 		if _, named := c.bound[a.key]; !named {
-			c.bound[a.key] = a.name
+			c.bound[a.key] = a.spelling
 		}
 	}
 }
@@ -420,7 +420,7 @@ func (c *formatOps) field(tok formatToken, refs map[string]refBinding) {
 	for i, name := range tok.names {
 		arms[i] = splitArm(name, refs)
 		if len(arms[i].tail) > 0 {
-			c.holdName(arms[i], "token {"+arms[i].name+"}")
+			c.holdName(arms[i], "token {"+arms[i].spelling+"}")
 		}
 	}
 	c.ops = append(c.ops, op{formatToken: tok, arms: arms})

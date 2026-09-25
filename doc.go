@@ -17,7 +17,7 @@ package fejkdata
 // Vocabulary
 //
 //   - draw — one pick from a choice, or one row taken from a table, and the value a
-//     read produced: `pick`, `drawn`, `table.draw`, `draw`.
+//     read produced: `pick`, `resolveChoice`, `table.drawRow`, `draw`.
 //   - expansion — one render of one format: `expand`.
 //   - render — what owns one `holdSet`, and so what one reference draw spans:
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
@@ -32,8 +32,8 @@ package fejkdata
 //     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.family`.
-//   - whole — a read that lands on a `row`, so the row renders through its table's
-//     format: `tableRead.whole` says a read did, `table.whole` is the node.
+//   - whole — a read that lands on a `tableRow`, so the row renders through its table's
+//     format: `tableRead.landsWhole` says a read did, `table.wholeRow` is the node.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
 //     compile. The draw fences are `heldCheck`, `drawCheck` and `checkFamilies`.

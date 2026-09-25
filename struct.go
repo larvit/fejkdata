@@ -49,8 +49,8 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	sc := &structCompile{root: f.categories, visiting: map[reflect.Type]bool{}, structs: maxStructs}
-	shape, err := sc.record(t, label)
+	sc := &structCompile{categories: f.categories, visiting: map[reflect.Type]bool{}, structs: maxStructs}
+	shape, err := sc.compileShape(t, label)
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
 	}
@@ -64,16 +64,16 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 // structShape is a struct type compiled to fill: its tagged fields as one record, the field
 // index path each column fills, and the struct fields carrying tags of their own.
 type structShape struct {
-	record  *template
-	columns []Column
-	fields  [][]int
-	nested  []nestedStruct
+	record       *template
+	columns      []Column
+	fieldIndexes [][]int
+	nested       []nestedStruct
 }
 
 // nestedStruct is a named struct field, or a pointer to one, filled as a record of its own.
 type nestedStruct struct {
-	index []int
-	shape *structShape
+	fieldIndex []int
+	shape      *structShape
 }
 
 func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 0 }
@@ -82,9 +82,9 @@ func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 
 // loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
 // rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
-	root     map[string]node
-	visiting map[reflect.Type]bool
-	structs  int
+	categories map[string]node
+	visiting   map[reflect.Type]bool
+	structs    int
 }
 
 // structFields gathers what one struct type fills: its tagged fields, those its embedded
@@ -92,24 +92,24 @@ type structCompile struct {
 // records.
 type structFields struct {
 	*structCompile
-	t     reflect.Type
+	typ   reflect.Type
 	label string
 	tags  map[string]any
 	shape *structShape
 }
 
-func (sc *structCompile) record(t reflect.Type, label string) (*structShape, error) {
+func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShape, error) {
 	if err := sc.spend(label); err != nil {
 		return nil, err
 	}
 	sc.visiting[t] = true
 	defer delete(sc.visiting, t)
-	c := &structFields{structCompile: sc, t: t, label: label, tags: map[string]any{}, shape: &structShape{}}
+	c := &structFields{structCompile: sc, typ: t, label: label, tags: map[string]any{}, shape: &structShape{}}
 	if err := c.gatherFields(t, nil); err != nil {
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
+		if err := c.shape.compileRecord(sc.categories, t, label, c.tags); err != nil {
 			return nil, err
 		}
 	}
@@ -169,8 +169,8 @@ func structOf(t reflect.Type) reflect.Type {
 
 // addTag adds a tagged field's tag to the record, refusing one another field hides.
 func (c *structFields) addTag(sf reflect.StructField, tag string) error {
-	if visible, ok := c.t.FieldByName(sf.Name); !ok || !slices.Equal(visible.Index, sf.Index) {
-		return fmt.Errorf("%s.%s: hidden by another field named %s, so its fake tag cannot fill it; rename one", c.label, fieldPath(c.t, sf.Index), sf.Name)
+	if visible, ok := c.typ.FieldByName(sf.Name); !ok || !slices.Equal(visible.Index, sf.Index) {
+		return fmt.Errorf("%s.%s: hidden by another field named %s, so its fake tag cannot fill it; rename one", c.label, fieldPath(c.typ, sf.Index), sf.Name)
 	}
 	v, err := tagValue(sf, tag)
 	if err != nil {
@@ -190,7 +190,7 @@ func fieldPath(t reflect.Type, index []int) string {
 }
 
 func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
-	if err := c.spend(c.label + "." + fieldPath(c.t, sf.Index)); err != nil {
+	if err := c.spend(c.label + "." + fieldPath(c.typ, sf.Index)); err != nil {
 		return err
 	}
 	c.visiting[elem] = true
@@ -200,13 +200,13 @@ func (c *structFields) embed(sf reflect.StructField, elem reflect.Type) error {
 		return err
 	}
 	if sf.Type.Kind() == reflect.Pointer && !sf.IsExported() && (len(c.tags) > tags || len(c.shape.nested) > nested) {
-		return fmt.Errorf("%s.%s: an unexported embedded pointer field cannot be set, so the tags beneath it cannot fill; embed %s by value", c.label, fieldPath(c.t, sf.Index), elem)
+		return fmt.Errorf("%s.%s: an unexported embedded pointer field cannot be set, so the tags beneath it cannot fill; embed %s by value", c.label, fieldPath(c.typ, sf.Index), elem)
 	}
 	return nil
 }
 
 func (c *structFields) nest(sf reflect.StructField, elem reflect.Type) error {
-	nested, err := c.record(elem, c.label+"."+sf.Name)
+	nested, err := c.compileShape(elem, c.label+"."+sf.Name)
 	if err != nil || nested.empty() {
 		return err
 	}
@@ -266,13 +266,13 @@ func (s *structShape) compileRecord(root map[string]node, t reflect.Type, label 
 		return fmt.Errorf("%s: %w", label, err)
 	}
 	proof := &valueProof{}
-	s.fields = make([][]int, len(columns))
+	s.fieldIndexes = make([][]int, len(columns))
 	for i, c := range columns {
 		sf, _ := t.FieldByName(c.Name)
 		if err := proof.checkField(label+"."+c.Name, sf.Type, record.fields[c.Name]); err != nil {
 			return err
 		}
-		s.fields[i] = sf.Index
+		s.fieldIndexes[i] = sf.Index
 	}
 	s.record, s.columns = record, columns
 	return nil
@@ -327,7 +327,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
-	} else if p.proveColumn(column).null {
+	} else if p.proveColumn(column).nullable {
 		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
 	}
 	kind := columnKinds[elem.Kind()]
@@ -351,11 +351,11 @@ func (s *structShape) fill(sess *session, v reflect.Value) {
 	if s.record != nil {
 		set := eagerHoldSet()
 		for i, c := range renderRecord(sess, s.record, s.columns, renderScope{set: &set}).columns {
-			setColumn(fieldAt(v, s.fields[i]), c)
+			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}
 	for _, n := range s.nested {
-		field := fieldAt(v, n.index)
+		field := fieldAt(v, n.fieldIndex)
 		if field.Kind() == reflect.Pointer {
 			if field.IsNil() {
 				field.Set(reflect.New(field.Type().Elem()))

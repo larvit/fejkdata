@@ -114,8 +114,8 @@ func hasSelector(segs []string) bool {
 // selectorOf is the key or name a selector segment holds.
 func selectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
-// names is the segments of a path that are names, its selectors left out.
-func names(segs []string) []string {
+// nameSegments is the segments of a path that are names, its selectors left out.
+func nameSegments(segs []string) []string {
 	out := segs[:0:0]
 	for _, s := range segs {
 		if !isSelector(s) {
@@ -197,8 +197,8 @@ func walkPath(n node, tail []string, w pathWalk) (node, error) {
 		return walkPath(child, tail[1:], w)
 	case *choice:
 		return walkChoice(n, tail, w)
-	case *column:
-		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", tail[0], n.t.columns[n.i])
+	case *tableColumn:
+		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", tail[0], n.t.header[n.i])
 	}
 	return nil, fmt.Errorf("no field %q", tail[0])
 }
@@ -268,7 +268,7 @@ func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error
 	case len(tail) == 0 && sel == "" && !descended:
 		return walkPath(t, nil, w)
 	case len(tail) == 0:
-		return walkPath(t.whole, nil, w)
+		return walkPath(t.wholeRow, nil, w)
 	case child != nil:
 		return walkTable(child, tail[1:], w, true)
 	}
@@ -293,7 +293,7 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 		return nil, nil, nil
 	}
 	if i, ok := t.col[tail[0]]; ok {
-		return t.fields[t.columns[i]], nil, nil
+		return t.fields[t.header[i]], nil, nil
 	}
 	if child = t.descendant(tail[0]); child == nil {
 		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.category)
@@ -327,7 +327,7 @@ func (d *pathDraws) variant(c *choice, rest []string) node {
 	key := d.a.levels[len(d.a.tail)-len(rest)]
 	n, drew := d.held.variant[key]
 	if !drew {
-		n = drawn(d.s, c)
+		n = resolveChoice(d.s, c)
 		if d.held.variant == nil {
 			d.held.variant = map[string]node{}
 		}

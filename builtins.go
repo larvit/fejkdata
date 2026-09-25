@@ -28,44 +28,44 @@ var builtins = withTransforms(map[string]builtin{
 	"ean":    {arity: 0, prep: derive(eanCheck)},
 	"uuid":   {arity: 0, prep: sample(uuidV7)},
 	"ulid":   {arity: 0, prep: sample(ulid)},
-	"nanoid": {arity: 1, check: posIntArg, prep: chars(nanoidAlphabet)},
-	"hex":    {arity: 1, check: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, check: posIntArg, prep: chars("0123456789"), prints: DataTypeString, number: func(token string, prints DataType, a []string) proven {
+	"nanoid": {arity: 1, checkArgs: posIntArg, prep: chars(nanoidAlphabet)},
+	"hex":    {arity: 1, checkArgs: posIntArg, prep: chars(hexDigits)},
+	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: DataTypeString, proveNumber: func(token string, prints DataType, a []string) proven {
 		return printing(token, prints, bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
-	"upper": {arity: 1, check: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-	"lower": {arity: 1, check: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
-	"base64": {arity: 1, check: posIntArg, prep: func(a []string) callFn {
+	"upper": {arity: 1, checkArgs: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+	"lower": {arity: 1, checkArgs: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
+	"base64": {arity: 1, checkArgs: posIntArg, prep: func(a []string) callFn {
 		n := atoi(a[0])
 		return func(s *session, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
 	}},
-	"int": {arity: 2, check: intRangeArgs, prep: func(a []string) callFn {
+	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *session, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, prints: DataTypeInteger, number: func(token string, prints DataType, a []string) proven {
+	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, a []string) proven {
 		return printing(token, prints, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
-	"float": {arity: 3, check: floatArgs, prep: func(a []string) callFn {
+	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *session, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, prints: DataTypeNumber, number: func(token string, _ DataType, a []string) proven {
+	}, prints: DataTypeNumber, proveNumber: func(token string, _ DataType, a []string) proven {
 		return printedNumber(token, bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
-	"iban": {arity: 1, check: ibanArg, prep: func(a []string) callFn {
+	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
 		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date": {arity: -1, check: dateArgs, prep: datePrep},
-	"time": {arity: -1, check: timeArg, prep: timePrep},
-	"calc": {arity: -1, check: checkCalc, prep: calcPrep, operands: calcOperands},
+	"date": {arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"time": {arity: -1, checkArgs: timeArg, prep: timePrep},
+	"calc": {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-session counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
-	"seq": {arity: -1, check: seqArg, prep: func(a []string) callFn {
+	"seq": {arity: -1, checkArgs: seqArg, prep: func(a []string) callFn {
 		key := ""
 		if len(a) == 1 {
 			key = a[0]
@@ -73,7 +73,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *session, _ string, _ []string) string {
 			return strconv.FormatUint(s.next(key), 10)
 		}
-	}, prints: DataTypeInteger, number: func(token string, prints DataType, _ []string) proven {
+	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven {
 		return printing(token, prints, bounded(1, math.MaxInt64, true))
 	}},
 })

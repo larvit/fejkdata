@@ -13,58 +13,58 @@ import (
 // columns, each row is one draw, and the format renders the drawn row. A column is a
 // cell of the row a render pinned; a cell carrying tokens compiles to a string node.
 type table struct {
-	category      string
-	path          string // the category's path from the data root, which a selector is written at
-	file          string
-	format        *template // fields are the column nodes
-	columns       []string
-	col           map[string]int
-	fields        map[string]node // column nodes, the format's fields
-	whole         *row            // the pinned row rendered by the format
-	cells         []string        // rows × columns, flat
-	cellTemplates map[int]*template
-	key           int // key, name, weight and parent are column indexes, or -1
-	name          int
-	weight        int
-	parent        int
-	cum           []float64 // cumulative weights, nil when uniform
-	byKey         map[string]int
-	parentT       *table
-	children      map[string]*table
-	once          sync.Once
-	index         tableIndex
+	category       string
+	path           string // the category's path from the data root, which a selector is written at
+	file           string
+	formatTemplate *template // fields are the column nodes
+	header         []string
+	col            map[string]int
+	fields         map[string]node // column nodes, the format's fields
+	wholeRow       *tableRow       // the pinned row rendered by the format
+	cells          []string        // rows × columns, flat
+	cellTemplates  map[int]*template
+	keyCol         int // keyCol through parentCol are -1 where the option is absent
+	nameCol        int
+	weightCol      int
+	parentCol      int
+	cum            []float64 // cumulative weights, nil when uniform
+	byKey          map[string]int
+	parentT        *table
+	children       map[string]*table
+	once           sync.Once
+	index          tableIndex
 }
 
 // tableIndex is what selection and linked draws look up, built on the first draw
 // that needs it.
 type tableIndex struct {
-	byName   map[string][]int
-	children map[string][]int     // rows by parent key
-	childCum map[string][]float64 // cumulative weights per parent key, nil when uniform
+	byName       map[string][]int
+	rowsByParent map[string][]int
+	childCum     map[string][]float64 // cumulative weights per parent key, nil when uniform
 }
 
 func (*table) isNode() {}
 
-// column is one column of a table, rendered as the cell of the row the render pinned.
-type column struct {
+// tableColumn is one column of a table, rendered as the cell of the row the render pinned.
+type tableColumn struct {
 	t *table
 	i int
 }
 
-func (*column) isNode() {}
+func (*tableColumn) isNode() {}
 
-// row is the row of a table the render pinned, rendered by the table's format.
-type row struct{ t *table }
+// tableRow is the row of a table the render pinned, rendered by the table's format.
+type tableRow struct{ t *table }
 
-func (*row) isNode() {}
+func (*tableRow) isNode() {}
 
-func (t *table) rowCount() int { return len(t.cells) / len(t.columns) }
+func (t *table) rowCount() int { return len(t.cells) / len(t.header) }
 
-func (t *table) cell(row, col int) string { return t.cells[row*len(t.columns)+col] }
+func (t *table) cell(row, col int) string { return t.cells[row*len(t.header)+col] }
 
 // cellTemplate is what a cell renders: its compiled template where it carries tokens,
 // else nil for its text.
-func (t *table) cellTemplate(row, col int) *template { return t.cellTemplates[row*len(t.columns)+col] }
+func (t *table) cellTemplate(row, col int) *template { return t.cellTemplates[row*len(t.header)+col] }
 
 // tableOptions are the keys a table object takes; every other key is refused.
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
@@ -93,7 +93,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 	if err != nil {
 		return nil, err
 	}
-	t := &table{category: category, file: o.rows, key: -1, name: -1, weight: -1, parent: -1}
+	t := &table{category: category, file: o.rows, keyCol: -1, nameCol: -1, weightCol: -1, parentCol: -1}
 	if err := t.parseRows(data); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
@@ -110,7 +110,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 }
 
 type tableOptionValues struct {
-	format, key, name, parent, rows, weight string
+	format, keyColumn, nameColumn, parentColumn, rows, weightColumn string
 }
 
 func readTableOptions(m map[string]any) (tableOptionValues, error) {
@@ -120,7 +120,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 			return o, fmt.Errorf("a table takes %s; %q is none of them", strings.Join(tableOptions, ", "), k)
 		}
 	}
-	for k, into := range map[string]*string{"format": &o.format, "key": &o.key, "name": &o.name, "parent": &o.parent, "rows": &o.rows, "weight": &o.weight} {
+	for k, into := range map[string]*string{"format": &o.format, "key": &o.keyColumn, "name": &o.nameColumn, "parent": &o.parentColumn, "rows": &o.rows, "weight": &o.weightColumn} {
 		v, ok := m[k]
 		if !ok {
 			continue
@@ -140,8 +140,8 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	if !strings.HasSuffix(o.rows, ".tsv") || strings.Contains(o.rows, "/") {
 		return o, fmt.Errorf("rows names a .tsv file beside the category, not %q", o.rows)
 	}
-	if o.key != "" && o.key == o.name {
-		return o, fmt.Errorf("name names the key column %q, which a selector already reads; drop it", o.name)
+	if o.keyColumn != "" && o.keyColumn == o.nameColumn {
+		return o, fmt.Errorf("name names the key column %q, which a selector already reads; drop it", o.nameColumn)
 	}
 	return o, nil
 }
@@ -155,10 +155,10 @@ func (t *table) parseRows(data string) error {
 	if header == "" {
 		return fmt.Errorf("has no header line naming its columns")
 	}
-	t.columns = strings.Split(header, "\t")
-	t.col = make(map[string]int, len(t.columns))
-	t.fields = make(map[string]node, len(t.columns))
-	for i, name := range t.columns {
+	t.header = strings.Split(header, "\t")
+	t.col = make(map[string]int, len(t.header))
+	t.fields = make(map[string]node, len(t.header))
+	for i, name := range t.header {
 		if err := checkName(name); err != nil {
 			return fmt.Errorf("column %w", err)
 		}
@@ -166,12 +166,12 @@ func (t *table) parseRows(data string) error {
 			return fmt.Errorf("column %q is named twice", name)
 		}
 		t.col[name] = i
-		t.fields[name] = &column{t, i}
+		t.fields[name] = &tableColumn{t, i}
 	}
 	if header == data {
 		return fmt.Errorf("has no rows below its header; a table is at least two rows")
 	}
-	m := len(t.columns)
+	m := len(t.header)
 	t.cells = make([]string, 0, m*(strings.Count(rest, "\n")+1))
 	for line := 2; ; line++ {
 		row, more, found := strings.Cut(rest, "\n")
@@ -195,7 +195,7 @@ func (t *table) appendRow(row string, line int) error {
 	if row == "" {
 		return fmt.Errorf("line %d is empty; every line below the header is a row", line)
 	}
-	m := len(t.columns)
+	m := len(t.header)
 	for n := 0; n < m; n++ {
 		cell, next, tab := strings.Cut(row, "\t")
 		if !tab && n < m-1 || tab && n == m-1 {
@@ -213,17 +213,17 @@ func (t *table) bindOptions(o tableOptionValues) error {
 	for _, opt := range []struct {
 		name, value string
 		into        *int
-	}{{"key", o.key, &t.key}, {"name", o.name, &t.name}, {"parent", o.parent, &t.parent}, {"weight", o.weight, &t.weight}} {
+	}{{"key", o.keyColumn, &t.keyCol}, {"name", o.nameColumn, &t.nameCol}, {"parent", o.parentColumn, &t.parentCol}, {"weight", o.weightColumn, &t.weightCol}} {
 		if opt.value == "" {
 			continue
 		}
 		i, ok := t.col[opt.value]
 		if !ok {
-			return fmt.Errorf("%s names no column %q of %s; the columns are %v", opt.name, opt.value, o.rows, t.columns)
+			return fmt.Errorf("%s names no column %q of %s; the columns are %v", opt.name, opt.value, o.rows, t.header)
 		}
 		*opt.into = i
 	}
-	if t.name >= 0 && t.key < 0 && t.parent < 0 {
+	if t.nameCol >= 0 && t.keyCol < 0 && t.parentCol < 0 {
 		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
 	}
 	if err := t.indexKeys(); err != nil {
@@ -237,14 +237,14 @@ func (t *table) bindOptions(o tableOptionValues) error {
 
 // proveNamesInsideParent proves a name without a key names one row inside its parent.
 func (t *table) proveNamesInsideParent() error {
-	if t.key >= 0 || t.name < 0 {
+	if t.keyCol >= 0 || t.nameCol < 0 {
 		return nil
 	}
 	inside := make(map[string]int, t.rowCount())
 	for r := 0; r < t.rowCount(); r++ {
-		k := t.cell(r, t.parent) + "\t" + t.cell(r, t.name)
+		k := t.cell(r, t.parentCol) + "\t" + t.cell(r, t.nameCol)
 		if first, dup := inside[k]; dup {
-			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, r+2, t.cell(r, t.name), first+2, t.columns[t.parent], t.cell(r, t.parent))
+			return fmt.Errorf("%s line %d: name %q repeats line %d inside %s %q; a name selects one row inside its parent; drop one, or add a key column", t.file, r+2, t.cell(r, t.nameCol), first+2, t.header[t.parentCol], t.cell(r, t.parentCol))
 		}
 		inside[k] = r
 	}
@@ -253,12 +253,12 @@ func (t *table) proveNamesInsideParent() error {
 
 // indexKeys proves every key names one row, and keeps the index a link is proved by.
 func (t *table) indexKeys() error {
-	if t.key < 0 {
+	if t.keyCol < 0 {
 		return nil
 	}
 	t.byKey = make(map[string]int, t.rowCount())
 	for r := 0; r < t.rowCount(); r++ {
-		k := t.cell(r, t.key)
+		k := t.cell(r, t.keyCol)
 		if k == "" {
 			return fmt.Errorf("%s line %d: the key is empty", t.file, r+2)
 		}
@@ -267,8 +267,8 @@ func (t *table) indexKeys() error {
 		}
 		t.byKey[k] = r
 	}
-	for r := 0; r < t.rowCount() && t.name >= 0; r++ {
-		if n := t.cell(r, t.name); t.byKey[n] != r {
+	for r := 0; r < t.rowCount() && t.nameCol >= 0; r++ {
+		if n := t.cell(r, t.nameCol); t.byKey[n] != r {
 			if other, isKey := t.byKey[n]; isKey {
 				return fmt.Errorf("%s line %d: name %q is the key of line %d, which a selector reads first, so the name could never select this row", t.file, r+2, n, other+2)
 			}
@@ -279,15 +279,15 @@ func (t *table) indexKeys() error {
 
 // sumWeights proves every weight is a positive number and builds the cumulative table.
 func (t *table) sumWeights() error {
-	if t.weight < 0 {
+	if t.weightCol < 0 {
 		return nil
 	}
 	t.cum = make([]float64, t.rowCount())
 	total := 0.0
 	for r := range t.cum {
-		w, err := strconv.ParseFloat(t.cell(r, t.weight), 64)
+		w, err := strconv.ParseFloat(t.cell(r, t.weightCol), 64)
 		if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w <= 0 {
-			return fmt.Errorf("%s line %d: weight %q is not a positive number", t.file, r+2, t.cell(r, t.weight))
+			return fmt.Errorf("%s line %d: weight %q is not a positive number", t.file, r+2, t.cell(r, t.weightCol))
 		}
 		total += w
 		t.cum[r] = total
@@ -301,16 +301,16 @@ func (t *table) sumWeights() error {
 // checkCells compiles every cell carrying a token, and fences what a selector reads.
 func (t *table) checkCells() error {
 	for i, cell := range t.cells {
-		row, col := i/len(t.columns), i%len(t.columns)
-		if (col == t.key || col == t.name) && strings.ContainsAny(cell, inSelector) {
-			return fmt.Errorf("line %d: %s %q contains %q, which a selector cannot spell", row+2, t.columns[col], cell, cell[strings.IndexAny(cell, inSelector):][:1])
+		row, col := i/len(t.header), i%len(t.header)
+		if (col == t.keyCol || col == t.nameCol) && strings.ContainsAny(cell, inSelector) {
+			return fmt.Errorf("line %d: %s %q contains %q, which a selector cannot spell", row+2, t.header[col], cell, cell[strings.IndexAny(cell, inSelector):][:1])
 		}
 		if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 			continue
 		}
 		n, err := compileString(cell)
 		if err != nil {
-			return fmt.Errorf("line %d, %s: %w", row+2, t.columns[col], err)
+			return fmt.Errorf("line %d, %s: %w", row+2, t.header[col], err)
 		}
 		if t.cellTemplates == nil {
 			t.cellTemplates = map[int]*template{}
@@ -335,16 +335,16 @@ func (t *table) compileWhole(format string) error {
 		for _, name := range tok.names {
 			a := splitArm(name, nil)
 			if _, ok := t.col[a.key]; !ok && !isRef(a.key) && a.key != "" {
-				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.columns)
+				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.header)
 			}
 		}
 	}
 	if err := checkTokens(toks, t.fields); err != nil {
 		return err
 	}
-	t.format = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, record: true, table: t}
-	t.whole = &row{t}
-	return t.format.compileRefFree()
+	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, table: t}
+	t.wholeRow = &tableRow{t}
+	return t.formatTemplate.compileRefFree()
 }
 
 // setTablePaths gives every table the path a selector on it is written at, before a
@@ -379,7 +379,7 @@ func linkTables(root map[string]node) error {
 					return err
 				}
 			case *table:
-				if n.parent < 0 {
+				if n.parentCol < 0 {
 					continue
 				}
 				if err := n.linkParent(path, children); err != nil {
@@ -393,24 +393,24 @@ func linkTables(root map[string]node) error {
 }
 
 func (t *table) linkParent(path string, siblings map[string]node) error {
-	name := t.columns[t.parent]
+	name := t.header[t.parentCol]
 	p, ok := siblings[name].(*table)
 	switch {
 	case siblings[name] == nil:
 		return fmt.Errorf("parent %q names no table beside it", name)
 	case !ok:
 		return fmt.Errorf("parent %q is not a table; a link column reads a table's key", name)
-	case p.key < 0:
+	case p.keyCol < 0:
 		return fmt.Errorf("parent %q has no key column to link to", name)
 	}
 	var ancestors []*table
-	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.columns[q.parent]].(*table) {
+	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentCol]].(*table) {
 		if seen[q] {
 			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.category)
 		}
 		seen[q] = true
 		ancestors = append(ancestors, q)
-		if q.parent < 0 {
+		if q.parentCol < 0 {
 			break
 		}
 	}
@@ -421,14 +421,14 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	}
 	linked := make(map[string]bool, p.rowCount())
 	for r := 0; r < t.rowCount(); r++ {
-		k := t.cell(r, t.parent)
+		k := t.cell(r, t.parentCol)
 		if _, ok := p.byKey[k]; !ok {
 			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, r+2, name, k, p.file)
 		}
 		linked[k] = true
 	}
 	for r := 0; r < p.rowCount(); r++ {
-		if k := p.cell(r, p.key); !linked[k] {
+		if k := p.cell(r, p.keyCol); !linked[k] {
 			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, r+2, p.file)
 		}
 	}
@@ -442,25 +442,25 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 
 func (t *table) indexed() *tableIndex {
 	t.once.Do(func() {
-		if t.name >= 0 {
+		if t.nameCol >= 0 {
 			t.index.byName = make(map[string][]int, t.rowCount())
 			for r := 0; r < t.rowCount(); r++ {
-				n := t.cell(r, t.name)
+				n := t.cell(r, t.nameCol)
 				t.index.byName[n] = append(t.index.byName[n], r)
 			}
 		}
-		if t.parent >= 0 {
-			t.index.children = map[string][]int{}
+		if t.parentCol >= 0 {
+			t.index.rowsByParent = map[string][]int{}
 			for r := 0; r < t.rowCount(); r++ {
-				k := t.cell(r, t.parent)
-				t.index.children[k] = append(t.index.children[k], r)
+				k := t.cell(r, t.parentCol)
+				t.index.rowsByParent[k] = append(t.index.rowsByParent[k], r)
 			}
 			if t.cum != nil {
-				t.index.childCum = make(map[string][]float64, len(t.index.children))
-				for k, rows := range t.index.children {
+				t.index.childCum = make(map[string][]float64, len(t.index.rowsByParent))
+				for k, rows := range t.index.rowsByParent {
 					cum, total := make([]float64, len(rows)), 0.0
 					for i, r := range rows {
-						w, _ := strconv.ParseFloat(t.cell(r, t.weight), 64) // sumWeights proved it
+						w, _ := strconv.ParseFloat(t.cell(r, t.weightCol), 64) // sumWeights proved it
 						total += w
 						cum[i] = total
 					}
@@ -472,9 +472,9 @@ func (t *table) indexed() *tableIndex {
 	return &t.index
 }
 
-// draw picks a row over the whole table. The session is concrete rather than the rng
+// drawRow picks a row over the whole table. The session is concrete rather than the rng
 // interface so that the walk that draws through it keeps its hold set off the heap.
-func (t *table) draw(s *session) int {
+func (t *table) drawRow(s *session) int {
 	if t.cum == nil {
 		return s.IntN(t.rowCount())
 	}
@@ -489,8 +489,8 @@ func pickCum(s *session, cum []float64) int {
 // drawUnder picks a row among those linked to parent row pr.
 func (t *table) drawUnder(s *session, pr int) int {
 	ix := t.indexed()
-	k := t.parentT.cell(pr, t.parentT.key)
-	rows := ix.children[k]
+	k := t.parentT.cell(pr, t.parentT.keyCol)
+	rows := ix.rowsByParent[k]
 	if ix.childCum == nil {
 		return rows[s.IntN(len(rows))]
 	}
@@ -516,7 +516,7 @@ func (t *table) drawIn(s *session, p *pinSet) int {
 		r = t.drawUnder(s, pr)
 	}
 	if r < 0 {
-		r = t.draw(s)
+		r = t.drawRow(s)
 	}
 	p.pin(t, r)
 	return r
@@ -536,7 +536,7 @@ func (t *table) descendant(name string) *table {
 }
 
 // parentRow is the row of t's parent that row r links to.
-func (t *table) parentRow(r int) int { return t.parentT.byKey[t.cell(r, t.parent)] }
+func (t *table) parentRow(r int) int { return t.parentT.byKey[t.cell(r, t.parentCol)] }
 
 // descends reports whether a is an ancestor of t.
 func (t *table) descends(a *table) bool {
@@ -561,7 +561,7 @@ func (t *table) under(r int, a *table, pr int) bool {
 // find is the row a selector names: by key first, then by name, where a name
 // naming several rows resolves inside the ancestors pinned.
 func (t *table) find(sel string, pins *pinSet) (int, error) {
-	if t.key < 0 && t.name < 0 {
+	if t.keyCol < 0 && t.nameCol < 0 {
 		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.path)
 	}
 	if r, ok := t.byKey[sel]; ok {
@@ -585,14 +585,14 @@ func (t *table) find(sel string, pins *pinSet) (int, error) {
 func (t *table) ambiguous(sel string, rows []int) error {
 	spellings := make([]string, len(rows))
 	for i, r := range rows {
-		if t.key < 0 {
+		if t.keyCol < 0 {
 			spellings[i] = t.selectorSpelling(r)
 		} else {
-			spellings[i] = t.cell(r, t.key)
+			spellings[i] = t.cell(r, t.keyCol)
 		}
 	}
 	listed := strings.Join(spellings, ", ")
-	if t.key < 0 {
+	if t.keyCol < 0 {
 		return fmt.Errorf("%q names %d rows of %s; select it inside its %s, one of %s", sel, len(rows), t.path, t.parentT.path, listed)
 	}
 	inside := ""
@@ -606,10 +606,10 @@ func (t *table) ambiguous(sel string, rows []int) error {
 // by name inside its parent's row.
 func (t *table) selectorSpelling(r int) string {
 	switch {
-	case t.key >= 0:
-		return t.path + "[" + t.cell(r, t.key) + "]"
-	case t.name >= 0:
-		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.name) + "]"
+	case t.keyCol >= 0:
+		return t.path + "[" + t.cell(r, t.keyCol) + "]"
+	case t.nameCol >= 0:
+		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.nameCol) + "]"
 	}
 	return fmt.Sprintf("%s line %d", t.file, r+2)
 }
