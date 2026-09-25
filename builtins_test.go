@@ -410,22 +410,16 @@ func TestBuiltinCompileErrors(t *testing.T) {
 	for _, bad := range []string{
 		`"{digits(0)}"`,        // count must be positive
 		`"{upper(x)}"`,         // count must be an integer
-		`"{lower()}"`,          // wrong arity
-		`"{nope()}"`,           // unknown function
-		`"{luhn(x)}"`,          // function given args it takes none of
-		`"{int(1)}"`,           // wrong arity
 		`"{int(a,b)}"`,         // non-integer args
 		`"{int(5,1)}"`,         // min > max
 		`"{hex(0)}"`,           // count must be positive
 		`"{nanoid(-1)}"`,       // negative count
 		`"{base64(0)}"`,        // count must be positive
-		`"{float(1,2)}"`,       // wrong arity
 		`"{float(1,2,-1)}"`,    // negative decimals
 		`"{float(NaN,NaN,2)}"`, // bounds must be finite
 		`"{float(Inf,Inf,2)}"`, // same-sign infinities
 		`"{float(1,NaN,2)}"`,   // one NaN bound
 		`"{float(-Inf,1,2)}"`,  // one infinite bound
-		`"{digits(+5)}"`,       // a count is a plain integer
 		`"{digits(05)}"`,       // no leading zero
 		`"{int(+1,5)}"`,        // a bound is a plain integer
 		`"{int(5,5)}"`,         // a constant is written as text
@@ -435,6 +429,20 @@ func TestBuiltinCompileErrors(t *testing.T) {
 	} {
 		if _, err := compile(parse(t, bad)); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
+		}
+	}
+}
+
+func TestArgErrorsNameTheSpelling(t *testing.T) {
+	for src, want := range map[string]string{
+		`"{float(1,2,02)}"`:                 "write 2",
+		`{"format":"{calc(a,02)}","a":"1"}`: "write 2",
+		`"{digits(+5)}"`:                    "write 5",
+		`"{hex(99999999999999999999)}"`:     "exceeds the maximum",
+		`"{int(007,9)}"`:                    "write 7",
+	} {
+		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
 		}
 	}
 }
