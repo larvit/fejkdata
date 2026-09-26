@@ -10,7 +10,7 @@ import (
 func fenceCorpus(t *testing.T) *Generator {
 	t.Helper()
 	dir := writeFiles(t, with(geo(), map[string]string{
-		"addr.json":  `{"format":"{a} {b} {c}","a":{"format":"{/locality.name}, {/municipality.name}"},"b":{"format":"{/region[12].name} {/place}","drawGroup":"g"},"c":{"format":"{/place.zip} ","repeat":2}}`,
+		"addr.json":  `{"format":"{a} {b} {c}","a":"{/locality.name}, {/municipality.name}","b":{"format":"{/region[12].name} {/place}","drawGroup":"g"},"c":{"format":"{/place.zip} ","repeat":2}}`,
 		"place.json": `{"format":"{zip} {name} {tag}","rows":"place.tsv","key":"name"}`,
 		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(2)} {digits(2)}\t{/w}\nTranås\t573 {digits(2)}\t{/region[12].name}\n",
 		"rec.json":   `{"format":"","l":"{/locality.name}","m":"{/municipality.name}","t":"{/place[Stockholm].tag}"}`,
@@ -67,13 +67,23 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 }
 
 // wantGathered renders a root five times over the seeded stream and fails where a reference the
-// render read is not among gathered: same draw group and path, under rows that can render together.
+// render read is not among gathered: same draw group and path, and where the read sits in a cell,
+// gathered from that row or from no row of its table.
 func wantGathered(t *testing.T, s *session, label string, gathered []pathRead, renderOnce func()) {
 	t.Helper()
 	var reads []pathRead
-	s.trace = &renderTrace{read: func(_ *template, group string, pins pinSet, a arm) {
-		if s.trace.depth == 0 && isRef(a.key) {
-			reads = append(reads, pathRead{at: drawAt{group: group, pins: pins}, a: a})
+	seen := map[readKey]bool{}
+	s.trace = &renderTrace{read: func(from *template, group string, a arm) {
+		if s.trace.depth != 0 || !isRef(a.key) {
+			return
+		}
+		r := pathRead{at: drawAt{group: group}, a: a}
+		if from.cellOf != nil {
+			r.at.pins.add(from.cellOf, from.cellRow)
+		}
+		if k := (readKey{group, a.path, r.at.rowsKey()}); !seen[k] {
+			seen[k] = true
+			reads = append(reads, r)
 		}
 	}}
 	defer func() { s.trace = nil }()
@@ -82,27 +92,27 @@ func wantGathered(t *testing.T, s *session, label string, gathered []pathRead, r
 	}
 	for _, r := range reads {
 		if !gathers(gathered, r) {
-			t.Errorf("%s: the render read {%s} in draw group %q with %s pinned, and drawWalk gathered no such read", label, r.a.spelling, r.at.group, pinned(&r.at.pins))
+			t.Errorf("%s: the render read {%s} in draw group %q from %s, and drawWalk gathered no such read", label, r.a.spelling, r.at.group, spellPins(&r.at.pins))
 		}
 	}
 }
 
 func gathers(gathered []pathRead, r pathRead) bool {
 	for _, g := range gathered {
-		if g.at.group == r.at.group && g.a.path == r.a.path && !g.at.pins.differs(&r.at.pins) {
+		if g.at.group == r.at.group && g.a.path == r.a.path && !g.at.pins.differs(&r.at.pins) && !g.at.wholePins.differs(&r.at.pins) {
 			return true
 		}
 	}
 	return false
 }
 
-func pinned(p *pinSet) string {
+func spellPins(p *pinSet) string {
 	var rows []string
 	p.each(func(t *table, r int) { rows = append(rows, t.selectorSpelling(r)) })
 	if len(rows) == 0 {
-		return "no row"
+		return "no cell"
 	}
-	return strings.Join(rows, ", ")
+	return "the cell of " + strings.Join(rows, ", ")
 }
 
 // renderRoot renders t the way the render reaches it: a table's format through its table, a cell in
