@@ -75,7 +75,6 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	return nil
 }
 
-// renderDraws gathers the reads one render of t makes.
 func renderDraws(t *template) *drawWalk {
 	w := newDrawWalk()
 	for _, e := range renderEdges(t) {
@@ -179,7 +178,6 @@ func refRead(n node, label string) (arm, bool) {
 // checkColumnDraws fences a record's columns as one render.
 func checkColumnDraws(t *template, columns []string) error { return columnDraws(t, columns).check() }
 
-// columnDraws gathers the reads one record render of t's columns makes.
 func columnDraws(t *template, columns []string) *drawWalk {
 	w := newDrawWalk()
 	for _, name := range columns {

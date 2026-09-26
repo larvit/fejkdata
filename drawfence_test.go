@@ -128,6 +128,12 @@ func renderRoot(s *session, t *template) {
 	switch {
 	case t.table != nil:
 		render(s, t.table, sc)
+		for r := 0; r < t.table.rowCount(); r++ {
+			var set holdSet
+			sc := renderScope{set: &set}
+			sc.hold().pins.pin(t.table, r)
+			render(s, t.table.wholeRow, sc)
+		}
 	case t.cellOf != nil:
 		sc.t, sc.row = t.cellOf, t.cellRow
 		render(s, t, sc)
