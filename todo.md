@@ -21,11 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- State at each draw fence, in one line at the code, the rule it enforces, where a
-  `docs/decisions.md` link stands in for it today: the clash drop in `drawWalk.walk`,
-  `alternatives`, `replayPairs`' claim that pairs find every conflict, and
-  `heldCheck`'s skip of a reference path. Seven seats could not say why the fences
-  are complete without the decision bodies.
 - Hold the draw fences to what render does: a test rendering seeded draws that fails
   where a read the render makes falls outside what `drawWalk` gathered. Today the two
   models agree by a comment on `renderEdges`, and a new render route drifts silently.

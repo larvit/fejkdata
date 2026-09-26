@@ -225,7 +225,8 @@ func newDrawWalk() *drawWalk {
 }
 
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
-// there.
+// there. A cell whose row the pins keep out has no case: a pinned table renders its pinned row
+// alone, so that cell never renders on this route.
 func (w *drawWalk) walk(n node, at drawAt) {
 	v := nodeVisit{n, at.group, at.rowsKey()}
 	if w.seen[v] {
