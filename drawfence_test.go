@@ -5,16 +5,15 @@ import (
 	"testing"
 )
 
-// fenceCorpus layers over the shipped set what it lacks: draw groups, a repeat beside one, token
-// cells selecting a row, a table read whole and records reading a family.
 func fenceCorpus(t *testing.T) *Generator {
 	t.Helper()
 	dir := writeFiles(t, with(geo(), map[string]string{
 		"addr.json":  `{"format":"{a} {b} {c}","a":"{/locality.name}, {/municipality.name}","b":{"format":"{/region[12].name} {/place}","drawGroup":"g"},"c":{"format":"{/place.zip} ","repeat":2}}`,
 		"place.json": `{"format":"{zip} {name} {tag}","rows":"place.tsv","key":"name"}`,
-		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(2)} {digits(2)}\t{/w}\nTranås\t573 {digits(2)}\t{/region[12].name}\n",
+		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(2)} {digits(2)}\t{/x}\nTranås\t573 {digits(2)}\t{/region[12].name}\n",
 		"rec.json":   `{"format":"","l":"{/locality.name}","m":"{/municipality.name}","t":"{/place[Stockholm].tag}"}`,
 		"w.json":     `["x","y"]`,
+		"x.json":     `"{/w}"`,
 	}))
 	f, err := New(WithDataPath(dir), WithSeed(1))
 	if err != nil {
@@ -28,12 +27,16 @@ type fenceRoot struct {
 	t     *template
 }
 
-func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
+func fenceRoots(t *testing.T, f *Generator) ([]fenceRoot, map[string]*table) {
 	t.Helper()
 	var roots []fenceRoot
+	tables := map[string]*table{}
 	_ = walkNodes(f.categories, func(path string, n node) error {
-		if tm, ok := n.(*template); ok {
-			roots = append(roots, fenceRoot{path, tm})
+		switch n := n.(type) {
+		case *template:
+			roots = append(roots, fenceRoot{path, n})
+		case *table:
+			tables[n.path] = n
 		}
 		return nil
 	})
@@ -51,35 +54,39 @@ func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
 		}
 		return nil
 	})
-	return append(roots, fenceRoot{"inline record", record.template})
+	return append(roots, fenceRoot{"inline record", record.template}), tables
 }
 
 func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	f := fenceCorpus(t)
-	for _, root := range fenceRoots(t, f) {
-		wantGathered(t, f.rand, root.label, renderDraws(root.t).reads, func() { renderRoot(f.rand, root.t) })
-		if !root.t.isRecord {
+	roots, tables := fenceRoots(t, f)
+	for _, root := range roots {
+		wantGathered(t, f.rand, tables, root.label, renderDraws(root.t).reads, func() { renderRoot(f.rand, root.t) })
+		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
-		columns := sortedNames(root.t.fields)
-		wantGathered(t, f.rand, root.label+" as a record", columnDraws(root.t, columns).reads, func() { renderRecordRoot(f.rand, root.t) })
+		_, columns, err := recordOf(root.t)
+		if err != nil {
+			t.Fatalf("%s: recordOf = %v", root.label, err)
+		}
+		wantGathered(t, f.rand, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func() { renderRecordRoot(f.rand, root.t, columns) })
 	}
 }
 
 // wantGathered renders a root five times over the seeded stream and fails where a reference the
-// render read is not among gathered: same draw group and path, and where the read sits in a cell,
-// gathered from that row or from no row of its table.
-func wantGathered(t *testing.T, s *session, label string, gathered []pathRead, renderOnce func()) {
+// render read is not among gathered: same draw group and path, and where the render stood in a
+// table's row, gathered from that row or from no row of the table.
+func wantGathered(t *testing.T, s *session, tables map[string]*table, label string, gathered []pathRead, renderOnce func()) {
 	t.Helper()
 	var reads []pathRead
 	seen := map[readKey]bool{}
-	s.trace = &renderTrace{read: func(from *template, group string, a arm) {
-		if s.trace.depth != 0 || !isRef(a.key) {
+	s.trace = &renderTrace{read: func(group, table string, row int, a arm) {
+		if s.trace.repeatDepth != 0 || !isRef(a.key) {
 			return
 		}
 		r := pathRead{at: drawAt{group: group}, a: a}
-		if from.cellOf != nil {
-			r.at.pins.add(from.cellOf, from.cellRow)
+		if table != "" {
+			r.at.pins.add(tables[table], row)
 		}
 		if k := (readKey{group, a.path, r.at.rowsKey()}); !seen[k] {
 			seen[k] = true
@@ -110,13 +117,11 @@ func spellPins(p *pinSet) string {
 	var rows []string
 	p.each(func(t *table, r int) { rows = append(rows, t.selectorSpelling(r)) })
 	if len(rows) == 0 {
-		return "no cell"
+		return "no row"
 	}
-	return "the cell of " + strings.Join(rows, ", ")
+	return "row " + strings.Join(rows, ", ")
 }
 
-// renderRoot renders t the way the render reaches it: a table's format through its table, a cell in
-// its row, one iteration of a repeat in t's own draw group, and anything else as itself.
 func renderRoot(s *session, t *template) {
 	var set holdSet
 	sc := renderScope{set: &set}
@@ -127,21 +132,17 @@ func renderRoot(s *session, t *template) {
 		sc.t, sc.row = t.cellOf, t.cellRow
 		render(s, t, sc)
 	case t.repeat > 1:
-		expand(s, t, sc.in(t))
+		expand(s, t, sc)
 	default:
 		render(s, t, sc)
 	}
 }
 
-func renderRecordRoot(s *session, t *template) {
+func renderRecordRoot(s *session, t *template, columns []Column) {
 	set := eagerHoldSet()
 	sc := renderScope{set: &set}
 	if t.table != nil {
-		t.table.drawIn(s, &sc.in(t).hold().pins)
-	}
-	_, columns, err := recordOf(t)
-	if err != nil {
-		panic(err)
+		t.table.drawIn(s, &sc.hold().pins)
 	}
 	renderRecord(s, t, columns, sc)
 }
