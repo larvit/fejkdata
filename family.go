@@ -212,7 +212,7 @@ func checkOwnFamily(t *template) error {
 		return renderEdge{}, nil, false
 	}
 	if e, head, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a whole read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
+		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
 	}
 	return nil
 }

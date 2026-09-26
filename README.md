@@ -546,9 +546,9 @@ table another path in the group selects a row of, `{/city.name}` beside
 also refuses a link cell that is no key of the parent, a parent row no child links
 to, a chain of parents that closes, a table named like a column of any table above
 it, and a cell or format of a table that references a table of its own family, through
-any template, a `repeat` or a `drawGroup` included, since a whole read of the table
-would draw the family apart from the row it renders: read the family from a template
-beside it, or add the value as a column. A cell's reads are the render's too; which pairs are weighed
+any template, a `repeat` or a `drawGroup` included, since a bare read of the referencing
+table draws its row without pinning it, so the family would draw apart from that row:
+read the family from a template beside it, or add the value as a column. A cell's reads are the render's too; which pairs are weighed
 against each other is under [Decisions](docs/decisions.md#the-rows-of-a-table-are-alternatives).
 
 ### Options and fields
