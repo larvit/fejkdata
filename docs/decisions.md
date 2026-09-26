@@ -359,14 +359,6 @@ folder or another column name would be asking for a second spelling.
 today; admitting it later is additive, since a refused spelling gains a meaning and no
 accepted one changes, so the door stays open for the address records the plan describes.
 
-## A table read into is pinned; a table read whole draws afresh
-
-A path into a table pins its row for the render and group, as a reference path pins its
-level, and a bare `{/city}` draws a row each time and pins no row of its family, as a
-bare reference does; so a bare table beside a path into its family is refused like a
-bare reference beside a path into it. A bare table reference still counts as a read for
-a `drawGroup`, since the group is what draws it apart from the family's pins.
-
 ## Every reference path into one family selects the same rows, per render and group
 
 A selector pins rows for the render, and a read that draws freely before it could pin a

@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// docs/decisions.md#one-name-one-meaning
 func TestNoFunctionSpellsAMethod(t *testing.T) {
 	funcs, methods := declaredCalls(namespaceFiles(t))
 	names := make([]string, 0, len(funcs))

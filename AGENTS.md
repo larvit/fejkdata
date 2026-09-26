@@ -71,7 +71,6 @@ In [docs/decisions.md](docs/decisions.md):
 - A selector is bracketed, and a dot inside it is literal
 - `parent` names the link column and the table alike
 - After a row, a path names a column or a linked table
-- A table read into is pinned; a table read whole draws afresh
 - Every reference path into one family selects the same rows, per render and group
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields

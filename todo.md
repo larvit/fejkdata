@@ -47,6 +47,11 @@ This round, in order:
   where `NewTemplate` and `NewRecordTemplate` do not, and `List` claims to be every
   path `Fake` accepts, which a selector is too. Delete the dead `table.descends` and
   the redundant `string(key)` in `checkNoRepeatedItem`.
+- Keep only the standing choice in the decision "The rows of a table are alternatives",
+  a choice's items refused as alternatives, and give it the goal it serves: the rest
+  defines `alternatives`, which its comment in `family.go` already does, and the README's
+  "which pairs are weighed against each other" sends a reader to the log for that
+  definition.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
