@@ -55,7 +55,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// The repeat shape prices both escape measures: dropping either costs an alloc an iteration.
+// The repeat shape prices what keeps a hold set off the heap: a copy dropped costs an alloc an iteration.
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {

@@ -73,9 +73,6 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	}
 }
 
-// wantGathered renders a root five times over the seeded stream and fails where a reference the
-// render read is not among gathered: same draw group and path, and where the render stood in a
-// table's row, gathered from that row or from no row of the table.
 func wantGathered(t *testing.T, s *session, tables map[string]*table, label string, gathered []pathRead, renderOnce func()) {
 	t.Helper()
 	var reads []pathRead
