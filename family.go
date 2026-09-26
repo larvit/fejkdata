@@ -103,8 +103,9 @@ func checkFamilies(reads []pathRead) error {
 }
 
 // replayPairs replays every two reads of one draw group that can render together into
-// one draws, the earlier read first. A pin conflicts with one earlier pin, never with a
-// combination, so pairs find every conflict a full replay would.
+// one draws, the earlier read first. Pairs find every conflict a full replay would: a
+// read pins a row's ancestors with it, and clash judges a row against one pinned table,
+// so a conflict is between two reads' pins and a third read adds nothing to it.
 func replayPairs(reads []pathRead) error {
 	for i, r := range reads {
 		if r.tr == nil {
@@ -216,8 +217,9 @@ func checkOwnFamily(t *template) error {
 	return nil
 }
 
-// alternatives reports whether two reads sit in different rows of one table: rows the walks pinned,
-// or rows of one whole draw.
+// alternatives reports whether two reads never render together: one read renders one row of a
+// table, so reads under different rows the walks pinned, or under different rows of one whole
+// draw, never meet.
 // docs/decisions.md#the-rows-of-a-table-are-alternatives
 func alternatives(a, b drawAt) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
