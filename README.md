@@ -548,8 +548,9 @@ to, a chain of parents that closes, a table named like a column of any table abo
 it, and a cell or format of a table that references a table of its own family, through
 any template, a `repeat` or a `drawGroup` included, since a bare read of the referencing
 table draws its row without pinning it, so the family would draw apart from that row:
-read the family from a template beside it, or add the value as a column. A cell's reads are the render's too; which pairs are weighed
-against each other is under [Decisions](docs/decisions.md#the-rows-of-a-table-are-alternatives).
+read the family from a template beside it, or add the value as a column. A cell's
+reads are the render's too; which pairs are weighed against each other is under
+[Decisions](docs/decisions.md#the-rows-of-a-table-are-alternatives).
 
 ### Options and fields
 
