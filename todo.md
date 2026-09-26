@@ -21,9 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Hold the draw fences to what render does: a test rendering seeded draws that fails
-  where a read the render makes falls outside what `drawWalk` gathered. Today the two
-  models agree by a comment on `renderEdges`, and a new render route drifts silently.
 - Give "whole" one meaning: `doc.go` defines it as a read landing on a `tableRow`,
   while `drawAt.wholeTable`, `checkFamilyPair` and `checkOwnFamily`'s comment use it for
   a bare read landing on a `*table`, the one that draws without pinning.

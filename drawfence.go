@@ -69,14 +69,19 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	if !c.readsPath(t) {
 		return nil
 	}
+	if err := renderDraws(t).check(); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	return nil
+}
+
+// renderDraws gathers the reads one render of t makes.
+func renderDraws(t *template) *drawWalk {
 	w := newDrawWalk()
 	for _, e := range renderEdges(t) {
 		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
 	}
-	if err := w.check(); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-	return nil
+	return w
 }
 
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
@@ -172,12 +177,15 @@ func refRead(n node, label string) (arm, bool) {
 }
 
 // checkColumnDraws fences a record's columns as one render.
-func checkColumnDraws(t *template, columns []string) error {
+func checkColumnDraws(t *template, columns []string) error { return columnDraws(t, columns).check() }
+
+// columnDraws gathers the reads one record render of t's columns makes.
+func columnDraws(t *template, columns []string) *drawWalk {
 	w := newDrawWalk()
 	for _, name := range columns {
 		w.walk(t.fields[name], drawAt{group: t.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
-	return w.check()
+	return w
 }
 
 // drawWalk gathers the references one render reads, by draw group, for check to compare.

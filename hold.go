@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"strings"
 )
 
 // hold is what has already been drawn for held names: the variant each was drawn as, so every
@@ -27,6 +28,9 @@ type draw struct {
 // drawn afresh, so {word} {word} still draws twice. checkTokens, checkPath and
 // linkRefs prove every step, so the walk cannot fail.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw {
+	if s.trace != nil {
+		s.trace.read(t, strings.Clone(sc.group), a)
+	}
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
@@ -43,6 +47,13 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	}
 	d.value[a.path] = r
 	return r
+}
+
+// renderTrace is a test's view of a render: each field a format reads, and how many repeat
+// iterations, each a render of its own, the read sits inside. nil outside a test.
+type renderTrace struct {
+	read  func(from *template, group string, a arm)
+	depth int
 }
 
 // readHold is the hold a held read keeps its draw in: for a reference that reads a path,
