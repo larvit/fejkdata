@@ -20,8 +20,8 @@ type table struct {
 	header         []string
 	col            map[string]int
 	fields         map[string]node // column nodes, the format's fields
-	wholeRow       *tableRow       // the pinned row rendered by the format
-	cells          []string        // rows × columns, flat
+	pinnedRow      *tableRow
+	cells          []string // rows × columns, flat
 	cellTemplates  map[int]*template
 	keyIndex       int // keyIndex through parentIndex are column indexes, -1 where the option is absent
 	nameIndex      int
@@ -103,7 +103,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 	if err := t.checkCells(); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
-	if err := t.compileWhole(o.format); err != nil {
+	if err := t.compileRowFormat(o.format); err != nil {
 		return nil, err
 	}
 	return t, nil
@@ -321,9 +321,9 @@ func (t *table) checkCells() error {
 	return nil
 }
 
-// compileWhole compiles the format a row renders whole through, over the columns
-// as its fields.
-func (t *table) compileWhole(format string) error {
+// compileRowFormat compiles the format a row renders through, over the columns as its
+// fields.
+func (t *table) compileRowFormat(format string) error {
 	toks, err := parseFormat(format)
 	if err != nil {
 		return err
@@ -343,7 +343,7 @@ func (t *table) compileWhole(format string) error {
 		return err
 	}
 	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, table: t}
-	t.wholeRow = &tableRow{t}
+	t.pinnedRow = &tableRow{t}
 	return t.formatTemplate.compileRefFree()
 }
 

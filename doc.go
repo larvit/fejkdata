@@ -32,8 +32,9 @@ package fejkdata
 //     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.family`.
-//   - whole — a read that lands on a `tableRow`, so the row renders through its table's
-//     format: `tableRead.landsWhole` says a read did, `table.wholeRow` is the node.
+//   - whole — a read of a table with no selector and no descent, {/city}, landing on
+//     the `table` itself: it draws a row apart from every pin, so the fences keep the rows
+//     its cells stand in as `drawAt.wholePins`, beside `drawAt.wholeTable`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
 //     compile. The draw fences are `heldCheck`, `drawCheck` and `checkFamilies`.

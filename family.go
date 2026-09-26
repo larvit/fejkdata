@@ -10,11 +10,11 @@ import (
 // row pinned, and their unpinned ancestors — each selector's spelling, and whether
 // it lands on a row rendered whole.
 type tableRead struct {
-	headTable  *table
-	pins       pinSet
-	drawn      map[*table]bool
-	sels       []tableSel
-	landsWhole bool
+	headTable *table
+	pins      pinSet
+	drawn     map[*table]bool
+	sels      []tableSel
+	landsRow  bool
 }
 
 // tableSel is one selector on the way: the table it selects a row of, and the path
@@ -44,7 +44,7 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 			cur = d
 		}
 	}
-	_, tr.landsWhole = leaf.(*tableRow)
+	_, tr.landsRow = leaf.(*tableRow)
 	return tr
 }
 

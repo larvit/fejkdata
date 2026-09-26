@@ -21,9 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Give "whole" one meaning: `doc.go` defines it as a read landing on a `tableRow`,
-  while `drawAt.wholeTable`, `checkFamilyPair` and `checkOwnFamily`'s comment use it for
-  a bare read landing on a `*table`, the one that draws without pinning.
 - Give a table's current row one owner: `renderScope.t` and `row` hold it beside the
   `pinSet`, and `renderLeaf` reads a column's null back from a hold `readField` wrote.
 - Split `walkPath`'s four modes, so a caller does not select a behaviour by which of

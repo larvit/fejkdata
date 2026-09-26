@@ -301,7 +301,7 @@ func (w *drawWalk) check() error {
 			if into.at.group != level.at.group || alternatives(level.at, into.at) {
 				continue
 			}
-			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.landsWhole) {
+			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.landsRow) {
 				return overlapError(level.at.route, level.a.spelling, into)
 			}
 		}
