@@ -18,7 +18,7 @@ func heldCheck(path string, n node) error {
 	readers := boundReaders(t.ops, t.bound)
 	for _, head := range heldHeads(t) {
 		if _, isPath := t.bound[head]; isPath && isRef(head) {
-			continue // held for the render: drawCheck compares it across the render and its groups
+			continue // held for the render: drawCheck compares every read of it, by path, across the render and its groups
 		}
 		if err := checkHeadHeld(t, head, readers); err != nil {
 			return fmt.Errorf("%s: %w", path, err)

@@ -102,10 +102,10 @@ func checkFamilies(reads []pathRead) error {
 	return replayPairs(reads)
 }
 
-// replayPairs replays every two reads of one draw group that can render together into
-// one draws, the earlier read first. Pairs find every conflict a full replay would: a
-// read pins a row's ancestors with it, and clash judges a row against one pinned table,
-// so a conflict is between two reads' pins and a third read adds nothing to it.
+// replayPairs replays every two reads that can render together into one draws, the earlier
+// read first. Pairs find every conflict a full replay would: clash judges a row against one
+// pinned table, and the read that pinned it holds that pin itself, since a read's pins carry
+// its rows' ancestors, so the pair of those two reads clashes the same way.
 func replayPairs(reads []pathRead) error {
 	for i, r := range reads {
 		if r.tr == nil {
