@@ -8,7 +8,7 @@ import (
 // tableRead is what a reference path reads of a table family: the table its head
 // names, the rows its selectors pin, the tables it draws — those it walks with no
 // row pinned, and their unpinned ancestors — each selector's spelling, and whether
-// it lands on a row rendered whole.
+// it lands on a `tableRow`.
 type tableRead struct {
 	headTable *table
 	pins      pinSet
