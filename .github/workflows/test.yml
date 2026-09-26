@@ -12,7 +12,7 @@ permissions:
 jobs:
   test:
     name: vet + fmt + tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -55,7 +55,7 @@ jobs:
     name: Release from CHANGELOG.md
     needs: test
     if: github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     steps:
