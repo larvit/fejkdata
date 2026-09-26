@@ -145,7 +145,7 @@ func (r *tableRead) replay(d *pinSet) error {
 // checkFamilyPair refuses a table read whole beside a path into its family, and a
 // table one read draws that the other pins, since which token renders first would
 // then decide the row.
-// docs/decisions.md#a-table-read-into-is-pinned-a-table-read-whole-draws-afresh
+// docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
 func checkFamilyPair(a, b pathRead) error {
 	for _, pair := range [][2]pathRead{{a, b}, {b, a}} {
 		x, y := pair[0], pair[1]
@@ -180,9 +180,9 @@ func (r *tableRead) drawnOf(pins *pinSet) *table {
 }
 
 // checkOwnFamily refuses a table's format or cell that reads, however many templates
-// away and through a repeat or a draw group too, a table of its own family: a row
-// rendered whole draws its row without pinning it, so the family would draw apart
-// from the row being rendered, whichever draws the reaching template holds.
+// away and through a repeat or a draw group too, a table of its own family: a whole
+// read draws its row without pinning it, so the family would draw apart from the row
+// it renders, whichever draws the reaching template holds.
 // docs/decisions.md#a-table-never-reaches-its-own-family-by-any-route
 func checkOwnFamily(t *template) error {
 	own := t.table
@@ -212,7 +212,7 @@ func checkOwnFamily(t *template) error {
 		return renderEdge{}, nil, false
 	}
 	if e, head, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a row of %s rendered whole would draw apart from; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
+		return fmt.Errorf("%s reads %s, a table of its own family, which a whole read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
 	}
 	return nil
 }
