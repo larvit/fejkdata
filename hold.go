@@ -29,7 +29,11 @@ type draw struct {
 // linkRefs prove every step, so the walk cannot fail.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw {
 	if s.trace != nil {
-		s.trace.read(t, strings.Clone(sc.group), a)
+		var table string
+		if sc.t != nil {
+			table = strings.Clone(sc.t.path)
+		}
+		s.trace.read(strings.Clone(sc.group), table, sc.row, a)
 	}
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
@@ -49,11 +53,10 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	return r
 }
 
-// renderTrace is a test's view of a render: each field a format reads, and how many repeat
-// iterations, each a render of its own, the read sits inside. nil outside a test.
+// renderTrace is a test's view of the fields a render reads; nil outside a test.
 type renderTrace struct {
-	read  func(from *template, group string, a arm)
-	depth int
+	read        func(group, table string, row int, a arm)
+	repeatDepth int
 }
 
 // readHold is the hold a held read keeps its draw in: for a reference that reads a path,

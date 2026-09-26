@@ -36,8 +36,8 @@ func renderOnce(s *session, n node) string {
 func expandAnew(s *session, t *template) string {
 	var set holdSet
 	if s.trace != nil {
-		s.trace.depth++
-		defer func() { s.trace.depth-- }()
+		s.trace.repeatDepth++
+		defer func() { s.trace.repeatDepth-- }()
 	}
 	return expand(s, t, renderScope{set: &set})
 }
