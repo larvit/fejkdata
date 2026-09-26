@@ -15,10 +15,49 @@ scoring run names too little to steer one. A fresh run replaces the items below.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
-Self-sufficiency 5.6), every seat capped by Locality or Self-sufficiency.
+Self-sufficiency 5.6); 5.7 on 2026-09-26 (Navigation 6.7, Locality 5.0, Shape 5.8,
+Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
+`drawWalk.walk` among the hardest.
 
 This round, in order:
 
+- State at each draw fence, in one line at the code, the rule it enforces, where a
+  `docs/decisions.md` link stands in for it today: the clash drop in `drawWalk.walk`,
+  `alternatives`, `replayPairs`' claim that pairs find every conflict, and
+  `heldCheck`'s skip of a reference path. Seven seats could not say why the fences
+  are complete without the decision bodies.
+- Hold the draw fences to what render does: a test rendering seeded draws that fails
+  where a read the render makes falls outside what `drawWalk` gathered. Today the two
+  models agree by a comment on `renderEdges`, and a new render route drifts silently.
+- Give "whole" one meaning: `doc.go` defines it as a read landing on a `tableRow`,
+  while `drawAt.wholeTable`, `checkFamilyPair` and `checkOwnFamily`'s comment use it for
+  a bare read landing on a `*table`, the one that draws without pinning.
+- Give a table's current row one owner: `renderScope.t` and `row` hold it beside the
+  `pinSet`, and `renderLeaf` reads a column's null back from a hold `readField` wrote.
+- Split `walkPath`'s four modes, so a caller does not select a behaviour by which of
+  `level`, `leaf`, `pins`, `drawn` and `draws` it leaves nil.
+- Gather the family fence beside `drawWalk.check`: `checkFamilies`, `replayPairs`,
+  `checkFamilyPair` and `tableRead.replay` sit in `family.go` and `pins.go`, and one
+  rule spans seven files.
+- Compile every format in one phase: a template holding a reference has nil `ops`
+  until `linkTemplateRefs`, so a check reading `ops` before link skips it silently.
+- Run `New`, `NewTemplate` and `FakeStruct` through one bind pipeline that names
+  where they differ: each picks its own fences today.
+- Make `disagreement` and `bothTyped` a table of cases: each swaps its operands and
+  runs a proof to pick an error's wording.
+- Derive a column's datatype in one place: `columnItems` yields nothing for a
+  `tableColumn`, and six callers re-derive it from items.
+- Give `head`, `index`, `bound` and `draw` one meaning each, name `table.family`
+  for the root it returns, and replace the token kind bytes `'l'`, `'t'`, `'f'` and
+  `'b'`, whose `'l'` means different things in `ftoken` and `formatToken`.
+- Start every render from one spelling of an empty hold set: `Fake` uses
+  `holdSet{}`, the record and struct paths `eagerHoldSet()`.
+- Correct the false comments: `funcCall` names `checkFunc` where `parseFormat`
+  reports, `struct.go`'s "t sits at index within c.t" names no field, `recordFormats`
+  calls ndjson "the same column", `Generator` says every other entry point takes `mu`
+  where `NewTemplate` and `NewRecordTemplate` do not, and `List` claims to be every
+  path `Fake` accepts, which a selector is too. Delete the dead `table.descends` and
+  the redundant `string(key)` in `checkNoRepeatedItem`.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -138,8 +177,15 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
-- Report the same error every load for a table with two bad options:
-  `readTableOptions` returns on the first in Go's map order.
+- Report the same error every load for a table with two bad options, and for a
+  folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
+  first in Go's map order.
+- Report a CRLF rows file holding only its header as having no rows: `parseRows`
+  answers "line 2 is empty".
+- Refuse a bare table read in a typed column with a reason naming the table:
+  `prove`'s default arm says it reads a null.
+- Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
+  `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a
   load error: `{/sel}|{/sel}` panics out of `Fake` with "a fence should have refused this
   at New" where the two draws land on rows whose cells select different rows of another
