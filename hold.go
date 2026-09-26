@@ -61,7 +61,7 @@ type renderTrace struct {
 
 // readHold is the hold a held read keeps its draw in: for a reference that reads a path,
 // the render's hold for its group, so its draw spans the render; for a sibling, or a
-// reference read whole, held.
+// bare reference, held.
 func readHold(held *hold, sc renderScope, a arm) *hold {
 	if isRef(a.key) && len(a.tail) > 0 {
 		return sc.hold()

@@ -599,7 +599,7 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 		"a cell reaching a table whose rows are alternatives": {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y.sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 		"a cell agreeing with the row it selects":             {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 		"a selected row's cell beside the row it agrees with": {"z.json": `"{/country[SE].money} {/cur[SEK].sym}"`},
-		"a selected row whole beside the row it agrees with":  {"z.json": `"{/country[SE]} {/cur[SEK].sym}"`},
+		"a selected row beside the row it agrees with":        {"z.json": `"{/country[SE]} {/cur[SEK].sym}"`},
 		"a column under a selected ancestor": {
 			"city.json": `{"format":"{name} {money}","rows":"city.tsv","key":"name","parent":"country"}`,
 			"city.tsv":  "name\tcountry\tmoney\nHelsinki\tFI\t{/cur[EUR].sym}\nMalmö\tSE\t{/cur[SEK].sym}\nLund\tSE\t{/cur[SEK].sym}\n",

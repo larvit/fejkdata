@@ -43,7 +43,7 @@ func (*nullItem) isNode() {}
 // that many times and joins the results with separator (default ""), each render
 // an independent pick. A format holding a reference compiles in `linkTemplateRefs`.
 type template struct {
-	// Filled by `compileString`, `compileTemplate` and `table.compileWhole`:
+	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
 	tokens     []formatToken
 	fields     map[string]node

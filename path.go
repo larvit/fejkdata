@@ -268,7 +268,7 @@ func walkTable(t *table, tail []string, w pathWalk, descended bool) (node, error
 	case len(tail) == 0 && sel == "" && !descended:
 		return walkPath(t, nil, w)
 	case len(tail) == 0:
-		return walkPath(t.wholeRow, nil, w)
+		return walkPath(t.pinnedRow, nil, w)
 	case child != nil:
 		return walkTable(child, tail[1:], w, true)
 	}

@@ -129,7 +129,7 @@ func renderRoot(s *session, t *template) {
 			var set holdSet
 			sc := renderScope{set: &set}
 			sc.hold().pins.pin(t.table, r)
-			render(s, t.table.wholeRow, sc)
+			render(s, t.table.pinnedRow, sc)
 		}
 	case t.cellOf != nil:
 		sc.t, sc.row = t.cellOf, t.cellRow
