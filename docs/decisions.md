@@ -249,7 +249,7 @@ set is declared keeps them on that frame's stack. A `Fake` often reads no refere
 at all, and making them anyway cost about a fifth of the cheapest render, so it makes
 them on the first read instead, at two heap allocations for a render that does share a
 draw. The allocation gate over a repeat of a reference path and over a named draw group
-prices that, and pins the two measures that keep a hold set off the heap.
+prices that, and pins what keeps a hold set off the heap.
 
 ## A category never references itself, and a record's fences run at load
 
