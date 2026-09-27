@@ -173,10 +173,10 @@ by a `data-import/` script, as README goal 12 asks.
 ### Library and CLI
 
 - Step up from a row to its parent as the decision "A link column after a row steps up
-  to the parent row, and a path may not end on it" states: `city[Oslo].country.name` is
-  a load error today, `city[Oslo].country.city.name` draws a city, and
-  `city[Oslo].country` renders the cell `NO`, as
-  `locality.municipality` does, which `List` stops advertising. Replace the README's
+  to the parent row, and a path may not end on it" states, refusing a step back down:
+  `city[Oslo].country.name` is a load error today, and `city[Oslo].country` renders the
+  cell `NO`, as `locality.municipality` does, which `List` stops advertising. Replace the
+  README's
   `city[Oslo].country` example with `fejkdata -d ./mydata 'city[Oslo].country.name'`,
   rendering `Norway`.
 - Select a row by its key alone, as the decision "A selector names a row by its key
