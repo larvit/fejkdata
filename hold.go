@@ -41,7 +41,9 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	if r, done := d.value[a.path]; done {
 		return r
 	}
-	sc.pins = &d.pins
+	if len(a.tail) > 0 {
+		sc.pins = &d.pins
+	}
 	r := renderLeaf(s, drawPath(t.head(a.key), a.tail, a.key, &d.pins, &pathDraws{s: s, held: d, a: &a}), sc)
 	if d.value == nil {
 		d.value = map[string]draw{}
