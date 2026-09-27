@@ -196,6 +196,8 @@ type pathCheck struct {
 	leaves []node
 }
 
+func (w *pathCheck) run(n node) (node, error) { return w.walk(n, w.tail) }
+
 func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
@@ -215,6 +217,9 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 			n, tail, descended = r.next, r.rest, r.descends
 			continue
 		case *template:
+			if isSelector(tail[0]) {
+				break
+			}
 			if err := w.enter(x, tail); err != nil {
 				return nil, err
 			}
@@ -452,6 +457,6 @@ func unreachableInChoice(c *choice, want string) error {
 // checkPath proves a dotted tail as pathCheck does, so a path that validates here
 // resolves on every render, and a typo is a New-time error.
 func checkPath(n node, tail []string, level string) error {
-	_, err := (&pathCheck{level: level, tail: tail}).walk(n, tail)
+	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
 }
