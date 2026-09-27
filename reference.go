@@ -187,9 +187,7 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 }
 
 // resolveCategory walks a dotted path through the folders to the category it
-// names, returning that head, the node, and the tail left to read into it. A
-// descent of its own rather than a walkPath: it walks folders only and returns
-// where they end, not a leaf.
+// names, returning that head, the node, and the tail left to read into it.
 func resolveCategory(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
 	var n node = &folder{children: root}
 	i := 0
