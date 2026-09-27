@@ -47,11 +47,9 @@ This round, in order:
   where `NewTemplate` and `NewRecordTemplate` do not, and `List` claims to be every
   path `Fake` accepts, which a selector is too. Delete the dead `table.descends` and
   the redundant `string(key)` in `checkNoRepeatedItem`.
-- Keep only the standing choice in the decision "The rows of a table are alternatives",
-  a choice's items refused as alternatives, and give it the goal it serves: the rest
-  defines `alternatives`, which its comment in `family.go` already does, and the README's
-  "which pairs are weighed against each other" sends a reader to the log for that
-  definition.
+- Delete the decision "The rows of a table are alternatives": it defines `alternatives`,
+  which its comment in `family.go` already does, and the README's "which pairs are
+  weighed against each other" sends a reader to the log for that definition.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -59,6 +57,8 @@ This round, in order:
 Shape: T = table, t = template, c = choice. Read every factual list from a register
 by a `data-import/` script, as README goal 12 asks.
 
+- Strip the whitespace `data-import/territory.py` copies from its register:
+  `misc.territory[CW].capital` renders ` Willemstad`, with a leading space.
 - Place xlsx cells by their `r` reference in `data-import/xlsx.py`: a sheet omitting an
   empty cell shifts every later column left.
 - Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone
@@ -171,6 +171,13 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
+- Render selected rows as the decision "A selected row is fixed, not drawn, and an
+  unnamed read beside it is refused" states: `New` refuses
+  `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
+  whose items select different rows. Have the refusal of an unnamed read name a
+  selected path that loads: beside `{/geo.SE.locality[Lund].name}`,
+  `{/geo.SE.municipality.name}` names none today, and the one that holds selects from
+  the top, `{/geo.SE.municipality[Lund].name}`.
 - Report the same error every load for a table with two bad options, and for a
   folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
   first in Go's map order.
@@ -192,9 +199,6 @@ by a `data-import/` script, as README goal 12 asks.
   error names the category and the two columns but no row, so the author greps a
   register-sized file for the cell — and "name the fields you want instead" rewrites a
   cell that is not the one to fix.
-- Have the family fence offer only a rewrite that works: where the drawn table's rows select
-  more than one row of the family, every `write {/terr[NO].name}` it offers fails the same
-  way, so only the `drawGroup` it also names is left.
 - Spell a table one way across the family errors: `checkFamilyPair` names
   `drawn.category`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
   table is `territory` and `misc.territory`, and the short spelling names no file where two
@@ -214,6 +218,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide whether a path steps from a row up to its parent, so
+  `{/geo.SE.locality[Lund].municipality.name}` reads Lund's municipality: three simulated
+  template writers all expected it to, per goal 4, and today it fails with "municipality
+  is a column, and a cell holds no fields". Adding it only accepts a refused spelling.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
