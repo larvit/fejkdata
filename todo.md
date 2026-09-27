@@ -220,13 +220,24 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
-- Decide how a path steps from a row up to its parent row: three simulated template
-  writers expected `{/geo.SE.locality[Lund].municipality.name}` to read Lund's
-  municipality, which goal 4 asks for, but `.municipality` after a row is already the
-  link column's cell, `city[Oslo].country` rendering `NO`. So either the name means the
-  cell where it ends a path and the parent row where a segment follows, which the
-  decisions "One name, one meaning" and "`parent` names the link column and the table
-  alike" have to allow, or the step up takes a spelling of its own.
+- Decide how a path steps from a row up to its parent row, one level per step, chained.
+  Three simulated template writers expected `{/geo.SE.locality[Lund].municipality.name}`
+  to read Lund's municipality; today it is a load error, since `.municipality` after a
+  row is the link column's cell, `city[Oslo].country` rendering `NO`. The options:
+  - The name means the parent row where a segment follows, and the cell where the path
+    ends. It gives a refused spelling a meaning, so a minor, and extends "After a row, a
+    path names a column or a linked table" from child tables to the parent.
+  - The name always means the parent row, rendering through its format where the path
+    ends: `city[Oslo].country` renders `Norway`, the cell stays reachable through the
+    parent's key column. A change
+    to what exists, so a major, and a record's `country` column then holds the key while
+    the path renders the name.
+  - Goal 4 refuses a path ending on the name, since a writer could expect the code or the
+    name, naming the parent's key column and `.name`. A major.
+
+  Either of the first two gives `locality[Lund].municipality.name` and
+  `municipality[1281].name` one result, so goal 4's one spelling per result refuses one
+  of them, and the rewrite the selected-row item above names follows that choice.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
