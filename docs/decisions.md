@@ -217,7 +217,8 @@ handle is needed, as the cache already compiles once.
 
 ## A render shares one reference draw per category, per group
 
-Every reference path into a category in one `Fake`, or one record, reads one draw of it,
+Every reference path into a category that selects no row, in one `Fake` or one record,
+reads one draw of it,
 so a value's facts agree across its fields, nested templates and columns alike —
 `{/currency.code}` in one field and `{/currency.symbol}` in another name one currency,
 whichever view renders them. A `repeat` iteration is a render of its own, since
@@ -361,17 +362,21 @@ accepted one changes, so the door stays open for the address records the plan de
 
 ## A selected row is fixed, not drawn, and an unnamed read beside it is refused
 
-Decided 2026-09-27 by the maintainer, for goal 4; valid while a selector names exactly one row.
+Decided 2026-09-27 by the maintainer, for goals 3 and 4; valid while a selector names
+exactly one row.
 
 - Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
-  renders `Stockholm / Helsinki`, and so may two items of one choice.
-- What a path draws beneath a selected row is one draw per selection, shared by every
-  path through it: `{/geo.SE.region[12].locality.name}` twice names one locality.
-- A read naming no row of a table whose family a selection in the render and group
-  names is refused, naming the selected path and a `drawGroup`: beside
-  `{/misc.territory[SE].capital}`, a writer reading `{/misc.territory.currency}` expects
-  `SEK`, and `Stockholm pays in EUR` would pass review. It stays refused beside two
-  selections, since adding `[FI]` to that template would otherwise make it load.
+  renders `Stockholm / Helsinki`, and two items of one choice may select different rows.
+- What a path draws beneath a selected row is one draw per selection, per render and
+  group, shared by every path through it: `{/geo.SE.municipality[1281].locality.name}`
+  twice names one locality. `[1281]` and `[Lund]` select one row, so they are one
+  selection.
+- A read whose path selects no row is refused beside a selection in its family, in the
+  same render and group, naming the rewrite through each selection and a `drawGroup`:
+  beside `{/misc.territory[SE].capital}`, a writer reading `{/misc.territory.currency}`
+  expects `SEK`, so the error names `{/misc.territory[SE].currency}`, since
+  `Stockholm pays in EUR` would pass review. A second selection does not make the
+  unnamed read load.
 
 Checked against three simulated template writers from the Audience, who agreed on each
 case but the last, where two expected a render and all three accepted the refusal.
