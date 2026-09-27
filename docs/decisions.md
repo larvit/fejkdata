@@ -368,8 +368,7 @@ exactly one row.
   renders `Stockholm / Helsinki`, and two items of one choice may select different rows.
 - What a path draws beneath a selected row is one draw per selection, per render and
   group, shared by every path through it: `{/geo.SE.municipality[1281].locality.name}`
-  twice names one locality. `[1281]` and `[Lund]` select one row, so they are one
-  selection.
+  twice names one locality.
 - A read whose path selects no row is refused beside a selection in its family, in the
   same render and group, naming the rewrite through each selection and a `drawGroup`:
   beside `{/misc.territory[SE].capital}`, a writer reading `{/misc.territory.currency}`
@@ -396,10 +395,22 @@ parent. A row is selected or drawn alike.
   of `{name} ({alpha2})`, `city[Oslo].country` names `city[Oslo].country.alpha2` and
   `{/city[Oslo].country.name} ({/city[Oslo].country.alpha2})`. `List` leaves such a path
   out, and a record's link column still holds the key, since it is a column, not a path.
+- A path may not step back down into a child table after a step up:
+  `city[Oslo].country.city.name` could be Oslo or a city of Norway drawn afresh, so it is
+  refused, naming `city[Oslo].name` and `country[NO].city.name`.
+- A route through another row is another path to the same data, not a second spelling:
+  `city[Oslo].country.name` and `country[NO].name` both load.
 
 Checked against three simulated template writers from the Audience: all three read the
 parent row where a segment followed, and they split between the code and the name where
 the path ended.
+
+## A selector names a row by its key alone
+
+Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result. A table with
+a `key` selects by it alone: `country[NO]` loads, and `country[Norway]` is refused
+naming `[NO]`, since a name could spell another row's key. A table with no `key`
+selects by its `name` inside its parent, which is the key it has.
 
 ## A parent row with no child row is a load error
 
