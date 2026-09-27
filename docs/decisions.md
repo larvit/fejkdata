@@ -342,10 +342,7 @@ a load error rather than a file silently ignored.
 
 `municipality[0180]` reads as selection to anyone who has indexed an array, and `[St.
 Louis]` keeps a name whole where a colon or a dot-separated spelling could not; zsh
-needs the brackets quoted, which the README's examples show. A name that spells another
-row's key is refused at load rather than shadowed: a key names one row by contract, so
-the name could never select its own, and the check is one lookup per row against the key
-index that already exists.
+needs the brackets quoted, which the README's examples show.
 
 ## `parent` names the link column and the table alike
 
@@ -397,7 +394,9 @@ parent. A row is selected or drawn alike.
   out, and a record's link column still holds the key, since it is a column, not a path.
 - A path may not step back down into a child table after a step up:
   `city[Oslo].country.city.name` could be Oslo or a city of Norway drawn afresh, so it is
-  refused, naming `city[Oslo].name` and `country[NO].city.name`.
+  refused, naming the path to the row it stepped up from, `city[Oslo].name`, and the path
+  down from the parent, `country[NO].city.name`; after a drawn row, `city.country.city.name`
+  names `city.name` and `country.city.name`.
 - A route through another row is another path to the same data, not a second spelling:
   `city[Oslo].country.name` and `country[NO].name` both load.
 
@@ -407,10 +406,11 @@ the path ended.
 
 ## A selector names a row by its key alone
 
-Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result. A table with
-a `key` selects by it alone: `country[NO]` loads, and `country[Norway]` is refused
-naming `[NO]`, since a name could spell another row's key. A table with no `key`
-selects by its `name` inside its parent, which is the key it has.
+Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; valid while
+every table either has a `key` or names its rows inside a parent. A table with a `key`
+selects by it alone: `country[NO]` loads, and `country[Norway]` is refused naming
+`[NO]`, found by the row whose cell spells the selector. A table with no `key` selects by
+its `name` inside its parent, which is the key it has.
 
 ## A parent row with no child row is a load error
 
@@ -632,8 +632,7 @@ claim fejkdata has no business making.
 A flat list of names carries neither the code a PRI encodes nor a selector reaching it,
 and goal 3 draws the two as one fact. The canonical spelling losing to the one its
 domain writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
-`Informational` stays the `severity` column, and the code and the keyword hold the two
-selector slots.
+`Informational` stays the `severity` column.
 
 ## `misc.tld` keys carry the leading dot, where other tables key on a bare code
 

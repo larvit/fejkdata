@@ -179,10 +179,16 @@ by a `data-import/` script, as README goal 12 asks.
   README's `city[Oslo].country` example with
   `fejkdata -d ./mydata 'city[Oslo].country.name'`, rendering `Norway`.
 - Select a row by its key alone, as the decision "A selector names a row by its key
-  alone" states: `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row
-  today, where the error should name `[1281]` and `[SE]`. Refuse a `name` option beside
-  `key`, which then selects nothing, drop it from the shipped tables, and state the
-  README's selectors and `CHANGELOG.md`'s "a path selects a row by key or name" to match.
+  alone" states, once the open question on each table's key is settled:
+  `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row today.
+  - Have a selector that misses name the key of the row whose cell spells it, matched
+    without case, else say the table selects by its key: `misc.territory[Sweden]` and
+    `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, `misc.tld[se]`
+    `[.se]`, and `misc.loglevel[Error]` the row a column spells `Error` in.
+  - Refuse a `name` option beside `key`, which then selects nothing, and drop it from
+    the shipped tables.
+  - Rewrite what selects by name: README.md lines 20, 174, 183, 193, 198, 255, 257,
+    260, 473-491 and 499-504, and CHANGELOG.md lines 13-17 and 56.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
   unnamed read beside it is refused" states: `New` refuses
   `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
@@ -217,13 +223,6 @@ by a `data-import/` script, as README goal 12 asks.
   `drawn.category`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
   table is `territory` and `misc.territory`, and the short spelling names no file where two
   folders hold that name.
-- Name a spelling that works when a row selector misses: `misc.protocol[tcp]`,
-  `misc.httpmethod[get]` and `misc.territory[se]` all answer "no row … has key or name"
-  and stop there, where a case-insensitive match could name the row that exists, and a
-  table with no `name` column could say it selects by key alone. `misc.tld[se]` misses
-  on the leading dot its keys carry rather than on case, and `misc.loglevel[Error]`
-  misses although a column carries `Error`, so the near miss is worth naming whatever
-  shape it takes.
 - Let a table column carry a `datatype`, so `--format json` writes
   `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
   a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
@@ -232,6 +231,14 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide which spelling each shipped table selects by, now a selector names its key
+  alone. Keeping today's key loses `geo.US.region[IL].locality[Springfield]` to a
+  numeric GEOID, `misc.loglevel[err]` to `[3]`, `misc.tld[.рф]` to `[.xn--p1ai]`,
+  `misc.currency[Euro]`, `misc.protocol`'s second spelling and
+  `geo.SE.region[Skåne län]`. The tables carrying both today: `geo.SE` and `geo.US`
+  region, municipality and US locality, `misc` currency, httpstatus, language,
+  loglevel, mimetype, protocol, territory and tld, and both locales' `sex`. Decide too
+  whether the `name` option, left meaning "the key inside a parent", keeps its name.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
