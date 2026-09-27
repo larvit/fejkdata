@@ -165,7 +165,7 @@ func renderEdges(n node) []renderEdge {
 // already proved the tail resolves in every variant.
 func pathLeaves(n node, tail []string) []node {
 	w := &pathCheck{tail: tail}
-	_, _ = w.walk(n, tail)
+	_, _ = w.run(n)
 	return w.leaves
 }
 
