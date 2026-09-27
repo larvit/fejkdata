@@ -218,10 +218,9 @@ handle is needed, as the cache already compiles once.
 ## A render shares one reference draw per category, per group
 
 Every reference path into a category that selects no row, in one `Fake` or one record,
-reads one draw of it,
-so a value's facts agree across its fields, nested templates and columns alike —
-`{/currency.code}` in one field and `{/currency.symbol}` in another name one currency,
-whichever view renders them. A `repeat` iteration is a render of its own, since
+reads one draw of it, so a value's facts agree across its fields, nested templates and
+columns alike — `{/currency.code}` in one field and `{/currency.symbol}` in another name
+one currency, whichever view renders them. A `repeat` iteration is a render of its own, since
 repeating asks for another entity, and a [draw group](../README.md#draw-group) names further
 entities within one render, so a payer and a payee are two groups over one `person`
 rather than two copies of it. Only references share: a sibling field is local to its own
