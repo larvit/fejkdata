@@ -185,8 +185,9 @@ by a `data-import/` script, as README goal 12 asks.
     without case, else say the table selects by its key: `misc.territory[Sweden]` and
     `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, `misc.tld[se]`
     `[.se]`, and `misc.loglevel[Error]` the row a column spells `Error` in.
-  - Refuse a `name` option beside `key`, which then selects nothing, and drop it from
-    the shipped tables.
+  - Refuse a `name` option beside `key`, which then selects nothing, drop it from the
+    shipped tables, and delete the load check refusing a name that spells another row's
+    key.
   - Rewrite what selects by name: README.md lines 20, 174, 183, 193, 198, 255, 257,
     260, 473-491 and 499-504, and CHANGELOG.md lines 13-17 and 56.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
