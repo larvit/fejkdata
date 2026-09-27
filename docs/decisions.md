@@ -380,6 +380,24 @@ exactly one row.
 Checked against three simulated template writers from the Audience, who agreed on each
 case but the last, where two expected a render and all three accepted the refusal.
 
+## A link column after a row steps up to the parent row, and a path may not end on it
+
+Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
+parent's key.
+
+- Where a segment follows, the link column's name reads the parent row, one level per
+  step, chained: `city[Oslo].country.name` renders `Norway`, and
+  `geo.SE.locality[Lund].municipality.region.name` Lund's region.
+- A path ending on it is refused, naming the parent's key column and the columns its
+  format reads: `city[Oslo].country` could be `NO` or `Norway`, so the error names
+  `city[Oslo].country.alpha2` and `city[Oslo].country.name`.
+- A route through another row is not a second spelling of a selection:
+  `city[Oslo].country.name` and `country[NO].name` both load, as `[1281]` and `[Lund]` do.
+
+Checked against three simulated template writers from the Audience: all three read the
+parent row where a segment followed, and they split between the code and the name where
+the path ended.
+
 ## A parent row with no child row is a load error
 
 A descendant is drawn inside the nearest pinned ancestor, so every ancestor row must

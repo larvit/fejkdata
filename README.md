@@ -823,8 +823,9 @@ the Development section below, and who ships a register the four above then draw
 3. **Valid by construction** — every value passes the check its real consumer
    applies; facts that belong together come from one draw, within a value and
    across categories.
-4. **Templates are intuitive, and text means what it says** — a template renders what
-   every writer reading it would expect, judged by simulated writers from the Audience.
+4. **Templates are intuitive, and text means what it says** — a template, and every
+   path in it, renders what every writer reading it would expect, judged by simulated
+   writers from the Audience.
    A format renders as written; only `{…}` varies, random characters included
    (`{digits(3)}`), and a selected row, `[SE]`, is that row wherever it is written.
    Where two writers could expect different outputs, the template is a load error
