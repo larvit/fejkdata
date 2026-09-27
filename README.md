@@ -823,12 +823,13 @@ the Development section below, and who ships a register the four above then draw
 3. **Valid by construction** — every value passes the check its real consumer
    applies; facts that belong together come from one draw, within a value and
    across categories.
-4. **Templates are intuitive, and text means what it says** — a template does what
-   its writer expects on first reading. A format renders as written; only `{…}`
-   varies, random characters included (`{digits(3)}`), and a selected row, `[SE]`,
-   is that row wherever it is written. Where a reader could expect two outputs, the
-   template is a load error naming a spelling for each. One spelling per result; the
-   wrong one is a load error naming the right one.
+4. **Templates are intuitive, and text means what it says** — a template renders what
+   every writer reading it would expect, judged by simulated writers from the Audience.
+   A format renders as written; only `{…}` varies, random characters included
+   (`{digits(3)}`), and a selected row, `[SE]`, is that row wherever it is written.
+   Where two writers could expect different outputs, the template is a load error
+   naming a spelling for each. One spelling per result; the wrong one is a load error
+   naming the right one.
 5. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
    the inline template; on a loaded generator `Fake` fails only for an unknown
    path, `FakeStruct` only for a non-struct argument or a type its tags do not
