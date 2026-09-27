@@ -97,8 +97,8 @@ func operandReader(t *template, head string) string {
 	return ""
 }
 
-// coverPath collects what holding one path pins: every choice level the path
-// passes through, whole, and the leaf it renders.
+// coverPath collects what holding one path pins: the first choice level it passes,
+// whole, else the leaf it renders; it reads no row.
 func coverPath(n node, tail []string, into map[node]bool) {
 	_, _ = (&pathCover{into: into}).walk(n, tail)
 }

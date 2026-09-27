@@ -36,14 +36,10 @@ func (f *Generator) Fake(path string) (string, error) {
 	return render(f.rand, n, sc), nil
 }
 
-// descend walks named fields to the node a path names, pinning the table rows it
-// selects or draws in sc. It is the one render-side step that can fail, because the
-// path comes from the caller and may name a field or a row that does not exist. A
-// choice consumes no segment, so the rest of the path must be one every variant
-// carries before a variant is picked — a path that resolves at all resolves on
-// every call.
+// descend walks a caller's path to the node it names, pinning in sc the rows it
+// selects or draws.
 func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
-	// Walked once without drawing first, so a path that fails moves no seeded stream.
+	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
 	if _, err := (&pathProbe{drawn: map[*table]bool{}}).walk(root, segments); err != nil {
 		return nil, err
 	}

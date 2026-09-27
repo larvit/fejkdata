@@ -870,7 +870,7 @@ doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 table.go        tables: the rows TSV, its options and links, row selection and draws
-path.go         the dotted-path walk with its selectors, and proving a path resolves
+path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake and the recursive renderer (choices, format strings, expansions)
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype

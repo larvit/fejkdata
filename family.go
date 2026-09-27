@@ -24,8 +24,8 @@ type tableSel struct {
 	spelling string
 }
 
-// tableReadOf replays a reference's selectors through the walk a render uses, so
-// two paths pinning one row by different routes compare equal. checkPath proved
+// tableReadOf replays a reference path through pathProbe, so two paths pinning one
+// row by different routes compare equal. checkPath proved
 // each selector names a row.
 func tableReadOf(head node, a arm, leaf node) *tableRead {
 	t, isTable := head.(*table)
