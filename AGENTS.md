@@ -73,6 +73,7 @@ In [docs/decisions.md](docs/decisions.md):
 - After a row, a path names a column or a linked table
 - A selected row is fixed, not drawn, and an unnamed read beside it is refused
 - A link column after a row steps up to the parent row, and a path may not end on it
+- A selector names a row by its key alone
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
 - A table is a record of string columns
