@@ -84,7 +84,6 @@ func (r *tableRead) selected(t *table) (tableSel, bool) {
 // read one consistent draw: a table rendered whole beside a path into the family,
 // a table one read draws that another pins, and two reads pinning different rows.
 // The reads come sorted by group and path, so which pair is reported does not vary.
-// docs/decisions.md#every-reference-path-into-one-family-selects-the-same-rows-per-render-and-group
 func checkFamilies(reads []pathRead) error {
 	for i, r := range reads {
 		if r.tr == nil {

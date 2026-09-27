@@ -359,14 +359,22 @@ folder or another column name would be asking for a second spelling.
 today; admitting it later is additive, since a refused spelling gains a meaning and no
 accepted one changes, so the door stays open for the address records the plan describes.
 
-## Every reference path into one family selects the same rows, per render and group
+## A selected row is fixed, not drawn, and an unnamed read beside it is refused
 
-A selector pins rows for the render, and a read that draws freely before it could pin a
-row the selector contradicts, so accepting both would make the result depend on which
-token rendered first. Requiring one selection per family per group is checkable at load
-with no data lookup beyond the selectors themselves, and the error names the rewrite.
-Two selectors naming one row by key and by name compare equal, since the load check
-resolves them.
+Decided 2026-09-27 by the maintainer, for goal 4; valid while a selector names exactly one row.
+
+- Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
+  renders `Stockholm / Helsinki`, and so may two items of one choice.
+- What a path draws beneath a selected row is one draw per selection, shared by every
+  path through it: `{/geo.SE.region[12].locality.name}` twice names one locality.
+- A read naming no row of a table whose family a selection in the render and group
+  names is refused, naming the selected path and a `drawGroup`: beside
+  `{/misc.territory[SE].capital}`, a writer reading `{/misc.territory.currency}` expects
+  `SEK`, and `Stockholm pays in EUR` would pass review. It stays refused beside two
+  selections, since adding `[FI]` to that template would otherwise make it load.
+
+Checked against three simulated template writers from the Audience, who agreed on each
+case but the last, where two expected a render and all three accepted the refusal.
 
 ## A parent row with no child row is a load error
 
@@ -409,8 +417,7 @@ row, and whatever they reach, do meet, and so does the format beside them. Two r
 meet unless they sit under different rows of one pinned table; pinning a row pins its
 ancestors too, so rows under different parents are alternatives as well. A table read
 whole draws its row apart from every pin, so the rows of one whole read are
-alternatives only to each other. A choice's items are not alternatives: two items
-selecting different rows of one family are refused.
+alternatives only to each other.
 
 ## A table never reaches its own family, by any route
 
