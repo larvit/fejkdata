@@ -264,9 +264,6 @@ func recordOf(n node) (*template, []Column, error) {
 // over sc's hold; a table's columns read the row pinned there.
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
-	if t.table != nil {
-		sc.t, sc.row = t.table, sc.hold().pins.mustRow(t.table)
-	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
 		column := renderLeaf(s, t.fields[r.columns[i].Name], sc)

@@ -61,19 +61,18 @@ func render(s *session, n node, sc renderScope) string {
 	case *nullItem:
 		return ""
 	case *table:
-		sc.t, sc.row = n, n.drawRow(s)
+		var own pinSet
+		own.add(n, n.drawRow(s))
+		sc.pins = &own
 		return expand(s, n.formatTemplate, sc)
 	case *tableRow:
-		sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
 		return expand(s, n.t.formatTemplate, sc)
 	case *tableColumn:
-		if sc.t != n.t {
-			sc.t, sc.row = n.t, sc.hold().pins.mustRow(n.t)
-		}
-		if cell := n.t.cellTemplate(sc.row, n.i); cell != nil {
+		row := sc.rows().mustRow(n.t)
+		if cell := n.t.cellTemplate(row, n.i); cell != nil {
 			return render(s, cell, sc)
 		}
-		return n.t.cell(sc.row, n.i)
+		return n.t.cell(row, n.i)
 	case *template:
 		sc = sc.in(n)
 		if n.repeat == 1 {
