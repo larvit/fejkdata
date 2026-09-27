@@ -32,8 +32,9 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 	if !isTable {
 		return nil
 	}
-	tr := &tableRead{headTable: t, drawn: map[*table]bool{}}
-	_, _ = walkPath(t, a.tail, pathWalk{mode: walkProbe, pins: &tr.pins, drawn: tr.drawn})
+	probe := &probeWalk{}
+	_, _ = probe.walk(t, a.tail)
+	tr := &tableRead{headTable: t, pins: probe.pins, drawn: probe.drawn}
 	written := a.spelling[:len(a.spelling)-len(joinSegments(a.tail))]
 	cur := t
 	for i, seg := range a.tail {

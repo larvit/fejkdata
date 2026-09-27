@@ -164,9 +164,9 @@ func renderEdges(n node) []renderEdge {
 // contributes every variant, since any of them may be the one drawn. checkPath has
 // already proved the tail resolves in every variant.
 func pathLeaves(n node, tail []string) []node {
-	var out []node
-	_, _ = walkPath(n, tail, pathWalk{mode: walkEvery, pins: &pinSet{}, leaf: func(n node) error { out = append(out, n); return nil }})
-	return out
+	w := &proveWalk{tail: tail}
+	_, _ = w.walk(n, tail)
+	return w.leaves
 }
 
 type renderCounts map[node]int
