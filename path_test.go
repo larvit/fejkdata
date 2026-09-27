@@ -13,7 +13,7 @@ func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
 		t.Fatalf("pathLeaves(a.b) = %v, want the one leaf", leaves)
 	}
 	w := &pathCheck{tail: []string{"a", "nope", "deeper"}}
-	_, err := w.walk(n, w.tail)
+	_, err := w.run(n)
 	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
 		t.Errorf("walk(a.nope.deeper) = %v, want the missing segment named", err)
 	}

@@ -352,12 +352,13 @@ func TestTableSelectorInAReference(t *testing.T) {
 		}
 	}
 	for name, c := range map[string]struct{ json, want string }{
-		"unknown row":          {`"{/region[99].name}"`, `"99"`},
-		"ambiguous name":       {`"{/locality[Sandby].name}"`, "L7, L8"},
-		"not inside":           {`"{/region[12].municipality[0180].name}"`, "not inside"},
-		"selector on template": {`"{/x[1].a}"`, "not a table"},
+		"unknown row":                    {`"{/region[99].name}"`, `"99"`},
+		"ambiguous name":                 {`"{/locality[Sandby].name}"`, "L7, L8"},
+		"not inside":                     {`"{/region[12].municipality[0180].name}"`, "not inside"},
+		"selector on template":           {`"{/x[1].a}"`, "not a table"},
+		"selector on repeating template": {`"{/rep[1]}"`, "not a table"},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json}))))
+		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want an error mentioning %q", name, err, c.want)
 		}
@@ -1050,8 +1051,10 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		"municipality[1281].locality.name",
 		"municipality.locality[L4].name",
 		"region",
+		"region.municipality",
 		"region.municipality.name",
 		"region.locality.name",
+		"region[12].locality",
 		"region[12].locality.code",
 		"region[12].municipality.locality.code",
 		"region[12].name",
