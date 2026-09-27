@@ -99,7 +99,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.territory` is the spine, and a `misc` table naming a territory links to it
 - A table whose register publishes no frequency draws evenly
 - `misc.timezone` weighs a zone by the people living in it
-- `misc.port` selects by number, and carries no `name`
 - `misc.car` is one flat table, not a make linked to its models
 - `misc.territory` names its sovereign in a column, and there is no `misc.country` table
 - `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code

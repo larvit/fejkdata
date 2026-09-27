@@ -101,7 +101,7 @@ by a `data-import/` script, as README goal 12 asks.
   rewrite that returns a different value where the read it conflicts with sits inside
   another category, and report a struct column's draw conflict with the path spelling
   a tag takes.
-- Let `geo.SE.locality[Lund].address` descend from a selected row into the template
+- Let `geo.US.locality[1714000].address` descend from a selected row into the template
   beside the family: require the path step to reach a sibling category, and seed every
   draw group of the render from the outer selector's pins.
 - Read `email.local`'s and `username`'s handles from the shipped name tables, which
@@ -185,29 +185,24 @@ by a `data-import/` script, as README goal 12 asks.
     matched without case, else say the table selects by its key:
     `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]`
     its key, and `misc.loglevel[Error]` `[err]`.
-  - Delete the `name` option, and the load checks it carries: a name spelling another
-    row's key, and a name repeating inside its parent.
-  - Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on an id `data-import/geo-se.py`
-    assigns and keeps across imports, linking `street` and `postal-code` by it.
-  - Drop `key` from `last-name` and `sv_SE.title`.
-  - Rewrite what selects by name: in README.md, "selected by key or name",
-    `misc.currency[Euro]`, "selects by either spelling", `misc.tld[.рф]`,
-    `misc.loglevel[3]`, `misc.loglevel[err]` and "the code and the keyword do", the `geo`
-    table's "by code or name", "by USPS abbreviation or name", "by GEOID or name" and
-    "by name", `geo.SE.locality[Lund]`, `geo.SE.region[Skåne län]`,
-    `geo.US.region[IL].locality[Springfield]`, "selection by name",
-    `first-name[Taylor]`, `first-name[Kim]`, `sv_SE.title[dr]`, the `name` option's
-    paragraph and "`[key]` or `[name]`"; `locality[Lund]` in docs/decisions.md; in
-    CHANGELOG.md, "a path selects a row by key or name", "a name spelling another row's
-    key", "a name repeating inside one parent row", "A `name` without a `key`" and
-    `misc.tld[.рф]`.
+  - Delete the `name` option and the load checks it carries, a name spelling another
+    row's key and a name repeating inside its parent, and have `New` refuse a table
+    still carrying `name`, naming `key`.
+  - Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on the integer
+    `data-import/geo-se.py` assigns as the decision states, linking `street` and
+    `postal-code` by it.
+  - Drop `key` from `last-name` and `sv_SE.title`, and re-pin `testdata/shipped_shape.txt`.
+  - Leave no selection by name in README.md, CHANGELOG.md or docs/: no selector spelling
+    a free-form name, `geo.SE.locality[Lund]`, `misc.currency[Euro]`, `first-name[Kim]`
+    and the rest, no "key or name", "by name" or "either" wording about selectors, and no
+    `name` option in an example.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
   unnamed read beside it is refused" states: `New` refuses
   `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
   whose items select different rows. Have the refusal of an unnamed read name the
-  rewrite through each selection: beside `{/geo.SE.locality[Lund].name}`,
-  `{/geo.SE.municipality.name}` names none today, where
-  `{/geo.SE.locality[Lund].municipality.name}` holds once the step up above lands.
+  rewrite through each selection: beside `{/geo.US.locality[1714000].name}`,
+  `{/geo.US.municipality.name}` names none today, where
+  `{/geo.US.locality[1714000].municipality.name}` holds once the step up above lands.
   Scope the README's "A reference path into a category is held" to a path that
   selects no row.
 - Report the same error every load for a table with two bad options, and for a
