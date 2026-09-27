@@ -7,12 +7,12 @@ import (
 	"testing"
 )
 
-func TestWalkPathStopsAtAMissingSegment(t *testing.T) {
+func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
 	n := compiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
 	if leaves := pathLeaves(n, []string{"a", "b"}); len(leaves) != 1 {
 		t.Fatalf("pathLeaves(a.b) = %v, want the one leaf", leaves)
 	}
-	w := &proveWalk{tail: []string{"a", "nope", "deeper"}}
+	w := &pathCheck{tail: []string{"a", "nope", "deeper"}}
 	_, err := w.walk(n, w.tail)
 	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
 		t.Errorf("walk(a.nope.deeper) = %v, want the missing segment named", err)
@@ -22,7 +22,7 @@ func TestWalkPathStopsAtAMissingSegment(t *testing.T) {
 	}
 }
 
-func TestWalkPathChoiceConsumesNoSegment(t *testing.T) {
+func TestPathCheckChoiceConsumesNoSegment(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	if leaves := pathLeaves(n, []string{"f"}); len(leaves) != 2 {
 		t.Fatalf("pathLeaves through a choice = %v, want both variants' f", leaves)
@@ -31,7 +31,7 @@ func TestWalkPathChoiceConsumesNoSegment(t *testing.T) {
 
 func TestWalkCoverStopsAtAChoice(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
-	leaf, err := (&coverWalk{into: map[node]bool{}}).walk(n, []string{"f"})
+	leaf, err := (&pathCover{into: map[node]bool{}}).walk(n, []string{"f"})
 	if err != nil || leaf != n {
 		t.Fatalf("cover through a choice = %v, %v, want the choice itself", leaf, err)
 	}
@@ -43,7 +43,7 @@ func TestDrawPathPanicsOnAnUnprovedPath(t *testing.T) {
 			t.Errorf("drawPath(plain, f) recovered %v, want a panic naming the path and the missing field", r)
 		}
 	}()
-	drawPath(compiled(t, `"plain"`), []string{"f"}, "plain", &renderWalk{s: engine(1).rand, pins: &pinSet{}})
+	drawPath(compiled(t, `"plain"`), []string{"f"}, "plain", &pathDraw{s: engine(1).rand, pins: &pinSet{}})
 }
 
 func TestDeepDottedPath(t *testing.T) {
