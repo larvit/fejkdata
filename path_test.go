@@ -29,7 +29,7 @@ func TestPathCheckChoiceConsumesNoSegment(t *testing.T) {
 	}
 }
 
-func TestWalkCoverStopsAtAChoice(t *testing.T) {
+func TestPathCoverStopsAtAChoice(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	leaf, err := (&pathCover{into: map[node]bool{}}).walk(n, []string{"f"})
 	if err != nil || leaf != n {
