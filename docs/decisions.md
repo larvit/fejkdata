@@ -385,8 +385,8 @@ parent. A row is selected or drawn alike.
 
 - Where a segment follows, the link column's name reads the parent row, one level per
   step, chained: `city[Oslo].country.name` renders `Norway`, `locality.municipality.name`
-  the drawn locality's municipality, and `geo.SE.locality[Lund].municipality.region.name`
-  Lund's region.
+  the drawn locality's municipality, and
+  `geo.US.locality[1714000].municipality.region.name` Chicago's state.
 - A path ending on it is refused at `New`, `NewTemplate` and `Fake` alike, naming the
   parent's key column and the parent's format spelled as paths: with a `country` format
   of `{name} ({alpha2})`, `city[Oslo].country` names `city[Oslo].country.alpha2` and
@@ -404,13 +404,21 @@ Checked against three simulated template writers from the Audience: all three re
 parent row where a segment followed, and they split between the code and the name where
 the path ended.
 
-## A selector names a row by its key alone
+## A table selects by one key column, a code, never a free-form name
 
 Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; valid while
-every table either has a `key` or names its rows inside a parent. A table with a `key`
-selects by it alone: `country[NO]` loads, and `country[Norway]` is refused naming
-`[NO]`, found by the row whose cell spells the selector. A table with no `key` selects by
-its `name` inside its parent, which is the key it has.
+the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
+`country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
+selector. The key is the friendliest code the register holds, `misc.territory[SE]` and
+`misc.currency[EUR]`, and only where it holds none an id the import assigns and never
+moves to another row. There is no `name` option.
+
+- `misc.loglevel` keys on the keyword, `[err]`, which a configuration writes.
+- `misc.tld` keys on the ASCII form, `[.xn--p1ai]`, the one DNS carries.
+- `geo.US.locality` keys on the Census GEOID, `[1714000]` for Chicago.
+- `geo.SE.locality` keys on an assigned id: a postort has no code of its own.
+- A name table, `first-name`, `last-name` and `title`, carries no key, so it is drawn
+  from and never selected.
 
 ## A parent row with no child row is a load error
 
@@ -546,21 +554,13 @@ are a curated proportion rather than bearers anyone counted.
 A reference reaches a table by a path that carries no selector — `sv_SE.person.first`
 reads `first-name` through `sex` — so the walk that resolved a name cannot say where a
 reader would type one. The table's own location can, which is why it keeps its path, and
-why an ambiguity error names `sv_SE.sex[f].first-name[Kim]` rather than the table's own
-name.
+why an error names `geo.SE.municipality[1281]` rather than `municipality[1281]`.
 
 ## No builtin reads the clock, so a date is bounded by days, never by an age
 
 An `age(min,max)` would make a seeded fixture change with the day it runs on, which is
 what a seed exists to prevent; a birthdate for someone 20 to 60 is
 `date(1966-01-01,2006-12-31,…)`, re-pinned as any fixture is.
-
-## A name column without a key resolves inside its parent
-
-A given name both sexes carry is a row under each, so `name` cannot be the key; the
-parent's row tells the two apart, `sex[f].first-name[Kim]`, the ambiguity error spells
-each row inside its parent, and a name repeating inside one parent row is refused at
-load, since nothing could then select it.
 
 ## `misc` is what every locale shares
 
@@ -627,7 +627,7 @@ own family; a test proves every value names a row instead. A territory the regis
 records no state for stands alone, which is `EH` alone, and naming one for it would be a
 claim fejkdata has no business making.
 
-## `misc.loglevel` is a table keyed by the code, rendering POSIX's keyword
+## `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code
 
 A flat list of names carries neither the code a PRI encodes nor a selector reaching it,
 and goal 3 draws the two as one fact. The canonical spelling losing to the one its
