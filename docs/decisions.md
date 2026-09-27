@@ -410,15 +410,14 @@ Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; vali
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
 selector. The key is the friendliest code the register holds, `misc.territory[SE]` and
-`misc.currency[EUR]`, and only where it holds none an id the import assigns and never
-moves to another row. There is no `name` option.
+`misc.currency[EUR]`. There is no `name` option, and a table a user has no row of to
+select, a name table, `street`, `car` or `useragent`, carries no key and is drawn only.
 
-- `misc.loglevel` keys on the keyword, `[err]`, which a configuration writes.
-- `misc.tld` keys on the ASCII form, `[.xn--p1ai]`, the one DNS carries.
 - `geo.US.locality` keys on the Census GEOID, `[1714000]` for Chicago.
-- `geo.SE.locality` keys on an assigned id: a postort has no code of its own.
-- A name table, `first-name`, `last-name` and `title`, carries no key, so it is drawn
-  from and never selected.
+- `geo.SE.locality` keys on an integer the import assigns, since a postort has no code of
+  its own: the import reads the previous TSV and keeps each postort's id by kommun and
+  name, a new postort takes the next unused integer, and a removed or renamed one retires
+  its id for good.
 
 ## A parent row with no child row is a load error
 
@@ -443,8 +442,7 @@ option earns its place.
 ## The key index is built at load, the rest on first draw
 
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
-both are load-time; the name index and the per-parent child lists serve only a draw or a
-selection, so they wait for the first one, keeping `New` linear in the bytes read.
+both are load-time; the per-parent child lists serve only a draw, so they wait for the first one, keeping `New` linear in the bytes read.
 
 ## Two categories may name one TSV
 
@@ -551,9 +549,9 @@ are a curated proportion rather than bearers anyone counted.
 
 ## A table owns the spelling of a selector on it
 
-A reference reaches a table by a path that carries no selector — `sv_SE.person.first`
-reads `first-name` through `sex` — so the walk that resolved a name cannot say where a
-reader would type one. The table's own location can, which is why it keeps its path, and
+A reference reaches a table by a path that carries no selector — `sv_SE.address` reads
+`geo.SE.locality` through its template — so the walk that reached it cannot say where
+a reader would type a selector. The table's own location can, which is why it keeps its path, and
 why an error names `geo.SE.municipality[1281]` rather than `municipality[1281]`.
 
 ## No builtin reads the clock, so a date is bounded by days, never by an age
@@ -602,12 +600,6 @@ floored at 15,000, which goal 14 asks for: over 300 seeded draws of
 `misc.territory[US].timezone`, the four zones most Americans live in took 278 where an
 even weight gave them 44, and `America/Indiana/Petersburg`, a town of 2,400, fell from 17
 to 0. Valid while a draw weighted this way lands where people live.
-
-## `misc.port` selects by number, and carries no `name`
-
-29 of its services sit on more than one port, `http-alt` on three, so
-`misc.port[http-alt]` could name no one row. The number is what a port field holds
-anyway, and `misc.port[443].service` reads the other way.
 
 ## `misc.car` is one flat table, not a make linked to its models
 
