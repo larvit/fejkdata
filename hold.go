@@ -25,8 +25,7 @@ type draw struct {
 // token addresses by dotted path, or a field an operand reads — is drawn once and
 // kept, so {place.postal-code} and {place.locality} read one row, either read twice
 // gives one value, and a shown operand is the operand computed. Every other name is
-// drawn afresh, so {word} {word} still draws twice. checkTokens, checkPath and
-// linkRefs prove every step, so the walk cannot fail.
+// drawn afresh, so {word} {word} still draws twice.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw {
 	if s.trace != nil {
 		traceRead(s.trace, t, sc, a)

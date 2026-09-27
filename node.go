@@ -23,7 +23,7 @@ func (*folder) isNode() {}
 
 // choice picks one of its items. cum holds cumulative weights for a weighted
 // pick; when nil the choice is uniform and selection is O(1). shared is the set of
-// relative dot paths every item can address, so descend and List both read the one
+// relative dot paths every item can address, so carriedByAll and List both read the one
 // answer to what a path may reach through this choice.
 type choice struct {
 	items  []node

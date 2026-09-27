@@ -125,8 +125,7 @@ func nameSegments(segs []string) []string {
 	return out
 }
 
-// stepInto is what seg names under n: a folder's entry or a template's field. A
-// missing segment is an error, so no walk reaches past what the data holds.
+// stepInto is what seg names under n: a folder's entry or a template's field.
 func stepInto(n node, seg string) (node, error) {
 	if isSelector(seg) {
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", selectorOf(seg))
@@ -148,7 +147,7 @@ func stepInto(n node, seg string) (node, error) {
 }
 
 // tableRoute is how a path passes one table: the row it reads, by selector or
-// drawn, and what it goes on into, a linked table it descends to among them.
+// drawn, what it goes on into, and whether that is a linked table.
 type tableRoute struct {
 	sel      string
 	draw     bool
@@ -188,7 +187,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 // pathCheck proves a path resolves whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat or a drawGroup. It
-// collects every leaf the path may render; level and tail name a refused level.
+// collects every leaf the path may render; level names the head in its errors.
 type pathCheck struct {
 	pins   pinSet
 	level  string
@@ -258,7 +257,6 @@ func (w *pathCheck) enter(t *template, rest []string) error {
 	return nil
 }
 
-// pathCover is coverPath's walk: it stops at a choice and reads no row.
 type pathCover struct{ into map[node]bool }
 
 func (w *pathCover) walk(n node, tail []string) (node, error) {
@@ -285,9 +283,8 @@ func (w *pathCover) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-// pathProbe proves a path resolves, walking one variant of a choice, so a
-// path that resolves resolves whichever variants and rows are drawn. It draws
-// nothing, marking in drawn the tables a draw would pin.
+// pathProbe proves a path resolves without drawing: carriedByAll lets one variant
+// of a choice stand for all. It marks in drawn the tables a draw would pin.
 type pathProbe struct {
 	pins  pinSet
 	drawn map[*table]bool
@@ -345,8 +342,8 @@ type pathDraw struct {
 	a    *arm
 }
 
-// drawPath walks w over a path proved first, by a probe or by New's fences, so the
-// walk cannot fail. head is what n is reached by, for the panic.
+// drawPath walks w over a path proved first, by a probe or at load, so the walk
+// cannot fail. head names n in the panic.
 func drawPath(n node, tail []string, head string, w *pathDraw) node {
 	leaf, err := w.walk(n, tail)
 	if err != nil {
@@ -440,8 +437,7 @@ func carriedByAll(c *choice, rest []string) error {
 }
 
 // unreachableInChoice reports that a path cannot step through this choice, listing
-// what every variant does carry. It reads the precomputed set, so a failing path
-// costs no more than a rendering one.
+// what every variant does carry.
 func unreachableInChoice(c *choice, want string) error {
 	if len(c.shared) == 0 {
 		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.items), want)
@@ -454,8 +450,8 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-// checkPath proves a dotted tail as pathCheck does, so a path that validates here
-// resolves on every render, and a typo is a New-time error.
+// checkPath runs pathCheck over a path read at load; level names the head in its
+// errors.
 func checkPath(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
