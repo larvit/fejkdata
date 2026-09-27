@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Split `walkPath`'s four modes, so a caller does not select a behaviour by which of
-  `level`, `leaf`, `pins`, `drawn` and `draws` it leaves nil.
 - Gather the family fence beside `drawWalk.check`: `checkFamilies`, `replayPairs`,
   `checkFamilyPair` and `tableRead.replay` sit in `family.go` and `pins.go`, and one
   rule spans seven files.
