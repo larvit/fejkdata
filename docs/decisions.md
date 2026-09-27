@@ -689,7 +689,8 @@ though `hasRead` states the same stop rule. Valid while the two differ in where 
 2026-09-28, larv-review on systems-architect's finding; awaiting approval. Goals 2 and
 11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` each loop over `stepInto` and
 `table.route` themselves, and `descend` builds its probe in place, so the probe's
-`drawn` map stays on the stack. One walk calling them through an interface or a type
+`drawn` map stays on the stack; its caller always builds that map, since no walker
+picks a behaviour by a nil field. One walk calling them through an interface or a type
 parameter leaks the walker and the pins it holds, an allocation per reference read.
 Valid while Go's escape analysis treats a call through an interface or a type parameter
 as leaking its receiver.
