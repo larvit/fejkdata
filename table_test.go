@@ -110,6 +110,22 @@ func TestTableRendersRowsAndColumns(t *testing.T) {
 			t.Fatalf("column %q is %s null=%v, want a string", c.Name, c.DataType, c.Null)
 		}
 	}
+	calc := newGenerator(t, writeFiles(t, map[string]string{
+		"r.json": `{"format":"{name} {calc(population * 2)}","rows":"r.tsv","key":"code"}`,
+		"r.tsv":  "code\tname\tpopulation\n01\tA\t10\n02\tB\t4\n",
+		"w.json": `"{/r}"`,
+	}))
+	for i := 0; i < 20; i++ {
+		if got := fake(t, calc, "r"); got != "A 20" && got != "B 8" {
+			t.Fatalf("r = %q, want a row doubling its population", got)
+		}
+		if got := fake(t, calc, "r[01]"); got != "A 20" {
+			t.Fatalf("r[01] = %q, want A 20", got)
+		}
+		if got := fake(t, calc, "w"); got != "A 20" && got != "B 8" {
+			t.Fatalf("w = %q, want a row doubling its population", got)
+		}
+	}
 }
 
 func TestTableWeightSkewsTheDraw(t *testing.T) {
