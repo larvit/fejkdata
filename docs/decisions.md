@@ -383,16 +383,20 @@ case but the last, where two expected a render and all three accepted the refusa
 ## A link column after a row steps up to the parent row, and a path may not end on it
 
 Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
-parent's key.
+parent's key. It extends [After a row, a path names a column or a linked
+table](#after-a-row-a-path-names-a-column-or-a-linked-table) from child tables to the
+parent. A row is selected or drawn alike.
 
 - Where a segment follows, the link column's name reads the parent row, one level per
-  step, chained: `city[Oslo].country.name` renders `Norway`, and
-  `geo.SE.locality[Lund].municipality.region.name` Lund's region.
-- A path ending on it is refused, naming the parent's key column and the columns its
-  format reads: `city[Oslo].country` could be `NO` or `Norway`, so the error names
-  `city[Oslo].country.alpha2` and `city[Oslo].country.name`.
-- A route through another row is not a second spelling of a selection:
-  `city[Oslo].country.name` and `country[NO].name` both load, as `[1281]` and `[Lund]` do.
+  step, chained: `city[Oslo].country.name` renders `Norway`, `locality.municipality.name`
+  the drawn locality's municipality, and `geo.SE.locality[Lund].municipality.region.name`
+  Lund's region. The parent row of a selected row is fixed as the selection is, so
+  `city[Oslo].country.city.name` draws a city of Norway, which may not be Oslo.
+- A path ending on it is refused at `New`, `NewTemplate` and `Fake` alike, naming the
+  parent's key column and the parent's format spelled as paths: with a `country` format
+  of `{name} ({alpha2})`, `city[Oslo].country` names `city[Oslo].country.alpha2` and
+  `{/city[Oslo].country.name} ({/city[Oslo].country.alpha2})`. `List` leaves such a path
+  out, and a record's link column still holds the key, since it is a column, not a path.
 
 Checked against three simulated template writers from the Audience: all three read the
 parent row where a segment followed, and they split between the code and the name where

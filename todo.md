@@ -174,8 +174,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 - Step up from a row to its parent as the decision "A link column after a row steps up
   to the parent row, and a path may not end on it" states: `city[Oslo].country.name` is
-  a load error today, and `city[Oslo].country` renders the cell `NO`. Correct the
-  README's `city[Oslo].country` example to match.
+  a load error today, and `city[Oslo].country` renders the cell `NO`, as
+  `locality.municipality` does, which `List` advertises. Replace the README's
+  `city[Oslo].country` example with `fejkdata -d ./mydata 'city[Oslo].country.name'`,
+  rendering `Norway`.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
   unnamed read beside it is refused" states: `New` refuses
   `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
@@ -225,6 +227,10 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide whether a route through another row is a second spelling of one result:
+  `city[Oslo].country.name` and `country[NO].name` always render `Norway`, and goal 4
+  refuses a second spelling, while `country[NO]` and `country[Norway]` both select one
+  row today.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
