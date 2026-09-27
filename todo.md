@@ -175,7 +175,7 @@ by a `data-import/` script, as README goal 12 asks.
 - Step up from a row to its parent as the decision "A link column after a row steps up
   to the parent row, and a path may not end on it" states: `city[Oslo].country.name` is
   a load error today, and `city[Oslo].country` renders the cell `NO`, as
-  `locality.municipality` does, which `List` advertises. Replace the README's
+  `locality.municipality` does, which `List` stops advertising. Replace the README's
   `city[Oslo].country` example with `fejkdata -d ./mydata 'city[Oslo].country.name'`,
   rendering `Norway`.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
@@ -227,6 +227,8 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
+- Decide what a path stepping up and back down renders, per goal 4's writer check:
+  `city[Oslo].country.city.name` could be Oslo or a city of Norway drawn afresh.
 - Decide whether a route through another row is a second spelling of one result:
   `city[Oslo].country.name` and `country[NO].name` always render `Norway`, and goal 4
   refuses a second spelling, while `country[NO]` and `country[Norway]` both select one
