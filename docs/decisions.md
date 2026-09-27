@@ -390,8 +390,7 @@ parent. A row is selected or drawn alike.
 - Where a segment follows, the link column's name reads the parent row, one level per
   step, chained: `city[Oslo].country.name` renders `Norway`, `locality.municipality.name`
   the drawn locality's municipality, and `geo.SE.locality[Lund].municipality.region.name`
-  Lund's region. The parent row of a selected row is fixed as the selection is, so
-  `city[Oslo].country.city.name` draws a city of Norway, which may not be Oslo.
+  Lund's region.
 - A path ending on it is refused at `New`, `NewTemplate` and `Fake` alike, naming the
   parent's key column and the parent's format spelled as paths: with a `country` format
   of `{name} ({alpha2})`, `city[Oslo].country` names `city[Oslo].country.alpha2` and
