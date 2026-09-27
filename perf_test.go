@@ -93,6 +93,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 		base       float64
 	}{
 		{"a table drawn", "region", 2},
+		{"a column of a drawn row", "region.name", 1},
 		{"a row selected", "region[12]", 2},
 		{"two columns of one draw", "x", 10},
 	} {
