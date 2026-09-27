@@ -185,18 +185,18 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	return r, nil
 }
 
-// proveWalk proves a path resolves whichever way the draws go: every variant of a
+// pathCheck proves a path resolves whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat or a drawGroup. It
 // collects every leaf the path may render; level and tail name a refused level.
-type proveWalk struct {
+type pathCheck struct {
 	pins   pinSet
 	level  string
 	tail   []string
 	leaves []node
 }
 
-func (w *proveWalk) walk(n node, tail []string) (node, error) {
+func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
@@ -228,7 +228,7 @@ func (w *proveWalk) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-func (w *proveWalk) walkEvery(c *choice, tail []string) (node, error) {
+func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 	if err := carriedByAll(c, tail); err != nil {
 		return nil, err
 	}
@@ -242,7 +242,7 @@ func (w *proveWalk) walkEvery(c *choice, tail []string) (node, error) {
 	return last, nil
 }
 
-func (w *proveWalk) enter(t *template, rest []string) error {
+func (w *pathCheck) enter(t *template, rest []string) error {
 	name := join(w.level, strings.Join(w.tail[:len(w.tail)-len(rest)], "."))
 	switch {
 	case t.repeat > 1:
@@ -253,11 +253,10 @@ func (w *proveWalk) enter(t *template, rest []string) error {
 	return nil
 }
 
-// coverWalk collects into what holding a path pins: every choice level it passes
-// through, whole, and the leaf it renders. It stops at a choice and reads no row.
-type coverWalk struct{ into map[node]bool }
+// pathCover is coverPath's walk: it stops at a choice and reads no row.
+type pathCover struct{ into map[node]bool }
 
-func (w *coverWalk) walk(n node, tail []string) (node, error) {
+func (w *pathCover) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
@@ -281,15 +280,15 @@ func (w *coverWalk) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-// probeWalk proves a path as proveWalk does, walking one variant of a choice, so a
+// pathProbe proves a path resolves, walking one variant of a choice, so a
 // path that resolves resolves whichever variants and rows are drawn. It draws
 // nothing, marking in drawn the tables a draw would pin.
-type probeWalk struct {
+type pathProbe struct {
 	pins  pinSet
 	drawn map[*table]bool
 }
 
-func (w *probeWalk) walk(n node, tail []string) (node, error) {
+func (w *pathProbe) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
@@ -318,15 +317,12 @@ func (w *probeWalk) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-func (w *probeWalk) readRow(t *table, r tableRoute) error {
+func (w *pathProbe) readRow(t *table, r tableRoute) error {
 	if r.sel != "" {
 		return w.pins.selectRow(t, r.sel)
 	}
 	if !r.draw {
 		return nil
-	}
-	if w.drawn == nil {
-		w.drawn = map[*table]bool{}
 	}
 	for stop := w.pins.nearestPinned(t); t != stop; t = t.parentT {
 		w.drawn[t] = true
@@ -334,10 +330,10 @@ func (w *probeWalk) readRow(t *table, r tableRoute) error {
 	return nil
 }
 
-// renderWalk draws the rows and variants a proved path reads, pinning them in pins.
+// pathDraw draws the rows and variants a proved path reads, pinning them in pins.
 // For a held read, held keeps the variant drawn at each level of a, so paths
 // sharing a prefix share it.
-type renderWalk struct {
+type pathDraw struct {
 	s    *session
 	pins *pinSet
 	held *hold
@@ -346,7 +342,7 @@ type renderWalk struct {
 
 // drawPath walks w over a path proved first, by a probe or by New's fences, so the
 // walk cannot fail. head is what n is reached by, for the panic.
-func drawPath(n node, tail []string, head string, w *renderWalk) node {
+func drawPath(n node, tail []string, head string, w *pathDraw) node {
 	leaf, err := w.walk(n, tail)
 	if err != nil {
 		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", join(head, joinSegments(tail)), err))
@@ -354,7 +350,7 @@ func drawPath(n node, tail []string, head string, w *renderWalk) node {
 	return leaf
 }
 
-func (w *renderWalk) walk(n node, tail []string) (node, error) {
+func (w *pathDraw) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
@@ -387,7 +383,7 @@ func (w *renderWalk) walk(n node, tail []string) (node, error) {
 
 // variant is the variant of c the walk continues into: the one held for this level
 // of the read, drawn once, where the walk holds its draws; else one drawn afresh.
-func (w *renderWalk) variant(c *choice, rest []string) node {
+func (w *pathDraw) variant(c *choice, rest []string) node {
 	if w.held == nil {
 		return pick(w.s, c)
 	}
@@ -453,9 +449,9 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-// checkPath proves a dotted tail as proveWalk does, so a path that validates here
+// checkPath proves a dotted tail as pathCheck does, so a path that validates here
 // resolves on every render, and a typo is a New-time error.
 func checkPath(n node, tail []string, level string) error {
-	_, err := (&proveWalk{level: level, tail: tail}).walk(n, tail)
+	_, err := (&pathCheck{level: level, tail: tail}).walk(n, tail)
 	return err
 }

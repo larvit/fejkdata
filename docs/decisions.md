@@ -683,3 +683,12 @@ the direct chain is the one a reader can predict from the tables' parents.
 2026-09-25, larv-review; approved 2026-09-25 by lilleman. Goal 2: a reader lands on
 `readsPath` or `splitsDraws` from its caller, so each doc states where that walk stops,
 though `hasRead` states the same stop rule. Valid while the two differ in where they stop.
+
+## The four path walks are four loops
+
+2026-09-28, larv-review on systems-architect's finding; awaiting approval. Goals 2 and
+11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` each loop over `stepInto` and
+`table.route` themselves. One walk calling them through an interface or a type parameter
+leaks the walker and the pins it holds, an allocation per reference read. Valid while Go's
+escape analysis treats a call through an interface or a type parameter as leaking its
+receiver.

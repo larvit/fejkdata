@@ -110,3 +110,4 @@ In [docs/decisions.md](docs/decisions.md):
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - Each entry point to `drawCheck.hasRead` says what its caller gets
+- The four path walks are four loops

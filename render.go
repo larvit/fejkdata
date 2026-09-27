@@ -44,10 +44,10 @@ func (f *Generator) Fake(path string) (string, error) {
 // every call.
 func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
 	// Walked once without drawing first, so a path that fails moves no seeded stream.
-	if _, err := (&probeWalk{}).walk(root, segments); err != nil {
+	if _, err := (&pathProbe{drawn: map[*table]bool{}}).walk(root, segments); err != nil {
 		return nil, err
 	}
-	return drawPath(root, segments, "", &renderWalk{s: s, pins: &sc.hold().pins}), nil
+	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.hold().pins}), nil
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
