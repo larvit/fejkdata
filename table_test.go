@@ -1061,14 +1061,14 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 			t.Fatal(err)
 		}
 		head := f.categories[segs[0]].(*table)
-		var probed pinSet
-		drawn := map[*table]bool{}
-		if _, err := walkPath(head, segs[1:], pathWalk{mode: walkProbe, pins: &probed, drawn: drawn}); err != nil {
+		probe := &probeWalk{}
+		if _, err := probe.walk(head, segs[1:]); err != nil {
 			t.Fatalf("%s: %v", path, err)
 		}
+		probed, drawn := probe.pins, probe.drawn
 		for i := 0; i < 20; i++ {
 			var pins pinSet
-			drawPath(head, segs[1:], segs[0], &pins, &pathDraws{s: f.rand})
+			drawPath(head, segs[1:], segs[0], &renderWalk{s: f.rand, pins: &pins})
 			want := map[*table]bool{}
 			pins.each(func(tbl *table, _ int) {
 				if _, selected := probed.pinned(tbl); !selected {
