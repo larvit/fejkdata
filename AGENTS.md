@@ -73,7 +73,7 @@ In [docs/decisions.md](docs/decisions.md):
 - After a row, a path names a column or a linked table
 - A selected row is fixed, not drawn, and an unnamed read beside it is refused
 - A link column after a row steps up to the parent row, and a path may not end on it
-- A selector names a row by its key alone
+- A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
 - A table is a record of string columns
@@ -94,7 +94,6 @@ In [docs/decisions.md](docs/decisions.md):
 - A title is a table under `sex`
 - A table owns the spelling of a selector on it
 - No builtin reads the clock, so a date is bounded by days, never by an age
-- A name column without a key resolves inside its parent
 - `misc` is what every locale shares
 - A register's canonical spelling loses to the one its domain writes
 - `misc.territory` is the spine, and a `misc` table naming a territory links to it
@@ -103,7 +102,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.port` selects by number, and carries no `name`
 - `misc.car` is one flat table, not a make linked to its models
 - `misc.territory` names its sovereign in a column, and there is no `misc.country` table
-- `misc.loglevel` is a table keyed by the code, rendering POSIX's keyword
+- `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code
 - `misc.tld` keys carry the leading dot, where other tables key on a bare code
 - `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
 - `misc.territory` carries a currency code, it does not link to `misc.currency`

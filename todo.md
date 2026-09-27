@@ -178,23 +178,28 @@ by a `data-import/` script, as README goal 12 asks.
   cell `NO`, as `locality.municipality` does, which `List` stops advertising. Replace the
   README's `city[Oslo].country` example with
   `fejkdata -d ./mydata 'city[Oslo].country.name'`, rendering `Norway`.
-- Select a row by its key alone, as the decision "A selector names a row by its key
-  alone" states, once the open question on each table's key is settled:
-  `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row today.
+- Key every table as the decision "A table selects by one key column, a code, never a
+  free-form name" states: `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select
+  a row today.
   - Have a selector that misses name the key of every row whose cell spells it,
     matched without case, else say the table selects by its key:
     `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]`
-    its key, and `misc.loglevel[Error]` the row a column spells `Error` in.
-  - Refuse a `name` option beside `key`, which then selects nothing, drop it from the
-    shipped tables, and delete the load check refusing a name that spells another row's
-    key.
+    its key, and `misc.loglevel[Error]` `[err]`.
+  - Delete the `name` option, and the load checks it carries: a name spelling another
+    row's key, and a name repeating inside its parent.
+  - Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on an id `data-import/geo-se.py`
+    assigns and keeps across imports, linking `street` and `postal-code` by it.
+  - Drop `key` from `last-name` and `sv_SE.title`.
   - Rewrite what selects by name: in README.md, "selected by key or name",
     `misc.currency[Euro]`, "selects by either spelling", `misc.tld[.рф]`,
-    `misc.loglevel[err]` and "the code and the keyword do", the `geo` table's "by code
-    or name", "by USPS abbreviation or name" and "by GEOID or name",
-    `geo.SE.region[Skåne län]`, `geo.US.region[IL].locality[Springfield]`, "selection by
-    name", the `name` option's paragraph and "`[key]` or `[name]`"; in CHANGELOG.md, "a
-    path selects a row by key or name", "a name spelling another row's key" and
+    `misc.loglevel[3]`, `misc.loglevel[err]` and "the code and the keyword do", the `geo`
+    table's "by code or name", "by USPS abbreviation or name", "by GEOID or name" and
+    "by name", `geo.SE.locality[Lund]`, `geo.SE.region[Skåne län]`,
+    `geo.US.region[IL].locality[Springfield]`, "selection by name",
+    `first-name[Taylor]`, `first-name[Kim]`, `sv_SE.title[dr]`, the `name` option's
+    paragraph and "`[key]` or `[name]`"; `locality[Lund]` in docs/decisions.md; in
+    CHANGELOG.md, "a path selects a row by key or name", "a name spelling another row's
+    key", "a name repeating inside one parent row", "A `name` without a `key`" and
     `misc.tld[.рф]`.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
   unnamed read beside it is refused" states: `New` refuses
@@ -238,16 +243,6 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Open questions to settle
 
-- Decide which spelling each shipped table selects by, now a selector names its key
-  alone. Keeping today's key loses `geo.US.region[IL].locality[Springfield]` to a
-  numeric GEOID, `misc.loglevel[err]` to `[3]`, `misc.tld[.рф]` to `[.xn--p1ai]`,
-  `misc.currency[Euro]`, `misc.protocol`'s second spelling and
-  `geo.SE.region[Skåne län]`. The tables carrying both today: `geo.SE` and `geo.US`
-  region, municipality and US locality, `misc` currency, httpstatus, language,
-  loglevel, mimetype, protocol, territory and tld, and both locales' `sex`. Decide too
-  whether the `name` option, left meaning "the key inside a parent", keeps its name.
-  Record each answer in `docs/decisions.md`, amending the `misc.tld` and `misc.loglevel`
-  entries it changes.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
