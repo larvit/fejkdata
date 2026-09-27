@@ -235,7 +235,7 @@ by a `data-import/` script, as README goal 12 asks.
   - Goal 4 refuses a path ending on the name, since a writer could expect the code or the
     name, naming the parent's key column and `.name`. A major.
 
-  Either of the first two gives `locality[Lund].municipality.name` and
+  Each option gives `locality[Lund].municipality.name` and
   `municipality[1281].name` one result, so goal 4's one spelling per result refuses one
   of them, and the rewrite the selected-row item above names follows that choice.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
