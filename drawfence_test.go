@@ -131,9 +131,6 @@ func renderRoot(s *session, t *template) {
 			sc.hold().pins.pin(t.table, r)
 			render(s, t.table.pinnedRow, sc)
 		}
-	case t.cellOf != nil:
-		sc.t, sc.row = t.cellOf, t.cellRow
-		render(s, t, sc)
 	case t.repeat > 1:
 		expand(s, t, sc)
 	default:

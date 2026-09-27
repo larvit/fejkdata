@@ -11,14 +11,13 @@ type holdSet struct {
 }
 
 // renderScope is where a render reads its reference paths: a hold set, in the draw group of the
-// template rendering, and the row a table's format is rendering, which its columns read. It passes
-// by value, and what is read from it reaches a map key, an interface or a func value only as a
-// copy; else sc, and with it every render's hold set, moves to the heap.
+// template rendering, and the pin set a table's columns read their row from: a whole read's own,
+// else the hold's. It passes by value, and what is read from it reaches a map key, an interface or
+// a func value only as a copy; else sc, and with it every render's hold set, moves to the heap.
 type renderScope struct {
 	set   *holdSet
 	group string
-	t     *table
-	row   int
+	pins  *pinSet
 }
 
 func eagerHoldSet() holdSet {
@@ -50,6 +49,13 @@ func (sc renderScope) in(t *template) renderScope {
 		sc.group = t.drawGroupKey
 	}
 	return sc
+}
+
+func (sc renderScope) rows() *pinSet {
+	if sc.pins != nil {
+		return sc.pins
+	}
+	return &sc.hold().pins
 }
 
 func (sc renderScope) hold() *hold {

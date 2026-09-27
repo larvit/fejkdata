@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Give a table's current row one owner: `renderScope.t` and `row` hold it beside the
-  `pinSet`, and `renderLeaf` reads a column's null back from a hold `readField` wrote.
 - Split `walkPath`'s four modes, so a caller does not select a behaviour by which of
   `level`, `leaf`, `pins`, `drawn` and `draws` it leaves nil.
 - Gather the family fence beside `drawWalk.check`: `checkFamilies`, `replayPairs`,

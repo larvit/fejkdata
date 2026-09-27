@@ -29,11 +29,7 @@ type draw struct {
 // linkRefs prove every step, so the walk cannot fail.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw {
 	if s.trace != nil {
-		var table string
-		if sc.t != nil {
-			table = strings.Clone(sc.t.path)
-		}
-		s.trace.read(strings.Clone(sc.group), table, sc.row, a)
+		traceRead(s.trace, t, sc, a)
 	}
 	if !t.held[a.key] {
 		if len(a.tail) > 0 {
@@ -45,6 +41,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 	if r, done := d.value[a.path]; done {
 		return r
 	}
+	sc.pins = &d.pins
 	r := renderLeaf(s, drawPath(t.head(a.key), a.tail, a.key, &d.pins, &pathDraws{s: s, held: d, a: &a}), sc)
 	if d.value == nil {
 		d.value = map[string]draw{}
@@ -57,6 +54,18 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) draw 
 type renderTrace struct {
 	read        func(group, table string, row int, a arm)
 	repeatDepth int
+}
+
+func traceRead(trace *renderTrace, t *template, sc renderScope, a arm) {
+	var table string
+	var row int
+	switch {
+	case t.cellOf != nil:
+		table, row = t.cellOf.path, t.cellRow
+	case t.table != nil:
+		table, row = t.table.path, sc.rows().mustRow(t.table)
+	}
+	trace.read(strings.Clone(sc.group), strings.Clone(table), row, a)
 }
 
 // readHold is the hold a held read keeps its draw in: for a reference that reads a path,
@@ -73,14 +82,15 @@ func readHold(held *hold, sc renderScope, a arm) *hold {
 // reference alone whose read drew null.
 func renderLeaf(s *session, n node, sc renderScope) draw {
 	n = resolveChoice(s, n)
-	if _, isNull := n.(*nullItem); isNull {
+	switch leaf := n.(type) {
+	case *nullItem:
 		return draw{null: true}
+	case *template:
+		if leaf.readsColumn != nil {
+			return readField(s, leaf, nil, sc.in(leaf), leaf.readsColumn.a)
+		}
 	}
-	r := draw{text: render(s, n, sc)}
-	if t, _ := n.(*template); t != nil && t.readsColumn != nil {
-		r.null = sc.in(t).hold().value[t.readsColumn.a.path].null
-	}
-	return r
+	return draw{text: render(s, n, sc)}
 }
 
 // resolveChoice resolves a choice to one variant, so a bound head is a concrete node the
