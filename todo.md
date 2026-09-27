@@ -181,15 +181,21 @@ by a `data-import/` script, as README goal 12 asks.
 - Select a row by its key alone, as the decision "A selector names a row by its key
   alone" states, once the open question on each table's key is settled:
   `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row today.
-  - Have a selector that misses name the key of the row whose cell spells it, matched
-    without case, else say the table selects by its key: `misc.territory[Sweden]` and
-    `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, `misc.tld[se]`
-    `[.se]`, and `misc.loglevel[Error]` the row a column spells `Error` in.
+  - Have a selector that misses name the key of every row whose cell spells it,
+    matched without case, else say the table selects by its key:
+    `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]`
+    its key, and `misc.loglevel[Error]` the row a column spells `Error` in.
   - Refuse a `name` option beside `key`, which then selects nothing, drop it from the
     shipped tables, and delete the load check refusing a name that spells another row's
     key.
-  - Rewrite what selects by name: README.md lines 20, 174, 183, 193, 198, 255, 257,
-    260, 473-491 and 499-504, and CHANGELOG.md lines 13-17 and 56.
+  - Rewrite what selects by name: in README.md, "selected by key or name",
+    `misc.currency[Euro]`, "selects by either spelling", `misc.tld[.рф]`,
+    `misc.loglevel[err]` and "the code and the keyword do", the `geo` table's "by code
+    or name", "by USPS abbreviation or name" and "by GEOID or name",
+    `geo.SE.region[Skåne län]`, `geo.US.region[IL].locality[Springfield]`, "selection by
+    name", the `name` option's paragraph and "`[key]` or `[name]`"; in CHANGELOG.md, "a
+    path selects a row by key or name", "a name spelling another row's key" and
+    `misc.tld[.рф]`.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
   unnamed read beside it is refused" states: `New` refuses
   `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
@@ -240,6 +246,8 @@ by a `data-import/` script, as README goal 12 asks.
   region, municipality and US locality, `misc` currency, httpstatus, language,
   loglevel, mimetype, protocol, territory and tld, and both locales' `sex`. Decide too
   whether the `name` option, left meaning "the key inside a parent", keeps its name.
+  Record each answer in `docs/decisions.md`, amending the `misc.tld` and `misc.loglevel`
+  entries it changes.
 - Decide whether a goal 5 violation joins the comprehension gate's exception list: the
   `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
   `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
