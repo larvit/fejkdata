@@ -410,14 +410,14 @@ Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; vali
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
 selector. The key is the friendliest code the register holds, `misc.territory[SE]` and
-`misc.currency[EUR]`. There is no `name` option, and a table a user has no row of to
-select, a name table, `street`, `car` or `useragent`, carries no key and is drawn only.
+`misc.currency[EUR]`. There is no `name` option, and a table nothing selects into, a name
+table, `street`, `car` or `useragent`, carries no key and is only drawn.
 
 - `geo.US.locality` keys on the Census GEOID, `[1714000]` for Chicago.
 - `geo.SE.locality` keys on an integer the import assigns, since a postort has no code of
-  its own: the import reads the previous TSV and keeps each postort's id by kommun and
-  name, a new postort takes the next unused integer, and a removed or renamed one retires
-  its id for good.
+  its own. The first import numbers the postorter in name order; later imports keep each
+  id by the postort's name, unique across Sweden as the key it replaces, give a new
+  postort the next unused integer, and retire a removed or renamed one's id for good.
 
 ## A parent row with no child row is a load error
 
@@ -442,7 +442,8 @@ option earns its place.
 ## The key index is built at load, the rest on first draw
 
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
-both are load-time; the per-parent child lists serve only a draw, so they wait for the first one, keeping `New` linear in the bytes read.
+both are load-time; the per-parent child lists serve only a draw, so they wait for the
+first one, keeping `New` linear in the bytes read.
 
 ## Two categories may name one TSV
 
@@ -551,8 +552,8 @@ are a curated proportion rather than bearers anyone counted.
 
 A reference reaches a table by a path that carries no selector — `sv_SE.address` reads
 `geo.SE.locality` through its template — so the walk that reached it cannot say where
-a reader would type a selector. The table's own location can, which is why it keeps its path, and
-why an error names `geo.SE.municipality[1281]` rather than `municipality[1281]`.
+a reader would type a selector. The table's own location can, which is why it keeps its
+path, and why an error names `geo.SE.municipality[1281]` rather than `municipality[1281]`.
 
 ## No builtin reads the clock, so a date is bounded by days, never by an age
 
