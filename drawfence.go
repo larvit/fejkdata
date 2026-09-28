@@ -226,9 +226,10 @@ func columnDraws(t *template, columns []string) *drawWalk {
 
 // drawWalk gathers the references one render reads, by draw group, for check to compare.
 type drawWalk struct {
-	reads []pathRead
-	read  map[readKey]bool
-	seen  map[nodeVisit]bool
+	reads  []pathRead
+	read   map[readKey]bool
+	seen   map[nodeVisit]bool
+	pinIDs map[pinsLink]pinsID
 }
 
 // drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
@@ -238,7 +239,7 @@ type drawAt struct {
 	group      string
 	route      drawRoute
 	pins       pinSet
-	wholeTable *table // left out of the visit keys: only this table's own cells compare against it, which the own-family fence keeps true
+	wholeTable *table
 	wholePins  pinSet
 }
 
@@ -253,19 +254,48 @@ type pathRead struct {
 }
 
 type nodeVisit struct {
-	n       node
-	group   string
-	rowsKey string
+	n          node
+	group      string
+	wholeTable *table
+	pins       pinsID
+	wholePins  pinsID
 }
 
 type readKey struct {
-	group   string
-	path    string
-	rowsKey string
+	group     string
+	path      string
+	pins      pinsID
+	wholePins pinsID
+}
+
+// pinsID names a pin set within one walk: two sets pinning the same rows share one.
+type pinsID int
+
+// pinsLink is a set's last pin, in path order, and the id of the set before it.
+type pinsLink struct {
+	prev pinsID
+	pin  tablePin
 }
 
 func newDrawWalk() *drawWalk {
-	return &drawWalk{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}}
+	return &drawWalk{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}, pinIDs: map[pinsLink]pinsID{}}
+}
+
+func (w *drawWalk) pinsID(p *pinSet) pinsID {
+	var pins []tablePin
+	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
+	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
+	id := pinsID(0)
+	for _, q := range pins {
+		l := pinsLink{id, q}
+		next, ok := w.pinIDs[l]
+		if !ok {
+			next = pinsID(len(w.pinIDs) + 1)
+			w.pinIDs[l] = next
+		}
+		id = next
+	}
+	return id
 }
 
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
@@ -273,7 +303,7 @@ func newDrawWalk() *drawWalk {
 // alone and an unpinned one draws a row inside its nearest pinned ancestor's, so that cell never
 // renders on this route.
 func (w *drawWalk) walk(n node, at drawAt) {
-	v := nodeVisit{n, at.group, at.rowsKey()}
+	v := nodeVisit{n, at.group, at.wholeTable, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}
 	if w.seen[v] {
 		return
 	}
@@ -305,15 +335,12 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	}
 }
 
-// rowsKey spells the rows the walk stands in, pinned and whole, for a map.
-func (at drawAt) rowsKey() string { return at.pins.mapKey() + "|" + at.wholePins.mapKey() }
-
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
 	if a, reads := refRead(from, e.label); reads {
 		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
-		if k := (readKey{at.group, a.path, at.rowsKey()}); !w.read[k] {
+		if k := (readKey{at.group, a.path, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}); !w.read[k] {
 			w.read[k] = true
 			w.reads = append(w.reads, pathRead{at, a, tr})
 		}

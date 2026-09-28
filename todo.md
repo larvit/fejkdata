@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Key `drawWalk`'s visits by the pins, not `rowsKey`'s `%p` strings, and make leaving
-  `wholeTable` out of the key fail loudly where `checkOwnFamily` has not run: the walk is
-  sound only because another fence ran first, and nothing at the walk enforces it.
 - Split `hold`'s two lifetimes, the expansion's sibling hold and the render's group
   hold, into two types, and stop `readField` rewriting `sc.pins`: which pins a column
   reads depends on which distant caller last overrode them, the cost seven seats named.
