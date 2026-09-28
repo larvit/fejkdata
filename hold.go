@@ -34,8 +34,8 @@ type readValue struct {
 // render's hold for its group, so its draw spans the render; every other held name in
 // held, the expansion's.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
-	if s.trace != nil {
-		traceRead(s.trace, t, sc, a)
+	if sc.set.trace != nil {
+		traceRead(sc.set.trace, t, sc, a)
 	}
 	if !t.compiled.held[a.key] {
 		if len(a.tail) > 0 {
@@ -64,12 +64,9 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 }
 
 // renderTrace is a test's view of the fields a render reads; nil outside a test.
-type renderTrace struct {
-	read        func(group, table string, row int, a arm)
-	repeatDepth int
-}
+type renderTrace func(group, table string, row int, a arm)
 
-func traceRead(trace *renderTrace, t *template, sc renderScope, a arm) {
+func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 	var table string
 	var row int
 	switch {
@@ -78,7 +75,7 @@ func traceRead(trace *renderTrace, t *template, sc renderScope, a arm) {
 	case t.table != nil:
 		table, row = t.table.path, sc.rowOf(t.table)
 	}
-	trace.read(strings.Clone(sc.group), strings.Clone(table), row, a)
+	trace(strings.Clone(sc.group), strings.Clone(table), row, a)
 }
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one

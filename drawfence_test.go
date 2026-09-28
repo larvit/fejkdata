@@ -62,7 +62,7 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	f := fenceCorpus(t)
 	roots, tables := fenceRoots(t, f)
 	for _, root := range roots {
-		wantGathered(t, f.rand, tables, root.label, renderDraws(root.t).reads, func() { renderRoot(f.rand, root.t) })
+		wantGathered(t, tables, root.label, renderDraws(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
 		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
@@ -70,11 +70,11 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: recordOf = %v", root.label, err)
 		}
-		wantGathered(t, f.rand, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func() { renderRecordRoot(f.rand, root.t, columns) })
+		wantGathered(t, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
 	}
 }
 
-func wantGathered(t *testing.T, s *session, tables map[string]*table, label string, gathered []pathRead, renderOnce func()) {
+func wantGathered(t *testing.T, tables map[string]*table, label string, gathered []pathRead, renderOnce func(renderTrace)) {
 	t.Helper()
 	var reads []pathRead
 	type traceKey struct {
@@ -82,8 +82,8 @@ func wantGathered(t *testing.T, s *session, tables map[string]*table, label stri
 		row                int
 	}
 	seen := map[traceKey]bool{}
-	s.trace = &renderTrace{read: func(group, table string, row int, a arm) {
-		if s.trace.repeatDepth != 0 || !isRef(a.key) {
+	trace := func(group, table string, row int, a arm) {
+		if !isRef(a.key) {
 			return
 		}
 		r := pathRead{at: drawAt{group: group}, a: a}
@@ -94,10 +94,9 @@ func wantGathered(t *testing.T, s *session, tables map[string]*table, label stri
 			seen[k] = true
 			reads = append(reads, r)
 		}
-	}}
-	defer func() { s.trace = nil }()
+	}
 	for i := 0; i < 5; i++ {
-		renderOnce()
+		renderOnce(trace)
 	}
 	for _, r := range reads {
 		if !gathers(gathered, r) {
@@ -124,14 +123,14 @@ func spellPins(p *pinSet) string {
 	return "row " + strings.Join(rows, ", ")
 }
 
-func renderRoot(s *session, t *template) {
-	var set holdSet
+func renderRoot(s *session, t *template, trace renderTrace) {
+	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
 	switch {
 	case t.table != nil:
 		render(s, t.table, sc)
 		for r := 0; r < t.table.rowCount(); r++ {
-			var set holdSet
+			set := holdSet{trace: trace}
 			sc := renderScope{set: &set}
 			sc.groupHold().pins.pin(t.table, r)
 			render(s, t.table.pinnedRow, sc.at(t.table.pinnedRow, &sc.groupHold().pins))
@@ -143,8 +142,8 @@ func renderRoot(s *session, t *template) {
 	}
 }
 
-func renderRecordRoot(s *session, t *template, columns []Column) {
-	var set holdSet
+func renderRecordRoot(s *session, t *template, columns []Column, trace renderTrace) {
+	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
 	if t.table != nil {
 		t.table.drawIn(s, &sc.groupHold().pins)

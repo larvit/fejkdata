@@ -5,10 +5,12 @@ import (
 	"strings"
 )
 
-// holdSet is one render's reference draws: the unnamed draw group's, and each named one's.
+// holdSet is one render's reference draws: the unnamed draw group's, and each named one's; and a
+// test's trace of its reads.
 type holdSet struct {
 	unnamed groupHold
 	named   map[string]*groupHold
+	trace   renderTrace
 }
 
 // renderScope is where a render reads its reference paths: a hold set, in the draw group of the
@@ -33,10 +35,6 @@ func renderOnce(s *session, n node) string {
 //go:noinline
 func expandAnew(s *session, t *template) string {
 	var set holdSet
-	if s.trace != nil {
-		s.trace.repeatDepth++
-		defer func() { s.trace.repeatDepth-- }()
-	}
 	return expand(s, t, renderScope{set: &set})
 }
 
