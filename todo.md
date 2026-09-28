@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Hold `replayPairs`' claim that pairs find every conflict a full replay would to a
-  test replaying every read set whole, over the fixtures and the shipped data: six
-  seats could only take the comment's proof on trust.
 - Key `drawWalk`'s visits by the pins, not `rowsKey`'s `%p` strings, and make leaving
   `wholeTable` out of the key fail loudly where `checkOwnFamily` has not run: the walk is
   sound only because another fence ran first, and nothing at the walk enforces it.
