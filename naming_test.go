@@ -24,6 +24,27 @@ func TestNoFunctionSpellsAMethod(t *testing.T) {
 	}
 }
 
+func TestEveryPanicIsAnInternalError(t *testing.T) {
+	fset, files := sourceFiles(t)
+	for _, f := range files {
+		ast.Inspect(f, func(n ast.Node) bool {
+			call, isCall := n.(*ast.CallExpr)
+			if !isCall || !isIdent(call.Fun, "panic") {
+				return true
+			}
+			if arg, isArgCall := call.Args[0].(*ast.CallExpr); !isArgCall || !isIdent(arg.Fun, "internalError") {
+				t.Errorf("%s: panic with internalError(…), so every invariant break greps to one phrase", fset.Position(call.Pos()))
+			}
+			return true
+		})
+	}
+}
+
+func isIdent(e ast.Expr, name string) bool {
+	id, isID := e.(*ast.Ident)
+	return isID && id.Name == name
+}
+
 func namespaceFiles(t *testing.T) []*ast.File {
 	t.Helper()
 	pkg := packageDir(t)
