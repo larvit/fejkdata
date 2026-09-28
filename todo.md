@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Make `disagreement` and `bothTyped` a table of cases: each swaps its operands and
-  runs a proof to pick an error's wording.
 - Derive a column's datatype in one place: `columnItems` yields nothing for a
   `tableColumn`, and six callers re-derive it from items.
 - Give `head`, `index`, `bound` and `draw` one meaning each, name `table.family`
