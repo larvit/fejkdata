@@ -56,8 +56,8 @@ func TestRenderingALevelAndReadingIntoItIsRejected(t *testing.T) {
 			t.Errorf("%s: New = nil error, want the overlapping tokens rejected", name)
 			continue
 		}
-		if !strings.Contains(err.Error(), "reads a path into") {
-			t.Errorf("%s: New = %v, want it to name the overlap", name, err)
+		if !strings.HasPrefix(err.Error(), "fejkdata: cat: ") || !strings.Contains(err.Error(), "reads a path into") {
+			t.Errorf("%s: New = %v, want it to name the category path and the overlap", name, err)
 		}
 	}
 	// The same path twice is one spelling, so it stays legal.
