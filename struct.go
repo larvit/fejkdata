@@ -422,6 +422,6 @@ func setText(field reflect.Value, text string) {
 		field.SetUint(n)
 	}
 	if err != nil {
-		panic(fmt.Sprintf("fejkdata: %q reached a %s field unproven: %v", text, field.Type(), err))
+		panic(internalError("%q reached a %s field unproven: %v", text, field.Type(), err))
 	}
 }

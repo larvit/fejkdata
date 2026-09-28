@@ -85,7 +85,7 @@ func render(s *session, n node, sc renderScope) string {
 		}
 		return b.String()
 	default:
-		panic(fmt.Sprintf("fejkdata: uncompiled node %T", n))
+		panic(internalError("uncompiled node %T", n))
 	}
 }
 

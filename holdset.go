@@ -1,9 +1,6 @@
 package fejkdata
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 // holdSet is one render's reference draws: the unnamed draw group's, and each named one's; and a
 // test's trace of its reads.
@@ -61,7 +58,7 @@ func (sc renderScope) at(n node, pins *pinSet) renderScope {
 // rowOf is the row of t its columns render from.
 func (sc renderScope) rowOf(t *table) int {
 	if sc.row.t != t {
-		panic(fmt.Sprintf("fejkdata: a column of %s is rendered with no row pinned", t.category))
+		panic(internalError("a column of %s is rendered with no row pinned", t.category))
 	}
 	return sc.row.row
 }

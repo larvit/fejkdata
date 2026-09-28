@@ -176,7 +176,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 func (p *valueProof) proveCalc(t *template, body string, args []string) proven {
 	expr, err := parseCalc(args[0])
 	if err != nil {
-		panic(fmt.Sprintf("fejkdata: calc(%q) reached a proof unparsed: %v", args[0], err))
+		panic(internalError("calc(%q) reached a proof unparsed: %v", args[0], err))
 	}
 	v, doubt := p.proveExpr(expr, t.fields)
 	if doubt == "" && !(magnitude(v) <= calcLimit) {
@@ -219,7 +219,7 @@ func (p *valueProof) proveExpr(n calcNode, fields map[string]node) (proven, stri
 		}
 		return combine(n, l, r)
 	}
-	panic(fmt.Sprintf("fejkdata: calc node %T has no bound", n))
+	panic(internalError("calc node %T has no bound", n))
 }
 
 // combine bounds one operation from the bounds of its sides.
