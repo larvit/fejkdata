@@ -23,8 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Make `disagreement` a table keyed by the two datatypes and the proof, dropping the
-  operand swap: six seats still needed a truth table to see which item it blames.
 - Move `session.trace` and `renderTrace.repeatDepth` off the render path: they serve
   `drawfence_test.go` alone.
 - Give `Fake` a local hold set like `FakeRecord`, `RecordTemplate.Fake` and
