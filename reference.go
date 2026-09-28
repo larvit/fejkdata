@@ -69,12 +69,12 @@ func refSegments(name string, folder []string) ([]string, error) {
 
 // linkRefs resolves every reference in the assembled tree and compiles every format.
 // The head of the path — up to the category it names — is bound into the referring
-// template's refHeads under its root path, and the rest reads into it the way a sibling path does, so
-// a reference is held like a sibling and two spellings of one target are one
-// draw. It runs once, after all data is merged, so a reference sees the final
-// (override-resolved) tree. A path that is unknown, names a folder, or reads a
-// field not every variant carries fails here, keeping a bad reference a New-time
-// error, never a random render-time one.
+// template's refHeads under its root path, and the rest reads into it the way a
+// sibling path does, so a reference is held like a sibling and two spellings of one
+// target are one draw. It runs once, after all data is merged, so a reference sees
+// the final (override-resolved) tree. A path that is unknown, names a folder, or
+// reads a field not every variant carries fails here, keeping a bad reference a
+// New-time error, never a random render-time one.
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
 		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
