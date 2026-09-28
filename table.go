@@ -613,3 +613,11 @@ func (t *table) selectorSpelling(r int) string {
 	}
 	return fmt.Sprintf("%s line %d", t.file, r+2)
 }
+
+// family is the table a chain of parents ends at.
+func (t *table) family() *table {
+	for t.parentT != nil {
+		t = t.parentT
+	}
+	return t
+}

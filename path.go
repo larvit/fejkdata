@@ -456,3 +456,15 @@ func checkPath(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
 }
+
+// joinSegments spells segments as a path: a selector attaches to the name before it.
+func joinSegments(segs []string) string {
+	var b strings.Builder
+	for _, s := range segs {
+		if b.Len() > 0 && !isSelector(s) {
+			b.WriteByte('.')
+		}
+		b.WriteString(s)
+	}
+	return b.String()
+}
