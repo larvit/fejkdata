@@ -21,9 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Gather the family fence beside `drawWalk.check`: `checkFamilies`, `replayPairs`,
-  `checkFamilyPair` and `tableRead.replay` sit in `family.go` and `pins.go`, and one
-  rule spans seven files.
 - Compile every format in one phase: a template holding a reference has nil `ops`
   until `linkTemplateRefs`, so a check reading `ops` before link skips it silently.
 - Run `New`, `NewTemplate` and `FakeStruct` through one bind pipeline that names
@@ -44,7 +41,7 @@ This round, in order:
   path `Fake` accepts, which a selector is too. Delete the dead `table.descends` and
   the redundant `string(key)` in `checkNoRepeatedItem`.
 - Delete the decision "The rows of a table are alternatives": it defines `alternatives`,
-  which its comment in `family.go` already does. Point the README's "which pairs are
+  which its comment in `drawfence.go` already does. Point the README's "which pairs are
   weighed against each other" at that comment's rule, stated in the README's Table
   section, where it sends a reader to the log for the definition today.
 - Run the nine-seat panel again and file what it names here.
