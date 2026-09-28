@@ -120,7 +120,7 @@ func New(opts ...Option) (*Generator, error) {
 // List returns the sorted dotted paths Fake can render: every category, the dotted
 // fields within a template, and folder segments. A choice consumes no segment, so a
 // path continues through one only where every variant carries it, which is the
-// rule Fake applies too. A selector is left out: Fake also takes `[key]` after a table.
+// rule Fake applies too.
 func (f *Generator) List() []string {
 	var out []string
 	for _, name := range sortedNames(f.categories) {
