@@ -63,7 +63,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A column of one reference alone is the column it reads
 - A typed column's calc is refused unless proven
 - `Column` carries text, not a Go value
-- `hold` names what a draw is kept in, `draw` the draw itself
+- `hold` names what a draw is kept in, `readValue` what a read drew
 - One name, one meaning
 - The package stays flat
 - The performance gate asserts allocations, not wall-clock time
@@ -77,7 +77,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
 - A table is a record of string columns
-- The key index is built at load, the rest on first draw
+- The key map is built at load, the rest on first draw
 - Two categories may name one TSV
 - The rows of a table are alternatives
 - A table never reaches its own family, by any route

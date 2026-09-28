@@ -70,7 +70,7 @@ type formatToken struct {
 type tokenKind uint8
 
 const (
-	builtinCall tokenKind = iota
+	builtinCall tokenKind = iota + 1
 	fieldAlternation
 	literalRun
 )
@@ -376,18 +376,18 @@ type op struct {
 }
 
 // formatOps is a compiled format: its ops, the size of its literal text (to size
-// the render buffer), and the names drawn once per expansion. pathLevels maps each level
-// a path reads into to the first such path; held is every such level plus the
+// the render buffer), and the names drawn once per expansion. pathKeys maps each key
+// a path starts from to the first such path; held is every such key plus the
 // fields an operand reads; holder maps each held name to the first reader holding
 // it, for error messages. The maps are nil when the format holds nothing, so data
 // that holds nothing carries no render-time cost.
 type formatOps struct {
-	ops        []op
-	grow       int
-	pathLevels map[string]string
-	held       map[string]bool
-	holder     map[string]string
-	heldLocal  bool // some held name is kept by the expansion itself rather than the render's hold
+	ops       []op
+	grow      int
+	pathKeys  map[string]string
+	held      map[string]bool
+	holder    map[string]string
+	heldLocal bool // some held name is kept by the expansion itself rather than the render's hold
 }
 
 func (c *formatOps) holdName(a arm, label string) {
@@ -403,11 +403,11 @@ func (c *formatOps) holdName(a arm, label string) {
 		c.holder[a.key] = label
 	}
 	if len(a.tail) > 0 {
-		if c.pathLevels == nil {
-			c.pathLevels = map[string]string{}
+		if c.pathKeys == nil {
+			c.pathKeys = map[string]string{}
 		}
-		if _, named := c.pathLevels[a.key]; !named {
-			c.pathLevels[a.key] = a.spelling
+		if _, named := c.pathKeys[a.key]; !named {
+			c.pathKeys[a.key] = a.spelling
 		}
 	}
 }
