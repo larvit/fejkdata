@@ -63,7 +63,7 @@ func (sc renderScope) hold() *hold {
 		if sc.set.named == nil {
 			sc.set.named = map[string]*hold{}
 		}
-		d = &hold{variant: map[string]node{}, value: map[string]readValue{}}
+		d = &hold{}
 		sc.set.named[strings.Clone(sc.group)] = d
 	}
 	return d
