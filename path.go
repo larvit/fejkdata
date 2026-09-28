@@ -343,11 +343,11 @@ type pathDraw struct {
 }
 
 // drawPath walks w over a path proved first, by a probe or at load, so the walk
-// cannot fail. head names n in the panic.
-func drawPath(n node, tail []string, head string, w *pathDraw) node {
+// cannot fail. level names n in the panic.
+func drawPath(n node, tail []string, level string, w *pathDraw) node {
 	leaf, err := w.walk(n, tail)
 	if err != nil {
-		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", join(head, joinSegments(tail)), err))
+		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", join(level, joinSegments(tail)), err))
 	}
 	return leaf
 }

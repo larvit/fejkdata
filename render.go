@@ -114,17 +114,17 @@ func expand(s *session, t *template, sc renderScope) string {
 	if t.heldLocal {
 		held = &hold{
 			variant: make(map[string]node, len(t.held)),
-			value:   make(map[string]draw, len(t.held)),
+			value:   make(map[string]readValue, len(t.held)),
 		}
 	}
 	for i := range t.ops {
 		o := &t.ops[i]
 		switch o.kind {
-		case 'l':
+		case literalRun:
 			b.WriteString(o.lit)
-		case 'f':
+		case fieldAlternation:
 			b.WriteString(readField(s, t, held, sc, o.arms[s.IntN(len(o.arms))]).text)
-		case 'b':
+		case builtinCall:
 			// Read before the call, so the value a calc computes is the value the
 			// format showed. calcVars fixed the order op.operands holds.
 			var operands []string

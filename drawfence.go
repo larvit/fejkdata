@@ -97,7 +97,7 @@ func checkOwnFamily(t *template) error {
 		seen[n] = true
 		for _, e := range renderEdges(n) {
 			if a, isRef := refRead(n, e.label); isRef {
-				if head, isTable := n.(*template).head(a.key).(*table); isTable && head.family() == own.family() {
+				if head, isTable := n.(*template).head(a.key).(*table); isTable && head.familyRoot() == own.familyRoot() {
 					return e, head, true
 				}
 			}
@@ -357,7 +357,7 @@ func checkFamilies(reads []pathRead) error {
 			continue
 		}
 		for _, o := range reads[:i] {
-			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.headTable.family() != r.tr.headTable.family() {
+			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.headTable.familyRoot() != r.tr.headTable.familyRoot() {
 				continue
 			}
 			if err := checkFamilyPair(o, r); err != nil {

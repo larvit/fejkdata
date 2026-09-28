@@ -157,7 +157,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 	o := t.ops[0]
 	body, name, args := o.body, o.fn, o.args
 	switch _, isTransform := transforms[name]; {
-	case o.kind == 'f':
+	case o.kind == fieldAlternation:
 		var leaves []node
 		for _, a := range o.arms {
 			leaves = append(leaves, pathLeaves(t.head(a.key), a.tail)...)

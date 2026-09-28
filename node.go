@@ -62,17 +62,17 @@ type template struct {
 	// Filled by `template.compileFormat` at link, from `template.tokens` and `template.refs`:
 	ops  []op // what expand walks
 	grow int  // minimum output size, to size the render buffer
-	// bound maps each field the format addresses by dotted path to one path token
+	// pathLevels maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
-	bound map[string]string
-	// held is every name drawn once per expansion: the bound levels above, plus the
+	pathLevels map[string]string
+	// held is every name drawn once per expansion: the path levels above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
 	held      map[string]bool
 	heldLocal bool // some held name is kept by the expansion itself, so expand makes its hold
 
 	// Filled by `linkTemplateRefs` and `keyDrawGroup`, from the assembled tree:
-	refs         map[string]refBinding // each reference the format reads -> what it is bound to
+	refs         map[string]refBinding // each reference the format reads -> what it resolves to
 	refHeads     map[string]node       // each refBinding.key -> the category it names
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
 	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
@@ -214,7 +214,7 @@ func (t *template) fixedText() (string, bool) {
 	switch {
 	case len(t.tokens) == 0:
 		return "", true
-	case len(t.tokens) == 1 && t.tokens[0].kind == 'l':
+	case len(t.tokens) == 1 && t.tokens[0].kind == literalRun:
 		return t.tokens[0].lit, true
 	}
 	return "", false
@@ -224,8 +224,8 @@ func (t *template) fixedText() (string, bool) {
 // compiled reads.
 func (t *template) compileFormat() error {
 	c := compileOps(t.tokens, t.refs)
-	t.ops, t.grow, t.bound, t.held, t.heldLocal = c.ops, c.grow, c.bound, c.held, c.heldLocal
-	if err := checkNoOverlap(t.ops, t.bound); err != nil {
+	t.ops, t.grow, t.pathLevels, t.held, t.heldLocal = c.ops, c.grow, c.pathLevels, c.held, c.heldLocal
+	if err := checkNoOverlap(t.ops, t.pathLevels); err != nil {
 		return err
 	}
 	return checkNoRepeatedRead(c)
