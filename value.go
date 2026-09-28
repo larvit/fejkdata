@@ -34,7 +34,7 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
-	if r := t.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
+	if r := t.link.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
 		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, t.datatype)
 	}
 	if reason := p.proveColumnItem(t).not[t.datatype]; reason != "" {
@@ -45,10 +45,10 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 
 // proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
 func (p *valueProof) proveColumnItem(t *template) proven {
-	if t.readsColumn == nil {
+	if t.link.readsColumn == nil {
 		return p.prove(t)
 	}
-	return p.proveColumn(t.readsColumn.column)
+	return p.proveColumn(t.link.readsColumn.column)
 }
 
 // proveColumn proves a column over what its items draw, a null item marking it null rather than
@@ -149,12 +149,12 @@ func (p *valueProof) proveTemplate(t *template) proven {
 		return unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
 	case fixed:
 		return literalValue(lit)
-	case len(t.ops) != 1:
+	case len(t.compiled.ops) != 1:
 		v := unproven(notOneValue(t.format, typedCalls))
 		v.notOperand = notOneValue(t.format, operandCalls)
 		return v
 	}
-	o := t.ops[0]
+	o := t.compiled.ops[0]
 	body, name, args := o.body, o.fn, o.args
 	switch _, isTransform := transforms[name]; {
 	case o.kind == fieldAlternation:

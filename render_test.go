@@ -40,8 +40,8 @@ func TestGrowIsALowerBound(t *testing.T) {
 		}
 		for i := 0; i < 50; i++ {
 			var set holdSet
-			if got := len(expand(f.rand, tmpl, renderScope{set: &set})); got < tmpl.grow {
-				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.grow)
+			if got := len(expand(f.rand, tmpl, renderScope{set: &set})); got < tmpl.compiled.grow {
+				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.compiled.grow)
 			}
 		}
 	}

@@ -136,7 +136,7 @@ func renderEdges(n node) []renderEdge {
 				es = append(es, renderEdge{leaf, a.spelling, operand})
 			}
 		}
-		for _, o := range n.ops {
+		for _, o := range n.compiled.ops {
 			for _, a := range o.operands {
 				add(a, o.fn)
 			}

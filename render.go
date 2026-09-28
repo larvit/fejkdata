@@ -75,7 +75,7 @@ func render(s *session, n node, sc renderScope) string {
 			return expand(s, n, sc)
 		}
 		var b strings.Builder
-		b.Grow(n.repeat * (n.grow + len(n.separator)))
+		b.Grow(n.repeat * (n.compiled.grow + len(n.separator)))
 		for i := 0; i < n.repeat; i++ {
 			if i > 0 {
 				b.WriteString(n.separator)
@@ -104,19 +104,19 @@ func pick(s *session, c *choice) node {
 // cannot fail.
 func expand(s *session, t *template, sc renderScope) string {
 	var b strings.Builder
-	b.Grow(t.grow)
+	b.Grow(t.compiled.grow)
 	// One draw per held name, for this expansion only: a nested template and each
 	// repeat iteration get their own, since each is its own expansion. A reference
 	// path reads the render's hold in sc instead.
 	var held *hold
-	if t.heldLocal {
+	if t.compiled.heldLocal {
 		held = &hold{
-			variant: make(map[string]node, len(t.held)),
-			value:   make(map[string]readValue, len(t.held)),
+			variant: make(map[string]node, len(t.compiled.held)),
+			value:   make(map[string]readValue, len(t.compiled.held)),
 		}
 	}
-	for i := range t.ops {
-		o := &t.ops[i]
+	for i := range t.compiled.ops {
+		o := &t.compiled.ops[i]
 		switch o.kind {
 		case literalRun:
 			b.WriteString(o.lit)

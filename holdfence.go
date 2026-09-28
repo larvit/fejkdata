@@ -12,12 +12,12 @@ import (
 // docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
-	if !ok || len(t.held) == 0 {
+	if !ok || len(t.compiled.held) == 0 {
 		return nil
 	}
-	readers := pathKeyReaders(t.ops, t.pathKeys)
+	readers := pathKeyReaders(t.compiled.ops, t.compiled.pathKeys)
 	for _, name := range heldNames(t) {
-		if _, isPath := t.pathKeys[name]; isPath && isRef(name) {
+		if _, isPath := t.compiled.pathKeys[name]; isPath && isRef(name) {
 			continue // held for the render: drawCheck compares every read of it, by path, across the render and its groups
 		}
 		if err := checkNameHeld(t, name, readers); err != nil {
@@ -31,13 +31,13 @@ func heldCheck(path string, n node) error {
 // in name order: a level read both ways is reported by the operand's fence, and
 // which overlap is reported does not vary.
 func heldNames(t *template) []string {
-	names := make([]string, 0, len(t.held))
-	for name := range t.held {
+	names := make([]string, 0, len(t.compiled.held))
+	for name := range t.compiled.held {
 		names = append(names, name)
 	}
 	sort.Slice(names, func(i, j int) bool {
-		_, pi := t.pathKeys[names[i]]
-		_, pj := t.pathKeys[names[j]]
+		_, pi := t.compiled.pathKeys[names[i]]
+		_, pj := t.compiled.pathKeys[names[j]]
 		if pi != pj {
 			return !pi
 		}
@@ -51,12 +51,12 @@ func heldNames(t *template) []string {
 // produces.
 func heldNodes(t *template, name string, readers []reader) map[node]bool {
 	held := map[node]bool{}
-	if _, isPath := t.pathKeys[name]; !isPath {
+	if _, isPath := t.compiled.pathKeys[name]; !isPath {
 		operandDraw(t.head(name), held)
 		return held
 	}
 	for _, r := range readers {
-		if a := splitArm(r.spelling, t.refs); a.key == name {
+		if a := splitArm(r.spelling, t.link.refs); a.key == name {
 			coverPath(t.head(name), a.tail, held)
 		}
 	}
@@ -71,10 +71,10 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}
-	reader, isPath := t.pathKeys[name]
+	reader, isPath := t.compiled.pathKeys[name]
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
-		if splitArm(e.label, t.refs).key == name || !renders(e.to, held, seen) {
+		if splitArm(e.label, t.link.refs).key == name || !renders(e.to, held, seen) {
 			continue
 		}
 		if isPath {
@@ -87,7 +87,7 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 
 // operandReader names the builtin whose operand holds name.
 func operandReader(t *template, name string) string {
-	for _, o := range t.ops {
+	for _, o := range t.compiled.ops {
 		for _, a := range o.operands {
 			if a.key == name {
 				return o.fn
