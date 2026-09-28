@@ -109,8 +109,7 @@ type renderEdge struct {
 
 func (e renderEdge) readsRef() bool { return isRef(e.read.key) }
 
-// reached names an edge as the author spelled it, the vocabulary pathKeyReaders uses
-// for the sibling fence.
+// reached names an edge as the author spelled it.
 func (e renderEdge) reached() string {
 	if e.operand != "" {
 		return fmt.Sprintf("%s operand %q", e.operand, e.label)
