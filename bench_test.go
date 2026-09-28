@@ -57,29 +57,29 @@ func BenchmarkRepeat(b *testing.B) {
 	benchPath(b, dir, "many")
 }
 
-// BenchmarkBound measures a format that binds a head and reads two paths from it —
-// what a correlated pair costs against BenchmarkUnbound, the same output drawn from
+// BenchmarkHeld measures a format that holds a head and reads two paths from it —
+// what a correlated pair costs against BenchmarkUnheld, the same output drawn from
 // two independent fields.
-func BenchmarkBound(b *testing.B) {
+func BenchmarkHeld(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{place.postal-code} {place.locality}","place":[{"format":"{locality}","locality":"Stockholm","postal-code":"1{digits(2)} {digits(2)}"},{"format":"{locality}","locality":"Tranås","postal-code":"573 {digits(2)}"}]}`)
 	benchPath(b, dir, "addr")
 }
 
-func BenchmarkUnbound(b *testing.B) {
+func BenchmarkUnheld(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{postal-code} {locality}","postal-code":["1{digits(2)} {digits(2)}","573 {digits(2)}"],"locality":["Stockholm","Tranås"]}`)
 	benchPath(b, dir, "addr")
 }
 
-// BenchmarkBoundDeep reads two paths through an intermediate level, the shape the
+// BenchmarkHeldDeep reads two paths through an intermediate level, the shape the
 // depth question is about.
-func BenchmarkBoundDeep(b *testing.B) {
+func BenchmarkHeldDeep(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{p.addr.city} {p.addr.zip}","p":{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":"1{digits(2)} {digits(2)}"}}}`)
 	benchPath(b, dir, "addr")
 }
 
-// BenchmarkBoundWide reads ten paths from one row: the point where the maps an
+// BenchmarkHeldWide reads ten paths from one row: the point where the maps an
 // expansion holds outgrow a single bucket.
-func BenchmarkBoundWide(b *testing.B) {
+func BenchmarkHeldWide(b *testing.B) {
 	dir := tmpData(b, "row", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
 		{"format":"x","a":"1","b":"2","c":"3","d":"4","e":"5","f":"6","g":"7","h":"8","i":"9","j":"0"},
 		{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`)

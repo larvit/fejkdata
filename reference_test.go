@@ -102,7 +102,7 @@ func TestReferenceErrors(t *testing.T) {
 		"a category in a subfolder referencing itself": {"sv_SE/a": `"x{/sv_SE.a}"`},
 		"mutual cycle within a subfolder":              {"sv_SE/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/sv_SE.a}"`},
 		"mutual cycle across two folders":              {"en_US/a": `"{/sv_SE.b}"`, "sv_SE/b": `"{/en_US.a}"`},
-		// ".." is reserved for bound references, so an authored key using it would
+		// ".." is reserved for references, so an authored key using it would
 		// name a node nothing can reach and nothing would validate.
 		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{/nope}"}`},
 	}
@@ -187,7 +187,7 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 }
 
 // TestNewErrorPathIsCanonical pins the node path a load error names: a choice arm
-// adds no segment, and a bound {/path} reference is not a containment segment at
+// adds no segment, and a {/path} reference is not a containment segment at
 // all, so a bad reference is reported against the node that holds it.
 func TestNewErrorPathIsCanonical(t *testing.T) {
 	cases := []struct {

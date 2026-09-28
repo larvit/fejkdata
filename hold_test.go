@@ -68,8 +68,8 @@ func TestRenderingALevelAndReadingIntoItIsRejected(t *testing.T) {
 	}
 }
 
-func TestCalcOperandNamingABoundLevelIsRejected(t *testing.T) {
-	// A calc operand renders its field, so naming a bound level in one is the same
+func TestCalcOperandNamingAHeldLevelIsRejected(t *testing.T) {
+	// A calc operand renders its field, so naming a held level in one is the same
 	// overlap as a bare token: {calc(item * 1)} renders what {item.price} reads a
 	// path into, and the two disagree.
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
@@ -87,8 +87,8 @@ func TestCalcOperandNamingABoundLevelIsRejected(t *testing.T) {
 	}
 }
 
-func TestReferenceNamingABoundLevelIsRejected(t *testing.T) {
-	// A reference can name a bound level from the data root, which renders it
+func TestReferenceNamingAHeldLevelIsRejected(t *testing.T) {
+	// A reference can name a held level from the data root, which renders it
 	// afresh beside the path that reads its held draw — the same overlap by
 	// another spelling.
 	// A category never references itself, so each reference back into cat sits in a
@@ -102,7 +102,7 @@ func TestReferenceNamingABoundLevelIsRejected(t *testing.T) {
 			"cat": `{"format":"{p.addr}|{/hop}","p":{"format":"x","addr":["A","B","C","D"]}}`,
 			"hop": `"{/cat.p.addr}"`,
 		},
-		// The reference need not sit in the format that binds: any field it renders
+		// The reference need not sit in the format that holds the level: any field it renders
 		// reaches the level just the same, however deep.
 		"reference from a sibling field": {
 			"cat": `{"format":"{p.first}|{inner}","p":[` +
@@ -122,7 +122,7 @@ func TestReferenceNamingABoundLevelIsRejected(t *testing.T) {
 		"cat":     `{"format":"{p.first} {/surname}","p":{"format":"{first}","first":["Anna","Bo"]}}`,
 		"surname": `["Eriksson","Lindqvist"]`,
 	}))); err != nil {
-		t.Errorf("New = %v, want a reference outside the bound level accepted", err)
+		t.Errorf("New = %v, want a reference outside the held level accepted", err)
 	}
 }
 
@@ -179,7 +179,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 			},
 			`{q} renders "net"`,
 		},
-		// A reference ending at the operand binds the choice itself, not a variant,
+		// A reference ending at the operand holds the choice itself, not a variant,
 		// so wrapping the operand in one changes nothing.
 		"a reference to an operand wrapped in a choice": {
 			map[string]string{
@@ -344,7 +344,7 @@ func TestALevelAPathNeverRendersIsAccepted(t *testing.T) {
 }
 
 func TestADeepDiamondChainLoads(t *testing.T) {
-	// A diamond chain is 2^n routes through n nodes. The search past a bound level
+	// A diamond chain is 2^n routes through n nodes. The search past a held level
 	// must walk each node once, not once per route, or a deep chain never loads.
 	files := map[string]string{"l0": `"x"`}
 	for i := 1; i <= 30; i++ {
@@ -359,7 +359,7 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 
 func TestASharedNodeIsWalkedOnce(t *testing.T) {
 	// Two fields reaching one node make the render graph a diamond, not a tree.
-	// The search past a bound level must take that in its stride rather than walk
+	// The search past a held level must take that in its stride rather than walk
 	// the shared node once per route.
 	f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{p.first}|{q}","p":{"format":"{first}","first":["Anna","Bo"]},` +
@@ -399,7 +399,7 @@ func TestReferenceToAMatchingStringIsAccepted(t *testing.T) {
 }
 
 func TestNestedChoiceDrawsOneVariant(t *testing.T) {
-	// A choice item may itself be a choice, so drawing a bound head unwraps until
+	// A choice item may itself be a choice, so drawing a held head unwraps until
 	// it reaches a value. Stopping at one level leaves a choice where the walk
 	// expects a template.
 	f := engine(21)
@@ -478,7 +478,7 @@ func TestFieldWithoutAPathTokenStillDrawsEachTime(t *testing.T) {
 	}
 }
 
-func TestTwoBoundHeadsDrawIndependently(t *testing.T) {
+func TestTwoHeldHeadsDrawIndependently(t *testing.T) {
 	// Binding is per head, so two correlated sets in one format compose instead
 	// of needing a cross product of variants.
 	f := engine(4)
@@ -538,7 +538,7 @@ func TestNestedTemplateKeepsItsOwnBinding(t *testing.T) {
 	}
 }
 
-func TestBoundDrawIsSeedStable(t *testing.T) {
+func TestHeldDrawIsSeedStable(t *testing.T) {
 	tmpl := places("{place.postal-code} {place.locality}")
 	a := mustRender(t, engine(42), tmpl)
 	b := mustRender(t, engine(42), tmpl)
@@ -721,7 +721,7 @@ func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
 	}
 }
 
-func TestBoundPathIsReachableByFake(t *testing.T) {
+func TestHeldPathIsReachableByFake(t *testing.T) {
 	// Binding changes how a format reads a sibling, not what List and Fake offer:
 	// the sub-fields stay addressable on their own.
 	dir := writeData(t, map[string]string{"address": places("{place.postal-code} {place.locality}")})
