@@ -107,7 +107,6 @@ type renderEdge struct {
 	operand string
 }
 
-// readsRef reports whether the edge reads a reference.
 func (e renderEdge) readsRef() bool { return isRef(e.read.key) }
 
 // reached names an edge as the author spelled it, the vocabulary pathKeyReaders uses
