@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Make `renderEdges` panic on a node it does not handle, as `render` does: its
-  `default: return nil` silently exempts a new node kind from every fence, and nothing
-  at `expand` says `renderEdges` mirrors it.
 - Carry the arm on `renderEdge` so `graph.go`, `drawfence.go` and `holdfence.go` stop
   re-parsing `label` through `splitArm`, whose key differs before and after link.
 - Give `pathCover` a doc comment and say in each path walk's comment how it differs from
