@@ -76,7 +76,11 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 func wantGathered(t *testing.T, s *session, tables map[string]*table, label string, gathered []pathRead, renderOnce func()) {
 	t.Helper()
 	var reads []pathRead
-	seen := map[readKey]bool{}
+	type traceKey struct {
+		group, path, table string
+		row                int
+	}
+	seen := map[traceKey]bool{}
 	s.trace = &renderTrace{read: func(group, table string, row int, a arm) {
 		if s.trace.repeatDepth != 0 || !isRef(a.key) {
 			return
@@ -85,7 +89,7 @@ func wantGathered(t *testing.T, s *session, tables map[string]*table, label stri
 		if table != "" {
 			r.at.pins.add(tables[table], row)
 		}
-		if k := (readKey{group, a.path, r.at.rowsKey()}); !seen[k] {
+		if k := (traceKey{group, a.path, table, row}); !seen[k] {
 			seen[k] = true
 			reads = append(reads, r)
 		}
