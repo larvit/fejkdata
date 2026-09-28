@@ -68,7 +68,7 @@ type cellSite struct {
 	row   int
 }
 
-// templateLink is what a template's references resolve to in the assembled tree.
+// templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
 	refs         map[string]refBinding // each reference the format reads -> what it resolves to
 	refHeads     map[string]node       // each refBinding.key -> the category it names
@@ -172,7 +172,11 @@ func compileAt(v any, pos position) (node, error) {
 func compileItem(v any, pos position) (node, error) {
 	switch v := v.(type) {
 	case string:
-		return compileString(v)
+		t, err := compileString(v, cellSite{})
+		if err != nil {
+			return nil, err
+		}
+		return t, nil
 	case []any:
 		return compileChoice(v, pos)
 	case map[string]any:
@@ -199,12 +203,12 @@ func jsonKind(v any) string {
 	return fmt.Sprintf("%T", v)
 }
 
-func compileString(s string) (node, error) {
+func compileString(s string, cell cellSite) (*template, error) {
 	toks, err := parseChecked(s, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: s, tokens: toks, repeat: 1, fromString: true}, nil
+	return &template{format: s, tokens: toks, repeat: 1, fromString: true, cell: cell}, nil
 }
 
 // fixedText is one render's output when the format holds no token; repeat is the caller's.

@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Return each phase's output from compile, link and format compile, not fill
-  `template`'s 25 fields in place from four files: five seats had to know which phase a
-  function runs in to know which fields are valid yet.
 - Make `renderEdges` panic on a node it does not handle, as `render` does: its
   `default: return nil` silently exempts a new node kind from every fence, and nothing
   at `expand` says `renderEdges` mirrors it.
