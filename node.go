@@ -55,11 +55,11 @@ type template struct {
 	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
 	table      *table // the table whose format this is, whose columns are the fields
 
-	// Filled by `checkCells`, after the cell's own format has compiled:
+	// Filled by `checkCells`:
 	cellOf  *table // the table whose cell this is
 	cellRow int    // the row the cell sits in
 
-	// Filled by `template.compileFormat`, from `template.format` and `template.refs`:
+	// Filled by `template.compileFormat` at link, from `template.tokens` and `template.refs`:
 	ops  []op // what expand walks
 	grow int  // minimum output size, to size the render buffer
 	// bound maps each field the format addresses by dotted path to one path token
@@ -209,7 +209,7 @@ func compileString(s string) (node, error) {
 	return &template{format: s, tokens: toks, repeat: 1, fromString: true}, nil
 }
 
-// fixedText is the whole output of a format holding no token, which every render is.
+// fixedText is one render's output when the format holds no token; repeat is the caller's.
 func (t *template) fixedText() (string, bool) {
 	switch {
 	case len(t.tokens) == 0:

@@ -123,10 +123,10 @@ wording improves in a minor.
 
 ## Every format is fenced at link, and its errors name its path
 
-2026-09-28, larv-review; approval pending. Goal 2: every format compiles in one phase,
-at link, since one holding a reference can compile only once bound, so no check reads
-compiled ops a format lacks yet. Its fences name the category path as every link error
-does, a cell's with its line. Valid while compilation needs the bound references.
+2026-09-28, larv-review; approval pending. Goal 2. Every format compiles once, at
+link: one holding a reference compiles only once bound, and compiling all there
+leaves no check reading ops a format lacks yet. A link error names the category
+path, a table cell's with its line. Valid while compilation needs the bound references.
 
 ## Raising the lowest supported Go is a major
 

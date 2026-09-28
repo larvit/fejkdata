@@ -67,14 +67,10 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// linkRefs resolves every reference in the assembled tree and compiles every format.
-// The head of the path — up to the category it names — is bound into the referring
-// template's refHeads under its root path, and the rest reads into it the way a
-// sibling path does, so a reference is held like a sibling and two spellings of one
-// target are one draw. It runs once, after all data is merged, so a reference sees
-// the final (override-resolved) tree. A path that is unknown, names a folder, or
-// reads a field not every variant carries fails here, keeping a bad reference a
-// New-time error, never a random render-time one.
+// linkRefs binds every reference and compiles every format, once all data is merged,
+// so a reference sees the override-resolved tree. A reference's head binds into
+// refHeads under its root path and its tail reads like a sibling path, so two
+// spellings of one target are one draw.
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
 		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
@@ -83,7 +79,6 @@ func linkRefs(root map[string]node) error {
 	})
 }
 
-// linkTemplateRefs binds one template's references against root, then compiles its format.
 func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
 	if t.cellOf != nil {
 		path = fmt.Sprintf("%s, line %d", path, t.cellRow+2)
@@ -100,7 +95,7 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 	return nil
 }
 
-// bindRefs refuses a reference naming the category t sits in.
+// bindRefs fills refs and refHeads, refusing a reference to t's own category:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func (t *template) bindRefs(folder []string, path, category string, names []string, root map[string]node) error {
 	t.refs = make(map[string]refBinding, len(names))
