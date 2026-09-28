@@ -298,7 +298,7 @@ func checkNoRepeatedItem(items []any) error {
 			}
 			return fmt.Errorf("choice item %d repeats item %d; skew the odds with a weight on one of them instead", i, j)
 		}
-		seen[string(key)] = i
+		seen[key] = i
 	}
 	return nil
 }

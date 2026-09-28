@@ -21,12 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Correct the false comments: `funcCall` names `checkFunc` where `parseFormat`
-  reports, `struct.go`'s "t sits at index within c.t" names no field, `recordFormats`
-  calls ndjson "the same column", `Generator` says every other entry point takes `mu`
-  where `NewTemplate` and `NewRecordTemplate` do not, and `List` claims to be every
-  path `Fake` accepts, which a selector is too. Delete the dead `table.descends` and
-  the redundant `string(key)` in `checkNoRepeatedItem`.
 - Delete the decision "The rows of a table are alternatives": it defines `alternatives`,
   which its comment in `drawfence.go` already does. Point the README's "which pairs are
   weighed against each other" at that comment's rule, stated in the README's Table
