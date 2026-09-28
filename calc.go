@@ -120,10 +120,14 @@ func constantValue(n calcNode, fields map[string]node) (float64, bool) {
 		return float64(n), true
 	case calcVar:
 		t, ok := fields[string(n)].(*template)
-		if !ok || !t.fixed || t.repeat > 1 {
+		if !ok || t.repeat > 1 {
 			return 0, false
 		}
-		v, err := strconv.ParseFloat(strings.TrimSpace(t.lit), 64)
+		lit, fixed := t.fixedText()
+		if !fixed {
+			return 0, false
+		}
+		v, err := strconv.ParseFloat(strings.TrimSpace(lit), 64)
 		return v, err == nil
 	case calcNeg:
 		v, ok := constantValue(n.x, fields)
@@ -161,11 +165,12 @@ func neverNumeric(n node) (text string, never bool) {
 	case *nullItem:
 		return "", true
 	case *template:
-		if !n.fixed || n.repeat > 1 {
+		lit, fixed := n.fixedText()
+		if !fixed || n.repeat > 1 {
 			return "", false
 		}
-		if _, err := strconv.ParseFloat(strings.TrimSpace(n.lit), 64); err != nil {
-			return n.lit, true
+		if _, err := strconv.ParseFloat(strings.TrimSpace(lit), 64); err != nil {
+			return lit, true
 		}
 	case *choice:
 		for _, it := range n.items {

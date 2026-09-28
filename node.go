@@ -41,7 +41,7 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick. A format holding a reference compiles in `linkTemplateRefs`.
+// an independent pick. Every format compiles in `linkTemplateRefs`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
@@ -60,10 +60,8 @@ type template struct {
 	cellRow int    // the row the cell sits in
 
 	// Filled by `template.compileFormat`, from `template.format` and `template.refs`:
-	ops   []op   // what expand walks
-	grow  int    // minimum output size, to size the render buffer
-	fixed bool   // no op varies, so every render is lit
-	lit   string // the whole output when fixed
+	ops  []op // what expand walks
+	grow int  // minimum output size, to size the render buffer
 	// bound maps each field the format addresses by dotted path to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
@@ -208,18 +206,18 @@ func compileString(s string) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	t := &template{format: s, tokens: toks, repeat: 1, fromString: true}
-	if err := t.compileRefFree(); err != nil {
-		return nil, err
-	}
-	return t, nil
+	return &template{format: s, tokens: toks, repeat: 1, fromString: true}, nil
 }
 
-func (t *template) compileRefFree() error {
-	if len(refTokens(t.tokens)) > 0 {
-		return nil
+// fixedText is the whole output of a format holding no token, which every render is.
+func (t *template) fixedText() (string, bool) {
+	switch {
+	case len(t.tokens) == 0:
+		return "", true
+	case len(t.tokens) == 1 && t.tokens[0].kind == 'l':
+		return t.tokens[0].lit, true
 	}
-	return t.compileFormat()
+	return "", false
 }
 
 // compileFormat compiles the format into ops, and applies the fences that need the
@@ -227,15 +225,6 @@ func (t *template) compileRefFree() error {
 func (t *template) compileFormat() error {
 	c := compileOps(t.tokens, t.refs)
 	t.ops, t.grow, t.bound, t.held, t.heldLocal = c.ops, c.grow, c.bound, c.held, c.heldLocal
-	t.fixed = true
-	for _, o := range t.ops {
-		if o.kind != 'l' {
-			t.fixed = false
-		}
-	}
-	if t.fixed && len(t.ops) == 1 {
-		t.lit = t.ops[0].lit
-	}
 	if err := checkNoOverlap(t.ops, t.bound); err != nil {
 		return err
 	}
@@ -340,11 +329,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err := checkNestedDrawGroup(fields, o.group); err != nil {
 		return nil, err
 	}
-	t := &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn}
-	if err := t.compileRefFree(); err != nil {
-		return nil, err
-	}
-	return t, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn}, nil
 }
 
 // templateOptions is what a template object's option keys say.

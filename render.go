@@ -71,8 +71,8 @@ func render(s *session, n node, sc renderScope) string {
 	case *template:
 		sc = sc.in(n)
 		if n.repeat == 1 {
-			if n.fixed {
-				return n.lit
+			if lit, fixed := n.fixedText(); fixed {
+				return lit
 			}
 			return expand(s, n, sc)
 		}

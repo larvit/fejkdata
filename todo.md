@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Compile every format in one phase: a template holding a reference has nil `ops`
-  until `linkTemplateRefs`, so a check reading `ops` before link skips it silently.
 - Run `New`, `NewTemplate` and `FakeStruct` through one bind pipeline that names
   where they differ: each picks its own fences today.
 - Make `disagreement` and `bothTyped` a table of cases: each swaps its operands and

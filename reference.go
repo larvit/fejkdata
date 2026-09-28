@@ -67,9 +67,9 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// linkRefs resolves every reference in the assembled tree. The head of the path —
-// up to the category it names — is bound into the referring template's refHeads
-// under its root path, and the rest reads into it the way a sibling path does, so
+// linkRefs resolves every reference in the assembled tree and compiles every format.
+// The head of the path — up to the category it names — is bound into the referring
+// template's refHeads under its root path, and the rest reads into it the way a sibling path does, so
 // a reference is held like a sibling and two spellings of one target are one
 // draw. It runs once, after all data is merged, so a reference sees the final
 // (override-resolved) tree. A path that is unknown, names a folder, or reads a
@@ -83,17 +83,26 @@ func linkRefs(root map[string]node) error {
 	})
 }
 
-// linkTemplateRefs binds one template's references against root, refusing one that names the
-// category it sits in.
-// docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
+// linkTemplateRefs binds one template's references against root, then compiles its format.
 func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
-	names := refTokens(t.tokens)
-	if len(names) == 0 {
-		return nil
-	}
 	if t.cellOf != nil {
 		path = fmt.Sprintf("%s, line %d", path, t.cellRow+2)
 	}
+	if names := refTokens(t.tokens); len(names) > 0 {
+		if err := t.bindRefs(folder, path, category, names, root); err != nil {
+			return err
+		}
+	}
+	if err := t.compileFormat(); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+	t.readsColumn = columnReadOf(t)
+	return nil
+}
+
+// bindRefs refuses a reference naming the category t sits in.
+// docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
+func (t *template) bindRefs(folder []string, path, category string, names []string, root map[string]node) error {
 	t.refs = make(map[string]refBinding, len(names))
 	t.refHeads = make(map[string]node, len(names))
 	for _, name := range names {
@@ -115,10 +124,6 @@ func linkTemplateRefs(folder []string, path, category string, t *template, root 
 		t.refHeads[key] = target
 		t.refs[name] = refBinding{key, tail}
 	}
-	if err := t.compileFormat(); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-	t.readsColumn = columnReadOf(t)
 	return nil
 }
 
