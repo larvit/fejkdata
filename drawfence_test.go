@@ -160,11 +160,15 @@ func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 		}
 		return nil
 	})
+	compared := 0
 	for _, root := range roots {
-		wantPairsFindAll(t, root.label, renderDraws(root.t).reads)
+		compared += wantPairsFindAll(t, root.label, renderDraws(root.t).reads)
 		if root.t.isRecord && len(root.t.fields) > 0 {
-			wantPairsFindAll(t, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads)
+			compared += wantPairsFindAll(t, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads)
 		}
+	}
+	if compared == 0 {
+		t.Error("no read set rendering together holds two table reads, so the comparison proved nothing")
 	}
 }
 
@@ -209,7 +213,8 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 	}
 }
 
-func wantPairsFindAll(t *testing.T, label string, reads []pathRead) {
+// wantPairsFindAll counts the read sets rendering together that hold two table reads or more.
+func wantPairsFindAll(t *testing.T, label string, reads []pathRead) int {
 	t.Helper()
 	var tabled []pathRead
 	for _, r := range reads {
@@ -219,7 +224,11 @@ func wantPairsFindAll(t *testing.T, label string, reads []pathRead) {
 	}
 	pairs := replayPairs(reads)
 	var whole error
+	compared := 0
 	eachRenderSet(tabled, func(set []pathRead) {
+		if len(set) > 1 {
+			compared++
+		}
 		var d pinSet
 		for _, r := range set {
 			if err := r.tr.replay(&d); err != nil && whole == nil {
@@ -230,6 +239,7 @@ func wantPairsFindAll(t *testing.T, label string, reads []pathRead) {
 	if (pairs == nil) != (whole == nil) {
 		t.Errorf("%s: replayPairs = %v, a whole replay of every read set rendering together = %v", label, pairs, whole)
 	}
+	return compared
 }
 
 // eachRenderSet calls fn with every maximal set of reads that render together, by Bron–Kerbosch.
