@@ -56,8 +56,8 @@ func heldNodes(t *template, name string, readers []reader) map[node]bool {
 		return held
 	}
 	for _, r := range readers {
-		if a := splitArm(r.spelling, t.link.refs); a.key == name {
-			coverPath(t.head(name), a.tail, held)
+		if r.a.key == name {
+			coverPath(t.head(name), r.a.tail, held)
 		}
 	}
 	return held
@@ -74,7 +74,7 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 	reader, isPath := t.compiled.pathKeys[name]
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
-		if splitArm(e.label, t.link.refs).key == name || !renders(e.to, held, seen) {
+		if e.read.key == name || !renders(e.to, held, seen) {
 			continue
 		}
 		if isPath {
@@ -134,7 +134,7 @@ func operandDraw(n node, into map[node]bool) {
 	}
 	into[n] = true
 	for _, e := range renderEdges(n) {
-		if isRef(e.label) {
+		if e.readsRef() {
 			continue
 		}
 		operandDraw(e.to, into)
@@ -181,20 +181,22 @@ func checkNoOverlap(ops []op, pathKeys map[string]string) error {
 	names := pathKeyReaders(ops, pathKeys)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
-	sort.SliceStable(names, func(i, j int) bool { return names[i].path < names[j].path })
+	sort.SliceStable(names, func(i, j int) bool { return names[i].a.path < names[j].a.path })
 	for i, level := range names {
 		for _, path := range names[i+1:] {
-			if strings.HasPrefix(path.path, level.path+".") {
-				return fmt.Errorf("%s renders a level that {%s} reads a path into; name the fields you want instead", level.label, path.spelling)
+			if strings.HasPrefix(path.a.path, level.a.path+".") {
+				return fmt.Errorf("%s renders a level that {%s} reads a path into; name the fields you want instead", level.label, path.a.spelling)
 			}
 		}
 	}
 	return nil
 }
 
-// reader is one way a format reaches a path key: as written, by its path,
-// and how to name it.
-type reader struct{ spelling, path, label string }
+// reader is one way a format reaches a path key, and how to name it.
+type reader struct {
+	a     arm
+	label string
+}
 
 // pathKeyReaders lists every way a format reaches a sibling path key, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
@@ -204,12 +206,12 @@ func pathKeyReaders(ops []op, pathKeys map[string]string) []reader {
 	for _, o := range ops {
 		for _, a := range o.operands {
 			if _, isPathKey := pathKeys[a.key]; isPathKey && !isRef(a.key) {
-				names = append(names, reader{a.spelling, a.path, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
+				names = append(names, reader{a, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
 			if _, isPathKey := pathKeys[a.key]; isPathKey && !isRef(a.key) {
-				names = append(names, reader{a.spelling, a.path, "token {" + a.spelling + "}"})
+				names = append(names, reader{a, "token {" + a.spelling + "}"})
 			}
 		}
 	}

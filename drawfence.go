@@ -96,8 +96,8 @@ func checkOwnFamily(t *template) error {
 		}
 		seen[n] = true
 		for _, e := range renderEdges(n) {
-			if a, isRef := refRead(n, e.label); isRef {
-				if head, isTable := n.(*template).head(a.key).(*table); isTable && head.familyRoot() == own.familyRoot() {
+			if e.readsRef() {
+				if head, isTable := n.(*template).head(e.read.key).(*table); isTable && head.familyRoot() == own.familyRoot() {
 					return e, head, true
 				}
 			}
@@ -161,7 +161,7 @@ func (c *drawCheck) hasRead(n node, stopAtGroup bool) bool {
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if readsOnEdge(n, e.label) || (walksInto(e.to, stopAtGroup) && c.hasRead(e.to, stopAtGroup)) {
+		if readsOnEdge(n, e) || (walksInto(e.to, stopAtGroup) && c.hasRead(e.to, stopAtGroup)) {
 			r = true
 			break
 		}
@@ -173,9 +173,8 @@ func (c *drawCheck) hasRead(n node, stopAtGroup bool) bool {
 	return r
 }
 
-func readsOnEdge(n node, label string) bool {
-	a, isRef := refRead(n, label)
-	return isRef && (len(a.tail) > 0 || readsTable(n, a))
+func readsOnEdge(n node, e renderEdge) bool {
+	return e.readsRef() && (len(e.read.tail) > 0 || readsTable(n, e.read))
 }
 
 func walksInto(to node, stopAtGroup bool) bool {
@@ -201,16 +200,6 @@ func readsTable(n node, a arm) bool {
 	}
 	_, isTable := t.head(a.key).(*table)
 	return isTable
-}
-
-// refRead is the reference an edge of n reads; false when the edge reads none.
-func refRead(n node, label string) (arm, bool) {
-	t, isTemplate := n.(*template)
-	if !isTemplate {
-		return arm{}, false
-	}
-	a := splitArm(label, t.link.refs)
-	return a, isRef(a.key)
 }
 
 // checkColumnDraws fences a record's columns as one render.
@@ -342,7 +331,8 @@ func (w *drawWalk) walk(n node, at drawAt) {
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.
 func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
-	if a, reads := refRead(from, e.label); reads {
+	if e.readsRef() {
+		a := e.read
 		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
 		if k := (readKey{at.group, a.path, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}); !w.read[k] {
 			w.read[k] = true
