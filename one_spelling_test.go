@@ -7,7 +7,7 @@ import (
 
 func TestOneItemChoiceIsRejected(t *testing.T) {
 	for _, src := range []string{`["x"]`, `[{"format":"{d}","d":"x"}]`, `{"format":"{w}","w":["only"]}`} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), "one-item choice") {
+		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), "one-item choice") {
 			t.Errorf("compile(%s) = %v, want the one-item choice rejected", src, err)
 		}
 	}
@@ -20,11 +20,11 @@ func TestRepeatedChoiceItemIsRejected(t *testing.T) {
 		`{"format":"{w}","w":["", "", "x"]}`:                  `{ "format": "", "weight": 2 }`,
 		`{"format":"","w":[null,null,"a"]}`:                   "a null takes no weight",
 	} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error naming %s", src, err, want)
 		}
 	}
-	if _, err := compile(parse(t, `[{"format":"a","weight":2}, "b"]`)); err != nil {
+	if _, err := linked(t, `[{"format":"a","weight":2}, "b"]`); err != nil {
 		t.Errorf("compile(weighted a, b) = %v", err)
 	}
 }
@@ -41,7 +41,7 @@ func TestInertObjectIsRejected(t *testing.T) {
 		`{"format":"{x}","x":{"format":"{y}","y":"v","drawGroup":""}}`: `drawGroup "" is the default`,
 		`{"format":"{x}","x":{"format":"{y}","y":"v","drawGroup":1}}`:  "drawGroup must be a string",
 	} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
 		}
 	}

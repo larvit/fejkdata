@@ -743,7 +743,7 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 		`{"format":"{n} + {n} = {calc(n * 2)}","n":["1","2"]}`:                                 "write {n} once",
 		`{"format":"{p.a} {q} {q} {lowercase(q)}","p":{"format":"{a}","a":"1"},"q":["A","B"]}`: "write {q} once",
 	} {
-		_, err := compile(parse(t, src))
+		_, err := linked(t, src)
 		if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "holds") {
 			t.Errorf("compile(%s) = %v, want the repeated token rejected naming %s", src, err, want)
 		}
@@ -754,7 +754,7 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 		`{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00"],"qty":["3","7"]}`,
 		`{"format":"{uppercase(w)} {uppercase(w)}","w":["a","b"]}`,
 	} {
-		if _, err := compile(parse(t, ok)); err != nil {
+		if _, err := linked(t, ok); err != nil {
 			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
 		}
 	}
