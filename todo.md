@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Spell every panic an earlier check makes unreachable with one greppable phrase: the
-  17 say "reached prep unvalidated", "should have been proved", "with no row pinned"
-  and more, so a user's report greps to nothing.
 - Correct the false comments: `List` claims folder segments, which `paths` never lists,
   and `renderEdge.reached` claims `pathKeyReaders`' vocabulary, which spells a token
   `token {x}`. Drop `rng`'s "for the reason below", which points at `pick`.
