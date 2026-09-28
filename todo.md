@@ -49,8 +49,9 @@ This round, in order:
 - Give `Fake` a local hold set like `FakeRecord`, `RecordTemplate.Fake` and
   `FakeStruct`, or state at `Generator.set` why it alone needs one: four seats read the
   field's heap claim as contradicted by the other three.
-- Spell every "a fence should have refused this" panic with one greppable phrase and the
-  table's `path`: the 17 panics word it differently.
+- Spell every panic an earlier check makes unreachable with one greppable phrase: the
+  17 say "reached prep unvalidated", "should have been proved", "with no row pinned"
+  and more, so a user's report greps to nothing.
 - Correct the false comments: `List` claims folder segments, which `paths` never lists,
   and `renderEdge.reached` claims `pathKeyReaders`' vocabulary, which spells a token
   `token {x}`. Drop `rng`'s "for the reason below", which points at `pick`.
@@ -222,9 +223,9 @@ by a `data-import/` script, as README goal 12 asks.
 - Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
   `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a
-  load error: `{/sel}|{/sel}` panics out of `Fake` with "a fence should have refused this
-  at New" where the two draws land on rows whose cells select different rows of another
-  table, and `{/geo.SE.locality}|{/geo.SE.municipality}` renders a locality outside the
+  load error: `{/sel}|{/sel}` panics out of `Fake` where the two draws land on rows whose
+  cells select different rows of another table, and
+  `{/geo.SE.locality}|{/geo.SE.municipality}` renders a locality outside the
   municipality beside it. Each read draws its own row, so cells of two rows render
   together, where the fence counts them alternatives and compares neither. Have the error
   name the path spelling that holds, `{/geo.SE.locality.name}|{/geo.SE.municipality.name}`,
