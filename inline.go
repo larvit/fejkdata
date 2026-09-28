@@ -146,17 +146,18 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-// inlineBinding binds an inline node against root, naming its nodes from label.
 func inlineBinding(n node, label string, root map[string]node) binding {
 	scope := inlineScope(n, label)
-	return binding{scope: scope, link: func() error { return linkInline(n, label, scope, root) }}
-}
-
-func linkInline(n node, label string, scope nodeScope, root map[string]node) error {
-	if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
-		return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
+	return binding{
+		scope: scope,
+		link:  func() error { return linkNodeRefs(scope, root) },
+		referenceFence: func() error {
+			if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
+				return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
+			}
+			return nil
+		},
 	}
-	return linkNodeRefs(scope, root)
 }
 
 // linkNodeRefs binds the references in an inline node's templates against the
