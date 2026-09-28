@@ -8,10 +8,12 @@
   only, `gh pr merge --rebase` where the branch is already on top of main.
 - README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
-  dependency bump and the infrastructure the round itself runs on. `todo.md` carries the round: the nine-seat findings run at depth 1,
+  dependency bump, a repair of a promise goals 3 to 5 make, and the infrastructure
+  the round itself runs on. `todo.md` carries the round: the nine-seat findings run at depth 1,
   a PR per item it names, then the run again, until the score passes. At or above 7.0
   every pull request scores with the four-seat run and answers it in one run. No merge
-  lowers the last score.
+  lowers the last score its own panel recorded: the nine-seat round and the four-seat
+  run are two ratchets, never compared with each other.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - Prose naming a source states what that source states: read the register's own field

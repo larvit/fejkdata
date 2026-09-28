@@ -801,9 +801,11 @@ App developers writing tests and fixtures, in Go and at a shell:
 - a **Go test author**, filling a struct with `FakeStruct`
 - a **hand fixture author**, one value at a shell
 - a **validator-facing author**, who needs a value a real checker accepts
+- a **data author**, who writes categories under `--data-path` and meets every load
+  error the fences raise
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
-the Development section below, and who ships a register the four above then draw from.
+the Development section below, and who ships a register the five above then draw from.
 
 ## Goals
 
@@ -819,14 +821,17 @@ the Development section below, and who ships a register the four above then draw
    holding the rest, names that tell the truth, and a file that stands with no second
    document open beside it. A simulated reader panel scores those four, the score is a
    ratchet no release lowers, and [`AGENTS.md`](AGENTS.md) says what each pull request
-   owes it.
-3. **Valid by construction** — every value passes the check its real consumer
-   applies; facts that belong together come from one draw, within a value and
-   across categories.
+   owes it. Below the floor it holds back new capability, never a repair of a promise
+   goals 3 to 5 already make, as long as the round that lifts the score stays planned.
+3. **Valid by construction** — every value passes the check a current release of
+   its real consumer applies; facts that belong together come from one draw, within
+   a value and across categories.
 4. **Templates are intuitive, and text means what it says** — a template or a path,
    and every path in a template, renders what every writer reading it would expect,
    judged by simulated writers from the Audience. A format renders as written; only `{…}` varies, random characters included
    (`{digits(3)}`), and a selected row, `[SE]`, is that row wherever it is written.
+   A name is changed whenever a more intuitive one is found; the Versioning table
+   prices the change, never blocks it.
    Where two writers could expect different outputs, the template is a load error
    naming a spelling for each. One spelling per result; the wrong one is a load error
    naming the right one.
