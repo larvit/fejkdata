@@ -158,7 +158,7 @@ func columnItems(n node) (items []*template, nullable bool) {
 }
 
 // disagreement names the fix for two items of one column holding different datatypes. The item to
-// fix declares none, and is text where the other reads a typed column.
+// fix declares none unless both do, and is text where the other reads a typed column.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
 	fix, has, other, want := a, da, b, db
 	if da != DataTypeString && (a.datatype != DataTypeString || db == DataTypeString) {
