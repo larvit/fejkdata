@@ -254,8 +254,7 @@ func recordOf(n node) (*template, []Column, error) {
 	}
 	columns := make([]Column, len(names))
 	for i, name := range names {
-		datatype, _ := columnDatatype(t.fields[name]) // checkColumns refused items that disagree wherever DataType is read
-		columns[i] = Column{Name: name, DataType: datatype}
+		columns[i] = Column{Name: name, DataType: columnDatatype(t.fields[name])}
 	}
 	return t, columns, nil
 }

@@ -82,8 +82,14 @@ func checkColumns(s nodeScope) error {
 				}
 			}
 		}
-		if _, err := columnDatatype(column); err != nil {
-			return fmt.Errorf("%s: field %q: %w", path, name, err)
+		if len(items) == 0 {
+			return nil
+		}
+		first := itemDatatype(items[0])
+		for _, it := range items[1:] {
+			if d := itemDatatype(it); d != first {
+				return fmt.Errorf("%s: field %q: %w", path, name, disagreement(items[0], first, it, d))
+			}
 		}
 		return nil
 	}
@@ -101,41 +107,22 @@ func checkColumns(s nodeScope) error {
 	})
 }
 
-// columnDatatype is the datatype a column's items hold. They must agree, since a
-// column holds one; a column only ever null is a string.
-func columnDatatype(n node) (DataType, error) {
+// columnDatatype is the datatype a column holds, which its first item decides: checkColumns refuses
+// a column whose items disagree. A table's column, like one only ever null, has no item and is a string.
+func columnDatatype(n node) DataType {
 	items, _ := columnItems(n)
 	if len(items) == 0 {
-		return DataTypeString, nil
+		return DataTypeString
 	}
-	first := itemDatatype(items[0])
-	for _, t := range items[1:] {
-		if d := itemDatatype(t); d != first {
-			return first, disagreement(items[0], first, t, d)
-		}
-	}
-	return first, nil
+	return itemDatatype(items[0])
 }
 
-// itemDatatype is the datatype a column item declares, else that of the column it is.
+// itemDatatype is the datatype a column item declares, else that of the column it reads.
 func itemDatatype(t *template) DataType {
-	if t.datatype != DataTypeString {
-		return t.datatype
+	if t.datatype == DataTypeString && t.readsColumn != nil {
+		return columnDatatype(t.readsColumn.column)
 	}
-	return readDatatype(t)
-}
-
-// readDatatype is the datatype of the column t is, reading it by one reference alone; a string
-// when t reads none.
-func readDatatype(t *template) DataType {
-	if t.readsColumn == nil {
-		return DataTypeString
-	}
-	items, _ := columnItems(t.readsColumn.column)
-	if len(items) == 0 {
-		return DataTypeString
-	}
-	return itemDatatype(items[0]) // checkColumns refuses that column where its items disagree
+	return t.datatype
 }
 
 // columnItems is a column's template items, its choices unwrapped, and whether one is null.

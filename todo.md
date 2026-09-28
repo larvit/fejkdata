@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Derive a column's datatype in one place: `columnItems` yields nothing for a
-  `tableColumn`, and six callers re-derive it from items.
 - Give `head`, `index`, `bound` and `draw` one meaning each, name `table.family`
   for the root it returns, and replace the token kind bytes `'l'`, `'t'`, `'f'` and
   `'b'`, whose `'l'` means different things in `ftoken` and `formatToken`.
