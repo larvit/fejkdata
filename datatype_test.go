@@ -18,7 +18,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 		`{"format":"","age":[null,{"format":"{int(18,99)}","datatype":"integer","weight":9}]}`,
 		`{"format":"","pick":[[null,"a"],"b"]}`,
 	} {
-		if _, err := compile(parse(t, src)); err != nil {
+		if _, err := linked(t, src); err != nil {
 			t.Errorf("compile(%s) = %v, want a column to take a datatype and null", src, err)
 		}
 	}
@@ -32,7 +32,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 		`null`: `so write ""`,
 		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `so write ""`,
 	} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)
 		}
 	}

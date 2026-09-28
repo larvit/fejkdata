@@ -7,7 +7,7 @@ import (
 )
 
 func TestWeightZeroIsRejected(t *testing.T) {
-	_, err := compile(parse(t, `[{"format":"X","weight":0},"Y"]`))
+	_, err := linked(t, `[{"format":"X","weight":0},"Y"]`)
 	if err == nil || !strings.Contains(err.Error(), "weight 0") || !strings.Contains(err.Error(), "remove") {
 		t.Fatalf("compile(weight 0) = %v, want it rejected naming the fix", err)
 	}
@@ -75,7 +75,7 @@ func TestNodeCompileErrors(t *testing.T) {
 		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
 		`{"format":"{x}","x":"v","repeat":2,"separator":""}`,            // separator "" is the default
 	} {
-		if _, err := compile(parse(t, bad)); err == nil {
+		if _, err := linked(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
 		}
 	}

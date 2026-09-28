@@ -229,7 +229,7 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		`{"format":"{calc(x * 2)}","x":["a","b"]}`:       `"x"`,
 		`{"format":"{calc(x + y)}","x":"1","y":"{{2}}"}`: `"{2}"`,
 	} {
-		_, err := compile(parse(t, src))
+		_, err := linked(t, src)
 		if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "never a number") {
 			t.Errorf("compile(%s) = %v, want the operand rejected naming %s", src, err, want)
 		}
@@ -240,7 +240,7 @@ func TestCalcOverANeverNumericOperandIsRejected(t *testing.T) {
 		`{"format":"{calc(x * 2)}","x":["1","abc"]}`,
 		`{"format":"{calc(x * 2)}","x":"{digits(2)}"}`,
 	} {
-		if _, err := compile(parse(t, ok)); err != nil {
+		if _, err := linked(t, ok); err != nil {
 			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
 		}
 	}
@@ -255,7 +255,7 @@ func TestCalcConstantZeroDivisorIsRejected(t *testing.T) {
 		`{"format":"{calc((a/0)+b)}","a":"1","b":"2"}`:   "divides by 0",
 		`{"format":"{calc(a/-0)}","a":"1"}`:              "divides by -0",
 	} {
-		if _, err := compile(parse(t, src)); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want the constant zero divisor rejected naming %q", src, err, want)
 		}
 	}
@@ -284,7 +284,7 @@ func TestCalcCompileErrors(t *testing.T) {
 		`"{calc(1, x)}"`,    // decimals arg not an integer
 		`"{calc(1, -1)}"`,   // decimals negative
 	} {
-		if _, err := compile(parse(t, bad)); err == nil {
+		if _, err := linked(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
 		}
 	}

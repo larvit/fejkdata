@@ -46,7 +46,7 @@ func TestTransformArgs(t *testing.T) {
 		`{"format":"{lowercase(hex(2))}","x":"v"}`,
 		`{"format":"{lowercase(x)} {x.a}","x":{"format":"{a}","a":"1"}}`,
 	} {
-		if _, err := compile(parse(t, bad)); err == nil {
+		if _, err := linked(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want it rejected", bad)
 		}
 	}
