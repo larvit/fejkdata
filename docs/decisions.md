@@ -121,12 +121,14 @@ this repo's own are.
 A script branches on the exit code and reads the named path or spelling, so those hold;
 wording improves in a minor.
 
-## Every format is fenced at link, and its errors name its path
+## Formats are checked after all data is loaded, so their errors name the category
 
-2026-09-28, larv-review; approval pending. Goal 2. Every format compiles once, at
-link: one holding a reference compiles only once bound, and compiling all there
-leaves no check reading ops a format lacks yet. A link error names the category
-path, a table cell's with its line. Valid while compilation needs the bound references.
+2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 2. Loading reads every
+file first, then connects references across them. A format holding a reference can only
+be checked once it is connected, so every format is checked then, and all checks run at
+one moment. An error from those checks names the category path you would type (`sub.x`),
+or a table cell's category and line, not the file. Valid while checking a format needs
+its references connected.
 
 ## Raising the lowest supported Go is a major
 
