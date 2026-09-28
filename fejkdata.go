@@ -115,9 +115,9 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{rand: rng, categories: cats}, nil
 }
 
-// List returns the sorted dotted paths Fake can render: every category, the dotted
-// fields within a template. A choice consumes no segment, so a path continues
-// through one only where every variant carries it, which is the rule Fake applies too.
+// List returns the sorted dotted paths Fake renders: each category and every field,
+// column and linked table below it, a direct descent at a time. A choice consumes no
+// segment, so a path continues through one only where every variant carries it.
 func (f *Generator) List() []string {
 	var out []string
 	for _, name := range sortedNames(f.categories) {
