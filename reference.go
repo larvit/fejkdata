@@ -74,52 +74,63 @@ func refSegments(name string, folder []string) ([]string, error) {
 func linkRefs(root map[string]node) error {
 	return eachTemplate(root, func(folder []string, path string, t *template) error {
 		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
-		t.keyDrawGroup(category)
-		return linkTemplateRefs(folder, path, category, t, root)
+		return linkTemplate(folder, path, category, t, root)
 	})
 }
 
-func linkTemplateRefs(folder []string, path, category string, t *template, root map[string]node) error {
-	if t.cellOf != nil {
-		path = fmt.Sprintf("%s, line %d", path, t.cellRow+2)
+// linkTemplate resolves t's references in category, "" for an inline template, and
+// compiles its format against them.
+func linkTemplate(folder []string, path, category string, t *template, root map[string]node) error {
+	if t.cell.table != nil {
+		path = fmt.Sprintf("%s, line %d", path, t.cell.row+2)
 	}
-	if names := refTokens(t.tokens); len(names) > 0 {
-		if err := t.bindRefs(folder, path, category, names, root); err != nil {
-			return err
-		}
+	link, err := t.resolveLink(folder, path, category, root)
+	if err != nil {
+		return err
 	}
-	if err := t.compileFormat(); err != nil {
+	compiled, err := compileFormat(t.tokens, link.refs)
+	if err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
-	t.readsColumn = columnReadOf(t)
+	t.link, t.compiled = link, compiled
 	return nil
 }
 
-// bindRefs fills refs and refHeads, refusing a reference to t's own category:
+// resolveLink binds every reference t reads, refusing one to t's own category, and keys
+// t's draw group by that category, so a name is local to it:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (t *template) bindRefs(folder []string, path, category string, names []string, root map[string]node) error {
-	t.refs = make(map[string]refBinding, len(names))
-	t.refHeads = make(map[string]node, len(names))
+func (t *template) resolveLink(folder []string, path, category string, root map[string]node) (templateLink, error) {
+	var link templateLink
+	if t.drawGroup != "" {
+		link.drawGroupKey = category + "/" + t.drawGroup
+	}
+	names := refTokens(t.tokens)
+	if len(names) == 0 {
+		return link, nil
+	}
+	link.refs = make(map[string]refBinding, len(names))
+	link.refHeads = make(map[string]node, len(names))
 	for _, name := range names {
 		segments, err := refSegments(name, folder)
 		if err != nil {
-			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
 		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
-			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
 		key := "/" + strings.Join(categorySegs, ".")
 		if category != "" && key == "/"+category {
-			return fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
+			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
 		}
 		if err := checkPath(target, tail, key); err != nil {
-			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		t.refHeads[key] = target
-		t.refs[name] = refBinding{key, tail}
+		link.refHeads[key] = target
+		link.refs[name] = refBinding{key, tail}
 	}
-	return nil
+	link.readsColumn = columnReadOf(t, link)
+	return link, nil
 }
 
 // columnRead is a record's column read by a format of that one reference alone, which is the
@@ -129,13 +140,13 @@ type columnRead struct {
 	column node
 }
 
-func columnReadOf(t *template) *columnRead {
+func columnReadOf(t *template, link templateLink) *columnRead {
 	name, lone := loneRef(t.tokens)
 	if !lone || t.repeat != 1 {
 		return nil
 	}
-	a := splitArm(name, t.refs)
-	target, isTemplate := t.head(a.key).(*template)
+	a := splitArm(name, link.refs)
+	target, isTemplate := link.refHeads[a.key].(*template)
 	if !isTemplate || !target.isRecord || len(a.tail) != 1 {
 		return nil
 	}

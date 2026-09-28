@@ -249,7 +249,7 @@ func checkRenders(s nodeScope) error {
 	fence := &drawCheck{}
 	refs := false
 	if err := s(func(path string, n node) error {
-		if t, ok := n.(*template); ok && len(t.refs) > 0 {
+		if t, ok := n.(*template); ok && len(t.link.refs) > 0 {
 			refs = true
 		}
 		return fence.checkDrawGroup(path, n)

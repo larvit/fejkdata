@@ -42,8 +42,8 @@ func expandAnew(s *session, t *template) string {
 
 // in is the scope t renders in: its draw group where it names one, else its caller's.
 func (sc renderScope) in(t *template) renderScope {
-	if t.drawGroupKey != "" {
-		sc.group = t.drawGroupKey
+	if t.link.drawGroupKey != "" {
+		sc.group = t.link.drawGroupKey
 	}
 	return sc
 }

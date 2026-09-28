@@ -41,9 +41,10 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick. Every format compiles in `linkTemplateRefs`.
+// an independent pick. Every format compiles in `linkTemplate`.
 type template struct {
-	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
+	// Filled by `compileString`, `compileTemplate`, `table.checkCells` and
+	// `table.compileRowFormat`:
 	format     string
 	tokens     []formatToken
 	fields     map[string]node
@@ -54,24 +55,21 @@ type template struct {
 	fromString bool   // written as a JSON string rather than an object
 	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
 	table      *table // the table whose format this is, whose columns are the fields
+	cell       cellSite
 
-	// Filled by `checkCells`:
-	cellOf  *table // the table whose cell this is
-	cellRow int    // the row the cell sits in
+	// Filled by `linkTemplate`, from the assembled tree:
+	link     templateLink
+	compiled formatOps
+}
 
-	// Filled by `template.compileFormat` at link, from `template.tokens` and `template.refs`:
-	ops  []op // what expand walks
-	grow int  // minimum output size, to size the render buffer
-	// pathKeys maps each key a dotted path in the format starts from to one path token
-	// reading it, which is the half of an overlap the fences name. nil when the
-	// format takes no path.
-	pathKeys map[string]string
-	// held is every name drawn once per expansion: the path keys above, plus the
-	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
-	held      map[string]bool
-	heldLocal bool // some held name is kept by the expansion itself, so expand makes its hold
+// cellSite is the table cell a template is compiled from; table is nil for any other template.
+type cellSite struct {
+	table *table
+	row   int
+}
 
-	// Filled by `linkTemplateRefs` and `keyDrawGroup`, from the assembled tree:
+// templateLink is what a template's references resolve to in the assembled tree.
+type templateLink struct {
 	refs         map[string]refBinding // each reference the format reads -> what it resolves to
 	refHeads     map[string]node       // each refBinding.key -> the category it names
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
@@ -83,7 +81,7 @@ func (*template) isNode() {}
 // head is the node an arm's key names: a sibling field, or a reference's category.
 func (t *template) head(key string) node {
 	if isRef(key) {
-		return t.refHeads[key]
+		return t.link.refHeads[key]
 	}
 	return t.fields[key]
 }
@@ -220,15 +218,14 @@ func (t *template) fixedText() (string, bool) {
 	return "", false
 }
 
-// compileFormat compiles the format into ops, and applies the fences that need the
+// compileFormat compiles a format into ops, and applies the fences that need the
 // compiled reads.
-func (t *template) compileFormat() error {
-	c := compileOps(t.tokens, t.refs)
-	t.ops, t.grow, t.pathKeys, t.held, t.heldLocal = c.ops, c.grow, c.pathKeys, c.held, c.heldLocal
-	if err := checkNoOverlap(t.ops, t.pathKeys); err != nil {
-		return err
+func compileFormat(toks []formatToken, refs map[string]refBinding) (formatOps, error) {
+	c := compileOps(toks, refs)
+	if err := checkNoOverlap(c.ops, c.pathKeys); err != nil {
+		return c, err
 	}
-	return checkNoRepeatedRead(c)
+	return c, checkNoRepeatedRead(c)
 }
 
 func compileChoice(items []any, pos position) (node, error) {
@@ -440,14 +437,6 @@ func drawGroupOf(m map[string]any, repeat int) (string, error) {
 		return "", fmt.Errorf("drawGroup %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
 	}
 	return name, nil
-}
-
-// keyDrawGroup keys t's draw group by the category t sits in, "" for an inline template, so a name
-// is local to its category.
-func (t *template) keyDrawGroup(category string) {
-	if t.drawGroup != "" {
-		t.drawGroupKey = category + "/" + t.drawGroup
-	}
 }
 
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only

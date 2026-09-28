@@ -83,7 +83,7 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 func checkOwnFamily(t *template) error {
 	own := t.table
 	if own == nil {
-		own = t.cellOf
+		own = t.cell.table
 	}
 	if own == nil {
 		return nil
@@ -116,7 +116,7 @@ func checkOwnFamily(t *template) error {
 func renderDraws(t *template) *drawWalk {
 	w := newDrawWalk()
 	for _, e := range renderEdges(t) {
-		w.edge(t, e, drawAt{group: t.drawGroupKey, route: drawRoute{e.reached(), e.label}})
+		w.edge(t, e, drawAt{group: t.link.drawGroupKey, route: drawRoute{e.reached(), e.label}})
 	}
 	return w
 }
@@ -189,7 +189,7 @@ func repeats(n node) bool {
 
 func grouped(n node) bool {
 	t, isTemplate := n.(*template)
-	return isTemplate && t.drawGroupKey != ""
+	return isTemplate && t.link.drawGroupKey != ""
 }
 
 // readsTable reports whether a reference of n names a table, whose draw the render's
@@ -209,7 +209,7 @@ func refRead(n node, label string) (arm, bool) {
 	if !isTemplate {
 		return arm{}, false
 	}
-	a := splitArm(label, t.refs)
+	a := splitArm(label, t.link.refs)
 	return a, isRef(a.key)
 }
 
@@ -219,7 +219,7 @@ func checkColumnDraws(t *template, columns []string) error { return columnDraws(
 func columnDraws(t *template, columns []string) *drawWalk {
 	w := newDrawWalk()
 	for _, name := range columns {
-		w.walk(t.fields[name], drawAt{group: t.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
+		w.walk(t.fields[name], drawAt{group: t.link.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
 	return w
 }
@@ -311,25 +311,29 @@ func (w *drawWalk) walk(n node, at drawAt) {
 	if repeats(n) {
 		return
 	}
-	if t, isTemplate := n.(*template); isTemplate && t.drawGroupKey != "" {
-		at.group = t.drawGroupKey
+	if t, isTemplate := n.(*template); isTemplate && t.link.drawGroupKey != "" {
+		at.group = t.link.drawGroupKey
 	}
 	if t, isTable := n.(*table); isTable {
 		at.wholeTable = t
 	}
 	for _, e := range renderEdges(n) {
-		cell, isCell := e.to.(*template)
+		to, isTemplate := e.to.(*template)
+		cell := cellSite{}
+		if isTemplate {
+			cell = to.cell
+		}
 		switch {
-		case !isCell || cell.cellOf == nil:
+		case cell.table == nil:
 			w.edge(n, e, at)
-		case cell.cellOf == at.wholeTable:
+		case cell.table == at.wholeTable:
 			in := at
 			in.wholePins = at.wholePins.clone()
-			in.wholePins.add(cell.cellOf, cell.cellRow)
+			in.wholePins.add(cell.table, cell.row)
 			w.edge(n, e, in)
-		case at.pins.clash(cell.cellOf, cell.cellRow) == nil:
+		case at.pins.clash(cell.table, cell.row) == nil:
 			in := at
-			in.pins = at.pins.entered(cell.cellOf, cell.cellRow)
+			in.pins = at.pins.entered(cell.table, cell.row)
 			w.edge(n, e, in)
 		}
 	}

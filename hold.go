@@ -37,7 +37,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 	if s.trace != nil {
 		traceRead(s.trace, t, sc, a)
 	}
-	if !t.held[a.key] {
+	if !t.compiled.held[a.key] {
 		if len(a.tail) > 0 {
 			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
 		}
@@ -73,8 +73,8 @@ func traceRead(trace *renderTrace, t *template, sc renderScope, a arm) {
 	var table string
 	var row int
 	switch {
-	case t.cellOf != nil:
-		table, row = t.cellOf.path, t.cellRow
+	case t.cell.table != nil:
+		table, row = t.cell.table.path, t.cell.row
 	case t.table != nil:
 		table, row = t.table.path, sc.rowOf(t.table)
 	}
@@ -89,8 +89,8 @@ func renderLeaf(s *session, n node, sc renderScope) readValue {
 	case *nullItem:
 		return readValue{null: true}
 	case *template:
-		if leaf.readsColumn != nil {
-			return readField(s, leaf, nil, sc.in(leaf), leaf.readsColumn.a)
+		if leaf.link.readsColumn != nil {
+			return readField(s, leaf, nil, sc.in(leaf), leaf.link.readsColumn.a)
 		}
 	}
 	return readValue{text: render(s, n, sc)}
