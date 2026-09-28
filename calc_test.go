@@ -125,7 +125,7 @@ func TestCalcGuardsPanic(t *testing.T) {
 // TestCalcOperandReadsTheExpansionsDraw pins the one-draw rule for a calc operand.
 // A field the format renders and a calc reads is drawn once per expansion, so the
 // operand shown is the operand computed — the correlation the dotted-path rule
-// already gives a level (see bound_test.go), applied to a plain sibling.
+// already gives a level, applied to a plain sibling.
 func TestCalcOperandReadsTheExpansionsDraw(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"inv": `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,

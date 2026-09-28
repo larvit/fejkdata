@@ -117,7 +117,7 @@ func TestReferenceNamingAHeldLevelIsRejected(t *testing.T) {
 			t.Errorf("%s: New = %v, want the reference rejected as an overlap", name, err)
 		}
 	}
-	// A reference to anything this format does not bind is untouched.
+	// A reference to anything this format does not hold is untouched.
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"cat":     `{"format":"{p.first} {/surname}","p":{"format":"{first}","first":["Anna","Bo"]}}`,
 		"surname": `["Eriksson","Lindqvist"]`,
@@ -479,7 +479,7 @@ func TestFieldWithoutAPathTokenStillDrawsEachTime(t *testing.T) {
 }
 
 func TestTwoHeldHeadsDrawIndependently(t *testing.T) {
-	// Binding is per head, so two correlated sets in one format compose instead
+	// A hold is per head, so two correlated sets in one format compose instead
 	// of needing a cross product of variants.
 	f := engine(4)
 	seen := map[string]bool{}
@@ -495,8 +495,8 @@ func TestTwoHeldHeadsDrawIndependently(t *testing.T) {
 	}
 }
 
-func TestRepeatRedrawsTheBinding(t *testing.T) {
-	// The binding lives for one expansion, so each repetition is a fresh draw —
+func TestRepeatRedrawsTheHold(t *testing.T) {
+	// The hold lives for one expansion, so each repetition is a fresh draw —
 	// and each repetition is internally consistent.
 	f := engine(5)
 	tmpl := strings.Replace(places("{place.postal-code} {place.locality}"), `"format":"{place.postal-code} {place.locality}"`,
@@ -522,8 +522,8 @@ func TestRepeatRedrawsTheBinding(t *testing.T) {
 	}
 }
 
-func TestNestedTemplateKeepsItsOwnBinding(t *testing.T) {
-	// A binding belongs to the expansion that made it: an inner template's own
+func TestNestedTemplateKeepsItsOwnHold(t *testing.T) {
+	// A hold belongs to the expansion that made it: an inner template's own
 	// place is not the outer one's.
 	f := engine(6)
 	tmpl := `{"format":"{place.v}{inner}",
@@ -534,7 +534,7 @@ func TestNestedTemplateKeepsItsOwnBinding(t *testing.T) {
 		seen[mustRender(t, f, tmpl)] = true
 	}
 	if !seen["AB"] && !seen["BA"] {
-		t.Fatalf("400 draws produced %v, want the inner binding to be independent", seen)
+		t.Fatalf("400 draws produced %v, want the inner hold to be independent", seen)
 	}
 }
 
@@ -722,7 +722,7 @@ func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
 }
 
 func TestHeldPathIsReachableByFake(t *testing.T) {
-	// Binding changes how a format reads a sibling, not what List and Fake offer:
+	// Holding changes how a format reads a sibling, not what List and Fake offer:
 	// the sub-fields stay addressable on their own.
 	dir := writeData(t, map[string]string{"address": places("{place.postal-code} {place.locality}")})
 	f, err := New(WithoutShippedData(), WithDataPath(dir), WithSeed(9))
