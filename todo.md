@@ -73,9 +73,8 @@ by a `data-import/` script, as README goal 12 asks.
 - Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop
   drawing birthdates that reach 100: the format hard-codes `-`, and the 1930 floor
   makes the oldest draws invalid from 2031.
-- Settle `en_US.ip` and `sv_SE.ip`, today byte-identical: either one `misc.ip` as the
-  decision "`misc` is what every locale shares" asks, or a decision saying why an
-  address that carries no locale stays per-locale.
+- Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`, per goal 4's
+  one spelling per result.
 - Accept a middle name, and draw a shipped `personnummer` inside a *selected* sex;
   both want a draw group sharing its family's pins. Stop the conflict error naming a
   rewrite that returns a different value where the read it conflicts with sits inside
@@ -88,8 +87,13 @@ by a `data-import/` script, as README goal 12 asks.
   goal 12 asks for and the hand-written list they use today does not meet. Keep the
   handle shape: `username` shortens a surname to `ahl` or `sjo`, and the US one draws
   unisex given names, neither of which falls out of the tables unaided.
-- Decide whether `email.local` and `username` share one list: a reference between
-  shipped categories breaks a consumer once tagged, so it rides a 0.(x+1).0 after that.
+- Draw `email.local` from `username`, so the two share one handle list.
+- Rename `misc.territory.country` to `sovereign`, per goal 4: it holds a code, and
+  `country` collides with the `misc.country` path it replaced.
+- Add `misc.browser` as the parent of `misc.useragent`, so
+  `misc.browser[Chrome].useragent` resolves, per goal 3.
+- Group `data/misc` into folders where a group name makes a path easier to guess, per
+  goal 4.
 
 `misc` (locale-neutral)
 
@@ -219,33 +223,6 @@ by a `data-import/` script, as README goal 12 asks.
   everywhere else. Typing a shipped column changes what `json` and `sql` write, so the
   capability is a minor and applying it to `misc.httpmethod` is a major.
 
-### Open questions to settle
-
-- Decide whether a goal 5 violation joins the comprehension gate's exception list: the
-  `{/sel}|{/sel}` panic waits behind the whole round at 5.9, and
-  `{/geo.SE.locality}|{/geo.SE.municipality}` mispairs the shipped data meanwhile, though a
-  repair restoring behaviour the repo already claims may already pass the gate as written.
-- Decide whether the README's Audience names the author who writes categories under
-  `--data-path`: the four personas listed consume the shipped set and the contributor
-  ships a register upstream, while "Your own data" is a README section, `-d` is a
-  first-class flag, and every load error the draw fences raise lands on that author.
-- Decide whether `data/misc`'s 33 flat files gain a level before v1.0.0: a folder is a
-  path segment, so `misc/net/tld` is a rename a consumer pays for, and goal 13 promises
-  the directory keeps growing.
-- Decide whether `misc.browser` becomes a parent of `misc.useragent`, so
-  `misc.browser[Chrome].useragent` resolves. Adding a `parent` after v0.1.0 breaks a
-  consumer, so it rides a 0.(x+1).0.
-- Decide whether `misc.timezone` keeps every zone tzdb names: one added recently,
-  `Europe/Kyiv` among them, is rejected by a consumer resolving it against older
-  tzdata, and the population weight makes that zone likelier, not rarer. Today the
-  README names the action a reader takes instead; narrowing what ships is the
-  alternative.
-- Decide whether `misc.territory.country` is renamed `sovereign`: it holds a code, and
-  `country` collides with the `misc.country` path it replaced. A rename after v0.1.0
-  breaks a consumer, so it rides a 0.(x+1).0.
-- Decide whether `parent: territory` stays, given a `--data-path` override of
-  `misc.territory` now fails `New` unless `misc.timezone` is overridden with it.
-
 ### Release
 
 - Read the tag through `git/ref/tags/{tag}` in `publish_release.py`: GitHub answers
@@ -303,11 +280,6 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
   back to the clause it came from: the goal spells them out in prose while `todo.md`
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
-- Put the round's nine-seat score and the four-seat score every later pull request
-  takes on one scale, or say in `AGENTS.md` that they are two ratchets: it gates the
-  round on the first and every merge after 7.0 on the second, then holds one "last
-  score" across both, where the `comprehension-panel` skill has two independent panels
-  drift unless a calibration seat reads the anchor project without its score.
 - Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
   a helper reached only through `drawWalk.check`, and misses `checkDrawGroup`,
   `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
@@ -320,7 +292,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
   Go at `Dockerfile:21`, and the shipped JSON under `data/` is two-space, so the rule as
   written is one no Go file can break and every data file does.
-- Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub or retire it:
+- Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub:
   Gitea converts a repository to a mirror only by re-creating it, so until that runs
   the copy there is a second owner of one history and goes stale from this commit.
 - Stop `/cache` collecting root-owned files, which today every command documented
