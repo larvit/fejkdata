@@ -85,7 +85,7 @@ func checkColumns(s nodeScope) error {
 		if len(items) == 0 {
 			return nil
 		}
-		first := itemDatatype(items[0])
+		first := columnDatatype(column)
 		for _, it := range items[1:] {
 			if d := itemDatatype(it); d != first {
 				return fmt.Errorf("%s: field %q: %w", path, name, disagreement(items[0], first, it, d))
