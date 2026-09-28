@@ -6,7 +6,7 @@ import (
 )
 
 // rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *session instead, for the reason below.
+// render path takes the concrete *session instead.
 type rng interface {
 	IntN(n int) int
 	Float64() float64

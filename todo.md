@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Correct the false comments: `List` claims folder segments, which `paths` never lists,
-  and `renderEdge.reached` claims `pathKeyReaders`' vocabulary, which spells a token
-  `token {x}`. Drop `rng`'s "for the reason below", which points at `pick`.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
