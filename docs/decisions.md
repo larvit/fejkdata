@@ -442,8 +442,8 @@ option earns its place.
 ## The key map is built at load, the rest on first draw
 
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
-both are load-time; the per-parent child lists serve only a draw, so they wait for the
-first one, keeping `New` linear in the bytes read.
+both are load-time; the row lookup, by name and by parent, serves only a draw, so it waits
+for the first one, keeping `New` linear in the bytes read.
 
 ## Two categories may name one TSV
 
