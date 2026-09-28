@@ -344,7 +344,7 @@ func (t *table) compileRowFormat(format string) error {
 	}
 	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, table: t}
 	t.pinnedRow = &tableRow{t}
-	return t.formatTemplate.compileRefFree()
+	return nil
 }
 
 // setTablePaths gives every table the path a selector on it is written at, before a

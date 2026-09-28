@@ -144,7 +144,11 @@ func operandDraw(n node, into map[node]bool) {
 // isFixed is a string that varies nothing: fixed text with no fields to read into.
 func isFixed(n node) bool {
 	t, ok := n.(*template)
-	return ok && t.fixed && len(t.fields) == 0
+	if !ok {
+		return false
+	}
+	_, fixed := t.fixedText()
+	return fixed && len(t.fields) == 0
 }
 
 // renders reports whether rendering n can reach anything in want, following the

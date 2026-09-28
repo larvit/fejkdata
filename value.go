@@ -143,11 +143,12 @@ func (v proven) or(w proven) proven {
 // proveTemplate proves a template that renders one value: fixed text, or a format that is
 // one token alone.
 func (p *valueProof) proveTemplate(t *template) proven {
+	lit, fixed := t.fixedText()
 	switch {
 	case t.repeat != 1:
 		return unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
-	case t.fixed:
-		return literalValue(t.lit)
+	case fixed:
+		return literalValue(lit)
 	case len(t.ops) != 1:
 		v := unproven(notOneValue(t.format, typedCalls))
 		v.notOperand = notOneValue(t.format, operandCalls)
