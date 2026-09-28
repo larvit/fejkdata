@@ -20,10 +20,6 @@ type renderScope struct {
 	pins  *pinSet
 }
 
-func eagerHoldSet() holdSet {
-	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]readValue{}}}
-}
-
 // renderOnce renders n as one render, over a hold set of its own.
 func renderOnce(s *session, n node) string {
 	var set holdSet

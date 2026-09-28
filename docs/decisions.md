@@ -242,14 +242,15 @@ groups. They pin different things — an operand pins the value its own render p
 and stops at a reference, a path pins every level it passes through — so one walk would
 carry both rules and both scopes anyway, and tell them apart at every step.
 
-## A record makes its draw maps up front, a `Fake` on its first read
+## A hold set makes its draw maps on the first read
 
-A record's columns always read through the render's draws, so making the maps where the
-set is declared keeps them on that frame's stack. A `Fake` often reads no reference path
-at all, and making them anyway cost about a fifth of the cheapest render, so it makes
-them on the first read instead, at two heap allocations for a render that does share a
-draw. The allocation gate over a repeat of a reference path and over a named draw group
-prices that, and pins what keeps a hold set off the heap.
+Every render starts from the zero `holdSet`, per goal 2's one spelling. Making the maps
+where the set is declared kept a record's on its frame's stack, but a `Fake`'s set lives
+on the `Generator`, so there it cost every render two heap allocations and about half the
+cheapest one's time, measured 2026-09-28. Lazily, a render reading a reference path pays
+those two allocations, a record or struct included, and one reading none pays nothing;
+goal 11 holds either way. The allocation gate over a repeat of a reference path and over
+a named draw group prices that, and pins what keeps a hold set off the heap.
 
 ## A category never references itself, and a record's fences run at load
 

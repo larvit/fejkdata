@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Start every render from one spelling of an empty hold set: `Fake` uses
-  `holdSet{}`, the record and struct paths `eagerHoldSet()`.
 - Correct the false comments: `funcCall` names `checkFunc` where `parseFormat`
   reports, `struct.go`'s "t sits at index within c.t" names no field, `recordFormats`
   calls ndjson "the same column", `Generator` says every other entry point takes `mu`
