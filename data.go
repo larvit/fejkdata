@@ -62,17 +62,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
-	setTablePaths(root)
-	if err := linkTables(root); err != nil {
-		return nil, err
-	}
-	if err := linkRefs(root); err != nil {
-		return nil, err
-	}
-	if err := checkNoCycles(root); err != nil {
-		return nil, err
-	}
-	if err := checkScope(treeScope(root)); err != nil {
+	if err := treeBinding(root).bind(); err != nil {
 		return nil, err
 	}
 	return root, nil
@@ -206,11 +196,50 @@ func inlineScope(n node, label string) nodeScope {
 	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-func checkScope(s nodeScope) error {
-	if err := checkColumns(s); err != nil {
+// binding is one entry point's nodes on their way through bind, the load pipeline New,
+// NewTemplate and FakeStruct share; its fields are where they differ.
+type binding struct {
+	scope nodeScope
+	// link binds the references: a loaded tree's relative to each category's folder, an
+	// inline node's from the root alone.
+	link func() error
+	// noCycles refuses a reference cycle, which only a loaded tree can close: nothing
+	// references an inline node.
+	noCycles func() error
+	// typedByGo marks a struct's columns, whose datatypes its Go types set and checkField
+	// proves, so checkColumns skips them.
+	typedByGo bool
+}
+
+func treeBinding(root map[string]node) binding {
+	return binding{
+		scope: treeScope(root),
+		link: func() error {
+			setTablePaths(root)
+			if err := linkTables(root); err != nil {
+				return err
+			}
+			return linkRefs(root)
+		},
+		noCycles: func() error { return checkNoCycles(root) },
+	}
+}
+
+func (b binding) bind() error {
+	if err := b.link(); err != nil {
 		return err
 	}
-	return checkRenders(s)
+	if b.noCycles != nil {
+		if err := b.noCycles(); err != nil {
+			return err
+		}
+	}
+	if !b.typedByGo {
+		if err := checkColumns(b.scope); err != nil {
+			return err
+		}
+	}
+	return checkRenders(b.scope)
 }
 
 // checkRenders runs the per-node fences over a scope, each over the whole scope

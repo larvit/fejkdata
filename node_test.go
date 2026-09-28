@@ -107,7 +107,7 @@ func TestEveryFormatCompilesAtLink(t *testing.T) {
 			t.Errorf("%s compiled before link", format)
 		}
 	}
-	if err := bindInline(n, "t", map[string]node{"w": w}, func(nodeScope) error { return nil }); err != nil {
+	if err := linkInline(n, "t", inlineScope(n, "t"), map[string]node{"w": w}); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {
