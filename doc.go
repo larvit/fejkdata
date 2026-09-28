@@ -16,8 +16,8 @@ package fejkdata
 
 // Vocabulary
 //
-//   - draw — one pick from a choice, or one row taken from a table, and the value a
-//     read produced: `pick`, `resolveChoice`, `table.drawRow`, `draw`.
+//   - draw — one pick from a choice, or one row taken from a table: `pick`,
+//     `resolveChoice`, `table.drawRow`.
 //   - expansion — one render of one format: `expand`.
 //   - render — what owns one `holdSet`, and so what one reference draw spans:
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
@@ -31,7 +31,7 @@ package fejkdata
 //   - pin — fixing which row of a table the render uses, which the draw fences replay:
 //     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of
-//     `table.parentT`, named by the root that chain ends at: `table.family`.
+//     `table.parentT`, named by the root that chain ends at: `table.familyRoot`.
 //   - whole — a read of a table with no selector and no descent, {/city}, landing on
 //     the `table` itself: it draws a row apart from every pin, so the fences keep the rows
 //     its cells stand in as `drawAt.wholePins`, beside `drawAt.wholeTable`.

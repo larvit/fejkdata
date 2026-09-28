@@ -8,9 +8,9 @@ import (
 // ftoken is one unit of a scanned format string: a literal rune or the body of a
 // {…} token.
 type ftoken struct {
-	kind byte // 'l' literal rune, 't' token body
-	char rune
-	body string
+	isToken bool // a {…} body, else a literal rune
+	char    rune
+	body    string
 }
 
 // eachToken scans a format string once and calls fn for each unit, the single
@@ -24,7 +24,7 @@ func eachToken(format string, fn func(ftoken) error) error {
 		switch c := rs[i]; c {
 		case '{':
 			if i+1 < len(rs) && rs[i+1] == '{' {
-				t.kind, t.char = 'l', '{'
+				t.char = '{'
 				i++
 				break
 			}
@@ -38,17 +38,17 @@ func eachToken(format string, fn func(ftoken) error) error {
 			if end >= len(rs) {
 				return fmt.Errorf("unterminated '{' in %q", format)
 			}
-			t.kind, t.body = 't', string(rs[i+1:end])
+			t.isToken, t.body = true, string(rs[i+1:end])
 			i = end
 		case '}':
 			if i+1 < len(rs) && rs[i+1] == '}' {
-				t.kind, t.char = 'l', '}'
+				t.char = '}'
 				i++
 				break
 			}
 			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
 		default:
-			t.kind, t.char = 'l', c
+			t.char = c
 		}
 		if err := fn(t); err != nil {
 			return err
@@ -57,16 +57,23 @@ func eachToken(format string, fn func(ftoken) error) error {
 	return nil
 }
 
-// formatToken is one parsed unit of a format: a literal run, a field alternation or a
-// builtin call.
+// formatToken is one parsed unit of a format.
 type formatToken struct {
-	kind  byte     // 'l' literal run, 'f' field alternation, 'b' builtin call
-	lit   string   // kind 'l'
+	kind  tokenKind
+	lit   string   // literalRun
 	body  string   // the braces' content, as written
-	fn    string   // kind 'b'
-	args  []string // kind 'b'
-	names []string // kind 'f': the '|' arms; kind 'b': the operands its builtin reads
+	fn    string   // builtinCall
+	args  []string // builtinCall
+	names []string // fieldAlternation: the '|' arms; builtinCall: the operands its builtin reads
 }
+
+type tokenKind uint8
+
+const (
+	builtinCall tokenKind = iota
+	fieldAlternation
+	literalRun
+)
 
 // parseFormat is the one reading of a format's tokens: a '(' outside a selector makes
 // a token a call.
@@ -75,25 +82,25 @@ func parseFormat(format string) ([]formatToken, error) {
 	var lit strings.Builder
 	flush := func() {
 		if lit.Len() > 0 {
-			toks = append(toks, formatToken{kind: 'l', lit: lit.String()})
+			toks = append(toks, formatToken{kind: literalRun, lit: lit.String()})
 			lit.Reset()
 		}
 	}
 	err := eachToken(format, func(t ftoken) error {
-		if t.kind == 'l' {
+		if !t.isToken {
 			lit.WriteRune(t.char)
 			return nil
 		}
 		flush()
 		if indexOutside(t.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: 'f', body: t.body, names: splitOutside(t.body, '|')})
+			toks = append(toks, formatToken{kind: fieldAlternation, body: t.body, names: splitOutside(t.body, '|')})
 			return nil
 		}
 		name, args, ok := funcCall(t.body)
 		if !ok {
 			return fmt.Errorf("malformed function token {%s}", t.body)
 		}
-		toks = append(toks, formatToken{kind: 'b', body: t.body, fn: name, args: args, names: builtinOperands(name, args)})
+		toks = append(toks, formatToken{kind: builtinCall, body: t.body, fn: name, args: args, names: builtinOperands(name, args)})
 		return nil
 	})
 	if err != nil {
@@ -207,9 +214,9 @@ func checkTokens(toks []formatToken, fields map[string]node) error {
 
 func checkToken(t formatToken, fields map[string]node) error {
 	switch t.kind {
-	case 'b':
+	case builtinCall:
 		return checkFunc(t, fields)
-	case 'f':
+	case fieldAlternation:
 		for _, name := range t.names {
 			if isRef(name) {
 				if _, _, err := refShape(name); err != nil {
@@ -236,7 +243,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 	if err := checkSegments(a); err != nil {
 		return err
 	}
-	head, ok := fields[a.key]
+	field, ok := fields[a.key]
 	if !ok {
 		if a.key == "" {
 			return fmt.Errorf("a name is never empty, so this token can name no field")
@@ -253,7 +260,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 		}
 		return fmt.Errorf("no field %q", a.key)
 	}
-	if err := checkPath(head, a.tail, a.key); err != nil {
+	if err := checkPath(field, a.tail, a.key); err != nil {
 		return fmt.Errorf("field %q: %w", a.key, err)
 	}
 	return nil
@@ -294,24 +301,24 @@ func checkNoRepeatedArm(body string, names []string) error {
 
 // arm is one alternative of a {a|b} token or one operand, split into the key
 // `template.head` resolves and the tail of a dotted path into it. A non-empty tail
-// is what makes the arm a bound draw: its head is drawn once per expansion (see
+// is what makes the arm a held draw: its head is drawn once per expansion (see
 // compileOps).
 type arm struct {
 	spelling string // as written, for messages
 	key      string
 	tail     []string
-	levels   []string // the key at each level the tail passes through, the head's first
+	levels   []string // the key at each level the tail passes through, the arm's key first
 	path     string   // key and tail, the one path every way of writing this read shares
 }
 
 // splitArm splits one name into key and tail. refs maps a reference to what
-// linkRefs bound it to; before linking, a reference is whole.
+// linkRefs resolved it to; before linking, a reference is whole.
 func splitArm(name string, refs map[string]refBinding) arm {
 	if isRef(name) {
-		b, bound := refs[name]
-		if !bound || len(b.tail) == 0 {
+		b, linked := refs[name]
+		if !linked || len(b.tail) == 0 {
 			key := name
-			if bound {
+			if linked {
 				key = b.key
 			}
 			return arm{spelling: name, key: key, path: key}
@@ -351,17 +358,17 @@ func checkSegments(a arm) error {
 	return nil
 }
 
-// callFn is a builtin bound to one call site: its args already parsed. It reads the
+// callFn is a builtin prepared for one call site: its args already parsed. It reads the
 // output emitted so far in the current expansion (a derivation's payload) and the
 // values of the operands it named, which expand read for it.
 type callFn func(s *session, emitted string, operands []string) string
 
 // op is one compiled unit of a format string: a literal run, a field alternation,
-// or a builtin already bound to its args. compile builds these so render never
+// or a builtin already prepared with its args. compile builds these so render never
 // re-scans the format.
 type op struct {
 	formatToken
-	arms []arm // kind 'f': the '|' alternatives, split into key and path once
+	arms []arm // fieldAlternation: the '|' alternatives, split into key and path once
 	call callFn
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.
@@ -369,18 +376,18 @@ type op struct {
 }
 
 // formatOps is a compiled format: its ops, the size of its literal text (to size
-// the render buffer), and the names drawn once per expansion. bound maps each level
+// the render buffer), and the names drawn once per expansion. pathLevels maps each level
 // a path reads into to the first such path; held is every such level plus the
 // fields an operand reads; holder maps each held name to the first reader holding
 // it, for error messages. The maps are nil when the format holds nothing, so data
 // that holds nothing carries no render-time cost.
 type formatOps struct {
-	ops       []op
-	grow      int
-	bound     map[string]string
-	held      map[string]bool
-	holder    map[string]string
-	heldLocal bool // some held name is kept by the expansion itself rather than the render's hold
+	ops        []op
+	grow       int
+	pathLevels map[string]string
+	held       map[string]bool
+	holder     map[string]string
+	heldLocal  bool // some held name is kept by the expansion itself rather than the render's hold
 }
 
 func (c *formatOps) holdName(a arm, label string) {
@@ -396,11 +403,11 @@ func (c *formatOps) holdName(a arm, label string) {
 		c.holder[a.key] = label
 	}
 	if len(a.tail) > 0 {
-		if c.bound == nil {
-			c.bound = map[string]string{}
+		if c.pathLevels == nil {
+			c.pathLevels = map[string]string{}
 		}
-		if _, named := c.bound[a.key]; !named {
-			c.bound[a.key] = a.spelling
+		if _, named := c.pathLevels[a.key]; !named {
+			c.pathLevels[a.key] = a.spelling
 		}
 	}
 }
@@ -432,12 +439,12 @@ func compileOps(toks []formatToken, refs map[string]refBinding) formatOps {
 	var c formatOps
 	for _, tok := range toks {
 		switch tok.kind {
-		case 'l':
+		case literalRun:
 			c.grow += len(tok.lit)
 			c.ops = append(c.ops, op{formatToken: tok})
-		case 'b':
+		case builtinCall:
 			c.function(tok, refs)
-		case 'f':
+		case fieldAlternation:
 			c.field(tok, refs)
 		}
 	}

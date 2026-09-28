@@ -18,7 +18,7 @@ func walkNodes(root map[string]node, fn func(path string, n node) error) error {
 }
 
 // eachNode visits n and every node contained within it once, passing the dot path
-// that reaches each. It never crosses a reference edge — a bound {/path} field is
+// that reaches each. It never crosses a reference edge — a {/path} reference is
 // skipped — so a single inline node is walked on its own.
 func eachNode(n node, path string, fn func(path string, n node) error) error {
 	seen := map[node]bool{}
@@ -105,7 +105,7 @@ type renderEdge struct {
 	operand string
 }
 
-// reached names an edge as the author spelled it, the vocabulary boundReaders uses
+// reached names an edge as the author spelled it, the vocabulary levelReaders uses
 // for the sibling fence.
 func (e renderEdge) reached() string {
 	if e.operand != "" {

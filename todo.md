@@ -21,9 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Give `head`, `index`, `bound` and `draw` one meaning each, name `table.family`
-  for the root it returns, and replace the token kind bytes `'l'`, `'t'`, `'f'` and
-  `'b'`, whose `'l'` means different things in `ftoken` and `formatToken`.
 - Start every render from one spelling of an empty hold set: `Fake` uses
   `holdSet{}`, the record and struct paths `eagerHoldSet()`.
 - Correct the false comments: `funcCall` names `checkFunc` where `parseFormat`

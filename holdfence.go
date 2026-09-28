@@ -15,81 +15,81 @@ func heldCheck(path string, n node) error {
 	if !ok || len(t.held) == 0 {
 		return nil
 	}
-	readers := boundReaders(t.ops, t.bound)
-	for _, head := range heldHeads(t) {
-		if _, isPath := t.bound[head]; isPath && isRef(head) {
+	readers := levelReaders(t.ops, t.pathLevels)
+	for _, name := range heldNames(t) {
+		if _, isPath := t.pathLevels[name]; isPath && isRef(name) {
 			continue // held for the render: drawCheck compares every read of it, by path, across the render and its groups
 		}
-		if err := checkHeadHeld(t, head, readers); err != nil {
+		if err := checkNameHeld(t, name, readers); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
 	}
 	return nil
 }
 
-// heldHeads lists a template's held names, operand heads first, then paths, each
+// heldNames lists a template's held names, operands' first, then paths', each
 // in name order: a level read both ways is reported by the operand's fence, and
 // which overlap is reported does not vary.
-func heldHeads(t *template) []string {
-	heads := make([]string, 0, len(t.held))
-	for head := range t.held {
-		heads = append(heads, head)
+func heldNames(t *template) []string {
+	names := make([]string, 0, len(t.held))
+	for name := range t.held {
+		names = append(names, name)
 	}
-	sort.Slice(heads, func(i, j int) bool {
-		_, pi := t.bound[heads[i]]
-		_, pj := t.bound[heads[j]]
+	sort.Slice(names, func(i, j int) bool {
+		_, pi := t.pathLevels[names[i]]
+		_, pj := t.pathLevels[names[j]]
 		if pi != pj {
 			return !pi
 		}
-		return heads[i] < heads[j]
+		return names[i] < names[j]
 	})
-	return heads
+	return names
 }
 
-// heldNodes is what the hold of head answers for: a path pins the levels it
+// heldNodes is what the hold of name answers for: a path pins the levels it
 // passes through and the leaf it lands on, an operand exactly the value its render
 // produces.
-func heldNodes(t *template, head string, readers []reader) map[node]bool {
+func heldNodes(t *template, name string, readers []reader) map[node]bool {
 	held := map[node]bool{}
-	if _, isPath := t.bound[head]; !isPath {
-		operandDraw(t.head(head), held)
+	if _, isPath := t.pathLevels[name]; !isPath {
+		operandDraw(t.head(name), held)
 		return held
 	}
 	for _, r := range readers {
-		if a := splitArm(r.spelling, t.refs); a.key == head {
-			coverPath(t.head(head), a.tail, held)
+		if a := splitArm(r.spelling, t.refs); a.key == name {
+			coverPath(t.head(name), a.tail, held)
 		}
 	}
 	return held
 }
 
-// checkHeadHeld rejects every route to what head's hold pins except the readers
+// checkNameHeld rejects every route to what name's hold pins except the readers
 // holding it. One seen set across the edges: a node that cannot reach the level
 // cannot reach it by another route either, so it is walked once.
-func checkHeadHeld(t *template, head string, readers []reader) error {
-	held := heldNodes(t, head, readers)
+func checkNameHeld(t *template, name string, readers []reader) error {
+	held := heldNodes(t, name, readers)
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}
-	reader, isPath := t.bound[head]
+	reader, isPath := t.pathLevels[name]
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
-		if splitArm(e.label, t.refs).key == head || !renders(e.to, held, seen) {
+		if splitArm(e.label, t.refs).key == name || !renders(e.to, held, seen) {
 			continue
 		}
 		if isPath {
-			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), head, reader)
+			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), name, reader)
 		}
-		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), head, operandReader(t, head))
+		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), name, operandReader(t, name))
 	}
 	return nil
 }
 
-// operandReader names the builtin whose operand holds head.
-func operandReader(t *template, head string) string {
+// operandReader names the builtin whose operand holds name.
+func operandReader(t *template, name string) string {
 	for _, o := range t.ops {
 		for _, a := range o.operands {
-			if a.key == head {
+			if a.key == name {
 				return o.fn
 			}
 		}
@@ -177,8 +177,8 @@ func renders(n node, want, seen map[node]bool) bool {
 // disagree. Reads are compared in sorted order, so which pair is reported does not
 // depend on where the tokens sit.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkNoOverlap(ops []op, bound map[string]string) error {
-	names := boundReaders(ops, bound)
+func checkNoOverlap(ops []op, pathLevels map[string]string) error {
+	names := levelReaders(ops, pathLevels)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
 	sort.SliceStable(names, func(i, j int) bool { return names[i].path < names[j].path })
@@ -192,23 +192,23 @@ func checkNoOverlap(ops []op, bound map[string]string) error {
 	return nil
 }
 
-// reader is one way a format reaches a bound field: as written, by its path,
+// reader is one way a format reaches a path level: as written, by its path,
 // and how to name it.
 type reader struct{ spelling, path, label string }
 
-// boundReaders lists every way a format reaches a bound sibling field, in the order the
+// levelReaders lists every way a format reaches a sibling path level, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
-func boundReaders(ops []op, bound map[string]string) []reader {
+func levelReaders(ops []op, pathLevels map[string]string) []reader {
 	var names []reader
 	for _, o := range ops {
 		for _, a := range o.operands {
-			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
+			if _, isLevel := pathLevels[a.key]; isLevel && !isRef(a.key) {
 				names = append(names, reader{a.spelling, a.path, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
-			if _, isBound := bound[a.key]; isBound && !isRef(a.key) {
+			if _, isLevel := pathLevels[a.key]; isLevel && !isRef(a.key) {
 				names = append(names, reader{a.spelling, a.path, "token {" + a.spelling + "}"})
 			}
 		}

@@ -9,7 +9,7 @@ import (
 // data root, {.a} from the folder this file sits in, {..a} from the folder above.
 func isRef(name string) bool { return strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") }
 
-// refBinding is what a reference was bound to: the head key its category is held
+// refBinding is what a reference resolves to: the key its category is held
 // under, and the tail read into it.
 type refBinding struct {
 	key  string
@@ -105,11 +105,11 @@ func (t *template) bindRefs(folder []string, path, category string, names []stri
 		if err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		head, target, tail, err := resolveCategory(root, segments)
+		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
 			return fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		key := "/" + strings.Join(head, ".")
+		key := "/" + strings.Join(categorySegs, ".")
 		if category != "" && key == "/"+category {
 			return fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
 		}
@@ -144,7 +144,7 @@ func columnReadOf(t *template) *columnRead {
 
 // loneRef is the reference a format of one reference token and nothing else reads.
 func loneRef(toks []formatToken) (string, bool) {
-	if len(toks) != 1 || toks[0].kind != 'f' || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
+	if len(toks) != 1 || toks[0].kind != fieldAlternation || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
 		return "", false
 	}
 	return toks[0].names[0], true
@@ -187,8 +187,8 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 }
 
 // resolveCategory walks a dotted path through the folders to the category it
-// names, returning that head, the node, and the tail left to read into it.
-func resolveCategory(root map[string]node, segments []string) (head []string, target node, tail []string, err error) {
+// names, returning that category's segments, the node, and the tail left to read into it.
+func resolveCategory(root map[string]node, segments []string) (category []string, target node, tail []string, err error) {
 	var n node = &folder{children: root}
 	i := 0
 	for ; i < len(segments); i++ {

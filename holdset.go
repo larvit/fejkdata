@@ -21,7 +21,7 @@ type renderScope struct {
 }
 
 func eagerHoldSet() holdSet {
-	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]draw{}}}
+	return holdSet{unnamed: hold{variant: map[string]node{}, value: map[string]readValue{}}}
 }
 
 // renderOnce renders n as one render, over a hold set of its own.
@@ -67,7 +67,7 @@ func (sc renderScope) hold() *hold {
 		if sc.set.named == nil {
 			sc.set.named = map[string]*hold{}
 		}
-		d = &hold{variant: map[string]node{}, value: map[string]draw{}}
+		d = &hold{variant: map[string]node{}, value: map[string]readValue{}}
 		sc.set.named[strings.Clone(sc.group)] = d
 	}
 	return d

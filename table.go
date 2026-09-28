@@ -32,12 +32,12 @@ type table struct {
 	parentT        *table
 	children       map[string]*table
 	once           sync.Once
-	index          tableIndex
+	lookup         rowLookup
 }
 
-// tableIndex is what selection and linked draws look up, built on the first draw
+// rowLookup is what selection and linked draws look up, built on the first draw
 // that needs it.
-type tableIndex struct {
+type rowLookup struct {
 	byName       map[string][]int
 	rowsByParent map[string][]int
 	childCum     map[string][]float64 // cumulative weights per parent key, nil when uniform
@@ -226,7 +226,7 @@ func (t *table) bindOptions(o tableOptionValues) error {
 	if t.nameIndex >= 0 && t.keyIndex < 0 && t.parentIndex < 0 {
 		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
 	}
-	if err := t.indexKeys(); err != nil {
+	if err := t.mapKeys(); err != nil {
 		return err
 	}
 	if err := t.proveNamesInsideParent(); err != nil {
@@ -251,8 +251,8 @@ func (t *table) proveNamesInsideParent() error {
 	return nil
 }
 
-// indexKeys proves every key names one row, and keeps the index a link is proved by.
-func (t *table) indexKeys() error {
+// mapKeys proves every key names one row, and keeps the map a link is proved by.
+func (t *table) mapKeys() error {
 	if t.keyIndex < 0 {
 		return nil
 	}
@@ -329,7 +329,7 @@ func (t *table) compileRowFormat(format string) error {
 		return err
 	}
 	for _, tok := range toks {
-		if tok.kind != 'f' {
+		if tok.kind != fieldAlternation {
 			continue
 		}
 		for _, name := range tok.names {
@@ -440,36 +440,36 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	return nil
 }
 
-func (t *table) indexed() *tableIndex {
+func (t *table) builtLookup() *rowLookup {
 	t.once.Do(func() {
 		if t.nameIndex >= 0 {
-			t.index.byName = make(map[string][]int, t.rowCount())
+			t.lookup.byName = make(map[string][]int, t.rowCount())
 			for r := 0; r < t.rowCount(); r++ {
 				n := t.cell(r, t.nameIndex)
-				t.index.byName[n] = append(t.index.byName[n], r)
+				t.lookup.byName[n] = append(t.lookup.byName[n], r)
 			}
 		}
 		if t.parentIndex >= 0 {
-			t.index.rowsByParent = map[string][]int{}
+			t.lookup.rowsByParent = map[string][]int{}
 			for r := 0; r < t.rowCount(); r++ {
 				k := t.cell(r, t.parentIndex)
-				t.index.rowsByParent[k] = append(t.index.rowsByParent[k], r)
+				t.lookup.rowsByParent[k] = append(t.lookup.rowsByParent[k], r)
 			}
 			if t.cum != nil {
-				t.index.childCum = make(map[string][]float64, len(t.index.rowsByParent))
-				for k, rows := range t.index.rowsByParent {
+				t.lookup.childCum = make(map[string][]float64, len(t.lookup.rowsByParent))
+				for k, rows := range t.lookup.rowsByParent {
 					cum, total := make([]float64, len(rows)), 0.0
 					for i, r := range rows {
 						w, _ := strconv.ParseFloat(t.cell(r, t.weightIndex), 64) // sumWeights proved it
 						total += w
 						cum[i] = total
 					}
-					t.index.childCum[k] = cum
+					t.lookup.childCum[k] = cum
 				}
 			}
 		}
 	})
-	return &t.index
+	return &t.lookup
 }
 
 // drawRow picks a row over the whole table. The session is concrete rather than the rng
@@ -488,7 +488,7 @@ func pickCum(s *session, cum []float64) int {
 
 // drawUnder picks a row among those linked to parent row pr.
 func (t *table) drawUnder(s *session, pr int) int {
-	ix := t.indexed()
+	ix := t.builtLookup()
 	k := t.parentT.cell(pr, t.parentT.keyIndex)
 	rows := ix.rowsByParent[k]
 	if ix.childCum == nil {
@@ -567,7 +567,7 @@ func (t *table) find(sel string, pins *pinSet) (int, error) {
 	if r, ok := t.byKey[sel]; ok {
 		return r, nil
 	}
-	rows := t.indexed().byName[sel]
+	rows := t.builtLookup().byName[sel]
 	if len(rows) > 1 {
 		rows = pins.inside(t, rows)
 	}
@@ -614,8 +614,8 @@ func (t *table) selectorSpelling(r int) string {
 	return fmt.Sprintf("%s line %d", t.file, r+2)
 }
 
-// family is the table a chain of parents ends at.
-func (t *table) family() *table {
+// familyRoot is the table a chain of parents ends at.
+func (t *table) familyRoot() *table {
 	for t.parentT != nil {
 		t = t.parentT
 	}
