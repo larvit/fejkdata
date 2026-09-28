@@ -426,7 +426,6 @@ func conflict(r pathRead, err error) error {
 // alternatives reports whether two reads never render together: one read renders one row of a
 // table, so reads under different rows the walks pinned, or under different rows of one whole
 // draw, never meet.
-// docs/decisions.md#the-rows-of-a-table-are-alternatives
 func alternatives(a, b drawAt) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
 }

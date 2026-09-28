@@ -21,10 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Delete the decision "The rows of a table are alternatives": it defines `alternatives`,
-  which its comment in `drawfence.go` already does. Point the README's "which pairs are
-  weighed against each other" at that comment's rule, stated in the README's Table
-  section, where it sends a reader to the log for the definition today.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
