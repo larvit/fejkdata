@@ -58,7 +58,7 @@ func (sc renderScope) at(n node, pins *pinSet) renderScope {
 // rowOf is the row of t its columns render from.
 func (sc renderScope) rowOf(t *table) int {
 	if sc.row.t != t {
-		panic(internalError("a column of %s is rendered with no row pinned", t.category))
+		panic(internalError("a column of %s renders in a scope holding no row of it", t.category))
 	}
 	return sc.row.row
 }
