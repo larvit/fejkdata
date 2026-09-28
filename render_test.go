@@ -2,6 +2,8 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -53,4 +55,22 @@ func quote(s string) string {
 		panic(err)
 	}
 	return string(b)
+}
+
+type unhandledNode struct{}
+
+func (*unhandledNode) isNode() {}
+
+func TestRenderEdgesPanicsOnAnUnhandledNode(t *testing.T) {
+	for _, n := range []node{&folder{}, &nullItem{}} {
+		if es := renderEdges(n); len(es) != 0 {
+			t.Errorf("renderEdges(%T) = %v, want no edges", n, es)
+		}
+	}
+	defer func() {
+		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), "*fejkdata.unhandledNode") {
+			t.Errorf("renderEdges(unhandledNode) recovered %v, want a panic naming the node kind", r)
+		}
+	}()
+	renderEdges(&unhandledNode{})
 }
