@@ -312,7 +312,7 @@ file the stem of the units it holds.
 Two declarations of any kind — function, method, field, type — share a name only where
 one definition covers both: the same kind of value, counted or addressed the same way, so
 a reader landing on the wrong one concludes nothing false. `Fake` on each template kind
-renders one value from what it is called on; `renderScope.hold` returns the `*hold` it
+renders one value from what it is called on; `renderScope.groupHold` returns the `*groupHold` it
 names. A bare function never shares a name with a method: a search for the name returns
 both, and a call site shows no receiver to tell them apart. `TestNoFunctionSpellsAMethod`
 holds that, and review judges the rest. Serves goal 2: names that tell the truth, and reaching

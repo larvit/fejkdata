@@ -45,7 +45,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 	}
 	w := pathDraw{s: s, held: held, a: &a}
 	if isRef(a.key) && len(a.tail) > 0 {
-		group := sc.hold()
+		group := sc.groupHold()
 		w.held, w.pins = &group.hold, &group.pins
 	}
 	if r, done := w.held.value[a.path]; done {
