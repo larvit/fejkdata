@@ -159,7 +159,7 @@ func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, err
 	}
 	switch n := n.(type) {
 	case *table:
-		n.drawIn(s, &sc.hold().pins)
+		n.drawIn(s, &sc.groupHold().pins)
 		return n, nil
 	case *tableRow:
 		return n.t, nil
@@ -264,7 +264,7 @@ func recordOf(n node) (*template, []Column, error) {
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.table != nil {
-		sc = sc.at(t.table.pinnedRow, &sc.hold().pins)
+		sc = sc.at(t.table.pinnedRow, &sc.groupHold().pins)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

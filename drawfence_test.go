@@ -133,8 +133,8 @@ func renderRoot(s *session, t *template) {
 		for r := 0; r < t.table.rowCount(); r++ {
 			var set holdSet
 			sc := renderScope{set: &set}
-			sc.hold().pins.pin(t.table, r)
-			render(s, t.table.pinnedRow, sc.at(t.table.pinnedRow, &sc.hold().pins))
+			sc.groupHold().pins.pin(t.table, r)
+			render(s, t.table.pinnedRow, sc.at(t.table.pinnedRow, &sc.groupHold().pins))
 		}
 	case t.repeat > 1:
 		expand(s, t, sc)
@@ -147,7 +147,7 @@ func renderRecordRoot(s *session, t *template, columns []Column) {
 	var set holdSet
 	sc := renderScope{set: &set}
 	if t.table != nil {
-		t.table.drawIn(s, &sc.hold().pins)
+		t.table.drawIn(s, &sc.groupHold().pins)
 	}
 	renderRecord(s, t, columns, sc)
 }

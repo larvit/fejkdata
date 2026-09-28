@@ -33,7 +33,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	return render(f.rand, n, sc.at(n, &sc.hold().pins)), nil
+	return render(f.rand, n, sc.at(n, &sc.groupHold().pins)), nil
 }
 
 // descend walks a caller's path to the node it names, pinning in sc the rows it
@@ -43,7 +43,7 @@ func descend(s *session, root node, segments []string, sc renderScope) (node, er
 	if _, err := (&pathProbe{drawn: map[*table]bool{}}).walk(root, segments); err != nil {
 		return nil, err
 	}
-	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.hold().pins}), nil
+	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.groupHold().pins}), nil
 }
 
 // render evaluates a compiled node to a string. compile validates every node up

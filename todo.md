@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Split `hold`'s two lifetimes, the expansion's sibling hold and the render's group
-  hold, into two types, and stop `readField` rewriting `sc.pins`: which pins a column
-  reads depends on which distant caller last overrode them, the cost seven seats named.
 - Return each phase's output from compile, link and format compile, not fill
   `template`'s 25 fields in place from four files: five seats had to know which phase a
   function runs in to know which fields are valid yet.
