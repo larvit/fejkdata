@@ -686,11 +686,11 @@ though `hasRead` states the same stop rule. Valid while the two differ in where 
 
 ## The four path walks are four loops
 
-2026-09-28, larv-review on systems-architect's finding; awaiting approval. Goals 2 and
-11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` each loop over `stepInto` and
-`table.route` themselves, and `descend` builds its probe in place, so the probe's
-`drawn` map stays on the stack; its caller always builds that map, so `readRow` never
-tests it for nil. One walk calling them through an interface or a type
-parameter leaks the walker and the pins it holds, an allocation per reference read.
-Valid while Go's escape analysis treats a call through an interface or a type parameter
-as leaking its receiver.
+2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
+Goals 2 and 11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` each loop over
+`stepInto` and `table.route` themselves, and `descend` builds its probe in place, so the
+probe's `drawn` map stays on the stack; its caller always builds that map, so `readRow`
+never tests it for nil. One walk calling them through an interface or a type parameter
+leaks the walker and the pins it holds, an allocation per reference read. Valid while
+Go's escape analysis treats a call through an interface or a type parameter as leaking
+its receiver.
