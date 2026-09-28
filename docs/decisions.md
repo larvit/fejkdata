@@ -58,7 +58,8 @@ tags and any other caller read one.
 `New` proves the loaded tree acyclic, an inline node is a finite tree of its own, and
 nothing in the tree can reference it, so no render of it reaches itself. Every other
 fence runs over both, from one `binding.bind`, except that struct tags leave column
-agreement to their Go types.
+agreement to their Go types, and an inline node refuses a `drawGroup` at its root,
+which nothing can name.
 
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
 

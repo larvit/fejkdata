@@ -200,14 +200,10 @@ func inlineScope(n node, label string) nodeScope {
 // NewTemplate and FakeStruct share; its fields are where they differ.
 type binding struct {
 	scope nodeScope
-	// link binds the references: a loaded tree's relative to each category's folder, an
-	// inline node's from the root alone.
-	link func() error
-	// noCycles refuses a reference cycle, which only a loaded tree can close: nothing
-	// references an inline node.
-	noCycles func() error
-	// typedByGo marks a struct's columns, whose datatypes its Go types set and checkField
-	// proves, so checkColumns skips them.
+	link  func() error
+	// A loaded tree's cycle fence; an inline node's refusal of a drawGroup at its root.
+	referenceFence func() error
+	// checkField proves a struct's columns instead.
 	typedByGo bool
 }
 
@@ -221,7 +217,7 @@ func treeBinding(root map[string]node) binding {
 			}
 			return linkRefs(root)
 		},
-		noCycles: func() error { return checkNoCycles(root) },
+		referenceFence: func() error { return checkNoCycles(root) },
 	}
 }
 
@@ -229,10 +225,8 @@ func (b binding) bind() error {
 	if err := b.link(); err != nil {
 		return err
 	}
-	if b.noCycles != nil {
-		if err := b.noCycles(); err != nil {
-			return err
-		}
+	if err := b.referenceFence(); err != nil {
+		return err
 	}
 	if !b.typedByGo {
 		if err := checkColumns(b.scope); err != nil {
@@ -244,8 +238,7 @@ func (b binding) bind() error {
 
 // checkRenders runs the per-node fences over a scope, each over the whole scope
 // before the next, so which of several broken nodes is reported does not depend on
-// the walk. Its walks terminate only where nothing renders itself, so run it over a
-// loaded tree after checkNoCycles.
+// the walk. Its walks terminate only where nothing renders itself.
 func checkRenders(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
