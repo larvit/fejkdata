@@ -81,7 +81,6 @@ In [docs/decisions.md](docs/decisions.md):
 - A table is a record of string columns
 - The key map is built at load, the rest on first draw
 - Two categories may name one TSV
-- The rows of a table are alternatives
 - A table never reaches its own family, by any route
 - Tables carrying token cells stay small
 - A path is walked once without drawing before it is walked for real

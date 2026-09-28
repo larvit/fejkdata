@@ -452,16 +452,6 @@ rows twice, which is what a category over a register with two natural formats as
 a TSV nothing names stays a load error, since that one is a file forgotten rather than
 shared.
 
-## The rows of a table are alternatives
-
-Only one row renders per read, so within one read a cell in one row and a cell in
-another never meet, and each may select its own row of another table; the cells of one
-row, and whatever they reach, do meet, and so does the format beside them. Two reads
-meet unless they sit under different rows of one pinned table; pinning a row pins its
-ancestors too, so rows under different parents are alternatives as well. A table read
-whole draws its row apart from every pin, so the rows of one whole read are
-alternatives only to each other.
-
 ## A table never reaches its own family, by any route
 
 A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row that lists
