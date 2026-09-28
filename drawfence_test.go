@@ -61,8 +61,9 @@ func fenceRoots(t *testing.T, f *Generator) ([]fenceRoot, map[string]*table) {
 func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	f := fenceCorpus(t)
 	roots, tables := fenceRoots(t, f)
+	traced := 0
 	for _, root := range roots {
-		wantGathered(t, tables, root.label, renderDraws(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
+		traced += wantGathered(t, tables, root.label, renderDraws(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
 		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
@@ -70,11 +71,14 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: recordOf = %v", root.label, err)
 		}
-		wantGathered(t, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
+		traced += wantGathered(t, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
+	}
+	if traced == 0 {
+		t.Error("no render traced a reference read, so the comparison proved nothing")
 	}
 }
 
-func wantGathered(t *testing.T, tables map[string]*table, label string, gathered []pathRead, renderOnce func(renderTrace)) {
+func wantGathered(t *testing.T, tables map[string]*table, label string, gathered []pathRead, renderWith func(renderTrace)) int {
 	t.Helper()
 	var reads []pathRead
 	type traceKey struct {
@@ -96,13 +100,14 @@ func wantGathered(t *testing.T, tables map[string]*table, label string, gathered
 		}
 	}
 	for i := 0; i < 5; i++ {
-		renderOnce(trace)
+		renderWith(trace)
 	}
 	for _, r := range reads {
 		if !gathers(gathered, r) {
 			t.Errorf("%s: the render read {%s} in draw group %q from %s, and drawWalk gathered no such read", label, r.a.spelling, r.at.group, spellPins(&r.at.pins))
 		}
 	}
+	return len(reads)
 }
 
 func gathers(gathered []pathRead, r pathRead) bool {
