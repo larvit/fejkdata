@@ -196,14 +196,13 @@ func inlineScope(n node, label string) nodeScope {
 	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// binding is one entry point's nodes on their way through bind, the load pipeline New,
-// NewTemplate and FakeStruct share; its fields are where they differ.
+// binding is one scope's way through bind, the one load pipeline; its fields are where
+// scopes differ.
 type binding struct {
-	scope nodeScope
-	link  func() error
-	// A loaded tree's cycle fence; an inline node's refusal of a drawGroup at its root.
+	scope          nodeScope
+	link           func() error
 	referenceFence func() error
-	// checkField proves a struct's columns instead.
+	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
 
