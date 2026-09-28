@@ -49,6 +49,7 @@ func descend(s *session, root node, segments []string, sc renderScope) (node, er
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail. sc holds the reference draws the
 // render shares; each repeat iteration renders over a hold set of its own.
+// renderEdges mirrors this switch for the fences, so a new node kind goes in both.
 func render(s *session, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:

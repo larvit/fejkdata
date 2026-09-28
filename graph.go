@@ -114,7 +114,7 @@ func (e renderEdge) reached() string {
 	return "{" + e.label + "}"
 }
 
-// renderEdges lists the children rendering n recurses into, mirroring expand: a
+// renderEdges lists the children rendering n recurses into, mirroring render: a
 // choice's items, and a template's field/reference tokens plus its operands. A
 // folder renders nothing, so it has no edges.
 func renderEdges(n node) []renderEdge {
@@ -155,8 +155,10 @@ func renderEdges(n node) []renderEdge {
 			es = append(es, renderEdge{to: c.node, label: n.t.header[n.i]})
 		}
 		return es
-	default:
+	case *folder, *nullItem:
 		return nil
+	default:
+		panic(fmt.Sprintf("fejkdata: renderEdges has no case for node %T", n))
 	}
 }
 
