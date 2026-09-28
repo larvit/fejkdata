@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"maps"
 	"sort"
-	"strings"
 )
 
 type tablePin struct {
@@ -162,16 +161,4 @@ func (p *pinSet) differs(q *pinSet) bool {
 		}
 	})
 	return found
-}
-
-// mapKey spells the set for a map, by the tables' identities in path order.
-func (p *pinSet) mapKey() string {
-	var pins []tablePin
-	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
-	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
-	var b strings.Builder
-	for _, q := range pins {
-		fmt.Fprintf(&b, "%p[%d]", q.t, q.row)
-	}
-	return b.String()
 }
