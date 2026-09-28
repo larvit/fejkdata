@@ -549,9 +549,10 @@ it, and a cell or format of a table that references a table of its own family, t
 any template, a `repeat` or a `drawGroup` included, since a bare read of the referencing
 table draws its row without pinning it, so the family would draw apart from that row:
 read the family from a template beside it, or add the value as a column. A cell's
-reads are the render's too, weighed against every read that renders with them: one read
-renders one row, so reads under different rows of one pinned table, whose ancestors pin
-with it, or of one table read whole, never render together.
+reads are the render's too, weighed against every read that renders with them. A
+reference renders one row of a table, so reads under different selected rows of it, or
+of their ancestors, never render together, and nor do reads under different rows of one
+reference that selects none.
 
 ### Options and fields
 
