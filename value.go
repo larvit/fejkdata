@@ -34,8 +34,8 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
-	if d := readDatatype(t); d == t.datatype {
-		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, d)
+	if r := t.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
+		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, t.datatype)
 	}
 	if reason := p.proveColumnItem(t).not[t.datatype]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
