@@ -213,6 +213,9 @@ by a `data-import/` script, as README goal 12 asks.
   together, where the fence counts them alternatives and compares neither. Have the error
   name the path spelling that holds, `{/geo.SE.locality.name}|{/geo.SE.municipality.name}`,
   as the README's rule on a rejected spelling asks.
+- Name the file a link error comes from beside its category path, `sub.x
+  (/d/a/sub/x.json): …`: with several `--data-path` layers the author has to work out
+  which directory won, while a parse error on the same file names it.
 - Name the row a refused read sits in: where both reads come from TSV cells the overlap
   error names the category and the two columns but no row, so the author greps a
   register-sized file for the cell — and "name the fields you want instead" rewrites a
