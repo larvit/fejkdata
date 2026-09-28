@@ -162,7 +162,7 @@ func renderEdges(n node) []renderEdge {
 	case *folder, *nullItem:
 		return nil
 	default:
-		panic(fmt.Sprintf("fejkdata: renderEdges has no case for node %T", n))
+		panic(internalError("renderEdges has no case for node %T", n))
 	}
 }
 

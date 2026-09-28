@@ -17,7 +17,7 @@ var transforms = map[string]func(string) string{
 func withTransforms(calls map[string]builtin) map[string]builtin {
 	for name, fn := range transforms {
 		if _, clash := calls[name]; clash {
-			panic("fejkdata: " + name + " is registered as a builtin and a transform")
+			panic(internalError("%s is registered as a builtin and a transform", name))
 		}
 		calls[name] = builtin{arity: 1, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand}
 	}
@@ -68,7 +68,7 @@ func transformPrep(outer func(string) string) func([]string) callFn {
 	return func(a []string) callFn {
 		_, chain, err := unwrapTransform(a[0])
 		if err != nil {
-			panic(fmt.Sprintf("fejkdata: transform arg %q reached prep unvalidated: %v", a[0], err))
+			panic(internalError("transform arg %q reached prep unvalidated: %v", a[0], err))
 		}
 		return func(_ *session, _ string, operands []string) string {
 			v := operands[0]

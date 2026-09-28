@@ -240,3 +240,7 @@ func newRand(seed uint64, seeded bool) (*session, error) {
 	}
 	return &session{Rand: r, counters: map[string]uint64{}}, nil
 }
+
+func internalError(format string, a ...any) string {
+	return "fejkdata: internal error: " + fmt.Sprintf(format, a...)
+}

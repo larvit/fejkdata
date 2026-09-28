@@ -1,9 +1,6 @@
 package fejkdata
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 // hold is what one expansion has drawn for the names it holds: the variant each was drawn as, so
 // every path under it reads one variant; and the value each read produced, by its path, so the
@@ -39,7 +36,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 	}
 	if !t.compiled.held[a.key] {
 		if len(a.tail) > 0 {
-			panic(fmt.Sprintf("fejkdata: %q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
+			panic(internalError("%q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
 		}
 		return readValue{text: render(s, t.head(a.key), sc)}
 	}

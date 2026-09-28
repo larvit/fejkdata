@@ -353,7 +353,7 @@ type pathDraw struct {
 func drawPath(n node, tail []string, level string, w *pathDraw) node {
 	leaf, err := w.walk(n, tail)
 	if err != nil {
-		panic(fmt.Sprintf("fejkdata: %s: %v; the path should have been proved before it was drawn", join(level, joinSegments(tail)), err))
+		panic(internalError("%s: %v; the path should have been proved before it was drawn", join(level, joinSegments(tail)), err))
 	}
 	return leaf
 }
