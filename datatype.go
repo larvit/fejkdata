@@ -163,9 +163,9 @@ func kindOf(t *template) itemKind {
 	return kindText
 }
 
-// disagreeing is two items of one column holding different datatypes: fix is the one to change,
+// itemPair is two items of one column holding different datatypes: fix is the one to change,
 // and want the datatype of the other.
-type disagreeing struct {
+type itemPair struct {
 	first, second DataType
 	fix, other    *template
 	want          DataType
@@ -177,7 +177,7 @@ type disagreementKey struct {
 	proven     bool
 }
 
-var disagreements = map[disagreementKey]func(d disagreeing) error{
+var disagreements = map[disagreementKey]func(d itemPair) error{
 	{kindDeclares, kindDeclares, false}: holdOne,
 	{kindDeclares, kindDeclares, true}:  holdOne,
 	{kindReads, kindDeclares, false}:    readAsText,
@@ -193,7 +193,7 @@ var disagreements = map[disagreementKey]func(d disagreeing) error{
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
-	d := disagreeing{first: da, second: db, fix: a, other: b, want: db}
+	d := itemPair{first: da, second: db, fix: a, other: b, want: db}
 	if kindOf(b) < kindOf(a) {
 		d.fix, d.other, d.want = b, a, da
 	}
@@ -201,23 +201,23 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	return disagreements[disagreementKey{kindOf(d.fix), kindOf(d.other), proven}](d)
 }
 
-func holdOne(d disagreeing) error {
+func holdOne(d itemPair) error {
 	return fmt.Errorf("its items hold %s and %s; a column holds one datatype", d.first, d.second)
 }
 
-func readTyped(d disagreeing) error {
+func readTyped(d itemPair) error {
 	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so %s", d.first, d.second, typedAs(d.fix, d.want))
 }
 
-func readAsText(d disagreeing) error {
+func readAsText(d itemPair) error {
 	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so to read %q as text, %s", d.first, d.second, d.fix.format, asText(d.fix))
 }
 
-func otherAsText(d disagreeing) error {
+func otherAsText(d itemPair) error {
 	return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, d.fix.format, dataTypeNouns[d.want], d.other.format, asText(d.other))
 }
 
-func declare(d disagreeing) error {
+func declare(d itemPair) error {
 	if d.fix.fromString { // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, d.fix.format, d.fix.format, d.want)
 	}
