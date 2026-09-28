@@ -213,8 +213,8 @@ func TestArgGuardsPanic(t *testing.T) {
 	}
 }
 
-// mustPanic fails unless call panics, which is what separates a reported
-// invariant break from a silently wrong value.
+// mustPanic fails unless call panics with internalError's phrase, which is what
+// separates a reported invariant break from a silently wrong value.
 func mustPanic(t *testing.T, name string, call func()) {
 	t.Helper()
 	defer func() {
