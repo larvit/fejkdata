@@ -80,3 +80,37 @@ func TestNodeCompileErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestEveryFormatCompilesAtLink(t *testing.T) {
+	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	w, err := compile(parse(t, `["p","q"]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	opsBy := func() map[string]bool {
+		compiled := map[string]bool{}
+		_ = eachNode(n, "t", func(path string, m node) error {
+			if tm, ok := m.(*template); ok {
+				compiled[path+" "+tm.format] = tm.ops != nil
+			}
+			return nil
+		})
+		return compiled
+	}
+	for format, has := range opsBy() {
+		if has {
+			t.Errorf("%s compiled before link", format)
+		}
+	}
+	if err := bindInline(n, "t", map[string]node{"w": w}, func(nodeScope) error { return nil }); err != nil {
+		t.Fatal(err)
+	}
+	for format, has := range opsBy() {
+		if !has {
+			t.Errorf("%s not compiled at link", format)
+		}
+	}
+}
