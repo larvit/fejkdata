@@ -134,7 +134,7 @@ func renderRoot(s *session, t *template) {
 			var set holdSet
 			sc := renderScope{set: &set}
 			sc.hold().pins.pin(t.table, r)
-			render(s, t.table.pinnedRow, sc)
+			render(s, t.table.pinnedRow, sc.at(t.table.pinnedRow, &sc.hold().pins))
 		}
 	case t.repeat > 1:
 		expand(s, t, sc)
