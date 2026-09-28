@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"strings"
 	"testing"
+	"testing/fstest"
 )
 
 func fenceCorpus(t *testing.T) *Generator {
@@ -273,4 +274,36 @@ func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
 		}
 	}
 	grow(nil, reads, nil)
+}
+
+func TestDrawWalkWalksACellByEveryRoute(t *testing.T) {
+	fsys := fstest.MapFS{
+		"g.json": {Data: []byte(`{"format":"{/x.v}","drawGroup":"g2"}`)},
+		"r.json": {Data: []byte(`"{/g} {/x}"`)},
+		"x.json": {Data: []byte(`{"format":"{/g}","rows":"x.tsv","key":"code"}`)},
+		"x.tsv":  {Data: []byte("code\tv\n1\t{/z}\n2\t{/z.a}\n")},
+		"z.json": {Data: []byte(`{"format":"{a}","a":"hi"}`)},
+	}
+	g, err := loadDir(dataSource{fsys: fsys}, ".")
+	if err != nil {
+		t.Fatalf("loadDir = %v", err)
+	}
+	if err := treeBinding(g.children).link(); err != nil {
+		t.Fatalf("link = %v", err)
+	}
+	r, isTemplate := g.children["r"].(*template)
+	if !isTemplate {
+		t.Fatalf("r is a %T, want a template", g.children["r"])
+	}
+	var pinned, whole bool
+	for _, read := range renderDraws(r).reads {
+		if read.a.path != "/z" {
+			continue
+		}
+		pinned = pinned || read.at.pins.used > 0
+		whole = whole || read.at.wholePins.used > 0
+	}
+	if !pinned || !whole {
+		t.Errorf("{/z} gathered under a pinned row %v and a whole read's row %v, want both: {/g} reaches x's cells from the root and from inside {/x}", pinned, whole)
+	}
 }
