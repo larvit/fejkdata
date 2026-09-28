@@ -55,7 +55,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A render shares one reference draw per category, per group
 - A draw group name is local to its category
 - The expansion hold and the render's draws are two fences
-- A record makes its draw maps up front, a `Fake` on its first read
+- A hold set makes its draw maps on the first read
 - A category never references itself, and a record's fences run at load
 - A record's column set is fixed before the first draw
 - Null is a `null` item, not a rate
