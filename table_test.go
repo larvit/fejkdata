@@ -819,13 +819,13 @@ func TestShippedTables(t *testing.T) {
 // TestEveryTerritoryNamesAShippedCountry proves what no parent can: the sovereign a
 // territory names is a row of the same table, which a link would make a cycle.
 func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
-	head, rows := shippedRows(t, "territory.tsv", "alpha2", "country")
+	header, rows := shippedRows(t, "territory.tsv", "alpha2", "country")
 	keys := map[string]bool{}
 	for _, r := range rows {
-		keys[r[head["alpha2"]]] = true
+		keys[r[header["alpha2"]]] = true
 	}
 	for i, r := range rows {
-		if c := r[head["country"]]; !keys[c] {
+		if c := r[header["country"]]; !keys[c] {
 			t.Errorf("territory.tsv line %d: country %q is no alpha2 of the table", i+2, c)
 		}
 	}
@@ -835,34 +835,34 @@ func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
 // every Chromium fork carries Chrome's token, so a mis-ordered pattern relabels a
 // row rather than dropping it.
 func TestEveryUserAgentColumnAgreesWithItsString(t *testing.T) {
-	head, rows := shippedRows(t, "useragent.tsv", "browser", "device", "os", "ua")
+	header, rows := shippedRows(t, "useragent.tsv", "browser", "device", "os", "ua")
 	for _, token := range []struct{ in, browser string }{
 		{"Edg", "Edge"}, {"OPR/", "Opera"}, {"SamsungBrowser/", "Samsung Internet"}, {"CriOS/", "Chrome"},
 	} {
 		for i, r := range rows {
-			if strings.Contains(r[head["ua"]], token.in) && r[head["browser"]] != token.browser {
-				t.Errorf("useragent.tsv line %d: %q carries %q but is labelled %q", i+2, r[head["ua"]], token.in, r[head["browser"]])
+			if strings.Contains(r[header["ua"]], token.in) && r[header["browser"]] != token.browser {
+				t.Errorf("useragent.tsv line %d: %q carries %q but is labelled %q", i+2, r[header["ua"]], token.in, r[header["browser"]])
 			}
 		}
 	}
 	for i, r := range rows {
-		if r[head["device"]] == "mobile" && r[head["os"]] != "Android" && r[head["os"]] != "iOS" {
-			t.Errorf("useragent.tsv line %d: a mobile row runs %q", i+2, r[head["os"]])
+		if r[header["device"]] == "mobile" && r[header["os"]] != "Android" && r[header["os"]] != "iOS" {
+			t.Errorf("useragent.tsv line %d: a mobile row runs %q", i+2, r[header["os"]])
 		}
 	}
 }
 
 // TestEveryTimezoneRowIsWellFormed scans the file rather than drawing: the draw is
-// population-weighted, so it samples the populous head and leaves most rows unrendered.
+// population-weighted, so it samples the populous zones and leaves most rows unrendered.
 func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
-	head, rows := shippedRows(t, "timezone.tsv", "offset", "territory", "weight", "zone")
+	header, rows := shippedRows(t, "timezone.tsv", "offset", "territory", "weight", "zone")
 	offset := regexp.MustCompile(`^[+-](0\d|1[0-4]):[0-5]\d$`)
 	for i, r := range rows {
-		if !offset.MatchString(r[head["offset"]]) {
-			t.Errorf("timezone.tsv line %d: offset %q is no ±HH:MM", i+2, r[head["offset"]])
+		if !offset.MatchString(r[header["offset"]]) {
+			t.Errorf("timezone.tsv line %d: offset %q is no ±HH:MM", i+2, r[header["offset"]])
 		}
-		if w, err := strconv.Atoi(r[head["weight"]]); err != nil || w < 1 {
-			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", i+2, r[head["weight"]])
+		if w, err := strconv.Atoi(r[header["weight"]]); err != nil || w < 1 {
+			t.Errorf("timezone.tsv line %d: weight %q is not a positive number", i+2, r[header["weight"]])
 		}
 	}
 }
@@ -871,10 +871,10 @@ func TestEveryTimezoneRowIsWellFormed(t *testing.T) {
 // most of 1438 rows unrendered, and the register wraps a right-to-left label in bidi
 // marks that belong to its display, not to the label.
 func TestEveryTldRowSpellsItsKey(t *testing.T) {
-	head, rows := shippedRows(t, "tld.tsv", "tld", "type", "unicode")
+	header, rows := shippedRows(t, "tld.tsv", "tld", "type", "unicode")
 	types := map[string]bool{"country-code": true, "generic": true, "generic-restricted": true, "infrastructure": true, "sponsored": true}
 	for i, r := range rows {
-		key, kind, shown := r[head["tld"]], r[head["type"]], r[head["unicode"]]
+		key, kind, shown := r[header["tld"]], r[header["type"]], r[header["unicode"]]
 		if !types[kind] {
 			t.Errorf("tld.tsv line %d: %s is typed %q, which the register assigns no TLD", i+2, key, kind)
 		}
@@ -900,24 +900,24 @@ func shippedRows(t *testing.T, file string, want ...string) (map[string]int, [][
 		t.Fatal(err)
 	}
 	lines := strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
-	head := map[string]int{}
+	header := map[string]int{}
 	for i, name := range strings.Split(lines[0], "\t") {
-		head[name] = i
+		header[name] = i
 	}
 	for _, name := range want {
-		if _, ok := head[name]; !ok {
+		if _, ok := header[name]; !ok {
 			t.Fatalf("%s columns %v, want %v", file, lines[0], want)
 		}
 	}
 	rows := make([][]string, 0, len(lines)-1)
 	for i, line := range lines[1:] {
 		cells := strings.Split(line, "\t")
-		if len(cells) != len(head) {
-			t.Fatalf("%s line %d has %d cells, want %d", file, i+2, len(cells), len(head))
+		if len(cells) != len(header) {
+			t.Fatalf("%s line %d has %d cells, want %d", file, i+2, len(cells), len(header))
 		}
 		rows = append(rows, cells)
 	}
-	return head, rows
+	return header, rows
 }
 
 // TestNamedTableWithoutAKeyResolvesInsideItsParent pins a table whose rows are

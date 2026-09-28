@@ -98,7 +98,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 		{"two columns of one draw", "x", 10},
 	} {
 		if allocs := testing.AllocsPerRun(10000, func() { f.Fake(s.path) }); allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row index built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row lookup built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
 		}
 	}
 	// Five linked tables, the depth a country's geo tree has: every pin must stay inline.
