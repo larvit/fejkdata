@@ -244,13 +244,12 @@ carry both rules and both scopes anyway, and tell them apart at every step.
 
 ## A hold set makes its draw maps on the first read
 
-Every render starts from the zero `holdSet`, per goal 2's one spelling. Making the maps
-where the set is declared kept a record's on its frame's stack, but a `Fake`'s set lives
-on the `Generator`, so there it cost every render two heap allocations and about half the
-cheapest one's time, measured 2026-09-28. Lazily, a render reading a reference path pays
-those two allocations, a record or struct included, and one reading none pays nothing;
-goal 11 holds either way. The allocation gate over a repeat of a reference path and over
-a named draw group prices that, and pins what keeps a hold set off the heap.
+Every render and every draw group starts from an empty hold, since goal 2 prices a reader
+meeting two spellings of one empty set. Making the maps where the set is declared kept a
+record's on its frame's stack, but a `Fake`'s set lives on the `Generator`, so there it
+cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
+Lazily, a render reading a reference path pays those two allocations, a record or struct
+included, and one reading none pays nothing; goal 11 holds either way.
 
 ## A category never references itself, and a record's fences run at load
 
