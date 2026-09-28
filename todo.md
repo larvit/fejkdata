@@ -17,10 +17,43 @@ Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
 Self-sufficiency 5.6); 5.7 on 2026-09-26 (Navigation 6.7, Locality 5.0, Shape 5.8,
 Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
-`drawWalk.walk` among the hardest.
+`drawWalk.walk` among the hardest; 5.7 on 2026-09-28 (Navigation 6.7, Locality 5.1,
+Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
+`drawWalk.walk` and the four path walks among the hardest.
 
 This round, in order:
 
+- Hold `replayPairs`' claim that pairs find every conflict a full replay would to a
+  test replaying every read set whole, over the fixtures and the shipped data: six
+  seats could only take the comment's proof on trust.
+- Key `drawWalk`'s visits by the pins, not `rowsKey`'s `%p` strings, and make leaving
+  `wholeTable` out of the key fail loudly where `checkOwnFamily` has not run: the walk is
+  sound only because another fence ran first, and nothing at the walk enforces it.
+- Split `hold`'s two lifetimes, the expansion's sibling hold and the render's group
+  hold, into two types, and stop `readField` rewriting `sc.pins`: which pins a column
+  reads depends on which distant caller last overrode them, the cost seven seats named.
+- Return each phase's output from compile, link and format compile, not fill
+  `template`'s 25 fields in place from four files: five seats had to know which phase a
+  function runs in to know which fields are valid yet.
+- Make `renderEdges` panic on a node it does not handle, as `render` does: its
+  `default: return nil` silently exempts a new node kind from every fence, and nothing
+  at `expand` says `renderEdges` mirrors it.
+- Carry the arm on `renderEdge` so `graph.go`, `drawfence.go` and `holdfence.go` stop
+  re-parsing `label` through `splitArm`, whose key differs before and after link.
+- Give `pathCover` a doc comment and say in each path walk's comment how it differs from
+  `pathCheck` at a choice and a table: every seat diffed the four loops by eye.
+- Make `disagreement` a table keyed by the two datatypes and the proof, dropping the
+  operand swap: six seats still needed a truth table to see which item it blames.
+- Move `session.trace` and `renderTrace.repeatDepth` off the render path: they serve
+  `drawfence_test.go` alone.
+- Give `Fake` a local hold set like `FakeRecord`, `RecordTemplate.Fake` and
+  `FakeStruct`, or state at `Generator.set` why it alone needs one: four seats read the
+  field's heap claim as contradicted by the other three.
+- Spell every "a fence should have refused this" panic with one greppable phrase and the
+  table's `path`: the 17 panics word it differently.
+- Correct the false comments: `List` claims folder segments, which `paths` never lists,
+  and `renderEdge.reached` claims `pathKeyReaders`' vocabulary, which spells a token
+  `token {x}`. Drop `rng`'s "for the reason below", which points at `pick`.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -166,8 +199,8 @@ by a `data-import/` script, as README goal 12 asks.
     `data-import/geo-se.py` assigns as the decision states, linking `street` and
     `postal-code` by it.
   - Drop `key` from `last-name` and `sv_SE.title`, and re-pin `testdata/shipped_shape.txt`.
-  - Leave no selection by name in README.md, CHANGELOG.md or docs/: no selector spelling
-    a free-form name, `geo.SE.locality[Lund]`, `misc.currency[Euro]`, `first-name[Kim]`
+  - Leave no selection by name in README.md, CHANGELOG.md, docs/ or `--help`: no
+    selector spelling a free-form name, `geo.SE.locality[Lund]`, `misc.currency[Euro]`, `first-name[Kim]`
     and the rest, no "key or name", "by name" or "either" wording about selectors, and no
     `name` option in an example.
 - Render selected rows as the decision "A selected row is fixed, not drawn, and an
