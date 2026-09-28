@@ -24,7 +24,7 @@ package fejkdata
 //     start one each, `FakeStruct` one per record, and `expandAnew` one per
 //     iteration of a `template.repeat`.
 //   - hold — keeping one draw of a name, so every route to it reads that value:
-//     `template.held`, `hold`, `readField`.
+//     `template.held`, `hold`, `groupHold`, `readField`.
 //   - draw group — reference draws held apart inside one render:
 //     `template.drawGroup` as the data spells it, `template.drawGroupKey` as a
 //     render reads it, `holdSet`, `renderScope`.

@@ -5,14 +5,19 @@ import (
 	"strings"
 )
 
-// hold is what has already been drawn for held names: the variant each was drawn as, so every
-// path under it reads one row; the value each read produced, by its path, so the same read
-// written twice reads one value; and the table rows those reads pinned. An expansion keeps one for
-// its sibling names, and a render one per group for its reference paths.
+// hold is what one expansion has drawn for the names it holds: the variant each was drawn as, so
+// every path under it reads one variant; and the value each read produced, by its path, so the
+// same read written twice reads one value.
 type hold struct {
 	variant map[string]node
 	value   map[string]readValue
-	pins    pinSet
+}
+
+// groupHold is what one render's draw group has drawn for its reference paths: a hold, and the
+// table rows those paths pinned.
+type groupHold struct {
+	hold
+	pins pinSet
 }
 
 // readValue is what one read drew: its text, and whether it landed on a null.
@@ -25,7 +30,9 @@ type readValue struct {
 // token addresses by dotted path, or a field an operand reads — is drawn once and
 // kept, so {place.postal-code} and {place.locality} read one row, either read twice
 // gives one value, and a shown operand is the operand computed. Every other name is
-// drawn afresh, so {word} {word} still draws twice.
+// drawn afresh, so {word} {word} still draws twice. A reference path is kept in the
+// render's hold for its group, so its draw spans the render; every other held name in
+// held, the expansion's.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
 	if s.trace != nil {
 		traceRead(s.trace, t, sc, a)
@@ -36,18 +43,23 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 		}
 		return readValue{text: render(s, t.head(a.key), sc)}
 	}
-	d := readHold(held, sc, a)
-	if r, done := d.value[a.path]; done {
+	w := pathDraw{s: s, held: held, a: &a}
+	if isRef(a.key) && len(a.tail) > 0 {
+		group := sc.hold()
+		w.held, w.pins = &group.hold, &group.pins
+	}
+	if r, done := w.held.value[a.path]; done {
 		return r
 	}
-	if len(a.tail) > 0 {
-		sc.pins = &d.pins
+	leaf := drawPath(t.head(a.key), a.tail, a.key, &w)
+	if w.pins != nil {
+		sc = sc.at(leaf, w.pins)
 	}
-	r := renderLeaf(s, drawPath(t.head(a.key), a.tail, a.key, &pathDraw{s: s, pins: &d.pins, held: d, a: &a}), sc)
-	if d.value == nil {
-		d.value = map[string]readValue{}
+	r := renderLeaf(s, leaf, sc)
+	if w.held.value == nil {
+		w.held.value = map[string]readValue{}
 	}
-	d.value[a.path] = r
+	w.held.value[a.path] = r
 	return r
 }
 
@@ -64,19 +76,9 @@ func traceRead(trace *renderTrace, t *template, sc renderScope, a arm) {
 	case t.cellOf != nil:
 		table, row = t.cellOf.path, t.cellRow
 	case t.table != nil:
-		table, row = t.table.path, sc.rows().mustRow(t.table)
+		table, row = t.table.path, sc.rowOf(t.table)
 	}
 	trace.read(strings.Clone(sc.group), strings.Clone(table), row, a)
-}
-
-// readHold is the hold a held read keeps its draw in: for a reference that reads a path,
-// the render's hold for its group, so its draw spans the render; for a sibling, or a
-// bare reference, held.
-func readHold(held *hold, sc renderScope, a arm) *hold {
-	if isRef(a.key) && len(a.tail) > 0 {
-		return sc.hold()
-	}
-	return held
 }
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one

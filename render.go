@@ -33,7 +33,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	return render(f.rand, n, sc), nil
+	return render(f.rand, n, sc.at(n, &sc.hold().pins)), nil
 }
 
 // descend walks a caller's path to the node it names, pinning in sc the rows it
@@ -56,14 +56,12 @@ func render(s *session, n node, sc renderScope) string {
 	case *nullItem:
 		return ""
 	case *table:
-		var own pinSet
-		own.add(n, n.drawRow(s))
-		sc.pins = &own
+		sc.row = tablePin{n, n.drawRow(s)}
 		return expand(s, n.formatTemplate, sc)
 	case *tableRow:
 		return expand(s, n.t.formatTemplate, sc)
 	case *tableColumn:
-		row := sc.rows().mustRow(n.t)
+		row := sc.rowOf(n.t)
 		if cell := n.t.cellTemplate(row, n.i); cell != nil {
 			return render(s, cell, sc)
 		}

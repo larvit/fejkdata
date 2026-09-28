@@ -332,9 +332,9 @@ func (w *pathProbe) readRow(t *table, r tableRoute) error {
 	return nil
 }
 
-// pathDraw draws the rows and variants a proved path reads, pinning them in pins.
-// For a held read, held keeps the variant drawn at each level of a, so paths
-// sharing a prefix share it.
+// pathDraw draws the rows and variants a proved path reads, pinning the rows in pins, which
+// only a path from a reference needs: a table is a category. For a held read, held keeps the
+// variant drawn at each level of a, so paths sharing a prefix share it.
 type pathDraw struct {
 	s    *session
 	pins *pinSet

@@ -1,23 +1,23 @@
 package fejkdata
 
 import (
+	"fmt"
 	"strings"
 )
 
 // holdSet is one render's reference draws: the unnamed draw group's, and each named one's.
 type holdSet struct {
-	unnamed hold
-	named   map[string]*hold
+	unnamed groupHold
+	named   map[string]*groupHold
 }
 
 // renderScope is where a render reads its reference paths: a hold set, in the draw group of the
-// template rendering, and the pin set a table's columns read their row from: a whole read's own,
-// else the hold's. It passes by value, and what is read from it reaches a map key, an interface or
+// template rendering; and row, the row of the table rendering, which its columns read. It passes by value, and what is read from it reaches a map key, an interface or
 // a func value only as a copy; else sc, and with it every render's hold set, moves to the heap.
 type renderScope struct {
 	set   *holdSet
 	group string
-	pins  *pinSet
+	row   tablePin
 }
 
 // renderOnce renders n as one render, over a hold set of its own.
@@ -47,23 +47,36 @@ func (sc renderScope) in(t *template) renderScope {
 	return sc
 }
 
-func (sc renderScope) rows() *pinSet {
-	if sc.pins != nil {
-		return sc.pins
+// at is the scope n, the leaf of a path that pinned its rows in pins, renders in: where n is a
+// table's row or column, at the row pins holds for that table.
+func (sc renderScope) at(n node, pins *pinSet) renderScope {
+	switch n := n.(type) {
+	case *tableRow:
+		sc.row = tablePin{n.t, pins.mustRow(n.t)}
+	case *tableColumn:
+		sc.row = tablePin{n.t, pins.mustRow(n.t)}
 	}
-	return &sc.hold().pins
+	return sc
 }
 
-func (sc renderScope) hold() *hold {
+// rowOf is the row of t its columns render from.
+func (sc renderScope) rowOf(t *table) int {
+	if sc.row.t != t {
+		panic(fmt.Sprintf("fejkdata: a column of %s is rendered with no row pinned", t.category))
+	}
+	return sc.row.row
+}
+
+func (sc renderScope) hold() *groupHold {
 	if sc.group == "" {
 		return &sc.set.unnamed
 	}
 	d, drew := sc.set.named[sc.group]
 	if !drew {
 		if sc.set.named == nil {
-			sc.set.named = map[string]*hold{}
+			sc.set.named = map[string]*groupHold{}
 		}
-		d = &hold{}
+		d = &groupHold{}
 		sc.set.named[strings.Clone(sc.group)] = d
 	}
 	return d
