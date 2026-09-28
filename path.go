@@ -257,6 +257,9 @@ func (w *pathCheck) enter(t *template, rest []string) error {
 	return nil
 }
 
+// pathCover is coverPath's walk. Where pathCheck walks every variant of a choice, it
+// covers the first choice it reaches whole and stops; at a table it follows the route
+// and selects no row.
 type pathCover struct{ into map[node]bool }
 
 func (w *pathCover) walk(n node, tail []string) (node, error) {
@@ -283,8 +286,9 @@ func (w *pathCover) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-// pathProbe proves a path resolves without drawing: carriedByAll lets one variant
-// of a choice stand for all. It marks in drawn the tables a draw would pin.
+// pathProbe proves a path resolves without drawing. Where pathCheck walks every
+// variant of a choice, it walks the first, which carriedByAll lets stand for all; at a
+// table it selects as pathCheck does and marks in drawn the tables a draw would pin.
 type pathProbe struct {
 	pins  pinSet
 	drawn map[*table]bool
@@ -335,6 +339,8 @@ func (w *pathProbe) readRow(t *table, r tableRoute) error {
 // pathDraw draws the rows and variants a proved path reads, pinning the rows in pins; pins is nil
 // for a sibling path, which never crosses a table, since a table is only a category. For a held
 // read, held keeps the variant drawn at each level of a, so paths sharing a prefix share it.
+// Where pathCheck walks every variant of a choice, it walks the one drawn; at a table it selects
+// as pathCheck does and draws the row the route asks for.
 type pathDraw struct {
 	s    *session
 	pins *pinSet
