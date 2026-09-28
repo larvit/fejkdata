@@ -244,8 +244,8 @@ carry both rules and both scopes anyway, and tell them apart at every step.
 
 ## A hold set makes its draw maps on the first read
 
-Every render and every draw group starts from an empty hold, since goal 2 prices a reader
-meeting two spellings of one empty set. Making the maps where the set is declared kept a
+Every render starts from an empty hold set, its draw groups included, since goal 2 prices
+a reader meeting two spellings of one empty set. Making the maps where the set is declared kept a
 record's on its frame's stack, but a `Fake`'s set lives on the `Generator`, so there it
 cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
 Lazily, a render reading a reference path pays those two allocations, a record or struct
