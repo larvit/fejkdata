@@ -23,9 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Give `Fake` a local hold set like `FakeRecord`, `RecordTemplate.Fake` and
-  `FakeStruct`, or state at `Generator.set` why it alone needs one: four seats read the
-  field's heap claim as contradicted by the other three.
 - Spell every panic an earlier check makes unreachable with one greppable phrase: the
   17 say "reached prep unvalidated", "should have been proved", "with no row pinned"
   and more, so a user's report greps to nothing.

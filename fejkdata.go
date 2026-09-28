@@ -34,8 +34,7 @@ type Generator struct {
 	mu         sync.Mutex
 	rand       *session
 	categories map[string]node
-	root       folder  // the categories as the node a path walks from, owned here so a walk allocates none
-	set        holdSet // one Fake's hold set, owned here so a walk pinning rows keeps them off the heap
+	root       folder // the categories as the node a path walks from, owned here so a walk allocates none
 	records    map[node]recordShape
 	structs    map[reflect.Type]structResult
 }

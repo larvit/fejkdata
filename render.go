@@ -23,8 +23,8 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	f.set = holdSet{}
-	sc := renderScope{set: &f.set}
+	var set holdSet
+	sc := renderScope{set: &set}
 	f.root.children = f.categories
 	n, err := descend(f.rand, &f.root, segments, sc)
 	if err != nil {
