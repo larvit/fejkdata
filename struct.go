@@ -258,7 +258,9 @@ func (s *structShape) compileRecord(categories map[string]node, t reflect.Type, 
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	if err := bindInline(n, label, categories, checkRenders); err != nil {
+	b := inlineBinding(n, label, categories)
+	b.typedByGo = true
+	if err := b.bind(); err != nil {
 		return err
 	}
 	record, columns, err := recordOf(n)

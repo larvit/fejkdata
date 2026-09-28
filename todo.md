@@ -21,8 +21,6 @@ Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 
 This round, in order:
 
-- Run `New`, `NewTemplate` and `FakeStruct` through one bind pipeline that names
-  where they differ: each picks its own fences today.
 - Make `disagreement` and `bothTyped` a table of cases: each swaps its operands and
   runs a proof to pick an error's wording.
 - Derive a column's datatype in one place: `columnItems` yields nothing for a
