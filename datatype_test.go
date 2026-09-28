@@ -41,7 +41,7 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 	tree := map[string]string{
 		"cat": `[{"format":"{code}","code":"200"},{"format":"{code}","code":"2x","note":"n"}]`,
-		"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+		"src": `{"format":"","code":[null,"200","2x"],"flag":{"format":"{b}","b":["true","false"],"datatype":"boolean"},"ratio":{"format":"{float(0,9,0)}","datatype":"number"},"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 	}
 	for _, c := range []struct{ name, column, want string }{
 		{"an item beside a typed one", `[{"format":"1","datatype":"integer"},"x"]`, `write it as {"format":"x","datatype":"integer"}`},
@@ -54,6 +54,8 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a datatype a typed column's values reject", `{"format":"{/src.score}","datatype":"boolean"}`, "{int(1,9)} prints an integer, not a boolean"},
 		{"two typed columns it reads", `["{/src.score}","{/src.flag}"]`, `so to read "{/src.score}" as text, write {"format":"{text}","text":"{/src.score}"}`},
 		{"a typed column read that holds the datatype declared beside it", `[{"format":"1.5","datatype":"number"},"{/src.score}"]`, `so write "{/src.score}" as {"format":"{/src.score}","datatype":"number"}`},
+		{"two datatypes the first holds both of", `[{"format":"1","datatype":"integer"},{"format":"1.5","datatype":"number"}]`, "its items hold integer and number; a column holds one datatype"},
+		{"a typed column read holding the datatype of another", `["{/src.ratio}","{/src.score}"]`, `so write "{/src.ratio}" as {"format":"{/src.ratio}","datatype":"integer"}`},
 		{"text before a typed column it reads", `["n/a","{/src.score}"]`, `to read that column as text, write {"format":"{text}","text":"{/src.score}"}`},
 		{"a weighted item beside a typed column it reads", `["{/src.score}",{"format":"5","weight":2}]`, `give it "datatype": "integer"`},
 		{"a typed column read before the datatype it holds", `["{/src.score}",{"format":"1.5","datatype":"number"}]`, `so write "{/src.score}" as {"format":"{/src.score}","datatype":"number"}`},
