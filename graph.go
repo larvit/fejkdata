@@ -96,14 +96,19 @@ func sortedNames(m map[string]node) []string {
 }
 
 // renderEdge is a child a node renders into, labelled by what reaches it (a field
-// name, reference, or choice index) for a readable cycle report. operand names
-// the builtin when the label is its operand rather than a token, so an error can
-// name it the way the author wrote it.
+// name, reference, or choice index) for a readable cycle report. read is the linked
+// arm a template's edge reads, zero on any other. operand names the builtin when the
+// label is its operand rather than a token, so an error can name it the way the
+// author wrote it.
 type renderEdge struct {
 	to      node
 	label   string
+	read    arm
 	operand string
 }
+
+// readsRef reports whether the edge reads a reference.
+func (e renderEdge) readsRef() bool { return isRef(e.read.key) }
 
 // reached names an edge as the author spelled it, the vocabulary pathKeyReaders uses
 // for the sibling fence.
@@ -133,7 +138,7 @@ func renderEdges(n node) []renderEdge {
 				return
 			}
 			for _, leaf := range pathLeaves(c, a.tail) {
-				es = append(es, renderEdge{leaf, a.spelling, operand})
+				es = append(es, renderEdge{leaf, a.spelling, a, operand})
 			}
 		}
 		for _, o := range n.compiled.ops {
