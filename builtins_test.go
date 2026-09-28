@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/base64"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -217,8 +218,8 @@ func TestArgGuardsPanic(t *testing.T) {
 func mustPanic(t *testing.T, name string, call func()) {
 	t.Helper()
 	defer func() {
-		if recover() == nil {
-			t.Errorf("%s: no panic, want the invariant reported", name)
+		if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), "fejkdata: internal error: ") {
+			t.Errorf("%s: recovered %v, want the invariant reported as an internal error", name, r)
 		}
 	}()
 	call()
