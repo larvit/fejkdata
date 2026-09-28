@@ -62,11 +62,11 @@ type template struct {
 	// Filled by `template.compileFormat` at link, from `template.tokens` and `template.refs`:
 	ops  []op // what expand walks
 	grow int  // minimum output size, to size the render buffer
-	// pathLevels maps each field the format addresses by dotted path to one path token
+	// pathKeys maps each key a dotted path in the format starts from to one path token
 	// reading it, which is the half of an overlap the fences name. nil when the
 	// format takes no path.
-	pathLevels map[string]string
-	// held is every name drawn once per expansion: the path levels above, plus the
+	pathKeys map[string]string
+	// held is every name drawn once per expansion: the path keys above, plus the
 	// siblings a {calc()} reads. nil when the format holds nothing (see expand).
 	held      map[string]bool
 	heldLocal bool // some held name is kept by the expansion itself, so expand makes its hold
@@ -224,8 +224,8 @@ func (t *template) fixedText() (string, bool) {
 // compiled reads.
 func (t *template) compileFormat() error {
 	c := compileOps(t.tokens, t.refs)
-	t.ops, t.grow, t.pathLevels, t.held, t.heldLocal = c.ops, c.grow, c.pathLevels, c.held, c.heldLocal
-	if err := checkNoOverlap(t.ops, t.pathLevels); err != nil {
+	t.ops, t.grow, t.pathKeys, t.held, t.heldLocal = c.ops, c.grow, c.pathKeys, c.held, c.heldLocal
+	if err := checkNoOverlap(t.ops, t.pathKeys); err != nil {
 		return err
 	}
 	return checkNoRepeatedRead(c)

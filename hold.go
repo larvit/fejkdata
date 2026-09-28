@@ -6,8 +6,8 @@ import (
 )
 
 // hold is what has already been drawn for held names: the variant each was drawn as, so every
-// path under it reads one row; the draw each read made, by its path, so the same read
-// written twice reads one draw; and the table rows those reads pinned. An expansion keeps one for
+// path under it reads one row; the value each read produced, by its path, so the same read
+// written twice reads one value; and the table rows those reads pinned. An expansion keeps one for
 // its sibling names, and a render one per group for its reference paths.
 type hold struct {
 	variant map[string]node

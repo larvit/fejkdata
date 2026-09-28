@@ -188,7 +188,7 @@ func eachTemplate(root map[string]node, fn func(folder []string, path string, t 
 
 // resolveCategory walks a dotted path through the folders to the category it
 // names, returning that category's segments, the node, and the tail left to read into it.
-func resolveCategory(root map[string]node, segments []string) (category []string, target node, tail []string, err error) {
+func resolveCategory(root map[string]node, segments []string) (categorySegs []string, target node, tail []string, err error) {
 	var n node = &folder{children: root}
 	i := 0
 	for ; i < len(segments); i++ {

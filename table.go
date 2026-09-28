@@ -226,7 +226,7 @@ func (t *table) bindOptions(o tableOptionValues) error {
 	if t.nameIndex >= 0 && t.keyIndex < 0 && t.parentIndex < 0 {
 		return fmt.Errorf("name selects a row as a key does, and lists the rows it matches by their keys, so it needs a key column, or a parent inside which each name is one row; add key")
 	}
-	if err := t.mapKeys(); err != nil {
+	if err := t.proveKeys(); err != nil {
 		return err
 	}
 	if err := t.proveNamesInsideParent(); err != nil {
@@ -251,8 +251,8 @@ func (t *table) proveNamesInsideParent() error {
 	return nil
 }
 
-// mapKeys proves every key names one row, and keeps the map a link is proved by.
-func (t *table) mapKeys() error {
+// proveKeys proves every key names one row, and keeps the map a link is proved by.
+func (t *table) proveKeys() error {
 	if t.keyIndex < 0 {
 		return nil
 	}
@@ -488,13 +488,13 @@ func pickCum(s *session, cum []float64) int {
 
 // drawUnder picks a row among those linked to parent row pr.
 func (t *table) drawUnder(s *session, pr int) int {
-	ix := t.builtLookup()
+	lookup := t.builtLookup()
 	k := t.parentT.cell(pr, t.parentT.keyIndex)
-	rows := ix.rowsByParent[k]
-	if ix.childCum == nil {
+	rows := lookup.rowsByParent[k]
+	if lookup.childCum == nil {
 		return rows[s.IntN(len(rows))]
 	}
-	return rows[pickCum(s, ix.childCum[k])]
+	return rows[pickCum(s, lookup.childCum[k])]
 }
 
 // drawIn is the render's row of t: the one pinned in p, else one drawn inside the nearest

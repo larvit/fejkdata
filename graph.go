@@ -105,7 +105,7 @@ type renderEdge struct {
 	operand string
 }
 
-// reached names an edge as the author spelled it, the vocabulary levelReaders uses
+// reached names an edge as the author spelled it, the vocabulary pathKeyReaders uses
 // for the sibling fence.
 func (e renderEdge) reached() string {
 	if e.operand != "" {

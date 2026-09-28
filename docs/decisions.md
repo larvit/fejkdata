@@ -302,7 +302,7 @@ in.
 `Value` is the rendered string beside `DataType` and `Null`, which each serializer
 writes as the load check proved it; a `Value any` would hand every caller a type switch.
 
-## `hold` names what a draw is kept in, `draw` the draw itself
+## `hold` names what a draw is kept in, `readValue` what a read drew
 
 Goal 2 wants a name to reach one unit, so a unit takes the stem of what it is, and a
 file the stem of the units it holds.
@@ -439,7 +439,7 @@ Its columns are the CSV header and the `INSERT` column list, fixed by the TSV he
 a table is a record by construction; every column is a string until a typed column
 option earns its place.
 
-## The key index is built at load, the rest on first draw
+## The key map is built at load, the rest on first draw
 
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
 both are load-time; the per-parent child lists serve only a draw, so they wait for the
