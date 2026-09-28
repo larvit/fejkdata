@@ -273,7 +273,7 @@ if err != nil {
 	log.Fatal(err)
 }
 v, err := f.Fake("sv_SE.address") // "Järvedsvägen 43\n891 77 Järved"
-paths := f.List()                  // every path Fake accepts, sorted
+paths := f.List()                  // the paths Fake renders, sorted; direct descents only
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
 v = t.Fake()                                              // render many times, no re-parse
