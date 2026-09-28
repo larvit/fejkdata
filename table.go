@@ -308,14 +308,14 @@ func (t *table) checkCells() error {
 		if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 			continue
 		}
-		toks, err := parseChecked(cell, nil)
+		n, err := compileString(cell, cellSite{t, row})
 		if err != nil {
 			return fmt.Errorf("line %d, %s: %w", row+2, t.header[col], err)
 		}
 		if t.cellTemplates == nil {
 			t.cellTemplates = map[int]*template{}
 		}
-		t.cellTemplates[i] = &template{format: cell, tokens: toks, repeat: 1, fromString: true, cell: cellSite{t, row}}
+		t.cellTemplates[i] = n
 	}
 	return nil
 }
