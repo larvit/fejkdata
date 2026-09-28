@@ -139,7 +139,7 @@ func renderRoot(s *session, t *template) {
 }
 
 func renderRecordRoot(s *session, t *template, columns []Column) {
-	set := eagerHoldSet()
+	var set holdSet
 	sc := renderScope{set: &set}
 	if t.table != nil {
 		t.table.drawIn(s, &sc.hold().pins)
