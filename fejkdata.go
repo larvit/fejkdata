@@ -45,7 +45,6 @@ type Generator struct {
 type session struct {
 	*rand.Rand
 	counters map[string]uint64
-	trace    *renderTrace
 }
 
 func (s *session) next(key string) uint64 {

@@ -23,8 +23,6 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 
 This round, in order:
 
-- Move `session.trace` and `renderTrace.repeatDepth` off the render path: they serve
-  `drawfence_test.go` alone.
 - Give `Fake` a local hold set like `FakeRecord`, `RecordTemplate.Fake` and
   `FakeStruct`, or state at `Generator.set` why it alone needs one: four seats read the
   field's heap claim as contradicted by the other three.
