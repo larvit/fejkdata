@@ -224,7 +224,7 @@ type recordFormat struct {
 }
 
 // recordFormats is every --format that writes records. json frames the records
-// as one array document; ndjson is the same column, one object per line.
+// as one array document; ndjson writes one object per line.
 var recordFormats = map[string]recordFormat{
 	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n"},
 	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n"},

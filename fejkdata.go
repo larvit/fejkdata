@@ -28,8 +28,8 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 
 // Generator generates fake data from a loaded namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
-// from one goroutine. The compiled tree is immutable after [New], so List reads it
-// without a lock; mu guards the rest, which every other entry point takes.
+// from one goroutine. The compiled tree is immutable after [New], so List, NewTemplate
+// and NewRecordTemplate read it without a lock; mu guards the rest, which every render takes.
 type Generator struct {
 	mu         sync.Mutex
 	rand       *session
@@ -120,7 +120,7 @@ func New(opts ...Option) (*Generator, error) {
 // List returns the sorted dotted paths Fake can render: every category, the dotted
 // fields within a template, and folder segments. A choice consumes no segment, so a
 // path continues through one only where every variant carries it, which is the
-// rule Fake applies too: List is the set of paths Fake accepts.
+// rule Fake applies too. A selector is left out: Fake also takes `[key]` after a table.
 func (f *Generator) List() []string {
 	var out []string
 	for _, name := range sortedNames(f.categories) {

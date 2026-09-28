@@ -133,7 +133,7 @@ type builtin struct {
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
 // for a plain field or alternation body. A '(' without a trailing ')' yields
-// ok=false; checkFunc reports it as malformed at compile time.
+// ok=false; parseFormat reports it as malformed.
 func funcCall(body string) (name string, args []string, ok bool) {
 	lp := indexOutside(body, '(')
 	if lp < 0 || !strings.HasSuffix(body, ")") {
