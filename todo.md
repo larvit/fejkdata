@@ -31,11 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Move `checkOwnFamily` into `readsurvey.go` beside `checkFamilies`, and
-  `checkNestedDrawGroup` into `node.go` beside `drawGroupOf`, the compile step calling
-  it; delete `checkColumnDraws` for `surveyColumns(…).check()` at its caller. Both
-  architects found the family fence in two files, and draw-group checks of two
-  lifecycles in one.
 - Replace `formatOps`' `held`, `holder` and `pathHeads` with one map from a held name
   to its first reader and the path it starts, if any: four seats traced
   `formatOps.holdName` writing four fields at once.
@@ -332,7 +327,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
 - Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
   a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
-  `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
+  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by file.
   Say "fences" in the `pin` entry then, which names the draw fences too.
 - Cut the README's Layout block to the lines that say what a file name cannot:
   `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.

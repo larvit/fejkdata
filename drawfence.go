@@ -2,36 +2,6 @@ package fejkdata
 
 import "fmt"
 
-// checkNestedDrawGroup refuses a template beneath one drawing in group that names group again,
-// short of a repeat or another draw group.
-func checkNestedDrawGroup(fields map[string]node, group string) error {
-	if group == "" {
-		return nil
-	}
-	var walk func(path string, n node) error
-	walk = func(path string, n node) error {
-		t, isTemplate := n.(*template)
-		switch {
-		case isTemplate && t.drawGroup == group:
-			return fmt.Errorf("%q names drawGroup %q, the draw group this template draws in already; drop it", path, group)
-		case isTemplate && (t.drawGroup != "" || t.repeat > 1):
-			return nil
-		}
-		for _, c := range contained(n) {
-			if err := walk(join(path, c.name), c.node); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	for _, name := range sortedNames(fields) {
-		if err := walk(name, fields[name]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // drawFence fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
 // docs/decisions.md#a-render-shares-one-reference-draw-per-category-per-group
@@ -71,41 +41,6 @@ func (f *drawFence) checkDraws(path string, n node) error {
 	return nil
 }
 
-// checkOwnFamily refuses a table's format or cell that reads, however many templates
-// away and through a repeat or a draw group too, a table of its own family: a whole
-// read draws its row without pinning it, so the family would draw apart from the row
-// it renders, whichever draws the reaching template holds.
-// docs/decisions.md#a-table-never-reaches-its-own-family-by-any-route
-func checkOwnFamily(t *template) error {
-	own := t.site.table
-	if own == nil {
-		return nil
-	}
-	seen := map[node]bool{}
-	var find func(n node) (renderEdge, *table, bool)
-	find = func(n node) (renderEdge, *table, bool) {
-		if seen[n] {
-			return renderEdge{}, nil, false
-		}
-		seen[n] = true
-		for _, e := range renderEdges(n) {
-			if e.readsRef() {
-				if familyTable, isTable := n.(*template).head(e.read.head).(*table); isTable && familyTable.familyRoot() == own.familyRoot() {
-					return e, familyTable, true
-				}
-			}
-			if e, familyTable, found := find(e.to); found {
-				return e, familyTable, true
-			}
-		}
-		return renderEdge{}, nil, false
-	}
-	if e, familyTable, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), familyTable.segment, own.segment)
-	}
-	return nil
-}
-
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
 // repeat — so a load proves the record view of it as well as the string view.
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
@@ -123,7 +58,7 @@ func (f *drawFence) checkRecordDraws(path string, n node) error {
 	if !reads {
 		return nil
 	}
-	if err := checkColumnDraws(t, columns); err != nil {
+	if err := surveyColumns(t, columns).check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
@@ -186,5 +121,3 @@ func readsTable(n node, a arm) bool {
 	_, isTable := t.head(a.head).(*table)
 	return isTable
 }
-
-func checkColumnDraws(t *template, columns []string) error { return surveyColumns(t, columns).check() }
