@@ -248,6 +248,8 @@ by a `data-import/` script, as README goal 12 asks.
 
 ## v0.2.0
 
+- **Promise in `Generator`'s godoc that its renders run one at a time**, so a caller
+  wanting parallel throughput makes one generator per goroutine.
 - Ship the full registers as packs, each a Go module with its own `embed.FS` and a zip
   for `--data-path`: every US place of 10,000 and more streets per locality, built by
   `--min-population` and `--streets-per-locality`. The default embed stays under ~1 MB
