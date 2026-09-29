@@ -19,7 +19,6 @@ type table struct {
 	formatTemplate *template // fields are the column nodes
 	header         []string
 	col            map[string]int
-	fields         map[string]node // column nodes, the format's fields
 	rowNode        *tableRow
 	cells          []string // rows × columns, flat
 	cellTemplates  map[int]*template
@@ -157,7 +156,6 @@ func (t *table) parseRows(data string) error {
 	}
 	t.header = strings.Split(header, "\t")
 	t.col = make(map[string]int, len(t.header))
-	t.fields = make(map[string]node, len(t.header))
 	for i, name := range t.header {
 		if err := checkName(name); err != nil {
 			return fmt.Errorf("column %w", err)
@@ -166,7 +164,6 @@ func (t *table) parseRows(data string) error {
 			return fmt.Errorf("column %q is named twice", name)
 		}
 		t.col[name] = i
-		t.fields[name] = &tableColumn{t, i}
 	}
 	if header == data {
 		return fmt.Errorf("has no rows below its header; a table is at least two rows")
@@ -338,10 +335,14 @@ func (t *table) compileRowFormat(format string) error {
 			}
 		}
 	}
-	if err := checkTokens(toks, t.fields); err != nil {
+	fields := make(map[string]node, len(t.header))
+	for i, name := range t.header {
+		fields[name] = &tableColumn{t, i}
+	}
+	if err := checkTokens(toks, fields); err != nil {
 		return err
 	}
-	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
+	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
 	t.rowNode = &tableRow{t}
 	return nil
 }

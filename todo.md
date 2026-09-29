@@ -28,7 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Drop `table.fields` for `formatTemplate.fields`: one map held in two fields.
 - Rename `arm.key` to `head`, as `template.head` reads it, leaving `key` the table's key
   column; give `renderScope.row` a type that is not `tablePin`, since it pins nothing;
   and name `value.go` by the `valueProof` it holds.

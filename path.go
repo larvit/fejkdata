@@ -438,8 +438,8 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 	if len(tail) == 0 {
 		return nil, nil, nil
 	}
-	if i, ok := t.col[tail[0]]; ok {
-		return t.fields[t.header[i]], nil, nil
+	if column, ok := t.formatTemplate.fields[tail[0]]; ok {
+		return column, nil, nil
 	}
 	if child = t.descendant(tail[0]); child == nil {
 		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.segment)
