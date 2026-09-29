@@ -147,7 +147,7 @@ func columnItems(n node) (items []*template, nullable bool) {
 	return items, nullable
 }
 
-// itemKind is how a column item comes by its datatype, ranked by declaresLess in this order: none, read from a typed column, or declared.
+// itemKind is how a column item comes by its datatype, ranked in this order: none, read from a typed column, or declared.
 type itemKind int
 
 const (
@@ -155,10 +155,6 @@ const (
 	kindReads
 	kindDeclares
 )
-
-func declaresLess(a, b itemKind) bool {
-	return a < b
-}
 
 func kindOf(t *template) itemKind {
 	switch {
@@ -170,63 +166,30 @@ func kindOf(t *template) itemKind {
 	return kindText
 }
 
-// itemPair is two items of one column holding different datatypes: fix is the one to change,
-// and want the datatype of the other.
-type itemPair struct {
-	first, second DataType
-	fix, other    *template
-	want          DataType
-}
-
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
-	d := itemPair{first: da, second: db, fix: a, other: b, want: db}
-	if declaresLess(kindOf(b), kindOf(a)) {
-		d.fix, d.other, d.want = b, a, da
+	fix, other, want := a, b, db
+	if kindOf(b) < kindOf(a) {
+		fix, other, want = b, a, da
 	}
-	proven := (&valueProof{}).proveColumnItem(d.fix).not[d.want] == ""
-	return disagreementFix(kindOf(d.fix), kindOf(d.other), proven)(d)
-}
-
-// proven says fix's values hold other's datatype.
-func disagreementFix(fix, other itemKind, proven bool) func(d itemPair) error {
+	held := fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)
+	proven := (&valueProof{}).proveColumnItem(fix).not[want] == ""
 	switch {
-	case fix == kindDeclares:
-		return holdOne
-	case fix == kindReads && proven:
-		return readTyped
-	case fix == kindReads:
-		return readAsText
-	case other == kindText:
+	case kindOf(fix) == kindDeclares:
+		return errors.New(held)
+	case kindOf(fix) == kindReads && proven:
+		return fmt.Errorf("%s, so %s", held, typedAs(fix, want))
+	case kindOf(fix) == kindReads:
+		return fmt.Errorf("%s, so to read %q as text, %s", held, fix.format, asText(fix))
+	case kindOf(other) == kindText:
 		panic(internalError("two text items hold one datatype, so they never disagree"))
-	case other == kindReads && !proven:
-		return otherAsText
+	case kindOf(other) == kindReads && !proven:
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
+	case fix.fromString: // an object may carry a weight, which this spelling would drop
+		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, fix.format, fix.format, want)
 	}
-	return declare
-}
-
-func holdOne(d itemPair) error {
-	return fmt.Errorf("its items hold %s and %s; a column holds one datatype", d.first, d.second)
-}
-
-func readTyped(d itemPair) error {
-	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so %s", d.first, d.second, typedAs(d.fix, d.want))
-}
-
-func readAsText(d itemPair) error {
-	return fmt.Errorf("its items hold %s and %s; a column holds one datatype, so to read %q as text, %s", d.first, d.second, d.fix.format, asText(d.fix))
-}
-
-func otherAsText(d itemPair) error {
-	return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, d.fix.format, dataTypeNouns[d.want], d.other.format, asText(d.other))
-}
-
-func declare(d itemPair) error {
-	if d.fix.fromString { // an object may carry a weight, which this spelling would drop
-		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, d.fix.format, d.fix.format, d.want)
-	}
-	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, d.fix.format, d.want, d.want)
+	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)
 }
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
