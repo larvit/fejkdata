@@ -2,25 +2,26 @@ package fejkdata
 
 import "fmt"
 
-// surveyAt is where a read sits in its render: the draw group it draws in ("" until the
-// root names one), how the render's root reached it, the rows pinned above it, and the rows
-// of whole draws whose cells it sits in.
-type surveyAt struct {
-	group     string
-	route     surveyRoute
+// surveyRoute is how a render reaches a read: as its author spells it, and the root edge's label.
+type surveyRoute struct{ spelling, label string }
+
+// branches is the rows a read sits under: those pinned above it, and those of whole draws whose
+// cells it sits in.
+type branches struct {
 	pins      pinSet
 	wholePins pinSet
 }
 
-// surveyRoute is how a render reaches a read: as its author spells it, and the root edge's label.
-type surveyRoute struct{ spelling, label string }
-
-// pathRead is one reference a render reads: a path, or a bare reference with no tail.
+// pathRead is one reference a render reads, a path or a bare reference with no tail: in its draw
+// group ("" until the root names one), by the route the render's root reached it, under its
+// branches.
 type pathRead struct {
-	at    surveyAt
-	a     arm
-	tr    *tableRead // set where the reference names a table
-	clash error      // set where its selectors clash with a row its route pinned
+	group    string
+	route    surveyRoute
+	branches branches
+	a        arm
+	tr       *tableRead // set where the reference names a table
+	clash    error      // set where its selectors clash with a row its route pinned
 }
 
 type readKey struct {
@@ -79,21 +80,21 @@ func (f *readFold) reads(n node) []pathRead {
 		}
 		if n.link.drawGroupKey != "" {
 			for i := range out {
-				if out[i].at.group == "" {
-					out[i].at.group = n.link.drawGroupKey
+				if out[i].group == "" {
+					out[i].group = n.link.drawGroupKey
 				}
 			}
 		}
 	case *table:
-		out = f.rowReads(n, func(p *surveyAt, row int) bool {
-			p.wholePins = p.wholePins.clone()
-			p.wholePins.add(n, row)
+		out = f.rowReads(n, func(b *branches, row int) bool {
+			b.wholePins = b.wholePins.clone()
+			b.wholePins.add(n, row)
 			return true
 		})
 	case *tableRow:
-		out = f.rowReads(n.t, func(p *surveyAt, row int) bool { return p.enter(n.t, row) })
+		out = f.rowReads(n.t, func(b *branches, row int) bool { return b.enter(n.t, row) })
 	case *tableColumn:
-		out = f.cellReads(n, func(p *surveyAt, row int) bool { return p.enter(n.t, row) })
+		out = f.cellReads(n, func(b *branches, row int) bool { return b.enter(n.t, row) })
 	}
 	out = distinct(out)
 	f.memo[n] = out
@@ -106,7 +107,7 @@ func distinct(reads []pathRead) []pathRead {
 	seen := make(map[readKey]bool, len(reads))
 	out := reads[:0:0]
 	for _, r := range reads {
-		k := readKey{r.at.group, r.a.path, r.at.pins.key(), r.at.wholePins.key(), r.clash != nil}
+		k := readKey{r.group, r.a.path, r.branches.pins.key(), r.branches.wholePins.key(), r.clash != nil}
 		if !seen[k] {
 			seen[k] = true
 			out = append(out, r)
@@ -123,7 +124,7 @@ func (f *readFold) viaEdge(n node, e renderEdge, route surveyRoute) []pathRead {
 	}
 	a := e.read
 	tr := tableReadOf(n.(*template).head(a.head), a, e.to)
-	out := []pathRead{{at: surveyAt{route: route}, a: a, tr: tr}}
+	out := []pathRead{{route: route, a: a, tr: tr}}
 	below := f.reads(e.to)
 	if tr != nil {
 		below = pinBelow(below, tr)
@@ -137,7 +138,7 @@ func (f *readFold) viaEdge(n node, e renderEdge, route surveyRoute) []pathRead {
 func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 	kept := reads[:0:0]
 	for _, r := range reads {
-		pins := r.at.pins.clone()
+		pins := r.branches.pins.clone()
 		if err := tr.replay(&pins); err != nil {
 			continue
 		}
@@ -145,7 +146,7 @@ func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 			check := pins.clone()
 			r.clash = r.tr.replay(&check)
 		}
-		r.at.pins = pins
+		r.branches.pins = pins
 		kept = append(kept, r)
 	}
 	return kept
@@ -154,7 +155,7 @@ func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 // rowReads is what the rows of t read: the cells of the columns its format renders, each tagged
 // with its row, and the format's other reads, which every row shares. A format reaching its own
 // cells through another category is checkOwnFamily's refusal, which runs first.
-func (f *readFold) rowReads(t *table, tag func(*surveyAt, int) bool) []pathRead {
+func (f *readFold) rowReads(t *table, tag func(*branches, int) bool) []pathRead {
 	var out []pathRead
 	for _, e := range renderEdges(t.formatTemplate) {
 		if c, isColumn := e.to.(*tableColumn); isColumn && !e.readsRef() {
@@ -167,7 +168,7 @@ func (f *readFold) rowReads(t *table, tag func(*surveyAt, int) bool) []pathRead 
 }
 
 // cellReads is what the cells of column c read, each tagged with its row.
-func (f *readFold) cellReads(c *tableColumn, tag func(*surveyAt, int) bool) []pathRead {
+func (f *readFold) cellReads(c *tableColumn, tag func(*branches, int) bool) []pathRead {
 	var out []pathRead
 	for r := 0; r < c.t.rowCount(); r++ {
 		cell := c.t.cellTemplate(r, c.i)
@@ -175,7 +176,7 @@ func (f *readFold) cellReads(c *tableColumn, tag func(*surveyAt, int) bool) []pa
 			continue
 		}
 		for _, read := range f.reads(cell) {
-			if tag(&read.at, r) {
+			if tag(&read.branches, r) {
 				out = append(out, read)
 			}
 		}
@@ -184,11 +185,11 @@ func (f *readFold) cellReads(c *tableColumn, tag func(*surveyAt, int) bool) []pa
 }
 
 // enter pins row r of t above a read, or reports that the rows already pinned keep it out.
-func (at *surveyAt) enter(t *table, r int) bool {
-	if at.pins.clash(t, r) != nil {
+func (b *branches) enter(t *table, r int) bool {
+	if b.pins.clash(t, r) != nil {
 		return false
 	}
-	at.pins = at.pins.entered(t, r)
+	b.pins = b.pins.entered(t, r)
 	return true
 }
 
@@ -199,8 +200,8 @@ func routed(reads []pathRead, route surveyRoute) []pathRead {
 	}
 	out := make([]pathRead, len(reads))
 	for i, r := range reads {
-		if r.at.route == (surveyRoute{}) {
-			r.at.route = route
+		if r.route == (surveyRoute{}) {
+			r.route = route
 		}
 		out[i] = r
 	}

@@ -153,7 +153,7 @@ func wantPairsFindAll(t *testing.T, label string, reads []pathRead) int {
 
 // eachRenderSet calls fn with every maximal set of reads that render together, by Bron–Kerbosch.
 func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
-	together := func(a, b pathRead) bool { return a.at.group == b.at.group && !alternatives(a.at, b.at) }
+	together := func(a, b pathRead) bool { return a.group == b.group && !alternatives(a.branches, b.branches) }
 	var grow func(set, candidates, excluded []pathRead)
 	grow = func(set, candidates, excluded []pathRead) {
 		if len(candidates) == 0 && len(excluded) == 0 {

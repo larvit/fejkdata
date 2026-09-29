@@ -39,9 +39,9 @@ func wantGathered(t *testing.T, label string, gathered []pathRead, renderWith fu
 		if !isRef(a.head) {
 			return
 		}
-		r := pathRead{at: surveyAt{group: group}, a: a}
+		r := pathRead{group: group, a: a}
 		if row.t != nil {
-			r.at.pins.add(row.t, row.index)
+			r.branches.pins.add(row.t, row.index)
 		}
 		if k := (traceKey{group, a.path, row}); !seen[k] {
 			seen[k] = true
@@ -53,7 +53,7 @@ func wantGathered(t *testing.T, label string, gathered []pathRead, renderWith fu
 	}
 	for _, r := range reads {
 		if !gathers(gathered, r) {
-			t.Errorf("%s: the render read {%s} in draw group %q from %s, and readSurvey gathered no such read", label, r.a.spelling, r.at.group, spellPins(&r.at.pins))
+			t.Errorf("%s: the render read {%s} in draw group %q from %s, and the fold gathered no such read", label, r.a.spelling, r.group, spellPins(&r.branches.pins))
 		}
 	}
 	return len(reads)
@@ -61,7 +61,7 @@ func wantGathered(t *testing.T, label string, gathered []pathRead, renderWith fu
 
 func gathers(gathered []pathRead, r pathRead) bool {
 	for _, g := range gathered {
-		if g.at.group == r.at.group && g.a.path == r.a.path && !g.at.pins.differs(&r.at.pins) && !g.at.wholePins.differs(&r.at.pins) {
+		if g.group == r.group && g.a.path == r.a.path && !g.branches.pins.differs(&r.branches.pins) && !g.branches.wholePins.differs(&r.branches.pins) {
 			return true
 		}
 	}
@@ -106,7 +106,7 @@ func renderRecordRoot(s *generatorState, t *template, columns []Column, trace re
 	renderRecord(s, t, columns, sc)
 }
 
-func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
+func TestReadFoldWalksACellByEveryRoute(t *testing.T) {
 	fsys := fstest.MapFS{
 		"g.json": {Data: []byte(`{"format":"{/x.v}","drawGroup":"g2"}`)},
 		"r.json": {Data: []byte(`"{/g} {/x}"`)},
@@ -130,8 +130,8 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 		if read.a.path != "/z" {
 			continue
 		}
-		pinned = pinned || read.at.pins.used > 0
-		whole = whole || read.at.wholePins.used > 0
+		pinned = pinned || read.branches.pins.used > 0
+		whole = whole || read.branches.wholePins.used > 0
 	}
 	if !pinned || !whole {
 		t.Errorf("{/z} gathered under a pinned row %v and a whole read's row %v, want both: {/g} reaches x's cells from the root, and {/x} renders them whole", pinned, whole)
