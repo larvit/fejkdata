@@ -36,11 +36,11 @@ func checkNestedDrawGroup(fields map[string]node, group string) error {
 	return nil
 }
 
-// drawCheck fences each template of a scope as a render of its own, remembering which nodes read a
+// readFence fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
 // docs/decisions.md#a-render-shares-one-reference-draw-per-category-per-group
 // docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
-type drawCheck struct {
+type readFence struct {
 	memo map[hasReadMemo]bool
 }
 
@@ -51,14 +51,14 @@ type hasReadMemo struct {
 
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
 // path inside a repeat or a nested draw group, which draw apart from it whatever it names.
-func (c *drawCheck) checkDrawGroup(path string, n node) error {
+func (c *readFence) checkDrawGroup(path string, n node) error {
 	if t, ok := n.(*template); ok && t.drawGroup != "" && !c.splitsDraws(t) {
 		return fmt.Errorf("%s: drawGroup %q splits nothing, since nothing it renders reads a reference path outside a repeat or a nested drawGroup; drop it", path, t.drawGroup)
 	}
 	return nil
 }
 
-func (c *drawCheck) checkDraws(path string, n node) error {
+func (c *readFence) checkDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok {
 		return nil
@@ -69,7 +69,7 @@ func (c *drawCheck) checkDraws(path string, n node) error {
 	if !c.readsPath(t) {
 		return nil
 	}
-	if err := renderDraws(t).check(); err != nil {
+	if err := surveyRender(t).check(); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
@@ -113,18 +113,10 @@ func checkOwnFamily(t *template) error {
 	return nil
 }
 
-func renderDraws(t *template) *drawWalk {
-	w := newDrawWalk()
-	for _, e := range renderEdges(t) {
-		w.edge(t, e, drawAt{group: t.link.drawGroupKey, route: drawRoute{e.reached(), e.label}})
-	}
-	return w
-}
-
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
 // repeat — so a load proves the record view of it as well as the string view.
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (c *drawCheck) checkRecordDraws(path string, n node) error {
+func (c *readFence) checkRecordDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || !t.isRecord {
 		return nil
@@ -146,15 +138,15 @@ func (c *drawCheck) checkRecordDraws(path string, n node) error {
 
 // readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
 // over draws of its own.
-func (c *drawCheck) readsPath(n node) bool { return c.hasRead(n, false) }
+func (c *readFence) readsPath(n node) bool { return c.hasRead(n, false) }
 
 // splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
 // for: one outside a repeat and outside a nested draw group, which hold their own draws.
-func (c *drawCheck) splitsDraws(n node) bool { return c.hasRead(n, true) }
+func (c *readFence) splitsDraws(n node) bool { return c.hasRead(n, true) }
 
 // hasRead walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
 // draw group when stopAtGroup — since each holds draws of its own.
-func (c *drawCheck) hasRead(n node, stopAtGroup bool) bool {
+func (c *readFence) hasRead(n node, stopAtGroup bool) bool {
 	k := hasReadMemo{n, stopAtGroup}
 	if r, done := c.memo[k]; done {
 		return r
@@ -203,152 +195,12 @@ func readsTable(n node, a arm) bool {
 }
 
 // checkColumnDraws fences a record's columns as one render.
-func checkColumnDraws(t *template, columns []string) error { return columnDraws(t, columns).check() }
-
-func columnDraws(t *template, columns []string) *drawWalk {
-	w := newDrawWalk()
-	for _, name := range columns {
-		w.walk(t.fields[name], drawAt{group: t.link.drawGroupKey, route: drawRoute{spelling: fmt.Sprintf("column %q", name)}})
-	}
-	return w
-}
-
-// drawWalk gathers the references one render reads, by draw group, for check to compare.
-type drawWalk struct {
-	reads  []pathRead
-	read   map[readKey]bool
-	seen   map[nodeVisit]bool
-	pinIDs map[pinsLink]pinsID
-}
-
-// drawAt is where a walk stands: the draw group it draws in, how the render's root reached it, the
-// table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
-// cells the walk is in.
-type drawAt struct {
-	group      string
-	route      drawRoute
-	pins       pinSet
-	wholeTable *table
-	wholePins  pinSet
-}
-
-// drawRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
-type drawRoute struct{ spelling, label string }
-
-// pathRead is one reference a render reads: a path, or a bare reference with no tail.
-type pathRead struct {
-	at drawAt
-	a  arm
-	tr *tableRead // set where the reference names a table
-}
-
-type nodeVisit struct {
-	n          node
-	group      string
-	wholeTable *table
-	pins       pinsID
-	wholePins  pinsID
-}
-
-type readKey struct {
-	group     string
-	path      string
-	pins      pinsID
-	wholePins pinsID
-}
-
-// pinsID names a pin set within one walk: two sets pinning the same rows share one.
-type pinsID int
-
-// pinsLink is a set's last pin, in path order, and the id of the set before it.
-type pinsLink struct {
-	prev pinsID
-	pin  tablePin
-}
-
-func newDrawWalk() *drawWalk {
-	return &drawWalk{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}, pinIDs: map[pinsLink]pinsID{}}
-}
-
-func (w *drawWalk) pinsID(p *pinSet) pinsID {
-	var pins []tablePin
-	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
-	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
-	id := pinsID(0)
-	for _, q := range pins {
-		l := pinsLink{id, q}
-		next, ok := w.pinIDs[l]
-		if !ok {
-			next = pinsID(len(w.pinIDs) + 1)
-			w.pinIDs[l] = next
-		}
-		id = next
-	}
-	return id
-}
-
-// walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
-// there. A cell whose row the pins keep out has no case: a pinned table renders its pinned row
-// alone and an unpinned one draws a row inside its nearest pinned ancestor's, so that cell never
-// renders on this route.
-func (w *drawWalk) walk(n node, at drawAt) {
-	v := nodeVisit{n, at.group, at.wholeTable, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}
-	if w.seen[v] {
-		return
-	}
-	w.seen[v] = true
-	if repeats(n) {
-		return
-	}
-	if t, isTemplate := n.(*template); isTemplate && t.link.drawGroupKey != "" {
-		at.group = t.link.drawGroupKey
-	}
-	if t, isTable := n.(*table); isTable {
-		at.wholeTable = t
-	}
-	for _, e := range renderEdges(n) {
-		to, isTemplate := e.to.(*template)
-		cell := cellSite{}
-		if isTemplate {
-			cell = to.cell
-		}
-		switch {
-		case cell.table == nil:
-			w.edge(n, e, at)
-		case cell.table == at.wholeTable:
-			in := at
-			in.wholePins = at.wholePins.clone()
-			in.wholePins.add(cell.table, cell.row)
-			w.edge(n, e, in)
-		case at.pins.clash(cell.table, cell.row) == nil:
-			in := at
-			in.pins = at.pins.entered(cell.table, cell.row)
-			w.edge(n, e, in)
-		}
-	}
-}
-
-// edge records the reference an edge reads, then walks on with every row the read
-// pins entered, so a selected row renders only its own cells.
-func (w *drawWalk) edge(from node, e renderEdge, at drawAt) {
-	if e.readsRef() {
-		a := e.read
-		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
-		if k := (readKey{at.group, a.path, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}); !w.read[k] {
-			w.read[k] = true
-			w.reads = append(w.reads, pathRead{at, a, tr})
-		}
-		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.pins = at.pins.entered(t, r) })
-		}
-	}
-	w.walk(e.to, at)
-}
+func checkColumnDraws(t *template, columns []string) error { return surveyColumns(t, columns).check() }
 
 // check refuses what one draw per reference path cannot answer for: a read of a level beside a path
 // another read takes into it, and two reads of one table family that select different rows. Reads
 // are compared in path order, so which pair is reported does not vary.
-func (w *drawWalk) check() error {
+func (w *readSurvey) check() error {
 	sort.SliceStable(w.reads, func(i, j int) bool {
 		if w.reads[i].at.group != w.reads[j].at.group {
 			return w.reads[i].at.group < w.reads[j].at.group
@@ -447,97 +299,10 @@ func conflict(r pathRead, err error) error {
 // alternatives reports whether two reads never render together: one read renders one row of a
 // table, so reads under different rows the walks pinned, or under different rows of one whole
 // draw, never meet.
-func alternatives(a, b drawAt) bool {
+func alternatives(a, b surveyAt) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
 }
 
-func overlapError(route drawRoute, ref string, into pathRead) error {
+func overlapError(route readRoute, ref string, into pathRead) error {
 	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.spelling))
-}
-
-// spelled names the route, and the reference it reaches a draw by where its root edge is not that
-// reference.
-func (r drawRoute) spelled(ref string) string {
-	if ref == "" || ref == r.label {
-		return r.spelling
-	}
-	return fmt.Sprintf("%s with {%s}", r.spelling, ref)
-}
-
-// tableRead is what a reference path reads of a table family: the table its head
-// names, the rows its selectors pin, the tables it draws — those it walks with no
-// row pinned, and their unpinned ancestors — each selector's spelling, and whether
-// it lands on a `tableRow`.
-type tableRead struct {
-	headTable *table
-	pins      pinSet
-	drawn     map[*table]bool
-	sels      []tableSel
-	landsRow  bool
-}
-
-// tableSel is one selector on the way: the table it selects a row of, and the path
-// as written up to and including it.
-type tableSel struct {
-	t        *table
-	spelling string
-}
-
-// tableReadOf replays a reference path through pathProbe, so two paths pinning one
-// row by different routes compare equal. checkPath proved
-// each selector names a row.
-func tableReadOf(head node, a arm, leaf node) *tableRead {
-	t, isTable := head.(*table)
-	if !isTable {
-		return nil
-	}
-	probe := &pathProbe{drawn: map[*table]bool{}}
-	_, _ = probe.walk(t, a.tail)
-	tr := &tableRead{headTable: t, pins: probe.pins, drawn: probe.drawn}
-	written := a.spelling[:len(a.spelling)-len(joinSegments(a.tail))]
-	cur := t
-	for i, seg := range a.tail {
-		switch d := cur.descendant(seg); {
-		case isSelector(seg):
-			tr.sels = append(tr.sels, tableSel{cur, written + joinSegments(a.tail[:i+1])})
-		case d != nil:
-			cur = d
-		}
-	}
-	_, tr.landsRow = leaf.(*tableRow)
-	return tr
-}
-
-// selected is the selector in r on t, or on the nearest ancestor of t it selects.
-func (r *tableRead) selected(t *table) (tableSel, bool) {
-	for ; t != nil; t = t.parentT {
-		for _, s := range r.sels {
-			if s.t == t {
-				return s, true
-			}
-		}
-	}
-	return tableSel{}, false
-}
-
-// drawnOf is a table the read draws that pins holds a row of, if any.
-func (r *tableRead) drawnOf(pins *pinSet) *table {
-	var found *table
-	pins.each(func(t *table, _ int) {
-		if found == nil && r.drawn[t] {
-			found = t
-		}
-	})
-	return found
-}
-
-// replay pins the read's rows into d, where they agree with the rows pinned before.
-func (r *tableRead) replay(d *pinSet) error {
-	var err error
-	r.pins.each(func(t *table, row int) {
-		if err == nil {
-			err = d.pinRow(t, row)
-		}
-	})
-	return err
 }

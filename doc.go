@@ -34,7 +34,7 @@ package fejkdata
 //     `table.parentT`, named by the root that chain ends at: `table.familyRoot`.
 //   - whole — a read of a table with no selector and no descent, {/city}, landing on
 //     the `table` itself: it draws a row apart from every pin, so the fences keep the rows
-//     its cells stand in as `drawAt.wholePins`, beside `drawAt.wholeTable`.
+//     its cells stand in as `surveyAt.wholePins`, beside `surveyAt.wholeTable`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
-//     compile. The draw fences are `heldCheck`, `drawCheck` and `checkFamilies`.
+//     compile. The draw fences are `heldCheck`, `readFence` and `checkFamilies`.
