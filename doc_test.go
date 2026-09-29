@@ -109,7 +109,7 @@ func declaredSymbols(files []*ast.File) map[string]bool {
 }
 
 // declaredFuncs is every function the package declares, a method keyed under its
-// type: template.compileFormat.
+// type: template.fixedText.
 func declaredFuncs(files []*ast.File) map[string]bool {
 	names := map[string]bool{}
 	for _, f := range files {
