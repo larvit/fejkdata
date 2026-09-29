@@ -40,8 +40,8 @@ type Generator struct {
 	structs map[reflect.Type]structResult
 }
 
-// generatorState is one generator's state across its renders: the seeded rng plus the {seq()}
-// counters.
+// generatorState is one generator's draw state, kept across its renders: the seeded rng plus
+// the {seq()} counters.
 type generatorState struct {
 	*rand.Rand
 	counters map[string]uint64
