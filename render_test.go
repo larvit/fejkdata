@@ -61,10 +61,13 @@ func (*unhandledNode) isNode() {}
 
 func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
 	for name, call := range map[string]func(){
+		"columnItems": func() { columnItems(&unhandledNode{}) },
 		"contained":   func() { contained(&unhandledNode{}) },
 		"paths":       func() { paths(&unhandledNode{}) },
+		"prove":       func() { (&valueProof{}).prove(&unhandledNode{}) },
 		"render":      func() { render(nil, &unhandledNode{}, renderScope{}) },
 		"renderEdges": func() { renderEdges(&unhandledNode{}) },
+		"stepInto":    func() { _, _ = stepInto(&unhandledNode{}, "x") },
 	} {
 		mustPanic(t, name, call)
 	}
