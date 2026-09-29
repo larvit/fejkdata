@@ -152,8 +152,7 @@ func isFixed(n node) bool {
 }
 
 // renders reports whether rendering n can reach anything in want, following the
-// same edges expand does. seen keeps a node from being walked twice, so the walk
-// ends across a cycle too.
+// same edges expand does.
 func renders(n node, want, seen map[node]bool) bool {
 	if want[n] {
 		return true
