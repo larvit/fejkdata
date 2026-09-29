@@ -226,6 +226,9 @@ by a `data-import/` script, as README goal 12 asks.
   README's hold section promises: both answer "name the fields you want instead", and
   `{n} reaches "p" by a second route` names neither the read the route ends on,
   `{/row.p.last}`, nor the spelling to write, `{p.last}`.
+- Offer `move {Y} into a field with a drawGroup` in `overlapError` where both reads share
+  one field: `"a":"{/cat} {/cat.p.first}"` ends at "name the fields you want instead",
+  while the same pair in a format offers the move, which loads there too.
 - Call `templateError` a compile failure: its doc says render failure, and it wraps
   what `NewTemplate` and `NewRecordTemplate` refuse.
 - Name the node a selector follows in `stepInto`'s refusal: `sv_SE.person[1].first`
