@@ -37,10 +37,6 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Split `formatOps.held` into the names an expansion holds and the reference paths a
-  render's draws hold, deleting `keepsHold` and `heldCheck`'s skip of a reference path:
-  one map carries both, told apart by `isRef` and `firstReach.path == ""`, and six seats
-  hunted for which fence owns which.
 - Give `surveyAt`'s whole read one field, its table and pins together, rename
   `alternatives` for what it answers, two reads that never render together, and say at
   `check` why a level landing on a row may sit beside a path into it: five seats held

@@ -121,7 +121,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 	// repeat iteration get their own, since each is its own expansion. A reference
 	// path reads its draw group's memo in sc instead.
 	var hold *drawMemo
-	if t.compiled.keepsHold {
+	if len(t.compiled.held) > 0 {
 		hold = &drawMemo{
 			variant: make(map[string]node, len(t.compiled.held)),
 			value:   make(map[string]readValue, len(t.compiled.held)),
