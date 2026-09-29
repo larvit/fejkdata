@@ -36,7 +36,7 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Name what a read sits under `branches`, the rows pinned with their ancestors and the
+- Say at `branches` what its two sets hold, the rows pinned with their ancestors and the
   rows of whole draws without, both load-bearing, and fold `check`, `checkFamilies`,
   `replayPairs`, `checkFamilyPair` and `alternatives` into one pairwise loop over
   `coRender` and `conflict`. Report a pin clash lowest by route and spelling, so which of

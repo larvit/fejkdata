@@ -2,8 +2,8 @@ package fejkdata
 
 import "fmt"
 
-// surveyRoute is how a render reaches a read: as its author spells it, and the root edge's label.
-type surveyRoute struct{ spelling, label string }
+// readRoute is how a render reaches a read: as its author spells it, and the root edge's label.
+type readRoute struct{ spelling, label string }
 
 // branches is the rows a read sits under: those pinned above it, and those of whole draws whose
 // cells it sits in.
@@ -17,7 +17,7 @@ type branches struct {
 // branches.
 type pathRead struct {
 	group    string
-	route    surveyRoute
+	route    readRoute
 	branches branches
 	a        arm
 	tr       *tableRead // set where the reference names a table
@@ -44,7 +44,7 @@ func newReadFold() *readFold { return &readFold{memo: map[node][]pathRead{}} }
 func (f *readFold) rootReads(t *template) []pathRead {
 	var reads []pathRead
 	for _, e := range renderEdges(t) {
-		reads = append(reads, f.viaEdge(t, e, surveyRoute{e.reached(), e.label})...)
+		reads = append(reads, f.viaEdge(t, e, readRoute{e.reached(), e.label})...)
 	}
 	return reads
 }
@@ -53,7 +53,7 @@ func (f *readFold) rootReads(t *template) []pathRead {
 func (f *readFold) columnReads(t *template, columns []string) []pathRead {
 	var reads []pathRead
 	for _, name := range columns {
-		reads = append(reads, routed(f.reads(t.fields[name]), surveyRoute{spelling: fmt.Sprintf("column %q", name)})...)
+		reads = append(reads, routed(f.reads(t.fields[name]), readRoute{spelling: fmt.Sprintf("column %q", name)})...)
 	}
 	return reads
 }
@@ -76,7 +76,7 @@ func (f *readFold) reads(n node) []pathRead {
 			break
 		}
 		for _, e := range renderEdges(n) {
-			out = append(out, f.viaEdge(n, e, surveyRoute{})...)
+			out = append(out, f.viaEdge(n, e, readRoute{})...)
 		}
 		if n.link.drawGroupKey != "" {
 			for i := range out {
@@ -118,7 +118,7 @@ func distinct(reads []pathRead) []pathRead {
 
 // viaEdge is what rendering e from n reads: the reference e reads, then what its leaf renders
 // under the rows that reference pins.
-func (f *readFold) viaEdge(n node, e renderEdge, route surveyRoute) []pathRead {
+func (f *readFold) viaEdge(n node, e renderEdge, route readRoute) []pathRead {
 	if !e.readsRef() {
 		return routed(f.reads(e.to), route)
 	}
@@ -162,7 +162,7 @@ func (f *readFold) rowReads(t *table, tag func(*branches, int) bool) []pathRead 
 			out = append(out, f.cellReads(c, tag)...)
 			continue
 		}
-		out = append(out, f.viaEdge(t.formatTemplate, e, surveyRoute{})...)
+		out = append(out, f.viaEdge(t.formatTemplate, e, readRoute{})...)
 	}
 	return out
 }
@@ -194,13 +194,13 @@ func (b *branches) enter(t *table, r int) bool {
 }
 
 // routed names the route the render's root reaches reads by, where none is named yet.
-func routed(reads []pathRead, route surveyRoute) []pathRead {
-	if route == (surveyRoute{}) {
+func routed(reads []pathRead, route readRoute) []pathRead {
+	if route == (readRoute{}) {
 		return reads
 	}
 	out := make([]pathRead, len(reads))
 	for i, r := range reads {
-		if r.route == (surveyRoute{}) {
+		if r.route == (readRoute{}) {
 			r.route = route
 		}
 		out[i] = r
@@ -210,7 +210,7 @@ func routed(reads []pathRead, route surveyRoute) []pathRead {
 
 // spelled names the route, and the reference it reaches a read by where its root edge is not that
 // reference.
-func (r surveyRoute) spelled(ref string) string {
+func (r readRoute) spelled(ref string) string {
 	if ref == "" || ref == r.label {
 		return r.spelling
 	}
