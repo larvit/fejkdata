@@ -37,10 +37,6 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Put the draw fence in one file: `drawFence.checkDraws` in `drawfence.go` hands
-  `surveyRender(t).check()` the verdict, whose refusals live in `readsurvey.go`, and
-  eight seats grepped one fence error across `holdfence.go`, `drawfence.go`,
-  `readsurvey.go` and `pins.go`.
 - Split `formatOps.held` into the names an expansion holds and the reference paths a
   render's draws hold, deleting `keepsHold` and `heldCheck`'s skip of a reference path:
   one map carries both, told apart by `isRef` and `firstReach.path == ""`, and six seats
