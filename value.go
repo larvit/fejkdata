@@ -89,10 +89,14 @@ func (p *valueProof) prove(n node) proven {
 		v = p.proveTemplate(n)
 	case *tableColumn:
 		v = p.proveCells(n)
+	case *table:
+		v = p.prove(n.rowNode)
 	case *tableRow:
 		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.segment))
-	default:
+	case *nullItem:
 		v = unproven(`it reads a null, which renders "" outside its own column`)
+	default:
+		panic(internalError("prove has no case for node %T", n))
 	}
 	p.memo[n] = v
 	return v

@@ -142,6 +142,9 @@ func stepInto(n node, seg string) (node, error) {
 		}
 	case *tableColumn:
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.t.header[n.i])
+	case *nullItem:
+	default:
+		panic(internalError("stepInto has no case for node %T", n))
 	}
 	return nil, fmt.Errorf("no field %q", seg)
 }
