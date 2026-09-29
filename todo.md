@@ -26,10 +26,6 @@ least modify.
 
 This round, in order:
 
-- Rename the names that mislead: `table.pinnedRow` is the row node, not a pinned row;
-  `table.category` is a bare name beside the dotted `category` of `resolveLink`;
-  `checkRenders` renders nothing; `fieldAlternation` is a plain `{name}` too; and
-  `referenceFence` is the cycle check for a tree and a drawGroup check inline.
 - Correct the false comments: `node` says rendering never re-sums weights, which
   `builtLookup` does on first draw; `Generator` claims immutable after `New`, while
   `Fake` sets `root.children` each call, which belongs in `New`; `renders` credits

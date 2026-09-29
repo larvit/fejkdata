@@ -367,7 +367,7 @@ func checkSegments(a arm) error {
 // values of the operands it named, which expand read for it.
 type callFn func(s *session, emitted string, operands []string) string
 
-// op is one compiled unit of a format string: a literal run, a field alternation,
+// op is one compiled unit of a format string: a literal run, a name read,
 // or a builtin already prepared with its args. compile builds these so render never
 // re-scans the format.
 type op struct {
