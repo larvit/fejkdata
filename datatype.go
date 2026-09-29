@@ -198,7 +198,15 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 		d.fix, d.other, d.want = b, a, da
 	}
 	proven := (&valueProof{}).proveColumnItem(d.fix).not[d.want] == ""
-	return disagreements[disagreementKey{kindOf(d.fix), kindOf(d.other), proven}](d)
+	return disagreementFix(disagreementKey{kindOf(d.fix), kindOf(d.other), proven})(d)
+}
+
+func disagreementFix(k disagreementKey) func(d itemPair) error {
+	fix, ok := disagreements[k]
+	if !ok {
+		panic(internalError("no disagreement names the fix for %+v", k))
+	}
+	return fix
 }
 
 func holdOne(d itemPair) error {
