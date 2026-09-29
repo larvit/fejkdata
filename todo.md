@@ -28,10 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Give `prove`, `stepInto` and `columnItems` a case per node kind and panic through
-  `internalError` on the rest, and list every such switch in `node`'s doc: `prove`'s
-  default tells a typed column reading a bare table that it reads a null, and six seats
-  found `node` naming four of them.
 - Replace `disagreements`' ten keys with the rule they encode: a declared fix holds one
   datatype, a read one is `readTyped` where proven and `readAsText` otherwise, a text one
   is `otherAsText` beside an unproven read and `declare` otherwise. Six seats could not
@@ -222,8 +218,6 @@ by a `data-import/` script, as README goal 12 asks.
   first in Go's map order.
 - Report a CRLF rows file holding only its header as having no rows: `parseRows`
   answers "line 2 is empty".
-- Refuse a bare table read in a typed column with a reason naming the table, once
-  `prove` has a case per node kind.
 - Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
   `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a

@@ -138,6 +138,9 @@ func columnItems(n node) (items []*template, nullable bool) {
 			items = append(items, n)
 		case *nullItem:
 			nullable = true
+		case *tableColumn:
+		default:
+			panic(internalError("columnItems has no case for node %T", n))
 		}
 	}
 	collect(n)
