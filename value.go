@@ -261,16 +261,23 @@ func bounded(lo, hi float64, integral bool) proven {
 
 func magnitude(v proven) float64 { return math.Max(math.Abs(v.lo), math.Abs(v.hi)) }
 
-// printedNumber is what a token printing v to dp decimals holds: an integer when whole
-// and within int64, else a number.
+// printedNumber is what a token printing v to dp decimals holds.
 func printedNumber(token string, v proven, dp int) proven {
-	if dp >= 0 {
-		half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64)
-		v = proven{lo: v.lo - half, hi: v.hi + half, nonZero: math.Max(0, v.nonZero-half), integral: v.integral || dp == 0}
-	}
-	if dp != 0 && !(dp < 0 && v.integral) {
+	if dp == shortestDecimals {
+		if v.integral { // a whole value prints with no point
+			return printedInteger(token, v)
+		}
 		return printing(token, DataTypeNumber, v)
 	}
+	half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64)
+	v = proven{lo: v.lo - half, hi: v.hi + half, nonZero: math.Max(0, v.nonZero-half), integral: v.integral || dp == 0}
+	if dp == 0 {
+		return printedInteger(token, v)
+	}
+	return printing(token, DataTypeNumber, v)
+}
+
+func printedInteger(token string, v proven) proven {
 	v = printing(token, DataTypeInteger, v)
 	if !(magnitude(v) < math.MaxInt64) {
 		v.not[DataTypeInteger] = fmt.Sprintf("{%s} is not proven within int64", token)

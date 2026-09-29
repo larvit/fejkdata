@@ -16,6 +16,8 @@ import (
 const (
 	maxLen      = 1 << 20
 	maxDecimals = 1024
+	// shortestDecimals prints the fewest digits that read back as the same float64.
+	shortestDecimals = -1
 )
 
 // builtins is the registry of {name(args)} functions. Derivations read the digits
@@ -100,7 +102,7 @@ func chars(alphabet string) func([]string) callFn {
 
 const hexDigits = "0123456789abcdef"
 
-// formatFloat prints v to dp decimals, -1 for the shortest form, and a zero unsigned.
+// formatFloat prints v to dp decimals, or shortestDecimals, and a zero unsigned.
 func formatFloat(v float64, dp int) string {
 	s := strconv.FormatFloat(v, 'f', dp, 64)
 	if strings.HasPrefix(s, "-") && strings.Trim(s, "-0.") == "" {
