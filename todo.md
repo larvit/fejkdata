@@ -252,7 +252,10 @@ by a `data-import/` script, as README goal 12 asks.
   `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 - Name the spelling to use in `checkNameHeld`'s path refusal and `checkNoOverlap`'s, as
   the README's hold section promises: both answer "name the fields you want instead",
-  and `{n} reaches "p" by a second route` names neither the read the route ends on, `{/row.p.last}`, nor the spelling to write, `{p.last}`.
+  and `{n} reaches "p" by a second route` names neither the read the route ends on,
+  `{/row.p.last}`, nor the spelling to write, `{p.last}`. Where an operand route's value
+  is the held name, offer it as the operand: `lowercase operand "y" renders
+  "/misc.territory"` ends at "stop", where `{lowercase(/misc.territory)}` loads.
 - Split the README's linked-tables paragraph opening "A path descends from a row", 23
   lines holding five rules: move its load errors that are no overlap to the table
   section, and drop its bare `{/city}` refusal, which the hold section states.
