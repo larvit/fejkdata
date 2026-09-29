@@ -90,8 +90,8 @@ func checkOwnFamily(t *template) error {
 		seen[n] = true
 		for _, e := range renderEdges(n) {
 			if e.readsRef() {
-				if head, isTable := n.(*template).head(e.read.head).(*table); isTable && head.familyRoot() == own.familyRoot() {
-					return e, head, true
+				if read, isTable := n.(*template).head(e.read.head).(*table); isTable && read.familyRoot() == own.familyRoot() {
+					return e, read, true
 				}
 			}
 			if e, head, found := find(e.to); found {

@@ -9,10 +9,10 @@ import (
 // data root, {.a} from the folder this file sits in, {..a} from the folder above.
 func isRef(name string) bool { return strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") }
 
-// refBinding is what a reference resolves to: the key its category is held
+// refBinding is what a reference resolves to: the head its category is held
 // under, and the tail read into it.
 type refBinding struct {
-	key  string
+	head string
 	tail []string
 }
 
@@ -119,15 +119,15 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 		if err != nil {
 			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		key := "/" + strings.Join(categorySegs, ".")
-		if category != "" && key == "/"+category {
+		head := "/" + strings.Join(categorySegs, ".")
+		if category != "" && head == "/"+category {
 			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
 		}
-		if err := checkPath(target, tail, key); err != nil {
+		if err := checkPath(target, tail, head); err != nil {
 			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
-		link.refHeads[key] = target
-		link.refs[name] = refBinding{key, tail}
+		link.refHeads[head] = target
+		link.refs[name] = refBinding{head, tail}
 	}
 	link.readsColumn = columnReadOf(t, link)
 	return link, nil

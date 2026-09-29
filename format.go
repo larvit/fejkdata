@@ -322,11 +322,11 @@ func splitArm(name string, refs map[string]refBinding) arm {
 		if !linked || len(b.tail) == 0 {
 			head := name
 			if linked {
-				head = b.key
+				head = b.head
 			}
 			return arm{spelling: name, head: head, path: head}
 		}
-		return pathArm(name, b.key, b.tail)
+		return pathArm(name, b.head, b.tail)
 	}
 	segs, err := splitPath(name)
 	if err != nil || len(segs) == 1 {
@@ -371,7 +371,7 @@ type callFn func(s *session, emitted string, operands []string) string
 // re-scans the format.
 type op struct {
 	formatToken
-	arms []arm // nameRead: the '|' alternatives, split into key and path once
+	arms []arm // nameRead: the '|' alternatives, split into head and tail once
 	call callFn
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.

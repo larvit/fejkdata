@@ -102,7 +102,7 @@ func readsFact(n node) string {
 			}
 		case *template:
 			for _, b := range n.link.refs {
-				set[strings.TrimPrefix(b.key, "/")] = true
+				set[strings.TrimPrefix(b.head, "/")] = true
 			}
 			for _, field := range n.fields {
 				collect(field)
