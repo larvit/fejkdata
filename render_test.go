@@ -61,11 +61,20 @@ type unhandledNode struct{}
 
 func (*unhandledNode) isNode() {}
 
-func TestRenderEdgesPanicsOnAnUnhandledNode(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), "*fejkdata.unhandledNode") {
-			t.Errorf("renderEdges(unhandledNode) recovered %v, want a panic naming the node kind", r)
-		}
-	}()
-	renderEdges(&unhandledNode{})
+func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
+	for name, call := range map[string]func(){
+		"contained":   func() { contained(&unhandledNode{}) },
+		"paths":       func() { paths(&unhandledNode{}) },
+		"render":      func() { render(nil, &unhandledNode{}, renderScope{}) },
+		"renderEdges": func() { renderEdges(&unhandledNode{}) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			defer func() {
+				if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), "fejkdata: internal error: ") || !strings.Contains(fmt.Sprint(r), "*fejkdata.unhandledNode") {
+					t.Errorf("recovered %v, want an internal error naming the node kind", r)
+				}
+			}()
+			call()
+		})
+	}
 }
