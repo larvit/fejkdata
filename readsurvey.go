@@ -51,16 +51,6 @@ type readFold struct {
 
 func newReadFold() *readFold { return &readFold{memo: map[node][]pathRead{}} }
 
-func surveyRender(t *template) *readSurvey {
-	f := newReadFold()
-	return survey(f.rootReads(t), t.link.drawGroupKey)
-}
-
-func surveyColumns(t *template, columns []string) *readSurvey {
-	f := newReadFold()
-	return survey(f.columnReads(t, columns), t.link.drawGroupKey)
-}
-
 // rootReads is what rendering t as a render of its own reads, each read named by the edge of t
 // that reaches it, and in "" where no template below t names a draw group.
 func (f *readFold) rootReads(t *template) []pathRead {
