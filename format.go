@@ -303,8 +303,8 @@ func checkNoRepeatedArm(body string, names []string) error {
 
 // arm is one alternative of a {a|b} token or one operand, split into the head
 // `template.head` resolves and the tail of a dotted path into it. A non-empty tail
-// is what makes the arm a held draw: its head is drawn once per expansion (see
-// compileOps).
+// makes the arm a held draw: a reference path's for the render, any other for the
+// expansion.
 type arm struct {
 	spelling    string // as written, for messages
 	head        string
@@ -312,6 +312,10 @@ type arm struct {
 	tail        []string
 	levels      []string // the path at each level the tail passes through, the head first
 	path        string   // head and tail, the one path every way of writing this read shares
+}
+
+func (a arm) isRefPath() bool {
+	return isRef(a.head) && len(a.tail) > 0
 }
 
 // splitArm splits one name into head and tail. refs maps a reference to what
@@ -397,7 +401,7 @@ type firstReach struct {
 }
 
 func (c *formatOps) holdName(a arm, label string) {
-	if isRef(a.head) && len(a.tail) > 0 {
+	if a.isRefPath() {
 		return
 	}
 	if c.held == nil {

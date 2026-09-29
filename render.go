@@ -156,7 +156,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 // read one row, either read twice gives one value, and a shown operand is the operand
 // computed. Every other name is drawn afresh, so {word} {word} still draws twice.
 func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a arm) readValue {
-	if isRef(a.head) && len(a.tail) > 0 {
+	if a.isRefPath() {
 		return readReference(s, t, sc, a)
 	}
 	if sc.draws.trace != nil {
