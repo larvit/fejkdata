@@ -991,7 +991,7 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var tables []*table
 	for _, category := range []string{"region", "municipality", "locality"} {
-		tbl, isTable := f.categories[category].(*table)
+		tbl, isTable := f.root.children[category].(*table)
 		if !isTable {
 			t.Fatalf("%s is not a table", category)
 		}
@@ -1063,7 +1063,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		head := f.categories[segs[0]].(*table)
+		head := f.root.children[segs[0]].(*table)
 		probe := &pathProbe{drawn: map[*table]bool{}}
 		if _, err := probe.walk(head, segs[1:]); err != nil {
 			t.Fatalf("%s: %v", path, err)

@@ -28,7 +28,7 @@ func fenceRoots(t *testing.T, f *Generator) ([]fenceRoot, map[string]*table) {
 	t.Helper()
 	var roots []fenceRoot
 	tables := map[string]*table{}
-	_ = walkNodes(f.categories, func(path string, n node) error {
+	_ = walkNodes(f.root.children, func(path string, n node) error {
 		switch n := n.(type) {
 		case *template:
 			roots = append(roots, fenceRoot{path, n})
@@ -61,7 +61,7 @@ func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
-	_ = walkNodes(shipped.categories, func(path string, n node) error {
+	_ = walkNodes(shipped.root.children, func(path string, n node) error {
 		if tm, ok := n.(*template); ok {
 			roots = append(roots, fenceRoot{path, tm})
 		}
@@ -85,7 +85,7 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 		t.Fatalf("New = %v", err)
 	}
 	var reads []pathRead
-	_ = walkNodes(f.categories, func(_ string, n node) error {
+	_ = walkNodes(f.root.children, func(_ string, n node) error {
 		tb, isTable := n.(*table)
 		if !isTable || tb.keyIndex < 0 || tb.familyRoot().path != "region" {
 			return nil

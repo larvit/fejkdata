@@ -26,10 +26,6 @@ least modify.
 
 This round, in order:
 
-- Correct the false comments: `node` says rendering never re-sums weights, which
-  `builtLookup` does on first draw; `Generator` claims immutable after `New`, while
-  `Fake` sets `root.children` each call, which belongs in `New`; `renders` credits
-  `checkNoCycles`, which an inline binding never runs.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
