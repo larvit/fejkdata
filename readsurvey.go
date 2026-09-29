@@ -122,7 +122,12 @@ func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 			s.reads = append(s.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) { at.pins = at.pins.entered(t, r) })
+			tr.pins.each(func(t *table, r int) {
+				if c := at.pins.clash(t, r); c != nil {
+					panic(internalError("%s reads %s past a pinned row of %s, which checkOwnFamily refuses", e.reached(), t.selectorSpelling(r), c.path))
+				}
+				at.pins = at.pins.entered(t, r)
+			})
 		}
 	}
 	s.walk(e.to, at)
