@@ -31,9 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Give `arm` its head as written, set where `splitArm` splits, and build
-  `pathProbe.readRow`'s selector spelling from it: six seats found the slice of
-  `arm.spelling` by `len(joinSegments(tail))` resting on an invariant nothing states.
 - Pick `disagreement`'s fix through a named `itemKind` comparison: six seats could not
   see that the kinds' declaration order is the rule.
 - Give `tableSite` one test for a cell, and have `traceRead` report no row outside a

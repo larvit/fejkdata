@@ -306,11 +306,12 @@ func checkNoRepeatedArm(body string, names []string) error {
 // is what makes the arm a held draw: its head is drawn once per expansion (see
 // compileOps).
 type arm struct {
-	spelling string // as written, for messages
-	head     string
-	tail     []string
-	levels   []string // the path at each level the tail passes through, the head first
-	path     string   // head and tail, the one path every way of writing this read shares
+	spelling    string // as written, for messages
+	head        string
+	writtenHead string // head as written, sigil included
+	tail        []string
+	levels      []string // the path at each level the tail passes through, the head first
+	path        string   // head and tail, the one path every way of writing this read shares
 }
 
 // splitArm splits one name into head and tail. refs maps a reference to what
@@ -325,21 +326,23 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			}
 			return arm{spelling: name, head: head, path: head}
 		}
-		return pathArm(name, b.head, b.tail)
+		sigil, rest, _ := refShape(name) // linkRefs proved it
+		written, _ := splitPath(rest)
+		return pathArm(name, b.head, sigil+joinSegments(written[:len(written)-len(b.tail)]), b.tail)
 	}
 	segs, err := splitPath(name)
 	if err != nil || len(segs) == 1 {
 		return arm{spelling: name, head: name, path: name}
 	}
-	return pathArm(name, segs[0], segs[1:])
+	return pathArm(name, segs[0], segs[0], segs[1:])
 }
 
-func pathArm(name, head string, segs []string) arm {
+func pathArm(name, head, writtenHead string, segs []string) arm {
 	levels := []string{head}
 	for i := 0; i < len(segs)-1; i++ {
 		levels = append(levels, head+"."+strings.Join(segs[:i+1], "."))
 	}
-	return arm{spelling: name, head: head, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
+	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
 }
 
 // checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
