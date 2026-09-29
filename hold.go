@@ -24,10 +24,10 @@ type readValue struct {
 }
 
 // readField renders one arm of a token. A name the expansion holds — a level some
-// token addresses by dotted path, or a field an operand reads — is drawn once and
-// kept in held, so {place.postal-code} and {place.locality} read one row, either read
-// twice gives one value, and a shown operand is the operand computed. Every other name
-// is drawn afresh, so {word} {word} still draws twice.
+// token addresses by a dotted path that is not a reference, or a field an operand
+// reads — is drawn once and kept in held, so {place.postal-code} and {place.locality}
+// read one row, either read twice gives one value, and a shown operand is the operand
+// computed. Every other name is drawn afresh, so {word} {word} still draws twice.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
 	if isRef(a.key) && len(a.tail) > 0 {
 		return readReference(s, t, sc, a)
