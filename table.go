@@ -82,7 +82,6 @@ func isTableOption(name string) bool {
 // token arm.
 const inSelector = `[]{}"|`
 
-// compileTable compiles a category object naming a rows file into a table.
 func compileTable(m map[string]any, segment string, files *categoryFiles) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
@@ -472,8 +471,7 @@ func (t *table) builtLookup() *rowLookup {
 	return &t.lookup
 }
 
-// drawRow picks a row over the whole table. The session is concrete rather than the rng
-// interface so that the walk that draws through it keeps its hold set off the heap.
+// drawRow picks a row over the whole table.
 func (t *table) drawRow(s *session) int {
 	if t.cum == nil {
 		return s.IntN(t.rowCount())

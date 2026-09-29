@@ -28,11 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Delete the prose the seats found empty: "kept whole on purpose"
-  (`format.go`, `calc.go`), the second copy of the concrete-session rationale
-  (`table.drawRow`, `pick`), the doc comments restating `isSelector`, `selectorOf`,
-  `checkPath`, `checkColumnDraws`, `compileTable` and `isOption`, and the `compose.yaml`
-  and `Dockerfile` preambles restating the README's Development.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -313,7 +308,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   second copy that drifts. Split the comprehension rule while there, which packs the
   gate, its exceptions, the round and the at-or-above-7.0 regime into one line.
 - Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
-  Go at `Dockerfile:21`, and the shipped JSON under `data/` is two-space, so the rule as
+  Go at `Dockerfile:16`, and the shipped JSON under `data/` is two-space, so the rule as
   written is one no Go file can break and every data file does.
 - Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub:
   Gitea converts a repository to a mirror only by re-creating it, so until that runs

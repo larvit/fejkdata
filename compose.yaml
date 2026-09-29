@@ -1,19 +1,3 @@
-# Docker-based dev workflow — no local tooling beyond Docker is required.
-#
-#   docker compose run --rm test
-#   docker compose run --rm vet
-#   docker compose run --rm build
-#
-# The full gate — vet, formatting, cyclomatic complexity and tests — is
-# `docker build .`, which is what CI runs.
-#
-# Build caches persist in the `gocache` volume, so re-runs are fast and the
-# host tree stays clean. Commands that rewrite source (fmt, tidy) keep your
-# ownership when run with `--user "$(id -u):$(id -g)"`.
-#
-# GO_VERSION picks the toolchain image (default: latest stable). Test the lowest
-# supported Go with: GO_VERSION=1.22.12 docker compose run --rm test
-
 x-go: &go
   image: golang:${GO_VERSION:-1.27.1}
   working_dir: /app
