@@ -308,7 +308,7 @@ func (t *table) checkCells() error {
 		if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 			continue
 		}
-		n, err := compileString(cell, cellSite{t, row})
+		n, err := compileString(cell, tableSite{t, row})
 		if err != nil {
 			return fmt.Errorf("line %d, %s: %w", row+2, t.header[col], err)
 		}
@@ -341,7 +341,7 @@ func (t *table) compileRowFormat(format string) error {
 	if err := checkTokens(toks, t.fields); err != nil {
 		return err
 	}
-	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, table: t}
+	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
 	t.pinnedRow = &tableRow{t}
 	return nil
 }

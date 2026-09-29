@@ -263,8 +263,8 @@ func recordOf(n node) (*template, []Column, error) {
 // over sc's hold; a table's columns read the row pinned there.
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
-	if t.table != nil {
-		sc = sc.at(t.table.pinnedRow, &sc.groupHold().pins)
+	if t.site.row == formatRow {
+		sc = sc.at(t.site.table.pinnedRow, &sc.groupHold().pins)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
