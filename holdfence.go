@@ -77,6 +77,9 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 			return fmt.Errorf("%s reaches %q by a second route, where {%s} holds it to one draw; name the fields you want instead", e.reached(), name, path)
 		}
 		call, operand := operandReader(t, name)
+		if e.operand != "" {
+			return fmt.Errorf("%s renders %q, which {%s} holds to one draw for this expansion; stop %s reaching %q", e.reached(), name, call, e.reached(), name)
+		}
 		return fmt.Errorf("%s renders %q, which {%s} holds to one draw for this expansion; drop %s, or write {%s} in this format to read that draw", e.reached(), name, call, e.reached(), operand)
 	}
 	return nil
@@ -86,7 +89,7 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 func operandReader(t *template, name string) (call, operand string) {
 	for _, o := range t.compiled.ops {
 		for _, a := range o.operands {
-			if a.head == name {
+			if a.head == name && !a.isRefPath() {
 				return o.body, a.spelling
 			}
 		}
