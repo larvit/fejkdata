@@ -185,8 +185,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	return disagreementFix(kindOf(d.fix), kindOf(d.other), proven)(d)
 }
 
-// disagreementFix is the fix for item fix beside item other, where proven says fix's values hold
-// the other's datatype.
+// proven says fix's values hold other's datatype.
 func disagreementFix(fix, other itemKind, proven bool) func(d itemPair) error {
 	switch {
 	case fix == kindDeclares:
