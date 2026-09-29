@@ -90,18 +90,18 @@ func checkOwnFamily(t *template) error {
 		seen[n] = true
 		for _, e := range renderEdges(n) {
 			if e.readsRef() {
-				if read, isTable := n.(*template).head(e.read.head).(*table); isTable && read.familyRoot() == own.familyRoot() {
-					return e, read, true
+				if familyTable, isTable := n.(*template).head(e.read.head).(*table); isTable && familyTable.familyRoot() == own.familyRoot() {
+					return e, familyTable, true
 				}
 			}
-			if e, head, found := find(e.to); found {
-				return e, head, true
+			if e, familyTable, found := find(e.to); found {
+				return e, familyTable, true
 			}
 		}
 		return renderEdge{}, nil, false
 	}
-	if e, head, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.segment, own.segment)
+	if e, familyTable, found := find(t); found {
+		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), familyTable.segment, own.segment)
 	}
 	return nil
 }
