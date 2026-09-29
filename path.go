@@ -418,7 +418,6 @@ func (w *pathDraw) variant(c *choice, rest []string) node {
 	return n
 }
 
-// selector splits the selector a tail starts with from the rest of it.
 func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	if len(tail) == 0 || !isSelector(tail[0]) {
 		return "", tail, nil

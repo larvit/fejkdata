@@ -31,9 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Delete the prose two or more seats found empty: `loadData`'s comment, which also names
-  `linkRefs` where `bind` runs, `table.drawRow`'s, `table.selector`'s, and `render.go`'s
-  second and third "compile validated" notes.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data

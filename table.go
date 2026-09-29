@@ -471,7 +471,6 @@ func (t *table) builtLookup() *rowLookup {
 	return &t.lookup
 }
 
-// drawRow picks a row over the whole table.
 func (t *table) drawRow(s *generatorState) int {
 	if t.cum == nil {
 		return s.IntN(t.rowCount())
