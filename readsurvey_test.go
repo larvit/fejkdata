@@ -140,6 +140,7 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	fsys := fstest.MapFS{
 		"r.json": {Data: []byte(`"{/y[a].v}"`)},
+		"n.json": {Data: []byte(`{"format":"{f}","f":"{/y[a].v}"}`)},
 		"x.json": {Data: []byte(`{"format":"{v}","rows":"x.tsv","key":"code"}`)},
 		"x.tsv":  {Data: []byte("code\tv\n1\tb\n2\tc\n")},
 		"y.json": {Data: []byte(`{"format":"{v}","rows":"y.tsv","key":"code","parent":"x"}`)},
@@ -158,5 +159,12 @@ func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	}
 	if err := surveyRender(r).check(); err == nil || !strings.Contains(err.Error(), "two rows of") {
 		t.Errorf("check = %v, want y[a]'s row of x clashing with x[2] named, whatever order the fences run in", err)
+	}
+	n, isTemplate := g.children["n"].(*template)
+	if !isTemplate {
+		t.Fatalf("n is a %T, want a template", g.children["n"])
+	}
+	if err := surveyRender(n).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with {/x[2].v}: x[1] and x[2] are two rows of x") {
+		t.Errorf("check = %v, want the clash below {f} named by the route the root reaches it by", err)
 	}
 }
