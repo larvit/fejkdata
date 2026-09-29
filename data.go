@@ -235,9 +235,9 @@ func (b binding) bind() error {
 	return checkNodeFences(b.scope)
 }
 
-// checkNodeFences runs the per-node fences over a scope, each over the whole scope
-// before the next, so which of several broken nodes is reported does not depend on
-// the walk. Its walks terminate only where nothing renders itself.
+// checkNodeFences runs the per-node fences every binding needs over a scope, each
+// over the whole scope before the next, so which of several broken nodes is reported
+// does not depend on the walk. Its walks terminate only where nothing renders itself.
 func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
