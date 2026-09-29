@@ -99,7 +99,6 @@ func splitOutside(s string, c byte) []string {
 	}
 }
 
-// isSelector reports whether a segment is a [key or name] rather than a name.
 func isSelector(seg string) bool { return strings.HasPrefix(seg, "[") }
 
 func hasSelector(segs []string) bool {
@@ -111,7 +110,6 @@ func hasSelector(segs []string) bool {
 	return false
 }
 
-// selectorOf is the key or name a selector segment holds.
 func selectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
 // nameSegments is the segments of a path that are names, its selectors left out.
@@ -470,8 +468,6 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-// checkPath runs pathCheck over a path read at load; level names the head in its
-// errors.
 func checkPath(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err

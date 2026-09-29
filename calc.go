@@ -322,7 +322,6 @@ func (p *calcParser) binary(next func() (calcNode, error), ops ...byte) (calcNod
 	}
 }
 
-// factor is a table-shaped scanner, one case per token kind, kept whole on purpose.
 func (p *calcParser) factor() (calcNode, error) {
 	p.space()
 	if p.pos >= len(p.rs) {

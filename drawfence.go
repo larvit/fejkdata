@@ -187,5 +187,4 @@ func readsTable(n node, a arm) bool {
 	return isTable
 }
 
-// checkColumnDraws fences a record's columns as one render.
 func checkColumnDraws(t *template, columns []string) error { return surveyColumns(t, columns).check() }

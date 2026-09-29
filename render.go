@@ -6,7 +6,8 @@ import (
 )
 
 // rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *session instead.
+// render path takes the concrete *session instead, which keeps the hold set of the walk
+// drawing through it off the heap.
 type rng interface {
 	IntN(n int) int
 	Float64() float64
@@ -106,8 +107,6 @@ func expandAnew(s *session, t *template) string {
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights. compile guarantees a
 // non-empty choice and a finite positive total, so the index is always in range.
-// The session is concrete rather than the rng interface, which would make the
-// walk that draws through it leak its hold set to the heap.
 func pick(s *session, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
