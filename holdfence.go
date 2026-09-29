@@ -18,7 +18,7 @@ func heldCheck(path string, n node) error {
 	readers := pathKeyReaders(t.compiled.ops, t.compiled.pathKeys)
 	for _, name := range heldNames(t) {
 		if _, isPath := t.compiled.pathKeys[name]; isPath && isRef(name) {
-			continue // held for the render: readFence compares every read of it, by path, across the render and its groups
+			continue // held for the render: drawFence compares every read of it, by path, across the render and its groups
 		}
 		if err := checkNameHeld(t, name, readers); err != nil {
 			return fmt.Errorf("%s: %w", path, err)

@@ -36,11 +36,11 @@ func checkNestedDrawGroup(fields map[string]node, group string) error {
 	return nil
 }
 
-// readFence fences each template of a scope as a render of its own, remembering which nodes read a
+// drawFence fences each template of a scope as a render of its own, remembering which nodes read a
 // reference path.
 // docs/decisions.md#a-render-shares-one-reference-draw-per-category-per-group
 // docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
-type readFence struct {
+type drawFence struct {
 	memo map[hasReadMemo]bool
 }
 
@@ -51,14 +51,14 @@ type hasReadMemo struct {
 
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
 // path inside a repeat or a nested draw group, which draw apart from it whatever it names.
-func (c *readFence) checkDrawGroup(path string, n node) error {
+func (c *drawFence) checkDrawGroup(path string, n node) error {
 	if t, ok := n.(*template); ok && t.drawGroup != "" && !c.splitsDraws(t) {
 		return fmt.Errorf("%s: drawGroup %q splits nothing, since nothing it renders reads a reference path outside a repeat or a nested drawGroup; drop it", path, t.drawGroup)
 	}
 	return nil
 }
 
-func (c *readFence) checkDraws(path string, n node) error {
+func (c *drawFence) checkDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok {
 		return nil
@@ -116,7 +116,7 @@ func checkOwnFamily(t *template) error {
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
 // repeat — so a load proves the record view of it as well as the string view.
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (c *readFence) checkRecordDraws(path string, n node) error {
+func (c *drawFence) checkRecordDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || !t.isRecord {
 		return nil
@@ -138,15 +138,15 @@ func (c *readFence) checkRecordDraws(path string, n node) error {
 
 // readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
 // over draws of its own.
-func (c *readFence) readsPath(n node) bool { return c.hasRead(n, false) }
+func (c *drawFence) readsPath(n node) bool { return c.hasRead(n, false) }
 
 // splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
 // for: one outside a repeat and outside a nested draw group, which hold their own draws.
-func (c *readFence) splitsDraws(n node) bool { return c.hasRead(n, true) }
+func (c *drawFence) splitsDraws(n node) bool { return c.hasRead(n, true) }
 
 // hasRead walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
 // draw group when stopAtGroup — since each holds draws of its own.
-func (c *readFence) hasRead(n node, stopAtGroup bool) bool {
+func (c *drawFence) hasRead(n node, stopAtGroup bool) bool {
 	k := hasReadMemo{n, stopAtGroup}
 	if r, done := c.memo[k]; done {
 		return r
@@ -200,15 +200,15 @@ func checkColumnDraws(t *template, columns []string) error { return surveyColumn
 // check refuses what one draw per reference path cannot answer for: a read of a level beside a path
 // another read takes into it, and two reads of one table family that select different rows. Reads
 // are compared in path order, so which pair is reported does not vary.
-func (w *readSurvey) check() error {
-	sort.SliceStable(w.reads, func(i, j int) bool {
-		if w.reads[i].at.group != w.reads[j].at.group {
-			return w.reads[i].at.group < w.reads[j].at.group
+func (s *readSurvey) check() error {
+	sort.SliceStable(s.reads, func(i, j int) bool {
+		if s.reads[i].at.group != s.reads[j].at.group {
+			return s.reads[i].at.group < s.reads[j].at.group
 		}
-		return w.reads[i].a.path < w.reads[j].a.path
+		return s.reads[i].a.path < s.reads[j].a.path
 	})
-	for i, level := range w.reads {
-		for _, into := range w.reads[i+1:] {
+	for i, level := range s.reads {
+		for _, into := range s.reads[i+1:] {
 			if into.at.group != level.at.group || alternatives(level.at, into.at) {
 				continue
 			}
@@ -217,7 +217,7 @@ func (w *readSurvey) check() error {
 			}
 		}
 	}
-	return checkFamilies(w.reads)
+	return checkFamilies(s.reads)
 }
 
 // checkFamilies refuses reads of one table family in one draw group that cannot
@@ -303,6 +303,6 @@ func alternatives(a, b surveyAt) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
 }
 
-func overlapError(route readRoute, ref string, into pathRead) error {
+func overlapError(route surveyRoute, ref string, into pathRead) error {
 	return fmt.Errorf("%s renders a level that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.spelling))
 }

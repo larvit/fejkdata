@@ -246,7 +246,7 @@ func checkRenders(s nodeScope) error {
 	if err := s(heldCheck); err != nil {
 		return err
 	}
-	fence := &readFence{}
+	fence := &drawFence{}
 	refs := false
 	if err := s(func(path string, n node) error {
 		if t, ok := n.(*template); ok && len(t.link.refs) > 0 {
