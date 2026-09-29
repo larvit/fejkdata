@@ -12,8 +12,9 @@
 - README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
   dependency bump, a repair of a promise goals 3 to 5 make, and the infrastructure
-  the round itself runs on. `todo.md` carries the round: the nine-seat findings run at depth 1,
-  a PR per item it names, then the run again, until the score passes. At or above 7.0
+  the round itself runs on. `todo.md` carries the round: a PR per item it plans, the nine-seat
+  findings at depth 1 or a restructure the maintainer approved, then the nine-seat run
+  again, until the score passes. At or above 7.0
   every pull request scores with the four-seat run and answers it in one run. No merge
   lowers the last score its own panel recorded: the nine-seat round and the four-seat
   run are two ratchets, never compared with each other.
@@ -85,6 +86,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The key map is built at load, the rest on first draw
 - Two categories may name one TSV
 - A table never reaches its own family, by any route
+- A cell may read a reference, and each row its own
 - Tables carrying token cells stay small
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality

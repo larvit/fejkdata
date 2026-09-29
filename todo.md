@@ -7,11 +7,10 @@ Ordered as the releases that ship it.
 ### Comprehension, until the panel scores 7.0
 
 Nothing else ships while the score is under 7.0 — no feature, no category, no data — bar
-what `AGENTS.md` excepts, per README goal 2. This section is one
-round, replayed: the `comprehension-panel` skill's nine-seat findings run at depth 1,
-a PR per item it names, then the run again, until the score passes. The run is the
-nine-seat one: the round is meant to buy architectural change, and the four-seat
-scoring run names too little to steer one. A fresh run replaces the items below.
+what `AGENTS.md` excepts, per README goal 2. Nine rounds of the nine-seat findings held
+the score between 5.7 and 6.1, so this round is a restructure the maintainer approved on
+2026-09-29: a PR per item, then the nine-seat run again. The run is the nine-seat one,
+since the four-seat scoring run names too little to steer an architectural change.
 
 Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
@@ -37,37 +36,60 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Give `surveyAt`'s whole read one field, its table and pins together, rename
-  `alternatives` for what it answers, two reads that never render together, and say at
-  `check` why a level landing on a row may sit beside a path into it: five seats held
-  `surveyAt`'s five fields at once, two misread `alternatives`, and two found no reason
-  for the `landsRow` exemption.
+- Compute what rendering a node reads as a fold memoised per node, `reads(n)`, deduped
+  per node, and have `surveyRender` and `surveyColumns` call it, deleting
+  `readSurvey.walk`, `edge`, `nodeVisit` and `seen`: every run's seats named the walk
+  hardest. Prototyped green with the allocation gate held; without the per-node dedup
+  `TestADeepDiamondChainLoads` doubles its list per level.
+- Have `checkDrawGroup`, `checkDraws` and `checkRecordDraws` query the fold, deleting
+  `drawFence.hasRead`, its helpers and the decision "Each entry point to
+  `drawFence.hasRead` says what its caller gets".
+- Move the fold to `reads.go` and the verdicts to `drawfence.go`, deleting
+  `readsurvey.go`; name a read's context its `group`, `route` and `branches`, deleting
+  `surveyAt`, and let the README's Layout and `doc.go` follow.
+- Name what a read sits under `branches`, the rows pinned with their ancestors and the
+  rows of whole draws without, both load-bearing, and fold `check`, `checkFamilies`,
+  `replayPairs`, `checkFamilyPair` and `alternatives` into one pairwise loop over
+  `coRender` and `conflict`. Report a pin clash lowest by route and spelling, so which of
+  two is named stops following the walk, and say at `conflict` why a level landing on a
+  row may sit beside a path into it.
+- Compile each path once at link into steps holding no pointer, with its leaves and
+  cover, and have `renderEdges`, `heldNodes`, `valueProof` and `tableReadOf` read them,
+  deleting `pathCover`, `coverPath` and `pathLeaves`. Prototyped green, allocations
+  identical.
+- Draw every path through one interpreter over those steps, `drawSteps`, with `descend`
+  probing into a stack buffer, deleting `pathDraw`, and replace the decision "The four
+  path walks are four loops": the prototype held `perf_test.go` once a step held no
+  pointer, the probe returned its slice and the interpreter took `levels`.
+- Fold `checkNoOverlap` and `checkNoRepeatedRead` into `heldCheck`, so `compileFormat`
+  compiles and nothing more.
+- Fix at compile how `readField` reads an arm, `arm.kind`, deleting its two panics and
+  its `held` lookup per read.
 - Switch `disagreement` on the fixed item's kind, with the other item inside each arm,
   and rename its `proven` local, which shadows the `proven` type: seven seats read the
   seven-arm switch as a truth table without the table.
 - Say at `checkNodeFences` that its walks recurse unguarded, so a caller runs
-  `checkNoCycles` first, and compute `refs` apart from `checkDrawGroup`'s pass: five
-  seats reconstructed the order, and the inline binding runs no cycle check.
+  `checkNoCycles` first: five seats reconstructed the order, and the inline binding runs
+  no cycle check.
 - Give `tableSite` an `isFormat` beside `isCell`, so `renderRecord` and `traceRead` stop
   comparing `row` with `formatRow` alone, which holds only because a template outside a
   table has row 0: four seats found the invariant unstated.
-- Move each unit to its owner's file, `valueProof.checkField` to `valueproof.go` and
-  `coverPath` and `pathLeaves` beside their walks in `path.go`, and rename `checkPath`,
-  which differs from the `pathCheck` type it wraps by word order alone: both architects
-  placed them wrong.
+- Move `valueProof.checkField` to `valueproof.go`, and rename `checkPath`, which differs
+  from the `pathCheck` type it wraps by word order alone: both architects placed them
+  wrong.
 - Correct the claims readers followed wrong: `IsTemplate`'s doc says an argument holding
-  a bracket that is not valid JSON errors, where `misc.territory[SE]` is a path; the README says rows are indexed on the first draw, where `New` builds the key
-  map; and `loadDir`'s says it builds the tree deterministically, where it reports an
-  unnamed rows file in map order.
+  a bracket that is not valid JSON errors, where `misc.territory[SE]` is a path; the
+  README says rows are indexed on the first draw, where `New` builds the key map; and
+  `loadDir`'s says it builds the tree deterministically, where it reports an unnamed
+  rows file in map order.
 - Delete the comments the panel found restating their code or arranging the file:
   `node`'s second sentence, `op`'s "compile builds these so render never re-scans the
   format", `checkCalc`'s last sentence, `calcVar.eval`'s four lines, `checkNoCycles`'
   grey and black, and the docs on `expand`, `readRows`, `splitOutside`, `reservedList`
   and `writesRecords`.
-- Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
-  a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
-  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by file.
-  Say "fences" in the `pin` entry then, which names the draw fences too.
+- Delete `doc.go`'s "The draw fences are …" sentence, which misses `checkDrawGroup`,
+  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by
+  file. Say "fences" in the `pin` entry then, which names the draw fences too.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
