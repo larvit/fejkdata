@@ -28,8 +28,9 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 
 // Generator generates fake data from a loaded namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
-// from one goroutine. The compiled tree is immutable after [New], so List, NewTemplate
-// and NewRecordTemplate read it without a lock; mu guards the rest, which every render takes.
+// from one goroutine. The compiled tree is fixed after [New] bar each table's row lookup,
+// which its sync.Once builds on first use, so List, NewTemplate and NewRecordTemplate
+// read it without a lock; mu guards the rest, which every render takes.
 type Generator struct {
 	mu      sync.Mutex
 	rand    *session
