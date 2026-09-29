@@ -11,7 +11,8 @@ import (
 
 // node is a compiled element of the namespace tree: a folder, choice, null,
 // template, table, column or row. Compiling JSON into these once (see compile)
-// means rendering never re-inspects the raw JSON or re-sums weights.
+// means rendering never re-inspects the raw JSON or re-sums weights. A new kind goes in
+// every switch that panics through internalError on a kind it does not list.
 type node interface{ isNode() }
 
 // folder is a namespace of named children, built from a directory of JSON files
