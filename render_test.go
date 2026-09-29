@@ -2,6 +2,9 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"go/ast"
+	"slices"
+	"sort"
 	"testing"
 )
 
@@ -59,16 +62,85 @@ type unhandledNode struct{}
 
 func (*unhandledNode) isNode() {}
 
-func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
-	for name, call := range map[string]func(){
-		"columnItems": func() { columnItems(&unhandledNode{}) },
-		"contained":   func() { contained(&unhandledNode{}) },
-		"paths":       func() { paths(&unhandledNode{}) },
-		"prove":       func() { (&valueProof{}).prove(&unhandledNode{}) },
-		"render":      func() { render(nil, &unhandledNode{}, renderScope{}) },
-		"renderEdges": func() { renderEdges(&unhandledNode{}) },
-		"stepInto":    func() { _, _ = stepInto(&unhandledNode{}, "x") },
-	} {
-		mustPanic(t, name, call)
+// nodeSwitches are the switches node's comment lists, each over a scope holding row 0
+// of the sample table.
+func nodeSwitches(tbl *table) map[string]func(node) {
+	return map[string]func(node){
+		"columnItems": func(n node) { columnItems(n) },
+		"contained":   func(n node) { contained(n) },
+		"paths":       func(n node) { paths(n) },
+		"prove":       func(n node) { (&valueProof{}).prove(n) },
+		"render": func(n node) {
+			var set holdSet
+			render(engine(1).rand, n, renderScope{set: &set, row: renderedRow{tbl, 0}})
+		},
+		"renderEdges": func(n node) { renderEdges(n) },
+		"stepInto":    func(n node) { _, _ = stepInto(n, "x") },
+	}
+}
+
+// nodeSwitchSkips is the kinds a switch is never handed: its callers step past them first.
+var nodeSwitchSkips = map[string][]string{
+	"columnItems": {"folder", "table", "tableRow"},
+	"prove":       {"folder"},
+	"render":      {"folder"},
+	"stepInto":    {"choice", "table", "tableRow"},
+}
+
+func TestNodeSwitchesHandleEveryKind(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code"}`,
+		"r.tsv":  "code\tname\n01\t{digits(2)}\n02\tB\n",
+	}))
+	tbl := f.root.children["r"].(*table)
+	samples := map[string]node{
+		"choice":      compiled(t, `["a","b"]`),
+		"folder":      &f.root,
+		"nullItem":    &nullItem{},
+		"table":       tbl,
+		"tableColumn": tbl.formatTemplate.fields["name"],
+		"tableRow":    tbl.rowNode,
+		"template":    compiled(t, `{"format":"{x}","x":"1"}`),
+	}
+	var kinds []string
+	_, files := sourceFiles(t)
+	for _, file := range files {
+		for _, decl := range file.Decls {
+			if d, isFunc := decl.(*ast.FuncDecl); isFunc && d.Name.Name == "isNode" {
+				kinds = append(kinds, receiverType(d.Recv))
+			}
+		}
+	}
+	sort.Strings(kinds)
+	sampled := make([]string, 0, len(samples))
+	for kind := range samples {
+		sampled = append(sampled, kind)
+	}
+	sort.Strings(sampled)
+	if !slices.Equal(kinds, sampled) {
+		t.Fatalf("node kinds %v, samples %v; give every kind a sample here", kinds, sampled)
+	}
+	for name, call := range nodeSwitches(tbl) {
+		mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
+		for _, kind := range kinds {
+			if slices.Contains(nodeSwitchSkips[name], kind) {
+				mustPanic(t, name+" on a skipped "+kind, func() { call(samples[kind]) })
+				continue
+			}
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Errorf("%s on %s: %v", name, kind, r)
+					}
+				}()
+				call(samples[kind])
+			}()
+		}
+	}
+	for kind, n := range samples {
+		recurses := kind != "nullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
+		if edges := renderEdges(n); recurses != (len(edges) > 0) {
+			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
+		}
 	}
 }
