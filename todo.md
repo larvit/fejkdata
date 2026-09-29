@@ -222,6 +222,10 @@ by a `data-import/` script, as README goal 12 asks.
 - Refuse a struct tag's `datatype` naming the Go type that sets it before proving its
   values, as the README's Library section promises: `datatype: boolean` over
   `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
+- Name the spelling to use in `checkNameHeld`'s and `checkNoOverlap`'s refusals, as the
+  README's hold section promises: both answer "name the fields you want instead", and
+  `{n} reaches "p" by a second route` names neither the read the route ends on,
+  `{/row.p.last}`, nor the spelling to write, `{p.last}`.
 - Call `templateError` a compile failure: its doc says render failure, and it wraps
   what `NewTemplate` and `NewRecordTemplate` refuse.
 - Name the node a selector follows in `stepInto`'s refusal: `sv_SE.person[1].first`
