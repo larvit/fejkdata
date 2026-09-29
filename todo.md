@@ -34,9 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Choose `disagreement`'s error directly, deleting `disagreementFix`'s switch returning
-  a builder and `declaresLess` for `<`: seven seats traced the matrix for a message,
-  and `disagreementFix`'s comment describes its parameter.
 - Give the expansion hold and the render's group hold two names: `groupHold` embeds
   `hold`, `held`, `heldLocal` and `holdSet` share its stem, and four seats could not
   tell which fence guards which.
