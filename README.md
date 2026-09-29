@@ -886,7 +886,7 @@ format.go       the {token} grammar: scanning, tokens, operands, validation, com
 hold.go         the hold: one draw per held name; and the hold set and scope a render reads its reference paths through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
 drawfence.go    the load fences over reference draws: a drawGroup's, and a render's and a record's columns through the survey
-readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them, a table reaching its own family included
+readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them; and the fence on a table reaching its own family
 pins.go         the pin set: the table rows a render fixes, which the draw fences replay
 reference.go    reference sigils, and binding references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
