@@ -1042,36 +1042,40 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 }
 
 // TestProbeReportsTheTablesADrawPins holds the check mode to the render: the tables a probe says a
-// path draws are those a draw of it pins beyond what its selectors pin.
+// path draws are those a draw of it pins beyond what its selectors pin, and each selector is credited
+// to the table it selects a row of.
 func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	for _, path := range []string{
-		"locality.code",
-		"municipality.locality.name",
-		"municipality[1281].locality.name",
-		"municipality.locality[L4].name",
-		"region",
-		"region.municipality",
-		"region.municipality.name",
-		"region.locality.name",
-		"region[12].locality",
-		"region[12].locality.code",
-		"region[12].municipality.locality.code",
-		"region[12].name",
+	for _, c := range []struct{ path, sels string }{
+		{"locality.code", ""},
+		{"municipality.locality.name", ""},
+		{"municipality[1281].locality.name", "municipality=municipality[1281]"},
+		{"municipality.locality[L4].name", "locality=municipality.locality[L4]"},
+		{"region", ""},
+		{"region.municipality", ""},
+		{"region.municipality.name", ""},
+		{"region.locality.name", ""},
+		{"region[12].locality", "region=region[12]"},
+		{"region[12].locality.code", "region=region[12]"},
+		{"region[12].locality[L4].name", "region=region[12] locality=region[12].locality[L4]"},
+		{"region[12].municipality.locality.code", "region=region[12]"},
+		{"region[12].municipality[1281].locality.code", "region=region[12] municipality=region[12].municipality[1281]"},
+		{"region[12].name", "region=region[12]"},
 	} {
-		segs, err := splitPath(path)
-		if err != nil {
-			t.Fatal(err)
+		a := splitArm(c.path, nil)
+		head := f.root.children[a.key].(*table)
+		tr := tableReadOf(head, a, nil)
+		var sels []string
+		for _, s := range tr.sels {
+			sels = append(sels, s.t.segment+"="+s.spelling)
 		}
-		head := f.root.children[segs[0]].(*table)
-		probe := &pathProbe{drawn: map[*table]bool{}}
-		if _, err := probe.walk(head, segs[1:]); err != nil {
-			t.Fatalf("%s: %v", path, err)
+		if got := strings.Join(sels, " "); got != c.sels {
+			t.Errorf("%s: the probe credits the selectors %q, want %q", c.path, got, c.sels)
 		}
-		probed, drawn := probe.pins, probe.drawn
+		probed, drawn := tr.pins, tr.drawn
 		for i := 0; i < 20; i++ {
 			var pins pinSet
-			drawPath(head, segs[1:], segs[0], &pathDraw{s: f.rand, pins: &pins})
+			drawPath(head, a.tail, a.key, &pathDraw{s: f.rand, pins: &pins})
 			want := map[*table]bool{}
 			pins.each(func(tbl *table, _ int) {
 				if _, selected := probed.pinned(tbl); !selected {
@@ -1079,7 +1083,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 				}
 			})
 			if !maps.Equal(drawn, want) {
-				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", path, segmentsOf(drawn), segmentsOf(want))
+				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", c.path, segmentsOf(drawn), segmentsOf(want))
 			}
 		}
 	}
