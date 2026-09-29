@@ -41,6 +41,9 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 		}
 		return readValue{text: render(s, t.head(a.key), sc)}
 	}
+	if held == nil {
+		panic(internalError("%q reads a name the expansion holds, with no hold to keep it in", a.spelling))
+	}
 	return readHeld(s, t, held, nil, sc, a)
 }
 
