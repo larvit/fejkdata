@@ -27,13 +27,6 @@ func (s dataSource) labelled(p string) string {
 	return path.Join(s.label, p)
 }
 
-// loadData loads every source into one namespace tree and returns its root
-// children. A directory becomes a folder; each *.json file in it compiles to a node
-// keyed by its base name (address.json -> "address"); each subdirectory becomes a
-// nested folder, so folders turn into dot-path segments. Sources merge left to right:
-// matching folders merge by their children, and any other clash is won by the last
-// source loaded. Once merged, linkRefs binds every reference against the
-// final tree.
 func loadData(sources []dataSource) (map[string]node, error) {
 	root := map[string]node{}
 	for _, src := range sources {

@@ -105,8 +105,7 @@ func expandAnew(s *generatorState, t *template) string {
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
-// O(log n) search over precomputed cumulative weights. compile guarantees a
-// non-empty choice and a finite positive total, so the index is always in range.
+// O(log n) search over precomputed cumulative weights.
 func pick(s *generatorState, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
@@ -114,8 +113,7 @@ func pick(s *generatorState, c *choice) node {
 	return c.items[pickCum(s, c.cum)]
 }
 
-// expand renders a template's compiled ops. compile validated every token, so this
-// cannot fail.
+// expand renders a template's compiled ops.
 func expand(s *generatorState, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.compiled.grow)
