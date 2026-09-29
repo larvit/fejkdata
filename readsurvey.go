@@ -132,7 +132,7 @@ func (s *readSurvey) walk(n node, at surveyAt) {
 			s.edge(n, e, in)
 		default:
 			// A pinned table renders its pinned row alone, and an unpinned one draws a row inside its
-			// nearest pinned ancestor's, so a cell of a row the pins clash with never renders here.
+			// nearest pinned ancestor's, so a cell of a row the pins clash with never renders on this route.
 		}
 	}
 }
