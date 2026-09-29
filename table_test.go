@@ -367,11 +367,12 @@ func TestTableSelectorInAReference(t *testing.T) {
 
 func TestTableSelectionFences(t *testing.T) {
 	rejected := map[string]struct{ json, want string }{
-		"bare beside a path":            {`"{/region} {/region.name}"`, "reads a path into"},
-		"bare beside a linked path":     {`"{/region} {/locality.name}"`, "drawGroup"},
-		"selected beside unselected":    {`"{/region[12].municipality.name} {/municipality.code}"`, "{/region[12].municipality.code}"},
-		"two selections":                {`"{/region[12].name} {/region[14].name}"`, "drawGroup"},
-		"selection beside a descendant": {`"{/region[12].name} {/locality.code}"`, "{/region[12].locality.code}"},
+		"bare beside a path":                  {`"{/region} {/region.name}"`, "reads a path into"},
+		"bare beside a linked path":           {`"{/region} {/locality.name}"`, "drawGroup"},
+		"selected beside unselected":          {`"{/region[12].municipality.name} {/municipality.code}"`, "{/region[12].municipality.code}"},
+		"relative selected beside unselected": {`"{.region[12].municipality.name} {.municipality.code}"`, "{.region[12].municipality.code}"},
+		"two selections":                      {`"{/region[12].name} {/region[14].name}"`, "drawGroup"},
+		"selection beside a descendant":       {`"{/region[12].name} {/locality.code}"`, "{/region[12].locality.code}"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": c.json}))))
