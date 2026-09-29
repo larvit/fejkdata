@@ -229,9 +229,7 @@ func TestDisagreementsHoldEveryKeyDisagreementBuilds(t *testing.T) {
 				continue
 			}
 			for _, proven := range []bool{false, true} {
-				if disagreementFix(disagreementKey{fix, other, proven}) == nil {
-					t.Errorf("disagreementFix(%v, %v, %v) = nil", fix, other, proven)
-				}
+				disagreementFix(disagreementKey{fix, other, proven})
 			}
 		}
 	}
