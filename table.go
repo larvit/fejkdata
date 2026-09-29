@@ -13,14 +13,14 @@ import (
 // columns, each row is one draw, and the format renders the drawn row. A column is a
 // cell of the row a render pinned; a cell carrying tokens compiles to a string node.
 type table struct {
-	category       string
+	segment        string // path's last segment
 	path           string // the category's path from the data root, which a selector is written at
 	file           string
 	formatTemplate *template // fields are the column nodes
 	header         []string
 	col            map[string]int
 	fields         map[string]node // column nodes, the format's fields
-	pinnedRow      *tableRow
+	rowNode        *tableRow
 	cells          []string // rows × columns, flat
 	cellTemplates  map[int]*template
 	keyIndex       int // keyIndex through parentIndex are column indexes, -1 where the option is absent
@@ -84,7 +84,7 @@ func isTableOption(name string) bool {
 const inSelector = `[]{}"|`
 
 // compileTable compiles a category object naming a rows file into a table.
-func compileTable(m map[string]any, category string, files *categoryFiles) (*table, error) {
+func compileTable(m map[string]any, segment string, files *categoryFiles) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func compileTable(m map[string]any, category string, files *categoryFiles) (*tab
 	if err != nil {
 		return nil, err
 	}
-	t := &table{category: category, file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
+	t := &table{segment: segment, file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
 	if err := t.parseRows(data); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
@@ -328,7 +328,7 @@ func (t *table) compileRowFormat(format string) error {
 		return err
 	}
 	for _, tok := range toks {
-		if tok.kind != fieldAlternation {
+		if tok.kind != nameRead {
 			continue
 		}
 		for _, name := range tok.names {
@@ -342,7 +342,7 @@ func (t *table) compileRowFormat(format string) error {
 		return err
 	}
 	t.formatTemplate = &template{format: format, tokens: toks, fields: t.fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
-	t.pinnedRow = &tableRow{t}
+	t.rowNode = &tableRow{t}
 	return nil
 }
 
@@ -405,7 +405,7 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	var ancestors []*table
 	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {
 		if seen[q] {
-			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.category)
+			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
 		}
 		seen[q] = true
 		ancestors = append(ancestors, q)
@@ -414,8 +414,8 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 		}
 	}
 	for _, q := range ancestors {
-		if _, clash := q.col[t.category]; clash {
-			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.category, q.category, q.category, t.category)
+		if _, clash := q.col[t.segment]; clash {
+			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
 		}
 	}
 	linked := make(map[string]bool, p.rowCount())
@@ -435,7 +435,7 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	if p.children == nil {
 		p.children = map[string]*table{}
 	}
-	p.children[t.category] = t
+	p.children[t.segment] = t
 	return nil
 }
 
@@ -598,7 +598,7 @@ func (t *table) selectorSpelling(r int) string {
 	case t.keyIndex >= 0:
 		return t.path + "[" + t.cell(r, t.keyIndex) + "]"
 	case t.nameIndex >= 0:
-		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.category + "[" + t.cell(r, t.nameIndex) + "]"
+		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.segment + "[" + t.cell(r, t.nameIndex) + "]"
 	}
 	return fmt.Sprintf("%s line %d", t.file, r+2)
 }

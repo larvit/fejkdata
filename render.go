@@ -121,7 +121,7 @@ func expand(s *session, t *template, sc renderScope) string {
 		switch o.kind {
 		case literalRun:
 			b.WriteString(o.lit)
-		case fieldAlternation:
+		case nameRead:
 			b.WriteString(readField(s, t, held, sc, o.arms[s.IntN(len(o.arms))]).text)
 		case builtinCall:
 			// Read before the call, so the value a calc computes is the value the

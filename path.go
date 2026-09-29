@@ -176,7 +176,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	case len(tail) == 0 && sel == "" && !descended:
 		r.next = t
 	case len(tail) == 0:
-		r.next = t.pinnedRow
+		r.next = t.rowNode
 	case child != nil:
 		r.next, r.rest, r.descends = child, tail[1:], true
 	default:
@@ -415,7 +415,7 @@ func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	}
 	sel, rest = selectorOf(tail[0]), tail[1:]
 	if len(rest) > 0 && isSelector(rest[0]) {
-		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.category, sel)
+		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.segment, sel)
 	}
 	return sel, rest, nil
 }
@@ -429,7 +429,7 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 		return t.fields[t.header[i]], nil, nil
 	}
 	if child = t.descendant(tail[0]); child == nil {
-		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.category)
+		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.segment)
 	}
 	return nil, child, nil
 }

@@ -155,7 +155,7 @@ func columnReadOf(t *template, link templateLink) *columnRead {
 
 // loneRef is the reference a format of one reference token and nothing else reads.
 func loneRef(toks []formatToken) (string, bool) {
-	if len(toks) != 1 || toks[0].kind != fieldAlternation || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
+	if len(toks) != 1 || toks[0].kind != nameRead || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
 		return "", false
 	}
 	return toks[0].names[0], true

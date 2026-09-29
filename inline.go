@@ -151,7 +151,7 @@ func inlineBinding(n node, label string, root map[string]node) binding {
 	return binding{
 		scope: scope,
 		link:  func() error { return linkNodeRefs(scope, root) },
-		referenceFence: func() error {
+		scopeFence: func() error {
 			if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
 				return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
 			}

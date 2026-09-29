@@ -64,14 +64,14 @@ type formatToken struct {
 	body  string   // the braces' content, as written
 	fn    string   // builtinCall
 	args  []string // builtinCall
-	names []string // fieldAlternation: the '|' arms; builtinCall: the operands its builtin reads
+	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads
 }
 
 type tokenKind uint8
 
 const (
 	builtinCall tokenKind = iota + 1
-	fieldAlternation
+	nameRead
 	literalRun
 )
 
@@ -93,7 +93,7 @@ func parseFormat(format string) ([]formatToken, error) {
 		}
 		flush()
 		if indexOutside(t.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: fieldAlternation, body: t.body, names: splitOutside(t.body, '|')})
+			toks = append(toks, formatToken{kind: nameRead, body: t.body, names: splitOutside(t.body, '|')})
 			return nil
 		}
 		name, args, ok := funcCall(t.body)
@@ -220,7 +220,7 @@ func checkToken(t formatToken, fields map[string]node) error {
 	switch t.kind {
 	case builtinCall:
 		return checkFunc(t, fields)
-	case fieldAlternation:
+	case nameRead:
 		for _, name := range t.names {
 			if isRef(name) {
 				if _, _, err := refShape(name); err != nil {
@@ -372,7 +372,7 @@ type callFn func(s *session, emitted string, operands []string) string
 // re-scans the format.
 type op struct {
 	formatToken
-	arms []arm // fieldAlternation: the '|' alternatives, split into key and path once
+	arms []arm // nameRead: the '|' alternatives, split into key and path once
 	call callFn
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.
@@ -446,7 +446,7 @@ func compileOps(toks []formatToken, refs map[string]refBinding) formatOps {
 			c.ops = append(c.ops, op{formatToken: tok})
 		case builtinCall:
 			c.function(tok, refs)
-		case fieldAlternation:
+		case nameRead:
 			c.field(tok, refs)
 		}
 	}

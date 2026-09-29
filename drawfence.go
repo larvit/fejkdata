@@ -105,7 +105,7 @@ func checkOwnFamily(t *template) error {
 		return renderEdge{}, nil, false
 	}
 	if e, head, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.category, own.category)
+		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), head.segment, own.segment)
 	}
 	return nil
 }
@@ -252,13 +252,13 @@ func checkFamilyPair(a, b pathRead) error {
 			if s, ok := y.tr.selected(x.tr.headTable); ok && len(x.tr.sels) == 0 {
 				tail := x.a.tail
 				if s.t != x.tr.headTable {
-					tail = append([]string{x.tr.headTable.category}, tail...)
+					tail = append([]string{x.tr.headTable.segment}, tail...)
 				}
 				return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
-					x.at.route.spelled(x.a.spelling), drawn.category, y.at.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
+					x.at.route.spelled(x.a.spelling), drawn.segment, y.at.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
 			}
 			return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
-				x.at.route.spelled(x.a.spelling), drawn.category, y.at.route.spelled(y.a.spelling))
+				x.at.route.spelled(x.a.spelling), drawn.segment, y.at.route.spelled(y.a.spelling))
 		}
 	}
 	return nil
