@@ -22,7 +22,7 @@ type readSurvey struct {
 
 // pinClash is the first read whose selectors clash with a row its route pinned.
 type pinClash struct {
-	route    surveyRoute
+	route    readRoute
 	spelling string
 	err      error
 }
@@ -255,7 +255,7 @@ func alternatives(a, b branches) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
 }
 
-func overlapError(route surveyRoute, ref string, into pathRead) error {
+func overlapError(route readRoute, ref string, into pathRead) error {
 	apart := ""
 	switch {
 	case route.spelling == into.route.spelling:
