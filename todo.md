@@ -26,10 +26,7 @@ least modify.
 
 This round, in order:
 
-- Rename the load-time `draw*` types (`drawWalk`, `drawAt`, `drawRoute`, `drawCheck`)
-  to say they read and draw nothing, and move `drawWalk` and `tableRead` out of
-  `drawfence.go`: a grep for "draw" lands in render and check code alike.
-- Spell `drawWalk.walk`'s dropped cell as a case of its switch: a clashing row's cell
+- Spell `readSurvey.walk`'s dropped cell as a case of its switch: a clashing row's cell
   falls out with no arm, which four seats named.
 - Define `descended` where `table.route` takes it: five seats reverse-engineered it from
   the `draw` expression and the four walks' loop condition.
@@ -313,7 +310,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
   back to the clause it came from: the goal spells them out in prose while `todo.md`
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
 - Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
-  a helper reached only through `drawWalk.check`, and misses `checkDrawGroup`,
+  a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
   `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
 - Cut the README's Layout block to the lines that say what a file name cannot:
   `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.

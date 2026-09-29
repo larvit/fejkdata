@@ -63,7 +63,7 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	roots, tables := fenceRoots(t, f)
 	traced := 0
 	for _, root := range roots {
-		traced += wantGathered(t, tables, root.label, renderDraws(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
+		traced += wantGathered(t, tables, root.label, surveyRender(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
 		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
@@ -71,7 +71,7 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: recordOf = %v", root.label, err)
 		}
-		traced += wantGathered(t, tables, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
+		traced += wantGathered(t, tables, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
 	}
 	if traced == 0 {
 		t.Error("no render traced a reference read, so the comparison proved nothing")
@@ -90,7 +90,7 @@ func wantGathered(t *testing.T, tables map[string]*table, label string, gathered
 		if !isRef(a.key) {
 			return
 		}
-		r := pathRead{at: drawAt{group: group}, a: a}
+		r := pathRead{at: surveyAt{group: group}, a: a}
 		if table != "" {
 			r.at.pins.add(tables[table], row)
 		}
@@ -104,7 +104,7 @@ func wantGathered(t *testing.T, tables map[string]*table, label string, gathered
 	}
 	for _, r := range reads {
 		if !gathers(gathered, r) {
-			t.Errorf("%s: the render read {%s} in draw group %q from %s, and drawWalk gathered no such read", label, r.a.spelling, r.at.group, spellPins(&r.at.pins))
+			t.Errorf("%s: the render read {%s} in draw group %q from %s, and readSurvey gathered no such read", label, r.a.spelling, r.at.group, spellPins(&r.at.pins))
 		}
 	}
 	return len(reads)
@@ -171,9 +171,9 @@ func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 	})
 	compared := 0
 	for _, root := range roots {
-		compared += wantPairsFindAll(t, root.label, renderDraws(root.t).reads)
+		compared += wantPairsFindAll(t, root.label, surveyRender(root.t).reads)
 		if root.t.isRecord && len(root.t.fields) > 0 {
-			compared += wantPairsFindAll(t, root.label+" as a record", columnDraws(root.t, sortedNames(root.t.fields)).reads)
+			compared += wantPairsFindAll(t, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads)
 		}
 	}
 	if compared == 0 {
@@ -201,7 +201,7 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 			if !isTemplate {
 				t.Fatalf("NewTemplate(%s) compiled to %T", tb.selectorSpelling(r), inline.n)
 			}
-			reads = append(reads, renderDraws(root).reads...)
+			reads = append(reads, surveyRender(root).reads...)
 		}
 		return nil
 	})
@@ -300,7 +300,7 @@ func TestDrawWalkWalksACellByEveryRoute(t *testing.T) {
 		t.Fatalf("r is a %T, want a template", g.children["r"])
 	}
 	var pinned, whole bool
-	for _, read := range renderDraws(r).reads {
+	for _, read := range surveyRender(r).reads {
 		if read.a.path != "/z" {
 			continue
 		}
