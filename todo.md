@@ -45,6 +45,8 @@ This round, in order:
   `coRender` and `conflict`. Report a pin clash lowest by route and spelling, so which of
   two is named stops following the walk, and say at `conflict` why a level landing on a
   row may sit beside a path into it.
+- Run the nine-seat panel as a checkpoint, and file its scores above: where Locality has
+  not risen from 5.2, stop and bring the scores to the maintainer before the path steps.
 - Compile each path once at link into steps holding no pointer, with its leaves and
   cover, and have `renderEdges`, `heldNodes`, `valueProof` and `tableReadOf` read them,
   deleting `pathCover`, `coverPath` and `pathLeaves`. Prototyped green, allocations
