@@ -333,8 +333,7 @@ func (w *pathProbe) readRow(t *table, tail []string, r tableRoute) error {
 	case r.sel != "":
 		if w.a != nil {
 			walked := len(w.a.tail) - len(tail) + 1
-			written := w.a.spelling[:len(w.a.spelling)-len(joinSegments(w.a.tail))]
-			w.sels = append(w.sels, tableSel{t, written + joinSegments(w.a.tail[:walked])})
+			w.sels = append(w.sels, tableSel{t, joinSegments(append([]string{w.a.writtenHead}, w.a.tail[:walked]...))})
 		}
 		return w.pins.selectRow(t, r.sel)
 	case r.draw && w.a != nil:
