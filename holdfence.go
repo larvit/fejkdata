@@ -15,9 +15,9 @@ func heldCheck(path string, n node) error {
 	if !ok || len(t.compiled.held) == 0 {
 		return nil
 	}
-	readers := pathHeadReaders(t.compiled.ops, t.compiled.pathHeads)
+	readers := pathHeadReaders(t.compiled)
 	for _, name := range heldNames(t) {
-		if _, isPath := t.compiled.pathHeads[name]; isPath && isRef(name) {
+		if t.compiled.held[name].path != "" && isRef(name) {
 			continue // held for the render: drawFence compares every read of it, by path, across the render and its groups
 		}
 		if err := checkNameHeld(t, name, readers); err != nil {
@@ -36,8 +36,8 @@ func heldNames(t *template) []string {
 		names = append(names, name)
 	}
 	sort.Slice(names, func(i, j int) bool {
-		_, pi := t.compiled.pathHeads[names[i]]
-		_, pj := t.compiled.pathHeads[names[j]]
+		pi := t.compiled.held[names[i]].path != ""
+		pj := t.compiled.held[names[j]].path != ""
 		if pi != pj {
 			return !pi
 		}
@@ -51,7 +51,7 @@ func heldNames(t *template) []string {
 // produces.
 func heldNodes(t *template, name string, readers []reader) map[node]bool {
 	held := map[node]bool{}
-	if _, isPath := t.compiled.pathHeads[name]; !isPath {
+	if t.compiled.held[name].path == "" {
 		operandDraw(t.head(name), held)
 		return held
 	}
@@ -71,13 +71,13 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}
-	reader, isPath := t.compiled.pathHeads[name]
+	reader := t.compiled.held[name].path
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
 		if e.read.head == name || !renders(e.to, held, seen) {
 			continue
 		}
-		if isPath {
+		if reader != "" {
 			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), name, reader)
 		}
 		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), name, operandReader(t, name))
@@ -175,8 +175,8 @@ func renders(n node, want, seen map[node]bool) bool {
 // disagree. Reads are compared in sorted order, so which pair is reported does not
 // depend on where the tokens sit.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkNoOverlap(ops []op, pathHeads map[string]string) error {
-	names := pathHeadReaders(ops, pathHeads)
+func checkNoOverlap(c formatOps) error {
+	names := pathHeadReaders(c)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
 	sort.SliceStable(names, func(i, j int) bool { return names[i].a.path < names[j].a.path })
@@ -199,16 +199,16 @@ type reader struct {
 // pathHeadReaders lists every way a format reaches a sibling path head, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
-func pathHeadReaders(ops []op, pathHeads map[string]string) []reader {
+func pathHeadReaders(c formatOps) []reader {
 	var names []reader
-	for _, o := range ops {
+	for _, o := range c.ops {
 		for _, a := range o.operands {
-			if _, isPathHead := pathHeads[a.head]; isPathHead && !isRef(a.head) {
+			if c.held[a.head].path != "" && !isRef(a.head) {
 				names = append(names, reader{a, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
-			if _, isPathHead := pathHeads[a.head]; isPathHead && !isRef(a.head) {
+			if c.held[a.head].path != "" && !isRef(a.head) {
 				names = append(names, reader{a, "token {" + a.spelling + "}"})
 			}
 		}
@@ -224,11 +224,12 @@ func checkNoRepeatedRead(c formatOps) error {
 	count := map[string]int{}
 	for _, o := range c.ops {
 		for _, a := range o.arms {
-			if len(a.tail) > 0 || !c.held[a.head] {
+			h, held := c.held[a.head]
+			if len(a.tail) > 0 || !held {
 				continue
 			}
 			if count[a.head]++; count[a.head] > 1 {
-				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.spelling, c.holder[a.head], a.head, a.spelling)
+				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.spelling, h.holder, a.head, a.spelling)
 			}
 		}
 	}

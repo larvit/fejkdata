@@ -378,38 +378,36 @@ type op struct {
 }
 
 // formatOps is a compiled format: its ops, the size of its literal text, and the
-// names it holds. pathHeads maps each head a path starts from to the first such path;
-// held is every such head plus the fields an operand reads; holder maps each held
-// name to the first reader holding it, for error messages.
+// names it holds: every head a path starts from, plus the fields an operand reads.
 type formatOps struct {
 	ops       []op
 	grow      int
-	pathHeads map[string]string
-	held      map[string]bool
-	holder    map[string]string
+	held      map[string]heldName
 	heldLocal bool // some held name is not a reference path, so expand makes a hold
+}
+
+// heldName is how a format first reaches a held name: the reader holding it, for
+// error messages, and the first path starting from it, "" where none does.
+type heldName struct {
+	holder string
+	path   string
 }
 
 func (c *formatOps) holdName(a arm, label string) {
 	if c.held == nil {
-		c.held = map[string]bool{}
-		c.holder = map[string]string{}
+		c.held = map[string]heldName{}
 	}
-	c.held[a.head] = true
 	if !isRef(a.head) || len(a.tail) == 0 {
 		c.heldLocal = true
 	}
-	if _, named := c.holder[a.head]; !named {
-		c.holder[a.head] = label
+	h, named := c.held[a.head]
+	if !named {
+		h.holder = label
 	}
-	if len(a.tail) > 0 {
-		if c.pathHeads == nil {
-			c.pathHeads = map[string]string{}
-		}
-		if _, named := c.pathHeads[a.head]; !named {
-			c.pathHeads[a.head] = a.spelling
-		}
+	if len(a.tail) > 0 && h.path == "" {
+		h.path = a.spelling
 	}
+	c.held[a.head] = h
 }
 
 func (c *formatOps) function(tok formatToken, refs map[string]refBinding) {

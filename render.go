@@ -164,7 +164,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 	if sc.set.trace != nil {
 		traceRead(sc.set.trace, t, sc, a)
 	}
-	if !t.compiled.held[a.head] {
+	if _, expansionHolds := t.compiled.held[a.head]; !expansionHolds {
 		if len(a.tail) > 0 {
 			panic(internalError("%q reads a path into %q, which the expansion does not hold", a.spelling, a.head))
 		}
