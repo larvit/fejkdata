@@ -875,7 +875,7 @@ the Development section below, and who ships a register the five above then draw
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, the embedded data set, List
-node.go         the node model and JSON -> node compilation
+node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
 table.go        tables: the rows TSV, its options and links, row selection and draws
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
@@ -885,8 +885,8 @@ inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplat
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
 hold.go         the hold: one draw per held name; and the hold set and scope a render reads its reference paths through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
-drawfence.go    the load fences over reference draws: a drawGroup's, a table's own family, and a render's and a record's columns through the survey
-readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them
+drawfence.go    the load fences over reference draws: a drawGroup's, and a render's and a record's columns through the survey
+readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them, a table reaching its own family included
 pins.go         the pin set: the table rows a render fixes, which the draw fences replay
 reference.go    reference sigils, and binding references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences

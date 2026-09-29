@@ -427,6 +427,36 @@ func repeatOf(m map[string]any) (int, error) {
 	return int(r), nil
 }
 
+// checkNestedDrawGroup refuses a template beneath one drawing in group that names group again,
+// short of a repeat or another draw group.
+func checkNestedDrawGroup(fields map[string]node, group string) error {
+	if group == "" {
+		return nil
+	}
+	var walk func(path string, n node) error
+	walk = func(path string, n node) error {
+		t, isTemplate := n.(*template)
+		switch {
+		case isTemplate && t.drawGroup == group:
+			return fmt.Errorf("%q names drawGroup %q, the draw group this template draws in already; drop it", path, group)
+		case isTemplate && (t.drawGroup != "" || t.repeat > 1):
+			return nil
+		}
+		for _, c := range contained(n) {
+			if err := walk(join(path, c.name), c.node); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	for _, name := range sortedNames(fields) {
+		if err := walk(name, fields[name]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // drawGroupOf reads a template's "drawGroup" (default ""), which a repeat cannot carry: each
 // iteration renders in no draw group.
 func drawGroupOf(m map[string]any, repeat int) (string, error) {
