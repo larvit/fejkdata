@@ -6,7 +6,7 @@ func fenceCorpus(t *testing.T) *Generator {
 	t.Helper()
 	dir := writeFiles(t, with(geo(), map[string]string{
 		"addr.json":  `{"format":"{a} {b} {c}","a":"{/locality.name}, {/municipality.name}","b":{"format":"{/region[12].name} {/place}","drawGroup":"g"},"c":{"format":"{/place.zip} ","repeat":2}}`,
-		"place.json": `{"format":"{zip} {name} {tag}","rows":"place.tsv","key":"name"}`,
+		"place.json": `{"format":"{zip} {name} {tag} {/w}","rows":"place.tsv","key":"name"}`,
 		"place.tsv":  "name\tzip\ttag\nStockholm\t1{digits(2)} {digits(2)}\t{/x}\nTranås\t573 {digits(2)}\t{/region[12].name}\n",
 		"rec.json":   `{"format":"","l":"{/locality.name}","m":"{/municipality.name}","t":"{/place[Stockholm].tag}"}`,
 		"w.json":     `["x","y"]`,
