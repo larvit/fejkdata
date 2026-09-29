@@ -296,7 +296,7 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A string `fake:"trip.leg"`
 			B string `fake:"trip.leg.to"`
-		}{}, "reads a path into"},
+		}{}, "reads whole the reference draw"},
 		{&struct {
 			Trip struct {
 				A int `fake:"{digits(3)}"`
