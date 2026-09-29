@@ -1002,7 +1002,7 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	var none pinSet
 	for _, entered := range tables {
 		for row := 0; row < entered.rowCount(); row++ {
-			whole := surveyAt{wholeTable: entered}
+			whole := surveyAt{}
 			whole.wholePins.add(entered, row)
 			s := none.entered(entered, row)
 			for _, cand := range tables {
@@ -1022,7 +1022,7 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 					if alternatives(whole, candAt) || alternatives(candAt, whole) {
 						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
 					}
-					other := surveyAt{wholeTable: cand}
+					other := surveyAt{}
 					other.wholePins.add(cand, cr)
 					if want := cand == entered && cr != row; alternatives(whole, other) != want {
 						t.Errorf("alternatives(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), !want, want)

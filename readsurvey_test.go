@@ -109,7 +109,7 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 	fsys := fstest.MapFS{
 		"g.json": {Data: []byte(`{"format":"{/x.v}","drawGroup":"g2"}`)},
 		"r.json": {Data: []byte(`"{/g} {/x}"`)},
-		"x.json": {Data: []byte(`{"format":"{/g}","rows":"x.tsv","key":"code"}`)},
+		"x.json": {Data: []byte(`{"format":"{v}","rows":"x.tsv","key":"code"}`)},
 		"x.tsv":  {Data: []byte("code\tv\n1\t{/z}\n2\t{/z.a}\n")},
 		"z.json": {Data: []byte(`{"format":"{a}","a":"hi"}`)},
 	}
@@ -133,7 +133,7 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 		whole = whole || read.at.wholePins.used > 0
 	}
 	if !pinned || !whole {
-		t.Errorf("{/z} gathered under a pinned row %v and a whole read's row %v, want both: {/g} reaches x's cells from the root and from inside {/x}", pinned, whole)
+		t.Errorf("{/z} gathered under a pinned row %v and a whole read's row %v, want both: {/g} reaches x's cells from the root, and {/x} renders them whole", pinned, whole)
 	}
 }
 
