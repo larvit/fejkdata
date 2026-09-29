@@ -6,8 +6,7 @@ import (
 )
 
 // walkNodes calls fn once per contained node, passing the dot path that reaches it,
-// visiting keys in sorted order so which of several broken nodes gets reported does
-// not depend on map iteration.
+// visiting keys in sorted order.
 func walkNodes(root map[string]node, fn func(path string, n node) error) error {
 	for _, name := range sortedNames(root) {
 		if err := eachNode(root[name], name, fn); err != nil {

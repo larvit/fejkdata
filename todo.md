@@ -34,9 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Delete the "so which … is reported does not vary" clause at its five sites past
-  `checkNodeFences`, and `checkRecordDraws`' "A record-only template's format renders
-  nothing", which runs over templates with a format too.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data

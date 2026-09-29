@@ -46,7 +46,6 @@ func (f *drawFence) checkRecordDraws(path string, n node) error {
 	if !ok || !t.isRecord {
 		return nil
 	}
-	// A record-only template's format renders nothing, so weigh the columns, not the format.
 	columns := sortedNames(t.fields)
 	reads := false
 	for _, name := range columns {
