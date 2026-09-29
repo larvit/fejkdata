@@ -1132,3 +1132,13 @@ func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
 		t.Fatalf("New = %v, want 1280's shop and 1281's city kept apart, one draw of municipality rendering one of them", err)
 	}
 }
+
+func TestDatatypeRefusesARowRead(t *testing.T) {
+	for _, format := range []string{"{/region}", "{/region[01]}"} {
+		files := with(geo(), map[string]string{"row.json": `{"format":"","col":{"format":"` + format + `","datatype":"integer"}}`})
+		want := `"{name}" renders a row of region, which is composed text`
+		if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: New = %v, want an error containing %q", format, err, want)
+		}
+	}
+}
