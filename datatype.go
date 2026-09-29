@@ -202,8 +202,8 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 }
 
 func disagreementFix(k disagreementKey) func(d itemPair) error {
-	fix, ok := disagreements[k]
-	if !ok {
+	fix := disagreements[k]
+	if fix == nil {
 		panic(internalError("no disagreement names the fix for %+v", k))
 	}
 	return fix
