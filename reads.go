@@ -2,19 +2,6 @@ package fejkdata
 
 import "fmt"
 
-// readSurvey is what one render reads, gathered at load for check to compare.
-type readSurvey struct {
-	reads []pathRead
-	clash *pinClash
-}
-
-// pinClash is the first read whose selectors clash with a row its route pinned.
-type pinClash struct {
-	route    surveyRoute
-	spelling string
-	err      error
-}
-
 // surveyAt is where a read sits in its render: the draw group it draws in ("" until the
 // root names one), how the render's root reached it, the rows pinned above it, and the rows
 // of whole draws whose cells it sits in.
@@ -68,26 +55,6 @@ func (f *readFold) columnReads(t *template, columns []string) []pathRead {
 		reads = append(reads, routed(f.reads(t.fields[name]), surveyRoute{spelling: fmt.Sprintf("column %q", name)})...)
 	}
 	return reads
-}
-
-// survey is the fold's result as a render in group: every read not inside a nested draw group
-// draws in it, and one read gathered by several routes is kept once.
-func survey(reads []pathRead, group string) *readSurvey {
-	s := &readSurvey{}
-	for _, r := range reads {
-		if r.clash != nil {
-			if s.clash == nil {
-				s.clash = &pinClash{r.at.route, r.a.spelling, r.clash}
-			}
-			continue
-		}
-		if r.at.group == "" {
-			r.at.group = group
-		}
-		s.reads = append(s.reads, r)
-	}
-	s.reads = distinct(s.reads)
-	return s
 }
 
 // reads is what rendering n reads, short of a repeat, which renders over draws of its own: each
