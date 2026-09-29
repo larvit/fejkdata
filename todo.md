@@ -34,8 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Word the three overlap refusals apart, `checkNameHeld`'s, `checkNoOverlap`'s and
-  `overlapError`'s: three seats grepped one message to three fences.
 - Compile a format in `format.go`: `linkTemplate` calls `compileFormat` in `node.go`,
   which calls `compileOps` and `holdfence.go`'s two checks, and both architects placed
   the step wrong.
