@@ -30,7 +30,7 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards what a render touches. The tree under root is fixed after New bar each
+	// mu guards rand, records and structs. The tree under root is fixed after New bar each
 	// table's row lookup, built under its sync.Once, so List, NewTemplate and
 	// NewRecordTemplate read it without mu.
 	mu      sync.Mutex
