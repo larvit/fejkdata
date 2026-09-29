@@ -22,10 +22,39 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 `drawWalk.walk` and the four path walks among the hardest; 5.8 on 2026-09-29
 (Navigation 6.8, Locality 5.3, Shape 5.8, Self-sufficiency 5.7), seven seats capped
 by Locality, all nine naming `drawWalk.walk` hardest and eight the unit they would
-least modify.
+least modify; 5.7 on 2026-09-29 again (Navigation 6.6, Locality 5.2, Shape 5.9,
+Self-sufficiency 5.8), four seats capped by Locality, six of the seven unit seats
+ranking `readSurvey.walk` hardest and all seven the unit they would least modify.
 
 This round, in order:
 
+- Move `readSurvey`'s verdict — `check`, `checkFamilies`, `checkFamilyPair`,
+  `replayPairs`, `alternatives`, `conflict` and `overlapError` — from `drawfence.go`
+  into `readsurvey.go`: both architects looked for it beside the survey.
+- Record each selector's table and spelling in `pathProbe.readRow`, and delete
+  `tableReadOf`'s second walk over the tail: it steps by `descendant` apart from
+  `route`, so a route that steps up to a parent row credits a selector to the wrong table.
+- Move the render's read path — `readField`, `readReference`, `readHeld`, `traceRead`,
+  `renderLeaf`, `resolveChoice`, `renderOnce` and `expandAnew` — into `render.go`, and
+  merge what `hold.go` and `holdset.go` keep into one file: both architects followed one read
+  across three files.
+- Give `prove`, `stepInto` and `columnItems` a case per node kind and panic through
+  `internalError` on the rest, and list every such switch in `node`'s doc: `prove`'s
+  default tells a typed column reading a bare table that it reads a null, and five seats
+  found `node` naming four switches of seven.
+- Replace `disagreements`' ten keys with the rule they encode: a declared fix holds one
+  datatype, a read one is `readTyped` where proven and `readAsText` otherwise, a text one
+  is `otherAsText` beside an unproven read and `declare` otherwise. Five seats could not
+  see why each key gets its fix.
+- Drop `table.fields` for `formatTemplate.fields`: one map held in two fields.
+- Rename `arm.key` to `head`, as `template.head` reads it, leaving `key` the table's key
+  column; give `renderScope.row` a type that is not `tablePin`, since it pins nothing;
+  and name `value.go` by the `valueProof` it holds.
+- Delete the prose three or more seats found empty: "kept whole on purpose"
+  (`format.go`, `calc.go`), the second copy of the concrete-session rationale
+  (`table.drawRow`, `pick`), the doc comments restating `isSelector`, `selectorOf`,
+  `checkPath`, `checkColumnDraws`, `compileTable` and `isOption`, and the `compose.yaml`
+  and `Dockerfile` preambles restating the README's Development.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -203,8 +232,8 @@ by a `data-import/` script, as README goal 12 asks.
   first in Go's map order.
 - Report a CRLF rows file holding only its header as having no rows: `parseRows`
   answers "line 2 is empty".
-- Refuse a bare table read in a typed column with a reason naming the table:
-  `prove`'s default arm says it reads a null.
+- Refuse a bare table read in a typed column with a reason naming the table, once
+  `prove` has a case per node kind.
 - Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
   `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a
@@ -237,8 +266,10 @@ by a `data-import/` script, as README goal 12 asks.
 - Read the tag through `git/ref/tags/{tag}` in `publish_release.py`: GitHub answers
   `tags/{tag}` with 404 whatever exists, so the burnt-version guard never fires and a
   release lands on a tag already pointing at another commit.
-- Document `NewRecordTemplate` in the README's Library section, the one exported name
-  it does not name.
+- Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the
+  README's Library section, which names none of them.
+- Build on a manual run of `test.yml`: `workflow_dispatch` leaves `github.event.before`
+  empty, so the diff compares `HEAD` with itself and skips `docker build`.
 - Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds: nothing has shipped, so
   "no longer paths", "where it used to fail" and "where it used to be an empty string"
   describe versions no reader can have installed.
