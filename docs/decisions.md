@@ -2,6 +2,8 @@
 
 ## GitHub is canonical, and the module path names it
 
+2026-09-20, Lilleman auf Larv.
+
 Goal 1 wants the usage the tool earns and goal 2 expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
@@ -10,6 +12,8 @@ the workflow decided nothing, being portable already — `github.api_url` and
 `secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
 
 ## The vocabulary sits below `doc.go`'s package clause, not in the package doc
+
+2026-09-21, Lilleman auf Larv.
 
 Goal 1 is what a developer choosing a library reads first, and the package doc is that
 page: the glossary would fill two thirds of it with the render path's units, mostly
@@ -20,16 +24,22 @@ teach the exported API belongs above the clause.
 
 ## Options and fields share one namespace
 
+2026-09-02, Lilleman auf Larv.
+
 `format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are reserved;
 every other key is a field. Nesting fields under a key, or prefixing options, would tax
 every template to guard against a misspelt option.
 
 ## `{a|b}` stays beside nested choices
 
+2026-09-02, Lilleman auf Larv.
+
 `[[…], […]]` picks the same way, but its arms are anonymous; `{female|male}` keeps
 `person.female` addressable.
 
 ## Flags follow getopt_long
+
+2026-09-02, Lilleman auf Larv.
 
 `--name value` and `--name=value` both work; a short flag's value attaches or follows
 (`-s42`, `-s 42`) and short flags bundle (`-hn 3`), as every shell user expects. A
@@ -38,6 +48,8 @@ rejected naming both short spellings: `=` belongs to the long form, and reading 
 the value would make `-d=./x` a directory named `=./x`.
 
 ## An argument is a template by its shape, not by a flag
+
+2026-09-03, Lilleman auf Larv.
 
 A JSON object, array or string, or a string carrying a `{` token, is an inline template;
 anything else is a path. A name may not contain a brace, a bracket or a quote, so a path
@@ -55,10 +67,14 @@ tags and any other caller read one.
 
 ## An inline template skips the cycle fence
 
+2026-09-03, Lilleman auf Larv.
+
 `New` proves the loaded tree acyclic, an inline node is a finite tree of its own, and
 nothing in the tree can reference it, so no render of it reaches itself.
 
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
+
+2026-09-24, Lilleman auf Larv.
 
 The whole argument is the spelling under test, and `NewTemplate` compiles, links and
 validates as one step. An unknown *path* stays a runtime error (exit 1): there the
@@ -66,10 +82,14 @@ argument is well-formed and only the data is absent.
 
 ## A padded JSON argument is rejected, not trimmed
 
+2026-09-03, Lilleman auf Larv.
+
 Padding is the one place the two readings disagree — a format string renders it, JSON
 drops it — so the spelling that renders is named rather than silently chosen.
 
 ## `FakeTemplate` and `NewTemplate` both stay
+
+2026-09-03, Lilleman auf Larv.
 
 They reach the same value but not at the same cost: `NewTemplate` pays the compile and
 validation once and renders many times, `FakeTemplate` is the one-shot call, and
@@ -78,10 +98,14 @@ and `regexp.Match`, not two spellings of one result.
 
 ## The shipped data is embedded, not discovered
 
+2026-09-02, Lilleman auf Larv.
+
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
 still lives in `data/` as JSON; `--data-path` layers over it.
 
 ## A bare reference draws each time; a reference path is held
+
+2026-09-02, Lilleman auf Larv.
 
 Goal 4: `{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in
 one render and draw group reads one draw, and a bare `{/p}` beside them is a load error,
@@ -92,11 +116,15 @@ operand holds what it reads for its expansion, references included, so
 
 ## Reference sigils follow the filesystem
 
+2026-09-02, Lilleman auf Larv.
+
 `/` is the root, `.` this file's folder, `..` the folder above — what those spellings
 already mean to anyone who has typed a path. A locale's files reach each other without
 naming the locale, so a folder renames and copies without editing its references.
 
 ## A change to what exists is a major; a minor only adds
+
+2026-09-16, Lilleman auf Larv.
 
 Data files, the CLI and the Go API are the public API, and a consumer must be able to
 take a minor without an edit — so an added column is a major, since it changes the CSV
@@ -110,16 +138,22 @@ release instead. Before `v1.0.0` a minor carries what a major would.
 
 ## Seeded output is promised within one version
 
+2026-09-16, Lilleman auf Larv.
+
 Any edit to a category shifts its stream and everything drawn after it, so a promise
 across versions would freeze every shipped list; a fixture is re-pinned on a bump, as
 this repo's own are.
 
 ## An error is a contract by what it names, not its bytes
 
+2026-09-16, Lilleman auf Larv.
+
 A script branches on the exit code and reads the named path or spelling, so those hold;
 wording improves in a minor.
 
 ## Formats are checked after all data is loaded, so their errors name the category
+
+2026-09-28, Lilleman auf Larv.
 
 2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 2. Loading reads every
 file first, then connects references across them. A format holding a reference can only
@@ -130,10 +164,14 @@ its references connected.
 
 ## Raising the lowest supported Go is a major
 
+2026-09-16, Lilleman auf Larv.
+
 A consumer building on it breaks, which is the one test every rule above applies; Go's
 convention of a minor is not followed.
 
 ## The format check runs on the latest Go only
+
+2026-09-21, Lilleman auf Larv.
 
 `gofmt`'s output is the toolchain's, not the code's: 1.27 stopped padding a map
 literal's values out to a lone long key, so no source satisfies both it and 1.22's. A
@@ -144,12 +182,16 @@ Valid while the lowest supported Go is not the latest.
 
 ## The changelog heading is the one spelling of a release; CI cuts the tag
 
+2026-09-16, Lilleman auf Larv.
+
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
 instead: the tag can land only there, and the GitHub release the same job publishes
 keeps one text as its body and is where prebuilt binaries will attach.
 
 ## A `--data-path` override rebinds every reference to the category it replaces
+
+2026-09-24, Lilleman auf Larv.
 
 References bind against the merged tree, so once shipped data uses `{.person}`, a
 consumer's `sv_SE/person.json` is what every shipped reference into `person` reads, and
@@ -160,6 +202,8 @@ shipped tree reads.
 
 ## The repeat cap bounds renders, not bytes
 
+2026-09-02, Lilleman auf Larv.
+
 A repeat, alone or nested, may ask for at most 1 048 576 renders; how large each render
 is stays what the data asked for, so `{hex(1048576)}` repeated to the cap is a terabyte,
 loaded without complaint. A byte estimate would need every builtin to declare a width to
@@ -167,10 +211,14 @@ fence a shape no data comes near, and the harm lands on the author who wrote it.
 
 ## 64-bit targets only
 
+2026-09-02, Lilleman auf Larv.
+
 The gate builds amd64, and the buffer sizing a render pre-computes (renders × bytes)
 assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 
 ## A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`
+
+2026-09-24, Lilleman auf Larv.
 
 `1/0` and a fixed `"0"` field are decidable, so they join the never-numeric operand as a
 load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed at `0`
@@ -180,6 +228,8 @@ instead and refuses a divisor it cannot keep from zero.
 
 ## In data, a default written out and a constant spelled as a sample are load errors
 
+2026-09-24, Lilleman auf Larv.
+
 `weight: 1`, `repeat: 1`, `separator: ""`, `datatype: "string"`, `int(5,5)`,
 `float(1,1,2)`, `+5` and `05` each spell what a shorter form already spells, so each is
 rejected naming that form. The CLI's numbers follow the shell instead: `--seed 007` and
@@ -187,10 +237,14 @@ rejected naming that form. The CLI's numbers follow the shell instead: `--seed 0
 
 ## Samples say what they emit, transforms what they do
 
+2026-09-02, Lilleman auf Larv.
+
 `{upper(2)}` is two letters, `{uppercase(x)}` is `x` upper-cased; one name for both
 would turn on whether the argument looks like a number.
 
 ## A record is a template seen as columns; a Go struct is the one second schema
+
+2026-09-15, Lilleman auf Larv.
 
 A template's `format` composes its fields into one string; `FakeRecord` and `--format`
 project the same fields as columns. Two views of one dataset, so a record author writes
@@ -205,6 +259,8 @@ not agree on one among themselves; each must only hold that type.
 
 ## A struct's records follow Go's field access, and compile on first use
 
+2026-09-15, Lilleman auf Larv.
+
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
 its draws; a tagged field that another field hides is refused, not dropped. A named
@@ -216,6 +272,8 @@ error included, is kept per type: a test's first call is its load, and no `NewSt
 handle is needed, as the cache already compiles once.
 
 ## A render shares one reference draw per category, per group
+
+2026-09-15, Lilleman auf Larv.
 
 Every reference path into a category that selects no row, in one `Fake` or one record,
 reads one draw of it, so a value's facts agree across its fields, nested templates and
@@ -229,12 +287,16 @@ it.
 
 ## A draw group name is local to its category
 
+2026-09-16, Lilleman auf Larv.
+
 A category's groups are its own entities, so a caller naming a group the same way never
 joins them by accident, and renaming a group inside one file changes no render
 elsewhere. The unnamed group still spans categories, since facts that belong together
 across categories must agree.
 
 ## The expansion hold and the render's draws are two fences
+
+2026-09-16, Lilleman auf Larv.
 
 Goal 2: one proves a sibling path or an operand is reached only by its readers within
 an expansion, the other that reference paths, whole-table reads and a table family's
@@ -244,6 +306,8 @@ step.
 
 ## A render's draws make their maps on the first read
 
+2026-09-29, Lilleman auf Larv.
+
 Every render starts from empty draws, its draw groups included, since goal 2 prices
 a reader meeting two spellings of one empty set. Making the maps where the draws are declared kept a
 record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so there it
@@ -252,6 +316,8 @@ Lazily, a render reading a reference path pays those two allocations, a record o
 included, and one reading none pays nothing; goal 11 holds either way.
 
 ## A category never references itself, and a record's fences run at load
+
+2026-09-16, Lilleman auf Larv.
 
 A category is one unit: a reference back into it — `{/users.first}` inside `users` —
 describes a draw other than the fields beside it, where goal 3 asks facts that belong
@@ -266,6 +332,8 @@ rendering format can matter to a caller that bare-references it.
 
 ## A record's column set is fixed before the first draw
 
+2026-09-04, Lilleman auf Larv.
+
 Only a category-level template is a record: a path descending into a field, or naming a
 folder or a choice, errors. A tail may pass through a choice whose variants carry
 different fields, so the columns — and with them the CSV header written once ahead of
@@ -275,16 +343,22 @@ to agree.
 
 ## Null is a `null` item, not a rate
 
+2026-09-15, Lilleman auf Larv.
+
 A null is one more outcome of a column's draw, so a choice's weights skew it like any
 other; a null-rate option would be a second way to state odds.
 
 ## A typed column holds one value, not composed text
+
+2026-09-15, Lilleman auf Larv.
 
 Its bounds come from a literal or a call's arguments, so a load error names a real
 value, a range check is one comparison, and `1{digits(2)}` is a second spelling of
 `{int(100,199)}`.
 
 ## A column of one reference alone is the column it reads
+
+2026-09-15, Lilleman auf Larv.
 
 `{/src.score}` renders exactly what `src.score` draws, so it takes that column's
 datatype and null rather than restating them, and a `datatype` restating the one it
@@ -293,21 +367,29 @@ type a column someone else wrote.
 
 ## A typed column's calc is refused unless proven
 
+2026-09-15, Lilleman auf Larv.
+
 Operand bounds must keep each divisor from zero and the result finite; what they cannot
 show is refused rather than trusted, since a bare `NaN` breaks the JSON and SQL it lands
 in.
 
 ## `Column` carries text, not a Go value
 
+2026-09-15, Lilleman auf Larv.
+
 `Value` is the rendered string beside `DataType` and `Null`, which each serializer
 writes as the load check proved it; a `Value any` would hand every caller a type switch.
 
 ## A unit takes the stem of what it is, and a file the stem of the units it holds
 
+2026-09-29, Lilleman auf Larv.
+
 Goal 2 wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
 a read drew.
 
 ## One name, one meaning
+
+2026-09-25, Lilleman auf Larv.
 
 Two declarations of any kind — function, method, field, type — share a name only where one
 definition covers both: the same kind of value, counted or addressed the same way, so a
@@ -320,9 +402,13 @@ cost.
 
 ## The package stays flat
 
+2026-09-15, Lilleman auf Larv.
+
 Go ties a package to one directory, so folders would split the API into packages.
 
 ## The performance gate asserts allocations, not wall-clock time
+
+2026-09-03, Lilleman auf Larv.
 
 `AllocsPerRun` is deterministic across machines, so a 10% ceiling does not flake under
 CI load, while time varies with the machine and its neighbours. A rendering slowdown
@@ -330,6 +416,8 @@ almost always costs an allocation too (a lost pre-size, a per-item map, an extra
 The benchmark suite (the README's Development) reports time for a human, not as a pass/fail gate.
 
 ## Rows live in a TSV, the shape in JSON
+
+2026-09-17, Lilleman auf Larv.
 
 `New` allocates once per node, so a register of thirty thousand rows written as JSON
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
@@ -339,11 +427,15 @@ a load error rather than a file silently ignored.
 
 ## A selector is bracketed, and a dot inside it is literal
 
+2026-09-17, Lilleman auf Larv.
+
 `municipality[0180]` reads as selection to anyone who has indexed an array, and `[St.
 Louis]` keeps a name whole where a colon or a dot-separated spelling could not; zsh
 needs the brackets quoted, which the README's examples show.
 
 ## `parent` names the link column and the table alike
+
+2026-09-17, Lilleman auf Larv.
 
 One word says both, so a child table sits in its parent's folder and links on a column
 of the parent's name; the geo plan wants exactly that, and a table needing another
@@ -351,11 +443,15 @@ folder or another column name would be asking for a second spelling.
 
 ## After a row, a path names a column or a linked table
 
+2026-09-17, Lilleman auf Larv.
+
 `locality[Lund].address`, a template beside the family under a selected row, is refused
 today; admitting it later is additive, since a refused spelling gains a meaning and no
 accepted one changes, so the door stays open for the address records the plan describes.
 
 ## A selected row is fixed, not drawn, and an unnamed read beside it is refused
+
+2026-09-27, Lilleman auf Larv.
 
 Decided 2026-09-27 by the maintainer, for goals 3 and 4; valid while a selector names
 exactly one row.
@@ -376,6 +472,8 @@ Checked against three simulated template writers from the Audience, who agreed o
 case but the last, where two expected a render and all three accepted the refusal.
 
 ## A link column after a row steps up to the parent row, and a path may not end on it
+
+2026-09-27, Lilleman auf Larv.
 
 Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
 parent's key. It extends [After a row, a path names a column or a linked
@@ -405,6 +503,8 @@ the path ended.
 
 ## A table selects by one key column, a code, never a free-form name
 
+2026-09-27, Lilleman auf Larv.
+
 Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
@@ -420,12 +520,16 @@ table, `street`, `car` or `useragent`, carries no key and is only drawn.
 
 ## A parent row with no child row is a load error
 
+2026-09-17, Lilleman auf Larv.
+
 A descendant is drawn inside the nearest pinned ancestor, so every ancestor row must
 lead to a row at every level below it, or a render could find nothing to draw. The
 import script drops or fills such rows; the alternative, falling back to a free draw,
 would break the consistency the link exists for without saying so.
 
 ## The choice-of-rows fence guards a data file's root, and requires string fields
+
+2026-09-17, Lilleman auf Larv.
 
 A table is a category with a TSV beside its file, so only a root choice has the spelling
 the fence names; a nested choice of same-shaped templates and an inline one keep
@@ -434,17 +538,23 @@ items carry a nested choice is not one table but two linked ones.
 
 ## A table is a record of string columns
 
+2026-09-17, Lilleman auf Larv.
+
 Its columns are the CSV header and the `INSERT` column list, fixed by the TSV header, so
 a table is a record by construction; every column is a string until a typed column
 option earns its place.
 
 ## The key map is built at load, the rest on first draw
 
+2026-09-28, Lilleman auf Larv.
+
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
 both are load-time; the row lookup, by name and by parent, serves only a draw, so it waits
 for the first one, keeping `New` linear in the bytes read.
 
 ## Two categories may name one TSV
+
+2026-09-17, Lilleman auf Larv.
 
 Each is a view of the file with its own format and options, at the cost of holding the
 rows twice, which is what a category over a register with two natural formats asks for;
@@ -453,11 +563,15 @@ shared.
 
 ## A table never reaches its own family, by any route
 
+2026-09-17, Lilleman auf Larv.
+
 A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row that lists
 three localities from other regions is the output the family exists to prevent, so the
 own-family fence walks through both rather than stopping where the draw fences do.
 
 ## Tables carrying token cells stay small
+
+2026-09-17, Lilleman auf Larv.
 
 The family fence compares the reads of every pair of rows that can render together, so a
 table whose every row's cell selects a row of another table loads in time quadratic in
@@ -467,10 +581,14 @@ is until a real data set needs the indexed form.
 
 ## A path is walked once without drawing before it is walked for real
 
+2026-09-17, Lilleman auf Larv.
+
 A path that fails below its first level then moves no seeded stream, at the cost of one
 draw-free walk per call, which allocates nothing.
 
 ## A country's postal codes and streets are siblings under its locality
+
+2026-09-18, Lilleman auf Larv.
 
 No open source pairs a Swedish street with its postnummer, and pairing the US through
 its ZIPs would shape the two trees differently, so both draw inside the pinned locality
@@ -479,10 +597,14 @@ when a source carries it.
 
 ## A locale's `address` reads its country's `geo` tree, so the shipped set loads whole
 
+2026-09-24, Lilleman auf Larv.
+
 `data/sv_SE` alone no longer loads: a test loads `data` and prefixes the locale, and
 `--no-shipped-data -d` takes the whole `data` folder or a set of one's own.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
+
+2026-09-24, Lilleman auf Larv.
 
 Sweden fits whole in 700 KB; every US place of 10,000 would pass a megabyte and fetch
 1,200 counties of TIGER files, so the threshold sits where the two countries match in
@@ -492,6 +614,8 @@ fuller set. The two trees add about 20 ms to `New`, which loads the shipped set 
 
 ## A locale's `address` restates its country record's format
 
+2026-09-18, Lilleman auf Larv.
+
 A record cannot read another whole and keep its columns, so `sv_SE.address` names the
 same four columns as `geo.SE.address`, each a reference into it, and the format appears
 twice; a column is spelled the same in both, `street-number`, so the two never disagree
@@ -499,11 +623,15 @@ on a name.
 
 ## A postort's kommun comes from its name, its tätort or its codes, never from distance
 
+2026-09-24, Lilleman auf Larv.
+
 GeoNames leaves a fifth of Sweden's codes without a kommun and carries stale spellings;
 the nearest code across a border named the wrong kommun half the time it was tried, so a
 postort none of the three rules place is dropped, as is one not cased like a place name.
 
 ## A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places
+
+2026-09-24, Lilleman auf Larv.
 
 `I- 55 Bus` and `US Hwy 1` carry the most address ranges in many places and would head
 every address, so the import drops names spelled as a route. A ZCTA goes to the place
@@ -515,12 +643,16 @@ postal city the USPS mostly names the same way.
 
 ## `--list` stays a plain list of paths
 
+2026-09-18, Lilleman auf Larv.
+
 It is what a script reads, so every line has to be a path that `Fake` takes; a marker
 for the tables a `[selector]` follows, or a legend above them, would make the output
 something to parse before use. `--help` names the selector spelling instead, and the
 Table section teaches it.
 
 ## A layout is always quoted
+
+2026-09-18, Lilleman auf Larv.
 
 A layout may carry the comma that separates arguments, `'January 2, 2006'`, and one
 spelling for every layout beats a rule about which ones need the quotes, so the bare
@@ -529,6 +661,8 @@ library renders with it and a Go caller already knows it; its names are English,
 locale's own month and weekday names are data.
 
 ## A title is a table under `sex`
+
+2026-09-18, Lilleman auf Larv.
 
 A prefix drawn apart would put `Mr` on a record whose `sex` column says `female`, which
 is the disagreement the record exists to prevent; the tables this set already has are
@@ -539,6 +673,8 @@ are a curated proportion rather than bearers anyone counted.
 
 ## A table owns the spelling of a selector on it
 
+2026-09-18, Lilleman auf Larv.
+
 A reference reaches a table by a path that carries no selector — `sv_SE.address` reads
 `geo.SE.locality` through its template — so the walk that reached it cannot say where
 a reader would type a selector. The table's own location can, which is why it keeps its
@@ -546,11 +682,15 @@ path, and why an error names `geo.SE.municipality[1281]` rather than `municipali
 
 ## No builtin reads the clock, so a date is bounded by days, never by an age
 
+2026-09-18, Lilleman auf Larv.
+
 An `age(min,max)` would make a seeded fixture change with the day it runs on, which is
 what a seed exists to prevent; a birthdate for someone 20 to 60 is
 `date(1966-01-01,2006-12-31,…)`, re-pinned as any fixture is.
 
 ## `misc` is what every locale shares
+
+2026-09-18, Lilleman auf Larv.
 
 A category whose facts differ by country belongs in that country's locale, read from the
 register that country's own records use; `misc` takes only sources that are
@@ -558,6 +698,8 @@ international. NHTSA vPIC and Mobility Sweden's registrations are national, so t
 for `en_US.car` and `sv_SE.car`, and `misc.car` waits for an international source.
 
 ## A register's canonical spelling loses to the one its domain writes
+
+2026-09-18, Lilleman auf Larv.
 
 Where a source offers several spellings of one fact, the shipped one is what records in
 that domain carry. `misc.timezone` reads `zone.tab` and not the `zone1970.tab` that
@@ -568,6 +710,8 @@ which says "Chinese, Mandarin" for `zh`.
 
 ## `misc.territory` is the spine, and a `misc` table naming a territory links to it
 
+2026-09-24, Lilleman auf Larv.
+
 Where every territory row has a child the column is a `parent`, and the import drops the
 child rows whose territory the set does not ship — 17 of `misc.timezone`'s, Antarctica's
 ten among them. Agreement across a record is worth more than the last rows of a table.
@@ -577,6 +721,8 @@ naming the row.
 
 ## A table whose register publishes no frequency draws evenly
 
+2026-09-20, Lilleman auf Larv.
+
 `misc.httpmethod`, `misc.port`, `misc.httpstatus`, `misc.mimetype` and `misc.tld` weigh
 every row alike, so GET is a ninth of the methods drawn. Goal 12 keeps an authored fact
 out of a sourced table, and no register publishes how often a method, a port or a TLD is
@@ -584,6 +730,8 @@ used, so a weight here would be invented. Where one exists it is read, as
 `misc.timezone` reads GeoNames populations and `sv_SE.first-name` SCB bearers.
 
 ## `misc.timezone` weighs a zone by the people living in it
+
+2026-09-24, Lilleman auf Larv.
 
 The weight is the population GeoNames records in the zone's cities of 15,000 or more,
 floored at 15,000, which goal 14 asks for: over 300 seeded draws of
@@ -593,11 +741,15 @@ to 0. Valid while a draw weighted this way lands where people live.
 
 ## `misc.car` is one flat table, not a make linked to its models
 
+2026-09-18, Lilleman auf Larv.
+
 A row is a make and a model drawn together, so no render pairs a Volvo with a RAV4. Two
 linked tables would reach the same pairs and add a selector nothing asks for; a make
 alone is `misc.car.make`.
 
 ## `misc.territory` names its sovereign in a column, and there is no `misc.country` table
+
+2026-09-24, Lilleman auf Larv.
 
 ISO 3166-1 codes territories, so `territory` is the honest name, and `is_independent` in
 the register gives each one's state. A second table of the 195 sovereigns would hold a
@@ -611,6 +763,8 @@ claim fejkdata has no business making.
 
 ## `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code
 
+2026-09-27, Lilleman auf Larv.
+
 A flat list of names carries neither the code a PRI encodes nor a selector reaching it,
 and goal 3 draws the two as one fact. The canonical spelling losing to the one its
 domain writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
@@ -618,11 +772,15 @@ domain writes, above, settles the rest: a configuration writes `info`, so RFC 54
 
 ## `misc.tld` keys carry the leading dot, where other tables key on a bare code
 
+2026-09-20, Lilleman auf Larv.
+
 The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
 bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a host
 with no separator. `misc.tld[se]` misses for it, which `todo.md` carries.
 
 ## `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
+
+2026-09-20, Lilleman auf Larv.
 
 A `parent` demands a child for every parent row, so linking them would drop every root
 zone row naming no territory, which is most of them, and goal 12 holds a sourced table
@@ -630,6 +788,8 @@ whole. The loader refuses the link outright anyway: `tld` is a column of
 `misc.territory`, and a table may not be named like a column of its ancestor.
 
 ## `misc.territory` carries a currency code, it does not link to `misc.currency`
+
+2026-09-18, Lilleman auf Larv.
 
 A `parent` demands a child for every parent row, and ISO 4217 registers codes no
 country's row can name: the funds codes (Mvdol, WIR Euro, US Dollar (Next day)), and VED
@@ -639,12 +799,16 @@ currency in one draw.
 
 ## An extension may name two media types
 
+2026-09-18, Lilleman auf Larv.
+
 `.xml`, `.rtf`, `.sub`, `.mpp` and `.ac` each name two rows of `misc.mimetype`.
 Separating them would mean dropping a registered type, or naming one by an extension
 that is not its own — `.mpt` is Project's template, not its document. Selecting such a
 name is an error listing both keys; select by type instead.
 
 ## The Swedish ids draw Skatteverket's test series
+
+2026-09-18, Lilleman auf Larv.
 
 A Luhn-valid personnummer over a random birth number may be a living person's; 238 and
 239 after any date are blocked from assignment, so the shipped `personnummer` and
@@ -656,6 +820,8 @@ drawn from 61 to 88, valid in every month, rather than computed from the date dr
 
 ## The US given names come from a mirror of the SSA file
 
+2026-09-18, Lilleman auf Larv.
+
 ssa.gov refuses a client outside the US, so `names-us.py` reads a GitHub copy that ends
 at 2020, which a count over the births since 1930 barely feels; `--names` takes the
 official zip. The SSA's placeholder rows are top-1000 entries that name nobody, so the
@@ -663,17 +829,23 @@ import drops them by name rather than by a rank a regeneration would move.
 
 ## `List` advertises direct descents only
 
+2026-09-17, Lilleman auf Larv.
+
 `region.municipality.locality` is listed, and `region.locality` resolves too but is not:
 the set of every descent through a chain of five tables is every subsequence of it, and
 the direct chain is the one a reader can predict from the tables' parents.
 
 ## Each entry point to `drawFence.hasRead` says what its caller gets
 
+2026-09-29, Lilleman auf Larv.
+
 2026-09-25, larv-review; approved 2026-09-25 by lilleman. Goal 2: a reader lands on
 `readsPath` or `splitsDraws` from its caller, so each doc states where that walk stops,
 though `hasRead` states the same stop rule. Valid while the two differ in where they stop.
 
 ## The four path walks are four loops
+
+2026-09-28, Lilleman auf Larv.
 
 2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
 Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
