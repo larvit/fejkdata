@@ -174,25 +174,6 @@ type itemPair struct {
 	want          DataType
 }
 
-// disagreementKey is the two items' kinds and whether fix's values prove to hold want.
-type disagreementKey struct {
-	fix, other itemKind
-	proven     bool
-}
-
-var disagreements = map[disagreementKey]func(d itemPair) error{
-	{kindDeclares, kindDeclares, false}: holdOne,
-	{kindDeclares, kindDeclares, true}:  holdOne,
-	{kindReads, kindDeclares, false}:    readAsText,
-	{kindReads, kindDeclares, true}:     readTyped,
-	{kindReads, kindReads, false}:       readAsText,
-	{kindReads, kindReads, true}:        readTyped,
-	{kindText, kindDeclares, false}:     declare,
-	{kindText, kindDeclares, true}:      declare,
-	{kindText, kindReads, false}:        otherAsText,
-	{kindText, kindReads, true}:         declare,
-}
-
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
@@ -201,15 +182,25 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 		d.fix, d.other, d.want = b, a, da
 	}
 	proven := (&valueProof{}).proveColumnItem(d.fix).not[d.want] == ""
-	return disagreementFix(disagreementKey{kindOf(d.fix), kindOf(d.other), proven})(d)
+	return disagreementFix(kindOf(d.fix), kindOf(d.other), proven)(d)
 }
 
-func disagreementFix(k disagreementKey) func(d itemPair) error {
-	fix := disagreements[k]
-	if fix == nil {
-		panic(internalError("no disagreement names the fix for %+v", k))
+// disagreementFix is the fix for item fix beside item other, where proven says fix's values hold
+// the other's datatype.
+func disagreementFix(fix, other itemKind, proven bool) func(d itemPair) error {
+	switch {
+	case fix == kindDeclares:
+		return holdOne
+	case fix == kindReads && proven:
+		return readTyped
+	case fix == kindReads:
+		return readAsText
+	case other == kindText:
+		panic(internalError("two text items hold one datatype, so they never disagree"))
+	case other == kindReads && !proven:
+		return otherAsText
 	}
-	return fix
+	return declare
 }
 
 func holdOne(d itemPair) error {
