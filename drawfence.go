@@ -14,13 +14,6 @@ type drawFence struct {
 	fold *readFold
 }
 
-func (f *drawFence) reads() *readFold {
-	if f.fold == nil {
-		f.fold = newReadFold()
-	}
-	return f.fold
-}
-
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
 // path inside a repeat or a nested draw group, which draw apart from it whatever it names.
 func (f *drawFence) checkDrawGroup(path string, n node) error {
@@ -28,7 +21,7 @@ func (f *drawFence) checkDrawGroup(path string, n node) error {
 	if !ok || t.drawGroup == "" {
 		return nil
 	}
-	for _, r := range f.reads().rootReads(t) {
+	for _, r := range f.fold.rootReads(t) {
 		if r.at.group == "" && r.draws() {
 			return nil
 		}
@@ -41,7 +34,7 @@ func (f *drawFence) checkDraws(path string, n node) error {
 	if !ok {
 		return nil
 	}
-	reads := f.reads().rootReads(t)
+	reads := f.fold.rootReads(t)
 	if !anyDraws(reads) {
 		return nil
 	}
@@ -59,7 +52,7 @@ func (f *drawFence) checkRecordDraws(path string, n node) error {
 	if !ok || !t.isRecord {
 		return nil
 	}
-	reads := f.reads().columnReads(t, sortedNames(t.fields))
+	reads := f.fold.columnReads(t, sortedNames(t.fields))
 	if !anyDraws(reads) {
 		return nil
 	}
