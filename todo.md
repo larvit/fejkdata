@@ -26,8 +26,6 @@ least modify.
 
 This round, in order:
 
-- Stop `readField` dereferencing a nil `held`: `renderLeaf` passes nil, safe only
-  because a `readsColumn` arm is a reference path with a tail, which nothing there says.
 - Test that `disagreements` holds every key `disagreement` can build, and panic through
   `internalError` on a miss: a missing key is a nil func call today.
 - Name `printedNumber`'s `dp` cases, and say on `builtin` what `prints` and
