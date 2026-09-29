@@ -1079,13 +1079,13 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 				}
 			})
 			if !maps.Equal(drawn, want) {
-				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", path, categoriesOf(drawn), categoriesOf(want))
+				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", path, segmentsOf(drawn), segmentsOf(want))
 			}
 		}
 	}
 }
 
-func categoriesOf(tables map[*table]bool) []string {
+func segmentsOf(tables map[*table]bool) []string {
 	var out []string
 	for tbl := range tables {
 		out = append(out, tbl.segment)
