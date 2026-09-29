@@ -382,26 +382,26 @@ type op struct {
 type formatOps struct {
 	ops       []op
 	grow      int
-	held      map[string]heldName
+	held      map[string]firstReach
 	heldLocal bool // some held name is not a reference path, so expand makes a hold
 }
 
-// heldName is how a format first reaches a held name: the reader holding it, for
+// firstReach is how a format first reaches a held name: the reader holding it, for
 // error messages, and the first path starting from it, "" where none does.
-type heldName struct {
+type firstReach struct {
 	holder string
 	path   string
 }
 
 func (c *formatOps) holdName(a arm, label string) {
 	if c.held == nil {
-		c.held = map[string]heldName{}
+		c.held = map[string]firstReach{}
 	}
 	if !isRef(a.head) || len(a.tail) == 0 {
 		c.heldLocal = true
 	}
-	h, named := c.held[a.head]
-	if !named {
+	h, seen := c.held[a.head]
+	if !seen {
 		h.holder = label
 	}
 	if len(a.tail) > 0 && h.path == "" {

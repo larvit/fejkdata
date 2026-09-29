@@ -71,14 +71,14 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}
-	reader := t.compiled.held[name].path
+	path := t.compiled.held[name].path
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
 		if e.read.head == name || !renders(e.to, held, seen) {
 			continue
 		}
-		if reader != "" {
-			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), name, reader)
+		if path != "" {
+			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), name, path)
 		}
 		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), name, operandReader(t, name))
 	}
