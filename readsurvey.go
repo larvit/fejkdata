@@ -114,7 +114,7 @@ func (f *readFold) reads(n node) []pathRead {
 			out = append(out, f.reads(it)...)
 		}
 	case *template:
-		if n.repeat > 1 {
+		if repeats(n) {
 			break
 		}
 		for _, e := range renderEdges(n) {
@@ -194,14 +194,17 @@ func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 	return kept
 }
 
-// rowReads is what the rows of t read through the columns its format renders. A format reaching
-// its own cells through another category is checkOwnFamily's refusal, which runs first.
+// rowReads is what the rows of t read: the cells of the columns its format renders, each tagged
+// with its row, and the format's other reads, which every row shares. A format reaching its own
+// cells through another category is checkOwnFamily's refusal, which runs first.
 func (f *readFold) rowReads(t *table, tag func(*surveyAt, int) bool) []pathRead {
 	var out []pathRead
 	for _, e := range renderEdges(t.formatTemplate) {
-		if c, isColumn := e.to.(*tableColumn); isColumn {
+		if c, isColumn := e.to.(*tableColumn); isColumn && !e.readsRef() {
 			out = append(out, f.cellReads(c, tag)...)
+			continue
 		}
+		out = append(out, f.viaEdge(t.formatTemplate, e, surveyRoute{})...)
 	}
 	return out
 }
