@@ -167,6 +167,9 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
+- Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`: both name
+  half of a `generatorState`, hiding its `{seq()}` counters, and `New`'s local `rng`
+  shadows the `rng` interface.
 - Compare `calcParser.binary`'s operator as a rune: `byte(p.rs[p.pos])` reads U+012B
   `ī` as `+`, so `{calc(a ī b)}` compiles as `a + b`.
 - Stop the `columnKinds` suggestion naming a field's own kind or a narrower one: an
