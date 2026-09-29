@@ -32,7 +32,7 @@ func (p *pinSet) pinned(t *table) (int, bool) {
 func (p *pinSet) mustRow(t *table) int {
 	r, ok := p.pinned(t)
 	if !ok {
-		panic(internalError("a column of %s is rendered with no row pinned", t.category))
+		panic(internalError("a column of %s is rendered with no row pinned", t.segment))
 	}
 	return r
 }

@@ -264,7 +264,7 @@ func recordOf(n node) (*template, []Column, error) {
 func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.site.row == formatRow {
-		sc = sc.at(t.site.table.pinnedRow, &sc.groupHold().pins)
+		sc = sc.at(t.site.table.rowNode, &sc.groupHold().pins)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

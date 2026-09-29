@@ -90,7 +90,7 @@ func (p *valueProof) prove(n node) proven {
 	case *tableColumn:
 		v = p.proveCells(n)
 	case *tableRow:
-		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.category))
+		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.segment))
 	default:
 		v = unproven(`it reads a null, which renders "" outside its own column`)
 	}
@@ -157,7 +157,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 	o := t.compiled.ops[0]
 	body, name, args := o.body, o.fn, o.args
 	switch _, isTransform := transforms[name]; {
-	case o.kind == fieldAlternation:
+	case o.kind == nameRead:
 		var leaves []node
 		for _, a := range o.arms {
 			leaves = append(leaves, pathLeaves(t.head(a.key), a.tail)...)

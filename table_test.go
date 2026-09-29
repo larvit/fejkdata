@@ -1088,7 +1088,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 func categoriesOf(tables map[*table]bool) []string {
 	var out []string
 	for tbl := range tables {
-		out = append(out, tbl.category)
+		out = append(out, tbl.segment)
 	}
 	slices.Sort(out)
 	return out

@@ -199,9 +199,9 @@ func inlineScope(n node, label string) nodeScope {
 // binding is one scope's way through bind, the one load pipeline; its fields are where
 // scopes differ.
 type binding struct {
-	scope          nodeScope
-	link           func() error
-	referenceFence func() error
+	scope      nodeScope
+	link       func() error
+	scopeFence func() error
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
@@ -216,7 +216,7 @@ func treeBinding(root map[string]node) binding {
 			}
 			return linkRefs(root)
 		},
-		referenceFence: func() error { return checkNoCycles(root) },
+		scopeFence: func() error { return checkNoCycles(root) },
 	}
 }
 
@@ -224,7 +224,7 @@ func (b binding) bind() error {
 	if err := b.link(); err != nil {
 		return err
 	}
-	if err := b.referenceFence(); err != nil {
+	if err := b.scopeFence(); err != nil {
 		return err
 	}
 	if !b.typedByGo {
@@ -232,13 +232,13 @@ func (b binding) bind() error {
 			return err
 		}
 	}
-	return checkRenders(b.scope)
+	return checkNodeFences(b.scope)
 }
 
-// checkRenders runs the per-node fences over a scope, each over the whole scope
+// checkNodeFences runs the per-node fences over a scope, each over the whole scope
 // before the next, so which of several broken nodes is reported does not depend on
 // the walk. Its walks terminate only where nothing renders itself.
-func checkRenders(s nodeScope) error {
+func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err

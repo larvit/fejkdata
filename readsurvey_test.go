@@ -87,7 +87,7 @@ func renderRoot(s *session, t *template, trace renderTrace) {
 			set := holdSet{trace: trace}
 			sc := renderScope{set: &set}
 			sc.groupHold().pins.pin(tbl, r)
-			render(s, tbl.pinnedRow, sc.at(tbl.pinnedRow, &sc.groupHold().pins))
+			render(s, tbl.rowNode, sc.at(tbl.rowNode, &sc.groupHold().pins))
 		}
 	case t.repeat > 1:
 		expand(s, t, sc)
