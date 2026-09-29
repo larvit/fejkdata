@@ -28,9 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Move `readSurvey`'s verdict — `check`, `checkFamilies`, `checkFamilyPair`,
-  `replayPairs`, `alternatives`, `conflict` and `overlapError` — from `drawfence.go`
-  into `readsurvey.go`: both architects looked for it beside the survey.
 - Record each selector's table and spelling in `pathProbe.readRow`, and delete
   `tableReadOf`'s second walk over the tail: it steps by `descendant` apart from
   `route`, so a route that steps up to a parent row credits a selector to the wrong table.
