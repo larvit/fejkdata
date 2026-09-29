@@ -16,9 +16,10 @@ import (
 const (
 	maxLen      = 1 << 20
 	maxDecimals = 1024
-	// shortestDecimals prints the fewest digits that read back as the same float64.
-	shortestDecimals = -1
 )
+
+// shortestDecimals prints the fewest digits that read back as the same float64.
+const shortestDecimals = -1
 
 // builtins is the registry of {name(args)} functions. Derivations read the digits
 // emitted so far in the current expansion (place them after their payload);

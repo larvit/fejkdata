@@ -129,9 +129,9 @@ type builtin struct {
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
 	proveNumber func(token string, prints DataType, args []string) proven
-	// prints is the datatype every render's text is, which a typed column holds the call to:
-	// DataTypeString where it reads as a number but no column should type it, as digits'
-	// leading zeros; unset where proveNumber is nil.
+	// prints is the datatype a call's text is, handed to proveNumber: DataTypeString where it
+	// reads as a number no column should type, as digits' leading zeros; unset where
+	// proveNumber is nil.
 	prints DataType
 }
 
