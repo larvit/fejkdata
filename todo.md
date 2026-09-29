@@ -31,8 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Pick `disagreement`'s fix through a named `itemKind` comparison: six seats could not
-  see that the kinds' declaration order is the rule.
 - Give `tableSite` one test for a cell, and have `traceRead` report no row outside a
   table: the zero value reads as row 0, a real cell, so each reader tests `table` first.
 - Rename `ftoken` to `scanUnit`, beside `formatToken`, and `session` to
