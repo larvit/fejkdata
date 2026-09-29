@@ -74,7 +74,7 @@ const formatRow = -1
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
 	refs         map[string]refBinding // each reference the format reads -> what it resolves to
-	refHeads     map[string]node       // each refBinding.key -> the category it names
+	refHeads     map[string]node       // each refBinding.head -> the category it names
 	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
 	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
 }
