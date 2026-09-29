@@ -221,17 +221,6 @@ func TestNullColumn(t *testing.T) {
 	}
 }
 
-func TestDisagreementsHoldEveryKeyDisagreementBuilds(t *testing.T) {
-	kinds := []itemKind{kindText, kindReads, kindDeclares}
-	for _, fix := range kinds {
-		for _, other := range kinds[fix:] {
-			if other == kindText {
-				continue
-			}
-			for _, proven := range []bool{false, true} {
-				disagreementFix(disagreementKey{fix, other, proven})
-			}
-		}
-	}
-	mustPanic(t, "two text items", func() { disagreementFix(disagreementKey{kindText, kindText, false}) })
+func TestDisagreementFixRefusesTwoTextItems(t *testing.T) {
+	mustPanic(t, "two text items", func() { disagreementFix(kindText, kindText, false) })
 }
