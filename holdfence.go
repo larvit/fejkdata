@@ -28,8 +28,7 @@ func heldCheck(path string, n node) error {
 }
 
 // heldNames lists a template's held names, operands' first, then paths', each
-// in name order: a level read both ways is reported by the operand's fence, and
-// which overlap is reported does not vary.
+// in name order: a level read both ways is reported by the operand's fence.
 func heldNames(t *template) []string {
 	names := make([]string, 0, len(t.compiled.held))
 	for name := range t.compiled.held {
@@ -172,8 +171,7 @@ func renders(n node, want, seen map[node]bool) bool {
 // checkNoOverlap rejects a format that both renders a sibling level and reads a path
 // into it — {p} beside {p.first}, {p.addr} beside {p.addr.city}. The path reads the
 // level's held draw while rendering the level expands it afresh, so their values would
-// disagree. Reads are compared in sorted order, so which pair is reported does not
-// depend on where the tokens sit.
+// disagree.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
 func checkNoOverlap(c formatOps) error {
 	names := pathHeadReaders(c)

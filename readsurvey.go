@@ -214,8 +214,7 @@ func (r *tableRead) replay(d *pinSet) error {
 
 // check refuses what one draw per reference path cannot answer for: a read selecting a row its route
 // pinned another of, a read of a level beside a path another read takes into it, and two reads of one
-// table family that select different rows. Reads are compared in path order, so which pair is
-// reported does not vary.
+// table family that select different rows.
 func (s *readSurvey) check() error {
 	if s.clash != nil {
 		return s.clash
@@ -242,7 +241,7 @@ func (s *readSurvey) check() error {
 // checkFamilies refuses reads of one table family in one draw group that cannot
 // read one consistent draw: a table rendered whole beside a path into the family,
 // a table one read draws that another pins, and two reads pinning different rows.
-// The reads come sorted by group and path, so which pair is reported does not vary.
+// The reads come sorted by group and path.
 func checkFamilies(reads []pathRead) error {
 	for i, r := range reads {
 		if r.tr == nil {
