@@ -760,12 +760,18 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 	}
 }
 
-func TestReadFieldPanicsOnAnUnheldPath(t *testing.T) {
-	tm, ok := compiled(t, `{"format":"{w}","w":{"format":"{x}","x":"1"}}`).(*template)
-	if !ok {
-		t.Fatal("not a template")
+func TestReadFieldPanicsOnAPathItCannotHold(t *testing.T) {
+	a := arm{spelling: "w.x", key: "w", tail: []string{"x"}, path: "w.x"}
+	for name, format := range map[string]string{
+		"unheld arm with a path": `{"format":"{w}","w":{"format":"{x}","x":"1"}}`,
+		"held arm with no hold":  `{"format":"{w.x}","w":{"format":"{x}","x":"1"}}`,
+	} {
+		tm, ok := compiled(t, format).(*template)
+		if !ok {
+			t.Fatal("not a template")
+		}
+		mustPanic(t, name, func() {
+			readField(engine(1).rand, tm, nil, renderScope{set: &holdSet{}}, a)
+		})
 	}
-	mustPanic(t, "unheld arm with a path", func() {
-		readField(engine(1).rand, tm, nil, renderScope{set: &holdSet{}}, arm{spelling: "w.x", key: "w", tail: []string{"x"}, path: "w.x"})
-	})
 }
