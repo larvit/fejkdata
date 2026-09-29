@@ -311,9 +311,8 @@ a read drew.
 
 Two declarations of any kind — function, method, field, type — share a name only where one
 definition covers both: the same kind of value, counted or addressed the same way, so a
-reader landing on the wrong one concludes nothing false. `Fake` renders one value on
-`Generator`, `Template` and `RecordTemplate`; `renderScope.groupHold` returns the
-`*groupHold` it names. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
+reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
+`Generator`, `Template` and `RecordTemplate`. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
 name, since a search returns both and a call site shows no receiver; review judges the
 rest. Serves goal 2: names that tell the truth, and reaching the unit behind a symptom
 without asking a person. Decided 2026-09-25 by Lilleman; valid while goal 2 counts reading
