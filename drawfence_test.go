@@ -1,6 +1,10 @@
 package fejkdata
 
-import "testing"
+import (
+	"strings"
+	"testing"
+	"testing/fstest"
+)
 
 func fenceCorpus(t *testing.T) *Generator {
 	t.Helper()
@@ -174,4 +178,44 @@ func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
 		}
 	}
 	grow(nil, reads, nil)
+}
+
+func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
+	fsys := fstest.MapFS{
+		"r.json": {Data: []byte(`"{/y[a].v}"`)},
+		"n.json": {Data: []byte(`{"format":"{f}","f":"{/y[a].v}"}`)},
+		"x.json": {Data: []byte(`{"format":"{v}","rows":"x.tsv","key":"code"}`)},
+		"x.tsv":  {Data: []byte("code\tv\n1\tb\n2\tc\n")},
+		"y.json": {Data: []byte(`{"format":"{v}","rows":"y.tsv","key":"code","parent":"x"}`)},
+		"y.tsv":  {Data: []byte("code\tv\tx\na\t{/x[2].v}\t1\nb\tz\t2\n")},
+	}
+	g, err := loadDir(dataSource{fsys: fsys}, ".")
+	if err != nil {
+		t.Fatalf("loadDir = %v", err)
+	}
+	if err := treeBinding(g.children).link(); err != nil {
+		t.Fatalf("link = %v", err)
+	}
+	r, isTemplate := g.children["r"].(*template)
+	if !isTemplate {
+		t.Fatalf("r is a %T, want a template", g.children["r"])
+	}
+	if err := surveyRender(newReadFold(), r).check(); err == nil || !strings.Contains(err.Error(), "two rows of") {
+		t.Errorf("check = %v, want y[a]'s row of x clashing with x[2] named, whatever order the fences run in", err)
+	}
+	n, isTemplate := g.children["n"].(*template)
+	if !isTemplate {
+		t.Fatalf("n is a %T, want a template", g.children["n"])
+	}
+	if err := surveyRender(newReadFold(), n).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with {/x[2].v}: x[1] and x[2] are two rows of x") {
+		t.Errorf("check = %v, want the clash below {f} named by the route the root reaches it by", err)
+	}
+}
+
+func surveyRender(f *readFold, t *template) *readSurvey {
+	return survey(f.rootReads(t), t.link.drawGroupKey)
+}
+
+func surveyColumns(f *readFold, t *template, columns []string) *readSurvey {
+	return survey(f.columnReads(t, columns), t.link.drawGroupKey)
 }

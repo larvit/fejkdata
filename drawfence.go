@@ -14,6 +14,39 @@ type drawFence struct {
 	fold *readFold
 }
 
+// readSurvey is what one render reads, gathered at load for check to compare.
+type readSurvey struct {
+	reads []pathRead
+	clash *pinClash
+}
+
+// pinClash is the first read whose selectors clash with a row its route pinned.
+type pinClash struct {
+	route    surveyRoute
+	spelling string
+	err      error
+}
+
+// survey is the fold's result as a render in group: every read not inside a nested draw group
+// draws in it, and one read gathered by several routes is kept once.
+func survey(reads []pathRead, group string) *readSurvey {
+	s := &readSurvey{}
+	for _, r := range reads {
+		if r.clash != nil {
+			if s.clash == nil {
+				s.clash = &pinClash{r.at.route, r.a.spelling, r.clash}
+			}
+			continue
+		}
+		if r.at.group == "" {
+			r.at.group = group
+		}
+		s.reads = append(s.reads, r)
+	}
+	s.reads = distinct(s.reads)
+	return s
+}
+
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
 // path inside a repeat or a nested draw group, which draw apart from it whatever it names.
 func (f *drawFence) checkDrawGroup(path string, n node) error {

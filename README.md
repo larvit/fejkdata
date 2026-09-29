@@ -885,8 +885,8 @@ inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplat
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
 draws.go        the memo a hold or draw group keeps its draws in; and a render's draws and the scope it reads its reference paths through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
-drawfence.go    the load fences over reference draws and their refusals: a drawGroup's, a render's and a record's columns judged on the survey, and a table reaching its own family
-readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family
+drawfence.go    the load fences over reference draws and their refusals: a drawGroup's, a render's and a record's columns judged on what they read, and a table reaching its own family
+reads.go        the load-time fold of what a render reads, and what a path reads of a table family
 pins.go         the pin set: the table rows a render fixes, which the draw fences replay
 reference.go    reference sigils, and binding references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
