@@ -36,9 +36,6 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Have `checkDrawGroup`, `checkDraws` and `checkRecordDraws` query the fold, deleting
-  `drawFence.hasRead`, its helpers and the decision "Each entry point to
-  `drawFence.hasRead` says what its caller gets".
 - Move the fold to `reads.go` and the verdicts to `drawfence.go`, deleting
   `readsurvey.go`; name a read's context its `group`, `route` and `branches`, deleting
   `surveyAt`, and let the README's Layout and `doc.go` follow.
