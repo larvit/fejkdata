@@ -17,9 +17,6 @@ func heldCheck(path string, n node) error {
 	}
 	readers := pathHeadReaders(t.compiled)
 	for _, name := range heldNames(t) {
-		if t.compiled.held[name].path != "" && isRef(name) {
-			continue // held for the render: drawFence compares every read of it, by path, across the render and its groups
-		}
 		if err := checkNameHeld(t, name, readers); err != nil {
 			return fmt.Errorf("%s: %w", path, err)
 		}
@@ -201,12 +198,12 @@ func pathHeadReaders(c formatOps) []reader {
 	var names []reader
 	for _, o := range c.ops {
 		for _, a := range o.operands {
-			if c.held[a.head].path != "" && !isRef(a.head) {
+			if c.held[a.head].path != "" {
 				names = append(names, reader{a, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
-			if c.held[a.head].path != "" && !isRef(a.head) {
+			if c.held[a.head].path != "" {
 				names = append(names, reader{a, "token {" + a.spelling + "}"})
 			}
 		}

@@ -25,7 +25,8 @@ package fejkdata
 //     iteration of a `template.repeat`.
 //   - hold — keeping one draw of a name, so every route to it reads that value:
 //     an expansion holds a sibling path's head and an operand's field, its draw
-//     group a reference path's: `formatOps.held`, `formatOps.keepsHold`, `heldCheck`.
+//     group a reference path's: `formatOps.held` and `heldCheck` an expansion's,
+//     `readReference` a draw group's.
 //   - memo — what a hold or a draw group keeps its draws in, the variant drawn at
 //     each level and the value each path read: `drawMemo`, `readMemo`.
 //   - draw group — reference draws kept apart inside one render:

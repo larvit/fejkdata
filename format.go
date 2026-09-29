@@ -381,12 +381,12 @@ type op struct {
 }
 
 // formatOps is a compiled format: its ops, the size of its literal text, and the
-// names it holds: every head a path starts from, plus the fields an operand reads.
+// names its expansion holds: every head a path that is not a reference starts from,
+// plus the fields an operand reads.
 type formatOps struct {
-	ops       []op
-	grow      int
-	held      map[string]firstReach
-	keepsHold bool // some held name is not a reference path, so expand makes a hold
+	ops  []op
+	grow int
+	held map[string]firstReach
 }
 
 // firstReach is how a format first reaches a held name: the reader holding it, for
@@ -397,11 +397,11 @@ type firstReach struct {
 }
 
 func (c *formatOps) holdName(a arm, label string) {
+	if isRef(a.head) && len(a.tail) > 0 {
+		return
+	}
 	if c.held == nil {
 		c.held = map[string]firstReach{}
-	}
-	if !isRef(a.head) || len(a.tail) == 0 {
-		c.keepsHold = true
 	}
 	h, seen := c.held[a.head]
 	if !seen {
