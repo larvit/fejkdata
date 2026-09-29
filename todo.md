@@ -34,9 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Test that `render` and `renderEdges` agree on every node kind, and each of the
-  switches `node`'s comment lists, so a kind one of them misses fails a test: five
-  seats, both architects among them, found the mirror held by comments alone.
 - Choose `disagreement`'s error directly, deleting `disagreementFix`'s switch returning
   a builder and `declaresLess` for `<`: seven seats traced the matrix for a message,
   and `disagreementFix`'s comment describes its parameter.
