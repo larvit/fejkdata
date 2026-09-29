@@ -220,7 +220,7 @@ func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
 		{"a column reaching back through another category", `{"format":"","whole":"{/mid}","inner":"{/cat.a.b}"}`},
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "mid": mid, "row": c.row})))
-		if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") {
+		if err == nil || !strings.Contains(err.Error(), "share one reference draw") {
 			t.Errorf("%s: New = %v, want the overlap refused at load, the way one format is", c.name, err)
 			continue
 		}
@@ -236,7 +236,7 @@ func TestInlineRecordRejectsOverlappingColumns(t *testing.T) {
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	_, err := f.FakeRecordTemplate(`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`)
-	if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") {
+	if err == nil || !strings.Contains(err.Error(), "share one reference draw") {
 		t.Fatalf("inline record over an overlapping pair = %v, want the inline entry point to refuse it too", err)
 	}
 }

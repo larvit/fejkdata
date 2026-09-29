@@ -271,7 +271,7 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
-		if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") {
+		if err == nil || !strings.Contains(err.Error(), "share one reference draw") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
 	}
@@ -413,7 +413,7 @@ func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
 		"sv_SE/person": person,
 		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") || !strings.Contains(err.Error(), "{.person}") {
+	if err == nil || !strings.Contains(err.Error(), "share one reference draw") || !strings.Contains(err.Error(), "{.person}") {
 		t.Errorf("New = %v, want the bare spelling rejected beside the path spelling", err)
 	}
 	dir := writeData(t, map[string]string{
