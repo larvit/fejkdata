@@ -136,8 +136,7 @@ type builtin struct {
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
-// for a plain field or alternation body. A '(' without a trailing ')' yields
-// ok=false.
+// for a name-read body. A '(' without a trailing ')' yields ok=false.
 func funcCall(body string) (name string, args []string, ok bool) {
 	lp := indexOutside(body, '(')
 	if lp < 0 || !strings.HasSuffix(body, ")") {
