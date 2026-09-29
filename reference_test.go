@@ -271,9 +271,13 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
-		if err == nil || !strings.Contains(err.Error(), "share one reference draw") {
+		if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
+	}
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`})))
+	if err == nil || !strings.HasSuffix(err.Error(), "or give {b} a drawGroup") {
+		t.Errorf("New = %v, want the drawGroup named on the path's field", err)
 	}
 	// A sibling path and a reference into the level it holds are the same overlap,
 	// and the reference reaches it from a category row renders.
@@ -283,11 +287,13 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 	}))); err == nil || !strings.Contains(err.Error(), "by a second route") {
 		t.Errorf("New = %v, want a sibling path beside a reference into it rejected", err)
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"cat": cat,
-		"row": `{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}"}`,
-	}))); err != nil {
-		t.Errorf("New = %v, want a level and a path into it accepted in groups of their own", err)
+	for _, row := range []string{
+		`{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}"}`,
+		`{"format":"{a} {b}","a":"{/cat}","b":{"format":"{/cat.p.first}","drawGroup":"g"}}`,
+	} {
+		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row}))); err != nil {
+			t.Errorf("New(%s) = %v, want a level and a path into it accepted in groups of their own", row, err)
+		}
 	}
 }
 
@@ -413,7 +419,7 @@ func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
 		"sv_SE/person": person,
 		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), "share one reference draw") || !strings.Contains(err.Error(), "{.person}") {
+	if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") || !strings.Contains(err.Error(), "{.person}") {
 		t.Errorf("New = %v, want the bare spelling rejected beside the path spelling", err)
 	}
 	dir := writeData(t, map[string]string{

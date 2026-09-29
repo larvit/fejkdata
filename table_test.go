@@ -367,8 +367,8 @@ func TestTableSelectorInAReference(t *testing.T) {
 
 func TestTableSelectionFences(t *testing.T) {
 	rejected := map[string]struct{ json, want string }{
-		"bare beside a path":                  {`"{/region} {/region.name}"`, "share one reference draw"},
-		"bare beside a linked path":           {`"{/region} {/locality.name}"`, "share one reference draw"},
+		"bare beside a path":                  {`"{/region} {/region.name}"`, "renders its own draw of what"},
+		"bare beside a linked path":           {`"{/region} {/locality.name}"`, "renders its own draw of what"},
 		"selected beside unselected":          {`"{/region[12].municipality.name} {/municipality.code}"`, "{/region[12].municipality.code}"},
 		"relative selected beside unselected": {`"{.region[12].municipality.name} {.municipality.code}"`, "{.region[12].municipality.code}"},
 		"two selections":                      {`"{/region[12].name} {/region[14].name}"`, "drawGroup"},
@@ -1120,7 +1120,7 @@ func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
 		"region.json":       `{"format":"{name}={note}","rows":"region.tsv","key":"code","name":"name","weight":"population"}`,
 		"x.json":            `"{/region}|{/municipality}"`,
 	})
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.Contains(err.Error(), "share one reference draw") {
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
 		t.Fatalf("New = %v, want the two drawn rows held to one draw of addr", err)
 	}
 	nested := with(whole, map[string]string{
