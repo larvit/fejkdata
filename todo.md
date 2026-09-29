@@ -30,10 +30,54 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 `readSurvey` walk or check hardest and the unit they would least modify; 5.8 on
 2026-09-29 a fourth time (Navigation 6.7, Locality 5.0, Shape 5.7, Self-sufficiency
 5.7), every seat's lowest dimension Locality, alone or tied, all seven unit seats
-ranking `readSurvey.walk` and `edge` hardest and the unit they would least modify.
+ranking `readSurvey.walk` and `edge` hardest and the unit they would least modify; 5.8
+on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-sufficiency
+5.8), every seat's lowest dimension Locality, alone or tied, all seven unit seats ranking
+`readSurvey.walk` hardest and the unit they would least modify.
 
 This round, in order:
 
+- Put the draw fence in one file: `drawFence.checkDraws` in `drawfence.go` hands
+  `surveyRender(t).check()` the verdict, whose refusals live in `readsurvey.go`, and
+  eight seats grepped one fence error across `holdfence.go`, `drawfence.go`,
+  `readsurvey.go` and `pins.go`.
+- Split `formatOps.held` into the names an expansion holds and the reference paths a
+  render's draws hold, deleting `keepsHold` and `heldCheck`'s skip of a reference path:
+  one map carries both, told apart by `isRef` and `firstReach.path == ""`, and six seats
+  hunted for which fence owns which.
+- Give `surveyAt`'s whole read one field, its table and pins together, rename
+  `alternatives` for what it answers, two reads that never render together, and say at
+  `check` why a level landing on a row may sit beside a path into it: five seats held
+  `surveyAt`'s five fields at once, two misread `alternatives`, and two found no reason
+  for the `landsRow` exemption.
+- Switch `disagreement` on the fixed item's kind, with the other item inside each arm,
+  and rename its `proven` local, which shadows the `proven` type: seven seats read the
+  seven-arm switch as a truth table without the table.
+- Say at `checkNodeFences` that its walks recurse unguarded, so a caller runs
+  `checkNoCycles` first, and compute `refs` apart from `checkDrawGroup`'s pass: five
+  seats reconstructed the order, and the inline binding runs no cycle check.
+- Give `tableSite` an `isFormat` beside `isCell`, so `renderRecord` and `traceRead` stop
+  comparing `row` with `formatRow` alone, which holds only because a template outside a
+  table has row 0: four seats found the invariant unstated.
+- Move each unit to its owner's file, `valueProof.checkField` to `valueproof.go` and
+  `coverPath` and `pathLeaves` beside their walks in `path.go`, and rename `checkPath`,
+  which differs from the `pathCheck` type it wraps by word order alone: both architects
+  placed them wrong.
+- Correct the claims readers followed wrong: `IsTemplate`'s doc says an argument holding
+  a bracket that is not valid JSON errors, where `misc.territory[SE]` is a path; `arm`'s
+  says a tail's head is drawn once per expansion, where a reference path is held per
+  render; the README says rows are indexed on the first draw, where `New` builds the key
+  map; and `loadDir`'s says it builds the tree deterministically, where it reports an
+  unnamed rows file in map order.
+- Delete the comments the panel found restating their code or arranging the file:
+  `node`'s second sentence, `op`'s "compile builds these so render never re-scans the
+  format", `checkCalc`'s last sentence, `calcVar.eval`'s four lines, `checkNoCycles`'
+  grey and black, and the docs on `expand`, `readRows`, `splitOutside`, `reservedList`
+  and `writesRecords`.
+- Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
+  a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
+  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by file.
+  Say "fences" in the `pin` entry then, which names the draw fences too.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -233,6 +277,11 @@ by a `data-import/` script, as README goal 12 asks.
 - Report the same error every load for a table with two bad options, and for a
   folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
   first in Go's map order.
+- Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that
+  is not there: `loadDir` indexes hidden TSVs and skips them in two places, so one loads
+  where its comment says a hidden file is never data.
+- Print `--help`'s repeat range from `fejkdata.MaxRepeat`: the usage spells
+  `1..1048576` a second time.
 - Report a CRLF rows file holding only its header as having no rows: `parseRows`
   answers "line 2 is empty".
 - Reword `prove`'s refusal of a typed column reading a row, `{/region}`: say the
@@ -327,10 +376,6 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
   back to the clause it came from: the goal spells them out in prose while `todo.md`
   records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
-- Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
-  a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
-  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by file.
-  Say "fences" in the `pin` entry then, which names the draw fences too.
 - Cut the README's Layout block to the lines that say what a file name cannot:
   `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
 - Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
