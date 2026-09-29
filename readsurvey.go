@@ -2,11 +2,9 @@ package fejkdata
 
 import "fmt"
 
-// readSurvey gathers, at load, the references one render reads, by draw group, for check to compare.
+// readSurvey is what one render reads, gathered at load for check to compare.
 type readSurvey struct {
 	reads []pathRead
-	read  map[readKey]bool
-	seen  map[nodeVisit]bool
 	clash *pinClash
 }
 
@@ -17,15 +15,14 @@ type pinClash struct {
 	err      error
 }
 
-// surveyAt is where a survey stands: the draw group its reads draw in, how the render's root reached it, the
-// table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
-// cells the walk is in.
+// surveyAt is where a read sits in its render: the draw group it draws in ("" until the
+// root names one), how the render's root reached it, the rows pinned above it, and the rows
+// of whole draws whose cells it sits in.
 type surveyAt struct {
-	group      string
-	route      surveyRoute
-	pins       pinSet
-	wholeTable *table
-	wholePins  pinSet
+	group     string
+	route     surveyRoute
+	pins      pinSet
+	wholePins pinSet
 }
 
 // surveyRoute is how a render reaches a read: as its author spells it, and the root edge's label.
@@ -33,17 +30,10 @@ type surveyRoute struct{ spelling, label string }
 
 // pathRead is one reference a render reads: a path, or a bare reference with no tail.
 type pathRead struct {
-	at surveyAt
-	a  arm
-	tr *tableRead // set where the reference names a table
-}
-
-type nodeVisit struct {
-	n          node
-	group      string
-	wholeTable *table
-	pins       string
-	wholePins  string
+	at    surveyAt
+	a     arm
+	tr    *tableRead // set where the reference names a table
+	clash error      // set where its selectors clash with a row its route pinned
 }
 
 type readKey struct {
@@ -51,92 +41,210 @@ type readKey struct {
 	path      string
 	pins      string
 	wholePins string
+	clash     bool
 }
 
-func newReadSurvey() *readSurvey {
-	return &readSurvey{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}}
+// readFold gathers, once per node, the reference reads rendering it makes.
+type readFold struct {
+	memo map[node][]pathRead
 }
+
+func newReadFold() *readFold { return &readFold{memo: map[node][]pathRead{}} }
 
 func surveyRender(t *template) *readSurvey {
-	s := newReadSurvey()
-	for _, e := range renderEdges(t) {
-		s.edge(t, e, surveyAt{group: t.link.drawGroupKey, route: surveyRoute{e.reached(), e.label}})
-	}
-	return s
+	f := newReadFold()
+	return survey(f.rootReads(t), t.link.drawGroupKey)
 }
 
 func surveyColumns(t *template, columns []string) *readSurvey {
-	s := newReadSurvey()
-	for _, name := range columns {
-		s.walk(t.fields[name], surveyAt{group: t.link.drawGroupKey, route: surveyRoute{spelling: fmt.Sprintf("column %q", name)}})
+	f := newReadFold()
+	return survey(f.columnReads(t, columns), t.link.drawGroupKey)
+}
+
+// rootReads is what rendering t as a render of its own reads, each read named by the edge of t
+// that reaches it, and in "" where no template below t names a draw group.
+func (f *readFold) rootReads(t *template) []pathRead {
+	var reads []pathRead
+	for _, e := range renderEdges(t) {
+		reads = append(reads, f.viaEdge(t, e, surveyRoute{e.reached(), e.label})...)
 	}
+	return reads
+}
+
+// columnReads is what rendering t's columns as one record reads.
+func (f *readFold) columnReads(t *template, columns []string) []pathRead {
+	var reads []pathRead
+	for _, name := range columns {
+		reads = append(reads, routed(f.reads(t.fields[name]), surveyRoute{spelling: fmt.Sprintf("column %q", name)})...)
+	}
+	return reads
+}
+
+// survey is the fold's result as a render in group: every read not inside a nested draw group
+// draws in it, and one read gathered by several routes is kept once.
+func survey(reads []pathRead, group string) *readSurvey {
+	s := &readSurvey{}
+	for _, r := range reads {
+		if r.clash != nil {
+			if s.clash == nil {
+				s.clash = &pinClash{r.at.route, r.a.spelling, r.clash}
+			}
+			continue
+		}
+		if r.at.group == "" {
+			r.at.group = group
+		}
+		s.reads = append(s.reads, r)
+	}
+	s.reads = distinct(s.reads)
 	return s
 }
 
-// walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
-// there.
-func (s *readSurvey) walk(n node, at surveyAt) {
-	v := nodeVisit{n, at.group, at.wholeTable, at.pins.key(), at.wholePins.key()}
-	if s.seen[v] {
-		return
+// reads is what rendering n reads, short of a repeat, which renders over draws of its own: each
+// read with the rows pinned above it inside n, and in its draw group where a template inside n
+// names one.
+func (f *readFold) reads(n node) []pathRead {
+	if r, done := f.memo[n]; done {
+		return r
 	}
-	s.seen[v] = true
-	if repeats(n) {
-		return
-	}
-	if t, isTemplate := n.(*template); isTemplate && t.link.drawGroupKey != "" {
-		at.group = t.link.drawGroupKey
-	}
-	if t, isTable := n.(*table); isTable {
-		at.wholeTable = t
-	}
-	for _, e := range renderEdges(n) {
-		to, isTemplate := e.to.(*template)
-		var cell tableSite
-		if isTemplate {
-			cell = to.site
+	var out []pathRead
+	switch n := n.(type) {
+	case *choice:
+		for _, it := range n.items {
+			out = append(out, f.reads(it)...)
 		}
-		switch {
-		case !cell.isCell():
-			s.edge(n, e, at)
-		case cell.table == at.wholeTable:
-			in := at
-			in.wholePins = at.wholePins.clone()
-			in.wholePins.add(cell.table, cell.row)
-			s.edge(n, e, in)
-		case at.pins.clash(cell.table, cell.row) == nil:
-			in := at
-			in.pins = at.pins.entered(cell.table, cell.row)
-			s.edge(n, e, in)
-		default:
-			// A pinned table renders its pinned row alone, and an unpinned one draws a row inside its
-			// nearest pinned ancestor's, so a cell of a row the pins clash with never renders on this route.
+	case *template:
+		if n.repeat > 1 {
+			break
 		}
+		for _, e := range renderEdges(n) {
+			out = append(out, f.viaEdge(n, e, surveyRoute{})...)
+		}
+		if n.link.drawGroupKey != "" {
+			for i := range out {
+				if out[i].at.group == "" {
+					out[i].at.group = n.link.drawGroupKey
+				}
+			}
+		}
+	case *table:
+		out = f.rowReads(n, func(p *surveyAt, row int) bool {
+			p.wholePins = p.wholePins.clone()
+			p.wholePins.add(n, row)
+			return true
+		})
+	case *tableRow:
+		out = f.rowReads(n.t, func(p *surveyAt, row int) bool { return p.enter(n.t, row) })
+	case *tableColumn:
+		out = f.cellReads(n, func(p *surveyAt, row int) bool { return p.enter(n.t, row) })
 	}
+	out = distinct(out)
+	f.memo[n] = out
+	return out
 }
 
-// edge records the reference an edge reads, then walks on with every row the read
-// pins entered, so a selected row renders only its own cells.
-func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
-	if e.readsRef() {
-		a := e.read
-		tr := tableReadOf(from.(*template).head(a.head), a, e.to)
-		if k := (readKey{at.group, a.path, at.pins.key(), at.wholePins.key()}); !s.read[k] {
-			s.read[k] = true
-			s.reads = append(s.reads, pathRead{at, a, tr})
-		}
-		if tr != nil {
-			pins := at.pins.clone()
-			if err := tr.replay(&pins); err != nil {
-				if s.clash == nil {
-					s.clash = &pinClash{at.route, a.spelling, err}
-				}
-				return
-			}
-			at.pins = pins
+// distinct keeps one of every read gathered by several routes, so a diamond of templates
+// contributes each read once however many routes reach it.
+func distinct(reads []pathRead) []pathRead {
+	seen := make(map[readKey]bool, len(reads))
+	out := reads[:0:0]
+	for _, r := range reads {
+		k := readKey{r.at.group, r.a.path, r.at.pins.key(), r.at.wholePins.key(), r.clash != nil}
+		if !seen[k] {
+			seen[k] = true
+			out = append(out, r)
 		}
 	}
-	s.walk(e.to, at)
+	return out
+}
+
+// viaEdge is what rendering e from n reads: the reference e reads, then what its leaf renders
+// under the rows that reference pins.
+func (f *readFold) viaEdge(n node, e renderEdge, route surveyRoute) []pathRead {
+	if !e.readsRef() {
+		return routed(f.reads(e.to), route)
+	}
+	a := e.read
+	tr := tableReadOf(n.(*template).head(a.head), a, e.to)
+	out := []pathRead{{at: surveyAt{route: route}, a: a, tr: tr}}
+	below := f.reads(e.to)
+	if tr != nil {
+		below = pinBelow(below, tr)
+	}
+	return append(out, routed(below, route)...)
+}
+
+// pinBelow is the reads below a table read, once its selected rows are pinned above them: a read
+// under a cell those rows keep out is dropped, since that cell never renders on this route, and
+// a read whose own selectors clash with them carries that clash.
+func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
+	kept := reads[:0:0]
+	for _, r := range reads {
+		pins := r.at.pins.clone()
+		if err := tr.replay(&pins); err != nil {
+			continue
+		}
+		if r.tr != nil && r.clash == nil {
+			check := pins.clone()
+			r.clash = r.tr.replay(&check)
+		}
+		r.at.pins = pins
+		kept = append(kept, r)
+	}
+	return kept
+}
+
+// rowReads is what the rows of t read through the columns its format renders. A format reaching
+// its own cells through another category is checkOwnFamily's refusal, which runs first.
+func (f *readFold) rowReads(t *table, tag func(*surveyAt, int) bool) []pathRead {
+	var out []pathRead
+	for _, e := range renderEdges(t.formatTemplate) {
+		if c, isColumn := e.to.(*tableColumn); isColumn {
+			out = append(out, f.cellReads(c, tag)...)
+		}
+	}
+	return out
+}
+
+// cellReads is what the cells of column c read, each tagged with its row.
+func (f *readFold) cellReads(c *tableColumn, tag func(*surveyAt, int) bool) []pathRead {
+	var out []pathRead
+	for r := 0; r < c.t.rowCount(); r++ {
+		cell := c.t.cellTemplate(r, c.i)
+		if cell == nil {
+			continue
+		}
+		for _, read := range f.reads(cell) {
+			if tag(&read.at, r) {
+				out = append(out, read)
+			}
+		}
+	}
+	return out
+}
+
+// enter pins row r of t above a read, or reports that the rows already pinned keep it out.
+func (at *surveyAt) enter(t *table, r int) bool {
+	if at.pins.clash(t, r) != nil {
+		return false
+	}
+	at.pins = at.pins.entered(t, r)
+	return true
+}
+
+// routed names the route the render's root reaches reads by, where none is named yet.
+func routed(reads []pathRead, route surveyRoute) []pathRead {
+	if route == (surveyRoute{}) {
+		return reads
+	}
+	out := make([]pathRead, len(reads))
+	for i, r := range reads {
+		if r.at.route == (surveyRoute{}) {
+			r.at.route = route
+		}
+		out[i] = r
+	}
+	return out
 }
 
 // spelled names the route, and the reference it reaches a read by where its root edge is not that
