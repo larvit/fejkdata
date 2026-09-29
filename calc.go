@@ -199,7 +199,7 @@ func calcPrep(args []string) callFn {
 	}
 	placed := indexVars(expr, at)
 	dp := calcDecimals(args)
-	return func(_ *session, _ string, operands []string) string {
+	return func(_ *generatorState, _ string, operands []string) string {
 		return formatFloat(placed.eval(operands), dp)
 	}
 }

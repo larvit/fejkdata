@@ -6,7 +6,7 @@ import (
 )
 
 // rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *session instead, which keeps the hold set of the walk
+// render path takes the concrete *generatorState instead, which keeps the hold set of the walk
 // drawing through it off the heap.
 type rng interface {
 	IntN(n int) int
@@ -38,7 +38,7 @@ func (f *Generator) Fake(path string) (string, error) {
 
 // descend walks a caller's path to the node it names, pinning in sc the rows it
 // selects or draws.
-func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
+func descend(s *generatorState, root node, segments []string, sc renderScope) (node, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
 	if _, err := (&pathProbe{}).walk(root, segments); err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func descend(s *session, root node, segments []string, sc renderScope) (node, er
 }
 
 // renderOnce renders n as one render, over a hold set of its own.
-func renderOnce(s *session, n node) string {
+func renderOnce(s *generatorState, n node) string {
 	var set holdSet
 	return render(s, n, renderScope{set: &set})
 }
@@ -56,7 +56,7 @@ func renderOnce(s *session, n node) string {
 // front, so rendering a compiled tree cannot fail. sc holds the reference draws the
 // render shares; each repeat iteration renders over a hold set of its own.
 // A child this switch renders is one renderEdges must list too, or the fences miss it.
-func render(s *session, n node, sc renderScope) string {
+func render(s *generatorState, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
 		return render(s, pick(s, n), sc)
@@ -99,7 +99,7 @@ func render(s *session, n node, sc renderScope) string {
 // render's loop, its hold set would move to the heap.
 //
 //go:noinline
-func expandAnew(s *session, t *template) string {
+func expandAnew(s *generatorState, t *template) string {
 	var set holdSet
 	return expand(s, t, renderScope{set: &set})
 }
@@ -107,7 +107,7 @@ func expandAnew(s *session, t *template) string {
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights. compile guarantees a
 // non-empty choice and a finite positive total, so the index is always in range.
-func pick(s *session, c *choice) node {
+func pick(s *generatorState, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
 	}
@@ -116,7 +116,7 @@ func pick(s *session, c *choice) node {
 
 // expand renders a template's compiled ops. compile validated every token, so this
 // cannot fail.
-func expand(s *session, t *template, sc renderScope) string {
+func expand(s *generatorState, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.compiled.grow)
 	// One draw per held name, for this expansion only: a nested template and each
@@ -157,7 +157,7 @@ func expand(s *session, t *template, sc renderScope) string {
 // reads — is drawn once and kept in held, so {place.postal-code} and {place.locality}
 // read one row, either read twice gives one value, and a shown operand is the operand
 // computed. Every other name is drawn afresh, so {word} {word} still draws twice.
-func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
+func readField(s *generatorState, t *template, held *hold, sc renderScope, a arm) readValue {
 	if isRef(a.head) && len(a.tail) > 0 {
 		return readReference(s, t, sc, a)
 	}
@@ -178,7 +178,7 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 
 // readReference reads a reference path, kept in the render's hold for its group, so its draw
 // spans the render.
-func readReference(s *session, t *template, sc renderScope, a arm) readValue {
+func readReference(s *generatorState, t *template, sc renderScope, a arm) readValue {
 	if sc.set.trace != nil {
 		traceRead(sc.set.trace, t, sc, a)
 	}
@@ -186,7 +186,7 @@ func readReference(s *session, t *template, sc renderScope, a arm) readValue {
 	return readHeld(s, t, &group.hold, &group.pins, sc, a)
 }
 
-func readHeld(s *session, t *template, held *hold, pins *pinSet, sc renderScope, a arm) readValue {
+func readHeld(s *generatorState, t *template, held *hold, pins *pinSet, sc renderScope, a arm) readValue {
 	if r, done := held.value[a.path]; done {
 		return r
 	}
@@ -215,7 +215,7 @@ func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
 // reference alone whose read drew null.
-func renderLeaf(s *session, n node, sc renderScope) readValue {
+func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
 	n = resolveChoice(s, n)
 	switch leaf := n.(type) {
 	case *nullItem:
@@ -231,7 +231,7 @@ func renderLeaf(s *session, n node, sc renderScope) readValue {
 // resolveChoice resolves a choice to one variant, so a held head is a concrete node the
 // rest of the expansion shares. Nested choices unwrap too: a draw is one value, not
 // another set to pick from.
-func resolveChoice(s *session, n node) node {
+func resolveChoice(s *generatorState, n node) node {
 	for c, ok := n.(*choice); ok; c, ok = n.(*choice) {
 		n = pick(s, c)
 	}

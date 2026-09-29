@@ -31,9 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Rename `ftoken` to `scanUnit`, beside `formatToken`, and `session` to
-  `generatorState`: three seats confused the token types, and both architects read
-  `session` as per-render state.
 - State at `pinSet.pin` that its caller proved r sits inside the nearest pinned
   ancestor, which `pinRow` and `drawIn` do.
 - Delete the prose two or more seats found empty: `loadData`'s comment, which also names
