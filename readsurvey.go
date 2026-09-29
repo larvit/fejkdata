@@ -191,21 +191,10 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 	if !isTable {
 		return nil
 	}
-	probe := &pathProbe{drawn: map[*table]bool{}}
+	probe := &pathProbe{a: &a}
 	_, _ = probe.walk(t, a.tail)
-	tr := &tableRead{headTable: t, pins: probe.pins, drawn: probe.drawn}
-	written := a.spelling[:len(a.spelling)-len(joinSegments(a.tail))]
-	cur := t
-	for i, seg := range a.tail {
-		switch d := cur.descendant(seg); {
-		case isSelector(seg):
-			tr.sels = append(tr.sels, tableSel{cur, written + joinSegments(a.tail[:i+1])})
-		case d != nil:
-			cur = d
-		}
-	}
-	_, tr.landsRow = leaf.(*tableRow)
-	return tr
+	_, landsRow := leaf.(*tableRow)
+	return &tableRead{headTable: t, pins: probe.pins, drawn: probe.drawn, sels: probe.sels, landsRow: landsRow}
 }
 
 // selected is the selector in r on t, or on the nearest ancestor of t it selects.

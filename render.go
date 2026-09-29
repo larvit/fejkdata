@@ -39,7 +39,7 @@ func (f *Generator) Fake(path string) (string, error) {
 // selects or draws.
 func descend(s *session, root node, segments []string, sc renderScope) (node, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
-	if _, err := (&pathProbe{drawn: map[*table]bool{}}).walk(root, segments); err != nil {
+	if _, err := (&pathProbe{}).walk(root, segments); err != nil {
 		return nil, err
 	}
 	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.groupHold().pins}), nil
