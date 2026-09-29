@@ -878,14 +878,13 @@ fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation
 table.go        tables: the rows TSV, its options and links, row selection and draws
 path.go         the dotted-path walks with their selectors, and proving a path resolves
-render.go       Fake and the recursive renderer (choices, format strings, expansions)
+render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
-hold.go         the hold: one draw per held name, and reading a field through it
+hold.go         the hold, one draw per held name, and the hold set and scope a render reads its reference paths through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
-holdset.go      one reference draw per render and group: the hold set a render reads its paths through
 drawfence.go    the load fences over reference draws: a drawGroup's, a table's own family, and a render's and a record's columns through the survey
 readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them
 pins.go         the pin set: the table rows a render fixes, which the draw fences replay

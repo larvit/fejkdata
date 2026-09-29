@@ -28,10 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Move the render's read path — `readField`, `readReference`, `readHeld`, `traceRead`,
-  `renderLeaf`, `resolveChoice`, `renderOnce` and `expandAnew` — into `render.go`, and
-  merge what `hold.go` and `holdset.go` keep into one file: both architects followed one read
-  across three files.
 - Give `prove`, `stepInto` and `columnItems` a case per node kind and panic through
   `internalError` on the rest, and list every such switch in `node`'s doc: `prove`'s
   default tells a typed column reading a bare table that it reads a null, and six seats
