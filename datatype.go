@@ -147,8 +147,7 @@ func columnItems(n node) (items []*template, nullable bool) {
 	return items, nullable
 }
 
-// itemKind is how a column item comes by its datatype: none, read from a typed column, or declared.
-// The kinds are declared from the one that declares least.
+// itemKind is how a column item comes by its datatype, ranked by declaresLess in this order: none, read from a typed column, or declared.
 type itemKind int
 
 const (
@@ -157,8 +156,8 @@ const (
 	kindDeclares
 )
 
-func (k itemKind) declaresLess(than itemKind) bool {
-	return k < than
+func declaresLess(a, b itemKind) bool {
+	return a < b
 }
 
 func kindOf(t *template) itemKind {
@@ -183,7 +182,7 @@ type itemPair struct {
 // the one that declares least, a when both declare alike.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
 	d := itemPair{first: da, second: db, fix: a, other: b, want: db}
-	if kindOf(b).declaresLess(kindOf(a)) {
+	if declaresLess(kindOf(b), kindOf(a)) {
 		d.fix, d.other, d.want = b, a, da
 	}
 	proven := (&valueProof{}).proveColumnItem(d.fix).not[d.want] == ""
