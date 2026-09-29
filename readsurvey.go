@@ -11,6 +11,7 @@ type readSurvey struct {
 	reads []pathRead
 	read  map[readKey]bool
 	seen  map[nodeVisit]bool
+	clash error
 }
 
 // surveyAt is where a survey stands: the draw group its reads draw in, how the render's root reached it, the
@@ -122,12 +123,14 @@ func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 			s.reads = append(s.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
-			tr.pins.each(func(t *table, r int) {
-				if c := at.pins.clash(t, r); c != nil {
-					panic(internalError("%s reads %s past a pinned row of %s, which checkOwnFamily refuses", e.reached(), t.selectorSpelling(r), c.path))
+			pins := at.pins.clone()
+			if err := tr.replay(&pins); err != nil {
+				if s.clash == nil {
+					s.clash = conflict(pathRead{at, a, tr}, err)
 				}
-				at.pins = at.pins.entered(t, r)
-			})
+				return
+			}
+			at.pins = pins
 		}
 	}
 	s.walk(e.to, at)
@@ -209,10 +212,14 @@ func (r *tableRead) replay(d *pinSet) error {
 	return err
 }
 
-// check refuses what one draw per reference path cannot answer for: a read of a level beside a path
-// another read takes into it, and two reads of one table family that select different rows. Reads
-// are compared in path order, so which pair is reported does not vary.
+// check refuses what one draw per reference path cannot answer for: a read selecting a row its route
+// pinned another of, a read of a level beside a path another read takes into it, and two reads of one
+// table family that select different rows. Reads are compared in path order, so which pair is
+// reported does not vary.
 func (s *readSurvey) check() error {
+	if s.clash != nil {
+		return s.clash
+	}
 	sort.SliceStable(s.reads, func(i, j int) bool {
 		if s.reads[i].at.group != s.reads[j].at.group {
 			return s.reads[i].at.group < s.reads[j].at.group

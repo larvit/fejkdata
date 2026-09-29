@@ -34,10 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Make `readSurvey.edge` sound whatever order `checkNodeFences` runs its fences in:
-  report the pin clash as a load error, or have `checkDraws` run `checkOwnFamily` over
-  the scope before its survey, and delete the panic naming `checkOwnFamily`. All nine
-  seats found the survey sound only by a call order stated in that panic's text.
 - Test that `render` and `renderEdges` agree on every node kind, and each of the
   switches `node`'s comment lists, so a kind one of them misses fails a test: five
   seats, both architects among them, found the mirror held by comments alone.
