@@ -31,10 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Key the survey's visits and reads by a pin set's rows spelled as a string, and delete
-  `pinsID`, `pinsLink` and `readSurvey.pinIDs`: five seats stalled on the interning.
-  Start `replayPairs`' pin set as a clone of the earlier read's pins, deleting the
-  replay into an empty set, which cannot fail since `pinRow` built those pins.
 - Move `checkOwnFamily` into `readsurvey.go` beside `checkFamilies`, and
   `checkNestedDrawGroup` into `node.go` beside `drawGroupOf`, the compile step calling
   it; delete `checkColumnDraws` for `surveyColumns(…).check()` at its caller. Both

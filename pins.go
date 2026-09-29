@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"sort"
+	"strings"
 )
 
 type tablePin struct {
@@ -83,6 +84,18 @@ func (p *pinSet) each(fn func(t *table, r int)) {
 	for _, t := range spilled {
 		fn(t, p.spill[t])
 	}
+}
+
+// key spells the pinned rows, so two sets pinning the same rows share one.
+func (p *pinSet) key() string {
+	var pins []tablePin
+	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
+	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
+	var b strings.Builder
+	for _, q := range pins {
+		fmt.Fprintf(&b, "%q%d", q.t.path, q.row)
+	}
+	return b.String()
 }
 
 // clash is the table whose pinned row keeps row r of t out: t itself pinned to another row, or the
