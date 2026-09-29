@@ -126,7 +126,7 @@ func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 			pins := at.pins.clone()
 			if err := tr.replay(&pins); err != nil {
 				if s.clash == nil {
-					s.clash = conflict(pathRead{at, a, tr}, err)
+					s.clash = fmt.Errorf("%s: %w; read the family from a template beside it, or add the value as a column", at.route.spelled(a.spelling), err)
 				}
 				return
 			}
