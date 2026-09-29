@@ -76,21 +76,22 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 		if path != "" {
 			return fmt.Errorf("%s reaches %q by a second route, where {%s} holds it to one draw; name the fields you want instead", e.reached(), name, path)
 		}
-		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), name, operandReader(t, name))
+		call, operand := operandReader(t, name)
+		return fmt.Errorf("%s renders %q, which {%s} holds to one draw for this expansion; drop %s, or write {%s} in this format to read that draw", e.reached(), name, call, e.reached(), operand)
 	}
 	return nil
 }
 
-// operandReader names the builtin whose operand holds name.
-func operandReader(t *template, name string) string {
+// operandReader spells the call whose operand holds name, and the operand, as written.
+func operandReader(t *template, name string) (call, operand string) {
 	for _, o := range t.compiled.ops {
 		for _, a := range o.operands {
 			if a.head == name {
-				return o.fn
+				return o.body, a.spelling
 			}
 		}
 	}
-	return ""
+	return "", ""
 }
 
 // coverPath collects what holding one path pins: the first choice level it passes,
