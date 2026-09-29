@@ -31,8 +31,8 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- State at `pinSet.pin` that its caller proved r sits inside the nearest pinned
-  ancestor, which `pinRow` and `drawIn` do.
+- Ask `clash` before `readSurvey.edge` enters a read's pins, or refuse the clash there:
+  `pin` checks nothing, and `replayPairs` compares reads within one draw group only.
 - Delete the prose two or more seats found empty: `loadData`'s comment, which also names
   `linkRefs` where `bind` runs, `table.drawRow`'s, `table.selector`'s, and `render.go`'s
   second and third "compile validated" notes.
