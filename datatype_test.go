@@ -221,6 +221,6 @@ func TestNullColumn(t *testing.T) {
 	}
 }
 
-func TestDisagreementFixRefusesTwoTextItems(t *testing.T) {
-	mustPanic(t, "two text items", func() { disagreementFix(kindText, kindText, false) })
+func TestDisagreementRefusesTwoTextItems(t *testing.T) {
+	mustPanic(t, "two text items", func() { _ = disagreement(&template{}, DataTypeString, &template{}, DataTypeString) })
 }
