@@ -143,7 +143,7 @@ func (s *readSurvey) walk(n node, at surveyAt) {
 func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 	if e.readsRef() {
 		a := e.read
-		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
+		tr := tableReadOf(from.(*template).head(a.head), a, e.to)
 		if k := (readKey{at.group, a.path, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}); !s.read[k] {
 			s.read[k] = true
 			s.reads = append(s.reads, pathRead{at, a, tr})

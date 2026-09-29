@@ -1063,7 +1063,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		{"region[12].name", "region=region[12]"},
 	} {
 		a := splitArm(c.path, nil)
-		head := f.root.children[a.key].(*table)
+		head := f.root.children[a.head].(*table)
 		tr := tableReadOf(head, a, nil)
 		var sels []string
 		for _, s := range tr.sels {
@@ -1075,7 +1075,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		probed, drawn := tr.pins, tr.drawn
 		for i := 0; i < 20; i++ {
 			var pins pinSet
-			drawPath(head, a.tail, a.key, &pathDraw{s: f.rand, pins: &pins})
+			drawPath(head, a.tail, a.head, &pathDraw{s: f.rand, pins: &pins})
 			want := map[*table]bool{}
 			pins.each(func(tbl *table, _ int) {
 				if _, selected := probed.pinned(tbl); !selected {

@@ -81,12 +81,12 @@ type templateLink struct {
 
 func (*template) isNode() {}
 
-// head is the node an arm's key names: a sibling field, or a reference's category.
-func (t *template) head(key string) node {
-	if isRef(key) {
-		return t.link.refHeads[key]
+// head is the node an arm's head names: a sibling field, or a reference's category.
+func (t *template) head(name string) node {
+	if isRef(name) {
+		return t.link.refHeads[name]
 	}
-	return t.fields[key]
+	return t.fields[name]
 }
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
@@ -229,7 +229,7 @@ func (t *template) fixedText() (string, bool) {
 // compiled reads.
 func compileFormat(toks []formatToken, refs map[string]refBinding) (formatOps, error) {
 	c := compileOps(toks, refs)
-	if err := checkNoOverlap(c.ops, c.pathKeys); err != nil {
+	if err := checkNoOverlap(c.ops, c.pathHeads); err != nil {
 		return c, err
 	}
 	return c, checkNoRepeatedRead(c)

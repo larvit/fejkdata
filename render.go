@@ -62,7 +62,7 @@ func render(s *session, n node, sc renderScope) string {
 	case *nullItem:
 		return ""
 	case *table:
-		sc.row = tablePin{n, n.drawRow(s)}
+		sc.row = renderedRow{n, n.drawRow(s)}
 		return expand(s, n.formatTemplate, sc)
 	case *tableRow:
 		return expand(s, n.t.formatTemplate, sc)
@@ -159,17 +159,17 @@ func expand(s *session, t *template, sc renderScope) string {
 // read one row, either read twice gives one value, and a shown operand is the operand
 // computed. Every other name is drawn afresh, so {word} {word} still draws twice.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
-	if isRef(a.key) && len(a.tail) > 0 {
+	if isRef(a.head) && len(a.tail) > 0 {
 		return readReference(s, t, sc, a)
 	}
 	if sc.set.trace != nil {
 		traceRead(sc.set.trace, t, sc, a)
 	}
-	if !t.compiled.held[a.key] {
+	if !t.compiled.held[a.head] {
 		if len(a.tail) > 0 {
-			panic(internalError("%q reads a path into %q, which the expansion does not hold", a.spelling, a.key))
+			panic(internalError("%q reads a path into %q, which the expansion does not hold", a.spelling, a.head))
 		}
-		return readValue{text: render(s, t.head(a.key), sc)}
+		return readValue{text: render(s, t.head(a.head), sc)}
 	}
 	if held == nil {
 		panic(internalError("%q reads a name the expansion holds, with no hold to keep it in", a.spelling))
@@ -191,7 +191,7 @@ func readHeld(s *session, t *template, held *hold, pins *pinSet, sc renderScope,
 	if r, done := held.value[a.path]; done {
 		return r
 	}
-	leaf := drawPath(t.head(a.key), a.tail, a.key, &pathDraw{s: s, held: held, pins: pins, a: &a})
+	leaf := drawPath(t.head(a.head), a.tail, a.head, &pathDraw{s: s, held: held, pins: pins, a: &a})
 	if pins != nil {
 		sc = sc.at(leaf, pins)
 	}

@@ -146,7 +146,7 @@ func columnReadOf(t *template, link templateLink) *columnRead {
 		return nil
 	}
 	a := splitArm(name, link.refs)
-	target, isTemplate := link.refHeads[a.key].(*template)
+	target, isTemplate := link.refHeads[a.head].(*template)
 	if !isTemplate || !target.isRecord || len(a.tail) != 1 {
 		return nil
 	}

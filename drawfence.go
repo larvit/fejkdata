@@ -90,7 +90,7 @@ func checkOwnFamily(t *template) error {
 		seen[n] = true
 		for _, e := range renderEdges(n) {
 			if e.readsRef() {
-				if head, isTable := n.(*template).head(e.read.key).(*table); isTable && head.familyRoot() == own.familyRoot() {
+				if head, isTable := n.(*template).head(e.read.head).(*table); isTable && head.familyRoot() == own.familyRoot() {
 					return e, head, true
 				}
 			}
@@ -183,7 +183,7 @@ func readsTable(n node, a arm) bool {
 	if !isTemplate {
 		return false
 	}
-	_, isTable := t.head(a.key).(*table)
+	_, isTable := t.head(a.head).(*table)
 	return isTable
 }
 

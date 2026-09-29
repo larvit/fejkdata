@@ -41,7 +41,12 @@ type holdSet struct {
 type renderScope struct {
 	set   *holdSet
 	group string
-	row   tablePin
+	row   renderedRow
+}
+
+type renderedRow struct {
+	t     *table
+	index int
 }
 
 // in is the scope t renders in: its draw group where it names one, else its caller's.
@@ -57,9 +62,9 @@ func (sc renderScope) in(t *template) renderScope {
 func (sc renderScope) at(n node, pins *pinSet) renderScope {
 	switch n := n.(type) {
 	case *tableRow:
-		sc.row = tablePin{n.t, pins.mustRow(n.t)}
+		sc.row = renderedRow{n.t, pins.mustRow(n.t)}
 	case *tableColumn:
-		sc.row = tablePin{n.t, pins.mustRow(n.t)}
+		sc.row = renderedRow{n.t, pins.mustRow(n.t)}
 	}
 	return sc
 }
@@ -69,7 +74,7 @@ func (sc renderScope) rowOf(t *table) int {
 	if sc.row.t != t {
 		panic(internalError("a column of %s renders in a scope holding no row of it", t.segment))
 	}
-	return sc.row.row
+	return sc.row.index
 }
 
 func (sc renderScope) groupHold() *groupHold {

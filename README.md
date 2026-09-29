@@ -896,7 +896,7 @@ checksum.go     the check characters a derivation appends, and the IBAN they sit
 transform.go    the builtins that rewrite an operand's value, and the ASCII folding
 calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
-value.go        the value proof: what a typed column or calc operand holds, checked at load
+valueproof.go   the value proof: what a typed column or calc operand holds, checked at load
 data.go         the load path: fs.FS folders/files -> merged namespace tree, and the bind pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc

@@ -28,9 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Rename `arm.key` to `head`, as `template.head` reads it, leaving `key` the table's key
-  column; give `renderScope.row` a type that is not `tablePin`, since it pins nothing;
-  and name `value.go` by the `valueProof` it holds.
 - Delete the prose the seats found empty: "kept whole on purpose"
   (`format.go`, `calc.go`), the second copy of the concrete-session rationale
   (`table.drawRow`, `pick`), the doc comments restating `isSelector`, `selectorOf`,
