@@ -83,12 +83,12 @@ still lives in `data/` as JSON; `--data-path` layers over it.
 
 ## A bare reference draws each time; a reference path is held
 
-`{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in one render
-reads one draw, and a bare `{/p}` beside them is a load error: a bare token is by
-contract an independent draw, a path pins its level, and a fresh draw of a pinned level
-could show another row. A builtin's operand holds what it reads for its expansion,
-references included, so `{uppercase(/p)} {/p}` is one draw — the rule every operand
-follows.
+Goal 4: `{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in
+one render and draw group reads one draw, and a bare `{/p}` beside them is a load error,
+as `{p}` beside `{p.first}` is: a bare token is by contract an independent draw, a path
+pins its level, and a fresh draw of a pinned level could show another row. A builtin's
+operand holds what it reads for its expansion, references included, so
+`{uppercase(/p)} {/p}` is one draw, and `{/p}` written twice beside it is a load error.
 
 ## Reference sigils follow the filesystem
 
@@ -236,11 +236,11 @@ across categories must agree.
 
 ## The expansion hold and the render's draws are two fences
 
-One proves a sibling path or an operand is reached only by its readers within an
-expansion, the other does the same for reference paths across a render and its draw
-groups. They pin different things — an operand pins the value its own render produced
-and stops at a reference, a path pins every level it passes through — so one walk would
-carry both rules and both scopes anyway, and tell them apart at every step.
+Goal 2: one proves a sibling path or an operand is reached only by its readers within
+an expansion, the other that reference paths, whole-table reads and a table family's
+rows agree across a render and its draw groups. Their scopes differ and only the second
+tracks rows and pins, so one walk would carry both scopes and tell them apart at every
+step.
 
 ## A render's draws make their maps on the first read
 
