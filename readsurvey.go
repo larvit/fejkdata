@@ -13,19 +13,19 @@ type readSurvey struct {
 	pinIDs map[pinsLink]pinsID
 }
 
-// surveyAt is where a survey stands: the draw group it draws in, how the render's root reached it, the
+// surveyAt is where a survey stands: the draw group its reads draw in, how the render's root reached it, the
 // table rows it pinned, the table a whole read draws a row of, and the rows of whole draws whose
 // cells the walk is in.
 type surveyAt struct {
 	group      string
-	route      readRoute
+	route      surveyRoute
 	pins       pinSet
 	wholeTable *table
 	wholePins  pinSet
 }
 
-// readRoute is how a render reaches a read: as its author spells it, and the root edge's label.
-type readRoute struct{ spelling, label string }
+// surveyRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
+type surveyRoute struct{ spelling, label string }
 
 // pathRead is one reference a render reads: a path, or a bare reference with no tail.
 type pathRead struct {
@@ -63,32 +63,32 @@ func newReadSurvey() *readSurvey {
 }
 
 func surveyRender(t *template) *readSurvey {
-	w := newReadSurvey()
+	s := newReadSurvey()
 	for _, e := range renderEdges(t) {
-		w.edge(t, e, surveyAt{group: t.link.drawGroupKey, route: readRoute{e.reached(), e.label}})
+		s.edge(t, e, surveyAt{group: t.link.drawGroupKey, route: surveyRoute{e.reached(), e.label}})
 	}
-	return w
+	return s
 }
 
 func surveyColumns(t *template, columns []string) *readSurvey {
-	w := newReadSurvey()
+	s := newReadSurvey()
 	for _, name := range columns {
-		w.walk(t.fields[name], surveyAt{group: t.link.drawGroupKey, route: readRoute{spelling: fmt.Sprintf("column %q", name)}})
+		s.walk(t.fields[name], surveyAt{group: t.link.drawGroupKey, route: surveyRoute{spelling: fmt.Sprintf("column %q", name)}})
 	}
-	return w
+	return s
 }
 
-func (w *readSurvey) pinsID(p *pinSet) pinsID {
+func (s *readSurvey) pinsID(p *pinSet) pinsID {
 	var pins []tablePin
 	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
 	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
 	id := pinsID(0)
 	for _, q := range pins {
 		l := pinsLink{id, q}
-		next, ok := w.pinIDs[l]
+		next, ok := s.pinIDs[l]
 		if !ok {
-			next = pinsID(len(w.pinIDs) + 1)
-			w.pinIDs[l] = next
+			next = pinsID(len(s.pinIDs) + 1)
+			s.pinIDs[l] = next
 		}
 		id = next
 	}
@@ -99,12 +99,12 @@ func (w *readSurvey) pinsID(p *pinSet) pinsID {
 // there. A cell whose row the pins keep out has no case: a pinned table renders its pinned row
 // alone and an unpinned one draws a row inside its nearest pinned ancestor's, so that cell never
 // renders on this route.
-func (w *readSurvey) walk(n node, at surveyAt) {
-	v := nodeVisit{n, at.group, at.wholeTable, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}
-	if w.seen[v] {
+func (s *readSurvey) walk(n node, at surveyAt) {
+	v := nodeVisit{n, at.group, at.wholeTable, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}
+	if s.seen[v] {
 		return
 	}
-	w.seen[v] = true
+	s.seen[v] = true
 	if repeats(n) {
 		return
 	}
@@ -122,40 +122,40 @@ func (w *readSurvey) walk(n node, at surveyAt) {
 		}
 		switch {
 		case cell.table == nil:
-			w.edge(n, e, at)
+			s.edge(n, e, at)
 		case cell.table == at.wholeTable:
 			in := at
 			in.wholePins = at.wholePins.clone()
 			in.wholePins.add(cell.table, cell.row)
-			w.edge(n, e, in)
+			s.edge(n, e, in)
 		case at.pins.clash(cell.table, cell.row) == nil:
 			in := at
 			in.pins = at.pins.entered(cell.table, cell.row)
-			w.edge(n, e, in)
+			s.edge(n, e, in)
 		}
 	}
 }
 
 // edge records the reference an edge reads, then walks on with every row the read
 // pins entered, so a selected row renders only its own cells.
-func (w *readSurvey) edge(from node, e renderEdge, at surveyAt) {
+func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 	if e.readsRef() {
 		a := e.read
 		tr := tableReadOf(from.(*template).head(a.key), a, e.to)
-		if k := (readKey{at.group, a.path, w.pinsID(&at.pins), w.pinsID(&at.wholePins)}); !w.read[k] {
-			w.read[k] = true
-			w.reads = append(w.reads, pathRead{at, a, tr})
+		if k := (readKey{at.group, a.path, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}); !s.read[k] {
+			s.read[k] = true
+			s.reads = append(s.reads, pathRead{at, a, tr})
 		}
 		if tr != nil {
 			tr.pins.each(func(t *table, r int) { at.pins = at.pins.entered(t, r) })
 		}
 	}
-	w.walk(e.to, at)
+	s.walk(e.to, at)
 }
 
 // spelled names the route, and the reference it reaches a draw by where its root edge is not that
 // reference.
-func (r readRoute) spelled(ref string) string {
+func (r surveyRoute) spelled(ref string) string {
 	if ref == "" || ref == r.label {
 		return r.spelling
 	}

@@ -37,4 +37,4 @@ package fejkdata
 //     its cells stand in as `surveyAt.wholePins`, beside `surveyAt.wholeTable`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
-//     compile. The draw fences are `heldCheck`, `readFence` and `checkFamilies`.
+//     compile. The draw fences are `heldCheck`, `drawFence` and `checkFamilies`.
