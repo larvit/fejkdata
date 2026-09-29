@@ -27,10 +27,34 @@ Self-sufficiency 5.8), four seats capped by Locality, six of the seven unit seat
 ranking `readSurvey.walk` hardest and all seven the unit they would least modify; 6.1
 on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-sufficiency
 6.1), every seat's lowest dimension Locality, all seven unit seats ranking the
-`readSurvey` walk or check hardest and the unit they would least modify.
+`readSurvey` walk or check hardest and the unit they would least modify; 5.8 on
+2026-09-29 a fourth time (Navigation 6.7, Locality 5.0, Shape 5.7, Self-sufficiency
+5.7), every seat's lowest dimension Locality, alone or tied, all seven unit seats
+ranking `readSurvey.walk` and `edge` hardest and the unit they would least modify.
 
 This round, in order:
 
+- Make `readSurvey.edge` sound whatever order `checkNodeFences` runs its fences in:
+  report the pin clash as a load error, or have `checkDraws` run `checkOwnFamily` over
+  the scope before its survey, and delete the panic naming `checkOwnFamily`. All nine
+  seats found the survey sound only by a call order stated in that panic's text.
+- Test that `render` and `renderEdges` agree on every node kind, and each of the
+  switches `node`'s comment lists, so a kind one of them misses fails a test: five
+  seats, both architects among them, found the mirror held by comments alone.
+- Choose `disagreement`'s error directly, deleting `disagreementFix`'s switch returning
+  a builder and `declaresLess` for `<`: seven seats traced the matrix for a message,
+  and `disagreementFix`'s comment describes its parameter.
+- Give the expansion hold and the render's group hold two names: `hold`, `held`,
+  `heldLocal`, `holdSet` and `groupHold` spell both, and four seats could not tell
+  which fence guards which.
+- Word the three overlap refusals apart, `checkNameHeld`'s, `checkNoOverlap`'s and
+  `overlapError`'s: three seats grepped one message to three fences.
+- Compile a format in `format.go`: `linkTemplate` calls `compileFormat` in `node.go`,
+  which calls `compileOps` and `holdfence.go`'s two checks, and both architects placed
+  the step wrong.
+- Delete the "so which … is reported does not vary" clause at its five sites past
+  `checkNodeFences`, and `checkRecordDraws`' "A record-only template's format renders
+  nothing", which runs over templates with a format too.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -58,6 +82,8 @@ by a `data-import/` script, as README goal 12 asks.
 - Give the address records one column set across countries: `region` and
   `municipality` as columns on `geo.SE.address` too.
 - Fill the 398 Swedish localities weighted 200 from SCB småorter.
+- Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they
+  are: neither names a `weight`, so a bare `sex` draws evenly.
 - List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list
   of what each locale carries, which names neither.
 - Give `url` and `email` a path that draws only domains nobody can register, keeping
@@ -213,6 +239,8 @@ by a `data-import/` script, as README goal 12 asks.
   `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 - Call `templateError` a compile failure: its doc says render failure, and it wraps
   what `NewTemplate` and `NewRecordTemplate` refuse.
+- Name the node a selector follows in `stepInto`'s refusal: `sv_SE.person[1].first`
+  answers `1 is not a table`.
 - Report the same error every load for a table with two bad options, and for a
   folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
   first in Go's map order.
