@@ -34,9 +34,6 @@ ranking `readSurvey.walk` and `edge` hardest and the unit they would least modif
 
 This round, in order:
 
-- Compile a format in `format.go`: `linkTemplate` calls `compileFormat` in `node.go`,
-  which calls `compileOps` and `holdfence.go`'s two checks, and both architects placed
-  the step wrong.
 - Delete the "so which … is reported does not vary" clause at its five sites past
   `checkNodeFences`, and `checkRecordDraws`' "A record-only template's format renders
   nothing", which runs over templates with a format too.
