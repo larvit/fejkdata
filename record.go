@@ -152,7 +152,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 
 // tableRecord walks a path's tail from a table to the table whose row is the record,
 // pinning the rows it selects or draws.
-func tableRecord(s *session, t *table, tail []string, sc renderScope) (node, error) {
+func tableRecord(s *generatorState, t *table, tail []string, sc renderScope) (node, error) {
 	n, err := descend(s, t, tail, sc)
 	if err != nil {
 		return nil, err
@@ -261,7 +261,7 @@ func recordOf(n node) (*template, []Column, error) {
 
 // renderRecord draws each column once, in the name order recordOf fixed, as one render
 // over sc's hold; a table's columns read the row pinned there.
-func renderRecord(s *session, t *template, columns []Column, sc renderScope) *Record {
+func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.site.row == formatRow {
 		sc = sc.at(t.site.table.rowNode, &sc.groupHold().pins)

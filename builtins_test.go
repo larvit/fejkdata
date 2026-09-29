@@ -102,10 +102,10 @@ func TestBuiltinChecksums(t *testing.T) {
 	}
 }
 
-// TestBuiltinSeqPerSession pins seq's contract: a counter from 1, advancing on
+// TestBuiltinSeqPerGenerator pins seq's contract: a counter from 1, advancing on
 // each call, named counters independent, and the whole thing scoped to one
-// session so a fresh Generator restarts at 1.
-func TestBuiltinSeqPerSession(t *testing.T) {
+// generatorState so a fresh Generator restarts at 1.
+func TestBuiltinSeqPerGenerator(t *testing.T) {
 	f := engine(1)
 	for i := 1; i <= 5; i++ {
 		if got := mustRender(t, f, `"{seq()}"`); got != strconv.Itoa(i) {
@@ -122,9 +122,9 @@ func TestBuiltinSeqPerSession(t *testing.T) {
 	if got := mustRender(t, engine(2), `{"format":"{seq()}","repeat":3,"separator":","}`); got != "1,2,3" {
 		t.Fatalf("repeat seq = %q, want 1,2,3", got)
 	}
-	// ...and a fresh session restarts from 1.
+	// ...and a fresh generator restarts from 1.
 	if got := mustRender(t, engine(2), `"{seq()}"`); got != "1" {
-		t.Fatalf("new session seq = %q, want 1", got)
+		t.Fatalf("new generator seq = %q, want 1", got)
 	}
 }
 

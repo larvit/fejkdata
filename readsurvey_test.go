@@ -76,7 +76,7 @@ func spellPins(p *pinSet) string {
 	return "row " + strings.Join(rows, ", ")
 }
 
-func renderRoot(s *session, t *template, trace renderTrace) {
+func renderRoot(s *generatorState, t *template, trace renderTrace) {
 	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
 	switch {
@@ -96,7 +96,7 @@ func renderRoot(s *session, t *template, trace renderTrace) {
 	}
 }
 
-func renderRecordRoot(s *session, t *template, columns []Column, trace renderTrace) {
+func renderRecordRoot(s *generatorState, t *template, columns []Column, trace renderTrace) {
 	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
 	if t.site.row == formatRow {

@@ -34,20 +34,20 @@ type Generator struct {
 	// table's row lookup, built under its sync.Once, so List, NewTemplate and
 	// NewRecordTemplate read it without mu.
 	mu      sync.Mutex
-	rand    *session
+	rand    *generatorState
 	root    folder // the categories as the node a path walks from, owned here so a walk allocates none
 	records map[node]recordShape
 	structs map[reflect.Type]structResult
 }
 
-// session is one generator's mutable render state: the seeded rng plus the {seq()}
+// generatorState is one generator's state across its renders: the seeded rng plus the {seq()}
 // counters.
-type session struct {
+type generatorState struct {
 	*rand.Rand
 	counters map[string]uint64
 }
 
-func (s *session) next(key string) uint64 {
+func (s *generatorState) next(key string) uint64 {
 	s.counters[key]++
 	return s.counters[key]
 }
@@ -228,7 +228,7 @@ func join(prefix, name string) string {
 // randomBytes seeds an unseeded generator.
 var randomBytes = crand.Read
 
-func newRand(seed uint64, seeded bool) (*session, error) {
+func newRand(seed uint64, seeded bool) (*generatorState, error) {
 	var r *rand.Rand
 	if seeded {
 		r = rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
@@ -239,7 +239,7 @@ func newRand(seed uint64, seeded bool) (*session, error) {
 		}
 		r = rand.New(rand.NewPCG(binary.LittleEndian.Uint64(b[:8]), binary.LittleEndian.Uint64(b[8:])))
 	}
-	return &session{Rand: r, counters: map[string]uint64{}}, nil
+	return &generatorState{Rand: r, counters: map[string]uint64{}}, nil
 }
 
 func internalError(format string, a ...any) string {

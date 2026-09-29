@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-// ftoken is one unit of a scanned format string: a literal rune or the body of a
+// scanUnit is one unit of a scanned format string: a literal rune or the body of a
 // {…} token.
-type ftoken struct {
+type scanUnit struct {
 	isToken bool // a {…} body, else a literal rune
 	char    rune
 	body    string
@@ -16,10 +16,10 @@ type ftoken struct {
 // eachToken scans a format string once and calls fn for each unit, the single
 // source of truth for how braces are read: "{{" and "}}" are literal braces, a "{"
 // opens a token that must reach its "}", and a lone "}" is an error.
-func eachToken(format string, fn func(ftoken) error) error {
+func eachToken(format string, fn func(scanUnit) error) error {
 	rs := []rune(format)
 	for i := 0; i < len(rs); i++ {
-		var t ftoken
+		var t scanUnit
 		switch c := rs[i]; c {
 		case '{':
 			if i+1 < len(rs) && rs[i+1] == '{' {
@@ -85,7 +85,7 @@ func parseFormat(format string) ([]formatToken, error) {
 			lit.Reset()
 		}
 	}
-	err := eachToken(format, func(t ftoken) error {
+	err := eachToken(format, func(t scanUnit) error {
 		if !t.isToken {
 			lit.WriteRune(t.char)
 			return nil
@@ -110,11 +110,11 @@ func parseFormat(format string) ([]formatToken, error) {
 }
 
 // builtin is a format-string function invoked as {name(args)}. It receives the
-// session (its rng, and the {seq()} counters), the output emitted so far in the
+// generatorState (its rng, and the {seq()} counters), the output emitted so far in the
 // current expansion (for derivations such as a checksum over preceding digits), and
 // the values of the operands it named (calc and the transforms name them). All must
 // stay pure over (rng, emitted, args) so seeded output is reproducible; seq advances
-// per-session counter state, which is itself deterministic. arity is the exact arg
+// per-generator counter state, which is itself deterministic. arity is the exact arg
 // count, or -1 for variadic (then checkArgs does all the validation).
 type builtin struct {
 	arity int
@@ -366,7 +366,7 @@ func checkSegments(a arm) error {
 // callFn is a builtin prepared for one call site: its args already parsed. It reads the
 // output emitted so far in the current expansion (a derivation's payload) and the
 // values of the operands it named, which expand read for it.
-type callFn func(s *session, emitted string, operands []string) string
+type callFn func(s *generatorState, emitted string, operands []string) string
 
 // op is one compiled unit of a format string: a literal run, a name read,
 // or a builtin already prepared with its args. compile builds these so render never

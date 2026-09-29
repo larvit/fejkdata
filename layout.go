@@ -135,13 +135,13 @@ func datePrep(a []string) callFn {
 		panic(internalError("builtin arg %q reached prep unvalidated: %v", a[1], err))
 	}
 	layout, start, span := layoutOf(a[2]), from.Unix(), int(to.Unix()-from.Unix())+86400
-	return func(s *session, _ string, _ []string) string {
+	return func(s *generatorState, _ string, _ []string) string {
 		return time.Unix(start+int64(s.IntN(span)), 0).UTC().Format(layout)
 	}
 }
 func timePrep(a []string) callFn {
 	layout := layoutOf(a[0])
-	return func(s *session, _ string, _ []string) string {
+	return func(s *generatorState, _ string, _ []string) string {
 		return time.Unix(int64(s.IntN(86400)), 0).UTC().Format(layout)
 	}
 }

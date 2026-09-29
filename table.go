@@ -472,20 +472,20 @@ func (t *table) builtLookup() *rowLookup {
 }
 
 // drawRow picks a row over the whole table.
-func (t *table) drawRow(s *session) int {
+func (t *table) drawRow(s *generatorState) int {
 	if t.cum == nil {
 		return s.IntN(t.rowCount())
 	}
 	return pickCum(s, t.cum)
 }
 
-func pickCum(s *session, cum []float64) int {
+func pickCum(s *generatorState, cum []float64) int {
 	x := s.Float64() * cum[len(cum)-1]
 	return min(sort.Search(len(cum), func(i int) bool { return cum[i] > x }), len(cum)-1) // x can round up to the total
 }
 
 // drawUnder picks a row among those linked to parent row pr.
-func (t *table) drawUnder(s *session, pr int) int {
+func (t *table) drawUnder(s *generatorState, pr int) int {
 	lookup := t.builtLookup()
 	k := t.parentT.cell(pr, t.parentT.keyIndex)
 	rows := lookup.rowsByParent[k]
@@ -498,7 +498,7 @@ func (t *table) drawUnder(s *session, pr int) int {
 // drawIn is the render's row of t: the one pinned in p, else one drawn inside the nearest
 // pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
 // over the whole table, and pinned with its ancestors.
-func (t *table) drawIn(s *session, p *pinSet) int {
+func (t *table) drawIn(s *generatorState, p *pinSet) int {
 	if r, ok := p.pinned(t); ok {
 		return r
 	}

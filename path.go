@@ -353,7 +353,7 @@ func (w *pathProbe) readRow(t *table, tail []string, r tableRoute) error {
 // Where pathCheck walks every variant of a choice, it walks the one drawn; at a table it selects
 // as pathCheck does and draws the row the route asks for.
 type pathDraw struct {
-	s    *session
+	s    *generatorState
 	pins *pinSet
 	held *hold
 	a    *arm

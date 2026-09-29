@@ -40,19 +40,19 @@ var builtins = withTransforms(map[string]builtin{
 	"lower": {arity: 1, checkArgs: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
 	"base64": {arity: 1, checkArgs: posIntArg, prep: func(a []string) callFn {
 		n := atoi(a[0])
-		return func(s *session, _ string, _ []string) string {
+		return func(s *generatorState, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
 	}},
 	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
-		return func(s *session, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
+		return func(s *generatorState, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
 	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, a []string) proven {
 		return printing(token, prints, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
 	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
-		return func(s *session, _ string, _ []string) string {
+		return func(s *generatorState, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
 	}, prints: DataTypeNumber, proveNumber: func(token string, _ DataType, a []string) proven {
@@ -60,12 +60,12 @@ var builtins = withTransforms(map[string]builtin{
 	}},
 	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
-		return func(s *session, _ string, _ []string) string { return iban(s, cc) }
+		return func(s *generatorState, _ string, _ []string) string { return iban(s, cc) }
 	}},
 	"date": {arity: -1, checkArgs: dateArgs, prep: datePrep},
 	"time": {arity: -1, checkArgs: timeArg, prep: timePrep},
 	"calc": {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
-	// seq is the one stateful builtin: a per-session counter from 1, advancing on
+	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
 	"seq": {arity: -1, checkArgs: seqArg, prep: func(a []string) callFn {
@@ -73,7 +73,7 @@ var builtins = withTransforms(map[string]builtin{
 		if len(a) == 1 {
 			key = a[0]
 		}
-		return func(s *session, _ string, _ []string) string {
+		return func(s *generatorState, _ string, _ []string) string {
 			return strconv.FormatUint(s.next(key), 10)
 		}
 	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven {
@@ -86,18 +86,18 @@ var builtins = withTransforms(map[string]builtin{
 // sample of n characters drawn from an alphabet.
 func derive(f func(emitted string) string) func([]string) callFn {
 	return func([]string) callFn {
-		return func(_ *session, emitted string, _ []string) string { return f(emitted) }
+		return func(_ *generatorState, emitted string, _ []string) string { return f(emitted) }
 	}
 }
 func sample(f func(rng) string) func([]string) callFn {
 	return func([]string) callFn {
-		return func(s *session, _ string, _ []string) string { return f(s) }
+		return func(s *generatorState, _ string, _ []string) string { return f(s) }
 	}
 }
 func chars(alphabet string) func([]string) callFn {
 	return func(a []string) callFn {
 		n := atoi(a[0])
-		return func(s *session, _ string, _ []string) string { return randChars(s, n, alphabet) }
+		return func(s *generatorState, _ string, _ []string) string { return randChars(s, n, alphabet) }
 	}
 }
 
