@@ -2,8 +2,6 @@ package fejkdata
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -68,13 +66,6 @@ func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
 		"render":      func() { render(nil, &unhandledNode{}, renderScope{}) },
 		"renderEdges": func() { renderEdges(&unhandledNode{}) },
 	} {
-		t.Run(name, func(t *testing.T) {
-			defer func() {
-				if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), "fejkdata: internal error: ") || !strings.Contains(fmt.Sprint(r), "*fejkdata.unhandledNode") {
-					t.Errorf("recovered %v, want an internal error naming the node kind", r)
-				}
-			}()
-			call()
-		})
+		mustPanic(t, name, call)
 	}
 }
