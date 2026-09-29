@@ -40,17 +40,17 @@ This round, in order:
   across three files.
 - Give `prove`, `stepInto` and `columnItems` a case per node kind and panic through
   `internalError` on the rest, and list every such switch in `node`'s doc: `prove`'s
-  default tells a typed column reading a bare table that it reads a null, and five seats
-  found `node` naming four switches of seven.
+  default tells a typed column reading a bare table that it reads a null, and six seats
+  found `node` naming four of them.
 - Replace `disagreements`' ten keys with the rule they encode: a declared fix holds one
   datatype, a read one is `readTyped` where proven and `readAsText` otherwise, a text one
-  is `otherAsText` beside an unproven read and `declare` otherwise. Five seats could not
+  is `otherAsText` beside an unproven read and `declare` otherwise. Six seats could not
   see why each key gets its fix.
 - Drop `table.fields` for `formatTemplate.fields`: one map held in two fields.
 - Rename `arm.key` to `head`, as `template.head` reads it, leaving `key` the table's key
   column; give `renderScope.row` a type that is not `tablePin`, since it pins nothing;
   and name `value.go` by the `valueProof` it holds.
-- Delete the prose three or more seats found empty: "kept whole on purpose"
+- Delete the prose the seats found empty: "kept whole on purpose"
   (`format.go`, `calc.go`), the second copy of the concrete-session rationale
   (`table.drawRow`, `pick`), the doc comments restating `isSelector`, `selectorOf`,
   `checkPath`, `checkColumnDraws`, `compileTable` and `isOption`, and the `compose.yaml`
