@@ -356,5 +356,5 @@ func alternatives(a, b surveyAt) bool {
 }
 
 func overlapError(route surveyRoute, ref string, into pathRead) error {
-	return fmt.Errorf("%s reads whole the reference draw that %s reads a path into; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.spelling))
+	return fmt.Errorf("%s and %s share one reference draw, one read whole and one by a path; name the fields you want instead, or draw them apart with a drawGroup", route.spelled(ref), into.at.route.spelled(into.a.spelling))
 }
