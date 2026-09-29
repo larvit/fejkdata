@@ -61,7 +61,7 @@ func contained(n node) []namedNode {
 	case *template:
 		return namedNodes(n.fields)
 	case *table:
-		return append([]namedNode{{node: n.formatTemplate}}, namedNodes(n.fields)...)
+		return append([]namedNode{{node: n.formatTemplate}}, namedNodes(n.formatTemplate.fields)...)
 	case *tableColumn:
 		if len(n.t.cellTemplates) == 0 {
 			return nil
