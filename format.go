@@ -326,7 +326,7 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			}
 			return arm{spelling: name, head: head, path: head}
 		}
-		sigil, rest, _ := refShape(name) // linkRefs proved it
+		sigil, rest, _ := refShape(name) // resolveLink proved it, and took b.tail as a suffix of its segments
 		written, _ := splitPath(rest)
 		return pathArm(name, b.head, sigil+joinSegments(written[:len(written)-len(b.tail)]), b.tail)
 	}
