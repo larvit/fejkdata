@@ -24,16 +24,12 @@ type fenceRoot struct {
 	t     *template
 }
 
-func fenceRoots(t *testing.T, f *Generator) ([]fenceRoot, map[string]*table) {
+func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
 	t.Helper()
 	var roots []fenceRoot
-	tables := map[string]*table{}
 	_ = walkNodes(f.root.children, func(path string, n node) error {
-		switch n := n.(type) {
-		case *template:
-			roots = append(roots, fenceRoot{path, n})
-		case *table:
-			tables[n.path] = n
+		if tm, ok := n.(*template); ok {
+			roots = append(roots, fenceRoot{path, tm})
 		}
 		return nil
 	})
@@ -51,12 +47,12 @@ func fenceRoots(t *testing.T, f *Generator) ([]fenceRoot, map[string]*table) {
 		}
 		return nil
 	})
-	return append(roots, fenceRoot{"inline record", record.template}), tables
+	return append(roots, fenceRoot{"inline record", record.template})
 }
 
 func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 	corpus := fenceCorpus(t)
-	roots, _ := fenceRoots(t, corpus)
+	roots := fenceRoots(t, corpus)
 	shipped, err := New()
 	if err != nil {
 		t.Fatalf("New() = %v", err)
