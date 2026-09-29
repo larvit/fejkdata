@@ -36,11 +36,6 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Compute what rendering a node reads as a fold memoised per node, `reads(n)`, deduped
-  per node, and have `surveyRender` and `surveyColumns` call it, deleting
-  `readSurvey.walk`, `edge`, `nodeVisit` and `seen`: every run's seats named the walk
-  hardest. Prototyped green with the allocation gate held; without the per-node dedup
-  `TestADeepDiamondChainLoads` doubles its list per level.
 - Have `checkDrawGroup`, `checkDraws` and `checkRecordDraws` query the fold, deleting
   `drawFence.hasRead`, its helpers and the decision "Each entry point to
   `drawFence.hasRead` says what its caller gets".
