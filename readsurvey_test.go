@@ -8,10 +8,10 @@ import (
 
 func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	f := fenceCorpus(t)
-	roots, tables := fenceRoots(t, f)
+	roots := fenceRoots(t, f)
 	traced := 0
 	for _, root := range roots {
-		traced += wantGathered(t, tables, root.label, surveyRender(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
+		traced += wantGathered(t, root.label, surveyRender(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
 		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
@@ -19,30 +19,30 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: recordOf = %v", root.label, err)
 		}
-		traced += wantGathered(t, tables, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
+		traced += wantGathered(t, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
 	}
 	if traced == 0 {
 		t.Error("no render traced a reference read, so the comparison proved nothing")
 	}
 }
 
-func wantGathered(t *testing.T, tables map[string]*table, label string, gathered []pathRead, renderWith func(renderTrace)) int {
+func wantGathered(t *testing.T, label string, gathered []pathRead, renderWith func(renderTrace)) int {
 	t.Helper()
 	var reads []pathRead
 	type traceKey struct {
-		group, path, table string
-		row                int
+		group, path string
+		row         renderedRow
 	}
 	seen := map[traceKey]bool{}
-	trace := func(group, table string, row int, a arm) {
+	trace := func(group string, row renderedRow, a arm) {
 		if !isRef(a.head) {
 			return
 		}
 		r := pathRead{at: surveyAt{group: group}, a: a}
-		if table != "" {
-			r.at.pins.add(tables[table], row)
+		if row.t != nil {
+			r.at.pins.add(row.t, row.index)
 		}
-		if k := (traceKey{group, a.path, table, row}); !seen[k] {
+		if k := (traceKey{group, a.path, row}); !seen[k] {
 			seen[k] = true
 			reads = append(reads, r)
 		}
