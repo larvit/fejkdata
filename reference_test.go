@@ -271,7 +271,7 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
-		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+		if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
 	}
@@ -280,7 +280,7 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
 		"hop": `"{/row.p.last}"`,
-	}))); err == nil || !strings.Contains(err.Error(), "reads a path into") {
+	}))); err == nil || !strings.Contains(err.Error(), "by a second route") {
 		t.Errorf("New = %v, want a sibling path beside a reference into it rejected", err)
 	}
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
@@ -413,7 +413,7 @@ func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
 		"sv_SE/person": person,
 		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), "reads a path into") || !strings.Contains(err.Error(), "{.person}") {
+	if err == nil || !strings.Contains(err.Error(), "reads whole the reference draw") || !strings.Contains(err.Error(), "{.person}") {
 		t.Errorf("New = %v, want the bare spelling rejected beside the path spelling", err)
 	}
 	dir := writeData(t, map[string]string{

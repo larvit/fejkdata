@@ -56,7 +56,7 @@ func TestRenderingALevelAndReadingIntoItIsRejected(t *testing.T) {
 			t.Errorf("%s: New = nil error, want the overlapping tokens rejected", name)
 			continue
 		}
-		if !strings.HasPrefix(err.Error(), "fejkdata: cat: ") || !strings.Contains(err.Error(), "reads a path into") {
+		if !strings.HasPrefix(err.Error(), "fejkdata: cat: ") || !strings.Contains(err.Error(), "renders a level that") {
 			t.Errorf("%s: New = %v, want it to name the category path and the overlap", name, err)
 		}
 	}
@@ -76,7 +76,7 @@ func TestCalcOperandNamingAHeldLevelIsRejected(t *testing.T) {
 		"cat": `{"format":"{item.price}|{calc(item * 1)}","item":[` +
 			`{"format":"{price}","price":"10"},{"format":"{price}","price":"20"}]}`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+	if err == nil || !strings.Contains(err.Error(), "renders a level that") {
 		t.Fatalf("New = %v, want the calc operand rejected as an overlap", err)
 	}
 	// Arithmetic over fields no path names is untouched.
@@ -113,7 +113,7 @@ func TestReferenceNamingAHeldLevelIsRejected(t *testing.T) {
 	}
 	for name, files := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
-		if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+		if err == nil || !strings.Contains(err.Error(), "by a second route") {
 			t.Errorf("%s: New = %v, want the reference rejected as an overlap", name, err)
 		}
 	}
@@ -147,7 +147,7 @@ func TestALevelRenderedOnlyByAPathTokenIsHeld(t *testing.T) {
 			`"q":{"format":"{x}","x":["1","2"]}}`,
 		"hop": `"{/thing.q}"`,
 	})))
-	if err == nil || !strings.Contains(err.Error(), "reads a path into") {
+	if err == nil || !strings.Contains(err.Error(), "by a second route") {
 		t.Fatalf("New = %v, want the second route to q rejected", err)
 	}
 }
@@ -308,7 +308,7 @@ func TestAPathReachesEveryVariantItMightDraw(t *testing.T) {
 					`"q":{"format":"{y}","y":["1","2"]}}`,
 				"hop": `"{/cat.q}"`,
 			},
-			"reads a path into",
+			"by a second route",
 		},
 	}
 	for name, c := range rejected {
