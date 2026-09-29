@@ -218,9 +218,10 @@ by a `data-import/` script, as README goal 12 asks.
   first in Go's map order.
 - Report a CRLF rows file holding only its header as having no rows: `parseRows`
   answers "line 2 is empty".
-- Stop `prove` calling every row read composed text: a table whose format is one
-  column, `{code}`, renders one cell, yet a typed column reading it is refused as
-  "composed text".
+- Reword `prove`'s refusal of a typed column reading a row, `{/region}`: say the
+  format is the table's own (`region's format "{name}"`), name the read to write,
+  `{/region.<column>}` with its columns, and stop calling a one-column format,
+  `{code}`, composed text.
 - Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
   `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
 - Refuse two whole reads of one table family in one render, which goal 5 promises is a
