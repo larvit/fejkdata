@@ -258,11 +258,12 @@ func checkFamilies(reads []pathRead) error {
 // read draws its row without pinning it, so the family would draw apart from the row
 // it renders, whichever draws the reaching template holds.
 // docs/decisions.md#a-table-never-reaches-its-own-family-by-any-route
-func checkOwnFamily(t *template) error {
-	own := t.site.table
-	if own == nil {
+func checkOwnFamily(path string, n node) error {
+	t, isTemplate := n.(*template)
+	if !isTemplate || t.site.table == nil {
 		return nil
 	}
+	own := t.site.table
 	seen := map[node]bool{}
 	var find func(n node) (renderEdge, *table, bool)
 	find = func(n node) (renderEdge, *table, bool) {
@@ -283,7 +284,7 @@ func checkOwnFamily(t *template) error {
 		return renderEdge{}, nil, false
 	}
 	if e, familyTable, found := find(t); found {
-		return fmt.Errorf("%s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", e.reached(), familyTable.segment, own.segment)
+		return fmt.Errorf("%s: %s reads %s, a table of its own family, which a bare read of %s would draw apart from the row it renders; read the family from a template beside it, or add the value as a column", path, e.reached(), familyTable.segment, own.segment)
 	}
 	return nil
 }
