@@ -19,15 +19,17 @@ package fejkdata
 //   - draw — one pick from a choice, or one row taken from a table: `pick`,
 //     `resolveChoice`, `table.drawRow`.
 //   - expansion — one render of one format: `expand`.
-//   - render — what owns one `holdSet`, and so what one reference draw spans:
+//   - render — what owns one `renderDraws`, and so what one reference draw spans:
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, `FakeStruct` one per record, and `expandAnew` one per
 //     iteration of a `template.repeat`.
-//   - hold — keeping one draw of a name, so every route to it reads that value:
-//     `formatOps.held`, `hold`, `groupHold`, `readHeld`.
-//   - draw group — reference draws held apart inside one render:
+//   - hold — one expansion keeping one draw of a name, so every route to it reads
+//     that value: `formatOps.held`, `formatOps.keepsHold`, `heldCheck`.
+//   - memo — what a hold or a draw group keeps its draws in, the variant drawn at
+//     each level and the value each path read: `drawMemo`, `readMemo`.
+//   - draw group — reference draws kept apart inside one render:
 //     `template.drawGroup` as the data spells it, `templateLink.drawGroupKey` as a
-//     render reads it, `holdSet`, `renderScope`.
+//     render reads it, `renderDraws`, `groupDraws`, `renderScope`.
 //   - pin — fixing which row of a table the render uses, which the draw fences replay:
 //     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of

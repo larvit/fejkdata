@@ -348,14 +348,14 @@ func (w *pathProbe) readRow(t *table, tail []string, r tableRoute) error {
 }
 
 // pathDraw draws the rows and variants a proved path reads, pinning the rows in pins; pins is nil
-// for a sibling path, which never crosses a table, since a table is only a category. For a held
-// read, held keeps the variant drawn at each level of a, so paths sharing a prefix share it.
+// for a sibling path, which never crosses a table, since a table is only a category. For a memoized
+// read, memo keeps the variant drawn at each level of a, so paths sharing a prefix share it.
 // Where pathCheck walks every variant of a choice, it walks the one drawn; at a table it selects
 // as pathCheck does and draws the row the route asks for.
 type pathDraw struct {
 	s    *generatorState
 	pins *pinSet
-	held *hold
+	memo *drawMemo
 	a    *arm
 }
 
@@ -400,20 +400,20 @@ func (w *pathDraw) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-// variant is the variant of c the walk continues into: the one held for this level
-// of the read, drawn once, where the walk holds its draws; else one drawn afresh.
+// variant is the variant of c the walk continues into: the one memo keeps for this level
+// of the read, drawn once, where the walk has a memo; else one drawn afresh.
 func (w *pathDraw) variant(c *choice, rest []string) node {
-	if w.held == nil {
+	if w.memo == nil {
 		return pick(w.s, c)
 	}
 	key := w.a.levels[len(w.a.tail)-len(rest)]
-	n, drew := w.held.variant[key]
+	n, drew := w.memo.variant[key]
 	if !drew {
 		n = resolveChoice(w.s, c)
-		if w.held.variant == nil {
-			w.held.variant = map[string]node{}
+		if w.memo.variant == nil {
+			w.memo.variant = map[string]node{}
 		}
-		w.held.variant[key] = n
+		w.memo.variant[key] = n
 	}
 	return n
 }

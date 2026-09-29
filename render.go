@@ -6,7 +6,7 @@ import (
 )
 
 // rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *generatorState instead, which keeps the hold set of the walk
+// render path takes the concrete *generatorState instead, which keeps the draws of the walk
 // drawing through it off the heap.
 type rng interface {
 	IntN(n int) int
@@ -24,8 +24,8 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	var set holdSet
-	sc := renderScope{set: &set}
+	var draws renderDraws
+	sc := renderScope{draws: &draws}
 	n, err := descend(f.rand, &f.root, segments, sc)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
@@ -33,7 +33,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	return render(f.rand, n, sc.at(n, &sc.groupHold().pins)), nil
+	return render(f.rand, n, sc.at(n, &sc.groupDraws().pins)), nil
 }
 
 // descend walks a caller's path to the node it names, pinning in sc the rows it
@@ -43,18 +43,18 @@ func descend(s *generatorState, root node, segments []string, sc renderScope) (n
 	if _, err := (&pathProbe{}).walk(root, segments); err != nil {
 		return nil, err
 	}
-	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.groupHold().pins}), nil
+	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.groupDraws().pins}), nil
 }
 
-// renderOnce renders n as one render, over a hold set of its own.
+// renderOnce renders n as one render, over draws of its own.
 func renderOnce(s *generatorState, n node) string {
-	var set holdSet
-	return render(s, n, renderScope{set: &set})
+	var draws renderDraws
+	return render(s, n, renderScope{draws: &draws})
 }
 
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail. sc holds the reference draws the
-// render shares; each repeat iteration renders over a hold set of its own.
+// render shares; each repeat iteration renders over draws of its own.
 // A child this switch renders is one renderEdges must list too, or the fences miss it.
 func render(s *generatorState, n node, sc renderScope) string {
 	switch n := n.(type) {
@@ -96,12 +96,12 @@ func render(s *generatorState, n node, sc renderScope) string {
 }
 
 // expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
-// render's loop, its hold set would move to the heap.
+// render's loop, its draws would move to the heap.
 //
 //go:noinline
 func expandAnew(s *generatorState, t *template) string {
-	var set holdSet
-	return expand(s, t, renderScope{set: &set})
+	var draws renderDraws
+	return expand(s, t, renderScope{draws: &draws})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
@@ -119,10 +119,10 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 	b.Grow(t.compiled.grow)
 	// One draw per held name, for this expansion only: a nested template and each
 	// repeat iteration get their own, since each is its own expansion. A reference
-	// path reads the render's hold in sc instead.
-	var held *hold
-	if t.compiled.heldLocal {
-		held = &hold{
+	// path reads its draw group's memo in sc instead.
+	var hold *drawMemo
+	if t.compiled.keepsHold {
+		hold = &drawMemo{
 			variant: make(map[string]node, len(t.compiled.held)),
 			value:   make(map[string]readValue, len(t.compiled.held)),
 		}
@@ -133,7 +133,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 		case literalRun:
 			b.WriteString(o.lit)
 		case nameRead:
-			b.WriteString(readField(s, t, held, sc, o.arms[s.IntN(len(o.arms))]).text)
+			b.WriteString(readField(s, t, hold, sc, o.arms[s.IntN(len(o.arms))]).text)
 		case builtinCall:
 			// Read before the call, so the value a calc computes is the value the
 			// format showed. calcVars fixed the order op.operands holds.
@@ -141,7 +141,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))
 				for j, a := range o.operands {
-					operands[j] = readField(s, t, held, sc, a).text
+					operands[j] = readField(s, t, hold, sc, a).text
 				}
 			}
 			b.WriteString(o.call(s, b.String(), operands)) // b.String() is the output so far
@@ -152,15 +152,15 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 
 // readField renders one arm of a token. A name the expansion holds — a level some
 // token addresses by a dotted path that is not a reference, or a field an operand
-// reads — is drawn once and kept in held, so {place.postal-code} and {place.locality}
+// reads — is drawn once and kept in hold, so {place.postal-code} and {place.locality}
 // read one row, either read twice gives one value, and a shown operand is the operand
 // computed. Every other name is drawn afresh, so {word} {word} still draws twice.
-func readField(s *generatorState, t *template, held *hold, sc renderScope, a arm) readValue {
+func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a arm) readValue {
 	if isRef(a.head) && len(a.tail) > 0 {
 		return readReference(s, t, sc, a)
 	}
-	if sc.set.trace != nil {
-		traceRead(sc.set.trace, t, sc, a)
+	if sc.draws.trace != nil {
+		traceRead(sc.draws.trace, t, sc, a)
 	}
 	if _, expansionHolds := t.compiled.held[a.head]; !expansionHolds {
 		if len(a.tail) > 0 {
@@ -168,35 +168,35 @@ func readField(s *generatorState, t *template, held *hold, sc renderScope, a arm
 		}
 		return readValue{text: render(s, t.head(a.head), sc)}
 	}
-	if held == nil {
+	if hold == nil {
 		panic(internalError("%q reads a name the expansion holds, with no hold to keep it in", a.spelling))
 	}
-	return readHeld(s, t, held, nil, sc, a)
+	return readMemo(s, t, hold, nil, sc, a)
 }
 
-// readReference reads a reference path, kept in the render's hold for its group, so its draw
+// readReference reads a reference path, kept in its draw group's memo, so its draw
 // spans the render.
 func readReference(s *generatorState, t *template, sc renderScope, a arm) readValue {
-	if sc.set.trace != nil {
-		traceRead(sc.set.trace, t, sc, a)
+	if sc.draws.trace != nil {
+		traceRead(sc.draws.trace, t, sc, a)
 	}
-	group := sc.groupHold()
-	return readHeld(s, t, &group.hold, &group.pins, sc, a)
+	group := sc.groupDraws()
+	return readMemo(s, t, &group.memo, &group.pins, sc, a)
 }
 
-func readHeld(s *generatorState, t *template, held *hold, pins *pinSet, sc renderScope, a arm) readValue {
-	if r, done := held.value[a.path]; done {
+func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc renderScope, a arm) readValue {
+	if r, done := memo.value[a.path]; done {
 		return r
 	}
-	leaf := drawPath(t.head(a.head), a.tail, a.head, &pathDraw{s: s, held: held, pins: pins, a: &a})
+	leaf := drawPath(t.head(a.head), a.tail, a.head, &pathDraw{s: s, memo: memo, pins: pins, a: &a})
 	if pins != nil {
 		sc = sc.at(leaf, pins)
 	}
 	r := renderLeaf(s, leaf, sc)
-	if held.value == nil {
-		held.value = map[string]readValue{}
+	if memo.value == nil {
+		memo.value = map[string]readValue{}
 	}
-	held.value[a.path] = r
+	memo.value[a.path] = r
 	return r
 }
 

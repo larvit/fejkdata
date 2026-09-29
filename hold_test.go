@@ -771,7 +771,7 @@ func TestReadFieldPanicsOnAPathItCannotHold(t *testing.T) {
 			t.Fatal("not a template")
 		}
 		mustPanic(t, name, func() {
-			readField(engine(1).rand, tm, nil, renderScope{set: &holdSet{}}, a)
+			readField(engine(1).rand, tm, nil, renderScope{draws: &renderDraws{}}, a)
 		})
 	}
 }

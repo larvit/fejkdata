@@ -77,17 +77,17 @@ func spellPins(p *pinSet) string {
 }
 
 func renderRoot(s *generatorState, t *template, trace renderTrace) {
-	set := holdSet{trace: trace}
-	sc := renderScope{set: &set}
+	draws := renderDraws{trace: trace}
+	sc := renderScope{draws: &draws}
 	switch {
 	case t.site.row == formatRow:
 		tbl := t.site.table
 		render(s, tbl, sc)
 		for r := 0; r < tbl.rowCount(); r++ {
-			set := holdSet{trace: trace}
-			sc := renderScope{set: &set}
-			sc.groupHold().pins.pin(tbl, r)
-			render(s, tbl.rowNode, sc.at(tbl.rowNode, &sc.groupHold().pins))
+			draws := renderDraws{trace: trace}
+			sc := renderScope{draws: &draws}
+			sc.groupDraws().pins.pin(tbl, r)
+			render(s, tbl.rowNode, sc.at(tbl.rowNode, &sc.groupDraws().pins))
 		}
 	case t.repeat > 1:
 		expand(s, t, sc)
@@ -97,10 +97,10 @@ func renderRoot(s *generatorState, t *template, trace renderTrace) {
 }
 
 func renderRecordRoot(s *generatorState, t *template, columns []Column, trace renderTrace) {
-	set := holdSet{trace: trace}
-	sc := renderScope{set: &set}
+	draws := renderDraws{trace: trace}
+	sc := renderScope{draws: &draws}
 	if t.site.row == formatRow {
-		t.site.table.drawIn(s, &sc.groupHold().pins)
+		t.site.table.drawIn(s, &sc.groupDraws().pins)
 	}
 	renderRecord(s, t, columns, sc)
 }

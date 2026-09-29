@@ -351,8 +351,8 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
 func (s *structShape) fill(state *generatorState, v reflect.Value) {
 	if s.record != nil {
-		var set holdSet
-		for i, c := range renderRecord(state, s.record, s.columns, renderScope{set: &set}).columns {
+		var draws renderDraws
+		for i, c := range renderRecord(state, s.record, s.columns, renderScope{draws: &draws}).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}

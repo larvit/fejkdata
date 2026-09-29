@@ -242,11 +242,11 @@ groups. They pin different things — an operand pins the value its own render p
 and stops at a reference, a path pins every level it passes through — so one walk would
 carry both rules and both scopes anyway, and tell them apart at every step.
 
-## A hold set makes its draw maps on the first read
+## A render's draws make their maps on the first read
 
-Every render starts from an empty hold set, its draw groups included, since goal 2 prices
-a reader meeting two spellings of one empty set. Making the maps where the set is declared kept a
-record's on its frame's stack, but a `Fake`'s set lives on the `Generator`, so there it
+Every render starts from empty draws, its draw groups included, since goal 2 prices
+a reader meeting two spellings of one empty set. Making the maps where the draws are declared kept a
+record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so there it
 cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
 Lazily, a render reading a reference path pays those two allocations, a record or struct
 included, and one reading none pays nothing; goal 11 holds either way.
@@ -304,7 +304,7 @@ writes as the load check proved it; a `Value any` would hand every caller a type
 
 ## A unit takes the stem of what it is, and a file the stem of the units it holds
 
-Goal 2 wants a name to reach one unit: `hold` is what a draw is kept in, `readValue` what
+Goal 2 wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
 a read drew.
 
 ## One name, one meaning

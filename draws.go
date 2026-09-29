@@ -2,18 +2,18 @@ package fejkdata
 
 import "strings"
 
-// hold is what one expansion has drawn for the names it holds: the variant each was drawn as, so
+// drawMemo is what a hold or a draw group has drawn: the variant each level was drawn as, so
 // every path under it reads one variant; and the value each read produced, by its path, so the
 // same read written twice reads one value.
-type hold struct {
+type drawMemo struct {
 	variant map[string]node
 	value   map[string]readValue
 }
 
-// groupHold is what one render's draw group has drawn for its reference paths: a hold, and the
+// groupDraws is what one render's draw group has drawn for its reference paths: a memo, and the
 // table rows those paths pinned.
-type groupHold struct {
-	hold
+type groupDraws struct {
+	memo drawMemo
 	pins pinSet
 }
 
@@ -26,20 +26,20 @@ type readValue struct {
 // renderTrace is a test's view of the fields a render reads; nil outside a test.
 type renderTrace func(group string, row renderedRow, a arm)
 
-// holdSet is one render's reference draws: the unnamed draw group's, and each named one's; and a
-// test's trace of its reads.
-type holdSet struct {
-	unnamed groupHold
-	named   map[string]*groupHold
+// renderDraws is one render's reference draws: the unnamed draw group's, and each named one's;
+// and a test's trace of its reads.
+type renderDraws struct {
+	unnamed groupDraws
+	named   map[string]*groupDraws
 	trace   renderTrace
 }
 
-// renderScope is where a render reads its reference paths: a hold set, in the draw group of the
+// renderScope is where a render reads its reference paths: its reference draws, in the draw group of the
 // template rendering; and row, the row of the table rendering, which its columns read. It passes
 // by value, and what is read from it reaches a map key, an interface or a func value only as a
-// copy; else sc, and with it every render's hold set, moves to the heap.
+// copy; else sc, and with it every render's draws, move to the heap.
 type renderScope struct {
-	set   *holdSet
+	draws *renderDraws
 	group string
 	row   renderedRow
 }
@@ -77,17 +77,17 @@ func (sc renderScope) rowOf(t *table) int {
 	return sc.row.index
 }
 
-func (sc renderScope) groupHold() *groupHold {
+func (sc renderScope) groupDraws() *groupDraws {
 	if sc.group == "" {
-		return &sc.set.unnamed
+		return &sc.draws.unnamed
 	}
-	d, drew := sc.set.named[sc.group]
+	d, drew := sc.draws.named[sc.group]
 	if !drew {
-		if sc.set.named == nil {
-			sc.set.named = map[string]*groupHold{}
+		if sc.draws.named == nil {
+			sc.draws.named = map[string]*groupDraws{}
 		}
-		d = &groupHold{}
-		sc.set.named[strings.Clone(sc.group)] = d
+		d = &groupDraws{}
+		sc.draws.named[strings.Clone(sc.group)] = d
 	}
 	return d
 }
