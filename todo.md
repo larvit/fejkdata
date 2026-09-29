@@ -31,9 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Replace `formatOps`' `held`, `holder` and `pathHeads` with one map from a held name
-  to its first reader and the path it starts, if any: four seats traced
-  `formatOps.holdName` writing four fields at once.
 - Give `arm` its head as written, set where `splitArm` splits, and build
   `pathProbe.readRow`'s selector spelling from it: six seats found the slice of
   `arm.spelling` by `len(joinSegments(tail))` resting on an invariant nothing states.

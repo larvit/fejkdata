@@ -229,7 +229,7 @@ func (t *template) fixedText() (string, bool) {
 // compiled reads.
 func compileFormat(toks []formatToken, refs map[string]refBinding) (formatOps, error) {
 	c := compileOps(toks, refs)
-	if err := checkNoOverlap(c.ops, c.pathHeads); err != nil {
+	if err := checkNoOverlap(c); err != nil {
 		return c, err
 	}
 	return c, checkNoRepeatedRead(c)
