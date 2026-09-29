@@ -153,8 +153,6 @@ wording improves in a minor.
 
 ## Formats are checked after all data is loaded, so their errors name the category
 
-2026-09-28, Lilleman auf Larv.
-
 2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 2. Loading reads every
 file first, then connects references across them. A format holding a reference can only
 be checked once it is connected, so every format is checked then, and all checks run at
@@ -389,8 +387,6 @@ a read drew.
 
 ## One name, one meaning
 
-2026-09-25, Lilleman auf Larv.
-
 Two declarations of any kind — function, method, field, type — share a name only where one
 definition covers both: the same kind of value, counted or addressed the same way, so a
 reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
@@ -451,8 +447,6 @@ accepted one changes, so the door stays open for the address records the plan de
 
 ## A selected row is fixed, not drawn, and an unnamed read beside it is refused
 
-2026-09-27, Lilleman auf Larv.
-
 Decided 2026-09-27 by the maintainer, for goals 3 and 4; valid while a selector names
 exactly one row.
 
@@ -472,8 +466,6 @@ Checked against three simulated template writers from the Audience, who agreed o
 case but the last, where two expected a render and all three accepted the refusal.
 
 ## A link column after a row steps up to the parent row, and a path may not end on it
-
-2026-09-27, Lilleman auf Larv.
 
 Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
 parent's key. It extends [After a row, a path names a column or a linked
@@ -502,8 +494,6 @@ parent row where a segment followed, and they split between the code and the nam
 the path ended.
 
 ## A table selects by one key column, a code, never a free-form name
-
-2026-09-27, Lilleman auf Larv.
 
 Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
@@ -837,15 +827,11 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 ## Each entry point to `drawFence.hasRead` says what its caller gets
 
-2026-09-29, Lilleman auf Larv.
-
 2026-09-25, larv-review; approved 2026-09-25 by lilleman. Goal 2: a reader lands on
 `readsPath` or `splitsDraws` from its caller, so each doc states where that walk stops,
 though `hasRead` states the same stop rule. Valid while the two differ in where they stop.
 
 ## The four path walks are four loops
-
-2026-09-28, Lilleman auf Larv.
 
 2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
 Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
