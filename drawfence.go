@@ -51,14 +51,14 @@ type hasReadMemo struct {
 
 // checkDrawGroup refuses a draw group that splits nothing: one whose render reads every reference
 // path inside a repeat or a nested draw group, which draw apart from it whatever it names.
-func (c *drawFence) checkDrawGroup(path string, n node) error {
-	if t, ok := n.(*template); ok && t.drawGroup != "" && !c.splitsDraws(t) {
+func (f *drawFence) checkDrawGroup(path string, n node) error {
+	if t, ok := n.(*template); ok && t.drawGroup != "" && !f.splitsDraws(t) {
 		return fmt.Errorf("%s: drawGroup %q splits nothing, since nothing it renders reads a reference path outside a repeat or a nested drawGroup; drop it", path, t.drawGroup)
 	}
 	return nil
 }
 
-func (c *drawFence) checkDraws(path string, n node) error {
+func (f *drawFence) checkDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok {
 		return nil
@@ -66,7 +66,7 @@ func (c *drawFence) checkDraws(path string, n node) error {
 	if err := checkOwnFamily(t); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
-	if !c.readsPath(t) {
+	if !f.readsPath(t) {
 		return nil
 	}
 	if err := surveyRender(t).check(); err != nil {
@@ -116,7 +116,7 @@ func checkOwnFamily(t *template) error {
 // checkRecordDraws fences the columns of a record — a template compiled at the top without a
 // repeat — so a load proves the record view of it as well as the string view.
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (c *drawFence) checkRecordDraws(path string, n node) error {
+func (f *drawFence) checkRecordDraws(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || !t.isRecord {
 		return nil
@@ -125,7 +125,7 @@ func (c *drawFence) checkRecordDraws(path string, n node) error {
 	columns := sortedNames(t.fields)
 	reads := false
 	for _, name := range columns {
-		reads = reads || c.readsPath(t.fields[name])
+		reads = reads || f.readsPath(t.fields[name])
 	}
 	if !reads {
 		return nil
@@ -138,30 +138,30 @@ func (c *drawFence) checkRecordDraws(path string, n node) error {
 
 // readsPath reports whether rendering n reads a reference path, short of a repeat, which renders
 // over draws of its own.
-func (c *drawFence) readsPath(n node) bool { return c.hasRead(n, false) }
+func (f *drawFence) readsPath(n node) bool { return f.hasRead(n, false) }
 
 // splitsDraws reports whether rendering n reads a reference path that n's own draw group answers
 // for: one outside a repeat and outside a nested draw group, which hold their own draws.
-func (c *drawFence) splitsDraws(n node) bool { return c.hasRead(n, true) }
+func (f *drawFence) splitsDraws(n node) bool { return f.hasRead(n, true) }
 
 // hasRead walks what rendering n renders for a reference path, stopping at a repeat — and at a nested
 // draw group when stopAtGroup — since each holds draws of its own.
-func (c *drawFence) hasRead(n node, stopAtGroup bool) bool {
+func (f *drawFence) hasRead(n node, stopAtGroup bool) bool {
 	k := hasReadMemo{n, stopAtGroup}
-	if r, done := c.memo[k]; done {
+	if r, done := f.memo[k]; done {
 		return r
 	}
 	r := false
 	for _, e := range renderEdges(n) {
-		if readsOnEdge(n, e) || (walksInto(e.to, stopAtGroup) && c.hasRead(e.to, stopAtGroup)) {
+		if readsOnEdge(n, e) || (walksInto(e.to, stopAtGroup) && f.hasRead(e.to, stopAtGroup)) {
 			r = true
 			break
 		}
 	}
-	if c.memo == nil {
-		c.memo = map[hasReadMemo]bool{}
+	if f.memo == nil {
+		f.memo = map[hasReadMemo]bool{}
 	}
-	c.memo[k] = r
+	f.memo[k] = r
 	return r
 }
 
