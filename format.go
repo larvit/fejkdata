@@ -13,17 +13,17 @@ type scanUnit struct {
 	body    string
 }
 
-// eachToken scans a format string once and calls fn for each unit, the single
+// eachScanUnit scans a format string once and calls fn for each unit, the single
 // source of truth for how braces are read: "{{" and "}}" are literal braces, a "{"
 // opens a token that must reach its "}", and a lone "}" is an error.
-func eachToken(format string, fn func(scanUnit) error) error {
+func eachScanUnit(format string, fn func(scanUnit) error) error {
 	rs := []rune(format)
 	for i := 0; i < len(rs); i++ {
-		var t scanUnit
+		var u scanUnit
 		switch c := rs[i]; c {
 		case '{':
 			if i+1 < len(rs) && rs[i+1] == '{' {
-				t.char = '{'
+				u.char = '{'
 				i++
 				break
 			}
@@ -37,19 +37,19 @@ func eachToken(format string, fn func(scanUnit) error) error {
 			if end >= len(rs) {
 				return fmt.Errorf("unterminated '{' in %q", format)
 			}
-			t.isToken, t.body = true, string(rs[i+1:end])
+			u.isToken, u.body = true, string(rs[i+1:end])
 			i = end
 		case '}':
 			if i+1 < len(rs) && rs[i+1] == '}' {
-				t.char = '}'
+				u.char = '}'
 				i++
 				break
 			}
 			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
 		default:
-			t.char = c
+			u.char = c
 		}
-		if err := fn(t); err != nil {
+		if err := fn(u); err != nil {
 			return err
 		}
 	}
@@ -85,21 +85,21 @@ func parseFormat(format string) ([]formatToken, error) {
 			lit.Reset()
 		}
 	}
-	err := eachToken(format, func(t scanUnit) error {
-		if !t.isToken {
-			lit.WriteRune(t.char)
+	err := eachScanUnit(format, func(u scanUnit) error {
+		if !u.isToken {
+			lit.WriteRune(u.char)
 			return nil
 		}
 		flush()
-		if indexOutside(t.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: nameRead, body: t.body, names: splitOutside(t.body, '|')})
+		if indexOutside(u.body, '(') < 0 {
+			toks = append(toks, formatToken{kind: nameRead, body: u.body, names: splitOutside(u.body, '|')})
 			return nil
 		}
-		name, args, ok := funcCall(t.body)
+		name, args, ok := funcCall(u.body)
 		if !ok {
-			return fmt.Errorf("malformed function token {%s}", t.body)
+			return fmt.Errorf("malformed function token {%s}", u.body)
 		}
-		toks = append(toks, formatToken{kind: builtinCall, body: t.body, fn: name, args: args, names: builtinOperands(name, args)})
+		toks = append(toks, formatToken{kind: builtinCall, body: u.body, fn: name, args: args, names: builtinOperands(name, args)})
 		return nil
 	})
 	if err != nil {
@@ -110,12 +110,12 @@ func parseFormat(format string) ([]formatToken, error) {
 }
 
 // builtin is a format-string function invoked as {name(args)}. It receives the
-// generatorState (its rng, and the {seq()} counters), the output emitted so far in the
-// current expansion (for derivations such as a checksum over preceding digits), and
-// the values of the operands it named (calc and the transforms name them). All must
-// stay pure over (rng, emitted, args) so seeded output is reproducible; seq advances
-// per-generator counter state, which is itself deterministic. arity is the exact arg
-// count, or -1 for variadic (then checkArgs does all the validation).
+// generatorState, the output emitted so far in the current expansion (for derivations
+// such as a checksum over preceding digits), and the values of the operands it named
+// (calc and the transforms name them). All must stay pure over (rng, emitted, args) so
+// seeded output is reproducible; seq advances per-generator counter state, which is
+// itself deterministic. arity is the exact arg count, or -1 for variadic (then
+// checkArgs does all the validation).
 type builtin struct {
 	arity int
 	// prep parses validated args once, at compile time, into the closure expand calls.
