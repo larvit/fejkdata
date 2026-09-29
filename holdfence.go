@@ -152,9 +152,8 @@ func isFixed(n node) bool {
 }
 
 // renders reports whether rendering n can reach anything in want, following the
-// same edges expand does. seen keeps a node shared by several routes from being
-// walked twice; checkNoCycles has already proved the graph is a DAG, so the walk
-// ends.
+// same edges expand does. seen keeps a node from being walked twice, so the walk
+// ends across a cycle too.
 func renders(n node, want, seen map[node]bool) bool {
 	if want[n] {
 		return true

@@ -32,7 +32,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := inlineBinding(n, "template", f.categories).bind(); err != nil {
+	if err := inlineBinding(n, "template", f.root.children).bind(); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil

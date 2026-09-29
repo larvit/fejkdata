@@ -61,8 +61,8 @@ func shippedShape(f *Generator) string {
 			}
 		}
 	}
-	for _, name := range sortedNames(f.categories) {
-		walk(name, f.categories[name])
+	for _, name := range sortedNames(f.root.children) {
+		walk(name, f.root.children[name])
 	}
 	var b strings.Builder
 	for _, p := range f.List() {

@@ -31,12 +31,11 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 // from one goroutine. The compiled tree is immutable after [New], so List, NewTemplate
 // and NewRecordTemplate read it without a lock; mu guards the rest, which every render takes.
 type Generator struct {
-	mu         sync.Mutex
-	rand       *session
-	categories map[string]node
-	root       folder // the categories as the node a path walks from, owned here so a walk allocates none
-	records    map[node]recordShape
-	structs    map[reflect.Type]structResult
+	mu      sync.Mutex
+	rand    *session
+	root    folder // the categories as the node a path walks from, owned here so a walk allocates none
+	records map[node]recordShape
+	structs map[reflect.Type]structResult
 }
 
 // session is one generator's mutable render state: the seeded rng plus the {seq()}
@@ -112,7 +111,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: rng, categories: cats}, nil
+	return &Generator{rand: rng, root: folder{children: cats}}, nil
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
@@ -120,8 +119,8 @@ func New(opts ...Option) (*Generator, error) {
 // segment, so a path continues through one only where every variant carries it.
 func (f *Generator) List() []string {
 	var out []string
-	for _, name := range sortedNames(f.categories) {
-		for _, p := range paths(f.categories[name]) {
+	for _, name := range sortedNames(f.root.children) {
+		for _, p := range paths(f.root.children[name]) {
 			out = append(out, join(name, p))
 		}
 	}

@@ -50,7 +50,7 @@ func TestDeepDottedPath(t *testing.T) {
 	// A 5-segment path descends through alternating object/array nodes; choices
 	// on the path are single-variant, so it resolves deterministically.
 	f := engine(1)
-	f.categories = map[string]node{
+	f.root.children = map[string]node{
 		"deep": compiled(t, `{"format":"{a}","a":{"format":"{b}","b":{"format":"{c}","c":{"format":"{d}","d":"leaf"}}}}`),
 	}
 	if got, err := f.Fake("deep.a.b.c.d"); err != nil || got != "leaf" {
@@ -64,7 +64,7 @@ func TestDeepDottedPath(t *testing.T) {
 
 func TestDescendIntoStringErrors(t *testing.T) {
 	f := engine(1)
-	f.categories = map[string]node{"greeting": compiled(t, `"hej"`)}
+	f.root.children = map[string]node{"greeting": compiled(t, `"hej"`)}
 	if _, err := f.Fake("greeting.extra"); err == nil || !strings.Contains(err.Error(), `no field "extra"`) {
 		t.Fatalf("Fake(greeting.extra) = %v, want a no-field error", err)
 	}
@@ -153,7 +153,7 @@ func TestBindingKeyIsNotAPathSegment(t *testing.T) {
 
 func TestFakePathNavigation(t *testing.T) {
 	f := engine(1)
-	f.categories = map[string]node{
+	f.root.children = map[string]node{
 		"addr": compiled(t, `{"format":"{street}","street":"Main"}`),
 	}
 	if got, err := f.Fake("addr"); err != nil || !strings.Contains(got, "Main") {
