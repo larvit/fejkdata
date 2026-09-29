@@ -371,7 +371,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	return o, nil
 }
 
-// compileFields compiles every non-option key of a template object, in name order.
+// compileFields compiles every non-option key of a template object.
 func compileFields(m map[string]any, pos position) (map[string]node, error) {
 	fields := make(map[string]node, len(m))
 	keys := make([]string, 0, len(m))
