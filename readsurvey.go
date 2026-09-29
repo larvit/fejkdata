@@ -8,10 +8,9 @@ import (
 
 // readSurvey gathers, at load, the references one render reads, by draw group, for check to compare.
 type readSurvey struct {
-	reads  []pathRead
-	read   map[readKey]bool
-	seen   map[nodeVisit]bool
-	pinIDs map[pinsLink]pinsID
+	reads []pathRead
+	read  map[readKey]bool
+	seen  map[nodeVisit]bool
 }
 
 // surveyAt is where a survey stands: the draw group its reads draw in, how the render's root reached it, the
@@ -39,28 +38,19 @@ type nodeVisit struct {
 	n          node
 	group      string
 	wholeTable *table
-	pins       pinsID
-	wholePins  pinsID
+	pins       string
+	wholePins  string
 }
 
 type readKey struct {
 	group     string
 	path      string
-	pins      pinsID
-	wholePins pinsID
-}
-
-// pinsID names a pin set within one walk: two sets pinning the same rows share one.
-type pinsID int
-
-// pinsLink is a set's last pin, in path order, and the id of the set before it.
-type pinsLink struct {
-	prev pinsID
-	pin  tablePin
+	pins      string
+	wholePins string
 }
 
 func newReadSurvey() *readSurvey {
-	return &readSurvey{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}, pinIDs: map[pinsLink]pinsID{}}
+	return &readSurvey{read: map[readKey]bool{}, seen: map[nodeVisit]bool{}}
 }
 
 func surveyRender(t *template) *readSurvey {
@@ -79,27 +69,10 @@ func surveyColumns(t *template, columns []string) *readSurvey {
 	return s
 }
 
-func (s *readSurvey) pinsID(p *pinSet) pinsID {
-	var pins []tablePin
-	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
-	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
-	id := pinsID(0)
-	for _, q := range pins {
-		l := pinsLink{id, q}
-		next, ok := s.pinIDs[l]
-		if !ok {
-			next = pinsID(len(s.pinIDs) + 1)
-			s.pinIDs[l] = next
-		}
-		id = next
-	}
-	return id
-}
-
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
 // there.
 func (s *readSurvey) walk(n node, at surveyAt) {
-	v := nodeVisit{n, at.group, at.wholeTable, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}
+	v := nodeVisit{n, at.group, at.wholeTable, at.pins.key(), at.wholePins.key()}
 	if s.seen[v] {
 		return
 	}
@@ -144,7 +117,7 @@ func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 	if e.readsRef() {
 		a := e.read
 		tr := tableReadOf(from.(*template).head(a.head), a, e.to)
-		if k := (readKey{at.group, a.path, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}); !s.read[k] {
+		if k := (readKey{at.group, a.path, at.pins.key(), at.wholePins.key()}); !s.read[k] {
 			s.read[k] = true
 			s.reads = append(s.reads, pathRead{at, a, tr})
 		}
@@ -301,8 +274,8 @@ func checkFamilyPair(a, b pathRead) error {
 	return nil
 }
 
-// replayPairs replays every two reads that can render together into one draws, the earlier
-// read first. Pairs find every conflict a full replay would: clash judges a row against one
+// replayPairs replays, of every two reads that can render together, the later into the
+// earlier's pins. Pairs find every conflict a full replay would: clash judges a row against one
 // pinned table, and the read that pinned it holds that pin itself, since a read's pins carry
 // its rows' ancestors, so the pair of those two reads clashes the same way.
 func replayPairs(reads []pathRead) error {
@@ -314,10 +287,7 @@ func replayPairs(reads []pathRead) error {
 			if o.tr == nil || o.at.group != r.at.group || alternatives(r.at, o.at) {
 				continue
 			}
-			var d pinSet
-			if err := r.tr.replay(&d); err != nil {
-				return conflict(r, err)
-			}
+			d := r.tr.pins.clone()
 			if err := o.tr.replay(&d); err != nil {
 				return conflict(o, err)
 			}
