@@ -65,12 +65,12 @@ type renderTrace func(group, table string, row int, a arm)
 
 func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 	var table string
-	var row int
-	switch {
-	case t.cell.table != nil:
-		table, row = t.cell.table.path, t.cell.row
-	case t.table != nil:
-		table, row = t.table.path, sc.rowOf(t.table)
+	row := t.site.row
+	if t.site.table != nil {
+		table = t.site.table.path
+	}
+	if row == formatRow {
+		row = sc.rowOf(t.site.table)
 	}
 	trace(strings.Clone(sc.group), strings.Clone(table), row, a)
 }

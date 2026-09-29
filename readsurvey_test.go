@@ -80,13 +80,14 @@ func renderRoot(s *session, t *template, trace renderTrace) {
 	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
 	switch {
-	case t.table != nil:
-		render(s, t.table, sc)
-		for r := 0; r < t.table.rowCount(); r++ {
+	case t.site.row == formatRow:
+		tbl := t.site.table
+		render(s, tbl, sc)
+		for r := 0; r < tbl.rowCount(); r++ {
 			set := holdSet{trace: trace}
 			sc := renderScope{set: &set}
-			sc.groupHold().pins.pin(t.table, r)
-			render(s, t.table.pinnedRow, sc.at(t.table.pinnedRow, &sc.groupHold().pins))
+			sc.groupHold().pins.pin(tbl, r)
+			render(s, tbl.pinnedRow, sc.at(tbl.pinnedRow, &sc.groupHold().pins))
 		}
 	case t.repeat > 1:
 		expand(s, t, sc)
@@ -98,8 +99,8 @@ func renderRoot(s *session, t *template, trace renderTrace) {
 func renderRecordRoot(s *session, t *template, columns []Column, trace renderTrace) {
 	set := holdSet{trace: trace}
 	sc := renderScope{set: &set}
-	if t.table != nil {
-		t.table.drawIn(s, &sc.groupHold().pins)
+	if t.site.row == formatRow {
+		t.site.table.drawIn(s, &sc.groupHold().pins)
 	}
 	renderRecord(s, t, columns, sc)
 }

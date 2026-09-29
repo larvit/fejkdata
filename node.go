@@ -54,19 +54,21 @@ type template struct {
 	drawGroup  string // the draw group it draws in, as written; "" keeps its caller's
 	fromString bool   // written as a JSON string rather than an object
 	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
-	table      *table // the table whose format this is, whose columns are the fields
-	cell       cellSite
+	site       tableSite
 
 	// Filled by `linkTemplate`, from the assembled tree:
 	link     templateLink
 	compiled formatOps
 }
 
-// cellSite is the table cell a template is compiled from; table is nil for any other template.
-type cellSite struct {
+// tableSite is the table a template belongs to, as its format or one of its cells; table is nil
+// for any other template.
+type tableSite struct {
 	table *table
-	row   int
+	row   int // the cell's row, or formatRow for the format, whose columns are the fields
 }
+
+const formatRow = -1
 
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
@@ -172,7 +174,7 @@ func compileAt(v any, pos position) (node, error) {
 func compileItem(v any, pos position) (node, error) {
 	switch v := v.(type) {
 	case string:
-		t, err := compileString(v, cellSite{})
+		t, err := compileString(v, tableSite{})
 		if err != nil {
 			return nil, err
 		}
@@ -203,12 +205,12 @@ func jsonKind(v any) string {
 	return fmt.Sprintf("%T", v)
 }
 
-func compileString(s string, cell cellSite) (*template, error) {
+func compileString(s string, site tableSite) (*template, error) {
 	toks, err := parseChecked(s, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: s, tokens: toks, repeat: 1, fromString: true, cell: cell}, nil
+	return &template{format: s, tokens: toks, repeat: 1, fromString: true, site: site}, nil
 }
 
 // fixedText is one render's output when the format holds no token; repeat is the caller's.

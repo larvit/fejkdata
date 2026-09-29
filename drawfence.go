@@ -81,10 +81,7 @@ func (f *drawFence) checkDraws(path string, n node) error {
 // it renders, whichever draws the reaching template holds.
 // docs/decisions.md#a-table-never-reaches-its-own-family-by-any-route
 func checkOwnFamily(t *template) error {
-	own := t.table
-	if own == nil {
-		own = t.cell.table
-	}
+	own := t.site.table
 	if own == nil {
 		return nil
 	}
