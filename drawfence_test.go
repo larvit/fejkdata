@@ -64,10 +64,11 @@ func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 		return nil
 	})
 	compared := 0
+	fold := newReadFold()
 	for _, root := range roots {
-		compared += wantPairsFindAll(t, root.label, surveyRender(root.t).reads)
+		compared += wantPairsFindAll(t, root.label, surveyRender(fold, root.t).reads)
 		if root.t.isRecord && len(root.t.fields) > 0 {
-			compared += wantPairsFindAll(t, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads)
+			compared += wantPairsFindAll(t, root.label+" as a record", surveyColumns(fold, root.t, sortedNames(root.t.fields)).reads)
 		}
 	}
 	if compared == 0 {
@@ -81,6 +82,7 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 		t.Fatalf("New = %v", err)
 	}
 	var reads []pathRead
+	fold := newReadFold()
 	_ = walkNodes(f.root.children, func(_ string, n node) error {
 		tb, isTable := n.(*table)
 		if !isTable || tb.keyIndex < 0 || tb.familyRoot().path != "region" {
@@ -95,7 +97,7 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 			if !isTemplate {
 				t.Fatalf("NewTemplate(%s) compiled to %T", tb.selectorSpelling(r), inline.n)
 			}
-			reads = append(reads, surveyRender(root).reads...)
+			reads = append(reads, surveyRender(fold, root).reads...)
 		}
 		return nil
 	})
