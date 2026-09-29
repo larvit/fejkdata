@@ -26,8 +26,6 @@ least modify.
 
 This round, in order:
 
-- Test that `disagreements` holds every key `disagreement` can build, and panic through
-  `internalError` on a miss: a missing key is a nil func call today.
 - Name `printedNumber`'s `dp` cases, and say on `builtin` what `prints` and
   `proveNumber` a new builtin sets: the extender copied `digits` by analogy.
 - Rename the names that mislead: `table.pinnedRow` is the row node, not a pinned row;
