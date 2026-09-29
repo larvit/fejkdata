@@ -24,7 +24,7 @@ type surveyAt struct {
 	wholePins  pinSet
 }
 
-// surveyRoute is how a render reaches a draw: as its author spells it, and the root edge's label.
+// surveyRoute is how a render reaches a read: as its author spells it, and the root edge's label.
 type surveyRoute struct{ spelling, label string }
 
 // pathRead is one reference a render reads: a path, or a bare reference with no tail.
@@ -153,7 +153,7 @@ func (s *readSurvey) edge(from node, e renderEdge, at surveyAt) {
 	s.walk(e.to, at)
 }
 
-// spelled names the route, and the reference it reaches a draw by where its root edge is not that
+// spelled names the route, and the reference it reaches a read by where its root edge is not that
 // reference.
 func (r surveyRoute) spelled(ref string) string {
 	if ref == "" || ref == r.label {
