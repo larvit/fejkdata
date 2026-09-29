@@ -112,6 +112,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`{"format":"{/misc.territory.alpha2} {x}","x":"{/misc.territory}"}`, "renders its own draw of what"},
 		{`{/misc.territory} {/misc.territory} {/misc.territory.alpha2}`, "{/misc.territory} renders its own draw of what {/misc.territory.alpha2} reads a path through; name the fields you want instead, or move {/misc.territory.alpha2} into a field with a drawGroup"},
 		{`{"format":"{uppercase(/misc.territory)} {y}","y":"{/misc.territory}"}`, `{y} renders "/misc.territory", which {uppercase(/misc.territory)} holds to one draw for this expansion; drop {y}, or write {/misc.territory} in this format to read that draw`},
+		{`{"format":"{uppercase(/misc.territory.alpha2)} {lowercase(/misc.territory)} {y}","y":"{/misc.territory}"}`, "which {lowercase(/misc.territory)} holds to one draw for this expansion; drop {y}, or write {/misc.territory} in"},
 		{`{"format":"{/misc.territory.alpha2}","drawGroup":"g"}`, "nothing can reference"},
 	} {
 		_, err := f.FakeTemplate(c.input)

@@ -197,7 +197,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 					`"b":"{/hop}"}`,
 				"hop": `"{/cat.a}"`,
 			},
-			`calc operand "b" renders "a"`,
+			`calc operand "b" renders "a", which {calc(a + b, 0)} holds to one draw for this expansion; stop calc operand "b" reaching "a"`,
 		},
 		// Reaching *into* the operand is the same shape as naming it: the draw the
 		// calc holds settled that value too. The token spelling {net.v} is already
@@ -232,7 +232,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
-		if err == nil || !strings.Contains(err.Error(), "holds to one draw for this expansion; drop ") {
+		if err == nil || !strings.Contains(err.Error(), "holds to one draw for this expansion; ") {
 			t.Errorf("%s: New = %v, want the second route to the operand rejected", name, err)
 			continue
 		}
