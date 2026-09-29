@@ -257,6 +257,9 @@ func checkNodeFences(s nodeScope) error {
 		return err
 	}
 	if refs {
+		if err := s(checkOwnFamilies); err != nil {
+			return err
+		}
 		if err := s(fence.checkDraws); err != nil {
 			return err
 		}

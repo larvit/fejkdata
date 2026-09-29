@@ -24,13 +24,21 @@ func (f *drawFence) checkDrawGroup(path string, n node) error {
 	return nil
 }
 
-func (f *drawFence) checkDraws(path string, n node) error {
+func checkOwnFamilies(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok {
 		return nil
 	}
 	if err := checkOwnFamily(t); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
+	}
+	return nil
+}
+
+func (f *drawFence) checkDraws(path string, n node) error {
+	t, ok := n.(*template)
+	if !ok {
+		return nil
 	}
 	if !f.readsPath(t) {
 		return nil
