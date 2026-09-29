@@ -161,8 +161,9 @@ func paths(n node) []string {
 			out = append(out, p)
 		}
 		return out
+	default:
+		panic(internalError("paths has no case for node %T", n))
 	}
-	return nil
 }
 
 // tablePaths is a table's columns, then each table linked to it under its name: the

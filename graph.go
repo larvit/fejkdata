@@ -73,8 +73,10 @@ func contained(n node) []namedNode {
 			}
 		}
 		return out
-	default:
+	case *nullItem, *tableRow:
 		return nil
+	default:
+		panic(internalError("contained has no case for node %T", n))
 	}
 }
 

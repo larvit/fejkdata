@@ -26,10 +26,6 @@ least modify.
 
 This round, in order:
 
-- Make every switch over node kinds panic through `internalError` on a kind it does not
-  list, as `render` and `renderEdges` do, naming the kinds it skips: `contained` and
-  `paths` return nil. Correct `render`'s "a new node kind goes in both", which misses
-  the rest.
 - Rename the load-time `draw*` types (`drawWalk`, `drawAt`, `drawRoute`, `drawCheck`)
   to say they read and draw nothing, and move `drawWalk` and `tableRead` out of
   `drawfence.go`: a grep for "draw" lands in render and check code alike.
