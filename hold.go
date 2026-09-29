@@ -25,12 +25,13 @@ type readValue struct {
 
 // readField renders one arm of a token. A name the expansion holds — a level some
 // token addresses by dotted path, or a field an operand reads — is drawn once and
-// kept, so {place.postal-code} and {place.locality} read one row, either read twice
-// gives one value, and a shown operand is the operand computed. Every other name is
-// drawn afresh, so {word} {word} still draws twice. A reference path is kept in the
-// render's hold for its group, so its draw spans the render; every other held name in
-// held, the expansion's.
+// kept in held, so {place.postal-code} and {place.locality} read one row, either read
+// twice gives one value, and a shown operand is the operand computed. Every other name
+// is drawn afresh, so {word} {word} still draws twice.
 func readField(s *session, t *template, held *hold, sc renderScope, a arm) readValue {
+	if isRef(a.key) && len(a.tail) > 0 {
+		return readReference(s, t, sc, a)
+	}
 	if sc.set.trace != nil {
 		traceRead(sc.set.trace, t, sc, a)
 	}
@@ -40,23 +41,32 @@ func readField(s *session, t *template, held *hold, sc renderScope, a arm) readV
 		}
 		return readValue{text: render(s, t.head(a.key), sc)}
 	}
-	w := pathDraw{s: s, held: held, a: &a}
-	if isRef(a.key) && len(a.tail) > 0 {
-		group := sc.groupHold()
-		w.held, w.pins = &group.hold, &group.pins
+	return readHeld(s, t, held, nil, sc, a)
+}
+
+// readReference reads a reference path, kept in the render's hold for its group, so its draw
+// spans the render.
+func readReference(s *session, t *template, sc renderScope, a arm) readValue {
+	if sc.set.trace != nil {
+		traceRead(sc.set.trace, t, sc, a)
 	}
-	if r, done := w.held.value[a.path]; done {
+	group := sc.groupHold()
+	return readHeld(s, t, &group.hold, &group.pins, sc, a)
+}
+
+func readHeld(s *session, t *template, held *hold, pins *pinSet, sc renderScope, a arm) readValue {
+	if r, done := held.value[a.path]; done {
 		return r
 	}
-	leaf := drawPath(t.head(a.key), a.tail, a.key, &w)
-	if w.pins != nil {
-		sc = sc.at(leaf, w.pins)
+	leaf := drawPath(t.head(a.key), a.tail, a.key, &pathDraw{s: s, held: held, pins: pins, a: &a})
+	if pins != nil {
+		sc = sc.at(leaf, pins)
 	}
 	r := renderLeaf(s, leaf, sc)
-	if w.held.value == nil {
-		w.held.value = map[string]readValue{}
+	if held.value == nil {
+		held.value = map[string]readValue{}
 	}
-	w.held.value[a.path] = r
+	held.value[a.path] = r
 	return r
 }
 
@@ -84,7 +94,7 @@ func renderLeaf(s *session, n node, sc renderScope) readValue {
 		return readValue{null: true}
 	case *template:
 		if leaf.link.readsColumn != nil {
-			return readField(s, leaf, nil, sc.in(leaf), leaf.link.readsColumn.a)
+			return readReference(s, leaf, sc.in(leaf), leaf.link.readsColumn.a)
 		}
 	}
 	return readValue{text: render(s, n, sc)}
