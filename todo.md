@@ -28,10 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Replace `disagreements`' ten keys with the rule they encode: a declared fix holds one
-  datatype, a read one is `readTyped` where proven and `readAsText` otherwise, a text one
-  is `otherAsText` beside an unproven read and `declare` otherwise. Six seats could not
-  see why each key gets its fix.
 - Drop `table.fields` for `formatTemplate.fields`: one map held in two fields.
 - Rename `arm.key` to `head`, as `template.head` reads it, leaving `key` the table's key
   column; give `renderScope.row` a type that is not `tablePin`, since it pins nothing;
