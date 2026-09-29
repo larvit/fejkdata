@@ -232,7 +232,7 @@ func TestACalcOperandIsHeldAgainstEveryRoute(t *testing.T) {
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
-		if err == nil || !strings.Contains(err.Error(), "a {calc()} also reads") {
+		if err == nil || !strings.Contains(err.Error(), "holds to one draw for this expansion; drop ") {
 			t.Errorf("%s: New = %v, want the second route to the operand rejected", name, err)
 			continue
 		}
