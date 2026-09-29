@@ -559,6 +559,15 @@ A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row tha
 three localities from other regions is the output the family exists to prevent, so the
 own-family fence walks through both rather than stopping where the draw fences do.
 
+## A cell may read a reference, and each row its own
+
+2026-09-29, Lilleman auf Larv.
+
+Goal 3: facts that belong together come from one draw, so a shop row's `phone` cell reads
+`{/sv_SE.phone}` on a Swedish shop and `{/en_US.phone}` on a US one, and the table's
+format, the same for every row, cannot say that. A restructure for goal 2 keeps the fences
+that prove such cells safe. Valid while a table's rows need generators of their own.
+
 ## Tables carrying token cells stay small
 
 2026-09-17, Lilleman auf Larv.
