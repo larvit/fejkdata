@@ -65,7 +65,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A column of one reference alone is the column it reads
 - A typed column's calc is refused unless proven
 - `Column` carries text, not a Go value
-- `hold` names what a draw is kept in, `readValue` what a read drew
+- A unit takes the stem of what it is, and a file the stem of the units it holds
 - One name, one meaning
 - The package stays flat
 - The performance gate asserts allocations, not wall-clock time

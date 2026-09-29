@@ -302,10 +302,10 @@ in.
 `Value` is the rendered string beside `DataType` and `Null`, which each serializer
 writes as the load check proved it; a `Value any` would hand every caller a type switch.
 
-## `hold` names what a draw is kept in, `readValue` what a read drew
+## A unit takes the stem of what it is, and a file the stem of the units it holds
 
-Goal 2 wants a name to reach one unit, so a unit takes the stem of what it is, and a
-file the stem of the units it holds.
+Goal 2 wants a name to reach one unit: `hold` is what a draw is kept in, `readValue` what
+a read drew.
 
 ## One name, one meaning
 

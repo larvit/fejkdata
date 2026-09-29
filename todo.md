@@ -312,6 +312,7 @@ because pairing a street with its exact postnummer rewrites shipped rows.
 - Delete `doc.go`'s "The draw fences are …" sentence: it names a function, a type and
   a helper reached only through `readSurvey.check`, and misses `checkDrawGroup`,
   `checkOwnFamily` and `checkColumnDraws`; the README's Layout indexes the fences by file.
+  Say "fences" in the `pin` entry then, which names the draw fences too.
 - Cut the README's Layout block to the lines that say what a file name cannot:
   `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
 - Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
