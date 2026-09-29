@@ -220,3 +220,20 @@ func TestNullColumn(t *testing.T) {
 		t.Errorf("List() = %v, want the null column row.gone, which Fake accepts", f.List())
 	}
 }
+
+func TestDisagreementsHoldEveryKeyDisagreementBuilds(t *testing.T) {
+	kinds := []itemKind{kindText, kindReads, kindDeclares}
+	for _, fix := range kinds {
+		for _, other := range kinds[fix:] {
+			if other == kindText {
+				continue
+			}
+			for _, proven := range []bool{false, true} {
+				if disagreementFix(disagreementKey{fix, other, proven}) == nil {
+					t.Errorf("disagreementFix(%v, %v, %v) = nil", fix, other, proven)
+				}
+			}
+		}
+	}
+	mustPanic(t, "two text items", func() { disagreementFix(disagreementKey{kindText, kindText, false}) })
+}
