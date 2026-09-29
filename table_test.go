@@ -1120,8 +1120,8 @@ func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
 		"region.json":       `{"format":"{name}={note}","rows":"region.tsv","key":"code","name":"name","weight":"population"}`,
 		"x.json":            `"{/region}|{/municipality}"`,
 	})
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
-		t.Fatalf("New = %v, want the two drawn rows held to one draw of addr", err)
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.HasSuffix(err.Error(), "or move {/municipality} into a field with a drawGroup") {
+		t.Fatalf("New = %v, want the two drawn rows held to one draw of addr, and the drawGroup named on a field around the read", err)
 	}
 	nested := with(whole, map[string]string{
 		"municipality.tsv": "code\tname\tregion\tpopulation\tnote\n0180\tStockholm\t01\t980000\t-\n0184\tSolna\t01\t85000\t-\n1280\tMalmö\t12\t360000\t{/shop}\n1281\tLund\t12\t130000\t{/addr.city}\n1480\tGöteborg\t14\t590000\t-\n",

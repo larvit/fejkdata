@@ -275,9 +275,14 @@ func TestReferenceOverlapIsRejected(t *testing.T) {
 			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
 		}
 	}
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`})))
-	if err == nil || !strings.HasSuffix(err.Error(), "or give {b} a drawGroup") {
-		t.Errorf("New = %v, want the drawGroup named on the path's field", err)
+	for row, suffix := range map[string]string{
+		`{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`: "or give {b} a drawGroup",
+		`{"format":"{a}","a":"{/cat} {/cat.p.first}"}`:           "name the fields you want instead",
+	} {
+		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
+		if err == nil || !strings.HasSuffix(err.Error(), suffix) {
+			t.Errorf("New(%s) = %v, want it to end %q", row, err, suffix)
+		}
 	}
 	// A sibling path and a reference into the level it holds are the same overlap,
 	// and the reference reaches it from a category row renders.
