@@ -168,3 +168,13 @@ func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 		t.Errorf("check = %v, want the clash below {f} named by the route the root reaches it by", err)
 	}
 }
+
+func surveyRender(t *template) *readSurvey {
+	f := newReadFold()
+	return survey(f.rootReads(t), t.link.drawGroupKey)
+}
+
+func surveyColumns(t *template, columns []string) *readSurvey {
+	f := newReadFold()
+	return survey(f.columnReads(t, columns), t.link.drawGroupKey)
+}
