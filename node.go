@@ -65,7 +65,7 @@ type template struct {
 // for any other template.
 type tableSite struct {
 	table *table
-	row   int // the cell's row, or formatRow for the format, whose columns are the fields
+	row   int // the cell's row, or formatRow for the format
 }
 
 const formatRow = -1
