@@ -108,8 +108,8 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
-		{`{/misc.territory} {/misc.territory.alpha2}`, "reads whole the reference draw that {/misc.territory.alpha2} reads a path into; name the fields you want instead, or draw them apart with a drawGroup"},
-		{`{"format":"{/misc.territory.alpha2} {x}","x":"{/misc.territory}"}`, "reads whole the reference draw"},
+		{`{/misc.territory} {/misc.territory.alpha2}`, "and {/misc.territory.alpha2} share one reference draw, one read whole and one by a path; name the fields you want instead, or draw them apart with a drawGroup"},
+		{`{"format":"{/misc.territory.alpha2} {x}","x":"{/misc.territory}"}`, "share one reference draw"},
 		{`{"format":"{/misc.territory.alpha2}","drawGroup":"g"}`, "nothing can reference"},
 	} {
 		_, err := f.FakeTemplate(c.input)
