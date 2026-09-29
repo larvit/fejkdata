@@ -19,10 +19,40 @@ Self-sufficiency 5.6); 5.7 on 2026-09-26 (Navigation 6.7, Locality 5.0, Shape 5.
 Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
 `drawWalk.walk` among the hardest; 5.7 on 2026-09-28 (Navigation 6.7, Locality 5.1,
 Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
-`drawWalk.walk` and the four path walks among the hardest.
+`drawWalk.walk` and the four path walks among the hardest; 5.8 on 2026-09-29
+(Navigation 6.8, Locality 5.3, Shape 5.8, Self-sufficiency 5.7), seven seats capped
+by Locality, all nine naming `drawWalk.walk` hardest and eight the unit they would
+least modify.
 
 This round, in order:
 
+- Make every switch over node kinds panic through `internalError` on a kind it does not
+  list, as `render` and `renderEdges` do, naming the kinds it skips: `contained` and
+  `paths` return nil. Correct `render`'s "a new node kind goes in both", which misses
+  the rest.
+- Rename the load-time `draw*` types (`drawWalk`, `drawAt`, `drawRoute`, `drawCheck`)
+  to say they read and draw nothing, and move `drawWalk` and `tableRead` out of
+  `drawfence.go`: a grep for "draw" lands in render and check code alike.
+- Spell `drawWalk.walk`'s dropped cell as a case of its switch: a clashing row's cell
+  falls out with no arm, which four seats named.
+- Define `descended` where `table.route` takes it: five seats reverse-engineered it from
+  the `draw` expression and the four walks' loop condition.
+- Keep a template's table in one field: `template.table` and `template.cell.table` both
+  answer which table it belongs to, and `checkOwnFamily` and `traceRead` branch on both.
+- Stop `readField` dereferencing a nil `held`: `renderLeaf` passes nil, safe only
+  because a `readsColumn` arm is a reference path with a tail, which nothing there says.
+- Test that `disagreements` holds every key `disagreement` can build, and panic through
+  `internalError` on a miss: a missing key is a nil func call today.
+- Name `printedNumber`'s `dp` cases, and say on `builtin` what `prints` and
+  `proveNumber` a new builtin sets: the extender copied `digits` by analogy.
+- Rename the names that mislead: `table.pinnedRow` is the row node, not a pinned row;
+  `table.category` is a bare name beside the dotted `category` of `resolveLink`;
+  `checkRenders` renders nothing; `fieldAlternation` is a plain `{name}` too; and
+  `referenceFence` is the cycle check for a tree and a drawGroup check inline.
+- Correct the false comments: `node` says rendering never re-sums weights, which
+  `builtLookup` does on first draw; `Generator` claims immutable after `New`, while
+  `Fake` sets `root.children` each call, which belongs in `New`; `renders` credits
+  `checkNoCycles`, which an inline binding never runs.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -30,6 +60,10 @@ This round, in order:
 Shape: T = table, t = template, c = choice. Read every factual list from a register
 by a `data-import/` script, as README goal 12 asks.
 
+- Fetch NVDB through `source.fetch` in `data-import/geo-se.py`: `nvdb_segments` calls
+  urllib itself, with no retry and no User-Agent.
+- Test that every `geo` tree holds the five table names and the `address` columns the
+  README says port across countries: nothing checks it, and a new country breaks it silently.
 - Strip the whitespace `data-import/territory.py` copies from its register:
   `misc.territory[CW].capital` renders ` Willemstad`, with a leading space.
 - Place xlsx cells by their `r` reference in `data-import/xlsx.py`: a sheet omitting an
@@ -148,6 +182,16 @@ by a `data-import/` script, as README goal 12 asks.
 
 ### Library and CLI
 
+- Compare `calcParser.binary`'s operator as a rune: `byte(p.rs[p.pos])` reads U+012B
+  `ī` as `+`, so `{calc(a ī b)}` compiles as `a + b`.
+- Stop the `columnKinds` suggestion naming a field's own kind or a narrower one: an
+  `int64` or `float64` field unproven in range is told to become itself, and a `uint64`
+  one to become `int64`.
+- Say in the README's Linked tables that the first table a render reads decides whose
+  weights govern the family: `geo.SE.address` reads `street` first, so it draws by
+  street segments and the region, kommun and postort populations never apply.
+- Parse `defaultTable`'s path with the library's grammar: the CLI counts brackets of its
+  own, so a change to the selector grammar desyncs the default `--table` silently.
 - Step up from a row to its parent as the decision "A link column after a row steps up
   to the parent row, and a path may not end on it" states, refusing a step back down:
   `city[Oslo].country.name` is a load error today, and `city[Oslo].country` renders the
