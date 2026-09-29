@@ -375,19 +375,17 @@ type op struct {
 	operands []arm
 }
 
-// formatOps is a compiled format: its ops, the size of its literal text (to size
-// the render buffer), and the names drawn once per expansion. pathKeys maps each key
-// a path starts from to the first such path; held is every such key plus the
-// fields an operand reads; holder maps each held name to the first reader holding
-// it, for error messages. The maps are nil when the format holds nothing, so data
-// that holds nothing carries no render-time cost.
+// formatOps is a compiled format: its ops, the size of its literal text, and the
+// names it holds. pathKeys maps each key a path starts from to the first such path;
+// held is every such key plus the fields an operand reads; holder maps each held
+// name to the first reader holding it, for error messages.
 type formatOps struct {
 	ops       []op
 	grow      int
 	pathKeys  map[string]string
 	held      map[string]bool
 	holder    map[string]string
-	heldLocal bool // some held name is kept by the expansion itself rather than the render's hold
+	heldLocal bool // some held name is not a reference path, so expand makes a hold
 }
 
 func (c *formatOps) holdName(a arm, label string) {
