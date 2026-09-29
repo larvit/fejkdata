@@ -50,7 +50,9 @@ func (p *pinSet) add(t *table, r int) {
 	p.spill[t] = r
 }
 
-// pin pins row r of t, and the rows of t's ancestors it links to.
+// pin pins row r of t, and the rows of t's ancestors it links to. It checks nothing, so r must
+// agree with the row p pins of nearestPinned(t): ask clash first, as pinRow does, or draw r inside
+// it, as drawIn does.
 func (p *pinSet) pin(t *table, r int) {
 	for stop := p.nearestPinned(t); t != stop; t = t.parentT {
 		p.add(t, r)
