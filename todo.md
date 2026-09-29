@@ -44,9 +44,9 @@ This round, in order:
 - Choose `disagreement`'s error directly, deleting `disagreementFix`'s switch returning
   a builder and `declaresLess` for `<`: seven seats traced the matrix for a message,
   and `disagreementFix`'s comment describes its parameter.
-- Give the expansion hold and the render's group hold two names: `hold`, `held`,
-  `heldLocal`, `holdSet` and `groupHold` spell both, and four seats could not tell
-  which fence guards which.
+- Give the expansion hold and the render's group hold two names: `groupHold` embeds
+  `hold`, `held`, `heldLocal` and `holdSet` share its stem, and four seats could not
+  tell which fence guards which.
 - Word the three overlap refusals apart, `checkNameHeld`'s, `checkNoOverlap`'s and
   `overlapError`'s: three seats grepped one message to three fences.
 - Compile a format in `format.go`: `linkTemplate` calls `compileFormat` in `node.go`,
