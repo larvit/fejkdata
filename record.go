@@ -130,8 +130,8 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	var set holdSet
-	sc := renderScope{set: &set}
+	var draws renderDraws
+	sc := renderScope{draws: &draws}
 	if t, isTable := n.(*table); isTable {
 		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
 			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
@@ -159,7 +159,7 @@ func tableRecord(s *generatorState, t *table, tail []string, sc renderScope) (no
 	}
 	switch n := n.(type) {
 	case *table:
-		n.drawIn(s, &sc.groupHold().pins)
+		n.drawIn(s, &sc.groupDraws().pins)
 		return n, nil
 	case *tableRow:
 		return n.t, nil
@@ -204,8 +204,8 @@ type RecordTemplate struct {
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	var set holdSet
-	return renderRecord(t.g.rand, t.template, t.columns, renderScope{set: &set})
+	var draws renderDraws
+	return renderRecord(t.g.rand, t.template, t.columns, renderScope{draws: &draws})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -264,7 +264,7 @@ func recordOf(n node) (*template, []Column, error) {
 func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.site.row == formatRow {
-		sc = sc.at(t.site.table.rowNode, &sc.groupHold().pins)
+		sc = sc.at(t.site.table.rowNode, &sc.groupDraws().pins)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

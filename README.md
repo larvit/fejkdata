@@ -883,7 +883,7 @@ record.go       records: Record, the JSON/CSV/SQL serializers, and their entry p
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
-hold.go         the hold: one draw per held name; and the hold set and scope a render reads its reference paths through
+draws.go        the memo a hold or draw group keeps its draws in; and a render's draws and the scope it reads its reference paths through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
 drawfence.go    the load fences over reference draws: a drawGroup's, and a render's and a record's columns through the survey
 readsurvey.go   the load-time survey of what a render reads, and what a path reads of a table family, and its verdict on them; and the fence on a table reaching its own family

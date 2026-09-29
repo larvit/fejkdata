@@ -55,7 +55,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// The repeat shape prices what keeps a hold set off the heap: a copy dropped costs an alloc an iteration.
+// The repeat shape prices what keeps a render's draws off the heap: a copy dropped costs an alloc an iteration.
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {
@@ -73,12 +73,12 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
 		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a hold set reaching the heap is the usual cause", s.name, allocs, s.base*1.10, s.base)
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a render's draws reaching the heap is the usual cause", s.name, allocs, s.base*1.10, s.base)
 		}
 	}
 }
 
-// A table read pins a row in the render's hold and reads its cells in place.
+// A table read pins a row in the render's draws and reads its cells in place.
 func TestNoTableAllocRegression(t *testing.T) {
 	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 		"region.json": {Data: []byte(`{"format":"{name}","rows":"region.tsv","key":"code","weight":"population"}`)},
