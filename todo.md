@@ -24,10 +24,40 @@ Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
 by Locality, all nine naming `drawWalk.walk` hardest and eight the unit they would
 least modify; 5.7 on 2026-09-29 again (Navigation 6.6, Locality 5.2, Shape 5.9,
 Self-sufficiency 5.8), four seats capped by Locality, six of the seven unit seats
-ranking `readSurvey.walk` hardest and all seven the unit they would least modify.
+ranking `readSurvey.walk` hardest and all seven the unit they would least modify; 6.1
+on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-sufficiency
+6.1), every seat's lowest dimension Locality, all seven unit seats ranking the
+`readSurvey` walk or check hardest and the unit they would least modify.
 
 This round, in order:
 
+- Key the survey's visits and reads by a pin set's rows spelled as a string, and delete
+  `pinsID`, `pinsLink` and `readSurvey.pinIDs`: five seats stalled on the interning.
+  Start `replayPairs`' pin set as a clone of the earlier read's pins, deleting the
+  replay into an empty set, which cannot fail since `pinRow` built those pins.
+- Move `checkOwnFamily` into `readsurvey.go` beside `checkFamilies`, and
+  `checkNestedDrawGroup` into `node.go` beside `drawGroupOf`, the compile step calling
+  it; delete `checkColumnDraws` for `surveyColumns(…).check()` at its caller. Both
+  architects found the family fence in two files, and draw-group checks of two
+  lifecycles in one.
+- Replace `formatOps`' `held`, `holder` and `pathHeads` with one map from a held name
+  to its first reader and the path it starts, if any: four seats traced
+  `formatOps.holdName` writing four fields at once.
+- Give `arm` its head as written, set where `splitArm` splits, and build
+  `pathProbe.readRow`'s selector spelling from it: six seats found the slice of
+  `arm.spelling` by `len(joinSegments(tail))` resting on an invariant nothing states.
+- Pick `disagreement`'s fix through a named `itemKind` comparison: six seats could not
+  see that the kinds' declaration order is the rule.
+- Give `tableSite` one test for a cell, and have `traceRead` report no row outside a
+  table: the zero value reads as row 0, a real cell, so each reader tests `table` first.
+- Rename `ftoken` to `scanUnit`, beside `formatToken`, and `session` to
+  `generatorState`: three seats confused the token types, and both architects read
+  `session` as per-render state.
+- State at `pinSet.pin` that its caller proved r sits inside the nearest pinned
+  ancestor, which `pinRow` and `drawIn` do.
+- Delete the prose two or more seats found empty: `loadData`'s comment, which also names
+  `linkRefs` where `bind` runs, `table.drawRow`'s, `table.selector`'s, and `render.go`'s
+  second and third "compile validated" notes.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -55,6 +85,8 @@ by a `data-import/` script, as README goal 12 asks.
 - Give the address records one column set across countries: `region` and
   `municipality` as columns on `geo.SE.address` too.
 - Fill the 398 Swedish localities weighted 200 from SCB småorter.
+- List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list
+  of what each locale carries, which names neither.
 - Give `url` and `email` a path that draws only domains nobody can register, keeping
   the wide set as the default, per goal 14: 17 of the 40 distinct ones shipped today
   sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's
@@ -200,6 +232,11 @@ by a `data-import/` script, as README goal 12 asks.
   `{/geo.US.locality[1714000].municipality.name}` holds once the step up above lands.
   Scope the README's "A reference path into a category is held" to a path that
   selects no row.
+- Refuse a struct tag's `datatype` naming the Go type that sets it before proving its
+  values, as the README's Library section promises: `datatype: boolean` over
+  `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
+- Call `templateError` a compile failure: its doc says render failure, and it wraps
+  what `NewTemplate` and `NewRecordTemplate` refuse.
 - Report the same error every load for a table with two bad options, and for a
   folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
   first in Go's map order.
