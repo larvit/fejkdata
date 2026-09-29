@@ -78,7 +78,7 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 			continue
 		}
 		if path != "" {
-			return fmt.Errorf("%s renders %q, which {%s} reads a path into; name the fields you want instead", e.reached(), name, path)
+			return fmt.Errorf("%s reaches %q by a second route, where {%s} holds it to one draw; name the fields you want instead", e.reached(), name, path)
 		}
 		return fmt.Errorf("%s renders %q, which a {%s()} also reads; reach it one way so it is drawn once", e.reached(), name, operandReader(t, name))
 	}
