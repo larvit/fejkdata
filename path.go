@@ -289,10 +289,13 @@ func (w *pathCover) walk(n node, tail []string) (node, error) {
 
 // pathProbe proves a path resolves without drawing. Where pathCheck walks every
 // variant of a choice, it walks the first, which carriedByAll lets stand for all; at a
-// table it selects as pathCheck does and marks in drawn the tables a draw would pin.
+// table it selects as pathCheck does. Probing an arm, it records what the read takes:
+// in drawn the tables a draw would pin, and in sels each selector's table and spelling.
 type pathProbe struct {
 	pins  pinSet
+	a     *arm
 	drawn map[*table]bool
+	sels  []tableSel
 }
 
 func (w *pathProbe) walk(n node, tail []string) (node, error) {
@@ -310,7 +313,7 @@ func (w *pathProbe) walk(n node, tail []string) (node, error) {
 			if r, err = x.route(tail, descended); err != nil {
 				return nil, err
 			}
-			if err := w.readRow(x, r); err != nil {
+			if err := w.readRow(x, tail, r); err != nil {
 				return nil, err
 			}
 			n, tail, descended = r.next, r.rest, r.descends
@@ -324,15 +327,22 @@ func (w *pathProbe) walk(n node, tail []string) (node, error) {
 	return n, nil
 }
 
-func (w *pathProbe) readRow(t *table, r tableRoute) error {
-	if r.sel != "" {
+func (w *pathProbe) readRow(t *table, tail []string, r tableRoute) error {
+	switch {
+	case r.sel != "":
+		if w.a != nil {
+			walked := len(w.a.tail) - len(tail) + 1
+			written := w.a.spelling[:len(w.a.spelling)-len(joinSegments(w.a.tail))]
+			w.sels = append(w.sels, tableSel{t, written + joinSegments(w.a.tail[:walked])})
+		}
 		return w.pins.selectRow(t, r.sel)
-	}
-	if !r.draw {
-		return nil
-	}
-	for stop := w.pins.nearestPinned(t); t != stop; t = t.parentT {
-		w.drawn[t] = true
+	case r.draw && w.a != nil:
+		if w.drawn == nil {
+			w.drawn = map[*table]bool{}
+		}
+		for stop := w.pins.nearestPinned(t); t != stop; t = t.parentT {
+			w.drawn[t] = true
+		}
 	}
 	return nil
 }

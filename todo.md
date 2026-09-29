@@ -28,9 +28,6 @@ ranking `readSurvey.walk` hardest and all seven the unit they would least modify
 
 This round, in order:
 
-- Record each selector's table and spelling in `pathProbe.readRow`, and delete
-  `tableReadOf`'s second walk over the tail: it steps by `descendant` apart from
-  `route`, so a route that steps up to a parent row credits a selector to the wrong table.
 - Move the render's read path — `readField`, `readReference`, `readHeld`, `traceRead`,
   `renderLeaf`, `resolveChoice`, `renderOnce` and `expandAnew` — into `render.go`, and
   merge what `hold.go` and `holdset.go` keep into one file: both architects followed one read
