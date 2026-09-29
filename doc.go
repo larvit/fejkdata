@@ -23,8 +23,9 @@ package fejkdata
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, `FakeStruct` one per record, and `expandAnew` one per
 //     iteration of a `template.repeat`.
-//   - hold — one expansion keeping one draw of a name, so every route to it reads
-//     that value: `formatOps.held`, `formatOps.keepsHold`, `heldCheck`.
+//   - hold — keeping one draw of a name, so every route to it reads that value:
+//     an expansion holds a sibling path's head and an operand's field, its draw
+//     group a reference path's: `formatOps.held`, `formatOps.keepsHold`, `heldCheck`.
 //   - memo — what a hold or a draw group keeps its draws in, the variant drawn at
 //     each level and the value each path read: `drawMemo`, `readMemo`.
 //   - draw group — reference draws kept apart inside one render:

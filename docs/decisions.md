@@ -680,7 +680,7 @@ Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
 Goals 2 and 11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` stay four loops.
 One loop fails `perf_test.go`: the check's leaves, the probe's selectors and the errors
 naming a level leak the walker's contents, and Go tracks a struct's fields as one, so
-the draw's pins, arm and hold leak with them. Held by pointer, a repeat of a reference
+the draw's pins, arm and memo leak with them. Held by pointer, a repeat of a reference
 path rose from 66 to 106 allocations; copied into the walker by value,
 `BenchmarkHeld` rose from 5 to 9. A call through an interface or a type parameter leaks
 the walker the same way. Valid while Go's escape analysis tracks a struct's fields as

@@ -37,7 +37,7 @@ type renderDraws struct {
 // renderScope is where a render reads its reference paths: its reference draws, in the draw group of the
 // template rendering; and row, the row of the table rendering, which its columns read. It passes
 // by value, and what is read from it reaches a map key, an interface or a func value only as a
-// copy; else sc, and with it every render's draws, move to the heap.
+// copy; else sc, and with it every render's draws, moves to the heap.
 type renderScope struct {
 	draws *renderDraws
 	group string
