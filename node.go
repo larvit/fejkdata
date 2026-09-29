@@ -227,16 +227,6 @@ func (t *template) fixedText() (string, bool) {
 	return "", false
 }
 
-// compileFormat compiles a format into ops, and applies the fences that need the
-// compiled reads.
-func compileFormat(toks []formatToken, refs map[string]refBinding) (formatOps, error) {
-	c := compileOps(toks, refs)
-	if err := checkNoOverlap(c); err != nil {
-		return c, err
-	}
-	return c, checkNoRepeatedRead(c)
-}
-
 func compileChoice(items []any, pos position) (node, error) {
 	itemPos := inFormat
 	if pos == inColumn {
