@@ -187,7 +187,7 @@ func neverNumeric(n node) (text string, never bool) {
 
 // calcPrep parses the expression and decimals once, at compile time, and places each
 // operand name at the position expand will read it into. checkCalc proved both args
-// valid, so no step here can fail; dp -1 prints the minimal form.
+// valid, so no step here can fail.
 func calcPrep(args []string) callFn {
 	expr, err := parseCalc(args[0])
 	if err != nil { // a nil AST would be a nil dereference per render, with no message
@@ -204,12 +204,12 @@ func calcPrep(args []string) callFn {
 	}
 }
 
-// calcDecimals is a calc's decimals count, or -1 for the shortest form.
+// calcDecimals is a calc's decimals count, or shortestDecimals where it names none.
 func calcDecimals(args []string) int {
 	if len(args) == 2 {
 		return atoi(args[1])
 	}
-	return -1
+	return shortestDecimals
 }
 
 // indexVars replaces each operand name with its position in the values expand reads.

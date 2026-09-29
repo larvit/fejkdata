@@ -26,8 +26,6 @@ least modify.
 
 This round, in order:
 
-- Name `printedNumber`'s `dp` cases, and say on `builtin` what `prints` and
-  `proveNumber` a new builtin sets: the extender copied `digits` by analogy.
 - Rename the names that mislead: `table.pinnedRow` is the row node, not a pinned row;
   `table.category` is a bare name beside the dotted `category` of `resolveLink`;
   `checkRenders` renders nothing; `fieldAlternation` is a plain `{name}` too; and

@@ -125,10 +125,14 @@ type builtin struct {
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// proveNumber proves what a call prints, token its body: the bounds of its number and the
-	// datatype of its text, prints or one inside it; nil for a builtin whose text is no number.
+	// proveNumber bounds the number a call's text reads as, token its body, and says which
+	// datatypes that text is not; set it where every render reads as a finite number, which
+	// makes the call a calc operand, and leave it nil otherwise.
 	proveNumber func(token string, prints DataType, args []string) proven
-	prints      DataType
+	// prints is the datatype every render's text is, which a typed column holds the call to:
+	// DataTypeString where it reads as a number but no column should type it, as digits'
+	// leading zeros; unset where proveNumber is nil.
+	prints DataType
 }
 
 // funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
