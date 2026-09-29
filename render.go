@@ -207,7 +207,7 @@ func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 	switch {
 	case t.site.isCell():
 		row = renderedRow{t.site.table, t.site.row}
-	case t.site.table != nil:
+	case t.site.row == formatRow:
 		row = renderedRow{t.site.table, sc.rowOf(t.site.table)}
 	}
 	trace(strings.Clone(sc.group), row, a)
