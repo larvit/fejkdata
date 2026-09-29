@@ -34,12 +34,12 @@ func survey(reads []pathRead, group string) *readSurvey {
 	for _, r := range reads {
 		if r.clash != nil {
 			if s.clash == nil {
-				s.clash = &pinClash{r.at.route, r.a.spelling, r.clash}
+				s.clash = &pinClash{r.route, r.a.spelling, r.clash}
 			}
 			continue
 		}
-		if r.at.group == "" {
-			r.at.group = group
+		if r.group == "" {
+			r.group = group
 		}
 		s.reads = append(s.reads, r)
 	}
@@ -55,7 +55,7 @@ func (f *drawFence) checkDrawGroup(path string, n node) error {
 		return nil
 	}
 	for _, r := range f.fold.rootReads(t) {
-		if r.at.group == "" && r.draws() {
+		if r.group == "" && r.draws() {
 			return nil
 		}
 	}
@@ -157,18 +157,18 @@ func (s *readSurvey) check() error {
 		return fmt.Errorf("%s: %w; read the family from a template beside it, or add the value as a column", c.route.spelled(c.spelling), c.err)
 	}
 	sort.SliceStable(s.reads, func(i, j int) bool {
-		if s.reads[i].at.group != s.reads[j].at.group {
-			return s.reads[i].at.group < s.reads[j].at.group
+		if s.reads[i].group != s.reads[j].group {
+			return s.reads[i].group < s.reads[j].group
 		}
 		return s.reads[i].a.path < s.reads[j].a.path
 	})
 	for i, level := range s.reads {
 		for _, into := range s.reads[i+1:] {
-			if into.at.group != level.at.group || alternatives(level.at, into.at) {
+			if into.group != level.group || alternatives(level.branches, into.branches) {
 				continue
 			}
 			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.landsRow) {
-				return overlapError(level.at.route, level.a.spelling, into)
+				return overlapError(level.route, level.a.spelling, into)
 			}
 		}
 	}
@@ -185,7 +185,7 @@ func checkFamilies(reads []pathRead) error {
 			continue
 		}
 		for _, o := range reads[:i] {
-			if o.tr == nil || o.at.group != r.at.group || alternatives(o.at, r.at) || o.tr.headTable.familyRoot() != r.tr.headTable.familyRoot() {
+			if o.tr == nil || o.group != r.group || alternatives(o.branches, r.branches) || o.tr.headTable.familyRoot() != r.tr.headTable.familyRoot() {
 				continue
 			}
 			if err := checkFamilyPair(o, r); err != nil {
@@ -204,7 +204,7 @@ func checkFamilyPair(a, b pathRead) error {
 	for _, pair := range [][2]pathRead{{a, b}, {b, a}} {
 		x, y := pair[0], pair[1]
 		if len(x.a.tail) == 0 && len(y.a.tail) > 0 {
-			return overlapError(x.at.route, x.a.spelling, y)
+			return overlapError(x.route, x.a.spelling, y)
 		}
 		if drawn := x.tr.drawnOf(&y.tr.pins); drawn != nil {
 			if s, ok := y.tr.selected(x.tr.headTable); ok && len(x.tr.sels) == 0 {
@@ -213,10 +213,10 @@ func checkFamilyPair(a, b pathRead) error {
 					tail = append([]string{x.tr.headTable.segment}, tail...)
 				}
 				return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
-					x.at.route.spelled(x.a.spelling), drawn.segment, y.at.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
+					x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
 			}
 			return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
-				x.at.route.spelled(x.a.spelling), drawn.segment, y.at.route.spelled(y.a.spelling))
+				x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling))
 		}
 	}
 	return nil
@@ -232,7 +232,7 @@ func replayPairs(reads []pathRead) error {
 			continue
 		}
 		for _, o := range reads[i+1:] {
-			if o.tr == nil || o.at.group != r.at.group || alternatives(r.at, o.at) {
+			if o.tr == nil || o.group != r.group || alternatives(r.branches, o.branches) {
 				continue
 			}
 			d := r.tr.pins.clone()
@@ -245,24 +245,24 @@ func replayPairs(reads []pathRead) error {
 }
 
 func conflict(r pathRead, err error) error {
-	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.at.route.spelled(r.a.spelling), err)
+	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.route.spelled(r.a.spelling), err)
 }
 
 // alternatives reports whether two reads never render together: one read renders one row of a
 // table, so reads under different rows the walks pinned, or under different rows of one whole
 // draw, never meet.
-func alternatives(a, b surveyAt) bool {
+func alternatives(a, b branches) bool {
 	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
 }
 
 func overlapError(route surveyRoute, ref string, into pathRead) error {
 	apart := ""
 	switch {
-	case route.spelling == into.at.route.spelling:
-	case isRef(into.at.route.label):
-		apart = fmt.Sprintf(", or move {%s} into a field with a drawGroup", into.at.route.label)
+	case route.spelling == into.route.spelling:
+	case isRef(into.route.label):
+		apart = fmt.Sprintf(", or move {%s} into a field with a drawGroup", into.route.label)
 	default:
-		apart = fmt.Sprintf(", or give %s a drawGroup", into.at.route.spelling)
+		apart = fmt.Sprintf(", or give %s a drawGroup", into.route.spelling)
 	}
-	return fmt.Errorf("%s renders its own draw of what %s reads a path through; name the fields you want instead%s", route.spelled(ref), into.at.route.spelled(into.a.spelling), apart)
+	return fmt.Errorf("%s renders its own draw of what %s reads a path through; name the fields you want instead%s", route.spelled(ref), into.route.spelled(into.a.spelling), apart)
 }
