@@ -26,8 +26,6 @@ least modify.
 
 This round, in order:
 
-- Define `descended` where `table.route` takes it: five seats reverse-engineered it from
-  the `draw` expression and the four walks' loop condition.
 - Keep a template's table in one field: `template.table` and `template.cell.table` both
   answer which table it belongs to, and `checkOwnFamily` and `traceRead` branch on both.
 - Stop `readField` dereferencing a nil `held`: `renderLeaf` passes nil, safe only

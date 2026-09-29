@@ -156,9 +156,10 @@ type tableRoute struct {
 	descends bool
 }
 
-// route is how tail passes t, reached from another table where descended. The path
-// reads a row wherever a segment follows or the table was reached from another; a
-// table reached whole, with no selector, is left to a render's own draw.
+// route is how tail passes t. descended means the previous route stepped into t
+// from a row of an ancestor table, so t reads a row even where tail is empty; a
+// table reached otherwise, with no selector and an empty tail, is left to a render's
+// own draw.
 func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	sel, tail, err := t.selector(tail)
 	if err != nil {
