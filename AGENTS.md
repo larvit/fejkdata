@@ -6,6 +6,9 @@
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
 - GitHub is where the project lives, so `gh` is the tool: merges are fast-forward
   only, `gh pr merge --rebase` where the branch is already on top of main.
+- CodeRabbit skips every pull request until the repository has 10 GitHub stars: check
+  its status once when a PR is marked ready, answer a review if one is there, and never
+  wait for one.
 - README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
   dependency bump, a repair of a promise goals 3 to 5 make, and the infrastructure
