@@ -88,12 +88,12 @@ func (s *readSurvey) walk(n node, at surveyAt) {
 	}
 	for _, e := range renderEdges(n) {
 		to, isTemplate := e.to.(*template)
-		cell := tableSite{}
-		if isTemplate && to.site.row != formatRow {
+		var cell tableSite
+		if isTemplate {
 			cell = to.site
 		}
 		switch {
-		case cell.table == nil:
+		case !cell.isCell():
 			s.edge(n, e, at)
 		case cell.table == at.wholeTable:
 			in := at

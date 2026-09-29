@@ -71,6 +71,10 @@ type tableSite struct {
 
 const formatRow = -1
 
+func (s tableSite) isCell() bool {
+	return s.table != nil && s.row != formatRow
+}
+
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
 	refs         map[string]refBinding // each reference the format reads -> what it resolves to

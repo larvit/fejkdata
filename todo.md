@@ -31,8 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Give `tableSite` one test for a cell, and have `traceRead` report no row outside a
-  table: the zero value reads as row 0, a real cell, so each reader tests `table` first.
 - Rename `ftoken` to `scanUnit`, beside `formatToken`, and `session` to
   `generatorState`: three seats confused the token types, and both architects read
   `session` as per-render state.

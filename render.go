@@ -203,15 +203,14 @@ func readHeld(s *session, t *template, held *hold, pins *pinSet, sc renderScope,
 }
 
 func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
-	var table string
-	row := t.site.row
-	if t.site.table != nil {
-		table = t.site.table.path
+	var row renderedRow
+	switch {
+	case t.site.isCell():
+		row = renderedRow{t.site.table, t.site.row}
+	case t.site.table != nil:
+		row = renderedRow{t.site.table, sc.rowOf(t.site.table)}
 	}
-	if row == formatRow {
-		row = sc.rowOf(t.site.table)
-	}
-	trace(strings.Clone(sc.group), strings.Clone(table), row, a)
+	trace(strings.Clone(sc.group), row, a)
 }
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
