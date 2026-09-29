@@ -31,13 +31,6 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 
 This round, in order:
 
-- Collapse the four path walks into one loop switching on a plain mode field, check,
-  cover, probe or draw, with no call through an interface or a type parameter, and run
-  it against `perf_test.go`'s allocation gate. It holds: replace the decision "The four
-  path walks are four loops" with one recording a single loop, and land the collapse;
-  all nine seats named the four loops among the hardest. It fails: keep the loops, and
-  rewrite that decision's rationale to match `descend` and `pathProbe.readRow` today,
-  where `readRow` makes `drawn` on first use.
 - Key the survey's visits and reads by a pin set's rows spelled as a string, and delete
   `pinsID`, `pinsLink` and `readSurvey.pinIDs`: five seats stalled on the interning.
   Start `replayPairs`' pin set as a clone of the earlier read's pins, deleting the

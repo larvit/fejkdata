@@ -676,10 +676,12 @@ though `hasRead` states the same stop rule. Valid while the two differ in where 
 ## The four path walks are four loops
 
 2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
-Goals 2 and 11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` each loop over
-`stepInto` and `table.route` themselves, and `descend` builds its probe in place, so the
-probe's `drawn` map stays on the stack; its caller always builds that map, so `readRow`
-never tests it for nil. One walk calling them through an interface or a type parameter
-leaks the walker and the pins it holds, an allocation per reference read. Valid while
-Go's escape analysis treats a call through an interface or a type parameter as leaking
-its receiver.
+Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
+Goals 2 and 11: `pathCheck`, `pathCover`, `pathProbe` and `pathDraw` stay four loops.
+One loop fails `perf_test.go`: the check's leaves, the probe's selectors and the errors
+naming a level leak the walker's contents, and Go tracks a struct's fields as one, so
+the draw's pins, arm and hold leak with them. Held by pointer, a repeat of a reference
+path rose from 66 to 106 allocations; copied into the walker by value,
+`BenchmarkHeld` rose from 5 to 9. A call through an interface or a type parameter leaks
+the walker the same way. Valid while Go's escape analysis tracks a struct's fields as
+one and treats such a call as leaking its receiver.
