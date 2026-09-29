@@ -136,3 +136,27 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 		t.Errorf("{/z} gathered under a pinned row %v and a whole read's row %v, want both: {/g} reaches x's cells from the root and from inside {/x}", pinned, whole)
 	}
 }
+
+func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
+	fsys := fstest.MapFS{
+		"r.json": {Data: []byte(`"{/y[a].v}"`)},
+		"x.json": {Data: []byte(`{"format":"{v}","rows":"x.tsv","key":"code"}`)},
+		"x.tsv":  {Data: []byte("code\tv\n1\tb\n2\tc\n")},
+		"y.json": {Data: []byte(`{"format":"{v}","rows":"y.tsv","key":"code","parent":"x"}`)},
+		"y.tsv":  {Data: []byte("code\tv\tx\na\t{/x[2].v}\t1\nb\tz\t2\n")},
+	}
+	g, err := loadDir(dataSource{fsys: fsys}, ".")
+	if err != nil {
+		t.Fatalf("loadDir = %v", err)
+	}
+	if err := treeBinding(g.children).link(); err != nil {
+		t.Fatalf("link = %v", err)
+	}
+	r, isTemplate := g.children["r"].(*template)
+	if !isTemplate {
+		t.Fatalf("r is a %T, want a template", g.children["r"])
+	}
+	if err := surveyRender(r).check(); err == nil || !strings.Contains(err.Error(), "two rows of") {
+		t.Errorf("check = %v, want y[a]'s row of x clashing with x[2] named, whatever order the fences run in", err)
+	}
+}
