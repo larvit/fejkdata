@@ -24,7 +24,7 @@ type readValue struct {
 }
 
 // renderTrace is a test's view of the fields a render reads; nil outside a test.
-type renderTrace func(group, table string, row int, a arm)
+type renderTrace func(group string, row renderedRow, a arm)
 
 // holdSet is one render's reference draws: the unnamed draw group's, and each named one's; and a
 // test's trace of its reads.
