@@ -239,7 +239,7 @@ func checkNodeFences(s nodeScope) error {
 	if err := s(heldCheck); err != nil {
 		return err
 	}
-	fence := &drawFence{}
+	fence := &drawFence{fold: newReadFold()}
 	refs := false
 	if err := s(func(path string, n node) error {
 		if t, ok := n.(*template); ok && len(t.link.refs) > 0 {
