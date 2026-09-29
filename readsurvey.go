@@ -96,9 +96,7 @@ func (s *readSurvey) pinsID(p *pinSet) pinsID {
 }
 
 // walk follows what rendering n renders. A repeat renders over draws of its own, so the walk stops
-// there. A cell whose row the pins keep out has no case: a pinned table renders its pinned row
-// alone and an unpinned one draws a row inside its nearest pinned ancestor's, so that cell never
-// renders on this route.
+// there.
 func (s *readSurvey) walk(n node, at surveyAt) {
 	v := nodeVisit{n, at.group, at.wholeTable, s.pinsID(&at.pins), s.pinsID(&at.wholePins)}
 	if s.seen[v] {
@@ -132,6 +130,9 @@ func (s *readSurvey) walk(n node, at surveyAt) {
 			in := at
 			in.pins = at.pins.entered(cell.table, cell.row)
 			s.edge(n, e, in)
+		default:
+			// A pinned table renders its pinned row alone, and an unpinned one draws a row inside its
+			// nearest pinned ancestor's, so a cell of a row the pins clash with never renders here.
 		}
 	}
 }

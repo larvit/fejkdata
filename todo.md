@@ -26,8 +26,6 @@ least modify.
 
 This round, in order:
 
-- Spell `readSurvey.walk`'s dropped cell as a case of its switch: a clashing row's cell
-  falls out with no arm, which four seats named.
 - Define `descended` where `table.route` takes it: five seats reverse-engineered it from
   the `draw` expression and the four walks' loop condition.
 - Keep a template's table in one field: `template.table` and `template.cell.table` both
