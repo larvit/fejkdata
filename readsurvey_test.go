@@ -10,8 +10,9 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 	f := fenceCorpus(t)
 	roots := fenceRoots(t, f)
 	traced := 0
+	fold := newReadFold()
 	for _, root := range roots {
-		traced += wantGathered(t, root.label, surveyRender(root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
+		traced += wantGathered(t, root.label, surveyRender(fold, root.t).reads, func(trace renderTrace) { renderRoot(f.rand, root.t, trace) })
 		if !root.t.isRecord || len(root.t.fields) == 0 {
 			continue
 		}
@@ -19,7 +20,7 @@ func TestEveryReadARenderMakesIsGathered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: recordOf = %v", root.label, err)
 		}
-		traced += wantGathered(t, root.label+" as a record", surveyColumns(root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
+		traced += wantGathered(t, root.label+" as a record", surveyColumns(fold, root.t, sortedNames(root.t.fields)).reads, func(trace renderTrace) { renderRecordRoot(f.rand, root.t, columns, trace) })
 	}
 	if traced == 0 {
 		t.Error("no render traced a reference read, so the comparison proved nothing")
@@ -125,7 +126,7 @@ func TestReadSurveyWalksACellByEveryRoute(t *testing.T) {
 		t.Fatalf("r is a %T, want a template", g.children["r"])
 	}
 	var pinned, whole bool
-	for _, read := range surveyRender(r).reads {
+	for _, read := range surveyRender(newReadFold(), r).reads {
 		if read.a.path != "/z" {
 			continue
 		}
@@ -157,24 +158,22 @@ func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	if !isTemplate {
 		t.Fatalf("r is a %T, want a template", g.children["r"])
 	}
-	if err := surveyRender(r).check(); err == nil || !strings.Contains(err.Error(), "two rows of") {
+	if err := surveyRender(newReadFold(), r).check(); err == nil || !strings.Contains(err.Error(), "two rows of") {
 		t.Errorf("check = %v, want y[a]'s row of x clashing with x[2] named, whatever order the fences run in", err)
 	}
 	n, isTemplate := g.children["n"].(*template)
 	if !isTemplate {
 		t.Fatalf("n is a %T, want a template", g.children["n"])
 	}
-	if err := surveyRender(n).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with {/x[2].v}: x[1] and x[2] are two rows of x") {
+	if err := surveyRender(newReadFold(), n).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with {/x[2].v}: x[1] and x[2] are two rows of x") {
 		t.Errorf("check = %v, want the clash below {f} named by the route the root reaches it by", err)
 	}
 }
 
-func surveyRender(t *template) *readSurvey {
-	f := newReadFold()
+func surveyRender(f *readFold, t *template) *readSurvey {
 	return survey(f.rootReads(t), t.link.drawGroupKey)
 }
 
-func surveyColumns(t *template, columns []string) *readSurvey {
-	f := newReadFold()
+func surveyColumns(f *readFold, t *template, columns []string) *readSurvey {
 	return survey(f.columnReads(t, columns), t.link.drawGroupKey)
 }
