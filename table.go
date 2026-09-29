@@ -330,8 +330,8 @@ func (t *table) compileRowFormat(format string) error {
 		}
 		for _, name := range tok.names {
 			a := splitArm(name, nil)
-			if _, ok := t.col[a.key]; !ok && !isRef(a.key) && a.key != "" {
-				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.key, t.file, t.header)
+			if _, ok := t.col[a.head]; !ok && !isRef(a.head) && a.head != "" {
+				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, t.file, t.header)
 			}
 		}
 	}

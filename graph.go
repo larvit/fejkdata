@@ -109,7 +109,7 @@ type renderEdge struct {
 	operand string
 }
 
-func (e renderEdge) readsRef() bool { return isRef(e.read.key) }
+func (e renderEdge) readsRef() bool { return isRef(e.read.head) }
 
 // reached names an edge as the author spelled it.
 func (e renderEdge) reached() string {
@@ -133,7 +133,7 @@ func renderEdges(n node) []renderEdge {
 	case *template:
 		var es []renderEdge
 		add := func(a arm, operand string) {
-			c := n.head(a.key)
+			c := n.head(a.head)
 			if c == nil {
 				return
 			}

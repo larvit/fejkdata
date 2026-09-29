@@ -15,9 +15,9 @@ func heldCheck(path string, n node) error {
 	if !ok || len(t.compiled.held) == 0 {
 		return nil
 	}
-	readers := pathKeyReaders(t.compiled.ops, t.compiled.pathKeys)
+	readers := pathHeadReaders(t.compiled.ops, t.compiled.pathHeads)
 	for _, name := range heldNames(t) {
-		if _, isPath := t.compiled.pathKeys[name]; isPath && isRef(name) {
+		if _, isPath := t.compiled.pathHeads[name]; isPath && isRef(name) {
 			continue // held for the render: drawFence compares every read of it, by path, across the render and its groups
 		}
 		if err := checkNameHeld(t, name, readers); err != nil {
@@ -36,8 +36,8 @@ func heldNames(t *template) []string {
 		names = append(names, name)
 	}
 	sort.Slice(names, func(i, j int) bool {
-		_, pi := t.compiled.pathKeys[names[i]]
-		_, pj := t.compiled.pathKeys[names[j]]
+		_, pi := t.compiled.pathHeads[names[i]]
+		_, pj := t.compiled.pathHeads[names[j]]
 		if pi != pj {
 			return !pi
 		}
@@ -51,12 +51,12 @@ func heldNames(t *template) []string {
 // produces.
 func heldNodes(t *template, name string, readers []reader) map[node]bool {
 	held := map[node]bool{}
-	if _, isPath := t.compiled.pathKeys[name]; !isPath {
+	if _, isPath := t.compiled.pathHeads[name]; !isPath {
 		operandDraw(t.head(name), held)
 		return held
 	}
 	for _, r := range readers {
-		if r.a.key == name {
+		if r.a.head == name {
 			coverPath(t.head(name), r.a.tail, held)
 		}
 	}
@@ -71,10 +71,10 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 	if len(held) == 0 {
 		return nil // a fixed head holds nothing to reach
 	}
-	reader, isPath := t.compiled.pathKeys[name]
+	reader, isPath := t.compiled.pathHeads[name]
 	seen := map[node]bool{}
 	for _, e := range renderEdges(t) {
-		if e.read.key == name || !renders(e.to, held, seen) {
+		if e.read.head == name || !renders(e.to, held, seen) {
 			continue
 		}
 		if isPath {
@@ -89,7 +89,7 @@ func checkNameHeld(t *template, name string, readers []reader) error {
 func operandReader(t *template, name string) string {
 	for _, o := range t.compiled.ops {
 		for _, a := range o.operands {
-			if a.key == name {
+			if a.head == name {
 				return o.fn
 			}
 		}
@@ -175,8 +175,8 @@ func renders(n node, want, seen map[node]bool) bool {
 // disagree. Reads are compared in sorted order, so which pair is reported does not
 // depend on where the tokens sit.
 // docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkNoOverlap(ops []op, pathKeys map[string]string) error {
-	names := pathKeyReaders(ops, pathKeys)
+func checkNoOverlap(ops []op, pathHeads map[string]string) error {
+	names := pathHeadReaders(ops, pathHeads)
 	// Stable over one format-order scan, so two readers of one name (a token and a
 	// calc operand both naming "p") are reported as the format writes them.
 	sort.SliceStable(names, func(i, j int) bool { return names[i].a.path < names[j].a.path })
@@ -190,25 +190,25 @@ func checkNoOverlap(ops []op, pathKeys map[string]string) error {
 	return nil
 }
 
-// reader is one way a format reaches a path key, and how to name it.
+// reader is one way a format reaches a path head, and how to name it.
 type reader struct {
 	a     arm
 	label string
 }
 
-// pathKeyReaders lists every way a format reaches a sibling path key, in the order the
+// pathHeadReaders lists every way a format reaches a sibling path head, in the order the
 // format writes them. An operand renders its field, so it names a level exactly
 // as a token does; one scan finds both, which is what puts them in one order.
-func pathKeyReaders(ops []op, pathKeys map[string]string) []reader {
+func pathHeadReaders(ops []op, pathHeads map[string]string) []reader {
 	var names []reader
 	for _, o := range ops {
 		for _, a := range o.operands {
-			if _, isPathKey := pathKeys[a.key]; isPathKey && !isRef(a.key) {
+			if _, isPathHead := pathHeads[a.head]; isPathHead && !isRef(a.head) {
 				names = append(names, reader{a, fmt.Sprintf("%s operand %q", o.fn, a.spelling)})
 			}
 		}
 		for _, a := range o.arms {
-			if _, isPathKey := pathKeys[a.key]; isPathKey && !isRef(a.key) {
+			if _, isPathHead := pathHeads[a.head]; isPathHead && !isRef(a.head) {
 				names = append(names, reader{a, "token {" + a.spelling + "}"})
 			}
 		}
@@ -224,11 +224,11 @@ func checkNoRepeatedRead(c formatOps) error {
 	count := map[string]int{}
 	for _, o := range c.ops {
 		for _, a := range o.arms {
-			if len(a.tail) > 0 || !c.held[a.key] {
+			if len(a.tail) > 0 || !c.held[a.head] {
 				continue
 			}
-			if count[a.key]++; count[a.key] > 1 {
-				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.spelling, c.holder[a.key], a.key, a.spelling)
+			if count[a.head]++; count[a.head] > 1 {
+				return fmt.Errorf("token {%s} is repeated, and %s holds %q to one draw per expansion; write {%s} once", a.spelling, c.holder[a.head], a.head, a.spelling)
 			}
 		}
 	}

@@ -761,7 +761,7 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 }
 
 func TestReadFieldPanicsOnAPathItCannotHold(t *testing.T) {
-	a := arm{spelling: "w.x", key: "w", tail: []string{"x"}, path: "w.x"}
+	a := arm{spelling: "w.x", head: "w", tail: []string{"x"}, path: "w.x"}
 	for name, format := range map[string]string{
 		"unheld arm with a path": `{"format":"{w}","w":{"format":"{x}","x":"1"}}`,
 		"held arm with no hold":  `{"format":"{w.x}","w":{"format":"{x}","x":"1"}}`,

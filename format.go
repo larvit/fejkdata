@@ -246,25 +246,25 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 	if err := checkSegments(a); err != nil {
 		return err
 	}
-	field, ok := fields[a.key]
+	field, ok := fields[a.head]
 	if !ok {
-		if a.key == "" {
+		if a.head == "" {
 			return fmt.Errorf("a name is never empty, so this token can name no field")
 		}
-		if isOption(a.key) {
-			return fmt.Errorf("%q is an option and can never be a field", a.key)
+		if isOption(a.head) {
+			return fmt.Errorf("%q is an option and can never be a field", a.head)
 		}
 		if len(fields) == 0 {
 			hint := ""
 			if wholeToken && hintableRef(name) {
 				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
 			}
-			return fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.key, hint)
+			return fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
 		}
-		return fmt.Errorf("no field %q", a.key)
+		return fmt.Errorf("no field %q", a.head)
 	}
-	if err := checkPath(field, a.tail, a.key); err != nil {
-		return fmt.Errorf("field %q: %w", a.key, err)
+	if err := checkPath(field, a.tail, a.head); err != nil {
+		return fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return nil
 }
@@ -302,45 +302,45 @@ func checkNoRepeatedArm(body string, names []string) error {
 	return nil
 }
 
-// arm is one alternative of a {a|b} token or one operand, split into the key
+// arm is one alternative of a {a|b} token or one operand, split into the head
 // `template.head` resolves and the tail of a dotted path into it. A non-empty tail
 // is what makes the arm a held draw: its head is drawn once per expansion (see
 // compileOps).
 type arm struct {
 	spelling string // as written, for messages
-	key      string
+	head     string
 	tail     []string
-	levels   []string // the key at each level the tail passes through, the arm's key first
-	path     string   // key and tail, the one path every way of writing this read shares
+	levels   []string // the path at each level the tail passes through, the head first
+	path     string   // head and tail, the one path every way of writing this read shares
 }
 
-// splitArm splits one name into key and tail. refs maps a reference to what
+// splitArm splits one name into head and tail. refs maps a reference to what
 // linkRefs resolved it to; before linking, a reference is whole.
 func splitArm(name string, refs map[string]refBinding) arm {
 	if isRef(name) {
 		b, linked := refs[name]
 		if !linked || len(b.tail) == 0 {
-			key := name
+			head := name
 			if linked {
-				key = b.key
+				head = b.key
 			}
-			return arm{spelling: name, key: key, path: key}
+			return arm{spelling: name, head: head, path: head}
 		}
 		return pathArm(name, b.key, b.tail)
 	}
 	segs, err := splitPath(name)
 	if err != nil || len(segs) == 1 {
-		return arm{spelling: name, key: name, path: name}
+		return arm{spelling: name, head: name, path: name}
 	}
 	return pathArm(name, segs[0], segs[1:])
 }
 
-func pathArm(name, key string, segs []string) arm {
-	levels := []string{key}
+func pathArm(name, head string, segs []string) arm {
+	levels := []string{head}
 	for i := 0; i < len(segs)-1; i++ {
-		levels = append(levels, key+"."+strings.Join(segs[:i+1], "."))
+		levels = append(levels, head+"."+strings.Join(segs[:i+1], "."))
 	}
-	return arm{spelling: name, key: key, tail: segs, levels: levels, path: key + "." + strings.Join(segs, ".")}
+	return arm{spelling: name, head: head, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
 }
 
 // checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
@@ -350,7 +350,7 @@ func checkSegments(a arm) error {
 	if len(a.tail) == 0 {
 		return nil
 	}
-	if a.key == "" {
+	if a.head == "" {
 		return fmt.Errorf("path has an empty segment")
 	}
 	for _, seg := range a.tail {
@@ -379,13 +379,13 @@ type op struct {
 }
 
 // formatOps is a compiled format: its ops, the size of its literal text, and the
-// names it holds. pathKeys maps each key a path starts from to the first such path;
-// held is every such key plus the fields an operand reads; holder maps each held
+// names it holds. pathHeads maps each head a path starts from to the first such path;
+// held is every such head plus the fields an operand reads; holder maps each held
 // name to the first reader holding it, for error messages.
 type formatOps struct {
 	ops       []op
 	grow      int
-	pathKeys  map[string]string
+	pathHeads map[string]string
 	held      map[string]bool
 	holder    map[string]string
 	heldLocal bool // some held name is not a reference path, so expand makes a hold
@@ -396,19 +396,19 @@ func (c *formatOps) holdName(a arm, label string) {
 		c.held = map[string]bool{}
 		c.holder = map[string]string{}
 	}
-	c.held[a.key] = true
-	if !isRef(a.key) || len(a.tail) == 0 {
+	c.held[a.head] = true
+	if !isRef(a.head) || len(a.tail) == 0 {
 		c.heldLocal = true
 	}
-	if _, named := c.holder[a.key]; !named {
-		c.holder[a.key] = label
+	if _, named := c.holder[a.head]; !named {
+		c.holder[a.head] = label
 	}
 	if len(a.tail) > 0 {
-		if c.pathKeys == nil {
-			c.pathKeys = map[string]string{}
+		if c.pathHeads == nil {
+			c.pathHeads = map[string]string{}
 		}
-		if _, named := c.pathKeys[a.key]; !named {
-			c.pathKeys[a.key] = a.spelling
+		if _, named := c.pathHeads[a.head]; !named {
+			c.pathHeads[a.head] = a.spelling
 		}
 	}
 }

@@ -35,7 +35,7 @@ func wantGathered(t *testing.T, tables map[string]*table, label string, gathered
 	}
 	seen := map[traceKey]bool{}
 	trace := func(group, table string, row int, a arm) {
-		if !isRef(a.key) {
+		if !isRef(a.head) {
 			return
 		}
 		r := pathRead{at: surveyAt{group: group}, a: a}
