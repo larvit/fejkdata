@@ -93,7 +93,30 @@ func linkTemplate(folder []string, path, category string, t *template, root map[
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	t.link, t.compiled = link, compiled
+	compileArms(t)
 	return nil
+}
+
+func compileArms(t *template) {
+	if r := t.link.readsColumn; r != nil {
+		compileArm(t, &r.a)
+	}
+	for i := range t.compiled.ops {
+		o := &t.compiled.ops[i]
+		for j := range o.operands {
+			compileArm(t, &o.operands[j])
+		}
+		for j := range o.arms {
+			compileArm(t, &o.arms[j])
+		}
+	}
+}
+
+func compileArm(t *template, a *arm) {
+	if head := t.head(a.head); head != nil {
+		w := compilePath(head, a.tail)
+		a.steps, a.leaves, a.cover = w.steps, w.leaves, w.cover
+	}
 }
 
 // resolveLink binds every reference t reads, refusing one to t's own category, and keys

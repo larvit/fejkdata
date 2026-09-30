@@ -40,13 +40,9 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Compile each path once at link into steps holding no pointer, with its leaves and
-  cover, and have `renderEdges`, `heldNodes`, `valueProof` and `tableReadOf` read them,
-  deleting `pathCover`, `coverPath` and `pathLeaves`. Prototyped green, allocations
-  identical.
 - Draw every path through one interpreter over those steps, `drawSteps`, with `descend`
-  probing into a stack buffer, deleting `pathDraw`, and replace the decision "The four
-  path walks are four loops": the prototype held `perf_test.go` once a step held no
+  probing into a stack buffer, deleting `pathDraw`, and replace the decision "The path
+  walks are separate loops": the prototype held `perf_test.go` once a step held no
   pointer, the probe returned its slice and the interpreter took `levels`.
 - Fold `checkNoOverlap` and `checkNoRepeatedRead` into `heldCheck`, so `compileFormat`
   compiles and nothing more.

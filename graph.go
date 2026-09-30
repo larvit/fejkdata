@@ -131,11 +131,7 @@ func renderEdges(n node) []renderEdge {
 	case *template:
 		var es []renderEdge
 		add := func(a arm, operand string) {
-			c := n.head(a.head)
-			if c == nil {
-				return
-			}
-			for _, leaf := range pathLeaves(c, a.tail) {
+			for _, leaf := range a.leaves {
 				es = append(es, renderEdge{leaf, a.spelling, a, operand})
 			}
 		}
@@ -163,15 +159,6 @@ func renderEdges(n node) []renderEdge {
 	default:
 		panic(internalError("renderEdges has no case for node %T", n))
 	}
-}
-
-// pathLeaves lists what a token's dotted tail renders: a choice on the way
-// contributes every variant, since any of them may be the one drawn. checkPath has
-// already proved the tail resolves in every variant.
-func pathLeaves(n node, tail []string) []node {
-	w := &pathCheck{tail: tail}
-	_, _ = w.run(n)
-	return w.leaves
 }
 
 type renderCounts map[node]int

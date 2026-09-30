@@ -186,34 +186,70 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	return r, nil
 }
 
+// pathStep is one step of a compiled path, taken at the node the steps before it
+// reached; at indexes the tail segment the step consumes. A step holds no pointer, so a
+// caller's steps stay on its stack.
+type pathStep struct {
+	kind stepKind
+	at   int
+	name string // stepField: the field; stepSelect: the selector; stepColumn, stepChild: the column or table stepped to
+	row  int    // stepSelect: the row the selector names
+}
+
+type stepKind uint8
+
+const (
+	stepField  stepKind = iota + 1 // into a field of the template at this level, a choice there resolved first
+	stepSelect                     // pin the selected row of the table
+	stepDraw                       // draw a row of the table inside the pins
+	stepRow                        // land on the table's row node
+	stepColumn                     // into a column of the table
+	stepChild                      // into a table linked to the table
+)
+
 // pathCheck proves a path resolves whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat or a drawGroup. It
-// collects every leaf the path may render; level names the head in its errors.
+// compiles the steps a draw takes, every leaf the path may render, and as cover the
+// first choice it passes, else the leaf; level names the head in its errors.
 type pathCheck struct {
 	pins   pinSet
 	level  string
 	tail   []string
+	steps  []pathStep
 	leaves []node
+	cover  node
 }
 
-func (w *pathCheck) run(n node) (node, error) { return w.walk(n, w.tail) }
+func (w *pathCheck) run(n node) (node, error) {
+	leaf, err := w.walk(n, w.tail)
+	if err == nil && w.cover == nil {
+		w.cover = leaf
+	}
+	return leaf, err
+}
+
+func (w *pathCheck) emit(st pathStep, tail []string) {
+	st.at = len(w.tail) - len(tail)
+	w.steps = append(w.steps, st)
+}
 
 func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
 		case *choice:
+			if w.cover == nil {
+				w.cover = x
+			}
 			return w.walkEvery(x, tail)
 		case *table:
 			var r tableRoute
 			if r, err = x.route(tail, descended); err != nil {
 				return nil, err
 			}
-			if r.sel != "" {
-				if err := w.pins.selectRow(x, r.sel); err != nil {
-					return nil, err
-				}
+			if err := w.tableSteps(x, r, tail); err != nil {
+				return nil, err
 			}
 			n, tail, descended = r.next, r.rest, r.descends
 			continue
@@ -228,23 +264,58 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 		if n, err = stepInto(n, tail[0]); err != nil {
 			return nil, err
 		}
+		w.emit(pathStep{kind: stepField, name: tail[0]}, tail)
 		tail = tail[1:]
 	}
 	w.leaves = append(w.leaves, n)
 	return n, nil
 }
 
+func (w *pathCheck) tableSteps(t *table, r tableRoute, tail []string) error {
+	if r.sel != "" {
+		if err := w.pins.selectRow(t, r.sel); err != nil {
+			return err
+		}
+		row, _ := w.pins.pinned(t)
+		w.emit(pathStep{kind: stepSelect, name: r.sel, row: row}, tail)
+	}
+	if r.draw {
+		w.emit(pathStep{kind: stepDraw}, tail)
+	}
+	switch next := r.next.(type) {
+	case *table:
+		if next != t {
+			w.emit(pathStep{kind: stepChild, name: next.segment}, tail)
+		}
+	case *tableRow:
+		w.emit(pathStep{kind: stepRow}, tail)
+	case *tableColumn:
+		w.emit(pathStep{kind: stepColumn, name: t.header[next.i]}, tail)
+	default:
+		panic(internalError("%s: a route onto %T", t.segment, r.next))
+	}
+	return nil
+}
+
+// walkEvery walks every variant and keeps the first one's steps: every variant carries
+// the rest of the path, so each compiles to the same steps past the choice.
 func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 	if err := carriedByAll(c, tail); err != nil {
 		return nil, err
 	}
 	var last node
-	for _, item := range c.items {
+	before, first := w.steps[:len(w.steps):len(w.steps)], w.steps
+	for i, item := range c.items {
 		var err error
+		w.steps = before
 		if last, err = w.walk(item, tail); err != nil {
 			return nil, err
 		}
+		if i == 0 {
+			first = w.steps
+		}
 	}
+	w.steps = first
 	return last, nil
 }
 
@@ -259,45 +330,10 @@ func (w *pathCheck) enter(t *template, rest []string) error {
 	return nil
 }
 
-// pathCover is coverPath's walk. Where pathCheck walks every variant of a choice, it
-// covers the first choice it reaches whole and stops; at a table it follows the route
-// and selects no row.
-type pathCover struct{ into map[node]bool }
-
-func (w *pathCover) walk(n node, tail []string) (node, error) {
-	for descended := false; len(tail) > 0 || descended; {
-		var err error
-		switch x := n.(type) {
-		case *choice:
-			cover(x, w.into, false)
-			return x, nil
-		case *table:
-			var r tableRoute
-			if r, err = x.route(tail, descended); err != nil {
-				return nil, err
-			}
-			n, tail, descended = r.next, r.rest, r.descends
-			continue
-		}
-		if n, err = stepInto(n, tail[0]); err != nil {
-			return nil, err
-		}
-		tail = tail[1:]
-	}
-	cover(n, w.into, false)
-	return n, nil
-}
-
 // pathProbe proves a path resolves without drawing. Where pathCheck walks every
 // variant of a choice, it walks the first, which carriedByAll lets stand for all; at a
-// table it selects as pathCheck does. Probing an arm, it records what the read takes:
-// in drawn the tables a draw would pin, and in sels each selector's table and spelling.
-type pathProbe struct {
-	pins  pinSet
-	a     *arm
-	drawn map[*table]bool
-	sels  []tableSel
-}
+// table it selects as pathCheck does.
+type pathProbe struct{ pins pinSet }
 
 func (w *pathProbe) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
@@ -314,8 +350,10 @@ func (w *pathProbe) walk(n node, tail []string) (node, error) {
 			if r, err = x.route(tail, descended); err != nil {
 				return nil, err
 			}
-			if err := w.readRow(x, tail, r); err != nil {
-				return nil, err
+			if r.sel != "" {
+				if err := w.pins.selectRow(x, r.sel); err != nil {
+					return nil, err
+				}
 			}
 			n, tail, descended = r.next, r.rest, r.descends
 			continue
@@ -326,25 +364,6 @@ func (w *pathProbe) walk(n node, tail []string) (node, error) {
 		tail = tail[1:]
 	}
 	return n, nil
-}
-
-func (w *pathProbe) readRow(t *table, tail []string, r tableRoute) error {
-	switch {
-	case r.sel != "":
-		if w.a != nil {
-			walked := len(w.a.tail) - len(tail) + 1
-			w.sels = append(w.sels, tableSel{t, joinSegments(append([]string{w.a.writtenHead}, w.a.tail[:walked]...))})
-		}
-		return w.pins.selectRow(t, r.sel)
-	case r.draw && w.a != nil:
-		if w.drawn == nil {
-			w.drawn = map[*table]bool{}
-		}
-		for stop := w.pins.nearestPinned(t); t != stop; t = t.parentT {
-			w.drawn[t] = true
-		}
-	}
-	return nil
 }
 
 // pathDraw draws the rows and variants a proved path reads, pinning the rows in pins; pins is nil
@@ -469,6 +488,15 @@ func unreachableInChoice(c *choice, want string) error {
 func checkPath(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
+}
+
+// compilePath compiles a path checkPath proved.
+func compilePath(n node, tail []string) pathCheck {
+	w := pathCheck{tail: tail}
+	if _, err := w.run(n); err != nil {
+		panic(internalError("%s: %v; the path should have been proved before it was compiled", joinSegments(tail), err))
+	}
+	return w
 }
 
 // joinSegments spells segments as a path: a selector attaches to the name before it.

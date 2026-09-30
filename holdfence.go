@@ -53,7 +53,7 @@ func heldNodes(t *template, name string, readers []reader) map[node]bool {
 	}
 	for _, r := range readers {
 		if r.a.head == name {
-			coverPath(t.head(name), r.a.tail, held)
+			cover(r.a.cover, held, false)
 		}
 	}
 	return held
@@ -95,12 +95,6 @@ func operandReader(t *template, name string) (call, operand string) {
 		}
 	}
 	return "", ""
-}
-
-// coverPath collects what holding one path pins: the first choice level it passes,
-// whole, else the leaf it renders; it reads no row.
-func coverPath(n node, tail []string, into map[node]bool) {
-	_, _ = (&pathCover{into: into}).walk(n, tail)
 }
 
 // cover collects a level and everything contained in it. A fixed string outside a

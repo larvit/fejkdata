@@ -242,18 +242,32 @@ type tableSel struct {
 	spelling string
 }
 
-// tableReadOf replays a reference path through pathProbe, so two paths pinning one
-// row by different routes compare equal. checkPath proved
-// each selector names a row.
+// tableReadOf follows a reference path's steps for what it takes of a table family, so
+// two paths pinning one row by different routes compare equal.
 func tableReadOf(head node, a arm, leaf node) *tableRead {
 	t, isTable := head.(*table)
 	if !isTable {
 		return nil
 	}
-	probe := &pathProbe{a: &a}
-	_, _ = probe.walk(t, a.tail)
-	_, landsRow := leaf.(*tableRow)
-	return &tableRead{headTable: t, pins: probe.pins, drawn: probe.drawn, sels: probe.sels, landsRow: landsRow}
+	r := &tableRead{headTable: t}
+	_, r.landsRow = leaf.(*tableRow)
+	for _, st := range a.steps {
+		switch st.kind {
+		case stepSelect:
+			r.pins.pin(t, st.row)
+			r.sels = append(r.sels, tableSel{t, joinSegments(append([]string{a.writtenHead}, a.tail[:st.at+1]...))})
+		case stepDraw:
+			if r.drawn == nil {
+				r.drawn = map[*table]bool{}
+			}
+			for d, stop := t, r.pins.nearestPinned(t); d != stop; d = d.parentT {
+				r.drawn[d] = true
+			}
+		case stepChild:
+			t = t.descendant(st.name)
+		}
+	}
+	return r
 }
 
 // selected is the selector in r on t, or on the nearest ancestor of t it selects.
