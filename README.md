@@ -292,10 +292,12 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithoutShippedData()` | load only what you give |
 
 `New` refuses a mistake in the data, and `NewTemplate` one in the template. On a loaded
-generator, each with the same error every call:
+generator:
 
-- `Fake` fails only for a path that names nothing or could name two things.
-- `FakeStruct` fails only for a non-struct argument or a type its tags do not describe.
+- `Fake` fails only for a path that names nothing or could name two things, with the
+  same error every call.
+- `FakeStruct` fails only for a non-struct argument or a type its tags do not describe,
+  with the same error every call.
 - `Template.Fake` cannot fail.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
