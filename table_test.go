@@ -1046,10 +1046,10 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	}
 }
 
-// TestProbeReportsTheTablesADrawPins holds the check mode to the render: the tables a probe says a
-// path draws are those a draw of it pins beyond what its selectors pin, and each selector is credited
-// to the table it selects a row of.
-func TestProbeReportsTheTablesADrawPins(t *testing.T) {
+// TestTableReadReportsTheTablesADrawPins holds a path's compiled steps to the render: the tables
+// its table read says it draws are those a draw of it pins beyond what its selectors pin, each
+// selector is credited to the table it selects a row of, and a step naming a segment sits at it.
+func TestTableReadReportsTheTablesADrawPins(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	for _, c := range []struct{ path, sels string }{
 		{"locality.code", ""},
@@ -1070,26 +1070,40 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 		a := splitArm(c.path, nil)
 		head := f.root.children[a.head].(*table)
 		a.steps = compilePath(head, a.tail).steps
+		for _, st := range a.steps {
+			seg := ""
+			switch st.kind {
+			case stepSelect:
+				seg = "[" + st.name + "]"
+			case stepChild, stepColumn:
+				seg = st.name
+			default:
+				continue
+			}
+			if st.at >= len(a.tail) || a.tail[st.at] != seg {
+				t.Errorf("%s: step %q sits at %d, want the segment it consumes", c.path, seg, st.at)
+			}
+		}
 		tr := tableReadOf(head, a, nil)
 		var sels []string
 		for _, s := range tr.sels {
 			sels = append(sels, s.t.segment+"="+s.spelling)
 		}
 		if got := strings.Join(sels, " "); got != c.sels {
-			t.Errorf("%s: the probe credits the selectors %q, want %q", c.path, got, c.sels)
+			t.Errorf("%s: the table read credits the selectors %q, want %q", c.path, got, c.sels)
 		}
-		probed, drawn := tr.pins, tr.drawn
+		selected, drawn := tr.pins, tr.drawn
 		for i := 0; i < 20; i++ {
 			var pins pinSet
 			drawPath(head, a.tail, a.head, &pathDraw{s: f.rand, pins: &pins})
 			want := map[*table]bool{}
 			pins.each(func(tbl *table, _ int) {
-				if _, selected := probed.pinned(tbl); !selected {
+				if _, isSelected := selected.pinned(tbl); !isSelected {
 					want[tbl] = true
 				}
 			})
 			if !maps.Equal(drawn, want) {
-				t.Fatalf("%s: the probe reports %v drawn, a draw pins %v", c.path, segmentsOf(drawn), segmentsOf(want))
+				t.Fatalf("%s: the table read reports %v drawn, a draw pins %v", c.path, segmentsOf(drawn), segmentsOf(want))
 			}
 		}
 	}
