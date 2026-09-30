@@ -116,4 +116,4 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish ids draw Skatteverket's test series
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
-- The path walks are separate loops
+- A path draws through its compiled steps

@@ -229,11 +229,6 @@ func (w *pathCheck) run(n node) (node, error) {
 	return leaf, err
 }
 
-func (w *pathCheck) emit(st pathStep, tail []string) {
-	st.at = len(w.tail) - len(tail)
-	w.steps = append(w.steps, st)
-}
-
 func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
 		var err error
@@ -248,7 +243,7 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 			if r, err = x.route(tail, descended); err != nil {
 				return nil, err
 			}
-			if err := w.tableSteps(x, r, tail); err != nil {
+			if w.steps, err = routeSteps(w.steps, &w.pins, x, r, len(w.tail)-len(tail)); err != nil {
 				return nil, err
 			}
 			n, tail, descended = r.next, r.rest, r.descends
@@ -264,38 +259,40 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 		if n, err = stepInto(n, tail[0]); err != nil {
 			return nil, err
 		}
-		w.emit(pathStep{kind: stepField, name: tail[0]}, tail)
+		w.steps = append(w.steps, pathStep{kind: stepField, at: len(w.tail) - len(tail), name: tail[0]})
 		tail = tail[1:]
 	}
 	w.leaves = append(w.leaves, n)
 	return n, nil
 }
 
-func (w *pathCheck) tableSteps(t *table, r tableRoute, tail []string) error {
+// routeSteps appends the steps r takes past t, the first at at, pinning in pins the row
+// it selects.
+func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) ([]pathStep, error) {
 	if r.sel != "" {
-		if err := w.pins.selectRow(t, r.sel); err != nil {
-			return err
+		if err := pins.selectRow(t, r.sel); err != nil {
+			return steps, err
 		}
-		row, _ := w.pins.pinned(t)
-		w.emit(pathStep{kind: stepSelect, name: r.sel, row: row}, tail)
-		tail = tail[1:]
+		row, _ := pins.pinned(t)
+		steps = append(steps, pathStep{kind: stepSelect, at: at, name: r.sel, row: row})
+		at++
 	}
 	if r.draw {
-		w.emit(pathStep{kind: stepDraw}, tail)
+		steps = append(steps, pathStep{kind: stepDraw, at: at})
 	}
 	switch next := r.next.(type) {
 	case *table:
 		if next != t {
-			w.emit(pathStep{kind: stepChild, name: next.segment}, tail)
+			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.segment})
 		}
 	case *tableRow:
-		w.emit(pathStep{kind: stepRow}, tail)
+		steps = append(steps, pathStep{kind: stepRow, at: at})
 	case *tableColumn:
-		w.emit(pathStep{kind: stepColumn, name: t.header[next.i]}, tail)
+		steps = append(steps, pathStep{kind: stepColumn, at: at, name: t.header[next.i]})
 	default:
 		panic(internalError("%s: a route onto %T", t.segment, r.next))
 	}
-	return nil
+	return steps, nil
 }
 
 // walkEvery walks every variant and keeps the first one's steps: every variant carries
@@ -331,13 +328,12 @@ func (w *pathCheck) enter(t *template, rest []string) error {
 	return nil
 }
 
-// pathProbe proves a path resolves without drawing. Where pathCheck walks every
-// variant of a choice, it walks the first, which carriedByAll lets stand for all; at a
-// table it selects as pathCheck does.
-type pathProbe struct{ pins pinSet }
-
-func (w *pathProbe) walk(n node, tail []string) (node, error) {
-	for descended := false; len(tail) > 0 || descended; {
+// probePath proves a path resolves without drawing, appending to steps the steps a
+// draw takes. Where pathCheck walks every variant of a choice, it walks the first,
+// which carriedByAll lets stand for all; at a table it selects as pathCheck does.
+func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
+	var pins pinSet
+	for full, descended := len(tail), false; len(tail) > 0 || descended; {
 		var err error
 		switch x := n.(type) {
 		case *choice:
@@ -351,89 +347,80 @@ func (w *pathProbe) walk(n node, tail []string) (node, error) {
 			if r, err = x.route(tail, descended); err != nil {
 				return nil, err
 			}
-			if r.sel != "" {
-				if err := w.pins.selectRow(x, r.sel); err != nil {
-					return nil, err
-				}
-			}
-			n, tail, descended = r.next, r.rest, r.descends
-			continue
-		}
-		if n, err = stepInto(n, tail[0]); err != nil {
-			return nil, err
-		}
-		tail = tail[1:]
-	}
-	return n, nil
-}
-
-// pathDraw draws the rows and variants a proved path reads, pinning the rows in pins; pins is nil
-// for a sibling path, which never crosses a table, since a table is only a category. For a memoized
-// read, memo keeps the variant drawn at each level of a, so paths sharing a prefix share it.
-// Where pathCheck walks every variant of a choice, it walks the one drawn; at a table it selects
-// as pathCheck does and draws the row the route asks for.
-type pathDraw struct {
-	s    *generatorState
-	pins *pinSet
-	memo *drawMemo
-	a    *arm
-}
-
-// drawPath walks w over a path proved first, by a probe or at load, so the walk
-// cannot fail. level names n in the panic.
-func drawPath(n node, tail []string, level string, w *pathDraw) node {
-	leaf, err := w.walk(n, tail)
-	if err != nil {
-		panic(internalError("%s: %v; the path should have been proved before it was drawn", join(level, joinSegments(tail)), err))
-	}
-	return leaf
-}
-
-func (w *pathDraw) walk(n node, tail []string) (node, error) {
-	for descended := false; len(tail) > 0 || descended; {
-		var err error
-		switch x := n.(type) {
-		case *choice:
-			n = w.variant(x, tail)
-			continue
-		case *table:
-			var r tableRoute
-			if r, err = x.route(tail, descended); err != nil {
+			if steps, err = routeSteps(steps, &pins, x, r, full-len(tail)); err != nil {
 				return nil, err
 			}
-			switch {
-			case r.sel != "":
-				if err := w.pins.selectRow(x, r.sel); err != nil {
-					return nil, err
-				}
-			case r.draw:
-				x.drawIn(w.s, w.pins)
-			}
 			n, tail, descended = r.next, r.rest, r.descends
 			continue
 		}
 		if n, err = stepInto(n, tail[0]); err != nil {
 			return nil, err
 		}
+		steps = append(steps, pathStep{kind: stepField, at: full - len(tail), name: tail[0]})
 		tail = tail[1:]
 	}
-	return n, nil
+	return steps, nil
 }
 
-// variant is the variant of c the walk continues into: the one memo keeps for this level
-// of the read, drawn once, where the walk has a memo; else one drawn afresh.
-func (w *pathDraw) variant(c *choice, rest []string) node {
-	if w.memo == nil {
-		return pick(w.s, c)
-	}
-	key := w.a.levels[len(w.a.tail)-len(rest)]
-	n, drew := w.memo.variant[key]
-	if !drew {
-		n = resolveChoice(w.s, c)
-		if w.memo.variant == nil {
-			w.memo.variant = map[string]node{}
+// drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins;
+// pins is nil for a sibling path, which never crosses a table, since a table is only a category.
+// For a memoized read, memo keeps the variant drawn at each of levels, so paths sharing a prefix
+// share it.
+func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) node {
+	for _, st := range steps {
+		if c, ok := n.(*choice); ok {
+			n = drawVariant(s, c, memo, levels, st.at)
 		}
-		w.memo.variant[key] = n
+		if st.kind == stepField {
+			var err error
+			if n, err = stepInto(n, st.name); err != nil {
+				panic(internalError("%v; a path's steps should have been compiled from the node they are drawn from", err))
+			}
+			continue
+		}
+		t, ok := n.(*table)
+		if !ok {
+			panic(internalError("a table's step %q on %T", st.name, n))
+		}
+		n = t.drawStep(s, st, pins)
+	}
+	return n
+}
+
+func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
+	switch st.kind {
+	case stepSelect:
+		if err := pins.pinRow(t, st.row); err != nil {
+			panic(internalError("%s[%s]: %v", t.segment, st.name, err))
+		}
+		return t
+	case stepDraw:
+		t.drawIn(s, pins)
+		return t
+	case stepRow:
+		return t.rowNode
+	case stepColumn:
+		return t.formatTemplate.fields[st.name]
+	case stepChild:
+		return t.descendant(st.name)
+	}
+	panic(internalError("drawStep has no case for step kind %d", st.kind))
+}
+
+// drawVariant is the variant of c a draw continues into at the step at: the one memo keeps for
+// that level, drawn once, where the draw has a memo; else one drawn afresh.
+func drawVariant(s *generatorState, c *choice, memo *drawMemo, levels []string, at int) node {
+	if memo == nil {
+		return resolveChoice(s, c)
+	}
+	level := levels[at]
+	n, drew := memo.variant[level]
+	if !drew {
+		n = resolveChoice(s, c)
+		if memo.variant == nil {
+			memo.variant = map[string]node{}
+		}
+		memo.variant[level] = n
 	}
 	return n
 }

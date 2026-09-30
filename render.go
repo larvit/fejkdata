@@ -40,10 +40,12 @@ func (f *Generator) Fake(path string) (string, error) {
 // selects or draws.
 func descend(s *generatorState, root node, segments []string, sc renderScope) (node, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
-	if _, err := (&pathProbe{}).walk(root, segments); err != nil {
+	var buf [16]pathStep
+	steps, err := probePath(root, segments, buf[:0])
+	if err != nil {
 		return nil, err
 	}
-	return drawPath(root, segments, "", &pathDraw{s: s, pins: &sc.groupDraws().pins}), nil
+	return drawSteps(s, root, steps, &sc.groupDraws().pins, nil, nil), nil
 }
 
 // renderOnce renders n as one render, over draws of its own.
@@ -188,7 +190,7 @@ func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc r
 	if r, done := memo.value[a.path]; done {
 		return r
 	}
-	leaf := drawPath(t.head(a.head), a.tail, a.head, &pathDraw{s: s, memo: memo, pins: pins, a: &a})
+	leaf := drawSteps(s, t.head(a.head), a.steps, pins, memo, a.levels)
 	if pins != nil {
 		sc = sc.at(leaf, pins)
 	}
