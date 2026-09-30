@@ -183,19 +183,21 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 			return fmt.Errorf("%s, so %s", held, typedAs(fix, want))
 		}
 		return fmt.Errorf("%s, so to read %q as text, %s", held, fix.format, asText(fix))
-	}
-	switch kindOf(other) {
 	case kindText:
-		panic(internalError("two text items hold one datatype, so they never disagree"))
-	case kindReads:
-		if !fits {
-			return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
+		switch kindOf(other) {
+		case kindText:
+			panic(internalError("two text items hold one datatype, so they never disagree"))
+		case kindReads:
+			if !fits {
+				return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
+			}
 		}
+		if fix.fromString { // an object may carry a weight, which this spelling would drop
+			return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, fix.format, fix.format, want)
+		}
+		return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)
 	}
-	if fix.fromString { // an object may carry a weight, which this spelling would drop
-		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, fix.format, fix.format, want)
-	}
-	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)
+	panic(internalError("disagreement has no case for item kind %d", kindOf(fix)))
 }
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
