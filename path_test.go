@@ -36,13 +36,13 @@ func TestPathCoverStopsAtAChoice(t *testing.T) {
 	}
 }
 
-func TestDrawPathPanicsOnAnUnprovedPath(t *testing.T) {
+func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
 	defer func() {
-		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), `plain.f: no field "f"`) {
-			t.Errorf("drawPath(plain, f) recovered %v, want a panic naming the path and the missing field", r)
+		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), `no field "f"`) {
+			t.Errorf("drawSteps(plain, f) recovered %v, want a panic naming the missing field", r)
 		}
 	}()
-	drawPath(compiled(t, `"plain"`), []string{"f"}, "plain", &pathDraw{s: engine(1).rand, pins: &pinSet{}})
+	drawSteps(engine(1).rand, compiled(t, `"plain"`), []pathStep{{kind: stepField, name: "f"}}, &pinSet{}, nil, nil)
 }
 
 func TestDeepDottedPath(t *testing.T) {
