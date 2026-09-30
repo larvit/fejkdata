@@ -591,7 +591,7 @@ is until a real data set needs the indexed form.
 2026-09-17, Lilleman auf Larv.
 
 A path that fails below its first level then moves no seeded stream, at the cost of one
-draw-free walk per call, which allocates nothing.
+draw-free walk per call, which allocates nothing up to 16 steps.
 
 ## A country's postal codes and streets are siblings under its locality
 
@@ -848,8 +848,9 @@ the direct chain is the one a reader can predict from the tables' parents.
 replaces "The path walks are separate loops".
 Goals 2 and 11: `drawSteps` draws every path from its steps, compiled at link by
 `pathCheck` or, for a caller's path, by `probePath` into a stack buffer. The check and
-the probe stay two loops: one loop leaks the check's leaves and errors with the draw's
-state, since Go tracks a struct's fields as one, and a repeat of a reference path rose
-from 66 to 106 allocations. `drawSteps` takes its state as parameters and a step holds
-no node, so no benchmark gained an allocation. Valid while Go's escape analysis tracks
+the probe stay two loops: on 2026-09-29 one loop over all three walks, switching on a
+mode field, leaked the check's leaves and errors with the draw's pins, arm and memo,
+since Go tracks a struct's fields as one, and a repeat of a reference path rose from 66
+to 106 allocations. `drawSteps` takes its state as parameters and a step holds no node,
+so no benchmark gained an allocation. Valid while Go's escape analysis tracks
 a struct's fields as one.
