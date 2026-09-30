@@ -1069,6 +1069,7 @@ func TestProbeReportsTheTablesADrawPins(t *testing.T) {
 	} {
 		a := splitArm(c.path, nil)
 		head := f.root.children[a.head].(*table)
+		a.steps = compilePath(head, a.tail).steps
 		tr := tableReadOf(head, a, nil)
 		var sels []string
 		for _, s := range tr.sels {
