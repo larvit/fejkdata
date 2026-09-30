@@ -737,15 +737,16 @@ func TestHeldPathIsReachableByFake(t *testing.T) {
 }
 
 func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"w": `"a"`}))
 	for src, want := range map[string]string{
 		`{"format":"{w} {w} {uppercase(w)}","w":["a","b"]}`:                                    "write {w} once",
 		`{"format":"{w} {w|x} {uppercase(w)}","w":["a","b"],"x":["c","d"]}`:                    "write {w} once",
 		`{"format":"{n} + {n} = {calc(n * 2)}","n":["1","2"]}`:                                 "write {n} once",
 		`{"format":"{p.a} {q} {q} {lowercase(q)}","p":{"format":"{a}","a":"1"},"q":["A","B"]}`: "write {q} once",
 	} {
-		_, err := linked(t, src)
+		_, err := f.NewTemplate(src)
 		if err == nil || !strings.Contains(err.Error(), want) || !strings.Contains(err.Error(), "holds") {
-			t.Errorf("compile(%s) = %v, want the repeated token rejected naming %s", src, err, want)
+			t.Errorf("NewTemplate(%s) = %v, want the repeated token rejected naming %s", src, err, want)
 		}
 	}
 	for _, ok := range []string{
@@ -754,8 +755,8 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 		`{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00"],"qty":["3","7"]}`,
 		`{"format":"{uppercase(w)} {uppercase(w)}","w":["a","b"]}`,
 	} {
-		if _, err := linked(t, ok); err != nil {
-			t.Errorf("compile(%s) = %v, want it accepted", ok, err)
+		if _, err := f.NewTemplate(ok); err != nil {
+			t.Errorf("NewTemplate(%s) = %v, want it accepted", ok, err)
 		}
 	}
 }
