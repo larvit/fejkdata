@@ -39,6 +39,7 @@ func TestTransformOverAReference(t *testing.T) {
 }
 
 func TestTransformArgs(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"v"`}))
 	for _, bad := range []string{
 		`{"format":"{lowercase()}","x":"v"}`,
 		`{"format":"{lowercase(nope)}","x":"v"}`,
@@ -46,8 +47,8 @@ func TestTransformArgs(t *testing.T) {
 		`{"format":"{lowercase(hex(2))}","x":"v"}`,
 		`{"format":"{lowercase(x)} {x.a}","x":{"format":"{a}","a":"1"}}`,
 	} {
-		if _, err := linked(t, bad); err == nil {
-			t.Errorf("compile(%s) = nil error, want it rejected", bad)
+		if _, err := f.NewTemplate(bad); err == nil {
+			t.Errorf("NewTemplate(%s) = nil error, want it rejected", bad)
 		}
 	}
 }
