@@ -297,6 +297,10 @@ by a `data-import/` script, as README goal 12 asks.
   together, where the fence counts them alternatives and compares neither. Have the error
   name the path spelling that holds, `{/geo.SE.locality.name}|{/geo.SE.municipality.name}`,
   as the README's rule on a rejected spelling asks.
+- Decide, in "An error is a contract by what it names", which of several mistakes a
+  load names, and link the entry to goal 5, which it serves and does not name. The
+  fence names the lowest by route and path, so a data edit can move which one is named;
+  proposed: fixed within a version, as seeded output is, and free to change in any release.
 - Name the file a link error comes from beside its category path, `sub.x
   (/d/a/sub/x.json): …`: with several `--data-path` layers the author has to work out
   which directory won, while a parse error on the same file names it.
