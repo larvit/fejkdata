@@ -20,11 +20,20 @@ type readSurvey struct {
 	clash *pinClash
 }
 
-// pinClash is the first read whose selectors clash with a row its route pinned.
+// pinClash is the read, lowest by how it is named, whose selectors clash with a row its route pinned.
 type pinClash struct {
 	route    readRoute
 	spelling string
 	err      error
+}
+
+func (c *pinClash) named() string { return c.route.spelled(c.spelling) }
+
+func (c *pinClash) before(o *pinClash) bool {
+	if c.named() != o.named() {
+		return c.named() < o.named()
+	}
+	return c.err.Error() < o.err.Error()
 }
 
 // survey is the fold's result as a render in group: every read not inside a nested draw group
@@ -33,8 +42,8 @@ func survey(reads []pathRead, group string) *readSurvey {
 	s := &readSurvey{}
 	for _, r := range reads {
 		if r.clash != nil {
-			if s.clash == nil {
-				s.clash = &pinClash{r.route, r.a.spelling, r.clash}
+			if c := (&pinClash{r.route, r.a.spelling, r.clash}); s.clash == nil || c.before(s.clash) {
+				s.clash = c
 			}
 			continue
 		}
@@ -150,11 +159,10 @@ func repeats(n node) bool {
 }
 
 // check refuses what one draw per reference path cannot answer for: a read selecting a row its route
-// pinned another of, a read of a level beside a path another read takes into it, and two reads of one
-// table family that select different rows.
+// pinned another of, and any two reads that render together yet conflict.
 func (s *readSurvey) check() error {
 	if c := s.clash; c != nil {
-		return fmt.Errorf("%s: %w; read the family from a template beside it, or add the value as a column", c.route.spelled(c.spelling), c.err)
+		return fmt.Errorf("%s: %w; read the family from a template beside it, or add the value as a column", c.named(), c.err)
 	}
 	sort.SliceStable(s.reads, func(i, j int) bool {
 		if s.reads[i].group != s.reads[j].group {
@@ -162,97 +170,73 @@ func (s *readSurvey) check() error {
 		}
 		return s.reads[i].a.path < s.reads[j].a.path
 	})
-	for i, level := range s.reads {
-		for _, into := range s.reads[i+1:] {
-			if into.group != level.group || alternatives(level.branches, into.branches) {
+	for i, a := range s.reads {
+		for _, b := range s.reads[i+1:] {
+			if !coRender(a, b) {
 				continue
 			}
-			if strings.HasPrefix(into.a.path, level.a.path+".") && !(level.tr != nil && level.tr.landsRow) {
-				return overlapError(level.route, level.a.spelling, into)
-			}
-		}
-	}
-	return checkFamilies(s.reads)
-}
-
-// checkFamilies refuses reads of one table family in one draw group that cannot
-// read one consistent draw: a table rendered whole beside a path into the family,
-// a table one read draws that another pins, and two reads pinning different rows.
-// The reads come sorted by group and path.
-func checkFamilies(reads []pathRead) error {
-	for i, r := range reads {
-		if r.tr == nil {
-			continue
-		}
-		for _, o := range reads[:i] {
-			if o.tr == nil || o.group != r.group || alternatives(o.branches, r.branches) || o.tr.headTable.familyRoot() != r.tr.headTable.familyRoot() {
-				continue
-			}
-			if err := checkFamilyPair(o, r); err != nil {
+			if err := conflict(a, b); err != nil {
 				return err
 			}
 		}
 	}
-	return replayPairs(reads)
+	return nil
 }
 
-// checkFamilyPair refuses a table read whole beside a path into its family, and a
-// table one read draws that the other pins, since which token renders first would
-// then decide the row.
-// docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
-func checkFamilyPair(a, b pathRead) error {
+// coRender reports whether two reads can render together: in one draw group, and under no two
+// rows of one table, since one read renders one row of it.
+func coRender(a, b pathRead) bool {
+	return a.group == b.group && !a.branches.pins.differs(&b.branches.pins) && !a.branches.wholePins.differs(&b.branches.wholePins)
+}
+
+// conflict refuses two reads rendering together, a before b by path, that one draw per reference
+// path cannot answer for. Pairs find every conflict a replay of all the reads would: a row clashes
+// with one pinned table, and the read that pinned it holds that pin itself, with its ancestors.
+func conflict(a, b pathRead) error {
 	for _, pair := range [][2]pathRead{{a, b}, {b, a}} {
-		x, y := pair[0], pair[1]
-		if len(x.a.tail) == 0 && len(y.a.tail) > 0 {
-			return overlapError(x.route, x.a.spelling, y)
+		if err := drawsApart(pair[0], pair[1]); err != nil {
+			return err
 		}
-		if drawn := x.tr.drawnOf(&y.tr.pins); drawn != nil {
-			if s, ok := y.tr.selected(x.tr.headTable); ok && len(x.tr.sels) == 0 {
-				tail := x.a.tail
-				if s.t != x.tr.headTable {
-					tail = append([]string{x.tr.headTable.segment}, tail...)
-				}
-				return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
-					x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
-			}
-			return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
-				x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling))
-		}
+	}
+	if a.tr == nil || b.tr == nil {
+		return nil
+	}
+	d := a.tr.pins.clone()
+	if err := b.tr.replay(&d); err != nil {
+		return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", b.route.spelled(b.a.spelling), err)
 	}
 	return nil
 }
 
-// replayPairs replays, of every two reads that can render together, the later into the
-// earlier's pins. Pairs find every conflict a full replay would: clash judges a row against one
-// pinned table, and the read that pinned it holds that pin itself, since a read's pins carry
-// its rows' ancestors, so the pair of those two reads clashes the same way.
-func replayPairs(reads []pathRead) error {
-	for i, r := range reads {
-		if r.tr == nil {
-			continue
-		}
-		for _, o := range reads[i+1:] {
-			if o.tr == nil || o.group != r.group || alternatives(r.branches, o.branches) {
-				continue
-			}
-			d := r.tr.pins.clone()
-			if err := o.tr.replay(&d); err != nil {
-				return conflict(o, err)
-			}
-		}
+// drawsApart refuses x drawing apart from what y reads: a level beside a path y takes into it, a
+// table x reads whole beside a path y takes into its family, and a table x draws that y pins, since
+// which token renders first would then decide the row. A level landing on a row renders the row its
+// selectors pin, the one a path into it reads too.
+// docs/decisions.md#a-bare-reference-draws-each-time-a-reference-path-is-held
+func drawsApart(x, y pathRead) error {
+	if strings.HasPrefix(y.a.path, x.a.path+".") && !(x.tr != nil && x.tr.landsRow) {
+		return overlapError(x.route, x.a.spelling, y)
 	}
-	return nil
-}
-
-func conflict(r pathRead, err error) error {
-	return fmt.Errorf("%s: %w; select the same rows in every path into the family, or draw them apart with a drawGroup", r.route.spelled(r.a.spelling), err)
-}
-
-// alternatives reports whether two reads never render together: one read renders one row of a
-// table, so reads under different rows the walks pinned, or under different rows of one whole
-// draw, never meet.
-func alternatives(a, b branches) bool {
-	return a.pins.differs(&b.pins) || a.wholePins.differs(&b.wholePins)
+	if x.tr == nil || y.tr == nil || x.tr.headTable.familyRoot() != y.tr.headTable.familyRoot() {
+		return nil
+	}
+	if len(x.a.tail) == 0 && len(y.a.tail) > 0 {
+		return overlapError(x.route, x.a.spelling, y)
+	}
+	drawn := x.tr.drawnOf(&y.tr.pins)
+	if drawn == nil {
+		return nil
+	}
+	if s, ok := y.tr.selected(x.tr.headTable); ok && len(x.tr.sels) == 0 {
+		tail := x.a.tail
+		if s.t != x.tr.headTable {
+			tail = append([]string{x.tr.headTable.segment}, tail...)
+		}
+		return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
+			x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
+	}
+	return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
+		x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling))
 }
 
 func overlapError(route readRoute, ref string, into pathRead) error {

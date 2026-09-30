@@ -40,4 +40,4 @@ package fejkdata
 //     the `table` itself, so it draws a row apart from every pin: `branches.wholePins`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
-//     compile. The draw fences are `heldCheck`, `drawFence` and `checkFamilies`.
+//     compile. The draw fences are `heldCheck` and `drawFence`.
