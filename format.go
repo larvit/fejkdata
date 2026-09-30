@@ -312,6 +312,9 @@ type arm struct {
 	tail        []string
 	levels      []string // the path at each level the tail passes through, the head first
 	path        string   // head and tail, the one path every way of writing this read shares
+	steps       []pathStep
+	leaves      []node // every node the path may land on, one per variant it passes
+	cover       node   // what holding the path pins: the first choice it passes, else its leaf
 }
 
 func (a arm) isRefPath() bool {

@@ -164,7 +164,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 	case o.kind == nameRead:
 		var leaves []node
 		for _, a := range o.arms {
-			leaves = append(leaves, pathLeaves(t.head(a.head), a.tail)...)
+			leaves = append(leaves, a.leaves...)
 		}
 		return p.proveUnion(leaves)
 	case name == "calc":
