@@ -40,11 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Correct the claims readers followed wrong: `IsTemplate`'s doc says an argument holding
-  a bracket that is not valid JSON errors, where `misc.territory[SE]` is a path; the
-  README says rows are indexed on the first draw, where `New` builds the key map; and
-  `loadDir`'s says it builds the tree deterministically, where it reports an unnamed
-  rows file in map order.
 - Delete the comments the panel found restating their code or arranging the file:
   `node`'s second sentence, `op`'s "compile builds these so render never re-scans the
   format", `checkCalc`'s last sentence, `calcVar.eval`'s four lines, `checkNoCycles`'
