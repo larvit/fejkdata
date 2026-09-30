@@ -776,8 +776,8 @@ func TestCompileFixesHowEachArmIsRead(t *testing.T) {
 	want := map[string]armKind{"/other.y": refPathRead, "n": heldRead, "p.x": heldRead, "w": freshRead}
 	for _, o := range tm.compiled.ops {
 		for _, a := range append(o.arms, o.operands...) {
-			if a.kind != want[a.spelling] {
-				t.Errorf("{%s} compiles to kind %d, want %d", a.spelling, a.kind, want[a.spelling])
+			if k, ok := want[a.spelling]; !ok || a.kind != k {
+				t.Errorf("{%s} compiles to kind %d, want %d", a.spelling, a.kind, k)
 			}
 		}
 	}
