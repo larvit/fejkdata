@@ -159,7 +159,8 @@ func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 
 // rowReads is what the rows of t read: the cells of the columns its format renders, each tagged
 // with its row, and the format's other reads, which every row shares. A format reaching its own
-// cells through another category is checkOwnFamily's refusal, which runs first.
+// cells through another category is checkOwnFamily's refusal, which runs before any survey of
+// these reads.
 func (f *readFold) rowReads(t *table, tag func(*branches, int) bool) []pathRead {
 	var out []pathRead
 	for _, e := range renderEdges(t.formatTemplate) {
