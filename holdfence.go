@@ -6,22 +6,22 @@ import (
 	"strings"
 )
 
-// heldCheck rejects every route to a held sibling name except the ones that read its
-// draw. An expansion holds one draw of that name; anything else that renders it draws
-// again, and the two disagree.
+// heldCheck rejects a format reading one held draw two ways, and every route to a held
+// name except the readers of its draw. An expansion holds one draw of that name;
+// anything else that renders it draws again, and the two disagree.
 // docs/decisions.md#the-expansion-hold-and-the-renders-draws-are-two-fences
 func heldCheck(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || len(t.compiled.held) == 0 {
 		return nil
 	}
-	if err := checkHeld(t); err != nil {
+	if err := checkTemplateHold(t); err != nil {
 		return fmt.Errorf("%s: %w", t.site.label(path), err)
 	}
 	return nil
 }
 
-func checkHeld(t *template) error {
+func checkTemplateHold(t *template) error {
 	if err := checkNoOverlap(t.compiled); err != nil {
 		return err
 	}
