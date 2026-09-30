@@ -11,7 +11,7 @@
   wait for one.
 - README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
-  dependency bump, a repair of a promise goals 3 to 5 make, and the infrastructure
+  dependency bump, a repair of behaviour the README documents, and the infrastructure
   the round itself runs on. `todo.md` carries the round: a PR per item it plans, the nine-seat
   findings at depth 1 or a restructure the maintainer approved, then the nine-seat run
   again, until the score passes. At or above 7.0
