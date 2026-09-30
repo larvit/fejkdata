@@ -761,18 +761,24 @@ func TestRepeatedBareTokenOfAHeldNameIsRejected(t *testing.T) {
 	}
 }
 
-func TestReadFieldPanicsOnAPathItCannotHold(t *testing.T) {
-	a := arm{spelling: "w.x", head: "w", tail: []string{"x"}, path: "w.x"}
-	for name, format := range map[string]string{
-		"unheld arm with a path": `{"format":"{w}","w":{"format":"{x}","x":"1"}}`,
-		"held arm with no hold":  `{"format":"{w.x}","w":{"format":"{x}","x":"1"}}`,
-	} {
-		tm, ok := compiled(t, format).(*template)
-		if !ok {
-			t.Fatal("not a template")
+func TestCompileFixesHowEachArmIsRead(t *testing.T) {
+	f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"cat":   `{"format":"{w} {w} {p.x} {/other.y} {n} {uppercase(n)}","w":["a","b"],"n":["c","d"],"p":{"format":"{x}","x":"1"}}`,
+		"other": `{"format":"{y}","y":"2"}`,
+	})))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tm, ok := f.root.children["cat"].(*template)
+	if !ok {
+		t.Fatal("cat is not a template")
+	}
+	want := map[string]armKind{"/other.y": refPathRead, "n": heldRead, "p.x": heldRead, "w": freshRead}
+	for _, o := range tm.compiled.ops {
+		for _, a := range append(o.arms, o.operands...) {
+			if a.kind != want[a.spelling] {
+				t.Errorf("{%s} compiles to kind %d, want %d", a.spelling, a.kind, want[a.spelling])
+			}
 		}
-		mustPanic(t, name, func() {
-			readField(engine(1).rand, tm, nil, renderScope{draws: &renderDraws{}}, a)
-		})
 	}
 }
