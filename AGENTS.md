@@ -46,6 +46,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A change to what exists is a major; a minor only adds
 - Seeded output is promised within one version
 - An error is a contract by what it names, not its bytes
+- A load reports every mistake at once
 - Formats are checked after all data is loaded, so their errors name the category
 - Raising the lowest supported Go is a major
 - The format check runs on the latest Go only

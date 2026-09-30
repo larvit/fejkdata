@@ -291,6 +291,11 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
 
+`New` refuses a mistake in the data and `NewTemplate` one in the template, so on a
+loaded generator `Fake` fails only for a path that names nothing or could name two
+things, `FakeStruct` only for a non-struct argument or a type its tags do not describe,
+with the same error every call, and `Template.Fake` cannot fail at all.
+
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
@@ -837,10 +842,7 @@ the Development section below, and who ships a register the five above then draw
    Where two writers could expect different outputs, the template is a load error
    naming a spelling for each. One spelling per result; the wrong one is a load error
    naming the right one.
-5. **Every mistake is a load error** — `New` rejects the data and `NewTemplate`
-   the inline template; on a loaded generator `Fake` fails only for a path that
-   names nothing or could name two things, `FakeStruct` only for a non-struct argument or a type its tags do not
-   describe, with the same error every call, and `Template.Fake` cannot fail at all.
+5. **Errors are up front and easy to understand.**
 6. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
    no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
    the first custom template needs no escape and no option.
