@@ -111,6 +111,7 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"contained":   func(n node) { contained(n) },
 		"paths":       func(n node) { paths(n) },
 		"prove":       func(n node) { (&valueProof{}).prove(n) },
+		"reads":       func(n node) { newReadFold().reads(n) },
 		"render": func(n node) {
 			var draws renderDraws
 			render(engine(1).rand, n, renderScope{draws: &draws, row: renderedRow{tbl, 0}})
