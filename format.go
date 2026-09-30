@@ -262,7 +262,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 		}
 		return fmt.Errorf("no field %q", a.head)
 	}
-	if err := checkPath(field, a.tail, a.head); err != nil {
+	if err := checkResolves(field, a.tail, a.head); err != nil {
 		return fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return nil

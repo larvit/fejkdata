@@ -40,9 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Move `valueProof.checkField` to `valueproof.go`, and rename `checkPath`, which differs
-  from the `pathCheck` type it wraps by word order alone: both architects placed them
-  wrong.
 - Correct the claims readers followed wrong: `IsTemplate`'s doc says an argument holding
   a bracket that is not valid JSON errors, where `misc.territory[SE]` is a path; the
   README says rows are indexed on the first draw, where `New` builds the key map; and

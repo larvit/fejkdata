@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"regexp"
 	"slices"
 	"strconv"
@@ -39,6 +40,37 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	}
 	if reason := p.proveColumnItem(t).not[t.datatype]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
+	}
+	return nil
+}
+
+// checkField rejects a column a field of Go type ft cannot fill: a datatype, which the Go type
+// sets, a null outside a pointer, or a value its kind's datatype or range refuses.
+func (p *valueProof) checkField(label string, ft reflect.Type, column node) error {
+	items, _ := columnItems(column)
+	for _, it := range items {
+		if it.datatype != DataTypeString {
+			return fmt.Errorf("%s: its Go type %s sets the datatype; drop \"datatype\"", label, ft)
+		}
+	}
+	elem := ft
+	if ft.Kind() == reflect.Pointer {
+		elem = ft.Elem()
+	} else if p.proveColumn(column).nullable {
+		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
+	}
+	kind := columnKinds[elem.Kind()]
+	if kind.datatype == DataTypeString {
+		return nil
+	}
+	for _, it := range items {
+		v := p.proveColumnItem(it)
+		if reason := v.not[kind.datatype]; reason != "" {
+			return fmt.Errorf("%s (%s): %s", label, ft, reason)
+		}
+		if !kind.holds(v) {
+			return fmt.Errorf("%s (%s): %q is not proven within %s; narrow it to that range, or make the field %s", label, ft, it.format, elem.Kind(), kind.wider)
+		}
 	}
 	return nil
 }
