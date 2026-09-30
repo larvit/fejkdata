@@ -32,12 +32,19 @@ on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-suffic
 ranking `readSurvey.walk` and `edge` hardest and the unit they would least modify; 5.8
 on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-sufficiency
 5.8), every seat's lowest dimension Locality, alone or tied, all seven unit seats ranking
-`readSurvey.walk` hardest and the unit they would least modify.
+`readSurvey.walk` hardest and the unit they would least modify; 5.7 on 2026-09-30, the
+checkpoint (Navigation 6.8, Locality 5.2, Shape 5.9, Self-sufficiency 5.7), every seat's
+lowest dimension Locality, alone or tied, all seven unit seats ranking `drawsApart` or
+`readFold.reads` hardest and five `drawsApart` the unit they would least modify.
 
 This round, in order:
 
-- Run the nine-seat panel as a checkpoint, and file its scores above: where Locality has
-  not risen from 5.2, stop and bring the scores to the maintainer before the path steps.
+- **Take the maintainer's call on the path steps below**: the checkpoint held Locality at
+  5.2, so the round stops here until they decide.
+- Give `readFold.reads` a `default` that panics, as every other switch over node kinds
+  does: a new kind contributes no reads and the draw fence passes it silently.
+- Correct `rowReads`' "checkOwnFamily's refusal, which runs first": `checkNodeFences`
+  runs `checkDrawGroup`, which folds through it, before `checkOwnFamily`.
 - Compile each path once at link into steps holding no pointer, with its leaves and
   cover, and have `renderEdges`, `heldNodes`, `valueProof` and `tableReadOf` read them,
   deleting `pathCover`, `coverPath` and `pathLeaves`. Prototyped green, allocations
