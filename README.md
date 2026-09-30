@@ -291,10 +291,12 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
 
-`New` refuses a mistake in the data and `NewTemplate` one in the template, so on a
-loaded generator `Fake` fails only for a path that names nothing or could name two
-things, `FakeStruct` only for a non-struct argument or a type its tags do not describe,
-with the same error every call, and `Template.Fake` cannot fail at all.
+`New` refuses a mistake in the data, and `NewTemplate` one in the template. On a loaded
+generator, each with the same error every call:
+
+- `Fake` fails only for a path that names nothing or could name two things.
+- `FakeStruct` fails only for a non-struct argument or a type its tags do not describe.
+- `Template.Fake` cannot fail.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
@@ -852,7 +854,7 @@ the Development section below, and who ships a register the five above then draw
 10. **Docs index the grammar** — every syntax feature is a heading; every example
     runs under test and shows its output; a rule is stated once.
 11. **Fast enough to be free** — a value renders in about a microsecond and `New`
-    parses and validates the whole set once upfront, so generating fixtures stays
+    parses and validates the whole set once up front, so generating fixtures stays
     noise against a test's own runtime.
 12. **Data is sourced, or on its way there** — a shipped fact, a name, place,
     code, id or classification, is read from a register or open dataset by a

@@ -210,7 +210,9 @@ by a `data-import/` script, as README goal 12 asks.
 
 - Report every mistake a load finds in one error, as the decision "A load reports every
   mistake at once" states: `New` and `NewTemplate` stop at the first, so data holding
-  two mistakes takes two runs to fix. Split it into sub-items before starting.
+  two mistakes takes two runs to fix. Split it into sub-items before starting, one of
+  them the shape a Go caller iterates and the CLI prints, and reword the README's
+  "`New` refuses a mistake in the data" to every mistake.
 - Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`: both name
   half of a `generatorState`, hiding its `{seq()}` counters, and `New`'s local `rng`
   shadows the `rng` interface.
