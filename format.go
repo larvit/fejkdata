@@ -315,7 +315,17 @@ type arm struct {
 	steps       []pathStep
 	leaves      []node // every node the path may land on, one per variant it passes
 	cover       node   // what holding the path pins: the first choice it passes, else its leaf
+	kind        armKind
 }
+
+// armKind is how expand reads an arm, fixed at compile.
+type armKind uint8
+
+const (
+	freshRead   armKind = iota // drawn afresh at every read
+	heldRead                   // drawn once per expansion, kept in its hold
+	refPathRead                // drawn once per draw group, kept in its memo
+)
 
 func (a arm) isRefPath() bool {
 	return isRef(a.head) && len(a.tail) > 0

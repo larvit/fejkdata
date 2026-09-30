@@ -158,20 +158,14 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 // read one row, either read twice gives one value, and a shown operand is the operand
 // computed. Every other name is drawn afresh, so {word} {word} still draws twice.
 func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a arm) readValue {
-	if a.isRefPath() {
+	if a.kind == refPathRead {
 		return readReference(s, t, sc, a)
 	}
 	if sc.draws.trace != nil {
 		traceRead(sc.draws.trace, t, sc, a)
 	}
-	if _, expansionHolds := t.compiled.held[a.head]; !expansionHolds {
-		if len(a.tail) > 0 {
-			panic(internalError("%q reads a path into %q, which the expansion does not hold", a.spelling, a.head))
-		}
+	if a.kind == freshRead {
 		return readValue{text: render(s, t.head(a.head), sc)}
-	}
-	if hold == nil {
-		panic(internalError("%q reads a name the expansion holds, with no hold to keep it in", a.spelling))
 	}
 	return readMemo(s, t, hold, nil, sc, a)
 }

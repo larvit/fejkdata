@@ -112,6 +112,12 @@ func compileArm(t *template, a *arm) {
 	}
 	w := compilePath(head, a.tail)
 	a.steps, a.leaves, a.cover = w.steps, w.leaves, w.cover
+	switch _, held := t.compiled.held[a.head]; {
+	case a.isRefPath():
+		a.kind = refPathRead
+	case held:
+		a.kind = heldRead
+	}
 }
 
 // resolveLink binds every reference t reads, refusing one to t's own category, and keys
