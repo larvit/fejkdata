@@ -40,9 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Give `tableSite` an `isFormat` beside `isCell`, so `renderRecord` and `traceRead` stop
-  comparing `row` with `formatRow` alone, which holds only because a template outside a
-  table has row 0: four seats found the invariant unstated.
 - Move `valueProof.checkField` to `valueproof.go`, and rename `checkPath`, which differs
   from the `pathCheck` type it wraps by word order alone: both architects placed them
   wrong.
