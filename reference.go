@@ -147,7 +147,7 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 		if category != "" && head == "/"+category {
 			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
 		}
-		if err := checkPath(target, tail, head); err != nil {
+		if err := checkResolves(target, tail, head); err != nil {
 			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
 		}
 		link.refHeads[head] = target
