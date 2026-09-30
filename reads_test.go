@@ -81,7 +81,7 @@ func renderRoot(s *generatorState, t *template, trace renderTrace) {
 	draws := renderDraws{trace: trace}
 	sc := renderScope{draws: &draws}
 	switch {
-	case t.site.row == formatRow:
+	case t.site.isFormat():
 		tbl := t.site.table
 		render(s, tbl, sc)
 		for r := 0; r < tbl.rowCount(); r++ {
@@ -100,7 +100,7 @@ func renderRoot(s *generatorState, t *template, trace renderTrace) {
 func renderRecordRoot(s *generatorState, t *template, columns []Column, trace renderTrace) {
 	draws := renderDraws{trace: trace}
 	sc := renderScope{draws: &draws}
-	if t.site.row == formatRow {
+	if t.site.isFormat() {
 		t.site.table.drawIn(s, &sc.groupDraws().pins)
 	}
 	renderRecord(s, t, columns, sc)
