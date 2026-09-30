@@ -842,15 +842,14 @@ import drops them by name rather than by a rank a regeneration would move.
 the set of every descent through a chain of five tables is every subsequence of it, and
 the direct chain is the one a reader can predict from the tables' parents.
 
-## The path walks are separate loops
+## A path draws through its compiled steps
 
-2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
-Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
-Goals 2 and 11: `pathCheck`, `pathProbe` and `pathDraw` stay separate loops.
-One loop fails `perf_test.go`: the check's leaves and the errors
-naming a level leak the walker's contents, and Go tracks a struct's fields as one, so
-the draw's pins, arm and memo leak with them. Held by pointer, a repeat of a reference
-path rose from 66 to 106 allocations; copied into the walker by value,
-`BenchmarkHeld` rose from 5 to 9. A call through an interface or a type parameter leaks
-the walker the same way. Valid while Go's escape analysis tracks a struct's fields as
-one and treats such a call as leaking its receiver.
+2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
+replaces "The path walks are separate loops".
+Goals 2 and 11: `drawSteps` draws every path from its steps, compiled at link by
+`pathCheck` or, for a caller's path, by `probePath` into a stack buffer. The check and
+the probe stay two loops: one loop leaks the check's leaves and errors with the draw's
+state, since Go tracks a struct's fields as one, and a repeat of a reference path rose
+from 66 to 106 allocations. `drawSteps` takes its state as parameters and a step holds
+no node, so no benchmark gained an allocation. Valid while Go's escape analysis tracks
+a struct's fields as one.
