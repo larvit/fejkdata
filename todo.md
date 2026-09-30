@@ -47,12 +47,12 @@ This round, in order:
   left the score at 5.7, so the round stops here until they decide.
 - **Split `drawsApart` into one named check per refusal, and show at `conflict` why pairs
   find what a replay would**: all seven unit seats would least modify it, holding four
-  refusals over `landsRow`, `familyRoot`, `drawnOf` and `selected` at once, and four found
-  the pairs claim credible only through `TestPairsFindWhatAWholeReplayFinds`.
+  refusals over `landsRow`, `familyRoot`, `drawnOf` and `selected` at once, and two opened
+  `TestPairsFindWhatAWholeReplayFinds` to believe the pairs claim.
 - **Walk a path in one function**: `probePath` copies `pathCheck.walk`'s loop and
   `routeSteps` call, differing at a choice and in skipping `enter`, and seven seats and
-  both architects had to diff them by eye.
-- **Name what `branches` and `pinBelow` hold and drop**: seven seats ranked
+  both architects named the pair.
+- **Name what `branches` and `pinBelow` hold and drop**: six seats ranked
   `readFold.reads` second, decoding `pins` against `wholePins` through `doc.go` and
   finding `pinBelow`'s silent `continue` only by tracing.
 - **Fill `arm` in one place**: `splitArm` runs before the link and again after it, and
@@ -62,12 +62,12 @@ This round, in order:
   operand hold answer for different nodes**: `arm.cover` means something else, and six
   seats held both walks beside `renderEdges` to see why they differ.
 - **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their
-  own, stating there that `checkOwnFamily` runs before the draw surveys**: both architects
-  found the fence order last, and the order is stated only at `rowReads`.
+  own, stating there that `checkOwnFamily` runs before the draw surveys**: the greenfield
+  architect found the pipeline last, and the order is stated only at `rowReads`.
 - **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`**:
   the inherited architect's 3am trace crossed four files for one draw.
 - **Test that every node kind reaches each switch over node kinds**: ten switches, from
-  `render` to `columnItems`, must agree, and only `render`'s comment says so.
+  `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so.
 - **Rename the load-time read fold apart from the render's reads**: `reads.go`, `pathRead`
   and `readFold` share a word with `readField` and `readValue`, and `graph.go` holds
   `renderEdges`, the edge model every fence walks.
