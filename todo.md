@@ -35,12 +35,11 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 `readSurvey.walk` hardest and the unit they would least modify; 5.7 on 2026-09-30, the
 checkpoint (Navigation 6.8, Locality 5.2, Shape 5.9, Self-sufficiency 5.7), every seat's
 lowest dimension Locality, alone or tied, all seven unit seats ranking `drawsApart` or
-`readFold.reads` hardest and five `drawsApart` the unit they would least modify.
+`readFold.reads` hardest and five `drawsApart` the unit they would least modify. The
+maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- **Take the maintainer's call on the path steps below**: the checkpoint held Locality at
-  5.2, so the round stops here until they decide.
 - Give `readFold.reads` a `default` that panics, as every other switch over node kinds
   does: a new kind contributes no reads and the draw fence passes it silently.
 - Correct `rowReads`' "checkOwnFamily's refusal, which runs first": `checkNodeFences`
