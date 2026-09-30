@@ -106,7 +106,6 @@ type categoryFiles struct {
 	tsv map[string]bool
 }
 
-// readRows reads the rows file a category names beside it.
 func (c *categoryFiles) readRows(name string) (string, error) {
 	if _, present := c.tsv[name]; !present {
 		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.labelled(c.dir))

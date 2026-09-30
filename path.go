@@ -87,7 +87,6 @@ func indexOutside(s string, c byte) int {
 	return -1
 }
 
-// splitOutside splits s on c outside any [selector].
 func splitOutside(s string, c byte) []string {
 	var parts []string
 	for {

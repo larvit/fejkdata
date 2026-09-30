@@ -386,8 +386,7 @@ func checkSegments(a arm) error {
 type callFn func(s *generatorState, emitted string, operands []string) string
 
 // op is one compiled unit of a format string: a literal run, a name read,
-// or a builtin already prepared with its args. compile builds these so render never
-// re-scans the format.
+// or a builtin already prepared with its args.
 type op struct {
 	formatToken
 	arms []arm // nameRead: the '|' alternatives, split into head and tail once

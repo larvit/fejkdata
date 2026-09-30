@@ -40,14 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Delete the comments the panel found restating their code or arranging the file:
-  `node`'s second sentence, `op`'s "compile builds these so render never re-scans the
-  format", `checkCalc`'s last sentence, `calcVar.eval`'s four lines, `checkNoCycles`'
-  grey and black, and the docs on `expand`, `readRows`, `splitOutside`, `reservedList`
-  and `writesRecords`.
-- Delete `doc.go`'s "The draw fences are …" sentence, which misses `checkDrawGroup`,
-  `checkOwnFamily` and `checkNestedDrawGroup`; the README's Layout indexes the fences by
-  file. Say "fences" in the `pin` entry then, which names the draw fences too.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
