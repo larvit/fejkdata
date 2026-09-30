@@ -590,8 +590,9 @@ is until a real data set needs the indexed form.
 
 2026-09-17, Lilleman auf Larv.
 
-A path that fails below its first level then moves no seeded stream, at the cost of one
-draw-free walk per call, which allocates nothing up to 16 steps.
+Goals 8 and 11: a path that fails moves no seeded stream, at the cost of one draw-free
+walk per call, compiling its steps into a stack buffer of 16. Valid while that walk
+costs little against the draw it guards.
 
 ## A country's postal codes and streets are siblings under its locality
 
