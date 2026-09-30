@@ -9,8 +9,8 @@ import (
 
 func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
 	n := compiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
-	if leaves := pathLeaves(n, []string{"a", "b"}); len(leaves) != 1 {
-		t.Fatalf("pathLeaves(a.b) = %v, want the one leaf", leaves)
+	if leaves := compilePath(n, []string{"a", "b"}).leaves; len(leaves) != 1 {
+		t.Fatalf("compilePath(a.b).leaves = %v, want the one leaf", leaves)
 	}
 	w := &pathCheck{tail: []string{"a", "nope", "deeper"}}
 	_, err := w.run(n)
@@ -24,16 +24,15 @@ func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
 
 func TestPathCheckChoiceConsumesNoSegment(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
-	if leaves := pathLeaves(n, []string{"f"}); len(leaves) != 2 {
-		t.Fatalf("pathLeaves through a choice = %v, want both variants' f", leaves)
+	if leaves := compilePath(n, []string{"f"}).leaves; len(leaves) != 2 {
+		t.Fatalf("compilePath through a choice = %v, want both variants' f", leaves)
 	}
 }
 
 func TestPathCoverStopsAtAChoice(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
-	leaf, err := (&pathCover{into: map[node]bool{}}).walk(n, []string{"f"})
-	if err != nil || leaf != n {
-		t.Fatalf("cover through a choice = %v, %v, want the choice itself", leaf, err)
+	if cover := compilePath(n, []string{"f"}).cover; cover != n {
+		t.Fatalf("cover through a choice = %v, want the choice itself", cover)
 	}
 }
 
