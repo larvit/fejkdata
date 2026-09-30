@@ -40,9 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Say at `checkNodeFences` that its walks recurse unguarded, so a caller runs
-  `checkNoCycles` first: five seats reconstructed the order, and the inline binding runs
-  no cycle check.
 - Give `tableSite` an `isFormat` beside `isCell`, so `renderRecord` and `traceRead` stop
   comparing `row` with `formatRow` alone, which holds only because a template outside a
   table has row 0: four seats found the invariant unstated.
