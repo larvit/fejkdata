@@ -1005,8 +1005,8 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 	var none pinSet
 	for _, entered := range tables {
 		for row := 0; row < entered.rowCount(); row++ {
-			whole := branches{}
-			whole.wholePins.add(entered, row)
+			whole := pathRead{}
+			whole.branches.wholePins.add(entered, row)
 			s := none.entered(entered, row)
 			for _, cand := range tables {
 				for i := 0; i < 20; i++ {
@@ -1018,17 +1018,17 @@ func TestEnteredRowsAgreeWithPinning(t *testing.T) {
 				for cr := 0; cr < cand.rowCount(); cr++ {
 					beside := s.clone()
 					refused := beside.pinRow(cand, cr) != nil
-					candAt := branches{pins: none.entered(cand, cr)}
-					if got := alternatives(branches{pins: s}, candAt); got != refused {
-						t.Errorf("alternatives(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
+					candAt := pathRead{branches: branches{pins: none.entered(cand, cr)}}
+					if got := coRender(pathRead{branches: branches{pins: s}}, candAt); got == refused {
+						t.Errorf("coRender(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
 					}
-					if alternatives(whole, candAt) || alternatives(candAt, whole) {
+					if !coRender(whole, candAt) || !coRender(candAt, whole) {
 						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
 					}
-					other := branches{}
-					other.wholePins.add(cand, cr)
-					if want := cand == entered && cr != row; alternatives(whole, other) != want {
-						t.Errorf("alternatives(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), !want, want)
+					other := pathRead{}
+					other.branches.wholePins.add(cand, cr)
+					if want := cand == entered && cr != row; coRender(whole, other) == want {
+						t.Errorf("coRender(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), want, !want)
 					}
 				}
 			}

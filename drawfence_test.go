@@ -54,7 +54,7 @@ func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
 	return append(roots, fenceRoot{"inline record", record.template})
 }
 
-func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
+func TestPairsFindWhatAWholeReplayFinds(t *testing.T) {
 	corpus := fenceCorpus(t)
 	roots := fenceRoots(t, corpus)
 	shipped, err := New()
@@ -80,7 +80,7 @@ func TestReplayPairsFindsWhatAWholeReplayFinds(t *testing.T) {
 	}
 }
 
-func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
+func TestPairsFindWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 	f, err := New(WithDataPath(writeFiles(t, siblings())))
 	if err != nil {
 		t.Fatalf("New = %v", err)
@@ -111,7 +111,7 @@ func TestReplayPairsFindsWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 			for _, c := range reads {
 				triple := []pathRead{a, b, c}
 				wantPairsFindAll(t, a.a.spelling+", "+b.a.spelling+", "+c.a.spelling, triple)
-				if replayPairs(triple) != nil {
+				if (&readSurvey{reads: triple}).check() != nil {
 					conflicts++
 				}
 			}
@@ -131,7 +131,7 @@ func wantPairsFindAll(t *testing.T, label string, reads []pathRead) int {
 			tabled = append(tabled, r)
 		}
 	}
-	pairs := replayPairs(reads)
+	pairs := (&readSurvey{reads: reads}).check()
 	var whole error
 	compared := 0
 	eachRenderSet(tabled, func(set []pathRead) {
@@ -146,14 +146,13 @@ func wantPairsFindAll(t *testing.T, label string, reads []pathRead) int {
 		}
 	})
 	if (pairs == nil) != (whole == nil) {
-		t.Errorf("%s: replayPairs = %v, a whole replay of every read set rendering together = %v", label, pairs, whole)
+		t.Errorf("%s: check = %v, a whole replay of every read set rendering together = %v", label, pairs, whole)
 	}
 	return compared
 }
 
 // eachRenderSet calls fn with every maximal set of reads that render together, by Bron–Kerbosch.
 func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
-	together := func(a, b pathRead) bool { return a.group == b.group && !alternatives(a.branches, b.branches) }
 	var grow func(set, candidates, excluded []pathRead)
 	grow = func(set, candidates, excluded []pathRead) {
 		if len(candidates) == 0 && len(excluded) == 0 {
@@ -164,12 +163,12 @@ func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
 			r := candidates[0]
 			var nextC, nextX []pathRead
 			for _, c := range candidates[1:] {
-				if together(r, c) {
+				if coRender(r, c) {
 					nextC = append(nextC, c)
 				}
 			}
 			for _, x := range excluded {
-				if together(r, x) {
+				if coRender(r, x) {
 					nextX = append(nextX, x)
 				}
 			}
@@ -183,6 +182,7 @@ func eachRenderSet(reads []pathRead, fn func([]pathRead)) {
 func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	fsys := fstest.MapFS{
 		"r.json": {Data: []byte(`"{/y[a].v}"`)},
+		"m.json": {Data: []byte(`{"format":"{g}{f}","f":"{/y[a].v}","g":"{/y[a].v}"}`)},
 		"n.json": {Data: []byte(`{"format":"{f}","f":"{/y[a].v}"}`)},
 		"x.json": {Data: []byte(`{"format":"{v}","rows":"x.tsv","key":"code"}`)},
 		"x.tsv":  {Data: []byte("code\tv\n1\tb\n2\tc\n")},
@@ -209,6 +209,13 @@ func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	}
 	if err := surveyRender(newReadFold(), n).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with {/x[2].v}: x[1] and x[2] are two rows of x") {
 		t.Errorf("check = %v, want the clash below {f} named by the route the root reaches it by", err)
+	}
+	m, isTemplate := g.children["m"].(*template)
+	if !isTemplate {
+		t.Fatalf("m is a %T, want a template", g.children["m"])
+	}
+	if err := surveyRender(newReadFold(), m).check(); err == nil || !strings.HasPrefix(err.Error(), "{f} with") {
+		t.Errorf("check = %v, want the clash of the lowest route named, {f}, whichever the walk reaches first", err)
 	}
 }
 
