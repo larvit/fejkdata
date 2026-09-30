@@ -1095,7 +1095,7 @@ func TestTableReadReportsTheTablesADrawPins(t *testing.T) {
 		selected, drawn := tr.pins, tr.drawn
 		for i := 0; i < 20; i++ {
 			var pins pinSet
-			drawPath(head, a.tail, a.head, &pathDraw{s: f.rand, pins: &pins})
+			drawSteps(f.rand, head, a.steps, &pins, nil, nil)
 			want := map[*table]bool{}
 			pins.each(func(tbl *table, _ int) {
 				if _, isSelected := selected.pinned(tbl); !isSelected {
