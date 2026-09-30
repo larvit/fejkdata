@@ -174,19 +174,25 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 		fix, other, want = b, a, da
 	}
 	held := fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)
-	proven := (&valueProof{}).proveColumnItem(fix).not[want] == ""
-	switch {
-	case kindOf(fix) == kindDeclares:
+	fits := (&valueProof{}).proveColumnItem(fix).not[want] == ""
+	switch kindOf(fix) {
+	case kindDeclares:
 		return errors.New(held)
-	case kindOf(fix) == kindReads && proven:
-		return fmt.Errorf("%s, so %s", held, typedAs(fix, want))
-	case kindOf(fix) == kindReads:
+	case kindReads:
+		if fits {
+			return fmt.Errorf("%s, so %s", held, typedAs(fix, want))
+		}
 		return fmt.Errorf("%s, so to read %q as text, %s", held, fix.format, asText(fix))
-	case kindOf(other) == kindText:
+	}
+	switch kindOf(other) {
+	case kindText:
 		panic(internalError("two text items hold one datatype, so they never disagree"))
-	case kindOf(other) == kindReads && !proven:
-		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
-	case fix.fromString: // an object may carry a weight, which this spelling would drop
+	case kindReads:
+		if !fits {
+			return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
+		}
+	}
+	if fix.fromString { // an object may carry a weight, which this spelling would drop
 		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, fix.format, fix.format, want)
 	}
 	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)

@@ -40,9 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Switch `disagreement` on the fixed item's kind, with the other item inside each arm,
-  and rename its `proven` local, which shadows the `proven` type: seven seats read the
-  seven-arm switch as a truth table without the table.
 - Say at `checkNodeFences` that its walks recurse unguarded, so a caller runs
   `checkNoCycles` first: five seats reconstructed the order, and the inline binding runs
   no cycle check.
