@@ -187,7 +187,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it
-// reached; at indexes the tail segment the step consumes. A step holds no pointer, so a
+// reached; at indexes the tail segment the step consumes. A step holds no node, so a
 // caller's steps stay on its stack.
 type pathStep struct {
 	kind stepKind
