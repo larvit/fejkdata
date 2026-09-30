@@ -830,8 +830,8 @@ the Development section below, and who ships a register the five above then draw
    holding the rest, names that tell the truth, and a file that stands with no second
    document open beside it. A simulated reader panel scores those four, the score is a
    ratchet no release lowers, and [`AGENTS.md`](AGENTS.md) says what each pull request
-   owes it. Below the floor it holds back new capability, never a repair of a promise
-   goals 3 to 5 already make, as long as the round that lifts the score stays planned.
+   owes it. Below the floor it holds back new capability, never a repair of behaviour
+   this README already documents, as long as the round that lifts the score stays planned.
 3. **Valid by construction** — every value passes the check a current release of
    its real consumer applies; facts that belong together come from one draw, within
    a value and across categories.
