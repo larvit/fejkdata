@@ -40,8 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Fold `checkNoOverlap` and `checkNoRepeatedRead` into `heldCheck`, so `compileFormat`
-  compiles and nothing more.
 - Fix at compile how `readField` reads an arm, `arm.kind`, deleting its two panics and
   its `held` lookup per read.
 - Switch `disagreement` on the fixed item's kind, with the other item inside each arm,
