@@ -491,8 +491,8 @@ table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbo
 on the next, since only one row renders. `New` proves the header, the options and every
 cell token, and refuses a TSV no category names, a key that is empty or repeats, a
 weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
-`"` or `|`, which a selector cannot spell; `New` maps the keys, and the lookups by name
-and by parent wait for the first draw that selects one. A `name` needs a `key`, since a name naming several rows is reported by
+`"` or `|`, which a selector cannot spell; `New` maps the keys, and a name or parent column
+is mapped on the first draw that selects by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
 their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
 is settled by the `sex` selected before it and a name repeating inside one parent row
 is refused; a name spelling another row's key is refused, since the key would
@@ -760,9 +760,9 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
-Each file is parsed, validated and weight-indexed once, in `New`, bar a table with a
-name or a parent column, which indexes its rows on the first `Fake` that selects or
-descends through it. Proving the draw fences adds a pass over the loaded tree per
+Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
+parent columns, which are mapped on the first `Fake` that selects by name or descends
+through it. Proving the draw fences adds a pass over the loaded tree per
 fence, and walks what a render reads only where data binds a reference, so a set that
 binds none pays for the passes alone. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one

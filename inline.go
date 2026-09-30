@@ -49,11 +49,11 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 	return t.Fake(), nil
 }
 
-// IsTemplate reports whether arg is an inline template rather than a path, by its shape: a {
-// token, or a JSON object, array or string, is a template, and anything else is a path. An
-// arg that is not valid JSON errors where it holds a } or a quote, or starts with [, since no
-// path may; so do a template of one reference alone, which is a path written as a template,
-// and a path written with a leading /.
+// IsTemplate reports whether arg is an inline template rather than a path, by its shape: an
+// arg holding a {, or a valid JSON array or string, is a template, and anything else is a
+// path. A path errors where it holds a } or a quote, starts with [, or is no valid path; so
+// do a template of one reference alone, which is a path written as a template, and a path
+// written with a leading /.
 func IsTemplate(arg string) (bool, error) {
 	inline, err := isTemplate(arg)
 	if err != nil {
