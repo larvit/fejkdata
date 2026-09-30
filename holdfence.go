@@ -15,10 +15,23 @@ func heldCheck(path string, n node) error {
 	if !ok || len(t.compiled.held) == 0 {
 		return nil
 	}
+	if err := checkHeld(t); err != nil {
+		return fmt.Errorf("%s: %w", t.site.label(path), err)
+	}
+	return nil
+}
+
+func checkHeld(t *template) error {
+	if err := checkNoOverlap(t.compiled); err != nil {
+		return err
+	}
+	if err := checkNoRepeatedRead(t.compiled); err != nil {
+		return err
+	}
 	readers := pathHeadReaders(t.compiled)
 	for _, name := range heldNames(t) {
 		if err := checkNameHeld(t, name, readers); err != nil {
-			return fmt.Errorf("%s: %w", path, err)
+			return err
 		}
 	}
 	return nil

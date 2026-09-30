@@ -188,12 +188,12 @@ func ibanValid(s string) bool {
 	return rem == 1
 }
 
-// TestRegistryShapes pins the builtin contract compileOps relies on: every entry
+// TestRegistryShapes pins the builtin contract compileFormat relies on: every entry
 // supplies prep, and args parsed at compile only behind a check.
 func TestRegistryShapes(t *testing.T) {
 	for name, b := range builtins {
 		if b.prep == nil {
-			t.Errorf("builtin %q has no prep: compileOps would call a nil func", name)
+			t.Errorf("builtin %q has no prep: compileFormat would call a nil func", name)
 		}
 		if b.arity != 0 && b.checkArgs == nil {
 			t.Errorf("builtin %q parses args in prep with no check", name)
@@ -203,7 +203,7 @@ func TestRegistryShapes(t *testing.T) {
 
 // TestArgGuardsPanic pins the guards that report a builtin arg its check should
 // have rejected. No data reaches them — checkFunc runs a builtin's check before
-// compileOps ever calls prep — so they are exercised directly.
+// compileFormat ever calls prep — so they are exercised directly.
 func TestArgGuardsPanic(t *testing.T) {
 	for name, call := range map[string]func(){
 		"atoi on an unvalidated arg": func() { atoi("nope") },
