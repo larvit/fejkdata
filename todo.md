@@ -40,8 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Correct `rowReads`' "checkOwnFamily's refusal, which runs first": `checkNodeFences`
-  runs `checkDrawGroup`, which folds through it, before `checkOwnFamily`.
 - Compile each path once at link into steps holding no pointer, with its leaves and
   cover, and have `renderEdges`, `heldNodes`, `valueProof` and `tableReadOf` read them,
   deleting `pathCover`, `coverPath` and `pathLeaves`. Prototyped green, allocations
