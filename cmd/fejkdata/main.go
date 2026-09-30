@@ -234,7 +234,6 @@ var recordFormats = map[string]recordFormat{
 
 func jsonLine(r *fejkdata.Record, _ string) string { return r.JSON() }
 
-// writesRecords reports whether the format writes records rather than plain text.
 func (in invocation) writesRecords() bool {
 	return in.format != "text"
 }

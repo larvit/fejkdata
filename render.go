@@ -115,7 +115,6 @@ func pick(s *generatorState, c *choice) node {
 	return c.items[pickCum(s, c.cum)]
 }
 
-// expand renders a template's compiled ops.
 func expand(s *generatorState, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.compiled.grow)

@@ -33,10 +33,6 @@ func (n calcIdx) eval(operands []string) float64 {
 	return v
 }
 
-// eval on an unplaced name cannot happen: calcPrep runs indexVars over every
-// expression it compiles, so only a calcIdx reaches a render. It panics rather
-// than returning NaN, so a node kind indexVars forgets is a stack trace and not a
-// silently wrong number.
 func (n calcVar) eval([]string) float64 {
 	panic(internalError("calc operand %q was never placed", string(n)))
 }
@@ -58,9 +54,7 @@ func (n calcBin) eval(operands []string) float64 {
 }
 
 // checkCalc validates a calc token at compile time: a parseable expression whose
-// operands all name existing fields, and an optional non-negative integer dp. It
-// is a builtin check (fields first), so calc dispatches through the registry like
-// every other {name(args)} function.
+// operands all name existing fields, and an optional non-negative integer dp.
 func checkCalc(fields map[string]node, args []string) error {
 	if len(args) < 1 || len(args) > 2 {
 		return fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))

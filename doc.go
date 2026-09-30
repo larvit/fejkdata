@@ -32,7 +32,7 @@ package fejkdata
 //   - draw group — reference draws kept apart inside one render:
 //     `template.drawGroup` as the data spells it, `templateLink.drawGroupKey` as a
 //     render reads it, `renderDraws`, `groupDraws`, `renderScope`.
-//   - pin — fixing which row of a table the render uses, which the draw fences replay:
+//   - pin — fixing which row of a table the render uses, which the fences replay:
 //     `pinSet`, `pinSet.pin`, `table.drawIn`.
 //   - family — a table and every table reaching it through a chain of
 //     `table.parentT`, named by the root that chain ends at: `table.familyRoot`.
@@ -40,4 +40,4 @@ package fejkdata
 //     the `table` itself, so it draws a row apart from every pin: `branches.wholePins`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
 //     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
-//     compile. The draw fences are `heldCheck` and `drawFence`.
+//     compile.
