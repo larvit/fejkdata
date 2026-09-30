@@ -187,7 +187,8 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it
-// reached; at indexes the tail segment the step consumes. A step holds no node, so a
+// reached, a choice there resolved first; at indexes the tail where it is taken, and
+// only a table's step sits past the tail's end. A step holds no node, so a
 // caller's steps stay on its stack.
 type pathStep struct {
 	kind stepKind
@@ -199,7 +200,7 @@ type pathStep struct {
 type stepKind uint8
 
 const (
-	stepField  stepKind = iota + 1 // into a field of the template at this level, a choice there resolved first
+	stepField  stepKind = iota + 1 // into a field of the template at this level
 	stepSelect                     // pin the selected row of the table
 	stepDraw                       // draw a row of the table inside the pins
 	stepRow                        // land on the table's row node
@@ -374,13 +375,13 @@ func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *
 		if st.kind == stepField {
 			var err error
 			if n, err = stepInto(n, st.name); err != nil {
-				panic(internalError("%v; a path's steps should have been compiled from the node they are drawn from", err))
+				panic(internalError("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
 			}
 			continue
 		}
 		t, ok := n.(*table)
 		if !ok {
-			panic(internalError("a table's step %q on %T", st.name, n))
+			panic(internalError("step %d: a table's step of kind %d on %T", st.at, st.kind, n))
 		}
 		n = t.drawStep(s, st, pins)
 	}
