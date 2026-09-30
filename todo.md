@@ -40,8 +40,6 @@ maintainer chose on 2026-09-30 to go on with the path steps regardless.
 
 This round, in order:
 
-- Give `readFold.reads` a `default` that panics, as every other switch over node kinds
-  does: a new kind contributes no reads and the draw fence passes it silently.
 - Correct `rowReads`' "checkOwnFamily's refusal, which runs first": `checkNodeFences`
   runs `checkDrawGroup`, which folds through it, before `checkOwnFamily`.
 - Compile each path once at link into steps holding no pointer, with its leaves and

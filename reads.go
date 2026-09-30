@@ -97,6 +97,9 @@ func (f *readFold) reads(n node) []pathRead {
 		out = f.rowReads(n.t, func(b *branches, row int) bool { return b.enter(n.t, row) })
 	case *tableColumn:
 		out = f.cellReads(n, func(b *branches, row int) bool { return b.enter(n.t, row) })
+	case *folder, *nullItem:
+	default:
+		panic(internalError("reads has no case for node %T", n))
 	}
 	out = distinct(out)
 	f.memo[n] = out
