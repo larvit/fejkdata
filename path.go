@@ -278,6 +278,7 @@ func (w *pathCheck) tableSteps(t *table, r tableRoute, tail []string) error {
 		}
 		row, _ := w.pins.pinned(t)
 		w.emit(pathStep{kind: stepSelect, name: r.sel, row: row}, tail)
+		tail = tail[1:]
 	}
 	if r.draw {
 		w.emit(pathStep{kind: stepDraw}, tail)

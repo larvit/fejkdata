@@ -113,10 +113,12 @@ func compileArms(t *template) {
 }
 
 func compileArm(t *template, a *arm) {
-	if head := t.head(a.head); head != nil {
-		w := compilePath(head, a.tail)
-		a.steps, a.leaves, a.cover = w.steps, w.leaves, w.cover
+	head := t.head(a.head)
+	if head == nil {
+		panic(internalError("{%s} reads a head nothing bound", a.spelling))
 	}
+	w := compilePath(head, a.tail)
+	a.steps, a.leaves, a.cover = w.steps, w.leaves, w.cover
 }
 
 // resolveLink binds every reference t reads, refusing one to t's own category, and keys

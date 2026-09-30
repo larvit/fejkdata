@@ -846,9 +846,8 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-28, larv-review on systems-architect's finding; approved 2026-09-28 by lilleman.
 Re-tested 2026-09-29 by collapsing them into one loop switching on a mode field.
-Goals 2 and 11: `pathCheck`, `pathProbe` and `pathDraw` stay separate loops; `pathCover`
-became the cover `pathCheck` compiles, on 2026-09-30.
-One loop fails `perf_test.go`: the check's leaves, the probe's selectors and the errors
+Goals 2 and 11: `pathCheck`, `pathProbe` and `pathDraw` stay separate loops.
+One loop fails `perf_test.go`: the check's leaves and the errors
 naming a level leak the walker's contents, and Go tracks a struct's fields as one, so
 the draw's pins, arm and memo leak with them. Held by pointer, a repeat of a reference
 path rose from 66 to 106 allocations; copied into the walker by value,
