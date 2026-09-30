@@ -200,12 +200,12 @@ type pathStep struct {
 type stepKind uint8
 
 const (
-	stepField  stepKind = iota + 1 // into a field of the template at this level
+	stepField  stepKind = iota + 1 // into a folder's entry or a template's field
 	stepSelect                     // pin the selected row of the table
 	stepDraw                       // draw a row of the table inside the pins
 	stepRow                        // land on the table's row node
-	stepColumn                     // into a column of the table
-	stepChild                      // into a table linked to the table
+	stepColumn
+	stepChild
 )
 
 // pathCheck proves a path resolves whichever way the draws go: every variant of a
@@ -408,8 +408,6 @@ func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
 	panic(internalError("drawStep has no case for step kind %d", st.kind))
 }
 
-// drawVariant is the variant of c a draw continues into at the step at: the one memo keeps for
-// that level, drawn once, where the draw has a memo; else one drawn afresh.
 func drawVariant(s *generatorState, c *choice, memo *drawMemo, levels []string, at int) node {
 	if memo == nil {
 		return resolveChoice(s, c)
