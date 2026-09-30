@@ -61,8 +61,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	return root, nil
 }
 
-// loadDir compiles one directory into a folder. fs.ReadDir yields entries sorted
-// by name, so the tree is built deterministically. Empty subdirectories (no JSON
+// loadDir compiles one directory into a folder. Empty subdirectories (no JSON
 // anywhere under them) are skipped rather than added as empty namespaces.
 func loadDir(src dataSource, dir string) (*folder, error) {
 	entries, err := fs.ReadDir(src.fsys, dir)
