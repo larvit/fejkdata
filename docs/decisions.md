@@ -148,8 +148,16 @@ this repo's own are.
 
 2026-09-16, Lilleman auf Larv.
 
-A script branches on the exit code and reads the named path or spelling, so those hold;
-wording improves in a minor.
+Goal 5. A script branches on the exit code and reads the named path or spelling, so
+those hold; wording improves in a minor.
+
+## A load reports every mistake at once
+
+2026-09-30, Lilleman auf Larv. Goal 5. An author learns everything wrong with the data
+in one load, not one mistake per run: `New` and `NewTemplate` report every mistake in one
+error, ordered by the path each names. A mistake following only from another, such as a
+reference into a category that did not compile, is left out, so each one names something
+to fix. Valid while a load checks the whole set before its first render.
 
 ## Formats are checked after all data is loaded, so their errors name the category
 
