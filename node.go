@@ -73,6 +73,10 @@ func (s tableSite) isCell() bool {
 	return s.table != nil && s.row != formatRow
 }
 
+func (s tableSite) isFormat() bool {
+	return s.table != nil && s.row == formatRow
+}
+
 // label names the template at path in an error, a cell by its line in the rows file.
 func (s tableSite) label(path string) string {
 	if s.isCell() {
