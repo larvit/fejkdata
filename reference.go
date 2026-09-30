@@ -81,18 +81,11 @@ func linkRefs(root map[string]node) error {
 // linkTemplate resolves t's references in category, "" for an inline template, and
 // compiles its format against them.
 func linkTemplate(folder []string, path, category string, t *template, root map[string]node) error {
-	if t.site.isCell() {
-		path = fmt.Sprintf("%s, line %d", path, t.site.row+2)
-	}
-	link, err := t.resolveLink(folder, path, category, root)
+	link, err := t.resolveLink(folder, t.site.label(path), category, root)
 	if err != nil {
 		return err
 	}
-	compiled, err := compileFormat(t.tokens, link.refs)
-	if err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-	t.link, t.compiled = link, compiled
+	t.link, t.compiled = link, compileFormat(t.tokens, link.refs)
 	compileArms(t)
 	return nil
 }

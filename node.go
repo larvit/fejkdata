@@ -73,6 +73,14 @@ func (s tableSite) isCell() bool {
 	return s.table != nil && s.row != formatRow
 }
 
+// label names the template at path in an error, a cell by its line in the rows file.
+func (s tableSite) label(path string) string {
+	if s.isCell() {
+		return fmt.Sprintf("%s, line %d", path, s.row+2)
+	}
+	return path
+}
+
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
 	refs         map[string]refBinding // each reference the format reads -> what it resolves to

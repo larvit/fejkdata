@@ -441,19 +441,9 @@ func (c *formatOps) field(tok formatToken, refs map[string]refBinding) {
 	c.ops = append(c.ops, op{formatToken: tok, arms: arms})
 }
 
-// compileFormat compiles a format into ops, and applies the fences that need the
-// compiled reads.
-func compileFormat(toks []formatToken, refs map[string]refBinding) (formatOps, error) {
-	c := compileOps(toks, refs)
-	if err := checkNoOverlap(c); err != nil {
-		return c, err
-	}
-	return c, checkNoRepeatedRead(c)
-}
-
-// compileOps compiles a parsed format. Call checkTokens first: it is what proves
+// compileFormat compiles a parsed format. Call checkTokens first: it is what proves
 // every token valid.
-func compileOps(toks []formatToken, refs map[string]refBinding) formatOps {
+func compileFormat(toks []formatToken, refs map[string]refBinding) formatOps {
 	var c formatOps
 	for _, tok := range toks {
 		switch tok.kind {
