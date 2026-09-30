@@ -36,10 +36,41 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 checkpoint (Navigation 6.8, Locality 5.2, Shape 5.9, Self-sufficiency 5.7), every seat's
 lowest dimension Locality, alone or tied, all seven unit seats ranking `drawsApart` or
 `readFold.reads` hardest and five `drawsApart` the unit they would least modify. The
-maintainer chose on 2026-09-30 to go on with the path steps regardless.
+maintainer chose on 2026-09-30 to go on with the path steps regardless; 5.7 on
+2026-09-30 after them (Navigation 7.0, Locality 5.1, Shape 5.9, Self-sufficiency 5.7),
+every seat's lowest dimension Locality, alone or tied, six of the seven unit seats
+ranking `drawsApart` hardest and all seven the unit they would least modify.
 
 This round, in order:
 
+- **Take the maintainer's call on the items below**: the approved restructure is done and
+  left the score at 5.7, so the round stops here until they decide.
+- **Split `drawsApart` into one named check per refusal, and show at `conflict` why pairs
+  find what a replay would**: all seven unit seats would least modify it, holding four
+  refusals over `landsRow`, `familyRoot`, `drawnOf` and `selected` at once, and four found
+  the pairs claim credible only through `TestPairsFindWhatAWholeReplayFinds`.
+- **Walk a path in one function**: `probePath` copies `pathCheck.walk`'s loop and
+  `routeSteps` call, differing at a choice and in skipping `enter`, and seven seats and
+  both architects had to diff them by eye.
+- **Name what `branches` and `pinBelow` hold and drop**: seven seats ranked
+  `readFold.reads` second, decoding `pins` against `wholePins` through `doc.go` and
+  finding `pinBelow`'s silent `continue` only by tracing.
+- **Fill `arm` in one place**: `splitArm` runs before the link and again after it, and
+  `compileArm` finishes it from `reference.go`, so five seats traced three phases and both
+  architects found format compilation under `linkTemplate`.
+- **Rename `holdfence.go`'s `cover`, and say at `heldNodes` why a path hold and an
+  operand hold answer for different nodes**: `arm.cover` means something else, and six
+  seats held both walks beside `renderEdges` to see why they differ.
+- **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their
+  own, stating there that `checkOwnFamily` runs before the draw surveys**: both architects
+  found the fence order last, and the order is stated only at `rowReads`.
+- **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`**:
+  the inherited architect's 3am trace crossed four files for one draw.
+- **Test that every node kind reaches each switch over node kinds**: ten switches, from
+  `render` to `columnItems`, must agree, and only `render`'s comment says so.
+- **Rename the load-time read fold apart from the render's reads**: `reads.go`, `pathRead`
+  and `readFold` share a word with `readField` and `readValue`, and `graph.go` holds
+  `renderEdges`, the edge model every fence walks.
 - Run the nine-seat panel again and file what it names here.
 
 ### Data
@@ -250,6 +281,8 @@ by a `data-import/` script, as README goal 12 asks.
 - Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that
   is not there: `loadDir` indexes hidden TSVs and skips them in two places, so one loads
   where its comment says a hidden file is never data.
+- Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states:
+  `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw.
 - Print `--help`'s repeat range from `fejkdata.MaxRepeat`: the usage spells
   `1..1048576` a second time.
 - Report a CRLF rows file holding only its header as having no rows: `parseRows`
