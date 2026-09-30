@@ -43,7 +43,7 @@ This round, in order:
 - Draw every path through one interpreter over those steps, `drawSteps`, with `descend`
   probing into a stack buffer, deleting `pathDraw`, and replace the decision "The path
   walks are separate loops": the prototype held `perf_test.go` once a step held no
-  pointer, the probe returned its slice and the interpreter took `levels`.
+  node, the probe returned its slice and the interpreter took `levels`.
 - Fold `checkNoOverlap` and `checkNoRepeatedRead` into `heldCheck`, so `compileFormat`
   compiles and nothing more.
 - Fix at compile how `readField` reads an arm, `arm.kind`, deleting its two panics and
