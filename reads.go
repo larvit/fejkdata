@@ -5,8 +5,10 @@ import "fmt"
 // readRoute is how a render reaches a read: as its author spells it, and the root edge's label.
 type readRoute struct{ spelling, label string }
 
-// branches is the rows a read sits under: those pinned above it, and those of whole draws whose
-// cells it sits in.
+// branches is the rows a read sits under, where two reads under different rows of one table never
+// render together. pins holds the rows pinned above it with their ancestors, which a pair of reads
+// needs to find what a replay of all of them does; wholePins the rows of whole draws whose cells it
+// sits in, without ancestors, since each whole draw draws apart from every other.
 type branches struct {
 	pins      pinSet
 	wholePins pinSet

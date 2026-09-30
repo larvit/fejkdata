@@ -36,12 +36,6 @@ on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-suffic
 
 This round, in order:
 
-- Say at `branches` what its two sets hold, the rows pinned with their ancestors and the
-  rows of whole draws without, both load-bearing, and fold `check`, `checkFamilies`,
-  `replayPairs`, `checkFamilyPair` and `alternatives` into one pairwise loop over
-  `coRender` and `conflict`. Report a pin clash lowest by route and spelling, so which of
-  two is named stops following the walk, and say at `conflict` why a level landing on a
-  row may sit beside a path into it.
 - Run the nine-seat panel as a checkpoint, and file its scores above: where Locality has
   not risen from 5.2, stop and bring the scores to the maintainer before the path steps.
 - Compile each path once at link into steps holding no pointer, with its leaves and
@@ -310,8 +304,8 @@ by a `data-import/` script, as README goal 12 asks.
   error names the category and the two columns but no row, so the author greps a
   register-sized file for the cell — and "name the fields you want instead" rewrites a
   cell that is not the one to fix.
-- Spell a table one way across the family errors: `checkFamilyPair` names
-  `drawn.category`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
+- Spell a table one way across the family errors: `drawsApart` names
+  `drawn.segment`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
   table is `territory` and `misc.territory`, and the short spelling names no file where two
   folders hold that name.
 - Let a table column carry a `datatype`, so `--format json` writes
