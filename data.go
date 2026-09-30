@@ -230,7 +230,9 @@ func (b binding) bind() error {
 
 // checkNodeFences runs the per-node fences every binding needs over a scope, each
 // over the whole scope before the next, so which of several broken nodes is reported
-// does not depend on the walk. Its walks terminate only where nothing renders itself.
+// does not depend on the walk. Its walks recurse unguarded, so the scope's cycles are
+// refused first: a tree by checkNoCycles, and an inline node closes none, since nothing
+// references it.
 func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
