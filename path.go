@@ -472,12 +472,12 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func checkResolves(n node, tail []string, level string) error {
+func checkPathResolves(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
 }
 
-// compilePath compiles a path checkResolves proved.
+// compilePath compiles a path checkPathResolves proved.
 func compilePath(n node, tail []string) pathCheck {
 	w := pathCheck{tail: tail}
 	if _, err := w.run(n); err != nil {
