@@ -193,8 +193,9 @@ func repeatCheck(path string, n node, mem renderCounts) error {
 // checkNoCycles rejects a reference cycle: a node whose rendering can reach itself
 // — directly, mutually, or through a chain — never terminates, so it must fail at
 // New rather than stack-overflow at render. It is a depth-first walk of the render
-// graph (renderEdges). Every node is a root: a field its parent's format never renders is still reachable
-// by dot path, so a cycle in one would otherwise reach render and be fatal there.
+// graph (renderEdges). Every node is a root: a field its parent's format never
+// renders is still reachable by dot path, so a cycle in one would otherwise reach
+// render and be fatal there.
 func checkNoCycles(root map[string]node) error {
 	const (
 		grey  = 1
