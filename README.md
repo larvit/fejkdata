@@ -176,9 +176,9 @@ zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.sym
 
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
-set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 12). Copy
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 13). Copy
 that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
-has no path that draws only values reaching nothing real (goal 14), write a fixed value such
+has no path that draws only values reaching nothing real (goal 15), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
@@ -767,7 +767,7 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
-The target is about a microsecond per value (goal 11).
+The target is about a microsecond per value (goal 12).
 
 Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
 parent columns, which are mapped on the first `Fake` that selects by name or descends
@@ -834,16 +834,20 @@ Where the project is heading; the sections before Audience document what ships t
 1. **The best fake-data tool there is, and the one developers reach for.**
    1. You can install it the way you install your other tools, and people hear about
       it where developers read.
-2. **The code is easy to understand.**
+2. **Enough data ships built in to fill a real test database, with no download.**
+   1. It covers the ten most-spoken languages and the Nordic countries.
+   2. Each locale covers the common categories: names, addresses, phone numbers, ids,
+      companies and dates.
+3. **The code is easy to understand.**
    1. You can go from a bug to the code behind it without asking anyone.
    2. You can change one part without keeping the rest in your head.
    3. Every name says what the thing really is.
    4. Each file makes sense on its own, without another document open beside it.
-3. **Every value is valid.** It passes the same check the real system would apply,
+4. **Every value is valid.** It passes the same check the real system would apply,
    such as the checksum in a Swedish personal number.
    1. Values that belong together come from the same random pick. You choose which
       ones by giving that pick a name.
-4. **Templates are easy to write and read.** A template is the text you write to
+5. **Templates are easy to write and read.** A template is the text you write to
    describe a value, such as `{first} {last}`.
    1. Everything outside `{…}` prints exactly as written.
    2. Each `{…}` makes a new random pick.
@@ -857,25 +861,25 @@ Where the project is heading; the sections before Audience document what ships t
       shows the right one.
    8. When a clearer name turns up, it replaces the old one, even if that needs a new
       major version.
-5. **Mistakes are caught when the data loads, and the error says plainly what is
+6. **Mistakes are caught when the data loads, and the error says plainly what is
    wrong.**
-6. **One command gets you a value.**
+7. **One command gets you a value.**
    1. Flags work like in other command-line tools, and can go anywhere on the line.
    2. Your first template of your own needs no escaping and no options.
-7. **Data is JSON files. Code is only for what JSON can't express.**
-8. **The same seed always gives the same output.**
-9. **It depends on nothing but Go's standard library.**
-10. **The docs are a map of the template language.**
+8. **Data is JSON files. Code is only for what JSON can't express.**
+9. **The same seed always gives the same output.**
+10. **It depends on nothing but Go's standard library.**
+11. **The docs are a map of the template language.**
     1. Every feature has its own heading.
     2. Every example runs as a test and shows its output.
     3. Each rule is stated in one place.
-11. **It is fast enough that you never notice it.**
-12. **Every fact comes from an official or open source,** such as a government
+12. **It is fast enough that you never notice it.**
+13. **Every fact comes from an official or open source,** such as a government
     register.
     1. A table holds every row its source holds, and nothing added by hand.
-13. **The most common data comes first,** such as names, addresses, phone numbers and
+14. **The most common data comes first,** such as names, addresses, phone numbers and
     dates.
-14. **Values look real by default. You can also ask for values that can never reach
+15. **Values look real by default. You can also ask for values that can never reach
     anything real,** such as a domain nobody can register.
 
 ## Layout
@@ -959,8 +963,8 @@ docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest support
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
-Goal 2 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
-what the score asks of a pull request. Goal 4 is checked against simulated template
+Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
+what the score asks of a pull request. Goal 5 is checked against simulated template
 writers from the Audience.
 
 A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
