@@ -888,3 +888,16 @@ since Go tracks a struct's fields as one, and a repeat of a reference path rose 
 to 106 allocations. `drawSteps` takes its state as parameters and a step holds no node,
 so no benchmark gained an allocation. Valid while Go's escape analysis tracks
 a struct's fields as one.
+
+## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
+
+2026-10-03, larv-review. Goals 5.3 and 5.6.
+`bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
+field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
+`"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category is the smallest unit holding every field and record column. The
+scope is lexical: a category referencing another never sees its names, so what a category
+renders never depends on who references it. A pick is drawn on its first read, so a record's
+columns, rendered in name order, read one pick whichever binds it. A read entering a category
+past its root, `Fake("cat.field")` or `{/cat.field}`, keeps the category's frame in the memo of
+that read: per render and group, as the read's own draw is. Valid while a name is read only
+inside the category binding it.

@@ -72,10 +72,13 @@ func refSegments(name string, folder []string) ([]string, error) {
 // refHeads under its root path and its tail reads like a sibling path, so two
 // spellings of one target are one draw.
 func linkRefs(root map[string]node) error {
-	return eachTemplate(root, func(folder []string, path string, t *template) error {
+	if err := eachTemplate(root, func(folder []string, path string, t *template) error {
 		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
 		return linkTemplate(folder, path, category, t, root)
-	})
+	}); err != nil {
+		return err
+	}
+	return eachTemplate(root, func(_ []string, path string, t *template) error { return linkNames(path, t) })
 }
 
 // linkTemplate resolves t's references in category, "" for an inline template, and
@@ -85,7 +88,7 @@ func linkTemplate(folder []string, path, category string, t *template, root map[
 	if err != nil {
 		return err
 	}
-	t.link, t.compiled = link, compileFormat(t.tokens, link.refs)
+	t.link, t.compiled = link, compileFormat(t.tokens, link.refs, t.isName)
 	compileArms(t)
 	return nil
 }
@@ -100,7 +103,9 @@ func compileArms(t *template) {
 			compileArm(t, &o.operands[j])
 		}
 		for j := range o.arms {
-			compileArm(t, &o.arms[j])
+			if o.arms[j].kind != namedRead {
+				compileArm(t, &o.arms[j])
+			}
 		}
 	}
 }

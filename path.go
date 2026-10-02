@@ -87,6 +87,22 @@ func indexOutside(s string, c byte) int {
 	return -1
 }
 
+// cutOutside cuts s around the first sep outside a [selector].
+func cutOutside(s, sep string) (before, after string, found bool) {
+	depth := 0
+	for i := 0; i < len(s); i++ {
+		switch {
+		case s[i] == '[':
+			depth++
+		case s[i] == ']' && depth > 0:
+			depth--
+		case depth == 0 && strings.HasPrefix(s[i:], sep):
+			return s[:i], s[i+len(sep):], true
+		}
+	}
+	return s, "", false
+}
+
 func splitOutside(s string, c byte) []string {
 	var parts []string
 	for {
