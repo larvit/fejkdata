@@ -30,6 +30,8 @@ teach the exported API belongs above the clause.
 every other key is a field. Nesting fields under a key, or prefixing options, would tax
 every template to guard against a misspelt option.
 
+`todo.md` item 4 deletes `drawGroup`, which this reserves.
+
 ## `{a|b}` stays beside nested choices
 
 2026-09-02, Lilleman auf Larv.
@@ -114,7 +116,7 @@ pins its level, and a fresh draw of a pinned level could show another row. A bui
 operand holds what it reads for its expansion, references included, so
 `{uppercase(/p)} {/p}` is one draw, and `{/p}` written twice beside it is a load error.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+Goal 4.2 overrides this; `todo.md` item 4 replaces it.
 
 ## Reference sigils follow the filesystem
 
@@ -293,7 +295,7 @@ rather than two copies of it. Only references share: a sibling field is local to
 expansion, so a `first` column does not silently bind to a `first` in the column next to
 it.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+Goal 4.2 overrides this; `todo.md` item 4 replaces it.
 
 ## A draw group name is local to its category
 
@@ -304,7 +306,7 @@ joins them by accident, and renaming a group inside one file changes no render
 elsewhere. The unnamed group still spans categories, since facts that belong together
 across categories must agree.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes what this decides.
 
 ## The expansion hold and the render's draws are two fences
 
@@ -316,7 +318,7 @@ rows agree across a render and its draw groups. Their scopes differ and only the
 tracks rows and pins, so one walk would carry both scopes and tell them apart at every
 step.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes what this decides.
 
 ## A render's draws make their maps on the first read
 
@@ -329,7 +331,7 @@ cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09
 Lazily, a render reading a reference path pays those two allocations, a record or struct
 included, and one reading none pays nothing; goal 11 holds either way.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes what this decides.
 
 ## A category never references itself, and a record's fences run at load
 
@@ -345,6 +347,8 @@ back into a category through another one is refused there as the overlap it is. 
 reads those fences weigh differs on purpose: a record-only template's inert format
 renders nothing, so a `drawGroup` on it can never matter and is refused, while one on a
 rendering format can matter to a caller that bare-references it.
+
+`todo.md` item 4 deletes the `drawGroup` refusal this names.
 
 ## A record's column set is fixed before the first draw
 
@@ -483,7 +487,7 @@ exactly one row.
 Checked against three simulated template writers from the Audience, who agreed on each
 case but the last, where two expected a render and all three accepted the refusal.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+Goal 4.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
 
 ## A link column after a row steps up to the parent row, and a path may not end on it
 
@@ -513,7 +517,7 @@ Checked against three simulated template writers from the Audience: all three re
 parent row where a segment followed, and they split between the code and the name where
 the path ended.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 2 ends it.
+Goal 4.4 overrides this; `todo.md` item 2 replaces it.
 
 ## A table selects by one key column, a code, never a free-form name
 
@@ -581,7 +585,7 @@ A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row tha
 three localities from other regions is the output the family exists to prevent, so the
 own-family fence walks through both rather than stopping where the draw fences do.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes what this decides.
 
 ## A cell may read a reference, and each row its own
 
@@ -592,7 +596,7 @@ Goal 3: facts that belong together come from one draw, so a shop row's `phone` c
 format, the same for every row, cannot say that. A restructure for goal 2 keeps the fences
 that prove such cells safe. Valid while a table's rows need generators of their own.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes the fences this keeps; a cell may still read a reference.
 
 ## Tables carrying token cells stay small
 
@@ -604,7 +608,7 @@ its rows: about a second at four thousand rows. No shipped table carries such ce
 a register is a column set rather than a set of references, so the fence is left as it
 is until a real data set needs the indexed form.
 
-Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+`todo.md` item 4 deletes what this decides.
 
 ## A path is walked once without drawing before it is walked for real
 
