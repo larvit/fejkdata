@@ -174,6 +174,14 @@ zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.sym
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 
+A fact is read from its source by a script under [`data-import/`](data-import), as
+goal 12 asks. Where no script exists yet, a small hand-written set ships, and
+[`todo.md`](todo.md) carries the step that replaces it. A script drops a source row
+only by a rule it states. A category is added in proportion to how many real schemas
+store it, per goal 13. Per goal 14, a category whose values could reach something real,
+such as a domain anyone may register, also gets a path that draws only values that
+reach nothing; `todo.md` carries the categories still missing one.
+
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
 other entries, WebDAV and DeltaV among them, do not ship. Its `safe` and
@@ -760,6 +768,8 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
+Goal 11 aims at about a microsecond per value.
+
 Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
 parent columns, which are mapped on the first `Fake` that selects by name or descends
 through it. Proving the draw fences adds a pass over the loaded tree per
@@ -820,61 +830,52 @@ the Development section below, and who ships a register the five above then draw
 
 ## Goals
 
-1. **The best fake-data tool available, and used because it is** — a developer
-   choosing a seed-data library or CLI, in any language, should find this the one
-   worth switching to, and every goal below it is what that costs. Merit is only
-   half the goal: once the grammar, the data and the CLI are complete and stable,
-   it ships where those developers install from and is announced where they read.
-2. **Understanding the code is part of the product** — it is a compiler with static
-   fences behind a small API, it will grow, and the people who extend it will not be
-   the people who wrote it. So reading cost is judged alongside behaviour: reaching
-   the unit behind a symptom without asking a person, changing one piece without
-   holding the rest, names that tell the truth, and a file that stands with no second
-   document open beside it. A simulated reader panel scores those four, the score is a
-   ratchet no release lowers, and [`AGENTS.md`](AGENTS.md) says what each pull request
-   owes it. Below the floor it holds back new capability, never a repair of behaviour
-   this README already documents, as long as the round that lifts the score stays planned.
-3. **Valid by construction** — every value passes the check a current release of
-   its real consumer applies; facts that belong together come from one draw, within
-   a value and across categories.
-4. **Templates are intuitive, and text means what it says** — a template or a path,
-   and every path in a template, renders what every writer reading it would expect,
-   judged by simulated writers from the Audience. A format renders as written; only `{…}` varies, random characters included
-   (`{digits(3)}`), and a selected row, `[SE]`, is that row wherever it is written.
-   A name is changed whenever a more intuitive one is found; the Versioning table
-   prices the change, never blocks it.
-   Where two writers could expect different outputs, the template is a load error
-   naming a spelling for each. One spelling per result; the wrong one is a load error
-   naming the right one.
-5. **Errors are up front and easy to understand.**
-6. **Zero to a value in one command** — `go install`, then `fejkdata sv_SE.person`:
-   no checkout, no flag. Flags are GNU-form (`--seed 42`, `-n 3`) in any position;
-   the first custom template needs no escape and no option.
-7. **Data lives in JSON** — a builtin only for what data can't express.
-8. **Reproducible** — seed in, same stream out; no builtin reads a clock.
-9. **Zero dependencies** — standard library only.
-10. **Docs index the grammar** — every syntax feature is a heading; every example
-    runs under test and shows its output; a rule is stated once.
-11. **Fast enough to be free** — a value renders in about a microsecond and `New`
-    parses and validates the whole set once up front, so generating fixtures stays
-    noise against a test's own runtime.
-12. **Data is sourced, or on its way there** — a shipped fact, a name, place,
-    code, id or classification, is read from a register or open dataset by a
-    [`data-import/`](data-import) script wherever one exists to read; where none
-    does yet a small hand-written set ships and [`todo.md`](todo.md) carries the
-    step that replaces it. Only non-factual copy stays authored. A sourced table
-    holds the rows its source holds: none is added by hand, and one is dropped
-    only by a rule the script states.
-13. **Breadth follows what most systems store** — a category is added in proportion
-    to how many real schemas hold it: names, addresses, phones, ids, money and
-    timestamps before anything domain-specific, and a catalogue serving one niche
-    waits behind everything serving many.
-14. **Realism is the default, inertness is selectable** — where a value could reach
-    something real, a domain anyone may register or an account a bank could issue,
-    the realistic breadth ships *and* so does the subset that provably reaches
-    nothing, each on its own path. A fixture that looks nothing like production
-    tests nothing; the caller who needs a value that can touch nothing asks for it
-    by name.
+1. **The best fake-data tool there is, and the one developers reach for.**
+   1. You can install it the way you install your other tools, and people hear about
+      it where developers read.
+2. **The code is easy to understand.**
+   1. You can go from a bug to the code behind it without asking anyone.
+   2. You can change one part without keeping the rest in your head.
+   3. Every name says what the thing really is.
+   4. Each file makes sense on its own, without another document open beside it.
+3. **Every value is valid.** It passes the same check the real system would apply,
+   such as the checksum in a Swedish personal number.
+   1. Values that belong together come from the same random pick. You choose which
+      ones by giving that pick a name.
+4. **Templates are easy to write and read.** A template is the text you write to
+   describe a value, such as `{first} {last}`.
+   1. Everything outside `{…}` prints exactly as written.
+   2. Each `{…}` makes a new random pick.
+   3. A name keeps one pick. `{/person as p}` picks a person and prints nothing.
+      `{p}` then prints that person, and `{p.last}` their last name.
+   4. A path works like a folder path: `.` goes down a level, and `..` goes up one.
+   5. `[SE]` selects one row of a table, and means that row wherever you write it.
+   6. If two people could read a template differently, loading it fails, and the
+      error shows how to write each meaning.
+   7. Each result has one way to write it. Any other way fails to load, and the error
+      shows the right one.
+   8. When a clearer name turns up, it replaces the old one, even if that needs a new
+      major version.
+5. **Mistakes are caught when the data loads, and the error says plainly what is
+   wrong.**
+6. **One command gets you a value.**
+   1. Flags work like in other command-line tools, and can go anywhere on the line.
+   2. Your first template of your own needs no escaping and no options.
+7. **Data is JSON files. Code is only for what JSON can't express.**
+8. **The same seed always gives the same output.**
+9. **It depends on nothing but Go's standard library.**
+10. **The docs are a map of the template language.**
+    1. Every feature has its own heading.
+    2. Every example runs as a test and shows its output.
+    3. Each rule is stated in one place.
+11. **It is fast enough that you never notice it.**
+12. **Every fact comes from an official or open source,** such as a government
+    register.
+    1. A table holds every row its source holds, and nothing added by hand.
+13. **The most common data comes first,** such as names, addresses, phone numbers and
+    dates.
+14. **Values look real by default. You can also ask for values that can never reach
+    anything real,** such as a domain nobody can register.
 
 ## Layout
 
@@ -994,6 +995,10 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timez
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
+
+Goal 2 is scored by a panel of simulated readers, the `comprehension-panel` skill, and
+[`AGENTS.md`](AGENTS.md) says what the score asks of a pull request. Goal 4 is checked
+against simulated template writers from the Audience.
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
