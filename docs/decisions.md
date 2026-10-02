@@ -114,6 +114,8 @@ pins its level, and a fresh draw of a pinned level could show another row. A bui
 operand holds what it reads for its expansion, references included, so
 `{uppercase(/p)} {/p}` is one draw, and `{/p}` written twice beside it is a load error.
 
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+
 ## Reference sigils follow the filesystem
 
 2026-09-02, Lilleman auf Larv.
@@ -291,6 +293,8 @@ rather than two copies of it. Only references share: a sibling field is local to
 expansion, so a `first` column does not silently bind to a `first` in the column next to
 it.
 
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+
 ## A draw group name is local to its category
 
 2026-09-16, Lilleman auf Larv.
@@ -299,6 +303,8 @@ A category's groups are its own entities, so a caller naming a group the same wa
 joins them by accident, and renaming a group inside one file changes no render
 elsewhere. The unnamed group still spans categories, since facts that belong together
 across categories must agree.
+
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
 
 ## The expansion hold and the render's draws are two fences
 
@@ -310,6 +316,8 @@ rows agree across a render and its draw groups. Their scopes differ and only the
 tracks rows and pins, so one walk would carry both scopes and tell them apart at every
 step.
 
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+
 ## A render's draws make their maps on the first read
 
 2026-09-29, Lilleman auf Larv.
@@ -320,6 +328,8 @@ record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so 
 cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
 Lazily, a render reading a reference path pays those two allocations, a record or struct
 included, and one reading none pays nothing; goal 11 holds either way.
+
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
 
 ## A category never references itself, and a record's fences run at load
 
@@ -473,6 +483,8 @@ exactly one row.
 Checked against three simulated template writers from the Audience, who agreed on each
 case but the last, where two expected a render and all three accepted the refusal.
 
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+
 ## A link column after a row steps up to the parent row, and a path may not end on it
 
 Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
@@ -500,6 +512,8 @@ parent. A row is selected or drawn alike.
 Checked against three simulated template writers from the Audience: all three read the
 parent row where a segment followed, and they split between the code and the name where
 the path ended.
+
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 2 ends it.
 
 ## A table selects by one key column, a code, never a free-form name
 
@@ -567,6 +581,8 @@ A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row tha
 three localities from other regions is the output the family exists to prevent, so the
 own-family fence walks through both rather than stopping where the draw fences do.
 
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
+
 ## A cell may read a reference, and each row its own
 
 2026-09-29, Lilleman auf Larv.
@@ -575,6 +591,8 @@ Goal 3: facts that belong together come from one draw, so a shop row's `phone` c
 `{/sv_SE.phone}` on a Swedish shop and `{/en_US.phone}` on a US one, and the table's
 format, the same for every row, cannot say that. A restructure for goal 2 keeps the fences
 that prove such cells safe. Valid while a table's rows need generators of their own.
+
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
 
 ## Tables carrying token cells stay small
 
@@ -585,6 +603,8 @@ table whose every row's cell selects a row of another table loads in time quadra
 its rows: about a second at four thousand rows. No shipped table carries such cells, and
 a register is a column set rather than a set of references, so the fence is left as it
 is until a real data set needs the indexed form.
+
+Works against goal 4's every-`{…}`-is-a-new-pick aims until `todo.md` item 4 ends it.
 
 ## A path is walked once without drawing before it is walked for real
 

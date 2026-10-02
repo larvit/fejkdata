@@ -1,149 +1,261 @@
-# Plan
+# todo
 
-Ordered as the releases that ship it.
+## Scoring
 
-## v0.1.0
+`Score = -R - S/4 + 2*A + 2*G*W`
 
-### Comprehension, until the panel scores 7.0
+`Bar = 9`
 
-Nothing else ships while the score is under 7.0 — no feature, no category, no data — bar
-what `AGENTS.md` excepts, per README goal 2. Nine rounds of the nine-seat findings held
-the score between 5.7 and 6.1, so this round is a restructure the maintainer approved on
-2026-09-29: a PR per item, then the nine-seat run again. The run is the nine-seat one,
-since the four-seat scoring run names too little to steer an architectural change.
+`Next ID = 62`
 
-Scores, newest last: 5.9 on 2026-09-20 (Navigation 7.0, Locality 5.2, Shape 5.9,
-Self-sufficiency 5.7); 5.8 on 2026-09-22 (Navigation 6.7, Locality 5.0, Shape 5.9,
-Self-sufficiency 5.6); 5.7 on 2026-09-26 (Navigation 6.7, Locality 5.0, Shape 5.8,
-Self-sufficiency 5.6), every seat capped by Locality, and all nine naming
-`drawWalk.walk` among the hardest; 5.7 on 2026-09-28 (Navigation 6.7, Locality 5.1,
-Shape 5.8, Self-sufficiency 5.7), every seat capped by Locality, all nine naming
-`drawWalk.walk` and the four path walks among the hardest; 5.8 on 2026-09-29
-(Navigation 6.8, Locality 5.3, Shape 5.8, Self-sufficiency 5.7), seven seats capped
-by Locality, all nine naming `drawWalk.walk` hardest and eight the unit they would
-least modify; 5.7 on 2026-09-29 again (Navigation 6.6, Locality 5.2, Shape 5.9,
-Self-sufficiency 5.8), four seats capped by Locality, six of the seven unit seats
-ranking `readSurvey.walk` hardest and all seven the unit they would least modify; 6.1
-on 2026-09-29 a third time (Navigation 7.0, Locality 5.6, Shape 6.3, Self-sufficiency
-6.1), every seat's lowest dimension Locality, all seven unit seats ranking the
-`readSurvey` walk or check hardest and the unit they would least modify; 5.8 on
-2026-09-29 a fourth time (Navigation 6.7, Locality 5.0, Shape 5.7, Self-sufficiency
-5.7), every seat's lowest dimension Locality, alone or tied, all seven unit seats
-ranking `readSurvey.walk` and `edge` hardest and the unit they would least modify; 5.8
-on 2026-09-29 a fifth time (Navigation 6.9, Locality 5.2, Shape 6.1, Self-sufficiency
-5.8), every seat's lowest dimension Locality, alone or tied, all seven unit seats ranking
-`readSurvey.walk` hardest and the unit they would least modify; 5.7 on 2026-09-30, the
-checkpoint (Navigation 6.8, Locality 5.2, Shape 5.9, Self-sufficiency 5.7), every seat's
-lowest dimension Locality, alone or tied, all seven unit seats ranking `drawsApart` or
-`readFold.reads` hardest and five `drawsApart` the unit they would least modify. The
-maintainer chose on 2026-09-30 to go on with the path steps regardless; 5.7 on
-2026-09-30 after them (Navigation 7.0, Locality 5.1, Shape 5.9, Self-sufficiency 5.7),
-every seat's lowest dimension Locality, alone or tied, six of the seven unit seats
-ranking `drawsApart` hardest and all seven the unit they would least modify.
+| Goal | W |
+|---|---|
+| 1 | 1.00 |
+| 1.1 | 0.97 |
+| 2 | 0.94 |
+| 2.1 | 0.91 |
+| 2.2 | 0.88 |
+| 2.3 | 0.85 |
+| 2.4 | 0.82 |
+| 3 | 0.79 |
+| 3.1 | 0.76 |
+| 4 | 0.74 |
+| 4.1 | 0.71 |
+| 4.2 | 0.68 |
+| 4.3 | 0.65 |
+| 4.4 | 0.62 |
+| 4.5 | 0.59 |
+| 4.6 | 0.56 |
+| 4.7 | 0.53 |
+| 4.8 | 0.50 |
+| 5 | 0.47 |
+| 6 | 0.44 |
+| 6.1 | 0.41 |
+| 6.2 | 0.38 |
+| 7 | 0.35 |
+| 8 | 0.32 |
+| 9 | 0.29 |
+| 10 | 0.26 |
+| 10.1 | 0.24 |
+| 10.2 | 0.21 |
+| 10.3 | 0.18 |
+| 11 | 0.15 |
+| 12 | 0.12 |
+| 12.1 | 0.09 |
+| 13 | 0.06 |
+| 14 | 0.03 |
 
-This round, in order:
+## Items
 
-- **Take the maintainer's call on the items below**: the approved restructure is done and
-  left the score at 5.7, so the round stops here until they decide.
-- **Split `drawsApart` into one named check per refusal, and show at `conflict` why pairs
-  find what a replay would**: all seven unit seats would least modify it, holding four
-  refusals over `landsRow`, `familyRoot`, `drawnOf` and `selected` at once, and two opened
-  `TestPairsFindWhatAWholeReplayFinds` to believe the pairs claim.
-- **Walk a path in one function**: `probePath` copies `pathCheck.walk`'s loop and
-  `routeSteps` call, differing at a choice and in skipping `enter`, and seven seats and
-  both architects named the pair.
-- **Name what `branches` and `pinBelow` hold and drop**: six seats ranked
-  `readFold.reads` second, decoding `pins` against `wholePins` through `doc.go` and
-  finding `pinBelow`'s silent `continue` only by tracing.
-- **Fill `arm` in one place**: `splitArm` runs before the link and again after it, and
-  `compileArm` finishes it from `reference.go`, so five seats traced three phases and both
-  architects found format compilation under `linkTemplate`.
-- **Rename `holdfence.go`'s `cover`, and say at `heldNodes` why a path hold and an
-  operand hold answer for different nodes**: `arm.cover` means something else, and six
-  seats held both walks beside `renderEdges` to see why they differ.
-- **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their
-  own, stating there that `checkOwnFamily` runs before the draw surveys**: the greenfield
-  architect found the pipeline last, and the order is stated only at `rowReads`.
-- **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`**:
-  the inherited architect's 3am trace crossed four files for one draw.
-- **Test that every node kind reaches each switch over node kinds**: ten switches, from
-  `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so.
-- **Rename the load-time read fold apart from the render's reads**: `reads.go`, `pathRead`
-  and `readFold` share a word with `readField` and `readValue`, and `graph.go` holds
-  `renderEdges`, the edge model every fence walks.
-- Run the nine-seat panel again and file what it names here.
+| ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
+|---|---|---|---|---|---|---|---|---|---|
+| 51 | 0.1.0 |  | **Ship prebuilt binaries, a container image, Homebrew and Scoop, so the CLI needs no Go.** | 3 | 6 | 8 | 9 | 1.1, 6 | 29.0 |
+| 1 | 0.1.0 |  | **Bind a pick to a name with `{x as n}`, read it with `{n}` and `{n.path}`, and refuse a name bound twice.** | 4 | 6 | 8 | 9 | 4.3, 3.1 | 24.2 |
+| 3 | 0.1.0 |  | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 3.1 | 23.4 |
+| 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 4.2, 3.1 | 22.2 |
+| 24 | 0.1.0 | defect | **Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.** | 2 | 2 | 6 | 8 | 3 | 22.1 |
+| 50 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.1 |
+| 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 2 | 21.2 |
+| 25 | 0.1.0 | defect | **Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop drawing birthdates that reach 100.** | 2 | 2 | 5 | 8 | 3 | 20.1 |
+| 32 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 3 | 20.1 |
+| 13 | 0.1.0 | defect | **Strip the whitespace `data-import/territory.py` copies from its register.** | 1 | 1 | 5 | 7 | 3 | 19.8 |
+| 6 | 0.1.0 | question | **Decide how the comprehension gate treats panel noise: identical code scored 5.7 and 5.4.** | 1 | 1 | 3 | 8 | 2 | 19.8 |
+| 2 | 0.1.0 | decision | **Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.** | 4 | 5 | 7 | 8 | 4.4 | 18.7 |
+| 23 | 0.1.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 3 | 17.8 |
+| 27 | 0.1.0 |  | **Accept a middle name, and draw a `personnummer` whose sex matches a selected sex, by name.** | 4 | 4 | 6 | 7 | 3.1 | 17.6 |
+| 47 | 0.1.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 3 | 16.2 |
+| 19 | 0.1.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 4 | 15.9 |
+| 48 | 0.1.0 | defect | **Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.** | 2 | 1 | 3 | 6 | 1.1 | 15.4 |
+| 46 | 0.1.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 5 | 15.1 |
+| 34 | 0.1.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 5 | 15.0 |
+| 20 | 0.1.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 3 | 15.0 |
+| 38 | 0.1.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 4.7 | 14.7 |
+| 18 | 0.1.0 |  | **Give every shipped category building-block columns, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 4 | 14.4 |
+| 43 | 0.1.0 | defect | **Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.** | 2 | 2 | 4 | 6 | 4 | 14.4 |
+| 49 | 0.1.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 10 | 14.1 |
+| 28 | 0.1.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 4 | 13.9 |
+| 30 | 0.1.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 3.1 | 13.4 |
+| 7 | 0.1.0 |  | **Walk a path in one function: fold `probePath` into `pathCheck.walk`.** | 4 | 4 | 3 | 7 | 2.2 | 13.3 |
+| 14 | 0.1.0 | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 2 | 2 | 3 | 6 | 3 | 13.0 |
+| 11 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 2.2 | 12.8 |
+| 16 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of the table below per chunk.** | 3 | 9 | 8 | 7 | 13, 12 | 12.4 |
+| 12 | 0.1.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 3 | 12.4 |
+| 45 | 0.1.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 5 | 12.1 |
+| 17 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 7 | 13 | 11.8 |
+| 9 | 0.1.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 2.1 | 11.6 |
+| 10 | 0.1.0 |  | **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.** | 1 | 2 | 2 | 5 | 2.1 | 11.6 |
+| 29 | 0.1.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 4.8 | 11.5 |
+| 39 | 0.1.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 5 | 11.1 |
+| 26 | 0.1.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 4.7 | 10.9 |
+| 15 | 0.1.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 4.7 | 10.6 |
+| 22 | 0.1.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 14 | 10.5 |
+| 36 | 0.1.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 5 | 10.4 |
+| 41 | 0.1.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 5 | 10.4 |
+| 44 | 0.1.0 |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 3 | 6 | 5 | 10.4 |
+| 31 | 0.1.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 4 | 10.2 |
+| 37 | 0.1.0 |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 2 | 3 | 6 | 5 | 10.1 |
+| 42 | 0.1.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 5, 8 | 10.1 |
+| 33 | 0.1.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 7 | 10.0 |
+| 21 | 0.1.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 10 | 9.9 |
+| 8 | 0.1.0 |  | **Fill `arm` in one place.** | 4 | 4 | 2 | 6 | 2.2 | 9.6 |
+| 35 | 0.1.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 2.3 | 9.2 |
+| 40 | 0.1.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 2.3 | 9.2 |
+| 55 | 0.2.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 3.1 | 17.7 |
+| 54 | 0.2.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 3 | 14.5 |
+| 52 | 0.2.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 10 | 11.3 |
+| 58 | 0.2.0 |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 1 | 2 | 5 | 2.4 | 10.9 |
+| 53 | 0.2.0 |  | **Add the locales nb_NO, da_DK, fi_FI, de_DE, en_GB, nl_NL, fr_FR and es_ES, and their `geo/` trees.** | 4 | 9 | 8 | 7 | 13 | 10.6 |
+| 59 | 0.2.0 |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 6 | 2.4 | 10.3 |
+| 57 | 0.2.0 |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 3 | 4 | 5 | 4.8 | 10.2 |
+| 56 | 0.2.0 |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 4 | 1 | 6 | 2.4 | 9.8 |
+| 60 | 1.0.0 |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 3 | 7 | 9 | 1.1 | 29.7 |
+| 61 | 1.0.0 |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 6 | 6 | 6 | 1.1 | 19.1 |
 
-### Data
+## Details
 
-Shape: T = table, t = template, c = choice. Read every factual list from a register
-by a `data-import/` script, as README goal 12 asks.
+### 51. Ship prebuilt binaries, a container image, Homebrew and Scoop, so the CLI needs no Go.
 
-- Fetch NVDB through `source.fetch` in `data-import/geo-se.py`: `nvdb_segments` calls
-  urllib itself, with no retry and no User-Agent.
-- Test that every `geo` tree holds the five table names and the `address` columns the
-  README says port across countries: nothing checks it, and a new country breaks it silently.
-- Strip the whitespace `data-import/territory.py` copies from its register:
-  `misc.territory[CW].capital` renders ` Willemstad`, with a leading space.
-- Place xlsx cells by their `r` reference in `data-import/xlsx.py`: a sheet omitting an
-  empty cell shifts every later column left.
-- Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone
-  `{digits(1)}` at `New`, naming that spelling: both render the same run.
-- Add the remaining `misc` tables and templates, one row of the table below per chunk.
-- Read `misc.emoji` from the Unicode `emoji-test.txt` register, and `misc.car` from an
-  international make and model source; vPIC and Mobility Sweden are national, so they
-  build `en_US.car` and `sv_SE.car`.
-- Add the remaining locale categories: company, phone, finance, vehicle, words.
-- Give every shipped category building-block columns, `misc.uuid` → `variant` among
-  them, and one record shape across the national ids; re-pin the shape.
-- Give the address records one column set across countries: `region` and
-  `municipality` as columns on `geo.SE.address` too.
-- Fill the 398 Swedish localities weighted 200 from SCB småorter.
-- Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they
-  are: neither names a `weight`, so a bare `sex` draws evenly.
-- List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list
-  of what each locale carries, which names neither.
-- Give `url` and `email` a path that draws only domains nobody can register, keeping
-  the wide set as the default, per goal 14: 17 of the 40 distinct ones shipped today
-  sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's
-  `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost`
-  provably reach nothing.
-- Audit the rest of the shipped set against goal 14 and give each a never-reaching
-  path where it lacks one: `phone` draws live PTS and NANP ranges — PTS's five
-  fiction series are the Swedish inert set, sourced in
-  [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one
-  still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
-- Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does
-  not hold: ISO 3166 reserves it for Western Sahara and the root zone has never been
-  delegated it, so no resolver answers for it and goal 3 promises otherwise.
-- Draw `en_US.phone`'s `exch` as a NANP central office code: `{int(100,999)}` renders
-  a leading 1 in about an eighth of draws, which libphonenumber rejects, and
-  `TestShippedUSPhone` proves the shape rather than the rule. Assert the rule with it.
-- Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop
-  drawing birthdates that reach 100: the format hard-codes `-`, and the 1930 floor
-  makes the oldest draws invalid from 2031.
-- Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`, per goal 4's
-  one spelling per result.
-- Accept a middle name, and draw a shipped `personnummer` inside a *selected* sex;
-  both want a draw group sharing its family's pins. Stop the conflict error naming a
-  rewrite that returns a different value where the read it conflicts with sits inside
-  another category, and report a struct column's draw conflict with the path spelling
-  a tag takes.
-- Let `geo.US.locality[1714000].address` descend from a selected row into the template
-  beside the family: require the path step to reach a sibling category, and seed every
-  draw group of the render from the outer selector's pins.
-- Read `email.local`'s and `username`'s handles from the shipped name tables, which
-  goal 12 asks for and the hand-written list they use today does not meet. Keep the
-  handle shape: `username` shortens a surname to `ahl` or `sjo`, and the US one draws
-  unisex given names, neither of which falls out of the tables unaided.
-- Draw `email.local` from `username`, so the two share one handle list.
-- Rename `misc.territory.country` to `sovereign`, per goal 4: it holds a code, and
-  `country` collides with the `misc.country` path it replaced.
-- Add `misc.browser` as the parent of `misc.useragent`, so
-  `misc.browser[Chrome].useragent` resolves, per goal 3.
-- Group `data/misc` into folders where a group name makes a path easier to guess, per
-  goal 4.
+GoReleaser attaches them to the release the tag workflow publishes. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag.
 
-`misc` (locale-neutral)
+### 1. Bind a pick to a name with `{x as n}`, read it with `{n}` and `{n.path}`, and refuse a name bound twice.
+
+- A binding prints nothing: `{/person as p}{p}` renders `Erik Lind`, and `{p.last}` beside it `Lind`.
+- A name is one pick of everything under it, drawn once: `{/country as k} {k.city.name} ({k.city.population})` is one city of `k`'s country.
+- A name is visible in the template that binds it and everything that template renders, its sibling fields and a record's columns included, so one field may bind and another read.
+- A name bound inside a `repeat` level picks again on every iteration; one bound outside it keeps its pick on every line.
+- Refused at load: a name bound twice in one scope, and a name that is also a field or an option of the template, since options and fields share one namespace.
+- Lands before item 4 changes what an unnamed `{…}` does, so the shipped data can move to names first (item 3).
+
+### 3. Rewrite the shipped categories so facts that belong together come from one named pick.
+
+- `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
+- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once.
+- Needs items 1 and 2. Every shipped value must still pass its consumer's check before and after item 4.
+- Re-pin seeded output in its own commit.
+
+### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
+
+- Needs items 1–3. After it, `{/person} ({/person.first})` renders two people, `{w} {uppercase(w)}` renders `b G`, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup` and the decisions that reverse with them. The remaining load checks are names, paths through names, cycles and the repeat cap.
+- Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
+- Rewrites the README's References, Draw group, Correlated fields, Linked tables and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
+- Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
+
+### 24. Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.
+
+`{int(100,999)}` renders a leading 1 in about an eighth of draws, which libphonenumber rejects, and the test proves the shape rather than the rule.
+
+### 50. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
+
+Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
+
+### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
+
+Needs item 4, and runs as item 6 decides.
+
+### 25. Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop drawing birthdates that reach 100.
+
+The format hard-codes `-`, and the 1930 floor makes the oldest draws invalid from 2031.
+
+### 32. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
+
+`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+
+### 13. Strip the whitespace `data-import/territory.py` copies from its register.
+
+`misc.territory[CW].capital` renders ` Willemstad`, with a leading space.
+
+### 6. Decide how the comprehension gate treats panel noise: identical code scored 5.7 and 5.4.
+
+Two nine-seat runs on `5cb919e`, same briefs, same model, 2026-09-30:
+
+| Seat | Run 1 | Run 2 |
+|---|---|---|
+| Junior A | 5 | 5 |
+| Junior B | 4 | 5 |
+| Mid A | 6 | 5 |
+| Mid B | 6 | 6 |
+| Senior domain | 6 | 5 |
+| Senior maintainability | 6 | 6 |
+| Senior extender | 6 | 5 |
+| Architect greenfield | 6 | 6 |
+| Architect inherited | 6 | 6 |
+| Mean (Navigation / Locality / Shape / Self-sufficiency) | 5.7 (7.0 / 5.1 / 5.9 / 5.7) | 5.4 (6.3 / 4.8 / 5.8 / 5.3) |
+
+Both runs named the same hardest units, `drawsApart` and `readFold.reads`. Every score since 2026-09-20 (5.7–6.1) sits inside this spread, and `AGENTS.md`'s "no merge lowers the last score" can block or pass a chunk by chance.
+
+### 2. Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.
+
+- `..country` steps up to the nearest ancestor table named `country`, from a selected row, a drawn row or a name bound to a row: `{c..country.name}`.
+- After `..`, `.` steps down again: `{c..country.city.name}` is a city of `c`'s country, drawn afresh.
+- `.country` after a row keeps reading the link column's cell, so the README's `city[Oslo].country` example stays true.
+- A `Fake` path and `--list` take `..` too; `List` keeps advertising direct descents only.
+- Replaces the decision "A link column after a row steps up to the parent row, and a path may not end on it".
+
+### 23. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
+
+ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 27. Accept a middle name, and draw a `personnummer` whose sex matches a selected sex, by name.
+
+Needs item 4. Report a struct column's draw conflict with the path spelling a tag takes.
+
+### 47. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
+
+Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
+
+### 48. Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.
+
+GitHub answers `tags/{tag}` with 404 whatever exists, so the burnt-version guard never fires and a release lands on a tag already pointing at another commit.
+
+### 46. Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.
+
+With several `--data-path` layers the author has to work out which directory won, while a parse error on the same file names it.
+
+### 34. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
+
+`New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
+
+### 20. Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.
+
+Neither names a `weight`, so a bare `sex` draws evenly.
+
+### 38. Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.
+
+`geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row today. Steps:
+- Have a selector that misses name the key of every row whose cell spells it, matched without case, else say the table selects by its key: `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, and `misc.loglevel[Error]` `[err]`.
+- Delete the `name` option and the load checks it carries, and have `New` refuse a table still carrying `name`, naming `key`.
+- Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on the integer `data-import/geo-se.py` assigns as the decision states, linking `street` and `postal-code` by it.
+- Drop `key` from `last-name` and `sv_SE.title`, and re-pin `testdata/shipped_shape.txt`.
+- Leave no selection by name in README.md, CHANGELOG.md, docs/ or `--help`.
+
+### 18. Give every shipped category building-block columns, and one record shape across the national ids; re-pin the shape.
+
+`misc.uuid` → `variant` among them.
+
+### 43. Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.
+
+`probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw.
+
+### 28. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
+
+Require the path step to reach a sibling category.
+
+### 7. Walk a path in one function: fold `probePath` into `pathCheck.walk`.
+
+`probePath` copies `pathCheck.walk`'s loop and `routeSteps` call, differing at a choice and in skipping `enter`; seven seats and both architects named the pair. After item 4.
+
+### 14. Place xlsx cells by their `r` reference in `data-import/xlsx.py`.
+
+A sheet omitting an empty cell shifts every later column left.
+
+### 11. Test that every node kind reaches each switch over node kinds.
+
+Ten switches, from `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so. `tableReadOf` switches over `stepKind` with no default, so a new step kind passes it silently.
+
+### 16. Add the remaining `misc` tables and templates, one row of the table below per chunk.
+
+Read every factual list from a register by a `data-import/` script. Shape: T = table, t = template, c = choice.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -163,6 +275,18 @@ by a `data-import/` script, as README goal 12 asks.
 | `book` title, author; `genre`; `instrument`; `dish`, `ingredient` | T | Gutenberg catalog, MusicBrainz, USDA | CC0 |
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
+
+### 12. Test that every `geo` tree holds the five table names and the `address` columns that port across countries.
+
+Nothing checks it, and a new country breaks it silently.
+
+### 45. Reword `prove`'s refusal of a typed column reading a row, `{/region}`.
+
+Say the format is the table's own (`region's format "{name}"`), name the read to write, `{/region.<column>}` with its columns, and stop calling a one-column format, `{code}`, composed text.
+
+### 17. Add the remaining locale categories: company, phone, finance, vehicle, words.
+
+Shape: T = table, t = template, c = choice.
 
 `sv_SE` ([source research](docs/research/research-sources-se.md))
 
@@ -194,213 +318,94 @@ by a `data-import/` script, as README goal 12 asks.
 | `word`, `sentence`, `paragraph` | T+t | Moby POS or WordNet | public domain / WordNet |
 | month and weekday names, `holiday` | t+T | CLDR en | Unicode |
 
-### Builtins the data cannot express
+### 9. Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.
 
-- Add `{isin()}` (Luhn over letters expanded to digits), `{cusip()}`, `{aba()}`
-  (3-7-1 weights) and `{vin()}` (position 9 over the whole; a sample taking the WMI,
-  since the check sits mid-string).
-- Add `{base64url(n)}` for JWT shapes.
-- Add a `unix` layout to `date()` once something needs it.
+The greenfield architect found the fence pipeline last. After item 4, which shrinks it.
 
-### Library and CLI
+### 10. Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.
 
-- Report every mistake a load finds in one error, as the decision "A load reports every
-  mistake at once" states: `New` and `NewTemplate` stop at the first, so data holding
-  two mistakes takes two runs to fix. Split it into sub-items before starting, one of
-  them the shape a Go caller iterates and the CLI prints, and the order of an
-  inline template's mistakes, which name no path; reword the README's
-  "`New` refuses a mistake in the data" to every mistake.
-- Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`: both name
-  half of a `generatorState`, hiding its `{seq()}` counters, and `New`'s local `rng`
-  shadows the `rng` interface.
-- Compare `calcParser.binary`'s operator as a rune: `byte(p.rs[p.pos])` reads U+012B
-  `ī` as `+`, so `{calc(a ī b)}` compiles as `a + b`.
-- Stop the `columnKinds` suggestion naming a field's own kind or a narrower one: an
-  `int64` or `float64` field unproven in range is told to become itself, and a `uint64`
-  one to become `int64`.
-- Say in the README's Linked tables that the first table a render reads decides whose
-  weights govern the family: `geo.SE.address` reads `street` first, so it draws by
-  street segments and the region, kommun and postort populations never apply.
-- Parse `defaultTable`'s path with the library's grammar: the CLI counts brackets of its
-  own, so a change to the selector grammar desyncs the default `--table` silently.
-- Step up from a row to its parent as the decision "A link column after a row steps up
-  to the parent row, and a path may not end on it" states, refusing a step back down:
-  `city[Oslo].country.name` is a load error today, and `city[Oslo].country` renders the
-  cell `NO`, as `locality.municipality` does, which `List` stops advertising. Replace the
-  README's `city[Oslo].country` example with
-  `fejkdata -d ./mydata 'city[Oslo].country.name'`, rendering `Norway`.
-- Key every table as the decision "A table selects by one key column, a code, never a
-  free-form name" states: `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select
-  a row today.
-  - Have a selector that misses name the key of every row whose cell spells it,
-    matched without case, else say the table selects by its key:
-    `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]`
-    its key, and `misc.loglevel[Error]` `[err]`.
-  - Delete the `name` option and the load checks it carries, a name spelling another
-    row's key and a name repeating inside its parent, and have `New` refuse a table
-    still carrying `name`, naming `key`.
-  - Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on the integer
-    `data-import/geo-se.py` assigns as the decision states, linking `street` and
-    `postal-code` by it.
-  - Drop `key` from `last-name` and `sv_SE.title`, and re-pin `testdata/shipped_shape.txt`.
-  - Leave no selection by name in README.md, CHANGELOG.md, docs/ or `--help`: no
-    selector spelling a free-form name, `geo.SE.locality[Lund]`, `misc.currency[Euro]`, `first-name[Kim]`
-    and the rest, no "key or name", "by name" or "either" wording about selectors, and no
-    `name` option in an example.
-- Render selected rows as the decision "A selected row is fixed, not drawn, and an
-  unnamed read beside it is refused" states: `New` refuses
-  `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}` today, and a choice
-  whose items select different rows. Have the refusal of an unnamed read name the
-  rewrite through each selection: beside `{/geo.US.locality[1714000].name}`,
-  `{/geo.US.municipality.name}` names none today, where
-  `{/geo.US.locality[1714000].municipality.name}` holds once the step up above lands.
-  Scope the README's "A reference path into a category is held" to a path that
-  selects no row.
-- Refuse a struct tag's `datatype` naming the Go type that sets it before proving its
-  values, as the README's Library section promises: `datatype: boolean` over
-  `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
-- Name the spelling to use in `checkNameHeld`'s path refusal and `checkNoOverlap`'s, as
-  the README's hold section promises: both answer "name the fields you want instead",
-  and `{n} reaches "p" by a second route` names neither the read the route ends on,
-  `{/row.p.last}`, nor the spelling to write, `{p.last}`. Where an operand route's value
-  is the held name, offer it as the operand: `lowercase operand "y" renders
-  "/misc.territory"` ends at "stop", where `{lowercase(/misc.territory)}` loads.
-- Split the README's linked-tables paragraph opening "A path descends from a row", 23
-  lines holding five rules: move its load errors that are no overlap to the table
-  section, and drop its bare `{/city}` refusal, which the hold section states.
-- Offer `move {Y} into a field with a drawGroup` in `overlapError` where both reads share
-  one field: `"a":"{/cat} {/cat.p.first}"` ends at "name the fields you want instead",
-  while the same pair in a format offers the move, which loads there too.
-- Call `templateError` a compile failure: its doc says render failure, and it wraps
-  what `NewTemplate` and `NewRecordTemplate` refuse.
-- Name the node a selector follows in `stepInto`'s refusal: `sv_SE.person[1].first`
-  answers `1 is not a table`.
-- Report the same error every load for a table with two bad options, and for a
-  folder with two unnamed rows files: `readTableOptions` and `loadDir` return on the
-  first in Go's map order.
-- Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that
-  is not there: `loadDir` indexes hidden TSVs and skips them in two places, so one loads
-  where its comment says a hidden file is never data.
-- Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states:
-  `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw.
-- Print `--help`'s repeat range from `fejkdata.MaxRepeat`: the usage spells
-  `1..1048576` a second time.
-- Report a CRLF rows file holding only its header as having no rows: `parseRows`
-  answers "line 2 is empty".
-- Reword `prove`'s refusal of a typed column reading a row, `{/region}`: say the
-  format is the table's own (`region's format "{name}"`), name the read to write,
-  `{/region.<column>}` with its columns, and stop calling a one-column format,
-  `{code}`, composed text.
-- Keep one copy of the selector characters in `data-import/`: `httpmethod.py` and
-  `protocol.py` each copy `inSelector`, and `tsv.py`'s `write` enforces neither.
-- Refuse two whole reads of one table family in one render, which goal 5 promises is a
-  load error: `{/sel}|{/sel}` panics out of `Fake` where the two draws land on rows whose
-  cells select different rows of another table, and
-  `{/geo.SE.locality}|{/geo.SE.municipality}` renders a locality outside the
-  municipality beside it. Each read draws its own row, so cells of two rows render
-  together, where the fence counts them alternatives and compares neither. Have the error
-  name the path spelling that holds, `{/geo.SE.locality.name}|{/geo.SE.municipality.name}`,
-  as the README's rule on a rejected spelling asks.
-- Name the file a link error comes from beside its category path, `sub.x
-  (/d/a/sub/x.json): …`: with several `--data-path` layers the author has to work out
-  which directory won, while a parse error on the same file names it.
-- Name the row a refused read sits in: where both reads come from TSV cells the overlap
-  error names the category and the two columns but no row, so the author greps a
-  register-sized file for the cell — and "name the fields you want instead" rewrites a
-  cell that is not the one to fix.
-- Spell a table one way across the family errors: `drawsApart` names
-  `drawn.segment`, `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one
-  table is `territory` and `misc.territory`, and the short spelling names no file where two
-  folders hold that name.
-- Let a table column carry a `datatype`, so `--format json` writes
-  `"safe": true` and `--format sql` a boolean rather than the text `'true'`. Today only
-  a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text
-  everywhere else. Typing a shipped column changes what `json` and `sql` write, so the
-  capability is a minor and applying it to `misc.httpmethod` is a major.
+The inherited architect's 3am trace crossed four files for one draw.
 
-### Release
+### 29. Rename `misc.territory.country` to `sovereign`.
 
-- Read the tag through `git/ref/tags/{tag}` in `publish_release.py`: GitHub answers
-  `tags/{tag}` with 404 whatever exists, so the burnt-version guard never fires and a
-  release lands on a tag already pointing at another commit.
-- Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the
-  README's Library section, which names none of them.
-- Build on a manual run of `test.yml`: `workflow_dispatch` leaves `github.event.before`
-  empty, so the diff compares `HEAD` with itself and skips `docker build`.
-- Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds: nothing has shipped, so
-  "no longer paths", "where it used to fail" and "where it used to be an empty string"
-  describe versions no reader can have installed.
-- Ship prebuilt binaries so the CLI needs no Go: GoReleaser attaching them to the Gitea
-  release the tag workflow publishes, a container image, Homebrew and Scoop. A checkout
-  build prints `devel` for `--version`; the binaries carry the stamped tag.
+It holds a code, and `country` collides with the `misc.country` path it replaced.
 
-## v0.2.0
+### 39. Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.
 
-- **Promise in `Generator`'s godoc that its renders run one at a time**, so a caller
-  wanting parallel throughput makes one generator per goroutine.
-- Ship the full registers as packs, each a Go module with its own `embed.FS` and a zip
-  for `--data-path`: every US place of 10,000 and more streets per locality, built by
-  `--min-population` and `--streets-per-locality`. The default embed stays under ~1 MB
-  per country and `New` under ~50 ms.
-- Add the locales nb_NO, da_DK, fi_FI, de_DE, en_GB, nl_NL, fr_FR and es_ES, with
-  person, address, phone, national id, company and date names each, and the `geo/`
-  trees NO, DK, FI, NL, FR, AU, CA, ES, GB and DE their `address` reads by reference;
-  AU and CA get a tree with no locale of their own.
-- Add `{btc()}` and `{eth()}`, which need sha256 and keccak for Base58Check and EIP-55.
-- Pair a street with its exact postnummer, which needs an application to Lantmäteriet;
-  today a street goes to the nearest postal code centroid. It rewrites shipped rows, so
-  it is a major once 1.0 is cut and a minor before that.
+`datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
-## v0.3.0
+### 15. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
-Names no items yet, so planning it is a chunk of its own: it takes the additive work
-that lands after v0.2.0, and it has to add something, since a minor only adds. Its job
-is to be the release with no breaking change that v1.0.0 waits on — v0.2.0 cannot be,
-because pairing a street with its exact postnummer rewrites shipped rows.
+Both render the same run.
 
-## v1.0.0
+### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
-- Cut it once the shipped data is in its record shape and one full minor has shipped
-  with no breaking change, per the README's Versioning table: v0.1.0 settles the
-  record shape and v0.3.0 is the quiet minor.
-- Announce it where a developer choosing a fake-data tool already reads, which is
-  goal 1's second half and waits for the tag: complete, stable, installable without
-  Go. Write the README's first screen for someone deciding in a minute.
+17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
 
-## Not release-bound
+### 36. Compare `calcParser.binary`'s operator as a rune.
 
-- Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and
-  the premise it rests on; propose a goal for an entry that serves none.
-- Hold every change the charter says owes a `CHANGELOG.md` entry to one in CI: the
-  check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a
-  flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
-- Measure the allocation gate over the shipped `geo` trees too: `pinSet.inline [8]` is sized
-  for them, and `perf_test.go` checks a synthetic five-deep tree only.
-- Name goal 2's four criteria with the axes the panel scores, so a recorded score maps
-  back to the clause it came from: the goal spells them out in prose while `todo.md`
-  records `Navigation`, `Locality`, `Shape` and `Self-sufficiency`.
-- Cut the README's Layout block to the lines that say what a file name cannot:
-  `calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
-- Cut `AGENTS.md` to the rules only it states: the round procedure stands word for word
-  in `todo.md` and the `gh` rule opens with the README's GitHub decision, so each is a
-  second copy that drifts. Split the comprehension rule while there, which packs the
-  gate, its exceptions, the round and the at-or-above-7.0 regime into one line.
-- Scope `AGENTS.md`'s `Hard tabs.` to the Go source, or drop it: `gofmt` already gates
-  Go at `Dockerfile:16`, and the shipped JSON under `data/` is two-space, so the rule as
-  written is one no Go file can break and every data file does.
-- Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub:
-  Gitea converts a repository to a mirror only by re-creating it, so until that runs
-  the copy there is a second owner of one history and goes stale from this commit.
-- Stop `/cache` collecting root-owned files, which today every command documented
-  without `--user` leaves for the next `--user` one to trip over, and which the README
-  answers with a chown a reader has to repeat. Put `--user` on all of them, or give the
-  `x-go` anchor a `user:` — that one needs a mechanism, since Compose interpolates from
-  the process environment and neither `UID` nor `GID` is exported there, so
-  `user: "${UID}:${GID}"` resolves to `":"`.
-- Spell the latest supported Go once: `Dockerfile`'s `ARG GO_VERSION` and
-  `compose.yaml`'s `golang:${GO_VERSION:-…}` pin one version twice, and a bump that
-  moved only the first left `docker compose run --rm fmt` formatting to a `gofmt` the
-  gate rejects. A `renovate.json` custom manager reads the second today; drop it with
-  the duplication.
-- Publish a homepage with an in-browser generator: the library compiled to WebAssembly,
-  so visitors generate as much data as they like in their own browser.
+`byte(p.rs[p.pos])` reads U+012B `ī` as `+`, so `{calc(a ī b)}` compiles as `a + b`.
+
+### 41. Name the node a selector follows in `stepInto`'s refusal.
+
+`sv_SE.person[1].first` answers `1 is not a table`.
+
+### 44. Report a CRLF rows file holding only its header as having no rows.
+
+`parseRows` answers "line 2 is empty".
+
+### 37. Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.
+
+An `int64` or `float64` field unproven in range is told to become itself, and a `uint64` one to become `int64`.
+
+### 42. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
+
+`readTableOptions` and `loadDir` return on the first in Go's map order.
+
+### 8. Fill `arm` in one place.
+
+`splitArm` runs before the link and again after it, and `compileArm` finishes it from `reference.go`, so five seats traced three phases. After item 4.
+
+### 35. Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.
+
+Both name half of a `generatorState`, hiding its `{seq()}` counters, and `New`'s local `rng` shadows the `rng` interface.
+
+### 40. Call `templateError` a compile failure in its doc.
+
+Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTemplate` refuse.
+
+### 55. Pair a street with its exact postnummer.
+
+Needs an application to Lantmäteriet; today a street goes to the nearest postal code centroid. It rewrites shipped rows, so it is a major once 1.0 is cut and a minor before that.
+
+### 54. Add `{btc()}` and `{eth()}`.
+
+They need sha256 and keccak for Base58Check and EIP-55.
+
+### 52. Promise in `Generator`'s godoc that its renders run one at a time.
+
+So a caller wanting parallel throughput makes one generator per goroutine.
+
+### 58. Cut the README's Layout block to the lines that say what a file name cannot.
+
+`calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
+
+### 53. Add the locales nb_NO, da_DK, fi_FI, de_DE, en_GB, nl_NL, fr_FR and es_ES, and their `geo/` trees.
+
+Person, address, phone, national id, company and date names each, and the `geo/` trees NO, DK, FI, NL, FR, AU, CA, ES, GB and DE their `address` reads by reference; AU and CA get a tree with no locale of their own.
+
+### 59. Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.
+
+The round procedure stands in `todo.md` and the `gh` rule opens with the README's GitHub decision, so each is a second copy that drifts. The comprehension rule packs the gate, its exceptions, the round and the at-or-above-7.0 regime into one line, and uses "depth 1", "nine-seat", "four-seat" and "answers it in one run" without saying what they mean.
+
+### 57. Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.
+
+The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
+
+### 56. Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.
+
+Propose a goal for an entry that serves none.
+
+### 60. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
+
+The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; v0.2.0 rewrites shipped rows, so a v0.3.0 with no breaking change comes first.
