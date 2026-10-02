@@ -4,7 +4,7 @@
 
 2026-09-20, Lilleman auf Larv.
 
-Goal 1 wants the usage the tool earns and goal 2 expects extenders who did not write it;
+Goal 1 wants the usage the tool earns and goal 3 expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
 a fork on a personal instance. Valid while the project wants contribution from outside:
@@ -17,7 +17,7 @@ the workflow decided nothing, being portable already — `github.api_url` and
 2026-10-03, decided by the maintainer. Technical principle: one owner per value
 (`~/.claude/principles/technical-principles.md`). GitHub owns the history, and
 `gitea.larvit.se/larvit/fejkdata` stays as a read-only pull mirror of it, so it is never
-a second owner. Until `todo.md` item 70 converts it, the Gitea copy goes stale. Valid
+a second owner. Until `todo.md` item 68 converts it, the Gitea copy goes stale. Valid
 while the maintainer keeps a Gitea copy.
 
 ## The vocabulary sits below `doc.go`'s package clause, not in the package doc
@@ -27,7 +27,7 @@ while the maintainer keeps a Gitea copy.
 Goal 1 is what a developer choosing a library reads first, and the package doc is that
 page: the glossary would fill two thirds of it with the render path's units, mostly
 unexported, and Go doc comments have no code markup, so every name would render its
-backticks literally. Below the clause it reaches goal 2's reader — who opens the file —
+backticks literally. Below the clause it reaches goal 3's reader — who opens the file —
 and nothing else. Valid while the glossary's subject is the render path; one written to
 teach the exported API belongs above the clause.
 
@@ -118,14 +118,14 @@ still lives in `data/` as JSON; `--data-path` layers over it.
 
 2026-09-02, Lilleman auf Larv.
 
-Goal 4: `{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in
+Goal 5: `{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in
 one render and draw group reads one draw, and a bare `{/p}` beside them is a load error,
 as `{p}` beside `{p.first}` is: a bare token is by contract an independent draw, a path
 pins its level, and a fresh draw of a pinned level could show another row. A builtin's
 operand holds what it reads for its expansion, references included, so
 `{uppercase(/p)} {/p}` is one draw, and `{/p}` written twice beside it is a load error.
 
-Goal 4.2 overrides this; `todo.md` item 4 replaces it.
+Goal 5.2 overrides this; `todo.md` item 4 replaces it.
 
 ## Reference sigils follow the filesystem
 
@@ -161,12 +161,12 @@ this repo's own are.
 
 2026-09-16, Lilleman auf Larv.
 
-Goal 5. A script branches on the exit code and reads the named path or spelling, so
+Goal 6. A script branches on the exit code and reads the named path or spelling, so
 those hold; wording improves in a minor.
 
 ## A load reports every mistake at once
 
-2026-09-30, Lilleman auf Larv. Goal 5. An author learns everything wrong with the data
+2026-09-30, Lilleman auf Larv. Goal 6. An author learns everything wrong with the data
 in one load, not one mistake per run: `New` and `NewTemplate` report every mistake in one
 error, ordered by the path each names. A mistake following only from another, such as a
 reference into a category that did not compile, is left out, so each one names something
@@ -174,7 +174,7 @@ to fix. Valid while a load checks the whole set before its first render.
 
 ## Formats are checked after all data is loaded, so their errors name the category
 
-2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 2. Loading reads every
+2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 3. Loading reads every
 file first, then connects references across them. A format holding a reference can only
 be checked once it is connected, so every format is checked then, and all checks run at
 one moment. An error from those checks names the category path you would type (`sub.x`),
@@ -196,7 +196,7 @@ convention of a minor is not followed.
 literal's values out to a lone long key, so no source satisfies both it and 1.22's. A
 consumer on the lowest supported Go depends on the code compiling and its tests passing
 there, which is the `portable` stage, and never runs `gofmt` over this source, so the
-latest toolchain alone defines the one canonical form goal 2 asks a reader to meet.
+latest toolchain alone defines the one canonical form goal 3 asks a reader to meet.
 Valid while the lowest supported Go is not the latest.
 
 ## The changelog heading is the one spelling of a release; CI cuts the tag
@@ -304,7 +304,7 @@ rather than two copies of it. Only references share: a sibling field is local to
 expansion, so a `first` column does not silently bind to a `first` in the column next to
 it.
 
-Goal 4.2 overrides this; `todo.md` item 4 replaces it.
+Goal 5.2 overrides this; `todo.md` item 4 replaces it.
 
 ## A draw group name is local to its category
 
@@ -321,7 +321,7 @@ across categories must agree.
 
 2026-09-16, Lilleman auf Larv.
 
-Goal 2: one proves a sibling path or an operand is reached only by its readers within
+Goal 3: one proves a sibling path or an operand is reached only by its readers within
 an expansion, the other that reference paths, whole-table reads and a table family's
 rows agree across a render and its draw groups. Their scopes differ and only the second
 tracks rows and pins, so one walk would carry both scopes and tell them apart at every
@@ -333,12 +333,12 @@ step.
 
 2026-09-29, Lilleman auf Larv.
 
-Every render starts from empty draws, its draw groups included, since goal 2 prices
+Every render starts from empty draws, its draw groups included, since goal 3 prices
 a reader meeting two spellings of one empty set. Making the maps where the draws are declared kept a
 record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so there it
 cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
 Lazily, a render reading a reference path pays those two allocations, a record or struct
-included, and one reading none pays nothing; goal 11 holds either way.
+included, and one reading none pays nothing; goal 12 holds either way.
 
 `todo.md` item 4 deletes what this decides.
 
@@ -347,7 +347,7 @@ included, and one reading none pays nothing; goal 11 holds either way.
 2026-09-16, Lilleman auf Larv.
 
 A category is one unit: a reference back into it — `{/users.first}` inside `users` —
-describes a draw other than the fields beside it, where goal 3 asks facts that belong
+describes a draw other than the fields beside it, where goal 4 asks facts that belong
 together to come from one draw, so `New` refuses it and the sibling path stays the one
 spelling for a field of one's own. A value two fields share goes in its own category,
 which both reference. That settled, a record's column fences run at `New` too, so a
@@ -413,7 +413,7 @@ writes as the load check proved it; a `Value any` would hand every caller a type
 
 2026-09-29, Lilleman auf Larv.
 
-Goal 2 wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
+Goal 3 wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
 a read drew.
 
 ## One name, one meaning
@@ -423,8 +423,8 @@ definition covers both: the same kind of value, counted or addressed the same wa
 reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
 `Generator`, `Template` and `RecordTemplate`. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
 name, since a search returns both and a call site shows no receiver; review judges the
-rest. Serves goal 2: names that tell the truth, and reaching the unit behind a symptom
-without asking a person. Decided 2026-09-25 by Lilleman; valid while goal 2 counts reading
+rest. Serves goal 3: names that tell the truth, and reaching the unit behind a symptom
+without asking a person. Decided 2026-09-25 by Lilleman; valid while goal 3 counts reading
 cost.
 
 ## The package stays flat
@@ -478,7 +478,7 @@ accepted one changes, so the door stays open for the address records the plan de
 
 ## A selected row is fixed, not drawn, and an unnamed read beside it is refused
 
-Decided 2026-09-27 by the maintainer, for goals 3 and 4; valid while a selector names
+Decided 2026-09-27 by the maintainer, for goals 4 and 5; valid while a selector names
 exactly one row.
 
 - Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
@@ -496,11 +496,11 @@ exactly one row.
 Checked against three simulated template writers from the Audience, who agreed on each
 case but the last, where two expected a render and all three accepted the refusal.
 
-Goal 4.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
+Goal 5.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
 
 ## A link column after a row steps up to the parent row, and a path may not end on it
 
-Decided 2026-09-27 by the maintainer, for goal 4; valid while a link column holds the
+Decided 2026-09-27 by the maintainer, for goal 5; valid while a link column holds the
 parent's key. It extends [After a row, a path names a column or a linked
 table](#after-a-row-a-path-names-a-column-or-a-linked-table) from child tables to the
 parent. A row is selected or drawn alike.
@@ -526,11 +526,11 @@ Checked against three simulated template writers from the Audience: all three re
 parent row where a segment followed, and they split between the code and the name where
 the path ended.
 
-Goal 4.4 overrides this; `todo.md` item 2 replaces it.
+Goal 5.4 overrides this; `todo.md` item 2 replaces it.
 
 ## A table selects by one key column, a code, never a free-form name
 
-Decided 2026-09-27 by the maintainer, for goal 4's one spelling per result; valid while
+Decided 2026-09-27 by the maintainer, for goal 5's one spelling per result; valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
 selector. The key is the friendliest code the register holds, `misc.territory[SE]` and
@@ -600,9 +600,9 @@ own-family fence walks through both rather than stopping where the draw fences d
 
 2026-09-29, Lilleman auf Larv.
 
-Goal 3: facts that belong together come from one draw, so a shop row's `phone` cell reads
+Goal 4: facts that belong together come from one draw, so a shop row's `phone` cell reads
 `{/sv_SE.phone}` on a Swedish shop and `{/en_US.phone}` on a US one, and the table's
-format, the same for every row, cannot say that. A restructure for goal 2 keeps the fences
+format, the same for every row, cannot say that. A restructure for goal 3 keeps the fences
 that prove such cells safe. Valid while a table's rows need generators of their own.
 
 `todo.md` item 4 deletes the fences this keeps; a cell may still read a reference.
@@ -623,7 +623,7 @@ is until a real data set needs the indexed form.
 
 2026-09-17, Lilleman auf Larv.
 
-Goals 8 and 11: a path that fails moves no seeded stream, at the cost of one draw-free
+Goals 9 and 12: a path that fails moves no seeded stream, at the cost of one draw-free
 walk per call, compiling its steps into a stack buffer of 16. Valid while that walk
 costs little against the draw it guards.
 
@@ -765,7 +765,7 @@ naming the row.
 2026-09-20, Lilleman auf Larv.
 
 `misc.httpmethod`, `misc.port`, `misc.httpstatus`, `misc.mimetype` and `misc.tld` weigh
-every row alike, so GET is a ninth of the methods drawn. Goal 12 keeps an authored fact
+every row alike, so GET is a ninth of the methods drawn. Goal 13 keeps an authored fact
 out of a sourced table, and no register publishes how often a method, a port or a TLD is
 used, so a weight here would be invented. Where one exists it is read, as
 `misc.timezone` reads GeoNames populations and `sv_SE.first-name` SCB bearers.
@@ -775,7 +775,7 @@ used, so a weight here would be invented. Where one exists it is read, as
 2026-09-24, Lilleman auf Larv.
 
 The weight is the population GeoNames records in the zone's cities of 15,000 or more,
-floored at 15,000, which goal 14 asks for: over 300 seeded draws of
+floored at 15,000, which goal 15 asks for: over 300 seeded draws of
 `misc.territory[US].timezone`, the four zones most Americans live in took 278 where an
 even weight gave them 44, and `America/Indiana/Petersburg`, a town of 2,400, fell from 17
 to 0. Valid while a draw weighted this way lands where people live.
@@ -807,7 +807,7 @@ claim fejkdata has no business making.
 2026-09-27, Lilleman auf Larv.
 
 A flat list of names carries neither the code a PRI encodes nor a selector reaching it,
-and goal 3 draws the two as one fact. The canonical spelling losing to the one its
+and goal 4 draws the two as one fact. The canonical spelling losing to the one its
 domain writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
 `Informational` stays the `severity` column.
 
@@ -817,14 +817,14 @@ domain writes, above, settles the rest: a configuration writes `info`, so RFC 54
 
 The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
 bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a host
-with no separator. `misc.tld[se]` misses for it, which `todo.md` item 45 ends.
+with no separator. `misc.tld[se]` misses for it, which `todo.md` item 44 ends.
 
 ## `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
 
 2026-09-20, Lilleman auf Larv.
 
 A `parent` demands a child for every parent row, so linking them would drop every root
-zone row naming no territory, which is most of them, and goal 12 holds a sourced table
+zone row naming no territory, which is most of them, and goal 13 holds a sourced table
 whole. The loader refuses the link outright anyway: `tld` is a column of
 `misc.territory`, and a table may not be named like a column of its ancestor.
 
@@ -880,7 +880,7 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Goals 2 and 11: `drawSteps` draws every path from its steps, compiled at link by
+Goals 3 and 12: `drawSteps` draws every path from its steps, compiled at link by
 `pathCheck` or, for a caller's path, by `probePath` into a stack buffer. The check and
 the probe stay two loops: on 2026-09-29 one loop over all three walks, switching on a
 mode field, leaked the check's leaves and errors with the draw's pins, arm and memo,

@@ -9,7 +9,7 @@
 - CodeRabbit skips every pull request until the repository has 10 GitHub stars: check
   its status once when a PR is marked ready, answer a review if one is there, and never
   wait for one.
-- README goal 2 is gated at 7.0 on the `comprehension-panel` skill, and below it
+- README goal 3 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
   dependency bump, a repair of behaviour the README documents, and the infrastructure
   the round itself runs on. `todo.md` carries the round: a PR per item it plans, the nine-seat
