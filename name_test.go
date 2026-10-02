@@ -210,3 +210,51 @@ func TestNameErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestANameBindsAReferenceFromItsFolder(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"sv/word": `["a","b","c","d","e","f","g","h"]`,
+		"sv/card": `"{.word as w}{w}{w}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(23))
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "sv.card"); got[0] != got[1] {
+			t.Fatalf("sv.card = %q, want one pick", got)
+		}
+	}
+}
+
+func TestANameBindsAReferencePath(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"person": `{"format":"{first}","first":["Ada","Bo","Cy","Di"]}`,
+		"card":   `"{/person.first as f}{f}|{f}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(29))
+	for i := 0; i < 50; i++ {
+		got := strings.Split(fake(t, f, "card"), "|")
+		if got[0] != got[1] {
+			t.Fatalf("card = %q, want one pick", got)
+		}
+	}
+}
+
+type namedPerson struct {
+	First string `fake:"{/person as p}{p.first}"`
+	Whole string `fake:"{p}"`
+}
+
+func TestStructTagsReadOneName(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
+	})
+	f := newGenerator(t, dir, WithSeed(31))
+	for i := 0; i < 50; i++ {
+		var p namedPerson
+		if err := f.FakeStruct(&p); err != nil {
+			t.Fatal(err)
+		}
+		if !strings.HasPrefix(p.Whole, p.First+" ") {
+			t.Fatalf("struct = %+v, want one person", p)
+		}
+	}
+}
