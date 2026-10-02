@@ -175,11 +175,11 @@ zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.sym
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
-it, and it drops a source row only by a rule it states; elsewhere a small hand-written
+that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
 set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 12). Copy
 that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
-has no path that draws only values reaching nothing real (goal 14), pin a value such as
-`example.com`; `todo.md` plans the path.
+has no path that draws only values reaching nothing real (goal 14), write a fixed value such
+as `example.com` into the template; `todo.md` plans the path.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
