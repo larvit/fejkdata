@@ -177,10 +177,10 @@ zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.sym
 A fact is read from its source by a script under [`data-import/`](data-import), as
 goal 12 asks. Where no script exists yet, a small hand-written set ships, and
 [`todo.md`](todo.md) carries the step that replaces it. A script drops a source row
-only by a rule it states. A category is added in proportion to how many real schemas
-store it, per goal 13. Per goal 14, a category whose values could reach something real,
-such as a domain anyone may register, also gets a path that draws only values that
-reach nothing; `todo.md` carries the categories still missing one.
+only by a rule it states. Copy that states no fact, such as `word` and `sentence`, stays
+hand-written. A category is added in proportion to how many real schemas store it, per
+goal 13. Goal 14's paths that draw only values reaching nothing are planned per category
+in `todo.md`; until one ships, pin a value such as `example.com`.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -830,6 +830,8 @@ the Development section below, and who ships a register the five above then draw
 
 ## Goals
 
+Where the project is heading; the sections above document what ships today.
+
 1. **The best fake-data tool there is, and the one developers reach for.**
    1. You can install it the way you install your other tools, and people hear about
       it where developers read.
@@ -996,9 +998,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.p
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
 
-Goal 2 is scored by a panel of simulated readers, the `comprehension-panel` skill, and
-[`AGENTS.md`](AGENTS.md) says what the score asks of a pull request. Goal 4 is checked
-against simulated template writers from the Audience.
+The maintainer scores goal 2 with a panel of simulated readers, and checks goal 4
+against simulated template writers from the Audience; [`AGENTS.md`](AGENTS.md) says
+what the score asks of a pull request.
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
