@@ -31,6 +31,7 @@
 In [docs/decisions.md](docs/decisions.md):
 
 - GitHub is canonical, and the module path names it
+- The Gitea copy stays, as a pull mirror of GitHub
 - The vocabulary sits below `doc.go`'s package clause, not in the package doc
 - Options and fields share one namespace
 - `{a|b}` stays beside nested choices

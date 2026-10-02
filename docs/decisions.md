@@ -11,6 +11,15 @@ a fork on a personal instance. Valid while the project wants contribution from o
 the workflow decided nothing, being portable already — `github.api_url` and
 `secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
 
+
+## The Gitea copy stays, as a pull mirror of GitHub
+
+2026-10-03, decided by the maintainer. Technical principle: one owner per value
+(`~/.claude/principles/technical-principles.md`). GitHub owns the history, and
+`gitea.larvit.se/larvit/fejkdata` stays as a read-only pull mirror of it, so it is never
+a second owner. Until `todo.md` item 70 converts it, the Gitea copy goes stale. Valid
+while the maintainer keeps a Gitea copy.
+
 ## The vocabulary sits below `doc.go`'s package clause, not in the package doc
 
 2026-09-21, Lilleman auf Larv.
