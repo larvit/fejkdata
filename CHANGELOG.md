@@ -8,6 +8,14 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- A name keeps one pick: `{/misc.territory as t}` binds one row of `misc.territory` to `t`
+  and prints nothing, and `{t}`, `{t.capital}` and `{t.calling-code}` read that one row.
+  A name lives in the category binding it, so every field and record column of the
+  category reads one pick, and a name a `repeat` binds picks again on every iteration.
+  Refused at `New`: a name bound twice in one category, or inside a `repeat` and outside
+  it; a name that is a field or an option; a binding of anything but a reference; a
+  binding nothing reads; a path through a name that selects a row; and a binding in a
+  table. A field, column, category or folder name may not contain ` as `.
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,

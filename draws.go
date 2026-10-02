@@ -2,12 +2,14 @@ package fejkdata
 
 import "strings"
 
-// drawMemo is what a hold or a draw group has drawn: the variant each level was drawn as, so
-// every path under it reads one variant; and the value each read produced, by its path, so the
-// same read written twice reads one value.
+// drawMemo is what a hold, a draw group or a named pick has drawn: the variant each level was
+// drawn as, so every path under it reads one variant; the value each read produced, by its path,
+// so the same read written twice reads one value; and the frame of each name scope a read
+// entered past its owner.
 type drawMemo struct {
 	variant map[string]node
 	value   map[string]readValue
+	frames  map[*nameScope]*pickFrame
 }
 
 // groupDraws is what one render's draw group has drawn for its reference paths: a memo, and the
@@ -27,11 +29,12 @@ type readValue struct {
 type renderTrace func(group string, row renderedRow, a arm)
 
 // renderDraws is one render's reference draws: the unnamed draw group's, and each named one's;
-// and a test's trace of its reads.
+// a test's trace of its reads; and the frames of the name scopes rendering.
 type renderDraws struct {
 	unnamed groupDraws
 	named   map[string]*groupDraws
 	trace   renderTrace
+	frames  *frameStack
 }
 
 // renderScope is where a render reads its reference paths: its reference draws, in the draw group of the
@@ -42,6 +45,11 @@ type renderScope struct {
 	draws *renderDraws
 	group string
 	row   renderedRow
+	entry *drawMemo // the memo of the read that entered what renders
+	// pick is the named pick what renders is part of, at pickKey, its path from the name; nil
+	// outside one.
+	pick    *namedPick
+	pickKey string
 }
 
 type renderedRow struct {

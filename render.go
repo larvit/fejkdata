@@ -61,11 +61,15 @@ func renderOnce(s *generatorState, n node) string {
 func render(s *generatorState, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
+		if n.ownScope != nil {
+			mark := sc.draws.pushFrame(n.ownScope)
+			defer sc.draws.popFrame(mark)
+		}
 		return render(s, pick(s, n), sc)
 	case *nullItem:
 		return ""
 	case *table:
-		sc.row = renderedRow{n, n.drawRow(s)}
+		sc.row = renderedRow{n, sc.drawRowOf(s, n)}
 		return expand(s, n.formatTemplate, sc)
 	case *tableRow:
 		return expand(s, n.t.formatTemplate, sc)
@@ -78,6 +82,10 @@ func render(s *generatorState, n node, sc renderScope) string {
 	case *template:
 		sc = sc.in(n)
 		if n.repeat == 1 {
+			if n.ownScope != nil {
+				mark := sc.draws.pushFrame(n.ownScope)
+				defer sc.draws.popFrame(mark)
+			}
 			if lit, fixed := n.fixedText(); fixed {
 				return lit
 			}
@@ -89,7 +97,7 @@ func render(s *generatorState, n node, sc renderScope) string {
 			if i > 0 {
 				b.WriteString(n.separator)
 			}
-			b.WriteString(expandAnew(s, n))
+			b.WriteString(expandAnew(s, n, sc.draws.frames))
 		}
 		return b.String()
 	default:
@@ -97,12 +105,15 @@ func render(s *generatorState, n node, sc renderScope) string {
 	}
 }
 
-// expandAnew expands one repeat iteration of t as a render of its own, in no group. Inlined into
-// render's loop, its draws would move to the heap.
+// expandAnew expands one repeat iteration of t as a render of its own, in no group, inside the
+// name scopes of frames. Inlined into render's loop, its draws would move to the heap.
 //
 //go:noinline
-func expandAnew(s *generatorState, t *template) string {
-	var draws renderDraws
+func expandAnew(s *generatorState, t *template, frames *frameStack) string {
+	draws := renderDraws{frames: frames}
+	if t.ownScope != nil {
+		defer draws.popFrame(draws.pushFrame(t.ownScope))
+	}
 	return expand(s, t, renderScope{draws: &draws})
 }
 
@@ -155,7 +166,8 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 // token addresses by a dotted path that is not a reference, or a field an operand
 // reads — is drawn once and kept in hold, so {place.postal-code} and {place.locality}
 // read one row, either read twice gives one value, and a shown operand is the operand
-// computed. Every other name is drawn afresh, so {word} {word} still draws twice.
+// computed. A field of a template rendering as part of a named pick is kept in the pick.
+// Every other field is drawn afresh, so {word} {word} still draws twice.
 func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a arm) readValue {
 	if a.kind == refPathRead {
 		return readReference(s, t, sc, a)
@@ -163,7 +175,13 @@ func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a
 	if sc.draws.trace != nil {
 		traceRead(sc.draws.trace, t, sc, a)
 	}
-	if a.kind == freshRead {
+	switch {
+	case a.kind == namedRead:
+		return readName(s, sc, a)
+	case sc.pick != nil && !isRef(a.head):
+		return readUnder(s, t, sc, a)
+	case a.kind == freshRead:
+		sc.pick = nil
 		return readValue{text: render(s, t.head(a.head), sc)}
 	}
 	return readMemo(s, t, hold, nil, sc, a)
@@ -187,6 +205,7 @@ func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc r
 	if pins != nil {
 		sc = sc.at(leaf, pins)
 	}
+	sc.pick, sc.entry = nil, memo
 	r := renderLeaf(s, leaf, sc)
 	if memo.value == nil {
 		memo.value = map[string]readValue{}
@@ -209,6 +228,10 @@ func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
 // reference alone whose read drew null.
 func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
+	if c, isChoice := n.(*choice); isChoice && c.ownScope != nil {
+		mark := sc.draws.pushFrame(c.ownScope)
+		defer sc.draws.popFrame(mark)
+	}
 	n = resolveChoice(s, n)
 	switch leaf := n.(type) {
 	case *nullItem:

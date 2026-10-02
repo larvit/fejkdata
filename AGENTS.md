@@ -118,3 +118,4 @@ In [docs/decisions.md](docs/decisions.md):
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps
+- A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read

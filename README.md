@@ -359,7 +359,8 @@ Every character is literal except a `{…}` token:
 
 | Token | Renders |
 |-------|---------|
-| `{name}` | the sibling field `name` |
+| `{name}` | the sibling field `name`, or the pick bound to the name ([Names](#names)) |
+| `{ref as name}` | nothing: binds one pick of the reference `ref` to `name` ([Names](#names)) |
 | `{name.field}` | `field` of one draw of `name` ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
 | `{fn(args)}` | a builtin ([Functions](#functions)) |
@@ -574,7 +575,8 @@ or the reference draws it.
 
 `format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are the only options;
 **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
-a [table](#table), so no template carries a field of that name. An object that does nothing a
+a [table](#table), so no template carries a field of that name. A [name](#names) shares the
+namespace too. An object that does nothing a
 string can't — only a `format` — is rejected naming the string, as is a one-item
 choice naming its item.
 
@@ -695,6 +697,29 @@ renders still read the render's draws. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, reads a field not every variant
 of a choice carries, or names the category the reference sits in, and a reference
 that leads back to its own value, directly, mutually or through a chain.
+
+### Names
+
+`{ref as n}` binds one pick of a reference to the name `n` and prints nothing. `{n}` then
+prints that pick, and `{n.path}` reads a path through it, so every read of `n` describes one
+row:
+
+```json
+"{/misc.territory as t}{t.flag} {t}: capital {t.capital}, calling code +{t.calling-code}"
+```
+
+Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. Everything under a name is drawn
+once, so `{n}` and `{n.path}` agree, and a field `n` renders twice prints the same text twice.
+A name is drawn on its first read, and lives in the category binding it: any field of the
+category reads it, and a record's columns read one pick. Each render of the category picks
+anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
+iteration, and one bound outside the repeat keeps its pick on every line.
+
+Rejected at load: a name bound twice in one category, or both inside a `repeat` and outside
+it; a name that is a field or an option; a binding of anything but a reference; a binding
+nothing reads; a path through a name that selects a row, which the reference selects instead;
+and a binding in a table's format or cell. A field, column, category or folder name may not
+contain ` as `.
 
 ### Draw group
 
@@ -889,6 +914,7 @@ doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
 table.go        tables: the rows TSV, its options and links, row selection and draws
+name.go         names: {ref as n} bindings, the scopes they live in, and the picks a render keeps under them
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points

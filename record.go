@@ -22,7 +22,7 @@ type Column struct {
 // Record is one record rendered from a template: every direct field is a column,
 // listed in name order. Each column is its own expansion, so a sibling field is
 // local to it, while a reference that reads a path is drawn once for the whole
-// record, per group.
+// record, per group, and a name once for the whole record.
 type Record struct {
 	columns []Column
 }
@@ -263,6 +263,10 @@ func recordOf(n node) (*template, []Column, error) {
 // over sc's draws; a table's columns read the row pinned there.
 func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
+	if t.ownScope != nil {
+		mark := sc.draws.pushFrame(t.ownScope)
+		defer sc.draws.popFrame(mark)
+	}
 	if t.site.isFormat() {
 		sc = sc.at(t.site.table.rowNode, &sc.groupDraws().pins)
 	}

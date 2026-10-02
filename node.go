@@ -25,9 +25,10 @@ func (*folder) isNode() {}
 // relative dot paths every item can address, so carriedByAll and List both read the one
 // answer to what a path may reach through this choice.
 type choice struct {
-	items  []node
-	cum    []float64
-	shared map[string]bool
+	items    []node
+	cum      []float64
+	shared   map[string]bool
+	ownScope *nameScope // set on a category's root binding names, by bindNames
 }
 
 func (*choice) isNode() {}
@@ -53,6 +54,11 @@ type template struct {
 	fromString bool   // written as a JSON string rather than an object
 	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
 	site       tableSite
+	unbound    []unboundRead // the heads its tokens read that no field holds
+
+	// Filled by `bindNames`, from the compiled category:
+	scope    *nameScope // where its tokens look a name up
+	ownScope *nameScope // the scope it renders a frame of: a category's, on its root, or a repeat's, per iteration
 
 	// Filled by `linkTemplate`, from the assembled tree:
 	link     templateLink
@@ -105,7 +111,11 @@ func (t *template) head(name string) node {
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front.
 func compile(v any) (node, error) {
-	return compileAt(v, atTop)
+	n, err := compileAt(v, atTop)
+	if err != nil {
+		return nil, err
+	}
+	return n, bindNames(n)
 }
 
 // compileCategory compiles a data file's value, which may be a table over a rows
@@ -220,11 +230,17 @@ func jsonKind(v any) string {
 }
 
 func compileString(s string, site tableSite) (*template, error) {
-	toks, err := parseChecked(s, nil)
+	toks, unbound, err := parseChecked(s, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: s, tokens: toks, repeat: 1, fromString: true, site: site}, nil
+	if site.table != nil {
+		if err := checkTableToks(toks, unbound); err != nil {
+			return nil, err
+		}
+		unbound = nil
+	}
+	return &template{format: s, tokens: toks, repeat: 1, fromString: true, site: site, unbound: unbound}, nil
 }
 
 // fixedText is one render's output when the format holds no token; repeat is the caller's.
@@ -329,14 +345,14 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString && o.group == "" {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
-	toks, err := parseChecked(o.format, fields)
+	toks, unbound, err := parseChecked(o.format, fields)
 	if err != nil {
 		return nil, err
 	}
 	if err := checkNestedDrawGroup(fields, o.group); err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn, unbound: unbound}, nil
 }
 
 // templateOptions is what a template object's option keys say.
@@ -524,6 +540,9 @@ func checkName(name string) error {
 	}
 	if name == "-" {
 		return fmt.Errorf(`%q is reserved: the struct tag fake:"-" leaves a field unfilled, so no tag could read it; rename it`, name)
+	}
+	if strings.Contains(name, asWord) {
+		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, asWord)
 	}
 	if i := strings.IndexAny(name, reservedInName); i >= 0 {
 		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",

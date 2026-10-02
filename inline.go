@@ -163,7 +163,7 @@ func inlineBinding(n node, label string, root map[string]node) binding {
 // linkNodeRefs binds the references in an inline node's templates against the
 // loaded tree.
 func linkNodeRefs(scope nodeScope, root map[string]node) error {
-	return scope(func(path string, m node) error {
+	if err := scope(func(path string, m node) error {
 		t, ok := m.(*template)
 		if !ok {
 			return nil
@@ -178,5 +178,13 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 			}
 		}
 		return linkTemplate(nil, path, "", t, root)
+	}); err != nil {
+		return err
+	}
+	return scope(func(path string, m node) error {
+		if t, ok := m.(*template); ok {
+			return linkNames(path, t)
+		}
+		return nil
 	})
 }

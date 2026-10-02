@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -63,7 +64,8 @@ type formatToken struct {
 	body  string   // the braces' content, as written
 	fn    string   // builtinCall
 	args  []string // builtinCall
-	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads
+	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads; nameBind: the reference it binds
+	bound string   // nameBind: the name
 }
 
 type tokenKind uint8
@@ -72,7 +74,11 @@ const (
 	builtinCall tokenKind = iota + 1
 	nameRead
 	literalRun
+	nameBind
 )
+
+// asWord separates a binding's reference from the name it binds: {/person as p}.
+const asWord = " as "
 
 // parseFormat is the one reading of a format's tokens: a '(' outside a selector makes
 // a token a call.
@@ -91,6 +97,10 @@ func parseFormat(format string) ([]formatToken, error) {
 			return nil
 		}
 		flush()
+		if ref, name, binds := cutOutside(u.body, asWord); binds && indexOutside(u.body, '(') < 0 {
+			toks = append(toks, formatToken{kind: nameBind, body: u.body, names: []string{ref}, bound: name})
+			return nil
+		}
 		if indexOutside(u.body, '(') < 0 {
 			toks = append(toks, formatToken{kind: nameRead, body: u.body, names: splitOutside(u.body, '|')})
 			return nil
@@ -195,51 +205,103 @@ func checkFunc(tok formatToken, fields map[string]node) error {
 	return nil
 }
 
-func parseChecked(format string, fields map[string]node) ([]formatToken, error) {
+func parseChecked(format string, fields map[string]node) ([]formatToken, []unboundRead, error) {
 	toks, err := parseFormat(format)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return toks, checkTokens(toks, fields)
+	unbound, err := checkTokens(toks, fields)
+	return toks, unbound, err
 }
+
+// unboundRead is a token reading a head no field holds, which only a name bound around the
+// template can answer; err is the refusal where none does.
+type unboundRead struct {
+	head string
+	err  error
+}
+
+// fieldMiss is a head no field of the template holds.
+type fieldMiss struct {
+	head string
+	err  error
+}
+
+func (m *fieldMiss) Error() string { return m.err.Error() }
 
 // checkTokens proves every parsed token names an existing field or a known function,
-// so a typo'd or dangling reference is a New-time error.
-func checkTokens(toks []formatToken, fields map[string]node) error {
+// so a typo'd or dangling reference is a New-time error. A head no field holds comes
+// back unbound, for bindNames to look up among the names.
+func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, error) {
+	var unbound []unboundRead
 	for _, t := range toks {
-		if err := checkToken(t, fields); err != nil {
-			return err
+		u, err := checkToken(t, fields)
+		if err != nil {
+			return nil, err
 		}
+		unbound = append(unbound, u...)
 	}
-	return nil
+	return unbound, nil
 }
 
-func checkToken(t formatToken, fields map[string]node) error {
+func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
 	switch t.kind {
 	case builtinCall:
-		return checkFunc(t, fields)
+		return nil, checkFunc(t, fields)
+	case nameBind:
+		return nil, checkBind(t)
 	case nameRead:
+		var unbound []unboundRead
 		for _, name := range t.names {
 			if isRef(name) {
 				if _, _, err := refShape(name); err != nil {
-					return fmt.Errorf("token {%s}: %w", t.body, err)
+					return nil, fmt.Errorf("token {%s}: %w", t.body, err)
 				}
 				continue // its target is checked at New (see linkRefs)
 			}
-			if err := checkArm(name, fields, len(t.names) == 1); err != nil {
-				return fmt.Errorf("token {%s}: %w", t.body, err)
+			err := checkArm(name, fields, len(t.names) == 1)
+			var miss *fieldMiss
+			if errors.As(err, &miss) {
+				unbound = append(unbound, unboundRead{miss.head, fmt.Errorf("token {%s}: %w", t.body, err)})
+				continue
+			}
+			if err != nil {
+				return nil, fmt.Errorf("token {%s}: %w", t.body, err)
 			}
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
-		return checkNoRepeatedArm(t.body, t.names)
+		return unbound, checkNoRepeatedArm(t.body, t.names)
+	}
+	return nil, nil
+}
+
+// checkBind proves a {ref as name} token binds a reference to a name no other token
+// could read as something else.
+func checkBind(t formatToken) error {
+	ref, name := t.names[0], t.bound
+	if trimmed := strings.TrimSpace(ref) + asWord + strings.TrimSpace(name); trimmed != t.body {
+		return fmt.Errorf("token {%s}: write {%s}", t.body, trimmed)
+	}
+	if !isRef(ref) {
+		return fmt.Errorf("token {%s}: %q is no reference; a name binds a pick of a reference, which starts with /, . or ..", t.body, ref)
+	}
+	if _, _, err := refShape(ref); err != nil {
+		return fmt.Errorf("token {%s}: %w", t.body, err)
+	}
+	if isOption(name) {
+		return fmt.Errorf("token {%s}: %q is an option and can never be a name", t.body, name)
+	}
+	if err := checkName(name); err != nil {
+		return fmt.Errorf("token {%s}: name %w", t.body, err)
 	}
 	return nil
 }
 
 // checkArm validates one sibling name or path against a template's fields.
 // wholeToken says the name is the token's entire body, so {/name} would render
-// the same value and can be offered as the reference spelling.
+// the same value and can be offered as the reference spelling. A head no field
+// holds is a *fieldMiss.
 func checkArm(name string, fields map[string]node, wholeToken bool) error {
 	a := splitArm(name, nil)
 	if err := checkSegments(a); err != nil {
@@ -258,9 +320,9 @@ func checkArm(name string, fields map[string]node, wholeToken bool) error {
 			if wholeToken && hintableRef(name) {
 				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
 			}
-			return fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
+			return &fieldMiss{a.head, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)}
 		}
-		return fmt.Errorf("no field %q", a.head)
+		return &fieldMiss{a.head, fmt.Errorf("no field %q", a.head)}
 	}
 	if err := checkPathResolves(field, a.tail, a.head); err != nil {
 		return fmt.Errorf("field %q: %w", a.head, err)
@@ -316,6 +378,7 @@ type arm struct {
 	leaves      []node // every node the path may land on, one per variant it passes
 	cover       node   // what holding the path pins: the first choice it passes, else its leaf
 	kind        armKind
+	bind        *nameBinding // namedRead: the binding of the name it reads through
 }
 
 // armKind is how expand reads an arm, fixed at compile.
@@ -325,6 +388,7 @@ const (
 	freshRead   armKind = iota // drawn afresh at every read
 	heldRead                   // drawn once per expansion, kept in its hold
 	refPathRead                // drawn once per draw group, kept in its memo
+	namedRead                  // read through a name, kept in its pick
 )
 
 func (a arm) isRefPath() bool {
@@ -439,10 +503,14 @@ func (c *formatOps) function(tok formatToken, refs map[string]refBinding) {
 	c.ops = append(c.ops, op{formatToken: tok, call: builtins[tok.fn].prep(tok.args), operands: operands})
 }
 
-func (c *formatOps) field(tok formatToken, refs map[string]refBinding) {
+func (c *formatOps) field(tok formatToken, refs map[string]refBinding, isName func(string) bool) {
 	arms := make([]arm, len(tok.names))
 	for i, name := range tok.names {
 		arms[i] = splitArm(name, refs)
+		if isName(arms[i].head) {
+			arms[i].kind = namedRead
+			continue
+		}
 		if len(arms[i].tail) > 0 {
 			c.holdName(arms[i], "token {"+arms[i].spelling+"}")
 		}
@@ -450,9 +518,9 @@ func (c *formatOps) field(tok formatToken, refs map[string]refBinding) {
 	c.ops = append(c.ops, op{formatToken: tok, arms: arms})
 }
 
-// compileFormat compiles a parsed format. Call checkTokens first: it is what proves
-// every token valid.
-func compileFormat(toks []formatToken, refs map[string]refBinding) formatOps {
+// compileFormat compiles a parsed format, a binding to nothing, since it prints nothing. Call
+// checkTokens first: it is what proves every token valid.
+func compileFormat(toks []formatToken, refs map[string]refBinding, isName func(head string) bool) formatOps {
 	var c formatOps
 	for _, tok := range toks {
 		switch tok.kind {
@@ -462,7 +530,7 @@ func compileFormat(toks []formatToken, refs map[string]refBinding) formatOps {
 		case builtinCall:
 			c.function(tok, refs)
 		case nameRead:
-			c.field(tok, refs)
+			c.field(tok, refs, isName)
 		}
 	}
 	return c

@@ -55,7 +55,6 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 14 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
-| 1 | 0.1.0 |  | **Bind a pick to a name with `{x as n}`, read it with `{n}` and `{n.path}`, and refuse a name bound twice.** | 4 | 6 | 8 | 9 | 5.3, 4.1 | 25.8 |
 | 3 | 0.1.0 |  | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 25 | 0.1.0 | defect | **Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.** | 2 | 2 | 6 | 8 | 4 | 23.1 |
@@ -186,23 +185,16 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-### 1. Bind a pick to a name with `{x as n}`, read it with `{n}` and `{n.path}`, and refuse a name bound twice.
-
-- A name is one pick of everything under it, drawn once: `{/country as k} {k.city.name} ({k.city.population})` is one city of `k`'s country.
-- A name is visible in the template that binds it and everything that template renders, its sibling fields and a record's columns included, so one field may bind and another read.
-- A name bound inside a `repeat` level picks again on every iteration; one bound outside it keeps its pick on every line.
-- Refused at load: a name bound twice in one scope, and a name that is also a field or an option of the template, since options and fields share one namespace.
-
 ### 3. Rewrite the shipped categories so facts that belong together come from one named pick.
 
 - `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
 - `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once.
-- Needs items 1 and 2. Every shipped value must still pass its consumer's check before and after item 4.
+- Needs item 2. Every shipped value must still pass its consumer's check before and after item 4.
 - Re-pin seeded output in its own commit.
 
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
 
-- Needs items 1–3. After it, `{/person} ({/person.first})` renders two people, `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Needs items 2 and 3. After it, `{/person} ({/person.first})` renders two people, `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's References, Draw group, Correlated fields, Linked tables and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.

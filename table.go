@@ -323,6 +323,9 @@ func (t *table) compileRowFormat(format string) error {
 	if err != nil {
 		return err
 	}
+	if err := checkTableToks(toks, nil); err != nil {
+		return err
+	}
 	for _, tok := range toks {
 		if tok.kind != nameRead {
 			continue
@@ -338,11 +341,29 @@ func (t *table) compileRowFormat(format string) error {
 	for i, name := range t.header {
 		fields[name] = &tableColumn{t, i}
 	}
-	if err := checkTokens(toks, fields); err != nil {
+	unbound, err := checkTokens(toks, fields)
+	if err != nil {
 		return err
+	}
+	if len(unbound) > 0 {
+		return unbound[0].err
 	}
 	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
 	t.rowNode = &tableRow{t}
+	return nil
+}
+
+// checkTableToks refuses a table's format or cell binding a name, or reading a head no column
+// holds: a table holds no names.
+func checkTableToks(toks []formatToken, unbound []unboundRead) error {
+	for _, tok := range toks {
+		if tok.kind == nameBind {
+			return fmt.Errorf("token {%s}: a table binds no name; bind it in a template reading the table", tok.body)
+		}
+	}
+	if len(unbound) > 0 {
+		return unbound[0].err
+	}
 	return nil
 }
 
