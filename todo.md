@@ -52,6 +52,7 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
+| 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 14 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
 | 1 | 0.1.0 |  | **Bind a pick to a name with `{x as n}`, read it with `{n}` and `{n.path}`, and refuse a name bound twice.** | 4 | 6 | 8 | 9 | 5.3, 4.1 | 25.8 |
@@ -110,7 +111,6 @@
 | 37 | 0.3.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
-| 61 | 0.4.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 11 | 13.8 |
@@ -124,6 +124,10 @@
 | 70 | 1.0.0 |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 6 | 6 | 6 | 1.1 | 19.5 |
 
 ## Details
+
+### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
+
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
 
 ### 16. Add the remaining locale categories: company, phone, finance, vehicle, words.
 
@@ -403,10 +407,6 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 ### 56. Build on a manual run of `test.yml`.
 
 `workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
-
-### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
-
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
 
 ### 63. Pair a street with its exact postnummer.
 
