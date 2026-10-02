@@ -174,13 +174,12 @@ zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.sym
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 
-A fact is read from its source by a script under [`data-import/`](data-import), as
-goal 12 asks. Where no script exists yet, a small hand-written set ships, and
-[`todo.md`](todo.md) carries the step that replaces it. A script drops a source row
-only by a rule it states. Copy that states no fact, such as `word` and `sentence`, stays
-hand-written. A category is added in proportion to how many real schemas store it, per
-goal 13. Goal 14's paths that draw only values reaching nothing are planned per category
-in `todo.md`; until one ships, pin a value such as `example.com`.
+Where a script under [`data-import/`](data-import) reads a source, the facts come from
+it, and it drops a source row only by a rule it states; elsewhere a small hand-written
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 12). Copy
+that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
+has no path that draws only values reaching nothing real (goal 14), pin a value such as
+`example.com`; `todo.md` plans the path.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -768,7 +767,7 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 ### Performance
 
-Goal 11 aims at about a microsecond per value.
+The target is about a microsecond per value (goal 11).
 
 Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
 parent columns, which are mapped on the first `Fake` that selects by name or descends
@@ -830,7 +829,7 @@ the Development section below, and who ships a register the five above then draw
 
 ## Goals
 
-Where the project is heading; the sections above document what ships today.
+Where the project is heading; the sections before Audience document what ships today.
 
 1. **The best fake-data tool there is, and the one developers reach for.**
    1. You can install it the way you install your other tools, and people hear about
@@ -960,6 +959,10 @@ docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest support
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
+Goal 2 is scored by a panel of simulated readers, and goal 4 checked against simulated
+template writers from the Audience; [`AGENTS.md`](AGENTS.md) says when each runs and
+what the score asks of a pull request.
+
 A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
 in its own commit:
 
@@ -997,10 +1000,6 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timez
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
-
-The maintainer scores goal 2 with a panel of simulated readers, and checks goal 4
-against simulated template writers from the Audience; [`AGENTS.md`](AGENTS.md) says
-what the score asks of a pull request.
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
