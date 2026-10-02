@@ -79,7 +79,7 @@
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 2.2 | 12.8 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 7 | 13, 12 | 12.4 |
 | 11 | 0.1.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 3 | 12.4 |
-| 40 | 0.1.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or name it.** | 1 | 1 | 4 | 6 | 5 | 12.4 |
+| 40 | 0.1.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 5 | 12.4 |
 | 46 | 0.1.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 5 | 12.1 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 7 | 13 | 11.8 |
 | 8 | 0.1.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 2.1 | 11.6 |
@@ -131,7 +131,7 @@ GoReleaser attaches them to the release the tag workflow publishes. A checkout b
 
 - `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
 - `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once.
-- Needs item 1 and 2. Every shipped value must still pass its consumer's check before and after item 4.
+- Needs items 1 and 2. Every shipped value must still pass its consumer's check before and after item 4.
 - Re-pin seeded output in its own commit.
 
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
@@ -277,7 +277,7 @@ Shape: T = table, t = template, c = choice.
 
 Nothing checks it, and a new country breaks it silently.
 
-### 40. Have `misc.tld[se]` select the row keyed `.se`, or name it.
+### 40. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 
 The decision "`misc.tld` keys carry the leading dot, where other tables key on a bare code" leaves `misc.tld[se]` missing today.
 
@@ -409,7 +409,7 @@ Each locale carries person, address, phone, national id, company and date names.
 
 ### 62. Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.
 
-The `gh` rule restates the decision "GitHub is canonical, and the module path names it", so it is a second copy that drifts. The comprehension rule packs the gate, its exceptions, the round and the at-or-above-7.0 regime into one line, and uses "depth 1", "nine-seat", "four-seat" and "answers it in one run" without saying what they mean.
+The `gh` rule opens by restating the decision "GitHub is canonical, and the module path names it", a second copy that drifts. The comprehension rule packs the gate, its exceptions, the round and the at-or-above-7.0 regime into one line, and uses "depth 1", "nine-seat", "four-seat" and "answers it in one run" without saying what they mean.
 
 ### 60. Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.
 
