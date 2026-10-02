@@ -453,4 +453,4 @@ Gitea converts a repository to a mirror only by re-creating it, so until that ru
 
 ### 71. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
-The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; v0.2.0 rewrites shipped rows, so a v0.3.0 with no breaking change comes first.
+The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; pairing a street with its exact postnummer rewrites shipped rows, so a minor with no breaking change follows it first.
