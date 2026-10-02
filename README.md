@@ -959,9 +959,9 @@ docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest support
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
-Goal 2 is scored by a panel of simulated readers, and goal 4 checked against simulated
-template writers from the Audience; [`AGENTS.md`](AGENTS.md) says when each runs and
-what the score asks of a pull request.
+Goal 2 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
+what the score asks of a pull request. Goal 4 is checked against simulated template
+writers from the Audience.
 
 A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
 in its own commit:
