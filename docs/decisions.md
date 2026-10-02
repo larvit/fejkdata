@@ -808,7 +808,7 @@ domain writes, above, settles the rest: a configuration writes `info`, so RFC 54
 
 The register spells a TLD `.se` and `misc.territory.tld` already ships it so, which a
 bare key would make two spellings of one fact; `{/misc.tld}` also composes onto a host
-with no separator. `misc.tld[se]` misses for it, which `todo.md` carries.
+with no separator. `misc.tld[se]` misses for it, which `todo.md` item 40 ends.
 
 ## `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
 
