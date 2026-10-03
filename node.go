@@ -235,10 +235,12 @@ func compileString(s string, site tableSite) (*template, error) {
 		return nil, err
 	}
 	if site.table != nil {
-		if err := checkTableToks(toks, unbound); err != nil {
+		if err := refuseTableBinding(toks); err != nil {
 			return nil, err
 		}
-		unbound = nil
+		if len(unbound) > 0 {
+			return nil, unbound[0].err
+		}
 	}
 	return &template{format: s, tokens: toks, repeat: 1, fromString: true, site: site, unbound: unbound}, nil
 }

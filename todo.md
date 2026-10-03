@@ -203,6 +203,7 @@ Shape: T = table, t = template, c = choice.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
+- Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
 - Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
 
 ### 25. Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.
