@@ -45,8 +45,7 @@ func unloadedTree() folder {
 	return root
 }
 
-// unloadedCategory is a shipped category not loaded yet: the folder holding it, that
-// folder's path, and its name there.
+// unloadedCategory is a shipped category not loaded yet.
 type unloadedCategory struct {
 	dir  []string
 	in   *folder
@@ -65,9 +64,8 @@ func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
 	return unloadedCategory{dir: segs[:i:i], in: g, name: segs[i]}, true
 }
 
-// loadShippedAt loads the shipped category a caller's path names or descends into, unless
-// it is loaded already. An entry point calls it before walking root: a walk is a query and
-// loads nothing.
+// loadShippedAt loads the shipped category a caller's path names or descends into. An entry
+// point calls it before walking root: a walk is a query and loads nothing.
 func (f *Generator) loadShippedAt(segs []string) {
 	if u, unloaded := unloadedAt(&f.root, segs); unloaded {
 		loadShipped(&f.root, []unloadedCategory{u})
@@ -97,8 +95,8 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 	return out
 }
 
-// loadShipped loads the shipped categories wanted, with every category they read and the
-// family of each, then binds what it loaded as a whole load binds.
+// loadShipped loads the shipped categories wanted, every category they read, and the table
+// family of each one it loads, then binds them as a whole load binds.
 // TestEveryShippedCategoryLoadsAlone reaches each category, so a failure here means a stale
 // index.
 func loadShipped(root *folder, wanted []unloadedCategory) {

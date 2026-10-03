@@ -499,7 +499,7 @@ table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbo
 on the next, since only one row renders. `New` proves the header, the options and every
 cell token, and refuses a TSV no category names, a key that is empty or repeats, a
 weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
-`"` or `|`, which a selector cannot spell; the table's load maps the keys, and a name or parent column
+`"` or `|`, which a selector cannot spell; `New` maps the keys, and a name or parent column
 is mapped on the first draw that selects by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
 their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
 is settled by the `sex` selected before it and a name repeating inside one parent row
