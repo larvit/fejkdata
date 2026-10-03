@@ -104,9 +104,8 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{rand: rng, root: root}, nil
 }
 
-// load is the tree New starts from. The shipped data set alone loads each category on the
-// first call reaching it; beside any other source, every category loads here, so each
-// mistake in that source is New's error.
+// load is the tree New starts from: beside a source of the caller's, every category loads
+// here, so each mistake in that source is New's error.
 func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {
 		return unloadedTree(), nil
