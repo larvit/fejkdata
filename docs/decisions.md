@@ -904,4 +904,5 @@ whichever binds it. A read entering a category keeps the frame of each scope it 
 own memo, and the category's root renders that frame when the read lands on the root, so
 `{n}` and `{n.path}` read one pick: per render and group for a reference path, per pick for a
 path through a name, and per render for `Fake("cat.field")`. A reference read under a pick
-draws in the pick's own draw groups, so two names bound to one category are two picks of it.
+draws in the draw group of the read of the name, the group the draw fences survey it in; a pick
+with draw groups of its own would draw where no fence looks.

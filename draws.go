@@ -51,10 +51,9 @@ type renderScope struct {
 	entry *drawMemo
 	base  int
 	// pick is the named pick what renders is part of, at pickKey, its path from the name; nil
-	// outside one. refs is the draw groups of the last pick entered, nil before one.
+	// outside one.
 	pick    *namedPick
 	pickKey string
-	refs    *renderDraws
 }
 
 type renderedRow struct {
@@ -91,20 +90,16 @@ func (sc renderScope) rowOf(t *table) int {
 }
 
 func (sc renderScope) groupDraws() *groupDraws {
-	draws := sc.draws
-	if sc.refs != nil {
-		draws = sc.refs
-	}
 	if sc.group == "" {
-		return &draws.unnamed
+		return &sc.draws.unnamed
 	}
-	d, drew := draws.named[sc.group]
+	d, drew := sc.draws.named[sc.group]
 	if !drew {
-		if draws.named == nil {
-			draws.named = map[string]*groupDraws{}
+		if sc.draws.named == nil {
+			sc.draws.named = map[string]*groupDraws{}
 		}
 		d = &groupDraws{}
-		draws.named[strings.Clone(sc.group)] = d
+		sc.draws.named[strings.Clone(sc.group)] = d
 	}
 	return d
 }

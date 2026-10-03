@@ -337,19 +337,3 @@ func TestOneRenderReadsOneNameAcrossDrawGroups(t *testing.T) {
 		}
 	}
 }
-
-func TestTwoNamesOnOneCategoryAreTwoPicks(t *testing.T) {
-	dir := writeData(t, map[string]string{
-		"given":  `{"format":"{first}","first":["Ada","Bo","Cy","Di","Ed","Flo","Gus","Hal"]}`,
-		"person": `"{/given.first}"`,
-		"card":   `"{/person as p}{/person as q}{p}|{q}"`,
-	})
-	f := newGenerator(t, dir, WithSeed(53))
-	for i := 0; i < 50; i++ {
-		got := strings.Split(fake(t, f, "card"), "|")
-		if got[0] != got[1] {
-			return
-		}
-	}
-	t.Fatal("card printed one person for p and q in 50 renders, want two picks")
-}

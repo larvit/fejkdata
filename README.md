@@ -711,8 +711,9 @@ row:
 Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. Everything under a name is drawn
 once, so `{n}` and `{n.path}` agree, a [transform](#transforms) of `n.path` reads the same
 value, and a field `n` renders twice prints the same text twice. A name is a pick of its own:
-`{t.name}` and `{/misc.territory.name}` beside it are two draws, as are two names bound to one
-category.
+`{t.name}` and `{/misc.territory.name}` beside it are two draws. A reference path read under a
+name draws in the draw group of the read of the name, so give the reads of two names bound to
+one category a [draw group](#draw-group) each to draw what it references apart.
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category reads it, and a record's columns read one pick. Each render of the category picks

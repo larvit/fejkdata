@@ -219,12 +219,12 @@ func linkName(t *template, a *arm) error {
 }
 
 // namedPick is one draw of a name: the variant drawn at each level under it, the value each
-// path through it read, keyed by the path from the name, and the table rows they pinned; and the
-// draw groups of the references read under it, so two names on one category are two picks of it.
+// path through it read, keyed by the path from the name, and the table rows they pinned. A
+// reference read under it draws in the draw group of the read of the name, which the draw
+// fences survey it in.
 type namedPick struct {
 	memo drawMemo
 	pins pinSet
-	refs renderDraws
 }
 
 // pickFrame is one render of a name scope: a pick per binding, each drawn on its first read.
@@ -316,7 +316,6 @@ func (sc renderScope) entryMemo() *drawMemo {
 
 func readName(s *generatorState, sc renderScope, a arm) readValue {
 	p := sc.pickOf(a.bind)
-	sc.refs, sc.group = &p.refs, ""
 	return readPicked(s, p, a.bind.head, a.steps, a.levels, a.path, sc.entering(&p.memo))
 }
 
