@@ -95,8 +95,8 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 	return out
 }
 
-// loadShipped loads the shipped categories wanted, every category they read, and the table
-// family of each one it loads, then binds them as a whole load binds.
+// loadShipped loads the shipped categories wanted and, for each category it loads, every
+// category it reads and its table family, then binds all it loaded as a whole load binds.
 // TestEveryShippedCategoryLoadsAlone reaches each category, so a failure here means a stale
 // index.
 func loadShipped(root *folder, wanted []unloadedCategory) {
