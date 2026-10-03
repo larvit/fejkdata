@@ -893,7 +893,7 @@ a struct's fields as one.
 
 ## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 
-2026-10-03, larv-review. Goals 5.3 and 5.6.
+2026-10-03, larv-review in PR #145, for Lilleman auf Larv. Goals 5.3 and 5.6.
 `bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
 `"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category
@@ -913,5 +913,8 @@ nowhere else.
 A pick keeps only the levels a read of the name addresses, so a template draws the same way
 under a name as anywhere else (goal 5.2). A reference read under a pick draws in the draw group
 of the read of the name, the group the draw fences survey it in, so two names bound to one
-category share what it reads by reference path. `todo.md` item 4 ends that: once every `{…}`
-draws afresh, nothing is held for the render.
+category share what it reads by reference path. Where what a name names reads a reference
+path, its reads stay in one draw group and outside any repeat: a reference path is held per
+draw group and per iteration, so what the pick kept and what it renders afresh would come from
+two draws of it. `todo.md` item 4 ends both: once every `{…}` draws afresh, nothing is held for
+the render.

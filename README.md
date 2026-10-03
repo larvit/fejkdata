@@ -711,8 +711,8 @@ row:
 Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps each level a
 `{n.path}` reads, and what it lands on, so `{n}` and `{n.path}` agree, and a
 [transform](#transforms) of `n.path` reads the same value. Everything else under the name draws
-as it would anywhere: `{w}-{w}` in the category `n` names draws `w` twice, so `{n.w}` beside
-`{n}` is refused there, since it could read either draw.
+as it would anywhere. So if the category `n` names has the format `{w}-{w}`, it draws `w`
+twice, and `{n.w}` beside `{n}` is refused, since it could read either draw.
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
 reference path the picked category reads is still held for the render as usual, so two names
@@ -724,13 +724,21 @@ category reads it, and a record's columns read one pick. Each render of the cate
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
 iteration, and one bound outside the repeat keeps its pick on every line.
 
-Rejected at load: a name bound twice outside any `repeat`, twice in one `repeat`, or both
-inside a `repeat` and outside it; a name that is a field or an option; a binding of anything
-but a reference; a binding in a choice's item, which every other item would leave unbound; a
-binding nothing reads, or one read once whole outside a `repeat`, which the reference spells;
-a path through a name that selects a row, which the reference selects instead; a read of a name
-rendering a field twice where a path through the name reads it; and a binding in a table's
-format or cell. A field, column, category or folder name may not contain ` as `.
+Rejected at load, each error naming what to write instead:
+
+- a name bound twice outside any `repeat`, twice in one `repeat`, or both inside a `repeat`
+  and outside it;
+- a name that is a field or an option;
+- a binding of anything but a reference;
+- a binding in a choice's item, which every other item would leave unbound;
+- a binding nothing reads, or read once outside a `repeat`, which the reference spells:
+  `{/word as w}{w}` is `{/word}`, and `{/word as w}{w.x}` is `{/word.x}`;
+- a path through a name that selects a row;
+- a read of a name rendering a field twice, where a path through the name reads it;
+- reads of a name in two draw groups, or inside a `repeat`, where what it names reads a
+  reference path, which each draw group and iteration draws apart;
+- a binding in a table's format or cell;
+- a field, column, category or folder name containing ` as `.
 
 ### Draw group
 

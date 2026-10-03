@@ -35,10 +35,12 @@ type nameBinding struct {
 	addressed map[string]string
 }
 
-// nameUse is one read of a name: whole, with no path into it, an operand of a builtin, or in a
-// repeat nested inside the name's scope.
+// nameUse is one read of a name: the path it reads into the name, "" for the name itself; whether
+// a builtin reads it as an operand; the draw group its template renders in; and whether it sits in
+// a repeat nested inside the name's scope.
 type nameUse struct {
-	whole, operand, nested bool
+	tail, group     string
+	operand, nested bool
 }
 
 func (sc *nameScope) lookup(name string) *nameBinding {
@@ -82,11 +84,11 @@ func bindNames(root node) error {
 	for _, sc := range scopes[1:] {
 		for _, b := range sc.order {
 			if outer := sc.up.lookup(b.name); outer != nil {
-				return fmt.Errorf("%stoken {%s}: name %q is bound outside this repeat already, by {%s}; rename one", b.where, b.body, b.name, outer.body)
+				return fmt.Errorf("%stoken {%s}: name %q is bound outside this repeat too, by {%s}; rename one", b.where, b.body, b.name, outer.body)
 			}
 		}
 	}
-	if err := resolveReads(root, "", scopes); err != nil {
+	if err := resolveReads(root, "", "", scopes); err != nil {
 		return err
 	}
 	for _, sc := range scopes {
@@ -105,7 +107,7 @@ func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 			continue
 		}
 		if inChoice {
-			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice", where, tok.body)
+			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice, or move the item into a category of its own and reference that", where, tok.body)
 		}
 		if b, twice := sc.bindings[tok.bound]; twice {
 			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.body, tok.bound, sc.spelled(), b.body)
@@ -122,7 +124,7 @@ func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 
 // spelled names the scope in an error.
 func (sc *nameScope) spelled() string {
-	if sc.up == nil {
+	if t, isTemplate := sc.owner.(*template); sc.up == nil && !(isTemplate && t.repeat > 1) {
 		return "outside any repeat"
 	}
 	return "in one repeat"
@@ -136,10 +138,13 @@ func (sc *nameScope) settle() error {
 		if len(b.uses) == 0 {
 			return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
 		}
-		if r := b.uses[0]; len(b.uses) == 1 && r.whole && !r.nested {
-			spelling := "{" + b.ref + "}"
-			if r.operand {
-				spelling = b.ref
+		if r := b.uses[0]; len(b.uses) == 1 && !r.nested {
+			spelling := b.ref
+			if r.tail != "" {
+				spelling += "." + r.tail
+			}
+			if !r.operand {
+				spelling = "{" + spelling + "}"
 			}
 			return fmt.Errorf("%stoken {%s}: name %q is read once, so it keeps nothing; write %s where it is read, and drop the token", b.where, b.body, b.name, spelling)
 		}
@@ -168,11 +173,14 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 // resolveReads answers each unbound read under n with a name its template sees, fields before the
 // format as compile reports them, and refuses a field spelling a name. scopes are every scope of
 // the category, which a refusal searches for a name bound where the read cannot see it.
-func resolveReads(n node, where string, scopes []*nameScope) error {
-	if err := eachContained(n, where, func(c node, where string) error { return resolveReads(c, where, scopes) }); err != nil {
+func resolveReads(n node, where, group string, scopes []*nameScope) error {
+	t, isTemplate := n.(*template)
+	if isTemplate && t.drawGroup != "" {
+		group = t.drawGroup
+	}
+	if err := eachContained(n, where, func(c node, where string) error { return resolveReads(c, where, group, scopes) }); err != nil {
 		return err
 	}
-	t, isTemplate := n.(*template)
 	if !isTemplate {
 		return nil
 	}
@@ -188,21 +196,32 @@ func resolveReads(n node, where string, scopes []*nameScope) error {
 	for _, u := range t.unbound {
 		b := t.nameScope.lookup(u.head)
 		if b == nil {
-			return fmt.Errorf("%s%w%s", where, u.err, boundElsewhere(u.head, scopes))
+			return unresolved(where, u, t.nameScope, scopes)
 		}
-		b.uses = append(b.uses, nameUse{whole: u.whole, operand: u.operand, nested: t.nameScope != b.scope})
+		b.uses = append(b.uses, nameUse{tail: u.tail, group: group, operand: u.operand, nested: t.nameScope != b.scope})
 	}
 	return nil
 }
 
-// boundElsewhere names the repeat binding name, for a read outside it.
-func boundElsewhere(name string, scopes []*nameScope) string {
-	for _, sc := range scopes {
-		if b, ok := sc.bindings[name]; ok {
-			return fmt.Sprintf("; name %q is bound inside the repeat at %s, which a read outside the repeat cannot see", name, strings.TrimSuffix(b.where, ": "))
+// unresolved is the refusal of u, a read no field or name answers: naming the names the read sees,
+// else the repeat binding the name where the read cannot see it.
+func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScope) error {
+	var visible []string
+	for sc := seen; sc != nil; sc = sc.up {
+		for _, b := range sc.order {
+			visible = append(visible, b.name)
 		}
 	}
-	return ""
+	if len(visible) > 0 {
+		sort.Strings(visible)
+		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %v", where, u.body, u.head, visible)
+	}
+	for _, sc := range scopes {
+		if b, ok := sc.bindings[u.head]; ok {
+			return fmt.Errorf("%s%w; name %q is bound inside the repeat at %s, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, strings.TrimSuffix(b.where, ": "))
+		}
+	}
+	return fmt.Errorf("%s%w", where, u.err)
 }
 
 // isName reports whether a head t reads is a name: neither a reference nor a field.
@@ -253,7 +272,7 @@ func linkNames(path string, t *template) error {
 func linkName(t *template, a *arm) error {
 	b := t.nameScope.lookup(a.head)
 	if hasSelector(a.tail) {
-		return fmt.Errorf("a path through name %q selects no row; select it in the reference %q binds", a.head, a.head)
+		return fmt.Errorf("a path through name %q selects no row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, joinSegments(a.tail))
 	}
 	full := append(b.tail[:len(b.tail):len(b.tail)], a.tail...)
 	if err := checkPathResolves(b.head, full, a.head); err != nil {
@@ -281,6 +300,14 @@ func linkName(t *template, a *arm) error {
 // a path through the name reads one draw of it: the pick keeps one draw there, and the two
 // renders would disagree with it.
 func checkNameReads(path string, t *template) error {
+	for _, tok := range t.tokens {
+		if tok.kind != nameBind {
+			continue
+		}
+		if err := t.nameScope.bindings[tok.bound].checkUses(); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), tok.body, err)
+		}
+	}
 	return namedReads(t, func(o *op, a *arm) error {
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
@@ -289,6 +316,59 @@ func checkNameReads(path string, t *template) error {
 		}
 		return nil
 	})
+}
+
+// checkUses refuses reads of b in two draw groups, or inside a repeat, where what b names reads a
+// reference path: that path is held per draw group and per iteration, so what the pick kept and
+// what it renders afresh would come from two draws of it. todo.md item 4 ends the hold.
+func (b *nameBinding) checkUses() error {
+	if !readsHeld(b.head, map[node]bool{}) {
+		return nil
+	}
+	for _, u := range b.uses {
+		if u.nested {
+			return fmt.Errorf("name %q is read inside a repeat, and what it names reads a reference path, which each iteration draws apart; bind the name inside the repeat", b.name)
+		}
+		if u.group != b.uses[0].group {
+			return fmt.Errorf("name %q is read in two draw groups, %s and %s, and what it names reads a reference path, which each draw group draws apart; read the name in one draw group", b.name, groupSpelling(b.uses[0].group), groupSpelling(u.group))
+		}
+	}
+	return nil
+}
+
+func groupSpelling(group string) string {
+	if group == "" {
+		return "the unnamed one"
+	}
+	return fmt.Sprintf("%q", group)
+}
+
+// readsHeld reports whether rendering n, or any field under it, can read a reference path.
+func readsHeld(n node, seen map[node]bool) bool {
+	if seen[n] {
+		return false
+	}
+	seen[n] = true
+	if t, isTemplate := n.(*template); isTemplate {
+		for _, o := range t.compiled.ops {
+			for _, a := range append(o.arms[:len(o.arms):len(o.arms)], o.operands...) {
+				if a.kind == refPathRead {
+					return true
+				}
+			}
+		}
+	}
+	for _, c := range contained(n) {
+		if readsHeld(c.node, seen) {
+			return true
+		}
+	}
+	for _, e := range renderEdges(n) {
+		if readsHeld(e.to, seen) {
+			return true
+		}
+	}
+	return false
 }
 
 // checkOnce walks n, rendering at key under b's pick, into each level a read of b addresses.
@@ -329,7 +409,7 @@ func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) er
 	sort.Strings(heads)
 	for _, head := range heads {
 		if by, kept := b.addressed[join(key, head)]; kept && fresh[head] > 1 {
-			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop one of them", read, head, by)
+			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}
 	}
 	for _, a := range into {

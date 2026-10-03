@@ -212,7 +212,7 @@ func TestNameErrors(t *testing.T) {
 			`no field "w"; name "w" is bound inside the repeat at field "x"`},
 		{"padded", map[string]string{"word": `["a","b"]`, "card": `"{/word as  w}{w}"`},
 			`write {/word as w}`},
-		{"selector after a name", map[string]string{"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/region as r}{r.municipality[0180].name}"`},
+		{"selector after a name", map[string]string{"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/region as r}{r.name} {r.municipality[0180].name}"`},
 			`read it directly, {/region.municipality[0180].name}`},
 		{"in a table's format", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{/word as w}{w}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\nx\ny\n"},
 			"a table binds no name"},
