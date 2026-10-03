@@ -345,8 +345,8 @@ func (t *table) compileRowFormat(format string) error {
 	if err != nil {
 		return err
 	}
-	if len(unbound) > 0 {
-		return unbound[0].err
+	if err := checkTableToks(nil, unbound); err != nil {
+		return err
 	}
 	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
 	t.rowNode = &tableRow{t}

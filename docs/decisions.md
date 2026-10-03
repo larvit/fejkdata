@@ -662,6 +662,8 @@ same four columns as `geo.SE.address`, each a reference into it, and the format 
 twice; a column is spelled the same in both, `street-number`, so the two never disagree
 on a name.
 
+`todo.md` item 3 replaces it.
+
 ## A postort's kommun comes from its name, its tätort or its codes, never from distance
 
 2026-09-24, Lilleman auf Larv.
@@ -896,13 +898,20 @@ a struct's fields as one.
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
 `"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category
 is the smallest unit holding every field and record column. A choice's item binds no name,
-since a read outside the item would see a binding another item leaves out. The scope is
-lexical: a read entering a category, by a reference or through a name, sees none of the
-frames rendering above it, so what a category renders never depends on who references it. A
-pick is drawn on its first read, so a record's columns, rendered in name order, read one pick
-whichever binds it. A read entering a category keeps the frame of each scope it enters in its
-own memo, and the category's root renders that frame when the read lands on the root, so
-`{n}` and `{n.path}` read one pick: per render and group for a reference path, per pick for a
-path through a name, and per render for `Fake("cat.field")`. A reference read under a pick
-draws in the draw group of the read of the name, the group the draw fences survey it in; a pick
-with draw groups of its own would draw where no fence looks.
+since a read outside the item would see a binding another item leaves out. A pick is drawn on
+its first read, so a record's columns, rendered in name order, read one pick whichever binds
+it.
+
+The scope is lexical: a read entering a category, by a reference, through a name or from
+`Fake`, sees none of the frames rendering above it, so what a category renders never depends
+on who references it. That read opens the frame of each scope around what it lands on, taken
+from its own memo, so every read entering by one memo, `{n}` and `{n.path}` alike, reads one
+pick: per render and group for a reference path, per pick for a path through a name, per
+render for `Fake("cat.field")`. A frame is looked up on the stack of frames rendering, and
+nowhere else.
+
+A pick keeps only the levels a read of the name addresses, so a template draws the same way
+under a name as anywhere else (goal 5.2). A reference read under a pick draws in the draw group
+of the read of the name, the group the draw fences survey it in, so two names bound to one
+category share what it reads by reference path. `todo.md` item 4 ends that: once every `{…}`
+draws afresh, nothing is held for the render.

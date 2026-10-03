@@ -708,12 +708,16 @@ row:
 "{/misc.territory as t}{t.flag} {t}: capital {t.capital}, calling code +{t.calling-code}"
 ```
 
-Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. Everything under a name is drawn
-once, so `{n}` and `{n.path}` agree, a [transform](#transforms) of `n.path` reads the same
-value, and a field `n` renders twice prints the same text twice. A name is a pick of its own:
-`{t.name}` and `{/misc.territory.name}` beside it are two draws. A reference path read under a
-name draws in the draw group of the read of the name, so give the reads of two names bound to
-one category a [draw group](#draw-group) each to draw what it references apart.
+Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps each level a
+`{n.path}` reads, and what it lands on, so `{n}` and `{n.path}` agree, and a
+[transform](#transforms) of `n.path` reads the same value. Everything else under the name draws
+as it would anywhere: `{w}-{w}` in the category `n` names draws `w` twice, so `{n.w}` beside
+`{n}` is refused there, since it could read either draw.
+
+A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
+reference path the picked category reads is still held for the render as usual, so two names
+bound to `sv_SE.person`, whose fields read `{.first-name.name}`, print one person unless their
+reads sit in two [draw groups](#draw-group).
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category reads it, and a record's columns read one pick. Each render of the category picks
@@ -721,10 +725,12 @@ anew, and so does each bare reference to it. A name a `repeat` binds picks again
 iteration, and one bound outside the repeat keeps its pick on every line.
 
 Rejected at load: a name bound twice outside any `repeat`, twice in one `repeat`, or both
-inside a `repeat` and outside it; a name that is a field or an option; a binding of anything but a reference; a binding in
-a choice's item, which every other item would leave unbound; a binding nothing reads; a path
-through a name that selects a row, which the reference selects instead; and a binding in a
-table's format or cell. A field, column, category or folder name may not contain ` as `.
+inside a `repeat` and outside it; a name that is a field or an option; a binding of anything
+but a reference; a binding in a choice's item, which every other item would leave unbound; a
+binding nothing reads, or one read once whole outside a `repeat`, which the reference spells;
+a path through a name that selects a row, which the reference selects instead; a read of a name
+rendering a field twice where a path through the name reads it; and a binding in a table's
+format or cell. A field, column, category or folder name may not contain ` as `.
 
 ### Draw group
 
@@ -926,7 +932,7 @@ record.go       records: Record, the JSON/CSV/SQL serializers, and their entry p
 struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
-draws.go        the memo a hold or draw group keeps its draws in; and a render's draws and the scope it reads its reference paths through
+draws.go        the memo a hold, draw group or named pick keeps its draws in; and a render's draws and the scope it reads its reference paths and names through
 holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
 drawfence.go    the load fences over reference draws and their refusals: a drawGroup's, a render's and a record's columns judged on what they read, and a table reaching its own family
 reads.go        the load-time fold of what a render reads, and what a path reads of a table family

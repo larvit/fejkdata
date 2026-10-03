@@ -43,16 +43,11 @@ func unwrapTransform(arg string) (leaf string, chain []func(string) string, err 
 		arg = args[0]
 	}
 }
-func transformArg(fields map[string]node, a []string) error {
-	leaf, _, err := unwrapTransform(a[0])
-	if err != nil {
-		return err
-	}
-	if isRef(leaf) {
-		_, _, err := refShape(leaf)
-		return err
-	}
-	return checkArm(leaf, fields, false)
+
+// transformArg proves a transform's chain; checkReads proves the operand it reads.
+func transformArg(_ map[string]node, a []string) error {
+	_, _, err := unwrapTransform(a[0])
+	return err
 }
 func transformOperand(a []string) []string {
 	if len(a) != 1 {

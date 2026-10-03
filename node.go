@@ -25,9 +25,10 @@ func (*folder) isNode() {}
 // relative dot paths every item can address, so carriedByAll and List both read the one
 // answer to what a path may reach through this choice.
 type choice struct {
-	items  []node
-	cum    []float64
-	shared map[string]bool
+	items     []node
+	cum       []float64
+	shared    map[string]bool
+	nameScope *nameScope // where its items look a name up, set by bindNames
 }
 
 func (*choice) isNode() {}
@@ -56,8 +57,8 @@ type template struct {
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
 	// Filled by `bindNames`, from the compiled category:
-	scope    *nameScope // where its tokens look a name up
-	ownScope *nameScope // the scope it renders a frame of: a category's, on its root, or a repeat's, per iteration
+	nameScope    *nameScope // where its tokens look a name up
+	ownNameScope *nameScope // the scope it renders a frame of: a category's, on its root, or a repeat's, per iteration
 
 	// Filled by `linkTemplate`, from the assembled tree:
 	link     templateLink

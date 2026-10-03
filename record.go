@@ -263,8 +263,8 @@ func recordOf(n node) (*template, []Column, error) {
 // over sc's draws; a table's columns read the row pinned there.
 func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
-	if t.ownScope != nil {
-		defer sc.draws.popFrame(sc.draws.pushFrame(sc.frameOf(t.ownScope)))
+	if mark := sc.renderFrame(t); mark >= 0 {
+		defer sc.draws.popFrames(mark)
 	}
 	if t.site.isFormat() {
 		sc = sc.at(t.site.table.rowNode, &sc.groupDraws().pins)

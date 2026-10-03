@@ -33,7 +33,9 @@ func (f *Generator) Fake(path string) (string, error) {
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
-	return render(f.rand, n, sc.at(n, &sc.groupDraws().pins)), nil
+	group := sc.groupDraws()
+	sc, _ = sc.at(n, &group.pins).enter(n, &group.memo)
+	return render(f.rand, n, sc), nil
 }
 
 // descend walks a caller's path to the node it names, pinning in sc the rows it
@@ -78,8 +80,8 @@ func render(s *generatorState, n node, sc renderScope) string {
 	case *template:
 		sc = sc.in(n)
 		if n.repeat == 1 {
-			if n.ownScope != nil {
-				defer sc.draws.popFrame(sc.draws.pushFrame(sc.frameOf(n.ownScope)))
+			if mark := sc.renderFrame(n); mark >= 0 {
+				defer sc.draws.popFrames(mark)
 			}
 			if lit, fixed := n.fixedText(); fixed {
 				return lit
@@ -93,30 +95,29 @@ func render(s *generatorState, n node, sc renderScope) string {
 }
 
 // renderRepeat renders each iteration of t as a render of its own, inside the name scopes
-// rendering t, where a name bound outside t keeps its pick in the frame sc.entryMemo keeps.
+// rendering t, where a name bound outside t keeps its pick.
 func renderRepeat(s *generatorState, t *template, sc renderScope) string {
-	entry := sc.entryMemo()
 	var b strings.Builder
 	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
 	for i := 0; i < t.repeat; i++ {
 		if i > 0 {
 			b.WriteString(t.separator)
 		}
-		b.WriteString(expandAnew(s, t, sc.draws.frames, sc.base, entry))
+		b.WriteString(expandAnew(s, t, sc.draws.frameStack, sc.base))
 	}
 	return b.String()
 }
 
 // expandAnew expands one repeat iteration of t as a render of its own, in no group, inside the
-// name scopes of frames from base. Inlined into render's loop, its draws would move to the heap.
+// name scopes of stack from base. Inlined into render's loop, its draws would move to the heap.
 //
 //go:noinline
-func expandAnew(s *generatorState, t *template, frames *frameStack, base int, entry *drawMemo) string {
-	draws := renderDraws{frames: frames}
-	if t.ownScope != nil {
-		defer draws.popFrame(draws.pushFrame(newPickFrame(t.ownScope)))
+func expandAnew(s *generatorState, t *template, stack *frameStack, base int) string {
+	draws := renderDraws{frameStack: stack}
+	if t.ownNameScope != nil {
+		defer draws.popFrames(draws.pushFrame(newPickFrame(t.ownNameScope)))
 	}
-	return expand(s, t, renderScope{draws: &draws, base: base, entry: entry})
+	return expand(s, t, renderScope{draws: &draws, base: base})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
@@ -180,10 +181,14 @@ func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a
 	switch {
 	case a.kind == namedRead:
 		return readName(s, sc, a)
-	case sc.pick != nil && !isRef(a.head):
+	case sc.pick != nil && !isRef(a.head) && sc.keeps(a):
 		return readUnder(s, t, sc, a)
+	}
+	sc.pick = nil
+	switch {
 	case a.kind == freshRead && isRef(a.head):
-		return readValue{text: render(s, t.head(a.head), sc.entering(nil))}
+		sc.base = sc.draws.depth()
+		return readValue{text: render(s, t.head(a.head), sc)}
 	case a.kind == freshRead:
 		return readValue{text: render(s, t.head(a.head), sc)}
 	}
@@ -205,10 +210,14 @@ func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc r
 		return r
 	}
 	leaf := drawSteps(s, t.head(a.head), a.steps, pins, memo, a.levels)
+	mark := -1
 	if pins != nil {
-		sc = sc.at(leaf, pins).entering(memo)
+		sc, mark = sc.at(leaf, pins).enter(leaf, memo)
 	}
 	r := renderLeaf(s, leaf, sc)
+	if mark >= 0 {
+		sc.draws.popFrames(mark)
+	}
 	if memo.value == nil {
 		memo.value = map[string]readValue{}
 	}
