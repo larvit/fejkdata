@@ -15,9 +15,10 @@ replacement, and each removed path, column or flag.
   `repeat` binds picks again on every iteration. Refused at `New`: a name bound twice
   outside any `repeat`, twice in one `repeat`, or both inside a `repeat` and outside it; a
   name that is a field or an option; a binding of anything but a reference; a binding in a
-  choice's item; a binding nothing reads, or one read once whole, which the reference
-  spells; a path through a name that selects a row; a read of a name rendering a field
-  twice where a path through the name reads it; and a binding in a table. A field, column,
+  choice's item; a binding nothing reads, or one read once, which the reference spells; a
+  path through a name that selects a row; a read of a name rendering a field twice where a
+  path through the name reads it; reads of a name in two draw groups, or inside a
+  `repeat`, where what it names reads a reference path; and a binding in a table. A field, column,
   category or folder name may not contain ` as `.
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options

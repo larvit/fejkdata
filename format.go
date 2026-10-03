@@ -215,13 +215,12 @@ func parseChecked(format string, fields map[string]node) ([]formatToken, []unbou
 }
 
 // unboundRead is a token reading a head no field holds, which only a name bound around the
-// template can answer; err is the refusal where none does. whole is a read of the name itself,
-// no path into it, and operand a builtin's read of it.
+// template can answer; err is the refusal where none does. tail is the path read into the name,
+// "" for the name itself, operand marks a builtin's read of it, and body is the token's.
 type unboundRead struct {
-	head    string
-	whole   bool
-	operand bool
-	err     error
+	head, tail, body string
+	operand          bool
+	err              error
 }
 
 // checkTokens proves every parsed token names an existing field or a known function,
@@ -280,7 +279,7 @@ func checkReads(t formatToken, fields map[string]node, operands bool) ([]unbound
 			return nil, err
 		}
 		a := splitArm(name, nil)
-		unbound = append(unbound, unboundRead{head: a.head, whole: len(a.tail) == 0, operand: operands, err: err})
+		unbound = append(unbound, unboundRead{head: a.head, tail: joinSegments(a.tail), body: t.body, operand: operands, err: err})
 	}
 	return unbound, nil
 }
