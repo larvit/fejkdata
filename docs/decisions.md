@@ -905,15 +905,16 @@ it.
 
 The scope is lexical. A read entering a category, by a reference, through a name or from
 `Fake`, sees no frame (one render of a scope's picks) opened above it, so a category renders
-the same whoever references it. That read opens the frames around where it lands from its own
-memo, so reads sharing a memo, `{n}` and `{n.path}` alike, read one pick. A reference path's
+the same whoever references it. A reference path, a read through a name or `Fake` opens the
+frames around where it lands from its own memo, so reads sharing a memo, `{n}` and `{n.path}`
+alike, read one pick; a bare reference lands on a category's root, which opens fresh ones. A reference path's
 memo lasts per render and draw group, a name's per pick, and `Fake("cat.field")`'s per render.
 
 A pick keeps only the levels a read of the name addresses, so a template draws the same way
 under a name as anywhere else (goal 5.2). A reference read under a pick draws in the draw group
 of the read of the name, the group the draw fences survey it in, so two names bound to one
 category share what it reads by reference path. Where what a name names reads a reference
-path, its reads stay in one draw group and outside any repeat: a reference path is held per
+path, its reads stay in one draw group and outside any repeat nested where it is bound: a reference path is held per
 draw group and per iteration, so what the pick kept and what it renders afresh would come from
 two draws of it. `todo.md` item 4 ends both: once every `{…}` draws afresh, nothing is held for
 the render.

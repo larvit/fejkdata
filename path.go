@@ -427,16 +427,7 @@ func drawVariant(s *generatorState, c *choice, memo *drawMemo, levels []string, 
 	if memo == nil {
 		return resolveChoice(s, c)
 	}
-	level := levels[at]
-	n, drew := memo.variant[level]
-	if !drew {
-		n = resolveChoice(s, c)
-		if memo.variant == nil {
-			memo.variant = map[string]node{}
-		}
-		memo.variant[level] = n
-	}
-	return n
+	return memo.variantOf(s, c, levels[at])
 }
 
 func (t *table) selector(tail []string) (sel string, rest []string, err error) {

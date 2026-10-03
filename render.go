@@ -187,8 +187,7 @@ func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a
 	sc.pick = nil
 	switch {
 	case a.kind == freshRead && isRef(a.head):
-		sc.base = sc.draws.depth()
-		return readValue{text: render(s, t.head(a.head), sc)}
+		return readValue{text: render(s, t.head(a.head), sc.entering())}
 	case a.kind == freshRead:
 		return readValue{text: render(s, t.head(a.head), sc)}
 	}

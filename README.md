@@ -156,8 +156,8 @@ work with no data on disk. A directory is a namespace: each JSON file is a
 category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be
-`-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
+which binds a [name](#names), nor be `-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -735,10 +735,10 @@ Refused at `New`, each error naming what to write instead:
   bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
-- reads of a name in two draw groups, or inside a `repeat`, where what it names reads a
-  reference path, which each draw group and iteration draws apart;
-- a binding in a table's format or cell;
-- a field, column, category or folder name containing ` as `.
+- reads of a name in two draw groups, or inside a `repeat` nested where the name is bound,
+  where what it names reads a reference path, which each draw group and iteration draws
+  apart;
+- a binding in a table's format or cell.
 
 ### Draw group
 
@@ -816,8 +816,8 @@ The target is about a microsecond per value (goal 12).
 Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
 parent columns, which are mapped on the first `Fake` that selects by name or descends
 through it. Proving the draw fences adds a pass over the loaded tree per
-fence, and walks what a render reads only where data binds a reference, so a set that
-binds none pays for the passes alone. A `Fake` call then costs about what its output
+fence, and walks what a render reads only where data holds a reference, so a set that
+holds none pays for the passes alone. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
 O(log n), and long formats, deep nesting and many tokens add cost in proportion to
 the output.
@@ -933,7 +933,9 @@ doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
 table.go        tables: the rows TSV, its options and links, row selection and draws
-name.go         names: {ref as n} bindings, the scopes they live in, and the picks a render keeps under them
+name.go         names: {ref as n} bindings, the scopes they live in, and the reads they answer
+namefence.go    the load fences over names: reads in two draw groups or a nested repeat, and a field rendered twice under a pick
+pick.go         a render's named picks: the frames of the name scopes rendering, and the reads kept under a name
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
@@ -945,7 +947,7 @@ holdfence.go    the load fences over the hold: the routes and spellings that rea
 drawfence.go    the load fences over reference draws and their refusals: a drawGroup's, a render's and a record's columns judged on what they read, and a table reaching its own family
 reads.go        the load-time fold of what a render reads, and what a path reads of a table family
 pins.go         the pin set: the table rows a render fixes, which the draw fences replay
-reference.go    reference sigils, and binding references across the tree
+reference.go    reference sigils, and resolving references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 builtins.go     the {name()} function registry and its implementations
 layout.go       date and time layouts: the instants one is proved against, and the two samples
