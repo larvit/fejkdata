@@ -323,3 +323,33 @@ func TestANameIsATransformOperand(t *testing.T) {
 		}
 	}
 }
+
+func TestOneRenderReadsOneNameAcrossDrawGroups(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"word":  `["a","b","c","d","e","f","g","h"]`,
+		"other": `{"format":"{x}","x":["1","2"]}`,
+		"cat":   `{"format":"{/word as w}{a}","a":{"format":"{w}|{b}","b":{"format":"{w}{/other.x}","drawGroup":"g"}}}`,
+	})
+	f := newGenerator(t, dir, WithSeed(59))
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "cat.a"); got[0] != got[2] {
+			t.Fatalf("cat.a = %q, want one pick of w in both draw groups", got)
+		}
+	}
+}
+
+func TestTwoNamesOnOneCategoryAreTwoPicks(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"given":  `{"format":"{first}","first":["Ada","Bo","Cy","Di","Ed","Flo","Gus","Hal"]}`,
+		"person": `"{/given.first}"`,
+		"card":   `"{/person as p}{/person as q}{p}|{q}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(53))
+	for i := 0; i < 50; i++ {
+		got := strings.Split(fake(t, f, "card"), "|")
+		if got[0] != got[1] {
+			return
+		}
+	}
+	t.Fatal("card printed one person for p and q in 50 renders, want two picks")
+}
