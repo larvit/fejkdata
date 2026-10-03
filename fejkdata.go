@@ -22,11 +22,11 @@ var _ [^uint(0)>>63 - 1]struct{} // docs/decisions.md#64-bit-targets-only
 // ErrNoData is returned by New when no source is loaded at all.
 var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
 
-// Generator generates fake data from a loaded namespace tree. Create one with [New].
+// Generator generates fake data from a namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards rand, records, structs and root, which loads a shipped category on the
+	// mu guards rand, records, structs and root, which gains a shipped category on the
 	// first call reaching it.
 	mu      sync.Mutex
 	rand    *generatorState
@@ -86,8 +86,8 @@ func WithoutShippedData() Option {
 // in order with the last winning a name clash. Each JSON file becomes a category
 // named after the file (address.json -> "address") and each subdirectory a
 // namespace segment. It errors on a missing directory, invalid JSON, invalid data,
-// or no data at all. The shipped set alone loads each category on the first call
-// reaching it; beside WithDataPath or WithDataFS, every category loads here.
+// or no data at all. With only the shipped data, a category loads on the first call
+// reaching it; with WithDataPath or WithDataFS, every category loads here.
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {
@@ -104,8 +104,8 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{rand: rng, root: root}, nil
 }
 
-// load is the tree New starts from: beside a source of the caller's, every category loads
-// here, so each mistake in that source is New's error.
+// load is the tree New starts from.
+// docs/decisions.md#with-only-the-shipped-set-a-category-loads-on-the-first-call-reaching-it-beside-a---data-path-every-category-loads-in-new
 func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {
 		return unloadedTree(), nil

@@ -39,7 +39,7 @@ func loadedCategories(f *Generator) []string {
 	return out
 }
 
-// REGENERATE=1, which go generate sets, rewrites the index.
+// REGENERATE=1 rewrites the index.
 func TestShippedIndexIsCurrent(t *testing.T) {
 	got, err := shippedIndexSource(newShippedWhole(t))
 	if err != nil {

@@ -148,8 +148,7 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-// bindInline loads the shipped categories n reads, then binds n against root; typedByGo is
-// binding's.
+// bindInline loads the shipped categories n reads, then binds n against root.
 func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	scope := inlineScope(n, label)
 	if err := refuseFolderRefs(scope); err != nil {
@@ -169,7 +168,8 @@ func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	}.bind()
 }
 
-// refuseFolderRefs refuses a reference an inline node writes from a folder, which it has none of.
+// refuseFolderRefs refuses each reference in scope not written from the root, {/x}: an
+// inline node sits in no folder.
 func refuseFolderRefs(scope nodeScope) error {
 	return scope(func(path string, m node) error {
 		t, ok := m.(*template)

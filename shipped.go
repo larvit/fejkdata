@@ -15,8 +15,8 @@ var shippedFS embed.FS
 
 var shippedSource = dataSource{fsys: shippedFS, baseDir: "data"}
 
-// shippedEntry is a shipped category's entry in shippedindex.go: the table beside it that
-// it links to, "" for none, and the paths List advertises below it. After changing it, empty
+// shippedEntry is a shipped category's entry in shippedindex.go: its parent table, "" for
+// none, and the paths List advertises below it. After changing it, empty
 // shippedIndex's literal by hand so the package builds, then run generate.
 type shippedEntry struct {
 	parent string
@@ -97,9 +97,10 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 	return out
 }
 
-// loadShipped loads the shipped categories wanted, with every category they read and every
-// table linked to one, then binds what it loaded, as New binds a whole load.
-// TestEveryShippedCategoryLoadsAlone proves each closure, so a failure is the index's.
+// loadShipped loads the shipped categories wanted, with every category they read and the
+// family of each, then binds what it loaded as a whole load binds.
+// TestEveryShippedCategoryLoadsAlone reaches each category, so a failure here means a stale
+// index.
 func loadShipped(root *folder, wanted []unloadedCategory) {
 	var sites []categorySite
 	for queue := wanted; len(queue) > 0; queue = queue[1:] {
@@ -124,8 +125,8 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 	}
 }
 
-// load parses and compiles the category, and moves it from its folder's unloaded
-// categories to its children.
+// load parses and compiles the category, and moves it from its folder's unloaded map to
+// the folder's children.
 func (u unloadedCategory) load() (categorySite, error) {
 	dir := path.Join(append([]string{shippedSource.baseDir}, u.dir...)...)
 	entries, err := fs.ReadDir(shippedSource.fsys, dir)
@@ -140,8 +141,7 @@ func (u unloadedCategory) load() (categorySite, error) {
 	return siteIn(u.dir, u.in, u.name), nil
 }
 
-// linkedTables is the tables beside u that link to it or that it links to: its parent, and
-// every table whose parent it is.
+// linkedTables is u's parent beside it, and every table beside it whose parent u is.
 func (u unloadedCategory) linkedTables(e shippedEntry) []unloadedCategory {
 	var out []unloadedCategory
 	if e.parent != "" {

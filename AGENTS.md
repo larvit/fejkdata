@@ -43,7 +43,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A padded JSON argument is rejected, not trimmed
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
-- The shipped set alone loads a category on the first call reaching it; beside a `--data-path` every category loads in `New`
+- With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 - A bare reference draws each time; a reference path is held
 - Reference sigils follow the filesystem
 - A change to what exists is a major; a minor only adds
@@ -94,7 +94,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Tables carrying token cells stay small
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality
-- A locale's `address` reads its country's `geo` tree, so a locale folder never loads alone
+- A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own
 - The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
 - A locale's `address` restates its country record's format
 - A postort's kommun comes from its name, its tätort or its codes, never from distance
