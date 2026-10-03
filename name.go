@@ -288,9 +288,8 @@ func linkName(t *template, a *arm) error {
 	return nil
 }
 
-// checkNameReads refuses a read of a name rendering, under the pick, a field it renders twice where
-// a path through the name reads one draw of it: the pick keeps one draw there, and the two
-// renders would disagree with it.
+// checkNameReads refuses each binding of t that checkUses refuses, and a read such as {n} whose
+// pick renders twice a field another read, {n.w}, reads once: the pick keeps one draw of it.
 func checkNameReads(path string, t *template) error {
 	for _, tok := range t.tokens {
 		if tok.kind != nameBind {
@@ -474,8 +473,8 @@ func (d *renderDraws) depth() int {
 	return len(d.frameStack.frames)
 }
 
-// enter hides the frames already rendering from a read landing on n, and opens from memo a frame
-// for each name scope around n, so every read sharing memo reads one pick of each name. It
+// enter starts a read landing on n: the read sees no frame opened before it, and gets from memo a
+// frame for each name scope around n, so reads sharing memo read one pick of each name. It
 // returns the mark that closes those frames.
 func (sc renderScope) enter(n node, memo *drawMemo) (renderScope, int) {
 	sc.base, sc.pick = sc.draws.depth(), nil
