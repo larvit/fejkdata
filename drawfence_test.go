@@ -57,10 +57,7 @@ func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
 func TestPairsFindWhatAWholeReplayFinds(t *testing.T) {
 	corpus := fenceCorpus(t)
 	roots := fenceRoots(t, corpus)
-	shipped, err := New()
-	if err != nil {
-		t.Fatalf("New() = %v", err)
-	}
+	shipped := newShippedWhole(t)
 	_ = walkNodes(shipped.root.children, func(path string, n node) error {
 		if tm, ok := n.(*template); ok {
 			roots = append(roots, fenceRoot{path, tm})

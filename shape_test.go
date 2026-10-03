@@ -12,11 +12,7 @@ const shapePin = "testdata/shipped_shape.txt"
 
 // REPIN=1 rewrites the pin.
 func TestShippedShapeIsPinned(t *testing.T) {
-	f, err := New(WithSeed(1))
-	if err != nil {
-		t.Fatal(err)
-	}
-	got := shippedShape(f)
+	got := shippedShape(newShippedWhole(t, WithSeed(1)))
 	if os.Getenv("REPIN") == "1" {
 		if err := os.WriteFile(shapePin, []byte(got), 0o644); err != nil {
 			t.Fatal(err)
