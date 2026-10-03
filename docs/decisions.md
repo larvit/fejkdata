@@ -114,6 +114,9 @@ and `regexp.Match`, not two spellings of one result.
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
 still lives in `data/` as JSON; `--data-path` layers over it.
 
+`todo.md` items 76 and 77 revise it: shipped data loads on demand from an index built at
+build time, and a library imports it as Go modules.
+
 ## A bare reference draws each time; a reference path is held
 
 2026-09-02, Lilleman auf Larv.
@@ -652,6 +655,8 @@ Sweden fits whole in 700 KB; every US place of 10,000 would pass a megabyte and 
 size, and `--min-population` and `--streets-per-locality` on the import scripts build a
 fuller set. The two trees add about 20 ms to `New`, which loads the shipped set in about
 45 ms.
+
+Withdrawn by the maintainer on 2026-10-03; `todo.md` item 78 replaces it.
 
 ## A locale's `address` restates its country record's format
 
