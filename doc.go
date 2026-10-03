@@ -27,11 +27,12 @@ package fejkdata
 //     an expansion holds a sibling path's head and an operand's field, its draw
 //     group a reference path's: `formatOps.held` and `heldCheck` an expansion's,
 //     `readReference` a draw group's.
-//   - named pick — the draw a token such as {/person as p} binds to a name. It is drawn on its
-//     first read and kept while its scope renders: a category, or one repeat iteration.
-//     `nameBinding`, `nameScope`, `namedPick`, `pickFrame`.
-//   - memo — what a hold, a draw group or a named pick keeps its draws in, the variant drawn at
-//     each level and the value each path read: `drawMemo`, `readMemo`.
+//   - named pick — the draw a token such as {/person as p} binds to a name, drawn
+//     on its first read and kept while its scope renders: a category, or one
+//     repeat iteration: `nameBinding`, `nameScope`, `namedPick`, `pickFrame`.
+//   - memo — what a hold, a draw group or a named pick keeps its draws in, the
+//     variant drawn at each level and the value each path read: `drawMemo`,
+//     `readMemo`.
 //   - draw group — reference draws kept apart inside one render:
 //     `template.drawGroup` as the data spells it, `templateLink.drawGroupKey` as a
 //     render reads it, `renderDraws`, `groupDraws`, `renderScope`.

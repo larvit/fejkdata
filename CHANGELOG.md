@@ -8,18 +8,10 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
-- A name keeps one pick: `{/misc.territory as t}` binds one row of `misc.territory` to `t`
-  and prints nothing, and `{t}`, `{t.capital}` and `{t.calling-code}` read that one row.
-  A name lives in the category binding it, so every field and record column of the
-  category reads one pick, a transform reads it as `{lowercase(t.name)}`, and a name a
-  `repeat` binds picks again on every iteration. Refused at `New`: a name bound twice
-  outside any `repeat`, twice in one `repeat`, or both inside a `repeat` and outside it; a
-  name that is a field or an option; a binding of anything but a reference; a binding in a
-  choice's item; a binding nothing reads, or one of a whole category read once whole, which the bare reference spells; a
-  path through a name that selects a row; a read of a name rendering a field twice where a
-  path through the name reads it; reads of a name in two draw groups, or inside a
-  `repeat`, where what it names reads a reference path; and a binding in a table. A field, column,
-  category or folder name may not contain ` as `.
+- Names: `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints
+  nothing; `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. A name lives
+  in the category binding it, and a `repeat` binding it picks again on every iteration.
+  What `New` refuses is listed under [Names](README.md#names).
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,

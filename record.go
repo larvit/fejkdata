@@ -22,7 +22,7 @@ type Column struct {
 // Record is one record rendered from a template: every direct field is a column,
 // listed in name order. Each column is its own expansion, so a sibling field is
 // local to it, while a reference that reads a path is drawn once for the whole
-// record, per group, and a name once for the whole record.
+// record, per group, and a pick bound by {ref as n} once for the whole record.
 type Record struct {
 	columns []Column
 }

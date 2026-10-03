@@ -708,23 +708,23 @@ row:
 "{/misc.territory as t}{t.flag} {t}: capital {t.capital}, calling code +{t.calling-code}"
 ```
 
-Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps each level a
-`{n.path}` reads, and what it lands on, so `{n}` and `{n.path}` agree, and a
-[transform](#transforms) of `n.path` reads the same value. Everything else under the name draws
-as it would anywhere. So if the category `n` names has the format `{w}-{w}`, it draws `w`
-twice, and `{n.w}` beside `{n}` is refused, since it could read either draw.
+Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps what each `{n.path}`
+lands on and every level it passes, so `{n}` and `{n.path}` agree, and so does a
+[transform](#transforms) of `n.path`. Everything else under the name draws as it would
+anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{n.w}` beside
+`{n}` is refused, since it could read either draw.
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
 reference path the picked category reads is still held for the render as usual, so two names
-bound to `sv_SE.person`, whose fields read `{.first-name.name}`, print one person unless their
-reads sit in two [draw groups](#draw-group).
+bound to `sv_SE.person`, whose fields read `{.first-name.name}`, print the same first and last
+name unless their reads sit in two [draw groups](#draw-group).
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category reads it, and a record's columns read one pick. Each render of the category picks
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
 iteration, and one bound outside the repeat keeps its pick on every line.
 
-Rejected at load, each error naming what to write instead:
+Refused at `New`, each error naming what to write instead:
 
 - a name bound twice outside any `repeat`, twice in one `repeat`, or both inside a `repeat`
   and outside it;
@@ -734,7 +734,7 @@ Rejected at load, each error naming what to write instead:
 - a binding nothing reads, or a binding of a whole category read once whole where it is
   bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`;
 - a path through a name that selects a row;
-- a read of a name rendering a field twice, where a path through the name reads it;
+- `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
 - reads of a name in two draw groups, or inside a `repeat`, where what it names reads a
   reference path, which each draw group and iteration draws apart;
 - a binding in a table's format or cell;

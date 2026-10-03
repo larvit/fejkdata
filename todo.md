@@ -193,13 +193,13 @@ Shape: T = table, t = template, c = choice.
 ### 3. Rewrite the shipped categories so facts that belong together come from one named pick.
 
 - `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
-- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once and print it whole as `{a}`, so the country record's format appears once, and the decision "A locale's `address` restates its country record's format" is revised.
+- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once. They print it whole as `{a}`, so the country record's format appears once; revise the decision "A locale's `address` restates its country record's format".
 - Needs item 2. Every shipped value must still pass its consumer's check before and after item 4.
 - Re-pin seeded output in its own commit.
 
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
 
-- Needs items 2, 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`, `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Needs items 2, 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
@@ -339,7 +339,7 @@ Require the path step to reach a sibling category.
 
 ### 73. Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.
 
-The decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more" ships less than its registers hold, and names no item that ends it. Item 60 ships the full registers as packs, beside the partial default.
+The decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more" serves goal 2's built-in data with no download, ships less than its registers hold, and names no item that ends it. Item 60 ships the full registers as packs, beside the partial default.
 
 ### 74. Decide whether `misc.timezone` may drop the 17 zones of territories `misc.territory` leaves out, against goal 13.1, or have the goals say which goal wins.
 
