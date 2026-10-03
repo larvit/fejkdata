@@ -934,7 +934,7 @@ fejkdata.go     Generator, New, options, the embedded data set, List
 node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
 table.go        tables: the rows TSV, its options and links, row selection and draws
 name.go         names: {ref as n} bindings, the scopes they live in, and the reads they answer
-namefence.go    the load fences over names: reads in two draw groups or a nested repeat, and a field rendered twice under a pick
+namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, and the reads kept under a name
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
