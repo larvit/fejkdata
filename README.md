@@ -878,7 +878,8 @@ Where the project is heading; the sections before Audience document what ships t
 1. **The best fake-data tool there is, and the one developers reach for.**
    1. You can install it the way you install your other tools, and people hear about
       it where developers read.
-2. **Enough data ships built in to fill a real test database, with no download.**
+2. **Enough data ships built in to fill a real test database: the CLI carries all of it, a
+   library imports what it needs, and nothing is fetched at run time.**
    1. It covers the ten most-spoken languages and the Nordic countries.
    2. Each locale covers the common categories: names, addresses, phone numbers, ids,
       companies and dates.

@@ -134,7 +134,7 @@ A restructure the maintainer approved on 2026-10-03, so it merges below goal 3's
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-Needs item 76. The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Check goal 2's wording against this, and propose a rewording to the maintainer if it no longer says what ships where.
+Needs item 76. The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where since 2026-10-03.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
