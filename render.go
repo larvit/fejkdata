@@ -93,13 +93,9 @@ func render(s *generatorState, n node, sc renderScope) string {
 }
 
 // renderRepeat renders each iteration of t as a render of its own, inside the name scopes
-// rendering t, where a name bound outside t keeps its pick: a scope sc's category was entered
-// past keeps its frame in that read's memo, else in sc's render's.
+// rendering t, where a name bound outside t keeps its pick in the frame sc.entryMemo keeps.
 func renderRepeat(s *generatorState, t *template, sc renderScope) string {
-	entry := sc.entry
-	if entry == nil {
-		entry = &sc.groupDraws().memo
-	}
+	entry := sc.entryMemo()
 	var b strings.Builder
 	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
 	for i := 0; i < t.repeat; i++ {
