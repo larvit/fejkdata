@@ -86,7 +86,8 @@ func WithoutShippedData() Option {
 // in order with the last winning a name clash. Each JSON file becomes a category
 // named after the file (address.json -> "address") and each subdirectory a
 // namespace segment. It errors on a missing directory, invalid JSON, invalid data,
-// or no data at all.
+// or no data at all. The shipped set alone loads each category on the first call
+// reaching it; beside WithDataPath or WithDataFS, every category loads here.
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {

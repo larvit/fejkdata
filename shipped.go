@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
-	"sort"
 	"strings"
 )
 
@@ -120,7 +119,6 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 	if len(sites) == 0 {
 		return
 	}
-	sort.Slice(sites, func(i, j int) bool { return sites[i].path < sites[j].path })
 	if err := categoryBinding(sites, root.children).bind(); err != nil {
 		panic(internalError("binding shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
 	}

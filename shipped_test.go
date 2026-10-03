@@ -60,7 +60,7 @@ func TestShippedIndexIsCurrent(t *testing.T) {
 		t.Fatal(err)
 	}
 	if string(got) != string(want) {
-		t.Fatalf("%s is stale for data/; regenerate it with go generate", shippedIndexFile)
+		t.Fatalf("%s is stale for data/; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", shippedIndexFile)
 	}
 }
 
