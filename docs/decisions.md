@@ -894,7 +894,7 @@ a struct's fields as one.
 
 ## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 
-2026-10-03, larv-review in PR #145, for Lilleman auf Larv. Goals 5.3 and 5.6.
+2026-10-03, larv-review in PR #145; approved by Lilleman auf Larv. Goals 5.3 and 5.6.
 `bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
 `"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category

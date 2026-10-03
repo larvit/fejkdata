@@ -17,7 +17,8 @@
   again, until the score passes. At or above 7.0
   every pull request scores with the four-seat run and answers it in one run. No merge
   lowers the last score its own panel recorded: the nine-seat round and the four-seat
-  run are two ratchets, never compared with each other.
+  run are two ratchets, never compared with each other. A lower score blocks the merge
+  even where it may be panel noise: fix what the seats name until the score rises.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - One spelling per result: reject the other at `New`, and let the error name the spelling to use.
 - Prose naming a source states what that source states: read the register's own field
