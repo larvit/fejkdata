@@ -167,11 +167,15 @@ func TestNameErrors(t *testing.T) {
 		want  string
 	}{
 		{"bound twice", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{y}","x":"{/word as w}{w}","y":"{/word as w}"}`},
-			`name "w" is bound twice in one scope`},
+			`name "w" is bound twice outside any repeat`},
+		{"bound inside a repeat written first", map[string]string{"word": `["a","b"]`, "card": `{"format":"{a}{z}","a":{"format":"{/word as w}{w}","repeat":2},"z":"{/word as w}{w}"}`},
+			`name "w" is bound outside this repeat already`},
+		{"bound in a choice's item", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":["{/word as w}","b"]}`},
+			`a choice's item binds no name`},
 		{"bound outside the repeat too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":{"format":"{/word as w}{w}","repeat":2}}`},
 			`name "w" is bound outside this repeat already`},
 		{"a field too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{w}","w":"x"}`},
-			`name "w" is a field too`},
+			`name "w" is a field of the root template too`},
 		{"an option", map[string]string{"word": `["a","b"]`, "card": `"{/word as format}{format}"`},
 			`"format" is an option and can never be a name`},
 		{"no reference", map[string]string{"card": `{"format":"{word as w}{w}","word":["a","b"]}`},
@@ -255,6 +259,67 @@ func TestStructTagsReadOneName(t *testing.T) {
 		}
 		if !strings.HasPrefix(p.Whole, p.First+" ") {
 			t.Fatalf("struct = %+v, want one person", p)
+		}
+	}
+}
+
+func TestANameEnteredPastItsCategoryAgreesWithItsWhole(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"given":  `["Ada","Bo","Cy","Di","Ed","Flo"]`,
+		"person": `{"format":"{/given as g}{g}","first":"{g}"}`,
+		"card":   `"{/person as p}{p}|{p.first}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(37))
+	for i := 0; i < 100; i++ {
+		got := strings.Split(fake(t, f, "card"), "|")
+		if got[0] != got[1] {
+			t.Fatalf("card = %q, want {p} and {p.first} to read one pick of g", got)
+		}
+	}
+}
+
+func TestANameKeepsItsPickInARepeatReachedByPath(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"word": `["a","b","c","d","e","f","g","h"]`,
+		"line": `{"format":"{/word as w}{each}","each":{"format":"{w}","repeat":40,"separator":" "}}`,
+		"far":  `"{/line.each}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(41))
+	for _, path := range []string{"line.each", "far"} {
+		got := strings.Fields(fake(t, f, path))
+		for _, w := range got {
+			if w != got[0] {
+				t.Fatalf("%s = %q, want one pick on every line", path, got)
+			}
+		}
+	}
+}
+
+func TestAHeldPathReadsTheNameItsFieldReads(t *testing.T) {
+	dir := writeFiles(t, map[string]string{
+		"person.json": `{"format":"{first} {last}","rows":"person.tsv"}`,
+		"person.tsv":  "first\tlast\nAda\tByron\nBo\tEk\nCy\tLind\n",
+		"cat.json":    `{"format":"{/person as n}{field}","field":{"format":"{n.first} {x.y}","x":{"format":"{y}","y":"{n.last}"}}}`,
+	})
+	f := newGenerator(t, dir, WithSeed(43))
+	people := map[string]bool{"Ada Byron": true, "Bo Ek": true, "Cy Lind": true}
+	for i := 0; i < 100; i++ {
+		if got := fake(t, f, "cat.field"); !people[got] {
+			t.Fatalf("cat.field = %q, want one person read through n", got)
+		}
+	}
+}
+
+func TestANameIsATransformOperand(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"person": `{"format":"{first}","first":["Åsa","Bo","Cy"]}`,
+		"card":   `"{/person as p}{p.first} <{lowercase(ascii(p.first))}>"`,
+	})
+	f := newGenerator(t, dir, WithSeed(47))
+	want := map[string]bool{"Åsa <asa>": true, "Bo <bo>": true, "Cy <cy>": true}
+	for i := 0; i < 50; i++ {
+		if got := fake(t, f, "card"); !want[got] {
+			t.Fatalf("card = %q, want the operand to read the pick", got)
 		}
 	}
 }
