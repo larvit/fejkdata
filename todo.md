@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 72`
+`Next ID = 76`
 
 | Goal | W |
 |---|---|
@@ -55,7 +55,7 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 14 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
-| 3 | 0.1.0 |  | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
+| 3 | 0.1.0 | decision | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 25 | 0.1.0 | defect | **Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.** | 2 | 2 | 6 | 8 | 4 | 23.1 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
@@ -88,6 +88,8 @@
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
+| 73 | 0.2.0 | question | **Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.** | 1 | 1 | 3 | 6 | 13.1 | 9.6 |
+| 74 | 0.2.0 | question | **Decide whether `misc.timezone` may drop the 17 zones of territories `misc.territory` leaves out, against goal 13.1, or have the goals say which goal wins.** | 1 | 1 | 3 | 6 | 13.1 | 9.6 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -99,6 +101,7 @@
 | 11 | 0.3.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 4 | 13.0 |
 | 35 | 0.3.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 8 | 13.0 |
 | 21 | 0.3.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 11 | 12.8 |
+| 75 | 0.3.0 |  | **Run every README `sh` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 5 | 4 | 7 | 11.2 | 11.8 |
 | 23 | 0.3.0 |  | **Give every other shipped category that could reach something real a path that never does.** | 3 | 6 | 6 | 7 | 15 | 11.7 |
 | 8 | 0.3.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 9 | 0.3.0 |  | **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
@@ -106,6 +109,7 @@
 | 40 | 0.3.0 |  | **Parse `defaultTable`'s path with the library's grammar.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
 | 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
+| 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
 | 7 | 0.3.0 |  | **Fill `arm` in one place.** | 4 | 4 | 2 | 6 | 3.2 | 9.8 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 13.1 | 9.8 |
 | 37 | 0.3.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
@@ -189,16 +193,16 @@ Shape: T = table, t = template, c = choice.
 ### 3. Rewrite the shipped categories so facts that belong together come from one named pick.
 
 - `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
-- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once.
+- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once and print it whole as `{a}`, so the country record's format appears once, and the decision "A locale's `address` restates its country record's format" is revised.
 - Needs item 2. Every shipped value must still pass its consumer's check before and after item 4.
 - Re-pin seeded output in its own commit.
 
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
 
-- Needs items 2, 3 and 71. After it, `{/person} ({/person.first})` renders two people, `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Needs items 2, 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`, `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
-- Rewrites the README's References, Draw group, Correlated fields, Linked tables and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
+- Rewrites the README's References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
 - Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
 
 ### 25. Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.
@@ -333,6 +337,14 @@ Require the path step to reach a sibling category.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
 
+### 73. Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.
+
+The decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more" ships less than its registers hold, and names no item that ends it. Item 60 ships the full registers as packs, beside the partial default.
+
+### 74. Decide whether `misc.timezone` may drop the 17 zones of territories `misc.territory` leaves out, against goal 13.1, or have the goals say which goal wins.
+
+The decision "`misc.territory` is the spine, and a `misc` table naming a territory links to it" serves goal 4.1 and drops those tzdb rows, and names no item that ends it.
+
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
 Both render the same run.
@@ -369,6 +381,10 @@ Needs item 4; recount the switches then. Today ten, from `render` to `columnItem
 
 Nothing checks it, and a new country breaks it silently.
 
+### 75. Run every README `sh` example as a test, and compare each "Renders" line to a seeded render.
+
+`readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables) and compares no "Renders e.g." output, so goal 11.2 is not met.
+
 ### 23. Give every other shipped category that could reach something real a path that never does.
 
 `phone` draws live PTS and NANP ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
@@ -388,6 +404,10 @@ The CLI counts brackets of its own, so a change to the selector grammar desyncs 
 ### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
 
 `loadDir` indexes hidden TSVs and skips them in two places, so one loads where its comment says a hidden file is never data.
+
+### 72. Fail the merge gate when test coverage falls below the last recorded figure.
+
+`technical-principles.md` holds that test coverage should not decline. `docker compose run --rm cover` prints the figure, and neither the `Dockerfile` gate nor `.github/workflows/test.yml` checks it.
 
 ### 7. Fill `arm` in one place.
 

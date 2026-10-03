@@ -78,7 +78,10 @@ func linkRefs(root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	return eachTemplate(root, func(_ []string, path string, t *template) error { return linkNames(path, t) })
+	if err := eachTemplate(root, func(_ []string, path string, t *template) error { return linkNames(path, t) }); err != nil {
+		return err
+	}
+	return eachTemplate(root, func(_ []string, path string, t *template) error { return checkNameReads(path, t) })
 }
 
 // linkTemplate resolves t's references in category, "" for an inline template, and
@@ -89,6 +92,7 @@ func linkTemplate(folder []string, path, category string, t *template, root map[
 		return err
 	}
 	t.link, t.compiled = link, compileFormat(t.tokens, link.refs, t.isName)
+	linkBindings(t)
 	compileArms(t)
 	return nil
 }
@@ -253,12 +257,16 @@ func resolveCategory(root map[string]node, segments []string) (categorySegs []st
 	return segments[:i], n, segments[i:], nil
 }
 
-// refTokens returns the reference names a format reads, as tokens or as operands.
+// refTokens returns the reference names a format reads, as tokens or as operands, or binds.
 func refTokens(toks []formatToken) []string {
 	var refs []string
 	seen := map[string]bool{}
 	for _, tok := range toks {
-		for _, name := range tok.names {
+		names := tok.names
+		if tok.kind == nameBind {
+			names = []string{tok.boundRef}
+		}
+		for _, name := range names {
 			if isRef(name) && !seen[name] {
 				seen[name] = true
 				refs = append(refs, name)

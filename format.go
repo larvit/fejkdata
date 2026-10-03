@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -64,8 +63,9 @@ type formatToken struct {
 	body  string   // the braces' content, as written
 	fn    string   // builtinCall
 	args  []string // builtinCall
-	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads; nameBind: the reference it binds
-	bound string   // nameBind: the name
+	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads
+	// nameBind: the reference it binds, and the name.
+	boundRef, bound string
 }
 
 type tokenKind uint8
@@ -98,7 +98,7 @@ func parseFormat(format string) ([]formatToken, error) {
 		}
 		flush()
 		if ref, name, binds := cutOutside(u.body, asWord); binds && indexOutside(u.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: nameBind, body: u.body, names: []string{ref}, bound: name})
+			toks = append(toks, formatToken{kind: nameBind, body: u.body, boundRef: ref, bound: name})
 			return nil
 		}
 		if indexOutside(u.body, '(') < 0 {
@@ -215,19 +215,14 @@ func parseChecked(format string, fields map[string]node) ([]formatToken, []unbou
 }
 
 // unboundRead is a token reading a head no field holds, which only a name bound around the
-// template can answer; err is the refusal where none does.
+// template can answer; err is the refusal where none does. whole is a read of the name itself,
+// no path into it, and operand a builtin's read of it.
 type unboundRead struct {
-	head string
-	err  error
+	head    string
+	whole   bool
+	operand bool
+	err     error
 }
-
-// fieldMiss is a head no field of the template holds.
-type fieldMiss struct {
-	head string
-	err  error
-}
-
-func (m *fieldMiss) Error() string { return m.err.Error() }
 
 // checkTokens proves every parsed token names an existing field or a known function,
 // so a typo'd or dangling reference is a New-time error. A head no field holds comes
@@ -247,32 +242,16 @@ func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, err
 func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
 	switch t.kind {
 	case builtinCall:
-		err := checkFunc(t, fields)
-		var miss *fieldMiss
-		if errors.As(err, &miss) {
-			return []unboundRead{{miss.head, err}}, nil
+		if err := checkFunc(t, fields); err != nil {
+			return nil, err
 		}
-		return nil, err
+		return checkReads(t, fields, true)
 	case nameBind:
 		return nil, checkBind(t)
 	case nameRead:
-		var unbound []unboundRead
-		for _, name := range t.names {
-			if isRef(name) {
-				if _, _, err := refShape(name); err != nil {
-					return nil, fmt.Errorf("token {%s}: %w", t.body, err)
-				}
-				continue // its target is checked at New (see linkRefs)
-			}
-			err := checkArm(name, fields, len(t.names) == 1)
-			var miss *fieldMiss
-			if errors.As(err, &miss) {
-				unbound = append(unbound, unboundRead{miss.head, fmt.Errorf("token {%s}: %w", t.body, err)})
-				continue
-			}
-			if err != nil {
-				return nil, fmt.Errorf("token {%s}: %w", t.body, err)
-			}
+		unbound, err := checkReads(t, fields, false)
+		if err != nil {
+			return nil, err
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
@@ -281,10 +260,35 @@ func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
 	return nil, nil
 }
 
+// checkReads proves each name t reads, an arm or an operand, is a reference or a path into a
+// field, returning those whose head no field holds.
+func checkReads(t formatToken, fields map[string]node, operands bool) ([]unboundRead, error) {
+	var unbound []unboundRead
+	for _, name := range t.names {
+		if isRef(name) {
+			if _, _, err := refShape(name); err != nil {
+				return nil, fmt.Errorf("token {%s}: %w", t.body, err)
+			}
+			continue // its target is checked at New (see linkRefs)
+		}
+		missing, err := checkArm(name, fields, !operands && len(t.names) == 1)
+		if err == nil {
+			continue
+		}
+		err = fmt.Errorf("token {%s}: %w", t.body, err)
+		if !missing {
+			return nil, err
+		}
+		a := splitArm(name, nil)
+		unbound = append(unbound, unboundRead{head: a.head, whole: len(a.tail) == 0, operand: operands, err: err})
+	}
+	return unbound, nil
+}
+
 // checkBind proves a {ref as name} token binds a reference to a name no other token
 // could read as something else.
 func checkBind(t formatToken) error {
-	ref, name := t.names[0], t.bound
+	ref, name := t.boundRef, t.bound
 	if trimmed := strings.TrimSpace(ref) + asWord + strings.TrimSpace(name); trimmed != t.body {
 		return fmt.Errorf("token {%s}: write {%s}", t.body, trimmed)
 	}
@@ -305,34 +309,34 @@ func checkBind(t formatToken) error {
 
 // checkArm validates one sibling name or path against a template's fields.
 // wholeToken says the name is the token's entire body, so {/name} would render
-// the same value and can be offered as the reference spelling. A head no field
-// holds is a *fieldMiss.
-func checkArm(name string, fields map[string]node, wholeToken bool) error {
+// the same value and can be offered as the reference spelling. missing says no
+// field holds the head, which a name may yet answer.
+func checkArm(name string, fields map[string]node, wholeToken bool) (missing bool, err error) {
 	a := splitArm(name, nil)
 	if err := checkSegments(a); err != nil {
-		return err
+		return false, err
 	}
 	field, ok := fields[a.head]
 	if !ok {
 		if a.head == "" {
-			return fmt.Errorf("a name is never empty, so this token can name no field")
+			return false, fmt.Errorf("a name is never empty, so this token can name no field")
 		}
 		if isOption(a.head) {
-			return fmt.Errorf("%q is an option and can never be a field", a.head)
+			return false, fmt.Errorf("%q is an option and can never be a field", a.head)
 		}
 		if len(fields) == 0 {
 			hint := ""
 			if wholeToken && hintableRef(name) {
 				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
 			}
-			return &fieldMiss{a.head, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)}
+			return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
 		}
-		return &fieldMiss{a.head, fmt.Errorf("no field %q", a.head)}
+		return true, fmt.Errorf("no field %q", a.head)
 	}
 	if err := checkPathResolves(field, a.tail, a.head); err != nil {
-		return fmt.Errorf("field %q: %w", a.head, err)
+		return false, fmt.Errorf("field %q: %w", a.head, err)
 	}
-	return nil
+	return false, nil
 }
 
 // hintableRef reports whether {/name} is a reference the grammar accepts, so the
@@ -383,7 +387,7 @@ type arm struct {
 	leaves      []node // every node the path may land on, one per variant it passes
 	cover       node   // what holding the path pins: the first choice it passes, else its leaf
 	kind        armKind
-	bind        *nameBinding // namedRead: the binding of the name it reads through
+	named       *nameBinding // namedRead: the binding of the name it reads through
 }
 
 // armKind is how expand reads an arm, fixed at compile.
