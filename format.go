@@ -77,7 +77,6 @@ const (
 	nameBind
 )
 
-// asWord separates a binding's reference from the name it binds: {/person as p}.
 const asWord = " as "
 
 // parseFormat is the one reading of a format's tokens: a '(' outside a selector makes
@@ -223,9 +222,8 @@ type unboundRead struct {
 	err              error
 }
 
-// checkTokens proves every parsed token names an existing field or a known function,
-// so a typo'd or dangling reference is a New-time error. A head no field holds comes
-// back unbound, for bindNames to look up among the names.
+// checkTokens proves every token's grammar, functions and field paths, and returns the reads
+// whose head no field holds, for bindNames to look up among the names.
 func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, error) {
 	var unbound []unboundRead
 	for _, t := range toks {
@@ -284,8 +282,8 @@ func checkReads(t formatToken, fields map[string]node, operands bool) ([]unbound
 	return unbound, nil
 }
 
-// checkBind proves a {ref as name} token binds a reference to a name no other token
-// could read as something else.
+// checkBind proves a {ref as name} token is spelled once, binds a reference, and names a valid
+// name that is no option.
 func checkBind(t formatToken) error {
 	ref, name := t.boundRef, t.bound
 	if trimmed := strings.TrimSpace(ref) + asWord + strings.TrimSpace(name); trimmed != t.body {
@@ -301,7 +299,7 @@ func checkBind(t formatToken) error {
 		return fmt.Errorf("token {%s}: a binding names nothing; write {%s as n}", t.body, ref)
 	}
 	if isOption(name) {
-		return fmt.Errorf("token {%s}: %q is an option and can never be a name", t.body, name)
+		return fmt.Errorf("token {%s}: %q is an option and can never be a name; rename it", t.body, name)
 	}
 	if err := checkName(name); err != nil {
 		return fmt.Errorf("token {%s}: name %w", t.body, err)
@@ -534,7 +532,7 @@ func (c *formatOps) field(tok formatToken, refs map[string]refBinding, isName fu
 	c.ops = append(c.ops, op{formatToken: tok, arms: arms})
 }
 
-// compileFormat compiles a parsed format, a binding to nothing, since it prints nothing. Call
+// compileFormat compiles a parsed format; a {ref as n} token compiles to no op. Call
 // checkTokens first: it is what proves every token valid.
 func compileFormat(toks []formatToken, refs map[string]refBinding, isName func(head string) bool) formatOps {
 	var c formatOps

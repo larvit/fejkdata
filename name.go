@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-// nameScope is where a name is bound: a category, or one iteration of a repeat inside it.
-// Every token of the category outside a nested repeat reads the category's names, so one
-// field may bind a name and another read it.
+// nameScope is where a name is bound: a category, or one iteration of a repeat inside it. A
+// token sees its scope's names and every enclosing scope's, so one field may bind a name and
+// another read it.
 type nameScope struct {
 	up       *nameScope
 	owner    node // the category's root, or the repeat
@@ -17,9 +17,6 @@ type nameScope struct {
 	order    []*nameBinding
 }
 
-// nameBinding is one {ref as name} token: the scope it binds name in, its index among
-// that scope's bindings, its uses, and, once linked, the head node and tail its
-// reference reads and the keys its reads address.
 type nameBinding struct {
 	name   string
 	ref    string
@@ -56,7 +53,7 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 // bindNames gives every template of a compiled category or inline template the scope its
 // names live in, and refuses a name bound twice along one chain of scopes, a binding in a
 // choice's item, a name a field spells too, a read no field or name answers, and a binding
-// read by nothing, or once whole, which its reference spells.
+// read by nothing.
 func bindNames(root node) error {
 	top := &nameScope{owner: root}
 	scopes := []*nameScope{top}
@@ -100,8 +97,7 @@ func bindNames(root node) error {
 	return nil
 }
 
-// bindAll binds every name t's tokens bind. A choice's item binds none: a read outside the item
-// would find the name bound by an item that may never be drawn.
+// bindAll binds every name t's tokens bind.
 func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 	for _, tok := range t.tokens {
 		if tok.kind != nameBind {
@@ -221,7 +217,6 @@ func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	return fmt.Errorf("%s%w", where, u.err)
 }
 
-// isName reports whether a head t reads is a name: neither a reference nor a field.
 func (t *template) isName(head string) bool {
 	return !isRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
@@ -315,10 +310,8 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
-// checkUses refuses a binding of a category read once whole, which the bare reference spells, and
-// reads of b in two draw groups, or inside a repeat, where what b names reads a
-// reference path: that path is held per draw group and per iteration, so what the pick kept and
-// what it renders afresh would come from two draws of it. todo.md item 4 ends the hold.
+// checkUses refuses a binding of a category read once whole, and reads of b in two draw groups,
+// or inside a repeat, where what b names reads a reference path.
 func (b *nameBinding) checkUses() error {
 	if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested && len(b.tail) == 0 {
 		spelling := b.ref
@@ -481,9 +474,9 @@ func (d *renderDraws) depth() int {
 	return len(d.frameStack.frames)
 }
 
-// enter is sc as a read entering a category sees it, landing on n: none of the frames rendering,
-// and, from memo, the frame of each scope binding names around n, so every read entering with
-// memo reads one pick of each name. It returns the mark that closes those frames.
+// enter hides the frames already rendering from a read landing on n, and opens from memo a frame
+// for each name scope around n, so every read sharing memo reads one pick of each name. It
+// returns the mark that closes those frames.
 func (sc renderScope) enter(n node, memo *drawMemo) (renderScope, int) {
 	sc.base, sc.pick = sc.draws.depth(), nil
 	for scope := scopeAround(n); scope != nil; scope = scope.up {
@@ -566,8 +559,7 @@ func (sc renderScope) drawRowOf(s *generatorState, t *table) int {
 	return t.drawRow(s)
 }
 
-// keeps reports whether the pick sc renders part of keeps a, a read of t: whether a read of the
-// name addresses the level a starts at.
+// keeps reports whether a read of sc's name addresses the level a starts at.
 func (sc renderScope) keeps(a arm) bool {
 	_, kept := sc.pick.named.addressed[underKey(sc.pickKey, a.head)]
 	return kept

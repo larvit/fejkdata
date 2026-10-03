@@ -4,8 +4,8 @@ import "strings"
 
 // drawMemo is what a hold, a draw group or a named pick has drawn: the variant each level was
 // drawn as, so every path under it reads one variant; the value each read produced, by its path,
-// so the same read written twice reads one value; and the frame of each name scope a read
-// entered past its owner.
+// so the same read written twice reads one value; and the frames a read opens for the name
+// scopes around where it lands (enter).
 type drawMemo struct {
 	variant       map[string]node
 	value         map[string]readValue
@@ -48,8 +48,8 @@ type renderScope struct {
 	// base is the depth of the frame stack when the read rendering the category entered it,
 	// below which no frame is the category's.
 	base int
-	// pick is the named pick what renders is part of, at pickKey, its path from the name; nil
-	// outside one.
+	// pick is the named pick being rendered, nil outside one; pickKey is the path from the name
+	// to what renders.
 	pick    *namedPick
 	pickKey string
 }

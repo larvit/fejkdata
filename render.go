@@ -109,7 +109,7 @@ func renderRepeat(s *generatorState, t *template, sc renderScope) string {
 }
 
 // expandAnew expands one repeat iteration of t as a render of its own, in no group, inside the
-// name scopes of stack from base. Inlined into render's loop, its draws would move to the heap.
+// name scopes of stack from base. Inlined into renderRepeat's loop, its draws would move to the heap.
 //
 //go:noinline
 func expandAnew(s *generatorState, t *template, stack *frameStack, base int) string {
@@ -169,7 +169,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 // token addresses by a dotted path that is not a reference, or a field an operand
 // reads — is drawn once and kept in hold, so {place.postal-code} and {place.locality}
 // read one row, either read twice gives one value, and a shown operand is the operand
-// computed. A field of a template rendering as part of a named pick is kept in the pick.
+// computed. A field a read of a name addresses is kept in that name's pick.
 // Every other field is drawn afresh, so {word} {word} still draws twice.
 func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a arm) readValue {
 	if a.kind == refPathRead {
