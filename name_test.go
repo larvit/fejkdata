@@ -188,14 +188,16 @@ func TestNameErrors(t *testing.T) {
 			`"word" is no reference`},
 		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
 			`nothing reads name "w"`},
-		{"read once through a path", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as n}{n.w}"`},
-			`write {/word.w}`},
 		{"read in two draw groups", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{b}|{a}","a":"{/person as p}{p}","b":{"format":"{p.first}","drawGroup":"g"}}`},
 			`name "p" is read in two draw groups`},
 		{"read in a repeat", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{/person as p}{p}{each}","each":{"format":"{p.first}","repeat":2}}`},
 			`name "p" is read inside a repeat`},
 		{"a misspelt name", map[string]string{"word": `["a","b"]`, "card": `"{/word as p}{p}{p}{pp}"`},
 			`no field or name "pp"; the names bound here are [p]`},
+		{"read once through a path beside its reference path", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.w} {/word.w}"`},
+			""},
+		{"an empty name", map[string]string{"word": `["a","b"]`, "card": `"{/word as }"`},
+			"a binding names nothing"},
 		{"read once whole", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
 			`write {/word}`},
 		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
@@ -229,6 +231,12 @@ func TestNameErrors(t *testing.T) {
 				files[name] = body
 			}
 			_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files)))
+			if c.want == "" {
+				if err != nil {
+					t.Fatalf("New() = %v, want it to load", err)
+				}
+				return
+			}
 			if err == nil || !strings.Contains(err.Error(), c.want) {
 				t.Fatalf("New() = %v, want an error holding %q", err, c.want)
 			}
