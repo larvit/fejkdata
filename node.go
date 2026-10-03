@@ -18,7 +18,7 @@ type node interface{ isNode() }
 // dot path; rendering one is an error (see Fake).
 type folder struct {
 	children map[string]node
-	unloaded map[string]shippedCategory // the shipped categories here a call has not reached yet
+	unloaded map[string]shippedEntry // the shipped categories here a call has not reached yet
 }
 
 func (*folder) isNode() {}

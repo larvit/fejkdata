@@ -2,7 +2,7 @@
 
 package fejkdata
 
-var shippedIndex = map[string]shippedCategory{
+var shippedIndex = map[string]shippedEntry{
 	"en_US.address":           {paths: []string{"", "locality", "postal-code", "region", "street", "street-number"}},
 	"en_US.color":             {paths: []string{""}},
 	"en_US.company":           {paths: []string{"", "base", "suffix"}},

@@ -14,17 +14,17 @@ var shippedFS embed.FS
 
 var shippedSource = dataSource{fsys: shippedFS, baseDir: "data"}
 
-// shippedCategory is a shipped category as shippedindex.go lists it: the table beside it
-// that it links to, "" for none, and the paths List advertises below it.
-type shippedCategory struct {
+// shippedEntry is a shipped category's entry in shippedindex.go: the table beside it that
+// it links to, "" for none, and the paths List advertises below it.
+type shippedEntry struct {
 	parent string
 	paths  []string
 }
 
-// shelve builds the folders of the shipped index, with every category in them unloaded.
-func shelve() folder {
+// unloadedTree builds the folders of the shipped index, with every category in them unloaded.
+func unloadedTree() folder {
 	root := folder{children: map[string]node{}}
-	for p, c := range shippedIndex {
+	for p, e := range shippedIndex {
 		segs := strings.Split(p, ".")
 		g := &root
 		for _, seg := range segs[:len(segs)-1] {
@@ -36,23 +36,23 @@ func shelve() folder {
 			g = sub
 		}
 		if g.unloaded == nil {
-			g.unloaded = map[string]shippedCategory{}
+			g.unloaded = map[string]shippedEntry{}
 		}
-		g.unloaded[segs[len(segs)-1]] = c
+		g.unloaded[segs[len(segs)-1]] = e
 	}
 	return root
 }
 
-// pendingLoad is an unloaded shipped category: the folder holding it, that folder's path,
-// and its name there.
-type pendingLoad struct {
+// unloadedCategory is a shipped category not loaded yet: the folder holding it, that
+// folder's path, and its name there.
+type unloadedCategory struct {
 	dir  []string
 	in   *folder
 	name string
 }
 
 // unloadedAt is the unloaded shipped category a path from root names, or descends into.
-func unloadedAt(root *folder, segs []string) (pendingLoad, bool) {
+func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
 	g := root
 	for i, seg := range segs {
 		switch n := g.children[seg].(type) {
@@ -61,27 +61,26 @@ func unloadedAt(root *folder, segs []string) (pendingLoad, bool) {
 			continue
 		case nil:
 			if _, unloaded := g.unloaded[seg]; unloaded {
-				return pendingLoad{dir: segs[:i:i], in: g, name: seg}, true
+				return unloadedCategory{dir: segs[:i:i], in: g, name: seg}, true
 			}
 		}
-		return pendingLoad{}, false
+		return unloadedCategory{}, false
 	}
-	return pendingLoad{}, false
+	return unloadedCategory{}, false
 }
 
 // loadShippedAt loads the shipped category a caller's path names or descends into, unless
 // it is loaded already.
-func (f *Generator) loadShippedAt(segs []string) error {
-	if p, unloaded := unloadedAt(&f.root, segs); unloaded {
-		return loadShipped(&f.root, []pendingLoad{p})
+func (f *Generator) loadShippedAt(segs []string) {
+	if u, unloaded := unloadedAt(&f.root, segs); unloaded {
+		loadShipped(&f.root, []unloadedCategory{u})
 	}
-	return nil
 }
 
-// shippedReads is every unloaded shipped category the templates of scope reference, each
+// unloadedReads is every unloaded shipped category the templates of scope reference, each
 // reference read from the folder dir.
-func shippedReads(root *folder, dir []string, scope nodeScope) []pendingLoad {
-	var out []pendingLoad
+func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCategory {
+	var out []unloadedCategory
 	_ = scope(func(_ string, n node) error {
 		t, isTemplate := n.(*template)
 		if !isTemplate {
@@ -92,8 +91,8 @@ func shippedReads(root *folder, dir []string, scope nodeScope) []pendingLoad {
 			if err != nil {
 				continue // the link reports it
 			}
-			if p, unloaded := unloadedAt(root, segs); unloaded {
-				out = append(out, p)
+			if u, unloaded := unloadedAt(root, segs); unloaded {
+				out = append(out, u)
 			}
 		}
 		return nil
@@ -102,66 +101,59 @@ func shippedReads(root *folder, dir []string, scope nodeScope) []pendingLoad {
 }
 
 // loadShipped loads the shipped categories wanted, with every category they read and the
-// whole table family of each, then binds what it loaded, as New binds a whole load. A failed
-// bind leaves every category it loaded unloaded again.
-func loadShipped(root *folder, wanted []pendingLoad) (err error) {
-	var loaded []pendingLoad
-	var entries []shippedCategory
-	defer func() {
-		if err == nil {
-			return
-		}
-		for i, p := range loaded {
-			delete(p.in.children, p.name)
-			p.in.unloaded[p.name] = entries[i]
-		}
-	}()
+// whole table family of each, then binds what it loaded, as New binds a whole load.
+// TestEveryShippedCategoryLoadsAlone proves each closure, so a failure is the index's.
+func loadShipped(root *folder, wanted []unloadedCategory) {
 	var sites []categorySite
 	for queue := wanted; len(queue) > 0; queue = queue[1:] {
-		p := queue[0]
-		c, unloaded := p.in.unloaded[p.name]
+		u := queue[0]
+		e, unloaded := u.in.unloaded[u.name]
 		if !unloaded {
 			continue
 		}
-		site, err := p.load()
+		site, err := u.load()
 		if err != nil {
-			return err
+			panic(internalError("shipped %s: %v", u.name, err))
 		}
-		loaded, entries = append(loaded, p), append(entries, c)
 		sites = append(sites, site)
-		queue = append(queue, shippedReads(root, p.dir, sitesScope([]categorySite{site}))...)
-		queue = append(queue, p.family(c)...)
+		queue = append(queue, unloadedReads(root, u.dir, sitesScope([]categorySite{site}))...)
+		queue = append(queue, u.family(e)...)
+	}
+	if len(sites) == 0 {
+		return
 	}
 	sort.Slice(sites, func(i, j int) bool { return sites[i].path < sites[j].path })
-	return categoryBinding(sites, root.children).bind()
+	if err := categoryBinding(sites, root.children).bind(); err != nil {
+		panic(internalError("binding shipped categories: %v", err))
+	}
 }
 
 // load parses and compiles the category, and moves it from its folder's unloaded
 // categories to its children.
-func (p pendingLoad) load() (categorySite, error) {
-	dir := path.Join(append([]string{shippedSource.baseDir}, p.dir...)...)
+func (u unloadedCategory) load() (categorySite, error) {
+	dir := path.Join(append([]string{shippedSource.baseDir}, u.dir...)...)
 	entries, err := fs.ReadDir(shippedSource.fsys, dir)
 	if err != nil {
 		return categorySite{}, fmt.Errorf("%s: %w", dir, err)
 	}
-	file := p.name + ".json"
-	if err := loadFile(shippedSource, p.in, path.Join(dir, file), file, newCategoryFiles(shippedSource, dir, entries)); err != nil {
+	file := u.name + ".json"
+	if err := loadFile(shippedSource, u.in, path.Join(dir, file), file, newCategoryFiles(shippedSource, dir, entries)); err != nil {
 		return categorySite{}, err
 	}
-	delete(p.in.unloaded, p.name)
-	return categorySite{dir: p.dir, path: join(strings.Join(p.dir, "."), p.name), in: p.in, n: p.in.children[p.name]}, nil
+	delete(u.in.unloaded, u.name)
+	return categorySite{dir: u.dir, path: join(strings.Join(u.dir, "."), u.name), in: u.in, n: u.in.children[u.name]}, nil
 }
 
-// family is the tables beside p that a table family links it to: its parent, and every
+// family is the tables beside u that a table family links it to: its parent, and every
 // table whose parent it is.
-func (p pendingLoad) family(c shippedCategory) []pendingLoad {
-	var out []pendingLoad
-	if c.parent != "" {
-		out = append(out, pendingLoad{dir: p.dir, in: p.in, name: c.parent})
+func (u unloadedCategory) family(e shippedEntry) []unloadedCategory {
+	var out []unloadedCategory
+	if e.parent != "" {
+		out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: e.parent})
 	}
-	for name, sibling := range p.in.unloaded {
-		if sibling.parent == p.name {
-			out = append(out, pendingLoad{dir: p.dir, in: p.in, name: name})
+	for name, sibling := range u.in.unloaded {
+		if sibling.parent == u.name {
+			out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: name})
 		}
 	}
 	return out

@@ -108,7 +108,7 @@ func New(opts ...Option) (*Generator, error) {
 // mistake in that source is New's error.
 func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {
-		return shelve(), nil
+		return unloadedTree(), nil
 	}
 	var sources []dataSource
 	if c.shipped {
@@ -144,8 +144,8 @@ func paths(n node) []string {
 				out = append(out, join(name, p))
 			}
 		}
-		for name, c := range n.unloaded {
-			for _, p := range c.paths {
+		for name, e := range n.unloaded {
+			for _, p := range e.paths {
 				out = append(out, join(name, p))
 			}
 		}
