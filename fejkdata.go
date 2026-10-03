@@ -180,12 +180,7 @@ func paths(n node) []string {
 func tablePaths(t *table) []string {
 	out := append([]string{""}, t.header...)
 	sort.Strings(out[1:])
-	children := make([]string, 0, len(t.children))
-	for name := range t.children {
-		children = append(children, name)
-	}
-	sort.Strings(children)
-	for _, name := range children {
+	for _, name := range sortedNames(t.children) {
 		for _, p := range paths(t.children[name]) {
 			out = append(out, join(name, p))
 		}

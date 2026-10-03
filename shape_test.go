@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -109,12 +108,7 @@ func readsFact(n node) string {
 	if len(set) == 0 {
 		return ""
 	}
-	keys := make([]string, 0, len(set))
-	for k := range set {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return "\treads " + strings.Join(keys, " ")
+	return "\treads " + strings.Join(sortedNames(set), " ")
 }
 
 func TestShippedShapeNamesReads(t *testing.T) {

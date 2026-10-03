@@ -139,7 +139,7 @@ func (u unloadedCategory) load() (categorySite, error) {
 		return categorySite{}, err
 	}
 	delete(u.in.unloaded, u.name)
-	return categorySite{dir: u.dir, path: join(strings.Join(u.dir, "."), u.name), in: u.in, n: u.in.children[u.name]}, nil
+	return siteIn(u.dir, u.in, u.name), nil
 }
 
 // linkedTables is the tables beside u that link to it or that it links to: its parent, and

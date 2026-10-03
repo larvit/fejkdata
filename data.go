@@ -203,11 +203,15 @@ func categorySites(root *folder) []categorySite {
 				walk(append(dir[:len(dir):len(dir)], name), sub)
 				continue
 			}
-			out = append(out, categorySite{dir: dir, path: join(strings.Join(dir, "."), name), in: g, n: g.children[name]})
+			out = append(out, siteIn(dir, g, name))
 		}
 	}
 	walk(nil, root)
 	return out
+}
+
+func siteIn(dir []string, in *folder, name string) categorySite {
+	return categorySite{dir: dir, path: join(strings.Join(dir, "."), name), in: in, n: in.children[name]}
 }
 
 func sitesScope(sites []categorySite) nodeScope {

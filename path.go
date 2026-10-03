@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -470,11 +469,7 @@ func unreachableInChoice(c *choice, want string) error {
 	if len(c.shared) == 0 {
 		return fmt.Errorf("no variant of this %d-way choice carries %q", len(c.items), want)
 	}
-	offered := make([]string, 0, len(c.shared))
-	for p := range c.shared {
-		offered = append(offered, p)
-	}
-	sort.Strings(offered)
+	offered := sortedNames(c.shared)
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
