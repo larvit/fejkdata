@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:generate env REPIN=1 go test -run ^TestShippedIndexIsCurrent$ .
+//go:generate env REGENERATE=1 go test -run ^TestShippedIndexIsCurrent$ .
 
 //go:embed data
 var shippedFS embed.FS
@@ -17,7 +17,8 @@ var shippedFS embed.FS
 var shippedSource = dataSource{fsys: shippedFS, baseDir: "data"}
 
 // shippedEntry is a shipped category's entry in shippedindex.go: the table beside it that
-// it links to, "" for none, and the paths List advertises below it.
+// it links to, "" for none, and the paths List advertises below it. After changing it, empty
+// shippedIndex's literal by hand so the package builds, then run generate.
 type shippedEntry struct {
 	parent string
 	paths  []string
@@ -45,15 +46,6 @@ func unloadedTree() folder {
 	return root
 }
 
-func sortedEntries(m map[string]shippedEntry) []string {
-	names := make([]string, 0, len(m))
-	for name := range m {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	return names
-}
-
 // unloadedCategory is a shipped category not loaded yet: the folder holding it, that
 // folder's path, and its name there.
 type unloadedCategory struct {
@@ -64,25 +56,19 @@ type unloadedCategory struct {
 
 // unloadedAt is the unloaded shipped category a path from root names, or descends into.
 func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
-	g := root
-	for i, seg := range segs {
-		switch n := g.children[seg].(type) {
-		case *folder:
-			g = n
-			continue
-		case nil:
-			if _, unloaded := g.unloaded[seg]; unloaded {
-				return unloadedCategory{dir: segs[:i:i], in: g, name: seg}, true
-			}
-		}
+	g, i := folderAt(root, segs)
+	if i == len(segs) {
 		return unloadedCategory{}, false
 	}
-	return unloadedCategory{}, false
+	if _, unloaded := g.unloaded[segs[i]]; !unloaded {
+		return unloadedCategory{}, false
+	}
+	return unloadedCategory{dir: segs[:i:i], in: g, name: segs[i]}, true
 }
 
 // loadShippedAt loads the shipped category a caller's path names or descends into, unless
-// it is loaded already. An entry point walking root calls it first: a walk that loaded
-// would load mid-render.
+// it is loaded already. An entry point calls it before walking root: a walk is a query and
+// loads nothing.
 func (f *Generator) loadShippedAt(segs []string) {
 	if u, unloaded := unloadedAt(&f.root, segs); unloaded {
 		loadShipped(&f.root, []unloadedCategory{u})
@@ -163,7 +149,7 @@ func (u unloadedCategory) linkedTables(e shippedEntry) []unloadedCategory {
 	if e.parent != "" {
 		out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: e.parent})
 	}
-	for _, name := range sortedEntries(u.in.unloaded) {
+	for _, name := range sortedNames(u.in.unloaded) {
 		if u.in.unloaded[name].parent == u.name {
 			out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: name})
 		}

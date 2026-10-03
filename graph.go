@@ -76,7 +76,7 @@ func namedNodes(m map[string]node) []namedNode {
 	return out
 }
 
-func sortedNames(m map[string]node) []string {
+func sortedNames[V any](m map[string]V) []string {
 	names := make([]string, 0, len(m))
 	for name := range m {
 		names = append(names, name)

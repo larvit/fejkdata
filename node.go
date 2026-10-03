@@ -406,12 +406,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 // compileFields compiles every non-option key of a template object.
 func compileFields(m map[string]any, pos position) (map[string]node, error) {
 	fields := make(map[string]node, len(m))
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
+	for _, k := range sortedNames(m) {
 		if isOption(k) {
 			continue
 		}

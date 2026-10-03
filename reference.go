@@ -214,26 +214,32 @@ func eachTemplate(sites []categorySite, fn func(s categorySite, path string, t *
 // resolveCategory walks a dotted path through the folders to the category it
 // names, returning that category's segments, the node, and the tail left to read into it.
 func resolveCategory(root map[string]node, segments []string) (categorySegs []string, target node, tail []string, err error) {
-	var n node = &folder{children: root}
-	i := 0
-	for ; i < len(segments); i++ {
-		g, ok := n.(*folder)
-		if !ok {
-			break
-		}
-		if isSelector(segments[i]) {
-			return nil, nil, nil, fmt.Errorf("%s is a folder, not a table, so it has no row to select", strings.Join(segments[:i], "."))
-		}
-		child, ok := g.children[segments[i]]
-		if !ok {
-			return nil, nil, nil, fmt.Errorf("no entry %q", segments[i])
-		}
-		n = child
-	}
-	if _, ok := n.(*folder); ok {
+	g, i := folderAt(&folder{children: root}, segments)
+	switch {
+	case i == len(segments):
 		return nil, nil, nil, fmt.Errorf("names a folder, not a value")
+	case isSelector(segments[i]):
+		return nil, nil, nil, fmt.Errorf("%s is a folder, not a table, so it has no row to select", strings.Join(segments[:i], "."))
 	}
-	return segments[:i], n, segments[i:], nil
+	n, ok := g.children[segments[i]]
+	if !ok {
+		return nil, nil, nil, fmt.Errorf("no entry %q", segments[i])
+	}
+	return segments[:i+1], n, segments[i+1:], nil
+}
+
+// folderAt is the deepest folder a path from root walks into, and the index of the first
+// segment naming no folder in it, len(segs) where every segment does.
+func folderAt(root *folder, segs []string) (*folder, int) {
+	g := root
+	for i, seg := range segs {
+		sub, isFolder := g.children[seg].(*folder)
+		if !isFolder {
+			return g, i
+		}
+		g = sub
+	}
+	return g, len(segs)
 }
 
 // refTokens returns the reference names a format reads, as tokens or as operands, or binds.
