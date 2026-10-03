@@ -34,8 +34,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	loadShipped(&f.root, unloadedReads(&f.root, nil, inlineScope(n, "template")))
-	if err := inlineBinding(n, "template", f.root.children).bind(); err != nil {
+	if err := bindInline(&f.root, n, "template", false); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -149,18 +148,22 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-func inlineBinding(n node, label string, root map[string]node) binding {
+// bindInline loads the shipped categories n reads, then binds n against root; typedByGo is
+// binding's.
+func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	scope := inlineScope(n, label)
+	loadShipped(root, unloadedReads(root, nil, scope))
 	return binding{
-		scope: scope,
-		link:  func() error { return linkNodeRefs(scope, root) },
+		scope:     scope,
+		link:      func() error { return linkNodeRefs(scope, root.children) },
+		typedByGo: typedByGo,
 		scopeFence: func() error {
 			if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
 				return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
 			}
 			return nil
 		},
-	}
+	}.bind()
 }
 
 // linkNodeRefs binds the references in an inline node's templates against the

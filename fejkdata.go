@@ -144,8 +144,8 @@ func paths(n node) []string {
 				out = append(out, join(name, p))
 			}
 		}
-		for name, e := range n.unloaded {
-			for _, p := range e.paths {
+		for _, name := range sortedEntries(n.unloaded) {
+			for _, p := range n.unloaded[name].paths {
 				out = append(out, join(name, p))
 			}
 		}
