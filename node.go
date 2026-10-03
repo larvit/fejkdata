@@ -16,7 +16,10 @@ type node interface{ isNode() }
 // folder is a namespace of named children, built from a directory of JSON files
 // and subdirectories. It has no value of its own: descend into a named child by
 // dot path; rendering one is an error (see Fake).
-type folder struct{ children map[string]node }
+type folder struct {
+	children map[string]node
+	unloaded map[string]shippedCategory // the shipped categories here a call has not reached yet
+}
 
 func (*folder) isNode() {}
 

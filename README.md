@@ -813,9 +813,11 @@ token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expan
 
 The target is about a microsecond per value (goal 12).
 
-Each file is parsed, validated and weight-indexed once, in `New`, bar a table's name and
-parent columns, which are mapped on the first `Fake` that selects by name or descends
-through it. Proving the draw fences adds a pass over the loaded tree per
+Each file is parsed, validated and weight-indexed once, bar a table's name and parent
+columns, which are mapped on the first `Fake` that selects by name or descends through
+it. With the shipped set alone, a category loads on the first call reaching it, with
+every category it reads, and `List` reads an index; beside a `--data-path`, every
+category loads in `New`. Proving the draw fences adds a pass over the loaded tree per
 fence, and walks what a render reads only where data holds a reference, so a set that
 holds none pays for the passes alone. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
@@ -931,7 +933,9 @@ Where the project is heading; the sections before Audience document what ships t
 
 ```
 doc.go          the package doc, and the vocabulary the package is written in
-fejkdata.go     Generator, New, options, the embedded data set, List
+fejkdata.go     Generator, New, options, List
+shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
+shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
 table.go        tables: the rows TSV, its options and links, row selection and draws
 name.go         names: {ref as n} bindings, the scopes they live in, and the reads they answer
@@ -1016,7 +1020,7 @@ what the score asks of a pull request. Goal 5 is checked against simulated templ
 writers from the Audience.
 
 A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
-in its own commit:
+and regenerates [`shippedindex.go`](shippedindex.go) in its own commit:
 
 ```sh
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test

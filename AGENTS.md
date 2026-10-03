@@ -43,6 +43,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A padded JSON argument is rejected, not trimmed
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
+- The shipped set alone loads a category on the first call reaching it; beside a `--data-path` it loads whole
 - A bare reference draws each time; a reference path is held
 - Reference sigils follow the filesystem
 - A change to what exists is a major; a minor only adds

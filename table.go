@@ -365,47 +365,29 @@ func refuseTableBinding(toks []formatToken) error {
 
 // setTablePaths gives every table the path a selector on it is written at, before a
 // link or a draw can name one.
-func setTablePaths(root map[string]node) {
-	var walk func(dir string, children map[string]node)
-	walk = func(dir string, children map[string]node) {
-		for name, child := range children {
-			switch n := child.(type) {
-			case *folder:
-				walk(join(dir, name), n.children)
-			case *table:
-				n.path = join(dir, name)
-			}
+func setTablePaths(sites []categorySite) {
+	for _, s := range sites {
+		if t, isTable := s.n.(*table); isTable {
+			t.path = s.path
 		}
 	}
-	walk("", root)
 }
 
 // linkTables binds every table's parent to the table beside it, and proves the
 // links: a parent has a key, every link cell is one, every parent row is linked
 // to, no chain of parents closes, and no child is named like a parent's column.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
-func linkTables(root map[string]node) error {
-	var walk func(dir string, children map[string]node) error
-	walk = func(dir string, children map[string]node) error {
-		for _, name := range sortedNames(children) {
-			path := join(dir, name)
-			switch n := children[name].(type) {
-			case *folder:
-				if err := walk(path, n.children); err != nil {
-					return err
-				}
-			case *table:
-				if n.parentIndex < 0 {
-					continue
-				}
-				if err := n.linkParent(path, children); err != nil {
-					return fmt.Errorf("%s: %w", path, err)
-				}
-			}
+func linkTables(sites []categorySite) error {
+	for _, s := range sites {
+		t, isTable := s.n.(*table)
+		if !isTable || t.parentIndex < 0 {
+			continue
 		}
-		return nil
+		if err := t.linkParent(s.path, s.in.children); err != nil {
+			return fmt.Errorf("%s: %w", s.path, err)
+		}
 	}
-	return walk("", root)
+	return nil
 }
 
 func (t *table) linkParent(path string, siblings map[string]node) error {

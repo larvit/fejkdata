@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	crand "crypto/rand"
-	"embed"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -13,9 +12,6 @@ import (
 	"sort"
 	"sync"
 )
-
-//go:embed data
-var shippedFS embed.FS
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
 // any one path; the CLI's --repeat shares it.
@@ -30,9 +26,8 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards rand, records and structs. The tree under root is fixed after New bar each
-	// table's row lookup, built under its sync.Once, so List, NewTemplate and
-	// NewRecordTemplate read it without mu.
+	// mu guards rand, records, structs and root, which loads a shipped category on the
+	// first call reaching it.
 	mu      sync.Mutex
 	rand    *generatorState
 	root    folder // the categories as the node a path walks from, owned here so a walk allocates none
@@ -97,15 +92,7 @@ func New(opts ...Option) (*Generator, error) {
 	for _, opt := range opts {
 		opt(&c)
 	}
-	var sources []dataSource
-	if c.shipped {
-		sources = append(sources, dataSource{fsys: shippedFS, baseDir: "data"})
-	}
-	sources = append(sources, c.sources...)
-	if len(sources) == 0 {
-		return nil, fmt.Errorf("fejkdata: %w", ErrNoData)
-	}
-	cats, err := loadData(sources)
+	root, err := c.load()
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
@@ -113,19 +100,35 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: rng, root: folder{children: cats}}, nil
+	return &Generator{rand: rng, root: root}, nil
+}
+
+// load is the tree New starts from. The shipped data set alone loads each category on the
+// first call reaching it; beside any other source, every category loads here, so each
+// mistake in that source is New's error.
+func (c config) load() (folder, error) {
+	if c.shipped && len(c.sources) == 0 {
+		return shelve(), nil
+	}
+	var sources []dataSource
+	if c.shipped {
+		sources = append(sources, shippedSource)
+	}
+	sources = append(sources, c.sources...)
+	if len(sources) == 0 {
+		return folder{}, ErrNoData
+	}
+	cats, err := loadData(sources)
+	return folder{children: cats}, err
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
 // column and linked table below it, a direct descent at a time. A choice consumes no
 // segment, so a path continues through one only where every variant carries it.
 func (f *Generator) List() []string {
-	var out []string
-	for _, name := range sortedNames(f.root.children) {
-		for _, p := range paths(f.root.children[name]) {
-			out = append(out, join(name, p))
-		}
-	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	out := paths(&f.root)
 	sort.Strings(out)
 	return out
 }
@@ -138,6 +141,11 @@ func paths(n node) []string {
 		var out []string
 		for _, name := range sortedNames(n.children) {
 			for _, p := range paths(n.children[name]) {
+				out = append(out, join(name, p))
+			}
+		}
+		for name, c := range n.unloaded {
+			for _, p := range c.paths {
 				out = append(out, join(name, p))
 			}
 		}

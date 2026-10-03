@@ -71,17 +71,16 @@ func refSegments(name string, folder []string) ([]string, error) {
 // so a reference sees the override-resolved tree. A reference's head binds into
 // refHeads under its root path and its tail reads like a sibling path, so two
 // spellings of one target are one draw.
-func linkRefs(root map[string]node) error {
-	if err := eachTemplate(root, func(folder []string, path string, t *template) error {
-		category := strings.Join(strings.Split(path, ".")[:len(folder)+1], ".")
-		return linkTemplate(folder, path, category, t, root)
+func linkRefs(sites []categorySite, root map[string]node) error {
+	if err := eachTemplate(sites, func(s categorySite, path string, t *template) error {
+		return linkTemplate(s.dir, path, s.path, t, root)
 	}); err != nil {
 		return err
 	}
-	if err := eachTemplate(root, func(_ []string, path string, t *template) error { return linkNames(path, t) }); err != nil {
+	if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return linkNames(path, t) }); err != nil {
 		return err
 	}
-	return eachTemplate(root, func(_ []string, path string, t *template) error { return checkNameReads(path, t) })
+	return eachTemplate(sites, func(_ categorySite, path string, t *template) error { return checkNameReads(path, t) })
 }
 
 // linkTemplate resolves t's references in category, "" for an inline template, and
@@ -196,40 +195,20 @@ func loneRef(toks []formatToken) (string, bool) {
 	return toks[0].names[0], true
 }
 
-// eachTemplate calls fn once per template, with the folder its category sits in
-// and the dot path reaching it, folders and names in sorted order.
-func eachTemplate(root map[string]node, fn func(folder []string, path string, t *template) error) error {
-	var inCategory func(folder []string, path string, n node) error
-	inCategory = func(folder []string, path string, n node) error {
-		if t, ok := n.(*template); ok {
-			if err := fn(folder, path, t); err != nil {
-				return err
+// eachTemplate calls fn once per template of the categories, with the category it sits
+// in and the dot path reaching it.
+func eachTemplate(sites []categorySite, fn func(s categorySite, path string, t *template) error) error {
+	for _, s := range sites {
+		if err := eachNode(s.n, s.path, func(path string, n node) error {
+			if t, isTemplate := n.(*template); isTemplate {
+				return fn(s, path, t)
 			}
+			return nil
+		}); err != nil {
+			return err
 		}
-		for _, c := range contained(n) {
-			if err := inCategory(folder, join(path, c.name), c.node); err != nil {
-				return err
-			}
-		}
-		return nil
 	}
-	var inFolder func(dir []string, children map[string]node) error
-	inFolder = func(dir []string, children map[string]node) error {
-		for _, name := range sortedNames(children) {
-			path := join(strings.Join(dir, "."), name)
-			if g, ok := children[name].(*folder); ok {
-				if err := inFolder(append(dir[:len(dir):len(dir)], name), g.children); err != nil {
-					return err
-				}
-				continue
-			}
-			if err := inCategory(dir, path, children[name]); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	return inFolder(nil, root)
+	return nil
 }
 
 // resolveCategory walks a dotted path through the folders to the category it

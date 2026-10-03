@@ -55,7 +55,7 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
-	if err := treeBinding(root).bind(); err != nil {
+	if err := categoryBinding(categorySites(&folder{children: root}), root).bind(); err != nil {
 		return nil, err
 	}
 	return root, nil
@@ -69,12 +69,7 @@ func loadDir(src dataSource, dir string) (*folder, error) {
 		return nil, fmt.Errorf("%s: %w", src.labelled(dir), err)
 	}
 	g := &folder{children: map[string]node{}}
-	files := &categoryFiles{src: src, dir: dir, tsv: map[string]bool{}}
-	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
-			files.tsv[e.Name()] = false
-		}
-	}
+	files := newCategoryFiles(src, dir, entries)
 	for _, e := range entries {
 		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
 			continue
@@ -104,6 +99,16 @@ type categoryFiles struct {
 	src dataSource
 	dir string
 	tsv map[string]bool
+}
+
+func newCategoryFiles(src dataSource, dir string, entries []fs.DirEntry) *categoryFiles {
+	files := &categoryFiles{src: src, dir: dir, tsv: map[string]bool{}}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
+			files.tsv[e.Name()] = false
+		}
+	}
+	return files
 }
 
 func (c *categoryFiles) readRows(name string) (string, error) {
@@ -175,12 +180,45 @@ func mergeChildren(dst, src map[string]node) {
 	}
 }
 
-// nodeScope is the set of nodes one validation pass covers: a whole loaded tree,
-// or a single inline node.
+// nodeScope is the set of nodes one validation pass covers: the categories one load
+// binds, or a single inline node.
 type nodeScope func(fn func(path string, n node) error) error
 
-func treeScope(root map[string]node) nodeScope {
-	return func(fn func(path string, n node) error) error { return walkNodes(root, fn) }
+// categorySite is a loaded category and where it sits: the folder holding it, that
+// folder's path, and its own dot path.
+type categorySite struct {
+	dir  []string
+	path string
+	in   *folder
+	n    node
+}
+
+// categorySites lists every category under root, folders and names in sorted order.
+func categorySites(root *folder) []categorySite {
+	var out []categorySite
+	var walk func(dir []string, g *folder)
+	walk = func(dir []string, g *folder) {
+		for _, name := range sortedNames(g.children) {
+			if sub, isFolder := g.children[name].(*folder); isFolder {
+				walk(append(dir[:len(dir):len(dir)], name), sub)
+				continue
+			}
+			out = append(out, categorySite{dir: dir, path: join(strings.Join(dir, "."), name), in: g, n: g.children[name]})
+		}
+	}
+	walk(nil, root)
+	return out
+}
+
+func sitesScope(sites []categorySite) nodeScope {
+	return func(fn func(path string, n node) error) error {
+		for _, s := range sites {
+			if err := eachNode(s.n, s.path, fn); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }
 
 func inlineScope(n node, label string) nodeScope {
@@ -197,17 +235,19 @@ type binding struct {
 	typedByGo bool
 }
 
-func treeBinding(root map[string]node) binding {
+// categoryBinding binds the categories of one load, their references resolving
+// against root.
+func categoryBinding(sites []categorySite, root map[string]node) binding {
 	return binding{
-		scope: treeScope(root),
+		scope: sitesScope(sites),
 		link: func() error {
-			setTablePaths(root)
-			if err := linkTables(root); err != nil {
+			setTablePaths(sites)
+			if err := linkTables(sites); err != nil {
 				return err
 			}
-			return linkRefs(root)
+			return linkRefs(sites, root)
 		},
-		scopeFence: func() error { return checkNoCycles(root) },
+		scopeFence: func() error { return checkNoCycles(sites) },
 	}
 }
 
@@ -229,7 +269,7 @@ func (b binding) bind() error {
 // checkNodeFences runs the per-node fences every binding needs over a scope, each
 // over the whole scope before the next, so which of several broken nodes is reported
 // does not depend on the walk. Its walks recurse unguarded, so the scope's cycles are
-// refused first: a tree by checkNoCycles, and an inline node closes none, since nothing
+// refused first: categories by checkNoCycles, and an inline node closes none, since nothing
 // references it.
 func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}

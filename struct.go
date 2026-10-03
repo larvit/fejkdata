@@ -49,7 +49,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	sc := &structCompile{categories: f.root.children, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
+	sc := &structCompile{root: &f.root, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
 	shape, err := sc.compileShape(t, label)
 	if err == nil && shape.empty() {
 		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
@@ -82,7 +82,7 @@ func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 
 // loaded tree, the types compiling or embedded above, so a pointer back to one is left alone
 // rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
-	categories  map[string]node
+	root        *folder
 	visiting    map[reflect.Type]bool
 	structsLeft int
 }
@@ -109,7 +109,7 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		if err := c.shape.compileRecord(sc.categories, t, label, c.tags); err != nil {
+		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
 			return nil, err
 		}
 	}
@@ -252,13 +252,13 @@ func checkTaggedType(sf reflect.StructField) error {
 
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
-func (s *structShape) compileRecord(categories map[string]node, t reflect.Type, label string, tags map[string]any) error {
+func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]any) error {
 	tags["format"] = ""
 	n, err := compile(tags)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	b := inlineBinding(n, label, categories)
+	b := inlineBinding(n, label, root)
 	b.typedByGo = true
 	if err := b.bind(); err != nil {
 		return err
