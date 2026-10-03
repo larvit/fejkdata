@@ -64,7 +64,6 @@
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 12 | 0.1.0 | defect | **Strip the whitespace `data-import/territory.py` copies from its register.** | 1 | 1 | 5 | 7 | 4 | 20.6 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
-| 6 | 0.1.0 | question | **Decide how the comprehension gate treats panel noise: identical code scored 5.7 and 5.4.** | 1 | 1 | 3 | 8 | 3 | 19.1 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
@@ -236,26 +235,7 @@ The format hard-codes `-`, and the 1930 floor makes the oldest draws invalid fro
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs item 4, and runs as item 6 decides.
-
-### 6. Decide how the comprehension gate treats panel noise: identical code scored 5.7 and 5.4.
-
-Two nine-seat runs on `5cb919e`, same briefs, same model, 2026-09-30:
-
-| Seat | Run 1 | Run 2 |
-|---|---|---|
-| Junior A | 5 | 5 |
-| Junior B | 4 | 5 |
-| Mid A | 6 | 5 |
-| Mid B | 6 | 6 |
-| Senior domain | 6 | 5 |
-| Senior maintainability | 6 | 6 |
-| Senior extender | 6 | 5 |
-| Architect greenfield | 6 | 6 |
-| Architect inherited | 6 | 6 |
-| Mean (Navigation / Locality / Shape / Self-sufficiency) | 5.7 (7.0 / 5.1 / 5.9 / 5.7) | 5.4 (6.3 / 4.8 / 5.8 / 5.3) |
-
-Both runs named the same hardest units, `drawsApart` and `readFold.reads`. Run 1 is the recorded score; run 2 reran the same code to measure noise. A spread of 0.3 is close to the whole 5.7–6.1 range the recorded scores span since 2026-09-20, so `AGENTS.md`'s "no merge lowers the last score" can block or pass a chunk by chance. Until this item is decided, that rule compares against 5.7, from 2026-09-30.
+Needs item 4.
 
 ### 71. Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.
 
