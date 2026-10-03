@@ -903,4 +903,5 @@ pick is drawn on its first read, so a record's columns, rendered in name order, 
 whichever binds it. A read entering a category keeps the frame of each scope it enters in its
 own memo, and the category's root renders that frame when the read lands on the root, so
 `{n}` and `{n.path}` read one pick: per render and group for a reference path, per pick for a
-path through a name, and per render for `Fake("cat.field")`.
+path through a name, and per render for `Fake("cat.field")`. A reference read under a pick
+draws in the pick's own draw groups, so two names bound to one category are two picks of it.

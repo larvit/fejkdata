@@ -12,8 +12,8 @@ replacement, and each removed path, column or flag.
   and prints nothing, and `{t}`, `{t.capital}` and `{t.calling-code}` read that one row.
   A name lives in the category binding it, so every field and record column of the
   category reads one pick, a transform reads it as `{lowercase(t.name)}`, and a name a
-  `repeat` binds picks again on every iteration. Refused at `New`: a name bound twice in
-  one category, or inside a `repeat` and outside it; a name that is a field or an option;
+  `repeat` binds picks again on every iteration. Refused at `New`: a name bound twice
+  outside any `repeat`, twice in one `repeat`, or both inside a `repeat` and outside it; a name that is a field or an option;
   a binding of anything but a reference; a binding in a choice's item; a binding nothing
   reads; a path through a name that selects a row; and a binding in a table. A field,
   column, category or folder name may not contain ` as `.
