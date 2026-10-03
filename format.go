@@ -297,6 +297,9 @@ func checkBind(t formatToken) error {
 	if _, _, err := refShape(ref); err != nil {
 		return fmt.Errorf("token {%s}: %w", t.body, err)
 	}
+	if name == "" {
+		return fmt.Errorf("token {%s}: a binding names nothing; write {%s as n}", t.body, ref)
+	}
 	if isOption(name) {
 		return fmt.Errorf("token {%s}: %q is an option and can never be a name", t.body, name)
 	}
