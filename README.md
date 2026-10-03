@@ -815,9 +815,9 @@ The target is about a microsecond per value (goal 12).
 
 Each file is parsed, validated and weight-indexed once, bar a table's name and parent
 columns, which are mapped on the first `Fake` that selects by name or descends through
-it. With the shipped set alone, a category loads on the first call reaching it, with
-every category it reads and every table linked to it, and `List` reads an index for what
-has not loaded yet; beside a `--data-path`, every category loads in `New`. Proving the draw fences adds a pass over the loaded tree per
+it. With the shipped set alone, `New` loads nothing: a category loads on the first call
+reaching it, with every category it reads and every table linked to it. Beside
+`--data-path`, `WithDataPath` or `WithDataFS`, every category loads in `New`. Proving the draw fences adds a pass over the loaded tree per
 fence, and walks what a render reads only where data holds a reference, so a set that
 holds none pays for the passes alone. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
@@ -1020,9 +1020,9 @@ Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) s
 what the score asks of a pull request. Goal 5 is checked against simulated template
 writers from the Audience.
 
-A change to the shipped data regenerates [`shippedindex.go`](shippedindex.go) with
-`generate` above, and re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
-in its own commit:
+A change to the shipped data runs `generate` above first and commits
+[`shippedindex.go`](shippedindex.go) with the change, then re-pins
+[`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) in its own commit:
 
 ```sh
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
