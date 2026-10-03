@@ -23,7 +23,7 @@ package fejkdata
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
 //     start one each, `FakeStruct` one per record, and `expandAnew` one per
 //     iteration of a `template.repeat`.
-//   - hold — keeping one draw of a name, so every route to it reads that value:
+//   - hold — keeping one draw of a field, so every route to it reads that value:
 //     an expansion holds a sibling path's head and an operand's field, its draw
 //     group a reference path's: `formatOps.held` and `heldCheck` an expansion's,
 //     `readReference` a draw group's.

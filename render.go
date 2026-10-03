@@ -165,7 +165,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 	return b.String()
 }
 
-// readField renders one arm of a token. A name the expansion holds — a level some
+// readField renders one arm of a token. A field the expansion holds — a level some
 // token addresses by a dotted path that is not a reference, or a field an operand
 // reads — is drawn once and kept in hold, so {place.postal-code} and {place.locality}
 // read one row, either read twice gives one value, and a shown operand is the operand

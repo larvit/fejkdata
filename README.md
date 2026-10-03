@@ -716,11 +716,11 @@ anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
 reference path the picked category reads is still held for the render as usual, so two names
-bound to `sv_SE.person`, whose fields read `{.first-name.name}`, print the same first and last
+bound to `sv_SE.person`, whose fields read `{.first-name.name}` and `{.last-name.name}`, print the same first and last
 name unless their reads sit in two [draw groups](#draw-group).
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
-category reads it, and a record's columns read one pick. Each render of the category picks
+category may read it, and a record's columns read one pick. Each render of the category picks
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
 iteration, and one bound outside the repeat keeps its pick on every line.
 
