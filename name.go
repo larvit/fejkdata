@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -130,20 +131,12 @@ func (sc *nameScope) spelled() string {
 	return "in one repeat"
 }
 
-// settle refuses a binding read by nothing, or read once whole, outside a repeat, where its
-// reference spells the same pick; and hands a scope binding names to its owner, which renders a
-// frame of it.
+// settle refuses a binding read by nothing, and hands a scope binding names to its owner, which
+// renders a frame of it.
 func (sc *nameScope) settle() error {
 	for _, b := range sc.order {
 		if len(b.uses) == 0 {
 			return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
-		}
-		if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested {
-			spelling := b.ref
-			if !r.operand {
-				spelling = "{" + spelling + "}"
-			}
-			return fmt.Errorf("%stoken {%s}: name %q is read once, so it keeps nothing; write %s where it is read, and drop the token", b.where, b.body, b.name, spelling)
 		}
 	}
 	if t, isTemplate := sc.owner.(*template); isTemplate && len(sc.order) > 0 {
@@ -207,9 +200,9 @@ func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 		if b, ok := sc.bindings[u.head]; ok {
 			at := strings.TrimSuffix(b.where, ": ")
 			if at == "" {
-				at = "the root template"
+				at = "an item of the root choice"
 			}
-			return fmt.Errorf("%s%w; name %q is bound inside the repeat at %s, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
+			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
 		}
 	}
 	var visible []string
@@ -220,7 +213,10 @@ func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	}
 	if len(visible) > 0 {
 		sort.Strings(visible)
-		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %v", where, u.body, u.head, visible)
+		for i, name := range visible {
+			visible[i] = strconv.Quote(name)
+		}
+		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %s", where, u.body, u.head, strings.Join(visible, ", "))
 	}
 	return fmt.Errorf("%s%w", where, u.err)
 }
@@ -319,10 +315,18 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
-// checkUses refuses reads of b in two draw groups, or inside a repeat, where what b names reads a
+// checkUses refuses a binding of a category read once whole, which the bare reference spells, and
+// reads of b in two draw groups, or inside a repeat, where what b names reads a
 // reference path: that path is held per draw group and per iteration, so what the pick kept and
 // what it renders afresh would come from two draws of it. todo.md item 4 ends the hold.
 func (b *nameBinding) checkUses() error {
+	if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested && len(b.tail) == 0 {
+		spelling := b.ref
+		if !r.operand {
+			spelling = "{" + spelling + "}"
+		}
+		return fmt.Errorf("name %q is read once, whole, which the bare reference draws the same way; write %s where it is read, and drop the token", b.name, spelling)
+	}
 	if !readsHeld(b.head, map[node]bool{}) {
 		return nil
 	}
