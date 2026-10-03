@@ -88,7 +88,6 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
 | 73 | 0.2.0 | question | **Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.** | 1 | 1 | 3 | 6 | 13.1 | 9.6 |
-| 74 | 0.2.0 | question | **Decide whether `misc.timezone` may drop the 17 zones of territories `misc.territory` leaves out, against goal 13.1, or have the goals say which goal wins.** | 1 | 1 | 3 | 6 | 13.1 | 9.6 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -321,10 +320,6 @@ Require the path step to reach a sibling category.
 ### 73. Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.
 
 The decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more" serves goal 2's built-in data with no download, ships less than its registers hold, and names no item that ends it. Item 60 ships the full registers as packs, beside the partial default.
-
-### 74. Decide whether `misc.timezone` may drop the 17 zones of territories `misc.territory` leaves out, against goal 13.1, or have the goals say which goal wins.
-
-The decision "`misc.territory` is the spine, and a `misc` table naming a territory links to it" serves goal 4.1 and drops those tzdb rows, and names no item that ends it.
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
