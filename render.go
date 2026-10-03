@@ -24,9 +24,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := f.loadShippedAt(segments); err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
-	}
+	f.loadShippedAt(segments)
 	var draws renderDraws
 	sc := renderScope{draws: &draws}
 	n, err := descend(f.rand, &f.root, segments, sc)

@@ -258,7 +258,8 @@ func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, 
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	b := inlineBinding(n, label, root)
+	loadShipped(root, unloadedReads(root, nil, inlineScope(n, label)))
+	b := inlineBinding(n, label, root.children)
 	b.typedByGo = true
 	if err := b.bind(); err != nil {
 		return err

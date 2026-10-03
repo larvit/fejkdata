@@ -126,9 +126,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := f.loadShippedAt(segments); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
+	f.loadShippedAt(segments)
 	_, n, tail, err := resolveCategory(f.root.children, segments)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
