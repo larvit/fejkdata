@@ -3,7 +3,6 @@ package fejkdata
 import (
 	"fmt"
 	"slices"
-	"sort"
 )
 
 // checkNameReads refuses each binding of t that checkUses refuses, and a read such as {n} whose
@@ -117,12 +116,7 @@ func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) er
 			}
 		}
 	}
-	heads := make([]string, 0, len(fresh))
-	for head := range fresh {
-		heads = append(heads, head)
-	}
-	sort.Strings(heads)
-	for _, head := range heads {
+	for _, head := range sortedNames(fresh) {
 		if by, kept := b.addressed[join(key, head)]; kept && fresh[head] > 1 {
 			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}

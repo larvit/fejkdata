@@ -152,6 +152,9 @@ func inputValue(input string) (any, error) {
 // binding's.
 func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	scope := inlineScope(n, label)
+	if err := refuseFolderRefs(scope); err != nil {
+		return err
+	}
 	loadShipped(root, unloadedReads(root, nil, scope))
 	return binding{
 		scope:     scope,
@@ -166,10 +169,9 @@ func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	}.bind()
 }
 
-// linkNodeRefs binds the references in an inline node's templates against the
-// loaded tree.
-func linkNodeRefs(scope nodeScope, root map[string]node) error {
-	if err := scope(func(path string, m node) error {
+// refuseFolderRefs refuses a reference an inline node writes from a folder, which it has none of.
+func refuseFolderRefs(scope nodeScope) error {
+	return scope(func(path string, m node) error {
 		t, ok := m.(*template)
 		if !ok {
 			return nil
@@ -183,7 +185,18 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 				return fmt.Errorf("%s: reference {%s}: an inline template has no folder; write {/%s}", path, name, rest)
 			}
 		}
-		return linkTemplate(nil, path, "", t, root)
+		return nil
+	})
+}
+
+// linkNodeRefs binds the references in an inline node's templates against the
+// loaded tree.
+func linkNodeRefs(scope nodeScope, root map[string]node) error {
+	if err := scope(func(path string, m node) error {
+		if t, ok := m.(*template); ok {
+			return linkTemplate(nil, path, "", t, root)
+		}
+		return nil
 	}); err != nil {
 		return err
 	}

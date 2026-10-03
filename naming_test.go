@@ -11,12 +11,7 @@ import (
 // docs/decisions.md#one-name-one-meaning
 func TestNoFunctionSpellsAMethod(t *testing.T) {
 	funcs, methods := declaredCalls(namespaceFiles(t))
-	names := make([]string, 0, len(funcs))
-	for name := range funcs {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	for _, name := range names {
+	for _, name := range sortedNames(funcs) {
 		if recv := methods[name]; len(recv) > 0 {
 			sort.Strings(recv)
 			t.Errorf("func %s is spelled by %s too; name them apart", name, strings.Join(recv, " and "))
