@@ -46,26 +46,32 @@ func TestANameReadWholeAgreesWithItsPaths(t *testing.T) {
 	}
 }
 
-func TestANameDrawsEachFieldUnderItOnce(t *testing.T) {
+func TestANameKeepsWhatItsPathsAddress(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"word": `{"format":"{w}-{w}","w":["a","b","c","d","e","f","g","h"]}`,
-		"card": `"{/word as w}{w}"`,
+		"card": `"{/word as n}{n}|{n}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(7))
+	differ := false
 	for i := 0; i < 100; i++ {
-		if got := fake(t, f, "card"); got[0] != got[2] {
-			t.Fatalf("card = %q, want one draw of w under the name", got)
+		got := strings.Split(fake(t, f, "card"), "|")
+		if got[0] != got[1] {
+			t.Fatalf("card = %q, want one pick of n", got)
 		}
+		differ = differ || got[0][0] != got[0][2]
+	}
+	if !differ {
+		t.Fatal("{w}-{w} under a name drew w once in 100 renders, want each {w} a pick of its own")
 	}
 }
 
 func TestABindingPrintsNothing(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"word": `["a","b"]`,
-		"card": `"<{/word as w}>{w}"`,
+		"card": `"<{/word as w}>{w}{w}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	if got := fake(t, f, "card"); got != "<>a" && got != "<>b" {
+	if got := fake(t, f, "card"); got != "<>aa" && got != "<>bb" {
 		t.Fatalf("card = %q, want the binding to print nothing", got)
 	}
 }
@@ -137,12 +143,12 @@ func TestANameOutsideARepeatKeepsItsPick(t *testing.T) {
 func TestTwoRendersPickTwice(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"word": `["a","b","c","d","e","f","g","h"]`,
-		"one":  `"{/word as w}{w}"`,
+		"one":  `"{/word as w}{w}{w}"`,
 		"two":  `"{/one}{/one}{/one}{/one}{/one}{/one}"`,
 	})
 	f := newGenerator(t, dir, WithSeed(17))
 	got := fake(t, f, "two")
-	if strings.Count(got, got[:1]) == len(got) {
+	if strings.Count(got, got[:1]) == len(got) || got[0] != got[1] {
 		t.Fatalf("two = %q, want each bare reference to its own pick", got)
 	}
 }
@@ -182,6 +188,20 @@ func TestNameErrors(t *testing.T) {
 			`"word" is no reference`},
 		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
 			`nothing reads name "w"`},
+		{"read once whole", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
+			`write {/word}`},
+		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
+			`{n} renders field "w" twice`},
+		{"a binding in a cell", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\tc\nx\t{/word as w}{w}{w}\ny\tz\n"},
+			"a table binds no name"},
+		{"in a category's name", map[string]string{"a as b": `"x"`},
+			`contains " as "`},
+		{"in a folder's name", map[string]string{"a as b/c": `"x"`},
+			`contains " as "`},
+		{"in a column's name", map[string]string{"t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\ta as b\nx\t1\ny\t2\n"},
+			`contains " as "`},
+		{"read outside the repeat binding it", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":{"format":"{/word as w}{w}","repeat":2}}`},
+			`name "w" is bound inside the repeat at field "x"`},
 		{"unbound", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":{"format":"{/word as w}{w}","repeat":2}}`},
 			`no field "w"`},
 		{"padded", map[string]string{"word": `["a","b"]`, "card": `"{/word as  w}{w}"`},
