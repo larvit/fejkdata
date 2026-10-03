@@ -32,7 +32,9 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if err := inlineBinding(n, "template", f.root.children).bind(); err != nil {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if err := inlineBinding(n, "template", &f.root).bind(); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -146,11 +148,16 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-func inlineBinding(n node, label string, root map[string]node) binding {
+func inlineBinding(n node, label string, root *folder) binding {
 	scope := inlineScope(n, label)
 	return binding{
 		scope: scope,
-		link:  func() error { return linkNodeRefs(scope, root) },
+		link: func() error {
+			if err := loadShipped(root, shippedReads(root, nil, scope)); err != nil {
+				return err
+			}
+			return linkNodeRefs(scope, root.children)
+		},
 		scopeFence: func() error {
 			if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
 				return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)

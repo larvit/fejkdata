@@ -118,7 +118,7 @@ func TestReadFoldWalksACellByEveryRoute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadDir = %v", err)
 	}
-	if err := treeBinding(g.children).link(); err != nil {
+	if err := categoryBinding(categorySites(g), g.children).link(); err != nil {
 		t.Fatalf("link = %v", err)
 	}
 	r, isTemplate := g.children["r"].(*template)

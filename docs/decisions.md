@@ -114,8 +114,19 @@ and `regexp.Match`, not two spellings of one result.
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
 still lives in `data/` as JSON; `--data-path` layers over it.
 
-`todo.md` items 76 and 77 revise it: shipped data loads on demand from an index built at
-build time, and a library imports it as Go modules.
+`todo.md` item 77 revises it: a library imports the shipped data as Go modules.
+
+## The shipped set alone loads a category on the first call reaching it; beside a `--data-path` it loads whole
+
+2026-10-03, approved by the maintainer as the restructure of `todo.md` item 76. Goal 12: a
+`New` pays nothing for the categories a run never reaches, which matters once the shipped
+set grows to hundreds of MB. A category loads with every category it references and its
+whole table family, and is bound as a whole load binds, so it renders as it would from
+`New`. `List` reads `shippedindex.go`, generated from `data/` with `REPIN=1`, and
+`TestShippedIndexIsCurrent` fails while it is stale. CI loads the whole shipped set, so a
+shipped category never fails at first reach. Goal 6: beside a `--data-path` or a
+`WithDataFS`, every category loads in `New`, so each mistake in a source the user wrote is
+`New`'s error. Valid while the shipped set is proven whole in CI.
 
 ## A bare reference draws each time; a reference path is held
 

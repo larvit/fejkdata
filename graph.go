@@ -5,16 +5,6 @@ import (
 	"sort"
 )
 
-// walkNodes calls fn once per contained node, passing the dot path that reaches it.
-func walkNodes(root map[string]node, fn func(path string, n node) error) error {
-	for _, name := range sortedNames(root) {
-		if err := eachNode(root[name], name, fn); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // eachNode visits n and every node contained within it once, passing the dot path
 // that reaches each. It never crosses a reference edge — a {/path} reference is
 // skipped — so a single inline node is walked on its own.
@@ -196,7 +186,7 @@ func repeatCheck(path string, n node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(root map[string]node) error {
+func checkNoCycles(sites []categorySite) error {
 	const (
 		grey  = 1
 		black = 2
@@ -219,5 +209,5 @@ func checkNoCycles(root map[string]node) error {
 		color[n] = black
 		return nil
 	}
-	return walkNodes(root, func(path string, n node) error { return visit(n, path) })
+	return sitesScope(sites)(func(path string, n node) error { return visit(n, path) })
 }

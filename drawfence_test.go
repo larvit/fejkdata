@@ -31,7 +31,7 @@ type fenceRoot struct {
 func fenceRoots(t *testing.T, f *Generator) []fenceRoot {
 	t.Helper()
 	var roots []fenceRoot
-	_ = walkNodes(f.root.children, func(path string, n node) error {
+	_ = sitesScope(categorySites(&f.root))(func(path string, n node) error {
 		if tm, ok := n.(*template); ok {
 			roots = append(roots, fenceRoot{path, tm})
 		}
@@ -58,7 +58,7 @@ func TestPairsFindWhatAWholeReplayFinds(t *testing.T) {
 	corpus := fenceCorpus(t)
 	roots := fenceRoots(t, corpus)
 	shipped := newShippedWhole(t)
-	_ = walkNodes(shipped.root.children, func(path string, n node) error {
+	_ = sitesScope(categorySites(&shipped.root))(func(path string, n node) error {
 		if tm, ok := n.(*template); ok {
 			roots = append(roots, fenceRoot{path, tm})
 		}
@@ -84,7 +84,7 @@ func TestPairsFindWhatAWholeReplayOfSelectedRowsFinds(t *testing.T) {
 	}
 	var reads []pathRead
 	fold := newReadFold()
-	_ = walkNodes(f.root.children, func(_ string, n node) error {
+	_ = sitesScope(categorySites(&f.root))(func(_ string, n node) error {
 		tb, isTable := n.(*table)
 		if !isTable || tb.keyIndex < 0 || tb.familyRoot().path != "region" {
 			return nil
@@ -190,7 +190,7 @@ func TestReadSurveyReportsAPinClashAsAnError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadDir = %v", err)
 	}
-	if err := treeBinding(g.children).link(); err != nil {
+	if err := categoryBinding(categorySites(g), g.children).link(); err != nil {
 		t.Fatalf("link = %v", err)
 	}
 	r, isTemplate := g.children["r"].(*template)
