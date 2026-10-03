@@ -673,8 +673,8 @@ when a source carries it.
 Sweden fits whole in 700 KB; every US place of 10,000 would pass a megabyte and fetch
 1,200 counties of TIGER files, so the threshold sits where the two countries match in
 size, and `--min-population` and `--streets-per-locality` on the import scripts build a
-fuller set. The two trees add about 20 ms to loading the shipped set whole, which took
-about 45 ms.
+fuller set. Loading the whole shipped set took about 45 ms, about 20 ms of it the two
+trees.
 
 Withdrawn by the maintainer on 2026-10-03; `todo.md` item 78 replaces it.
 
