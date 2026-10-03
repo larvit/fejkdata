@@ -171,7 +171,7 @@ release instead. Before `v1.0.0` a minor carries what a major would.
 
 Any edit to a category shifts its stream and everything drawn after it, so a promise
 across versions would freeze every shipped list; a fixture is re-pinned on a bump, as
-this repo's own are.
+this repo's own are. Goal 9 reads wider than this until `todo.md` item 85 rewords it.
 
 ## An error is a contract by what it names, not its bytes
 
@@ -259,7 +259,8 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed at `0`
 and `c` varying loads and prints `Inf` every draw — catching it needs zero-absorbing
 algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
-instead and refuses a divisor it cannot keep from zero.
+instead and refuses a divisor it cannot keep from zero. `Inf` in a string column works
+against goals 4 and 6; `todo.md` item 81 asks the maintainer whether to refuse it.
 
 ## In data, a default written out and a constant spelled as a sample are load errors
 
@@ -466,7 +467,8 @@ The benchmark suite (the README's Development) reports time for a human, not as 
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
 the JSON says only how a row is composed. The TSV sits beside its category file, named
 by `rows`, so a data directory stays a directory of categories, and one nothing names is
-a load error rather than a file silently ignored.
+a load error rather than a file silently ignored. A TSV works against goal 8's "Data is
+JSON files" until `todo.md` item 84 rewords the goal or ends this decision.
 
 ## A selector is bracketed, and a dot inside it is literal
 
@@ -909,7 +911,8 @@ mode field, leaked the check's leaves and errors with the draw's pins, arm and m
 since Go tracks a struct's fields as one, and a repeat of a reference path rose from 66
 to 106 allocations. `drawSteps` takes its state as parameters and a step holds no node,
 so no benchmark gained an allocation. Valid while Go's escape analysis tracks
-a struct's fields as one.
+a struct's fields as one. The two loops have drifted, against DRY, until `todo.md` item 80
+walks both through one per-step function.
 
 ## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 
