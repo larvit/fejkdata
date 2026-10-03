@@ -264,8 +264,7 @@ func recordOf(n node) (*template, []Column, error) {
 func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
 	sc = sc.in(t)
 	if t.ownScope != nil {
-		mark := sc.draws.pushFrame(t.ownScope)
-		defer sc.draws.popFrame(mark)
+		defer sc.draws.popFrame(sc.draws.pushFrame(sc.frameOf(t.ownScope)))
 	}
 	if t.site.isFormat() {
 		sc = sc.at(t.site.table.rowNode, &sc.groupDraws().pins)

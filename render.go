@@ -61,10 +61,6 @@ func renderOnce(s *generatorState, n node) string {
 func render(s *generatorState, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
-		if n.ownScope != nil {
-			mark := sc.draws.pushFrame(n.ownScope)
-			defer sc.draws.popFrame(mark)
-		}
 		return render(s, pick(s, n), sc)
 	case *nullItem:
 		return ""
@@ -83,38 +79,48 @@ func render(s *generatorState, n node, sc renderScope) string {
 		sc = sc.in(n)
 		if n.repeat == 1 {
 			if n.ownScope != nil {
-				mark := sc.draws.pushFrame(n.ownScope)
-				defer sc.draws.popFrame(mark)
+				defer sc.draws.popFrame(sc.draws.pushFrame(sc.frameOf(n.ownScope)))
 			}
 			if lit, fixed := n.fixedText(); fixed {
 				return lit
 			}
 			return expand(s, n, sc)
 		}
-		var b strings.Builder
-		b.Grow(n.repeat * (n.compiled.grow + len(n.separator)))
-		for i := 0; i < n.repeat; i++ {
-			if i > 0 {
-				b.WriteString(n.separator)
-			}
-			b.WriteString(expandAnew(s, n, sc.draws.frames))
-		}
-		return b.String()
+		return renderRepeat(s, n, sc)
 	default:
 		panic(internalError("uncompiled node %T", n))
 	}
 }
 
+// renderRepeat renders each iteration of t as a render of its own, inside the name scopes
+// rendering t, where a name bound outside t keeps its pick: a scope sc's category was entered
+// past keeps its frame in that read's memo, else in sc's render's.
+func renderRepeat(s *generatorState, t *template, sc renderScope) string {
+	entry := sc.entry
+	if entry == nil {
+		entry = &sc.groupDraws().memo
+	}
+	var b strings.Builder
+	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
+	for i := 0; i < t.repeat; i++ {
+		if i > 0 {
+			b.WriteString(t.separator)
+		}
+		b.WriteString(expandAnew(s, t, sc.draws.frames, sc.base, entry))
+	}
+	return b.String()
+}
+
 // expandAnew expands one repeat iteration of t as a render of its own, in no group, inside the
-// name scopes of frames. Inlined into render's loop, its draws would move to the heap.
+// name scopes of frames from base. Inlined into render's loop, its draws would move to the heap.
 //
 //go:noinline
-func expandAnew(s *generatorState, t *template, frames *frameStack) string {
+func expandAnew(s *generatorState, t *template, frames *frameStack, base int, entry *drawMemo) string {
 	draws := renderDraws{frames: frames}
 	if t.ownScope != nil {
-		defer draws.popFrame(draws.pushFrame(t.ownScope))
+		defer draws.popFrame(draws.pushFrame(newPickFrame(t.ownScope)))
 	}
-	return expand(s, t, renderScope{draws: &draws})
+	return expand(s, t, renderScope{draws: &draws, base: base, entry: entry})
 }
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
@@ -180,8 +186,9 @@ func readField(s *generatorState, t *template, hold *drawMemo, sc renderScope, a
 		return readName(s, sc, a)
 	case sc.pick != nil && !isRef(a.head):
 		return readUnder(s, t, sc, a)
+	case a.kind == freshRead && isRef(a.head):
+		return readValue{text: render(s, t.head(a.head), sc.entering(nil))}
 	case a.kind == freshRead:
-		sc.pick = nil
 		return readValue{text: render(s, t.head(a.head), sc)}
 	}
 	return readMemo(s, t, hold, nil, sc, a)
@@ -203,9 +210,8 @@ func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc r
 	}
 	leaf := drawSteps(s, t.head(a.head), a.steps, pins, memo, a.levels)
 	if pins != nil {
-		sc = sc.at(leaf, pins)
+		sc = sc.at(leaf, pins).entering(memo)
 	}
-	sc.pick, sc.entry = nil, memo
 	r := renderLeaf(s, leaf, sc)
 	if memo.value == nil {
 		memo.value = map[string]readValue{}
@@ -228,10 +234,6 @@ func traceRead(trace renderTrace, t *template, sc renderScope, a arm) {
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
 // reference alone whose read drew null.
 func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
-	if c, isChoice := n.(*choice); isChoice && c.ownScope != nil {
-		mark := sc.draws.pushFrame(c.ownScope)
-		defer sc.draws.popFrame(mark)
-	}
 	n = resolveChoice(s, n)
 	switch leaf := n.(type) {
 	case *nullItem:

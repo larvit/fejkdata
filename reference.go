@@ -100,7 +100,9 @@ func compileArms(t *template) {
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
 		for j := range o.operands {
-			compileArm(t, &o.operands[j])
+			if o.operands[j].kind != namedRead {
+				compileArm(t, &o.operands[j])
+			}
 		}
 		for j := range o.arms {
 			if o.arms[j].kind != namedRead {

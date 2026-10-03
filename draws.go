@@ -45,7 +45,11 @@ type renderScope struct {
 	draws *renderDraws
 	group string
 	row   renderedRow
-	entry *drawMemo // the memo of the read that entered what renders
+	// entry is the memo of the read that entered the category rendering, nil where none did;
+	// base, the depth of the frame stack when it entered, below which no frame is the
+	// category's.
+	entry *drawMemo
+	base  int
 	// pick is the named pick what renders is part of, at pickKey, its path from the name; nil
 	// outside one.
 	pick    *namedPick

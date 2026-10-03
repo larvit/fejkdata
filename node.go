@@ -25,10 +25,9 @@ func (*folder) isNode() {}
 // relative dot paths every item can address, so carriedByAll and List both read the one
 // answer to what a path may reach through this choice.
 type choice struct {
-	items    []node
-	cum      []float64
-	shared   map[string]bool
-	ownScope *nameScope // set on a category's root binding names, by bindNames
+	items  []node
+	cum    []float64
+	shared map[string]bool
 }
 
 func (*choice) isNode() {}
