@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 79`
+`Next ID = 86`
 
 | Goal | W |
 |---|---|
@@ -52,7 +52,6 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 76 | 0.1.0 | decision | **Generate the index of shipped categories at build time, and parse and link a shipped category only when a template or path first reaches it; a `--data-path` still loads whole.** | 4 | 8 | 10 | 10 | 2, 12 | 33.0 |
 | 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 8 | 10 | 10 | 2, 1.1 | 33.0 |
 | 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 13.1 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
@@ -68,7 +67,9 @@
 | 12 | 0.1.0 | defect | **Strip the whitespace `data-import/territory.py` copies from its register.** | 1 | 1 | 5 | 7 | 4 | 20.6 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
+| 79 | 0.1.0 | decision | **Beside a `--data-path`, load only the shipped categories the user's sources override or reach, as the shipped set alone does.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
+| 81 | 0.2.0 | question | **Refuse at load every `calc` divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 4, 6 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
@@ -81,6 +82,7 @@
 | 54 | 0.2.0 | defect | **Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.** | 2 | 1 | 3 | 6 | 1.1 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
 | 20 | 0.2.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 4 | 15.7 |
+| 80 | 0.2.0 | defect | **Walk a path through one per-step function that both `pathCheck.walk` and `probePath` call.** | 4 | 4 | 4 | 7 | 3.2 | 15.6 |
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
 | 48 | 0.2.0 | defect | **Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.** | 2 | 2 | 4 | 6 | 5 | 15.1 |
@@ -90,6 +92,8 @@
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
+| 85 | 0.2.0 | question | **Reword goal 9 to promise one output per seed and version, as the decision "Seeded output is promised within one version" reads it.** | 1 | 1 | 2 | 5 | 9 | 8.8 |
+| 84 | 0.2.0 | question | **Reword goal 8 so a table's rows in a TSV beside its JSON meet it, or end the decision "Rows live in a TSV, the shape in JSON".** | 1 | 1 | 1 | 6 | 8 | 8.6 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -101,12 +105,12 @@
 | 11 | 0.3.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 4 | 13.0 |
 | 35 | 0.3.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 8 | 13.0 |
 | 21 | 0.3.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 11 | 12.8 |
-| 75 | 0.3.0 |  | **Run every README `sh` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 5 | 4 | 7 | 11.2 | 11.8 |
 | 23 | 0.3.0 |  | **Give every other shipped category that could reach something real a path that never does.** | 3 | 6 | 6 | 7 | 15 | 11.7 |
 | 8 | 0.3.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 9 | 0.3.0 |  | **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 30 | 0.3.0 |  | **Draw `email.local` from `username`, so the two share one handle list.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 40 | 0.3.0 |  | **Parse `defaultTable`'s path with the library's grammar.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
+| 75 | 0.3.0 |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 6 | 4 | 7 | 11.2 | 11.5 |
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
 | 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
@@ -114,7 +118,9 @@
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 13.1 | 9.8 |
 | 37 | 0.3.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
+| 82 | 0.3.0 | principle | **Pass `newRand` its entropy source, so no test swaps the package's `randomBytes`.** | 1 | 1 | 1 | 5 | 3.2 | 9.8 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
+| 83 | 0.3.0 | principle | **Read a name binding's head and tail from its binder's link, and delete `linkBindings`.** | 4 | 3 | 1 | 6 | 3.2 | 8.1 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 11 | 13.8 |
@@ -128,13 +134,9 @@
 
 ## Details
 
-### 76. Generate the index of shipped categories at build time, and parse and link a shipped category only when a template or path first reaches it; a `--data-path` still loads whole.
-
-A restructure the maintainer approved on 2026-10-03, so it merges below goal 3's floor and goes first; the round's gates are adjusted to it afterwards. `go generate` writes an index of every shipped category, path and table, embedded beside the data. `New` reads the index; a template, `Fake` path or record compiles the categories it reaches, transitively, and keeps them. CI loads every shipped category eagerly, so shipped data never fails for a user. Revise the decisions this touches, "The shipped data is embedded, not discovered" among them, and the README's Performance section.
-
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-Needs item 76. The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where since 2026-10-03.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where since 2026-10-03.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -253,9 +255,17 @@ Needs item 4.
 
 `checkCalc` and the value proof read an operand as a sibling field, so `{calc(n * 2)}` is refused with `no field "n"` today. Item 4 stops an operand holding its field for the expansion, after which a name is the one way to show the operand a calc computes from, as the README's Computation example does.
 
+### 79. Beside a `--data-path`, load only the shipped categories the user's sources override or reach, as the shipped set alone does.
+
+The decision "The shipped set alone loads a category on the first call reaching it; beside a `--data-path` every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, and the shipped ones whose reads reach those, so the index would carry each category's reads.
+
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+
+### 81. Refuse at load every `calc` divisor not proven nonzero, in a string column too.
+
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, against goals 4 and 6; `valueproof.go` already proves a typed column's divisor nonzero. Changing the decision is the maintainer's call.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
@@ -302,6 +312,10 @@ It holds a code, and `country` collides with the `misc.country` path it replaced
 
 Neither names a `weight`, so a bare `sex` draws evenly.
 
+### 80. Walk a path through one per-step function that both `pathCheck.walk` and `probePath` call.
+
+The decision "A path draws through its compiled steps" keeps two loops over one rule for passing a choice, a table or a field, and they have drifted: `walk` refuses a `repeat` or `drawGroup` level through `enter`, `probePath` does not (item 48). Technical principle: DRY.
+
 ### 50. Reword `prove`'s refusal of a typed column reading a row, `{/region}`.
 
 Say the format is the table's own (`region's format "{name}"`), name the read to write, `{/region.<column>}` with its columns, and stop calling a one-column format, `{code}`, composed text.
@@ -329,6 +343,14 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
+
+### 85. Reword goal 9 to promise one output per seed and version, as the decision "Seeded output is promised within one version" reads it.
+
+Goal 9 says the same seed always gives the same output; the decision promises it within one version.
+
+### 84. Reword goal 8 so a table's rows in a TSV beside its JSON meet it, or end the decision "Rows live in a TSV, the shape in JSON".
+
+Goal 8 says data is JSON files, and the decision serves goal 12, which ranks below it. Proposed wording: "Data is JSON files, a table's rows a TSV beside them. Code is only for what JSON can't express."
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
@@ -366,10 +388,6 @@ Needs item 4; recount the switches then. Today ten, from `render` to `columnItem
 
 Nothing checks it, and a new country breaks it silently.
 
-### 75. Run every README `sh` example as a test, and compare each "Renders" line to a seeded render.
-
-`readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables) and compares no "Renders e.g." output, so goal 11.2 is not met.
-
 ### 23. Give every other shipped category that could reach something real a path that never does.
 
 `phone` draws live PTS and NANP ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
@@ -385,6 +403,10 @@ The inherited architect's 3am trace crossed four files for one draw.
 ### 40. Parse `defaultTable`'s path with the library's grammar.
 
 The CLI counts brackets of its own, so a change to the selector grammar desyncs the default `--table` silently.
+
+### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
+
+`readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables), no `go` example (Library) and no `text` block of error text, and compares no "Renders e.g." output, so goal 11.2 is not met.
 
 ### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
 
@@ -406,9 +428,17 @@ Both name half of a `generatorState`, hiding its `{seq()}` counters, and `New`'s
 
 Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTemplate` refuse.
 
+### 82. Pass `newRand` its entropy source, so no test swaps the package's `randomBytes`.
+
+`fejkdata_test.go` swaps the global `randomBytes` to fail seeding, so every `New` in the package reads the failing source while that test runs. Technical principle: functional core, imperative shell.
+
 ### 56. Build on a manual run of `test.yml`.
 
 `workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
+
+### 83. Read a name binding's head and tail from its binder's link, and delete `linkBindings`.
+
+`linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. Technical principle: one owner per value.
 
 ### 63. Pair a street with its exact postnummer.
 

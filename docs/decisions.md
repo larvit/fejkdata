@@ -118,15 +118,17 @@ still lives in `data/` as JSON; `--data-path` layers over it.
 
 ## The shipped set alone loads a category on the first call reaching it; beside a `--data-path` every category loads in `New`
 
-2026-10-03, approved by the maintainer as the restructure of `todo.md` item 76. Goal 12: a
+2026-10-03, a restructure the maintainer approved. Goal 12: a
 `New` pays nothing for the categories a run never reaches, which matters once the shipped
 set grows to hundreds of MB. A category loads with every category it references and its
 whole table family, and is bound as a whole load binds, so it renders as it would from
-`New`. `List` reads `shippedindex.go`, generated from `data/` with `REPIN=1`, and
+`New`. `List` reads `shippedindex.go`, which `go generate` writes from `data/`, and
 `TestShippedIndexIsCurrent` fails while it is stale. CI loads the whole shipped set, and
 loads each shipped category alone into a fresh `New`, so none fails at first reach. Goal 6: beside a `--data-path` or a
 `WithDataFS`, every category loads in `New`, so each mistake in a source the user wrote is
-`New`'s error. Valid while CI proves the shipped set whole and each category alone.
+`New`'s error, though it parses the whole shipped set, against goal 12, until
+`todo.md` item 79 loads only what the user's sources reach. Valid while CI proves the shipped set
+whole and each category alone.
 
 ## A bare reference draws each time; a reference path is held
 
@@ -650,7 +652,7 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale's `address` reads its country's `geo` tree, so the shipped set loads whole
+## A locale's `address` reads its country's `geo` tree, so a locale folder never loads alone
 
 2026-09-24, Lilleman auf Larv.
 

@@ -43,5 +43,6 @@ package fejkdata
 //   - whole — a read of a table with no selector and no descent, {/city}, landing on
 //     the `table` itself, so it draws a row apart from every pin: `branches.wholePins`.
 //   - fence — a load-time check, so rendering a compiled tree cannot fail: `New`
-//     runs them over the data set, `NewTemplate` and `FakeStruct` over what those
+//     runs them over the sources it loads, the first call reaching a shipped category
+//     over what that call loads, and `NewTemplate` and `FakeStruct` over what those
 //     compile.

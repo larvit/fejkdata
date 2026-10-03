@@ -988,8 +988,9 @@ docker compose run --rm dev     # interactive shell
 Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
-docker compose run --rm --user "$(id -u):$(id -g)" fmt   # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" tidy  # go mod tidy
+docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/
+docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
 ```
 
 A `--user` command answering `permission denied` on `/cache` has met root-owned
@@ -1019,8 +1020,9 @@ Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) s
 what the score asks of a pull request. Goal 5 is checked against simulated template
 writers from the Audience.
 
-A change to the shipped data re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
-and regenerates [`shippedindex.go`](shippedindex.go) in its own commit:
+A change to the shipped data regenerates [`shippedindex.go`](shippedindex.go) with
+`generate` above, and re-pins [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt)
+in its own commit:
 
 ```sh
 REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test

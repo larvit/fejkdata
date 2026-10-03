@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+//go:generate env REPIN=1 go test -run ^TestShippedIndexIsCurrent$ .
+
 //go:embed data
 var shippedFS embed.FS
 
@@ -43,6 +45,15 @@ func unloadedTree() folder {
 	return root
 }
 
+func sortedEntries(m map[string]shippedEntry) []string {
+	names := make([]string, 0, len(m))
+	for name := range m {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 // unloadedCategory is a shipped category not loaded yet: the folder holding it, that
 // folder's path, and its name there.
 type unloadedCategory struct {
@@ -70,7 +81,8 @@ func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
 }
 
 // loadShippedAt loads the shipped category a caller's path names or descends into, unless
-// it is loaded already.
+// it is loaded already. An entry point walking root calls it first: a walk that loaded
+// would load mid-render.
 func (f *Generator) loadShippedAt(segs []string) {
 	if u, unloaded := unloadedAt(&f.root, segs); unloaded {
 		loadShipped(&f.root, []unloadedCategory{u})
@@ -100,8 +112,8 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 	return out
 }
 
-// loadShipped loads the shipped categories wanted, with every category they read and the
-// whole table family of each, then binds what it loaded, as New binds a whole load.
+// loadShipped loads the shipped categories wanted, with every category they read and every
+// table linked to one, then binds what it loaded, as New binds a whole load.
 // TestEveryShippedCategoryLoadsAlone proves each closure, so a failure is the index's.
 func loadShipped(root *folder, wanted []unloadedCategory) {
 	var sites []categorySite
@@ -113,18 +125,18 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		}
 		site, err := u.load()
 		if err != nil {
-			panic(internalError("shipped %s: %v", u.name, err))
+			panic(internalError("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
 		}
 		sites = append(sites, site)
 		queue = append(queue, unloadedReads(root, u.dir, sitesScope([]categorySite{site}))...)
-		queue = append(queue, u.family(e)...)
+		queue = append(queue, u.linkedTables(e)...)
 	}
 	if len(sites) == 0 {
 		return
 	}
 	sort.Slice(sites, func(i, j int) bool { return sites[i].path < sites[j].path })
 	if err := categoryBinding(sites, root.children).bind(); err != nil {
-		panic(internalError("binding shipped categories: %v", err))
+		panic(internalError("binding shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
 	}
 }
 
@@ -144,15 +156,15 @@ func (u unloadedCategory) load() (categorySite, error) {
 	return categorySite{dir: u.dir, path: join(strings.Join(u.dir, "."), u.name), in: u.in, n: u.in.children[u.name]}, nil
 }
 
-// family is the tables beside u that a table family links it to: its parent, and every
-// table whose parent it is.
-func (u unloadedCategory) family(e shippedEntry) []unloadedCategory {
+// linkedTables is the tables beside u that link to it or that it links to: its parent, and
+// every table whose parent it is.
+func (u unloadedCategory) linkedTables(e shippedEntry) []unloadedCategory {
 	var out []unloadedCategory
 	if e.parent != "" {
 		out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: e.parent})
 	}
-	for name, sibling := range u.in.unloaded {
-		if sibling.parent == u.name {
+	for _, name := range sortedEntries(u.in.unloaded) {
+		if u.in.unloaded[name].parent == u.name {
 			out = append(out, unloadedCategory{dir: u.dir, in: u.in, name: name})
 		}
 	}

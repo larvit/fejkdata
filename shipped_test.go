@@ -51,12 +51,16 @@ func TestShippedIndexIsCurrent(t *testing.T) {
 		}
 		return
 	}
-	want, err := os.ReadFile(shippedIndexFile)
+	file, err := os.ReadFile(shippedIndexFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, err := format.Source(file) // docs/decisions.md#the-format-check-runs-on-the-latest-go-only
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(got) != string(want) {
-		t.Fatalf("%s is stale for data/; rewrite it with REPIN=1", shippedIndexFile)
+		t.Fatalf("%s is stale for data/; regenerate it with go generate", shippedIndexFile)
 	}
 }
 

@@ -23,6 +23,10 @@ services:
     <<: *go
     command: go test -run XXX -bench . -benchmem ./...
 
+  generate:
+    <<: *go
+    command: go generate ./...
+
   vet:
     <<: *go
     command: go vet ./...

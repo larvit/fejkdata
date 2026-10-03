@@ -94,7 +94,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Tables carrying token cells stay small
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality
-- A locale's `address` reads its country's `geo` tree, so the shipped set loads whole
+- A locale's `address` reads its country's `geo` tree, so a locale folder never loads alone
 - The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
 - A locale's `address` restates its country record's format
 - A postort's kommun comes from its name, its tätort or its codes, never from distance
