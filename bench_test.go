@@ -86,6 +86,19 @@ func BenchmarkHeldWide(b *testing.B) {
 	benchPath(b, dir, "row")
 }
 
+func BenchmarkFirstFake(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		f, err := New(WithSeed(1))
+		if err != nil {
+			b.Fatal(err)
+		}
+		if _, err := f.Fake("sv_SE.address"); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func BenchmarkNew(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
