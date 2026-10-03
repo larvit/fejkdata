@@ -80,7 +80,7 @@ tags and any other caller read one.
 
 2026-09-03, Lilleman auf Larv.
 
-`New` proves the loaded tree acyclic, an inline node is a finite tree of its own, and
+Each load proves what it loads acyclic, an inline node is a finite tree of its own, and
 nothing in the tree can reference it, so no render of it reaches itself.
 
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
@@ -116,19 +116,23 @@ still lives in `data/` as JSON; `--data-path` layers over it.
 
 `todo.md` item 77 revises it: a library imports the shipped data as Go modules.
 
-## The shipped set alone loads a category on the first call reaching it; beside a `--data-path` every category loads in `New`
+## With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 
-2026-10-03, a restructure the maintainer approved. Goal 12: a
-`New` pays nothing for the categories a run never reaches, which matters once the shipped
-set grows to hundreds of MB. A category loads with every category it references and its
-whole table family, and is bound as a whole load binds, so it renders as it would from
-`New`. `List` reads `shippedindex.go`, which `go generate` writes from `data/`, and
-`TestShippedIndexIsCurrent` fails while it is stale. CI loads the whole shipped set, and
-loads each shipped category alone into a fresh `New`, so none fails at first reach. Goal 6: beside a `--data-path` or a
-`WithDataFS`, every category loads in `New`, so each mistake in a source the user wrote is
-`New`'s error, though it parses the whole shipped set, against goal 12, until
-`todo.md` item 79 loads only what the user's sources reach. Valid while CI proves the shipped set
-whole and each category alone.
+2026-10-03, a restructure the maintainer approved.
+
+Goal 12: `New` pays nothing for a category a run never reaches, which matters once the
+shipped set grows to hundreds of MB. A category loads with every category it references
+and its whole table family, and binds as a whole load does, so it renders the same as
+after a whole load. `List` reads `shippedindex.go`, which `go generate` writes from
+`data/`; `TestShippedIndexIsCurrent` fails while the index is stale. CI loads the whole
+shipped set, and each shipped category alone into a fresh `New`, so none fails at first
+reach.
+
+Goal 6: beside a `--data-path`, `WithDataPath` or `WithDataFS`, every category loads in
+`New`, so each mistake in the user's data is `New`'s error. That parses the whole shipped
+set, against goal 12, until `todo.md` item 79 ends it.
+
+Valid while CI proves the shipped set whole and each category alone.
 
 ## A bare reference draws each time; a reference path is held
 
@@ -171,7 +175,8 @@ release instead. Before `v1.0.0` a minor carries what a major would.
 
 Any edit to a category shifts its stream and everything drawn after it, so a promise
 across versions would freeze every shipped list; a fixture is re-pinned on a bump, as
-this repo's own are. Goal 9 reads wider than this until `todo.md` item 85 rewords it.
+this repo's own are. This works against goal 9's "always" until `todo.md` item 85
+rewords the goal.
 
 ## An error is a contract by what it names, not its bytes
 
@@ -654,7 +659,7 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale's `address` reads its country's `geo` tree, so a locale folder never loads alone
+## A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own
 
 2026-09-24, Lilleman auf Larv.
 
@@ -911,8 +916,8 @@ mode field, leaked the check's leaves and errors with the draw's pins, arm and m
 since Go tracks a struct's fields as one, and a repeat of a reference path rose from 66
 to 106 allocations. `drawSteps` takes its state as parameters and a step holds no node,
 so no benchmark gained an allocation. Valid while Go's escape analysis tracks
-a struct's fields as one. The two loops have drifted, against DRY, until `todo.md` item 80
-walks both through one per-step function.
+a struct's fields as one. Two loops over one rule work against DRY, and they already
+disagree on a repeat level; `todo.md` item 80 walks both through one per-step function.
 
 ## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 

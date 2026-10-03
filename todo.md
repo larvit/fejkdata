@@ -67,7 +67,7 @@
 | 12 | 0.1.0 | defect | **Strip the whitespace `data-import/territory.py` copies from its register.** | 1 | 1 | 5 | 7 | 4 | 20.6 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
-| 79 | 0.1.0 | decision | **Beside a `--data-path`, load only the shipped categories the user's sources override or reach, as the shipped set alone does.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
+| 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` only the user's categories, the shipped ones they override and the shipped ones they read; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 81 | 0.2.0 | question | **Refuse at load every `calc` divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 4, 6 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
@@ -136,7 +136,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where since 2026-10-03.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -255,9 +255,9 @@ Needs item 4.
 
 `checkCalc` and the value proof read an operand as a sibling field, so `{calc(n * 2)}` is refused with `no field "n"` today. Item 4 stops an operand holding its field for the expansion, after which a name is the one way to show the operand a calc computes from, as the README's Computation example does.
 
-### 79. Beside a `--data-path`, load only the shipped categories the user's sources override or reach, as the shipped set alone does.
+### 79. Beside a `--data-path`, load in `New` only the user's categories, the shipped ones they override and the shipped ones they read; load the rest on first reach.
 
-The decision "The shipped set alone loads a category on the first call reaching it; beside a `--data-path` every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, and the shipped ones whose reads reach those, so the index would carry each category's reads.
+The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
