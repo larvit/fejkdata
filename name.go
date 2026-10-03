@@ -40,33 +40,37 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 }
 
 // bindNames gives every template of a compiled category or inline template the scope its
-// names live in, and refuses a name bound twice along one chain of scopes, a name a field
-// spells too, a read no field or name answers, and a binding nothing reads.
+// names live in, and refuses a name bound twice along one chain of scopes, a binding in a
+// choice's item, a name a field spells too, a read no field or name answers, and a binding
+// nothing reads.
 func bindNames(root node) error {
-	var scopes []*nameScope
-	var gather func(n node, scope *nameScope, where string) error
-	gather = func(n node, scope *nameScope, where string) error {
+	top := &nameScope{owner: root}
+	scopes := []*nameScope{top}
+	var gather func(n node, scope *nameScope, inChoice bool, where string) error
+	gather = func(n node, scope *nameScope, inChoice bool, where string) error {
 		if t, isTemplate := n.(*template); isTemplate {
 			if t.repeat > 1 && n != root {
 				scope = &nameScope{up: scope, owner: t}
 				scopes = append(scopes, scope)
+				inChoice = false
 			}
 			t.scope = scope
-			for _, tok := range t.tokens {
-				if tok.kind != nameBind {
-					continue
-				}
-				if err := scope.bind(tok, t, where); err != nil {
-					return err
-				}
+			if err := scope.bindAll(t, inChoice, where); err != nil {
+				return err
 			}
 		}
-		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, where) })
+		_, isChoice := n.(*choice)
+		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, inChoice || isChoice, where) })
 	}
-	top := &nameScope{owner: root}
-	scopes = append(scopes, top)
-	if err := gather(root, top, ""); err != nil {
+	if err := gather(root, top, false, ""); err != nil {
 		return err
+	}
+	for _, sc := range scopes[1:] {
+		for _, b := range sc.order {
+			if outer := sc.up.lookup(b.name); outer != nil {
+				return fmt.Errorf("%stoken {%s}: name %q is bound outside this repeat already, by {%s}; rename one", b.where, b.body, b.name, outer.body)
+			}
+		}
 	}
 	if err := resolveReads(root, ""); err != nil {
 		return err
@@ -79,6 +83,37 @@ func bindNames(root node) error {
 	return nil
 }
 
+// bindAll binds every name t's tokens bind. A choice's item binds none: a read outside the item
+// would find the name bound by an item that may never be drawn.
+func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
+	for _, tok := range t.tokens {
+		if tok.kind != nameBind {
+			continue
+		}
+		if inChoice {
+			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice", where, tok.body)
+		}
+		if b, twice := sc.bindings[tok.bound]; twice {
+			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.body, tok.bound, sc.spelled(), b.body)
+		}
+		b := &nameBinding{name: tok.bound, ref: tok.names[0], body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
+		if sc.bindings == nil {
+			sc.bindings = map[string]*nameBinding{}
+		}
+		sc.bindings[b.name] = b
+		sc.order = append(sc.order, b)
+	}
+	return nil
+}
+
+// spelled names the scope in an error.
+func (sc *nameScope) spelled() string {
+	if sc.up == nil {
+		return "outside any repeat"
+	}
+	return "in one repeat"
+}
+
 // close refuses a binding nothing reads, and gives the owner of a scope binding names the scope.
 func (sc *nameScope) close() error {
 	for _, b := range sc.order {
@@ -86,14 +121,8 @@ func (sc *nameScope) close() error {
 			return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
 		}
 	}
-	if len(sc.order) == 0 {
-		return nil
-	}
-	switch o := sc.owner.(type) {
-	case *template:
-		o.ownScope = sc
-	case *choice:
-		o.ownScope = sc
+	if t, isTemplate := sc.owner.(*template); isTemplate && len(sc.order) > 0 {
+		t.ownScope = sc
 	}
 	return nil
 }
@@ -113,22 +142,6 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 	return nil
 }
 
-func (sc *nameScope) bind(tok formatToken, binder *template, where string) error {
-	if b, twice := sc.bindings[tok.bound]; twice {
-		return fmt.Errorf("%stoken {%s}: name %q is bound twice in one scope, by {%s} too; rename one", where, tok.body, tok.bound, b.body)
-	}
-	if b := sc.up.lookup(tok.bound); b != nil {
-		return fmt.Errorf("%stoken {%s}: name %q is bound outside this repeat already, by {%s}; rename one", where, tok.body, tok.bound, b.body)
-	}
-	b := &nameBinding{name: tok.bound, ref: tok.names[0], body: tok.body, where: where, scope: sc, index: len(sc.order), binder: binder}
-	if sc.bindings == nil {
-		sc.bindings = map[string]*nameBinding{}
-	}
-	sc.bindings[b.name] = b
-	sc.order = append(sc.order, b)
-	return nil
-}
-
 // resolveReads answers each unbound read under n with a name its template sees, fields before the
 // format as compile reports them, and refuses a field spelling a name.
 func resolveReads(n node, where string) error {
@@ -141,7 +154,11 @@ func resolveReads(n node, where string) error {
 	}
 	for _, name := range sortedNames(t.fields) {
 		if b := t.scope.lookup(name); b != nil {
-			return fmt.Errorf("%stoken {%s}: name %q is a field too; options, fields and names share one namespace, so rename one", b.where, b.body, name)
+			holder := "the root template"
+			if where != "" {
+				holder = strings.TrimSuffix(where, ": ")
+			}
+			return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.where, b.body, name, holder)
 		}
 	}
 	for _, u := range t.unbound {
@@ -163,13 +180,15 @@ func (t *template) isName(head string) bool {
 // every template is linked, so the binder has resolved that reference.
 func linkNames(path string, t *template) error {
 	for i := range t.compiled.ops {
-		for j := range t.compiled.ops[i].arms {
-			a := &t.compiled.ops[i].arms[j]
-			if a.kind != namedRead {
-				continue
-			}
-			if err := linkName(t, a); err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), a.spelling, err)
+		o := &t.compiled.ops[i]
+		for _, reads := range [][]arm{o.arms, o.operands} {
+			for j := range reads {
+				if reads[j].kind != namedRead {
+					continue
+				}
+				if err := linkName(t, &reads[j]); err != nil {
+					return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
+				}
 			}
 		}
 	}
@@ -223,23 +242,58 @@ type frameStack struct {
 	frames []*pickFrame
 }
 
-// pushFrame opens a frame of scope until popFrame closes it, returning the mark popFrame takes.
-func (d *renderDraws) pushFrame(scope *nameScope) int {
+// pushFrame opens f until popFrame closes it, returning the mark popFrame takes.
+func (d *renderDraws) pushFrame(f *pickFrame) int {
+	mark := d.depth()
 	if d.frames == nil {
 		d.frames = &frameStack{}
 	}
-	mark := len(d.frames.frames)
-	d.frames.frames = append(d.frames.frames, newPickFrame(scope))
+	d.frames.frames = append(d.frames.frames, f)
 	return mark
 }
 
 func (d *renderDraws) popFrame(mark int) { d.frames.frames = d.frames.frames[:mark] }
 
-// pickOf is b's pick in the frame rendering its scope. A read entering the scope past its owner,
-// as Fake("cat.field") or {/cat.field} do, keeps the frame in the memo of that read.
+func (d *renderDraws) depth() int {
+	if d.frames == nil {
+		return 0
+	}
+	return len(d.frames.frames)
+}
+
+// entering is sc as a read entering another category sees it: none of the frames rendering, and
+// memo, which keeps the frame of each scope the read enters past its owner.
+func (sc renderScope) entering(memo *drawMemo) renderScope {
+	sc.base, sc.entry, sc.pick = sc.draws.depth(), memo, nil
+	return sc
+}
+
+// frameOf is the frame a render of scope's owner opens: the one the read entering the category
+// keeps, so {n} and {n.path} read one frame, else a fresh one.
+func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
+	if sc.entry == nil {
+		return newPickFrame(scope)
+	}
+	return sc.entry.frameOf(scope)
+}
+
+func (m *drawMemo) frameOf(scope *nameScope) *pickFrame {
+	f, ok := m.frames[scope]
+	if !ok {
+		f = newPickFrame(scope)
+		if m.frames == nil {
+			m.frames = map[*nameScope]*pickFrame{}
+		}
+		m.frames[scope] = f
+	}
+	return f
+}
+
+// pickOf is b's pick: in the frame rendering its scope since the read entering the category, else
+// in the frame that read keeps, as for Fake("cat.field") or {/cat.field}.
 func (sc renderScope) pickOf(b *nameBinding) *namedPick {
 	if stack := sc.draws.frames; stack != nil {
-		for i := len(stack.frames) - 1; i >= 0; i-- {
+		for i := len(stack.frames) - 1; i >= sc.base; i-- {
 			if f := stack.frames[i]; f.scope == b.scope {
 				return &f.picks[b.index]
 			}
@@ -249,19 +303,12 @@ func (sc renderScope) pickOf(b *nameBinding) *namedPick {
 	if memo == nil {
 		memo = &sc.groupDraws().memo
 	}
-	f, ok := memo.frames[b.scope]
-	if !ok {
-		f = newPickFrame(b.scope)
-		if memo.frames == nil {
-			memo.frames = map[*nameScope]*pickFrame{}
-		}
-		memo.frames[b.scope] = f
-	}
-	return &f.picks[b.index]
+	return &memo.frameOf(b.scope).picks[b.index]
 }
 
 func readName(s *generatorState, sc renderScope, a arm) readValue {
-	return readPicked(s, sc.pickOf(a.bind), a.bind.head, a.steps, a.levels, a.path, sc)
+	p := sc.pickOf(a.bind)
+	return readPicked(s, p, a.bind.head, a.steps, a.levels, a.path, sc.entering(&p.memo))
 }
 
 // drawRowOf draws the row a render of t reads: inside the pick's rows where t renders as part of one.
@@ -297,19 +344,12 @@ func readPicked(s *generatorState, p *namedPick, head node, steps []pathStep, le
 		return r
 	}
 	leaf := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
-	mark := -1
 	if c, isChoice := leaf.(*choice); isChoice {
-		if c.ownScope != nil {
-			mark = sc.draws.pushFrame(c.ownScope)
-		}
 		leaf = p.memo.variantOf(s, c, key)
 	}
 	sc = sc.at(leaf, &p.pins)
-	sc.pick, sc.pickKey, sc.entry = p, key, &p.memo
+	sc.pick, sc.pickKey = p, key
 	r := renderLeaf(s, leaf, sc)
-	if mark >= 0 {
-		sc.draws.popFrame(mark)
-	}
 	if p.memo.value == nil {
 		p.memo.value = map[string]readValue{}
 	}

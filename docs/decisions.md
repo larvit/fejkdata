@@ -894,10 +894,13 @@ a struct's fields as one.
 2026-10-03, larv-review. Goals 5.3 and 5.6.
 `bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
-`"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category is the smallest unit holding every field and record column. The
-scope is lexical: a category referencing another never sees its names, so what a category
-renders never depends on who references it. A pick is drawn on its first read, so a record's
-columns, rendered in name order, read one pick whichever binds it. A read entering a category
-past its root, `Fake("cat.field")` or `{/cat.field}`, keeps the category's frame in the memo of
-that read: per render and group, as the read's own draw is. Valid while a name is read only
-inside the category binding it.
+`"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category
+is the smallest unit holding every field and record column. A choice's item binds no name,
+since a read outside the item would see a binding another item leaves out. The scope is
+lexical: a read entering a category, by a reference or through a name, sees none of the
+frames rendering above it, so what a category renders never depends on who references it. A
+pick is drawn on its first read, so a record's columns, rendered in name order, read one pick
+whichever binds it. A read entering a category keeps the frame of each scope it enters in its
+own memo, and the category's root renders that frame when the read lands on the root, so
+`{n}` and `{n.path}` read one pick: per render and group for a reference path, per pick for a
+path through a name, and per render for `Fake("cat.field")`.

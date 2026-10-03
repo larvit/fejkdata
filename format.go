@@ -247,7 +247,12 @@ func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, err
 func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
 	switch t.kind {
 	case builtinCall:
-		return nil, checkFunc(t, fields)
+		err := checkFunc(t, fields)
+		var miss *fieldMiss
+		if errors.As(err, &miss) {
+			return []unboundRead{{miss.head, err}}, nil
+		}
+		return nil, err
 	case nameBind:
 		return nil, checkBind(t)
 	case nameRead:
@@ -493,10 +498,15 @@ func (c *formatOps) holdName(a arm, label string) {
 	c.held[a.head] = h
 }
 
-func (c *formatOps) function(tok formatToken, refs map[string]refBinding) {
+func (c *formatOps) function(tok formatToken, refs map[string]refBinding, isName func(string) bool) {
 	var operands []arm
 	for _, operand := range tok.names {
 		a := splitArm(operand, refs)
+		if isName(a.head) {
+			a.kind = namedRead
+			operands = append(operands, a)
+			continue
+		}
 		c.holdName(a, fmt.Sprintf("%s operand %q", tok.fn, operand))
 		operands = append(operands, a)
 	}
@@ -528,7 +538,7 @@ func compileFormat(toks []formatToken, refs map[string]refBinding, isName func(h
 			c.grow += len(tok.lit)
 			c.ops = append(c.ops, op{formatToken: tok})
 		case builtinCall:
-			c.function(tok, refs)
+			c.function(tok, refs, isName)
 		case nameRead:
 			c.field(tok, refs, isName)
 		}

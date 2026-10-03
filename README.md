@@ -656,7 +656,7 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 ### Transforms
 
 `{lowercase(x)}`, `{uppercase(x)}` and `{ascii(x)}` rewrite the value of `x` — a
-field, a path or a `..path` — and nest. `ascii` folds Latin letters (`Åsa Öberg`
+field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin letters (`Åsa Öberg`
 → `Asa Oberg`) and drops any other non-ASCII rune. `x` is held
 ([One draw, one spelling](#one-draw-one-spelling)), so an email built from a name
 matches the name beside it:
@@ -709,17 +709,20 @@ row:
 ```
 
 Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. Everything under a name is drawn
-once, so `{n}` and `{n.path}` agree, and a field `n` renders twice prints the same text twice.
+once, so `{n}` and `{n.path}` agree, a [transform](#transforms) of `n.path` reads the same
+value, and a field `n` renders twice prints the same text twice. A name is a pick of its own:
+`{t.name}` and `{/misc.territory.name}` beside it are two draws.
+
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category reads it, and a record's columns read one pick. Each render of the category picks
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
 iteration, and one bound outside the repeat keeps its pick on every line.
 
 Rejected at load: a name bound twice in one category, or both inside a `repeat` and outside
-it; a name that is a field or an option; a binding of anything but a reference; a binding
-nothing reads; a path through a name that selects a row, which the reference selects instead;
-and a binding in a table's format or cell. A field, column, category or folder name may not
-contain ` as `.
+it; a name that is a field or an option; a binding of anything but a reference; a binding in
+a choice's item, which every other item would leave unbound; a binding nothing reads; a path
+through a name that selects a row, which the reference selects instead; and a binding in a
+table's format or cell. A field, column, category or folder name may not contain ` as `.
 
 ### Draw group
 
