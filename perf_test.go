@@ -64,7 +64,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 	}{
 		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 66},
 		{"a named draw group", `{"format":"{a}","a":{"format":"{/word.w}","drawGroup":"g"}}`, 11},
-		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}","repeat":20,"separator":", "}}`, 205},
+		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 205},
 	} {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 			"word.json": {Data: []byte(word)},

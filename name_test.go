@@ -175,11 +175,11 @@ func TestNameErrors(t *testing.T) {
 		{"bound twice", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{y}","x":"{/word as w}{w}","y":"{/word as w}"}`},
 			`name "w" is bound twice outside any repeat`},
 		{"bound inside a repeat written first", map[string]string{"word": `["a","b"]`, "card": `{"format":"{a}{z}","a":{"format":"{/word as w}{w}","repeat":2},"z":"{/word as w}{w}"}`},
-			`name "w" is bound outside this repeat already`},
+			`name "w" is bound outside this repeat too`},
 		{"bound in a choice's item", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":["{/word as w}","b"]}`},
 			`a choice's item binds no name`},
 		{"bound outside the repeat too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":{"format":"{/word as w}{w}","repeat":2}}`},
-			`name "w" is bound outside this repeat already`},
+			`name "w" is bound outside this repeat too`},
 		{"a field too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{w}","w":"x"}`},
 			`name "w" is a field of the root template too`},
 		{"an option", map[string]string{"word": `["a","b"]`, "card": `"{/word as format}{format}"`},
@@ -188,6 +188,14 @@ func TestNameErrors(t *testing.T) {
 			`"word" is no reference`},
 		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
 			`nothing reads name "w"`},
+		{"read once through a path", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as n}{n.w}"`},
+			`write {/word.w}`},
+		{"read in two draw groups", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{b}|{a}","a":"{/person as p}{p}","b":{"format":"{p.first}","drawGroup":"g"}}`},
+			`name "p" is read in two draw groups`},
+		{"read in a repeat", map[string]string{"nm.json": `{"format":"{first}","rows":"nm.tsv"}`, "nm.tsv": "first\tlast\nAda\tByron\nBo\tEk\n", "person": `{"format":"{first} {last}","first":"{/nm.first}","last":"{/nm.last}"}`, "card": `{"format":"{/person as p}{p}{each}","each":{"format":"{p.first}","repeat":2}}`},
+			`name "p" is read inside a repeat`},
+		{"a misspelt name", map[string]string{"word": `["a","b"]`, "card": `"{/word as p}{p}{p}{pp}"`},
+			`no field or name "pp"; the names bound here are [p]`},
 		{"read once whole", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
 			`write {/word}`},
 		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
@@ -201,13 +209,11 @@ func TestNameErrors(t *testing.T) {
 		{"in a column's name", map[string]string{"t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\ta as b\nx\t1\ny\t2\n"},
 			`contains " as "`},
 		{"read outside the repeat binding it", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":{"format":"{/word as w}{w}","repeat":2}}`},
-			`name "w" is bound inside the repeat at field "x"`},
-		{"unbound", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":{"format":"{/word as w}{w}","repeat":2}}`},
-			`no field "w"`},
+			`no field "w"; name "w" is bound inside the repeat at field "x"`},
 		{"padded", map[string]string{"word": `["a","b"]`, "card": `"{/word as  w}{w}"`},
 			`write {/word as w}`},
-		{"selector after a name", map[string]string{"region.json": nameTables()["region.json"], "card": `"{/region as r}{r.municipality[0180].name}"`},
-			`a path through name "r" selects no row`},
+		{"selector after a name", map[string]string{"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/region as r}{r.municipality[0180].name}"`},
+			`read it directly, {/region.municipality[0180].name}`},
 		{"in a table's format", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{/word as w}{w}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\nx\ny\n"},
 			"a table binds no name"},
 		{"in a field's name", map[string]string{"card": `{"format":"{a as b}","a as b":"x"}`},
@@ -221,11 +227,6 @@ func TestNameErrors(t *testing.T) {
 					name += ".json"
 				}
 				files[name] = body
-			}
-			if c.name == "selector after a name" {
-				for k, v := range nameTables() {
-					files[k] = v
-				}
 			}
 			_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files)))
 			if err == nil || !strings.Contains(err.Error(), c.want) {
