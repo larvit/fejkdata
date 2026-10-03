@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 76`
+`Next ID = 79`
 
 | Goal | W |
 |---|---|
@@ -52,6 +52,9 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
+| 76 | 0.1.0 | decision | **Generate the index of shipped categories at build time, and parse and link a shipped category only when a template or path first reaches it; a `--data-path` still loads whole.** | 4 | 8 | 10 | 10 | 2, 12 | 33.0 |
+| 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 8 | 10 | 10 | 2, 1.1 | 33.0 |
+| 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 13.1 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 14 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
@@ -87,7 +90,6 @@
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
-| 73 | 0.2.0 | question | **Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.** | 1 | 1 | 3 | 6 | 13.1 | 9.6 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -117,7 +119,6 @@
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 11 | 13.8 |
 | 65 | 0.4.0 |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 3 | 4 | 5 | 5.8 | 13.2 |
-| 60 | 0.4.0 |  | **Ship the full registers as packs, each a Go module with its own `embed.FS` and a zip for `--data-path`.** | 5 | 8 | 7 | 6 | 14, 12 | 12.4 |
 | 66 | 0.4.0 |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 1 | 2 | 5 | 3.4 | 11.8 |
 | 67 | 0.4.0 |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
 | 64 | 0.4.0 |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 4 | 1 | 6 | 3.4 | 10.8 |
@@ -126,6 +127,18 @@
 | 70 | 1.0.0 |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 6 | 6 | 6 | 1.1 | 19.5 |
 
 ## Details
+
+### 76. Generate the index of shipped categories at build time, and parse and link a shipped category only when a template or path first reaches it; a `--data-path` still loads whole.
+
+A restructure the maintainer approved on 2026-10-03, so it merges below goal 3's floor and goes first; the round's gates are adjusted to it afterwards. `go generate` writes an index of every shipped category, path and table, embedded beside the data. `New` reads the index; a template, `Fake` path or record compiles the categories it reaches, transitively, and keeps them. CI loads every shipped category eagerly, so shipped data never fails for a user. Revise the decisions this touches, "The shipped data is embedded, not discovered" among them, and the README's Performance section.
+
+### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
+
+Needs item 76. The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Check goal 2's wording against this, and propose a rewording to the maintainer if it no longer says what ships where.
+
+### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
+
+Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
@@ -317,10 +330,6 @@ Require the path step to reach a sibling category.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
 
-### 73. Decide whether the default embed's partial Swedish and US place tables stand against goal 13.1, or have the goals say which goal wins.
-
-The decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more" serves goal 2's built-in data with no download, ships less than its registers hold, and names no item that ends it. Item 60 ships the full registers as packs, beside the partial default.
-
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
 Both render the same run.
@@ -416,10 +425,6 @@ A caller wanting parallel throughput then makes one generator per goroutine.
 ### 65. Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.
 
 The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md` adds a flag, an exit code, an exported name, a fence, a builtin and the lowest Go.
-
-### 60. Ship the full registers as packs, each a Go module with its own `embed.FS` and a zip for `--data-path`.
-
-Every US place of 10,000 and more streets per locality, built by `--min-population` and `--streets-per-locality`. The default embed stays under ~1 MB per country and `New` under ~50 ms.
 
 ### 66. Cut the README's Layout block to the lines that say what a file name cannot.
 
