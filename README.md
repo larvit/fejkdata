@@ -731,8 +731,8 @@ Rejected at load, each error naming what to write instead:
 - a name that is a field or an option;
 - a binding of anything but a reference;
 - a binding in a choice's item, which every other item would leave unbound;
-- a binding nothing reads, or read once outside a `repeat`, which the reference spells:
-  `{/word as w}{w}` is `{/word}`, and `{/word as w}{w.x}` is `{/word.x}`;
+- a binding nothing reads, or read once whole outside a `repeat`, which the reference
+  spells: `{/word as w}{w}` is `{/word}`;
 - a path through a name that selects a row;
 - a read of a name rendering a field twice, where a path through the name reads it;
 - reads of a name in two draw groups, or inside a `repeat`, where what it names reads a

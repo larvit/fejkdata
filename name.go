@@ -138,11 +138,8 @@ func (sc *nameScope) settle() error {
 		if len(b.uses) == 0 {
 			return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
 		}
-		if r := b.uses[0]; len(b.uses) == 1 && !r.nested {
+		if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested {
 			spelling := b.ref
-			if r.tail != "" {
-				spelling += "." + r.tail
-			}
 			if !r.operand {
 				spelling = "{" + spelling + "}"
 			}
@@ -203,9 +200,18 @@ func resolveReads(n node, where, group string, scopes []*nameScope) error {
 	return nil
 }
 
-// unresolved is the refusal of u, a read no field or name answers: naming the names the read sees,
-// else the repeat binding the name where the read cannot see it.
+// unresolved is the refusal of u, a read no field or name answers: naming the repeat binding the
+// name where the read cannot see it, else the names the read sees.
 func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScope) error {
+	for _, sc := range scopes {
+		if b, ok := sc.bindings[u.head]; ok {
+			at := strings.TrimSuffix(b.where, ": ")
+			if at == "" {
+				at = "the root template"
+			}
+			return fmt.Errorf("%s%w; name %q is bound inside the repeat at %s, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
+		}
+	}
 	var visible []string
 	for sc := seen; sc != nil; sc = sc.up {
 		for _, b := range sc.order {
@@ -215,11 +221,6 @@ func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 	if len(visible) > 0 {
 		sort.Strings(visible)
 		return fmt.Errorf("%stoken {%s}: no field or name %q; the names bound here are %v", where, u.body, u.head, visible)
-	}
-	for _, sc := range scopes {
-		if b, ok := sc.bindings[u.head]; ok {
-			return fmt.Errorf("%s%w; name %q is bound inside the repeat at %s, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, strings.TrimSuffix(b.where, ": "))
-		}
 	}
 	return fmt.Errorf("%s%w", where, u.err)
 }
@@ -272,7 +273,7 @@ func linkNames(path string, t *template) error {
 func linkName(t *template, a *arm) error {
 	b := t.nameScope.lookup(a.head)
 	if hasSelector(a.tail) {
-		return fmt.Errorf("a path through name %q selects no row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, joinSegments(a.tail))
+		return fmt.Errorf("a path through name %q may not select a row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, joinSegments(a.tail))
 	}
 	full := append(b.tail[:len(b.tail):len(b.tail)], a.tail...)
 	if err := checkPathResolves(b.head, full, a.head); err != nil {
@@ -327,10 +328,10 @@ func (b *nameBinding) checkUses() error {
 	}
 	for _, u := range b.uses {
 		if u.nested {
-			return fmt.Errorf("name %q is read inside a repeat, and what it names reads a reference path, which each iteration draws apart; bind the name inside the repeat", b.name)
+			return fmt.Errorf("name %q is read inside a repeat, and what it names reads a reference path, which each iteration draws apart; bind the name inside the repeat, or bind a second name there", b.name)
 		}
 		if u.group != b.uses[0].group {
-			return fmt.Errorf("name %q is read in two draw groups, %s and %s, and what it names reads a reference path, which each draw group draws apart; read the name in one draw group", b.name, groupSpelling(b.uses[0].group), groupSpelling(u.group))
+			return fmt.Errorf("name %q is read in two draw groups, %s and %s, and what it names reads a reference path, which each draw group draws apart; read the name in one draw group, or bind a name in each", b.name, groupSpelling(b.uses[0].group), groupSpelling(u.group))
 		}
 	}
 	return nil
