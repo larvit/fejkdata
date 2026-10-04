@@ -233,7 +233,7 @@ func (t *table) stepUp(rest []string) error {
 	case len(rest) == 0 || rest[0] != t.parentT.segment:
 		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: ..%s`, t.segment, t.parentT.segment)
 	case hasSelector(rest):
-		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; select from the table instead: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
+		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; select from the table instead, its path from the data root: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
 	}
 	return nil
 }
