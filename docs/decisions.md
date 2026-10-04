@@ -511,6 +511,22 @@ case but the last, where two expected a render and all three accepted the refusa
 
 Goal 5.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
 
+## `..` steps up to the parent row, and a step down after it draws once per draw group or pick
+
+2026-10-05, larv-review on `todo.md` item 2. Goal 5.4 has `..` go up one level, and goal 5.2
+has each `{…}` make a new pick, which `todo.md` item 4 brings to every path.
+
+- `..` names the parent table next, `city..country`, as a folder path names the folder it
+  enters. `.country` after a row stays the link column's cell.
+- A step down after a `..` draws afresh inside the row stepped up to (`drawSteps`), and the
+  draw fences leave it out (`tableReadOf`), since it pins none of the render's rows. Paths
+  stepping down from one `..` share that draw through their memo (`drawMemo.stepDownPins`),
+  as reference paths share a draw today, so two reads of one step down describe one row.
+- A route through another row is another path to the same data, not a second spelling:
+  `city[Oslo]..country.name` and `country[NO].name` both load.
+
+Valid until item 4 makes every `{…}` draw afresh, which revises the shared step down.
+
 ## A table selects by one key column, a code, never a free-form name
 
 Decided 2026-09-27 by the maintainer, for goal 5's one spelling per result; valid while

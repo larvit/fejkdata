@@ -237,11 +237,13 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 
 func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	files := with(geo(), map[string]string{
-		"drawn.json":      `"{/locality.code}|{/locality..municipality.code}|{/locality..municipality..region.code}"`,
-		"named.json":      `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
-		"down.json":       `"{/locality.code}|{/locality..municipality.locality.code}"`,
-		"named-down.json": `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
-		"record.json":     `{"format":"","l":"{/locality.code}","m":"{/locality..municipality.code}"}`,
+		"drawn.json":       `"{/locality.code}|{/locality..municipality.code}|{/locality..municipality..region.code}"`,
+		"named.json":       `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
+		"down.json":        `"{/locality.code}|{/locality..municipality.locality.code}"`,
+		"named-down.json":  `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
+		"twice.json":       `"{/locality..municipality.locality.code}|{/locality..municipality.locality.name}"`,
+		"named-twice.json": `"{/locality as l}{l..municipality.locality.code}|{l..municipality.locality.name}"`,
+		"record.json":      `{"format":"","l":"{/locality.code}","m":"{/locality..municipality.code}"}`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(4))
 	for path, want := range map[string]string{
@@ -259,6 +261,7 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	if got := fakeTemplate(t, f, "{/locality[L4]..municipality.name}"); got != "Lund" {
 		t.Errorf("{/locality[L4]..municipality.name} = %q, want Lund", got)
 	}
+	names := map[string]string{"L1": "Stockholm", "L2": "Solna", "L3": "Malmö", "L4": "Lund", "L5": "Göteborg", "L6": "Hisingen", "L7": "Sandby", "L8": "Sandby"}
 	afresh := map[string]bool{}
 	for i := 0; i < 200; i++ {
 		for _, path := range []string{"drawn", "named"} {
@@ -279,6 +282,12 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 			parts := strings.Split(fake(t, f, path), "|")
 			if municipalityOf[parts[0]] != municipalityOf[parts[1]] {
 				t.Fatalf("%s = %v, want a locality of the first one's municipality", path, parts)
+			}
+		}
+		for _, path := range []string{"twice", "named-twice"} {
+			parts := strings.Split(fake(t, f, path), "|")
+			if names[parts[0]] != parts[1] {
+				t.Fatalf("%s = %v, want both reads of one step down to read one locality", path, parts)
 			}
 		}
 		down, err := f.FakeRecord("locality[L4]..municipality.locality")
@@ -313,7 +322,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"locality[L4]..region.name":        "..municipality",
 		"region[12]..municipality.name":    "no parent",
 		"locality[L4]..":                   "..municipality",
-		"locality[L4]..municipality[0180]": "selects its rows before",
+		"locality[L4]..municipality[0180]": "municipality[0180]",
 		"locality[L4].name..municipality":  "column",
 		"x..y":                             "not a table",
 	} {

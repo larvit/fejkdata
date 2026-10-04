@@ -4,12 +4,30 @@ import "strings"
 
 // drawMemo is what a hold, a draw group or a named pick has drawn: the variant each level was
 // drawn as, so every path under it reads one variant; the value each read produced, by its path,
-// so the same read written twice reads one value; and the frames a read opens for the name
-// scopes around where it lands (enter).
+// so the same read written twice reads one value; the frames a read opens for the name
+// scopes around where it lands (enter); and the rows drawn below each step up stepped down from.
 type drawMemo struct {
 	variant       map[string]node
 	value         map[string]readValue
 	enteredFrames map[*nameScope]*pickFrame
+	steppedDown   map[string]*pinSet
+}
+
+// stepDownPins is the pins a path steps down into after stepping up to t, at the level at: kept
+// in m where there is one, so every path stepping down there reads one draw.
+func (m *drawMemo) stepDownPins(pins *pinSet, t *table, levels []string, at int) *pinSet {
+	if m == nil {
+		return pins.above(t)
+	}
+	p, ok := m.steppedDown[levels[at]]
+	if !ok {
+		p = pins.above(t)
+		if m.steppedDown == nil {
+			m.steppedDown = map[string]*pinSet{}
+		}
+		m.steppedDown[levels[at]] = p
+	}
+	return p
 }
 
 // groupDraws is what one render's draw group has drawn for its reference paths: a memo, and the

@@ -155,9 +155,9 @@ func stepInto(n node, seg string) (node, error) {
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", selectorOf(seg))
 	case seg == "..":
 		if c, ok := n.(*tableColumn); ok {
-			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column`, c.t.header[c.i])
+			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.t.header[c.i])
 		}
-		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table`)
+		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table; step up only from a table`)
 	}
 	switch n := n.(type) {
 	case *folder:
@@ -233,7 +233,7 @@ func (t *table) stepUp(rest []string) error {
 	case len(rest) == 0 || rest[0] != t.parentT.segment:
 		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: ..%s`, t.segment, t.parentT.segment)
 	case hasSelector(rest):
-		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; start a path at the table to select from it`)
+		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; select from the table instead: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
 	}
 	return nil
 }
@@ -423,7 +423,7 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 // pins is nil for a sibling path, which never crosses a table, since a table is only a category.
 // For a memoized read, memo keeps the variant drawn at each of levels, so paths sharing a prefix
 // share it. It returns the leaf and the pins its row is in: a step down after a step up draws
-// afresh, into pins of its own.
+// afresh, into pins of its own, which memo shares with every path stepping down there.
 func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
 	var climbed *table
 	for _, st := range steps {
@@ -445,7 +445,7 @@ func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *
 		case st.kind == stepParent:
 			climbed = t.parentT
 		case st.kind == stepChild && climbed != nil:
-			pins, climbed = pins.above(climbed), nil
+			pins, climbed = memo.stepDownPins(pins, climbed, levels, st.at), nil
 		}
 		n = t.drawStep(s, st, pins)
 	}

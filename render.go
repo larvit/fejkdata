@@ -27,7 +27,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	f.loadShippedAt(segments)
 	var draws renderDraws
 	sc := renderScope{draws: &draws}
-	n, err := descend(f.rand, &f.root, segments, sc)
+	n, pins, err := descend(f.rand, &f.root, segments)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
@@ -35,25 +35,22 @@ func (f *Generator) Fake(path string) (string, error) {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)
 	}
 	group := sc.groupDraws()
+	group.pins = pins
 	sc, _ = sc.at(n, &group.pins).enter(n, &group.memo)
 	return render(f.rand, n, sc), nil
 }
 
-// descend walks a caller's path to the node it names, pinning in sc the rows it
-// selects or draws.
-func descend(s *generatorState, root node, segments []string, sc renderScope) (node, error) {
+// descend walks a caller's path to the node it names, returning the rows its leaf renders in.
+func descend(s *generatorState, root node, segments []string) (node, pinSet, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
 	var buf [16]pathStep
 	steps, err := probePath(root, segments, buf[:0])
 	if err != nil {
-		return nil, err
+		return nil, pinSet{}, err
 	}
-	group := sc.groupDraws()
-	n, pins := drawSteps(s, root, steps, &group.pins, nil, nil)
-	// A caller's path is its render's first draw, so the rows a step down after a step up drew
-	// are all the render pins.
-	group.pins = *pins
-	return n, nil
+	var pins pinSet
+	n, leafPins := drawSteps(s, root, steps, &pins, nil, nil)
+	return n, *leafPins, nil
 }
 
 // renderOnce renders n as one render, over draws of its own.
