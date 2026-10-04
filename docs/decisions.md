@@ -511,15 +511,18 @@ case but the last, where two expected a render and all three accepted the refusa
 
 Goal 5.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
 
-## `..` steps up to the parent row, and a step down after it draws once per draw group or pick
+## `..` steps up to the parent row, and a step down after it draws once per render and draw group, or per pick
 
-2026-10-05, larv-review on `todo.md` item 2. Goal 5.4 has `..` go up one level, and goal 5.2
-has each `{…}` make a new pick, which `todo.md` item 4 brings to every path.
+2026-10-05, larv-review in PR #158. Serves goal 5.4, which has `..` go up one level. A step
+down draws afresh because goal 5.2 has each `{…}` make a new pick, which `todo.md` item 4
+brings to every path.
 
 - `..` names the parent table next, `city..country`, as a folder path names the folder it
   enters. `.country` after a row stays the link column's cell.
 - A step down after a `..` draws afresh inside the row stepped up to (`drawSteps`), and the
-  draw fences leave it out (`tableReadOf`), since it pins none of the render's rows. Paths
+  draw fences leave it out (`tableReadOf`), since it pins none of the render's rows: the one
+  exception to [A render shares one reference draw per category, per
+  group](#a-render-shares-one-reference-draw-per-category-per-group). Paths
   stepping down from one `..` share that draw through their memo (`drawMemo.stepDownPins`),
   as reference paths share a draw today, so two reads of one step down describe one row.
 - A route through another row is another path to the same data, not a second spelling:
@@ -926,4 +929,4 @@ Valid while names are read only inside the category binding them.
 
 ## comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 2, 71, 3, 4 and 90 are the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 71, 3, 4 and 90 are the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.

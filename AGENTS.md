@@ -80,7 +80,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `parent` names the link column and the table alike
 - After a row, a path names a column or a linked table
 - A selected row is fixed, not drawn, and an unnamed read beside it is refused
-- `..` steps up to the parent row, and a step down after it draws once per draw group or pick
+- `..` steps up to the parent row, and a step down after it draws once per render and draw group, or per pick
 - A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields

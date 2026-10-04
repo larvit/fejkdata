@@ -338,7 +338,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"locality[L4]...municipality":      "empty segment",
 		"locality[L4].municipality.name":   "..municipality.name",
 		"locality[L4].name..municipality":  "column",
-		"x..y":                             "not a table",
+		"x..y":                             "only from a table's row",
 	} {
 		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": `{"format":"{y}","y":"a"}`})))
 		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
@@ -352,8 +352,8 @@ func TestTableStepUpRefusals(t *testing.T) {
 			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
 		}
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "not a table") {
-		t.Errorf("{a..b} on a field: New = %v, want an error mentioning not a table", err)
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
+		t.Errorf("{a..b} on a field: New = %v, want an error mentioning only from a table's row", err)
 	}
 }
 
