@@ -212,7 +212,7 @@ func neverNumeric(n node) (text string, never bool) {
 	return "", false
 }
 
-// allNeverNumeric reports nodes no render of which is a number, and none where there are none.
+// allNeverNumeric reports whether no render of any of nodes is a number; false for no nodes.
 func allNeverNumeric(nodes []node) (text string, never bool) {
 	for _, n := range nodes {
 		t, nodeNever := neverNumeric(n)
@@ -240,8 +240,8 @@ func calcPrep(args []string) callFn {
 	}
 }
 
-// parsedCalc parses an expression checkCalc accepted. A nil AST would be a nil dereference
-// per render, with no message.
+// parsedCalc parses an expression checkCalc accepted. A nil AST would dereference later, with
+// no message.
 func parsedCalc(expr string) calcNode {
 	n, err := parseCalc(expr)
 	if err != nil {
