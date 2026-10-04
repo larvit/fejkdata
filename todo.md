@@ -15,6 +15,7 @@
 | 2 | 0.95 |
 | 2.1 | 0.95 |
 | 2.2 | 0.95 |
+| 2.3 | 0.95 |
 | 3 | 0.90 |
 | 3.1 | 0.90 |
 | 3.2 | 0.90 |
@@ -33,31 +34,40 @@
 | 5.8 | 0.80 |
 | 6 | 0.75 |
 | 6.1 | 0.75 |
+| 6.2 | 0.75 |
 | 7 | 0.70 |
 | 7.1 | 0.70 |
 | 7.2 | 0.70 |
+| 7.3 | 0.70 |
 | 8 | 0.65 |
 | 9 | 0.60 |
+| 9.1 | 0.60 |
+| 9.2 | 0.60 |
+| 9.3 | 0.60 |
+| 9.4 | 0.60 |
+| 9.5 | 0.60 |
 | 10 | 0.55 |
+| 10.1 | 0.55 |
 | 11 | 0.50 |
-| 11.1 | 0.50 |
-| 11.2 | 0.50 |
-| 11.3 | 0.50 |
 | 12 | 0.45 |
+| 12.1 | 0.45 |
+| 12.2 | 0.45 |
+| 12.3 | 0.45 |
 | 13 | 0.40 |
-| 13.1 | 0.40 |
 | 14 | 0.35 |
+| 14.1 | 0.35 |
 | 15 | 0.30 |
+| 16 | 0.25 |
 
 ## Items
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 8 | 10 | 10 | 2, 1.1 | 33.0 |
-| 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 13.1 | 31.2 |
+| 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 10 | 10 | 10 | 2, 1.1, 9 | 32.5 |
+| 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14.1 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
-| 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 14 | 28.1 |
-| 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
+| 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
+| 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 3 | 0.1.0 | decision | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
@@ -65,8 +75,8 @@
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
-| 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
-| 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 11, 11.3 | 12.5 |
+| 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
+| 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -76,8 +86,8 @@
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 |  | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
-| 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 11 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
+| 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
 | 54 | 0.2.0 | defect | **Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.** | 2 | 1 | 3 | 6 | 1.1 | 15.8 |
@@ -87,12 +97,12 @@
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
 | 48 | 0.2.0 | defect | **Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.** | 2 | 2 | 4 | 6 | 5 | 15.1 |
-| 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 15 | 14.8 |
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
-| 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
+| 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
+| 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -103,27 +113,27 @@
 | 10 | 0.3.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 11 | 0.3.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 4 | 13.0 |
 | 35 | 0.3.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 8 | 13.0 |
-| 21 | 0.3.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 11 | 12.8 |
-| 23 | 0.3.0 |  | **Give every other shipped category that could reach something real a path that never does.** | 3 | 6 | 6 | 7 | 15 | 11.7 |
+| 21 | 0.3.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 12 | 12.2 |
 | 8 | 0.3.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 9 | 0.3.0 |  | **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 30 | 0.3.0 |  | **Draw `email.local` from `username`, so the two share one handle list.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 40 | 0.3.0 |  | **Parse `defaultTable`'s path with the library's grammar.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
-| 75 | 0.3.0 |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 6 | 4 | 7 | 11.2 | 11.5 |
 | 86 | 0.3.0 |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 2 | 2 | 5 | 3.2 | 11.5 |
+| 23 | 0.3.0 |  | **Give every other shipped category that could reach something real a path that never does.** | 3 | 6 | 6 | 7 | 16 | 11.0 |
+| 75 | 0.3.0 |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 6 | 4 | 7 | 12.2 | 10.8 |
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
 | 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
 | 7 | 0.3.0 |  | **Fill `arm` in one place.** | 4 | 4 | 2 | 6 | 3.2 | 9.8 |
-| 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 13.1 | 9.8 |
 | 37 | 0.3.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 82 | 0.3.0 | principle | **Pass `newRand` its entropy source, so no test swaps the package's `randomBytes`.** | 1 | 1 | 1 | 5 | 3.2 | 9.8 |
+| 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
 | 83 | 0.3.0 | principle | **Read a name binding's head and tail from its binder's link, and delete `linkBindings`.** | 4 | 3 | 1 | 6 | 3.2 | 8.1 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
-| 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 11 | 13.8 |
+| 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 12 | 13.2 |
 | 65 | 0.4.0 |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 3 | 4 | 5 | 5.8 | 13.2 |
 | 66 | 0.4.0 |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 1 | 2 | 5 | 3.4 | 11.8 |
 | 67 | 0.4.0 |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
@@ -136,7 +146,16 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported; the code importing it passes it to `New` as an option, per the technical principles "Compose, do not entangle" and "Explicit over implicit". Still to decide: what a bare `New()` loads; whether a module's data is an `fs.FS` passed to the existing `WithDataFS` or a new option such as `WithData(svse.Data)`; and whether `WithoutShippedData` goes. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
+- One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
+- A bare `New()` loads no data, and its error names the option to add. `WithoutShippedData` goes.
+- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and several load at once. A module carrying functions loads through an option of its own; gaining one is a breaking change for that module's users.
+- A module names, in a manifest, what it reads and the module providing each by default. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
+- Two sources defining one name fail to load, unless an option says the second replaces the first. The CLI's `--data-path` takes `--replace` to override a shipped category. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
+- The template language's builtins stay in the core. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README strongly encourages functions with no side effects of their own.
+- The CLI is a library call, so a custom CLI carrying other modules is a few lines of Go and works just like `fejkdata`. A README section shows it with example code.
+
+Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -333,10 +352,6 @@ Say the format is the table's own (`region's format "{name}"`), name the read to
 
 `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw.
 
-### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
-
-17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
-
 ### 29. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
 
 Require the path step to reach a sibling category.
@@ -344,6 +359,10 @@ Require the path step to reach a sibling category.
 ### 42. Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
+
+### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
+
+17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
 
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
@@ -385,10 +404,6 @@ Needs item 4; recount the switches then. Today ten, from `render` to `columnItem
 
 Nothing checks it, and a new country breaks it silently.
 
-### 23. Give every other shipped category that could reach something real a path that never does.
-
-`phone` draws live PTS and NANP ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
-
 ### 8. Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.
 
 The greenfield architect found the fence pipeline last. Needs item 4, which shrinks the pipeline.
@@ -401,13 +416,17 @@ The inherited architect's 3am trace crossed four files for one draw.
 
 The CLI counts brackets of its own, so a change to the selector grammar desyncs the default `--table` silently.
 
-### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
-
-`readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables), no `go` example (Library) and no `text` block of error text, and compares no "Renders e.g." output, so goal 11.2 is not met.
-
 ### 86. Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.
 
 Both phone formats carry the same 21-code `area` list, so an edit to one copy can miss the other.
+
+### 23. Give every other shipped category that could reach something real a path that never does.
+
+`phone` draws live PTS and NANP ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
+
+### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
+
+`readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables), no `go` example (Library) and no `text` block of error text, and compares no "Renders e.g." output, so goal 12.2 is not met.
 
 ### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
 

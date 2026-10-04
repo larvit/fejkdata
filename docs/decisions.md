@@ -120,7 +120,7 @@ still lives in `data/`; `--data-path` layers over it.
 
 2026-10-03, a restructure the maintainer approved.
 
-Goal 12: `New` pays nothing for a category a run never reaches, which matters once the
+Goal 13: `New` pays nothing for a category a run never reaches, which matters once the
 shipped set grows to hundreds of MB. A category loads with every category it references
 and its whole table family, and binds as a whole load does, so it renders the same as
 after a whole load. `List` reads `shippedindex.go`, which `go generate` writes from
@@ -130,7 +130,7 @@ reach.
 
 Goal 6: beside a `--data-path`, `WithDataPath` or `WithDataFS`, every category loads in
 `New`, so each mistake in the user's data is `New`'s error. That parses the whole shipped
-set, against goal 12, until `todo.md` item 79 ends it.
+set, against goal 13, until `todo.md` item 79 ends it.
 
 Valid while CI proves the shipped set whole and each category alone.
 
@@ -353,7 +353,7 @@ a reader meeting two spellings of one empty set. Making the maps where the draws
 record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so there it
 cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
 Lazily, a render reading a reference path pays those two allocations, a record or struct
-included, and one reading none pays nothing; goal 12 holds either way.
+included, and one reading none pays nothing; goal 13 holds either way.
 
 `todo.md` item 4 deletes what this decides.
 
@@ -459,7 +459,7 @@ The benchmark suite (the README's Development) reports time for a human, not as 
 
 ## Rows live in a TSV, the shape in JSON
 
-2026-09-17, Lilleman auf Larv. Goals 8 and 12.
+2026-09-17, Lilleman auf Larv. Goals 8 and 13.
 
 `New` allocates once per node, so a register of thirty thousand rows written as JSON
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
@@ -638,7 +638,7 @@ is until a real data set needs the indexed form.
 
 2026-09-17, Lilleman auf Larv.
 
-Goals 9 and 12: a path that fails moves no seeded stream, at the cost of one draw-free
+Goals 10 and 13: a path that fails moves no seeded stream, at the cost of one draw-free
 walk per call, compiling its steps into a stack buffer of 16. Valid while that walk
 costs little against the draw it guards.
 
@@ -776,7 +776,7 @@ which says "Chinese, Mandarin" for `zh`.
 Where every territory row has a child the column is a `parent`, and the import drops the
 child rows whose territory the set does not ship — 17 of `misc.timezone`'s, Antarctica's
 ten among them. Agreement across a record is worth more than the last rows of a table:
-goal 4.1 wins over goal 13.1 here, as the maintainer confirmed on 2026-10-03.
+goal 4.1 wins over goal 14.1 here, as the maintainer confirmed on 2026-10-03.
 Where no such link can hold the fact stays a column. Layer your own `misc.territory`
 over the shipped one and you must layer `misc.timezone` too, or the link fails at load
 naming the row.
@@ -786,7 +786,7 @@ naming the row.
 2026-09-20, Lilleman auf Larv.
 
 `misc.httpmethod`, `misc.port`, `misc.httpstatus`, `misc.mimetype` and `misc.tld` weigh
-every row alike, so GET is a ninth of the methods drawn. Goal 13 keeps an authored fact
+every row alike, so GET is a ninth of the methods drawn. Goal 14 keeps an authored fact
 out of a sourced table, and no register publishes how often a method, a port or a TLD is
 used, so a weight here would be invented. Where one exists it is read, as
 `misc.timezone` reads GeoNames populations and `sv_SE.first-name` SCB bearers.
@@ -796,7 +796,7 @@ used, so a weight here would be invented. Where one exists it is read, as
 2026-09-24, Lilleman auf Larv.
 
 The weight is the population GeoNames records in the zone's cities of 15,000 or more,
-floored at 15,000, which goal 15 asks for: over 300 seeded draws of
+floored at 15,000, which goal 16 asks for: over 300 seeded draws of
 `misc.territory[US].timezone`, the four zones most Americans live in took 278 where an
 even weight gave them 44, and `America/Indiana/Petersburg`, a town of 2,400, fell from 17
 to 0. Valid while a draw weighted this way lands where people live.
@@ -845,7 +845,7 @@ with no separator. `misc.tld[se]` misses for it, which `todo.md` item 44 ends.
 2026-09-20, Lilleman auf Larv.
 
 A `parent` demands a child for every parent row, so linking them would drop every root
-zone row naming no territory, which is most of them, and goal 13 holds a sourced table
+zone row naming no territory, which is most of them, and goal 14 holds a sourced table
 whole. The loader refuses the link outright anyway: `tld` is a column of
 `misc.territory`, and a table may not be named like a column of its ancestor.
 
@@ -901,7 +901,7 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Goals 3 and 12: `drawSteps` draws every path from its steps, compiled at link by
+Goals 3 and 13: `drawSteps` draws every path from its steps, compiled at link by
 `pathCheck` or, for a caller's path, by `probePath` into a stack buffer. The check and
 the probe stay two loops: on 2026-09-29 one loop over all three walks, switching on a
 mode field, leaked the check's leaves and errors with the draw's pins, arm and memo,
