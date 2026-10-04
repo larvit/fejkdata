@@ -231,15 +231,15 @@ code for a sovereign one, or for one the register names no state for.
 SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
-`person` reads one draw of the three, so its `first` and `sex` columns agree, and so
-does a `personnummer` in the same render: its birth number, `sv_SE.birth-number`
-under `sex`, is Skatteverket's test series, 238 for a woman and 239 for a man, which no
-real person is ever given. `en_US.title` links to `sex` too, so a person's prefix
-never contradicts it.
+`person` binds one first name and reads its sex through it, `{.first-name as n}` and
+`{n..sex.name}`, so its `first` and `sex` columns agree. `en_US.title` links to `sex`
+too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
+`sv_SE.birth-number` under `sex`, is Skatteverket's test series, 238 for a woman and 239
+for a man, which no real person is ever given.
 
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name` — while a shipped `personnummer` agrees with the sex its own render
-*drew*, not with one a path selects. That test series is also small: a personnummer
+`last-name` — while a shipped `personnummer` draws its own sex, apart from any `person`
+beside it. That test series is also small: a personnummer
 is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
 fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
 your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
@@ -249,8 +249,9 @@ your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-3
 inside a sex.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
-[linked tables](#linked-tables) named alike, and an `address` record over one
-consistent draw of them, which the locale's `address` reads.
+[linked tables](#linked-tables) named alike, and an `address` record binding one street and
+reading its locality, postal code and region through it, which the locale's `address`
+binds once and prints whole.
 
 | Table | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|--------|
@@ -743,8 +744,8 @@ anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
 reference path the picked category reads is still held for the render as usual, so two names
-bound to `sv_SE.person`, whose fields read `{.first-name.name}` and `{.last-name.name}`, print
-the same first and last name unless their reads sit in two [draw groups](#draw-group).
+bound to `sv_SE.person`, whose `last` reads `{.last-name.name}`, print the same last name unless
+their reads sit in two [draw groups](#draw-group).
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category may read it, and a record's columns read one pick. Each render of the category picks

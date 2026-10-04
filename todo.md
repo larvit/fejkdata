@@ -70,7 +70,6 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
-| 3 | 0.1.0 | decision | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
@@ -225,16 +224,9 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-### 3. Rewrite the shipped categories so facts that belong together come from one named pick.
-
-- `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
-- `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once. They print it whole as `{a}`, so the country record's format appears once; revise the decision "A locale's `address` restates its country record's format".
-- Every shipped value must still pass its consumer's check before and after item 4.
-- Re-pin seeded output in its own commit.
-
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
 
-- Needs items 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Needs item 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
@@ -251,7 +243,7 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs items 71, 3, 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+Needs items 71, 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 71, 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 71. Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.
 

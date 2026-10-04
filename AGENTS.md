@@ -94,7 +94,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A country's postal codes and streets are siblings under its locality
 - A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own
 - The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
-- A locale's `address` restates its country record's format
+- A locale's `address` binds its country's record once and prints it whole
 - A postort's kommun comes from its name, its tätort or its codes, never from distance
 - A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places
 - `--list` stays a plain list of paths
@@ -119,4 +119,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
+- comprehension floor: every dimension and the overall at 7.0 or above; items 71, 4 and 90 ship with no scoring run, and item 5 scores them
