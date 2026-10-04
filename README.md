@@ -911,11 +911,12 @@ Where the project is heading; the sections before Audience document what ships t
       major version.
 6. **Mistakes are caught when the data loads, and the error says plainly what is
    wrong.**
+   1. A template that could render an invalid value fails to load instead.
 7. **One command gets you a value.**
    1. Flags work like in other command-line tools, and can go anywhere on the line.
    2. Your first template of your own needs no escaping and no options.
-8. **Data is JSON files. Code is only for what JSON can't express.**
-9. **The same seed always gives the same output.**
+8. **Data is JSON files and TSV tables. Code is only for what they can't express.**
+9. **The same seed and version always give the same output.**
 10. **It depends on nothing but Go's standard library.**
 11. **The docs are a map of the template language.**
     1. Every feature has its own heading.

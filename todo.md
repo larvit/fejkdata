@@ -32,6 +32,7 @@
 | 5.7 | 0.80 |
 | 5.8 | 0.80 |
 | 6 | 0.75 |
+| 6.1 | 0.75 |
 | 7 | 0.70 |
 | 7.1 | 0.70 |
 | 7.2 | 0.70 |
@@ -69,7 +70,7 @@
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
-| 81 | 0.2.0 | question | **Refuse at load every `calc` divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 4, 6 | 20.6 |
+| 81 | 0.2.0 | decision | **Refuse at load every `calc` divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
@@ -92,8 +93,6 @@
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 9 | 14.0 |
-| 85 | 0.2.0 | question | **Reword goal 9 to promise one output per seed and version, as the decision "Seeded output is promised within one version" reads it.** | 1 | 1 | 2 | 5 | 9 | 8.8 |
-| 84 | 0.2.0 | question | **Reword goal 8 so a table's rows in a TSV beside its JSON meet it, or end the decision "Rows live in a TSV, the shape in JSON".** | 1 | 1 | 1 | 6 | 8 | 8.6 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.** | 3 | 3 | 4 | 6 | 5.7 | 13.9 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -136,7 +135,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Decide the module boundaries (a locale, a country's `geo/` tree, `misc`) and how an imported module registers with `New`. Goal 2 says what ships where.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree and one for `misc`; and a library passes a module to `New`, `New(WithData(svse.Data))`, with no registry a module's import fills, per the technical principles' dependency injection and no package globals. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -265,7 +264,7 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 
 ### 81. Refuse at load every `calc` divisor not proven nonzero, in a string column too.
 
-The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, against goals 4 and 6; `valueproof.go` already proves a typed column's divisor nonzero. Changing the decision is the maintainer's call.
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, against goal 6.1; `valueproof.go` already proves a typed column's divisor nonzero. Revise the decision when this lands.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
@@ -343,14 +342,6 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
-
-### 85. Reword goal 9 to promise one output per seed and version, as the decision "Seeded output is promised within one version" reads it.
-
-Goal 9 says the same seed always gives the same output; the decision promises it within one version.
-
-### 84. Reword goal 8 so a table's rows in a TSV beside its JSON meet it, or end the decision "Rows live in a TSV, the shape in JSON".
-
-Goal 8 says data is JSON files, and the decision serves goal 12, which ranks below it. Proposed wording: "Data is JSON files, a table's rows a TSV beside them. Code is only for what JSON can't express."
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
