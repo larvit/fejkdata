@@ -48,7 +48,7 @@ array, one JSON object per line, one CSV row (after a header), or one INSERT.
       --list             list the paths the data offers, then exit
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the value N times, 1..1048576 (default 1)
-  -s, --seed N           seed for reproducible output
+  -s, --seed N           seed: the same seed, version and data give identical output
       --separator S      string between repeated values (default newline)
       --table T          the INSERT target for --format sql (default: the path's last segment, or records for an inline template)
       --version          print the version, then exit
