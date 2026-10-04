@@ -57,8 +57,8 @@ type config struct {
 // Option configures a [Generator].
 type Option func(*config)
 
-// WithSeed makes output reproducible: two generators with the same seed and data
-// emit identical sequences.
+// WithSeed makes output reproducible: two generators with the same seed, version and
+// data emit identical sequences.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
