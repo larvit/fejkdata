@@ -1,8 +1,8 @@
 {
-  "format": "{street-number} {street}\n{locality}, {region} {postal-code}",
-  "street": "{/geo.US.address.street}",
-  "street-number": "{/geo.US.address.street-number}",
-  "locality": "{/geo.US.address.locality}",
-  "region": "{/geo.US.address.region}",
-  "postal-code": "{/geo.US.address.postal-code}"
+  "format": "{/geo.US.address as a}{a}",
+  "street": "{a.street}",
+  "street-number": "{a.street-number}",
+  "locality": "{a.locality}",
+  "region": "{a.region}",
+  "postal-code": "{a.postal-code}"
 }

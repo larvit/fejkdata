@@ -1,7 +1,7 @@
 {
   "format": "{prefix}{first} {last}",
-  "first": "{.first-name.name}",
+  "first": "{.first-name as n}{n.name}",
   "last": "{.last-name.name}",
-  "prefix": [null, { "format": "{.title.name} ", "weight": 0.1 }],
-  "sex": "{.sex.name}"
+  "prefix": [null, { "format": "{n..sex.title.name} ", "weight": 0.1 }],
+  "sex": "{n..sex.name}"
 }
