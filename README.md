@@ -676,9 +676,10 @@ the SQL example above.
 ### Computation
 
 `{calc(expr)}` evaluates `+ - * /`, parentheses and unary minus over number
-literals and sibling field names, each rendered then read as a number; a second
-argument rounds to that many decimals. A hyphen is always subtraction, so a
-hyphenated field can't be an operand.
+literals, sibling field names and [names](#names), each rendered then read as a number;
+a second argument rounds to that many decimals. A name is the operand `{k}` prints:
+`{/n as k}{k} x 2 = {calc(k * 2)}` doubles the pick it shows. A hyphen is always
+subtraction, so a hyphenated field or name can't be an operand.
 
 ```json
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
@@ -770,7 +771,8 @@ Refused at `New`, each error naming what to write instead:
 - a binding of anything but a reference;
 - a binding in a choice's item, which every other item would leave unbound;
 - a binding nothing reads, or a binding of a whole category read once whole where it is
-  bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`;
+  bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`, while
+  `{/n as k}{calc(k * 2)}` stands, since a calc operand is no reference;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
 - reads of a name in two draw groups, or inside a `repeat` nested where the name is bound,

@@ -210,11 +210,9 @@ func (p *valueProof) proveTemplate(t *template) proven {
 }
 
 func (p *valueProof) proveCalc(t *template, body string, args []string) proven {
-	expr, err := parseCalc(args[0])
-	if err != nil {
-		panic(internalError("calc(%q) reached a proof unparsed: %v", args[0], err))
-	}
-	v, doubt := p.proveExpr(expr, t.fields)
+	expr := parsedCalc(args[0])
+	nodes := operandNodes(t, t.compiled.ops[0])
+	v, doubt := p.proveExpr(expr, func(name string) proven { return p.proveUnion(nodes(name)) })
 	if doubt == "" && !(magnitude(v) <= calcLimit) {
 		doubt = calcText(expr) + " is not proven within 1e300"
 	}
@@ -229,27 +227,27 @@ func (p *valueProof) proveCalc(t *template, body string, args []string) proven {
 const calcLimit = 1e300
 
 // proveExpr bounds a calc expression from its operands, or says why it cannot.
-func (p *valueProof) proveExpr(n calcNode, fields map[string]node) (proven, string) {
+func (p *valueProof) proveExpr(n calcNode, operand func(name string) proven) (proven, string) {
 	switch n := n.(type) {
 	case calcNum:
 		v := float64(n)
 		return bounded(v, v, v == math.Trunc(v)), ""
 	case calcVar:
-		v := p.prove(fields[string(n)])
+		v := operand(string(n))
 		if v.notOperand != "" {
 			return proven{}, fmt.Sprintf("operand %q: %s", string(n), v.notOperand)
 		}
 		return proven{lo: v.lo, hi: v.hi, nonZero: v.nonZero, integral: v.integral}, ""
 	case calcNeg:
-		v, doubt := p.proveExpr(n.x, fields)
+		v, doubt := p.proveExpr(n.x, operand)
 		v.lo, v.hi = -v.hi, -v.lo
 		return v, doubt
 	case calcBin:
-		l, doubt := p.proveExpr(n.l, fields)
+		l, doubt := p.proveExpr(n.l, operand)
 		if doubt != "" {
 			return l, doubt
 		}
-		r, doubt := p.proveExpr(n.r, fields)
+		r, doubt := p.proveExpr(n.r, operand)
 		if doubt != "" {
 			return r, doubt
 		}
