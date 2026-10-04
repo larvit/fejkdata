@@ -19,7 +19,7 @@ func withTransforms(calls map[string]builtin) map[string]builtin {
 		if _, clash := calls[name]; clash {
 			panic(internalError("%s is registered as a builtin and a transform", name))
 		}
-		calls[name] = builtin{arity: 1, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand}
+		calls[name] = builtin{arity: 1, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand, refOperands: true}
 	}
 	return calls
 }

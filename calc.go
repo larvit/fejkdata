@@ -91,22 +91,21 @@ func checkCalcNames(path string, t *template) error {
 		if o.fn != "calc" || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
 			continue
 		}
-		if err := checkOperands(o.args[0], parsedCalc(o.args[0]), operandNodes(t, o)); err != nil {
+		if err := checkOperands(o.args[0], parsedCalc(o.args[0]), operandNodes(o)); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
 		}
 	}
 	return nil
 }
 
-// operandNodes lists every node each operand of o may render: its field, or each node its name's
-// path lands on.
-func operandNodes(t *template, o op) func(name string) []node {
+// operandNodes lists every node each operand of o may render, once linkNames compiled the names.
+func operandNodes(o op) func(name string) []node {
 	return func(name string) []node {
-		i := slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })
-		if a := o.operands[i]; a.kind == namedRead {
-			return a.leaves
+		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })]
+		if len(a.leaves) == 0 {
+			panic(internalError("calc operand %q was read before it was compiled", name))
 		}
-		return []node{t.fields[name]}
+		return a.leaves
 	}
 }
 
@@ -114,7 +113,7 @@ func operandNodes(t *template, o op) func(name string) []node {
 // operand lists every node an operand may render, nil while that is unknown.
 func checkOperands(text string, expr calcNode, operand func(name string) []node) error {
 	for _, name := range calcVars(expr) {
-		if rendered, never := neverNumber(operand(name)); never {
+		if rendered, never := noneNumeric(operand(name)); never {
 			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", text, name, rendered)
 		}
 	}
@@ -208,13 +207,13 @@ func neverNumeric(n node) (text string, never bool) {
 			return lit, true
 		}
 	case *choice:
-		return neverNumber(n.items)
+		return noneNumeric(n.items)
 	}
 	return "", false
 }
 
-// neverNumber reports nodes no render of which is a number, and none where there are none.
-func neverNumber(nodes []node) (text string, never bool) {
+// noneNumeric reports nodes no render of which is a number, and none where there are none.
+func noneNumeric(nodes []node) (text string, never bool) {
 	for _, n := range nodes {
 		t, nodeNever := neverNumeric(n)
 		if !nodeNever {
@@ -420,8 +419,8 @@ func (p *calcParser) number() (calcNode, error) {
 	return calcNum(v), nil
 }
 
-// ident reads a field name: a letter or '_', then letters, digits or '_'. A '-'
-// is always the minus operator, so a hyphenated field name can't be an operand.
+// ident reads a field or name: a letter or '_', then letters, digits or '_'. A '-'
+// is always the minus operator, so a hyphenated one can't be an operand.
 func (p *calcParser) ident() (calcNode, error) {
 	start := p.pos
 	for p.pos < len(p.rs) {
