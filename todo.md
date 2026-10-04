@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 91`
+`Next ID = 93`
 
 | Goal | W |
 |---|---|
@@ -74,6 +74,7 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{calc(t.population * 2)}` computes from the row `{t}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 90 | 0.1.0 |  | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
@@ -87,6 +88,7 @@
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
+| 92 | 0.2.0 |  | **Name the rename in a `calc`'s refusal of a hyphenated operand, which today reports `no field or name "calling"` for `{calc(calling-code * 2)}`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
@@ -229,7 +231,7 @@ Shape: T = table, t = template, c = choice.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's Computation, References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
-- Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
+- Keeps `{/n as k}{calc(k * 2)}` loading, since a calc operand cannot be a reference. Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
 - Say how a record's columns and a struct's tags read one pick, so the `first` and `sex` columns of one `sv_SE.person` record, or one struct's tags reading them, still describe one person.
 - Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
 
@@ -244,6 +246,10 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
 Needs items 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+
+### 91. Accept a path through a name as a `calc` operand, so `{calc(t.population * 2)}` computes from the row `{t}` prints.
+
+A calc operand parses as a bare identifier, so `{/misc.territory as t}{calc(t.population * 2)}` fails with `unexpected ".population"`, and no binding can hold the column alone beside the row. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -309,6 +315,10 @@ Needs item 4.
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
+
+### 92. Name the rename in a `calc`'s refusal of a hyphenated operand, which today reports `no field or name "calling"` for `{calc(calling-code * 2)}`.
+
+A hyphen is always subtraction in a calc, and the shipped data is full of hyphenated fields (`calling-code`, `birth-number`). The refusal names the first fragment, not the field the author meant.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 

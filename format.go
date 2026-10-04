@@ -133,6 +133,9 @@ type builtin struct {
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
+	// refOperands says an operand may be a reference, so a name read once there has the bare
+	// reference as a second spelling.
+	refOperands bool
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
@@ -215,10 +218,11 @@ func parseChecked(format string, fields map[string]node) ([]formatToken, []unbou
 
 // unboundRead is a token reading a head no field holds, which only a name bound around the
 // template can answer; err is the refusal where none does. tail is the path read into the name,
-// "" for the name itself, operand marks a builtin's read of it, and body is the token's.
+// "" for the name itself, operand marks a builtin's read of it, noRef one where no reference can
+// stand, and body is the token's.
 type unboundRead struct {
 	head, tail, body string
-	operand          bool
+	operand, noRef   bool
 	err              error
 }
 
@@ -277,7 +281,7 @@ func checkReads(t formatToken, fields map[string]node, operands bool) ([]unbound
 			return nil, err
 		}
 		a := splitArm(name, nil)
-		unbound = append(unbound, unboundRead{head: a.head, tail: joinSegments(a.tail), body: t.body, operand: operands, err: err})
+		unbound = append(unbound, unboundRead{head: a.head, tail: joinSegments(a.tail), body: t.body, operand: operands, noRef: operands && !builtins[t.fn].refOperands, err: err})
 	}
 	return unbound, nil
 }

@@ -26,11 +26,15 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
-// checkUses refuses a binding of a category read once whole, outside a calc, which takes no reference, and reads of b in two draw groups,
-// or inside a repeat, where what b names reads a reference path.
+// checkUses refuses a binding of a category read once whole where a reference could stand. It
+// refuses reads of b in two draw groups, or inside a repeat, where what b names reads a reference path.
 func (b *nameBinding) checkUses() error {
-	if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested && !r.operand && len(b.tail) == 0 {
-		return fmt.Errorf("name %q is read once, whole, which the bare reference draws the same way; write {%s} where it is read, and drop the token", b.name, b.ref)
+	if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested && !r.noRef && len(b.tail) == 0 {
+		spelling := b.ref
+		if !r.operand {
+			spelling = "{" + spelling + "}"
+		}
+		return fmt.Errorf("name %q is read once, whole, which the bare reference draws the same way; write %s where it is read, and drop the token", b.name, spelling)
 	}
 	if !readsHeld(b.head, map[node]bool{}) {
 		return nil

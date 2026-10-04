@@ -77,7 +77,7 @@ func linkRefs(sites []categorySite, root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	for _, pass := range []func(string, *template) error{linkNames, checkNameReads, checkCalcNames} {
+	for _, pass := range namePasses {
 		if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return pass(path, t) }); err != nil {
 			return err
 		}

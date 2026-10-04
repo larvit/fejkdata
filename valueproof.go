@@ -200,7 +200,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 		}
 		return p.proveUnion(leaves)
 	case name == "calc":
-		return p.proveCalc(t, body, args)
+		return p.proveCalc(o)
 	case builtins[name].proveNumber != nil:
 		return builtins[name].proveNumber(body, builtins[name].prints, args)
 	case isTransform:
@@ -209,9 +209,10 @@ func (p *valueProof) proveTemplate(t *template) proven {
 	return printing(body, DataTypeString, proven{notOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
-func (p *valueProof) proveCalc(t *template, body string, args []string) proven {
+func (p *valueProof) proveCalc(o op) proven {
+	body, args := o.body, o.args
 	expr := parsedCalc(args[0])
-	nodes := operandNodes(t, t.compiled.ops[0])
+	nodes := operandNodes(o)
 	v, doubt := p.proveExpr(expr, func(name string) proven { return p.proveUnion(nodes(name)) })
 	if doubt == "" && !(magnitude(v) <= calcLimit) {
 		doubt = calcText(expr) + " is not proven within 1e300"

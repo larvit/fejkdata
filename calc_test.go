@@ -317,7 +317,7 @@ func TestCalcReadsANameItReadsNowhereElse(t *testing.T) {
 	}
 }
 
-func TestCalcRefusesANameNeverANumber(t *testing.T) {
+func TestCalcRefusesABadOperand(t *testing.T) {
 	for card, want := range map[string]string{
 		`"{/word as w}{w}{calc(w * 2)}"`:    `operand "w" is never a number: it renders "def"`,
 		`"{/zero as z}{z}{calc(1 / z)}"`:    `divides by z, which is always zero`,
@@ -338,7 +338,6 @@ func TestCalcRefusesANameNeverANumber(t *testing.T) {
 func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"n":     `"{int(1,9)}"`,
-		"word":  `["1","x"]`,
 		"order": `{"format":"{/n as k}{k}","double":{"format":"{calc(k * 2)}","datatype":"integer"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))

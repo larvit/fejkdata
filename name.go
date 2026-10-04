@@ -34,11 +34,11 @@ type nameBinding struct {
 }
 
 // nameUse is one read of a name: the path it reads into the name, "" for the name itself; whether
-// a builtin reads it as an operand; the draw group its template renders in; and whether it sits in
-// a repeat nested inside the name's scope.
+// a builtin reads it as an operand, and whether that operand can be no reference; the draw group
+// its template renders in; and whether it sits in a repeat nested inside the name's scope.
 type nameUse struct {
-	tail, group     string
-	operand, nested bool
+	tail, group            string
+	operand, noRef, nested bool
 }
 
 func (sc *nameScope) lookup(name string) *nameBinding {
@@ -184,7 +184,7 @@ func resolveReads(n node, where, group string, scopes []*nameScope) error {
 		if b == nil {
 			return unresolved(where, u, t.nameScope, scopes)
 		}
-		b.uses = append(b.uses, nameUse{tail: u.tail, group: group, operand: u.operand, nested: t.nameScope != b.scope})
+		b.uses = append(b.uses, nameUse{tail: u.tail, group: group, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
 	}
 	return nil
 }
@@ -249,6 +249,10 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 	}
 	return nil
 }
+
+// namePasses run over every linked template in turn, each over all of them before the next: a pass
+// reads what the one before it filled in.
+var namePasses = []func(path string, t *template) error{linkNames, checkNameReads, checkCalcNames}
 
 // linkNames compiles t's reads of a name as paths from the head its binding's reference names, once
 // every template is linked, so each binder has resolved that reference.
