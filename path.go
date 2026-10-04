@@ -137,11 +137,11 @@ func hasSelector(segs []string) bool {
 
 func selectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
-// nameSegments is the segments of a path that are names, its selectors left out.
+// nameSegments is the segments of a path that are names, its selectors and ".." left out.
 func nameSegments(segs []string) []string {
 	out := segs[:0:0]
 	for _, s := range segs {
-		if !isSelector(s) {
+		if !isSelector(s) && s != ".." {
 			out = append(out, s)
 		}
 	}
@@ -157,7 +157,7 @@ func stepInto(n node, seg string) (node, error) {
 		if c, ok := n.(*tableColumn); ok {
 			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.t.header[c.i])
 		}
-		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table; step up only from a table`)
+		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table; a path names every other level from the data root down`)
 	}
 	switch n := n.(type) {
 	case *folder:
@@ -170,6 +170,9 @@ func stepInto(n node, seg string) (node, error) {
 			return child, nil
 		}
 	case *tableColumn:
+		if n.i == n.t.parentIndex {
+			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.t.header[n.i], n.t.header[n.i], seg)
+		}
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.t.header[n.i])
 	case *nullItem:
 	default:
@@ -230,12 +233,27 @@ func (t *table) stepUp(rest []string) error {
 	switch {
 	case t.parentT == nil:
 		return fmt.Errorf(`%s has no parent table for ".." to step up to`, t.segment)
+	case len(rest) > 0 && rest[0] == "":
+		return fmt.Errorf("path has an empty segment")
 	case len(rest) == 0 || rest[0] != t.parentT.segment:
-		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: ..%s`, t.segment, t.parentT.segment)
+		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: %s`, t.segment, t.climbTo(rest))
 	case hasSelector(rest):
 		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; select from the table instead, its path from the data root: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
 	}
 	return nil
+}
+
+// climbTo spells the ".." steps from t up to the ancestor rest names first, or the one step to
+// t's parent where no ancestor is named.
+func (t *table) climbTo(rest []string) string {
+	var b strings.Builder
+	for a := t.parentT; a != nil; a = a.parentT {
+		b.WriteString(".." + a.segment)
+		if len(rest) > 0 && a.segment == rest[0] {
+			return b.String()
+		}
+	}
+	return ".." + t.parentT.segment
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it

@@ -310,6 +310,17 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	if !afresh["L4"] || !afresh["L7"] || !afresh["record L4"] || !afresh["record L7"] {
 		t.Fatalf("locality[L4]..municipality.locality.code drew only %v in 200 renders, want a locality of Lund drawn afresh", afresh)
 	}
+	var tagged struct {
+		M string `fake:"locality[L4]..municipality.name"`
+	}
+	if err := f.FakeStruct(&tagged); err != nil || tagged.M != "Lund" {
+		t.Errorf("a struct tag stepping up = %q, %v; want Lund", tagged.M, err)
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{
+		"x.json": `"{/locality..municipality.code}|{/locality[L1].name}"`,
+	})))); err == nil || !strings.Contains(err.Error(), "{/locality[L1]..municipality.code}") {
+		t.Errorf("New = %v, want the fence to name {/locality[L1]..municipality.code}", err)
+	}
 	for _, p := range f.List() {
 		if strings.Contains(p, "..") {
 			t.Fatalf("List() advertises %q; it lists direct descents only", p)
@@ -323,6 +334,9 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"region[12]..municipality.name":    "no parent",
 		"locality[L4]..":                   "..municipality",
 		"locality[L4]..municipality[0180]": "municipality[0180]",
+		"locality[L4]..region":             "..municipality..region",
+		"locality[L4]...municipality":      "empty segment",
+		"locality[L4].municipality.name":   "..municipality.name",
 		"locality[L4].name..municipality":  "column",
 		"x..y":                             "not a table",
 	} {
@@ -337,6 +351,9 @@ func TestTableStepUpRefusals(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
 		}
+	}
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "not a table") {
+		t.Errorf("{a..b} on a field: New = %v, want an error mentioning not a table", err)
 	}
 }
 

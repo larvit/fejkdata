@@ -232,8 +232,8 @@ func drawsApart(x, y pathRead) error {
 		if s.t != x.tr.headTable {
 			tail = append([]string{x.tr.headTable.segment}, tail...)
 		}
-		return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s.%s}, or draw them apart with a drawGroup",
-			x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling), s.spelling, joinSegments(tail))
+		return fmt.Errorf("%s draws %s, which %s selects a row of; write {%s}, or draw them apart with a drawGroup",
+			x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling), joinSegments(append([]string{s.spelling}, tail...)))
 	}
 	return fmt.Errorf("%s draws %s, which %s selects a row of; select that row in both, or draw them apart with a drawGroup",
 		x.route.spelled(x.a.spelling), drawn.segment, y.route.spelled(y.a.spelling))
