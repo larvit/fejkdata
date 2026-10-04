@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"io/fs"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -328,13 +330,43 @@ func TestShippedPersonHasParts(t *testing.T) {
 	}
 }
 
+// NANPA's central office code records mark N11, 555, 950, 958, 959 and 976 unassignable.
 func TestShippedUSPhone(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(11))
-	re := regexp.MustCompile(`^(\(\d{3}\) \d{3}-\d{4}|\d{3}-\d{3}-\d{4})$`)
-	for i := 0; i < 50; i++ {
-		if n := fake(t, f, "en_US.phone"); !re.MatchString(n) {
+	re := regexp.MustCompile(`^(?:\(\d{3}\) |\d{3}-)([2-9]\d{2})-\d{4}$`)
+	unassignable := map[string]bool{"555": true, "950": true, "958": true, "959": true, "976": true}
+	for i := 0; i < 2000; i++ {
+		n := fake(t, f, "en_US.phone")
+		m := re.FindStringSubmatch(n)
+		if m == nil {
 			t.Fatalf("phone %q does not match %s", n, re)
 		}
+		if exch := m[1]; exch[1:] == "11" || unassignable[exch] {
+			t.Fatalf("phone %q has the unassignable exchange %s", n, exch)
+		}
+	}
+}
+
+func TestShippedTableCellsAreTrimmed(t *testing.T) {
+	err := fs.WalkDir(os.DirFS("data"), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || !strings.HasSuffix(path, ".tsv") {
+			return err
+		}
+		b, err := fs.ReadFile(os.DirFS("data"), path)
+		if err != nil {
+			return err
+		}
+		for i, line := range strings.Split(string(b), "\n") {
+			for _, cell := range strings.Split(line, "\t") {
+				if cell != strings.TrimSpace(cell) {
+					t.Errorf("data/%s:%d: cell %q is padded", path, i+1, cell)
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
