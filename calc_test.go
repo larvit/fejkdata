@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -287,5 +288,75 @@ func TestCalcCompileErrors(t *testing.T) {
 		if _, err := linked(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
 		}
+	}
+}
+
+func TestCalcReadsAName(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"n":    `["2","3","5","7"]`,
+		"card": `"{/n as k}{k} x 2 = {calc(k * 2)}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for i := 0; i < 50; i++ {
+		var k, double int
+		got := fake(t, f, "card")
+		if _, err := fmt.Sscanf(got, "%d x 2 = %d", &k, &double); err != nil || double != k*2 {
+			t.Fatalf("card = %q, want the calc to compute from the pick {k} prints", got)
+		}
+	}
+}
+
+func TestCalcReadsANameItReadsNowhereElse(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"n":    `["2","3"]`,
+		"card": `"{/n as k}{calc(k * 2)}"`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	if got := fake(t, f, "card"); got != "4" && got != "6" {
+		t.Fatalf("card = %q, want 4 or 6", got)
+	}
+}
+
+func TestCalcRefusesANameNeverANumber(t *testing.T) {
+	for card, want := range map[string]string{
+		`"{/word as w}{w}{calc(w * 2)}"`:    `operand "w" is never a number: it renders "def"`,
+		`"{/zero as z}{z}{calc(1 / z)}"`:    `divides by z, which is always zero`,
+		`"{calc(nope * 2)}"`:                `no field "nope"`,
+		`"{/word as w}{w}{calc(nope * 2)}"`: `no field or name "nope"; the names bound here are "w"`,
+	} {
+		dir := writeData(t, map[string]string{
+			"word": `["abc","def"]`,
+			"zero": `"0"`,
+			"card": card,
+		})
+		if _, err := New(WithDataPath(dir), WithSeed(1)); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("New with card %s = %v, want an error containing %q", card, err, want)
+		}
+	}
+}
+
+func TestATypedColumnProvesACalcOverAName(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"n":     `"{int(1,9)}"`,
+		"word":  `["1","x"]`,
+		"order": `{"format":"{/n as k}{k}","double":{"format":"{calc(k * 2)}","datatype":"integer"}}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	r, err := f.FakeRecord("order")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v, err := strconv.Atoi(r.Columns()[0].Value); err != nil || v < 2 || v > 18 || v%2 != 0 {
+		t.Fatalf("double = %q, want an even integer in 2..18", r.Columns()[0].Value)
+	}
+	if !strings.Contains(r.JSON(), `"double":`+r.Columns()[0].Value) {
+		t.Fatalf("JSON = %s, want double written as a number", r.JSON())
+	}
+	bad := writeData(t, map[string]string{
+		"word":  `["1","x"]`,
+		"order": `{"format":"{/word as w}{w}","double":{"format":"{calc(w * 2)}","datatype":"integer"}}`,
+	})
+	if _, err := New(WithDataPath(bad), WithSeed(1)); err == nil || !strings.Contains(err.Error(), `operand "w": "x" is not a number`) {
+		t.Fatalf("New = %v, want the typed column refused over an operand that is not always a number", err)
 	}
 }
