@@ -588,8 +588,8 @@ It steps up from a selected row, a drawn row or a [name](#names) bound to a row,
 per `..`: `{l..municipality..region.name}`. `.country` after a row still reads the link
 column's cell, `NO`.
 
-After a `..`, `.` steps down again, drawing afresh inside the row stepped up to, apart from
-the row the path stepped up from. Paths stepping down from one `..` read one draw, as one
+After a `..`, `.` steps down again, drawing afresh inside the row stepped up to,
+independent of the row the path stepped up from, which it may draw again. Paths stepping down from one `..` read one draw, as one
 reference path does: `{/city..country.city.name}` and `{/city..country.city.population}`
 describe one city, within a render and [draw group](#draw-group), or within a name's pick.
 
