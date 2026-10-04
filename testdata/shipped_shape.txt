@@ -30,7 +30,8 @@ en_US.person.first	string
 en_US.person.last	string
 en_US.person.prefix	string null
 en_US.person.sex	string
-en_US.phone
+en_US.phone	reads en_US.phone-exchange
+en_US.phone-exchange
 en_US.phone.area
 en_US.phone.exch
 en_US.phone.line
