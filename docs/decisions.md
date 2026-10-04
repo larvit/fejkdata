@@ -657,17 +657,16 @@ trees.
 
 Withdrawn by the maintainer on 2026-10-03; `todo.md` item 78 replaces it.
 
-## A locale's `address` restates its country record's format
+## A locale's `address` binds its country's record once and prints it whole
 
-2026-09-18, Lilleman auf Larv.
+2026-09-18, Lilleman auf Larv; revised 2026-10-05. Goal 4.1.
 
 A record cannot read another whole and keep its columns, so `sv_SE.address` names the
-same four columns as `geo.SE.address`, each a reference into it, and the format appears
-twice; a column is spelled the same in both, `street-number`, so the two never disagree
-on a name.
-
-`todo.md` item 3 revises this decision: the locale `address` prints `{a}` whole, so the
-format appears once.
+same four columns as `geo.SE.address`. Each reads one name, `{/geo.SE.address as a}`,
+which the format prints whole as `{a}`, so the country's format is written once and
+every column describes the address printed. A column is spelled the same in both,
+`street-number`, so the two never disagree on a name. Valid while a record cannot read
+another whole and keep its columns.
 
 ## A postort's kommun comes from its name, its tätort or its codes, never from distance
 
@@ -927,6 +926,6 @@ the render.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
+## comprehension floor: every dimension and the overall at 7.0 or above; items 71, 4 and 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 71, 3, 4 and 90 are the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 71, 4 and 90 finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
