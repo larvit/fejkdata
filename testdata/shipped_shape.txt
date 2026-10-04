@@ -73,7 +73,7 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
-geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.street
+geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality
 geo.SE.address.locality	string
 geo.SE.address.postal-code	string
 geo.SE.address.street	string
@@ -139,7 +139,7 @@ geo.SE.street	format "{name}"	weight segments	parent locality
 geo.SE.street.locality	string
 geo.SE.street.name	string
 geo.SE.street.segments	string
-geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.street
+geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality
 geo.US.address.locality	string
 geo.US.address.postal-code	string
 geo.US.address.region	string
