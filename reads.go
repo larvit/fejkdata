@@ -230,7 +230,7 @@ func (r readRoute) spelled(ref string) string {
 type tableRead struct {
 	headTable *table
 	pins      pinSet
-	leafPins  *pinSet // the rows the leaf renders in: pins, short of the rows below a step up
+	leafPins  *pinSet // the rows the leaf renders in: pins, short of the rows a step down after a step up draws afresh
 	drawn     map[*table]bool
 	sels      []tableSel
 	landsRow  bool
@@ -253,27 +253,29 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 	r := &tableRead{headTable: t}
 	r.leafPins = &r.pins
 	_, r.landsRow = leaf.(*tableRow)
-	climbed := false
+	var climbed *table
 	for _, st := range a.steps {
-		if climbed && st.kind != stepChild && st.kind != stepParent {
-			continue
-		}
 		switch st.kind {
 		case stepParent:
-			t, climbed = t.parentT, true
-			r.leafPins = r.leafPins.above(t)
+			t, climbed = t.parentT, t.parentT
+		case stepChild:
+			if climbed != nil {
+				r.leafPins, climbed = r.leafPins.above(climbed), nil
+			}
+			t = t.descendant(st.name)
 		case stepSelect:
 			r.pins.pin(t, st.row)
 			r.sels = append(r.sels, tableSel{t, joinSegments(append([]string{a.writtenHead}, a.tail[:st.at+1]...))})
 		case stepDraw:
+			if r.leafPins != &r.pins {
+				continue // a step down after a step up draws apart from the render's pins
+			}
 			if r.drawn == nil {
 				r.drawn = map[*table]bool{}
 			}
 			for d, stop := t, r.pins.nearestPinned(t); d != stop; d = d.parentT {
 				r.drawn[d] = true
 			}
-		case stepChild:
-			t = t.descendant(st.name)
 		}
 	}
 	return r

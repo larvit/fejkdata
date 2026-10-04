@@ -585,11 +585,17 @@ fejkdata -d ./mydata '{/city as c}{c}, {c..country.name}'  # Oslo, Norway
 ```
 
 It steps up from a selected row, a drawn row or a [name](#names) bound to a row, one level
-per `..`: `{l..municipality..region.name}`. After it, `.` steps down again, drawing
-inside the row stepped up to. `.country` after a row still reads the link column's cell,
-`NO`. A `..` that names anything but the parent table is an error naming the parent, and
-so is a selector after a `..`, which could name a row outside the one stepped up to:
-select rows before the `..`. `--list` advertises no path with a `..`. At the start of a
+per `..`: `{l..municipality..region.name}`. `.country` after a row still reads the link
+column's cell, `NO`.
+
+After a `..`, `.` steps down again, drawing afresh inside the row stepped up to, apart from
+the row the path stepped up from. Paths stepping down from one `..` read one draw, as one
+reference path does: `{/city..country.city.name}` and `{/city..country.city.population}`
+describe one city, within a render and [draw group](#draw-group), or within a name's pick.
+
+A `..` that names anything but the parent table is an error naming the parent. A selector
+after a `..` is an error naming the table to select from, since it could name a row outside
+the one stepped up to. `--list` advertises no path with a `..`. At the start of a
 reference, `..` is the folder above ([References](#references)).
 
 ### Options and fields

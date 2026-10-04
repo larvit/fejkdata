@@ -152,15 +152,17 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 }
 
 // tableRecord walks a path's tail from a table to the table whose row is the record,
-// pinning the rows it selects or draws.
+// pinning in sc the rows it selects or draws.
 func tableRecord(s *generatorState, t *table, tail []string, sc renderScope) (node, error) {
-	n, err := descend(s, t, tail, sc)
+	n, pins, err := descend(s, t, tail)
 	if err != nil {
 		return nil, err
 	}
+	group := sc.groupDraws()
+	group.pins = pins
 	switch n := n.(type) {
 	case *table:
-		n.drawIn(s, &sc.groupDraws().pins)
+		n.drawIn(s, &group.pins)
 		return n, nil
 	case *tableRow:
 		return n.t, nil
