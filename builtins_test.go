@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -444,6 +445,17 @@ func TestArgErrorsNameTheSpelling(t *testing.T) {
 	} {
 		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
+		}
+	}
+}
+
+func TestNoRefOperandsMatchesTheOperandGrammar(t *testing.T) {
+	for name, b := range builtins {
+		if b.operands == nil {
+			continue
+		}
+		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), isRef); b.noRefOperands == takesRef {
+			t.Errorf("%s: noRefOperands = %v, but its operands func reads a reference: %v", name, b.noRefOperands, takesRef)
 		}
 	}
 }

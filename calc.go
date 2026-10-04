@@ -98,7 +98,7 @@ func checkCalcNames(path string, t *template) error {
 	return nil
 }
 
-// operandNodes lists every node each operand of o may render, once linkNames compiled the names.
+// operandNodes lists every node each operand of o may render, once its template and names link.
 func operandNodes(o op) func(name string) []node {
 	return func(name string) []node {
 		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })]
@@ -113,7 +113,7 @@ func operandNodes(o op) func(name string) []node {
 // operand lists every node an operand may render, nil while that is unknown.
 func checkOperands(text string, expr calcNode, operand func(name string) []node) error {
 	for _, name := range calcVars(expr) {
-		if rendered, never := noneNumeric(operand(name)); never {
+		if rendered, never := allNeverNumeric(operand(name)); never {
 			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", text, name, rendered)
 		}
 	}
@@ -207,13 +207,13 @@ func neverNumeric(n node) (text string, never bool) {
 			return lit, true
 		}
 	case *choice:
-		return noneNumeric(n.items)
+		return allNeverNumeric(n.items)
 	}
 	return "", false
 }
 
-// noneNumeric reports nodes no render of which is a number, and none where there are none.
-func noneNumeric(nodes []node) (text string, never bool) {
+// allNeverNumeric reports nodes no render of which is a number, and none where there are none.
+func allNeverNumeric(nodes []node) (text string, never bool) {
 	for _, n := range nodes {
 		t, nodeNever := neverNumeric(n)
 		if !nodeNever {

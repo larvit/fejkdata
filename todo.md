@@ -231,7 +231,7 @@ Shape: T = table, t = template, c = choice.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's Computation, References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
-- Keeps `{/n as k}{calc(k * 2)}` loading, since a calc operand cannot be a reference. Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
+- Keeps a name read once where no reference can stand, such as `{/n as k}{calc(k * 2)}`, loading. Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
 - Say how a record's columns and a struct's tags read one pick, so the `first` and `sex` columns of one `sv_SE.person` record, or one struct's tags reading them, still describe one person.
 - Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
 
@@ -249,7 +249,7 @@ Needs items 4 and 90. The decision "comprehension floor: every dimension and the
 
 ### 91. Accept a path through a name as a `calc` operand, so `{calc(t.population * 2)}` computes from the row `{t}` prints.
 
-A calc operand parses as a bare identifier, so `{/misc.territory as t}{calc(t.population * 2)}` fails with `unexpected ".population"`, and no binding can hold the column alone beside the row. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+Needs item 4. A calc operand parses as a bare identifier, so `{/misc.territory as t}{calc(t.population * 2)}` fails with `unexpected ".population"`, and no binding can hold the column alone beside the row. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
