@@ -144,7 +144,7 @@ func pinBelow(reads []pathRead, tr *tableRead) []pathRead {
 	kept := reads[:0:0]
 	for _, r := range reads {
 		pins := r.branches.pins.clone()
-		if err := tr.replay(&pins); err != nil {
+		if err := tr.replayBelow(&pins); err != nil {
 			continue
 		}
 		if r.tr != nil && r.clash == nil {
@@ -230,6 +230,7 @@ func (r readRoute) spelled(ref string) string {
 type tableRead struct {
 	headTable *table
 	pins      pinSet
+	leafPins  *pinSet // the rows the leaf renders in: pins, short of the rows below a step up
 	drawn     map[*table]bool
 	sels      []tableSel
 	landsRow  bool
@@ -250,9 +251,17 @@ func tableReadOf(head node, a arm, leaf node) *tableRead {
 		return nil
 	}
 	r := &tableRead{headTable: t}
+	r.leafPins = &r.pins
 	_, r.landsRow = leaf.(*tableRow)
+	climbed := false
 	for _, st := range a.steps {
+		if climbed && st.kind != stepChild && st.kind != stepParent {
+			continue
+		}
 		switch st.kind {
+		case stepParent:
+			t, climbed = t.parentT, true
+			r.leafPins = r.leafPins.above(t)
 		case stepSelect:
 			r.pins.pin(t, st.row)
 			r.sels = append(r.sels, tableSel{t, joinSegments(append([]string{a.writtenHead}, a.tail[:st.at+1]...))})
@@ -294,9 +303,14 @@ func (r *tableRead) drawnOf(pins *pinSet) *table {
 }
 
 // replay pins the read's rows into d, where they agree with the rows pinned before.
-func (r *tableRead) replay(d *pinSet) error {
+func (r *tableRead) replay(d *pinSet) error { return replayPins(&r.pins, d) }
+
+// replayBelow pins into d the rows the read's leaf renders in.
+func (r *tableRead) replayBelow(d *pinSet) error { return replayPins(r.leafPins, d) }
+
+func replayPins(from, d *pinSet) error {
 	var err error
-	r.pins.each(func(t *table, row int) {
+	from.each(func(t *table, row int) {
 		if err == nil {
 			err = d.pinRow(t, row)
 		}

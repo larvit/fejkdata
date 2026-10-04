@@ -48,7 +48,12 @@ func descend(s *generatorState, root node, segments []string, sc renderScope) (n
 	if err != nil {
 		return nil, err
 	}
-	return drawSteps(s, root, steps, &sc.groupDraws().pins, nil, nil), nil
+	group := sc.groupDraws()
+	n, pins := drawSteps(s, root, steps, &group.pins, nil, nil)
+	// A caller's path is its render's first draw, so the rows a step down after a step up drew
+	// are all the render pins.
+	group.pins = *pins
+	return n, nil
 }
 
 // renderOnce renders n as one render, over draws of its own.
@@ -209,10 +214,10 @@ func readMemo(s *generatorState, t *template, memo *drawMemo, pins *pinSet, sc r
 	if r, done := memo.value[a.path]; done {
 		return r
 	}
-	leaf := drawSteps(s, t.head(a.head), a.steps, pins, memo, a.levels)
+	leaf, leafPins := drawSteps(s, t.head(a.head), a.steps, pins, memo, a.levels)
 	mark := -1
 	if pins != nil {
-		sc, mark = sc.at(leaf, pins).enter(leaf, memo)
+		sc, mark = sc.at(leaf, leafPins).enter(leaf, memo)
 	}
 	r := renderLeaf(s, leaf, sc)
 	if mark >= 0 {

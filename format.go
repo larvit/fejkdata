@@ -435,7 +435,7 @@ func pathArm(name, head, writtenHead string, segs []string) arm {
 	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
 }
 
-// checkSegments rejects an unfinished path: "{a.}" and "{a..b}" each have a
+// checkSegments rejects an unfinished path: "{a.}" and "{a...b}" each have a
 // segment naming nothing. A field really named "" would otherwise make them
 // resolve, so a typo would read as a path that worked.
 func checkSegments(a arm) error {

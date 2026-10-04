@@ -154,6 +154,17 @@ func (p *pinSet) inside(t *table, rows []int) []int {
 	return rows
 }
 
+// above is a pin set holding the rows p pins of t and its ancestors, and none below them.
+func (p *pinSet) above(t *table) *pinSet {
+	q := new(pinSet)
+	for ; t != nil; t = t.parentT {
+		if r, ok := p.pinned(t); ok {
+			q.add(t, r)
+		}
+	}
+	return q
+}
+
 // clone is a copy of p that pins apart from it; a plain copy shares the spill map.
 func (p pinSet) clone() pinSet {
 	p.spill = maps.Clone(p.spill)
