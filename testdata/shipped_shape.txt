@@ -33,7 +33,7 @@ en_US.person.sex	string
 en_US.phone	reads en_US.phone-exchange
 en_US.phone-exchange
 en_US.phone.area
-en_US.phone.exch
+en_US.phone.exchange
 en_US.phone.line
 en_US.price	format "${amt}.{cents}"
 en_US.price.amt	string
