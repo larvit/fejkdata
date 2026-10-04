@@ -1,6 +1,6 @@
 # Population by age band — research 2026-10-04
 
-Share of the population in four bands, from each country's register, for weighting a drawn birthdate by age (todo.md item 26). Computed from single-year ages.
+Share of the population in four bands, from each country's statistics office, for weighting a drawn birthdate by age. Computed from single-year ages.
 
 | Country | Date | Total | 0–17 | 18–64 | 65–99 | 100+ | Source |
 |---|---|---|---|---|---|---|---|
