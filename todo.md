@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 86`
+`Next ID = 87`
 
 | Goal | W |
 |---|---|
@@ -108,6 +108,7 @@
 | 30 | 0.3.0 |  | **Draw `email.local` from `username`, so the two share one handle list.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 40 | 0.3.0 |  | **Parse `defaultTable`'s path with the library's grammar.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 75 | 0.3.0 |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 6 | 4 | 7 | 11.2 | 11.5 |
+| 86 | 0.3.0 |  | **Read `en_US.phone`'s area codes from one category, as its exchange reads `en_US.phone-exchange`.** | 1 | 2 | 2 | 5 | 3.2 | 11.5 |
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
 | 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
@@ -388,6 +389,10 @@ The CLI counts brackets of its own, so a change to the selector grammar desyncs 
 ### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
 
 `readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables), no `go` example (Library) and no `text` block of error text, and compares no "Renders e.g." output, so goal 11.2 is not met.
+
+### 86. Read `en_US.phone`'s area codes from one category, as its exchange reads `en_US.phone-exchange`.
+
+Both phone formats carry the same 21-code `area` list, so an edit to one copy can miss the other.
 
 ### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
 

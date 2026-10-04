@@ -14,6 +14,7 @@ var shippedIndex = map[string]shippedEntry{
 	"en_US.last-name":         {paths: []string{"", "count", "name"}},
 	"en_US.person":            {paths: []string{"", "first", "last", "prefix", "sex"}},
 	"en_US.phone":             {paths: []string{"", "area", "exch", "line"}},
+	"en_US.phone-exchange":    {paths: []string{""}},
 	"en_US.price":             {paths: []string{"", "amt", "cents"}},
 	"en_US.sentence":          {paths: []string{"", "adj", "noun", "prep", "verb"}},
 	"en_US.sex":               {paths: []string{"", "code", "first-name", "first-name.count", "first-name.name", "first-name.sex", "name", "title", "title.name", "title.sex", "title.share"}},

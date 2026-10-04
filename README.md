@@ -162,7 +162,7 @@ which binds a [name](#names), nor be `-`, which a struct tag reserves; dot-prefi
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds
-`personnummer` and `samordningsnummer`, `en_US` adds `ssn` and `itin`. `misc`
+`personnummer` and `samordningsnummer`, `en_US` adds `ssn`, `itin` and `phone-exchange`. `misc`
 carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
 `datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
 with its 639-2/T code), `loglevel` (syslog severity), `mac`, `mimetype`, `objectid`,
