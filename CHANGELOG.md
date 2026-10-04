@@ -8,6 +8,10 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- Step up: `..` after a row steps up to the row its link column names, so
+  `{/city[Oslo]..country.name}` renders `Norway`, and `.` after it steps down again,
+  drawing afresh. `New` refuses a `..` naming anything but the parent table, and a
+  selector after a `..`.
 - Names: `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints
   nothing; `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. A name lives
   in the category binding it, and a `repeat` binding it picks again on every iteration.

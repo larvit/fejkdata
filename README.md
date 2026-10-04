@@ -572,6 +572,26 @@ reference renders one row of a table, so reads in cells of different rows of it,
 different rows of their ancestors, never render together, whether `[key]` selects the row
 or the reference draws it.
 
+### Step up
+
+`..` after a row steps up to the row its link column names, and the parent table's name
+follows it, as a folder's does in a filesystem path:
+
+```sh
+fejkdata -d ./mydata 'city[Oslo]..country.name'       # Norway
+fejkdata -d ./mydata 'city..country'                  # a city drawn, then its country: Sweden (SE)
+fejkdata -d ./mydata 'city[Göteborg]..country.city'   # Stockholm or Göteborg, drawn afresh
+fejkdata -d ./mydata '{/city as c}{c}, {c..country.name}'  # Oslo, Norway
+```
+
+It steps up from a selected row, a drawn row or a [name](#names) bound to a row, one level
+per `..`: `{l..municipality..region.name}`. After it, `.` steps down again, drawing
+inside the row stepped up to. `.country` after a row still reads the link column's cell,
+`NO`. A `..` that names anything but the parent table is an error naming the parent, and
+so is a selector after a `..`, which could name a row outside the one stepped up to:
+select rows before the `..`. `--list` advertises no path with a `..`. At the start of a
+reference, `..` is the folder above ([References](#references)).
+
 ### Options and fields
 
 `format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are the only options;

@@ -80,7 +80,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `parent` names the link column and the table alike
 - After a row, a path names a column or a linked table
 - A selected row is fixed, not drawn, and an unnamed read beside it is refused
-- A link column after a row steps up to the parent row, and a path may not end on it
 - A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
@@ -119,4 +118,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
+- comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them

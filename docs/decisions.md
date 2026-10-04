@@ -511,36 +511,6 @@ case but the last, where two expected a render and all three accepted the refusa
 
 Goal 5.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
 
-## A link column after a row steps up to the parent row, and a path may not end on it
-
-Decided 2026-09-27 by the maintainer, for goal 5; valid while a link column holds the
-parent's key. It extends [After a row, a path names a column or a linked
-table](#after-a-row-a-path-names-a-column-or-a-linked-table) from child tables to the
-parent. A row is selected or drawn alike.
-
-- Where a segment follows, the link column's name reads the parent row, one level per
-  step, chained: `city[Oslo].country.name` renders `Norway`, `locality.municipality.name`
-  the drawn locality's municipality, and
-  `geo.US.locality[1714000].municipality.region.name` Chicago's state.
-- A path ending on it is refused at `New`, `NewTemplate` and `Fake` alike, naming the
-  parent's key column and the parent's format spelled as paths: with a `country` format
-  of `{name} ({alpha2})`, `city[Oslo].country` names `city[Oslo].country.alpha2` and
-  `{/city[Oslo].country.name} ({/city[Oslo].country.alpha2})`. `List` leaves such a path
-  out, and a record's link column still holds the key, since it is a column, not a path.
-- A path may not step back down into a child table after a step up:
-  `city[Oslo].country.city.name` could be Oslo or a city of Norway drawn afresh, so it is
-  refused, naming the path to the row it stepped up from, `city[Oslo].name`, and the path
-  down from the parent, `country[NO].city.name`; after a drawn row, `city.country.city.name`
-  names `city.name` and `country.city.name`.
-- A route through another row is another path to the same data, not a second spelling:
-  `city[Oslo].country.name` and `country[NO].name` both load.
-
-Checked against three simulated template writers from the Audience: all three read the
-parent row where a segment followed, and they split between the code and the name where
-the path ended.
-
-Goal 5.4 overrides this; `todo.md` item 2 replaces it.
-
 ## A table selects by one key column, a code, never a free-form name
 
 Decided 2026-09-27 by the maintainer, for goal 5's one spelling per result; valid while
@@ -938,6 +908,6 @@ the render.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
+## comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
 
 2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 2, 71, 3, 4 and 90 are the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
