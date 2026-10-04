@@ -257,13 +257,13 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
-The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. Steps:
-- Explore how a caller passes data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Bench the spelling; `--now` reads like the clock, and only the year counts.
-- Decide and document what renders when the caller gives no date, so the output never depends on the day it runs.
-- Reach birthdates back past 100 years, as Skatteverket's test series does from 1890, with birth numbers 980/981 before 1900, so a `+` ships before 2030; draw no birthdate after the given date, and decide what share of draws carries a `+`, such as enough that a few hundred rows hold one.
-- Give a path that always draws a `+` number for the date given, so a test can ask for a centenarian.
-- Spell the separator with a builtin, or another construct, that a data author's own category can use too, and update the README's personnummer recipe and its "a day in 1930–2025" count.
-- `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
+The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. Explore the first step before the rest:
+- Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Bench the spelling; `--now` reads like the clock, and only the year counts. The same input can narrow what is drawn: only adults, only children, only 65 and over, or a mix. That also covers a test asking for a centenarian.
+- The maintainer's direction, 2026-10-04: the library requires every input that can change, such as the date and the randomness, and the CLI defaults to the system's when its flag is absent. Today `New` without `WithSeed` draws its own randomness, so this reaches beyond the date.
+- Draw birthdates far enough back that a `+` can appear today. Read in 2026, the oldest shipped birthdate is 96 years old, so no draw carries a `+` until 2030. Skatteverket's test series reaches back to 1890, with birth numbers 980/981 before 1900. Draw no birthdate after the given date.
+- Weight the ages by the territory's population, so the share of `+` numbers follows its demography: [research-age-bands.md](docs/research/research-age-bands.md).
+- Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 77), and update the README's personnummer recipe and its "a day in 1930–2025" count.
+- Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
