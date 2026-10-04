@@ -256,7 +256,8 @@ load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed 
 and `c` varying loads and prints `Inf` every draw — catching it needs zero-absorbing
 algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
 instead and refuses a divisor it cannot keep from zero. An operand that is sometimes not a
-number prints `NaN` the same way. `Inf` and `NaN` in a string column work against goals 6.1 and 4 until `todo.md` item 81 refuses them there too.
+number prints `NaN` the same way. `Inf` and `NaN` in a string column work against goals
+6.1 and 4 until `todo.md` item 81 refuses them there too.
 
 ## In data, a default written out and a constant spelled as a sample are load errors
 
