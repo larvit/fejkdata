@@ -90,6 +90,8 @@ replacement, and each removed path, column or flag.
   and carries the same three. `person.prefix` is null where a person has no title,
   where it used to be an empty string, so `--format sql` writes `NULL` and a `string`
   struct field reading it becomes `*string`.
+- `en_US.phone` draws its exchange, `exch`, from the central office codes NANPA can
+  assign: `200` to `999`, never `N11`, `555`, `950`, `958`, `959` or `976`.
 - `ErrNoColumns` is exported, so a caller can tell the one record fence a path can
   answer from the rest.
 - An error names a spelling that runs: a layout is named single-quoted and free of

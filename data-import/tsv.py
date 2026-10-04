@@ -5,10 +5,10 @@ from pathlib import Path
 
 
 def write(path, columns, rows):
-    """Write the rows as a TSV; the table needs two rows, and every cell must be non-empty and free of tabs, newlines and braces."""
+    """Write the rows as a TSV; the table needs two rows, and every cell is stripped, and must be non-empty and free of tabs, newlines and braces."""
     lines = ["\t".join(columns)]
     for row in rows:
-        cells = [str(row[c]) for c in columns]
+        cells = [str(row[c]).strip() for c in columns]
         if not all(cells) or any(re.search(r"[\t\n{}]", c) for c in cells):
             raise ValueError(f"{path}: a cell is empty or holds a tab, newline or brace: {row}")
         lines.append("\t".join(cells))
