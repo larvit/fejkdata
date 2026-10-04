@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 89`
+`Next ID = 90`
 
 | Goal | W |
 |---|---|
@@ -77,6 +77,7 @@
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
+| 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
@@ -150,12 +151,13 @@
 
 The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
-- A bare `New()` loads no data and fails, naming the option to add, and `New` without `WithSeed` fails the same way; the CLI seeds from the system. `WithoutShippedData` goes.
+- A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
-- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
+- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module, and a read nothing provides fails naming the module that provides it by default. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
+- Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release, which revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag".
 - Two sources defining one name fail to load, unless an option says the second replaces the first; every read of that name, a shipped module's included, then reads the second. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
 - The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
-- The CLI is a library call, and one exported list names every shipped module; `fejkdata`'s own `main` passes that list, so a custom CLI carrying other modules is the same few lines of Go, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
+- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
 
 Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
@@ -264,6 +266,10 @@ Needs item 4.
 
 `checkCalc` and the value proof read an operand as a sibling field, so `{calc(n * 2)}` is refused with `no field "n"` today. Item 4 stops an operand holding its field for the expansion, after which a name is the one way to show the operand a calc computes from, as the README's Computation example does.
 
+### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
+
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. The Library section's options table shows `WithSeed` as required.
+
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
 Needs item 77, which makes an override fail unless it says it replaces.
@@ -281,10 +287,11 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
 The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. This item revises it: once the caller gives the date, an age is a bound, and the CLI's default date makes output change with the day it runs unless the flag is given. Do the first step before the rest:
-- Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Make the library require the date, as item 77 makes it require the randomness, and let the CLI default it to the system's when its flag is absent. Bench the spelling; `--now` reads like the clock. Shape the input so it can later narrow the draws to adults, children, 65 and over, or a mix, and so let a test ask for a centenarian; narrowing itself waits for its own item.
+- Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Make the library require the date, as item 89 makes it require the seed, and let the CLI default it to the system's when its flag is absent. Bench the spelling; `--now` reads like the clock. Shape the input so it can later narrow the draws to adults, children, 65 and over, or a mix, and so let a test ask for a centenarian; narrowing itself waits for its own item.
 - Draw birthdates back past 100 years before the given date, so a `+` can appear. Read in 2026, the oldest shipped birthdate is 96 years old, so no draw carries a `+` until 2030. Skatteverket's test series reaches back to 1890, with birth numbers 980/981 before 1900. Draw no birthdate after the given date.
 - Weight the ages by the territory's population, so the share of `+` numbers follows its demography: [research-age-bands.md](docs/research/research-age-bands.md).
 - Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 77), and update the README's personnummer recipe and its "a day in 1930–2025" count.
+- Rewrite the README's `--seed` and `WithSeed` rows to goal 10's wording, and name the new required option in the changelog: `New` breaks a second time here, after item 89, as the maintainer accepted.
 - Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
