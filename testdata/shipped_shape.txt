@@ -1,4 +1,4 @@
-en_US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.address
+en_US.address	format "{/geo.US.address as a}{a}"	reads geo.US.address
 en_US.address.locality	string
 en_US.address.postal-code	string
 en_US.address.region	string
@@ -25,7 +25,7 @@ en_US.itin.serial	string
 en_US.last-name	format "{name}"	key name	weight count
 en_US.last-name.count	string
 en_US.last-name.name	string
-en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name en_US.sex en_US.title
+en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name
 en_US.person.first	string
 en_US.person.last	string
 en_US.person.prefix	string null
@@ -73,7 +73,7 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
-geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality geo.SE.postal-code geo.SE.street
+geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.street
 geo.SE.address.locality	string
 geo.SE.address.postal-code	string
 geo.SE.address.street	string
@@ -139,7 +139,7 @@ geo.SE.street	format "{name}"	weight segments	parent locality
 geo.SE.street.locality	string
 geo.SE.street.name	string
 geo.SE.street.segments	string
-geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.locality geo.US.postal-code geo.US.region geo.US.street
+geo.US.address	format "{street-number} {street}\n{locality}, {region} {postal-code}"	reads geo.US.street
 geo.US.address.locality	string
 geo.US.address.postal-code	string
 geo.US.address.region	string
@@ -290,7 +290,7 @@ misc.useragent.os	string
 misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
-sv_SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.address
+sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
 sv_SE.address.locality	string
 sv_SE.address.postal-code	string
 sv_SE.address.street	string
@@ -315,7 +315,7 @@ sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
-sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.sex sv_SE.title
+sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
 sv_SE.person.first	string
 sv_SE.person.last	string
 sv_SE.person.prefix	string null
