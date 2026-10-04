@@ -175,8 +175,7 @@ release instead. Before `v1.0.0` a minor carries what a major would.
 
 Any edit to a category shifts its stream and everything drawn after it, so a promise
 across versions would freeze every shipped list; a fixture is re-pinned on a bump, as
-this repo's own are. This works against goal 9's "always" until `todo.md` item 85
-rewords the goal.
+this repo's own are.
 
 ## An error is a contract by what it names, not its bytes
 
@@ -265,7 +264,7 @@ load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed 
 and `c` varying loads and prints `Inf` every draw — catching it needs zero-absorbing
 algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
 instead and refuses a divisor it cannot keep from zero. `Inf` in a string column works
-against goals 4 and 6; `todo.md` item 81 asks the maintainer whether to refuse it.
+against goal 6.1 until `todo.md` item 81 refuses it there too.
 
 ## In data, a default written out and a constant spelled as a sample are load errors
 
@@ -472,8 +471,7 @@ The benchmark suite (the README's Development) reports time for a human, not as 
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
 the JSON says only how a row is composed. The TSV sits beside its category file, named
 by `rows`, so a data directory stays a directory of categories, and one nothing names is
-a load error rather than a file silently ignored. A TSV works against goal 8's "Data is
-JSON files" until `todo.md` item 84 rewords the goal or ends this decision.
+a load error rather than a file silently ignored.
 
 ## A selector is bracketed, and a dot inside it is literal
 
