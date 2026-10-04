@@ -662,11 +662,10 @@ Withdrawn by the maintainer on 2026-10-03; `todo.md` item 78 replaces it.
 2026-09-18, Lilleman auf Larv; revised 2026-10-05. Goal 4.1.
 
 A record cannot read another whole and keep its columns, so `sv_SE.address` names the
-same four columns as `geo.SE.address`. Each reads one name, `{/geo.SE.address as a}`,
-which the format prints whole as `{a}`, so the country's format is written once and
-every column describes the address printed. A column is spelled the same in both,
-`street-number`, so the two never disagree on a name. Valid while a record cannot read
-another whole and keep its columns.
+same four columns as `geo.SE.address`. Its format binds one name,
+`{/geo.SE.address as a}`, and prints it whole as `{a}`. Each column reads one part of it,
+`{a.street}`, so the country's format is written once and every column describes the
+address printed. Valid while a record cannot read another whole and keep its columns.
 
 ## A postort's kommun comes from its name, its tätort or its codes, never from distance
 
@@ -860,10 +859,10 @@ name is an error listing both keys; select by type instead.
 
 A Luhn-valid personnummer over a random birth number may be a living person's; 238 and
 239 after any date are blocked from assignment, so the shipped `personnummer` and
-`samordningsnummer` use those. They sit in a `birth-number` table under `sex` rather
-than as a column of it, so a pick of a sex can read the number; `todo.md` item 28 has
-`personnummer` read it that way, to agree with a person's sex, and `sex` stays one shape across locales instead of
-collecting every sex-keyed id fact. A samordningsnummer's day, the birthday plus 60, is
+`samordningsnummer` use those. They sit in a `birth-number` table under `sex`, not in a
+column of it, so a pick of a sex can read the number, and `sex` keeps one shape across
+locales. `todo.md` item 28 has `personnummer` read it that way, so the number agrees
+with the person's sex. A samordningsnummer's day, the birthday plus 60, is
 drawn from 61 to 88, valid in every month, rather than computed from the date drawn.
 
 ## The US given names come from a mirror of the SSA file
@@ -928,4 +927,4 @@ Valid while names are read only inside the category binding them.
 
 ## comprehension floor: every dimension and the overall at 7.0 or above; items 71, 4 and 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier items touch, so a scoring run before item 90 merges would score code about to go. Items 71, 4 and 90 finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what item 71 touches, so a scoring run before item 90 merges would score code about to go. Items 71, 4 and 90 finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until item 5 runs.
