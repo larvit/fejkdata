@@ -260,7 +260,7 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs items 2, 71, 3, 4 and 90, in that order. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them" holds every scoring run and panel until then.
+Needs items 2, 71, 3, 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 71. Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.
 
@@ -272,7 +272,7 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 ### 90. Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.
 
-Needs item 4, and comes before item 5's panel. The maintainer scrapped the decision "The package stays flat" on 2026-10-04: its premise, that folders split the API into packages, does not hold for `internal/` packages, which no other module can import. Each package is a folder named for what it holds, and what one package uses from another is exported on purpose. It takes in two file moves the panel asked for: `binding`, `bind` and `checkNodeFences` out of `data.go`, and `table.route`, `selector`, `step` and `drawStep` out of `path.go`. The architect proposes the folders and their names, and the maintainer approves them before code moves.
+Needs item 4, and comes before item 5's panel. Packages under `internal/` leave the API in one package: no other module can import them. A package exports only what another package uses. It takes in two file moves the nine-seat panel asked for: `binding`, `bind` and `checkNodeFences` out of `data.go`, and `table.route`, `selector`, `step` and `drawStep` out of `path.go`. The systems-architect proposes the folders and their names, and the maintainer approves them before code moves.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
