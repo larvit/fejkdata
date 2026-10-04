@@ -153,11 +153,12 @@ The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04,
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
-- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module, and a read nothing provides fails naming the module that provides it by default. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
+- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. A read nothing provides fails, naming the module that provides that path by default or saying none does. Nothing loads a default on its own, and anything providing the same paths stands in.
+- A module's manifest names the fejkdata version it was built for, and a mismatch fails in `New`, naming the `go get` line that aligns them. Each shipped module requires the core at its own version.
 - Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release, which revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag".
 - Two sources defining one name fail to load, unless an option says the second replaces the first; every read of that name, a shipped module's included, then reads the second. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
 - The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
-- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
+- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale. The README's Versioning section gives each module's tag spelling, and says to pin every fejkdata module at one version.
 
 Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
@@ -268,7 +269,7 @@ Needs item 4.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. The Library section's options table shows `WithSeed` as required.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
