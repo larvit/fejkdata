@@ -829,9 +829,11 @@ the output.
 
 Semver tags on `main`, `v0.1.0` first; one version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
-changed. A consumer's data, code and scripts keep working across a minor or a patch,
-except output pinned to a seed. A minor only adds, and a major is the only release that
-changes what exists.
+changed. A consumer's data, code and scripts keep working across a minor or a patch. A
+minor only adds, and a major is the only release that changes what exists. Seeded output
+is the exception: any release, a patch too, may change what a seed draws. Where you
+compare seeded output, install one exact version (`go install …@vX.Y.Z`; `go.mod` already
+pins one), and regenerate seeded fixtures and expected values when you raise it.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
@@ -843,9 +845,6 @@ changes what exists.
 
 A patch changes no row of this table: performance, docs, or a fix inside a promised
 behaviour that adds or removes no value and changes no path, format or spelling.
-
-Any release, a patch too, may change what a seed draws, so regenerate seeded fixtures
-whenever the fejkdata version changes.
 
 An error's wording may improve in a minor; the path, rejected spelling and replacement
 it names may not.
