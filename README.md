@@ -873,7 +873,8 @@ App developers writing tests and fixtures, in Go and at a shell:
 - a **validator-facing author**, who needs a value a real checker accepts
 - a **data author**, who writes categories under `--data-path` and meets every load
   error the fences raise
-- a **custom-CLI builder**, who ships a CLI like `fejkdata` carrying modules of their own
+- a **custom-CLI builder**, who ships a CLI like `fejkdata` with data and functions of
+  their own
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
 the Development section below, and who ships a register the six above then draw from.
@@ -890,7 +891,8 @@ Where the project is heading; the sections before Audience document what ships t
    1. It covers the ten most-spoken languages and the Nordic countries.
    2. Each locale covers the common categories: names, addresses, phone numbers, ids,
       companies and dates.
-   3. A library gets only the data and the module functions it is handed.
+   3. Data and functions come in Go modules, and a library gets only the modules it is
+      handed.
 3. **The code is easy to understand.**
    1. You can go from a bug to the code behind it without asking anyone.
    2. You can change one part without keeping the rest in your head.
@@ -927,8 +929,8 @@ Where the project is heading; the sections before Audience document what ships t
       system's randomness and today's date.
 8. **Data is JSON files and TSV tables. Code is only for what they can't express.**
 9. **Flexible and extensible.**
-   1. Data and functions come in modules, from fejkdata or anyone else, and fejkdata's
-      modules load as anyone else's do.
+   1. Modules come from fejkdata or anyone else, and fejkdata's load as anyone else's
+      do.
    2. A module names the modules it reads by default, and anything providing the same
       paths can stand in for one.
    3. Loading two things under one name fails, in the library and the CLI alike, unless
@@ -942,7 +944,7 @@ Where the project is heading; the sections before Audience document what ships t
       `fejkdata`.
 10. **The same seed, date, data and versions always give the same output.**
     1. In the library, the caller supplies everything that can change the output: data,
-       randomness and the date.
+       seed and date.
 11. **It depends on nothing but Go's standard library.**
 12. **The docs are a map of the template language.**
     1. Every feature has its own heading.
