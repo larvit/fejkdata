@@ -552,11 +552,10 @@ A path descends from a row to a linked table by name, at any depth, and `--list`
 advertises each direct step. Within one render and [draw group](#draw-group), linked
 tables agree: the first table a reference path reads pins its ancestors, and a
 descendant read after it is drawn inside them, so `{/city.name}` and
-`{/country.name}` are a city and its country whichever is read first, except a step down
-after a `..` ([Step up](#step-up)). A selected row
-pins the render the same way, so every reference path into one family of linked
-tables in one render and group selects the same rows: one that selects none beside
-one that does is refused naming the spelling that does, `{/country[SE].city.name}`
+`{/country.name}` are a city and its country whichever is read first, except a step
+down after a `..` ([Step up](#step-up)). A selected row pins the render the same way,
+so every reference path into one family of linked tables in one render and group
+selects the same rows: one that selects none beside one that does is refused naming the spelling that does, `{/country[SE].city.name}`
 beside `{/country[SE].name}`, and two selecting different rows are refused naming a
 `drawGroup` to draw them apart in. A bare `{/city}` beside a path into its family is
 refused too, since a bare reference draws each time, and so is a path that draws a
@@ -585,13 +584,13 @@ fejkdata -d ./mydata 'city[Göteborg]..country.city'   # Stockholm or Göteborg,
 fejkdata -d ./mydata '{/city as c}{c}, {c..country.name}'  # Oslo, Norway
 ```
 
-It steps up from a selected row, a drawn row or a [name](#names) bound to a row, one level
-per `..`: `geo.SE.locality..municipality..region.name`. `.country` after a row still reads the link
-column's cell, `NO`.
+It steps up from a selected row, a drawn row or a [name](#names) bound to a row, one
+level per `..`: `geo.SE.locality..municipality..region.name`. `.country` after a row
+still reads the link column's cell, `NO`.
 
 After a `..`, `.` steps down again and draws afresh inside the row stepped up to, so
-`city[Göteborg]..country.city` may draw Göteborg again. Paths stepping down from one `..` read one draw, as one
-reference path does: `{/city..country.city.name}` and `{/city..country.city.population}`
+`city[Göteborg]..country.city` may draw Göteborg again. Paths stepping down from one
+`..` read one draw, as one reference path does: `{/city..country.city.name}` and `{/city..country.city.population}`
 describe one city, within a render and [draw group](#draw-group), or within a name's pick.
 
 A `..` that names anything but the parent table is an error naming the parent. A selector
