@@ -15,7 +15,7 @@ replacement, and each removed path, column or flag.
 - Names: `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints
   nothing; `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. A name lives
   in the category binding it, and a `repeat` binding it picks again on every iteration.
-  What `New` refuses is listed under [Names](README.md#names).
+  A name is a `{calc()}` operand: `{/n as k}{k} x 2 = {calc(k * 2)}`. What `New` refuses is listed under [Names](README.md#names).
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,

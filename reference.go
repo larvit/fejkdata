@@ -77,10 +77,12 @@ func linkRefs(sites []categorySite, root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return linkNames(path, t) }); err != nil {
-		return err
+	for _, pass := range []func(string, *template) error{linkNames, checkNameReads, checkCalcNames} {
+		if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return pass(path, t) }); err != nil {
+			return err
+		}
 	}
-	return eachTemplate(sites, func(_ categorySite, path string, t *template) error { return checkNameReads(path, t) })
+	return nil
 }
 
 // linkTemplate resolves t's references in category, "" for an inline template, and

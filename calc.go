@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -15,7 +16,7 @@ type calcNode interface {
 }
 
 type calcNum float64 // a number literal
-type calcVar string  // a sibling-field name, before indexVars places it
+type calcVar string  // an operand, a sibling field or a name, before indexVars places it
 type calcIdx int     // an operand, by its position in the values expand read
 type calcNeg struct{ x calcNode }
 type calcBin struct { // a + - * / b
@@ -53,8 +54,9 @@ func (n calcBin) eval(operands []string) float64 {
 	}
 }
 
-// checkCalc validates a calc token at compile time: a parseable expression whose
-// operands all name existing fields, and an optional non-negative integer dp.
+// checkCalc validates a calc token at compile time: a parseable expression, operands
+// that can be numbers, and an optional non-negative integer dp. An operand no field
+// holds is left for a name to answer, and checkCalcNames checks it once names link.
 func checkCalc(fields map[string]node, args []string) error {
 	if len(args) < 1 || len(args) > 2 {
 		return fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))
@@ -63,17 +65,13 @@ func checkCalc(fields map[string]node, args []string) error {
 	if err != nil {
 		return fmt.Errorf("calc(%q): %w", args[0], err)
 	}
-	for _, name := range calcVars(expr) {
-		operand, ok := fields[name]
-		if !ok {
-			return fmt.Errorf("calc(%q): no field %q", args[0], name)
+	if err := checkOperands(args[0], expr, func(name string) []node {
+		if n, ok := fields[name]; ok {
+			return []node{n}
 		}
-		if text, never := neverNumeric(operand); never {
-			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", args[0], name, text)
-		}
-	}
-	if divisor, zero := constantZeroDivisor(expr, fields); zero {
-		return fmt.Errorf("calc(%q) divides by %s, which is always zero", args[0], divisor)
+		return nil
+	}); err != nil {
+		return err
 	}
 	if len(args) == 2 {
 		dp, err := plainInt(args[1])
@@ -87,33 +85,76 @@ func checkCalc(fields map[string]node, args []string) error {
 	return nil
 }
 
+// checkCalcNames holds each calc of t reading a name to the checks checkCalc makes of a field.
+func checkCalcNames(path string, t *template) error {
+	for _, o := range t.compiled.ops {
+		if o.fn != "calc" || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
+			continue
+		}
+		if err := checkOperands(o.args[0], parsedCalc(o.args[0]), operandNodes(t, o)); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
+		}
+	}
+	return nil
+}
+
+// operandNodes lists every node each operand of o may render: its field, or each node its name's
+// path lands on.
+func operandNodes(t *template, o op) func(name string) []node {
+	return func(name string) []node {
+		i := slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })
+		if a := o.operands[i]; a.kind == namedRead {
+			return a.leaves
+		}
+		return []node{t.fields[name]}
+	}
+}
+
+// checkOperands refuses an operand that is never a number and a division by a constant zero.
+// operand lists every node an operand may render, nil while that is unknown.
+func checkOperands(text string, expr calcNode, operand func(name string) []node) error {
+	for _, name := range calcVars(expr) {
+		if rendered, never := neverNumber(operand(name)); never {
+			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", text, name, rendered)
+		}
+	}
+	if divisor, zero := constantZeroDivisor(expr, operand); zero {
+		return fmt.Errorf("calc(%q) divides by %s, which is always zero", text, divisor)
+	}
+	return nil
+}
+
 // constantZeroDivisor finds a division whose right side is a constant zero: number
 // literals and fixed operands folded, anything that varies left unknown.
-func constantZeroDivisor(n calcNode, fields map[string]node) (string, bool) {
+func constantZeroDivisor(n calcNode, operand func(string) []node) (string, bool) {
 	switch n := n.(type) {
 	case calcNeg:
-		return constantZeroDivisor(n.x, fields)
+		return constantZeroDivisor(n.x, operand)
 	case calcBin:
 		if n.operator == '/' {
-			if v, known := constantValue(n.r, fields); known && v == 0 {
+			if v, known := constantValue(n.r, operand); known && v == 0 {
 				return calcText(n.r), true
 			}
 		}
-		if d, zero := constantZeroDivisor(n.l, fields); zero {
+		if d, zero := constantZeroDivisor(n.l, operand); zero {
 			return d, true
 		}
-		return constantZeroDivisor(n.r, fields)
+		return constantZeroDivisor(n.r, operand)
 	}
 	return "", false
 }
 
 // constantValue evaluates an expression whose every operand is fixed.
-func constantValue(n calcNode, fields map[string]node) (float64, bool) {
+func constantValue(n calcNode, operand func(string) []node) (float64, bool) {
 	switch n := n.(type) {
 	case calcNum:
 		return float64(n), true
 	case calcVar:
-		t, ok := fields[string(n)].(*template)
+		nodes := operand(string(n))
+		if len(nodes) != 1 {
+			return 0, false
+		}
+		t, ok := nodes[0].(*template)
 		if !ok || t.repeat > 1 {
 			return 0, false
 		}
@@ -124,11 +165,11 @@ func constantValue(n calcNode, fields map[string]node) (float64, bool) {
 		v, err := strconv.ParseFloat(strings.TrimSpace(lit), 64)
 		return v, err == nil
 	case calcNeg:
-		v, ok := constantValue(n.x, fields)
+		v, ok := constantValue(n.x, operand)
 		return -v, ok
 	case calcBin:
-		l, lok := constantValue(n.l, fields)
-		r, rok := constantValue(n.r, fields)
+		l, lok := constantValue(n.l, operand)
+		r, rok := constantValue(n.r, operand)
 		if !lok || !rok {
 			return 0, false
 		}
@@ -167,26 +208,28 @@ func neverNumeric(n node) (text string, never bool) {
 			return lit, true
 		}
 	case *choice:
-		for _, it := range n.items {
-			t, itemNever := neverNumeric(it)
-			if !itemNever {
-				return "", false
-			}
-			text = t
-		}
-		return text, true
+		return neverNumber(n.items)
 	}
 	return "", false
+}
+
+// neverNumber reports nodes no render of which is a number, and none where there are none.
+func neverNumber(nodes []node) (text string, never bool) {
+	for _, n := range nodes {
+		t, nodeNever := neverNumeric(n)
+		if !nodeNever {
+			return "", false
+		}
+		text = t
+	}
+	return text, len(nodes) > 0
 }
 
 // calcPrep parses the expression and decimals once, at compile time, and places each
 // operand name at the position expand will read it into. checkCalc proved both args
 // valid, so no step here can fail.
 func calcPrep(args []string) callFn {
-	expr, err := parseCalc(args[0])
-	if err != nil { // a nil AST would be a nil dereference per render, with no message
-		panic(internalError("calc(%q) reached prep unparsed: %v", args[0], err))
-	}
+	expr := parsedCalc(args[0])
 	at := make(map[string]int)
 	for i, name := range calcVars(expr) {
 		at[name] = i
@@ -196,6 +239,16 @@ func calcPrep(args []string) callFn {
 	return func(_ *generatorState, _ string, operands []string) string {
 		return formatFloat(placed.eval(operands), dp)
 	}
+}
+
+// parsedCalc parses an expression checkCalc accepted. A nil AST would be a nil dereference
+// per render, with no message.
+func parsedCalc(expr string) calcNode {
+	n, err := parseCalc(expr)
+	if err != nil {
+		panic(internalError("calc(%q) passed its check unparsed: %v", expr, err))
+	}
+	return n
 }
 
 // calcDecimals is a calc's decimals count, or shortestDecimals where it names none.
@@ -224,7 +277,7 @@ func indexVars(n calcNode, at map[string]int) calcNode {
 	return n
 }
 
-// calcOperands lists the sibling-field names a calc's args read. checkCalc reports
+// calcOperands lists the operands a calc's args read, fields or names. checkCalc reports
 // an expression that does not parse, so one that does not simply names nothing.
 func calcOperands(args []string) []string {
 	if len(args) == 0 {
@@ -237,7 +290,7 @@ func calcOperands(args []string) []string {
 	return calcVars(expr)
 }
 
-// calcVars lists the distinct field names an expression reads, in the order it first
+// calcVars lists the distinct operands an expression reads, in the order it first
 // names each. That order is the contract between expand, which reads the operands
 // into a slice, and indexVars, which places each name at its position in it.
 func calcVars(n calcNode) []string {
