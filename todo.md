@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 88`
+`Next ID = 89`
 
 | Goal | W |
 |---|---|
@@ -68,9 +68,10 @@
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 11, 11.3 | 12.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
-| 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 3 | 4 | 7 | 8 | 4 | 23.6 |
+| 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
+| 88 | 0.2.0 |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's test series and many systems store.** | 2 | 3 | 6 | 6 | 4 | 19.4 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 |  | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
@@ -256,7 +257,13 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
-The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. `sv_SE.samordningsnummer` hard-codes `-` from the same date: check whether folkbokföringslagen 18 a § gives it the same `+`, since Skatteverket's SKV 704 states the rule for personnummer only. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. When this item is picked, first explore how a caller passes data, such as today's date, to a render: in the template, as a plain option like `WithNow` and `--now`, or both.
+The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. Steps:
+- Explore how a caller passes data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Bench the spelling; `--now` reads like the clock, and only the year counts.
+- Decide and document what renders when the caller gives no date, keeping seeded output stable.
+- Reach birthdates back past 100 years, as Skatteverket's test series does from 1890, so a `+` ships before 2030, and decide what share of draws carries one.
+- Give a path that always draws a `+` number for the date given, so a test can ask for a centenarian.
+- Spell the separator with a builtin or construct a data author's own category can use too, and update the README's personnummer recipe and its "a day in 1930–2025" count.
+- Check whether Lag (2022:1697) om samordningsnummer gives `sv_SE.samordningsnummer`, which also hard-codes `-` from 1930, the same `+`; Skatteverket's SKV 704 states the rule for personnummer only.
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
@@ -265,6 +272,10 @@ The decision "A constant zero divisor is a load error; in a string column a divi
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
 `New` and `NewTemplate` stop at the first, so data holding two mistakes takes two runs to fix. Split it into items before starting, one of them the shape a Go caller iterates and the CLI prints, and the order of an inline template's mistakes, which name no path; reword the README's "`New` refuses a mistake in the data" to every mistake.
+
+### 88. Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's test series and many systems store.
+
+A system storing the century avoids the `+` altogether, so a fixture in that form tests the other half of the problem item 26 tests.
 
 ### 41. Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.
 
