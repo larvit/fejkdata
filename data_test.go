@@ -341,8 +341,8 @@ func TestShippedUSPhone(t *testing.T) {
 		if m == nil {
 			t.Fatalf("phone %q does not match %s", n, re)
 		}
-		if exch := m[1]; exch[1:] == "11" || unassignable[exch] {
-			t.Fatalf("phone %q has the unassignable exchange %s", n, exch)
+		if exchange := m[1]; exchange[1:] == "11" || unassignable[exchange] {
+			t.Fatalf("phone %q has the unassignable exchange %s", n, exchange)
 		}
 	}
 }
