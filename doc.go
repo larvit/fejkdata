@@ -5,8 +5,8 @@
 // then generate values by path:
 //
 //	f, _ := fejkdata.New(fejkdata.WithSeed(42))
-//	f.Fake("sv_SE.address")          // "Järvedsvägen 43\n891 77 Järved"
-//	f.Fake("sv_SE.address.locality") // "Sundbyberg": a second call draws afresh
+//	f.Fake("sv_SE.address")          // "Järvedsvägen 3J\n891 77 Järved"
+//	f.Fake("sv_SE.address.locality") // "Varberg": a second call draws afresh
 //
 // Several sources merge in order, the last winning a name clash, so custom data
 // layers over the built-ins. The JSON template format is documented in the [README].
