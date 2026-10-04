@@ -79,7 +79,7 @@ func spellPins(p *pinSet) string {
 
 func renderRoot(s *generatorState, t *template, trace renderTrace) {
 	draws := renderDraws{trace: trace}
-	sc := renderScope{draws: &draws}
+	sc, _ := renderScope{draws: &draws}.enter(t, &draws.unnamed.memo)
 	switch {
 	case t.site.isFormat():
 		tbl := t.site.table
