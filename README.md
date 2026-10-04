@@ -843,9 +843,8 @@ a minor only adds, and a major is the only release that changes what exists.
 A patch changes no row of this table: performance, docs, or a fix inside a promised
 behaviour that changes no value, path, format or spelling.
 
-Seeded output is a promise within one version: same seed, same version, same
-data, same output. Any release may shift a stream, since a value added to a list
-moves every draw after it, so pin fixtures per version. An error's wording may
+Any release may shift a seeded stream, since a value added to a list moves every
+draw after it, so pin fixtures per version. An error's wording may
 improve in a minor; the path, rejected spelling and replacement it names may not.
 
 Before `v1.0.0` a minor is the breaking unit: `0.(x+1).0` may carry a major's

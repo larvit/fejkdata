@@ -135,7 +135,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree and one for `misc`; and a module registers nothing when imported: the library passes it to `New`, as in `New(WithData(svse.Data))`, per the technical principles' dependency injection and no package globals. The entry for `docs/decisions.md` is written when this ships. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported; the library passes it to `New`, as in `New(WithData(svse.Data))`, per the technical principles "Compose, do not entangle" and "Explicit over implicit". The entry for `docs/decisions.md` is written when this ships. Still to decide: what a bare `New()` loads, whether a module's data is an `fs.FS` passed to `WithDataFS` so no second option exists, and whether `WithoutShippedData` goes. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -264,7 +264,7 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
-The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, and an operand that is sometimes not a number prints `NaN`, against goals 6.1 and 4; `valueproof.go` already proves a typed column's divisor nonzero.
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 6.1 and 4. `valueproof.go` already proves a typed column's divisor nonzero.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
