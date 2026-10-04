@@ -42,7 +42,7 @@ rejects, and what each names instead, is under
 |------|--|
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
-| `-s`, `--seed N` | reproducible output |
+| `-s`, `--seed N` | same seed, version and data: identical output |
 | `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
