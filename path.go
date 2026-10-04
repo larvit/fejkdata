@@ -6,8 +6,8 @@ import (
 )
 
 // splitPath splits a dotted path into segments, a selector — [key or name] after a
-// table's name — becoming a segment of its own, brackets kept. A dot inside a
-// selector is part of the key or name.
+// table's name — becoming a segment of its own, brackets kept, and so does each "..". A
+// dot inside a selector is part of the key or name.
 func splitPath(path string) ([]string, error) {
 	segs := make([]string, 0, strings.Count(path, ".")+2*strings.Count(path, "[")+1)
 	start, open := 0, -1
@@ -24,11 +24,13 @@ func splitPath(path string) ([]string, error) {
 				return nil, err
 			}
 			segs = append(segs, path[start:i+1])
-			start, open = i+2, -1
-			i++
+			open = -1
+			segs, i = stepUpAt(segs, path, i+1)
+			start = i + 1
 		case '.':
 			if open < 0 {
 				segs = append(segs, path[start:i])
+				segs, i = stepUpAt(segs, path, i)
 				start = i + 1
 			}
 		}
@@ -36,10 +38,19 @@ func splitPath(path string) ([]string, error) {
 	if open >= 0 {
 		return nil, fmt.Errorf(`%q opens a selector with "[" and never closes it with "]"`, path)
 	}
-	if start <= len(path) {
+	if start < len(path) || start == len(path) && (len(segs) == 0 || segs[len(segs)-1] != "..") {
 		segs = append(segs, path[start:])
 	}
 	return segs, nil
+}
+
+// stepUpAt appends a ".." segment where the dot at i is the first of two, returning the
+// index of the last dot it consumed.
+func stepUpAt(segs []string, path string, i int) ([]string, int) {
+	if i+1 < len(path) && path[i+1] == '.' {
+		return append(segs, ".."), i + 1
+	}
+	return segs, i
 }
 
 // checkOpen refuses a "[" at i that opens no selector: one inside a selector, or one
@@ -139,8 +150,14 @@ func nameSegments(segs []string) []string {
 
 // stepInto is what seg names under n: a folder's entry or a template's field.
 func stepInto(n node, seg string) (node, error) {
-	if isSelector(seg) {
+	switch {
+	case isSelector(seg):
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", selectorOf(seg))
+	case seg == "..":
+		if c, ok := n.(*tableColumn); ok {
+			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column`, c.t.header[c.i])
+		}
+		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table`)
 	}
 	switch n := n.(type) {
 	case *folder:
@@ -169,6 +186,7 @@ type tableRoute struct {
 	next     node
 	rest     []string
 	descends bool
+	up       bool
 }
 
 // route is how tail passes t. descended means the previous route stepped into t
@@ -179,6 +197,12 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	sel, tail, err := t.selector(tail)
 	if err != nil {
 		return tableRoute{}, err
+	}
+	if len(tail) > 0 && tail[0] == ".." {
+		if err := t.stepUp(tail[1:]); err != nil {
+			return tableRoute{}, err
+		}
+		return tableRoute{sel: sel, draw: sel == "", next: t.parentT, rest: tail[2:], descends: true, up: true}, nil
 	}
 	column, child, err := t.step(tail)
 	if err != nil {
@@ -198,6 +222,20 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 		r.next, r.rest = column, tail[1:]
 	}
 	return r, nil
+}
+
+// stepUp proves a ".." after a row of t can step up: t has a parent, rest names it, and no
+// selector follows, since a row selected below the parent row could lie outside it.
+func (t *table) stepUp(rest []string) error {
+	switch {
+	case t.parentT == nil:
+		return fmt.Errorf(`%s has no parent table for ".." to step up to`, t.segment)
+	case len(rest) == 0 || rest[0] != t.parentT.segment:
+		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: ..%s`, t.segment, t.parentT.segment)
+	case hasSelector(rest):
+		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; start a path at the table to select from it`)
+	}
+	return nil
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it
@@ -220,6 +258,7 @@ const (
 	stepRow                        // land on the table's row node
 	stepColumn
 	stepChild
+	stepParent // up to the table's parent, at the row its own row links to
 )
 
 // pathCheck proves a path resolves whichever way the draws go: every variant of a
@@ -297,7 +336,10 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	}
 	switch next := r.next.(type) {
 	case *table:
-		if next != t {
+		switch {
+		case r.up:
+			steps = append(steps, pathStep{kind: stepParent, at: at})
+		case next != t:
 			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.segment})
 		}
 	case *tableRow:
@@ -380,8 +422,10 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 // drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins;
 // pins is nil for a sibling path, which never crosses a table, since a table is only a category.
 // For a memoized read, memo keeps the variant drawn at each of levels, so paths sharing a prefix
-// share it.
-func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) node {
+// share it. It returns the leaf and the pins its row is in: a step down after a step up draws
+// afresh, into pins of its own.
+func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
+	var climbed *table
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {
 			n = drawVariant(s, c, memo, levels, st.at)
@@ -397,9 +441,15 @@ func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *
 		if !ok {
 			panic(internalError("step %d: a table's step of kind %d on %T", st.at, st.kind, n))
 		}
+		switch {
+		case st.kind == stepParent:
+			climbed = t.parentT
+		case st.kind == stepChild && climbed != nil:
+			pins, climbed = pins.above(climbed), nil
+		}
 		n = t.drawStep(s, st, pins)
 	}
-	return n
+	return n, pins
 }
 
 func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
@@ -418,6 +468,8 @@ func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
 		return t.formatTemplate.fields[st.name]
 	case stepChild:
 		return t.descendant(st.name)
+	case stepParent:
+		return t.parentT
 	}
 	panic(internalError("drawStep has no case for step kind %d", st.kind))
 }
@@ -487,11 +539,12 @@ func compilePath(n node, tail []string) pathCheck {
 	return w
 }
 
-// joinSegments spells segments as a path: a selector attaches to the name before it.
+// joinSegments spells segments as a path: a selector attaches to the name before it, and
+// so do a ".." and the name after it.
 func joinSegments(segs []string) string {
 	var b strings.Builder
-	for _, s := range segs {
-		if b.Len() > 0 && !isSelector(s) {
+	for i, s := range segs {
+		if b.Len() > 0 && !isSelector(s) && s != ".." && segs[i-1] != ".." {
 			b.WriteByte('.')
 		}
 		b.WriteString(s)

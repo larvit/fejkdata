@@ -130,9 +130,9 @@ func readName(s *generatorState, sc renderScope, a arm) readValue {
 	if r, done := p.memo.value[a.path]; done {
 		return r
 	}
-	leaf := p.draw(s, a.named.head, a.steps, a.levels, a.path)
+	leaf, pins := p.draw(s, a.named.head, a.steps, a.levels, a.path)
 	sc, mark := sc.enter(leaf, &p.memo)
-	r := p.renderAt(s, leaf, a.path, sc)
+	r := p.renderAt(s, leaf, pins, a.path, sc)
 	sc.draws.popFrames(mark)
 	return r
 }
@@ -162,7 +162,8 @@ func readUnder(s *generatorState, t *template, sc renderScope, a arm) readValue 
 	for i, l := range a.levels {
 		levels[i] = underKey(sc.pickKey, l)
 	}
-	return p.renderAt(s, p.draw(s, t.head(a.head), a.steps, levels, key), key, sc)
+	leaf, pins := p.draw(s, t.head(a.head), a.steps, levels, key)
+	return p.renderAt(s, leaf, pins, key, sc)
 }
 
 // underKey is the key of path under the pick key prefix. It never returns prefix itself, which a
@@ -174,18 +175,19 @@ func underKey(prefix, path string) string {
 	return prefix + "." + path
 }
 
-// draw draws the path key names under p, its variant at key kept too.
-func (p *namedPick) draw(s *generatorState, head node, steps []pathStep, levels []string, key string) node {
-	leaf := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
+// draw draws the path key names under p, its variant at key kept too, returning the leaf and the
+// pins its row is in.
+func (p *namedPick) draw(s *generatorState, head node, steps []pathStep, levels []string, key string) (node, *pinSet) {
+	leaf, pins := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
 		leaf = p.memo.variantOf(s, c, key)
 	}
-	return leaf
+	return leaf, pins
 }
 
-// renderAt renders leaf, drawn at key, as part of p, and keeps what it rendered.
-func (p *namedPick) renderAt(s *generatorState, leaf node, key string, sc renderScope) readValue {
-	sc = sc.at(leaf, &p.pins)
+// renderAt renders leaf, drawn at key into pins, as part of p, and keeps what it rendered.
+func (p *namedPick) renderAt(s *generatorState, leaf node, pins *pinSet, key string, sc renderScope) readValue {
+	sc = sc.at(leaf, pins)
 	sc.pick, sc.pickKey = p, key
 	r := renderLeaf(s, leaf, sc)
 	if p.memo.value == nil {
