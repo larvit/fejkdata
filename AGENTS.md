@@ -119,4 +119,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them
+- comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them

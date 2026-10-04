@@ -938,6 +938,6 @@ the render.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them
+## comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. Nine nine-seat panels held the score between 5.2 and 6.1, Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Each step of that restructure would score code the next step removes, so no scoring run or panel runs until items 2, 71, 3, 4 and 90 have merged, in that order. Item 5 then ends the suspension: it runs the nine-seat panel and larv-review's scoring run. Valid until item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels filed in `todo.md` from 2026-09-22 to 2026-09-30, in its git history, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Each of items 2, 71, 3, 4 and 90 rewrites code that a later one removes, so a scoring run between them would score code about to go. They are the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. Item 5 ends the suspension: it runs the nine-seat panel and larv-review's scoring run, which writes this entry's first scores. Valid until item 5 runs.
