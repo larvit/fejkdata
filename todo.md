@@ -68,7 +68,7 @@
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 11, 11.3 | 12.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
-| 26 | 0.2.0 | defect | **Spell a `sv_SE.personnummer` and `sv_SE.samordningsnummer` with the `+` Skatteverket uses from the year its holder turns 100, counted from a date the caller gives.** | 3 | 4 | 7 | 8 | 4 | 23.6 |
+| 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 3 | 4 | 7 | 8 | 4 | 23.6 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
@@ -254,9 +254,9 @@ Needs item 4, which rewrites the draw-group rule this paragraph states. The last
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
-### 26. Spell a `sv_SE.personnummer` and `sv_SE.samordningsnummer` with the `+` Skatteverket uses from the year its holder turns 100, counted from a date the caller gives.
+### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
-Both formats hard-code `-`, and their earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. When this item is picked, first explore how a caller passes data, such as today's date, to a render: in the template, as a plain option like `WithNow` and `--now`, or both.
+The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. `sv_SE.samordningsnummer` hard-codes `-` from the same date: check whether folkbokföringslagen 18 a § gives it the same `+`, since Skatteverket's SKV 704 states the rule for personnummer only. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. When this item is picked, first explore how a caller passes data, such as today's date, to a render: in the template, as a plain option like `WithNow` and `--now`, or both.
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
