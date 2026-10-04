@@ -1,0 +1,17 @@
+[
+  { "format": "{int(2,9)}0{digits(1)}", "weight": 80 },
+  { "format": "{int(2,9)}1{int(2,9)}", "weight": 64 },
+  { "format": "{int(2,9)}10", "weight": 8 },
+  { "format": "{int(2,4)}{int(2,9)}{digits(1)}", "weight": 240 },
+  { "format": "{int(6,8)}{int(2,9)}{digits(1)}", "weight": 240 },
+  { "format": "5{int(2,4)}{digits(1)}", "weight": 30 },
+  { "format": "5{int(6,9)}{digits(1)}", "weight": 40 },
+  { "format": "55{int(0,4)}", "weight": 5 },
+  { "format": "55{int(6,9)}", "weight": 4 },
+  { "format": "9{int(2,4)}{digits(1)}", "weight": 30 },
+  { "format": "9{int(8,9)}{digits(1)}", "weight": 20 },
+  { "format": "95{int(1,7)}", "weight": 7 },
+  { "format": "96{digits(1)}", "weight": 10 },
+  { "format": "97{int(0,5)}", "weight": 6 },
+  { "format": "97{int(7,9)}", "weight": 3 }
+]
