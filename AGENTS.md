@@ -74,7 +74,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `Column` carries text, not a Go value
 - A unit takes the stem of what it is, and a file the stem of the units it holds
 - One name, one meaning
-- The package stays flat
 - The performance gate asserts allocations, not wall-clock time
 - Rows live in a TSV, the shape in JSON
 - A selector is bracketed, and a dot inside it is literal
@@ -120,3 +119,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
+- comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them
