@@ -62,13 +62,13 @@
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 2 | 0.1.0 | decision | **Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.** | 4 | 5 | 7 | 8 | 5.4 | 21.6 |
-| 26 | 0.1.0 | defect | **Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop drawing birthdates that reach 100.** | 2 | 2 | 5 | 8 | 4 | 21.1 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 11, 11.3 | 12.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
+| 26 | 0.2.0 | defect | **Draw a `sv_SE.personnummer` aged 100 or more with the `+` separator Skatteverket spells, its age counted from a date the caller gives.** | 3 | 4 | 7 | 8 | 4 | 23.6 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
@@ -230,10 +230,6 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 - `.country` after a row keeps reading the link column's cell, so the README's `city[Oslo].country` example stays true.
 - A `Fake` path and `--list` take `..` too; `List` keeps advertising direct descents only.
 
-### 26. Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop drawing birthdates that reach 100.
-
-The format hard-codes `-`, and the 1930 floor makes the oldest draws invalid from 2031.
-
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
@@ -257,6 +253,10 @@ Needs item 4, which rewrites the draw-group rule this paragraph states. The last
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+
+### 26. Draw a `sv_SE.personnummer` aged 100 or more with the `+` separator Skatteverket spells, its age counted from a date the caller gives.
+
+The format hard-codes `-`, and the 1930 floor makes the oldest draws invalid from 2031. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the day it is read, which the decision "No builtin reads the clock, so a date is bounded by days, never by an age" keeps out of the generator. When this item is picked, first explore how a caller gives a render input data, such as today's date: inside the template, as a plain option like `WithNow` and `--now`, or both. Goal 9 holds only while that date is an input, never the clock read silently.
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
