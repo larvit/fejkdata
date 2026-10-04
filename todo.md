@@ -79,7 +79,7 @@
 | 90 | 0.1.0 | decision | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
-| 93 | 0.1.0 | question | **Decide whether a field read only as a `calc` operand, whose whole format is one reference, is refused beside the name that spells the same pick.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
+| 93 | 0.1.0 | question | **Decide whether to refuse a field that only a `calc` reads and whose whole format is one reference, since a name spells the same pick.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -270,7 +270,7 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 Needs item 4, which rewrites the draw-group rule this paragraph states. The last paragraph under Records, from "A record written only to emit columns" to the Decisions link, holds seven rules, so "put a value two fields share in its own category" is hard to find. "Renders as either shape" names no shape nearby, and the README defines no "field hold".
 
-### 93. Decide whether a field read only as a `calc` operand, whose whole format is one reference, is refused beside the name that spells the same pick.
+### 93. Decide whether to refuse a field that only a `calc` reads and whose whole format is one reference, since a name spells the same pick.
 
 `{"format":"{calc(x * 2)}","x":"{/n}"}` and `"{/n as k}{calc(k * 2)}"` load and render alike, so goal 5.7's one spelling does not hold for a calc operand. A name read once whole is refused where the bare reference spells it, but a calc cannot read a reference, so the field is the remaining second spelling. Item 4 keeps both loading.
 

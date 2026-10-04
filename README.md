@@ -779,7 +779,7 @@ Refused at `New`, each error naming what to write instead:
 - a binding in a choice's item, which every other item would leave unbound;
 - a binding nothing reads, or a binding of a whole category read once whole where it is
   bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`; a calc cannot
-  read a reference, so `{/misc.coordinate.lat as lat}{calc(lat * 60)}` loads;
+  read a reference, so a calc's read is not refused;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
 - reads of a name in two draw groups, or inside a `repeat` nested where the name is bound,
