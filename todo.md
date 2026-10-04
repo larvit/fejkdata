@@ -73,7 +73,6 @@
 | 3 | 0.1.0 | decision | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 2 | 0.1.0 | decision | **Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.** | 4 | 5 | 7 | 8 | 5.4 | 21.6 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
@@ -230,12 +229,12 @@ Shape: T = table, t = template, c = choice.
 
 - `sv_SE.person` and `en_US.person` bind the first name and read sex and title through it: `"first": "{.first-name as n}{n.name}"`, `"sex": "{n..sex.name}"`, a title from `{n..sex.title.name}`.
 - `geo.SE.address` and `geo.US.address` bind the street and read locality, postal code and region through it; the locale `address` categories bind `/geo.XX.address` once. They print it whole as `{a}`, so the country record's format appears once; revise the decision "A locale's `address` restates its country record's format".
-- Needs item 2. Every shipped value must still pass its consumer's check before and after item 4.
+- Every shipped value must still pass its consumer's check before and after item 4.
 - Re-pin seeded output in its own commit.
 
 ### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
 
-- Needs items 2, 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
+- Needs items 3 and 71. After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
 - Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
 - Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
 - Rewrites the README's References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
@@ -246,21 +245,13 @@ Shape: T = table, t = template, c = choice.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
 
-### 2. Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.
-
-- `..` goes up one level, to the parent table, and the name after it is that parent's: `{c..country.name}`, and from a locality `{l..municipality..region.name}`. Naming any other table is a load error naming the parent.
-- It steps up from a selected row, a drawn row or a name bound to a row.
-- After `..`, `.` steps down again: `{c..country.city.name}` is a city of `c`'s country, drawn afresh.
-- `.country` after a row keeps reading the link column's cell, so the README's `city[Oslo].country` example stays true.
-- A `Fake` path and `--list` take `..` too; `List` keeps advertising direct descents only.
-
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs items 2, 71, 3, 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+Needs items 71, 3, 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 71, 3, 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 71. Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.
 
