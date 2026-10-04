@@ -47,7 +47,6 @@ In [docs/decisions.md](docs/decisions.md):
 - A bare reference draws each time; a reference path is held
 - Reference sigils follow the filesystem
 - A change to what exists is a major; a minor only adds
-- Seeded output is promised within one version
 - An error is a contract by what it names, not its bytes
 - A load reports every mistake at once
 - Formats are checked after all data is loaded, so their errors name the category

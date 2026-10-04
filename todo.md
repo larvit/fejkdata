@@ -70,7 +70,7 @@
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
-| 81 | 0.2.0 | decision | **Refuse at load every `calc` divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
+| 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.7 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
@@ -135,7 +135,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree and one for `misc`; and a library passes a module to `New`, `New(WithData(svse.Data))`, with no registry a module's import fills, per the technical principles' dependency injection and no package globals. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
+The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. Goal 2 says what ships where. The maintainer decided on 2026-10-04: one module per locale, one per country's `geo/` tree and one for `misc`; and a module registers nothing when imported: the library passes it to `New`, as in `New(WithData(svse.Data))`, per the technical principles' dependency injection and no package globals. The entry for `docs/decisions.md` is written when this ships. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
@@ -262,9 +262,9 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
-### 81. Refuse at load every `calc` divisor not proven nonzero, in a string column too.
+### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
-The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, against goal 6.1; `valueproof.go` already proves a typed column's divisor nonzero. Revise the decision when this lands.
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row, and an operand that is sometimes not a number prints `NaN`, against goals 6.1 and 4; `valueproof.go` already proves a typed column's divisor nonzero.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
