@@ -235,6 +235,102 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 	}
 }
 
+func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
+	files := with(geo(), map[string]string{
+		"drawn.json":      `"{/locality.code}|{/locality..municipality.code}|{/locality..municipality..region.code}"`,
+		"named.json":      `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
+		"down.json":       `"{/locality.code}|{/locality..municipality.locality.code}"`,
+		"named-down.json": `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
+		"record.json":     `{"format":"","l":"{/locality.code}","m":"{/locality..municipality.code}"}`,
+	})
+	f := newGenerator(t, writeFiles(t, files), WithSeed(4))
+	for path, want := range map[string]string{
+		"locality[L4]..municipality.name":                               "Lund",
+		"locality[L4]..municipality":                                    "Lund",
+		"locality[L4]..municipality..region.name":                       "Skåne län",
+		"municipality[1281]..region.code":                               "12",
+		"region[12].municipality[1281].locality[L4]..municipality.code": "1281",
+		"locality[L4].municipality":                                     "1281",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	if got := fakeTemplate(t, f, "{/locality[L4]..municipality.name}"); got != "Lund" {
+		t.Errorf("{/locality[L4]..municipality.name} = %q, want Lund", got)
+	}
+	afresh := map[string]bool{}
+	for i := 0; i < 200; i++ {
+		for _, path := range []string{"drawn", "named"} {
+			parts := strings.Split(fake(t, f, path), "|")
+			if municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
+				t.Fatalf("%s = %v, want the locality's own municipality and region", path, parts)
+			}
+		}
+		if l := fake(t, f, "locality[L4]..municipality.locality.code"); l != "L4" && l != "L7" {
+			t.Fatalf("locality[L4]..municipality.locality.code = %q, outside Lund", l)
+		} else {
+			afresh[l] = true
+		}
+		if m := fake(t, f, "locality[L4]..municipality..region.municipality.code"); regionOf[m] != "12" {
+			t.Fatalf("locality[L4]..municipality..region.municipality.code = %q, outside 12", m)
+		}
+		for _, path := range []string{"down", "named-down"} {
+			parts := strings.Split(fake(t, f, path), "|")
+			if municipalityOf[parts[0]] != municipalityOf[parts[1]] {
+				t.Fatalf("%s = %v, want a locality of the first one's municipality", path, parts)
+			}
+		}
+		down, err := f.FakeRecord("locality[L4]..municipality.locality")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if c := down.Columns(); c[0].Value != "L4" && c[0].Value != "L7" {
+			t.Fatalf("record locality[L4]..municipality.locality = %v, outside Lund", c)
+		} else {
+			afresh["record "+c[0].Value] = true
+		}
+		r, err := f.FakeRecord("record")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if c := r.Columns(); municipalityOf[c[0].Value] != c[1].Value {
+			t.Fatalf("record = %v, want the locality's own municipality", c)
+		}
+	}
+	if !afresh["L4"] || !afresh["L7"] || !afresh["record L4"] || !afresh["record L7"] {
+		t.Fatalf("locality[L4]..municipality.locality.code drew only %v in 200 renders, want a locality of Lund drawn afresh", afresh)
+	}
+	for _, p := range f.List() {
+		if strings.Contains(p, "..") {
+			t.Fatalf("List() advertises %q; it lists direct descents only", p)
+		}
+	}
+}
+
+func TestTableStepUpRefusals(t *testing.T) {
+	for path, want := range map[string]string{
+		"locality[L4]..region.name":        "..municipality",
+		"region[12]..municipality.name":    "no parent",
+		"locality[L4]..":                   "..municipality",
+		"locality[L4]..municipality[0180]": "selects its rows before",
+		"locality[L4].name..municipality":  "column",
+		"x..y":                             "not a table",
+	} {
+		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": `{"format":"{y}","y":"a"}`})))
+		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
+		}
+		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{
+			"x.json": `{"format":"{y}","y":"a"}`,
+			"t.json": strconv.Quote("{/" + path + "}"),
+		}))))
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
+		}
+	}
+}
+
 func TestLinkedTablesDrawConsistently(t *testing.T) {
 	spellings := map[string]string{
 		"leaf first":   `{"format":"{l}|{m}|{r}","l":"{/locality.code}","m":"{/municipality.code}","r":"{/region.code}"}`,
