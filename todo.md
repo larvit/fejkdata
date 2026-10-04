@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 90`
+`Next ID = 91`
 
 | Goal | W |
 |---|---|
@@ -78,6 +78,7 @@
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
+| 90 | 0.1.0 |  | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
@@ -117,8 +118,6 @@
 | 11 | 0.3.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 4 | 13.0 |
 | 35 | 0.3.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 8 | 13.0 |
 | 21 | 0.3.0 |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 1 | 4 | 6 | 12 | 12.2 |
-| 8 | 0.3.0 |  | **Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
-| 9 | 0.3.0 |  | **Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.** | 1 | 2 | 2 | 5 | 3.1 | 11.5 |
 | 30 | 0.3.0 |  | **Draw `email.local` from `username`, so the two share one handle list.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 40 | 0.3.0 |  | **Parse `defaultTable`'s path with the library's grammar.** | 2 | 2 | 3 | 5 | 5.7 | 11.5 |
 | 86 | 0.3.0 |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 2 | 2 | 5 | 3.2 | 11.5 |
@@ -261,7 +260,7 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs item 4.
+Needs items 2, 71, 3, 4 and 90, in that order. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them" holds every scoring run and panel until then.
 
 ### 71. Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.
 
@@ -270,6 +269,10 @@ Needs item 4.
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table.
+
+### 90. Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.
+
+Needs item 4, and comes before item 5's panel. The maintainer scrapped the decision "The package stays flat" on 2026-10-04: its premise, that folders split the API into packages, does not hold for `internal/` packages, which no other module can import. Each package is a folder named for what it holds, and what one package uses from another is exported on purpose. It takes in two file moves the panel asked for: `binding`, `bind` and `checkNodeFences` out of `data.go`, and `table.route`, `selector`, `step` and `drawStep` out of `path.go`. The architect proposes the folders and their names, and the maintainer approves them before code moves.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
@@ -415,14 +418,6 @@ Needs item 4; recount the switches then. Today ten, from `render` to `columnItem
 ### 11. Test that every `geo` tree holds the five table names and the `address` columns that port across countries.
 
 Nothing checks it, and a new country breaks it silently.
-
-### 8. Move `binding`, `bind` and `checkNodeFences` out of `data.go` into a file of their own.
-
-The greenfield architect found the fence pipeline last. Needs item 4, which shrinks the pipeline.
-
-### 9. Move `table.route`, `selector`, `step` and `drawStep` from `path.go` to `table.go`.
-
-The inherited architect's 3am trace crossed four files for one draw.
 
 ### 40. Parse `defaultTable`'s path with the library's grammar.
 

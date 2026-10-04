@@ -446,12 +446,6 @@ rest. Serves goal 3: names that tell the truth, and reaching the unit behind a s
 without asking a person. Decided 2026-09-25 by Lilleman; valid while goal 3 counts reading
 cost.
 
-## The package stays flat
-
-2026-09-15, Lilleman auf Larv.
-
-Go ties a package to one directory, so folders would split the API into packages.
-
 ## The performance gate asserts allocations, not wall-clock time
 
 2026-09-03, Lilleman auf Larv.
@@ -943,3 +937,7 @@ two draws of it. `todo.md` item 4 ends both: once every `{…}` draws afresh, no
 the render.
 
 Valid while names are read only inside the category binding them.
+
+## comprehension floor: every dimension and the overall at 7.0 or above; items 2, 71, 3, 4 and 90 ship under it with no scoring run, and the nine-seat panel, item 5, measures them
+
+2026-10-04, Lilleman auf Larv. Serves goal 3. Nine nine-seat panels held the score between 5.2 and 6.1, Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Each step of that restructure would score code the next step removes, so no scoring run or panel runs until items 2, 71, 3, 4 and 90 have merged, in that order. Item 5 then ends the suspension: it runs the nine-seat panel and larv-review's scoring run. Valid until item 5 runs.
