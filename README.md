@@ -873,9 +873,10 @@ App developers writing tests and fixtures, in Go and at a shell:
 - a **validator-facing author**, who needs a value a real checker accepts
 - a **data author**, who writes categories under `--data-path` and meets every load
   error the fences raise
+- a **custom-CLI builder**, who ships a CLI like `fejkdata` carrying modules of their own
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
-the Development section below, and who ships a register the five above then draw from.
+the Development section below, and who ships a register the six above then draw from.
 
 ## Goals
 
@@ -925,19 +926,21 @@ Where the project is heading; the sections before Audience document what ships t
    3. The CLI fills in what you leave out with a sane default: all the shipped data, the
       system's randomness and today's date.
 8. **Data is JSON files and TSV tables. Code is only for what they can't express.**
-9. **Everything is replaceable.** Data, functions and the modules they come in can come
-   from fejkdata or anyone else.
-   1. A module names the modules it reads by default, and anything providing the same
+9. **Flexible and extensible.**
+   1. Data and functions come in modules, from fejkdata or anyone else, and fejkdata's
+      modules load as anyone else's do.
+   2. A module names the modules it reads by default, and anything providing the same
       paths can stand in for one.
-   2. Loading two things under one name fails, in the library and the CLI alike, unless
-      you say the second replaces the first.
-   3. The builtins ship with fejkdata itself, so a template means the same in every
+   3. Loading two things under one name fails, in the library and the CLI alike, unless
+      you say the second replaces the first, and then every read of that name reads
+      the second.
+   4. The builtins ship with fejkdata itself, so a template means the same in every
       program.
-   4. A function loaded from a module can ask for the input it needs, and gets the
+   5. A function loaded from a module can ask for the input it needs, and gets the
       randomness and the date the generator uses.
-   5. A CLI carrying your own modules is a few lines of Go, and works just like
+   6. A CLI carrying your own modules is a few lines of Go, and works just like
       `fejkdata`.
-10. **The same seed, version and data always give the same output.**
+10. **The same seed, date, data and versions always give the same output.**
     1. In the library, the caller supplies everything that can change the output: data,
        randomness and the date.
 11. **It depends on nothing but Go's standard library.**

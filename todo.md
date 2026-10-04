@@ -46,6 +46,7 @@
 | 9.3 | 0.60 |
 | 9.4 | 0.60 |
 | 9.5 | 0.60 |
+| 9.6 | 0.60 |
 | 10 | 0.55 |
 | 10.1 | 0.55 |
 | 11 | 0.50 |
@@ -149,12 +150,12 @@
 
 The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
-- A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
+- A bare `New()` loads no data and fails, naming the option to add, and `New` without `WithSeed` fails the same way; the CLI seeds from the system. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
-- Two sources defining one name fail to load, unless an option says the second replaces the first. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
+- Two sources defining one name fail to load, unless an option says the second replaces the first; every read of that name, a shipped module's included, then reads the second. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
 - The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
-- The CLI is a library call, so a custom CLI carrying other modules is a few lines of Go and works just like `fejkdata`. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
+- The CLI is a library call, and one exported list names every shipped module; `fejkdata`'s own `main` passes that list, so a custom CLI carrying other modules is the same few lines of Go, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
 
 Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
@@ -280,7 +281,7 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
 The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. This item revises it: once the caller gives the date, an age is a bound, and the CLI's default date makes output change with the day it runs unless the flag is given. Do the first step before the rest:
-- Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Make the library require every input that can change, such as the date and the randomness, and let the CLI default each to the system's when its flag is absent. Bench the spelling; `--now` reads like the clock. Shape the input so it can later narrow the draws to adults, children, 65 and over, or a mix, and so let a test ask for a centenarian; narrowing itself waits for its own item. Requiring the randomness changes `New`, which today seeds itself without `WithSeed`; split that into its own item when this one is picked.
+- Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Make the library require the date, as item 77 makes it require the randomness, and let the CLI default it to the system's when its flag is absent. Bench the spelling; `--now` reads like the clock. Shape the input so it can later narrow the draws to adults, children, 65 and over, or a mix, and so let a test ask for a centenarian; narrowing itself waits for its own item.
 - Draw birthdates back past 100 years before the given date, so a `+` can appear. Read in 2026, the oldest shipped birthdate is 96 years old, so no draw carries a `+` until 2030. Skatteverket's test series reaches back to 1890, with birth numbers 980/981 before 1900. Draw no birthdate after the given date.
 - Weight the ages by the territory's population, so the share of `+` numbers follows its demography: [research-age-bands.md](docs/research/research-age-bands.md).
 - Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 77), and update the README's personnummer recipe and its "a day in 1930–2025" count.

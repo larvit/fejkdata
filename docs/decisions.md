@@ -233,7 +233,7 @@ references read. Accepted: overriding is the point of layering, the error names 
 reference and the field, and the fix is the consumer's file carrying the fields the
 shipped tree reads.
 
-Works against goal 9.2 until `todo.md` item 77 ends it.
+Works against goal 9.3 until `todo.md` item 77 ends it.
 
 ## The repeat cap bounds renders, not bytes
 
