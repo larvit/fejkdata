@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 93`
+`Next ID = 94`
 
 | Goal | W |
 |---|---|
@@ -73,12 +73,13 @@
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
-| 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
-| 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{calc(t.population * 2)}` computes from the row `{t}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 90 | 0.1.0 |  | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
+| 90 | 0.1.0 | decision | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
+| 93 | 0.1.0 | question | **Decide whether a field read only as a `calc` operand, whose whole format is one reference, is refused beside the name that spells the same pick.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -88,7 +89,7 @@
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
-| 92 | 0.2.0 |  | **Name the rename in a `calc`'s refusal of a hyphenated operand, which today reports `no field or name "calling"` for `{calc(calling-code * 2)}`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
+| 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns`, `ErrNoData` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
@@ -247,9 +248,9 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 Needs items 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
-### 91. Accept a path through a name as a `calc` operand, so `{calc(t.population * 2)}` computes from the row `{t}` prints.
+### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-Needs item 4. A calc operand parses as a bare identifier, so `{/misc.territory as t}{calc(t.population * 2)}` fails with `unexpected ".population"`, and no binding can hold the column alone beside the row. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+Needs item 4. A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -268,6 +269,10 @@ The decision "With only the shipped set, a category loads on the first call reac
 ### 87. Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".
 
 Needs item 4, which rewrites the draw-group rule this paragraph states. The last paragraph under Records, from "A record written only to emit columns" to the Decisions link, holds seven rules, so "put a value two fields share in its own category" is hard to find. "Renders as either shape" names no shape nearby, and the README defines no "field hold".
+
+### 93. Decide whether a field read only as a `calc` operand, whose whole format is one reference, is refused beside the name that spells the same pick.
+
+`{"format":"{calc(x * 2)}","x":"{/n}"}` and `"{/n as k}{calc(k * 2)}"` load and render alike, so goal 5.7's one spelling does not hold for a calc operand. A name read once whole is refused where the bare reference spells it, but a calc cannot read a reference, so the field is the remaining second spelling. Item 4 keeps both loading.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -316,9 +321,9 @@ Needs item 4.
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
 
-### 92. Name the rename in a `calc`'s refusal of a hyphenated operand, which today reports `no field or name "calling"` for `{calc(calling-code * 2)}`.
+### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 
-A hyphen is always subtraction in a calc, and the shipped data is full of hyphenated fields (`calling-code`, `birth-number`). The refusal names the first fragment, not the field the author meant.
+A hyphen is always subtraction in a calc, and the shipped data has hyphenated fields (`postal-code` and `street-number` in `geo/SE/address`). The refusal names the first fragment, not the field the author meant.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 

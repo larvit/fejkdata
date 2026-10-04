@@ -133,8 +133,7 @@ type builtin struct {
 	// operands names the fields the call reads, which expand renders for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// noRefOperands says no operand can be a reference, so a name read once there has no
-	// second spelling.
+	// noRefOperands says no operand can be a reference, so a name read once there is not refused.
 	noRefOperands bool
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
@@ -218,8 +217,8 @@ func parseChecked(format string, fields map[string]node) ([]formatToken, []unbou
 
 // unboundRead is a token reading a head no field holds, which only a name bound around the
 // template can answer; err is the refusal where none does. tail is the path read into the name,
-// "" for the name itself, operand marks a builtin's read of it, noRef one where no reference can
-// stand, and body is the token's.
+// "" for the name itself, operand marks a builtin's read of it, noRef marks such a read where no
+// reference can stand, and body is the token's.
 type unboundRead struct {
 	head, tail, body string
 	operand, noRef   bool

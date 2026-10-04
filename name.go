@@ -34,7 +34,7 @@ type nameBinding struct {
 }
 
 // nameUse is one read of a name: the path it reads into the name, "" for the name itself; whether
-// a builtin reads it as an operand, and whether that operand can be no reference; the draw group
+// a builtin reads it as an operand, and whether no reference can stand there; the draw group
 // its template renders in; and whether it sits in a repeat nested inside the name's scope.
 type nameUse struct {
 	tail, group            string
@@ -250,8 +250,8 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 	return nil
 }
 
-// namePasses run over every linked template in turn, each over all of them before the next: a pass
-// reads what the one before it filled in.
+// namePasses run in order, each over every linked template before the next starts: a pass reads
+// what the one before filled in.
 var namePasses = []func(path string, t *template) error{linkNames, checkNameReads, checkCalcNames}
 
 // linkNames compiles t's reads of a name as paths from the head its binding's reference names, once

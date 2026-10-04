@@ -647,7 +647,7 @@ stays reproducible.
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
-| `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields ([Computation](#computation)) |
+| `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
 | `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
 
 A derivation reads what is to its left, so place it after its payload; the
@@ -676,7 +676,7 @@ the SQL example above.
 ### Computation
 
 `{calc(expr)}` evaluates `+ - * /`, parentheses and unary minus over number
-literals, sibling field names and [names](#names), each rendered then read as a number;
+literals, sibling fields and [names](#names), each rendered then read as a number;
 a second argument rounds to that many decimals. A hyphen is always subtraction, so a
 hyphenated field or name can't be an operand.
 
@@ -684,8 +684,8 @@ hyphenated field or name can't be an operand.
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `19.99 x 3 = 59.97`. A name is the operand `{lat}` prints, so the calc
-computes from the pick shown:
+Renders e.g. `19.99 x 3 = 59.97`. A name reads its one pick, so the calc computes from the
+value `{lat}` prints:
 
 ```json
 "{/misc.coordinate.lat as lat}{lat}° is {calc(lat * 60, 0)} arcminutes"
@@ -778,9 +778,8 @@ Refused at `New`, each error naming what to write instead:
 - a binding of anything but a reference;
 - a binding in a choice's item, which every other item would leave unbound;
 - a binding nothing reads, or a binding of a whole category read once whole where it is
-  bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`. A calc's
-  operand cannot be a reference, so there the name is the one spelling:
-  `{/n as k}{calc(k * 2)}` loads;
+  bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`; a calc cannot
+  read a reference, so `{/misc.coordinate.lat as lat}{calc(lat * 60)}` loads;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
 - reads of a name in two draw groups, or inside a `repeat` nested where the name is bound,
