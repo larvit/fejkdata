@@ -60,12 +60,10 @@
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 14, 13 | 25.9 |
 | 3 | 0.1.0 | decision | **Rewrite the shipped categories so facts that belong together come from one named pick.** | 5 | 5 | 8 | 9 | 4.1 | 25.0 |
 | 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
-| 25 | 0.1.0 | defect | **Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.** | 2 | 2 | 6 | 8 | 4 | 23.1 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 2 | 0.1.0 | decision | **Step up from a row to the row it links to with `..`: `{/city[Oslo]..country.name}` renders `Norway`, and `city[Oslo].country` stays the cell `NO`.** | 4 | 5 | 7 | 8 | 5.4 | 21.6 |
 | 26 | 0.1.0 | defect | **Give a `sv_SE.personnummer` over 100 the `+` separator Skatteverket spells, or stop drawing birthdates that reach 100.** | 2 | 2 | 5 | 8 | 4 | 21.1 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
-| 12 | 0.1.0 | defect | **Strip the whitespace `data-import/territory.py` copies from its register.** | 1 | 1 | 5 | 7 | 4 | 20.6 |
 | 5 | 0.1.0 |  | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 71 | 0.1.0 |  | **Accept a name as a `calc` operand, so `{calc(n * 2)}` computes from the pick `{n}` prints.** | 3 | 4 | 5 | 7 | 5.3 | 17.2 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 12 | 13.7 |
@@ -218,10 +216,6 @@ Shape: T = table, t = template, c = choice.
 - Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
 - Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
 
-### 25. Draw `en_US.phone`'s `exch` as a NANP central office code, and assert the rule in `TestShippedUSPhone`.
-
-`{int(100,999)}` renders a leading 1 in about an eighth of draws, which libphonenumber rejects, and the test proves the shape rather than the rule.
-
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
@@ -241,10 +235,6 @@ The format hard-codes `-`, and the 1930 floor makes the oldest draws invalid fro
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
-
-### 12. Strip the whitespace `data-import/territory.py` copies from its register.
-
-`misc.territory[CW].capital` renders ` Willemstad`, with a leading space.
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
