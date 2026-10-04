@@ -280,7 +280,7 @@ f, err := fejkdata.New(fejkdata.WithSeed(42))
 if err != nil {
 	log.Fatal(err)
 }
-v, err := f.Fake("sv_SE.address") // "Järvedsvägen 3J\n891 77 Järved"
+v, err := f.Fake("sv_SE.address") // "Räfsalsvägen 43\n442 42 Kungälv"
 paths := f.List()                  // the paths Fake renders, sorted; direct descents only
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
