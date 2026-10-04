@@ -268,9 +268,10 @@ func TestShippedPersonNames(t *testing.T) {
 		seen := map[string]bool{}
 		for i := 0; i < 2000; i++ {
 			seen[fake(t, f, locale+".sex[f].first-name")] = true
-			first, sex := fake(t, f, locale+".person.first"), fake(t, f, locale+".person.sex")
-			if first == "" || sex == "" {
-				t.Fatalf("%s.person lacks a first name or a sex", locale)
+			got := fakeTemplate(t, f, `{/`+locale+`.person.first}|{/`+locale+`.person.sex}`)
+			first, sex, _ := strings.Cut(got, "|")
+			if v := fake(t, f, locale+".sex["+sex+"].first-name["+first+"]"); v != first {
+				t.Fatalf("%s: %q: %q is not a %s name", locale, got, first, sex)
 			}
 		}
 		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" {
@@ -339,22 +340,36 @@ func TestShippedSwedishAddress(t *testing.T) {
 // one address category are two addresses.
 func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(3))
-	for _, c := range []struct{ locale, country, template string }{
-		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}||{b.street}"},
-		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}|{b.street}"},
+	for _, c := range []struct{ locale, country, template, largest string }{
+		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}||{b.street}", "Stockholm"},
+		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}|{b.street}", "New York"},
 	} {
 		places := geoPlaces(t, c.country)
-		apart := false
-		for i := 0; i < 300; i++ {
+		apart, localities := false, map[string]int{}
+		for i := 0; i < 2000; i++ {
 			got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}{/`+c.locale+`.address as b}`+c.template)
 			parts := strings.Split(got, "|")
 			if !places[strings.Join(parts[:4], "|")] {
 				t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
 			}
 			apart = apart || parts[0] != parts[4]
+			localities[parts[2]]++
+			region := "{/" + c.locale + ".address.region}"
+			if c.country == "SE" {
+				region = ""
+			}
+			got = fakeTemplate(t, f, `{/`+c.locale+`.address.street}|{/`+c.locale+`.address.postal-code}|{/`+c.locale+`.address.locality}|`+region)
+			if !places[got] {
+				t.Fatalf("%s.address: field paths %q are no street, postal code, locality and region of one place", c.locale, got)
+			}
 		}
 		if !apart {
-			t.Errorf("%s: two names bound to address drew one street in 300 renders, want two addresses", c.locale)
+			t.Errorf("%s: two names bound to address drew one street in 2000 renders, want two addresses", c.locale)
+		}
+		for l, n := range localities {
+			if n > localities[c.largest] {
+				t.Errorf("%s.address drew %s %d times and %s %d, want the locality weighted by population", c.locale, l, n, c.largest, localities[c.largest])
+			}
 		}
 	}
 }

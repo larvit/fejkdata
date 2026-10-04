@@ -238,8 +238,7 @@ too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
 for a man, which no real person is ever given.
 
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name` — while a shipped `personnummer` draws its own sex, apart from any `person`
-beside it. That test series is also small: a personnummer
+`last-name`. Skatteverket's test series is also small: a personnummer
 is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
 fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
 your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
@@ -249,9 +248,9 @@ your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-3
 inside a sex.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
-[linked tables](#linked-tables) named alike, and an `address` record binding one street and
-reading its locality, postal code and region through it, which the locale's `address`
-binds once and prints whole.
+[linked tables](#linked-tables) named alike, and an `address` record binding one locality
+and drawing its street and postal code inside it, which the locale's `address` binds once
+and prints whole.
 
 | Table | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|--------|
