@@ -13,7 +13,7 @@ var shippedIndex = map[string]shippedEntry{
 	"en_US.itin":              {paths: []string{"", "area", "group", "serial"}},
 	"en_US.last-name":         {paths: []string{"", "count", "name"}},
 	"en_US.person":            {paths: []string{"", "first", "last", "prefix", "sex"}},
-	"en_US.phone":             {paths: []string{"", "area", "exch", "line"}},
+	"en_US.phone":             {paths: []string{"", "area", "exchange", "line"}},
 	"en_US.phone-exchange":    {paths: []string{""}},
 	"en_US.price":             {paths: []string{"", "amt", "cents"}},
 	"en_US.sentence":          {paths: []string{"", "adj", "noun", "prep", "verb"}},

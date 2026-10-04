@@ -161,16 +161,17 @@ which binds a [name](#names), nor be `-`, which a struct tag reserves; dot-prefi
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
-`username`, `version` and `word`, formatted per locale; `sv_SE` adds
-`personnummer` and `samordningsnummer`, `en_US` adds `ssn`, `itin` and `phone-exchange`. `misc`
-carries `car`, `coordinate`, `creditcard` (Luhn-valid), `currency` (ISO 4217),
-`datetime` (RFC 3339), `emoji`, `httpmethod`, `httpstatus`, `language` (ISO 639-1,
-with its 639-2/T code), `loglevel` (syslog severity), `mac`, `mimetype`, `objectid`,
-`port`, `protocol`, `territory` (ISO 3166-1), `timezone` (IANA), `tld` (IANA root
-zone), `useragent` and `uuid` (v4). Many carry sub-fields — `misc.currency.symbol`,
-`misc.territory.alpha2`, `misc.httpstatus.code` — which `--list` shows. `car`,
-`currency`, `httpmethod`, `httpstatus`, `language`, `loglevel`, `mimetype`, `port`,
-`protocol`, `territory`, `timezone`, `tld` and `useragent` are [tables](#table), so
+`username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`
+and `samordningsnummer`, `en_US` adds `ssn`, `itin` and `phone-exchange` (the three
+digits after the area code). `misc` carries `car`, `coordinate`, `creditcard`
+(Luhn-valid), `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
+`httpstatus`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
+3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
+carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
+`misc.httpstatus.code` — which `--list` shows. `car`, `currency`, `httpmethod`,
+`httpstatus`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
+`timezone`, `tld` and `useragent` are [tables](#table), so
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 
