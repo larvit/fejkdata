@@ -134,6 +134,8 @@ set, against goal 13, until `todo.md` item 79 ends it.
 
 Valid while CI proves the shipped set whole and each category alone.
 
+Works against goal 2.3 until `todo.md` item 77 ends it.
+
 ## A bare reference draws each time; a reference path is held
 
 2026-09-02, Lilleman auf Larv.
@@ -230,6 +232,8 @@ consumer's `sv_SE/person.json` is what every shipped reference into `person` rea
 references read. Accepted: overriding is the point of layering, the error names the
 reference and the field, and the fix is the consumer's file carrying the fields the
 shipped tree reads.
+
+Works against goal 9.2 until `todo.md` item 77 ends it.
 
 ## The repeat cap bounds renders, not bytes
 

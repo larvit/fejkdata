@@ -889,8 +889,7 @@ Where the project is heading; the sections before Audience document what ships t
    1. It covers the ten most-spoken languages and the Nordic countries.
    2. Each locale covers the common categories: names, addresses, phone numbers, ids,
       companies and dates.
-   3. A library gets only the data and functions it hands to `New`, and fejkdata's own
-      load the same way as anyone else's.
+   3. A library gets only the data and the module functions it is handed.
 3. **The code is easy to understand.**
    1. You can go from a bug to the code behind it without asking anyone.
    2. You can change one part without keeping the rest in your head.
@@ -919,35 +918,35 @@ Where the project is heading; the sections before Audience document what ships t
    1. A template that could render a value its own rules forbid, such as `NaN` or `Inf`,
       fails to load instead.
    2. Data that reads something nobody provided fails to load, and the error names the
-      package that provides it by default.
+      module that provides it by default, or says that none does.
 7. **One command gets you a value.**
    1. Flags work like in other command-line tools, and can go anywhere on the line.
    2. Your first template of your own needs no escaping and no options.
    3. The CLI fills in what you leave out with a sane default: all the shipped data, the
       system's randomness and today's date.
 8. **Data is JSON files and TSV tables. Code is only for what they can't express.**
-9. **Everything is replaceable.** Data, functions, and the packages they depend on can
-   come from fejkdata or anyone else.
-   1. A package names the packages it reads by default, and anything providing the same
+9. **Everything is replaceable.** Data, functions and the modules they come in can come
+   from fejkdata or anyone else.
+   1. A module names the modules it reads by default, and anything providing the same
       paths can stand in for one.
    2. Loading two things under one name fails, in the library and the CLI alike, unless
       you say the second replaces the first.
-   3. The template language's own functions stay in the core, so a template means the
-      same in every program.
-   4. A function loaded from a package can ask for the input it needs, and gets the
+   3. The builtins ship with fejkdata itself, so a template means the same in every
+      program.
+   4. A function loaded from a module can ask for the input it needs, and gets the
       randomness and the date the generator uses.
-   5. A CLI carrying your own packages is a few lines of Go, and works just like
+   5. A CLI carrying your own modules is a few lines of Go, and works just like
       `fejkdata`.
 10. **The same seed, version and data always give the same output.**
-    1. A library call takes everything that can change its output from its caller: data,
+    1. In the library, the caller supplies everything that can change the output: data,
        randomness and the date.
 11. **It depends on nothing but Go's standard library.**
 12. **The docs are a map of the template language.**
     1. Every feature has its own heading.
     2. Every example runs as a test and shows its output.
     3. Each rule is stated in one place.
-13. **It is fast enough that you never notice with the shipped data, and its cost grows
-    with the data a render reaches, not with all the data loaded.**
+13. **It is fast enough that you never notice it with the shipped data.**
+    1. A render's cost grows only with the data it reaches.
 14. **Every fact comes from an official or open source,** such as a government
     register.
     1. A table holds every row its source holds, and nothing added by hand.
