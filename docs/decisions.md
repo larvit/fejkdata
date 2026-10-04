@@ -112,7 +112,7 @@ and `regexp.Match`, not two spellings of one result.
 2026-09-02, Lilleman auf Larv.
 
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
-still lives in `data/` as JSON; `--data-path` layers over it.
+still lives in `data/`; `--data-path` layers over it.
 
 `todo.md` item 77 revises it: a library imports the shipped data as Go modules.
 
@@ -168,14 +168,6 @@ spelling and its replacement in the changelog and in the load error, and that is
 whole migration: a fence rejects one spelling with one replacement, so the fix is local
 to each site. A fence that would need a non-local rewrite ships a converter with its
 release instead. Before `v1.0.0` a minor carries what a major would.
-
-## Seeded output is promised within one version
-
-2026-09-16, Lilleman auf Larv.
-
-Any edit to a category shifts its stream and everything drawn after it, so a promise
-across versions would freeze every shipped list; a fixture is re-pinned on a bump, as
-this repo's own are.
 
 ## An error is a contract by what it names, not its bytes
 
@@ -263,8 +255,8 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed at `0`
 and `c` varying loads and prints `Inf` every draw — catching it needs zero-absorbing
 algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
-instead and refuses a divisor it cannot keep from zero. `Inf` in a string column works
-against goal 6.1 until `todo.md` item 81 refuses it there too.
+instead and refuses a divisor it cannot keep from zero. `Inf` and `NaN` in a string column
+work against goals 6.1 and 4 until `todo.md` item 81 refuses them there too.
 
 ## In data, a default written out and a constant spelled as a sample are load errors
 
@@ -465,13 +457,13 @@ The benchmark suite (the README's Development) reports time for a human, not as 
 
 ## Rows live in a TSV, the shape in JSON
 
-2026-09-17, Lilleman auf Larv.
+2026-09-17, Lilleman auf Larv. Goals 8 and 12.
 
 `New` allocates once per node, so a register of thirty thousand rows written as JSON
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
 the JSON says only how a row is composed. The TSV sits beside its category file, named
 by `rows`, so a data directory stays a directory of categories, and one nothing names is
-a load error rather than a file silently ignored.
+a load error.
 
 ## A selector is bracketed, and a dot inside it is literal
 

@@ -293,7 +293,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 | Option | |
 |--------|--|
-| `WithSeed(n)` | same seed, same data: identical sequence |
+| `WithSeed(n)` | same seed, version and data: identical sequence |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
