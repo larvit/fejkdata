@@ -684,8 +684,8 @@ hyphenated field or name can't be an operand.
 { "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `19.99 x 3 = 59.97`. A name is the operand `{lat}` prints, so the calc computes
-from the pick shown:
+Renders e.g. `19.99 x 3 = 59.97`. A name is the operand `{lat}` prints, so the calc
+computes from the pick shown:
 
 ```json
 "{/misc.coordinate.lat as lat}{lat}° is {calc(lat * 60, 0)} arcminutes"
@@ -693,9 +693,9 @@ from the pick shown:
 
 Renders e.g. `5.338477° is 320 arcminutes`.
 
-A result that rounds to zero prints unsigned — `0`, `0.00` — as `{float()}`'s does. An operand that can never be a number (`"abc"`,
-or a choice of such) is rejected at load, as is a division by a constant zero
-(`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
+A result that rounds to zero prints unsigned — `0`, `0.00` — as `{float()}`'s does. An
+operand that can never be a number (`"abc"`, or a choice of such) is rejected at load, as
+is a division by a constant zero (`1/0`, or a fixed `"0"` field); an operand that sometimes is not a number yields
 `NaN`, and a division by one that is not constant `Inf` — both print rather than
 fail, except in a [typed column](#datatype), which must prove neither happens.
 

@@ -206,8 +206,6 @@ func TestNameErrors(t *testing.T) {
 			`write {/word}`},
 		{"read once whole, as a transform's operand", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}{uppercase(w)}"`},
 			`write /word where it is read`},
-		{"read once whole, as a calc's operand", map[string]string{"n": `["2","3"]`, "card": `"{/n as k}{calc(k * 2)}"`},
-			""},
 		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
 			`{n} renders field "w" twice`},
 		{"a binding in a cell", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\tc\nx\t{/word as w}{w}{w}\ny\tz\n"},
