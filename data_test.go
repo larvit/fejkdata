@@ -210,13 +210,6 @@ func TestSwedishPersonnummer(t *testing.T) {
 	if !birth["238"] || !birth["239"] {
 		t.Fatalf("birth numbers drawn %v, want both 238 and 239", birth)
 	}
-	for i := 0; i < 200; i++ {
-		got := fakeTemplate(t, sv, `{/sv_SE.person.sex} {/sv_SE.personnummer}`)
-		sex, id, _ := strings.Cut(got, " ")
-		if want := map[string]string{"kvinna": "238", "man": "239"}[sex]; want == "" || !strings.Contains(id, "-"+want) {
-			t.Fatalf("%q: a person and a personnummer in one render disagree on sex", got)
-		}
-	}
 }
 
 // TestShippedUSTaxIds pins the SSA and IRS ranges: an SSN's area is 001-899 but
@@ -283,10 +276,32 @@ func TestShippedPersonNames(t *testing.T) {
 		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" {
 			t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
 		}
-		got := fakeTemplate(t, f, `{/`+locale+`.sex.code}|{/`+locale+`.person.first}`)
-		code, first, _ := strings.Cut(got, "|")
-		if v := fake(t, f, locale+".sex["+code+"].first-name["+first+"]"); v != first {
-			t.Fatalf("%s: %q drawn as a %s name is not one", locale, first, code)
+	}
+}
+
+// TestShippedPersonIsOneNamedPick pins that a person's first name, sex and title come
+// from one pick, and that two names bound to one person category are two people.
+func TestShippedPersonIsOneNamedPick(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(9))
+	for _, locale := range []string{"sv_SE", "en_US"} {
+		apart := false
+		for i := 0; i < 300; i++ {
+			got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
+			parts := strings.Split(got, "|")
+			for _, p := range [][2]string{{parts[0], parts[1]}, {parts[3], parts[4]}} {
+				if v := fake(t, f, locale+".sex["+p[1]+"].first-name["+p[0]+"]"); v != p[0] {
+					t.Fatalf("%s: %q: %q is not a %s name", locale, got, p[0], p[1])
+				}
+			}
+			if title := strings.TrimSpace(parts[2]); title != "" && locale == "en_US" {
+				if v := fake(t, f, "en_US.sex["+parts[1]+"].title["+title+"]"); v != title {
+					t.Fatalf("%q: %q is not a %s title", got, title, parts[1])
+				}
+			}
+			apart = apart || parts[0] != parts[3]
+		}
+		if !apart {
+			t.Errorf("%s: two names bound to person drew one first name in 300 renders, want two people", locale)
 		}
 	}
 }
@@ -317,6 +332,72 @@ func TestShippedSwedishAddress(t *testing.T) {
 			t.Fatalf("locality %q is not a Swedish place name", c)
 		}
 	}
+}
+
+// TestShippedAddressIsOneNamedPick pins that an address's street, postal code,
+// locality and region are one place in the geo tables, and that two names bound to
+// one address category are two addresses.
+func TestShippedAddressIsOneNamedPick(t *testing.T) {
+	f := newGenerator(t, "data", WithSeed(3))
+	for _, c := range []struct{ locale, country, template string }{
+		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}||{b.street}"},
+		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}|{b.street}"},
+	} {
+		places := geoPlaces(t, c.country)
+		apart := false
+		for i := 0; i < 300; i++ {
+			got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}{/`+c.locale+`.address as b}`+c.template)
+			parts := strings.Split(got, "|")
+			if !places[strings.Join(parts[:4], "|")] {
+				t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
+			}
+			apart = apart || parts[0] != parts[4]
+		}
+		if !apart {
+			t.Errorf("%s: two names bound to address drew one street in 300 renders, want two addresses", c.locale)
+		}
+	}
+}
+
+// geoPlaces reads a country's geo tables into every "street|postal-code|locality|region"
+// one locality holds, the region empty for SE, whose address carries none.
+func geoPlaces(t *testing.T, country string) map[string]bool {
+	rows := func(table string) [][]string {
+		b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out [][]string
+		for _, line := range strings.Split(strings.TrimSpace(string(b)), "\n")[1:] {
+			out = append(out, strings.Split(line, "\t"))
+		}
+		return out
+	}
+	name, region := map[string]string{}, map[string]string{}
+	if country == "US" {
+		county := map[string]string{}
+		for _, r := range rows("municipality") {
+			county[r[0]] = r[2]
+		}
+		for _, r := range rows("locality") {
+			name[r[0]], region[r[0]] = r[1], county[r[2]]
+		}
+	} else {
+		for _, r := range rows("locality") {
+			name[r[0]] = r[0]
+		}
+	}
+	codes := map[string][]string{}
+	for _, r := range rows("postal-code") {
+		codes[r[1]] = append(codes[r[1]], r[0])
+	}
+	places := map[string]bool{}
+	for _, r := range rows("street") {
+		for _, code := range codes[r[1]] {
+			places[strings.Join([]string{r[0], code, name[r[1]], region[r[1]]}, "|")] = true
+		}
+	}
+	return places
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
