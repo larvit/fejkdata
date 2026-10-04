@@ -238,8 +238,8 @@ too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
 for a man, which no real person is ever given.
 
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name`. `person` and `personnummer` each draw their own sex, so where a name and a
-number must agree, read both through one bound `sex`:
+`last-name`. `person` and `personnummer` draw apart, so where a name and a number must
+agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
 
 ```json
 { "format": "{first} {last}, {pnr}",
@@ -248,14 +248,15 @@ number must agree, read both through one bound `sex`:
   "pnr": "{date(1930-01-01,2025-12-31,'060102')}-{s.birth-number.number}{luhn()}" }
 ```
 
-Renders e.g. `Anne Grönberg, 011012-2389`. Skatteverket's test series is also small: a personnummer
-is one of about 70,000 values, a day in 1930–2025 against the two birth numbers, so a
-fixture past a few hundred rows repeats one and a `UNIQUE` column needs a category of
-your own. `sv_SE.date` and `en_US.date` are uniform over 1970-01-01 to 2029-12-31,
-`misc.datetime` over 2000-01-01 to 2029-12-31. What the two locales do not share:
-`en_US.address` carries a `region` column the Swedish one has no use for, and
-`sv_SE.title` has no `parent`, so it is selected as `sv_SE.title[dr]` rather than
-inside a sex.
+Renders e.g. `Anne Grönberg, 011012-2389`.
+
+Skatteverket's test series is small: a personnummer is one of about 70,000 values, a day
+in 1930–2025 against the two birth numbers, so a fixture past a few hundred rows repeats
+one and a `UNIQUE` column needs a category of your own. `sv_SE.date` and `en_US.date`
+are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
+What the two locales do not share: `en_US.address` carries a `region` column the Swedish
+one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
+`sv_SE.title[dr]` rather than inside a sex.
 
 A `geo` folder holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
