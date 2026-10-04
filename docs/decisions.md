@@ -861,8 +861,8 @@ name is an error listing both keys; select by type instead.
 A Luhn-valid personnummer over a random birth number may be a living person's; 238 and
 239 after any date are blocked from assignment, so the shipped `personnummer` and
 `samordningsnummer` use those. They sit in a `birth-number` table under `sex` rather
-than as a column of it: the render's shared draw of the family is what makes the number
-and the name agree on sex, and `sex` stays one shape across locales instead of
+than as a column of it, so a pick of a sex can read the number, which `todo.md` item 28
+has `personnummer` do to agree with a person's sex, and `sex` stays one shape across locales instead of
 collecting every sex-keyed id fact. A samordningsnummer's day, the birthday plus 60, is
 drawn from 61 to 88, valid in every month, rather than computed from the date drawn.
 

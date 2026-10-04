@@ -1,6 +1,6 @@
 {
   "format": "{street} {street-number}\n{postal-code} {locality}",
-  "street": "{.street as s}{s.name}",
+  "street": "{.locality as l}{l.street.name}",
   "street-number": [
     "{int(1,9)}",
     "{int(10,99)}",
@@ -9,6 +9,6 @@
     { "format": "{int(10,99)}{upper(1)}", "weight": 0.1 },
     { "format": "{int(100,999)}{upper(1)}", "weight": 0.05 }
   ],
-  "postal-code": "{s..locality.postal-code.code}",
-  "locality": "{s..locality.name}"
+  "postal-code": "{l.postal-code.code}",
+  "locality": "{l.name}"
 }
