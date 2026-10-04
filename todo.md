@@ -54,6 +54,7 @@
 | 12.2 | 0.45 |
 | 12.3 | 0.45 |
 | 13 | 0.40 |
+| 13.1 | 0.40 |
 | 14 | 0.35 |
 | 14.1 | 0.35 |
 | 15 | 0.30 |
@@ -146,14 +147,14 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary carries every module and may grow to hundreds of MB; a library imports only what it uses, as it imports any dependency, and nothing is fetched at run time. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
+The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
-- A bare `New()` loads no data, and its error names the option to add. `WithoutShippedData` goes.
-- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and several load at once. A module carrying functions loads through an option of its own; gaining one is a breaking change for that module's users.
-- A module names, in a manifest, what it reads and the module providing each by default. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
-- Two sources defining one name fail to load, unless an option says the second replaces the first. The CLI's `--data-path` takes `--replace` to override a shipped category. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
-- The template language's builtins stay in the core. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README strongly encourages functions with no side effects of their own.
-- The CLI is a library call, so a custom CLI carrying other modules is a few lines of Go and works just like `fejkdata`. A README section shows it with example code.
+- A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
+- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
+- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. Nothing loads a default on its own: loading fails naming it, and anything providing the same paths stands in.
+- Two sources defining one name fail to load, unless an option says the second replaces the first. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
+- The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
+- The CLI is a library call, so a custom CLI carrying other modules is a few lines of Go and works just like `fejkdata`. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
 
 Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
@@ -263,6 +264,8 @@ Needs item 4.
 `checkCalc` and the value proof read an operand as a sibling field, so `{calc(n * 2)}` is refused with `no field "n"` today. Item 4 stops an operand holding its field for the expansion, after which a name is the one way to show the operand a calc computes from, as the README's Computation example does.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
+
+Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
