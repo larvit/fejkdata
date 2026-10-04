@@ -157,7 +157,7 @@ func stepInto(n node, seg string) (node, error) {
 		if c, ok := n.(*tableColumn); ok {
 			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.t.header[c.i])
 		}
-		return nil, fmt.Errorf(`".." steps up from a table's row to the row it links to, and what it follows is not a table; a path names every other level from the data root down`)
+		return nil, fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
 	}
 	switch n := n.(type) {
 	case *folder:
@@ -238,7 +238,7 @@ func (t *table) stepUp(rest []string) error {
 	case len(rest) == 0 || rest[0] != t.parentT.segment:
 		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: %s`, t.segment, t.climbTo(rest))
 	case hasSelector(rest):
-		return fmt.Errorf(`a path selects its rows before a "..", since a row selected after it could lie outside the row it steps up to; select from the table instead, its path from the data root: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
+		return fmt.Errorf(`no selector after "..": a row selected there could lie outside the row stepped up to; select from the table's path from the data root: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
 	}
 	return nil
 }

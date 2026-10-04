@@ -25,7 +25,7 @@ const usage = `Usage: fejkdata [flags] <path|template>
 
   <path>                 a category, or a dotted path into one (person, person.last);
                          a table's row by key or name: 'misc.territory[SE]', 'misc.territory[Sweden].tld';
-                         .. steps up to the row a row links to: 'geo.SE.locality..municipality.name'
+                         .. steps up from a row to the row it links to: 'geo.SE.locality..municipality.name'
   <template>             a format string or JSON value to render inline, e.g.
                          'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
 

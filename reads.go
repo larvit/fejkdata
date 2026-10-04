@@ -230,7 +230,7 @@ func (r readRoute) spelled(ref string) string {
 type tableRead struct {
 	headTable *table
 	pins      pinSet
-	leafPins  *pinSet // the rows the leaf renders in: pins, short of the rows a step down after a step up draws afresh
+	leafPins  *pinSet // the rows the leaf renders in: pins, without the rows below the row a ".." stepped up to
 	drawn     map[*table]bool
 	sels      []tableSel
 	landsRow  bool
