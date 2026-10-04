@@ -832,8 +832,9 @@ library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
 is the exception: any release, a patch too, may change what a seed draws. Where you
-compare seeded output, install one exact version (`go install …@vX.Y.Z`; `go.mod` already
-pins one), and regenerate seeded fixtures and expected values when you raise it.
+compare seeded output, install one exact version
+(`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`; `go.mod` already pins one),
+and regenerate seeded fixtures and expected values when you raise that version.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
