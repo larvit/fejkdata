@@ -850,9 +850,9 @@ the README's Format string section states. The maintainer ruled the escape impli
 goal: doubled braces and a lone `}` belong to the `{…}` syntax, so the goal names no escape and
 a lone `}` stays an error. Valid while a template escapes a brace by doubling it.
 
-## Goal 7.2 aims for a first template that can be written with no escape, not for templates that never need one
+## Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 
-2026-10-05, Lilleman auf Larv. Serves goal 7.2. A goal is an aim, not a promise: it is enough
-that a first template can be written with no escape and no options, as `{first} {last}` is. A
-template that wants a literal brace writes `{{` or `}}`, and that does not work against the
-goal. Valid while a template needs an escape only to print a brace.
+2026-10-05, Lilleman auf Larv. Serves goal 7.2. Goals are aims: it is enough that a first
+template can be written with no escape and no options, as `fejkdata 'name: {/sv_SE.person.last}'`
+is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
+while `{{` and `}}` are the template syntax's only escape.
