@@ -1,4 +1,4 @@
-package fejkdata
+package builtinfunc
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func unwrapTransform(arg string) (leaf string, chain []func(string) string, err 
 }
 
 // transformArg proves a transform's chain; checkReads proves the operand it reads.
-func transformArg(_ map[string]node, a []string) error {
+func transformArg(a []string) error {
 	_, _, err := unwrapTransform(a[0])
 	return err
 }
@@ -62,8 +62,8 @@ func transformOperand(a []string) []string {
 	}
 	return []string{leaf}
 }
-func transformPrep(outer func(string) string) func([]string) callFn {
-	return func(a []string) callFn {
+func transformPrep(outer func(string) string) func([]string) Call {
+	return func(a []string) Call {
 		_, chain, err := unwrapTransform(a[0])
 		if err != nil {
 			panic(internalError("transform arg %q reached prep unvalidated: %v", a[0], err))

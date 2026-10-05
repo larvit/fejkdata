@@ -3,9 +3,8 @@ package fejkdata
 import (
 	"fmt"
 	"reflect"
-	"slices"
-	"strings"
 
+	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/proven"
 )
@@ -166,7 +165,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 	}
 	o := t.compiled.ops[0]
 	body, name, args := o.Body, o.Fn, o.Args
-	switch _, isTransform := transforms[name]; {
+	switch {
 	case o.Kind == grammar.NameRead:
 		var leaves []node
 		for _, a := range o.arms {
@@ -175,10 +174,11 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 		return p.proveUnion(leaves)
 	case name == "calc":
 		return p.proveCalc(o)
-	case builtins[name].proveNumber != nil:
-		return builtins[name].proveNumber(body, builtins[name].prints, args)
-	case isTransform:
+	case builtinfunc.IsTransform(name):
 		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
+	}
+	if v, numeric := builtinfunc.ProveNumber(name, body, args); numeric {
+		return v
 	}
 	return proven.Printing(body, DataTypeString, proven.Value{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
@@ -186,27 +186,14 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 func (p *valueProof) proveCalc(o op) proven.Value {
 	body, args := o.Body, o.Args
 	nodes := operandNodes(o)
-	v, doubt := proven.Calc(parsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
+	v, doubt := proven.Calc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
 	if doubt != "" {
 		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
-	return proven.PrintedNumber(body, v, calcDecimals(args))
+	return proven.PrintedNumber(body, v, builtinfunc.CalcDecimals(args))
 }
 
-var typedCalls, operandCalls = numberCalls(false), numberCalls(true)
-
-// numberCalls lists the builtins printing a number, or with text also those whose text
-// is one.
-func numberCalls(text bool) string {
-	var calls []string
-	for name, b := range builtins {
-		if b.proveNumber != nil && (text || b.prints != DataTypeString) {
-			calls = append(calls, "{"+name+"()}")
-		}
-	}
-	slices.Sort(calls)
-	return strings.Join(calls, ", ") + " or {calc()}"
-}
+var typedCalls, operandCalls = builtinfunc.NumberCalls(false), builtinfunc.NumberCalls(true)
 
 func notOneValue(format, calls string) string {
 	return fmt.Sprintf("%q is not one value; write one literal or one %s, or read one", format, calls)

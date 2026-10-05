@@ -1,4 +1,4 @@
-package fejkdata
+package builtinfunc
 
 import (
 	"fmt"
@@ -84,7 +84,7 @@ func holdsQuotedLayout(a []string) bool {
 	}
 	return false
 }
-func dateArgs(_ map[string]node, a []string) error {
+func dateArgs(a []string) error {
 	if err := layoutArity("date", 3, a); err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func dateArgs(_ map[string]node, a []string) error {
 	}
 	return nil
 }
-func timeArg(_ map[string]node, a []string) error {
+func timeArg(a []string) error {
 	if err := layoutArity("time", 1, a); err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func timeArg(_ map[string]node, a []string) error {
 
 // datePrep draws a second in [from 00:00:00, to 23:59:59] UTC; the span is counted
 // in seconds, since a Duration overflows past 292 years.
-func datePrep(a []string) callFn {
+func datePrep(a []string) Call {
 	from, err := time.Parse(dayLayout, a[0])
 	if err != nil {
 		panic(internalError("builtin arg %q reached prep unvalidated: %v", a[0], err))
@@ -141,7 +141,7 @@ func datePrep(a []string) callFn {
 		return time.Unix(start+int64(s.IntN(span)), 0).UTC().Format(layout)
 	}
 }
-func timePrep(a []string) callFn {
+func timePrep(a []string) Call {
 	layout := layoutOf(a[0])
 	return func(s *drawstate.State, _ string, _ []string) string {
 		return time.Unix(int64(s.IntN(86400)), 0).UTC().Format(layout)

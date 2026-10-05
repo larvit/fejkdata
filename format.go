@@ -4,60 +4,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// builtin is a format-string function invoked as {name(args)}. It receives the
-// draw state, the output emitted so far in the current expansion (for derivations
-// such as a checksum over preceding digits), and the values of the operands it named
-// (calc and the transforms name them). All must stay pure over (draw state, emitted, operands) so
-// seeded output is reproducible. arity is the exact arg count, or -1 for variadic (then
-// checkArgs does all the validation).
-type builtin struct {
-	arity int
-	// prep parses validated args once, at compile time, into the closure expand calls.
-	prep      func(args []string) callFn
-	checkArgs func(fields map[string]node, args []string) error
-	// operands names the fields the call reads, which expand renders for it; nil
-	// for a builtin that reads none.
-	operands func(args []string) []string
-	// noRefOperands says no operand can be a reference, so a name read once there is not refused.
-	noRefOperands bool
-	// proveNumber bounds the number a call's text reads as, token its body, and says which
-	// datatypes that text is not; set it where every render reads as a finite number, which
-	// makes the call a calc operand, and leave it nil otherwise.
-	proveNumber func(token string, prints DataType, args []string) proven.Value
-	// prints is the datatype a call's text is, handed to proveNumber: DataTypeString where it
-	// reads as a number no column should type, as digits' leading zeros; unset where
-	// proveNumber is nil.
-	prints DataType
-}
-
-func plural(n int) string {
-	if n == 1 {
-		return ""
-	}
-	return "s"
-}
-
-// checkFunc validates a call at compile time: naming a known builtin, with the arg
-// count that builtin takes and args its check accepts. fields is passed through for
-// the builtins (calc, the transforms) that validate against them.
+// checkFunc validates a call at compile time: a known builtin, its args, and for calc the
+// operands fields holds.
 func checkFunc(tok grammar.Token, fields map[string]node) error {
-	body, name, args := tok.Body, tok.Fn, tok.Args
-	b, known := builtins[name]
-	if !known {
-		return fmt.Errorf("token {%s}: unknown function %q", body, name)
+	err := builtinfunc.Check(tok.Fn, tok.Args)
+	if err == nil && tok.Fn == "calc" {
+		err = checkCalcFields(tok.Args, fields)
 	}
-	if b.arity >= 0 && len(args) != b.arity {
-		return fmt.Errorf("token {%s}: %s takes %d argument%s, got %d", body, name, b.arity, plural(b.arity), len(args))
-	}
-	if b.checkArgs != nil {
-		if err := b.checkArgs(fields, args); err != nil {
-			return fmt.Errorf("token {%s}: %w", body, err)
-		}
+	if err != nil {
+		return fmt.Errorf("token {%s}: %w", tok.Body, err)
 	}
 	return nil
 }
@@ -137,7 +96,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 			return nil, err
 		}
 		a := splitArm(name, nil)
-		unbound = append(unbound, unboundRead{head: a.head, tail: grammar.JoinSegments(a.tail), body: t.Body, operand: operands, noRef: operands && builtins[t.Fn].noRefOperands, err: err})
+		unbound = append(unbound, unboundRead{head: a.head, tail: grammar.JoinSegments(a.tail), body: t.Body, operand: operands, noRef: operands && builtinfunc.NoRefOperands(t.Fn), err: err})
 	}
 	return unbound, nil
 }
@@ -219,19 +178,9 @@ func hintableRef(name string) bool {
 // tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads.
 func tokenReads(t grammar.Token) []string {
 	if t.Kind == grammar.BuiltinCall {
-		return builtinOperands(t.Fn, t.Args)
+		return builtinfunc.Operands(t.Fn, t.Args)
 	}
 	return t.Arms
-}
-
-// builtinOperands lists the fields a call reads as operands, empty for a builtin that
-// reads none or is unknown.
-func builtinOperands(name string, args []string) []string {
-	b, known := builtins[name]
-	if !known || b.operands == nil {
-		return nil
-	}
-	return b.operands(args)
 }
 
 // checkNoRepeatedArm rejects {a|a|b}: an alternation picks its arms evenly, so a
@@ -312,17 +261,12 @@ func checkSegments(a arm) error {
 	return grammar.CheckSegments(append([]string{a.head}, a.tail...))
 }
 
-// callFn is a builtin prepared for one call site: its args already parsed. It reads the
-// output emitted so far in the current expansion (a derivation's payload) and the
-// values of the operands it named, which expand read for it.
-type callFn func(s *drawstate.State, emitted string, operands []string) string
-
 // op is one compiled unit of a format string: a literal run, a name read,
 // or a builtin already prepared with its args.
 type op struct {
 	grammar.Token
 	arms []arm // grammar.NameRead: the '|' alternatives, split into head and tail once
-	call callFn
+	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.
 	operands []arm
@@ -336,14 +280,14 @@ type formatOps struct {
 
 func (c *formatOps) function(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
 	var operands []arm
-	for _, operand := range builtinOperands(tok.Fn, tok.Args) {
+	for _, operand := range builtinfunc.Operands(tok.Fn, tok.Args) {
 		a := splitArm(operand, refs)
 		if isName(a.head) {
 			a.kind = namedRead
 		}
 		operands = append(operands, a)
 	}
-	c.ops = append(c.ops, op{Token: tok, call: builtins[tok.Fn].prep(tok.Args), operands: operands})
+	c.ops = append(c.ops, op{Token: tok, call: builtinfunc.Prep(tok.Fn, tok.Args), operands: operands})
 }
 
 func (c *formatOps) field(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
