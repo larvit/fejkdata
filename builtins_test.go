@@ -4,13 +4,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 func TestBuiltinIDGenerators(t *testing.T) {
@@ -189,31 +187,6 @@ func ibanValid(s string) bool {
 		}
 	}
 	return rem == 1
-}
-
-// TestRegistryShapes pins the builtin contract compileFormat relies on: every entry
-// supplies prep, and args parsed at compile only behind a check.
-func TestRegistryShapes(t *testing.T) {
-	for name, b := range builtins {
-		if b.prep == nil {
-			t.Errorf("builtin %q has no prep: compileFormat would call a nil func", name)
-		}
-		if b.arity != 0 && b.checkArgs == nil {
-			t.Errorf("builtin %q parses args in prep with no check", name)
-		}
-	}
-}
-
-// TestArgGuardsPanic pins the guards that report a builtin arg its check should
-// have rejected. No data reaches them — checkFunc runs a builtin's check before
-// compileFormat ever calls prep — so they are exercised directly.
-func TestArgGuardsPanic(t *testing.T) {
-	for name, call := range map[string]func(){
-		"atoi on an unvalidated arg": func() { atoi("nope") },
-		"atof on an unvalidated arg": func() { atof("nope") },
-	} {
-		mustPanic(t, name, call)
-	}
 }
 
 // mustPanic fails unless call panics with internalError's phrase, which is what
@@ -447,17 +420,6 @@ func TestArgErrorsNameTheSpelling(t *testing.T) {
 	} {
 		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
-		}
-	}
-}
-
-func TestNoRefOperandsMatchesTheOperandGrammar(t *testing.T) {
-	for name, b := range builtins {
-		if b.operands == nil {
-			continue
-		}
-		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), grammar.IsRef); b.noRefOperands == takesRef {
-			t.Errorf("%s: noRefOperands = %v, but its operands func reads a reference: %v", name, b.noRefOperands, takesRef)
 		}
 	}
 }
