@@ -59,9 +59,9 @@ func rendersInside(nodes []node, t *template) bool {
 }
 
 // checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
-// draws the same way without the name. A bound field can stand in only where the reading template
-// reaches the binder through fields. Where the spelling would be a CLI argument or tag of one reference alone,
-// that entry point's own refusal then names the bare path.
+// draws the same way without the name. A bound field can stand in only where the reading
+// template reaches the binder through fields. Where the spelling would be a CLI argument or tag
+// of one reference alone, that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses() error {
 	r := b.uses[0]
 	if len(b.uses) > 1 || r.nested {

@@ -135,13 +135,13 @@ from the one pick a name keeps.
 - `{p.a} {p.b}`, `{w} {uppercase(w)}`, `{/p.first} {/p.last}` and `{/p} {/p}` are two draws
   each, and `{p as q}{q.a} {q.b}` is one. Nothing is kept per format or per render, so the
   only load checks on draws are names, paths through names, cycles and the repeat cap.
-- A name binds a reference, or a field of the template binding it or a path into one, `{place as
-  p}`: an inline template, and a choice of rows inside one category, have no reference to
+- `{x as n}` binds a reference, or a field of the template binding it or a path into one,
+  `{place as p}`: an inline template, and a choice of rows inside one category, have no reference to
   bind, and goal 4.1 holds there too.
 - A name read once is refused where writing what it binds in its place draws the same, and
-  the error names that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc reads no reference or
-  path, and a read inside a nested repeat keeps one pick on every line, so neither is
-  refused.
+  the error names that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc cannot read
+  a reference or a path, so a calc's one read of a name bound to either is not refused, and
+  neither is a read inside a nested repeat, which keeps one pick on every line.
 
 Valid while goal 5.2 has each `{…}` make a new pick.
 
