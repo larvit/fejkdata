@@ -166,9 +166,9 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 }
 
 // resolveReads answers each unbound read under root with a name its template sees, and returns
-// the set of bindings some read answers to. It refuses a field spelling a name, fields before the
-// format, as compile reports them. A refusal searches scopes, every scope of the category, for a
-// name bound where the read cannot see it.
+// the set of bindings some read answers to. It resolves a template's fields before its format, the
+// order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
+// scope of the category, for a name bound where the read cannot see it.
 func resolveReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
 	read := map[*nameBinding]bool{}
 	var resolve func(n node, where string) error
