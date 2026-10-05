@@ -16,8 +16,6 @@ var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
 
 // CheckName rejects a name the dot path, {token} and JSON grammars cannot spell, or a struct
 // tag cannot read.
-// Both a category or folder and a field go through it, so there is one answer to
-// what a name may contain.
 func CheckName(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)

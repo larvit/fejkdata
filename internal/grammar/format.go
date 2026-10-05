@@ -99,12 +99,12 @@ func ParseFormat(format string) ([]Token, error) {
 			return nil
 		}
 		flush()
-		if ref, name, binds := CutOutside(u.body, AsWord); binds && IndexOutside(u.body, '(') < 0 {
+		if ref, name, binds := cutOutside(u.body, AsWord); binds && indexOutside(u.body, '(') < 0 {
 			toks = append(toks, Token{Kind: NameBind, Body: u.body, BoundRef: ref, Bound: name})
 			return nil
 		}
-		if IndexOutside(u.body, '(') < 0 {
-			toks = append(toks, Token{Kind: NameRead, Body: u.body, Arms: SplitOutside(u.body, '|')})
+		if indexOutside(u.body, '(') < 0 {
+			toks = append(toks, Token{Kind: NameRead, Body: u.body, Arms: splitOutside(u.body, '|')})
 			return nil
 		}
 		name, args, ok := FuncCall(u.body)
@@ -124,16 +124,16 @@ func ParseFormat(format string) ([]Token, error) {
 // FuncCall splits a "{token}" body shaped name(args) into its parts; ok is false
 // for a name-read body. A '(' without a trailing ')' yields ok=false.
 func FuncCall(body string) (name string, args []string, ok bool) {
-	lp := IndexOutside(body, '(')
+	lp := indexOutside(body, '(')
 	if lp < 0 || !strings.HasSuffix(body, ")") {
 		return "", nil, false
 	}
-	return body[:lp], SplitArgs(body[lp+1 : len(body)-1]), true
+	return body[:lp], splitArgs(body[lp+1 : len(body)-1]), true
 }
 
-// SplitArgs parses a function arg list: comma-separated outside a selector or a
+// splitArgs parses a function arg list: comma-separated outside a selector or a
 // quoted layout, trimmed; empty -> none.
-func SplitArgs(s string) []string {
+func splitArgs(s string) []string {
 	if strings.TrimSpace(s) == "" {
 		return nil
 	}
