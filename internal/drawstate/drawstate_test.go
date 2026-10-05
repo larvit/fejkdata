@@ -38,3 +38,16 @@ func TestCountersCountFromOneEach(t *testing.T) {
 		t.Fatalf("a new state's Seq = %d, want 1", got)
 	}
 }
+
+func TestWeightedDrawsByWeight(t *testing.T) {
+	s := New(1)
+	counts := make([]int, 3)
+	for i := 0; i < 30000; i++ {
+		counts[s.Weighted([]float64{1, 2, 6})]++
+	}
+	for i, want := range []float64{1.0 / 6, 1.0 / 6, 4.0 / 6} {
+		if share := float64(counts[i]) / 30000; share < want-0.02 || share > want+0.02 {
+			t.Errorf("index %d drew a share of %.3f, want about %.3f", i, share, want)
+		}
+	}
+}

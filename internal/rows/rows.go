@@ -14,14 +14,13 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// Table is the rows of one table category. P is what owns them, which a step to a linked
-// table reaches through Payload.
-type Table[P any] struct {
-	payload     P
+// Table is the rows of one table category, and O is what owns them.
+type Table[O any] struct {
+	owner       O
 	segment     string // path's last segment
 	path        string // the category's path from the data root, which a selector is written at
 	file        string
-	options     Columns
+	options     Options
 	header      []string
 	col         map[string]int
 	cells       []string // rows × columns, flat
@@ -32,14 +31,14 @@ type Table[P any] struct {
 	weights     []float64 // nil when uniform
 	cum         []float64 // cumulative weights, nil when uniform
 	byKey       map[string]int
-	parent      *Table[P]
-	children    map[string]*Table[P]
+	parent      *Table[O]
+	children    map[string]*Table[O]
 	once        sync.Once
 	lookup      rowLookup
 }
 
-// Columns names the column each option reads, "" where the option is absent.
-type Columns struct {
+// Options names the column each option reads, "" where the option is absent.
+type Options struct {
 	Key, Name, Parent, Weight string
 }
 
@@ -52,9 +51,9 @@ type rowLookup struct {
 }
 
 // Parse reads the TSV data, the rows of the table at path, and proves what the options
-// claim of them. payload is what owns the rows.
-func Parse[P any](payload P, segment, path, file, data string, o Columns) (*Table[P], error) {
-	t := &Table[P]{payload: payload, segment: segment, path: path, file: file, options: o, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
+// claim of them.
+func Parse[O any](owner O, segment, path, file, data string, o Options) (*Table[O], error) {
+	t := &Table[O]{owner: owner, segment: segment, path: path, file: file, options: o, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
 	if err := t.parseRows(data); err != nil {
 		return nil, fmt.Errorf("%s: %w", file, err)
 	}
@@ -67,29 +66,25 @@ func Parse[P any](payload P, segment, path, file, data string, o Columns) (*Tabl
 	return t, nil
 }
 
-func (t *Table[P]) Payload() P        { return t.payload }
-func (t *Table[P]) Segment() string   { return t.segment }
-func (t *Table[P]) Path() string      { return t.path }
-func (t *Table[P]) File() string      { return t.file }
-func (t *Table[P]) Options() Columns  { return t.options }
-func (t *Table[P]) Header() []string  { return t.header }
-func (t *Table[P]) Parent() *Table[P] { return t.parent }
+func (t *Table[O]) Owner() O          { return t.owner }
+func (t *Table[O]) Segment() string   { return t.segment }
+func (t *Table[O]) File() string      { return t.file }
+func (t *Table[O]) Options() Options  { return t.options }
+func (t *Table[O]) Header() []string  { return t.header }
+func (t *Table[O]) Parent() *Table[O] { return t.parent }
 
-// LinkColumn is the index of the column holding the parent's key, -1 where there is none.
-func (t *Table[P]) LinkColumn() int { return t.parentIndex }
-
-func (t *Table[P]) Column(name string) (int, bool) {
+func (t *Table[O]) Column(name string) (int, bool) {
 	i, ok := t.col[name]
 	return i, ok
 }
 
-func (t *Table[P]) Len() int { return len(t.cells) / len(t.header) }
+func (t *Table[O]) Len() int { return len(t.cells) / len(t.header) }
 
-func (t *Table[P]) Cell(row, col int) string { return t.cells[row*len(t.header)+col] }
+func (t *Table[O]) Cell(row, col int) string { return t.cells[row*len(t.header)+col] }
 
 // parseRows reads the TSV: the header line names the columns, each following line
 // is a row of as many cells. Cells are substrings of data, so the file is held once.
-func (t *Table[P]) parseRows(data string) error {
+func (t *Table[O]) parseRows(data string) error {
 	data = strings.TrimSuffix(strings.TrimPrefix(data, "\xEF\xBB\xBF"), "\n")
 	header, rest, _ := strings.Cut(data, "\n")
 	header = strings.TrimSuffix(header, "\r")
@@ -130,7 +125,7 @@ func (t *Table[P]) parseRows(data string) error {
 }
 
 // appendRow splits one line into as many cells as the header has columns.
-func (t *Table[P]) appendRow(row string, line int) error {
+func (t *Table[O]) appendRow(row string, line int) error {
 	if row == "" {
 		return fmt.Errorf("line %d is empty; every line below the header is a row", line)
 	}
@@ -148,8 +143,11 @@ func (t *Table[P]) appendRow(row string, line int) error {
 
 // bindOptions resolves each option to its column and proves what it claims of the
 // cells: a key is unique, a weight a positive number.
-func (t *Table[P]) bindOptions() error {
+func (t *Table[O]) bindOptions() error {
 	o := t.options
+	if o.Key != "" && o.Key == o.Name {
+		return fmt.Errorf("name names the key column %q, which a selector already reads; drop it", o.Name)
+	}
 	for _, opt := range []struct {
 		name, value string
 		into        *int
@@ -176,7 +174,7 @@ func (t *Table[P]) bindOptions() error {
 }
 
 // proveNamesInsideParent proves a name without a key names one row inside its parent.
-func (t *Table[P]) proveNamesInsideParent() error {
+func (t *Table[O]) proveNamesInsideParent() error {
 	if t.keyIndex >= 0 || t.nameIndex < 0 {
 		return nil
 	}
@@ -192,7 +190,7 @@ func (t *Table[P]) proveNamesInsideParent() error {
 }
 
 // proveKeys proves every key names one row, and keeps the map a link is proved by.
-func (t *Table[P]) proveKeys() error {
+func (t *Table[O]) proveKeys() error {
 	if t.keyIndex < 0 {
 		return nil
 	}
@@ -219,7 +217,7 @@ func (t *Table[P]) proveKeys() error {
 
 // sumWeights proves every weight is a positive number, and keeps the weights and their
 // running sum.
-func (t *Table[P]) sumWeights() error {
+func (t *Table[O]) sumWeights() error {
 	if t.weightIndex < 0 {
 		return nil
 	}
@@ -240,7 +238,7 @@ func (t *Table[P]) sumWeights() error {
 }
 
 // checkSelectorCells refuses a key or name cell a selector cannot spell.
-func (t *Table[P]) checkSelectorCells() error {
+func (t *Table[O]) checkSelectorCells() error {
 	for r := 0; r < t.Len(); r++ {
 		for _, col := range []int{t.keyIndex, t.nameIndex} {
 			if col < 0 {
@@ -258,7 +256,7 @@ func (t *Table[P]) checkSelectorCells() error {
 // link cell is one, and every row of p is linked to. sibling is the table beside t
 // named name, nil where none is. It is the only writer of a table's parent and children.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
-func (t *Table[P]) Link(p *Table[P], sibling func(name string) *Table[P]) error {
+func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error {
 	name := t.header[t.parentIndex]
 	if p.keyIndex < 0 {
 		return fmt.Errorf("parent %q has no key column to link to", name)
@@ -281,7 +279,7 @@ func (t *Table[P]) Link(p *Table[P], sibling func(name string) *Table[P]) error 
 	}
 	t.parent = p
 	if p.children == nil {
-		p.children = map[string]*Table[P]{}
+		p.children = map[string]*Table[O]{}
 	}
 	p.children[t.segment] = t
 	return nil
@@ -289,9 +287,9 @@ func (t *Table[P]) Link(p *Table[P], sibling func(name string) *Table[P]) error 
 
 // checkAncestors refuses a cycle in the chain of parents starting at p, t's parent, and
 // refuses an ancestor that has a column named like t.
-func (t *Table[P]) checkAncestors(p *Table[P], sibling func(name string) *Table[P]) error {
-	var ancestors []*Table[P]
-	for q, seen := p, map[*Table[P]]bool{t: true}; q != nil; q = sibling(q.header[q.parentIndex]) {
+func (t *Table[O]) checkAncestors(p *Table[O], sibling func(name string) *Table[O]) error {
+	var ancestors []*Table[O]
+	for q, seen := p, map[*Table[O]]bool{t: true}; q != nil; q = sibling(q.header[q.parentIndex]) {
 		if seen[q] {
 			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
 		}
@@ -310,8 +308,8 @@ func (t *Table[P]) checkAncestors(p *Table[P], sibling func(name string) *Table[
 }
 
 // Children is the tables linked to t, by segment.
-func (t *Table[P]) Children() []*Table[P] {
-	out := make([]*Table[P], 0, len(t.children))
+func (t *Table[O]) Children() []*Table[O] {
+	out := make([]*Table[O], 0, len(t.children))
 	for _, c := range t.children {
 		out = append(out, c)
 	}
@@ -320,7 +318,7 @@ func (t *Table[P]) Children() []*Table[P] {
 }
 
 // Descendant is the table named name among those linked to t, at any depth.
-func (t *Table[P]) Descendant(name string) *Table[P] {
+func (t *Table[O]) Descendant(name string) *Table[O] {
 	if c, ok := t.children[name]; ok {
 		return c
 	}
@@ -332,10 +330,10 @@ func (t *Table[P]) Descendant(name string) *Table[P] {
 	return nil
 }
 
-// StepUp proves a ".." after a row of t can step up: t has a parent, rest has no empty
+// ProveStepUp proves a ".." after a row of t can step up: t has a parent, rest has no empty
 // segment and names it, and no selector follows, since a row selected below the parent row
 // could lie outside it.
-func (t *Table[P]) StepUp(rest []string) error {
+func (t *Table[O]) ProveStepUp(rest []string) error {
 	if t.parent == nil {
 		return fmt.Errorf(`%s has no parent table for ".." to step up to`, t.segment)
 	}
@@ -353,7 +351,7 @@ func (t *Table[P]) StepUp(rest []string) error {
 
 // climbTo spells the ".." steps from t up to the ancestor rest names first, or the one step to
 // t's parent where no ancestor is named.
-func (t *Table[P]) climbTo(rest []string) string {
+func (t *Table[O]) climbTo(rest []string) string {
 	var b strings.Builder
 	for a := t.parent; a != nil; a = a.parent {
 		b.WriteString(".." + a.segment)
@@ -364,7 +362,7 @@ func (t *Table[P]) climbTo(rest []string) string {
 	return ".." + t.parent.segment
 }
 
-func (t *Table[P]) builtLookup() *rowLookup {
+func (t *Table[O]) builtLookup() *rowLookup {
 	t.once.Do(func() {
 		if t.nameIndex >= 0 {
 			t.lookup.byName = make(map[string][]int, t.Len())
@@ -395,7 +393,7 @@ func (t *Table[P]) builtLookup() *rowLookup {
 	return &t.lookup
 }
 
-func (t *Table[P]) Draw(s *drawstate.State) int {
+func (t *Table[O]) Draw(s *drawstate.State) int {
 	if t.cum == nil {
 		return s.IntN(t.Len())
 	}
@@ -403,7 +401,7 @@ func (t *Table[P]) Draw(s *drawstate.State) int {
 }
 
 // drawUnder picks a row among those linked to parent row pr.
-func (t *Table[P]) drawUnder(s *drawstate.State, pr int) int {
+func (t *Table[O]) drawUnder(s *drawstate.State, pr int) int {
 	lookup := t.builtLookup()
 	k := t.parent.Cell(pr, t.parent.keyIndex)
 	rows := lookup.rowsByParent[k]
@@ -413,10 +411,10 @@ func (t *Table[P]) drawUnder(s *drawstate.State, pr int) int {
 	return rows[s.Weighted(lookup.childCum[k])]
 }
 
-// DrawIn is the row of t a path or a named pick reads: the one pinned in p, else one drawn inside the nearest
+// DrawIn is the row of t inside the rows p pins: the one pinned in p, else one drawn inside the nearest
 // pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
 // over the whole table, and pinned with its ancestors.
-func (t *Table[P]) DrawIn(s *drawstate.State, p *Pins[P]) int {
+func (t *Table[O]) DrawIn(s *drawstate.State, p *Pins[O]) int {
 	if r, ok := p.Pinned(t); ok {
 		return r
 	}
@@ -439,10 +437,10 @@ func (t *Table[P]) DrawIn(s *drawstate.State, p *Pins[P]) int {
 }
 
 // parentRow is the row of t's parent that row r links to.
-func (t *Table[P]) parentRow(r int) int { return t.parent.byKey[t.Cell(r, t.parentIndex)] }
+func (t *Table[O]) parentRow(r int) int { return t.parent.byKey[t.Cell(r, t.parentIndex)] }
 
 // under reports whether row r of t sits inside row pr of ancestor a.
-func (t *Table[P]) under(r int, a *Table[P], pr int) bool {
+func (t *Table[O]) under(r int, a *Table[O], pr int) bool {
 	for c, row := t, r; c.parent != nil; c, row = c.parent, c.parentRow(row) {
 		if c.parent == a {
 			return c.parentRow(row) == pr
@@ -453,7 +451,7 @@ func (t *Table[P]) under(r int, a *Table[P], pr int) bool {
 
 // find is the row a selector names: by key first, then by name, where a name
 // naming several rows resolves inside the ancestors pinned.
-func (t *Table[P]) find(sel string, pins *Pins[P]) (int, error) {
+func (t *Table[O]) find(sel string, pins *Pins[O]) (int, error) {
 	if t.keyIndex < 0 && t.nameIndex < 0 {
 		return 0, fmt.Errorf("%s has no key or name column to select a row by", t.path)
 	}
@@ -475,7 +473,7 @@ func (t *Table[P]) find(sel string, pins *Pins[P]) (int, error) {
 
 // ambiguous names each row a selector could have meant: a keyed table by its keys,
 // and one told apart only by its parent by the path that selects it.
-func (t *Table[P]) ambiguous(sel string, rows []int) error {
+func (t *Table[O]) ambiguous(sel string, rows []int) error {
 	spellings := make([]string, len(rows))
 	for i, r := range rows {
 		if t.keyIndex < 0 {
@@ -497,7 +495,7 @@ func (t *Table[P]) ambiguous(sel string, rows []int) error {
 
 // selectorSpelling is how a path writes a selected row, for messages: by key, or
 // by name inside its parent's row.
-func (t *Table[P]) selectorSpelling(r int) string {
+func (t *Table[O]) selectorSpelling(r int) string {
 	switch {
 	case t.keyIndex >= 0:
 		return t.path + "[" + t.Cell(r, t.keyIndex) + "]"

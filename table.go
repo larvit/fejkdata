@@ -15,12 +15,12 @@ type table struct {
 	rows           *rowsTable
 	formatTemplate *template // fields are the column nodes
 	rowNode        *tableRow
-	cellTemplates  map[int]*template
+	cellTemplates  map[int]*template // by cellIndex
 }
 
 type (
-	rowsTable = rows.Table[*table]
 	pinSet    = rows.Pins[*table]
+	rowsTable = rows.Table[*table]
 )
 
 func (*table) isNode() {}
@@ -43,8 +43,10 @@ func (*tableRow) isNode() {}
 // cellTemplate is what a cell renders: its compiled template where it carries tokens,
 // else nil for its text.
 func (t *table) cellTemplate(row, col int) *template {
-	return t.cellTemplates[row*len(t.rows.Header())+col]
+	return t.cellTemplates[t.cellIndex(row, col)]
 }
+
+func (t *table) cellIndex(row, col int) int { return row*len(t.rows.Header()) + col }
 
 // tableOptions are the keys a table object takes; every other key is refused.
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
@@ -68,7 +70,7 @@ func compileTable(m map[string]any, dir []string, name string, readRows func(fil
 		return nil, err
 	}
 	t := &table{}
-	if t.rows, err = rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.columns); err != nil {
+	if t.rows, err = rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.options); err != nil {
 		return nil, err
 	}
 	if err := t.checkCells(); err != nil {
@@ -82,7 +84,7 @@ func compileTable(m map[string]any, dir []string, name string, readRows func(fil
 
 type tableOptionValues struct {
 	format, rows string
-	columns      rows.Columns
+	options      rows.Options
 }
 
 func readTableOptions(m map[string]any) (tableOptionValues, error) {
@@ -92,7 +94,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 			return o, fmt.Errorf("a table takes %s; %q is none of them", strings.Join(tableOptions, ", "), k)
 		}
 	}
-	for k, into := range map[string]*string{"format": &o.format, "key": &o.columns.Key, "name": &o.columns.Name, "parent": &o.columns.Parent, "rows": &o.rows, "weight": &o.columns.Weight} {
+	for k, into := range map[string]*string{"format": &o.format, "key": &o.options.Key, "name": &o.options.Name, "parent": &o.options.Parent, "rows": &o.rows, "weight": &o.options.Weight} {
 		v, ok := m[k]
 		if !ok {
 			continue
@@ -111,9 +113,6 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	}
 	if !strings.HasSuffix(o.rows, ".tsv") || strings.Contains(o.rows, "/") {
 		return o, fmt.Errorf("rows names a .tsv file beside the category, not %q", o.rows)
-	}
-	if o.columns.Key != "" && o.columns.Key == o.columns.Name {
-		return o, fmt.Errorf("name names the key column %q, which a selector already reads; drop it", o.columns.Name)
 	}
 	return o, nil
 }
@@ -134,7 +133,7 @@ func (t *table) checkCells() error {
 			if t.cellTemplates == nil {
 				t.cellTemplates = map[int]*template{}
 			}
-			t.cellTemplates[row*len(header)+col] = n
+			t.cellTemplates[t.cellIndex(row, col)] = n
 		}
 	}
 	return nil
@@ -207,7 +206,7 @@ func refuseTableBinding(toks []grammar.Token) error {
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
 		t, isTable := s.n.(*table)
-		if !isTable || t.rows.LinkColumn() < 0 {
+		if !isTable || t.rows.Options().Parent == "" {
 			continue
 		}
 		if err := t.linkParent(s.in.children); err != nil {
@@ -227,8 +226,8 @@ func (t *table) linkParent(siblings map[string]node) error {
 	case !ok:
 		return fmt.Errorf("parent %q is not a table; a link column reads a table's key", name)
 	}
-	return t.rows.Link(p.rows, func(name string) *rowsTable {
-		if q, ok := siblings[name].(*table); ok {
+	return t.rows.Link(p.rows, func(sibling string) *rowsTable {
+		if q, ok := siblings[sibling].(*table); ok {
 			return q.rows
 		}
 		return nil

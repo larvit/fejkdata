@@ -416,11 +416,11 @@ An `int64` or `float64` field unproven in range is told to become itself, and a 
 
 ### 51. Spell a table one way across the errors that name it.
 
-`pinRow` names `t.path` and `mustRow` panics with `t.category`, so one table is `territory` and `misc.territory`, and the short spelling names no file where two folders hold that name.
+In `internal/rows`, `Pins.PinRow` names `t.path` and `Pins.MustRow` panics with `t.segment`, so one table is `territory` and `misc.territory`, and the short spelling names no file where two folders hold that name.
 
 ### 115. Spell a rows file's line one way in every error, naming the file.
 
-Today a cell reads `g.t.b, line 3` (`namedNode.labelIn`), a cell check `t.tsv: line 3, b` (`checkCells`) and a link `t.tsv line 3` (`proveParent`). A reference cycle found from a table's format through a cell names no line at all: `reference cycle: g.t -> format -> b -> b -> /h -> …`, where the column-to-cell step in `renderEdges` repeats the column name.
+Today a cell reads `g.t.b, line 3` (`namedNode.labelIn`), a cell check `t.tsv: line 3, b` (`checkCells`) and a link `t.tsv line 3` (`rows.Table.Link`). A reference cycle found from a table's format through a cell names no line at all: `reference cycle: g.t -> format -> b -> b -> /h -> …`, where the column-to-cell step in `renderEdges` repeats the column name.
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 

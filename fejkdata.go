@@ -171,7 +171,7 @@ func tablePaths(t *table) []string {
 	out := append([]string{""}, t.rows.Header()...)
 	sort.Strings(out[1:])
 	for _, c := range t.rows.Children() {
-		for _, p := range paths(c.Payload()) {
+		for _, p := range paths(c.Owner()) {
 			out = append(out, join(c.Segment(), p))
 		}
 	}
