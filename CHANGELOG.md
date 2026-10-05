@@ -12,9 +12,10 @@ replacement, and each removed path, column or flag.
   `{/city[Oslo]..country.name}` renders `Norway`, and `.` after it steps down again,
   drawing afresh. `New` refuses a `..` naming anything but the parent table, and a
   selector after a `..`.
-- A path given to `Fake` or the CLI may not read into a level carrying a
-  `repeat`, as a reference may not: `Fake("x.a")` where `x` carries `"repeat": 3` fails,
-  naming the level `x`.
+- A path, given to `Fake` or the CLI or referenced in a template, may not read into a
+  level carrying a `repeat`, and `List` advertises none that does: where `x` carries
+  `"repeat": 3`, `Fake("x.a")` fails naming the level `x`, and `Fake("x")` renders it
+  whole.
 - Every `{…}` draws afresh, and a name is the one way to keep a pick: `{p.a} {p.b}`,
   `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
   `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one.
