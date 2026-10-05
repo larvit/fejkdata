@@ -62,8 +62,8 @@ type linkedNames struct {
 }
 
 // linkTemplates links ts in steps, each over every template before the next starts, each
-// returning what it builds and taking what an earlier step built as an argument: the references,
-// the names' targets, the compiled formats, the keys and reads of each name, and the column each
+// returning what it builds: the references and the compiled formats, kept on each template, the
+// names' targets, keys and reads, passed to the steps after as arguments, and the column each
 // format reads. The bindings take their targets and keys once every check has passed.
 func linkTemplates(ts []linkSite, root map[string]node) error {
 	for _, s := range ts {

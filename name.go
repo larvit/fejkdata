@@ -96,11 +96,11 @@ func bindNames(root node) error {
 	if err != nil {
 		return err
 	}
-	return checkRead(scopes, read)
+	return checkEveryNameRead(scopes, read)
 }
 
-// checkRead refuses a binding of scopes that read does not hold.
-func checkRead(scopes []*nameScope, read map[*nameBinding]bool) error {
+// checkEveryNameRead refuses a binding of scopes that nothing reads.
+func checkEveryNameRead(scopes []*nameScope, read map[*nameBinding]bool) error {
 	for _, sc := range scopes {
 		for _, b := range sc.order {
 			if !read[b] {

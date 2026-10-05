@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
@@ -67,6 +68,9 @@ func rendersInside(nodes []node, t *template) bool {
 // template reaches the binder through fields. Where the spelling would be a CLI argument or tag
 // of one reference alone, that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses(uses []nameUse) error {
+	if len(uses) == 0 {
+		panic(invariant.Broken("name %q has no read at link, though its compile found one", b.name))
+	}
 	r := uses[0]
 	if len(uses) > 1 || r.nested {
 		return nil
