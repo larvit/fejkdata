@@ -67,7 +67,7 @@ func checkColumns(s nodeScope) error {
 		checked[column] = true
 		items, _ := columnItems(column)
 		for _, it := range items {
-			if r := it.link.readsColumn; r != nil && r.category != "" {
+			if r := it.readsColumn; r != nil && r.category != "" {
 				if err := check(r.category, r.field, r.column); err != nil {
 					return err
 				}
@@ -110,8 +110,8 @@ func columnDatatype(n node) DataType {
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
 func itemDatatype(t *template) DataType {
-	if t.datatype == DataTypeString && t.link.readsColumn != nil {
-		return columnDatatype(t.link.readsColumn.column)
+	if t.datatype == DataTypeString && t.readsColumn != nil {
+		return columnDatatype(t.readsColumn.column)
 	}
 	return t.datatype
 }

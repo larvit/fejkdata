@@ -24,7 +24,7 @@ func (p *valueProof) checkDatatype(label string, n node) error {
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
-	if r := t.link.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
+	if r := t.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
 		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, label, t.format, t.datatype)
 	}
 	if reason := p.proveColumnItem(t).Not[t.datatype]; reason != "" {
@@ -66,10 +66,10 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 
 // proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
 func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	if t.link.readsColumn == nil {
+	if t.readsColumn == nil {
 		return p.prove(t)
 	}
-	return p.proveColumn(t.link.readsColumn.column)
+	return p.proveColumn(t.readsColumn.column)
 }
 
 // proveColumn proves a column over what its items draw, a null item marking it null rather than

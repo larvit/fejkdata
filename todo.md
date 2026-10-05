@@ -247,7 +247,7 @@ Until a panel scores 7.0 or above, only items 104 to 106 and the exceptions in `
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 

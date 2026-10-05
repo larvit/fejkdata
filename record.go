@@ -142,15 +142,15 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	} else if len(tail) > 0 {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
-	shape := f.recordShapeOf(n)
-	if errors.Is(shape.err, ErrNoColumns) {
+	record, err := recordOf(n)
+	if errors.Is(err, ErrNoColumns) {
 		ns := grammar.NameSegments(segments)
-		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, shape.err, ns[len(ns)-1], path)
+		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
-	if shape.err != nil {
-		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
 	}
-	return renderRecord(f.drawState, shape.template, shape.columns, sc), nil
+	return renderRecord(f.drawState, record, sc), nil
 }
 
 // tableRecord walks a path's tail from a table to the table whose row is the record, and that
@@ -171,35 +171,11 @@ func tableRecord(s *drawstate.State, t *table, tail []string) (node, renderedRow
 	return n, renderedRow{}, nil
 }
 
-// recordShape is what recordOf settled about a node: the template to project, its
-// columns, or why it is not a record.
-type recordShape struct {
-	template *template
-	columns  []Column
-	err      error
-}
-
-// recordShapeOf fences a node once and remembers the answer. Callers hold the
-// generator's lock.
-func (f *Generator) recordShapeOf(n node) recordShape {
-	if shape, done := f.records[n]; done {
-		return shape
-	}
-	t, columns, err := recordOf(n)
-	shape := recordShape{template: t, columns: columns, err: err}
-	if f.records == nil {
-		f.records = map[node]recordShape{}
-	}
-	f.records[n] = shape
-	return shape
-}
-
 // RecordTemplate is an inline record compiled, referenced and validated once,
 // ready to render many times with [RecordTemplate.Fake].
 type RecordTemplate struct {
 	g        *Generator
 	template *template
-	columns  []Column
 }
 
 // Fake renders the record, one pick of each name across its columns.
@@ -207,7 +183,7 @@ func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
 	var frames frameStack
-	return renderRecord(t.g.drawState, t.template, t.columns, renderScope{frames: &frames})
+	return renderRecord(t.g.drawState, t.template, renderScope{frames: &frames})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -217,11 +193,11 @@ func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	if err != nil {
 		return nil, err
 	}
-	tm, columns, err := recordOf(t.n)
+	record, err := recordOf(t.n)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: an inline record %w", err)
 	}
-	return &RecordTemplate{g: f, template: tm, columns: columns}, nil
+	return &RecordTemplate{g: f, template: record}, nil
 }
 
 // FakeRecordTemplate compiles and renders an inline record in one call.
@@ -237,63 +213,87 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // the record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// recordOf is the fence both record entry points pass. The columns come back with
-// the template, fixed for every draw the caller goes on to make.
-func recordOf(n node) (*template, []Column, error) {
+// recordOf is the fence both record entry points pass: the record template n is, whose columns
+// its link fixed for every draw.
+func recordOf(n node) (*template, error) {
 	if tb, isTable := n.(*table); isTable {
 		n = tb.formatTemplate
 	}
 	t, ok := n.(*template)
 	if !ok {
-		return nil, nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
+		return nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 	}
-	names := sortedNames(t.fields)
-	if len(names) == 0 {
-		return nil, nil, ErrNoColumns
+	if len(t.fields) == 0 {
+		return nil, ErrNoColumns
 	}
 	if !t.isRecord {
-		return nil, nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
+		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	columns := make([]Column, len(names))
-	for i, name := range names {
-		columns[i] = Column{Name: name, DataType: columnDatatype(t.fields[name])}
-	}
-	return t, columns, nil
+	return t, nil
 }
 
-// renderRecord draws each column once, in the name order recordOf fixed, as one render, so the
-// columns read one pick of each name; a table's columns read sc's row.
-func renderRecord(s *drawstate.State, t *template, columns []Column, sc renderScope) *Record {
+// recordColumn is one column of a record template: what it writes, the field drawing it, and the
+// name the template binds to that whole field, whose pick the column renders so the row agrees
+// with the columns reading the name.
+type recordColumn struct {
+	Column
+	field node
+	whole *nameBinding
+}
+
+// settleRecords fixes the columns of every record in scope, whose datatypes a cycle would walk
+// forever, so bind refuses the scope's cycles first.
+func settleRecords(scope nodeScope) {
+	_ = scope(func(_ string, n node) error {
+		if t, isTemplate := n.(*template); isTemplate {
+			t.columns = recordColumns(t)
+		}
+		return nil
+	})
+}
+
+// recordColumns is t's columns in name order where t is a record with fields, else nil.
+func recordColumns(t *template) []recordColumn {
+	if !t.isRecord || len(t.fields) == 0 {
+		return nil
+	}
+	whole := map[node]*nameBinding{}
+	for _, tok := range t.tokens {
+		if tok.Kind != grammar.NameBind {
+			continue
+		}
+		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.tail) == 0 && whole[b.head] == nil {
+			whole[b.head] = b
+		}
+	}
+	names := sortedNames(t.fields)
+	columns := make([]recordColumn, len(names))
+	for i, name := range names {
+		field := t.fields[name]
+		columns[i] = recordColumn{Column: Column{Name: name, DataType: columnDatatype(field)}, field: field, whole: whole[field]}
+	}
+	return columns
+}
+
+// renderRecord draws each column of t once, in name order, as one render, so the columns read one
+// pick of each name; a table's columns read sc's row.
+func renderRecord(s *drawstate.State, t *template, sc renderScope) *Record {
 	if mark := sc.renderFrame(t); mark >= 0 {
 		defer sc.frames.pop(mark)
 	}
-	r := &Record{columns: append([]Column(nil), columns...)}
-	for i := range r.columns {
-		field := t.fields[r.columns[i].Name]
+	r := &Record{columns: make([]Column, len(t.columns))}
+	for i, c := range t.columns {
 		var column readValue
-		if b := bindingOfWhole(t, field); b != nil {
-			column = readName(s, sc, arm{kind: namedRead, named: b, levels: wholeLevels})
+		if c.whole != nil {
+			column = readName(s, sc, arm{kind: namedRead, named: c.whole, levels: wholeLevels})
 		} else {
-			column = renderLeaf(s, field, sc)
+			column = renderLeaf(s, c.field, sc)
 		}
+		r.columns[i] = c.Column
 		r.columns[i].Value, r.columns[i].Null = column.text, column.null
 	}
 	return r
 }
 
-// wholeLevels is the levels of a read of a whole name, as linkName compiles {n}.
+// wholeLevels is the levels of a read of a whole name, as compileArm compiles {n}.
 var wholeLevels = []string{""}
-
-// bindingOfWhole is the name t binds to the whole of field, whose pick the field's column renders
-// so the row agrees with the columns reading the name; nil where none does.
-func bindingOfWhole(t *template, field node) *nameBinding {
-	if t.ownNameScope == nil {
-		return nil
-	}
-	for _, b := range t.ownNameScope.order {
-		if b.bindsField() && b.binder == t && len(b.tail) == 0 && b.head == field {
-			return b
-		}
-	}
-	return nil
-}

@@ -93,15 +93,16 @@ func render(s *drawstate.State, n node, sc renderScope) string {
 func renderRepeat(s *drawstate.State, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
+	own := t.ownScope()
 	for i := 0; i < t.repeat; i++ {
 		if i > 0 {
 			b.WriteString(t.separator)
 		}
-		if t.ownNameScope == nil {
+		if own == nil {
 			b.WriteString(expand(s, t, sc))
 			continue
 		}
-		mark := sc.frames.push(newPickFrame(t.ownNameScope))
+		mark := sc.frames.push(newPickFrame(own))
 		b.WriteString(expand(s, t, sc))
 		sc.frames.pop(mark)
 	}
@@ -172,8 +173,8 @@ func renderLeaf(s *drawstate.State, n node, sc renderScope) readValue {
 	case *nullItem:
 		return readValue{null: true}
 	case *template:
-		if leaf.link.readsColumn != nil {
-			return readField(s, leaf, sc, leaf.link.readsColumn.a)
+		if leaf.readsColumn != nil {
+			return readField(s, leaf, sc, leaf.readsColumn.a)
 		}
 	}
 	return readValue{text: render(s, n, sc)}

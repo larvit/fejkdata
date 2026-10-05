@@ -47,7 +47,7 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick. Every format compiles in `linkTemplate`.
+// an independent pick. Every format compiles in `linkTemplates`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
@@ -61,19 +61,21 @@ type template struct {
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
 	// Filled by `bindNames`, from the compiled category:
-	nameScope    *nameScope // where its tokens look a name up
-	ownNameScope *nameScope // the scope it renders a frame of: a category's, on its root, or a repeat's, per iteration
+	nameScope *nameScope // where its tokens look a name up
 
-	// Filled by `linkTemplate`, from the assembled tree:
-	link     templateLink
-	compiled formatOps
+	// Filled by `linkTemplates`, from the assembled tree:
+	link        templateLink
+	compiled    formatOps
+	readsColumn *columnRead // set when the format is one reference or name read alone reading a record's column
+
+	// Filled by `settleRecords`, once the load refused every cycle:
+	columns []recordColumn // a record's, where it has fields, in name order
 }
 
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
-	refs        map[string]refBinding // each reference the format reads -> what it resolves to
-	refHeads    map[string]node       // each refBinding.head -> the category it names
-	readsColumn *columnRead           // set when the format is one reference or name read alone reading a record's column
+	refs     map[string]refBinding // each reference the format reads -> what it resolves to
+	refHeads map[string]node       // each refBinding.head -> the category it names
 }
 
 func (*template) isNode() {}

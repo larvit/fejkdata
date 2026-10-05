@@ -148,6 +148,7 @@ func (b binding) bind() error {
 	if err := checkNoCycles(b.scope); err != nil {
 		return err
 	}
+	settleRecords(b.scope)
 	if !b.typedByGo {
 		if err := checkColumns(b.scope); err != nil {
 			return err

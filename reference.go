@@ -2,10 +2,10 @@ package fejkdata
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // refBinding is what a reference resolves to: the head its category is held
@@ -35,59 +35,106 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// linkRefs binds every reference and compiles every format, once all data is merged,
-// so a reference sees the override-resolved tree. A reference's head binds into
-// refHeads under its root path and its tail reads like a sibling path.
+// linkRefs links every template of the categories, once all data is merged, so a reference sees
+// the override-resolved tree.
 func linkRefs(sites []categorySite, root map[string]node) error {
+	var ts []linkSite
 	if err := eachTemplate(sites, func(s categorySite, label string, t *template) error {
-		return linkTemplate(s.dir, label, s.path, t, root)
+		ts = append(ts, linkSite{t: t, folder: s.dir, category: s.path, label: label})
+		return nil
 	}); err != nil {
 		return err
 	}
-	for _, pass := range linkPasses {
-		if err := eachTemplate(sites, func(_ categorySite, label string, t *template) error { return pass(label, t) }); err != nil {
+	return linkTemplates(ts, root)
+}
+
+// linkSite is a template to link, with the folder and category it sits in, "" for an inline
+// template, and eachNode's label for it.
+type linkSite struct {
+	t               *template
+	folder          []string
+	category, label string
+}
+
+// nameTarget is what a binding resolves to in the assembled tree: the node its head names and the
+// path it reads into that node.
+type nameTarget struct {
+	head node
+	tail []string
+}
+
+// linkTemplates links ts in steps, each over every template before the next starts, each
+// returning what it builds: the references, the names' targets, the compiled formats, the keys
+// each name's reads address, and the column each format reads.
+func linkTemplates(ts []linkSite, root map[string]node) error {
+	for _, s := range ts {
+		link, err := s.t.resolveLink(s.folder, s.label, s.category, root)
+		if err != nil {
 			return err
 		}
+		s.t.link = link
+	}
+	targets := nameTargets(ts)
+	for _, s := range ts {
+		compiled, err := compileFormat(s.t, targets)
+		if err != nil {
+			return fmt.Errorf("%s: %w", s.label, err)
+		}
+		s.t.compiled = compiled
+	}
+	addressed := addressedKeys(ts)
+	for b, target := range targets {
+		b.head, b.tail, b.addressed = target.head, target.tail, addressed[b]
+	}
+	for _, s := range ts {
+		s.t.readsColumn = columnReadOf(s.t)
+	}
+	for _, check := range []func(label string, t *template) error{checkNameReads, checkCalcNames} {
+		for _, s := range ts {
+			if err := check(s.label, s.t); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
 
-// linkTemplate resolves t's references in category, "" for an inline template, and
-// compiles its format against them.
-func linkTemplate(folder []string, label, category string, t *template, root map[string]node) error {
-	link, err := t.resolveLink(folder, label, category, root)
-	if err != nil {
-		return err
-	}
-	t.link, t.compiled = link, compileFormat(t.tokens, link.refs, t.isName)
-	linkBindings(t)
-	compileArms(t)
-	return nil
-}
-
-func compileArms(t *template) {
-	for i := range t.compiled.ops {
-		o := &t.compiled.ops[i]
-		for j := range o.operands {
-			if o.operands[j].kind != namedRead {
-				compileArm(t, &o.operands[j])
-			}
-		}
-		for j := range o.arms {
-			if o.arms[j].kind != namedRead {
-				compileArm(t, &o.arms[j])
+// nameTargets resolves what each binding of ts binds, from its binder's link.
+func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
+	targets := map[*nameBinding]nameTarget{}
+	for _, s := range ts {
+		for _, tok := range s.t.tokens {
+			if tok.Kind == grammar.NameBind {
+				a := splitArm(tok.BoundRef, s.t.link.refs)
+				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{head: s.t.head(a.head), tail: a.tail}
 			}
 		}
 	}
+	return targets
 }
 
-func compileArm(t *template, a *arm) {
-	head := t.head(a.head)
-	if head == nil {
-		panic(invariant.Broken("{%s} reads a head nothing bound", a.spelling))
+// addressedKeys is every key the reads of each name in ts land on or pass, from the name, with the
+// spelling of the first read reaching it.
+func addressedKeys(ts []linkSite) map[*nameBinding]map[string]string {
+	keys := map[*nameBinding]map[string]string{}
+	for _, s := range ts {
+		for _, o := range s.t.compiled.ops {
+			for _, a := range slices.Concat(o.arms, o.operands) {
+				if a.kind != namedRead {
+					continue
+				}
+				if keys[a.named] == nil {
+					keys[a.named] = map[string]string{}
+				}
+				for _, key := range append(a.levels[len(a.levels)-len(a.tail)-1:], a.path) {
+					if _, seen := keys[a.named][key]; !seen {
+						keys[a.named][key] = a.spelling
+					}
+				}
+			}
+		}
 	}
-	w := compilePath(head, a.tail)
-	a.steps, a.leaves = w.steps, w.leaves
+	return keys
 }
 
 // resolveLink binds every reference t reads, refusing one to t's own category:
@@ -132,9 +179,9 @@ type columnRead struct {
 	column          node
 }
 
-// linkColumnRead sets the record's column t's format reads, where the format only reads one
-// reference or name, once the names are linked.
-func linkColumnRead(_ string, t *template) error {
+// columnReadOf is the record's column t's format reads, where the format only reads one reference
+// or name, and nil where it does not.
+func columnReadOf(t *template) *columnRead {
 	ops := t.compiled.ops
 	if t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.NameRead || len(ops[0].arms) != 1 {
 		return nil
@@ -152,9 +199,8 @@ func linkColumnRead(_ string, t *template) error {
 	case !grammar.IsRef(a.head):
 		return nil
 	}
-	target, isTemplate := head.(*template)
-	if isTemplate && target.isRecord && len(tail) == 1 {
-		t.link.readsColumn = &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
+	if target, isTemplate := head.(*template); isTemplate && target.isRecord && len(tail) == 1 {
+		return &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
 	}
 	return nil
 }

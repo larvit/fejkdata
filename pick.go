@@ -124,10 +124,11 @@ func (m *drawMemo) enteredFrame(scope *nameScope) *pickFrame {
 // renderFrame opens a fresh frame of t's scope, where t binds names and no read entering the
 // category opened one, returning the mark that closes it, or -1.
 func (sc renderScope) renderFrame(t *template) int {
-	if t.ownNameScope == nil || sc.frameOf(t.ownNameScope) != nil {
+	own := t.ownScope()
+	if own == nil || sc.frameOf(own) != nil {
 		return -1
 	}
-	return sc.frames.push(newPickFrame(t.ownNameScope))
+	return sc.frames.push(newPickFrame(own))
 }
 
 // frameOf is the frame of scope rendering since the read entering the category, nil where none is.
