@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -128,21 +127,6 @@ func TestFormatCompileErrors(t *testing.T) {
 	} {
 		if _, err := linked(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
-		}
-	}
-}
-
-// TestSplitArgsQuotesOutsideSelectors pins the arg grammar: a comma splits outside a
-// selector and outside a quoted layout, and a quote inside a selector is a name's text.
-func TestSplitArgsQuotesOutsideSelectors(t *testing.T) {
-	for in, want := range map[string][]string{
-		"a, b": {"a", "b"},
-		"1990-01-01,1990-12-31,'January 2, 2006'": {"1990-01-01", "1990-12-31", "'January 2, 2006'"},
-		"/geo.US.locality[O'Fallon].name, 2":      {"/geo.US.locality[O'Fallon].name", "2"},
-		"'[a,b]'":                                 {"'[a,b]'"},
-	} {
-		if got := splitArgs(in); !reflect.DeepEqual(got, want) {
-			t.Errorf("splitArgs(%q) = %q, want %q", in, got, want)
 		}
 	}
 }

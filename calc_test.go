@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // TestCalcArithmetic pins the operators, precedence, parentheses and unary minus
@@ -99,26 +101,19 @@ func TestCalcReproducible(t *testing.T) {
 // call that is not a calc, and for one whose expression does not parse: none, either way.
 func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
 	for _, format := range []string{"{luhn()}", "{calc()}", "{calc(1 +)}", "{calc(()}"} {
-		if toks, err := parseFormat(format); err != nil || len(toks) != 1 || toks[0].names != nil {
-			t.Errorf("parseFormat(%q) = %+v, %v, want one call reading no operand", format, toks, err)
+		if toks, err := grammar.ParseFormat(format, builtinOperands); err != nil || len(toks) != 1 || toks[0].Names != nil {
+			t.Errorf("ParseFormat(%q) = %+v, %v, want one call reading no operand", format, toks, err)
 		}
 	}
-	if toks, err := parseFormat("{calc(net * qty)}"); err != nil || len(toks) != 1 || len(toks[0].names) != 2 {
-		t.Errorf("parseFormat({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
+	if toks, err := grammar.ParseFormat("{calc(net * qty)}", builtinOperands); err != nil || len(toks) != 1 || len(toks[0].Names) != 2 {
+		t.Errorf("ParseFormat({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
 	}
 }
 
-// TestCalcGuardsPanic pins the guards on calc's own invariants: checkCalc parsed
-// the expression before prep sees it, and indexVars places every name calcVars
-// read, so a break in either is reported rather than computed around.
-func TestCalcGuardsPanic(t *testing.T) {
-	for name, call := range map[string]func(){
-		"prep on an expression that does not parse": func() { calcPrep([]string{"1 +"}) },
-		"an operand name never placed":              func() { calcVar("n").eval(nil) },
-		"indexVars on a name it did not read":       func() { indexVars(calcVar("n"), map[string]int{}) },
-	} {
-		mustPanic(t, name, call)
-	}
+// TestCalcPrepPanicsOnAnUncheckedExpression pins the guard on calc's own invariant:
+// checkCalc parsed the expression before prep sees it.
+func TestCalcPrepPanicsOnAnUncheckedExpression(t *testing.T) {
+	mustPanic(t, "prep on an expression that does not parse", func() { calcPrep([]string{"1 +"}) })
 }
 
 // --- one draw, one value: a calc operand reads the expansion's draw ---
