@@ -1152,3 +1152,36 @@ func TestDatatypeRefusesARowRead(t *testing.T) {
 		}
 	}
 }
+
+func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
+	files := map[string]string{
+		"g/t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`,
+		"g/t.tsv":  "a\tb\nx\t-\ny\t{/nope}\n",
+	}
+	want := "g.t.b, line 3: reference {/nope}"
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("a cell's bad reference: New = %v, want it to contain %q", err, want)
+	}
+	files["g/t.json"], files["g/t.tsv"] = `{"format":"{a} {/nope}","rows":"t.tsv","key":"a"}`, "a\tb\nx\t-\ny\t-\n"
+	want = "g.t: reference {/nope}"
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("a format's bad reference: New = %v, want it to contain %q", err, want)
+	}
+	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
+	for path, want := range map[string]string{
+		"region[99]":       `no row of region has key or name "99"`,
+		"locality[Sandby]": `"Sandby" names 2 rows of locality; select one by key, one of L7, L8, or select it inside its municipality`,
+	} {
+		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("Fake(%s) = %v, want it to contain %q", path, err, want)
+		}
+	}
+	shipped, err := New(WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = `no row of misc.territory has key or name "ZZZ"`
+	if _, err := shipped.Fake("misc.territory[ZZZ]"); err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("Fake(misc.territory[ZZZ]) = %v, want it to contain %q", err, want)
+	}
+}
