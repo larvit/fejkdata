@@ -23,3 +23,9 @@ func TestStringNamesADatatypeNoDataWrites(t *testing.T) {
 		t.Errorf("String = %q, want DataType(9)", got)
 	}
 }
+
+func TestNounNamesADatatypeNoDataWrites(t *testing.T) {
+	if got := Noun(DataType(9)); got != "DataType(9)" {
+		t.Errorf("Noun = %q, want DataType(9)", got)
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // TestRegistryShapes pins the builtin contract Prep relies on: every entry supplies prep,
@@ -67,12 +68,12 @@ func TestArgGuardsPanic(t *testing.T) {
 	}
 }
 
-// mustPanic fails unless call panics with internalError's phrase, which is what
+// mustPanic fails unless call panics with invariant.Broken's phrase, which is what
 // separates a reported invariant break from a silently wrong value.
 func mustPanic(t *testing.T, name string, call func()) {
 	t.Helper()
 	defer func() {
-		if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), "fejkdata: internal error: ") {
+		if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), invariant.Broken("")) {
 			t.Errorf("%s: recovered %v, want the invariant reported as an internal error", name, r)
 		}
 	}()
