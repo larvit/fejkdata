@@ -105,7 +105,7 @@ func TestBuiltinChecksums(t *testing.T) {
 
 // TestBuiltinSeqPerGenerator pins seq's contract: a counter from 1, advancing on
 // each call, named counters independent, and the whole thing scoped to one
-// generatorState so a fresh Generator restarts at 1.
+// draw state so a fresh Generator restarts at 1.
 func TestBuiltinSeqPerGenerator(t *testing.T) {
 	f := engine(1)
 	for i := 1; i <= 5; i++ {
