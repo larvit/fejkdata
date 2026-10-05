@@ -829,7 +829,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Last scoring run, 2026-10-05, on commit bcc6858: Navigation 7.00, Locality 5.75, Shape 6.00, Self-sufficiency 6.25, overall 6.13. The nine-seat panel at depth 1, run beside it: Navigation 6.89, Locality 5.78, Shape 6.22, Self-sufficiency 6.28, overall 6.17. The nine-seat panels of 2026-09-22 to 2026-09-30 held the overall between 5.2 and 6.1, with Locality lowest at every seat; Locality is lowest again. All nine seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `enter`, with the pick keys they share with `compileArm`, `addressedKeys` and `checkTemplateOnce`. Items 118 to 126 answer the panel's reading findings, and `todo.md` item 128 runs it again. Valid while `AGENTS.md` gates goal 3 at 7.0.
+Last scoring run, 2026-10-05, on commit bcc6858: Navigation 7.00, Locality 5.75, Shape 6.00, Self-sufficiency 6.25, overall 6.13. The nine-seat panel at depth 1, run beside it: Navigation 6.89, Locality 5.78, Shape 6.22, Self-sufficiency 6.28, overall 6.17. The nine-seat panels of 2026-09-22 to 2026-09-30 held the overall between 5.2 and 6.1, with Locality lowest at every seat; Locality is lowest again. All nine seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `enter`, with the pick keys they share with `compileArm`, `addressedKeys` and `checkTemplateOnce`. Items 118 to 126 answer what the panel found in the code, and `todo.md` item 128 runs it again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
 ## The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 
