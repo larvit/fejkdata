@@ -19,7 +19,7 @@ func checkNameReads(path string, t *template) error {
 	}
 	return namedReads(t, func(o *op, a *arm) error {
 		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
-			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field it binds, which would render itself; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field it binds; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
 		}
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
@@ -58,15 +58,22 @@ func rendersInside(nodes []node, t *template) bool {
 }
 
 // checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
-// draws the same way without the name. A field stands only beside its binding. Where the spelling
-// would be a CLI argument or tag of one reference alone, that entry point's own refusal then
-// names the bare path.
+// draws the same way without the name. A field stands where the reading template reaches the
+// binder through fields. Where the spelling would be a CLI argument or tag of one reference alone,
+// that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses() error {
 	r := b.uses[0]
-	if len(b.uses) > 1 || r.nested || b.bindsField() && r.in != b.binder {
+	if len(b.uses) > 1 || r.nested {
 		return nil
 	}
 	spelling := b.ref
+	if b.bindsField() {
+		down, reaches := fieldPathTo(r.in, b.binder)
+		if !reaches {
+			return nil
+		}
+		spelling = joinSegments(append(down, b.ref))
+	}
 	switch {
 	case strings.HasPrefix(r.tail, ".."):
 		spelling += r.tail
@@ -80,6 +87,21 @@ func (b *nameBinding) checkUses() error {
 		spelling = "{" + spelling + "}"
 	}
 	return fmt.Errorf("name %q is read once, so it keeps no pick for another read; write %s where it is read, and drop the token", b.name, spelling)
+}
+
+// fieldPathTo is the fields leading from t down to the template target, if t reaches it so.
+func fieldPathTo(t, target *template) ([]string, bool) {
+	if t == target {
+		return nil, true
+	}
+	for _, name := range sortedNames(t.fields) {
+		if sub, isTemplate := t.fields[name].(*template); isTemplate {
+			if rest, reaches := fieldPathTo(sub, target); reaches {
+				return append([]string{name}, rest...), true
+			}
+		}
+	}
+	return nil, false
 }
 
 // calcReads reports whether a calc reads spelling as one operand.

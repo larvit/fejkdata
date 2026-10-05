@@ -21,9 +21,7 @@ replacement, and each removed path, column or flag.
   `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
   `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one. `{x as n}`
   binds a sibling field as well as a reference, and a struct's tags share its names,
-  `{/sv_SE.person as p}{p.first}` beside `{p.sex}`. `drawGroup` is no longer an option, and `New` no longer
-  refuses a read beside a path into what it reads, or reads of one table family that
-  could disagree.
+  `{/sv_SE.person as p}{p.first}` beside `{p.sex}`.
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,

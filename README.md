@@ -136,7 +136,9 @@ it as nothing.
 
 A record is one render, so its columns read one pick of each [name](#names) its category
 binds: `"code": "{/currency as c}{c.code}"` beside `"symbol": "{c.symbol}"` is one
-currency, while `{/currency.code}` and `{/currency.symbol}` in two columns may name two.
+currency, while `{/currency.code}` and `{/currency.symbol}` in two columns may name two. A
+field a name binds draws afresh as a column of its own, so write the column through the name,
+`"where": "{p}"` beside `{place as p}`, for it to agree with the columns reading `p`.
 
 A category never references itself: `{/users.first}` or a bare `{/users}` inside `users`
 describes a draw other than the fields beside it. Read a sibling as a field, and put a
@@ -754,8 +756,7 @@ Refused at `New`, each error naming what to write instead:
   and outside it;
 - a name that is a field or an option;
 - a binding of anything but a reference or a path into a field of the template binding it;
-- a read of a name inside the field it binds, which would render itself: read it outside the
-  field;
+- a read of a name inside the field it binds: read it outside the field;
 - a binding in a choice's item, which every other item would leave unbound;
 - a binding nothing reads, or one read once outside a `repeat` nested where it is bound,
   which the spelling it binds draws the same way: `{/word as w}{w}` is `{/word}`, and

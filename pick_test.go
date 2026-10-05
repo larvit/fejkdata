@@ -120,6 +120,7 @@ func TestAFieldBindingIsRefusedWhereNoFieldIs(t *testing.T) {
 		`{"format":"{nope as p}{p}{p}","place":"x"}`:                            `no field "nope"`,
 		`{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`: `write {place.x} where it is read`,
 		`{"format":"{place as p}{p}","place":["x","y"]}`:                        `write {place} where it is read`,
+		`{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`:       `write {x.a} where it is read`,
 		`{"format":"{place as p}{calc(p * 2)}","place":["1","2"]}`:              `write place where it is read`,
 		`{"format":"{place as place}{place}{place}","place":["x","y"]}`:         `name "place" is a field of the root template too`,
 	} {
