@@ -62,6 +62,24 @@ func TestDescendIntoStringErrors(t *testing.T) {
 	}
 }
 
+// TestPathRefusesALevelCarryingARepeat holds a caller's path to the rule a reference obeys.
+func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"outer": `{"format":"{inner}","inner":{"format":"{a}","a":"v","repeat":3,"separator":","}}`,
+		"x":     `{"format":"{a}","a":"v","repeat":3,"separator":","}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	for path, level := range map[string]string{"x.a": "x", "outer.inner.a": "outer.inner"} {
+		want := fmt.Sprintf("the level %q carries a repeat", level)
+		if got, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("Fake(%s) = %q, %v, want %s", path, got, err, want)
+		}
+		if _, err := f.NewTemplate("{/" + path + "}"); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", "/"+level)) {
+			t.Errorf("NewTemplate({/%s}) = %v, want the level /%s named", path, err, level)
+		}
+	}
+}
+
 // TestPathThroughChoice pins the rule that keeps a dotted path from rendering on
 // one call and failing on the next: every variant must carry the rest of the path.
 func TestPathThroughChoice(t *testing.T) {
