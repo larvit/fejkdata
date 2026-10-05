@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 114`
+`Next ID = 115`
 
 | Goal | W |
 |---|---|
@@ -108,6 +108,7 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 114 | 0.2.0 | question | **Settle whether goal 7.2's "no escaping" holds for a first template with a literal brace, which must write `{{` or `}}`.** | 1 | 1 | 4 | 5 | 7.2 | 13.8 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
@@ -381,6 +382,10 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
+
+### 114. Settle whether goal 7.2's "no escaping" holds for a first template with a literal brace, which must write `{{` or `}}`.
+
+The decision "Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape" keeps a lone `}` a load error. Goal 7.2 promises a first template needs no escaping; the maintainer decides whether that means shell quoting only, or also the doubled brace.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
