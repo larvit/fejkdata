@@ -8,10 +8,10 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// eachNode visits n and every node inside it once, passing fn the label an error names each
-// by: the dot path reaching it, then ", line N" for a table cell. It never crosses a
-// reference edge — a {/path} reference is skipped — so a single inline node is walked on
-// its own.
+// eachNode visits n and every node inside it once, and passes fn each node with the label an
+// error uses for it: the dot path reaching it, then ", line N" for a table cell. It never
+// crosses a reference edge — a {/path} reference is skipped — so a single inline node is
+// walked on its own.
 func eachNode(n node, label string, fn func(label string, n node) error) error {
 	seen := map[node]bool{}
 	var visit func(string, node) error
