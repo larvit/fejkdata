@@ -173,7 +173,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 			leaves = append(leaves, a.leaves...)
 		}
 		return p.proveUnion(leaves)
-	case name == "calc":
+	case name == builtinfunc.Calc:
 		return p.proveCalc(o)
 	case builtinfunc.IsTransform(name):
 		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
