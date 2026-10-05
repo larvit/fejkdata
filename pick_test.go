@@ -340,7 +340,7 @@ func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		got := mustRender(t, f, src)
 		if m := want.FindStringSubmatch(got); m == nil || m[1] != m[2] {
-			t.Fatalf("draw %d = %q, want p.a's c drawn afresh and its b read from p's pick", i, got)
+			t.Fatalf("draw %d = %q, want c's b from x, y or z, and p.a's b equal to {p.a.b}", i, got)
 		}
 	}
 }
