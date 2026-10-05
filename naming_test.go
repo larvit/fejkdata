@@ -2,6 +2,8 @@ package fejkdata
 
 import (
 	"go/ast"
+	"go/build"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
@@ -20,19 +22,30 @@ func TestNoFunctionSpellsAMethod(t *testing.T) {
 }
 
 func TestEveryPanicIsAnInternalError(t *testing.T) {
-	fset, files := sourceFiles(t)
-	for _, f := range files {
-		ast.Inspect(f, func(n ast.Node) bool {
-			call, isCall := n.(*ast.CallExpr)
-			if !isCall || !isIdent(call.Fun, "panic") {
+	eachPackage(t, func(dir string, pkg *build.Package) {
+		var names []string
+		for _, name := range pkg.GoFiles {
+			names = append(names, filepath.Join(dir, name))
+		}
+		fset, files := parseFiles(t, names)
+		for _, f := range files {
+			ast.Inspect(f, func(n ast.Node) bool {
+				call, isCall := n.(*ast.CallExpr)
+				if !isCall || !isIdent(call.Fun, "panic") {
+					return true
+				}
+				if arg, isArgCall := call.Args[0].(*ast.CallExpr); !isArgCall || !isBroken(arg.Fun) {
+					t.Errorf("%s: panic with invariant.Broken(…), so every invariant break greps to one phrase", fset.Position(call.Pos()))
+				}
 				return true
-			}
-			if arg, isArgCall := call.Args[0].(*ast.CallExpr); !isArgCall || !isIdent(arg.Fun, "internalError") {
-				t.Errorf("%s: panic with internalError(…), so every invariant break greps to one phrase", fset.Position(call.Pos()))
-			}
-			return true
-		})
-	}
+			})
+		}
+	})
+}
+
+func isBroken(e ast.Expr) bool {
+	sel, isSel := e.(*ast.SelectorExpr)
+	return isSel && isIdent(sel.X, "invariant") && sel.Sel.Name == "Broken"
 }
 
 func isIdent(e ast.Expr, name string) bool {
