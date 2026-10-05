@@ -796,7 +796,7 @@ token {p.postal-code}: not every variant of this 2-way choice carries "postal-co
 
 The sub-fields stay addressable — `Fake("address.place.locality")` renders, and
 `List` advertises it. A path may not read into a level carrying a `repeat`, and `List`
-advertises none that does; read that level whole.
+advertises no such path; read that level whole.
 
 ### Performance
 

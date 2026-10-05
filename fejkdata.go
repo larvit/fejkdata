@@ -113,8 +113,8 @@ func (c config) load() (folder, error) {
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
-// column and linked table below it, a direct descent at a time, stopping at a level
-// carrying a repeat. A choice consumes no segment, so a path continues through one
+// column and linked table below it, a direct descent at a time, listing a level
+// carrying a repeat but nothing below it. A choice consumes no segment, so a path continues through one
 // only where every variant carries it.
 func (f *Generator) List() []string {
 	f.mu.Lock()
@@ -126,8 +126,8 @@ func (f *Generator) List() []string {
 
 // paths lists the dot paths addressable from n, relative to it, where "" is n
 // itself. A folder has no value of its own, so it contributes only its children's.
-// intoRepeats lists the fields under a level carrying a repeat too, which a path
-// reaches only to be refused.
+// With intoRepeats, it also lists the paths below a level carrying a repeat, so a path
+// there meets the repeat's refusal.
 func paths(n node, intoRepeats bool) []string {
 	switch n := n.(type) {
 	case *folder:
@@ -163,7 +163,6 @@ func paths(n node, intoRepeats bool) []string {
 	}
 }
 
-// appendUnder appends each of ps to out under name.
 func appendUnder(out []string, name string, ps []string) []string {
 	for _, p := range ps {
 		out = append(out, join(name, p))

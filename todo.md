@@ -464,7 +464,7 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 
 ### 116. Turn a row index into its rows file's line in one function.
 
-Today `namedNode`'s cell line in `graph.go` and each site in `internal/rows` add the header line and the one-based count.
+Today `namedNode`'s cell line in `graph.go`, `table.checkCells` and each site in `internal/rows` add the header line and the one-based count.
 
 ### 56. Build on a manual run of `test.yml`.
 

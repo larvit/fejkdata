@@ -16,7 +16,7 @@ func parse(t *testing.T, segment, data string, o Options) *Table[string] {
 	return tb
 }
 
-// family is a country table with two cities linked to it, each with a name only unique inside its country.
+// family is a country table, SE and NO, and a city table linked to it, where Borg names a city in each country.
 func family(t *testing.T) (country, city *Table[string]) {
 	t.Helper()
 	country = parse(t, "country", "code\tname\nSE\tSweden\nNO\tNorway\n", Options{Key: "code"})

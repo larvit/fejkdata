@@ -146,8 +146,8 @@ func repeatLevelError(level string) error {
 	return fmt.Errorf("the level %q carries a repeat, so a path cannot read one draw of it; read %q whole", level, level)
 }
 
-// pathPos is where a walk stands: the node reached, the tail left to walk from it, and whether
-// it descended there, as route reads it.
+// pathPos is where a walk stands: the node reached, the tail left to walk from it, and route's
+// descended flag for it.
 type pathPos struct {
 	n         node
 	tail      []string
@@ -156,9 +156,9 @@ type pathPos struct {
 
 func (p pathPos) more() bool { return len(p.tail) > 0 || p.descended }
 
-// takeStep moves at past the step its tail starts with, from its node, which is no choice, and
-// appends what it takes to steps: a field, or the route a table passes. whole is the full path,
-// at.tail its unwalked end, and level names its head in errors.
+// takeStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
+// it, and appends the step to steps: a field, or the route through a table. whole is the full
+// path; level is the prefix an error puts before it.
 func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
