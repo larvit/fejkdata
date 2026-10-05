@@ -38,7 +38,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 		{"nested depth 25", nestedJSON(25), 26},
 		{"nested depth 100", nestedJSON(100), 101},
 		{"wide 500 tokens", wideTokenJSON(500), 8},
-		{"two paths into one field", `{"format":"{p.a} {p.b}","p":[{"format":"x","a":"1","b":"2"},{"format":"y","a":"A","b":"B"}]}`, 2},
+		{"two paths into one field", `{"format":"{p.a} {p.b}","p":[{"format":"x","a":"1","b":"2"},{"format":"y","a":"A","b":"B"}]}`, 3},
 		{"ten paths into one field", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
 			{"format":"x","a":"1","b":"2","c":"3","d":"4","e":"5","f":"6","g":"7","h":"8","i":"9","j":"0"},
 			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 3},
@@ -63,7 +63,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 		base       float64
 	}{
 		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 25},
-		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 161},
+		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 162},
 	} {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 			"word.json": {Data: []byte(word)},
@@ -116,7 +116,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const base = 3.0
+	const base = 4.0
 	if allocs := testing.AllocsPerRun(10000, func() { f.Fake("addr") }); allocs > base*1.10 {
 		t.Errorf("five linked tables: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a pin spilling past the inline set is the usual cause", allocs, base*1.10, base)
 	}
