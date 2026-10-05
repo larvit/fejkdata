@@ -6,6 +6,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // builtin is a format-string function invoked as {name(args)}. It receives the
@@ -27,7 +28,7 @@ type builtin struct {
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
-	proveNumber func(token string, prints DataType, args []string) proven
+	proveNumber func(token string, prints DataType, args []string) proven.Value
 	// prints is the datatype a call's text is, handed to proveNumber: DataTypeString where it
 	// reads as a number no column should type, as digits' leading zeros; unset where
 	// proveNumber is nil.

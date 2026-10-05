@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
 )
 
 func TestBuiltinIDGenerators(t *testing.T) {

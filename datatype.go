@@ -3,31 +3,20 @@ package fejkdata
 import (
 	"errors"
 	"fmt"
+
+	"github.com/larvit/fejkdata/internal/datatype"
 )
 
 // DataType is what a record column holds, which decides how a record writes its value.
-type DataType int
+type DataType = datatype.DataType
 
 // The datatypes a column declares with "datatype"; a column without one is a string.
 const (
-	DataTypeString DataType = iota
-	DataTypeInteger
-	DataTypeNumber
-	DataTypeBoolean
+	DataTypeString  = datatype.String
+	DataTypeInteger = datatype.Integer
+	DataTypeNumber  = datatype.Number
+	DataTypeBoolean = datatype.Boolean
 )
-
-var (
-	dataTypeNames = [...]string{"string", "integer", "number", "boolean"}
-	dataTypeNouns = [...]string{"text", "an integer", "a number", "a boolean"}
-)
-
-// String is the datatype as data spells it.
-func (d DataType) String() string {
-	if d < 0 || int(d) >= len(dataTypeNames) {
-		return fmt.Sprintf("DataType(%d)", int(d))
-	}
-	return dataTypeNames[d]
-}
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
 // be null.
@@ -174,7 +163,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 		fix, other, want = b, a, da
 	}
 	held := fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)
-	fits := (&valueProof{}).proveColumnItem(fix).not[want] == ""
+	fits := (&valueProof{}).proveColumnItem(fix).Not[want] == ""
 	switch kindOf(fix) {
 	case kindDeclares:
 		return errors.New(held)
@@ -189,7 +178,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 			panic(internalError("two text items hold one datatype, so they never disagree"))
 		case kindReads:
 			if !fits {
-				return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, dataTypeNouns[want], other.format, asText(other))
+				return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, datatype.Noun(want), other.format, asText(other))
 			}
 		}
 		if fix.fromString { // an object may carry a weight, which this spelling would drop
