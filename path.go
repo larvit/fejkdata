@@ -164,7 +164,7 @@ func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins 
 		if err != nil {
 			return steps, err
 		}
-		*at = pathPos{r.next, r.rest, r.descends}
+		*at = pathPos{n: r.next, tail: r.rest, descended: r.descends}
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {

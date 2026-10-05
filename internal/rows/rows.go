@@ -141,8 +141,8 @@ func (t *Table[O]) appendRow(row string, line int) error {
 	return nil
 }
 
-// bindOptions resolves each option to its column and proves what it claims of the
-// cells: a key is unique, a weight a positive number.
+// bindOptions resolves each option to its column, refuses a name reading the key column, and
+// proves what the options claim of the cells: a key is unique, a weight a positive number.
 func (t *Table[O]) bindOptions() error {
 	o := t.options
 	if o.Key != "" && o.Key == o.Name {

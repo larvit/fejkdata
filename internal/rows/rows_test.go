@@ -110,7 +110,7 @@ func TestDrawInDrawsInsideThePinnedParentAndPinsItsAncestors(t *testing.T) {
 		if pr := q.MustRow(country); country.Cell(pr, 0) != city.Cell(r, 0) {
 			t.Fatalf("DrawIn pinned country %s above a city of %s", country.Cell(pr, 0), city.Cell(r, 0))
 		}
-		if above := q.Above(country); func() bool { _, ok := above.Pinned(city); return ok }() {
+		if _, ok := q.Above(country).Pinned(city); ok {
 			t.Fatal("Above(country) kept the city's pin")
 		}
 	}
