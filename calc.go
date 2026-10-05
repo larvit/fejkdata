@@ -51,11 +51,11 @@ func checkCalc(fields map[string]node, args []string) error {
 	if len(args) < 1 || len(args) > 2 {
 		return fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))
 	}
-	expr, err := grammar.ParseCalc(args[0])
+	c, err := grammar.ParseCalc(args[0])
 	if err != nil {
 		return fmt.Errorf("calc(%q): %w", args[0], err)
 	}
-	if err := checkOperands(args[0], expr, func(name string) []node {
+	if err := checkOperands(args[0], c, func(name string) []node {
 		if n, ok := fields[name]; ok {
 			return []node{n}
 		}
@@ -101,13 +101,13 @@ func operandNodes(o op) func(name string) []node {
 
 // checkOperands refuses an operand that is never a number and a division by a constant zero.
 // operand lists every node an operand may render, nil while that is unknown.
-func checkOperands(text string, expr grammar.CalcNode, operand func(name string) []node) error {
-	for _, name := range grammar.CalcVars(expr) {
+func checkOperands(text string, c grammar.Calc, operand func(name string) []node) error {
+	for _, name := range c.Operands {
 		if rendered, never := allNeverNumeric(operand(name)); never {
 			return fmt.Errorf("calc(%q): operand %q is never a number: it renders %q", text, name, rendered)
 		}
 	}
-	if divisor, zero := constantZeroDivisor(expr, operand); zero {
+	if divisor, zero := constantZeroDivisor(c.Expr, operand); zero {
 		return fmt.Errorf("calc(%q) divides by %s, which is always zero", text, divisor)
 	}
 	return nil
@@ -202,7 +202,7 @@ func allNeverNumeric(nodes []node) (text string, never bool) {
 // calcPrep parses the expression and decimals once, at compile time. checkCalc proved
 // both args valid, so no step here can fail.
 func calcPrep(args []string) callFn {
-	expr := parsedCalc(args[0])
+	expr := parsedCalc(args[0]).Expr
 	dp := calcDecimals(args)
 	return func(_ *drawstate.State, _ string, operands []string) string {
 		return formatFloat(evalCalc(expr, operands), dp)
@@ -211,12 +211,12 @@ func calcPrep(args []string) callFn {
 
 // parsedCalc parses an expression checkCalc accepted. A nil AST would dereference later, with
 // no message.
-func parsedCalc(expr string) grammar.CalcNode {
-	n, err := grammar.ParseCalc(expr)
+func parsedCalc(expr string) grammar.Calc {
+	c, err := grammar.ParseCalc(expr)
 	if err != nil {
 		panic(internalError("calc(%q) passed its check unparsed: %v", expr, err))
 	}
-	return n
+	return c
 }
 
 // calcDecimals is a calc's decimals count, or shortestDecimals where it names none.
@@ -233,9 +233,9 @@ func calcOperands(args []string) []string {
 	if len(args) == 0 {
 		return nil
 	}
-	expr, err := grammar.ParseCalc(args[0])
+	c, err := grammar.ParseCalc(args[0])
 	if err != nil {
 		return nil
 	}
-	return grammar.CalcVars(expr)
+	return c.Operands
 }

@@ -32,10 +32,8 @@ func RefShape(name string) (sigil, rest string, err error) {
 	if err != nil {
 		return "", "", err
 	}
-	for _, seg := range segs {
-		if seg == "" {
-			return "", "", fmt.Errorf("path has an empty segment")
-		}
+	if err := CheckSegments(segs); err != nil {
+		return "", "", err
 	}
 	return sigil, rest, nil
 }

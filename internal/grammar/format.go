@@ -1,5 +1,6 @@
 // Package grammar is how the template language is written: format tokens, paths and
-// their selectors, reference sigils, names, and calc expressions. It reads strings only.
+// their selectors, reference sigils, names, calc expressions, and whether an argument is a
+// template or a path. It reads strings only.
 package grammar
 
 import (
@@ -60,12 +61,12 @@ func eachScanUnit(format string, fn func(scanUnit) error) error {
 
 // Token is one parsed unit of a format.
 type Token struct {
-	Kind  TokenKind
-	Lit   string   // LiteralRun
-	Body  string   // the braces' content, as written
-	Fn    string   // BuiltinCall
-	Args  []string // BuiltinCall
-	Names []string // NameRead: the '|' arms; BuiltinCall: the operands its builtin reads
+	Kind TokenKind
+	Lit  string   // LiteralRun
+	Body string   // the braces' content, as written
+	Fn   string   // BuiltinCall
+	Args []string // BuiltinCall
+	Arms []string // NameRead: the '|' alternatives
 	// NameBind: the reference it binds, and the name.
 	BoundRef, Bound string
 }
@@ -74,16 +75,16 @@ type TokenKind uint8
 
 const (
 	BuiltinCall TokenKind = iota + 1
-	NameRead
 	LiteralRun
 	NameBind
+	NameRead
 )
 
 const AsWord = " as "
 
 // ParseFormat is the one reading of a format's tokens: a '(' outside a selector makes
-// a token a call. operands lists the operands a call reads; nil reads none.
-func ParseFormat(format string, operands func(fn string, args []string) []string) ([]Token, error) {
+// a token a call.
+func ParseFormat(format string) ([]Token, error) {
 	var toks []Token
 	var lit strings.Builder
 	flush := func() {
@@ -103,18 +104,14 @@ func ParseFormat(format string, operands func(fn string, args []string) []string
 			return nil
 		}
 		if IndexOutside(u.body, '(') < 0 {
-			toks = append(toks, Token{Kind: NameRead, Body: u.body, Names: SplitOutside(u.body, '|')})
+			toks = append(toks, Token{Kind: NameRead, Body: u.body, Arms: SplitOutside(u.body, '|')})
 			return nil
 		}
 		name, args, ok := FuncCall(u.body)
 		if !ok {
 			return fmt.Errorf("malformed function token {%s}", u.body)
 		}
-		tok := Token{Kind: BuiltinCall, Body: u.body, Fn: name, Args: args}
-		if operands != nil {
-			tok.Names = operands(name, args)
-		}
-		toks = append(toks, tok)
+		toks = append(toks, Token{Kind: BuiltinCall, Body: u.body, Fn: name, Args: args})
 		return nil
 	})
 	if err != nil {

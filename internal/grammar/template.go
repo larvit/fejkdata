@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// IsTemplate reports whether arg is an inline template rather than a path, by its shape;
-// the root's IsTemplate documents the rule.
 func IsTemplate(arg string) (bool, error) {
 	if strings.ContainsRune(arg, '{') || (isJSONStart(strings.TrimSpace(arg)) && json.Valid([]byte(arg))) {
 		if path, lone := loneReference(arg); lone {
@@ -56,7 +54,7 @@ func loneReference(arg string) (string, bool) {
 	if !isString {
 		return "", false
 	}
-	toks, err := ParseFormat(format, nil)
+	toks, err := ParseFormat(format)
 	if err != nil {
 		return "", false
 	}
@@ -73,8 +71,8 @@ func loneReference(arg string) (string, bool) {
 
 // loneRef is the reference a format of one reference token and nothing else reads.
 func loneRef(toks []Token) (string, bool) {
-	if len(toks) != 1 || toks[0].Kind != NameRead || len(toks[0].Names) != 1 || !IsRef(toks[0].Names[0]) {
+	if len(toks) != 1 || toks[0].Kind != NameRead || len(toks[0].Arms) != 1 || !IsRef(toks[0].Arms[0]) {
 		return "", false
 	}
-	return toks[0].Names[0], true
+	return toks[0].Arms[0], true
 }

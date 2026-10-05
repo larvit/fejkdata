@@ -2,6 +2,7 @@ package grammar
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -159,4 +160,13 @@ func JoinSegments(segs []string) string {
 		b.WriteString(s)
 	}
 	return b.String()
+}
+
+// CheckSegments refuses an unfinished path: "a." and "a...b" each have a segment naming
+// nothing.
+func CheckSegments(segs []string) error {
+	if slices.Contains(segs, "") {
+		return fmt.Errorf("path has an empty segment")
+	}
+	return nil
 }
