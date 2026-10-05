@@ -71,7 +71,7 @@ func render(s *drawstate.State, n node, sc renderScope) string {
 		if cell := n.t.cellTemplate(row, n.i); cell != nil {
 			return render(s, cell, sc)
 		}
-		return n.t.cell(row, n.i)
+		return n.t.rows.Cell(row, n.i)
 	case *template:
 		if n.repeat == 1 {
 			if mark := sc.renderFrame(n); mark >= 0 {
@@ -114,7 +114,7 @@ func pick(s *drawstate.State, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
 	}
-	return c.items[pickCum(s, c.cum)]
+	return c.items[s.Weighted(c.cum)]
 }
 
 func expand(s *drawstate.State, t *template, sc renderScope) string {

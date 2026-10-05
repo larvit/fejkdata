@@ -34,9 +34,9 @@ type renderedRow struct {
 func (sc renderScope) at(n node, pins *pinSet) renderScope {
 	switch n := n.(type) {
 	case *tableRow:
-		sc.row = renderedRow{n.t, pins.mustRow(n.t)}
+		sc.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
 	case *tableColumn:
-		sc.row = renderedRow{n.t, pins.mustRow(n.t)}
+		sc.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
 	}
 	return sc
 }
@@ -44,7 +44,7 @@ func (sc renderScope) at(n node, pins *pinSet) renderScope {
 // rowOf is the row of t its columns render from.
 func (sc renderScope) rowOf(t *table) int {
 	if sc.row.t != t {
-		panic(invariant.Broken("a column of %s renders in a scope holding no row of it", t.segment))
+		panic(invariant.Broken("a column of %s renders in a scope holding no row of it", t.rows.Segment()))
 	}
 	return sc.row.index
 }

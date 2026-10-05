@@ -954,7 +954,7 @@ fejkdata.go     Generator, New, options, List
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
-table.go        tables: the rows TSV, its options and links, row selection and draws
+table.go        tables: their options, format and cells, and the link to the parent beside them
 name.go         names: {x as n} bindings, the scopes they live in, and the reads they answer
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, the memo a pick keeps, and the reads kept under it
@@ -965,7 +965,6 @@ record.go       records: Record, the JSON/CSV/SQL serializers, and their entry p
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       a format's tokens checked against their fields, and compiled
-pins.go         the pin set: the table rows one path or one named pick fixes
 reference.go    resolving references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
@@ -980,6 +979,7 @@ internal/drawstate/ the seeded randomness and the {seq()} counters a generator d
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
+internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 docs/           the decision log, the register research behind the shipped data, and the survey of other libraries

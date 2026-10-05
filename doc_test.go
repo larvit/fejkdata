@@ -95,7 +95,7 @@ func vocabulary(t *testing.T, files []*ast.File) string {
 }
 
 // declaredSymbols is every name the package declares at the top level, a method and
-// a struct field keyed under its type: pinSet.pin, tableRead.landsRow.
+// a struct field keyed under its type: namedPick.pins, tableRead.landsRow.
 func declaredSymbols(files []*ast.File) map[string]bool {
 	names := declaredFuncs(files)
 	for _, f := range files {

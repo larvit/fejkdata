@@ -138,6 +138,18 @@ func HasSelector(segs []string) bool {
 
 func SelectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
+// inSelector is what a selector may not contain: the path grammar reserves brackets and
+// braces, and a quote or a bar would make the selector no path and no token arm.
+const inSelector = `[]{}"|`
+
+// UnspellableInSelector is the first character of s a selector cannot spell, "" where there is none.
+func UnspellableInSelector(s string) string {
+	if i := strings.IndexAny(s, inSelector); i >= 0 {
+		return s[i : i+1]
+	}
+	return ""
+}
+
 // NameSegments is the segments of a path that are names, its selectors and ".." left out.
 func NameSegments(segs []string) []string {
 	out := segs[:0:0]
