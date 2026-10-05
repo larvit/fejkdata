@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 118`
+`Next ID = 130`
 
 | Goal | W |
 |---|---|
@@ -72,11 +72,21 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run on the restructured code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 128 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 118 to 126 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
+| 119 | 0.1.0 |  | **State at `readName` how every read of a name stays on one pick: `enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one.** | 2 | 2 | 2 | 9 | 3.4, 3.2 | 17.7 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
+| 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping the 9 codes, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
+| 118 | 0.1.0 |  | **Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` holds one keying.** | 5 | 5 | 2 | 9 | 3.2, 3.3 | 13.9 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
+| 120 | 0.1.0 |  | **Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.** | 2 | 4 | 1 | 8 | 3.3 | 13.4 |
+| 123 | 0.1.0 |  | **Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.** | 1 | 2 | 1 | 7 | 3.4, 3.3 | 13.1 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
+| 121 | 0.1.0 |  | **Move each engine type's methods into the file named for it: `renderScope`'s out of `pick.go`, the compiled read out of `format.go`, a table's route out of `path.go`.** | 1 | 3 | 1 | 7 | 3.1 | 12.8 |
+| 122 | 0.1.0 |  | **Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `refBinding` that its head carries the `/`.** | 2 | 2 | 1 | 7 | 3.4, 3.3 | 12.1 |
+| 124 | 0.1.0 |  | **State the `..` step-down rule where `drawSteps` carries `climbed`, and split `route`'s draw condition into named parts.** | 2 | 2 | 1 | 6 | 3.4 | 10.3 |
+| 126 | 0.1.0 |  | **Name in `geo-se.py` the source of its delivery-digit rule and of its 200 floor.** | 1 | 1 | 1 | 5 | 3.4 | 9.8 |
+| 125 | 0.1.0 |  | **Delete the doc lines the panel read as restating their code.** | 1 | 2 | 1 | 5 | 3.4 | 9.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
@@ -239,27 +249,67 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
 
-### 5. Run the nine-seat comprehension panel and larv-review's scoring run on the restructured code, and file what the panel names.
+### 128. Run the nine-seat comprehension panel and the scoring run again once items 118 to 126 have merged, and file what the panel names.
 
-Until a panel scores 7.0 or above, only the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, the move of a table's rows into `internal/rows`, and linking in steps that each return what they build" suspends every scoring run and panel until this item runs.
+The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
 A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
+### 119. State at `readName` how every read of a name stays on one pick: `enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one.
+
+All nine seats in item 5's panel named `readField`, `readName`, `readUnder` and `enter` hardest, and six of the seven unit-level seats would least want to modify them. Each seat rebuilt by tracing why `{a.street}` and `{a.postal-code}` read one `l` in `geo.SE.address`. The same seats asked why a fresh read sets `sc.pick = nil` in `readField`.
+
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
+### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping the 9 codes, or record why they stay.
+
+`docs/research/research-geo-se.md` reads the delivery digit as 0 and 1 boxes, 2–4 and 6–7 street, 5 rural, 8 reply mail and 9 competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. Item 5's panel found it; whether a shipped street carries a 9 code is unchecked.
+
+### 118. Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` holds one keying.
+
+Eight of the nine seats in item 5's panel (2026-10-05) named the key convention hardest after the named-pick read path itself. A fresh read's `levels` start at the head, `[head, head.a, …]`, while `compileArm` builds a named read's from the name, `["", a, a.b, …]`, so `arm.levels`' comment holds only for fresh reads. `addressedKeys` slices off the target's tail and `readUnder` re-prefixes with `underKey`; no type ties them. The key stays a string under the allocation gate.
+
 ### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 
 Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
+
+### 120. Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.
+
+From item 5's panel: `nodeScope`, `nameScope` and `renderScope`; `binding`, `nameBinding` and `refBinding`; `linkTemplates` beside `linkTables` and `rows.Link`; `pick` the function beside a named pick; `head` a string on `arm` and a node on `nameTarget`.
+
+### 123. Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.
+
+Seven of the nine seats in item 5's panel needed the README's Names list open to learn what these refuse.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
 Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
+
+### 121. Move each engine type's methods into the file named for it: `renderScope`'s out of `pick.go`, the compiled read out of `format.go`, a table's route out of `path.go`.
+
+Both architects in item 5's panel ranked this first: `arm`, `op`, `compileFormat` and `compileArm` sit in `format.go`, `renderScope`'s methods in `pick.go`, and `table.route` and `table.drawStep` in `path.go`. Revise the README's Layout block with it.
+
+### 122. Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `refBinding` that its head carries the `/`.
+
+Seven of the nine seats in item 5's panel named it: `a.head[min(1, len(a.head)):]` and `refs[b.ref].head[1:]` strip a sigil no comment names.
+
+### 124. State the `..` step-down rule where `drawSteps` carries `climbed`, and split `route`'s draw condition into named parts.
+
+Seven of the nine seats in item 5's panel named `route` and `drawSteps`; most learned the step-down rule from the README's Step up section.
+
+### 126. Name in `geo-se.py` the source of its delivery-digit rule and of its 200 floor.
+
+`street_delivery`'s `ONE_POSITION` set and its `018` digits come from `docs/research/research-geo-se.md`'s postal code structure, and `UNMATCHED_POPULATION` from a tätort's floor of 200 people; the script names neither.
+
+### 125. Delete the doc lines the panel read as restating their code.
+
+Named in item 5's panel: `Fake` in `inline.go`, `Record.Columns`, `pick` in `render.go`, `compileInto`, `mergeChildren`, `tableOptions`, `randomBytes`, `frameStack.push`, `checkCalcFields`, the callers `recordOf`'s doc lists, and "Each step returns what it builds" on `linkTemplates`.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -366,7 +416,7 @@ Require the path step to reach a sibling category.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 112. Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.
 
