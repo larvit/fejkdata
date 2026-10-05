@@ -959,7 +959,7 @@ scope.go        the scope a render reads names and rows through
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
-struct.go       structs: FakeStruct, fake tags, the one pick a struct's path tags into one category read, and a field's Go type as its column's datatype
+struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
 pins.go         the pin set: the table rows one path or one named pick fixes

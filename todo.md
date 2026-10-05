@@ -131,7 +131,7 @@
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
-| 83 | 0.3.0 | principle | **Read a name binding's head and tail from its binder's link, and delete `linkBindings`.** | 4 | 3 | 1 | 6 | 3.2 | 8.1 |
+| 83 | 0.3.0 | principle | **Read a name binding's head and tail from its binder's link, and have each link pass return what it compiles, so `linkBindings` goes and no pass reads what an earlier one wrote in place.** | 4 | 4 | 1 | 6 | 3.2 | 7.8 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 12 | 13.2 |
@@ -446,9 +446,9 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 
 `workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
 
-### 83. Read a name binding's head and tail from its binder's link, and delete `linkBindings`.
+### 83. Read a name binding's head and tail from its binder's link, and have each link pass return what it compiles, so `linkBindings` goes and no pass reads what an earlier one wrote in place.
 
-`linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. Technical principle: one owner per value.
+`linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote, and `checkNameReads` the arms both filled. Technical principle: one owner per value.
 
 ### 63. Pair a street with its exact postnummer.
 

@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -19,7 +18,7 @@ func checkNameReads(path string, t *template) error {
 		}
 	}
 	return namedReads(t, func(o *op, a *arm) error {
-		if a.named.bindsField() && rendersInside(a.named.head, t) {
+		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
 			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field it binds, which would render itself; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
 		}
 		for _, leaf := range a.leaves {
@@ -31,17 +30,32 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
-// rendersInside reports whether t sits in what n contains.
-func rendersInside(n node, t *template) bool {
-	return eachNode(n, "", func(_ string, m node) error {
-		if m == t {
-			return errFound
+// rendersInside reports whether t sits in what one of nodes contains.
+func rendersInside(nodes []node, t *template) bool {
+	seen := map[node]bool{}
+	var inside func(n node) bool
+	inside = func(n node) bool {
+		if n == node(t) {
+			return true
 		}
-		return nil
-	}) != nil
+		if seen[n] {
+			return false
+		}
+		seen[n] = true
+		for _, c := range contained(n) {
+			if inside(c.node) {
+				return true
+			}
+		}
+		return false
+	}
+	for _, n := range nodes {
+		if inside(n) {
+			return true
+		}
+	}
+	return false
 }
-
-var errFound = errors.New("found")
 
 // checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
 // draws the same way without the name. A field stands only beside its binding.
