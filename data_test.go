@@ -268,7 +268,7 @@ func TestShippedPersonNames(t *testing.T) {
 		seen := map[string]bool{}
 		for i := 0; i < 2000; i++ {
 			seen[fake(t, f, locale+".sex[f].first-name")] = true
-			got := fakeTemplate(t, f, `{/`+locale+`.person.first}|{/`+locale+`.person.sex}`)
+			got := fakeTemplate(t, f, `{/`+locale+`.person as p}{p.first}|{p.sex}`)
 			first, sex, _ := strings.Cut(got, "|")
 			fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
 		}
@@ -330,35 +330,42 @@ func TestShippedSwedishAddress(t *testing.T) {
 }
 
 // TestShippedAddressIsOneNamedPick pins that an address's street, postal code,
-// locality and region are one place in the geo tables, and that two names bound to
-// one address category are two addresses.
+// locality and region are one place in the geo tables, read through a name or a struct's
+// tags, and that a reference beside the name is another address.
 func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(3))
 	for _, c := range []struct{ locale, country, template, largest string }{
-		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}||{b.street}", "Stockholm"},
-		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}|{b.street}", "New York"},
+		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}|", "Stockholm"},
+		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}", "New York"},
 	} {
 		places := geoPlaces(t, c.country)
 		apart, localities := false, map[string]int{}
 		for i := 0; i < 2000; i++ {
-			got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}{/`+c.locale+`.address as b}`+c.template)
+			got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}`+c.template+`|{/`+c.locale+`.address.street}`)
 			parts := strings.Split(got, "|")
 			if !places[strings.Join(parts[:4], "|")] {
 				t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
 			}
 			apart = apart || parts[0] != parts[4]
 			localities[parts[2]]++
-			region := "{/" + c.locale + ".address.region}"
-			if c.country == "SE" {
-				region = ""
-			}
-			got = fakeTemplate(t, f, `{/`+c.locale+`.address.street}|{/`+c.locale+`.address.postal-code}|{/`+c.locale+`.address.locality}|`+region)
-			if !places[got] {
-				t.Fatalf("%s.address: field paths %q are no street, postal code, locality and region of one place", c.locale, got)
-			}
 		}
 		if !apart {
-			t.Errorf("%s: two names bound to address drew one street in 2000 renders, want two addresses", c.locale)
+			t.Errorf("%s: a reference beside a name drew the name's street in 2000 renders, want two addresses", c.locale)
+		}
+		if c.country == "SE" {
+			var row struct {
+				Street     string `fake:"sv_SE.address.street"`
+				PostalCode string `fake:"sv_SE.address.postal-code"`
+				Locality   string `fake:"sv_SE.address.locality"`
+			}
+			for i := 0; i < 200; i++ {
+				if err := f.FakeStruct(&row); err != nil {
+					t.Fatal(err)
+				}
+				if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places[got] {
+					t.Fatalf("sv_SE.address: struct tags %q are no street, postal code and locality of one place", got)
+				}
+			}
 		}
 		for l, n := range localities {
 			if n > localities[c.largest] {
@@ -545,7 +552,7 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 	female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
 	seen := map[string]bool{}
 	for i := 0; i < 3000; i++ {
-		got := fakeTemplate(t, f, `{/en_US.person.prefix}|{/en_US.person.sex}`)
+		got := fakeTemplate(t, f, `{/en_US.person as p}{p.prefix}|{p.sex}`)
 		title, sex, _ := strings.Cut(got, "|")
 		title = strings.TrimSpace(title)
 		seen[title] = true

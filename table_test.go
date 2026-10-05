@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -237,13 +236,10 @@ func TestTableDescendsToALinkedTable(t *testing.T) {
 
 func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	files := with(geo(), map[string]string{
-		"drawn.json":       `"{/locality.code}|{/locality..municipality.code}|{/locality..municipality..region.code}"`,
 		"named.json":       `"{/locality as l}{l.code}|{l..municipality.code}|{l..municipality..region.code}"`,
-		"down.json":        `"{/locality.code}|{/locality..municipality.locality.code}"`,
 		"named-down.json":  `"{/locality as l}{l.code}|{l..municipality.locality.code}"`,
-		"twice.json":       `"{/locality..municipality.locality.code}|{/locality..municipality.locality.name}"`,
 		"named-twice.json": `"{/locality as l}{l..municipality.locality.code}|{l..municipality.locality.name}"`,
-		"record.json":      `{"format":"","l":"{/locality.code}","m":"{/locality..municipality.code}"}`,
+		"record.json":      `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}"}`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(4))
 	for path, want := range map[string]string{
@@ -264,11 +260,8 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	names := map[string]string{"L1": "Stockholm", "L2": "Solna", "L3": "Malmö", "L4": "Lund", "L5": "Göteborg", "L6": "Hisingen", "L7": "Sandby", "L8": "Sandby"}
 	afresh := map[string]bool{}
 	for i := 0; i < 200; i++ {
-		for _, path := range []string{"drawn", "named"} {
-			parts := strings.Split(fake(t, f, path), "|")
-			if municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
-				t.Fatalf("%s = %v, want the locality's own municipality and region", path, parts)
-			}
+		if parts := strings.Split(fake(t, f, "named"), "|"); municipalityOf[parts[0]] != parts[1] || regionOf[parts[1]] != parts[2] {
+			t.Fatalf("named = %v, want the locality's own municipality and region", parts)
 		}
 		if l := fake(t, f, "locality[L4]..municipality.locality.code"); l != "L4" && l != "L7" {
 			t.Fatalf("locality[L4]..municipality.locality.code = %q, outside Lund", l)
@@ -278,17 +271,11 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 		if m := fake(t, f, "locality[L4]..municipality..region.municipality.code"); regionOf[m] != "12" {
 			t.Fatalf("locality[L4]..municipality..region.municipality.code = %q, outside 12", m)
 		}
-		for _, path := range []string{"down", "named-down"} {
-			parts := strings.Split(fake(t, f, path), "|")
-			if municipalityOf[parts[0]] != municipalityOf[parts[1]] {
-				t.Fatalf("%s = %v, want a locality of the first one's municipality", path, parts)
-			}
+		if parts := strings.Split(fake(t, f, "named-down"), "|"); municipalityOf[parts[0]] != municipalityOf[parts[1]] {
+			t.Fatalf("named-down = %v, want a locality of the first one's municipality", parts)
 		}
-		for _, path := range []string{"twice", "named-twice"} {
-			parts := strings.Split(fake(t, f, path), "|")
-			if names[parts[0]] != parts[1] {
-				t.Fatalf("%s = %v, want both reads of one step down to read one locality", path, parts)
-			}
+		if parts := strings.Split(fake(t, f, "named-twice"), "|"); names[parts[0]] != parts[1] {
+			t.Fatalf("named-twice = %v, want both reads of one step down under a name to read one locality", parts)
 		}
 		down, err := f.FakeRecord("locality[L4]..municipality.locality")
 		if err != nil {
@@ -315,11 +302,6 @@ func TestTableStepsUpToTheRowItLinksTo(t *testing.T) {
 	}
 	if err := f.FakeStruct(&tagged); err != nil || tagged.M != "Lund" {
 		t.Errorf("a struct tag stepping up = %q, %v; want Lund", tagged.M, err)
-	}
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{
-		"x.json": `"{/locality..municipality.code}|{/locality[L1].name}"`,
-	})))); err == nil || !strings.Contains(err.Error(), "{/locality[L1]..municipality.code}") {
-		t.Errorf("New = %v, want the fence to name {/locality[L1]..municipality.code}", err)
 	}
 	for _, p := range f.List() {
 		if strings.Contains(p, "..") {
@@ -359,11 +341,12 @@ func TestTableStepUpRefusals(t *testing.T) {
 
 func TestLinkedTablesDrawConsistently(t *testing.T) {
 	spellings := map[string]string{
-		"leaf first":   `{"format":"{l}|{m}|{r}","l":"{/locality.code}","m":"{/municipality.code}","r":"{/region.code}"}`,
-		"root first":   `{"format":"{r}|{m}|{l}","r":"{/region.code}","m":"{/municipality.code}","l":"{/locality.code}"}`,
-		"skipping one": `{"format":"{r}|{l}","r":"{/region.code}","l":"{/locality.code}"}`,
-		"nested":       `{"format":"{a}|{l}","a":{"format":"{r}|{m}","r":"{/region.code}","m":"{/municipality.code}"},"l":"{/locality.code}"}`,
-		"a record":     `{"format":"","l":"{/locality.code}","m":"{/municipality.code}","r":"{/region.code}"}`,
+		"leaf first":        `{"format":"{l}|{m}|{r}","l":"{/locality as x}{x.code}","m":"{x..municipality.code}","r":"{x..municipality..region.code}"}`,
+		"root first":        `{"format":"{r}|{m}|{l}","r":"{/region as x}{x.code}","m":"{x.municipality.code}","l":"{x.municipality.locality.code}"}`,
+		"skipping one":      `{"format":"{r}|{l}","r":"{/region as x}{x.code}","l":"{x.locality.code}"}`,
+		"a skip read first": `{"format":"{l}|{m}|{r}","l":"{/region as x}{x.locality.code}","m":"{x.municipality.code}","r":"{x.code}"}`,
+		"nested":            `{"format":"{a}|{l}","a":{"format":"{r}|{m}","r":"{x..municipality..region.code}","m":"{x..municipality.code}"},"l":"{/locality as x}{x.code}"}`,
+		"a record":          `{"format":"","l":"{/locality as x}{x.code}","m":"{x..municipality.code}","r":"{x..municipality..region.code}"}`,
 	}
 	for name, addr := range spellings {
 		f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"addr.json": addr})), WithSeed(5))
@@ -406,9 +389,9 @@ func TestLinkedTablesDrawConsistently(t *testing.T) {
 	}
 }
 
-func TestLinkedTablesDrawApartAcrossGroupsAndRepeats(t *testing.T) {
+func TestLinkedTablesDrawApartAcrossReadsAndRepeats(t *testing.T) {
 	files := with(geo(), map[string]string{
-		"groups.json": `{"format":"{a}|{b}","a":{"format":"{/locality.code}","drawGroup":"g"},"b":"{/locality.code}"}`,
+		"groups.json": `"{/locality.code}|{/region.locality.code}"`,
 		"many.json":   `{"format":"{x}","x":{"format":"{/locality.code}","repeat":8,"separator":"|"}}`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(9))
@@ -421,14 +404,14 @@ func TestLinkedTablesDrawApartAcrossGroupsAndRepeats(t *testing.T) {
 			}
 		}
 		if !differ {
-			t.Fatalf("%s: every draw agreed in 100 renders, want groups and repeat iterations drawn apart", path)
+			t.Fatalf("%s: every draw agreed in 100 renders, want reads and repeat iterations drawn apart", path)
 		}
 	}
 }
 
 func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
 	files := with(siblings(), map[string]string{
-		"addr.json": `{"format":"{s}|{p}|{l}","s":"{/street.name}","p":"{/postal-code.code}","l":"{/locality.code}"}`,
+		"addr.json": `{"format":"{s}|{p}|{l}","s":"{/locality as x}{x.street.name}","p":"{x.postal-code.code}","l":"{x.code}"}`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(3))
 	seen := map[string]bool{}
@@ -463,7 +446,7 @@ func TestSiblingTablesDrawInsideOneAncestor(t *testing.T) {
 
 func TestTableSelectorInAReference(t *testing.T) {
 	files := with(geo(), map[string]string{
-		"x.json": `{"format":"{a} {b} {c}","a":"{/region[12].name}","b":"{/region[12].municipality.code}","c":"{/region[12].locality.code}"}`,
+		"x.json": `{"format":"{a} {b} {c}","a":"{/region[12] as x}{x.name}","b":"{x.municipality.code}","c":"{x.locality.code}"}`,
 	})
 	f := newGenerator(t, writeFiles(t, files), WithSeed(1))
 	for i := 0; i < 100; i++ {
@@ -487,47 +470,31 @@ func TestTableSelectorInAReference(t *testing.T) {
 	}
 }
 
-func TestTableSelectionFences(t *testing.T) {
-	rejected := map[string]struct{ json, want string }{
-		"bare beside a path":                  {`"{/region} {/region.name}"`, "renders its own draw of what"},
-		"bare beside a linked path":           {`"{/region} {/locality.name}"`, "renders its own draw of what"},
-		"selected beside unselected":          {`"{/region[12].municipality.name} {/municipality.code}"`, "{/region[12].municipality.code}"},
-		"relative selected beside unselected": {`"{.region[12].municipality.name} {.municipality.code}"`, "{.region[12].municipality.code}"},
-		"two selections":                      {`"{/region[12].name} {/region[14].name}"`, "drawGroup"},
-		"selection beside a descendant":       {`"{/region[12].name} {/locality.code}"`, "{/region[12].locality.code}"},
-	}
-	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": c.json}))))
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want it rejected mentioning %q", name, err, c.want)
-		}
-	}
-	accepted := map[string]string{
-		"a descent beside a path into it": `"{/region.municipality} {/region.municipality.name}"`,
-		"selections in two groups":        `{"format":"{a} {b}","a":{"format":"{/region[12].name}","drawGroup":"a"},"b":"{/region[14].name}"}`,
-		"one selection twice":             `"{/region[12].name} {/region[12].timezone} {/region[12].locality.name}"`,
-		"a bare table in another group":   `{"format":"{a} {b}","a":{"format":"{/region}","drawGroup":"a"},"b":"{/locality.name}"}`,
-	}
-	for name, json := range accepted {
+func TestTableReadsBesideEachOtherLoad(t *testing.T) {
+	for _, json := range []string{
+		`"{/region} {/region.name}"`,
+		`"{/region} {/locality.name}"`,
+		`"{/region[12].municipality.name} {/municipality.code}"`,
+		`"{.region[12].municipality.name} {.municipality.code}"`,
+		`"{/region[12].name} {/region[14].name}"`,
+		`"{/region[12].name} {/locality.code}"`,
+		`"{/region.municipality} {/region.municipality.name}"`,
+		`"{/region[12].name} {/region[12].timezone} {/region[12].locality.name}"`,
+		`"{/region[12].locality[L4].name} {/region[12].locality[L7].name}"`,
+		`"{/region[14].name} {/locality[L4].name}"`,
+	} {
 		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
 		if err != nil {
-			t.Errorf("%s: New = %v, want it accepted", name, err)
+			t.Errorf("%s: New = %v, want each read a draw of its own", json, err)
 			continue
 		}
 		fake(t, f, "x")
 	}
-	f := newGenerator(t, writeFiles(t, with(geo(), map[string]string{"x.json": accepted["a descent beside a path into it"]})), WithSeed(1))
-	for i := 0; i < 100; i++ {
-		if parts := strings.Fields(fake(t, f, "x")); parts[0] != parts[1] {
-			t.Fatalf("x = %v, want the descended row and the path into it to agree", parts)
-		}
-	}
 }
 
-// The family fence replays each read's selectors through the walk the render uses, so
-// spellings that pin the same rows by different routes agree, and two rows of one
-// table are refused at load rather than found at render.
-func TestTableFamilyFenceReplaysPins(t *testing.T) {
+// A selector names one row wherever it is written, so spellings that select the same rows by
+// different routes agree.
+func TestSelectedRowsAgreeAcrossSpellings(t *testing.T) {
 	accepted := map[string]string{
 		"skip-level selectors":       `"{/region[12].locality[L4].name}|{/region[12].name}"`,
 		"descendant then ancestor":   `"{/locality[L4].name}|{/region[12].name}"`,
@@ -548,16 +515,6 @@ func TestTableFamilyFenceReplaysPins(t *testing.T) {
 			}
 		}
 	}
-	rejected := map[string]struct{ json, want string }{
-		"two rows of one table":             {`"{/region[12].locality[L4].name} {/region[12].locality[L7].name}"`, "drawGroup"},
-		"a row outside a selected ancestor": {`"{/region[14].name} {/locality[L4].name}"`, "drawGroup"},
-	}
-	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": c.json}))))
-		if err == nil || !strings.Contains(err.Error(), c.want) {
-			t.Errorf("%s: New = %v, want it rejected mentioning %q", name, err, c.want)
-		}
-	}
 }
 
 func TestTableFences(t *testing.T) {
@@ -569,63 +526,52 @@ func TestTableFences(t *testing.T) {
 		files map[string]string
 		want  string
 	}{
-		"rows names a missing file":                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`}, "t.tsv"},
-		"a TSV nothing names":                            {with(base, map[string]string{"stray.tsv": "a\nx\n"}), "stray.tsv"},
-		"rows outside its folder":                        {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"../region.tsv"}`}), "beside"},
-		"rows not a tsv":                                 {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"region.txt"}`, "region.txt": "code\n1\n"}), ".tsv"},
-		"key names no column":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"name names no column":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"weight names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"parent names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"key equals name":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"a"}`, "t.tsv": "a\nx\ny\n"}, "drop"},
-		"duplicate key":                                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx\nx\n"}, `"x"`},
-		"empty key":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\n\ty\nx\tz\n"}, "empty"},
-		"a bracket in a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
-		"a brace in a name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
-		"name without a key":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
-		"a name repeating inside one parent row":         {with(siblings(), map[string]string{"street.json": `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality"}`, "street.tsv": "name\tlocality\nAvenyn\tL1\nAvenyn\tL1\nStorgatan\tL2\nStorgatan\tL3\nStorgatan\tL4\nStorgatan\tL5\nStorgatan\tL6\nStorgatan\tL7\nStorgatan\tL8\n"}), `"Avenyn"`},
-		"a name that is another row's key":               {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
-		"a cell reading its family":                      {with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}), "family"},
-		"a format reading its family":                    {with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}), "family"},
-		"a format's reference beside a path into it":     {map[string]string{"x.json": `{"format":"{v} {/z}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "z.json": `{"format":"{a}","a":["p","q"]}`, "r.json": `"{/x} {/z.a}"`}, "renders its own draw of what {/z.a}"},
-		"a selected row's format selecting another row":  {map[string]string{"x.json": `{"format":"{v} {/y[1].w}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "y.json": `{"format":"{w}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tw\n1\tm\n2\tn\n", "r.json": `"{/x[1]} {/y[2].w}"`}, "two rows of y"},
-		"a whole table's format selecting another row":   {map[string]string{"x.json": `{"format":"{v} {/y[1].w}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "y.json": `{"format":"{w}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tw\n1\tm\n2\tn\n", "r.json": `"{/x} {/y[2].w}"`}, "two rows of y"},
-		"a descendant named like an ancestor's column":   {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
-		"weight not a number":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},
-		"weight zero":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}, "0"},
-		"weight negative":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t-1\ny\t2\n"}, "-1"},
-		"reserved column name":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb.c\nx\ty\n"}, `"b.c"`},
-		"duplicate column":                               {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\ta\nx\ty\n"}, `"a"`},
-		"empty column name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\t\nx\ty\n"}, "empty"},
-		"short row":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\ty\nz\n"}, "line 3"},
-		"no rows":                                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n"}, "no rows"},
-		"a blank line after the rows":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n\n"}, "line 4"},
-		"a blank line in one column":                     {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n\ny\n"}, "line 3"},
-		"a table reaching its family through a template": {with(geo(), map[string]string{"addr.json": `"{/locality.name}"`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}), "family"},
-		"a table reaching its family through a repeat":   {with(geo(), map[string]string{"addr.json": `{"format":"{/locality.name} ","repeat":3}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}), "family"},
-		"a table reaching its family through a group":    {with(geo(), map[string]string{"addr.json": `{"format":"{/locality.name}","drawGroup":"g"}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}), "family"},
-		"a selected row reaching its family's other row": {with(geo(), map[string]string{"a.json": `"{/region[01].note}"`, "addr.json": `{"format":"{/region[12].name}","drawGroup":"g"}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}), "family"},
-		"one row":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n"}, "one row"},
-		"empty file":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": ""}, "header"},
-		"parent is not a table":         {map[string]string{"p.json": `"x"`, "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, "not a table"},
-		"parent does not exist":         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, `"p"`},
-		"parent in another folder":      {map[string]string{"g/p.json": `{"format":"{k}","rows":"p.tsv","key":"k"}`, "g/p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, `"p"`},
-		"parent has no key":             {map[string]string{"p.json": `{"format":"{k}","rows":"p.tsv"}`, "p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, "key"},
-		"dangling link":                 {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t99\n"}), `"99"`},
-		"childless parent row":          {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t01\n"}), `"12"`},
-		"parent cycle":                  {map[string]string{"a.json": `{"format":"{k}","rows":"a.tsv","key":"k","parent":"b"}`, "a.tsv": "k\tb\nx\tx\ny\ty\n", "b.json": `{"format":"{k}","rows":"b.tsv","key":"k","parent":"a"}`, "b.tsv": "k\ta\nx\tx\ny\ty\n"}, "cycle"},
-		"child named like a column":     {with(base, map[string]string{"name.json": `{"format":"{a}","rows":"name.tsv","parent":"region"}`, "name.tsv": "a\tregion\nx\t01\ny\t12\n"}), `"name"`},
-		"rows nested in a field":        {map[string]string{"t.json": `{"format":"{x}","x":{"format":"{a}","rows":"x.tsv"}}`, "x.tsv": "a\nx\ny\n"}, "category"},
-		"rows in a choice item":         {map[string]string{"t.json": `[{"format":"{a}","rows":"t.tsv"},"y"]`, "t.tsv": "a\nx\ny\n"}, "category"},
-		"unknown table option":          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","fields":"a"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"repeat on a table":             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","repeat":2}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"drawGroup on a table":          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","drawGroup":"g"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
-		"option not a string":           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":1}`, "t.tsv": "a\nx\ny\n"}, "string"},
-		"format names no column":        {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
-		"format reads into a column":    {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
-		"a reference into a column":     {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
-		"a category referencing itself": {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
-		"a cell repeating a reference":  {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}), "t.a, line 3: token {/region} is repeated"},
+		"rows names a missing file":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`}, "t.tsv"},
+		"a TSV nothing names":                          {with(base, map[string]string{"stray.tsv": "a\nx\n"}), "stray.tsv"},
+		"rows outside its folder":                      {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"../region.tsv"}`}), "beside"},
+		"rows not a tsv":                               {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"region.txt"}`, "region.txt": "code\n1\n"}), ".tsv"},
+		"key names no column":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"name names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"weight names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"parent names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
+		"key equals name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"a"}`, "t.tsv": "a\nx\ny\n"}, "drop"},
+		"duplicate key":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx\nx\n"}, `"x"`},
+		"empty key":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\n\ty\nx\tz\n"}, "empty"},
+		"a bracket in a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
+		"a brace in a name":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\tx{1}\ny\ty\n"}, `"{"`},
+		"name without a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"a"}`, "t.tsv": "a\nx\nx\n"}, "key"},
+		"a name repeating inside one parent row":       {with(siblings(), map[string]string{"street.json": `{"format":"{name}","rows":"street.tsv","name":"name","parent":"locality"}`, "street.tsv": "name\tlocality\nAvenyn\tL1\nAvenyn\tL1\nStorgatan\tL2\nStorgatan\tL3\nStorgatan\tL4\nStorgatan\tL5\nStorgatan\tL6\nStorgatan\tL7\nStorgatan\tL8\n"}), `"Avenyn"`},
+		"a name that is another row's key":             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
+		"a descendant named like an ancestor's column": {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
+		"weight not a number":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},
+		"weight zero":                                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}, "0"},
+		"weight negative":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t-1\ny\t2\n"}, "-1"},
+		"reserved column name":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb.c\nx\ty\n"}, `"b.c"`},
+		"duplicate column":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\ta\nx\ty\n"}, `"a"`},
+		"empty column name":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\t\nx\ty\n"}, "empty"},
+		"short row":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\ty\nz\n"}, "line 3"},
+		"no rows":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n"}, "no rows"},
+		"a blank line after the rows":                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n\n"}, "line 4"},
+		"a blank line in one column":                   {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n\ny\n"}, "line 3"},
+		"one row":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n"}, "one row"},
+		"empty file":                                   {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": ""}, "header"},
+		"parent is not a table":                        {map[string]string{"p.json": `"x"`, "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, "not a table"},
+		"parent does not exist":                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, `"p"`},
+		"parent in another folder":                     {map[string]string{"g/p.json": `{"format":"{k}","rows":"p.tsv","key":"k"}`, "g/p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, `"p"`},
+		"parent has no key":                            {map[string]string{"p.json": `{"format":"{k}","rows":"p.tsv"}`, "p.tsv": "k\nx\ny\n", "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\ty\n"}, "key"},
+		"dangling link":                                {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t99\n"}), `"99"`},
+		"childless parent row":                         {with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"region"}`, "t.tsv": "a\tregion\nx\t01\ny\t01\n"}), `"12"`},
+		"parent cycle":                                 {map[string]string{"a.json": `{"format":"{k}","rows":"a.tsv","key":"k","parent":"b"}`, "a.tsv": "k\tb\nx\tx\ny\ty\n", "b.json": `{"format":"{k}","rows":"b.tsv","key":"k","parent":"a"}`, "b.tsv": "k\ta\nx\tx\ny\ty\n"}, "cycle"},
+		"child named like a column":                    {with(base, map[string]string{"name.json": `{"format":"{a}","rows":"name.tsv","parent":"region"}`, "name.tsv": "a\tregion\nx\t01\ny\t12\n"}), `"name"`},
+		"rows nested in a field":                       {map[string]string{"t.json": `{"format":"{x}","x":{"format":"{a}","rows":"x.tsv"}}`, "x.tsv": "a\nx\ny\n"}, "category"},
+		"rows in a choice item":                        {map[string]string{"t.json": `[{"format":"{a}","rows":"t.tsv"},"y"]`, "t.tsv": "a\nx\ny\n"}, "category"},
+		"unknown table option":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","fields":"a"}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
+		"repeat on a table":                            {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","repeat":2}`, "t.tsv": "a\nx\ny\n"}, "a table takes"},
+		"option not a string":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":1}`, "t.tsv": "a\nx\ny\n"}, "string"},
+		"format names no column":                       {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
+		"format reads into a column":                   {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
+		"a reference into a column":                    {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
+		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, c.files)))
@@ -635,6 +581,29 @@ func TestTableFences(t *testing.T) {
 		}
 		if !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
+		}
+	}
+	accepted := map[string]map[string]string{
+		"a cell reading its family":                      with(geo(), map[string]string{"locality.tsv": "code\tname\tmunicipality\tnote\nL1\tStockholm\t0180\t{/municipality.code}\nL2\tSolna\t0184\t-\nL3\tMalmö\t1280\t-\nL4\tLund\t1281\t-\nL5\tGöteborg\t1480\t-\n"}),
+		"a format reading its family":                    with(geo(), map[string]string{"locality.json": `{"format":"{name} {/region.name}","rows":"locality.tsv","key":"code","name":"name","parent":"municipality"}`}),
+		"a format's reference beside a path into it":     map[string]string{"x.json": `{"format":"{v} {/z}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "z.json": `{"format":"{a}","a":["p","q"]}`, "r.json": `"{/x} {/z.a}"`},
+		"a selected row's format selecting another row":  map[string]string{"x.json": `{"format":"{v} {/y[1].w}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "y.json": `{"format":"{w}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tw\n1\tm\n2\tn\n", "r.json": `"{/x[1]} {/y[2].w}"`},
+		"a whole table's format selecting another row":   map[string]string{"x.json": `{"format":"{v} {/y[1].w}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "y.json": `{"format":"{w}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tw\n1\tm\n2\tn\n", "r.json": `"{/x} {/y[2].w}"`},
+		"a table reaching its family through a template": with(geo(), map[string]string{"addr.json": `"{/locality.name}"`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
+		"a table reaching its family through a repeat":   with(geo(), map[string]string{"addr.json": `{"format":"{/locality.name} ","repeat":3}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
+		"a selected row reaching its family's other row": with(geo(), map[string]string{"a.json": `"{/region[01].note}"`, "addr.json": `{"format":"{/region[12].name}","drawGroup":"g"}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
+		"a cell repeating a reference":                   with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}),
+	}
+	for name, files := range accepted {
+		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files)), WithSeed(1))
+		if err != nil {
+			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
+			continue
+		}
+		for _, path := range f.List() {
+			if _, err := f.Fake(path); err != nil {
+				t.Errorf("%s: Fake(%s) = %v", name, path, err)
+			}
 		}
 	}
 	if _, err := New(WithoutShippedData(), WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
@@ -774,18 +743,29 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 			}
 		}
 	}
-	rejected := map[string]map[string]string{
-		"one cell selecting two rows":     {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
-		"two tables' cells in one render": {"z.json": `"{/country.money} {/y.sym}"`},
-		"the format beside a cell":        {"country.json": `{"format":"{money} {/cur[SEK].sym}","rows":"country.tsv","key":"alpha2"}`},
-		"two columns of one row":          {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur[SEK].sym}\t{/cur[EUR].sym}\nSE\t{/cur[EUR].sym}\t{/cur[SEK].sym}\n"},
-		"a whole read beside a path":      {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur}\t{/cur[EUR].sym}\nSE\t{/cur}\t{/cur[SEK].sym}\n"},
-		"a cell reaching another's cells": {"y.json": `{"format":"{sym}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n", "cur.tsv": "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n", "country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+	twoRows := map[string]map[string]string{
+		"two draws landing on cells selecting two rows": {"z.json": `"{/country}|{/country}"`},
+		"one cell selecting two rows":                   {"country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/cur[EUR].sym}{/cur[SEK].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
+		"two tables' cells in one render":               {"z.json": `"{/country.money} {/y.sym}"`},
+		"the format beside a cell":                      {"country.json": `{"format":"{money} {/cur[SEK].sym}","rows":"country.tsv","key":"alpha2"}`},
+		"two columns of one row":                        {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur[SEK].sym}\t{/cur[EUR].sym}\nSE\t{/cur[EUR].sym}\t{/cur[SEK].sym}\n"},
+		"a whole read beside a path":                    {"country.json": `{"format":"{a} {b}","rows":"country.tsv","key":"alpha2"}`, "country.tsv": "alpha2\ta\tb\nFI\t{/cur}\t{/cur[EUR].sym}\nSE\t{/cur}\t{/cur[SEK].sym}\n"},
+		"a cell reaching another's cells":               {"y.json": `{"format":"{sym}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n", "cur.tsv": "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n", "country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 	}
-	for name, more := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))))
-		if err == nil || !strings.Contains(err.Error(), "drawGroup") {
-			t.Errorf("%s: New = %v, want it refused", name, err)
+	for name, more := range twoRows {
+		g, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
+		if err != nil {
+			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
+			continue
+		}
+		paths := []string{"country"}
+		if _, defined := more["z.json"]; defined {
+			paths = append(paths, "z")
+		}
+		for i := 0; i < 50; i++ {
+			for _, path := range paths {
+				fake(t, g, path)
+			}
 		}
 	}
 }
@@ -913,9 +893,9 @@ func TestShippedTables(t *testing.T) {
 		t.Fatalf("territory draws %d distinct rows in 5000, want the full register", len(count))
 	}
 	for i := 0; i < 200; i++ {
-		got := fakeTemplate(t, f, `{/territory.alpha2} {/timezone.territory}`)
+		got := fakeTemplate(t, f, `{/timezone as z}{z..territory.alpha2} {z.territory}`)
 		if drawn, zone, _ := strings.Cut(got, " "); drawn != zone {
-			t.Fatalf("%q: a territory and a timezone in one render disagree on the territory", got)
+			t.Fatalf("%q: a timezone and the territory it steps up to disagree", got)
 		}
 	}
 	var row struct {
@@ -1110,86 +1090,20 @@ func TestAmbiguousNameNamesARunnablePath(t *testing.T) {
 	}
 }
 
-// TestEnteredRowsAgreeWithPinning holds what a fence walk decides about the rows it entered, and
-// the rows a render draws, to what pinning refuses: drift between them is data that loads and then
-// renders a family that disagrees. A row rendered whole is drawn over the whole table, apart from
-// every pin, so it is an alternative only to another row of its own draw.
-func TestEnteredRowsAgreeWithPinning(t *testing.T) {
+// TestAStepSitsAtTheSegmentItConsumes holds a path's compiled steps to its segments.
+func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	var tables []*table
-	for _, category := range []string{"region", "municipality", "locality"} {
-		tbl, isTable := f.root.children[category].(*table)
-		if !isTable {
-			t.Fatalf("%s is not a table", category)
-		}
-		tables = append(tables, tbl)
-	}
-	var none pinSet
-	for _, entered := range tables {
-		for row := 0; row < entered.rowCount(); row++ {
-			whole := pathRead{}
-			whole.branches.wholePins.add(entered, row)
-			s := none.entered(entered, row)
-			for _, cand := range tables {
-				for i := 0; i < 20; i++ {
-					drawing := s.clone()
-					if r := cand.drawIn(f.rand, &drawing); s.clash(cand, r) != nil {
-						t.Errorf("a render draws %s beside %s, which pinning it there refuses", cand.selectorSpelling(r), entered.selectorSpelling(row))
-					}
-				}
-				for cr := 0; cr < cand.rowCount(); cr++ {
-					beside := s.clone()
-					refused := beside.pinRow(cand, cr) != nil
-					candAt := pathRead{branches: branches{pins: none.entered(cand, cr)}}
-					if got := coRender(pathRead{branches: branches{pins: s}}, candAt); got == refused {
-						t.Errorf("coRender(%s, %s) = %v, but pinning both refuses = %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), got, refused)
-					}
-					if !coRender(whole, candAt) || !coRender(candAt, whole) {
-						t.Errorf("%s rendered whole is an alternative to %s pinned, though the whole draw ignores the pin", entered.selectorSpelling(row), cand.selectorSpelling(cr))
-					}
-					other := pathRead{}
-					other.branches.wholePins.add(cand, cr)
-					if want := cand == entered && cr != row; coRender(whole, other) == want {
-						t.Errorf("coRender(%s, %s), both rendered whole, = %v, want %v", entered.selectorSpelling(row), cand.selectorSpelling(cr), want, !want)
-					}
-				}
-			}
-		}
-	}
-	var spilled pinSet
-	for i := 0; i <= len(spilled.inline); i++ {
-		spilled = spilled.entered(&table{path: strconv.Itoa(i)}, 0)
-	}
-	_ = spilled.entered(&table{path: "past"}, 0)
-	n := 0
-	spilled.each(func(*table, int) { n++ })
-	if n != len(spilled.inline)+1 {
-		t.Errorf("entering a row beside a spilled pin set leaves it holding %d rows, want %d", n, len(spilled.inline)+1)
-	}
-}
-
-// TestTableReadReportsTheTablesADrawPins holds a path's compiled steps to the render: the tables
-// its table read says it draws are those a draw of it pins beyond what its selectors pin, each
-// selector is credited to the table it selects a row of, and a step naming a segment sits at it.
-func TestTableReadReportsTheTablesADrawPins(t *testing.T) {
-	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
-	for _, c := range []struct{ path, sels string }{
-		{"locality.code", ""},
-		{"municipality.locality.name", ""},
-		{"municipality[1281].locality.name", "municipality=municipality[1281]"},
-		{"municipality.locality[L4].name", "locality=municipality.locality[L4]"},
-		{"region", ""},
-		{"region.municipality", ""},
-		{"region.municipality.name", ""},
-		{"region.locality.name", ""},
-		{"region[12].locality", "region=region[12]"},
-		{"region[12].locality.code", "region=region[12]"},
-		{"region[12].locality[L4].name", "region=region[12] locality=region[12].locality[L4]"},
-		{"region[12].municipality.locality.code", "region=region[12]"},
-		{"region[12].municipality[1281].locality.code", "region=region[12] municipality=region[12].municipality[1281]"},
-		{"region[12].name", "region=region[12]"},
+	for _, path := range []string{
+		"locality.code",
+		"municipality.locality.name",
+		"municipality[1281].locality.name",
+		"municipality.locality[L4].name",
+		"region.municipality.name",
+		"region[12].locality[L4].name",
+		"region[12].municipality[1281].locality.code",
+		"region[12].name",
 	} {
-		a := splitArm(c.path, nil)
+		a := splitArm(path, nil)
 		head := f.root.children[a.head].(*table)
 		a.steps = compilePath(head, a.tail).steps
 		for _, st := range a.steps {
@@ -1203,75 +1117,28 @@ func TestTableReadReportsTheTablesADrawPins(t *testing.T) {
 				continue
 			}
 			if st.at >= len(a.tail) || a.tail[st.at] != seg {
-				t.Errorf("%s: step %q sits at %d, want the segment it consumes", c.path, seg, st.at)
-			}
-		}
-		tr := tableReadOf(head, a, nil)
-		var sels []string
-		for _, s := range tr.sels {
-			sels = append(sels, s.t.segment+"="+s.spelling)
-		}
-		if got := strings.Join(sels, " "); got != c.sels {
-			t.Errorf("%s: the table read credits the selectors %q, want %q", c.path, got, c.sels)
-		}
-		selected, drawn := tr.pins, tr.drawn
-		for i := 0; i < 20; i++ {
-			var pins pinSet
-			drawSteps(f.rand, head, a.steps, &pins, nil, nil)
-			want := map[*table]bool{}
-			pins.each(func(tbl *table, _ int) {
-				if _, isSelected := selected.pinned(tbl); !isSelected {
-					want[tbl] = true
-				}
-			})
-			if !maps.Equal(drawn, want) {
-				t.Fatalf("%s: the table read reports %v drawn, a draw pins %v", c.path, segmentsOf(drawn), segmentsOf(want))
+				t.Errorf("%s: step %q sits at %d, want the segment it consumes", path, seg, st.at)
 			}
 		}
 	}
 }
 
-func segmentsOf(tables map[*table]bool) []string {
-	var out []string
-	for tbl := range tables {
-		out = append(out, tbl.segment)
-	}
-	slices.Sort(out)
-	return out
-}
-
-// TestCellReadsMeetWhereTheRenderPairsTheRows reads what the TSVs below do not show: region 01's
-// note holds {/addr} and 1280's, under region 12, holds {/addr.city}, so the two meet only where
-// no read pins a region.
-func TestCellReadsMeetWhereTheRenderPairsTheRows(t *testing.T) {
+// TestCellReadsLoadAndRender reads what the TSVs below do not show: region 01's note holds
+// {/addr} and 1280's holds {/addr.city}, and each read of a cell draws on its own.
+func TestCellReadsLoadAndRender(t *testing.T) {
 	cells := with(geo(), map[string]string{
 		"addr.json":        `{"format":"{city}","city":["Lund","Malmö"]}`,
 		"municipality.tsv": "code\tname\tregion\tpopulation\tnote\n0180\tStockholm\t01\t980000\t-\n0184\tSolna\t01\t85000\t-\n1280\tMalmö\t12\t360000\t{/addr.city}\n1281\tLund\t12\t130000\t-\n1480\tGöteborg\t14\t590000\t-\n",
 		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t{/addr}\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
 	})
-	paths := with(cells, map[string]string{"x.json": `"{/region.note} {/municipality.note}"`})
-	f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, paths)), WithSeed(1))
-	if err != nil {
-		t.Fatalf("New = %v, want the two cells accepted", err)
-	}
-	fake(t, f, "x")
-	whole := with(cells, map[string]string{
-		"municipality.json": `{"format":"{name}={note}","rows":"municipality.tsv","key":"code","name":"name","parent":"region","weight":"population"}`,
-		"region.json":       `{"format":"{name}={note}","rows":"region.tsv","key":"code","name":"name","weight":"population"}`,
-		"x.json":            `"{/region}|{/municipality}"`,
-	})
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, whole)), WithSeed(1)); err == nil || !strings.HasSuffix(err.Error(), "or move {/municipality} into a field with a drawGroup") {
-		t.Fatalf("New = %v, want the two drawn rows held to one draw of addr, and the drawGroup named on a field around the read", err)
-	}
-	nested := with(whole, map[string]string{
-		"municipality.tsv": "code\tname\tregion\tpopulation\tnote\n0180\tStockholm\t01\t980000\t-\n0184\tSolna\t01\t85000\t-\n1280\tMalmö\t12\t360000\t{/shop}\n1281\tLund\t12\t130000\t{/addr.city}\n1480\tGöteborg\t14\t590000\t-\n",
-		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t-\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
-		"shop.json":        `{"format":"{name}={note}","rows":"shop.tsv","key":"code","name":"name"}`,
-		"shop.tsv":         "code\tname\tnote\nS1\tKiosk\t{/addr}\nS2\tBod\t-\n",
-		"x.json":           `"{/municipality}"`,
-	})
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, nested)), WithSeed(1)); err != nil {
-		t.Fatalf("New = %v, want 1280's shop and 1281's city kept apart, one draw of municipality rendering one of them", err)
+	for _, x := range []string{`"{/region.note} {/municipality.note}"`, `"{/region}|{/municipality}"`} {
+		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(cells, map[string]string{"x.json": x}))), WithSeed(1))
+		if err != nil {
+			t.Fatalf("New(%s) = %v, want the cells accepted", x, err)
+		}
+		for i := 0; i < 50; i++ {
+			fake(t, f, "x")
+		}
 	}
 }
 

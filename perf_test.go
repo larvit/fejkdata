@@ -35,13 +35,13 @@ func TestNoRenderAllocRegression(t *testing.T) {
 		json string
 		base float64
 	}{
-		{"nested depth 25", nestedJSON(25), 27},
-		{"nested depth 100", nestedJSON(100), 102},
-		{"wide 500 tokens", wideTokenJSON(500), 9},
-		{"two paths from one held draw", `{"format":"{p.a} {p.b}","p":[{"format":"x","a":"1","b":"2"},{"format":"y","a":"A","b":"B"}]}`, 3},
-		{"ten paths from one held draw", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
+		{"nested depth 25", nestedJSON(25), 26},
+		{"nested depth 100", nestedJSON(100), 101},
+		{"wide 500 tokens", wideTokenJSON(500), 8},
+		{"two paths into one field", `{"format":"{p.a} {p.b}","p":[{"format":"x","a":"1","b":"2"},{"format":"y","a":"A","b":"B"}]}`, 2},
+		{"ten paths into one field", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
 			{"format":"x","a":"1","b":"2","c":"3","d":"4","e":"5","f":"6","g":"7","h":"8","i":"9","j":"0"},
-			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 6},
+			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 3},
 	}
 	for _, s := range shapes {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
@@ -55,16 +55,15 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// The repeat shape prices what keeps a render's draws off the heap: a copy dropped costs an alloc an iteration.
+// The repeat shape prices what keeps a render's scope off the heap: a copy dropped costs an alloc an iteration.
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {
 		name, json string
 		base       float64
 	}{
-		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 66},
-		{"a named draw group", `{"format":"{a}","a":{"format":"{/word.w}","drawGroup":"g"}}`, 11},
-		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 205},
+		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 25},
+		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 161},
 	} {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 			"word.json": {Data: []byte(word)},
@@ -74,12 +73,12 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
 		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a render's draws reaching the heap is the usual cause", s.name, allocs, s.base*1.10, s.base)
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a render's scope reaching the heap is the usual cause", s.name, allocs, s.base*1.10, s.base)
 		}
 	}
 }
 
-// A table read pins a row in the render's draws and reads its cells in place.
+// A table read pins a row inline and reads its cells in place.
 func TestNoTableAllocRegression(t *testing.T) {
 	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 		"region.json": {Data: []byte(`{"format":"{name}","rows":"region.tsv","key":"code","weight":"population"}`)},
@@ -96,7 +95,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 		{"a table drawn", "region", 2},
 		{"a column of a drawn row", "region.name", 1},
 		{"a row selected", "region[12]", 2},
-		{"two columns of one draw", "x", 10},
+		{"two columns, each drawn", "x", 3},
 	} {
 		if allocs := testing.AllocsPerRun(10000, func() { f.Fake(s.path) }); allocs > s.base*1.10 {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a row lookup built per draw is the usual cause", s.name, allocs, s.base*1.10, s.base)
@@ -117,7 +116,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const base = 13.0
+	const base = 3.0
 	if allocs := testing.AllocsPerRun(10000, func() { f.Fake("addr") }); allocs > base*1.10 {
 		t.Errorf("five linked tables: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a pin spilling past the inline set is the usual cause", allocs, base*1.10, base)
 	}
@@ -136,7 +135,7 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		if _, err := f.FakeRecord("x"); err != nil {
 			t.Fatalf("FakeRecord(%s): %v", s.name, err) // else the gate would measure the error path
 		}
-		const base = 4.0
+		const base = 3.0
 		if allocs := testing.AllocsPerRun(10000, func() { f.FakeRecord("x") }); allocs > base*1.10 {
 			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a record fence running per draw is the usual cause", s.name, allocs, base*1.10, base)
 		}
@@ -160,7 +159,8 @@ func TestNoStructAllocRegression(t *testing.T) {
 	if err := f.FakeStruct(&v); err != nil {
 		t.Fatal(err)
 	}
-	const base = 5.0
+	// The three tags read one pick of x: its frame and memo cost two allocations.
+	const base = 7.0
 	if allocs := testing.AllocsPerRun(10000, func() { f.FakeStruct(&v) }); allocs > base*1.10 {
 		t.Errorf("FakeStruct: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); compiling the type per call is the usual cause", allocs, base*1.10, base)
 	}

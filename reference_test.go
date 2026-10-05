@@ -218,25 +218,6 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 	}
 }
 
-func TestReferencePathIsHeld(t *testing.T) {
-	dir := writeData(t, map[string]string{
-		"person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg","born":"1980"}]`,
-		"card":   `"{/person.first} {/person.last}"`,
-	})
-	f := newGenerator(t, dir, WithSeed(3))
-	seen := map[string]bool{}
-	for i := 0; i < 50; i++ {
-		got := fake(t, f, "card")
-		if got != "Anna Andersson" && got != "Bo Berg" {
-			t.Fatalf("card = %q, want one person's first and last name", got)
-		}
-		seen[got] = true
-	}
-	if len(seen) != 2 {
-		t.Fatalf("card only ever rendered %v", seen)
-	}
-}
-
 func TestReferenceThroughChoiceNeedsEveryVariant(t *testing.T) {
 	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
 		"who":  `[{"format":"{f}{h}","f":"1","h":"x"},{"format":"{g}{h}","g":"2","h":"y"}]`,
@@ -261,43 +242,23 @@ func TestBareReferenceDrawsEachTime(t *testing.T) {
 	t.Fatal("two bare references always agreed; each should be its own draw")
 }
 
-func TestReferenceOverlapIsRejected(t *testing.T) {
-	// A category never references itself, so the reads sit in a second category.
+func TestReferencesIntoOneLevelLoad(t *testing.T) {
 	cat := `{"format":"x","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`
-	for name, row := range map[string]string{
-		"head beside a path": `"{/cat.p} {/cat.p.first}"`,
-		"sibling fields reading a level and a path into it":         `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}"}`,
-		"a field rendering the level a nested reference reads into": `{"format":"{x} {p}","x":"{/cat.p.first}","p":"{/cat.p}"}`,
-		"a bare reference beside a path into what it never renders": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`,
+	for _, files := range []map[string]string{
+		{"cat": cat, "row": `"{/cat.p} {/cat.p.first}"`},
+		{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat.p}","b":"{/cat.p.first}"}`},
+		{"cat": cat, "row": `{"format":"{x} {p}","x":"{/cat.p.first}","p":"{/cat.p}"}`},
+		{"cat": cat, "row": `{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`},
+		{"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`, "hop": `"{/row.p.last}"`},
+		{"sv_SE/person": cat, "sv_SE/mail": `"{.person} <{/sv_SE.person.p.first}>"`},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
-		if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
-			t.Errorf("%s: New = %v, want the overlap rejected", name, err)
+		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)), WithSeed(1))
+		if err != nil {
+			t.Errorf("New(%v) = %v, want each read a draw of its own", files, err)
+			continue
 		}
-	}
-	for row, suffix := range map[string]string{
-		`{"format":"{a} {b}","a":"{/cat}","b":"{/cat.p.first}"}`: "or give {b} a drawGroup",
-		`{"format":"{a}","a":"{/cat} {/cat.p.first}"}`:           "name the fields you want instead",
-	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row})))
-		if err == nil || !strings.HasSuffix(err.Error(), suffix) {
-			t.Errorf("New(%s) = %v, want it to end %q", row, err, suffix)
-		}
-	}
-	// A sibling path and a reference into the level it holds are the same overlap,
-	// and the reference reaches it from a category row renders.
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`,
-		"hop": `"{/row.p.last}"`,
-	}))); err == nil || !strings.Contains(err.Error(), "by a second route") {
-		t.Errorf("New = %v, want a sibling path beside a reference into it rejected", err)
-	}
-	for _, row := range []string{
-		`{"format":"{a} {b}","a":{"format":"{/cat.p}","drawGroup":"g"},"b":"{/cat.p.first}"}`,
-		`{"format":"{a} {b}","a":"{/cat}","b":{"format":"{/cat.p.first}","drawGroup":"g"}}`,
-	} {
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row}))); err != nil {
-			t.Errorf("New(%s) = %v, want a level and a path into it accepted in groups of their own", row, err)
+		for path := range files {
+			fake(t, f, strings.ReplaceAll(path, "/", "."))
 		}
 	}
 }
@@ -310,33 +271,13 @@ func onePerson(name string) bool {
 	return last != "" && map[string]string{"Ada": "Lovelace", "Bo": "Ek", "Cy": "Young"}[first] == last
 }
 
-func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
+func TestFieldsReadOneNameTheirCategoryBinds(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"apart":      `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","drawGroup":"x"},"b":{"format":"{/person.first} {/person.last}","drawGroup":"y"}}`,
-		"caller":     `{"format":"{a} & {b}","a":{"format":"{/person.first} {/person.last}","drawGroup":"x"},"b":"{/pay}"}`,
-		"contact":    `{"format":"{first} {last} <{email}>","email":"{lowercase(/person.first)}.{lowercase(/person.last)}@example.com","first":"{/person.first}","last":"{/person.last}"}`,
-		"iterations": `{"format":"{/person.first} {r}","drawGroup":"outer","r":{"format":"{a}={b}","repeat":3,"separator":",","a":"{/person.first}","b":{"format":"{/person.first}","drawGroup":"outer"}}}`,
-		"nested":     `{"format":"{/person.first} {inner}","inner":"{/person.last}"}`,
-		"pair":       `{"format":"{a} & {b}","a":"{/person.first} {/person.last}","b":"{/person.first} {/person.last}"}`,
-		"pay":        `{"format":"{p}","p":{"format":"{/person.first} {/person.last}","drawGroup":"x"}}`,
-		"person":     drawPeople,
+		"contact": `{"format":"{first} {last} <{email}>","email":"{lowercase(p.first)}.{lowercase(p.last)}@example.com","first":"{/person as p}{p.first}","last":"{p.last}"}`,
+		"person":  drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
-	apart, local, noGroup := false, false, false
 	for i := 0; i < 100; i++ {
-		a, b, _ := strings.Cut(fake(t, f, "caller"), " & ")
-		if !onePerson(a) || !onePerson(b) {
-			t.Fatalf("caller = %q & %q, want each one person", a, b)
-		}
-		local = local || a != b
-		_, iterations, _ := strings.Cut(fake(t, f, "iterations"), " ")
-		for _, pair := range strings.Split(iterations, ",") {
-			a, b, _ := strings.Cut(pair, "=")
-			noGroup = noGroup || a != b
-		}
-		if got := fake(t, f, "nested"); !onePerson(got) {
-			t.Fatalf("nested = %q, want a nested template's path one draw with its parent's", got)
-		}
 		name, email, _ := strings.Cut(fake(t, f, "contact"), " <")
 		first, last, _ := strings.Cut(name, " ")
 		if !onePerson(name) || email != strings.ToLower(first)+"."+strings.ToLower(last)+"@example.com>" {
@@ -350,24 +291,6 @@ func TestAReferencePathIsOneDrawPerRender(t *testing.T) {
 		if !onePerson(c[1].Value+" "+c[2].Value) || c[0].Value != strings.ToLower(c[1].Value)+"."+strings.ToLower(c[2].Value)+"@example.com" {
 			t.Fatalf("contact record %s, want first, last and email one person", r.JSON())
 		}
-		a, b, _ = strings.Cut(fake(t, f, "pair"), " & ")
-		if !onePerson(a) || a != b {
-			t.Fatalf("pair = %q & %q, want both fields one person", a, b)
-		}
-		a, b, _ = strings.Cut(fake(t, f, "apart"), " & ")
-		if !onePerson(a) || !onePerson(b) {
-			t.Fatalf("apart = %q & %q, want each group one person", a, b)
-		}
-		apart = apart || a != b
-	}
-	if !apart {
-		t.Error("groups x and y drew one person in 100 renders, want a draw each")
-	}
-	if !local {
-		t.Error("group x in caller and group x in the pay it references drew one person in 100 renders; a group name is local to its category")
-	}
-	if !noGroup {
-		t.Error("an iteration's plain read and its group outer always agreed; a repeat iteration renders in no group, so they are a draw each")
 	}
 }
 
@@ -390,19 +313,6 @@ func TestRelativeReferences(t *testing.T) {
 	}
 }
 
-func TestRelativeAndRootSpellingsBindOneDraw(t *testing.T) {
-	dir := writeData(t, map[string]string{
-		"sv_SE/person": `[{"format":"{first} {last}","first":"Anna","last":"Andersson"},{"format":"{first} {last}","first":"Bo","last":"Berg","born":"1980"}]`,
-		"sv_SE/card":   `"{.person.first} {/sv_SE.person.last}"`,
-	})
-	f := newGenerator(t, dir, WithSeed(3))
-	for i := 0; i < 50; i++ {
-		if got := fake(t, f, "sv_SE.card"); got != "Anna Andersson" && got != "Bo Berg" {
-			t.Fatalf("card = %q, want both spellings to read one person", got)
-		}
-	}
-}
-
 func TestReferenceSigilErrors(t *testing.T) {
 	for name, files := range map[string]map[string]string{
 		"no folder above the root": {"a": `"{..b}"`, "b": `"x"`},
@@ -414,28 +324,6 @@ func TestReferenceSigilErrors(t *testing.T) {
 	} {
 		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
 			t.Errorf("%s: New = nil error, want a reference error", name)
-		}
-	}
-}
-
-func TestSpellingsOfOneReferenceAreOneLevel(t *testing.T) {
-	person := `[{"format":"{first} {last}","first":"Ada","last":"Byron"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
-		"sv_SE/person": person,
-		"sv_SE/mail":   `"{.person} <{/sv_SE.person.first}>"`,
-	})))
-	if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") || !strings.Contains(err.Error(), "{.person}") {
-		t.Errorf("New = %v, want the bare spelling rejected beside the path spelling", err)
-	}
-	dir := writeData(t, map[string]string{
-		"sv_SE/word": `["alpha","beta","gamma"]`,
-		"sv_SE/loud": `"{/sv_SE.word} {uppercase(.word)}"`,
-	})
-	f := newGenerator(t, dir, WithSeed(2))
-	for i := 0; i < 50; i++ {
-		got := strings.Fields(fake(t, f, "sv_SE.loud"))
-		if len(got) != 2 || strings.ToUpper(got[0]) != got[1] {
-			t.Fatalf("loud = %q, want one draw under both spellings", got)
 		}
 	}
 }

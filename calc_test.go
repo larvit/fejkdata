@@ -123,13 +123,11 @@ func TestCalcGuardsPanic(t *testing.T) {
 
 // --- one draw, one value: a calc operand reads the expansion's draw ---
 
-// TestCalcOperandReadsTheExpansionsDraw pins the one-draw rule for a calc operand.
-// A field the format renders and a calc reads is drawn once per expansion, so the
-// operand shown is the operand computed — the correlation the dotted-path rule
-// already gives a level, applied to a plain sibling.
-func TestCalcOperandReadsTheExpansionsDraw(t *testing.T) {
+// TestANamedCalcOperandIsTheOneShown pins how a calc computes from the value its format
+// shows: the format and the calc read one name.
+func TestANamedCalcOperandIsTheOneShown(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"inv": `{"format":"{net} x {qty} = {calc(net * qty, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
+		"inv": `{"format":"{net as n}{qty as q}{n} x {q} = {calc(n * q, 2)}","net":["19.99","5.00","100.00"],"qty":["2","3","7"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(3))
 	for i := 0; i < 300; i++ {
@@ -144,39 +142,23 @@ func TestCalcOperandReadsTheExpansionsDraw(t *testing.T) {
 	}
 }
 
-// TestCalcOperandSharesOneDraw pins the reach of that hold: the draw belongs to the
-// expansion, not to the calc, so the bare token rendering the same name reads it too.
-func TestCalcOperandSharesOneDraw(t *testing.T) {
-	dir := writeData(t, map[string]string{
-		"same": `{"format":"{w} {calc(w)}","w":["1","2","3","4","5"]}`,
-	})
+// TestACalcOperandDrawsAfresh pins that a calc reading a field draws it as any {…} does.
+func TestACalcOperandDrawsAfresh(t *testing.T) {
+	dir := writeData(t, map[string]string{"same": `{"format":"{w} {calc(w)}","w":["1","2","3","4","5"]}`})
 	f := newGenerator(t, dir, WithSeed(5))
 	for i := 0; i < 200; i++ {
-		got := fake(t, f, "same")
-		if p := strings.Fields(got); len(p) != 2 || p[0] != p[1] {
-			t.Fatalf("same = %q, want one value twice", got)
-		}
-	}
-}
-
-// TestFieldNoCalcReadsDrawsEachTime guards the boundary: only a name a calc reads is
-// held, so an ordinary {w} {w} still draws twice.
-func TestFieldNoCalcReadsDrawsEachTime(t *testing.T) {
-	dir := writeData(t, map[string]string{"two": `{"format":"{w} {w}","w":["1","2","3","4","5"]}`})
-	f := newGenerator(t, dir, WithSeed(5))
-	for i := 0; i < 200; i++ {
-		if p := strings.Fields(fake(t, f, "two")); p[0] != p[1] {
+		if p := strings.Fields(fake(t, f, "same")); p[0] != p[1] {
 			return
 		}
 	}
-	t.Fatal("{w} {w} never differed in 200 draws, want two independent draws")
+	t.Fatal("{w} {calc(w)} never differed in 200 draws, want two independent draws")
 }
 
-// TestCalcHoldIsPerExpansion pins the scope of the hold: each repeat iteration is
-// its own expansion, so it draws again while staying self-consistent.
-func TestCalcHoldIsPerExpansion(t *testing.T) {
+// TestANamedCalcOperandPicksEachIteration pins that a name a repeat binds picks again on each
+// iteration, staying one value within it.
+func TestANamedCalcOperandPicksEachIteration(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"rep": `{"format":"{n}={calc(n * 1)}","repeat":8,"separator":" ","n":["2","3","4","5","6","7","8","9"]}`,
+		"rep": `{"format":"{n as m}{m}={calc(m * 1)}","repeat":8,"separator":" ","n":["2","3","4","5","6","7","8","9"]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(11))
 	varied := false
@@ -197,12 +179,12 @@ func TestCalcHoldIsPerExpansion(t *testing.T) {
 	}
 }
 
-// TestCalcHoldIsPerTemplate pins that a nested template holds its own: the inner
-// {v} and its calc agree with each other, not with the outer pair.
-func TestCalcHoldIsPerTemplate(t *testing.T) {
+// TestTwoNamesPickApart pins that a nested template's name is a pick of its own: the inner
+// pair agrees with itself, not with the outer pair.
+func TestTwoNamesPickApart(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"nest": `{"format":"{v}={calc(v * 1)} {inner}","v":["2","3","4","5","6","7","8","9"],
-			"inner":{"format":"{v}={calc(v * 1)}","v":["2","3","4","5","6","7","8","9"]}}`,
+		"nest": `{"format":"{v as a}{a}={calc(a * 1)} {inner}","v":["2","3","4","5","6","7","8","9"],
+			"inner":{"format":"{v as b}{b}={calc(b * 1)}","v":["2","3","4","5","6","7","8","9"]}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(13))
 	differed := false

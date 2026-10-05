@@ -29,13 +29,6 @@ func TestPathCheckChoiceConsumesNoSegment(t *testing.T) {
 	}
 }
 
-func TestPathCoverStopsAtAChoice(t *testing.T) {
-	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
-	if cover := compilePath(n, []string{"f"}).cover; cover != n {
-		t.Fatalf("cover through a choice = %v, want the choice itself", cover)
-	}
-}
-
 func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || !strings.Contains(fmt.Sprint(r), `no field "f"`) {

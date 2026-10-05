@@ -93,8 +93,10 @@ func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
 		switch {
 		case show(v.Del) != "nil":
 			t.Fatalf("Del = %s, want nil from a column only ever null", show(v.Del))
-		case show(v.Mixed) != "x" && show(v.Mixed) != score, show(v.Pair) != "5" && show(v.Pair) != score, show(v.Codes) != score && show(v.Codes) != code:
-			t.Fatalf("Mixed %s, Pair %s, Codes %s beside score %s and code %s: want each the literal or the draw of the column it reads", show(v.Mixed), show(v.Pair), show(v.Codes), score, code)
+		case !digitOrNil(show(v.Mixed)) && show(v.Mixed) != "x", !digitOrNil(show(v.Pair)) && show(v.Pair) != "5", !digitOrNil(show(v.Codes)) && show(v.Codes) != "200" && show(v.Codes) != "404":
+			t.Fatalf("Mixed %s, Pair %s, Codes %s: want each the literal or a draw of the column it reads", show(v.Mixed), show(v.Pair), show(v.Codes))
+		case score != "nil" && !digitOrNil(score), code != "nil" && code != "200" && code != "404":
+			t.Fatalf("Score %s, Code %s: want each nil or a draw of its column", score, code)
 		}
 		switch {
 		case v.Code == nil:
@@ -102,16 +104,38 @@ func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
 		case *v.Code != "200" && *v.Code != "404":
 			t.Fatalf("Code = %q, want nil or a code, never a null's \"\"", *v.Code)
 		}
-		switch {
-		case v.Score == nil && v.Label == "n=":
+		if v.Score == nil {
 			nils["score"]++
-		case v.Score == nil || *v.Score < 1 || *v.Score > 9 || v.Label != "n="+strconv.FormatInt(*v.Score, 10):
-			t.Fatalf("%+v, want Score nil beside Label n=, or one digit in both", v)
+		}
+		if label, _ := strings.CutPrefix(v.Label, "n="); !strings.HasPrefix(v.Label, "n=") || label != "" && !digitOrNil(label) {
+			t.Fatalf("Label %q, want n= and a draw of src.score, a null as \"\"", v.Label)
 		}
 	}
 	for _, name := range []string{"code", "score"} {
 		if n := nils[name]; n == 0 || n == 200 {
 			t.Errorf("%s was nil %d times in 200 fills, want both outcomes", name, n)
+		}
+	}
+}
+
+func digitOrNil(s string) bool {
+	return s == "nil" || len(s) == 1 && s >= "1" && s <= "9"
+}
+
+func TestFakeStructPathTagsReadOnePickOfTheirCategory(t *testing.T) {
+	f := structData(t)
+	var v struct {
+		Leg  string `fake:"trip.leg"`
+		To   string `fake:"trip.leg.to"`
+		Name string `fake:"person"`
+		Last string `fake:"person.last"`
+	}
+	for i := 0; i < 100; i++ {
+		if err := f.FakeStruct(&v); err != nil {
+			t.Fatal(err)
+		}
+		if v.Leg != v.To || v.Name != "Ada "+v.Last && v.Name != "Bo "+v.Last {
+			t.Fatalf("%+v, want the tags into trip one leg, and into person one person", v)
 		}
 	}
 }
@@ -133,8 +157,8 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 		switch {
 		case !reflect.DeepEqual(u, twin):
 			t.Fatalf("same seed diverged: %+v != %+v", u, twin)
-		case people[u.First] != u.Last || u.Email != strings.ToLower(u.First)+"@example.com":
-			t.Fatalf("person fields %q %q %q, want one person drawn across the struct", u.First, u.Last, u.Email)
+		case people[u.First] != u.Last || u.Email != "ada@example.com" && u.Email != "bo@example.com":
+			t.Fatalf("person fields %q %q %q, want one person across the path tags, and the template its own draw", u.First, u.Last, u.Email)
 		case zips[u.Home.City] != u.Home.Zip || u.Work == nil || zips[u.Work.City] != u.Work.Zip:
 			t.Fatalf("places %+v, %+v, want each nested struct one place, the pointer allocated", u.Home, u.Work)
 		case u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2):
@@ -162,8 +186,8 @@ func TestFakeStructFillsEmbeddedFieldsIntoItsRecord(t *testing.T) {
 		if err := f.FakeStruct(&e); err != nil {
 			t.Fatal(err)
 		}
-		if e.StructFamily == nil || people[e.First] != e.Last || e.Email != strings.ToLower(e.First)+"@example.com" {
-			t.Fatalf("%+v, %+v: want the promoted fields one person with the struct's own, the embedded pointer allocated", e, e.StructFamily)
+		if e.StructFamily == nil || people[e.First] != e.Last {
+			t.Fatalf("%+v, %+v: want the promoted fields one person, the embedded pointer allocated", e, e.StructFamily)
 		}
 	}
 	var skipped struct {
@@ -293,10 +317,6 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A string `fake:"{x}"`
 		}{}, `no field "x"`},
-		{&struct {
-			A string `fake:"trip.leg"`
-			B string `fake:"trip.leg.to"`
-		}{}, "renders its own draw of what"},
 		{&struct {
 			Trip struct {
 				A int `fake:"{digits(3)}"`

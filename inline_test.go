@@ -53,13 +53,13 @@ func TestFakeTemplateJSONArray(t *testing.T) {
 	}
 }
 
-func TestFakeTemplateCorrelatedReferences(t *testing.T) {
+func TestFakeTemplateNamedReference(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `[{"format":"{first} {last}","first":"Ada","last":"Lovelace"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for i := 0; i < 100; i++ {
-		got := tmpl(t, f, "{/person.first} {/person.last}")
+		got := tmpl(t, f, "{/person as p}{p.first} {p.last}")
 		if got != "Ada Lovelace" && got != "Bo Ek" {
 			t.Fatalf("correlated references = %q, want one person's first and last", got)
 		}
@@ -108,12 +108,6 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
 		{`{"format":"x"}`, "is a string"},
-		{`{/misc.territory} {/misc.territory.alpha2}`, "{/misc.territory} renders its own draw of what {/misc.territory.alpha2} reads a path through; name the fields you want instead, or move {/misc.territory.alpha2} into a field with a drawGroup"},
-		{`{"format":"{/misc.territory.alpha2} {x}","x":"{/misc.territory}"}`, "renders its own draw of what"},
-		{`{/misc.territory} {/misc.territory} {/misc.territory.alpha2}`, "{/misc.territory} renders its own draw of what {/misc.territory.alpha2} reads a path through; name the fields you want instead, or move {/misc.territory.alpha2} into a field with a drawGroup"},
-		{`{"format":"{uppercase(/misc.territory)} {y}","y":"{/misc.territory}"}`, `{y} renders "/misc.territory", which {uppercase(/misc.territory)} holds to one draw for this expansion; drop {y}, or write {/misc.territory} in this format to read that draw`},
-		{`{"format":"{uppercase(/misc.territory.alpha2)} {lowercase(/misc.territory)} {y}","y":"{/misc.territory}"}`, "which {lowercase(/misc.territory)} holds to one draw for this expansion; drop {y}, or write {/misc.territory} in"},
-		{`{"format":"{/misc.territory.alpha2}","drawGroup":"g"}`, "nothing can reference"},
 	} {
 		_, err := f.FakeTemplate(c.input)
 		if err == nil || !strings.Contains(err.Error(), c.want) {
