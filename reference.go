@@ -3,11 +3,9 @@ package fejkdata
 import (
 	"fmt"
 	"strings"
-)
 
-// A reference names a node by path rather than as a sibling field: {/a.b} from the
-// data root, {.a} from the folder this file sits in, {..a} from the folder above.
-func isRef(name string) bool { return strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") }
+	"github.com/larvit/fejkdata/internal/grammar"
+)
 
 // refBinding is what a reference resolves to: the head its category is held
 // under, and the tail read into it.
@@ -16,40 +14,9 @@ type refBinding struct {
 	tail []string
 }
 
-// refShape splits a reference into its sigil and the dotted path after it.
-func refShape(name string) (sigil, rest string, err error) {
-	switch {
-	case strings.HasPrefix(name, "/"):
-		sigil, rest = "/", name[1:]
-	case strings.HasPrefix(name, ".."):
-		sigil, rest = "..", name[2:]
-	default:
-		sigil, rest = ".", name[1:]
-	}
-	if rest == "" {
-		return "", "", fmt.Errorf("reference has no path")
-	}
-	if strings.HasPrefix(rest, "/") {
-		return "", "", fmt.Errorf("the path after %s starts at a name, not a /; write {%s%s}", sigil, sigil, rest[1:])
-	}
-	if strings.HasPrefix(rest, ".") {
-		return "", "", fmt.Errorf("a reference starts with / (the root), . (this folder) or .. (the folder above)")
-	}
-	segs, err := splitPath(rest)
-	if err != nil {
-		return "", "", err
-	}
-	for _, seg := range segs {
-		if seg == "" {
-			return "", "", fmt.Errorf("path has an empty segment")
-		}
-	}
-	return sigil, rest, nil
-}
-
 // refSegments resolves a reference written in folder to a path from the root.
 func refSegments(name string, folder []string) ([]string, error) {
-	sigil, rest, err := refShape(name)
+	sigil, rest, err := grammar.RefShape(name)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +30,7 @@ func refSegments(name string, folder []string) ([]string, error) {
 		}
 		base = folder[:len(folder)-1]
 	}
-	segs, _ := splitPath(rest) // refShape proved it splits
+	segs, _ := grammar.SplitPath(rest) // grammar.RefShape proved it splits
 	return append(append([]string{}, base...), segs...), nil
 }
 
@@ -168,7 +135,7 @@ type columnRead struct {
 // reference or name, once the names are linked.
 func linkColumnRead(_ string, t *template) error {
 	ops := t.compiled.ops
-	if t.repeat != 1 || len(ops) != 1 || ops[0].kind != nameRead || len(ops[0].arms) != 1 {
+	if t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.NameRead || len(ops[0].arms) != 1 {
 		return nil
 	}
 	a := ops[0].arms[0]
@@ -181,7 +148,7 @@ func linkColumnRead(_ string, t *template) error {
 		ref := b.binder.link.refs[b.ref]
 		head, category = b.head, ref.head[1:]
 		tail = append(ref.tail[:len(ref.tail):len(ref.tail)], a.tail...)
-	case !isRef(a.head):
+	case !grammar.IsRef(a.head):
 		return nil
 	}
 	target, isTemplate := head.(*template)
@@ -214,7 +181,7 @@ func resolveCategory(root map[string]node, segments []string) (categorySegs []st
 	switch {
 	case i == len(segments):
 		return nil, nil, nil, fmt.Errorf("names a folder, not a value")
-	case isSelector(segments[i]):
+	case grammar.IsSelector(segments[i]):
 		return nil, nil, nil, fmt.Errorf("%s is a folder, not a table, so it has no row to select", strings.Join(segments[:i], "."))
 	}
 	n, ok := g.children[segments[i]]
@@ -239,16 +206,16 @@ func folderAt(root *folder, segs []string) (*folder, int) {
 }
 
 // refTokens returns the reference names a format reads, as tokens or as operands, or binds.
-func refTokens(toks []formatToken) []string {
+func refTokens(toks []grammar.Token) []string {
 	var refs []string
 	seen := map[string]bool{}
 	for _, tok := range toks {
-		names := tok.names
-		if tok.kind == nameBind {
-			names = []string{tok.boundRef}
+		names := tok.Names
+		if tok.Kind == grammar.NameBind {
+			names = []string{tok.BoundRef}
 		}
 		for _, name := range names {
-			if isRef(name) && !seen[name] {
+			if grammar.IsRef(name) && !seen[name] {
 				seen[name] = true
 				refs = append(refs, name)
 			}

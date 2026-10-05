@@ -6,6 +6,7 @@ import (
 	"unicode"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // transforms are the builtins that rewrite one operand's value; they nest, so
@@ -30,7 +31,7 @@ func withTransforms(calls map[string]builtin) map[string]builtin {
 // field it finally names and the transforms to apply, innermost last.
 func unwrapTransform(arg string) (leaf string, chain []func(string) string, err error) {
 	for {
-		name, args, isCall := funcCall(arg)
+		name, args, isCall := grammar.FuncCall(arg)
 		if !isCall {
 			return arg, chain, nil
 		}

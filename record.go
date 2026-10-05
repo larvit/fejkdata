@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // Column is one rendered column of a record. Value is the rendered text, which a
@@ -123,7 +124,7 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	segments, err := splitPath(path)
+	segments, err := grammar.SplitPath(path)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
@@ -143,7 +144,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	}
 	shape := f.recordShapeOf(n)
 	if errors.Is(shape.err, ErrNoColumns) {
-		ns := nameSegments(segments)
+		ns := grammar.NameSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, shape.err, ns[len(ns)-1], path)
 	}
 	if shape.err != nil {

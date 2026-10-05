@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // table is a category whose rows come from a TSV beside it: the header names the
@@ -158,7 +159,7 @@ func (t *table) parseRows(data string) error {
 	t.header = strings.Split(header, "\t")
 	t.col = make(map[string]int, len(t.header))
 	for i, name := range t.header {
-		if err := checkName(name); err != nil {
+		if err := grammar.CheckName(name); err != nil {
 			return fmt.Errorf("column %w", err)
 		}
 		if _, dup := t.col[name]; dup {
@@ -321,7 +322,7 @@ func (t *table) checkCells() error {
 // compileRowFormat compiles the format a row renders through, over the columns as its
 // fields.
 func (t *table) compileRowFormat(format string) error {
-	toks, err := parseFormat(format)
+	toks, err := grammar.ParseFormat(format, builtinOperands)
 	if err != nil {
 		return err
 	}
@@ -329,12 +330,12 @@ func (t *table) compileRowFormat(format string) error {
 		return err
 	}
 	for _, tok := range toks {
-		if tok.kind != nameRead {
+		if tok.Kind != grammar.NameRead {
 			continue
 		}
-		for _, name := range tok.names {
+		for _, name := range tok.Names {
 			a := splitArm(name, nil)
-			if _, ok := t.col[a.head]; !ok && !isRef(a.head) && a.head != "" {
+			if _, ok := t.col[a.head]; !ok && !grammar.IsRef(a.head) && a.head != "" {
 				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, t.file, t.header)
 			}
 		}
@@ -356,10 +357,10 @@ func (t *table) compileRowFormat(format string) error {
 }
 
 // refuseTableBinding refuses a table's format or cell binding a name.
-func refuseTableBinding(toks []formatToken) error {
+func refuseTableBinding(toks []grammar.Token) error {
 	for _, tok := range toks {
-		if tok.kind == nameBind {
-			return fmt.Errorf("token {%s}: a table binds no name; bind it in a template reading the table", tok.body)
+		if tok.Kind == grammar.NameBind {
+			return fmt.Errorf("token {%s}: a table binds no name; bind it in a template reading the table", tok.Body)
 		}
 	}
 	return nil

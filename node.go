@@ -7,6 +7,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // node is a compiled element of the namespace tree: a folder, choice, null,
@@ -48,7 +50,7 @@ func (*nullItem) isNode() {}
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
-	tokens     []formatToken
+	tokens     []grammar.Token
 	fields     map[string]node
 	repeat     int
 	separator  string
@@ -99,7 +101,7 @@ func (*template) isNode() {}
 
 // head is the node an arm's head names: a sibling field, or a reference's category.
 func (t *template) head(name string) node {
-	if isRef(name) {
+	if grammar.IsRef(name) {
 		return t.link.refHeads[name]
 	}
 	return t.fields[name]
@@ -247,8 +249,8 @@ func (t *template) fixedText() (string, bool) {
 	switch {
 	case len(t.tokens) == 0:
 		return "", true
-	case len(t.tokens) == 1 && t.tokens[0].kind == literalRun:
-		return t.tokens[0].lit, true
+	case len(t.tokens) == 1 && t.tokens[0].Kind == grammar.LiteralRun:
+		return t.tokens[0].Lit, true
 	}
 	return "", false
 }
@@ -397,7 +399,7 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 		if isOption(k) {
 			continue
 		}
-		if err := checkName(k); err != nil {
+		if err := grammar.CheckName(k); err != nil {
 			return nil, fmt.Errorf("field %w", err)
 		}
 		n, err := compileAt(m[k], pos)
@@ -457,50 +459,6 @@ func weightOf(raw any) (float64, error) {
 		return 0, fmt.Errorf("weight 1 is the default, so it has no effect; drop it")
 	}
 	return w, nil
-}
-
-// reservedInName is what a category, folder or field name may not contain: a dot
-// separates the segments of a path, '|' the arms of a token, '(' opens a function
-// call, braces delimit the token, '/' starts a reference, and brackets and a quote
-// open a JSON value. A name carrying one is rejected where it is authored rather
-// than where it would be unreachable.
-const reservedInName = ".|({}/[]\""
-
-var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
-
-// checkName rejects a name the dot path, {token} and JSON grammars cannot spell, or a struct
-// tag cannot read.
-// Both a category or folder and a field go through it, so there is one answer to
-// what a name may contain.
-func checkName(name string) error {
-	if name == "" {
-		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
-	}
-	if name == "-" {
-		return fmt.Errorf(`%q is reserved: the struct tag fake:"-" leaves a field unfilled, so no tag could read it; rename it`, name)
-	}
-	if strings.Contains(name, asWord) {
-		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, asWord)
-	}
-	if i := strings.IndexAny(name, reservedInName); i >= 0 {
-		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
-			name, name[i:i+1], reservedList)
-	}
-	return nil
-}
-
-// checkPathNames rejects a dotted path with a segment no name may be.
-func checkPathNames(path string) error {
-	segs, err := splitPath(path)
-	if err != nil {
-		return err
-	}
-	for _, seg := range nameSegments(segs) {
-		if err := checkName(seg); err != nil {
-			return fmt.Errorf("path %w", err)
-		}
-	}
-	return nil
 }
 
 func isOption(name string) bool {

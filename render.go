@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies. The
@@ -21,7 +22,7 @@ type rng interface {
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	segments, err := splitPath(path)
+	segments, err := grammar.SplitPath(path)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
@@ -127,12 +128,12 @@ func expand(s *drawstate.State, t *template, sc renderScope) string {
 	b.Grow(t.compiled.grow)
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
-		switch o.kind {
-		case literalRun:
-			b.WriteString(o.lit)
-		case nameRead:
+		switch o.Kind {
+		case grammar.LiteralRun:
+			b.WriteString(o.Lit)
+		case grammar.NameRead:
 			b.WriteString(readField(s, t, sc, o.arms[s.IntN(len(o.arms))]).text)
-		case builtinCall:
+		case grammar.BuiltinCall:
 			var operands []string
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))
@@ -153,11 +154,11 @@ func readField(s *drawstate.State, t *template, sc renderScope, a arm) readValue
 	switch {
 	case a.kind == namedRead:
 		return readName(s, sc, a)
-	case sc.pick != nil && !isRef(a.head) && sc.keeps(a):
+	case sc.pick != nil && !grammar.IsRef(a.head) && sc.keeps(a):
 		return readUnder(s, t, sc, a)
 	}
 	sc.pick = nil
-	if !isRef(a.head) {
+	if !grammar.IsRef(a.head) {
 		leaf, _ := drawSteps(s, t.head(a.head), a.steps, nil, nil, a.levels)
 		return renderLeaf(s, leaf, sc)
 	}

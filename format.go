@@ -5,120 +5,8 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
-
-// scanUnit is one unit of a scanned format string: a literal rune or the body of a
-// {…} token.
-type scanUnit struct {
-	isToken bool // a {…} body, else a literal rune
-	char    rune
-	body    string
-}
-
-// eachScanUnit scans a format string once and calls fn for each unit, the single
-// source of truth for how braces are read: "{{" and "}}" are literal braces, a "{"
-// opens a token that must reach its "}", and a lone "}" is an error.
-func eachScanUnit(format string, fn func(scanUnit) error) error {
-	rs := []rune(format)
-	for i := 0; i < len(rs); i++ {
-		var u scanUnit
-		switch c := rs[i]; c {
-		case '{':
-			if i+1 < len(rs) && rs[i+1] == '{' {
-				u.char = '{'
-				i++
-				break
-			}
-			end := i + 1
-			for end < len(rs) && rs[end] != '}' {
-				if rs[end] == '{' {
-					return fmt.Errorf("'{' inside a token in %q; a literal brace is written {{", format)
-				}
-				end++
-			}
-			if end >= len(rs) {
-				return fmt.Errorf("unterminated '{' in %q", format)
-			}
-			u.isToken, u.body = true, string(rs[i+1:end])
-			i = end
-		case '}':
-			if i+1 < len(rs) && rs[i+1] == '}' {
-				u.char = '}'
-				i++
-				break
-			}
-			return fmt.Errorf("lone '}' in %q; a literal brace is written }}", format)
-		default:
-			u.char = c
-		}
-		if err := fn(u); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// formatToken is one parsed unit of a format.
-type formatToken struct {
-	kind  tokenKind
-	lit   string   // literalRun
-	body  string   // the braces' content, as written
-	fn    string   // builtinCall
-	args  []string // builtinCall
-	names []string // nameRead: the '|' arms; builtinCall: the operands its builtin reads
-	// nameBind: the reference it binds, and the name.
-	boundRef, bound string
-}
-
-type tokenKind uint8
-
-const (
-	builtinCall tokenKind = iota + 1
-	nameRead
-	literalRun
-	nameBind
-)
-
-const asWord = " as "
-
-// parseFormat is the one reading of a format's tokens: a '(' outside a selector makes
-// a token a call.
-func parseFormat(format string) ([]formatToken, error) {
-	var toks []formatToken
-	var lit strings.Builder
-	flush := func() {
-		if lit.Len() > 0 {
-			toks = append(toks, formatToken{kind: literalRun, lit: lit.String()})
-			lit.Reset()
-		}
-	}
-	err := eachScanUnit(format, func(u scanUnit) error {
-		if !u.isToken {
-			lit.WriteRune(u.char)
-			return nil
-		}
-		flush()
-		if ref, name, binds := cutOutside(u.body, asWord); binds && indexOutside(u.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: nameBind, body: u.body, boundRef: ref, bound: name})
-			return nil
-		}
-		if indexOutside(u.body, '(') < 0 {
-			toks = append(toks, formatToken{kind: nameRead, body: u.body, names: splitOutside(u.body, '|')})
-			return nil
-		}
-		name, args, ok := funcCall(u.body)
-		if !ok {
-			return fmt.Errorf("malformed function token {%s}", u.body)
-		}
-		toks = append(toks, formatToken{kind: builtinCall, body: u.body, fn: name, args: args, names: builtinOperands(name, args)})
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	flush()
-	return toks, nil
-}
 
 // builtin is a format-string function invoked as {name(args)}. It receives the
 // draw state, the output emitted so far in the current expansion (for derivations
@@ -146,40 +34,6 @@ type builtin struct {
 	prints DataType
 }
 
-// funcCall splits a "{token}" body shaped name(args) into its parts; ok is false
-// for a name-read body. A '(' without a trailing ')' yields ok=false.
-func funcCall(body string) (name string, args []string, ok bool) {
-	lp := indexOutside(body, '(')
-	if lp < 0 || !strings.HasSuffix(body, ")") {
-		return "", nil, false
-	}
-	return body[:lp], splitArgs(body[lp+1 : len(body)-1]), true
-}
-
-// splitArgs parses a function arg list: comma-separated outside a selector or a
-// quoted layout, trimmed; empty -> none.
-func splitArgs(s string) []string {
-	if strings.TrimSpace(s) == "" {
-		return nil
-	}
-	var args []string
-	depth, quoted, start := 0, false, 0
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
-		case c == '\'' && depth == 0:
-			quoted = !quoted
-		case quoted:
-		case c == '[':
-			depth++
-		case c == ']' && depth > 0:
-			depth--
-		case c == ',' && depth == 0:
-			args, start = append(args, strings.TrimSpace(s[start:i])), i+1
-		}
-	}
-	return append(args, strings.TrimSpace(s[start:]))
-}
-
 func plural(n int) string {
 	if n == 1 {
 		return ""
@@ -190,8 +44,8 @@ func plural(n int) string {
 // checkFunc validates a call at compile time: naming a known builtin, with the arg
 // count that builtin takes and args its check accepts. fields is passed through for
 // the builtins (calc, the transforms) that validate against them.
-func checkFunc(tok formatToken, fields map[string]node) error {
-	body, name, args := tok.body, tok.fn, tok.args
+func checkFunc(tok grammar.Token, fields map[string]node) error {
+	body, name, args := tok.Body, tok.Fn, tok.Args
 	b, known := builtins[name]
 	if !known {
 		return fmt.Errorf("token {%s}: unknown function %q", body, name)
@@ -207,8 +61,8 @@ func checkFunc(tok formatToken, fields map[string]node) error {
 	return nil
 }
 
-func parseChecked(format string, fields map[string]node) ([]formatToken, []unboundRead, error) {
-	toks, err := parseFormat(format)
+func parseChecked(format string, fields map[string]node) ([]grammar.Token, []unboundRead, error) {
+	toks, err := grammar.ParseFormat(format, builtinOperands)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -228,7 +82,7 @@ type unboundRead struct {
 
 // checkTokens proves every token's grammar, functions and field paths, and returns the reads
 // whose head no field holds, for bindNames to look up among the names.
-func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, error) {
+func checkTokens(toks []grammar.Token, fields map[string]node) ([]unboundRead, error) {
 	var unbound []unboundRead
 	for _, t := range toks {
 		u, err := checkToken(t, fields)
@@ -240,70 +94,70 @@ func checkTokens(toks []formatToken, fields map[string]node) ([]unboundRead, err
 	return unbound, nil
 }
 
-func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
-	switch t.kind {
-	case builtinCall:
+func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) {
+	switch t.Kind {
+	case grammar.BuiltinCall:
 		if err := checkFunc(t, fields); err != nil {
 			return nil, err
 		}
 		return checkReads(t, fields, true)
-	case nameBind:
+	case grammar.NameBind:
 		return nil, checkBind(t, fields)
-	case nameRead:
+	case grammar.NameRead:
 		unbound, err := checkReads(t, fields, false)
 		if err != nil {
 			return nil, err
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
-		return unbound, checkNoRepeatedArm(t.body, t.names)
+		return unbound, checkNoRepeatedArm(t.Body, t.Names)
 	}
 	return nil, nil
 }
 
 // checkReads proves each name t reads, an arm or an operand, is a reference or a path into a
 // field, returning those whose head no field holds.
-func checkReads(t formatToken, fields map[string]node, operands bool) ([]unboundRead, error) {
+func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	var unbound []unboundRead
-	for _, name := range t.names {
-		if isRef(name) {
-			if _, _, err := refShape(name); err != nil {
-				return nil, fmt.Errorf("token {%s}: %w", t.body, err)
+	for _, name := range t.Names {
+		if grammar.IsRef(name) {
+			if _, _, err := grammar.RefShape(name); err != nil {
+				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 			}
 			continue // its target is checked at New (see linkRefs)
 		}
-		missing, err := checkArm(name, fields, !operands && len(t.names) == 1)
+		missing, err := checkArm(name, fields, !operands && len(t.Names) == 1)
 		if err == nil {
 			continue
 		}
-		err = fmt.Errorf("token {%s}: %w", t.body, err)
+		err = fmt.Errorf("token {%s}: %w", t.Body, err)
 		if !missing {
 			return nil, err
 		}
 		a := splitArm(name, nil)
-		unbound = append(unbound, unboundRead{head: a.head, tail: joinSegments(a.tail), body: t.body, operand: operands, noRef: operands && builtins[t.fn].noRefOperands, err: err})
+		unbound = append(unbound, unboundRead{head: a.head, tail: grammar.JoinSegments(a.tail), body: t.Body, operand: operands, noRef: operands && builtins[t.Fn].noRefOperands, err: err})
 	}
 	return unbound, nil
 }
 
 // checkBind proves a {x as name} token is spelled once, binds a reference or a path into a
 // field, and names a valid name that is no option.
-func checkBind(t formatToken, fields map[string]node) error {
-	ref, name := t.boundRef, t.bound
-	if trimmed := strings.TrimSpace(ref) + asWord + strings.TrimSpace(name); trimmed != t.body {
-		return fmt.Errorf("token {%s}: write {%s}", t.body, trimmed)
+func checkBind(t grammar.Token, fields map[string]node) error {
+	ref, name := t.BoundRef, t.Bound
+	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body {
+		return fmt.Errorf("token {%s}: write {%s}", t.Body, trimmed)
 	}
 	if err := checkBound(ref, fields); err != nil {
-		return fmt.Errorf("token {%s}: %w", t.body, err)
+		return fmt.Errorf("token {%s}: %w", t.Body, err)
 	}
 	if name == "" {
-		return fmt.Errorf("token {%s}: a binding names nothing; write {%s as n}", t.body, ref)
+		return fmt.Errorf("token {%s}: a binding names nothing; write {%s as n}", t.Body, ref)
 	}
 	if isOption(name) {
-		return fmt.Errorf("token {%s}: %q is an option and can never be a name; rename it", t.body, name)
+		return fmt.Errorf("token {%s}: %q is an option and can never be a name; rename it", t.Body, name)
 	}
-	if err := checkName(name); err != nil {
-		return fmt.Errorf("token {%s}: name %w", t.body, err)
+	if err := grammar.CheckName(name); err != nil {
+		return fmt.Errorf("token {%s}: name %w", t.Body, err)
 	}
 	return nil
 }
@@ -311,8 +165,8 @@ func checkBind(t formatToken, fields map[string]node) error {
 // checkBound proves what a binding picks is a reference or a path into a field of the binding
 // template.
 func checkBound(ref string, fields map[string]node) error {
-	if isRef(ref) {
-		_, _, err := refShape(ref)
+	if grammar.IsRef(ref) {
+		_, _, err := grammar.RefShape(ref)
 		return err
 	}
 	missing, err := checkArm(ref, fields, false)
@@ -357,7 +211,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 // hintableRef reports whether {/name} is a reference the grammar accepts, so the
 // hint never names a spelling that fails too.
 func hintableRef(name string) bool {
-	return checkPathNames(name) == nil
+	return grammar.CheckPathNames(name) == nil
 }
 
 // builtinOperands lists the fields a call reads as operands, empty for a builtin that
@@ -413,7 +267,7 @@ const (
 // splitArm splits one name into head and tail. refs maps a reference to what
 // linkRefs resolved it to; before linking, a reference is whole.
 func splitArm(name string, refs map[string]refBinding) arm {
-	if isRef(name) {
+	if grammar.IsRef(name) {
 		b, linked := refs[name]
 		if !linked || len(b.tail) == 0 {
 			head := name
@@ -422,11 +276,11 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			}
 			return arm{spelling: name, head: head, path: head}
 		}
-		sigil, rest, _ := refShape(name) // resolveLink proved it, and took b.tail as a suffix of its segments
-		written, _ := splitPath(rest)
-		return pathArm(name, b.head, sigil+joinSegments(written[:len(written)-len(b.tail)]), b.tail)
+		sigil, rest, _ := grammar.RefShape(name) // resolveLink proved it, and took b.tail as a suffix of its segments
+		written, _ := grammar.SplitPath(rest)
+		return pathArm(name, b.head, sigil+grammar.JoinSegments(written[:len(written)-len(b.tail)]), b.tail)
 	}
-	segs, err := splitPath(name)
+	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
 		return arm{spelling: name, head: name, path: name}
 	}
@@ -467,8 +321,8 @@ type callFn func(s *drawstate.State, emitted string, operands []string) string
 // op is one compiled unit of a format string: a literal run, a name read,
 // or a builtin already prepared with its args.
 type op struct {
-	formatToken
-	arms []arm // nameRead: the '|' alternatives, split into head and tail once
+	grammar.Token
+	arms []arm // grammar.NameRead: the '|' alternatives, split into head and tail once
 	call callFn
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.
@@ -481,41 +335,41 @@ type formatOps struct {
 	grow int
 }
 
-func (c *formatOps) function(tok formatToken, refs map[string]refBinding, isName func(string) bool) {
+func (c *formatOps) function(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
 	var operands []arm
-	for _, operand := range tok.names {
+	for _, operand := range tok.Names {
 		a := splitArm(operand, refs)
 		if isName(a.head) {
 			a.kind = namedRead
 		}
 		operands = append(operands, a)
 	}
-	c.ops = append(c.ops, op{formatToken: tok, call: builtins[tok.fn].prep(tok.args), operands: operands})
+	c.ops = append(c.ops, op{Token: tok, call: builtins[tok.Fn].prep(tok.Args), operands: operands})
 }
 
-func (c *formatOps) field(tok formatToken, refs map[string]refBinding, isName func(string) bool) {
-	arms := make([]arm, len(tok.names))
-	for i, name := range tok.names {
+func (c *formatOps) field(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
+	arms := make([]arm, len(tok.Names))
+	for i, name := range tok.Names {
 		arms[i] = splitArm(name, refs)
 		if isName(arms[i].head) {
 			arms[i].kind = namedRead
 		}
 	}
-	c.ops = append(c.ops, op{formatToken: tok, arms: arms})
+	c.ops = append(c.ops, op{Token: tok, arms: arms})
 }
 
 // compileFormat compiles a parsed format; a {ref as n} token compiles to no op. Call
 // checkTokens first: it is what proves every token valid.
-func compileFormat(toks []formatToken, refs map[string]refBinding, isName func(head string) bool) formatOps {
+func compileFormat(toks []grammar.Token, refs map[string]refBinding, isName func(head string) bool) formatOps {
 	var c formatOps
 	for _, tok := range toks {
-		switch tok.kind {
-		case literalRun:
-			c.grow += len(tok.lit)
-			c.ops = append(c.ops, op{formatToken: tok})
-		case builtinCall:
+		switch tok.Kind {
+		case grammar.LiteralRun:
+			c.grow += len(tok.Lit)
+			c.ops = append(c.ops, op{Token: tok})
+		case grammar.BuiltinCall:
 			c.function(tok, refs, isName)
-		case nameRead:
+		case grammar.NameRead:
 			c.field(tok, refs, isName)
 		}
 	}

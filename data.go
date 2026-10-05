@@ -7,6 +7,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // dataSource is one tree to load: an fs.FS and the directory in it to start from.
@@ -132,7 +134,7 @@ func loadFolder(src dataSource, g *folder, full, name string) error {
 	if len(child.children) == 0 {
 		return nil
 	}
-	if err := checkName(name); err != nil {
+	if err := grammar.CheckName(name); err != nil {
 		return fmt.Errorf("%s: folder %w", src.labelled(full), err)
 	}
 	g.children[name] = child
@@ -146,7 +148,7 @@ func loadFile(src dataSource, g *folder, full, file string, files *categoryFiles
 		return nil
 	}
 	name := strings.TrimSuffix(file, ".json")
-	if err := checkName(name); err != nil {
+	if err := grammar.CheckName(name); err != nil {
 		return fmt.Errorf("%s: category %w", src.labelled(full), err)
 	}
 	b, err := fs.ReadFile(src.fsys, full)

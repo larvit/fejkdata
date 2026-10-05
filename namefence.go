@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
@@ -11,20 +13,20 @@ import (
 // draw of w.
 func checkNameReads(path string, t *template) error {
 	for _, tok := range t.tokens {
-		if tok.kind != nameBind {
+		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		if err := t.nameScope.bindings[tok.bound].checkUses(); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), tok.body, err)
+		if err := t.nameScope.bindings[tok.Bound].checkUses(); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), tok.Body, err)
 		}
 	}
 	return namedReads(t, func(o *op, a *arm) error {
 		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
-			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", t.site.label(path), o.Body, a.named.name, a.named.ref)
 		}
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
+				return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.Body, err)
 			}
 		}
 		return nil
@@ -73,7 +75,7 @@ func (b *nameBinding) checkUses() error {
 		if !reaches {
 			return nil
 		}
-		spelling = joinSegments(append(down, b.ref))
+		spelling = grammar.JoinSegments(append(down, b.ref))
 	}
 	switch {
 	case strings.HasPrefix(r.tail, ".."):
@@ -107,9 +109,9 @@ func fieldPathTo(t, target *template) ([]string, bool) {
 
 // calcReads reports whether a calc reads spelling as one operand.
 func calcReads(spelling string) bool {
-	n, err := parseCalc(spelling)
-	v, isVar := n.(calcVar)
-	return err == nil && isVar && string(v) == spelling
+	n, err := grammar.ParseCalc(spelling)
+	v, isVar := n.(grammar.CalcVar)
+	return err == nil && isVar && v.Name == spelling
 }
 
 // checkOnce walks n, rendering at key under b's pick, into each level a read of b addresses.
@@ -132,7 +134,7 @@ func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) er
 	var into []arm
 	for _, o := range t.compiled.ops {
 		for _, a := range slices.Concat(o.arms, o.operands) {
-			if isRef(a.head) || a.kind == namedRead {
+			if grammar.IsRef(a.head) || a.kind == namedRead {
 				continue
 			}
 			if _, kept := b.addressed[join(key, a.path)]; kept {
