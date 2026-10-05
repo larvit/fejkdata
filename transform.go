@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // transforms are the builtins that rewrite one operand's value; they nest, so
@@ -65,7 +67,7 @@ func transformPrep(outer func(string) string) func([]string) callFn {
 		if err != nil {
 			panic(internalError("transform arg %q reached prep unvalidated: %v", a[0], err))
 		}
-		return func(_ *generatorState, _ string, operands []string) string {
+		return func(_ *drawstate.State, _ string, operands []string) string {
 			v := operands[0]
 			for i := len(chain) - 1; i >= 0; i-- {
 				v = chain[i](v)

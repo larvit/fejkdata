@@ -3,6 +3,8 @@ package fejkdata
 import (
 	"fmt"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // scanUnit is one unit of a scanned format string: a literal rune or the body of a
@@ -119,7 +121,7 @@ func parseFormat(format string) ([]formatToken, error) {
 }
 
 // builtin is a format-string function invoked as {name(args)}. It receives the
-// generatorState, the output emitted so far in the current expansion (for derivations
+// draw state, the output emitted so far in the current expansion (for derivations
 // such as a checksum over preceding digits), and the values of the operands it named
 // (calc and the transforms name them). All must stay pure over (rng, emitted, args) so
 // seeded output is reproducible; seq advances per-generator counter state, which is
@@ -461,7 +463,7 @@ func checkSegments(a arm) error {
 // callFn is a builtin prepared for one call site: its args already parsed. It reads the
 // output emitted so far in the current expansion (a derivation's payload) and the
 // values of the operands it named, which expand read for it.
-type callFn func(s *generatorState, emitted string, operands []string) string
+type callFn func(s *drawstate.State, emitted string, operands []string) string
 
 // op is one compiled unit of a format string: a literal run, a name read,
 // or a builtin already prepared with its args.

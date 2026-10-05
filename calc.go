@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // calcNode is a parsed expression node. It evaluates over the operand values expand
@@ -235,7 +237,7 @@ func calcPrep(args []string) callFn {
 	}
 	placed := indexVars(expr, at)
 	dp := calcDecimals(args)
-	return func(_ *generatorState, _ string, operands []string) string {
+	return func(_ *drawstate.State, _ string, operands []string) string {
 		return formatFloat(placed.eval(operands), dp)
 	}
 }

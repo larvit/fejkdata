@@ -1,5 +1,7 @@
 package fejkdata
 
+import "github.com/larvit/fejkdata/internal/drawstate"
+
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
 // value each read there produced, keyed by the path from the name, and the table rows they
 // pinned.
@@ -135,7 +137,7 @@ func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
 	return nil
 }
 
-func readName(s *generatorState, sc renderScope, a arm) readValue {
+func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 	f := sc.frameOf(a.named.scope)
 	if f == nil {
 		panic(internalError("name %q is read where no frame of its scope renders", a.named.name))
@@ -155,7 +157,7 @@ func readName(s *generatorState, sc renderScope, a arm) readValue {
 }
 
 // drawRowOf draws the row a render of t reads: inside the pick's rows where t renders as part of one.
-func (sc renderScope) drawRowOf(s *generatorState, t *table) int {
+func (sc renderScope) drawRowOf(s *drawstate.State, t *table) int {
 	if sc.pick != nil {
 		return t.drawIn(s, &sc.pick.pins)
 	}
@@ -170,7 +172,7 @@ func (sc renderScope) keeps(a arm) bool {
 
 // readUnder reads a of t, which renders as part of the pick sc.pick at sc.pickKey, where a read of
 // the name addresses it: once per pick, by its path from the name.
-func readUnder(s *generatorState, t *template, sc renderScope, a arm) readValue {
+func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
 	p, key := sc.pick, underKey(sc.pickKey, a.path)
 	if r, done := p.memo.value[key]; done {
 		return r
@@ -194,7 +196,7 @@ func underKey(prefix, path string) string {
 
 // draw draws the path key names under p, its variant at key kept too, returning the leaf and the
 // pins its row is in.
-func (p *namedPick) draw(s *generatorState, head node, steps []pathStep, levels []string, key string) (node, *pinSet) {
+func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels []string, key string) (node, *pinSet) {
 	leaf, pins := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
 		leaf = p.memo.variantOf(s, c, key)
@@ -203,7 +205,7 @@ func (p *namedPick) draw(s *generatorState, head node, steps []pathStep, levels 
 }
 
 // renderAt renders leaf, drawn at key into pins, as part of p, and keeps what it rendered.
-func (p *namedPick) renderAt(s *generatorState, leaf node, pins *pinSet, key string, sc renderScope) readValue {
+func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key string, sc renderScope) readValue {
 	sc = sc.at(leaf, pins)
 	sc.pick, sc.pickKey = p, key
 	r := renderLeaf(s, leaf, sc)
@@ -215,7 +217,7 @@ func (p *namedPick) renderAt(s *generatorState, leaf node, pins *pinSet, key str
 }
 
 // variantOf is the variant of c drawn at level, drawn now where none was.
-func (m *drawMemo) variantOf(s *generatorState, c *choice, level string) node {
+func (m *drawMemo) variantOf(s *drawstate.State, c *choice, level string) node {
 	n, drew := m.variant[level]
 	if !drew {
 		n = resolveChoice(s, c)

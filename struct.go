@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // FakeStruct fills the struct v points to. Each exported field tagged `fake:"…"` is a
@@ -27,7 +29,7 @@ func (f *Generator) FakeStruct(v any) error {
 	if err != nil {
 		return fmt.Errorf("fejkdata: %w", err)
 	}
-	shape.fill(f.rand, p.Elem())
+	shape.fill(f.draws, p.Elem())
 	return nil
 }
 
@@ -316,7 +318,7 @@ func (k columnKind) holds(v proven) bool {
 }
 
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.
-func (s *structShape) fill(state *generatorState, v reflect.Value) {
+func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
 		var frames frameStack
 		for i, c := range renderRecord(state, s.record, s.columns, renderScope{frames: &frames}).columns {

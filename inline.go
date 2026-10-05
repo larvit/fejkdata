@@ -20,7 +20,7 @@ type Template struct {
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	return renderOnce(t.g.rand, t.n)
+	return renderOnce(t.g.draws, t.n)
 }
 
 // NewTemplate compiles an inline template — a format string or a JSON value — and
