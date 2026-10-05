@@ -131,22 +131,18 @@ valid identifier. PostgreSQL and SQLite take it as written; MySQL and MariaDB ne
 string and a backslash as an escape.
 
 A record written only to emit columns still needs a `format` — the grammar's one
-required key — so `"format": ""` carries the fields with an inert format: it
-renders nothing by `Fake`, and is compiled only so the tree's fences still run.
-The columns are the point, and their facts stay together: a record is one render, so
-columns that read a path into one category — `{/currency.code}` and
-`{/currency.symbol}` — read one draw of it ([References](#references)), and a
-[draw group](#draw-group) draws a column apart. That one draw is also why the columns of one
-record may not overlap — `{/cat.a}`, or a bare `{/cat}`, beside
-`{/cat.a.b}` is refused, naming the fields to write instead, as
-[One draw, one spelling](#one-draw-one-spelling) refuses that pair inside a single
-format. Both fences run at load, so a category that loads renders as either shape. A
-category never references itself — `{/users.first}` or a bare `{/users}` inside `users`
-describes a draw other than the fields beside it — so read a sibling as a path, and put
-a value two fields share in its own category and reference that. A field hold, transform or
-operand ties fields together within one column as always (see
-[Correlated fields](#correlated-fields) and
-[Decisions](docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load)).
+required key — so `"format": ""` carries the fields with an inert format: `Fake` renders
+it as nothing.
+
+A record is one render, so its columns read one pick of each [name](#names) its category
+binds: `"code": "{/currency as c}{c.code}"` beside `"symbol": "{c.symbol}"` is one
+currency. Every other `{…}` draws afresh, so `{/currency.code}` and `{/currency.symbol}`
+in two columns may name two currencies.
+
+A category never references itself: `{/users.first}` or a bare `{/users}` inside `users`
+describes a draw other than the fields beside it. Read a sibling as a field, and put a
+value two fields share in its own category, which each binds to a name
+([Decisions](docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load)).
 
 ## Data
 
@@ -341,9 +337,12 @@ a column of one record, its tag a path or an inline template — told apart by
 [datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
 which a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
 kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
-naming a kind that holds it. The fields an embedded struct promotes are columns of the
+naming a kind that holds it. Path tags reading into one category, two or more of them
+and none selecting a row, read one pick of it, as a record's columns read one name:
+`sv_SE.person.first` and `sv_SE.person.sex` describe one person, while an inline template
+in a tag draws afresh. The fields an embedded struct promotes are columns of the
 same record; a named struct field, or a pointer to one, fills from its own tags as a
-record of its own, so its references draw apart from its parent's. `fake:"-"` leaves a
+record of its own, so it picks apart from its parent. `fake:"-"` leaves a
 struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
 their values, and so does a pointer back to a struct already being filled; a type
 whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
@@ -372,8 +371,8 @@ Every character is literal except a `{…}` token:
 | Token | Renders |
 |-------|---------|
 | `{name}` | the sibling field `name`, or the pick bound to the name ([Names](#names)) |
-| `{ref as name}` | nothing: binds one pick of the reference `ref` to `name` ([Names](#names)) |
-| `{name.field}` | `field` of one draw of `name` ([Correlated fields](#correlated-fields)) |
+| `{x as name}` | nothing: binds one pick of `x`, a reference or a sibling field, to `name` ([Names](#names)) |
+| `{name.field}` | `field` of a fresh draw of the sibling `name`, or of the pick bound to it ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
 | `{fn(args)}` | a builtin ([Functions](#functions)) |
 | `{/path}`, `{.path}`, `{..path}` | a node reached from the data root, this file's folder, or the folder above ([References](#references)) |
@@ -556,32 +555,21 @@ Stockholm	SE	990000
 fejkdata -d ./mydata 'country[SE].city'      # Stockholm or Göteborg
 fejkdata -d ./mydata country.city.name       # a country drawn, then a city inside it
 fejkdata -d ./mydata 'city[Oslo].country'    # NO — the link column's cell
-fejkdata -d ./mydata '{/city.name}, {/country.name}'   # Oslo, Norway — one consistent draw
+fejkdata -d ./mydata '{/city as c}{c.name}, {c..country.name}'   # Oslo, Norway — one city and its country
 ```
 
 A path descends from a row to a linked table by name, at any depth, and `--list`
-advertises each direct step. Within one render and [draw group](#draw-group), linked
-tables agree: the first table a reference path reads pins its ancestors, and a
-descendant read after it is drawn inside them, so `{/city.name}` and
-`{/country.name}` are a city and its country whichever is read first, except a step
-down after a `..` ([Step up](#step-up)). A selected row pins the render the same way,
-so every reference path into one family of linked tables in one render and group
-selects the same rows: one that selects none beside one that does is refused naming the spelling that does, `{/country[SE].city.name}`
-beside `{/country[SE].name}`, and two selecting different rows are refused naming a
-`drawGroup` to draw them apart in. A bare `{/city}` beside a path into its family is
-refused too, since a bare reference draws each time, and so is a path that draws a
-table another path in the group selects a row of, `{/city.name}` beside
-`{/country[SE].name}`, which the first token rendered would otherwise decide. `New`
-also refuses a link cell that is no key of the parent, a parent row no child links
-to, a chain of parents that closes, a table named like a column of any table above
-it, and a cell or format of a table that references a table of its own family, through
-any template, a `repeat` or a `drawGroup` included, since a bare read of the referencing
-table draws its row without pinning it, so the family would draw apart from that row:
-read the family from a template beside it, or add the value as a column. A cell's
-reads are the render's too, weighed against every read that renders with them. A
-reference renders one row of a table, so reads in cells of different rows of it, or of
-different rows of their ancestors, never render together, whether `[key]` selects the row
-or the reference draws it.
+advertises each direct step. One path reads one chain of rows: `country.city.name` draws a
+country by its weights, then a city inside it by theirs. Two paths are two draws, so
+`{/city.name}, {/country.name}` may name a city and another country. The reads of one
+[name](#names) agree instead, and the table it binds decides whose weights govern:
+`{/city as c}` draws a city by city weight and `{c..country.name}` is its country, while
+`{/country as k}` draws a country by country weight and `{k.city.name}` a city inside it.
+A name keeps every row its reads pin, so `{k.city.name}` and `{k.city.population}` describe
+one city, and `{k.name}` its country.
+
+`New` refuses a link cell that is no key of the parent, a parent row no child links to, a
+chain of parents that closes, and a table named like a column of any table above it.
 
 ### Step up
 
@@ -600,9 +588,9 @@ level per `..`: `geo.SE.locality..municipality..region.name`. `.country` after a
 still reads the link column's cell, `NO`.
 
 After a `..`, `.` steps down again and draws afresh inside the row stepped up to, so
-`city[Göteborg]..country.city` may draw Göteborg again. Paths stepping down from one
-`..` read one draw, as one reference path does: `{/city..country.city.name}` and `{/city..country.city.population}`
-describe one city, within a render and [draw group](#draw-group), or within a name's pick.
+`city[Göteborg]..country.city` may draw Göteborg again. Under a name, the paths stepping
+down from one `..` read one draw: `{c..country.city.name}` and
+`{c..country.city.population}` describe one city.
 
 A `..` that names anything but the parent table is an error naming the parent. A selector
 after a `..` is an error naming the table to select from, since it could name a row outside
@@ -611,7 +599,7 @@ reference, `..` is the folder above ([References](#references)).
 
 ### Options and fields
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are the only options;
+`format`, `weight`, `repeat`, `separator` and `datatype` are the only options;
 **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
 a [table](#table), so no template carries a field of that name. A [name](#names) shares the
 namespace too. An object that does nothing a
@@ -680,18 +668,14 @@ literals, sibling fields and [names](#names), each rendered then read as a numbe
 a second argument rounds to that many decimals. A hyphen is always subtraction, so a
 hyphenated field or name can't be an operand.
 
-```json
-{ "format": "{net} x {qty} = {calc(net * qty, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
-```
-
-Renders e.g. `19.99 x 3 = 59.97`. A name reads its one pick, so the calc computes from the
-value `{lat}` prints:
+Each `{…}` draws afresh, so a calc computes from the values its format shows only where
+both read one [name](#names):
 
 ```json
-"{/misc.coordinate.lat as lat}{lat}° is {calc(lat * 60, 0)} arcminutes"
+{ "format": "{net as n}{qty as q}{n} x {q} = {calc(n * q, 2)}", "net": ["19.99", "5.00"], "qty": ["3", "7"] }
 ```
 
-Renders e.g. `5.338477° is 320 arcminutes`.
+Renders e.g. `19.99 x 3 = 59.97`.
 
 A result that rounds to zero prints unsigned — `0`, `0.00` — as `{float()}`'s does. An
 operand that can never be a number (`"abc"`, or a choice of such) is rejected at load, as
@@ -703,13 +687,12 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 
 `{lowercase(x)}`, `{uppercase(x)}` and `{ascii(x)}` rewrite the value of `x` — a
 field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin letters (`Åsa Öberg`
-→ `Asa Oberg`) and drops any other non-ASCII rune. `x` is held
-([One draw, one spelling](#one-draw-one-spelling)), so an email built from a name
-matches the name beside it:
+→ `Asa Oberg`) and drops any other non-ASCII rune. `x` draws afresh like any `{…}`, so an
+email matches the name beside it where both read one name:
 
 ```json
-{ "format": "{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",
-  "p": [
+{ "format": "{person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",
+  "person": [
     { "format": "{first} {last}", "first": "Åsa", "last": "Öberg" },
     { "format": "{first} {last}", "first": "Bo", "last": "Ek" }
   ] }
@@ -731,22 +714,18 @@ without naming `sv_SE`:
 "Hej, {/en_US.person}!"
 ```
 
-Renders e.g. `Hej, Pat Smith!`. A reference path into a category is held like a
-[correlated](#correlated-fields) path, but for the whole render — one `Fake`, or one
-record — rather than one format: `{.person.first} {.person.last}` name one
-person, as do the same two references in sibling fields or a nested template, and
-`{lowercase(.person.first)}` reads that same draw. Each `repeat` iteration is
-a render of its own, in no group, so it draws anew, and a [draw group](#draw-group) holds a
-draw apart. A bare reference names no field and makes its own picks each time —
-`{/misc.uuid} {/misc.uuid}` is two draws — while the reference paths inside what it
-renders still read the render's draws. Rejected at `New`: a path that is
+Renders e.g. `Hej, Pat Smith!`. Each reference draws afresh, a path into a category
+too: `{.person.first} {.person.last}` may name two people, and `{/misc.uuid} {/misc.uuid}`
+is two draws. Bind the person to a [name](#names) to read one: `{.person as p}{p.first}
+{p.last}`. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, reads a field not every variant
 of a choice carries, or names the category the reference sits in, and a reference
 that leads back to its own value, directly, mutually or through a chain.
 
 ### Names
 
-`{ref as n}` binds one pick of a reference to the name `n` and prints nothing. `{n}` then
+`{x as n}` binds one pick of `x`, a reference or a sibling field, to the name `n` and prints
+nothing. `{n}` then
 prints that pick, and `{n.path}` reads a path through it, so every read of `n` describes one
 row:
 
@@ -758,12 +737,11 @@ Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps wha
 lands on and every level it passes, so `{n}` and `{n.path}` agree, and so does a
 [transform](#transforms) of `n.path`. Everything else under the name draws as it would
 anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{n.w}` beside
-`{n}` is refused, since it could read either draw.
+`{n}` is refused, since it could read either draw. A field binds the same way, so
+`{place as p}{p.postal-code} {p.locality}` reads one place ([Correlated fields](#correlated-fields)).
 
-A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws. A
-reference path the picked category reads is still held for the render as usual, so two names
-bound to `sv_SE.person`, whose `last` reads `{.last-name.name}`, print the same last name unless
-their reads sit in two [draw groups](#draw-group).
+A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws,
+and so are two names bound to one category.
 
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category may read it, and a record's columns read one pick. Each render of the category picks
@@ -775,50 +753,25 @@ Refused at `New`, each error naming what to write instead:
 - a name bound twice outside any `repeat`, twice in one `repeat`, or both inside a `repeat`
   and outside it;
 - a name that is a field or an option;
-- a binding of anything but a reference;
+- a binding of anything but a reference or a path into a field of the template binding it;
 - a binding in a choice's item, which every other item would leave unbound;
-- a binding nothing reads, or a binding of a whole category read once whole where it is
-  bound, which the bare reference spells: `{/word as w}{w}` is `{/word}`; a calc cannot
-  read a reference, so a calc's read is not refused;
+- a binding nothing reads, or one read once outside a `repeat` nested where it is bound,
+  which the spelling it binds draws the same way: `{/word as w}{w}` is `{/word}`, and
+  `{/region as r}{r.name}` is `{/region.name}`; a calc reads neither a reference nor a
+  path, so there one read is not refused;
 - a path through a name that selects a row;
-- `{n}` beside `{n.w}` where `n`'s category renders `w` twice, as in `{w}-{w}`;
-- reads of a name in two draw groups, or inside a `repeat` nested where the name is bound,
-  where what it names reads a reference path, which each draw group and iteration draws
-  apart;
+- `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
+  `{w.a} {w.b}`;
 - a binding in a table's format or cell.
-
-### Draw group
-
-A template may carry `drawGroup` to hold its reference draws apart: every reference path
-it renders, however deep short of a `repeat` or a nested `drawGroup`, reads the draw of
-that group, and the templates of one category naming one group in one render read one
-draw. A name is local to its category, so a category another one references never joins
-its groups by name; the unnamed group spans them all.
-
-```json
-{ "format": "{payer} pays {payee}; signed {signature}",
-  "payer": { "format": "{/sv_SE.person.first} {/sv_SE.person.last}", "drawGroup": "payer" },
-  "payee": "{/sv_SE.person.first} {/sv_SE.person.last}",
-  "signature": { "format": "{/sv_SE.person.last}", "drawGroup": "payer" } }
-```
-
-Renders e.g. `Sara Eriksson pays Ebba Lind; signed Eriksson`: the signature reads the
-payer's draw, while the payee is drawn apart. Rejected at load, each naming nothing: a
-`drawGroup` of `""` (the default); one naming the draw group its template already draws
-in; one on a template that renders no reference path — a bare reference to a
-[table](#table) counts, since the group answers for the family it draws in — short of a
-`repeat` or a nested `drawGroup`, on a `repeat` itself — each iteration renders in no
-draw group — or on an inline template's root, which nothing references. So is a path
-reading into a level that carries a `drawGroup`.
 
 ### Correlated fields
 
-`{name.field}` reads a path into a sibling, which holds the sibling to one draw
-([One draw, one spelling](#one-draw-one-spelling)), so several tokens read one
-row — a locality and the postal code that really covers it:
+`{name.field}` reads a path into a sibling, drawing it afresh as any `{…}` does. Several
+tokens read one draw of it through a [name](#names): bind the sibling, and every read of
+the name reads that one row — a locality and the postal code that really covers it:
 
 ```json
-{ "format": "{street} {int(1,99)}\n{place.postal-code} {place.locality}",
+{ "format": "{place as p}{street} {int(1,99)}\n{p.postal-code} {p.locality}",
   "street": ["Kungsgatan", "Storgatan"],
   "place": [
     { "format": "{locality}", "locality": "Stockholm", "postal-code": "1{digits(2)} {digits(2)}", "weight": 975 },
@@ -827,34 +780,16 @@ row — a locality and the postal code that really covers it:
 ```
 
 Renders e.g. `Kungsgatan 35` / `176 99 Stockholm`, never a Stockholm code beside
-Tranås; each row's `weight` says how often it appears. A path is held at every
-level it passes through: `{p.geo.town.name} {p.geo.town.zip}` share the town.
-Every variant of a choice on the path must carry the rest of it, so a row missing
-a field is named at load:
+Tranås; each row's `weight` says how often it appears. A name keeps every level its
+reads pass: `{p.geo.town.name} {p.geo.town.zip}` share the town. Every variant of a choice
+on the path must carry the rest of it, so a row missing a field is named at load:
 
 ```text
-token {place.postal-code}: field "place": not every variant of this 2-way choice carries "postal-code"; all carry [locality]
+token {p.postal-code}: not every variant of this 2-way choice carries "postal-code"; all carry [locality]
 ```
 
 The sub-fields stay addressable — `Fake("address.place.locality")` renders, and
 `List` advertises it. A path may not read into a level carrying a `repeat`.
-
-### One draw, one spelling
-
-A name any token reads as a path (`{p.first}`) or as an operand (`{calc(net * 2)}`,
-`{uppercase(w)}`) is drawn **once per expansion**, a reference path (`{/cat.p.first}`)
-**once per render** in its [draw group](#draw-group), and every other route to either — a bare
-`{p}`, a second bare `{w}`, `{/cat.net}`, a nested template rendering `{/cat.p.last}`
-beside `{p.first}`, a bare `{/cat}` beside `{/cat.p.first}`, at any
-depth — is a load error naming the spelling to use. A name nothing reads that way is
-drawn each time: `{word} {word}` differs. An expansion is one render of one format, so
-each nested template draws its own names again; a render is one `Fake` or one record,
-and each `repeat` iteration is an expansion and a render of its own.
-
-```text
-token {p} renders a level that {p.first} reads a path into; name the fields you want instead
-token {w} is repeated, and uppercase operand "w" holds "w" to one draw per expansion; write {w} once
-```
 
 ### Performance
 
@@ -865,9 +800,7 @@ With only the shipped set, `New` loads nothing: a category loads on the first `F
 its whole table family. Beside `--data-path`, `WithDataPath` or `WithDataFS`, every
 category loads in `New`. Each file is parsed, validated and weight-indexed once, bar a
 table's name and parent columns, which are mapped on the first `Fake` that selects by
-name or descends through it. Proving the draw fences adds a pass over the loaded tree per
-fence, and walks what a render reads only where data holds a reference, so a set that
-holds none pays for the passes alone. A `Fake` call then costs about what its output
+name or descends through it. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
 O(log n), and long formats, deep nesting and many tokens add cost in proportion to
 the output.

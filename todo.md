@@ -70,7 +70,6 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
-| 4 | 0.1.0 | decision | **Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.** | 7 | 8 | 8 | 10 | 5.2, 4.1 | 24.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
@@ -78,7 +77,6 @@
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 90 | 0.1.0 | decision | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 87 | 0.1.0 |  | **Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".** | 1 | 2 | 4 | 6 | 12, 12.3 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -225,16 +223,6 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-### 4. Draw every `{…}` afresh, keep a pick only by name, and delete `drawGroup` with the fences that held picks implicitly.
-
-- After it, `{/person} ({/person.first})` renders two people, as does `{/sv_SE.person as a}{/sv_SE.person as b}{a} & {b}`. `{w} {uppercase(w)}` renders `b G` where `w` is a choice of letters, and `{/city.name}, {/country[SE].name}` and `{/country[SE].name} / {/country[NO].name}` both load.
-- Deletes the token-order rules (`drawsApart`, `readFold`, `branches`, the pairwise replay), the expansion hold fence, `drawGroup`, the own-family fence and the cell-reference fences, and revises the decisions that point here. The remaining draw checks are names, paths through names, cycles and the repeat cap.
-- Fixes on the way: `{/sel}|{/sel}` panics out of `Fake` today where two draws land on rows whose cells select different rows of another table; it must render.
-- Rewrites the README's Computation, References, Draw group, Correlated fields, Linked tables, Names and "One draw, one spelling" sections; the Linked tables section says which pick's weights govern a family, since the bound row decides.
-- Keeps a name read once where no reference can stand, such as `{/score as s}{calc(s * 2)}` over a numeric category `score`, loading. Widens the refusal of a name read once to every binding, a path into it or a reference path bound included, since `{n.x}` read once is then `{/ref.x}`, and deletes the names fence over draw groups and nested repeats (`checkUses`, `readsHeld`).
-- Say how a record's columns and a struct's tags read one pick, so the `first` and `sex` columns of one `sv_SE.person` record, or one struct's tags reading them, still describe one person.
-- Re-pin seeded output and `testdata/shipped_shape.txt` in their own commits; the CHANGELOG names the grammar change.
-
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
@@ -245,11 +233,11 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
-Needs items 4 and 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; items 4 and 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+Needs item 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-Needs item 4. A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Item 4 removes today's route, a field holding the reference path, which the expansion hold keeps for the render. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -257,17 +245,13 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 ### 90. Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.
 
-Needs item 4, and comes before item 5's panel. Packages under `internal/` leave the API in one package: no other module can import them. A package exports only what another package uses. It takes in two file moves the nine-seat panel asked for: `binding`, `bind` and `checkNodeFences` out of `data.go`, and `table.route`, `selector`, `step` and `drawStep` out of `path.go`. The systems-architect proposes the folders and their names, and the maintainer approves them before code moves.
+Comes before item 5's panel. Packages under `internal/` leave the API in one package: no other module can import them. A package exports only what another package uses. It takes in two file moves the nine-seat panel asked for: `binding`, `bind` and `checkNodeFences` out of `data.go`, and `table.route`, `selector`, `step` and `drawStep` out of `path.go`. The systems-architect proposes the folders and their names, and the maintainer approves them before code moves.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
 Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
-
-### 87. Split the README's last Records paragraph into one paragraph per rule, name the two shapes "either shape" means, and define or replace "a field hold".
-
-Needs item 4, which rewrites the draw-group rule this paragraph states. The last paragraph under Records, from "A record written only to emit columns" to the Decisions link, holds seven rules, so "put a value two fields share in its own category" is hard to find. "Renders as either shape" names no shape nearby, and the README defines no "field hold".
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -310,7 +294,7 @@ With several `--data-path` layers the author has to work out which directory won
 
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
-Needs item 4.
+Today `personnummer` draws its own sex, so a person bound to `{/sv_SE.sex[f] as s}` needs the template the README's Data section shows to agree with a number.
 
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 
@@ -342,7 +326,7 @@ Neither names a `weight`, so a bare `sex` draws evenly.
 
 ### 80. Walk a path through one per-step function that both `pathCheck.walk` and `probePath` call.
 
-The decision "A path draws through its compiled steps" keeps two loops over one rule for passing a choice, a table or a field, and they have drifted: `walk` refuses a `repeat` or `drawGroup` level through `enter`, `probePath` does not (item 48). Technical principle: DRY.
+The decision "A path draws through its compiled steps" keeps two loops over one rule for passing a choice, a table or a field, and they have drifted: `walk` refuses a `repeat` level through `enter`, `probePath` does not (item 48). Technical principle: DRY.
 
 ### 50. Reword `prove`'s refusal of a typed column reading a row, `{/region}`.
 
@@ -402,7 +386,7 @@ An `int64` or `float64` field unproven in range is told to become itself, and a 
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 
-Needs item 4; recount the switches then. Today ten, from `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so.
+Today nine, from `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so.
 
 ### 11. Test that every `geo` tree holds the five table names and the `address` columns that port across countries.
 
@@ -434,7 +418,7 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 
 ### 7. Fill `arm` in one place.
 
-`splitArm` runs before the link and again after it, and `compileArm` finishes it from `reference.go`, so five seats traced three phases. Needs item 4.
+`splitArm` runs before the link and again after it, and `compileArm` finishes it from `reference.go`, so five seats traced three phases.
 
 ### 37. Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.
 

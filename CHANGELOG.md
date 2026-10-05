@@ -17,19 +17,22 @@ replacement, and each removed path, column or flag.
   in the category binding it, and a `repeat` binding it picks again on every iteration.
   A name is a `{calc()}` operand: `{/misc.coordinate.lat as lat}{calc(lat * 60)}`. What
   `New` refuses is listed under [Names](README.md#names).
+- Every `{…}` draws afresh, and a name is the one way to keep a pick: `{p.a} {p.b}`,
+  `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
+  `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one. `{x as n}`
+  binds a sibling field as well as a reference, and a struct's path tags into one
+  category read one pick of it. `drawGroup` is no longer an option, and `New` no longer
+  refuses a read beside a path into what it reads, or reads of one table family that
+  could disagree.
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
-  `misc.territory[SE]`, and descends to a linked table by name; linked tables draw
-  consistently within one render and draw group. `rows` is an option, so no
-  template may carry a field of that name. A `name` without a `key` resolves
-  inside the table's `parent`. Refused at `New`: a `name` without a `key` or a
-  `parent`, a name repeating inside one parent row, a name spelling another row's key, a table named like a column of any
-  table above it, a table whose format or cell references its own family, and,
-  within one render and draw group, a path drawing a table another path selects a
-  row of, or two paths pinning different rows of one table. Two cells are weighed
-  against each other only where they can render together: never two rows of one table,
-  nor rows under different rows of a table a path pinned.
+  `misc.territory[SE]`, and descends to a linked table by name, one path drawing each
+  row inside the row above it. `rows` is an option, so no template may carry a field
+  of that name. A `name` without a `key` resolves inside the table's `parent`. Refused
+  at `New`: a `name` without a `key` or a `parent`, a name repeating inside one parent
+  row, a name spelling another row's key, and a table named like a column of any table
+  above it.
 - `New` refuses a root choice of templates sharing one format and one set of string
   fields, naming the rows TSV to write instead.
 - `misc.territory`, `misc.currency`, `misc.language`, `misc.httpstatus` and

@@ -240,8 +240,7 @@ func tagValue(sf reflect.StructField, tag string) (any, string, error) {
 }
 
 // bindShared has the fields whose paths read into one category, two or more of them and none
-// selecting a row, read one pick of it through a name, as a record's columns read one pick:
-// docs/decisions.md#a-structs-path-tags-into-one-category-read-one-pick-of-it
+// selecting a row, read one pick of it through a name, as a record's columns read one pick.
 func bindShared(root *folder, tags map[string]any, paths map[string]string) {
 	byCategory := map[string][]string{}
 	for _, field := range sortedNames(paths) {
