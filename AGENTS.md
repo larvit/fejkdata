@@ -37,7 +37,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `{a|b}` stays beside nested choices
 - Flags follow getopt_long
 - An argument is a template by its shape, not by a flag
-- An inline template skips the cycle fence
 - An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
 - A padded JSON argument is rejected, not trimmed
 - `FakeTemplate` and `NewTemplate` both stay

@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -18,6 +19,9 @@ func checkNameReads(path string, t *template) error {
 		}
 	}
 	return namedReads(t, func(o *op, a *arm) error {
+		if a.named.bindsField() && rendersInside(a.named.head, t) {
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field it binds, which would render itself; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
+		}
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
 				return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
@@ -27,11 +31,23 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
+// rendersInside reports whether t sits in what n contains.
+func rendersInside(n node, t *template) bool {
+	return eachNode(n, "", func(_ string, m node) error {
+		if m == t {
+			return errFound
+		}
+		return nil
+	}) != nil
+}
+
+var errFound = errors.New("found")
+
 // checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
 // draws the same way without the name. A field stands only beside its binding.
 func (b *nameBinding) checkUses() error {
 	r := b.uses[0]
-	if len(b.uses) > 1 || r.nested || b.field && r.in != b.binder {
+	if len(b.uses) > 1 || r.nested || b.bindsField() && r.in != b.binder {
 		return nil
 	}
 	spelling := b.ref

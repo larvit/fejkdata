@@ -76,7 +76,7 @@ func linkRefs(sites []categorySite, root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	for _, pass := range namePasses {
+	for _, pass := range linkPasses {
 		if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return pass(path, t) }); err != nil {
 			return err
 		}
@@ -98,9 +98,6 @@ func linkTemplate(folder []string, path, category string, t *template, root map[
 }
 
 func compileArms(t *template) {
-	if r := t.link.readsColumn; r != nil {
-		compileArm(t, &r.a)
-	}
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
 		for j := range o.operands {
@@ -154,44 +151,39 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 		link.refHeads[head] = target
 		link.refs[name] = refBinding{head, tail}
 	}
-	link.readsColumn = columnReadOf(t, link)
 	return link, nil
 }
 
 // columnRead is a record's column read by a format of that one reference or name read alone,
-// which is the column: it takes the column's datatype and null.
+// which is the column: it takes the column's datatype and null. category and field name it.
 type columnRead struct {
-	a      arm
-	column node
+	a               arm
+	category, field string
+	column          node
 }
 
-func columnReadOf(t *template, link templateLink) *columnRead {
-	name, lone := loneRef(t.tokens)
-	if !lone || t.repeat != 1 {
+// linkColumnRead sets the record's column t's format reads, where it is one reference or name
+// read alone, once the names are linked.
+func linkColumnRead(_ string, t *template) error {
+	ops := t.compiled.ops
+	if t.repeat != 1 || len(ops) != 1 || ops[0].kind != nameRead || len(ops[0].arms) != 1 {
 		return nil
 	}
-	a := splitArm(name, link.refs)
-	if column := recordColumn(link.refHeads[a.head], a.tail); column != nil {
-		return &columnRead{a: a, column: column}
+	a := ops[0].arms[0]
+	head, category, tail := t.head(a.head), a.head, a.tail
+	switch {
+	case a.kind == namedRead && !a.named.bindsField():
+		ref := a.named.binder.link.refs[a.named.ref]
+		head, category = a.named.head, ref.head
+		tail = append(ref.tail[:len(ref.tail):len(ref.tail)], a.tail...)
+	case a.kind == namedRead || !isRef(a.head):
+		return nil
+	}
+	target, isTemplate := head.(*template)
+	if isTemplate && target.isRecord && len(tail) == 1 {
+		t.link.readsColumn = &columnRead{a: a, category: category[1:], field: tail[0], column: target.fields[tail[0]]}
 	}
 	return nil
-}
-
-// recordColumn is the column tail names in head, nil where head is no record or tail no column of it.
-func recordColumn(head node, tail []string) node {
-	target, isTemplate := head.(*template)
-	if !isTemplate || !target.isRecord || len(tail) != 1 {
-		return nil
-	}
-	return target.fields[tail[0]]
-}
-
-// loneRef is the reference a format of one reference token and nothing else reads.
-func loneRef(toks []formatToken) (string, bool) {
-	if len(toks) != 1 || toks[0].kind != nameRead || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
-		return "", false
-	}
-	return toks[0].names[0], true
 }
 
 // eachTemplate calls fn once per template of the categories, with the category it sits
@@ -258,4 +250,12 @@ func refTokens(toks []formatToken) []string {
 		}
 	}
 	return refs
+}
+
+// loneRef is the reference a format of one reference token and nothing else reads.
+func loneRef(toks []formatToken) (string, bool) {
+	if len(toks) != 1 || toks[0].kind != nameRead || len(toks[0].names) != 1 || !isRef(toks[0].names[0]) {
+		return "", false
+	}
+	return toks[0].names[0], true
 }

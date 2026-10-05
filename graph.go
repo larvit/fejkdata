@@ -166,14 +166,22 @@ func repeatCheck(path string, n node, mem renderCounts) error {
 // graph (renderEdges). Every node is a root: a field its parent's format never
 // renders is still reachable by dot path, so a cycle in one would otherwise reach
 // render and be fatal there.
-func checkNoCycles(sites []categorySite) error {
+func checkNoCycles(s nodeScope) error {
 	const (
 		grey  = 1
 		black = 2
 	)
+	inScope := map[node]bool{}
+	_ = s(func(_ string, n node) error {
+		inScope[n] = true
+		return nil
+	})
 	color := map[node]int{}
 	var visit func(n node, path string) error
 	visit = func(n node, path string) error {
+		if !inScope[n] {
+			return nil // loaded before this scope and proven then, so it never reaches back into it
+		}
 		switch color[n] {
 		case grey:
 			return fmt.Errorf("reference cycle: %s", path)
@@ -189,5 +197,5 @@ func checkNoCycles(sites []categorySite) error {
 		color[n] = black
 		return nil
 	}
-	return sitesScope(sites)(func(path string, n node) error { return visit(n, path) })
+	return s(func(path string, n node) error { return visit(n, path) })
 }

@@ -73,13 +73,6 @@ record. A folder-relative `{.name}` or `{..name}` is refused naming `{/name}`, s
 inline template sits in no folder. `IsTemplate` exports the rule, so the CLI, struct
 tags and any other caller read one.
 
-## An inline template skips the cycle fence
-
-2026-09-03, Lilleman auf Larv.
-
-Each load proves what it loads acyclic, an inline node is a finite tree of its own, and
-nothing in the tree can reference it, so no render of it reaches itself.
-
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
 
 2026-09-24, Lilleman auf Larv.
@@ -305,9 +298,8 @@ not agree on one among themselves; each must only hold that type.
 
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
-its picks: path tags into one category, two or more of them and none selecting a row, read
-one pick of it, as a category's record columns read one pick of each name (goal 4.1), while
-an inline template in a tag draws afresh as any `{…}` does; a tagged field that another field hides is refused, not dropped. A named
+its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}`, while a
+path tag draws afresh as `{/path}` does (goal 4.1); a tagged field that another field hides is refused, not dropped. A named
 struct field is another entity and a record of its own. `fake:"-"` leaves a struct
 field, embedded or named, unfilled, so no name may be `-`; a pointer back to a struct
 already being filled is left alone, since filling it would never end. `New` cannot see a
@@ -473,6 +465,8 @@ table, `street`, `car` or `useragent`, carries no key and is only drawn.
   its own. The first import numbers the postorter in name order; later imports keep each
   id by the postort's name, unique across Sweden as the key it replaces, give a new
   postort the next unused integer, and retire a removed or renamed one's id for good.
+
+The code still takes a `name` option and selects by it; `todo.md` item 41 brings it to this decision.
 
 ## A parent row with no child row is a load error
 

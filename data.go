@@ -232,9 +232,8 @@ func inlineScope(n node, label string) nodeScope {
 // binding is one scope's way through bind, the one load pipeline; its fields are where
 // scopes differ.
 type binding struct {
-	scope      nodeScope
-	link       func() error
-	scopeFence func() error
+	scope nodeScope
+	link  func() error
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
@@ -251,7 +250,6 @@ func categoryBinding(sites []categorySite, root map[string]node) binding {
 			}
 			return linkRefs(sites, root)
 		},
-		scopeFence: func() error { return checkNoCycles(sites) },
 	}
 }
 
@@ -259,10 +257,8 @@ func (b binding) bind() error {
 	if err := b.link(); err != nil {
 		return err
 	}
-	if b.scopeFence != nil {
-		if err := b.scopeFence(); err != nil {
-			return err
-		}
+	if err := checkNoCycles(b.scope); err != nil {
+		return err
 	}
 	if !b.typedByGo {
 		if err := checkColumns(b.scope); err != nil {
@@ -274,9 +270,8 @@ func (b binding) bind() error {
 
 // checkNodeFences runs the per-node fences every binding needs over a scope, each
 // over the whole scope before the next, so which of several broken nodes is reported
-// does not depend on the walk. Its walks recurse unguarded, so the scope's cycles are
-// refused first: categories by checkNoCycles, and an inline node closes none, since nothing
-// references it.
+// does not depend on the walk. Its walks recurse unguarded, so bind refuses the scope's cycles
+// first.
 func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {

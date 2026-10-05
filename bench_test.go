@@ -57,30 +57,29 @@ func BenchmarkRepeat(b *testing.B) {
 	benchPath(b, dir, "many")
 }
 
-// BenchmarkHeld measures a format that holds a head and reads two paths from it —
-// what a correlated pair costs against BenchmarkUnheld, the same output drawn from
-// two independent fields.
-func BenchmarkHeld(b *testing.B) {
-	dir := tmpData(b, "addr", `{"format":"{place.postal-code} {place.locality}","place":[{"format":"{locality}","locality":"Stockholm","postal-code":"1{digits(2)} {digits(2)}"},{"format":"{locality}","locality":"Tranås","postal-code":"573 {digits(2)}"}]}`)
+// BenchmarkNamed measures a format that binds a field to a name and reads two paths through
+// it — what a correlated pair costs against BenchmarkUnnamed, the same output drawn from two
+// independent fields.
+func BenchmarkNamed(b *testing.B) {
+	dir := tmpData(b, "addr", `{"format":"{place as p}{p.postal-code} {p.locality}","place":[{"format":"{locality}","locality":"Stockholm","postal-code":"1{digits(2)} {digits(2)}"},{"format":"{locality}","locality":"Tranås","postal-code":"573 {digits(2)}"}]}`)
 	benchPath(b, dir, "addr")
 }
 
-func BenchmarkUnheld(b *testing.B) {
+func BenchmarkUnnamed(b *testing.B) {
 	dir := tmpData(b, "addr", `{"format":"{postal-code} {locality}","postal-code":["1{digits(2)} {digits(2)}","573 {digits(2)}"],"locality":["Stockholm","Tranås"]}`)
 	benchPath(b, dir, "addr")
 }
 
-// BenchmarkHeldDeep reads two paths through an intermediate level, the shape the
-// depth question is about.
-func BenchmarkHeldDeep(b *testing.B) {
-	dir := tmpData(b, "addr", `{"format":"{p.addr.city} {p.addr.zip}","p":{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":"1{digits(2)} {digits(2)}"}}}`)
+// BenchmarkNamedDeep reads two paths through a name and an intermediate level.
+func BenchmarkNamedDeep(b *testing.B) {
+	dir := tmpData(b, "addr", `{"format":"{p as q}{q.addr.city} {q.addr.zip}","p":{"format":"{addr}","addr":{"format":"{city}","city":["Stockholm","Tranås"],"zip":"1{digits(2)} {digits(2)}"}}}`)
 	benchPath(b, dir, "addr")
 }
 
-// BenchmarkHeldWide reads ten paths from one row: the point where the maps an
-// expansion holds outgrow a single bucket.
-func BenchmarkHeldWide(b *testing.B) {
-	dir := tmpData(b, "row", `{"format":"{r.a}{r.b}{r.c}{r.d}{r.e}{r.f}{r.g}{r.h}{r.i}{r.j}","r":[
+// BenchmarkNamedWide reads ten paths through one name: the point where the maps a pick keeps
+// outgrow a single bucket.
+func BenchmarkNamedWide(b *testing.B) {
+	dir := tmpData(b, "row", `{"format":"{r as s}{s.a}{s.b}{s.c}{s.d}{s.e}{s.f}{s.g}{s.h}{s.i}{s.j}","r":[
 		{"format":"x","a":"1","b":"2","c":"3","d":"4","e":"5","f":"6","g":"7","h":"8","i":"9","j":"0"},
 		{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`)
 	benchPath(b, dir, "row")

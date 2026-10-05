@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 94`
+`Next ID = 96`
 
 | Goal | W |
 |---|---|
@@ -82,7 +82,7 @@
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 88 | 0.2.0 |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 2 | 3 | 6 | 6 | 4 | 19.4 |
-| 41 | 0.2.0 |  | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.5 | 19.1 |
+| 41 | 0.2.0 | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.5 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
@@ -104,6 +104,7 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -127,6 +128,7 @@
 | 37 | 0.3.0 |  | **Rename `newRand` to `newGeneratorState` and `Generator.rand` to `state`.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 82 | 0.3.0 | principle | **Pass `newRand` its entropy source, so no test swaps the package's `randomBytes`.** | 1 | 1 | 1 | 5 | 3.2 | 9.8 |
+| 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
 | 83 | 0.3.0 | principle | **Read a name binding's head and tail from its binder's link, and delete `linkBindings`.** | 4 | 3 | 1 | 6 | 3.2 | 8.1 |
@@ -356,6 +358,10 @@ Require the path step to reach a sibling category.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
 
+### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
+
+Both spellings load and draw alike, against goal 5.7. Widen the read-once refusal in `namefence.go` to the longest prefix every read of a name shares.
+
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`.
 
 A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{digits(14)}` does. Both load, since neither has a part that changes nothing; the shipped data writes the obvious one. Re-pin seeded output in its own commit.
@@ -431,6 +437,10 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 ### 82. Pass `newRand` its entropy source, so no test swaps the package's `randomBytes`.
 
 `fejkdata_test.go` swaps the global `randomBytes` to fail seeding, so every `New` in the package reads the failing source while that test runs. Technical principle: functional core, imperative shell.
+
+### 95. Hold a struct's columns and the field each fills in one slice.
+
+`structShape.columns` and `structShape.fieldIndexes` pair up by index alone, against the technical principle "one owner per value".
 
 ### 56. Build on a manual run of `test.yml`.
 
