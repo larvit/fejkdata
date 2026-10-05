@@ -28,7 +28,7 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 // compileInto compiles each category it is handed into the folder place returns for its Folders.
 func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
-		n, err := compileCategory(c.JSON, c.Name, c.ReadRows)
+		n, err := compileCategory(c)
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,6 @@ func categoryBinding(sites []categorySite, root map[string]node) binding {
 	return binding{
 		scope: sitesScope(sites),
 		link: func() error {
-			setTablePaths(sites)
 			if err := linkTables(sites); err != nil {
 				return err
 			}

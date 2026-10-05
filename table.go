@@ -85,7 +85,7 @@ func isTableOption(name string) bool {
 // token arm.
 const inSelector = `[]{}"|`
 
-func compileTable(m map[string]any, segment string, readRows func(file string) (string, error)) (*table, error) {
+func compileTable(m map[string]any, segment, path string, readRows func(file string) (string, error)) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func compileTable(m map[string]any, segment string, readRows func(file string) (
 	if err != nil {
 		return nil, err
 	}
-	t := &table{segment: segment, file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
+	t := &table{segment: segment, path: path, file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
 	if err := t.parseRows(data); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
@@ -307,7 +307,7 @@ func (t *table) checkCells() error {
 		if strings.IndexByte(cell, '{') < 0 && strings.IndexByte(cell, '}') < 0 {
 			continue
 		}
-		n, err := compileString(cell, tableSite{t, row})
+		n, err := compileCell(cell)
 		if err != nil {
 			return fmt.Errorf("line %d, %s: %w", row+2, t.header[col], err)
 		}
@@ -317,6 +317,22 @@ func (t *table) checkCells() error {
 		t.cellTemplates[i] = n
 	}
 	return nil
+}
+
+// compileCell compiles a cell carrying a token. A cell sits in no name scope, so it binds no
+// name and reads only references.
+func compileCell(cell string) (*template, error) {
+	n, err := compileString(cell)
+	if err != nil {
+		return nil, err
+	}
+	if err := refuseTableBinding(n.tokens); err != nil {
+		return nil, err
+	}
+	if len(n.unbound) > 0 {
+		return nil, n.unbound[0].err
+	}
+	return n, nil
 }
 
 // compileRowFormat compiles the format a row renders through, over the columns as its
@@ -351,7 +367,7 @@ func (t *table) compileRowFormat(format string) error {
 	if len(unbound) > 0 {
 		return unbound[0].err
 	}
-	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true, site: tableSite{t, formatRow}}
+	t.formatTemplate = &template{format: format, tokens: toks, fields: fields, repeat: 1, isRecord: true}
 	t.rowNode = &tableRow{t}
 	return nil
 }
@@ -366,48 +382,46 @@ func refuseTableBinding(toks []grammar.Token) error {
 	return nil
 }
 
-// setTablePaths gives every table the path a selector on it is written at, before a
-// link or a draw can name one.
-func setTablePaths(sites []categorySite) {
-	for _, s := range sites {
-		if t, isTable := s.n.(*table); isTable {
-			t.path = s.path
-		}
-	}
-}
-
-// linkTables binds every table's parent to the table beside it, and proves the
-// links: a parent has a key, every link cell is one, every parent row is linked
-// to, no chain of parents closes, and no child is named like a parent's column.
-// docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
+// linkTables links every table to its parent beside it, the one writer of parentT and
+// children.
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
 		t, isTable := s.n.(*table)
 		if !isTable || t.parentIndex < 0 {
 			continue
 		}
-		if err := t.linkParent(s.path, s.in.children); err != nil {
+		p, err := t.proveParent(s.in.children)
+		if err != nil {
 			return fmt.Errorf("%s: %w", s.path, err)
 		}
+		t.parentT = p
+		if p.children == nil {
+			p.children = map[string]*table{}
+		}
+		p.children[t.segment] = t
 	}
 	return nil
 }
 
-func (t *table) linkParent(path string, siblings map[string]node) error {
+// proveParent is the table among siblings that t's link column names, proved: it has a key,
+// every link cell is one, every row of it is linked to, no chain of parents closes, and no
+// ancestor has a column named like t.
+// docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
+func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	name := t.header[t.parentIndex]
 	p, ok := siblings[name].(*table)
 	switch {
 	case siblings[name] == nil:
-		return fmt.Errorf("parent %q names no table beside it", name)
+		return nil, fmt.Errorf("parent %q names no table beside it", name)
 	case !ok:
-		return fmt.Errorf("parent %q is not a table; a link column reads a table's key", name)
+		return nil, fmt.Errorf("parent %q is not a table; a link column reads a table's key", name)
 	case p.keyIndex < 0:
-		return fmt.Errorf("parent %q has no key column to link to", name)
+		return nil, fmt.Errorf("parent %q has no key column to link to", name)
 	}
 	var ancestors []*table
 	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {
 		if seen[q] {
-			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
+			return nil, fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
 		}
 		seen[q] = true
 		ancestors = append(ancestors, q)
@@ -417,28 +431,23 @@ func (t *table) linkParent(path string, siblings map[string]node) error {
 	}
 	for _, q := range ancestors {
 		if _, clash := q.col[t.segment]; clash {
-			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
+			return nil, fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
 		}
 	}
 	linked := make(map[string]bool, p.rowCount())
 	for r := 0; r < t.rowCount(); r++ {
 		k := t.cell(r, t.parentIndex)
 		if _, ok := p.byKey[k]; !ok {
-			return fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, r+2, name, k, p.file)
+			return nil, fmt.Errorf("%s line %d: %s %q is no key of %s", t.file, r+2, name, k, p.file)
 		}
 		linked[k] = true
 	}
 	for r := 0; r < p.rowCount(); r++ {
 		if k := p.cell(r, p.keyIndex); !linked[k] {
-			return fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, r+2, p.file)
+			return nil, fmt.Errorf("%s links no row to %s %q; every %s row needs one, or drop line %d of %s", t.file, name, k, name, r+2, p.file)
 		}
 	}
-	t.parentT = p
-	if p.children == nil {
-		p.children = map[string]*table{}
-	}
-	p.children[t.segment] = t
-	return nil
+	return p, nil
 }
 
 func (t *table) builtLookup() *rowLookup {

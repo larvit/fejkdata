@@ -24,7 +24,7 @@
   before paraphrasing it, and name the register you read before claiming none
   publishes a spelling.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
-- Cyclomatic complexity is gated at 14: the table-shaped dispatches (`linkParent`, `compileTemplate`, `renderEdges`) sit at it and stay whole; a function that would pass it is decomposed.
+- Cyclomatic complexity is gated at 14. A function that would pass it is decomposed; a table-shaped dispatch at 14, one case per kind, stays whole.
 
 # Decisions
 
@@ -111,7 +111,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, and items 101, 102 and 104 to 106
-- The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and items 101 and 102 move a table's rows there
+- comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, and items 102 and 104 to 106
+- The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and item 102 moves a table's rows there
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`

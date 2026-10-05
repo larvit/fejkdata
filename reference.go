@@ -55,7 +55,7 @@ func linkRefs(sites []categorySite, root map[string]node) error {
 // linkTemplate resolves t's references in category, "" for an inline template, and
 // compiles its format against them.
 func linkTemplate(folder []string, path, category string, t *template, root map[string]node) error {
-	link, err := t.resolveLink(folder, t.site.label(path), category, root)
+	link, err := t.resolveLink(folder, path, category, root)
 	if err != nil {
 		return err
 	}

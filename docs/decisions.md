@@ -825,22 +825,22 @@ category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, and items 101, 102 and 104 to 106
+## comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, and items 102 and 104 to 106
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat. The hardest units were the draw fences, which the change making every `{…}` draw afresh deleted. The restructure deletes or moves what the earlier chunks of the below-floor round touched. It is three things: the change making every `{…}` draw afresh; the moves of the draw state, the grammar, `DataType`, what a proof knows of a value, the builtins and the reading of data files into `internal/`; and `todo.md` items 101, 102 and 104 to 106. The maintainer approved these three, and `AGENTS.md`'s comprehension rule lets them merge below the floor. A scoring run before item 106 merges would score code about to go; for that reason the calc change accepting a name as an operand shipped unscored on 2026-10-05. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat. The hardest units were the draw fences, which the change making every `{…}` draw afresh deleted. The restructure deletes or moves what the earlier chunks of the below-floor round touched. It is three things: the change making every `{…}` draw afresh; the moves of the draw state, the grammar, `DataType`, what a proof knows of a value, the builtins and the reading of data files into `internal/`; and the untangling of the engine's own structs: the change that set a table's path where it compiles, linked a table family in one function and labelled a cell from the walk, and `todo.md` items 102 and 104 to 106. The maintainer approved these three, and `AGENTS.md`'s comprehension rule lets them merge below the floor. A scoring run before item 106 merges would score code about to go; for that reason the calc change accepting a name as an operand shipped unscored on 2026-10-05. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
 
-## The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and items 101 and 102 move a table's rows there
+## The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and item 102 moves a table's rows there
 
 2026-10-05, Lilleman auf Larv. Serves goals 3.2 and 3.4. Two architect reviews found the
 engine's types, `template`, `table`, `arm`, `op` and `nameBinding`, bound in one cycle
 because several passes each write part of the same structs; the template language's
-recursion reads few of those types. Moving the engine before items 101 and 104 to 106 give
+recursion reads few of those types. Moving the engine before items 104 to 106 give
 each value one writer would spread that knot across packages, behind forwarding calls from
 every public method. The draw state, the grammar, `DataType`, what a proof knows of a
 value, the builtins and the reading of data files read no engine type, so each sits in a
-package under `internal/`, behind the import list `imports_test.go` checks. A
-table's rows stop reading any engine type once items 101 and 102 remove those reads; item
-102 then moves them into `internal/rows` and adds it to that list. Valid until `todo.md` item 107 moves the engine.
+package under `internal/`, behind the import list `imports_test.go` checks. Item
+102 removes a table's rows' reads of engine types, moves the rows into `internal/rows` and
+adds it to that list. Valid until `todo.md` item 107 moves the engine.
 
 ## Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 
