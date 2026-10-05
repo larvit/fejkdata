@@ -73,12 +73,12 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel once items 97 to 106 have restructured the code, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run once items 97 to 106 have restructured the code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 102 | 0.1.0 | defect | **Move a table's rows, with their family, proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that refuses a level carrying a `repeat` in the load check and in `Fake` alike.** | 5 | 6 | 4 | 8 | 3.2, 3.4, 5 | 15.9 |
+| 102 | 0.1.0 | defect | **Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.** | 5 | 6 | 4 | 8 | 3.2, 3.4, 5 | 15.9 |
 | 97 | 0.1.0 | decision | **Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, built from a seed, and test which packages each package may import.** | 2 | 4 | 2 | 8 | 3.2, 3.4 | 15.4 |
-| 103 | 0.1.0 |  | **Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands compiling a reader for a table's rows.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
+| 103 | 0.1.0 |  | **Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands the engine a reader for each table's rows.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
 | 98 | 0.1.0 |  | **Move how the template language is written — format tokens, paths and selectors, reference sigils, names and `calc` syntax — into `internal/grammar`.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 100 | 0.1.0 |  | **Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes.** | 2 | 2 | 2 | 7 | 3.2 | 14.1 |
@@ -152,7 +152,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
+The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
@@ -167,15 +167,15 @@ Split it into items before starting. Before the module API ships, a panel of the
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
+Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
 
 ### 16. Add the remaining locale categories: company, phone, finance, vehicle, words.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Shape: T = table, t = template, c = choice.
+Shape: T = table, t = template, c = choice.
 
 `sv_SE` ([source research](docs/research/research-sources-se.md))
 
@@ -209,7 +209,7 @@ Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Shape:
 
 ### 15. Add the remaining `misc` tables and templates, one row of its detail's table per chunk.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Shape: T = table, t = template, c = choice.
+Shape: T = table, t = template, c = choice.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -236,33 +236,33 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
 
 ### 96. Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
+Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
 
-### 5. Run the nine-seat comprehension panel once items 97 to 106 have restructured the code, and file what it names.
+### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 97 to 106 have restructured the code, and file what the panel names.
 
-Needs items 97 to 106. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and items 97 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+Nothing else in `todo.md` but items 97 to 106 merges until a panel scores 7.0 or above, per `AGENTS.md`'s comprehension rule. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and items 97 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Then no test swaps the package's `randomBytes`, as `fejkdata_test.go` does today, failing every `New` in the package while it runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
-### 102. Move a table's rows, with their family, proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that refuses a level carrying a `repeat` in the load check and in `Fake` alike.
+### 102. Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.
 
-Needs items 98 and 101. `internal/rows` owns the parent and child links, and each rows table carries the engine table holding it as a payload set when it is built, so a step to a relative reaches its format and cells with no side map: the family has one writer, and `internal/rows` never sees a template. The rows code reads `checkName` and the selector spelling from `internal/grammar`. The lookups keep the weights `sumWeights` parsed, where `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
+Needs items 98 and 101. `internal/rows` takes the rows, their key and parent proofs, the pins, the row draws and the lookups, and owns the parent and child links. Each rows table holds the engine table that owns it as a payload of a type parameter, set when it is built, so a step to a relative reaches its format and cells with no side map, the links have one writer, and `internal/rows` imports no engine type. The rows code reads `checkName` and the selector spelling from `internal/grammar`. The lookups reuse the weights `sumWeights` parsed; today `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
 
 ### 97. Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, built from a seed, and test which packages each package may import.
 
-First of the restructure items 97 to 106, which give each value one writer a reader can name and move what stands alone into `internal/`; the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`" says why the engine stays. This item's first commit adds a test, using `go/build`, that lists each package's allowed imports; every later item extends it. `New` reads the system's entropy for an unseeded generator and hands the seed over, until item 89 moves that read into the CLI. The constructor and the generator's field take the name of what they build, a draw state with its counters, not half of it, and `New`'s local `rng` stops shadowing the `rng` interface. A function module of item 77 reaches the randomness through an interface the root declares; the concrete state stays internal.
+First of the restructure items 97 to 106, which give each value one writer a reader can name and move what stands alone into `internal/`; the decision "The template engine stays the root package until item 107, and items 97 to 103 move what stands alone into `internal/`" says why the engine stays. This item's first commit adds a test, using `go/build`, that lists each package's allowed imports; every later item extends it. `New` reads the system's entropy for an unseeded generator and hands the seed over, until item 89 moves that read into the CLI. `newRand` and the generator's `rand` field are renamed after the draw state, which holds the `{seq()}` counters as well as the randomness, and `New`'s local `rng` stops shadowing the `rng` interface. A function module of item 77 reaches the randomness through an interface the root declares; the concrete state stays internal.
 
-### 103. Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands compiling a reader for a table's rows.
+### 103. Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands the engine a reader for each table's rows.
 
 Needs item 98. The folder walk, the hidden-file and empty-folder rules, reading a category's rows, and the check that every TSV is named move; the engine compiles each category as the walk hands it over, a table's rows are read through the reader only when its JSON names them, and errors keep their order.
 
@@ -272,7 +272,7 @@ Needs item 97. Pure code that reads strings: `scanUnit`, `formatToken` and `pars
 
 ### 100. Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.
 
-Needs item 99. `checkArgs` takes the arguments alone: `calc`, its one user of the fields, checks its operands where the template links, and a load with two mistakes reports the same one first as today. `ibanArg` joins the builtins, and `callFn` takes `internal/drawstate`'s type.
+Needs item 99. `checkArgs` drops its `fields` parameter: `calc`, the one builtin reading it, checks its operands where the template links, and a load with two mistakes reports the same one first as today. `ibanArg` joins the builtins, and `callFn` takes `internal/drawstate`'s type.
 
 ### 106. Settle each record's shape when its template links, so `Generator.records` goes.
 
@@ -288,7 +288,7 @@ The two-way link `nameScope.owner` ↔ `template.ownNameScope` is written by a t
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
-Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Needs item 77, which makes an override fail unless it says it replaces.
+Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
@@ -298,7 +298,7 @@ Needs item 98. `proven` is keyed by `DataType`, and a package the root imports c
 
 ### 105. Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.
 
-Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote and writes `link.readsColumn` into the link `linkTemplate` built, and `checkNameReads` reads the arms both filled. `arm` is filled in three places, `compileFormat`, `compileArms` and `linkName`, and `splitArm` runs before the link and again after it, so five seats of an earlier panel traced three phases. Technical principle: one owner per value.
+Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote and writes `link.readsColumn` into the link `linkTemplate` built, and `checkNameReads` reads the arms both filled. `arm` is filled in three places, `compileFormat`, `compileArms` and `linkName`, and `splitArm` runs before the link and again after it, so five readers of an earlier panel traced three phases. Technical principle: one owner per value.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -397,7 +397,7 @@ Require the path step to reach a sibling category.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`", and "The vocabulary sits below `doc.go`'s package clause, not in the package doc" where the vocabulary moves.
+Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107, and items 97 to 103 move what stands alone into `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 
