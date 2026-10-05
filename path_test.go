@@ -67,6 +67,7 @@ func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"outer": `{"format":"{inner}","inner":{"format":"{a}","a":"v","repeat":3,"separator":","}}`,
 		"x":     `{"format":"{a}","a":"v","repeat":3,"separator":","}`,
+		"y":     `{"format":"{p}","p":[{"format":"{a}","a":"v","repeat":3,"separator":","},{"format":"{a}","a":"w"}]}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	for path, level := range map[string]string{"x.a": "x", "outer.inner.a": "outer.inner"} {
