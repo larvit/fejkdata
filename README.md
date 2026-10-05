@@ -449,9 +449,10 @@ order.id: datatype integer: {digits(3)} prints text, not an integer
 order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {float()}, {int()}, {seq()} or {calc()}, or read one
 ```
 
-A column whose format is one read of another record's column and nothing else —
-`"score": "{/src.score}"`, or `"score": "{s.score}"` with `s` bound to `/src` — is that column: it takes the column's datatype and is null where the column is, and
-a struct field tagged `src.score` is nil there. A `datatype` of its own types the
+A column whose format is one read of a record's column and nothing else —
+`"score": "{/src.score}"`, `"score": "{s.score}"` with `s` bound to `/src`, or `"a": "{p}"`
+beside `{place as p}` in its own record — is that column: it takes the column's datatype and
+is null where the column is, and a struct field tagged `src.score` is nil there. A `datatype` of its own types the
 column's values where they prove it, and one restating the datatype it takes is refused.
 Any other read renders the column's text, a null as `""`.
 

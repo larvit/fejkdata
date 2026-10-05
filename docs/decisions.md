@@ -350,9 +350,10 @@ value, a range check is one comparison, and `1{digits(2)}` is a second spelling 
 
 2026-09-15, Lilleman auf Larv.
 
-`{/src.score}` renders exactly what `src.score` draws, and so does `{s.score}` where `s` is
-bound to `/src`, so it takes that column's datatype and null rather than restating them, and a `datatype` restating the one it
-takes is a second spelling. Any other `datatype` still types the values — the one way to
+`{/src.score}` renders exactly what `src.score` draws, and so do `{s.score}` where `s` is
+bound to `/src` and `{p}` where `p` is bound to the column `place` of its own record, so it
+takes that column's datatype and null rather than restating them, and a `datatype`
+restating the one it takes is a second spelling. Any other `datatype` still types the values — the one way to
 type a column someone else wrote.
 
 ## A typed column's calc is refused unless proven
