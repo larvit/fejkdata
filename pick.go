@@ -2,8 +2,7 @@ package fejkdata
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
 // value each read there produced, keyed by the path from the name, and the table rows they
-// pinned. A reference read under it draws in the draw group of the read of the name, which the
-// draw fences survey it in.
+// pinned.
 type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
@@ -24,44 +23,30 @@ func newPickFrame(scope *nameScope) *pickFrame {
 	return f
 }
 
-// frameStack is the frames of the name scopes rendering, innermost last. A render's draws point
-// at it, and a repeat iteration's share it: holding the frames in the draws, or in a renderScope,
-// would move every render's draws to the heap.
+// frameStack is the frames of the name scopes rendering, innermost last. A render's scope points
+// at it, and a repeat iteration's shares it: holding the frames in a renderScope would move every
+// render's scope to the heap.
 type frameStack struct {
 	frames []*pickFrame
 }
 
-// pushFrame opens f until popFrames closes it, returning the mark popFrames takes.
-func (d *renderDraws) pushFrame(f *pickFrame) int {
-	mark := d.depth()
-	if d.frameStack == nil {
-		d.frameStack = &frameStack{}
-	}
-	d.frameStack.frames = append(d.frameStack.frames, f)
+// push opens f until pop closes it, returning the mark pop takes.
+func (st *frameStack) push(f *pickFrame) int {
+	mark := len(st.frames)
+	st.frames = append(st.frames, f)
 	return mark
 }
 
-func (d *renderDraws) popFrames(mark int) {
-	if d.frameStack != nil {
-		d.frameStack.frames = d.frameStack.frames[:mark]
-	}
-}
+func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
 
-func (d *renderDraws) depth() int {
-	if d.frameStack == nil {
-		return 0
-	}
-	return len(d.frameStack.frames)
-}
-
-// enter starts a read landing on n: the read sees no frame opened before it, and gets from memo a
-// frame for each name scope around n, so reads sharing memo read one pick of each name. It
-// returns the mark that closes those frames.
+// enter starts a read landing on n: the read sees no frame opened before it, and gets a frame for
+// each name scope around n, from memo where there is one, so reads sharing memo read one pick of
+// each name. It returns the mark that closes those frames.
 func (sc renderScope) enter(n node, memo *drawMemo) (renderScope, int) {
 	sc = sc.entering()
 	for scope := scopeAround(n); scope != nil; scope = scope.up {
 		if len(scope.order) > 0 {
-			sc.draws.pushFrame(memo.enteredFrame(scope))
+			sc.frames.push(memo.enteredFrame(scope))
 		}
 	}
 	return sc, sc.base
@@ -69,7 +54,7 @@ func (sc renderScope) enter(n node, memo *drawMemo) (renderScope, int) {
 
 // entering is sc as a read entering a category sees it: no frame opened before it, and no pick.
 func (sc renderScope) entering() renderScope {
-	sc.base, sc.pick = sc.draws.depth(), nil
+	sc.base, sc.pick = len(sc.frames.frames), nil
 	return sc
 }
 
@@ -89,6 +74,9 @@ func scopeAround(n node) *nameScope {
 }
 
 func (m *drawMemo) enteredFrame(scope *nameScope) *pickFrame {
+	if m == nil {
+		return newPickFrame(scope)
+	}
 	f, ok := m.enteredFrames[scope]
 	if !ok {
 		f = newPickFrame(scope)
@@ -106,16 +94,14 @@ func (sc renderScope) renderFrame(t *template) int {
 	if t.ownNameScope == nil || sc.frameOf(t.ownNameScope) != nil {
 		return -1
 	}
-	return sc.draws.pushFrame(newPickFrame(t.ownNameScope))
+	return sc.frames.push(newPickFrame(t.ownNameScope))
 }
 
 // frameOf is the frame of scope rendering since the read entering the category, nil where none is.
 func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
-	if stack := sc.draws.frameStack; stack != nil {
-		for i := len(stack.frames) - 1; i >= sc.base; i-- {
-			if f := stack.frames[i]; f.scope == scope {
-				return f
-			}
+	for i := len(sc.frames.frames) - 1; i >= sc.base; i-- {
+		if f := sc.frames.frames[i]; f.scope == scope {
+			return f
 		}
 	}
 	return nil
@@ -131,9 +117,12 @@ func readName(s *generatorState, sc renderScope, a arm) readValue {
 		return r
 	}
 	leaf, pins := p.draw(s, a.named.head, a.steps, a.levels, a.path)
+	if a.named.field {
+		return p.renderAt(s, leaf, pins, a.path, sc)
+	}
 	sc, mark := sc.enter(leaf, &p.memo)
 	r := p.renderAt(s, leaf, pins, a.path, sc)
-	sc.draws.popFrames(mark)
+	sc.frames.pop(mark)
 	return r
 }
 
@@ -167,7 +156,7 @@ func readUnder(s *generatorState, t *template, sc renderScope, a arm) readValue 
 }
 
 // underKey is the key of path under the pick key prefix. It never returns prefix itself, which a
-// memo would keep: anything a renderScope holds reaching the heap moves every render's draws there.
+// memo would keep: anything a renderScope holds reaching the heap moves every render's scope there.
 func underKey(prefix, path string) string {
 	if prefix == "" {
 		return path

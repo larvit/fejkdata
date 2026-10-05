@@ -53,9 +53,8 @@ type template struct {
 	repeat     int
 	separator  string
 	datatype   DataType
-	drawGroup  string // the draw group it draws in, as written; "" keeps its caller's
-	fromString bool   // written as a JSON string rather than an object
-	isRecord   bool   // compiled at the top without a repeat, so its fields are record columns
+	fromString bool // written as a JSON string rather than an object
+	isRecord   bool // compiled at the top without a repeat, so its fields are record columns
 	site       tableSite
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
@@ -81,10 +80,6 @@ func (s tableSite) isCell() bool {
 	return s.table != nil && s.row != formatRow
 }
 
-func (s tableSite) isFormat() bool {
-	return s.table != nil && s.row == formatRow
-}
-
 // label names the template at path in an error, a cell by its line in the rows file.
 func (s tableSite) label(path string) string {
 	if s.isCell() {
@@ -95,10 +90,9 @@ func (s tableSite) label(path string) string {
 
 // templateLink is what a template resolves to in the assembled tree.
 type templateLink struct {
-	refs         map[string]refBinding // each reference the format reads -> what it resolves to
-	refHeads     map[string]node       // each refBinding.head -> the category it names
-	readsColumn  *columnRead           // set when the format is one reference alone reading a record's column
-	drawGroupKey string                // its draw group keyed by its category: what a render reads its reference paths under
+	refs        map[string]refBinding // each reference the format reads -> what it resolves to
+	refHeads    map[string]node       // each refBinding.head -> the category it names
+	readsColumn *columnRead           // set when the format is one reference alone reading a record's column
 }
 
 func (*template) isNode() {}
@@ -347,24 +341,20 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString && o.group == "" {
+	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString {
 		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
 	}
 	toks, unbound, err := parseChecked(o.format, fields)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkNestedDrawGroup(fields, o.group); err != nil {
-		return nil, err
-	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, drawGroup: o.group, isRecord: fieldPos == inColumn, unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos == inColumn, unbound: unbound}, nil
 }
 
 // templateOptions is what a template object's option keys say.
 type templateOptions struct {
 	datatype  DataType
 	format    string
-	group     string
 	repeat    int
 	separator string
 	weighted  bool
@@ -383,9 +373,6 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	}
 	o.repeat = repeat
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
-		return o, err
-	}
-	if o.group, err = drawGroupOf(m, repeat); err != nil {
 		return o, err
 	}
 	if sv, ok := m["separator"]; ok {
@@ -443,55 +430,6 @@ func repeatOf(m map[string]any) (int, error) {
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
 	}
 	return int(r), nil
-}
-
-// checkNestedDrawGroup refuses a template beneath one drawing in group that names group again,
-// short of a repeat or another draw group.
-func checkNestedDrawGroup(fields map[string]node, group string) error {
-	if group == "" {
-		return nil
-	}
-	var walk func(path string, n node) error
-	walk = func(path string, n node) error {
-		t, isTemplate := n.(*template)
-		switch {
-		case isTemplate && t.drawGroup == group:
-			return fmt.Errorf("%q names drawGroup %q, the draw group this template draws in already; drop it", path, group)
-		case isTemplate && (t.drawGroup != "" || t.repeat > 1):
-			return nil
-		}
-		for _, c := range contained(n) {
-			if err := walk(join(path, c.name), c.node); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	for _, name := range sortedNames(fields) {
-		if err := walk(name, fields[name]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// drawGroupOf reads a template's "drawGroup" (default ""), which a repeat cannot carry: each
-// iteration renders in no draw group.
-func drawGroupOf(m map[string]any, repeat int) (string, error) {
-	v, ok := m["drawGroup"]
-	if !ok {
-		return "", nil
-	}
-	name, ok := v.(string)
-	switch {
-	case !ok:
-		return "", fmt.Errorf("drawGroup must be a string, got %T", v)
-	case name == "":
-		return "", fmt.Errorf(`drawGroup "" is the default, so it has no effect; drop it`)
-	case repeat > 1:
-		return "", fmt.Errorf("drawGroup %q on a repeat names nothing, since each iteration is a render of its own; drop it", name)
-	}
-	return name, nil
 }
 
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only
@@ -567,7 +505,7 @@ func checkPathNames(path string) error {
 
 func isOption(name string) bool {
 	switch name {
-	case "datatype", "drawGroup", "format", "repeat", "separator", "weight":
+	case "datatype", "format", "repeat", "separator", "weight":
 		return true
 	}
 	return false

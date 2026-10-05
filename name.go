@@ -19,7 +19,8 @@ type nameScope struct {
 
 type nameBinding struct {
 	name   string
-	ref    string
+	ref    string // what it binds, as written: a reference, or a path into a field of binder
+	field  bool   // ref is a path into a field, so a read of the name stays in the category
 	body   string
 	where  string // the fields reaching the binding template, as a compile error spells them
 	scope  *nameScope
@@ -33,11 +34,12 @@ type nameBinding struct {
 	addressed map[string]string
 }
 
-// nameUse is one read of a name: the path it reads into the name, "" for the name itself; whether
-// a builtin reads it as an operand, and whether no reference can stand there; the draw group
-// its template renders in; and whether it sits in a repeat nested inside the name's scope.
+// nameUse is one read of a name: the path it reads into the name, "" for the name itself; the
+// template reading it; whether a builtin reads it as an operand, and whether no reference can
+// stand there; and whether it sits in a repeat nested inside the name's scope.
 type nameUse struct {
-	tail, group            string
+	tail                   string
+	in                     *template
 	operand, noRef, nested bool
 }
 
@@ -86,7 +88,7 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	if err := resolveReads(root, "", "", scopes); err != nil {
+	if err := resolveReads(root, "", scopes); err != nil {
 		return err
 	}
 	for _, sc := range scopes {
@@ -109,7 +111,7 @@ func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 		if b, twice := sc.bindings[tok.bound]; twice {
 			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.body, tok.bound, sc.spelled(), b.body)
 		}
-		b := &nameBinding{name: tok.bound, ref: tok.boundRef, body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
+		b := &nameBinding{name: tok.bound, ref: tok.boundRef, field: !isRef(tok.boundRef), body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
 		if sc.bindings == nil {
 			sc.bindings = map[string]*nameBinding{}
 		}
@@ -159,12 +161,9 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 // resolveReads answers each unbound read under n with a name its template sees, fields before the
 // format as compile reports them, and refuses a field spelling a name. scopes are every scope of
 // the category, which a refusal searches for a name bound where the read cannot see it.
-func resolveReads(n node, where, group string, scopes []*nameScope) error {
+func resolveReads(n node, where string, scopes []*nameScope) error {
 	t, isTemplate := n.(*template)
-	if isTemplate && t.drawGroup != "" {
-		group = t.drawGroup
-	}
-	if err := eachContained(n, where, func(c node, where string) error { return resolveReads(c, where, group, scopes) }); err != nil {
+	if err := eachContained(n, where, func(c node, where string) error { return resolveReads(c, where, scopes) }); err != nil {
 		return err
 	}
 	if !isTemplate {
@@ -184,7 +183,7 @@ func resolveReads(n node, where, group string, scopes []*nameScope) error {
 		if b == nil {
 			return unresolved(where, u, t.nameScope, scopes)
 		}
-		b.uses = append(b.uses, nameUse{tail: u.tail, group: group, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
+		b.uses = append(b.uses, nameUse{tail: u.tail, in: t, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
 	}
 	return nil
 }
@@ -221,15 +220,15 @@ func (t *template) isName(head string) bool {
 	return !isRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
-// linkBindings gives each binding t's tokens make the head and tail its reference resolved to.
+// linkBindings gives each binding t's tokens make the head and tail what it binds resolved to.
 func linkBindings(t *template) {
 	for _, tok := range t.tokens {
 		if tok.kind != nameBind {
 			continue
 		}
 		b := t.nameScope.bindings[tok.bound]
-		ref := t.link.refs[b.ref]
-		b.head, b.tail = t.link.refHeads[ref.head], ref.tail
+		a := splitArm(b.ref, t.link.refs)
+		b.head, b.tail = t.head(a.head), a.tail
 	}
 }
 
@@ -257,12 +256,22 @@ var namePasses = []func(path string, t *template) error{linkNames, checkNameRead
 // linkNames compiles t's reads of a name as paths from the head its binding's reference names, once
 // every template is linked, so each binder has resolved that reference.
 func linkNames(path string, t *template) error {
-	return namedReads(t, func(o *op, a *arm) error {
+	if err := namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
 		}
 		return nil
-	})
+	}); err != nil {
+		return err
+	}
+	if ops := t.compiled.ops; t.repeat == 1 && len(ops) == 1 && ops[0].kind == nameRead && len(ops[0].arms) == 1 && ops[0].arms[0].kind == namedRead {
+		a := ops[0].arms[0]
+		full := append(a.named.tail[:len(a.named.tail):len(a.named.tail)], a.tail...)
+		if column := recordColumn(a.named.head, full); column != nil {
+			t.link.readsColumn = &columnRead{a: a, column: column}
+		}
+	}
+	return nil
 }
 
 func linkName(t *template, a *arm) error {
@@ -275,7 +284,7 @@ func linkName(t *template, a *arm) error {
 		return err
 	}
 	w := compilePath(b.head, full)
-	a.named, a.steps, a.leaves, a.cover = b, w.steps, w.leaves, w.cover
+	a.named, a.steps, a.leaves = b, w.steps, w.leaves
 	a.levels = make([]string, len(full)+1)
 	for i := range a.levels {
 		a.levels[i] = joinSegments(full[:i])

@@ -247,7 +247,7 @@ func checkToken(t formatToken, fields map[string]node) ([]unboundRead, error) {
 		}
 		return checkReads(t, fields, true)
 	case nameBind:
-		return nil, checkBind(t)
+		return nil, checkBind(t, fields)
 	case nameRead:
 		unbound, err := checkReads(t, fields, false)
 		if err != nil {
@@ -285,17 +285,14 @@ func checkReads(t formatToken, fields map[string]node, operands bool) ([]unbound
 	return unbound, nil
 }
 
-// checkBind proves a {ref as name} token is spelled once, binds a reference, and names a valid
-// name that is no option.
-func checkBind(t formatToken) error {
+// checkBind proves a {x as name} token is spelled once, binds a reference or a path into a
+// field, and names a valid name that is no option.
+func checkBind(t formatToken, fields map[string]node) error {
 	ref, name := t.boundRef, t.bound
 	if trimmed := strings.TrimSpace(ref) + asWord + strings.TrimSpace(name); trimmed != t.body {
 		return fmt.Errorf("token {%s}: write {%s}", t.body, trimmed)
 	}
-	if !isRef(ref) {
-		return fmt.Errorf("token {%s}: %q is no reference; a name binds a pick of a reference, which starts with /, . or ..", t.body, ref)
-	}
-	if _, _, err := refShape(ref); err != nil {
+	if err := checkBound(ref, fields); err != nil {
 		return fmt.Errorf("token {%s}: %w", t.body, err)
 	}
 	if name == "" {
@@ -308,6 +305,20 @@ func checkBind(t formatToken) error {
 		return fmt.Errorf("token {%s}: name %w", t.body, err)
 	}
 	return nil
+}
+
+// checkBound proves what a binding picks is a reference or a path into a field of the binding
+// template.
+func checkBound(ref string, fields map[string]node) error {
+	if isRef(ref) {
+		_, _, err := refShape(ref)
+		return err
+	}
+	missing, err := checkArm(ref, fields, false)
+	if missing {
+		return fmt.Errorf("%w; a name binds a pick of a field, or of a reference, which starts with /, . or ..", err)
+	}
+	return err
 }
 
 // checkArm validates one sibling name or path against a template's fields.
@@ -376,9 +387,7 @@ func checkNoRepeatedArm(body string, names []string) error {
 }
 
 // arm is one alternative of a {a|b} token or one operand, split into the head
-// `template.head` resolves and the tail of a dotted path into it. A non-empty tail
-// makes the arm a held draw: a reference path's for the render, any other for the
-// expansion.
+// `template.head` resolves and the tail of a dotted path into it.
 type arm struct {
 	spelling    string // as written, for messages
 	head        string
@@ -388,7 +397,6 @@ type arm struct {
 	path        string   // head and tail, the one path every way of writing this read shares
 	steps       []pathStep
 	leaves      []node // every node the path may land on, one per variant it passes
-	cover       node   // what holding the path pins: the first choice it passes, else its leaf
 	kind        armKind
 	named       *nameBinding // namedRead: the binding of the name it reads through
 }
@@ -397,15 +405,9 @@ type arm struct {
 type armKind uint8
 
 const (
-	freshRead   armKind = iota // drawn afresh at every read
-	heldRead                   // drawn once per expansion, kept in its hold
-	refPathRead                // drawn once per draw group, kept in its memo
-	namedRead                  // read through a name, kept in its pick
+	freshRead armKind = iota // drawn afresh at every read
+	namedRead                // read through a name, kept in its pick
 )
-
-func (a arm) isRefPath() bool {
-	return isRef(a.head) && len(a.tail) > 0
-}
 
 // splitArm splits one name into head and tail. refs maps a reference to what
 // linkRefs resolved it to; before linking, a reference is whole.
@@ -472,37 +474,10 @@ type op struct {
 	operands []arm
 }
 
-// formatOps is a compiled format: its ops, the size of its literal text, and the
-// names its expansion holds: every head a path that is not a reference starts from,
-// plus the fields an operand reads.
+// formatOps is a compiled format: its ops, and the size of its literal text.
 type formatOps struct {
 	ops  []op
 	grow int
-	held map[string]firstReach
-}
-
-// firstReach is how a format first reaches a held name: the reader holding it, for
-// error messages, and the first path starting from it, "" where none does.
-type firstReach struct {
-	holder string
-	path   string
-}
-
-func (c *formatOps) holdName(a arm, label string) {
-	if a.isRefPath() {
-		return
-	}
-	if c.held == nil {
-		c.held = map[string]firstReach{}
-	}
-	h, seen := c.held[a.head]
-	if !seen {
-		h.holder = label
-	}
-	if len(a.tail) > 0 && h.path == "" {
-		h.path = a.spelling
-	}
-	c.held[a.head] = h
 }
 
 func (c *formatOps) function(tok formatToken, refs map[string]refBinding, isName func(string) bool) {
@@ -511,10 +486,7 @@ func (c *formatOps) function(tok formatToken, refs map[string]refBinding, isName
 		a := splitArm(operand, refs)
 		if isName(a.head) {
 			a.kind = namedRead
-			operands = append(operands, a)
-			continue
 		}
-		c.holdName(a, fmt.Sprintf("%s operand %q", tok.fn, operand))
 		operands = append(operands, a)
 	}
 	c.ops = append(c.ops, op{formatToken: tok, call: builtins[tok.fn].prep(tok.args), operands: operands})
@@ -526,10 +498,6 @@ func (c *formatOps) field(tok formatToken, refs map[string]refBinding, isName fu
 		arms[i] = splitArm(name, refs)
 		if isName(arms[i].head) {
 			arms[i].kind = namedRead
-			continue
-		}
-		if len(arms[i].tail) > 0 {
-			c.holdName(arms[i], "token {"+arms[i].spelling+"}")
 		}
 	}
 	c.ops = append(c.ops, op{formatToken: tok, arms: arms})

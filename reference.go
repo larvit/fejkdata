@@ -69,8 +69,7 @@ func refSegments(name string, folder []string) ([]string, error) {
 
 // linkRefs binds every reference and compiles every format, once all data is merged,
 // so a reference sees the override-resolved tree. A reference's head binds into
-// refHeads under its root path and its tail reads like a sibling path, so two
-// spellings of one target are one draw.
+// refHeads under its root path and its tail reads like a sibling path.
 func linkRefs(sites []categorySite, root map[string]node) error {
 	if err := eachTemplate(sites, func(s categorySite, path string, t *template) error {
 		return linkTemplate(s.dir, path, s.path, t, root)
@@ -123,23 +122,13 @@ func compileArm(t *template, a *arm) {
 		panic(internalError("{%s} reads a head nothing bound", a.spelling))
 	}
 	w := compilePath(head, a.tail)
-	a.steps, a.leaves, a.cover = w.steps, w.leaves, w.cover
-	switch _, held := t.compiled.held[a.head]; {
-	case a.isRefPath():
-		a.kind = refPathRead
-	case held:
-		a.kind = heldRead
-	}
+	a.steps, a.leaves = w.steps, w.leaves
 }
 
-// resolveLink binds every reference t reads, refusing one to t's own category, and keys
-// t's draw group by that category, so a name is local to it:
+// resolveLink binds every reference t reads, refusing one to t's own category:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func (t *template) resolveLink(folder []string, path, category string, root map[string]node) (templateLink, error) {
 	var link templateLink
-	if t.drawGroup != "" {
-		link.drawGroupKey = category + "/" + t.drawGroup
-	}
 	names := refTokens(t.tokens)
 	if len(names) == 0 {
 		return link, nil
@@ -169,8 +158,8 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 	return link, nil
 }
 
-// columnRead is a record's column read by a format of that one reference alone, which is the
-// column: it takes the column's datatype and null.
+// columnRead is a record's column read by a format of that one reference or name read alone,
+// which is the column: it takes the column's datatype and null.
 type columnRead struct {
 	a      arm
 	column node
@@ -182,11 +171,19 @@ func columnReadOf(t *template, link templateLink) *columnRead {
 		return nil
 	}
 	a := splitArm(name, link.refs)
-	target, isTemplate := link.refHeads[a.head].(*template)
-	if !isTemplate || !target.isRecord || len(a.tail) != 1 {
+	if column := recordColumn(link.refHeads[a.head], a.tail); column != nil {
+		return &columnRead{a: a, column: column}
+	}
+	return nil
+}
+
+// recordColumn is the column tail names in head, nil where head is no record or tail no column of it.
+func recordColumn(head node, tail []string) node {
+	target, isTemplate := head.(*template)
+	if !isTemplate || !target.isRecord || len(tail) != 1 {
 		return nil
 	}
-	return &columnRead{a: a, column: target.fields[a.tail[0]]}
+	return target.fields[tail[0]]
 }
 
 // loneRef is the reference a format of one reference token and nothing else reads.
