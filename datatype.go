@@ -59,8 +59,8 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 // after the columns its items read, so a column read is named before its readers.
 func checkColumns(s nodeScope) error {
 	checked := map[node]bool{}
-	var check func(path, name string, column node) error
-	check = func(path, name string, column node) error {
+	var check func(label, name string, column node) error
+	check = func(label, name string, column node) error {
 		if checked[column] {
 			return nil
 		}
@@ -79,18 +79,18 @@ func checkColumns(s nodeScope) error {
 		first := columnDatatype(column)
 		for _, it := range items[1:] {
 			if d := itemDatatype(it); d != first {
-				return fmt.Errorf("%s: field %q: %w", path, name, disagreement(items[0], first, it, d))
+				return fmt.Errorf("%s: field %q: %w", label, name, disagreement(items[0], first, it, d))
 			}
 		}
 		return nil
 	}
-	return s(func(path string, n node) error {
+	return s(func(label string, n node) error {
 		t, ok := n.(*template)
 		if !ok || !t.isRecord {
 			return nil
 		}
 		for _, name := range sortedNames(t.fields) {
-			if err := check(path, name, t.fields[name]); err != nil {
+			if err := check(label, name, t.fields[name]); err != nil {
 				return err
 			}
 		}

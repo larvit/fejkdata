@@ -19,16 +19,16 @@ type valueProof struct {
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
 // and one restating the datatype of the column it is.
 // docs/decisions.md#a-column-that-only-reads-one-reference-or-name-is-the-column-it-reads
-func (p *valueProof) checkDatatype(path string, n node) error {
+func (p *valueProof) checkDatatype(label string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
 		return nil
 	}
 	if r := t.link.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
-		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, t.datatype)
+		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, label, t.format, t.datatype)
 	}
 	if reason := p.proveColumnItem(t).Not[t.datatype]; reason != "" {
-		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
+		return fmt.Errorf("%s: datatype %s: %s", label, t.datatype, reason)
 	}
 	return nil
 }

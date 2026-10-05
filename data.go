@@ -68,7 +68,7 @@ func mergeChildren(dst, src map[string]node) {
 
 // nodeScope is the set of nodes one validation pass covers: the categories one load
 // binds, or a single inline node.
-type nodeScope func(fn func(path string, n node) error) error
+type nodeScope func(fn func(label string, n node) error) error
 
 // categorySite is a loaded category and where it sits: the folder holding it, that
 // folder's path, and its own dot path.
@@ -97,11 +97,14 @@ func categorySites(root *folder) []categorySite {
 }
 
 func siteIn(dir []string, in *folder, name string) categorySite {
-	return categorySite{dir: dir, path: join(strings.Join(dir, "."), name), in: in, n: in.children[name]}
+	return categorySite{dir: dir, path: categoryPath(dir, name), in: in, n: in.children[name]}
 }
 
+// categoryPath is the dot path of the category name in the folder dir.
+func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }
+
 func sitesScope(sites []categorySite) nodeScope {
-	return func(fn func(path string, n node) error) error {
+	return func(fn func(label string, n node) error) error {
 		for _, s := range sites {
 			if err := eachNode(s.n, s.path, fn); err != nil {
 				return err
@@ -112,7 +115,7 @@ func sitesScope(sites []categorySite) nodeScope {
 }
 
 func inlineScope(n node, label string) nodeScope {
-	return func(fn func(path string, m node) error) error { return eachNode(n, label, fn) }
+	return func(fn func(label string, m node) error) error { return eachNode(n, label, fn) }
 }
 
 // binding is one scope's way through bind, the one load pipeline; its fields are where
@@ -159,7 +162,7 @@ func (b binding) bind() error {
 // first.
 func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
-	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
+	if err := s(func(label string, n node) error { return repeatCheck(label, n, mem) }); err != nil {
 		return err
 	}
 	return s((&valueProof{}).checkDatatype)

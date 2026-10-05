@@ -101,7 +101,7 @@ func compile(v any) (node, error) {
 func compileCategory(c datafiles.Category) (node, error) {
 	if m, ok := c.JSON.(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
-			return compileTable(m, c.Name, join(strings.Join(c.Folders, "."), c.Name), c.ReadRows)
+			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
 	}
 	if items, ok := c.JSON.([]any); ok {

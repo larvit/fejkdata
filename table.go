@@ -85,7 +85,7 @@ func isTableOption(name string) bool {
 // token arm.
 const inSelector = `[]{}"|`
 
-func compileTable(m map[string]any, segment, path string, readRows func(file string) (string, error)) (*table, error) {
+func compileTable(m map[string]any, dir []string, name string, readRows func(file string) (string, error)) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func compileTable(m map[string]any, segment, path string, readRows func(file str
 	if err != nil {
 		return nil, err
 	}
-	t := &table{segment: segment, path: path, file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
+	t := &table{segment: name, path: categoryPath(dir, name), file: o.rows, keyIndex: -1, nameIndex: -1, weightIndex: -1, parentIndex: -1}
 	if err := t.parseRows(data); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
@@ -404,8 +404,7 @@ func linkTables(sites []categorySite) error {
 }
 
 // proveParent is the table among siblings that t's link column names, proved: it has a key,
-// every link cell is one, every row of it is linked to, no chain of parents closes, and no
-// ancestor has a column named like t.
+// every link cell is one, every row of it is linked to, and its ancestors pass checkAncestors.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	name := t.header[t.parentIndex]
@@ -418,21 +417,8 @@ func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	case p.keyIndex < 0:
 		return nil, fmt.Errorf("parent %q has no key column to link to", name)
 	}
-	var ancestors []*table
-	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {
-		if seen[q] {
-			return nil, fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
-		}
-		seen[q] = true
-		ancestors = append(ancestors, q)
-		if q.parentIndex < 0 {
-			break
-		}
-	}
-	for _, q := range ancestors {
-		if _, clash := q.col[t.segment]; clash {
-			return nil, fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
-		}
+	if err := t.checkAncestors(p, siblings); err != nil {
+		return nil, err
 	}
 	linked := make(map[string]bool, p.rowCount())
 	for r := 0; r < t.rowCount(); r++ {
@@ -448,6 +434,28 @@ func (t *table) proveParent(siblings map[string]node) (*table, error) {
 		}
 	}
 	return p, nil
+}
+
+// checkAncestors proves the chain of parents from p, t's parent, closes nowhere, and holds no
+// column named like t.
+func (t *table) checkAncestors(p *table, siblings map[string]node) error {
+	var ancestors []*table
+	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {
+		if seen[q] {
+			return fmt.Errorf("parent cycle: %s reaches itself through its parents", q.segment)
+		}
+		seen[q] = true
+		ancestors = append(ancestors, q)
+		if q.parentIndex < 0 {
+			break
+		}
+	}
+	for _, q := range ancestors {
+		if _, clash := q.col[t.segment]; clash {
+			return fmt.Errorf("%q is named like a column of %q, its ancestor, so %s.%s could read either; rename one", t.segment, q.segment, q.segment, t.segment)
+		}
+	}
+	return nil
 }
 
 func (t *table) builtLookup() *rowLookup {

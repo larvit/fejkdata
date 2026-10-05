@@ -39,13 +39,13 @@ func refSegments(name string, folder []string) ([]string, error) {
 // so a reference sees the override-resolved tree. A reference's head binds into
 // refHeads under its root path and its tail reads like a sibling path.
 func linkRefs(sites []categorySite, root map[string]node) error {
-	if err := eachTemplate(sites, func(s categorySite, path string, t *template) error {
-		return linkTemplate(s.dir, path, s.path, t, root)
+	if err := eachTemplate(sites, func(s categorySite, label string, t *template) error {
+		return linkTemplate(s.dir, label, s.path, t, root)
 	}); err != nil {
 		return err
 	}
 	for _, pass := range linkPasses {
-		if err := eachTemplate(sites, func(_ categorySite, path string, t *template) error { return pass(path, t) }); err != nil {
+		if err := eachTemplate(sites, func(_ categorySite, label string, t *template) error { return pass(label, t) }); err != nil {
 			return err
 		}
 	}
@@ -54,8 +54,8 @@ func linkRefs(sites []categorySite, root map[string]node) error {
 
 // linkTemplate resolves t's references in category, "" for an inline template, and
 // compiles its format against them.
-func linkTemplate(folder []string, path, category string, t *template, root map[string]node) error {
-	link, err := t.resolveLink(folder, path, category, root)
+func linkTemplate(folder []string, label, category string, t *template, root map[string]node) error {
+	link, err := t.resolveLink(folder, label, category, root)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func compileArm(t *template, a *arm) {
 
 // resolveLink binds every reference t reads, refusing one to t's own category:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (t *template) resolveLink(folder []string, path, category string, root map[string]node) (templateLink, error) {
+func (t *template) resolveLink(folder []string, label, category string, root map[string]node) (templateLink, error) {
 	var link templateLink
 	names := refTokens(t.tokens)
 	if len(names) == 0 {
@@ -103,18 +103,18 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 	for _, name := range names {
 		segments, err := refSegments(name, folder)
 		if err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
 		if category != "" && head == "/"+category {
-			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", path, name)
+			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", label, name)
 		}
 		if err := checkPathResolves(target, tail, head); err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", path, name, err)
+			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		link.refHeads[head] = target
 		link.refs[name] = refBinding{head, tail}
@@ -160,12 +160,12 @@ func linkColumnRead(_ string, t *template) error {
 }
 
 // eachTemplate calls fn once per template of the categories, with the category it sits
-// in and the dot path reaching it.
-func eachTemplate(sites []categorySite, fn func(s categorySite, path string, t *template) error) error {
+// in and eachNode's label for it.
+func eachTemplate(sites []categorySite, fn func(s categorySite, label string, t *template) error) error {
 	for _, s := range sites {
-		if err := eachNode(s.n, s.path, func(path string, n node) error {
+		if err := eachNode(s.n, s.path, func(label string, n node) error {
 			if t, isTemplate := n.(*template); isTemplate {
-				return fn(s, path, t)
+				return fn(s, label, t)
 			}
 			return nil
 		}); err != nil {
