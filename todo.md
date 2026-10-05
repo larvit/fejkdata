@@ -137,7 +137,7 @@
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
-| 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` and `release-tooling/` do.** | 2 | 4 | 1 | 4 | 3 | 6.2 |
+| 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 2 | 4 | 1 | 4 | 3 | 6.2 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 12 | 13.2 |
@@ -402,7 +402,7 @@ Both spellings load and draw alike, against goal 5.7. Widen the read-once refusa
 
 ### 108. Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.
 
-Found by the goals audit of item 97's chunk. Without the clock, `sv_SE.personnummer` never takes the `+` Skatteverket writes from the year the holder turns 100, so the oldest draws turn invalid from 2030. Item 26 revises the decision, but the decision does not point back to it.
+Item 26 revises the decision, but the decision does not point back to it.
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`.
 
@@ -476,9 +476,9 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 
 `workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
 
-### 109. Indent every script under `data-import/` with hard tabs, as `AGENTS.md` and `release-tooling/` do.
+### 109. Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.
 
-Found by the technical-principles audit of item 97's chunk. Technical principle: indent with hard tabs. All 19 scripts indent with four spaces, so an edit there either keeps the wrong style or rewrites the whole file.
+Technical principle: indent with hard tabs. All 19 scripts indent with four spaces, so an edit there either keeps the wrong style or rewrites the whole file.
 
 ### 63. Pair a street with its exact postnummer.
 

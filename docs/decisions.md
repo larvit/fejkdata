@@ -827,7 +827,7 @@ Valid while names are read only inside the category binding them.
 
 ## comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh, the move of the draw state and items 98 to 106 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences that change deleted. The change making every `{…}` draw afresh, the move of the draw state into `internal/drawstate` and `todo.md` items 98 to 106 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 106 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. With the change making every `{…}` draw afresh, the move of the draw state and items 98 to 106 are the restructure the maintainer approved, which `AGENTS.md`'s comprehension rule lets merge below the floor. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat. The hardest units were the draw fences, which the change making every `{…}` draw afresh deleted. The change making every `{…}` draw afresh, the move of the draw state into `internal/drawstate` and `todo.md` items 98 to 106 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 106 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. The change making every `{…}` draw afresh, the move of the draw state and items 98 to 106 are the restructure the maintainer approved, which `AGENTS.md`'s comprehension rule lets merge below the floor. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
 
 ## The template engine stays the root package until item 107; the draw state sits in `internal/`, and items 98 to 103 move what else stands alone there
 
@@ -836,8 +836,9 @@ engine's types, `template`, `table`, `arm`, `op` and `nameBinding`, bound in one
 because several passes each write part of the same structs; the template language's
 recursion reads few of those types. Moving the engine before items 101 and 104 to 106 give
 each value one writer would spread that knot across packages, behind forwarding calls from
-every public method. The draw state read no engine type, so it moved into
-`internal/drawstate` first, behind an import list a test checks. `DataType` reads none either,
-and moves with `proven`, what a proof knows of a value, which is keyed by it; the grammar, the
-reading of data files, `proven`, the builtins and a table's rows stop reading any engine type
-once items 98 to 103 remove those reads, so they move now, each added to that list. Valid until `todo.md` item 107 moves the engine.
+every public method. The draw state reads no engine type, so it sits in `internal/drawstate`,
+behind an import list a test checks. `DataType` reads none either. `proven`, what a proof
+knows of a value, is keyed by `DataType`, so the two move together. The grammar, the reading
+of data files, `proven`, the builtins and a table's rows stop reading any engine type once
+items 98 to 103 remove those reads, and each of those items moves its part and adds it to
+that list. Valid until `todo.md` item 107 moves the engine.
