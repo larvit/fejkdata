@@ -74,10 +74,10 @@
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 128 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 118 to 126 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
-| 119 | 0.1.0 |  | **State at `readName` how every read of a name stays on one pick: `enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one, and say why a fresh read clears the pick.** | 2 | 2 | 2 | 9 | 3.4, 3.2 | 17.7 |
+| 119 | 0.1.0 |  | **State at `readName` how every read of a name stays on one pick (`enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one), and state at `readField` why a fresh read clears the pick.** | 2 | 2 | 2 | 9 | 3.4, 3.2 | 17.7 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
-| 118 | 0.1.0 |  | **Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and a fresh read's `arm.levels` and a named read's start at the same place.** | 5 | 5 | 2 | 9 | 3.2, 3.3 | 13.9 |
+| 118 | 0.1.0 |  | **Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` start at the same level for a fresh read and a named read.** | 5 | 5 | 2 | 9 | 3.2, 3.3 | 13.9 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 120 | 0.1.0 |  | **Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.** | 2 | 4 | 1 | 8 | 3.3 | 13.4 |
 | 123 | 0.1.0 |  | **Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.** | 1 | 2 | 1 | 7 | 3.4, 3.3 | 13.1 |
@@ -257,9 +257,9 @@ The decision "comprehension floor: every dimension and the overall at 7.0 or abo
 
 A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
-### 119. State at `readName` how every read of a name stays on one pick: `enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one, and say why a fresh read clears the pick.
+### 119. State at `readName` how every read of a name stays on one pick (`enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one), and state at `readField` why a fresh read clears the pick.
 
-All nine seats in the panel of 2026-10-05 named `readField`, `readName`, `readUnder` and `enter` hardest, and six of the seven unit-level seats would least want to modify them. Each seat had to trace why `{a.street}` and `{a.postal-code}` read the same locality, the one the name `l` picks in `data/geo/SE/address.json`, and why a fresh read in `readField` sets `sc.pick = nil`.
+All nine seats in the panel of 2026-10-05 named `readField`, `readName`, `readUnder` and `enter` hardest, and six of the seven unit-level seats would least want to modify them. Each seat had to trace why `{a.street}` and `{a.postal-code}` in `data/sv_SE/address.json` read the same locality, the one the name `l` picks in `data/geo/SE/address.json`. Two seats asked why a fresh read in `readField` sets `sc.pick = nil`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -269,7 +269,7 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
 
-### 118. Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and a fresh read's `arm.levels` and a named read's start at the same place.
+### 118. Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` start at the same level for a fresh read and a named read.
 
 Eight of the nine seats in the panel of 2026-10-05 named the key convention hardest after the named-pick read path itself. A fresh read's `levels` start at the head, `[head, head.a, …]`, while `compileArm` builds a named read's from the name, `["", a, a.b, …]`, so `arm.levels`' comment holds only for fresh reads. `addressedKeys` slices off the target's tail and `readUnder` re-prefixes with `underKey`; no type ties them. Keep the key a string, so the allocation gate holds.
 
@@ -293,7 +293,7 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 ### 121. Move `renderScope`'s methods out of `pick.go` into `scope.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.
 
-Both architects in the panel of 2026-10-05 ranked this first: `arm`, `op` and `compileArm` sit in `format.go`, `renderScope`'s methods in `pick.go`, and `table.route` and `table.drawStep` in `path.go`. Revise the README's Layout block with it.
+Both architects in the panel of 2026-10-05 ranked this first. Revise the README's Layout block with it.
 
 ### 122. Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `refBinding` that its head carries the `/`.
 
