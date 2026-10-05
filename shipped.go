@@ -99,7 +99,7 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		if !unloaded {
 			continue
 		}
-		site, err := u.load(root)
+		site, err := u.load()
 		if err != nil {
 			panic(invariant.Broken("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
 		}
@@ -117,8 +117,8 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 
 // load parses and compiles the category, and moves it from its folder's unloaded map to
 // the folder's children.
-func (u unloadedCategory) load(root *folder) (categorySite, error) {
-	if err := shippedSource.Load(u.dir, u.name, compileInto(root)); err != nil {
+func (u unloadedCategory) load() (categorySite, error) {
+	if err := shippedSource.Load(u.dir, u.name, compileInto(func([]string) *folder { return u.in })); err != nil {
 		return categorySite{}, err
 	}
 	delete(u.in.unloaded, u.name)

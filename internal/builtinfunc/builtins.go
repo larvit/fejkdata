@@ -64,9 +64,9 @@ var builtins = withTransforms(map[string]builtin{
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date": {arity: -1, checkArgs: dateArgs, prep: datePrep},
-	"time": {arity: -1, checkArgs: timeArg, prep: timePrep},
-	Calc:   {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands, noRefOperands: true},
+	"date":   {arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"time":   {arity: -1, checkArgs: timeArg, prep: timePrep},
+	CalcName: {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands, noRefOperands: true},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.

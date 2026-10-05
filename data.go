@@ -11,7 +11,7 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 	root := map[string]node{}
 	for _, src := range sources {
 		g := &folder{children: map[string]node{}}
-		if err := src.Walk(compileInto(g)); err != nil {
+		if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
 			return nil, err
 		}
 		mergeChildren(root, g.children)
@@ -25,14 +25,14 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 	return root, nil
 }
 
-// compileInto compiles each category it is handed into its folder under root.
-func compileInto(root *folder) func(datafiles.Category) error {
+// compileInto compiles each category it is handed into the folder place finds for its dir.
+func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
 		n, err := compileCategory(c.JSON, c.Name, c.ReadRows)
 		if err != nil {
 			return err
 		}
-		madeFolder(root, c.Dir).children[c.Name] = n
+		place(c.Dir).children[c.Name] = n
 		return nil
 	}
 }

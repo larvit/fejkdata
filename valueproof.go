@@ -173,7 +173,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 			leaves = append(leaves, a.leaves...)
 		}
 		return p.proveUnion(leaves)
-	case name == builtinfunc.Calc:
+	case name == builtinfunc.CalcName:
 		return p.proveCalc(o)
 	case builtinfunc.IsTransform(name):
 		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
@@ -187,7 +187,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 func (p *valueProof) proveCalc(o op) proven.Value {
 	body, args := o.Body, o.Args
 	nodes := operandNodes(o)
-	v, doubt := proven.Calc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
+	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
 	if doubt != "" {
 		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
