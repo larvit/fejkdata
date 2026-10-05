@@ -968,17 +968,16 @@ format.go       a format's tokens checked against their fields, and compiled
 pins.go         the pin set: the table rows one path or one named pick fixes
 reference.go    resolving references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
-builtins.go     the {name()} function registry and its implementations
-layout.go       date and time layouts: the instants one is proved against, and the two samples
-checksum.go     the check characters a derivation appends, and the IBAN they sit inside
-transform.go    the builtins that rewrite an operand's value, and the ASCII folding
-calc.go         the {calc()} arithmetic: eval and validation
+calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: fs.FS folders/files -> merged namespace tree, and the bind pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
+internal/datatype/ what a record column holds, which DataType aliases
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path
+internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 docs/           the decision log, the register research behind the shipped data, and the survey of other libraries

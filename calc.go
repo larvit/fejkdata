@@ -2,87 +2,33 @@ package fejkdata
 
 import (
 	"fmt"
-	"math"
 	"slices"
 	"strconv"
 	"strings"
 
-	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// evalCalc evaluates an expression over the operand values expand already read, so it
-// draws nothing and reads no template node.
-func evalCalc(n grammar.CalcNode, operands []string) float64 {
-	switch n := n.(type) {
-	case grammar.CalcNum:
-		return float64(n)
-	case grammar.CalcVar:
-		v, err := strconv.ParseFloat(strings.TrimSpace(operands[n.At]), 64)
-		if err != nil {
-			return math.NaN() // a non-numeric operand stays visible, never an error
-		}
-		return v
-	case grammar.CalcNeg:
-		return -evalCalc(n.X, operands)
-	case grammar.CalcBin:
-		return arith(n.Operator, evalCalc(n.L, operands), evalCalc(n.R, operands))
-	}
-	panic(internalError("calc node %#v has no evaluation", n))
-}
-
-func arith(operator byte, l, r float64) float64 {
-	switch operator {
-	case '+':
-		return l + r
-	case '-':
-		return l - r
-	case '*':
-		return l * r
-	default: // '/'
-		return l / r
-	}
-}
-
-// checkCalc validates a calc token at compile time: a parseable expression, operands
-// that can be numbers, and an optional non-negative integer dp. An operand no field
-// holds is left for a name to answer, and checkCalcNames checks it once names link.
-func checkCalc(fields map[string]node, args []string) error {
-	if len(args) < 1 || len(args) > 2 {
-		return fmt.Errorf("calc takes an expression and an optional decimals count, got %d args", len(args))
-	}
-	c, err := grammar.ParseCalc(args[0])
-	if err != nil {
-		return fmt.Errorf("calc(%q): %w", args[0], err)
-	}
-	if err := checkOperands(args[0], c, func(name string) []node {
+// checkCalcFields refuses a calc operand a field holds that is never a number, and a division
+// by a constant zero. An operand no field holds is left for a name to answer, and
+// checkCalcNames checks it once names link.
+func checkCalcFields(args []string, fields map[string]node) error {
+	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []node {
 		if n, ok := fields[name]; ok {
 			return []node{n}
 		}
 		return nil
-	}); err != nil {
-		return err
-	}
-	if len(args) == 2 {
-		dp, err := plainInt(args[1])
-		if err != nil {
-			return fmt.Errorf("calc decimals %w", err)
-		}
-		if dp < 0 || dp > maxDecimals {
-			return fmt.Errorf("calc decimals %d must be in 0..%d", dp, maxDecimals)
-		}
-	}
-	return nil
+	})
 }
 
-// checkCalcNames holds each calc of t reading a name to the checks checkCalc makes of a field.
+// checkCalcNames holds each calc of t reading a name to the checks checkCalcFields makes of a field.
 func checkCalcNames(path string, t *template) error {
 	for _, o := range t.compiled.ops {
 		if o.Fn != "calc" || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
 			continue
 		}
-		if err := checkOperands(o.Args[0], parsedCalc(o.Args[0]), operandNodes(o)); err != nil {
+		if err := checkOperands(o.Args[0], builtinfunc.ParsedCalc(o.Args[0]), operandNodes(o)); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.Body, err)
 		}
 	}
@@ -163,7 +109,7 @@ func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bo
 		if !lok || !rok {
 			return 0, false
 		}
-		return arith(n.Operator, l, r), true
+		return builtinfunc.Arith(n.Operator, l, r), true
 	}
 	return 0, false
 }
@@ -198,44 +144,4 @@ func allNeverNumeric(nodes []node) (text string, never bool) {
 		text = t
 	}
 	return text, len(nodes) > 0
-}
-
-// calcPrep parses the expression and decimals once, at compile time. checkCalc proved
-// both args valid, so no step here can fail.
-func calcPrep(args []string) callFn {
-	expr := parsedCalc(args[0]).Expr
-	dp := calcDecimals(args)
-	return func(_ *drawstate.State, _ string, operands []string) string {
-		return formatFloat(evalCalc(expr, operands), dp)
-	}
-}
-
-// parsedCalc parses an expression checkCalc accepted.
-func parsedCalc(expr string) grammar.Calc {
-	c, err := grammar.ParseCalc(expr)
-	if err != nil {
-		panic(internalError("calc(%q) passed its check unparsed: %v", expr, err))
-	}
-	return c
-}
-
-// calcDecimals is a calc's decimals count, or proven.ShortestDecimals where it names none.
-func calcDecimals(args []string) int {
-	if len(args) == 2 {
-		return atoi(args[1])
-	}
-	return proven.ShortestDecimals
-}
-
-// calcOperands lists the operands a calc's args read, fields or names. checkCalc reports
-// an expression that does not parse, so one that does not simply names nothing.
-func calcOperands(args []string) []string {
-	if len(args) == 0 {
-		return nil
-	}
-	c, err := grammar.ParseCalc(args[0])
-	if err != nil {
-		return nil
-	}
-	return c.Operands
 }

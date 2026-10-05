@@ -8,13 +8,6 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// rng is the randomness a builtin sample draws from, which *drawstate.State satisfies. The
-// render path takes the concrete type instead, which keeps its draws off the heap.
-type rng interface {
-	IntN(n int) int
-	Float64() float64
-}
-
 // Fake generates a value for a dot path. Each segment descends one level: folder
 // names and the category (JSON file) come first, then named fields within it,
 // e.g. "sv_SE.address" or "sv_SE.address.street". Choices along the way are

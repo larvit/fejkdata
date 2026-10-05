@@ -1,4 +1,4 @@
-package fejkdata
+package builtinfunc
 
 import "fmt"
 
@@ -65,7 +65,7 @@ func eanCheck(s string) string {
 // a left-to-right derivation; it generates the whole value instead.
 var ibanLen = map[string]int{"BE": 16, "DE": 22, "DK": 18, "ES": 24, "FI": 18, "NO": 15, "SE": 24}
 
-func ibanArg(_ map[string]node, a []string) error {
+func ibanArg(a []string) error {
 	if _, ok := ibanLen[a[0]]; !ok {
 		return fmt.Errorf("iban(%q): unsupported country code", a[0])
 	}

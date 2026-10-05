@@ -1,4 +1,4 @@
-package fejkdata
+package builtinfunc
 
 import (
 	"encoding/base64"
@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/proven"
 )
@@ -33,32 +34,32 @@ var builtins = withTransforms(map[string]builtin{
 	"ulid":   {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, checkArgs: posIntArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, checkArgs: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: DataTypeString, proveNumber: func(token string, prints DataType, a []string) proven.Value {
+	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Value {
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, checkArgs: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
 	"lower": {arity: 1, checkArgs: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
-	"base64": {arity: 1, checkArgs: posIntArg, prep: func(a []string) callFn {
+	"base64": {arity: 1, checkArgs: posIntArg, prep: func(a []string) Call {
 		n := atoi(a[0])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
 	}},
-	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) callFn {
+	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) Call {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *drawstate.State, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, a []string) proven.Value {
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Value {
 		return proven.Printing(token, prints, proven.Bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
-	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) callFn {
+	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) Call {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, prints: DataTypeNumber, proveNumber: func(token string, _ DataType, a []string) proven.Value {
+	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, a []string) proven.Value {
 		return proven.PrintedNumber(token, proven.Bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
-	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) callFn {
+	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) Call {
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
@@ -68,7 +69,7 @@ var builtins = withTransforms(map[string]builtin{
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
-	"seq": {arity: -1, checkArgs: seqArg, prep: func(a []string) callFn {
+	"seq": {arity: -1, checkArgs: seqArg, prep: func(a []string) Call {
 		key := ""
 		if len(a) == 1 {
 			key = a[0]
@@ -76,7 +77,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return strconv.FormatUint(s.Seq(key), 10)
 		}
-	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven.Value {
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, _ []string) proven.Value {
 		return proven.Printing(token, prints, proven.Bounded(1, math.MaxInt64, true))
 	}},
 })
@@ -84,18 +85,18 @@ var builtins = withTransforms(map[string]builtin{
 // derive and sample are the two argument-free builtin shapes: a derivation reads
 // the output emitted so far, a sample reads only the rng. chars is the shape of a
 // sample of n characters drawn from an alphabet.
-func derive(f func(emitted string) string) func([]string) callFn {
-	return func([]string) callFn {
+func derive(f func(emitted string) string) func([]string) Call {
+	return func([]string) Call {
 		return func(_ *drawstate.State, emitted string, _ []string) string { return f(emitted) }
 	}
 }
-func sample(f func(rng) string) func([]string) callFn {
-	return func([]string) callFn {
+func sample(f func(rng) string) func([]string) Call {
+	return func([]string) Call {
 		return func(s *drawstate.State, _ string, _ []string) string { return f(s) }
 	}
 }
-func chars(alphabet string) func([]string) callFn {
-	return func(a []string) callFn {
+func chars(alphabet string) func([]string) Call {
+	return func(a []string) Call {
 		n := atoi(a[0])
 		return func(s *drawstate.State, _ string, _ []string) string { return randChars(s, n, alphabet) }
 	}
@@ -160,7 +161,7 @@ func plainInt(s string) (int, error) {
 	}
 	return n, nil
 }
-func posIntArg(_ map[string]node, a []string) error {
+func posIntArg(a []string) error {
 	n, err := plainInt(a[0])
 	if errors.Is(err, strconv.ErrRange) {
 		return fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
@@ -176,7 +177,7 @@ func posIntArg(_ map[string]node, a []string) error {
 	}
 	return nil
 }
-func intRangeArgs(_ map[string]node, a []string) error {
+func intRangeArgs(a []string) error {
 	lo, err := plainInt(a[0])
 	if err != nil {
 		return fmt.Errorf("int(min,max): min %w", err)
@@ -196,7 +197,7 @@ func intRangeArgs(_ map[string]node, a []string) error {
 	}
 	return nil
 }
-func floatArgs(_ map[string]node, a []string) error {
+func floatArgs(a []string) error {
 	lo, e1 := strconv.ParseFloat(a[0], 64)
 	hi, e2 := strconv.ParseFloat(a[1], 64)
 	if e1 != nil || e2 != nil {
@@ -223,7 +224,7 @@ func floatArgs(_ map[string]node, a []string) error {
 	}
 	return nil
 }
-func seqArg(_ map[string]node, a []string) error {
+func seqArg(a []string) error {
 	if len(a) > 1 {
 		return fmt.Errorf("seq takes at most one name, got %d", len(a))
 	}
