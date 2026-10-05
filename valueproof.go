@@ -2,31 +2,18 @@ package fejkdata
 
 import (
 	"fmt"
-	"math"
 	"reflect"
-	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/proven"
 )
-
-// proven is what a proof knows of every render of a node: bounds on the number each
-// reads as, and per datatype why some render's text is not one ("" when none).
-type proven struct {
-	lo, hi     float64
-	nonZero    float64 // every value is at least this far from zero; 0 when one can be zero
-	integral   bool
-	notOperand string // why some render reads as no finite number, the way calc reads it
-	not        [len(dataTypeNames)]string
-	nullable   bool // some draw of a column is null
-}
 
 // valueProof proves what typed columns and their calc operands hold, each node once per scope.
 type valueProof struct {
-	memo       map[node]proven
-	columnMemo map[node]proven
+	memo       map[node]proven.Value
+	columnMemo map[node]proven.Value
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
@@ -40,7 +27,7 @@ func (p *valueProof) checkDatatype(path string, n node) error {
 	if r := t.link.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
 		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, path, t.format, t.datatype)
 	}
-	if reason := p.proveColumnItem(t).not[t.datatype]; reason != "" {
+	if reason := p.proveColumnItem(t).Not[t.datatype]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", path, t.datatype, reason)
 	}
 	return nil
@@ -58,7 +45,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
-	} else if p.proveColumn(column).nullable {
+	} else if p.proveColumn(column).Nullable {
 		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
 	}
 	kind := columnKinds[elem.Kind()]
@@ -67,7 +54,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	}
 	for _, it := range items {
 		v := p.proveColumnItem(it)
-		if reason := v.not[kind.datatype]; reason != "" {
+		if reason := v.Not[kind.datatype]; reason != "" {
 			return fmt.Errorf("%s (%s): %s", label, ft, reason)
 		}
 		if !kind.holds(v) {
@@ -78,7 +65,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 }
 
 // proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
-func (p *valueProof) proveColumnItem(t *template) proven {
+func (p *valueProof) proveColumnItem(t *template) proven.Value {
 	if t.link.readsColumn == nil {
 		return p.prove(t)
 	}
@@ -87,35 +74,35 @@ func (p *valueProof) proveColumnItem(t *template) proven {
 
 // proveColumn proves a column over what its items draw, a null item marking it null rather than
 // rendering "".
-func (p *valueProof) proveColumn(n node) proven {
+func (p *valueProof) proveColumn(n node) proven.Value {
 	if v, done := p.columnMemo[n]; done {
 		return v
 	}
 	if p.columnMemo == nil {
-		p.columnMemo = map[node]proven{}
+		p.columnMemo = map[node]proven.Value{}
 	}
 	items, nullable := columnItems(n)
-	var v proven
+	var v proven.Value
 	for i, it := range items {
 		if w := p.proveColumnItem(it); i == 0 {
 			v = w
 		} else {
-			v = v.or(w)
+			v = v.Or(w)
 		}
 	}
-	v.nullable = v.nullable || nullable
+	v.Nullable = v.Nullable || nullable
 	p.columnMemo[n] = v
 	return v
 }
 
-func (p *valueProof) prove(n node) proven {
+func (p *valueProof) prove(n node) proven.Value {
 	if v, done := p.memo[n]; done {
 		return v
 	}
 	if p.memo == nil {
-		p.memo = map[node]proven{}
+		p.memo = map[node]proven.Value{}
 	}
-	var v proven
+	var v proven.Value
 	switch n := n.(type) {
 	case *choice:
 		v = p.proveUnion(n.items)
@@ -126,9 +113,9 @@ func (p *valueProof) prove(n node) proven {
 	case *table:
 		v = p.prove(n.rowNode)
 	case *tableRow:
-		v = unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.segment))
+		v = proven.Unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.segment))
 	case *nullItem:
-		v = unproven(`it reads a null, which renders "" outside its own column`)
+		v = proven.Unproven(`it reads a null, which renders "" outside its own column`)
 	default:
 		panic(internalError("prove has no case for node %T", n))
 	}
@@ -137,59 +124,44 @@ func (p *valueProof) prove(n node) proven {
 }
 
 // proveCells proves a table column over every cell it may render.
-func (p *valueProof) proveCells(c *tableColumn) proven {
-	var v proven
+func (p *valueProof) proveCells(c *tableColumn) proven.Value {
+	var v proven.Value
 	for r := 0; r < c.t.rowCount(); r++ {
-		var w proven
+		var w proven.Value
 		if cell := c.t.cellTemplate(r, c.i); cell != nil {
 			w = p.prove(cell)
 		} else {
-			w = literalValue(c.t.cell(r, c.i))
+			w = proven.Literal(c.t.cell(r, c.i))
 		}
 		if r == 0 {
 			v = w
 		} else {
-			v = v.or(w)
+			v = v.Or(w)
 		}
 	}
 	return v
 }
 
-func (p *valueProof) proveUnion(nodes []node) proven {
+func (p *valueProof) proveUnion(nodes []node) proven.Value {
 	v := p.prove(nodes[0])
 	for _, n := range nodes[1:] {
-		v = v.or(p.prove(n))
-	}
-	return v
-}
-
-// or is what a proof knows of a render that is either v or w.
-func (v proven) or(w proven) proven {
-	v.lo, v.hi, v.nonZero = min(v.lo, w.lo), max(v.hi, w.hi), min(v.nonZero, w.nonZero)
-	v.integral, v.nullable = v.integral && w.integral, v.nullable || w.nullable
-	if v.notOperand == "" {
-		v.notOperand = w.notOperand
-	}
-	for d := range v.not {
-		if v.not[d] == "" {
-			v.not[d] = w.not[d]
-		}
+		v = v.Or(p.prove(n))
 	}
 	return v
 }
 
 // proveTemplate proves a template that renders one value: fixed text, or a format that is
 // one token alone.
-func (p *valueProof) proveTemplate(t *template) proven {
+func (p *valueProof) proveTemplate(t *template) proven.Value {
 	lit, fixed := t.fixedText()
 	switch {
 	case t.repeat != 1:
-		return unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
+		return proven.Unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
 	case fixed:
-		return literalValue(lit)
+		return proven.Literal(lit)
 	case len(t.compiled.ops) != 1:
-		v := unproven(notOneValue(t.format, typedCalls))
-		v.notOperand = notOneValue(t.format, operandCalls)
+		v := proven.Unproven(notOneValue(t.format, typedCalls))
+		v.NotOperand = notOneValue(t.format, operandCalls)
 		return v
 	}
 	o := t.compiled.ops[0]
@@ -206,131 +178,19 @@ func (p *valueProof) proveTemplate(t *template) proven {
 	case builtins[name].proveNumber != nil:
 		return builtins[name].proveNumber(body, builtins[name].prints, args)
 	case isTransform:
-		return unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
+		return proven.Unproven(fmt.Sprintf("{%s} rewrites text rather than printing a value; write the values it would print", body))
 	}
-	return printing(body, DataTypeString, proven{notOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
+	return proven.Printing(body, DataTypeString, proven.Value{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
-func (p *valueProof) proveCalc(o op) proven {
+func (p *valueProof) proveCalc(o op) proven.Value {
 	body, args := o.Body, o.Args
-	expr := parsedCalc(args[0]).Expr
 	nodes := operandNodes(o)
-	v, doubt := p.proveExpr(expr, func(name string) proven { return p.proveUnion(nodes(name)) })
-	if doubt == "" && !(magnitude(v) <= calcLimit) {
-		doubt = grammar.CalcText(expr) + " is not proven within 1e300"
-	}
+	v, doubt := proven.Calc(parsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
 	if doubt != "" {
-		return unproven(fmt.Sprintf("{%s}: %s", body, doubt))
+		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}
-	return printedNumber(body, v, calcDecimals(args))
-}
-
-// calcLimit is the largest magnitude a proof accepts as finite, far enough below
-// math.MaxFloat64 that rounding in the bounds cannot hide an overflow.
-const calcLimit = 1e300
-
-// proveExpr bounds a calc expression from its operands, or says why it cannot.
-func (p *valueProof) proveExpr(n grammar.CalcNode, operand func(name string) proven) (proven, string) {
-	switch n := n.(type) {
-	case grammar.CalcNum:
-		v := float64(n)
-		return bounded(v, v, v == math.Trunc(v)), ""
-	case grammar.CalcVar:
-		v := operand(n.Name)
-		if v.notOperand != "" {
-			return proven{}, fmt.Sprintf("operand %q: %s", n.Name, v.notOperand)
-		}
-		return proven{lo: v.lo, hi: v.hi, nonZero: v.nonZero, integral: v.integral}, ""
-	case grammar.CalcNeg:
-		v, doubt := p.proveExpr(n.X, operand)
-		v.lo, v.hi = -v.hi, -v.lo
-		return v, doubt
-	case grammar.CalcBin:
-		l, doubt := p.proveExpr(n.L, operand)
-		if doubt != "" {
-			return l, doubt
-		}
-		r, doubt := p.proveExpr(n.R, operand)
-		if doubt != "" {
-			return r, doubt
-		}
-		return combine(n, l, r)
-	}
-	panic(internalError("calc node %T has no bound", n))
-}
-
-// combine bounds one operation from the bounds of its sides.
-func combine(n grammar.CalcBin, l, r proven) (proven, string) {
-	var v proven
-	integral := l.integral && r.integral
-	switch n.Operator {
-	case '+':
-		v = bounded(l.lo+r.lo, l.hi+r.hi, integral)
-	case '-':
-		v = bounded(l.lo-r.hi, l.hi-r.lo, integral)
-	case '*':
-		v = bounded(min(l.lo*r.lo, l.lo*r.hi, l.hi*r.lo, l.hi*r.hi), max(l.lo*r.lo, l.lo*r.hi, l.hi*r.lo, l.hi*r.hi), integral)
-		v.nonZero = max(v.nonZero, l.nonZero*r.nonZero)
-	default:
-		if r.nonZero == 0 {
-			return v, fmt.Sprintf("divides by %s, which is not proven nonzero", grammar.CalcText(n.R))
-		}
-		m := magnitude(l) / r.nonZero
-		v = proven{lo: -m, hi: m, nonZero: l.nonZero / magnitude(r)}
-	}
-	if !(magnitude(v) <= calcLimit) {
-		return v, grammar.CalcText(n) + " is not proven within 1e300"
-	}
-	return v, ""
-}
-
-// bounded is a number in [lo, hi], its distance from zero read off the bounds.
-func bounded(lo, hi float64, integral bool) proven {
-	v := proven{lo: lo, hi: hi, integral: integral}
-	switch {
-	case lo > 0:
-		v.nonZero = lo
-	case hi < 0:
-		v.nonZero = -hi
-	}
-	return v
-}
-
-func magnitude(v proven) float64 { return math.Max(math.Abs(v.lo), math.Abs(v.hi)) }
-
-// printedNumber is what a token printing v to dp decimals holds.
-func printedNumber(token string, v proven, dp int) proven {
-	if dp == shortestDecimals {
-		if v.integral { // a whole value prints with no point
-			return printedInteger(token, v)
-		}
-		return printing(token, DataTypeNumber, v)
-	}
-	half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64)
-	v = proven{lo: v.lo - half, hi: v.hi + half, nonZero: math.Max(0, v.nonZero-half), integral: v.integral || dp == 0}
-	if dp == 0 {
-		return printedInteger(token, v)
-	}
-	return printing(token, DataTypeNumber, v)
-}
-
-func printedInteger(token string, v proven) proven {
-	v = printing(token, DataTypeInteger, v)
-	if !(magnitude(v) < math.MaxInt64) {
-		v.not[DataTypeInteger] = fmt.Sprintf("{%s} is not proven within int64", token)
-	}
-	return v
-}
-
-// printing is v for a token whose every render is text of datatype prints, with a reason
-// against each datatype that text is not.
-func printing(token string, prints DataType, v proven) proven {
-	for d := DataTypeInteger; d <= DataTypeBoolean; d++ {
-		if prints != d && !(prints == DataTypeInteger && d == DataTypeNumber) {
-			v.not[d] = fmt.Sprintf("{%s} prints %s, not %s", token, dataTypeNouns[prints], dataTypeNouns[d])
-		}
-	}
-	return v
+	return proven.PrintedNumber(body, v, calcDecimals(args))
 }
 
 var typedCalls, operandCalls = numberCalls(false), numberCalls(true)
@@ -350,54 +210,4 @@ func numberCalls(text bool) string {
 
 func notOneValue(format, calls string) string {
 	return fmt.Sprintf("%q is not one value; write one literal or one %s, or read one", format, calls)
-}
-
-// unproven is a render no datatype and no calc can take, for why.
-func unproven(why string) proven {
-	v := proven{notOperand: why}
-	for d := DataTypeInteger; d <= DataTypeBoolean; d++ {
-		v.not[d] = why
-	}
-	return v
-}
-
-var (
-	integerText = regexp.MustCompile(`^-?(0|[1-9][0-9]*)$`)
-	numberText  = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
-)
-
-// literalValue proves fixed text: the number calc reads it as, and each datatype it is.
-func literalValue(text string) proven {
-	var v proven
-	if f, err := strconv.ParseFloat(strings.TrimSpace(text), 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
-		v.notOperand = fmt.Sprintf("%q is not a number", text)
-	} else {
-		v = bounded(f, f, f == math.Trunc(f))
-	}
-	if _, err := strconv.ParseInt(text, 10, 64); !integerText.MatchString(text) {
-		v.not[DataTypeInteger] = fmt.Sprintf("%q is not an integer", text)
-	} else if err != nil {
-		v.not[DataTypeInteger] = fmt.Sprintf("%q is past the int64 range", text)
-	}
-	if v.notOperand != "" || !numberText.MatchString(text) {
-		v.not[DataTypeNumber] = fmt.Sprintf("%q is not a number", text)
-	}
-	if text != "true" && text != "false" {
-		v.not[DataTypeBoolean] = fmt.Sprintf("%q is not a boolean", text)
-	}
-	return signedZero(text, v)
-}
-
-// signedZero refuses a zero written with a sign as a typed value, naming it unsigned.
-func signedZero(text string, v proven) proven {
-	mantissa, _, _ := strings.Cut(strings.ToLower(text), "e")
-	if !strings.HasPrefix(text, "-") || v.notOperand != "" || strings.Trim(mantissa, "-0.") != "" {
-		return v
-	}
-	for _, d := range []DataType{DataTypeInteger, DataTypeNumber} {
-		if v.not[d] == "" {
-			v.not[d] = fmt.Sprintf("%q is zero written with a sign; write %q", text, text[1:])
-		}
-	}
-	return v
 }

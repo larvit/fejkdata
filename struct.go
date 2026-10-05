@@ -11,6 +11,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // FakeStruct fills the struct v points to. Each exported field tagged `fake:"…"` is a
@@ -308,14 +309,14 @@ var columnKinds = map[reflect.Kind]columnKind{
 
 // holds reports whether a field of this kind holds every value v proves. An integer prints
 // whole, so its bounds round inward first.
-func (k columnKind) holds(v proven) bool {
+func (k columnKind) holds(v proven.Value) bool {
 	switch k.datatype {
 	case DataTypeString, DataTypeBoolean:
 		return true
 	case DataTypeInteger:
-		return math.Ceil(v.lo) >= k.lo && math.Floor(v.hi) <= k.hi
+		return math.Ceil(v.Lo) >= k.lo && math.Floor(v.Hi) <= k.hi
 	}
-	return v.lo >= k.lo && v.hi <= k.hi
+	return v.Lo >= k.lo && v.Hi <= k.hi
 }
 
 // fill draws the record into v's tagged fields, then each nested struct as a record of its own.

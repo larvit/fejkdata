@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // maxLen caps sample output lengths (hex, nanoid, base64, digits, upper, lower)
@@ -19,9 +20,6 @@ const (
 	maxLen      = 1 << 20
 	maxDecimals = 1024
 )
-
-// shortestDecimals prints the fewest digits that read back as the same float64.
-const shortestDecimals = -1
 
 // builtins is the registry of {name(args)} functions. Derivations read the digits
 // emitted so far in the current expansion (place them after their payload);
@@ -35,8 +33,8 @@ var builtins = withTransforms(map[string]builtin{
 	"ulid":   {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, checkArgs: posIntArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, checkArgs: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: DataTypeString, proveNumber: func(token string, prints DataType, a []string) proven {
-		return printing(token, prints, bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
+	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: DataTypeString, proveNumber: func(token string, prints DataType, a []string) proven.Value {
+		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, checkArgs: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
 	"lower": {arity: 1, checkArgs: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
@@ -49,16 +47,16 @@ var builtins = withTransforms(map[string]builtin{
 	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) callFn {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *drawstate.State, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, a []string) proven {
-		return printing(token, prints, bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
+	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, a []string) proven.Value {
+		return proven.Printing(token, prints, proven.Bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
 	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) callFn {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, prints: DataTypeNumber, proveNumber: func(token string, _ DataType, a []string) proven {
-		return printedNumber(token, bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
+	}, prints: DataTypeNumber, proveNumber: func(token string, _ DataType, a []string) proven.Value {
+		return proven.PrintedNumber(token, proven.Bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
 	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) callFn {
 		cc := a[0]
@@ -78,8 +76,8 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return strconv.FormatUint(s.Seq(key), 10)
 		}
-	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven {
-		return printing(token, prints, bounded(1, math.MaxInt64, true))
+	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven.Value {
+		return proven.Printing(token, prints, proven.Bounded(1, math.MaxInt64, true))
 	}},
 })
 

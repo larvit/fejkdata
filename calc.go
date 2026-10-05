@@ -9,6 +9,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // evalCalc evaluates an expression over the operand values expand already read, so it
@@ -218,12 +219,12 @@ func parsedCalc(expr string) grammar.Calc {
 	return c
 }
 
-// calcDecimals is a calc's decimals count, or shortestDecimals where it names none.
+// calcDecimals is a calc's decimals count, or proven.ShortestDecimals where it names none.
 func calcDecimals(args []string) int {
 	if len(args) == 2 {
 		return atoi(args[1])
 	}
-	return shortestDecimals
+	return proven.ShortestDecimals
 }
 
 // calcOperands lists the operands a calc's args read, fields or names. checkCalc reports
