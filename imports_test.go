@@ -17,15 +17,17 @@ func TestPackageImports(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	module, found := "", false
+	module := ""
 	for _, line := range strings.Split(string(mod), "\n") {
-		if module, found = strings.CutPrefix(strings.TrimSpace(line), "module "); found {
+		if f := strings.Fields(line); len(f) > 1 && f[0] == "module" {
+			module = strings.Trim(f[1], `"`)
 			break
 		}
 	}
-	if !found {
+	if module == "" {
 		t.Fatal("go.mod names no module")
 	}
+	checked := 0
 	allowed := map[string][]string{
 		".":                  {"internal/drawstate"},
 		"cmd/fejkdata":       {"."},
@@ -58,6 +60,7 @@ func TestPackageImports(t *testing.T) {
 			if imp != module && !strings.HasPrefix(imp, module+"/") {
 				continue
 			}
+			checked++
 			rel := strings.TrimPrefix(strings.TrimPrefix(imp, module), "/")
 			if rel == "" {
 				rel = "."
@@ -70,6 +73,9 @@ func TestPackageImports(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if checked == 0 {
+		t.Fatalf("no package imports a package of module %s, which go.mod names", module)
 	}
 	for dir := range allowed {
 		if !seen[dir] {
