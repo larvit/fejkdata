@@ -88,16 +88,17 @@ func TestWalkRefusesARowsFileNoCategoryNames(t *testing.T) {
 
 func TestWalkLabelsWhatACategoryFileGetsWrong(t *testing.T) {
 	for _, c := range []struct {
-		name string
-		fs   fstest.MapFS
-		want string
+		name    string
+		fs      fstest.MapFS
+		compile error
+		want    string
 	}{
-		{"its compile", fstest.MapFS{"a.json": {Data: []byte(`"x"`)}}, "lbl/a.json: bad"},
-		{"its JSON", fstest.MapFS{"a.json": {Data: []byte(`{`)}}, "lbl/a.json: unexpected end of JSON input"},
-		{"its name", fstest.MapFS{"a b.json": {Data: []byte(`"x"`)}}, "lbl/a b.json: category "},
-		{"its folder's name", fstest.MapFS{"a b/c.json": {Data: []byte(`"x"`)}}, "lbl/a b: folder "},
+		{"its compile", fstest.MapFS{"a.json": {Data: []byte(`"x"`)}}, errors.New("bad"), "lbl/a.json: bad"},
+		{"its JSON", fstest.MapFS{"a.json": {Data: []byte(`{`)}}, nil, "lbl/a.json: unexpected end of JSON input"},
+		{"its name", fstest.MapFS{"a.b.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b.json: category "},
+		{"its folder's name", fstest.MapFS{"a.b/c.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b: folder "},
 	} {
-		err := Source{FS: c.fs, Label: "lbl"}.Walk(func(Category) error { return errors.New("bad") })
+		err := Source{FS: c.fs, Label: "lbl"}.Walk(func(Category) error { return c.compile })
 		if err == nil || !strings.HasPrefix(err.Error(), c.want) {
 			t.Errorf("%s: Walk = %v, want it to start %q", c.name, err, c.want)
 		}
@@ -105,7 +106,7 @@ func TestWalkLabelsWhatACategoryFileGetsWrong(t *testing.T) {
 }
 
 func TestWalkChecksAFolderNameOnlyWhenItHoldsData(t *testing.T) {
-	if _, err := walk(t, Source{FS: fstest.MapFS{"a b/notes.txt": {Data: []byte("x")}, "c.json": {Data: []byte(`"x"`)}}}); err != nil {
+	if _, err := walk(t, Source{FS: fstest.MapFS{"a.b/notes.txt": {Data: []byte("x")}, "c.json": {Data: []byte(`"x"`)}}}); err != nil {
 		t.Errorf("Walk = %v, want a folder holding no data skipped whatever its name", err)
 	}
 }
