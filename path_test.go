@@ -78,6 +78,11 @@ func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
 			t.Errorf("NewTemplate({/%s}) = %v, want the level /%s named", path, err, level)
 		}
 	}
+	for _, p := range f.List() {
+		if _, err := f.Fake(p); err != nil {
+			t.Errorf("Fake(%q) = %v, but List() advertises it", p, err)
+		}
+	}
 }
 
 // TestPathThroughChoice pins the rule that keeps a dotted path from rendering on
