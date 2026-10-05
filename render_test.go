@@ -109,7 +109,7 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 	for name, call := range map[string]func(node){
 		"columnItems": func(n node) { columnItems(n) },
 		"contained":   func(n node) { contained(n) },
-		"paths":       func(n node) { paths(n) },
+		"paths":       func(n node) { paths(n, false) },
 		"prove":       func(n node) { (&valueProof{}).prove(n) },
 		"render": func(n node) {
 			var frames frameStack

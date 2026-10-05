@@ -113,67 +113,71 @@ func (c config) load() (folder, error) {
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
-// column and linked table below it, a direct descent at a time. A choice consumes no
-// segment, so a path continues through one only where every variant carries it.
+// column and linked table below it, a direct descent at a time, stopping at a level
+// carrying a repeat. A choice consumes no segment, so a path continues through one
+// only where every variant carries it.
 func (f *Generator) List() []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	out := paths(&f.root)
+	out := paths(&f.root, false)
 	sort.Strings(out)
 	return out
 }
 
 // paths lists the dot paths addressable from n, relative to it, where "" is n
 // itself. A folder has no value of its own, so it contributes only its children's.
-func paths(n node) []string {
+// intoRepeats lists the fields under a level carrying a repeat too, which a path
+// reaches only to be refused.
+func paths(n node, intoRepeats bool) []string {
 	switch n := n.(type) {
 	case *folder:
 		var out []string
 		for _, name := range sortedNames(n.children) {
-			for _, p := range paths(n.children[name]) {
-				out = append(out, join(name, p))
-			}
+			out = appendUnder(out, name, paths(n.children[name], intoRepeats))
 		}
 		for _, name := range sortedNames(n.unloaded) {
-			for _, p := range n.unloaded[name].paths {
-				out = append(out, join(name, p))
-			}
+			out = appendUnder(out, name, n.unloaded[name].paths)
 		}
 		return out
 	case *template:
 		out := []string{""}
+		if n.repeat > 1 && !intoRepeats {
+			return out
+		}
 		for _, name := range sortedNames(n.fields) {
-			for _, p := range paths(n.fields[name]) {
-				out = append(out, join(name, p))
-			}
+			out = appendUnder(out, name, paths(n.fields[name], intoRepeats))
 		}
 		return out
-	case *nullItem:
-		return []string{""}
 	case *table:
-		return tablePaths(n)
-	case *tableColumn, *tableRow:
+		return tablePaths(n, intoRepeats)
+	case *tableColumn, *tableRow, *nullItem:
 		return []string{""}
 	case *choice:
-		out := []string{""}
-		for p := range n.shared {
-			out = append(out, p)
+		shared := n.shared
+		if !intoRepeats {
+			shared = sharedPaths(n.items, false)
 		}
-		return out
+		return append([]string{""}, sortedNames(shared)...)
 	default:
 		panic(invariant.Broken("paths has no case for node %T", n))
 	}
 }
 
+// appendUnder appends each of ps to out under name.
+func appendUnder(out []string, name string, ps []string) []string {
+	for _, p := range ps {
+		out = append(out, join(name, p))
+	}
+	return out
+}
+
 // tablePaths is a table's columns, then each table linked to it under its name: the
 // direct descents, a step at a time.
-func tablePaths(t *table) []string {
+func tablePaths(t *table, intoRepeats bool) []string {
 	out := append([]string{""}, t.rows.Header()...)
 	sort.Strings(out[1:])
 	for _, c := range t.rows.Children() {
-		for _, p := range paths(c.Owner()) {
-			out = append(out, join(c.Segment(), p))
-		}
+		out = appendUnder(out, c.Segment(), paths(c.Owner(), intoRepeats))
 	}
 	return out
 }
@@ -181,13 +185,13 @@ func tablePaths(t *table) []string {
 // sharedPaths is the sub-paths every item carries — the only ones a path may step
 // through a choice to reach. It intersects, bailing as soon as the set
 // is empty, which is immediate for a choice of plain strings.
-func sharedPaths(items []node) map[string]bool {
-	shared := subPaths(items[0])
+func sharedPaths(items []node, intoRepeats bool) map[string]bool {
+	shared := subPaths(items[0], intoRepeats)
 	for _, it := range items[1:] {
 		if len(shared) == 0 {
 			return nil
 		}
-		next := subPaths(it)
+		next := subPaths(it, intoRepeats)
 		for p := range shared {
 			if !next[p] {
 				delete(shared, p)
@@ -197,10 +201,10 @@ func sharedPaths(items []node) map[string]bool {
 	return shared
 }
 
-// subPaths is paths(n) as a set, without the empty path that means n itself.
-func subPaths(n node) map[string]bool {
+// subPaths is paths(n, intoRepeats) as a set, without the empty path that means n itself.
+func subPaths(n node, intoRepeats bool) map[string]bool {
 	out := map[string]bool{}
-	for _, p := range paths(n) {
+	for _, p := range paths(n, intoRepeats) {
 		if p != "" {
 			out[p] = true
 		}

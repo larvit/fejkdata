@@ -266,7 +266,7 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		c.cum = cum
 	}
-	c.shared = sharedPaths(c.items)
+	c.shared = sharedPaths(c.items, true)
 	return c, nil
 }
 

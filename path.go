@@ -142,9 +142,12 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	return at.n, nil
 }
 
+func repeatLevelError(level string) error {
+	return fmt.Errorf("the level %q carries a repeat, so a path cannot read one draw of it; read %q whole", level, level)
+}
+
 // pathPos is where a walk stands: the node reached, the tail left to walk from it, and whether
-// the step into it came from a row of an ancestor table, so a table there reads a row even
-// where the tail is empty.
+// it descended there, as route reads it.
 type pathPos struct {
 	n         node
 	tail      []string
@@ -154,8 +157,8 @@ type pathPos struct {
 func (p pathPos) more() bool { return len(p.tail) > 0 || p.descended }
 
 // takeStep moves at past the step its tail starts with, from its node, which is no choice, and
-// appends what it takes to steps: a field, or the route a table passes. whole is the path at's
-// tail ends, and level names its head in errors.
+// appends what it takes to steps: a field, or the route a table passes. whole is the full path,
+// at.tail its unwalked end, and level names its head in errors.
 func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
@@ -168,7 +171,7 @@ func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins 
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
-			return steps, fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", join(level, strings.Join(whole[:i], ".")))
+			return steps, repeatLevelError(join(level, strings.Join(whole[:i], ".")))
 		}
 	}
 	next, err := stepInto(at.n, at.tail[0])

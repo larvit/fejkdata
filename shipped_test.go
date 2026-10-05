@@ -72,7 +72,7 @@ func shippedIndexSource(whole *Generator) ([]byte, error) {
 		if t, isTable := s.n.(*table); isTable && t.rows.Options().Parent != "" {
 			fmt.Fprintf(&b, "parent: %q, ", t.rows.Options().Parent)
 		}
-		ps := paths(s.n)
+		ps := paths(s.n, false)
 		sort.Strings(ps)
 		fmt.Fprintf(&b, "paths: %#v},\n", ps)
 	}
