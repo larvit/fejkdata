@@ -29,37 +29,23 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/proven"},
+		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"cmd/fejkdata":         {"."},
-		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/proven"},
+		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/datafiles":   {"internal/grammar"},
 		"internal/datatype":    nil,
 		"internal/drawstate":   nil,
 		"internal/grammar":     nil,
-		"internal/proven":      {"internal/datatype", "internal/grammar"},
+		"internal/invariant":   nil,
+		"internal/proven":      {"internal/datatype", "internal/grammar", "internal/invariant"},
 	}
 	seen := map[string]bool{}
-	err = filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
-		if err != nil || !d.IsDir() {
-			return err
-		}
-		if dir != "." && (strings.HasPrefix(d.Name(), ".") || d.Name() == "testdata") {
-			return filepath.SkipDir
-		}
-		pkg, err := build.ImportDir(dir, 0)
-		var noGo *build.NoGoError
-		if errors.As(err, &noGo) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		dir = filepath.ToSlash(dir)
+	eachPackage(t, func(dir string, pkg *build.Package) {
 		seen[dir] = true
 		may, listed := allowed[dir]
 		if !listed {
 			t.Errorf("package %s is not listed: add the module packages it may import", dir)
-			return nil
+			return
 		}
 		for _, imp := range slices.Concat(pkg.Imports, pkg.TestImports, pkg.XTestImports) {
 			if imp != module && !strings.HasPrefix(imp, module+"/") {
@@ -74,11 +60,7 @@ func TestPackageImports(t *testing.T) {
 				t.Errorf("package %s imports %s, which its list does not allow", dir, rel)
 			}
 		}
-		return nil
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	if checked == 0 {
 		t.Fatalf("no package imports a package of module %s, which go.mod names", module)
 	}
@@ -86,5 +68,31 @@ func TestPackageImports(t *testing.T) {
 		if !seen[dir] {
 			t.Errorf("listed package %s does not exist", dir)
 		}
+	}
+}
+
+// eachPackage calls fn with every Go package in the module and its slash-separated directory.
+func eachPackage(t *testing.T, fn func(dir string, pkg *build.Package)) {
+	t.Helper()
+	err := filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
+		if err != nil || !d.IsDir() {
+			return err
+		}
+		if dir != "." && (strings.HasPrefix(d.Name(), ".") || d.Name() == "testdata") {
+			return filepath.SkipDir
+		}
+		pkg, err := build.ImportDir(dir, 0)
+		var noGo *build.NoGoError
+		if errors.As(err, &noGo) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		fn(filepath.ToSlash(dir), pkg)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
