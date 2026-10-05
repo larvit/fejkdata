@@ -959,8 +959,9 @@ Where the project is heading; the sections before Audience document what ships t
    6. If two people could read a template differently, loading it fails, and the
       error shows how to write each meaning.
    7. Each result has one obvious way to write it. A spelling with a part that doesn't
-      change anything — a default written out, a repeated item, a wrapper around what
-      could stand alone — fails to load, and the error shows it without that part.
+      change anything — a default written out, an item listed twice in a choice, a
+      wrapper around what could stand alone — fails to load, and the error shows the
+      spelling to write instead.
    8. When a clearer name turns up, it replaces the old one, even if that needs a new
       major version.
 6. **Mistakes are caught when the data loads, and the error says plainly what is

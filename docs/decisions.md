@@ -532,8 +532,8 @@ Valid until item 4 makes every `{…}` draw afresh, which revises the shared ste
 
 ## A table selects by one key column, a code, never a free-form name
 
-Decided 2026-09-27 by the maintainer, for goal 5.5: `[SE]` means one row wherever it is
-written. Valid while
+Decided 2026-09-27 by the maintainer, for goal 5.5: a name may repeat across rows or change
+with its register, while a code selects one row for good. Valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
 selector. The key is the friendliest code the register holds, `misc.territory[SE]` and
