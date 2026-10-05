@@ -115,8 +115,8 @@ func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
 	return targets
 }
 
-// addressedKeys is every key the reads of each name in ts land on or pass, from the name, with the
-// spelling of the first read reaching it.
+// addressedKeys is every key the reads of each name in ts land on or pass, from the name's own
+// level, with the spelling of the first read reaching it.
 func addressedKeys(ts []linkSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
 	keys := map[*nameBinding]map[pickKey]string{}
 	for _, s := range ts {

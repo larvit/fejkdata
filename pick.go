@@ -10,8 +10,8 @@ import (
 // the pick.
 type pickKey string
 
-// under is the key of rel, a fresh read's key, in what renders at k. It never returns k itself: k
-// is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
+// under is the key of rel, a fresh read's key, in what renders at k. It never returns k itself: on
+// a render k is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
 func (k pickKey) under(rel pickKey) pickKey {
 	if k == "" {
 		return rel
@@ -20,8 +20,7 @@ func (k pickKey) under(rel pickKey) pickKey {
 }
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
-// value each read there produced, keyed by the path from the name, and the table rows they
-// pinned.
+// value each read there produced, by its pickKey, and the table rows they pinned.
 type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
@@ -29,7 +28,7 @@ type namedPick struct {
 }
 
 // drawMemo is what a named pick has drawn: the variant each level was drawn as, so every path
-// under it reads one variant; the value each read produced, by its path, so the same read written
+// under it reads one variant; the value each read produced, by its pickKey, so the same read written
 // twice reads one value; the frames a read opens for the name scopes around where it lands
 // (enter); and the rows drawn by each step down after a "..", by level.
 type drawMemo struct {
@@ -202,9 +201,10 @@ func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue
 		return r
 	}
 	levels := make([]pickKey, len(a.levels))
-	for i, l := range a.levels {
+	for i, l := range a.levels[:len(levels)-1] {
 		levels[i] = sc.pickAt.under(l)
 	}
+	levels[len(levels)-1] = key
 	leaf, pins := p.draw(s, t.head(a.head), a.steps, levels)
 	return p.renderAt(s, leaf, pins, key, sc)
 }
