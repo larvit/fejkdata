@@ -7,9 +7,8 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
-// rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *drawstate.State instead, which keeps the draws of the walk
-// drawing through it off the heap.
+// rng is the randomness a builtin sample draws from, which *drawstate.State satisfies. The
+// render path takes the concrete type instead, which keeps the draws of the walk off the heap.
 type rng interface {
 	IntN(n int) int
 	Float64() float64
@@ -27,7 +26,7 @@ func (f *Generator) Fake(path string) (string, error) {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
 	f.loadShippedAt(segments)
-	n, pins, err := descend(f.draws, &f.root, segments)
+	n, pins, err := descend(f.drawState, &f.root, segments)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
@@ -36,7 +35,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	}
 	var frames frameStack
 	sc, _ := renderScope{frames: &frames}.at(n, &pins).enter(n, nil)
-	return render(f.draws, n, sc), nil
+	return render(f.drawState, n, sc), nil
 }
 
 // descend walks a caller's path to the node it names, returning the rows its leaf renders in.

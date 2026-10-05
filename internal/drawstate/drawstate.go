@@ -1,22 +1,26 @@
-// Package drawstate holds what a generator draws through: the seeded randomness and the
-// {seq()} counters.
+// Package drawstate holds a generator's seeded randomness, which its draws and builtin
+// samples read, and its {seq()} counters.
 package drawstate
 
 import "math/rand/v2"
 
 // State is one generator's draw state, kept across its renders.
 type State struct {
-	*rand.Rand
+	rand     *rand.Rand
 	counters map[string]uint64
 }
 
 // New builds the state a seed reproduces.
 func New(seed uint64) *State {
-	return &State{Rand: rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15)), counters: map[string]uint64{}}
+	return &State{rand: rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15)), counters: map[string]uint64{}}
 }
 
-// Next advances the counter key names, the one {seq()} or {seq(key)} reads, and returns it.
-func (s *State) Next(key string) uint64 {
+func (s *State) IntN(n int) int { return s.rand.IntN(n) }
+
+func (s *State) Float64() float64 { return s.rand.Float64() }
+
+// Seq advances the counter {seq(key)} reads, or {seq()} for an empty key, and returns it.
+func (s *State) Seq(key string) uint64 {
 	s.counters[key]++
 	return s.counters[key]
 }

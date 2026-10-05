@@ -135,7 +135,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	var frames frameStack
 	sc := renderScope{frames: &frames}
 	if t, isTable := n.(*table); isTable {
-		if n, sc.row, err = tableRecord(f.draws, t, tail); err != nil {
+		if n, sc.row, err = tableRecord(f.drawState, t, tail); err != nil {
 			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 		}
 	} else if len(tail) > 0 {
@@ -149,7 +149,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if shape.err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, shape.err)
 	}
-	return renderRecord(f.draws, shape.template, shape.columns, sc), nil
+	return renderRecord(f.drawState, shape.template, shape.columns, sc), nil
 }
 
 // tableRecord walks a path's tail from a table to the table whose row is the record, and that
@@ -206,7 +206,7 @@ func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
 	var frames frameStack
-	return renderRecord(t.g.draws, t.template, t.columns, renderScope{frames: &frames})
+	return renderRecord(t.g.drawState, t.template, t.columns, renderScope{frames: &frames})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"go/build"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -12,14 +13,26 @@ import (
 
 // TestPackageImports holds each package in the module to the module packages it may import.
 func TestPackageImports(t *testing.T) {
-	const module = "github.com/larvit/fejkdata"
+	mod, err := os.ReadFile("go.mod")
+	if err != nil {
+		t.Fatal(err)
+	}
+	module, found := "", false
+	for _, line := range strings.Split(string(mod), "\n") {
+		if module, found = strings.CutPrefix(strings.TrimSpace(line), "module "); found {
+			break
+		}
+	}
+	if !found {
+		t.Fatal("go.mod names no module")
+	}
 	allowed := map[string][]string{
 		".":                  {"internal/drawstate"},
 		"cmd/fejkdata":       {"."},
 		"internal/drawstate": nil,
 	}
 	seen := map[string]bool{}
-	err := filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
 		if err != nil || !d.IsDir() {
 			return err
 		}

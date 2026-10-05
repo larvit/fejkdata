@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 108`
+`Next ID = 110`
 
 | Goal | W |
 |---|---|
@@ -113,6 +113,7 @@
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
+| 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -136,6 +137,7 @@
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
+| 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` and `release-tooling/` do.** | 2 | 4 | 1 | 4 | 3 | 6.2 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 4 | 6 | 4 | 15.2 |
 | 59 | 0.4.0 |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 1 | 5 | 5 | 12 | 13.2 |
@@ -267,7 +269,7 @@ Pure code that reads strings: `scanUnit`, `formatToken` and `parseFormat`; the s
 
 ### 100. Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.
 
-Needs item 99. `checkArgs` drops its `fields` parameter: `calc`, the one builtin reading it, checks its operands where the template links, and a load with two mistakes reports the same one first as today. `ibanArg` joins the builtins, and `callFn` takes `internal/drawstate`'s type.
+Needs item 99. `checkArgs` drops its `fields` parameter: `calc`, the one builtin reading it, checks its operands where the template links, and a load with two mistakes reports the same one first as today. `ibanArg` joins the builtins.
 
 ### 106. Settle each record's shape when its template links, so `Generator.records` goes.
 
@@ -392,11 +394,15 @@ Require the path step to reach a sibling category.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; the draw state and items 98 to 103 move what stands alone into `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; the draw state sits in `internal/`, and items 98 to 103 move what else stands alone there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 
 Both spellings load and draw alike, against goal 5.7. Widen the read-once refusal in `namefence.go` to the longest prefix every read of a name shares.
+
+### 108. Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.
+
+Found by the goals audit of item 97's chunk. Without the clock, `sv_SE.personnummer` never takes the `+` Skatteverket writes from the year the holder turns 100, so the oldest draws turn invalid from 2030. Item 26 revises the decision, but the decision does not point back to it.
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`.
 
@@ -469,6 +475,10 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 ### 56. Build on a manual run of `test.yml`.
 
 `workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
+
+### 109. Indent every script under `data-import/` with hard tabs, as `AGENTS.md` and `release-tooling/` do.
+
+Found by the technical-principles audit of item 97's chunk. Technical principle: indent with hard tabs. All 19 scripts indent with four spaces, so an edit there either keeps the wrong style or rewrites the whole file.
 
 ### 63. Pair a street with its exact postnummer.
 

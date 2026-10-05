@@ -123,7 +123,7 @@ func parseFormat(format string) ([]formatToken, error) {
 // builtin is a format-string function invoked as {name(args)}. It receives the
 // draw state, the output emitted so far in the current expansion (for derivations
 // such as a checksum over preceding digits), and the values of the operands it named
-// (calc and the transforms name them). All must stay pure over (rng, emitted, args) so
+// (calc and the transforms name them). All must stay pure over (draw state, emitted, operands) so
 // seeded output is reproducible; seq advances per-generator counter state, which is
 // itself deterministic. arity is the exact arg count, or -1 for variadic (then
 // checkArgs does all the validation).

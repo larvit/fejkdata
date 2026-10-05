@@ -27,13 +27,13 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards draws, records, structs and root, which gains a shipped category on the
+	// mu guards drawState, records, structs and root, which gains a shipped category on the
 	// first call reaching it.
-	mu      sync.Mutex
-	draws   *drawstate.State
-	root    folder // the categories as the node a path walks from, owned here so a walk allocates none
-	records map[node]recordShape
-	structs map[reflect.Type]structResult
+	mu        sync.Mutex
+	drawState *drawstate.State
+	root      folder // the categories as the node a path walks from, owned here so a walk allocates none
+	records   map[node]recordShape
+	structs   map[reflect.Type]structResult
 }
 
 type config struct {
@@ -90,7 +90,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{draws: drawstate.New(seed), root: root}, nil
+	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
 // load is the tree New starts from.
