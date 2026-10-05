@@ -144,7 +144,9 @@ func expand(s *drawstate.State, t *template, sc renderScope) string {
 
 // readField renders one arm of a token. A read of a name, or of a level a read of the name
 // rendering addresses, is kept in that name's pick; every other read draws afresh, so {word}
-// {word} draws twice and {p.a} {p.b} reads two draws of p.
+// {word} draws twice and {p.a} {p.b} reads two draws of p. A fresh read leaves the pick: a read
+// below it would key the pick's memo by sc.pickKey, the level the pick rendered, and read the
+// pick's value for a node the pick never drew.
 func readField(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
 	switch {
 	case a.kind == namedRead:

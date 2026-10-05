@@ -74,7 +74,6 @@
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 128 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 118 to 126 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
-| 119 | 0.1.0 |  | **State at `readName` how every read of a name stays on one pick (`enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one), and state at `readField` why a fresh read clears the pick.** | 2 | 2 | 2 | 9 | 3.4, 3.2 | 17.7 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 118 | 0.1.0 |  | **Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` start at the same level for a fresh read and a named read.** | 5 | 5 | 2 | 9 | 3.2, 3.3 | 13.9 |
@@ -256,10 +255,6 @@ The decision "comprehension floor: every dimension and the overall at 7.0 or abo
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
 A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
-
-### 119. State at `readName` how every read of a name stays on one pick (`enter` reuses the memo's frames, and `renderFrame` opens none where `frameOf` finds one), and state at `readField` why a fresh read clears the pick.
-
-All nine seats in the panel of 2026-10-05 named `readField`, `readName`, `readUnder` and `enter` hardest, and six of the seven unit-level seats would least want to modify them. Each seat had to trace why `{a.street}` and `{a.postal-code}` in `data/sv_SE/address.json` read the same locality, the one the name `l` picks in `data/geo/SE/address.json`. Two seats asked why a fresh read in `readField` sets `sc.pick = nil`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
