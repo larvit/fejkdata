@@ -28,7 +28,7 @@ func checkNameReads(label string, t *template, names linkedNames) error {
 			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, r.o.Body, b.name, b.ref)
 		}
 		for _, leaf := range r.a.leaves {
-			if err := checkOnce(names.addressed[b], r.a.spelling, leaf, r.a.path); err != nil {
+			if err := checkOnce(names.addressed[b], r.a.spelling, leaf, r.a.key()); err != nil {
 				return fmt.Errorf("%s: token {%s}: %w", label, r.o.Body, err)
 			}
 		}
@@ -122,7 +122,7 @@ func calcReads(spelling string) bool {
 
 // checkOnce walks n, rendering at key under a pick, into each level a read of the name addresses:
 // the keys of addressed.
-func checkOnce(addressed map[string]string, read string, n node, key string) error {
+func checkOnce(addressed map[pickKey]string, read string, n node, key pickKey) error {
 	switch n := n.(type) {
 	case *choice:
 		for _, item := range n.items {
@@ -136,7 +136,7 @@ func checkOnce(addressed map[string]string, read string, n node, key string) err
 	return nil
 }
 
-func checkTemplateOnce(addressed map[string]string, read string, t *template, key string) error {
+func checkTemplateOnce(addressed map[pickKey]string, read string, t *template, key pickKey) error {
 	reads := map[string]int{}
 	var into []arm
 	for _, o := range t.compiled.ops {
@@ -144,20 +144,20 @@ func checkTemplateOnce(addressed map[string]string, read string, t *template, ke
 			if grammar.IsRef(a.head) || a.kind == namedRead {
 				continue
 			}
-			if _, kept := addressed[join(key, a.path)]; kept {
+			if _, kept := addressed[key.under(a.key())]; kept {
 				into = append(into, a)
 			}
 			reads[a.head]++
 		}
 	}
 	for _, head := range sortedNames(reads) {
-		if by, kept := addressed[join(key, head)]; kept && reads[head] > 1 {
+		if by, kept := addressed[key.under(pickKey(head))]; kept && reads[head] > 1 {
 			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}
 	}
 	for _, a := range into {
 		for _, leaf := range a.leaves {
-			if err := checkOnce(addressed, read, leaf, join(key, a.path)); err != nil {
+			if err := checkOnce(addressed, read, leaf, key.under(a.key())); err != nil {
 				return err
 			}
 		}

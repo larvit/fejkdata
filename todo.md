@@ -76,7 +76,6 @@
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
-| 118 | 0.1.0 |  | **Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` start at the same level for a fresh read and a named read.** | 5 | 5 | 2 | 9 | 3.2, 3.3 | 13.9 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 120 | 0.1.0 |  | **Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.** | 2 | 4 | 1 | 8 | 3.3 | 13.4 |
 | 123 | 0.1.0 |  | **Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.** | 1 | 2 | 1 | 7 | 3.4, 3.3 | 13.1 |
@@ -263,10 +262,6 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
-
-### 118. Give a pick key one type, so `pathArm`, `compileArm`, `addressedKeys`, `keeps`, `readUnder` and `checkTemplateOnce` spell it one way, and `arm.levels` start at the same level for a fresh read and a named read.
-
-Eight of the nine seats in the panel of 2026-10-05 named the key convention hardest after the named-pick read path itself. A fresh read's `levels` start at the head, `[head, head.a, …]`, while `compileArm` builds a named read's from the name, `["", a, a.b, …]`, so `arm.levels`' comment holds only for fresh reads. `addressedKeys` slices off the target's tail and `readUnder` re-prefixes with `underKey`; no type ties them. Keep the key a string, so the allocation gate holds.
 
 ### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 

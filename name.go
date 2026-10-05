@@ -33,7 +33,7 @@ type nameBinding struct {
 	nameTarget
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
-	addressed map[string]string
+	addressed map[pickKey]string
 }
 
 // nameUse is one read of a name: the path it reads into the name, "" for the name itself; the

@@ -57,7 +57,7 @@ type nameTarget struct {
 // target, the keys its reads address, and its reads.
 type linkedNames struct {
 	targets   map[*nameBinding]nameTarget
-	addressed map[*nameBinding]map[string]string
+	addressed map[*nameBinding]map[pickKey]string
 	uses      map[*nameBinding][]nameUse
 }
 
@@ -117,15 +117,15 @@ func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
 
 // addressedKeys is every key the reads of each name in ts land on or pass, from the name, with the
 // spelling of the first read reaching it.
-func addressedKeys(ts []linkSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[string]string {
-	keys := map[*nameBinding]map[string]string{}
+func addressedKeys(ts []linkSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
+	keys := map[*nameBinding]map[pickKey]string{}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t) {
 			b := r.a.named
 			if keys[b] == nil {
-				keys[b] = map[string]string{}
+				keys[b] = map[pickKey]string{}
 			}
-			for _, key := range append(r.a.levels[len(targets[b].tail):], r.a.path) {
+			for _, key := range r.a.levels[len(targets[b].tail):] {
 				if _, seen := keys[b][key]; !seen {
 					keys[b][key] = r.a.spelling
 				}

@@ -5,6 +5,20 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
+// pickKey is where a level sits in a named pick: its path from the head the name's target starts
+// at, which is "". A fresh read keys its levels from its own head until readUnder keys them under
+// the pick.
+type pickKey string
+
+// under is the key of rel, a fresh read's key, in what renders at k. It never returns k itself: k
+// is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
+func (k pickKey) under(rel pickKey) pickKey {
+	if k == "" {
+		return rel
+	}
+	return k + "." + rel
+}
+
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
 // value each read there produced, keyed by the path from the name, and the table rows they
 // pinned.
@@ -19,15 +33,15 @@ type namedPick struct {
 // twice reads one value; the frames a read opens for the name scopes around where it lands
 // (enter); and the rows drawn by each step down after a "..", by level.
 type drawMemo struct {
-	variant       map[string]node
-	value         map[string]readValue
+	variant       map[pickKey]node
+	value         map[pickKey]readValue
 	enteredFrames map[*nameScope]*pickFrame
-	steppedDown   map[string]*pinSet
+	steppedDown   map[pickKey]*pinSet
 }
 
 // stepDownPins is the pins a path steps down into after stepping up to t: kept in m where there
 // is one, so every path stepping down there reads one draw.
-func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []string, at int) *pinSet {
+func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []pickKey, at int) *pinSet {
 	if m == nil {
 		return pins.Above(t)
 	}
@@ -35,7 +49,7 @@ func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []string, at 
 	if !ok {
 		p = pins.Above(t)
 		if m.steppedDown == nil {
-			m.steppedDown = map[string]*pinSet{}
+			m.steppedDown = map[pickKey]*pinSet{}
 		}
 		m.steppedDown[levels[at]] = p
 	}
@@ -153,15 +167,15 @@ func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.named.name))
 	}
 	p := &f.picks[a.named.index]
-	if r, done := p.memo.value[a.path]; done {
+	if r, done := p.memo.value[a.key()]; done {
 		return r
 	}
-	leaf, pins := p.draw(s, a.named.head, a.steps, a.levels, a.path)
+	leaf, pins := p.draw(s, a.named.head, a.steps, a.levels)
 	if a.named.bindsField() {
-		return p.renderAt(s, leaf, pins, a.path, sc)
+		return p.renderAt(s, leaf, pins, a.key(), sc)
 	}
 	sc, mark := sc.enter(leaf, &p.memo)
-	r := p.renderAt(s, leaf, pins, a.path, sc)
+	r := p.renderAt(s, leaf, pins, a.key(), sc)
 	sc.frames.pop(mark)
 	return r
 }
@@ -176,63 +190,54 @@ func (sc renderScope) drawRowOf(s *drawstate.State, t *table) int {
 
 // keeps reports whether a read of sc's name addresses the level a starts at.
 func (sc renderScope) keeps(a arm) bool {
-	_, kept := sc.pick.named.addressed[underKey(sc.pickKey, a.head)]
+	_, kept := sc.pick.named.addressed[sc.pickAt.under(a.levels[0])]
 	return kept
 }
 
-// readUnder reads a of t, which renders as part of the pick sc.pick at sc.pickKey, where a read of
-// the name addresses it: once per pick, by its path from the name.
+// readUnder reads a of t, which renders as part of the pick sc.pick at sc.pickAt, where a read of
+// the name addresses it: once per pick, by its key in the pick.
 func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
-	p, key := sc.pick, underKey(sc.pickKey, a.path)
+	p, key := sc.pick, sc.pickAt.under(a.key())
 	if r, done := p.memo.value[key]; done {
 		return r
 	}
-	levels := make([]string, len(a.levels))
+	levels := make([]pickKey, len(a.levels))
 	for i, l := range a.levels {
-		levels[i] = underKey(sc.pickKey, l)
+		levels[i] = sc.pickAt.under(l)
 	}
-	leaf, pins := p.draw(s, t.head(a.head), a.steps, levels, key)
+	leaf, pins := p.draw(s, t.head(a.head), a.steps, levels)
 	return p.renderAt(s, leaf, pins, key, sc)
 }
 
-// underKey is the key of path under the pick key prefix. It never returns prefix itself: prefix is
-// sc.pickKey, and a memo keeping it would move every render's scope to the heap.
-func underKey(prefix, path string) string {
-	if prefix == "" {
-		return path
-	}
-	return prefix + "." + path
-}
-
-// draw draws the path key names under p, its variant at key kept too, returning the leaf and the
-// pins its row is in.
-func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels []string, key string) (node, *pinSet) {
+// draw draws the path from head under p, keeping the variant drawn at each of levels, the leaf's
+// last, and returns the leaf and the pins its row is in.
+func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels []pickKey) (node, *pinSet) {
 	leaf, pins := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
-		leaf = p.memo.variantOf(s, c, key)
+		leaf = p.memo.variantOf(s, c, levels[len(levels)-1])
 	}
 	return leaf, pins
 }
 
 // renderAt renders leaf, drawn at key into pins, as part of p, and keeps what it rendered.
-func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key string, sc renderScope) readValue {
+func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pickKey, sc renderScope) readValue {
 	sc = sc.at(leaf, pins)
-	sc.pick, sc.pickKey = p, key
+	sc.pick, sc.pickAt = p, key
 	r := renderLeaf(s, leaf, sc)
 	if p.memo.value == nil {
-		p.memo.value = map[string]readValue{}
+		p.memo.value = map[pickKey]readValue{}
 	}
 	p.memo.value[key] = r
 	return r
 }
 
 // variantOf is the variant of c drawn at level, drawn now where none was.
-func (m *drawMemo) variantOf(s *drawstate.State, c *choice, level string) node {
+func (m *drawMemo) variantOf(s *drawstate.State, c *choice, level pickKey) node {
 	n, drew := m.variant[level]
 	if !drew {
 		n = resolveChoice(s, c)
 		if m.variant == nil {
-			m.variant = map[string]node{}
+			m.variant = map[pickKey]node{}
 		}
 		m.variant[level] = n
 	}
