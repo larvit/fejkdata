@@ -344,3 +344,19 @@ func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
 		}
 	}
 }
+
+func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
+	root := compiled(t, `{"format":"{place.geo as g}{g.town.zip} {g.town} {x.y.z}","place":{"format":"{geo}","geo":{"format":"{town}","town":{"format":"{zip}","zip":"1"}}},"x":{"format":"{y}","y":{"format":"{z}","z":"2"}}}`).(*template)
+	want := map[string]string{
+		"g.town.zip": "[ geo geo.town geo.town.zip]",
+		"g.town":     "[ geo geo.town]",
+		"x.y.z":      "[x x.y x.y.z]",
+	}
+	for _, o := range root.compiled.ops {
+		for _, a := range o.arms {
+			if got := fmt.Sprint(a.levels); got != want[a.spelling] {
+				t.Errorf("{%s} keys its levels %s, want %s", a.spelling, got, want[a.spelling])
+			}
+		}
+	}
+}
