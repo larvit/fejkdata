@@ -272,8 +272,8 @@ func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, 
 	proof := &valueProof{}
 	s.fieldIndexes = make([][]int, len(record.columns))
 	for i, c := range record.columns {
-		sf, _ := t.FieldByName(c.Name)
-		if err := proof.checkField(label+"."+c.Name, sf.Type, record.fields[c.Name]); err != nil {
+		sf, _ := t.FieldByName(c.name)
+		if err := proof.checkField(label+"."+c.name, sf.Type, c.field); err != nil {
 			return err
 		}
 		s.fieldIndexes[i] = sf.Index

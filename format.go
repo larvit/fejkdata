@@ -32,13 +32,10 @@ func parseChecked(format string, fields map[string]node) ([]grammar.Token, []unb
 }
 
 // unboundRead is a token reading a head no field holds, which only a name bound around the
-// template can answer; err is the refusal where none does. tail is the path read into the name,
-// "" for the name itself, operand marks a builtin's read of it, noRef marks such a read where no
-// reference can stand, and body is the token's.
+// template can answer; err is the refusal where none does, and body is the token's.
 type unboundRead struct {
-	head, tail, body string
-	operand, noRef   bool
-	err              error
+	head, body string
+	err        error
 }
 
 // checkTokens proves every token's grammar, functions and field paths, and returns the reads
@@ -86,7 +83,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 			if _, _, err := grammar.RefShape(name); err != nil {
 				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 			}
-			continue // its target is checked at New (see linkRefs)
+			continue // its target is checked at New (see linkCategories)
 		}
 		missing, err := checkArm(name, fields, !operands && len(names) == 1)
 		if err == nil {
@@ -96,8 +93,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 		if !missing {
 			return nil, err
 		}
-		a := splitArm(name, nil)
-		unbound = append(unbound, unboundRead{head: a.head, tail: grammar.JoinSegments(a.tail), body: t.Body, operand: operands, noRef: operands && builtinfunc.NoRefOperands(t.Fn), err: err})
+		unbound = append(unbound, unboundRead{head: splitArm(name, nil).head, body: t.Body, err: err})
 	}
 	return unbound, nil
 }
