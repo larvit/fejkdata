@@ -141,11 +141,11 @@ func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
 	return nil
 }
 
-// readName reads a from its name's pick in the frame rendering the name's scope. Every read of
-// one pick stays on it: the pick keeps each path's value and variant in its memo and its rows in
-// its pins. A read entering another category takes the frames of the name scopes there from the
-// memo too (enter), and renderFrame finds them and opens none. So {a.street} and {a.postal-code} in
-// data/sv_SE/address.json read one pick of the name l that data/geo/SE/address.json binds.
+// readName reads a from its name's pick in the frame rendering the name's scope. A read entering
+// another category takes the frames of the name scopes there from the pick's memo (enter), and
+// renderFrame finds them and opens none, so every read of the pick reads one pick of each name
+// bound there: {a.street} and {a.postal-code} in data/sv_SE/address.json read one pick of the
+// name l that data/geo/SE/address.json binds.
 func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 	f := sc.frameOf(a.named.scope)
 	if f == nil {
