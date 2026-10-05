@@ -168,11 +168,11 @@ func paths(n node) []string {
 // tablePaths is a table's columns, then each table linked to it under its name: the
 // direct descents, a step at a time.
 func tablePaths(t *table) []string {
-	out := append([]string{""}, t.header...)
+	out := append([]string{""}, t.rows.Header()...)
 	sort.Strings(out[1:])
-	for _, name := range sortedNames(t.children) {
-		for _, p := range paths(t.children[name]) {
-			out = append(out, join(name, p))
+	for _, c := range t.rows.Children() {
+		for _, p := range paths(c.Payload()) {
+			out = append(out, join(c.Segment(), p))
 		}
 	}
 	return out

@@ -162,11 +162,11 @@ func tableRecord(s *drawstate.State, t *table, tail []string) (node, renderedRow
 	}
 	switch n := n.(type) {
 	case *table:
-		return n, renderedRow{n, n.drawIn(s, &pins)}, nil
+		return n, renderedRow{n, n.rows.DrawIn(s, &pins)}, nil
 	case *tableRow:
-		return n.t, renderedRow{n.t, pins.mustRow(n.t)}, nil
+		return n.t, renderedRow{n.t, pins.MustRow(n.t.rows)}, nil
 	case *tableColumn:
-		return nil, renderedRow{}, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.header[n.i])
+		return nil, renderedRow{}, fmt.Errorf("descends into %q, a column; a record is a table's row", n.name())
 	}
 	return n, renderedRow{}, nil
 }

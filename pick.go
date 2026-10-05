@@ -27,13 +27,13 @@ type drawMemo struct {
 
 // stepDownPins is the pins a path steps down into after stepping up to t: kept in m where there
 // is one, so every path stepping down there reads one draw.
-func (m *drawMemo) stepDownPins(pins *pinSet, t *table, levels []string, at int) *pinSet {
+func (m *drawMemo) stepDownPins(pins *pinSet, t *rowsTable, levels []string, at int) *pinSet {
 	if m == nil {
-		return pins.above(t)
+		return pins.Above(t)
 	}
 	p, ok := m.steppedDown[levels[at]]
 	if !ok {
-		p = pins.above(t)
+		p = pins.Above(t)
 		if m.steppedDown == nil {
 			m.steppedDown = map[string]*pinSet{}
 		}
@@ -162,9 +162,9 @@ func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 // drawRowOf draws the row a render of t reads: inside the pick's rows where t renders as part of one.
 func (sc renderScope) drawRowOf(s *drawstate.State, t *table) int {
 	if sc.pick != nil {
-		return t.drawIn(s, &sc.pick.pins)
+		return t.rows.DrawIn(s, &sc.pick.pins)
 	}
-	return t.drawRow(s)
+	return t.rows.Draw(s)
 }
 
 // keeps reports whether a read of sc's name addresses the level a starts at.

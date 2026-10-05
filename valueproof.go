@@ -113,7 +113,7 @@ func (p *valueProof) prove(n node) proven.Facts {
 	case *table:
 		v = p.prove(n.rowNode)
 	case *tableRow:
-		v = proven.Unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.segment))
+		v = proven.Unproven(fmt.Sprintf("%q renders a row of %s, which is composed text", n.t.formatTemplate.format, n.t.rows.Segment()))
 	case *nullItem:
 		v = proven.Unproven(`it reads a null, which renders "" outside its own column`)
 	default:
@@ -126,12 +126,12 @@ func (p *valueProof) prove(n node) proven.Facts {
 // proveCells proves a table column over every cell it may render.
 func (p *valueProof) proveCells(c *tableColumn) proven.Facts {
 	var v proven.Facts
-	for r := 0; r < c.t.rowCount(); r++ {
+	for r := 0; r < c.t.rows.Len(); r++ {
 		var w proven.Facts
 		if cell := c.t.cellTemplate(r, c.i); cell != nil {
 			w = p.prove(cell)
 		} else {
-			w = proven.Literal(c.t.cell(r, c.i))
+			w = proven.Literal(c.t.rows.Cell(r, c.i))
 		}
 		if r == 0 {
 			v = w

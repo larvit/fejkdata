@@ -40,7 +40,7 @@ func shippedShape(f *Generator) string {
 			facts[prefix] = readsFact(n)
 		case *table:
 			facts[prefix] = "\tformat " + strconv.Quote(n.formatTemplate.format) + tableFacts(n) + readsFact(n)
-			for _, name := range n.header {
+			for _, name := range n.rows.Header() {
 				facts[join(prefix, name)] = "\tstring"
 			}
 		case *template:
@@ -69,12 +69,10 @@ func shippedShape(f *Generator) string {
 // tableFacts names the columns a table's options read.
 func tableFacts(t *table) string {
 	var b strings.Builder
-	for _, o := range []struct {
-		name string
-		col  int
-	}{{"key", t.keyIndex}, {"name", t.nameIndex}, {"weight", t.weightIndex}, {"parent", t.parentIndex}} {
-		if o.col >= 0 {
-			b.WriteString("\t" + o.name + " " + t.header[o.col])
+	c := t.rows.Options()
+	for _, o := range []struct{ name, column string }{{"key", c.Key}, {"name", c.Name}, {"weight", c.Weight}, {"parent", c.Parent}} {
+		if o.column != "" {
+			b.WriteString("\t" + o.name + " " + o.column)
 		}
 	}
 	return b.String()

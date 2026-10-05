@@ -68,7 +68,7 @@ func contained(n node) []namedNode {
 			return nil
 		}
 		var out []namedNode
-		for r := 0; r < n.t.rowCount(); r++ {
+		for r := 0; r < n.t.rows.Len(); r++ {
 			if cell := n.t.cellTemplate(r, n.i); cell != nil {
 				out = append(out, namedNode{node: cell, line: r + 2})
 			}
@@ -133,7 +133,7 @@ func renderEdges(n node) []renderEdge {
 	case *tableColumn:
 		var es []renderEdge
 		for _, c := range contained(n) {
-			es = append(es, renderEdge{to: c.node, label: n.t.header[n.i]})
+			es = append(es, renderEdge{to: c.node, label: n.name()})
 		}
 		return es
 	case *folder, *nullItem:

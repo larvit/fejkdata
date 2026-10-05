@@ -16,7 +16,7 @@ func stepInto(n node, seg string) (node, error) {
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
 	case seg == "..":
 		if c, ok := n.(*tableColumn); ok {
-			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.t.header[c.i])
+			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.name())
 		}
 		return nil, fmt.Errorf(`".." steps up only from a table's row; name any other level by its path from the data root`)
 	}
@@ -31,10 +31,10 @@ func stepInto(n node, seg string) (node, error) {
 			return child, nil
 		}
 	case *tableColumn:
-		if n.i == n.t.parentIndex {
-			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.t.header[n.i], n.t.header[n.i], seg)
+		if n.i == n.t.rows.LinkColumn() {
+			return nil, fmt.Errorf("no field %q: %q is the link column, holding its parent's key; to read the row it links to, step up with ..%s.%s", seg, n.name(), n.name(), seg)
 		}
-		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.t.header[n.i])
+		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.name())
 	case *nullItem:
 	default:
 		panic(invariant.Broken("stepInto has no case for node %T", n))
@@ -63,10 +63,10 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 		return tableRoute{}, err
 	}
 	if len(tail) > 0 && tail[0] == ".." {
-		if err := t.stepUp(tail[1:]); err != nil {
+		if err := t.rows.StepUp(tail[1:]); err != nil {
 			return tableRoute{}, err
 		}
-		return tableRoute{sel: sel, draw: sel == "", next: t.parentT, rest: tail[2:], descends: true, up: true}, nil
+		return tableRoute{sel: sel, draw: sel == "", next: t.rows.Parent().Payload(), rest: tail[2:], descends: true, up: true}, nil
 	}
 	column, child, err := t.step(tail)
 	if err != nil {
@@ -86,38 +86,6 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 		r.next, r.rest = column, tail[1:]
 	}
 	return r, nil
-}
-
-// stepUp proves a ".." after a row of t can step up: t has a parent, rest has no empty
-// segment and names it, and no selector follows, since a row selected below the parent row
-// could lie outside it.
-func (t *table) stepUp(rest []string) error {
-	if t.parentT == nil {
-		return fmt.Errorf(`%s has no parent table for ".." to step up to`, t.segment)
-	}
-	if err := grammar.CheckSegments(rest); err != nil {
-		return err
-	}
-	switch {
-	case len(rest) == 0 || rest[0] != t.parentT.segment:
-		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: %s`, t.segment, t.climbTo(rest))
-	case grammar.HasSelector(rest):
-		return fmt.Errorf(`no selector after "..": a row selected there could lie outside the row stepped up to; select from the table's path from the data root: %s`, grammar.JoinSegments(append([]string{t.parentT.path}, rest[1:]...)))
-	}
-	return nil
-}
-
-// climbTo spells the ".." steps from t up to the ancestor rest names first, or the one step to
-// t's parent where no ancestor is named.
-func (t *table) climbTo(rest []string) string {
-	var b strings.Builder
-	for a := t.parentT; a != nil; a = a.parentT {
-		b.WriteString(".." + a.segment)
-		if len(rest) > 0 && a.segment == rest[0] {
-			return b.String()
-		}
-	}
-	return ".." + t.parentT.segment
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it
@@ -161,46 +129,51 @@ func (w *pathCheck) run(n node) (node, error) {
 
 func (w *pathCheck) walk(n node, tail []string) (node, error) {
 	for descended := false; len(tail) > 0 || descended; {
-		var err error
-		switch x := n.(type) {
-		case *choice:
-			return w.walkEvery(x, tail)
-		case *table:
-			var r tableRoute
-			if r, err = x.route(tail, descended); err != nil {
-				return nil, err
-			}
-			if w.steps, err = routeSteps(w.steps, &w.pins, x, r, len(w.tail)-len(tail)); err != nil {
-				return nil, err
-			}
-			n, tail, descended = r.next, r.rest, r.descends
-			continue
-		case *template:
-			if grammar.IsSelector(tail[0]) {
-				break
-			}
-			if err := w.enter(x, tail); err != nil {
-				return nil, err
-			}
+		if c, ok := n.(*choice); ok {
+			return w.walkEvery(c, tail)
 		}
-		if n, err = stepInto(n, tail[0]); err != nil {
+		var err error
+		if n, tail, descended, w.steps, err = takeStep(n, tail, descended, w.tail, w.level, w.steps, &w.pins); err != nil {
 			return nil, err
 		}
-		w.steps = append(w.steps, pathStep{kind: stepField, at: len(w.tail) - len(tail), name: tail[0]})
-		tail = tail[1:]
 	}
 	w.leaves = append(w.leaves, n)
 	return n, nil
+}
+
+// takeStep takes the step tail starts with from n, which is no choice, and appends what it takes
+// to steps: a field, or the route a table passes. whole is the path tail ends, and level names its
+// head in errors.
+func takeStep(n node, tail []string, descended bool, whole []string, level string, steps []pathStep, pins *pinSet) (node, []string, bool, []pathStep, error) {
+	at := len(whole) - len(tail)
+	switch x := n.(type) {
+	case *table:
+		r, err := x.route(tail, descended)
+		if err != nil {
+			return nil, nil, false, steps, err
+		}
+		steps, err = routeSteps(steps, pins, x, r, at)
+		return r.next, r.rest, r.descends, steps, err
+	case *template:
+		if x.repeat > 1 && !grammar.IsSelector(tail[0]) {
+			return nil, nil, false, steps, fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", join(level, strings.Join(whole[:at], ".")))
+		}
+	}
+	next, err := stepInto(n, tail[0])
+	if err != nil {
+		return nil, nil, false, steps, err
+	}
+	return next, tail[1:], false, append(steps, pathStep{kind: stepField, at: at, name: tail[0]}), nil
 }
 
 // routeSteps appends the steps r takes past t, the first at at, pinning in pins the row
 // it selects.
 func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) ([]pathStep, error) {
 	if r.sel != "" {
-		if err := pins.selectRow(t, r.sel); err != nil {
+		row, err := pins.Select(t.rows, r.sel)
+		if err != nil {
 			return steps, err
 		}
-		row, _ := pins.pinned(t)
 		steps = append(steps, pathStep{kind: stepSelect, at: at, name: r.sel, row: row})
 		at++
 	}
@@ -213,14 +186,14 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 		case r.up:
 			steps = append(steps, pathStep{kind: stepParent, at: at})
 		case next != t:
-			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.segment})
+			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.rows.Segment()})
 		}
 	case *tableRow:
 		steps = append(steps, pathStep{kind: stepRow, at: at})
 	case *tableColumn:
-		steps = append(steps, pathStep{kind: stepColumn, at: at, name: t.header[next.i]})
+		steps = append(steps, pathStep{kind: stepColumn, at: at, name: next.name()})
 	default:
-		panic(invariant.Broken("%s: a route onto %T", t.segment, r.next))
+		panic(invariant.Broken("%s: a route onto %T", t.rows.Segment(), r.next))
 	}
 	return steps, nil
 }
@@ -247,44 +220,24 @@ func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 	return last, nil
 }
 
-func (w *pathCheck) enter(t *template, rest []string) error {
-	if t.repeat > 1 {
-		name := join(w.level, strings.Join(w.tail[:len(w.tail)-len(rest)], "."))
-		return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", name)
-	}
-	return nil
-}
-
 // probePath proves a path resolves without drawing, appending to steps the steps a
 // draw takes. Where pathCheck walks every variant of a choice, it walks the first,
-// which carriedByAll lets stand for all; at a table it selects as pathCheck does.
+// which carriedByAll lets stand for all.
 func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 	var pins pinSet
-	for full, descended := len(tail), false; len(tail) > 0 || descended; {
-		var err error
-		switch x := n.(type) {
-		case *choice:
-			if err := carriedByAll(x, tail); err != nil {
+	whole := tail
+	for descended := false; len(tail) > 0 || descended; {
+		if c, ok := n.(*choice); ok {
+			if err := carriedByAll(c, tail); err != nil {
 				return nil, err
 			}
-			n = x.items[0]
-			continue
-		case *table:
-			var r tableRoute
-			if r, err = x.route(tail, descended); err != nil {
-				return nil, err
-			}
-			if steps, err = routeSteps(steps, &pins, x, r, full-len(tail)); err != nil {
-				return nil, err
-			}
-			n, tail, descended = r.next, r.rest, r.descends
+			n = c.items[0]
 			continue
 		}
-		if n, err = stepInto(n, tail[0]); err != nil {
+		var err error
+		if n, tail, descended, steps, err = takeStep(n, tail, descended, whole, "", steps, &pins); err != nil {
 			return nil, err
 		}
-		steps = append(steps, pathStep{kind: stepField, at: full - len(tail), name: tail[0]})
-		tail = tail[1:]
 	}
 	return steps, nil
 }
@@ -295,7 +248,7 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 // prefix share it. It returns the leaf and the pins its row is in: a step down after a step up draws
 // afresh, into pins of its own, which memo shares with every path stepping down there.
 func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
-	var climbed *table
+	var climbed *rowsTable
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {
 			n = drawVariant(s, c, memo, levels, st.at)
@@ -313,7 +266,7 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 		}
 		switch {
 		case st.kind == stepParent:
-			climbed = t.parentT
+			climbed = t.rows.Parent()
 		case st.kind == stepChild && climbed != nil:
 			pins, climbed = memo.stepDownPins(pins, climbed, levels, st.at), nil
 		}
@@ -325,21 +278,21 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	switch st.kind {
 	case stepSelect:
-		if err := pins.pinRow(t, st.row); err != nil {
-			panic(invariant.Broken("%s[%s]: %v", t.segment, st.name, err))
+		if err := pins.PinRow(t.rows, st.row); err != nil {
+			panic(invariant.Broken("%s[%s]: %v", t.rows.Segment(), st.name, err))
 		}
 		return t
 	case stepDraw:
-		t.drawIn(s, pins)
+		t.rows.DrawIn(s, pins)
 		return t
 	case stepRow:
 		return t.rowNode
 	case stepColumn:
 		return t.formatTemplate.fields[st.name]
 	case stepChild:
-		return t.descendant(st.name)
+		return t.rows.Descendant(st.name).Payload()
 	case stepParent:
-		return t.parentT
+		return t.rows.Parent().Payload()
 	}
 	panic(invariant.Broken("drawStep has no case for step kind %d", st.kind))
 }
@@ -357,7 +310,7 @@ func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	}
 	sel, rest = grammar.SelectorOf(tail[0]), tail[1:]
 	if len(rest) > 0 && grammar.IsSelector(rest[0]) {
-		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.segment, sel)
+		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.rows.Segment(), sel)
 	}
 	return sel, rest, nil
 }
@@ -370,10 +323,11 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 	if column, ok := t.formatTemplate.fields[tail[0]]; ok {
 		return column, nil, nil
 	}
-	if child = t.descendant(tail[0]); child == nil {
-		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.segment)
+	d := t.rows.Descendant(tail[0])
+	if d == nil {
+		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.rows.Segment())
 	}
-	return nil, child, nil
+	return nil, d.Payload(), nil
 }
 
 // carriedByAll is the choice rule a path that must resolve on every call obeys:

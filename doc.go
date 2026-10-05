@@ -17,7 +17,7 @@ package fejkdata
 // Vocabulary
 //
 //   - draw — one pick from a choice, or one row taken from a table: `pick`,
-//     `resolveChoice`, `table.drawRow`. Every {…} draws afresh, bar a read of a name.
+//     `resolveChoice`, `renderScope.drawRowOf`. Every {…} draws afresh, bar a read of a name.
 //   - expansion — one render of one format: `expand`.
 //   - render — one walk of the tree from an entry point, over one `frameStack`:
 //     `Generator.Fake`, `FakeRecord`, `Template.Fake` and `RecordTemplate.Fake`
@@ -28,8 +28,8 @@ package fejkdata
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
-//     `pinSet`, `pinSet.pin`, `table.drawIn`.
-//   - family — a table and every table reaching it through a chain of
-//     `table.parentT`.
+//     `pinSet`, `namedPick.pins`, `table.drawStep`.
+//   - family — a table and every table reaching it through a chain of links
+//     `table.linkParent` makes.
 //   - fence — a load-time check, run over each category, template or struct as it
 //     loads or compiles, so rendering a compiled tree cannot fail.
