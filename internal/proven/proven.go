@@ -14,8 +14,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// Facts is what a proof knows of every render of a node: bounds on the number each
-// reads as, and per datatype why some render's text is not one ("" when none).
+// Facts is what a proof knows of every render of a node: bounds on the number each render
+// reads as, and, per datatype, why some render's text is not of it ("" when every render's is).
 type Facts struct {
 	Lo, Hi     float64
 	NonZero    float64 // every value is at least this far from zero; 0 when one can be zero
