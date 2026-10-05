@@ -9,7 +9,7 @@ import (
 )
 
 // eachNode visits n and every node contained within it once, passing the dot path
-// that reaches each. It never crosses a reference edge — a {/path} reference is
+// that reaches each, followed by a table cell's line. It never crosses a reference edge — a {/path} reference is
 // skipped — so a single inline node is walked on its own.
 func eachNode(n node, path string, fn func(path string, n node) error) error {
 	seen := map[node]bool{}
@@ -23,7 +23,7 @@ func eachNode(n node, path string, fn func(path string, n node) error) error {
 			return err
 		}
 		for _, c := range contained(m) {
-			if err := visit(join(path, c.name), c.node); err != nil {
+			if err := visit(c.labelUnder(path), c.node); err != nil {
 				return err
 			}
 		}
@@ -37,6 +37,15 @@ func eachNode(n node, path string, fn func(path string, n node) error) error {
 type namedNode struct {
 	name string
 	node node
+	line int // a table cell's line in its rows file, else 0
+}
+
+// labelUnder is the path naming c in an error, a cell by its line.
+func (c namedNode) labelUnder(path string) string {
+	if c.line > 0 {
+		return fmt.Sprintf("%s, line %d", path, c.line)
+	}
+	return join(path, c.name)
 }
 
 func contained(n node) []namedNode {
@@ -60,7 +69,7 @@ func contained(n node) []namedNode {
 		var out []namedNode
 		for r := 0; r < n.t.rowCount(); r++ {
 			if cell := n.t.cellTemplate(r, n.i); cell != nil {
-				out = append(out, namedNode{node: cell})
+				out = append(out, namedNode{node: cell, line: r + 2})
 			}
 		}
 		return out

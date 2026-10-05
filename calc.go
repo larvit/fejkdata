@@ -29,7 +29,7 @@ func checkCalcNames(path string, t *template) error {
 			continue
 		}
 		if err := checkOperands(o.Args[0], builtinfunc.ParsedCalc(o.Args[0]), operandNodes(o)); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.Body, err)
+			return fmt.Errorf("%s: token {%s}: %w", path, o.Body, err)
 		}
 	}
 	return nil

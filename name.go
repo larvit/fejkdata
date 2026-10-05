@@ -262,7 +262,7 @@ var linkPasses = []func(path string, t *template) error{linkNames, linkColumnRea
 func linkNames(path string, t *template) error {
 	return namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.Body, err)
+			return fmt.Errorf("%s: token {%s}: %w", path, o.Body, err)
 		}
 		return nil
 	})

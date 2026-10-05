@@ -72,13 +72,12 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run once items 101, 102 and 104 to 106 have restructured the code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run once items 102 and 104 to 106 have restructured the code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 102 | 0.1.0 | defect | **Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.** | 5 | 6 | 4 | 8 | 3.2, 3.4, 5 | 15.9 |
 | 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes.** | 2 | 2 | 2 | 7 | 3.2 | 14.1 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 101 | 0.1.0 | decision | **Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 104 | 0.1.0 | decision | **Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
@@ -241,9 +240,9 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
 
-### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 101, 102 and 104 to 106 have restructured the code, and file what the panel names.
+### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 102 and 104 to 106 have restructured the code, and file what the panel names.
 
-Until a panel scores 7.0 or above, only items 101, 102 and 104 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, and items 101, 102 and 104 to 106" suspends every scoring run and panel until this item runs.
+Until a panel scores 7.0 or above, only items 102 and 104 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, and items 102 and 104 to 106" suspends every scoring run and panel until this item runs.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -255,7 +254,7 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 ### 102. Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.
 
-Needs item 101. `internal/rows` takes the rows, their key and parent proofs, the pins, the row draws and the lookups, and owns the parent and child links. Each rows table holds the engine table that owns it as a payload of a type parameter, set when the rows table is built, so a step to a relative reaches its format and cells with no side map, the links have one writer, and `internal/rows` imports no engine type. The rows code reads `CheckName` and the selector spelling from `internal/grammar`. The lookups reuse the weights `sumWeights` parsed; today `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
+`internal/rows` takes the rows, their key and parent proofs, the pins, the row draws and the lookups, and owns the parent and child links. Each rows table holds the engine table that owns it as a payload of a type parameter, set when the rows table is built, so a step to a relative reaches its format and cells with no side map, the links have one writer, and `internal/rows` imports no engine type. The rows code reads `CheckName` and the selector spelling from `internal/grammar`. The lookups reuse the weights `sumWeights` parsed; today `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
 
 ### 106. Settle each record's shape when its template links, so `Generator.records` goes.
 
@@ -264,10 +263,6 @@ Needs item 105. Settling all 84 shipped record shapes took 0.09 ms on 2026-10-05
 ### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 
 Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
-
-### 101. Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.
-
-`template.site` serves only labels and the table-cell refusals at compile, so it goes and the walk names the label. `setTablePaths` and the write `linkParent` makes into another table's `children` become one builder; `AGENTS.md`'s complexity rule, which names `linkParent` among the dispatches that stay whole, changes with it.
 
 ### 104. Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.
 
@@ -384,7 +379,7 @@ Require the path step to reach a sibling category.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and items 101 and 102 move a table's rows there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and item 102 moves a table's rows there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 112. Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.
 

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -55,9 +56,8 @@ type template struct {
 	repeat     int
 	separator  string
 	datatype   DataType
-	fromString bool // written as a JSON string rather than an object
-	isRecord   bool // compiled at the top without a repeat, so its fields are record columns
-	site       tableSite
+	fromString bool          // written as a JSON string rather than an object
+	isRecord   bool          // compiled at the top without a repeat, so its fields are record columns
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
 	// Filled by `bindNames`, from the compiled category:
@@ -67,27 +67,6 @@ type template struct {
 	// Filled by `linkTemplate`, from the assembled tree:
 	link     templateLink
 	compiled formatOps
-}
-
-// tableSite is the table a template belongs to, as its format or one of its cells; table is nil
-// for any other template.
-type tableSite struct {
-	table *table
-	row   int // the cell's row, or formatRow for the format
-}
-
-const formatRow = -1
-
-func (s tableSite) isCell() bool {
-	return s.table != nil && s.row != formatRow
-}
-
-// label names the template at path in an error, a cell by its line in the rows file.
-func (s tableSite) label(path string) string {
-	if s.isCell() {
-		return fmt.Sprintf("%s, line %d", path, s.row+2)
-	}
-	return path
 }
 
 // templateLink is what a template resolves to in the assembled tree.
@@ -119,18 +98,18 @@ func compile(v any) (node, error) {
 
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it, and refuses a choice that is a table written as templates.
-func compileCategory(v any, name string, readRows func(file string) (string, error)) (node, error) {
-	if m, ok := v.(map[string]any); ok {
+func compileCategory(c datafiles.Category) (node, error) {
+	if m, ok := c.JSON.(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
-			return compileTable(m, name, readRows)
+			return compileTable(m, c.Name, join(strings.Join(c.Folders, "."), c.Name), c.ReadRows)
 		}
 	}
-	if items, ok := v.([]any); ok {
-		if err := checkNotRows(items, name); err != nil {
+	if items, ok := c.JSON.([]any); ok {
+		if err := checkNotRows(items, c.Name); err != nil {
 			return nil, err
 		}
 	}
-	return compile(v)
+	return compile(c.JSON)
 }
 
 // checkNotRows refuses a choice of templates sharing one format and one set of
@@ -197,7 +176,7 @@ func compileAt(v any, pos position) (node, error) {
 func compileItem(v any, pos position) (node, error) {
 	switch v := v.(type) {
 	case string:
-		t, err := compileString(v, tableSite{})
+		t, err := compileString(v)
 		if err != nil {
 			return nil, err
 		}
@@ -228,20 +207,12 @@ func jsonKind(v any) string {
 	return fmt.Sprintf("%T", v)
 }
 
-func compileString(s string, site tableSite) (*template, error) {
+func compileString(s string) (*template, error) {
 	toks, unbound, err := parseChecked(s, nil)
 	if err != nil {
 		return nil, err
 	}
-	if site.table != nil {
-		if err := refuseTableBinding(toks); err != nil {
-			return nil, err
-		}
-		if len(unbound) > 0 {
-			return nil, unbound[0].err
-		}
-	}
-	return &template{format: s, tokens: toks, repeat: 1, fromString: true, site: site, unbound: unbound}, nil
+	return &template{format: s, tokens: toks, repeat: 1, fromString: true, unbound: unbound}, nil
 }
 
 // fixedText is one render's output when the format holds no token; repeat is the caller's.
