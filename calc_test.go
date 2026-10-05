@@ -113,12 +113,6 @@ func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
 	}
 }
 
-// TestCalcPrepPanicsOnAnUncheckedExpression pins the guard on calc's own invariant:
-// checkCalc parsed the expression before prep sees it.
-func TestCalcPrepPanicsOnAnUncheckedExpression(t *testing.T) {
-	mustPanic(t, "prep on an expression that does not parse", func() { calcPrep([]string{"1 +"}) })
-}
-
 // --- one draw, one value: a calc operand reads the expansion's draw ---
 
 // TestANamedCalcOperandIsTheOneShown pins how a calc computes from the value its format

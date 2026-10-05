@@ -29,10 +29,14 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                  {"internal/drawstate", "internal/grammar"},
-		"cmd/fejkdata":       {"."},
-		"internal/drawstate": nil,
-		"internal/grammar":   nil,
+		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/proven"},
+		"cmd/fejkdata":         {"."},
+		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/proven"},
+		"internal/datafiles":   {"internal/grammar"},
+		"internal/datatype":    nil,
+		"internal/drawstate":   nil,
+		"internal/grammar":     nil,
+		"internal/proven":      {"internal/datatype", "internal/grammar"},
 	}
 	seen := map[string]bool{}
 	err = filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
