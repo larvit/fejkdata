@@ -5,13 +5,13 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// pickKey is where a level sits in a named pick: its path from the head the name's target starts
-// at, which is "". A fresh read keys its levels from its own head until readUnder keys them under
-// the pick.
+// pickKey is a level's path of segments from a root keyed "": for a named read, the node its
+// name's target starts at; for a fresh read, the template it sits in. under moves a fresh read's
+// key into the pick it renders in.
 type pickKey string
 
-// under is the key of rel, a fresh read's key, in what renders at k. It never returns k itself: on
-// a render k is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
+// under is rel, a key from a fresh read's levels, moved under k, the key of what renders. It never
+// returns k itself: on a render k is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
 func (k pickKey) under(rel pickKey) pickKey {
 	if k == "" {
 		return rel
@@ -193,8 +193,8 @@ func (sc renderScope) keeps(a arm) bool {
 	return kept
 }
 
-// readUnder reads a of t, which renders as part of the pick sc.pick at sc.pickAt, where a read of
-// the name addresses it: once per pick, by its key in the pick.
+// readUnder reads a, an arm of t, once per pick: t renders in sc.pick at sc.pickAt, and a read of
+// the name addresses the level a starts at. It keys the value by a's key under sc.pickAt.
 func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
 	p, key := sc.pick, sc.pickAt.under(a.key())
 	if r, done := p.memo.value[key]; done {
@@ -209,8 +209,8 @@ func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue
 	return p.renderAt(s, leaf, pins, key, sc)
 }
 
-// draw draws the path from head under p, keeping the variant drawn at each of levels, the leaf's
-// last, and returns the leaf and the pins its row is in.
+// draw draws the path from head under p, keeping the variant drawn at each of levels, whose last
+// is the leaf's key, and returns the leaf and the pins its row is in.
 func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels []pickKey) (node, *pinSet) {
 	leaf, pins := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
