@@ -960,25 +960,26 @@ name.go         names: {x as n} bindings, the scopes they live in, and the reads
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, the memo a pick keeps, and the reads kept under it
 scope.go        the scope a render reads names and rows through
-path.go         the dotted-path walks with their selectors, and proving a path resolves
+path.go         the dotted-path walks, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
-format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
+format.go       a format's tokens checked against their fields, and compiled
 pins.go         the pin set: the table rows one path or one named pick fixes
-reference.go    reference sigils, and resolving references across the tree
+reference.go    resolving references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 builtins.go     the {name()} function registry and its implementations
 layout.go       date and time layouts: the instants one is proved against, and the two samples
 checksum.go     the check characters a derivation appends, and the IBAN they sit inside
 transform.go    the builtins that rewrite an operand's value, and the ASCII folding
-calc.go         the {calc()} arithmetic evaluator: parser, eval, validation
+calc.go         the {calc()} arithmetic: eval and validation
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: fs.FS folders/files -> merged namespace tree, and the bind pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
+internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 docs/           the decision log, the register research behind the shipped data, and the survey of other libraries
