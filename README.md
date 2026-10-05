@@ -964,10 +964,10 @@ path.go         the dotted-path walks, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
-inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
+inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and bind
 format.go       a format's tokens checked against their fields, and compiled
 reference.go    resolving references across the tree
-link.go         linking a template to the assembled tree, in steps: references, names' targets, compiled formats, a name's keys and reads, column reads, and the checks over them
+link.go         linking templates to the assembled tree in steps, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
