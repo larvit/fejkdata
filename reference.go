@@ -154,7 +154,7 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 	return link, nil
 }
 
-// columnRead is a record's column read by a format of that one reference or name read alone,
+// columnRead is a record's column read by a format that only reads one reference or name,
 // which is the column: it takes the column's datatype and null. category and field name it;
 // category is "" for a column of the reading template's own record, which checkColumns reaches
 // on its own.
@@ -164,8 +164,8 @@ type columnRead struct {
 	column          node
 }
 
-// linkColumnRead sets the record's column t's format reads, where it is one reference or name
-// read alone, once the names are linked.
+// linkColumnRead sets the record's column t's format reads, where the format only reads one
+// reference or name, once the names are linked.
 func linkColumnRead(_ string, t *template) error {
 	ops := t.compiled.ops
 	if t.repeat != 1 || len(ops) != 1 || ops[0].kind != nameRead || len(ops[0].arms) != 1 {

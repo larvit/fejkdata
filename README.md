@@ -345,8 +345,8 @@ naming a kind that holds it. The tags are a record's columns, so they share its
 describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
 embedded struct promotes are columns of the same record; a named struct field, or a
 pointer to one, fills from its own tags as a record of its own, so its names and picks are
-its own. `fake:"-"` leaves a struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
-their values, and so does a pointer back to a struct already being filled; a type
+its own. `fake:"-"` leaves a struct field, embedded or named, or a pointer to one, unfilled.
+Untagged fields keep their values, and so does a pointer back to a struct already being filled; a type
 whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
 first call for a type compiles its tags and reports what they get wrong, with the same
 error on every later call; a `datatype` in a tag names the Go type that already sets it.
@@ -756,7 +756,8 @@ Refused at `New`, each error naming what to write instead:
 - a name bound twice outside any `repeat`, twice in one `repeat`, or both inside a `repeat`
   and outside it;
 - a name that is a field or an option;
-- a binding of anything but a reference or a path into a field of the template binding it;
+- a binding of anything but a reference, or a field of the template binding it or a path into
+  one;
 - a read of a name inside the field bound to it: read it outside that field;
 - a binding in a choice's item, which every other item would leave unbound;
 - a binding nothing reads, or one read only once, unless that read sits in a `repeat`
