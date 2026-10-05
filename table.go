@@ -322,7 +322,7 @@ func (t *table) checkCells() error {
 // compileRowFormat compiles the format a row renders through, over the columns as its
 // fields.
 func (t *table) compileRowFormat(format string) error {
-	toks, err := grammar.ParseFormat(format, builtinOperands)
+	toks, err := grammar.ParseFormat(format)
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func (t *table) compileRowFormat(format string) error {
 		if tok.Kind != grammar.NameRead {
 			continue
 		}
-		for _, name := range tok.Names {
+		for _, name := range tok.Arms {
 			a := splitArm(name, nil)
 			if _, ok := t.col[a.head]; !ok && !grammar.IsRef(a.head) && a.head != "" {
 				return fmt.Errorf("format names no column %q of %s; the columns are %v", a.head, t.file, t.header)

@@ -62,7 +62,7 @@ func checkFunc(tok grammar.Token, fields map[string]node) error {
 }
 
 func parseChecked(format string, fields map[string]node) ([]grammar.Token, []unboundRead, error) {
-	toks, err := grammar.ParseFormat(format, builtinOperands)
+	toks, err := grammar.ParseFormat(format)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -110,7 +110,7 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 		}
 		// Last, so an arm broken on its own terms is reported as that: a repeat is
 		// the consequence of such a mistake, not the mistake itself.
-		return unbound, checkNoRepeatedArm(t.Body, t.Names)
+		return unbound, checkNoRepeatedArm(t.Body, t.Arms)
 	}
 	return nil, nil
 }
@@ -119,14 +119,15 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 // field, returning those whose head no field holds.
 func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unboundRead, error) {
 	var unbound []unboundRead
-	for _, name := range t.Names {
+	names := tokenReads(t)
+	for _, name := range names {
 		if grammar.IsRef(name) {
 			if _, _, err := grammar.RefShape(name); err != nil {
 				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 			}
 			continue // its target is checked at New (see linkRefs)
 		}
-		missing, err := checkArm(name, fields, !operands && len(t.Names) == 1)
+		missing, err := checkArm(name, fields, !operands && len(names) == 1)
 		if err == nil {
 			continue
 		}
@@ -214,6 +215,14 @@ func hintableRef(name string) bool {
 	return grammar.CheckPathNames(name) == nil
 }
 
+// tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads.
+func tokenReads(t grammar.Token) []string {
+	if t.Kind == grammar.BuiltinCall {
+		return builtinOperands(t.Fn, t.Args)
+	}
+	return t.Arms
+}
+
 // builtinOperands lists the fields a call reads as operands, empty for a builtin that
 // reads none or is unknown.
 func builtinOperands(name string, args []string) []string {
@@ -295,22 +304,13 @@ func pathArm(name, head, writtenHead string, segs []string) arm {
 	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
 }
 
-// checkSegments rejects an unfinished path: "{a.}" and "{a...b}" each have a
-// segment naming nothing. A field really named "" would otherwise make them
-// resolve, so a typo would read as a path that worked.
+// checkSegments refuses an empty segment in a path, which a field really named "" would
+// otherwise resolve, so a typo would read as a path that worked.
 func checkSegments(a arm) error {
 	if len(a.tail) == 0 {
 		return nil
 	}
-	if a.head == "" {
-		return fmt.Errorf("path has an empty segment")
-	}
-	for _, seg := range a.tail {
-		if seg == "" {
-			return fmt.Errorf("path has an empty segment")
-		}
-	}
-	return nil
+	return grammar.CheckSegments(append([]string{a.head}, a.tail...))
 }
 
 // callFn is a builtin prepared for one call site: its args already parsed. It reads the
@@ -337,7 +337,7 @@ type formatOps struct {
 
 func (c *formatOps) function(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
 	var operands []arm
-	for _, operand := range tok.Names {
+	for _, operand := range builtinOperands(tok.Fn, tok.Args) {
 		a := splitArm(operand, refs)
 		if isName(a.head) {
 			a.kind = namedRead
@@ -348,8 +348,8 @@ func (c *formatOps) function(tok grammar.Token, refs map[string]refBinding, isNa
 }
 
 func (c *formatOps) field(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
-	arms := make([]arm, len(tok.Names))
-	for i, name := range tok.Names {
+	arms := make([]arm, len(tok.Arms))
+	for i, name := range tok.Arms {
 		arms[i] = splitArm(name, refs)
 		if isName(arms[i].head) {
 			arms[i].kind = namedRead

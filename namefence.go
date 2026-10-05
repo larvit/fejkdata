@@ -109,8 +109,8 @@ func fieldPathTo(t, target *template) ([]string, bool) {
 
 // calcReads reports whether a calc reads spelling as one operand.
 func calcReads(spelling string) bool {
-	n, err := grammar.ParseCalc(spelling)
-	v, isVar := n.(grammar.CalcVar)
+	c, err := grammar.ParseCalc(spelling)
+	v, isVar := c.Expr.(grammar.CalcVar)
 	return err == nil && isVar && v.Name == spelling
 }
 

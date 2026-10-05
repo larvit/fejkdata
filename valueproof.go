@@ -213,7 +213,7 @@ func (p *valueProof) proveTemplate(t *template) proven {
 
 func (p *valueProof) proveCalc(o op) proven {
 	body, args := o.Body, o.Args
-	expr := parsedCalc(args[0])
+	expr := parsedCalc(args[0]).Expr
 	nodes := operandNodes(o)
 	v, doubt := p.proveExpr(expr, func(name string) proven { return p.proveUnion(nodes(name)) })
 	if doubt == "" && !(magnitude(v) <= calcLimit) {

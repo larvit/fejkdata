@@ -210,7 +210,7 @@ func refTokens(toks []grammar.Token) []string {
 	var refs []string
 	seen := map[string]bool{}
 	for _, tok := range toks {
-		names := tok.Names
+		names := tokenReads(tok)
 		if tok.Kind == grammar.NameBind {
 			names = []string{tok.BoundRef}
 		}

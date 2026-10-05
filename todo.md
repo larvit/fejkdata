@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 110`
+`Next ID = 112`
 
 | Goal | W |
 |---|---|
@@ -85,6 +85,7 @@
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 99 | 0.1.0 | decision | **Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.** | 3 | 4 | 2 | 7 | 3.2, 3.4 | 12.6 |
 | 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
+| 111 | 0.1.0 | defect | **Settle goal 14.1 against the three decisions that drop source rows: amend the goal to admit a row dropped by a stated rule that serves a higher goal, or name the item that ends each decision.** | 1 | 2 | 3 | 7 | 14.1 | 9.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -110,6 +111,7 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 110 | 0.2.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
@@ -292,6 +294,10 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote and writes `link.readsColumn` into the link `linkTemplate` built, and `checkNameReads` reads the arms both filled. `arm` is filled in three places, `compileFormat`, `compileArms` and `linkName`, and `splitArm` runs before the link and again after it, so five readers of an earlier panel traced three phases. Technical principle: one owner per value.
 
+### 111. Settle goal 14.1 against the three decisions that drop source rows: amend the goal to admit a row dropped by a stated rule that serves a higher goal, or name the item that ends each decision.
+
+Goal 14.1 says a table holds every row its source holds. "`misc.territory` is the spine, and a `misc` table naming a territory links to it" drops 17 `misc.timezone` rows, "A postort's kommun comes from its name, its tätort or its codes, never from distance" drops postorter it cannot place, and "A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places" drops route names and ZCTAs; none names an item ending the conflict. The README's account of goal 14, "the script drops a row only by a rule it states", already reads like the amended goal. Which way is the maintainer's call.
+
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
@@ -386,6 +392,10 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
+
+### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
+
+Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference and a sibling path run.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 

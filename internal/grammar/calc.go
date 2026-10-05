@@ -12,8 +12,14 @@ type CalcNode interface{ calcNode() }
 
 type CalcNum float64 // a number literal
 
-// CalcVar is an operand, a sibling field or a name. At is its position among the
-// distinct operands in the order the expression first names each, which CalcVars lists.
+// Calc is a parsed calc expression and the distinct operands it reads, in the order it
+// first names each.
+type Calc struct {
+	Expr     CalcNode
+	Operands []string
+}
+
+// CalcVar is an operand, a sibling field or a name, at its position in Calc.Operands.
 type CalcVar struct {
 	Name string
 	At   int
@@ -30,27 +36,6 @@ func (CalcNum) calcNode() {}
 func (CalcVar) calcNode() {}
 func (CalcNeg) calcNode() {}
 func (CalcBin) calcNode() {}
-
-// CalcVars lists the distinct operands an expression reads, each at its At.
-func CalcVars(n CalcNode) []string {
-	var out []string
-	var walk func(CalcNode)
-	walk = func(n CalcNode) {
-		switch n := n.(type) {
-		case CalcVar:
-			if n.At == len(out) {
-				out = append(out, n.Name)
-			}
-		case CalcNeg:
-			walk(n.X)
-		case CalcBin:
-			walk(n.L)
-			walk(n.R)
-		}
-	}
-	walk(n)
-	return out
-}
 
 // CalcText spells an expression node the way an author would read it.
 func CalcText(n CalcNode) string {
@@ -70,25 +55,25 @@ func CalcText(n CalcNode) string {
 // calcParser is a recursive-descent parser over the expression runes, threading
 // expr -> term -> factor for the standard * / before + - precedence.
 type calcParser struct {
-	rs   []rune
-	pos  int
-	vars map[string]int
+	rs       []rune
+	pos      int
+	operands []string
 }
 
 // ParseCalc parses a whole expression, requiring it to consume all input.
-func ParseCalc(expr string) (CalcNode, error) {
-	p := &calcParser{rs: []rune(expr), vars: map[string]int{}}
+func ParseCalc(expr string) (Calc, error) {
+	p := &calcParser{rs: []rune(expr)}
 	if p.space(); p.pos >= len(p.rs) {
-		return nil, fmt.Errorf("empty expression")
+		return Calc{}, fmt.Errorf("empty expression")
 	}
 	n, err := p.expr()
 	if err != nil {
-		return nil, err
+		return Calc{}, err
 	}
 	if p.space(); p.pos != len(p.rs) {
-		return nil, fmt.Errorf("unexpected %q", string(p.rs[p.pos:]))
+		return Calc{}, fmt.Errorf("unexpected %q", string(p.rs[p.pos:]))
 	}
-	return n, nil
+	return Calc{n, p.operands}, nil
 }
 
 func (p *calcParser) space() {
@@ -185,10 +170,10 @@ func (p *calcParser) ident() (CalcNode, error) {
 		}
 	}
 	name := string(p.rs[start:p.pos])
-	at, seen := p.vars[name]
-	if !seen {
-		at = len(p.vars)
-		p.vars[name] = at
+	at := slices.Index(p.operands, name)
+	if at < 0 {
+		at = len(p.operands)
+		p.operands = append(p.operands, name)
 	}
 	return CalcVar{name, at}, nil
 }
