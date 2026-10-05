@@ -114,4 +114,4 @@ In [docs/decisions.md](docs/decisions.md):
 - comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, and items 101, 102 and 104 to 106
 - The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and items 101 and 102 move a table's rows there
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
-- Goal 7.2's "no escaping" means a template needs no special character beyond `{}`
+- Goal 7.2's "no escaping" means a template needs no special character beyond `{` and `}`
