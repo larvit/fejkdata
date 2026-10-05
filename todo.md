@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 96`
+`Next ID = 97`
 
 | Goal | W |
 |---|---|
@@ -72,6 +72,7 @@
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
+| 96 | 0.1.0 | question | **Refuse two reads of one sibling, one category or one struct category by different spellings, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
@@ -232,6 +233,10 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+
+### 96. Refuse two reads of one sibling, one category or one struct category by different spellings, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
+
+Asked of the maintainer by the product-owner pass of item 4's chunk. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. Item 4 planned the draw checks as names, paths through names, cycles and the repeat cap, so the fence would revise the decision "Every `{…}` draws afresh, and only a name keeps a pick". `{w} {w}`, one spelling twice, stays two draws. Open: whether reads across categories, `{/city.name}, {/country.name}`, count.
 
 ### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
 
