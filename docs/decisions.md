@@ -832,11 +832,10 @@ Valid while names are read only inside the category binding them.
 ## The template engine stays the root package until item 107, and what stands alone lives in `internal/`
 
 2026-10-05, Lilleman auf Larv. Serves goals 3.2 and 3.4. Two architect reviews found the
-engine's types, `template`, `table`, `arm`, `op`, `nameBinding` and the draw state, bound in
-one cycle because several passes each write part of the same structs; the template
+engine's types, `template`, `table`, `arm`, `op` and `nameBinding`, bound in one cycle because several passes each write part of the same structs; the template
 language's recursion needs only a little of it. Moving the engine before items 101 to 106
 give each value one writer would spread that knot across packages, behind forwarding calls
-from every public method. The grammar, the draw state and the reading of data files read no
-engine type; `DataType`, the proofs' bounds, the builtins and a table's rows stop reading one
-once items 99, 100 and 102 cut their edges, so they move now, each behind an import list a
-test checks. Valid until `todo.md` item 107 moves the engine.
+from every public method. The draw state and `DataType` read no engine type, and `DataType`
+moves with the proofs' bounds keyed by it; the grammar, the reading of data files, the
+proofs' bounds, the builtins and a table's rows stop reading one once items 98 to 103 cut
+their edges, so they move now, each behind an import list a test checks. Valid until `todo.md` item 107 moves the engine.
