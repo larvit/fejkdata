@@ -312,8 +312,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 `New` refuses a mistake in the data, and `NewTemplate` one in the template. On a loaded
 generator:
 
-- `Fake` fails only for a path that names nothing or could name two things, with the
-  same error every call.
+- `Fake` fails only for a path that names nothing, could name two things, or reads one
+  draw of a level carrying a `repeat`, with the same error every call.
 - `FakeStruct` fails only for a non-struct argument or a type its tags do not describe,
   with the same error every call.
 - `Template.Fake` cannot fail.

@@ -23,7 +23,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["idempotent", "method", "safe"]
 CORE = re.compile(r"\[RFC9110, Section 9\.3\.|\[RFC5789, Section 2\]")
 BOOLEAN = {"yes": "true", "no": "false"}
-SELECTOR = '[]{}"|'  # mirrors inSelector in table.go
+SELECTOR = '[]{}"|'  # mirrors inSelector in internal/grammar/path.go
 EXPECTED = 9
 
 

@@ -21,7 +21,7 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "protocol.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")
-SELECTOR = '[]{}"|'  # mirrors inSelector in table.go
+SELECTOR = '[]{}"|'  # mirrors inSelector in internal/grammar/path.go
 
 
 def rows(text):
