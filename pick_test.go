@@ -333,7 +333,7 @@ func TestAColumnReadingABoundColumnIsThatColumn(t *testing.T) {
 	}
 }
 
-func TestAFreshReadInsideANamedPickReadsNoneOfThePick(t *testing.T) {
+func TestAFreshReadInsideANamedPickSharesNoValueWithIt(t *testing.T) {
 	f := engine(5)
 	src := `{"format":"{w as p}{p.a}|{p.a.b}","w":{"format":"{a}","a":{"format":"{c}|{b}","b":["1","2","3"],"c":{"format":"{b}","b":["x","y","z"]}}}}`
 	want := regexp.MustCompile(`^[xyz]\|([123])\|([123])$`)
