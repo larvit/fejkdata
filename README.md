@@ -978,6 +978,7 @@ datatype.go     column datatypes: DataType, where datatype and null may sit, a c
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: fs.FS folders/files -> merged namespace tree, and the bind pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI
+internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
 docs/           the decision log, the register research behind the shipped data, and the survey of other libraries
