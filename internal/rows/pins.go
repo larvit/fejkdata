@@ -28,7 +28,7 @@ func (p *Pins[O]) Pinned(t *Table[O]) (int, bool) {
 	return r, ok
 }
 
-// MustRow is the row pinned for t, which the caller pinned.
+// MustRow is the row pinned for t; the caller must have pinned one.
 func (p *Pins[O]) MustRow(t *Table[O]) int {
 	r, ok := p.Pinned(t)
 	if !ok {

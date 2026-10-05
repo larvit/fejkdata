@@ -29,7 +29,7 @@ package fejkdata
 //     and the value each path read: `drawMemo`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `pinSet`, `namedPick.pins`, `table.drawStep`.
-//   - family — a table and every table reaching it through a chain of links
-//     `table.linkParent` makes.
+//   - family — a table and every table reaching it through a chain of parent
+//     links (`table.linkParent`).
 //   - fence — a load-time check, run over each category, template or struct as it
 //     loads or compiles, so rendering a compiled tree cannot fail.

@@ -141,7 +141,7 @@ func (t *Table[O]) appendRow(row string, line int) error {
 	return nil
 }
 
-// bindOptions resolves each option to its column, refuses a name reading the key column, and
+// bindOptions resolves each option to its column, refuses a name option naming the key column, and
 // proves what the options claim of the cells: a key is unique, a weight a positive number.
 func (t *Table[O]) bindOptions() error {
 	o := t.options
@@ -253,8 +253,8 @@ func (t *Table[O]) checkSelectorCells() error {
 }
 
 // Link links t to p, the table its link column names, after proving p has a key, every
-// link cell is one, and every row of p is linked to. sibling is the table beside t
-// named name, nil where none is. It is the only writer of a table's parent and children.
+// link cell is one, and every row of p is linked to. sibling returns the table beside t
+// named name, or nil. Link is the only writer of a table's parent and children.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func (t *Table[O]) Link(p *Table[O], sibling func(name string) *Table[O]) error {
 	name := t.header[t.parentIndex]
@@ -307,7 +307,7 @@ func (t *Table[O]) checkAncestors(p *Table[O], sibling func(name string) *Table[
 	return nil
 }
 
-// Children is the tables linked to t, by segment.
+// Children is the tables linked to t, sorted by segment.
 func (t *Table[O]) Children() []*Table[O] {
 	out := make([]*Table[O], 0, len(t.children))
 	for _, c := range t.children {
@@ -411,9 +411,9 @@ func (t *Table[O]) drawUnder(s *drawstate.State, pr int) int {
 	return rows[s.Weighted(lookup.childCum[k])]
 }
 
-// DrawIn is the row of t inside the rows p pins: the one pinned in p, else one drawn inside the nearest
-// pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
-// over the whole table, and pinned with its ancestors.
+// DrawIn returns the row of t that p pins. Where p pins none, it draws one inside the nearest
+// ancestor p pins, drawing t's parent there first when that ancestor is higher up; with no
+// ancestor pinned, it draws over the whole table. It pins the row drawn and its ancestors' rows in p.
 func (t *Table[O]) DrawIn(s *drawstate.State, p *Pins[O]) int {
 	if r, ok := p.Pinned(t); ok {
 		return r

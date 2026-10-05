@@ -139,7 +139,7 @@ func HasSelector(segs []string) bool {
 func SelectorOf(seg string) string { return seg[1 : len(seg)-1] }
 
 // inSelector is what a selector may not contain: the path grammar reserves brackets and
-// braces, and a quote or a bar would make the selector no path and no token arm.
+// braces, and inside a token a quote would end the path and a bar would split the token into arms.
 const inSelector = `[]{}"|`
 
 // UnspellableInSelector is the first character of s a selector cannot spell, "" where there is none.

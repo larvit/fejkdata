@@ -839,8 +839,8 @@ each value one writer would spread that knot across packages, behind forwarding 
 every public method. The draw state, the grammar, `DataType`, what a proof knows of a
 value, the builtins, the reading of data files and a table's rows read no engine type, so
 each sits in a package under `internal/`, behind the import list `imports_test.go` checks.
-A table's rows reach the engine table owning them as their owner, a value of a type parameter. Valid
-until `todo.md` item 107 moves the engine.
+A rows table holds the engine table owning it as a value of a type parameter, so
+`internal/rows` imports no engine type. Valid until `todo.md` item 107 moves the engine.
 
 ## Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 

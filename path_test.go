@@ -62,7 +62,6 @@ func TestDescendIntoStringErrors(t *testing.T) {
 	}
 }
 
-// TestPathRefusesALevelCarryingARepeat holds a caller's path to the rule a reference obeys.
 func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"outer": `{"format":"{inner}","inner":{"format":"{a}","a":"v","repeat":3,"separator":","}}`,
