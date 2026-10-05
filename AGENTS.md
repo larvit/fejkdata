@@ -115,3 +115,13 @@ In [docs/decisions.md](docs/decisions.md):
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
+
+# Scoring run
+
+The project values for `skills/comprehension-panel/scoring-run.md`:
+
+- `{language}`: Go
+- `{kind}`: a Go library and CLI that renders fake data from JSON templates
+- `{domain}`: fake test-data generation and template languages
+- `{domain docs}`: the documentation of any fake-data library, such as Faker
+- `{3am question}`: a seeded render of `sv_SE.address` prints the postal code of one postort beside a street of another
