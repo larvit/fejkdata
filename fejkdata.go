@@ -114,8 +114,8 @@ func (c config) load() (folder, error) {
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
 // column and linked table below it, a direct descent at a time, listing a level
-// carrying a repeat but nothing below it. A choice consumes no segment, so a path continues through one
-// only where every variant carries it.
+// carrying a repeat but nothing below it. A choice consumes no segment, so a path
+// continues through one only where every variant carries it.
 func (f *Generator) List() []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
