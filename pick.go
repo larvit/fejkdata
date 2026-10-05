@@ -183,8 +183,8 @@ func readUnder(s *generatorState, t *template, sc renderScope, a arm) readValue 
 	return p.renderAt(s, leaf, pins, key, sc)
 }
 
-// underKey is the key of path under the pick key prefix. It never returns prefix itself, which a
-// memo would keep: anything a renderScope holds reaching the heap moves every render's scope there.
+// underKey is the key of path under the pick key prefix. It never returns prefix itself: prefix is
+// sc.pickKey, and a memo keeping it would move every render's scope to the heap.
 func underKey(prefix, path string) string {
 	if prefix == "" {
 		return path

@@ -27,8 +27,8 @@ type renderedRow struct {
 	index int
 }
 
-// at is the scope n, the leaf of a path that pinned its rows in pins, renders in: where n is a
-// table's row or column, at the row pins holds for that table.
+// at returns the scope n renders in, n being the leaf of a path whose rows sit in pins; where n
+// is a table's row or column, the scope carries the row pins holds for that table.
 func (sc renderScope) at(n node, pins *pinSet) renderScope {
 	switch n := n.(type) {
 	case *tableRow:

@@ -307,3 +307,28 @@ func TestAFieldBoundWholeIsItsPickAsAColumn(t *testing.T) {
 		t.Errorf("place drew only %v in 100 records, want both", seen)
 	}
 }
+
+func TestAColumnReadingABoundColumnIsThatColumn(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"row": `{"format":"{place as p}","place":[null,{"format":"{int(1,9)}","datatype":"integer"}],"a":"{p}","z":"{p}"}`,
+	}), WithSeed(1))
+	nulls := 0
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := r.Columns()
+		for _, col := range c {
+			if col.DataType != DataTypeInteger || col.Null != c[0].Null || col.Value != c[0].Value {
+				t.Fatalf("%s: want a, place and z one integer pick, null alike", r.JSON())
+			}
+		}
+		if c[0].Null {
+			nulls++
+		}
+	}
+	if nulls == 0 || nulls == 100 {
+		t.Errorf("the pick was null %d times in 100 records, want both outcomes", nulls)
+	}
+}

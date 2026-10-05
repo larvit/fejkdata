@@ -6,8 +6,9 @@ import (
 	"strings"
 )
 
-// checkNameReads refuses each binding of t that checkUses refuses, and a read such as {n} whose
-// pick renders twice a field another read, {n.w}, reads once: the pick keeps one draw of it.
+// checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
+// field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
+// draw of w.
 func checkNameReads(path string, t *template) error {
 	for _, tok := range t.tokens {
 		if tok.kind != nameBind {
@@ -19,7 +20,7 @@ func checkNameReads(path string, t *template) error {
 	}
 	return namedReads(t, func(o *op, a *arm) error {
 		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
-			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field it binds; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", t.site.label(path), o.body, a.named.name, a.named.ref)
 		}
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
@@ -58,8 +59,8 @@ func rendersInside(nodes []node, t *template) bool {
 }
 
 // checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
-// draws the same way without the name. A field stands where the reading template reaches the
-// binder through fields. Where the spelling would be a CLI argument or tag of one reference alone,
+// draws the same way without the name. A bound field can stand in only where the reading template
+// reaches the binder through fields. Where the spelling would be a CLI argument or tag of one reference alone,
 // that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses() error {
 	r := b.uses[0]

@@ -222,7 +222,7 @@ func (t *template) isName(head string) bool {
 	return !isRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
-// linkBindings gives each binding t's tokens make the head and tail what it binds resolved to.
+// linkBindings resolves what each of t's bindings binds to a head node and a tail path.
 func linkBindings(t *template) {
 	for _, tok := range t.tokens {
 		if tok.kind != nameBind {
@@ -255,8 +255,8 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 // starts: a pass reads what the one before filled in.
 var linkPasses = []func(path string, t *template) error{linkNames, linkColumnRead, checkNameReads, checkCalcNames}
 
-// linkNames compiles t's reads of a name as paths from the head its binding's reference names, once
-// every template is linked, so each binder has resolved that reference.
+// linkNames compiles t's reads of a name as paths from the head its binding resolved to, once every
+// template is linked, so each binder has resolved what it binds.
 func linkNames(path string, t *template) error {
 	return namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {

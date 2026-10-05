@@ -137,12 +137,14 @@ it as nothing.
 A record is one render, so its columns read one pick of each [name](#names) its category
 binds: `"code": "{/currency as c}{c.code}"` beside `"symbol": "{c.symbol}"` is one
 currency, while `{/currency.code}` and `{/currency.symbol}` in two columns may name two. A
-field the format binds whole, `{place as p}`, is a column holding that pick, so it agrees with
-the columns reading `p`.
+column the format binds to a name, as `{place as p}` binds `place`, holds that same pick, so it
+agrees with the columns reading `p`; a column bound only in part, `{place.town as t}`, draws
+afresh, so bind it whole and read `{p.town}`.
 
 A category never references itself: `{/users.first}` or a bare `{/users}` inside `users`
 describes a draw other than the fields beside it. Read a sibling as a field, and put a
-value two fields share in its own category, which each binds to a name
+value two fields share in its own category, bind it to a name in one field, and read the
+name in both
 ([Decisions](docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load)).
 
 ## Data
@@ -342,9 +344,8 @@ naming a kind that holds it. The tags are a record's columns, so they share its
 [names](#names): `First` tagged `{/sv_SE.person as p}{p.first}` and `Sex` tagged `{p.sex}`
 describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
 embedded struct promotes are columns of the same record; a named struct field, or a
-pointer to one, fills from its own tags as a record of its own, so it picks apart from its
-parent. `fake:"-"` leaves a
-struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
+pointer to one, fills from its own tags as a record of its own, so its names and picks are
+its own. `fake:"-"` leaves a struct field, embedded or named, or a pointer to one, unfilled. Untagged fields keep
 their values, and so does a pointer back to a struct already being filled; a type
 whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
 first call for a type compiles its tags and reports what they get wrong, with the same
@@ -372,15 +373,15 @@ Every character is literal except a `{…}` token:
 | Token | Renders |
 |-------|---------|
 | `{name}` | the sibling field `name`, or the pick bound to the name ([Names](#names)) |
-| `{x as name}` | nothing: binds one pick of `x`, a reference or a path into a sibling field, to `name` ([Names](#names)) |
+| `{x as name}` | nothing: binds one pick of `x`, a reference, a sibling field or a path into one, to `name` ([Names](#names)) |
 | `{name.field}` | `field` of a fresh draw of the sibling `name`, or of the pick bound to it ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
 | `{fn(args)}` | a builtin ([Functions](#functions)) |
 | `{/path}`, `{.path}`, `{..path}` | a node reached from the data root, this file's folder, or the folder above ([References](#references)) |
 | `{{`, `}}` | a literal `{` or `}` |
 
-Each `{…}` makes a new pick, so `{w} {w}`, `{p.a} {p.b}` and `{/person.first}
-{/person.last}` are two draws each. A [name](#names) keeps one pick for every read of it.
+Each `{…}` draws afresh, so `{w} {w}`, `{p.a} {p.b}` and `{/person.first} {/person.last}`
+are two draws each. Only a [name](#names) keeps one pick for every read of it.
 
 ```json
 "100 Main St, Apt {int(1,9)}{upper(1)} — tel {digits(3)}-{digits(4)}"
@@ -448,7 +449,7 @@ order.id: datatype integer: {digits(3)} prints text, not an integer
 order.id: datatype integer: "1{digits(2)}" is not one value; write one literal or one {float()}, {int()}, {seq()} or {calc()}, or read one
 ```
 
-A column of one reference or name read alone to another record's column —
+A column whose format is one read of another record's column and nothing else —
 `"score": "{/src.score}"`, or `"score": "{s.score}"` with `s` bound to `/src` — is that column: it takes the column's datatype and is null where the column is, and
 a struct field tagged `src.score` is nil there. A `datatype` of its own types the
 column's values where they prove it, and one restating the datatype it takes is refused.
@@ -569,7 +570,7 @@ country by its weights, then a city inside it by theirs. Two paths are two draws
 [name](#names) agree instead, and the table it binds decides whose weights govern:
 `{/city as c}` draws a city by city weight and `{c..country.name}` is its country, while
 `{/country as k}` draws a country by country weight and `{k.city.name}` a city inside it.
-A name keeps every row its reads pin, so `{k.city.name}` and `{k.city.population}` describe
+A name keeps every row its reads draw, so `{k.city.name}` and `{k.city.population}` describe
 one city, and `{k.name}` its country.
 
 `New` refuses a link cell that is no key of the parent, a parent row no child links to, a
@@ -717,8 +718,8 @@ without naming `sv_SE`:
 "Hej, {/en_US.person}!"
 ```
 
-Renders e.g. `Hej, Pat Smith!`. `{.person.first} {.person.last}` may name two people, as
-`{/misc.uuid} {/misc.uuid}` is two draws ([Format string](#format-string)). Bind the person to a [name](#names) to read one: `{.person as p}{p.first}
+Renders e.g. `Hej, Pat Smith!`. Each reference draws afresh ([Format string](#format-string)),
+so `{.person.first} {.person.last}` may name two people. Bind the person to a [name](#names) to read one: `{.person as p}{p.first}
 {p.last}`. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, reads a field not every variant
 of a choice carries, or names the category the reference sits in, and a reference
@@ -726,8 +727,8 @@ that leads back to its own value, directly, mutually or through a chain.
 
 ### Names
 
-`{x as n}` binds one pick of `x`, a reference or a path into a sibling field, to the name `n`
-and prints nothing. `{n}` then
+`{x as n}` binds one pick of `x`, a reference, a sibling field or a path into one, to the name
+`n` and prints nothing. `{n}` then
 prints that pick, and `{n.path}` reads a path through it, so every read of `n` describes one
 row:
 
@@ -739,7 +740,7 @@ Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps wha
 lands on and every level it passes, so `{n}` and `{n.path}` agree, and so does a
 [transform](#transforms) of `n.path`. Everything else under the name draws as it would
 anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{n.w}` beside
-`{n}` is refused, since it could read either draw. A field binds the same way, so
+`{n}` is refused, since it could read either draw. A sibling field is bound the same way, so
 `{place as p}{p.postal-code} {p.locality}` reads one place ([Correlated fields](#correlated-fields)).
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws,
@@ -756,12 +757,12 @@ Refused at `New`, each error naming what to write instead:
   and outside it;
 - a name that is a field or an option;
 - a binding of anything but a reference or a path into a field of the template binding it;
-- a read of a name inside the field it binds: read it outside the field;
+- a read of a name inside the field bound to it: read it outside that field;
 - a binding in a choice's item, which every other item would leave unbound;
-- a binding nothing reads, or one read once outside a `repeat` nested where it is bound,
-  which the spelling it binds draws the same way: `{/word as w}{w}` is `{/word}`, and
-  `{/region as r}{r.name}` is `{/region.name}`; a calc reads neither a reference nor a
-  path, so there one read is not refused;
+- a binding nothing reads, or one read only once, unless that read sits in a `repeat`
+  nested where it is bound: write what it binds there instead, `{/word}` for
+  `{/word as w}{w}` and `{/region.name}` for `{/region as r}{r.name}`; a calc cannot read a
+  reference or a path, so a calc's one read of a name bound to either is not refused;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;

@@ -63,7 +63,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A record's column set is fixed before the first draw
 - Null is a `null` item, not a rate
 - A typed column holds one value, not composed text
-- A column of one reference or name read alone is the column it reads
+- A column that only reads one reference or name is the column it reads
 - A typed column's calc is refused unless proven
 - `Column` carries text, not a Go value
 - A unit takes the stem of what it is, and a file the stem of the units it holds
@@ -74,7 +74,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `parent` names the link column and the table alike
 - After a row, a path names a column or a linked table
 - A selected row is fixed, not drawn
-- `..` steps up to the parent row, and a step down after it draws afresh, or once per pick
+- `..` steps up to the parent row, and a step down after it draws afresh, or once per name's pick
 - A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
@@ -111,4 +111,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them
+- comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and item 90 ship with no scoring run, and item 5 scores them

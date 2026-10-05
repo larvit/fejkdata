@@ -76,7 +76,7 @@ func checkColumns(s nodeScope) error {
 		checked[column] = true
 		items, _ := columnItems(column)
 		for _, it := range items {
-			if r := it.link.readsColumn; r != nil {
+			if r := it.link.readsColumn; r != nil && r.category != "" {
 				if err := check(r.category, r.field, r.column); err != nil {
 					return err
 				}

@@ -12,16 +12,16 @@ replacement, and each removed path, column or flag.
   `{/city[Oslo]..country.name}` renders `Norway`, and `.` after it steps down again,
   drawing afresh. `New` refuses a `..` naming anything but the parent table, and a
   selector after a `..`.
-- Names: `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints
-  nothing; `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. A name lives
-  in the category binding it, and a `repeat` binding it picks again on every iteration.
-  A name is a `{calc()}` operand: `{/misc.coordinate.lat as lat}{calc(lat * 60)}`. What
-  `New` refuses is listed under [Names](README.md#names).
 - Every `{…}` draws afresh, and a name is the one way to keep a pick: `{p.a} {p.b}`,
   `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
-  `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one. `{x as n}`
-  binds a sibling field as well as a reference, and a struct's tags share its names,
-  `{/sv_SE.person as p}{p.first}` beside `{p.sex}`.
+  `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one.
+  `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints nothing;
+  `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. A name binds a
+  reference, a sibling field or a path into one, lives in the category binding it, and
+  picks again on every iteration of a `repeat` binding it. A struct's tags share its
+  names, `{/sv_SE.person as p}{p.first}` beside `{p.sex}`. A name is a `{calc()}`
+  operand: `{/misc.coordinate.lat as lat}{calc(lat * 60)}`. What `New` refuses is listed
+  under [Names](README.md#names).
 - First release: the CLI, the library and the shipped data set.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,

@@ -269,7 +269,7 @@ func renderRecord(s *generatorState, t *template, columns []Column, sc renderSco
 		field := t.fields[r.columns[i].Name]
 		var column readValue
 		if b := bindingOfWhole(t, field); b != nil {
-			column = readName(s, sc, arm{kind: namedRead, named: b, levels: []string{""}})
+			column = readName(s, sc, arm{kind: namedRead, named: b, levels: wholeLevels})
 		} else {
 			column = renderLeaf(s, field, sc)
 		}
@@ -277,6 +277,9 @@ func renderRecord(s *generatorState, t *template, columns []Column, sc renderSco
 	}
 	return r
 }
+
+// wholeLevels is the levels of a read of a whole name, as linkName compiles {n}.
+var wholeLevels = []string{""}
 
 // bindingOfWhole is the name t binds to the whole of field, whose pick the field's column renders
 // so the row agrees with the columns reading the name; nil where none does.
