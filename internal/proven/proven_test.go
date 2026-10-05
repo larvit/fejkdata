@@ -20,7 +20,7 @@ func TestLiteralSaysWhichDatatypesItsTextIs(t *testing.T) {
 		{"-0", [datatype.Count]bool{datatype.Integer: true, datatype.Number: true, datatype.Boolean: true}},
 	} {
 		v := Literal(c.text)
-		for d := datatype.Integer; d <= datatype.Boolean; d++ {
+		for d := datatype.Integer; d < datatype.Count; d++ {
 			if (v.Not[d] != "") != c.not[d] {
 				t.Errorf("Literal(%q).Not[%s] = %q", c.text, d, v.Not[d])
 			}

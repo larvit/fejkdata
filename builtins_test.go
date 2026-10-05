@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 func TestBuiltinIDGenerators(t *testing.T) {
@@ -188,12 +190,12 @@ func ibanValid(s string) bool {
 	return rem == 1
 }
 
-// mustPanic fails unless call panics with internalError's phrase, which is what
+// mustPanic fails unless call panics with invariant.Broken's phrase, which is what
 // separates a reported invariant break from a silently wrong value.
 func mustPanic(t *testing.T, name string, call func()) {
 	t.Helper()
 	defer func() {
-		if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), "fejkdata: internal error: ") {
+		if r := recover(); r == nil || !strings.HasPrefix(fmt.Sprint(r), invariant.Broken("")) {
 			t.Errorf("%s: recovered %v, want the invariant reported as an internal error", name, r)
 		}
 	}()
