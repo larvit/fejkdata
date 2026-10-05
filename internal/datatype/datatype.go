@@ -31,4 +31,9 @@ func (d DataType) String() string {
 }
 
 // Noun is the datatype as an error names what a value is.
-func Noun(d DataType) string { return nouns[d] }
+func Noun(d DataType) string {
+	if d < 0 || d >= Count {
+		return d.String()
+	}
+	return nouns[d]
+}

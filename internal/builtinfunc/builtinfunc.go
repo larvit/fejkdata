@@ -43,6 +43,10 @@ type builtin struct {
 	prints datatype.DataType
 }
 
+// Calc is the name of the builtin whose operands the caller checks and proves, as nodes only
+// it holds.
+const Calc = "calc"
+
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies.
 type rng interface {
 	IntN(n int) int

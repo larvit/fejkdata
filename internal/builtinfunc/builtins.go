@@ -66,7 +66,7 @@ var builtins = withTransforms(map[string]builtin{
 	}},
 	"date": {arity: -1, checkArgs: dateArgs, prep: datePrep},
 	"time": {arity: -1, checkArgs: timeArg, prep: timePrep},
-	"calc": {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands, noRefOperands: true},
+	Calc:   {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands, noRefOperands: true},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.

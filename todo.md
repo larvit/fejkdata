@@ -380,7 +380,7 @@ Require the path step to reach a sibling category.
 
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
-`readTableOptions` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
+`readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 

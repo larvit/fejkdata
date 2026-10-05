@@ -12,7 +12,7 @@ import (
 // operands fields holds.
 func checkFunc(tok grammar.Token, fields map[string]node) error {
 	err := builtinfunc.Check(tok.Fn, tok.Args)
-	if err == nil && tok.Fn == "calc" {
+	if err == nil && tok.Fn == builtinfunc.Calc {
 		err = checkCalcFields(tok.Args, fields)
 	}
 	if err != nil {
