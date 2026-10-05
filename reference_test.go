@@ -339,3 +339,14 @@ func TestSlashAfterAReferenceSigilIsRejected(t *testing.T) {
 		}
 	}
 }
+
+func TestACycleThroughASelectedRowIsRefused(t *testing.T) {
+	_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{
+		"x.json": `{"format":"{v} {/y}","rows":"x.tsv","key":"code"}`,
+		"x.tsv":  "code\tv\n1\ta\n2\tb\n",
+		"y.json": `"{/x[1]}"`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), "cycle") {
+		t.Fatalf("New = %v, want the cycle through x[1] refused", err)
+	}
+}
