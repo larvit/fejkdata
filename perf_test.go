@@ -159,8 +159,7 @@ func TestNoStructAllocRegression(t *testing.T) {
 	if err := f.FakeStruct(&v); err != nil {
 		t.Fatal(err)
 	}
-	// The three tags read one pick of x: its frame and memo cost two allocations.
-	const base = 7.0
+	const base = 5.0
 	if allocs := testing.AllocsPerRun(10000, func() { f.FakeStruct(&v) }); allocs > base*1.10 {
 		t.Errorf("FakeStruct: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); compiling the type per call is the usual cause", allocs, base*1.10, base)
 	}

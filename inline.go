@@ -194,7 +194,7 @@ func linkNodeRefs(scope nodeScope, root map[string]node) error {
 	}); err != nil {
 		return err
 	}
-	for _, pass := range namePasses {
+	for _, pass := range linkPasses {
 		if err := scope(func(path string, m node) error {
 			if t, ok := m.(*template); ok {
 				return pass(path, t)

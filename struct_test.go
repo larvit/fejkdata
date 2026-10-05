@@ -8,18 +8,18 @@ import (
 )
 
 type structPlace struct {
-	City string `fake:"place.city"`
-	Zip  string `fake:"place.zip"`
+	City string `fake:"{/place as p}{p.city}"`
+	Zip  string `fake:"{p.zip}"`
 }
 
 type structUser struct {
 	Active bool   `fake:"[\"true\",\"false\"]"`
 	Age    uint8  `fake:"{int(18,99)}"`
-	Email  string `fake:"{lowercase(/person.first)}@example.com"`
-	First  string `fake:"person.first"`
+	Email  string `fake:"{lowercase(p.first)}@example.com"`
+	First  string `fake:"{/person as p}{p.first}"`
 	Home   structPlace
 	ID     int64   `fake:"{seq()}"`
-	Last   string  `fake:"person.last"`
+	Last   string  `fake:"{p.last}"`
 	Level  uint8   `fake:"{float(0,255,0)}"`
 	Nick   *string `fake:"[null,\"bo\"]"`
 	Note   string
@@ -31,7 +31,7 @@ type structUser struct {
 }
 
 type structGiven struct {
-	First string `fake:"person.first"`
+	First string `fake:"{/person as p}{p.first}"`
 }
 
 type StructFamily struct {
@@ -41,7 +41,7 @@ type StructFamily struct {
 type structEmployee struct {
 	structGiven
 	*StructFamily
-	Email string `fake:"{lowercase(/person.first)}@example.com"`
+	Email string `fake:"{lowercase(p.first)}@example.com"`
 }
 
 type structLink struct {
@@ -118,25 +118,28 @@ func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {
 	}
 }
 
-func digitOrNil(s string) bool {
-	return s == "nil" || len(s) == 1 && s >= "1" && s <= "9"
-}
-
-func TestFakeStructPathTagsReadOnePickOfTheirCategory(t *testing.T) {
+func TestFakeStructPathTagsDrawAfreshAndANameKeepsOnePick(t *testing.T) {
 	f := structData(t)
 	var v struct {
-		Leg  string `fake:"trip.leg"`
-		To   string `fake:"trip.leg.to"`
-		Name string `fake:"person"`
-		Last string `fake:"person.last"`
+		A    string `fake:"trip.leg"`
+		B    string `fake:"trip.leg"`
+		Leg  string `fake:"{/trip as r}{r.leg}"`
+		To   string `fake:"{r.leg.to}"`
+		Name string `fake:"{/person as p}{p}"`
+		Last string `fake:"{p.last}"`
 	}
+	apart := false
 	for i := 0; i < 100; i++ {
 		if err := f.FakeStruct(&v); err != nil {
 			t.Fatal(err)
 		}
 		if v.Leg != v.To || v.Name != "Ada "+v.Last && v.Name != "Bo "+v.Last {
-			t.Fatalf("%+v, want the tags into trip one leg, and into person one person", v)
+			t.Fatalf("%+v, want the reads of r one leg, and of p one person", v)
 		}
+		apart = apart || v.A != v.B
+	}
+	if !apart {
+		t.Error("two tags of trip.leg drew one leg in 100 fills, want each path tag a draw of its own")
 	}
 }
 
@@ -157,8 +160,8 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 		switch {
 		case !reflect.DeepEqual(u, twin):
 			t.Fatalf("same seed diverged: %+v != %+v", u, twin)
-		case people[u.First] != u.Last || u.Email != "ada@example.com" && u.Email != "bo@example.com":
-			t.Fatalf("person fields %q %q %q, want one person across the path tags, and the template its own draw", u.First, u.Last, u.Email)
+		case people[u.First] != u.Last || u.Email != strings.ToLower(u.First)+"@example.com":
+			t.Fatalf("person fields %q %q %q, want one person read through p across the struct", u.First, u.Last, u.Email)
 		case zips[u.Home.City] != u.Home.Zip || u.Work == nil || zips[u.Work.City] != u.Work.Zip:
 			t.Fatalf("places %+v, %+v, want each nested struct one place, the pointer allocated", u.Home, u.Work)
 		case u.ID != int64(i+1) || u.Age < 18 || u.Age > 99 || u.Score < 0 || u.Score > 1 || u.Rank == nil || (*u.Rank != 1 && *u.Rank != 2):
@@ -180,14 +183,13 @@ func TestFakeStructFillsTaggedFields(t *testing.T) {
 
 func TestFakeStructFillsEmbeddedFieldsIntoItsRecord(t *testing.T) {
 	f := structData(t)
-	people := map[string]string{"Ada": "Lovelace", "Bo": "Ek"}
 	for i := 0; i < 100; i++ {
 		var e structEmployee
 		if err := f.FakeStruct(&e); err != nil {
 			t.Fatal(err)
 		}
-		if e.StructFamily == nil || people[e.First] != e.Last {
-			t.Fatalf("%+v, %+v: want the promoted fields one person, the embedded pointer allocated", e, e.StructFamily)
+		if e.StructFamily == nil || e.Last != "Lovelace" && e.Last != "Ek" || e.Email != strings.ToLower(e.First)+"@example.com" {
+			t.Fatalf("%+v, %+v: want a promoted field's name read by the struct's own, the embedded pointer allocated", e, e.StructFamily)
 		}
 	}
 	var skipped struct {
@@ -350,4 +352,8 @@ func TestFakeStructBoundsTheStructsATypeReaches(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "more than 1024 structs") || !strings.Contains(err.Error(), `leave a struct field unfilled with fake:"-"`) {
 		t.Errorf("a type reaching 1025 structs, the last embedded: FakeStruct = %v, want it refused naming the cap and fake:\"-\"", err)
 	}
+}
+
+func digitOrNil(s string) bool {
+	return s == "nil" || len(s) == 1 && s >= "1" && s <= "9"
 }

@@ -20,8 +20,8 @@ replacement, and each removed path, column or flag.
 - Every `{…}` draws afresh, and a name is the one way to keep a pick: `{p.a} {p.b}`,
   `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
   `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one. `{x as n}`
-  binds a sibling field as well as a reference, and a struct's path tags into one
-  category read one pick of it. `drawGroup` is no longer an option, and `New` no longer
+  binds a sibling field as well as a reference, and a struct's tags share its names,
+  `{/sv_SE.person as p}{p.first}` beside `{p.sex}`. `drawGroup` is no longer an option, and `New` no longer
   refuses a read beside a path into what it reads, or reads of one table family that
   could disagree.
 - First release: the CLI, the library and the shipped data set.

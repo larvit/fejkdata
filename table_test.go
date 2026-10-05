@@ -591,7 +591,7 @@ func TestTableFences(t *testing.T) {
 		"a whole table's format selecting another row":   map[string]string{"x.json": `{"format":"{v} {/y[1].w}","rows":"x.tsv","key":"code"}`, "x.tsv": "code\tv\n1\ta\n2\tb\n", "y.json": `{"format":"{w}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tw\n1\tm\n2\tn\n", "r.json": `"{/x} {/y[2].w}"`},
 		"a table reaching its family through a template": with(geo(), map[string]string{"addr.json": `"{/locality.name}"`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
 		"a table reaching its family through a repeat":   with(geo(), map[string]string{"addr.json": `{"format":"{/locality.name} ","repeat":3}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
-		"a selected row reaching its family's other row": with(geo(), map[string]string{"a.json": `"{/region[01].note}"`, "addr.json": `{"format":"{/region[12].name}","drawGroup":"g"}`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
+		"a selected row reaching its family's other row": with(geo(), map[string]string{"a.json": `"{/region[01].note}"`, "addr.json": `"{/region[12].name}"`, "region.tsv": "code\tname\tpopulation\ttimezone\tnote\n01\tStockholms län\t2400000\tEurope/Stockholm\t{/addr}\n12\tSkåne län\t1400000\tEurope/Stockholm\t-\n14\tVästra Götalands län\t1750000\tEurope/Stockholm\t-\n"}),
 		"a cell repeating a reference":                   with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}),
 	}
 	for name, files := range accepted {
@@ -899,9 +899,9 @@ func TestShippedTables(t *testing.T) {
 		}
 	}
 	var row struct {
-		Idempotent bool   `fake:"misc.httpmethod.idempotent"`
-		Method     string `fake:"misc.httpmethod.method"`
-		Safe       bool   `fake:"misc.httpmethod.safe"`
+		Idempotent bool   `fake:"{/misc.httpmethod as m}{m.idempotent}"`
+		Method     string `fake:"{m.method}"`
+		Safe       bool   `fake:"{m.safe}"`
 	}
 	if err := newGenerator(t, "data", WithSeed(1)).FakeStruct(&row); err != nil {
 		t.Fatalf("FakeStruct into a bool = %v, want the register's yes and no shipped as true and false", err)

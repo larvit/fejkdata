@@ -95,7 +95,6 @@ type structFields struct {
 	typ   reflect.Type
 	label string
 	tags  map[string]any
-	paths map[string]string // each field tagged with a path, and the path
 	shape *structShape
 }
 
@@ -105,12 +104,11 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 	}
 	sc.visiting[t] = true
 	defer delete(sc.visiting, t)
-	c := &structFields{structCompile: sc, typ: t, label: label, tags: map[string]any{}, paths: map[string]string{}, shape: &structShape{}}
+	c := &structFields{structCompile: sc, typ: t, label: label, tags: map[string]any{}, shape: &structShape{}}
 	if err := c.gatherFields(t, nil); err != nil {
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		bindShared(sc.root, c.tags, c.paths)
 		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
 			return nil, err
 		}
@@ -174,14 +172,11 @@ func (c *structFields) addTag(sf reflect.StructField, tag string) error {
 	if visible, ok := c.typ.FieldByName(sf.Name); !ok || !slices.Equal(visible.Index, sf.Index) {
 		return fmt.Errorf("%s.%s: hidden by another field named %s, so its fake tag cannot fill it; rename one", c.label, fieldPath(c.typ, sf.Index), sf.Name)
 	}
-	v, path, err := tagValue(sf, tag)
+	v, err := tagValue(sf, tag)
 	if err != nil {
 		return fmt.Errorf("%s.%s: %w", c.label, sf.Name, err)
 	}
 	c.tags[sf.Name] = v
-	if path != "" {
-		c.paths[sf.Name] = path
-	}
 	return nil
 }
 
@@ -220,52 +215,22 @@ func (c *structFields) nest(sf reflect.StructField, elem reflect.Type) error {
 }
 
 // tagValue reads a field's fake tag as the value its column compiles from: an inline template
-// as written, or a path as the reference {/path}, returning the path too.
-func tagValue(sf reflect.StructField, tag string) (any, string, error) {
+// as written, or a path as the reference {/path}.
+func tagValue(sf reflect.StructField, tag string) (any, error) {
 	if err := checkTaggedType(sf); err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	inline, err := isTemplate(tag)
 	switch {
 	case err != nil:
-		return nil, "", err
+		return nil, err
 	case inline:
-		v, err := inputValue(tag)
-		return v, "", err
+		return inputValue(tag)
 	}
 	if err := checkPathNames(tag); err != nil {
-		return nil, "", err
+		return nil, err
 	}
-	return "{/" + tag + "}", tag, nil
-}
-
-// bindShared has the fields whose paths read into one category, two or more of them and none
-// selecting a row, read one pick of it through a name, as a record's columns read one pick.
-func bindShared(root *folder, tags map[string]any, paths map[string]string) {
-	byCategory := map[string][]string{}
-	for _, field := range sortedNames(paths) {
-		segs, err := splitPath(paths[field])
-		if err != nil || hasSelector(segs) {
-			continue
-		}
-		if _, i := folderAt(root, segs); i < len(segs) {
-			category := strings.Join(segs[:i+1], ".")
-			byCategory[category] = append(byCategory[category], field)
-		}
-	}
-	var format strings.Builder
-	for _, category := range sortedNames(byCategory) {
-		fields := byCategory[category]
-		if len(fields) < 2 {
-			continue
-		}
-		name := strings.ReplaceAll(category, ".", "-")
-		fmt.Fprintf(&format, "{/%s as %s}", category, name)
-		for _, field := range fields {
-			tags[field] = "{" + name + strings.TrimPrefix(paths[field], category) + "}"
-		}
-	}
-	tags["format"] = format.String()
+	return "{/" + tag + "}", nil
 }
 
 // checkTaggedType rejects a tagged field no column can fill.
@@ -288,6 +253,7 @@ func checkTaggedType(sf reflect.StructField) error {
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
 func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]any) error {
+	tags["format"] = ""
 	n, err := compile(tags)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)

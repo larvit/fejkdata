@@ -363,16 +363,57 @@ func TestANameIsATransformOperand(t *testing.T) {
 	}
 }
 
-func TestOneRenderReadsOneNameAcrossDrawGroups(t *testing.T) {
+func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"word":  `["a","b","c","d","e","f","g","h"]`,
 		"other": `{"format":"{x}","x":["1","2"]}`,
-		"cat":   `{"format":"{/word as w}{a}","a":{"format":"{w}|{b}","b":{"format":"{w}{/other.x}","drawGroup":"g"}}}`,
+		"cat":   `{"format":"{/word as w}{a}","a":{"format":"{w}|{b}","b":"{w}{/other.x}"}}`,
 	})
 	f := newGenerator(t, dir, WithSeed(59))
 	for i := 0; i < 50; i++ {
 		if got := fake(t, f, "cat.a"); got[0] != got[2] {
-			t.Fatalf("cat.a = %q, want one pick of w in both draw groups", got)
+			t.Fatalf("cat.a = %q, want one pick of w in both templates", got)
 		}
+	}
+}
+
+func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`{"format":"{x as n}{n}{n}","x":"{n}"}`:                          `name "n" is read inside "x", the field it binds`,
+		`{"format":"{x as n}{n.a}{n.a}","x":{"format":"{a}","a":"{n}"}}`: `name "n" is read inside "x", the field it binds`,
+		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`:  "cycle",
+	} {
+		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("NewTemplate(%s) = %v, want it refused naming %s", src, err, want)
+		}
+	}
+}
+
+func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"src": `{"format":"","score":[null,{"format":"{int(1,9)}","datatype":"integer"}],"code":["1","2"]}`,
+		"row": `{"format":"","a":"{/src.score as s}{s}","b":"{s}","c":"{/src as r}{r.score}","d":"{r.code}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(3))
+	nulls := 0
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := r.Columns()
+		if c[0].DataType != DataTypeInteger || c[2].DataType != DataTypeInteger || c[0].Value != c[1].Value || c[0].Null != c[1].Null {
+			t.Fatalf("%s: want a, b and c integer columns of src.score, a and b one pick", r.JSON())
+		}
+		if c[0].Null {
+			nulls++
+		}
+	}
+	if nulls == 0 || nulls == 100 {
+		t.Errorf("a was null %d times in 100 records, want both outcomes", nulls)
+	}
+	if _, err := f.NewRecordTemplate(`{"format":"","a":"{/src.score as s}{s}","b":"{s}"}`); err != nil {
+		t.Errorf("NewRecordTemplate = %v, want a name-read column accepted inline", err)
 	}
 }

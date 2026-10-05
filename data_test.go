@@ -330,8 +330,8 @@ func TestShippedSwedishAddress(t *testing.T) {
 }
 
 // TestShippedAddressIsOneNamedPick pins that an address's street, postal code,
-// locality and region are one place in the geo tables, read through a name or a struct's
-// tags, and that a reference beside the name is another address.
+// locality and region are one place in the geo tables, read through a name in a template or
+// across a struct's tags, and that a reference beside the name is another address.
 func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(3))
 	for _, c := range []struct{ locale, country, template, largest string }{
@@ -354,16 +354,16 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 		}
 		if c.country == "SE" {
 			var row struct {
-				Street     string `fake:"sv_SE.address.street"`
-				PostalCode string `fake:"sv_SE.address.postal-code"`
-				Locality   string `fake:"sv_SE.address.locality"`
+				Street     string `fake:"{/sv_SE.address as a}{a.street}"`
+				PostalCode string `fake:"{a.postal-code}"`
+				Locality   string `fake:"{a.locality}"`
 			}
 			for i := 0; i < 200; i++ {
 				if err := f.FakeStruct(&row); err != nil {
 					t.Fatal(err)
 				}
 				if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places[got] {
-					t.Fatalf("sv_SE.address: struct tags %q are no street, postal code and locality of one place", got)
+					t.Fatalf("sv_SE.address: struct tags reading one name, %q, are no street, postal code and locality of one place", got)
 				}
 			}
 		}

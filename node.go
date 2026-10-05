@@ -92,7 +92,7 @@ func (s tableSite) label(path string) string {
 type templateLink struct {
 	refs        map[string]refBinding // each reference the format reads -> what it resolves to
 	refHeads    map[string]node       // each refBinding.head -> the category it names
-	readsColumn *columnRead           // set when the format is one reference alone reading a record's column
+	readsColumn *columnRead           // set when the format is one reference or name read alone reading a record's column
 }
 
 func (*template) isNode() {}

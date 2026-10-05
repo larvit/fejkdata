@@ -20,7 +20,6 @@ type nameScope struct {
 type nameBinding struct {
 	name   string
 	ref    string // what it binds, as written: a reference, or a path into a field of binder
-	field  bool   // ref is a path into a field, so a read of the name stays in the category
 	body   string
 	where  string // the fields reaching the binding template, as a compile error spells them
 	scope  *nameScope
@@ -42,6 +41,9 @@ type nameUse struct {
 	in                     *template
 	operand, noRef, nested bool
 }
+
+// bindsField reports whether b binds a path into a field, so a read of it stays in the category.
+func (b *nameBinding) bindsField() bool { return !isRef(b.ref) }
 
 func (sc *nameScope) lookup(name string) *nameBinding {
 	for ; sc != nil; sc = sc.up {
@@ -111,7 +113,7 @@ func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 		if b, twice := sc.bindings[tok.bound]; twice {
 			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.body, tok.bound, sc.spelled(), b.body)
 		}
-		b := &nameBinding{name: tok.bound, ref: tok.boundRef, field: !isRef(tok.boundRef), body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
+		b := &nameBinding{name: tok.bound, ref: tok.boundRef, body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
 		if sc.bindings == nil {
 			sc.bindings = map[string]*nameBinding{}
 		}
@@ -249,29 +251,19 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 	return nil
 }
 
-// namePasses run in order, each over every linked template before the next starts: a pass reads
-// what the one before filled in.
-var namePasses = []func(path string, t *template) error{linkNames, checkNameReads, checkCalcNames}
+// linkPasses run in order once every template is linked, each over every template before the next
+// starts: a pass reads what the one before filled in.
+var linkPasses = []func(path string, t *template) error{linkNames, linkColumnRead, checkNameReads, checkCalcNames}
 
 // linkNames compiles t's reads of a name as paths from the head its binding's reference names, once
 // every template is linked, so each binder has resolved that reference.
 func linkNames(path string, t *template) error {
-	if err := namedReads(t, func(o *op, a *arm) error {
+	return namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
 		}
 		return nil
-	}); err != nil {
-		return err
-	}
-	if ops := t.compiled.ops; t.repeat == 1 && len(ops) == 1 && ops[0].kind == nameRead && len(ops[0].arms) == 1 && ops[0].arms[0].kind == namedRead {
-		a := ops[0].arms[0]
-		full := append(a.named.tail[:len(a.named.tail):len(a.named.tail)], a.tail...)
-		if column := recordColumn(a.named.head, full); column != nil {
-			t.link.readsColumn = &columnRead{a: a, column: column}
-		}
-	}
-	return nil
+	})
 }
 
 func linkName(t *template, a *arm) error {
