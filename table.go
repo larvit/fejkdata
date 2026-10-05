@@ -436,8 +436,8 @@ func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	return p, nil
 }
 
-// checkAncestors refuses a cycle in the chain of parents from p, t's parent, and an ancestor
-// with a column named like t.
+// checkAncestors refuses a cycle in the chain of parents starting at p, t's parent, and
+// refuses an ancestor that has a column named like t.
 func (t *table) checkAncestors(p *table, siblings map[string]node) error {
 	var ancestors []*table
 	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {
