@@ -82,8 +82,8 @@ func checkClose(path string, i, open int) error {
 	return nil
 }
 
-// IndexOutside is the first c in s outside a [selector], or -1.
-func IndexOutside(s string, c byte) int {
+// indexOutside is the first c in s outside a [selector], or -1.
+func indexOutside(s string, c byte) int {
 	depth := 0
 	for i := 0; i < len(s); i++ {
 		switch {
@@ -98,8 +98,8 @@ func IndexOutside(s string, c byte) int {
 	return -1
 }
 
-// CutOutside cuts s around the first sep outside a [selector].
-func CutOutside(s, sep string) (before, after string, found bool) {
+// cutOutside cuts s around the first sep outside a [selector].
+func cutOutside(s, sep string) (before, after string, found bool) {
 	depth := 0
 	for i := 0; i < len(s); i++ {
 		switch {
@@ -114,10 +114,10 @@ func CutOutside(s, sep string) (before, after string, found bool) {
 	return s, "", false
 }
 
-func SplitOutside(s string, c byte) []string {
+func splitOutside(s string, c byte) []string {
 	var parts []string
 	for {
-		i := IndexOutside(s, c)
+		i := indexOutside(s, c)
 		if i < 0 {
 			return append(parts, s)
 		}
