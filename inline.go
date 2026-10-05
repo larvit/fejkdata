@@ -16,7 +16,7 @@ type Template struct {
 	n node
 }
 
-// Fake renders the template with one draw.
+// Fake renders the template once.
 func (t *Template) Fake() string {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
@@ -159,12 +159,6 @@ func bindInline(root *folder, n node, label string, typedByGo bool) error {
 		scope:     scope,
 		link:      func() error { return linkNodeRefs(scope, root.children) },
 		typedByGo: typedByGo,
-		scopeFence: func() error {
-			if t, isTemplate := n.(*template); isTemplate && t.drawGroup != "" {
-				return fmt.Errorf("%s: drawGroup %q names nothing, since nothing can reference an inline template; drop it", label, t.drawGroup)
-			}
-			return nil
-		},
 	}.bind()
 }
 

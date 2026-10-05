@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 )
 
@@ -86,25 +87,10 @@ func sortedNames[V any](m map[string]V) []string {
 }
 
 // renderEdge is a child a node renders into, labelled by what reaches it (a field
-// name, reference, or choice index) for a readable cycle report. read is the linked
-// arm a template's edge reads, zero on any other. operand names the builtin when the
-// label is its operand rather than a token, so an error can name it the way the
-// author wrote it.
+// name, reference, or choice index) for a readable cycle report.
 type renderEdge struct {
-	to      node
-	label   string
-	read    arm
-	operand string
-}
-
-func (e renderEdge) readsRef() bool { return isRef(e.read.head) }
-
-// reached names an edge as the author spelled it.
-func (e renderEdge) reached() string {
-	if e.operand != "" {
-		return fmt.Sprintf("%s operand %q", e.operand, e.label)
-	}
-	return "{" + e.label + "}"
+	to    node
+	label string
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring render: a
@@ -120,17 +106,11 @@ func renderEdges(n node) []renderEdge {
 		return es
 	case *template:
 		var es []renderEdge
-		add := func(a arm, operand string) {
-			for _, leaf := range a.leaves {
-				es = append(es, renderEdge{leaf, a.spelling, a, operand})
-			}
-		}
 		for _, o := range n.compiled.ops {
-			for _, a := range o.operands {
-				add(a, o.fn)
-			}
-			for _, a := range o.arms {
-				add(a, "")
+			for _, a := range slices.Concat(o.operands, o.arms) {
+				for _, leaf := range a.leaves {
+					es = append(es, renderEdge{leaf, a.spelling})
+				}
 			}
 		}
 		return es

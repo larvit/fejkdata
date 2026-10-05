@@ -11,7 +11,7 @@ import (
 
 // table is a category whose rows come from a TSV beside it: the header names the
 // columns, each row is one draw, and the format renders the drawn row. A column is a
-// cell of the row a render pinned; a cell carrying tokens compiles to a string node.
+// cell of the row a path pinned; a cell carrying tokens compiles to a string node.
 type table struct {
 	segment        string // path's last segment
 	path           string // the category's path from the data root, which a selector is written at
@@ -493,7 +493,7 @@ func (t *table) drawUnder(s *generatorState, pr int) int {
 	return rows[pickCum(s, lookup.childCum[k])]
 }
 
-// drawIn is the render's row of t: the one pinned in p, else one drawn inside the nearest
+// drawIn is the row of t a path or a named pick reads: the one pinned in p, else one drawn inside the nearest
 // pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
 // over the whole table, and pinned with its ancestors.
 func (t *table) drawIn(s *generatorState, p *pinSet) int {
@@ -598,12 +598,4 @@ func (t *table) selectorSpelling(r int) string {
 		return t.parentT.selectorSpelling(t.parentRow(r)) + "." + t.segment + "[" + t.cell(r, t.nameIndex) + "]"
 	}
 	return fmt.Sprintf("%s line %d", t.file, r+2)
-}
-
-// familyRoot is the table a chain of parents ends at.
-func (t *table) familyRoot() *table {
-	for t.parentT != nil {
-		t = t.parentT
-	}
-	return t
 }

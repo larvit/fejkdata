@@ -1,11 +1,6 @@
 package fejkdata
 
-import (
-	"fmt"
-	"maps"
-	"sort"
-	"strings"
-)
+import "fmt"
 
 type tablePin struct {
 	t   *table
@@ -73,33 +68,6 @@ func (p *pinSet) nearestPinned(t *table) *table {
 	return nil
 }
 
-// each calls fn for every pinned row, in pin order, the spilled ones by path.
-func (p *pinSet) each(fn func(t *table, r int)) {
-	for _, q := range p.inline[:p.used] {
-		fn(q.t, q.row)
-	}
-	spilled := make([]*table, 0, len(p.spill))
-	for t := range p.spill {
-		spilled = append(spilled, t)
-	}
-	sort.Slice(spilled, func(i, j int) bool { return spilled[i].path < spilled[j].path })
-	for _, t := range spilled {
-		fn(t, p.spill[t])
-	}
-}
-
-// key spells the pinned rows, so two sets pinning the same rows share one.
-func (p *pinSet) key() string {
-	var pins []tablePin
-	p.each(func(t *table, r int) { pins = append(pins, tablePin{t, r}) })
-	sort.Slice(pins, func(i, j int) bool { return pins[i].t.path < pins[j].t.path })
-	var b strings.Builder
-	for _, q := range pins {
-		fmt.Fprintf(&b, "%q%d", q.t.path, q.row)
-	}
-	return b.String()
-}
-
 // clash is the table whose pinned row keeps row r of t out: t itself pinned to another row, or the
 // nearest ancestor pinned to a row r is not inside; nil where none does.
 func (p *pinSet) clash(t *table, r int) *table {
@@ -163,28 +131,4 @@ func (p *pinSet) above(t *table) *pinSet {
 		}
 	}
 	return q
-}
-
-// clone is a copy of p that pins apart from it; a plain copy shares the spill map.
-func (p pinSet) clone() pinSet {
-	p.spill = maps.Clone(p.spill)
-	return p
-}
-
-// entered is p with row r of t pinned. p is left as it was, since a fence walk branches.
-func (p pinSet) entered(t *table, r int) pinSet {
-	p = p.clone()
-	p.pin(t, r)
-	return p
-}
-
-// differs reports whether p and q hold different rows of one table.
-func (p *pinSet) differs(q *pinSet) bool {
-	found := false
-	p.each(func(t *table, r int) {
-		if qr, in := q.pinned(t); in && qr != r {
-			found = true
-		}
-	})
-	return found
 }

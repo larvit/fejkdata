@@ -1015,22 +1015,19 @@ doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
-node.go         the node model and JSON -> node compilation, with its fence on a nested drawGroup
+node.go         the node model and JSON -> node compilation
 table.go        tables: the rows TSV, its options and links, row selection and draws
-name.go         names: {ref as n} bindings, the scopes they live in, and the reads they answer
+name.go         names: {x as n} bindings, the scopes they live in, and the reads they answer
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, and the reads kept under a name
 path.go         the dotted-path walks with their selectors, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
-struct.go       structs: FakeStruct, fake tags, and a field's Go type as its column's datatype
+struct.go       structs: FakeStruct, fake tags, the one pick a struct's path tags into one category read, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       the {token} grammar: scanning, tokens, operands, validation, compiling a format
-draws.go        the memo a hold, draw group or named pick keeps its draws in; and a render's draws and the scope it reads its reference paths and names through
-holdfence.go    the load fences over the hold: the routes and spellings that read one held name two ways
-drawfence.go    the load fences over reference draws and their refusals: a drawGroup's, a render's and a record's columns judged on what they read, and a table reaching its own family
-reads.go        the load-time fold of what a render reads, and what a path reads of a table family
-pins.go         the pin set: the table rows a render fixes, which the draw fences replay
+draws.go        the memo a named pick keeps its draws in, and the scope a render reads names and rows through
+pins.go         the pin set: the table rows one path or one named pick fixes
 reference.go    reference sigils, and resolving references across the tree
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 builtins.go     the {name()} function registry and its implementations

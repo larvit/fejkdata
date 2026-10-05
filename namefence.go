@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"fmt"
 	"slices"
+	"strings"
 )
 
 // checkNameReads refuses each binding of t that checkUses refuses, and a read such as {n} whose
@@ -26,63 +27,34 @@ func checkNameReads(path string, t *template) error {
 	})
 }
 
-// checkUses refuses a binding of a category read once whole where a reference could stand. It
-// refuses reads of b in two draw groups, or inside a repeat, where what b names reads a reference path.
+// checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
+// draws the same way without the name. A field stands only beside its binding.
 func (b *nameBinding) checkUses() error {
-	if r := b.uses[0]; len(b.uses) == 1 && r.tail == "" && !r.nested && !r.noRef && len(b.tail) == 0 {
-		spelling := b.ref
-		if !r.operand {
-			spelling = "{" + spelling + "}"
-		}
-		return fmt.Errorf("name %q is read once, whole, which the bare reference draws the same way; write %s where it is read, and drop the token", b.name, spelling)
-	}
-	if !readsHeld(b.head, map[node]bool{}) {
+	r := b.uses[0]
+	if len(b.uses) > 1 || r.nested || b.field && r.in != b.binder {
 		return nil
 	}
-	for _, u := range b.uses {
-		if u.nested {
-			return fmt.Errorf("name %q is read inside a repeat, and what it names reads a reference path, which each iteration draws apart; bind the name inside the repeat, or bind a second name there", b.name)
-		}
-		if u.group != b.uses[0].group {
-			return fmt.Errorf("name %q is read in two draw groups, %s and %s, and what it names reads a reference path, which each draw group draws apart; read the name in one draw group, or bind a name in each", b.name, groupSpelling(b.uses[0].group), groupSpelling(u.group))
-		}
+	spelling := b.ref
+	switch {
+	case strings.HasPrefix(r.tail, ".."):
+		spelling += r.tail
+	case r.tail != "":
+		spelling += "." + r.tail
 	}
-	return nil
+	if r.noRef && !calcReads(spelling) {
+		return nil
+	}
+	if !r.operand {
+		spelling = "{" + spelling + "}"
+	}
+	return fmt.Errorf("name %q is read once, so it keeps no pick for another read; write %s where it is read, and drop the token", b.name, spelling)
 }
 
-func groupSpelling(group string) string {
-	if group == "" {
-		return "the unnamed one"
-	}
-	return fmt.Sprintf("%q", group)
-}
-
-// readsHeld reports whether rendering n, or any field under it, can read a reference path.
-func readsHeld(n node, seen map[node]bool) bool {
-	if seen[n] {
-		return false
-	}
-	seen[n] = true
-	if t, isTemplate := n.(*template); isTemplate {
-		for _, o := range t.compiled.ops {
-			for _, a := range slices.Concat(o.arms, o.operands) {
-				if a.kind == refPathRead {
-					return true
-				}
-			}
-		}
-	}
-	for _, c := range contained(n) {
-		if readsHeld(c.node, seen) {
-			return true
-		}
-	}
-	for _, e := range renderEdges(n) {
-		if readsHeld(e.to, seen) {
-			return true
-		}
-	}
-	return false
+// calcReads reports whether a calc reads spelling as one operand.
+func calcReads(spelling string) bool {
+	n, err := parseCalc(spelling)
+	v, isVar := n.(calcVar)
+	return err == nil && isVar && string(v) == spelling
 }
 
 // checkOnce walks n, rendering at key under b's pick, into each level a read of b addresses.
@@ -101,7 +73,7 @@ func (b *nameBinding) checkOnce(read string, n node, key string) error {
 }
 
 func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) error {
-	fresh := map[string]int{}
+	reads := map[string]int{}
 	var into []arm
 	for _, o := range t.compiled.ops {
 		for _, a := range slices.Concat(o.arms, o.operands) {
@@ -111,13 +83,11 @@ func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) er
 			if _, kept := b.addressed[join(key, a.path)]; kept {
 				into = append(into, a)
 			}
-			if a.kind == freshRead {
-				fresh[a.head]++
-			}
+			reads[a.head]++
 		}
 	}
-	for _, head := range sortedNames(fresh) {
-		if by, kept := b.addressed[join(key, head)]; kept && fresh[head] > 1 {
+	for _, head := range sortedNames(reads) {
+		if by, kept := b.addressed[join(key, head)]; kept && reads[head] > 1 {
 			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}
 	}

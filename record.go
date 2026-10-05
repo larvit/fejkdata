@@ -20,9 +20,8 @@ type Column struct {
 }
 
 // Record is one record rendered from a template: every direct field is a column,
-// listed in name order. Each column is its own expansion, so a sibling field is
-// local to it, while a reference that reads a path is drawn once for the whole
-// record, per group, and a pick bound by {ref as n} once for the whole record.
+// listed in name order. Each {…} draws afresh, while a pick bound by {x as n} is
+// drawn once for the whole record.
 type Record struct {
 	columns []Column
 }
@@ -131,10 +130,10 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
-	var draws renderDraws
-	sc := renderScope{draws: &draws}
+	var frames frameStack
+	sc := renderScope{frames: &frames}
 	if t, isTable := n.(*table); isTable {
-		if n, err = tableRecord(f.rand, t, tail, sc); err != nil {
+		if n, sc.row, err = tableRecord(f.rand, t, tail); err != nil {
 			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 		}
 	} else if len(tail) > 0 {
@@ -151,25 +150,22 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	return renderRecord(f.rand, shape.template, shape.columns, sc), nil
 }
 
-// tableRecord walks a path's tail from a table to the table whose row is the record,
-// pinning in sc the rows it selects or draws.
-func tableRecord(s *generatorState, t *table, tail []string, sc renderScope) (node, error) {
+// tableRecord walks a path's tail from a table to the table whose row is the record, and that
+// row, selected or drawn.
+func tableRecord(s *generatorState, t *table, tail []string) (node, renderedRow, error) {
 	n, pins, err := descend(s, t, tail)
 	if err != nil {
-		return nil, err
+		return nil, renderedRow{}, err
 	}
-	group := sc.groupDraws()
-	group.pins = pins
 	switch n := n.(type) {
 	case *table:
-		n.drawIn(s, &group.pins)
-		return n, nil
+		return n, renderedRow{n, n.drawIn(s, &pins)}, nil
 	case *tableRow:
-		return n.t, nil
+		return n.t, renderedRow{n.t, pins.mustRow(n.t)}, nil
 	case *tableColumn:
-		return nil, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.header[n.i])
+		return nil, renderedRow{}, fmt.Errorf("descends into %q, a column; a record is a table's row", n.t.header[n.i])
 	}
-	return n, nil
+	return n, renderedRow{}, nil
 }
 
 // recordShape is what recordOf settled about a node: the template to project, its
@@ -203,12 +199,12 @@ type RecordTemplate struct {
 	columns  []Column
 }
 
-// Fake renders the record with one draw.
+// Fake renders the record, one pick of each name across its columns.
 func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
-	var draws renderDraws
-	return renderRecord(t.g.rand, t.template, t.columns, renderScope{draws: &draws})
+	var frames frameStack
+	return renderRecord(t.g.rand, t.template, t.columns, renderScope{frames: &frames})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
@@ -262,15 +258,11 @@ func recordOf(n node) (*template, []Column, error) {
 	return t, columns, nil
 }
 
-// renderRecord draws each column once, in the name order recordOf fixed, as one render
-// over sc's draws; a table's columns read the row pinned there.
+// renderRecord draws each column once, in the name order recordOf fixed, as one render, so the
+// columns read one pick of each name; a table's columns read sc's row.
 func renderRecord(s *generatorState, t *template, columns []Column, sc renderScope) *Record {
-	sc = sc.in(t)
 	if mark := sc.renderFrame(t); mark >= 0 {
-		defer sc.draws.popFrames(mark)
-	}
-	if t.site.isFormat() {
-		sc = sc.at(t.site.table.rowNode, &sc.groupDraws().pins)
+		defer sc.frames.pop(mark)
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {

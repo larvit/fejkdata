@@ -259,8 +259,10 @@ func (b binding) bind() error {
 	if err := b.link(); err != nil {
 		return err
 	}
-	if err := b.scopeFence(); err != nil {
-		return err
+	if b.scopeFence != nil {
+		if err := b.scopeFence(); err != nil {
+			return err
+		}
 	}
 	if !b.typedByGo {
 		if err := checkColumns(b.scope); err != nil {
@@ -279,30 +281,6 @@ func checkNodeFences(s nodeScope) error {
 	mem := renderCounts{}
 	if err := s(func(path string, n node) error { return repeatCheck(path, n, mem) }); err != nil {
 		return err
-	}
-	if err := s(heldCheck); err != nil {
-		return err
-	}
-	fence := &drawFence{fold: newReadFold()}
-	refs := false
-	if err := s(func(path string, n node) error {
-		if t, ok := n.(*template); ok && len(t.link.refs) > 0 {
-			refs = true
-		}
-		return fence.checkDrawGroup(path, n)
-	}); err != nil {
-		return err
-	}
-	if refs {
-		if err := s(checkOwnFamily); err != nil {
-			return err
-		}
-		if err := s(fence.checkDraws); err != nil {
-			return err
-		}
-		if err := s(fence.checkRecordDraws); err != nil {
-			return err
-		}
 	}
 	return s((&valueProof{}).checkDatatype)
 }

@@ -281,24 +281,18 @@ const (
 
 // pathCheck proves a path resolves whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
-// rows selected before it, and no level read carries a repeat or a drawGroup. It
-// compiles the steps a draw takes, every leaf the path may render, and as cover the
-// first choice it passes, else the leaf; level names the head in its errors.
+// rows selected before it, and no level read carries a repeat. It compiles the steps
+// a draw takes, and every leaf the path may render; level names the head in its errors.
 type pathCheck struct {
 	pins   pinSet
 	level  string
 	tail   []string
 	steps  []pathStep
 	leaves []node
-	cover  node
 }
 
 func (w *pathCheck) run(n node) (node, error) {
-	leaf, err := w.walk(n, w.tail)
-	if err == nil && w.cover == nil {
-		w.cover = leaf
-	}
-	return leaf, err
+	return w.walk(n, w.tail)
 }
 
 func (w *pathCheck) walk(n node, tail []string) (node, error) {
@@ -306,9 +300,6 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 		var err error
 		switch x := n.(type) {
 		case *choice:
-			if w.cover == nil {
-				w.cover = x
-			}
 			return w.walkEvery(x, tail)
 		case *table:
 			var r tableRoute
@@ -393,12 +384,9 @@ func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 }
 
 func (w *pathCheck) enter(t *template, rest []string) error {
-	name := join(w.level, strings.Join(w.tail[:len(w.tail)-len(rest)], "."))
-	switch {
-	case t.repeat > 1:
+	if t.repeat > 1 {
+		name := join(w.level, strings.Join(w.tail[:len(w.tail)-len(rest)], "."))
 		return fmt.Errorf("the level %q carries a repeat, which a path reading one draw of it cannot apply", name)
-	case t.drawGroup != "":
-		return fmt.Errorf("the level %q carries a drawGroup, which a path reading into it cannot apply", name)
 	}
 	return nil
 }
@@ -439,8 +427,8 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 
 // drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins;
 // pins is nil for a sibling path, which never crosses a table, since a table is only a category.
-// For a memoized read, memo keeps the variant drawn at each of levels, so paths sharing a prefix
-// share it. It returns the leaf and the pins its row is in: a step down after a step up draws
+// For a read through a name, memo keeps the variant drawn at each of levels, so paths sharing a
+// prefix share it. It returns the leaf and the pins its row is in: a step down after a step up draws
 // afresh, into pins of its own, which memo shares with every path stepping down there.
 func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
 	var climbed *table
