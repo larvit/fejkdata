@@ -128,19 +128,18 @@ Works against goal 2.3 until `todo.md` item 77 ends it.
 
 ## Every `{…}` draws afresh, and only a name keeps a pick
 
-2026-10-05, larv-review on the draw restructure the maintainer planned on 2026-10-03.
+2026-10-05, larv-review on the change the maintainer planned on 2026-10-03.
 Serves goals 5.2 and 4.1: each `{…}` makes a new pick, and values that belong together come
 from the one pick a name keeps.
 
 - `{p.a} {p.b}`, `{w} {uppercase(w)}`, `{/p.first} {/p.last}` and `{/p} {/p}` are two draws
-  each, and `{p as q}{q.a} {q.b}` is one. Nothing is held per format or per render, so no
-  fence guards a hold: the load checks on draws are names, paths through names, cycles and
-  the repeat cap.
-- A name binds a reference or a path into a field of the template binding it, `{place as
+  each, and `{p as q}{q.a} {q.b}` is one. Nothing is kept per format or per render, so the
+  only load checks on draws are names, paths through names, cycles and the repeat cap.
+- A name binds a reference, or a field of the template binding it or a path into one, `{place as
   p}`: an inline template, and a choice of rows inside one category, have no reference to
   bind, and goal 4.1 holds there too.
-- A name read once is refused where the spelling it binds stands in, and the error names
-  that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc reads no reference or
+- A name read once is refused where writing what it binds in its place draws the same, and
+  the error names that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc reads no reference or
   path, and a read inside a nested repeat keeps one pick on every line, so neither is
   refused.
 
@@ -299,9 +298,11 @@ not agree on one among themselves; each must only hold that type.
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
 its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}` (goal 4.1),
-while a path tag draws afresh as `{/path}` does (goal 5.2). A tag binding a name only an
-embedding type reads is refused on the embedded type alone, as any name read once is, so the
-embedder binds it in a tag of its own; a tagged field that another field hides is refused, not dropped. A named
+while a path tag draws afresh as `{/path}` does (goal 5.2).
+
+A tag binding a name only an embedding type reads is refused on the embedded type alone, as
+any name read once is, so the embedder binds it in a tag of its own. A tagged field that
+another field hides is refused, not dropped. A named
 struct field is another entity and a record of its own. `fake:"-"` leaves a struct
 field, embedded or named, unfilled, so no name may be `-`; a pointer back to a struct
 already being filled is left alone, since filling it would never end. `New` cannot see a
@@ -316,7 +317,7 @@ handle is needed, as the cache already compiles once.
 A category is one unit: a reference back into it — `{/users.first}` inside `users` —
 describes a draw other than the fields beside it, so `New` refuses it and the sibling
 field stays the one spelling for a field of one's own. A value two fields share goes in its
-own category, which each binds to a name (goal 4.1). That settled, a record's column fences
+own category, which one field binds to a name and both read (goal 4.1). That settled, a record's column fences
 run at `New` too, so a category that loads renders as a value and as a record alike.
 
 ## A record's column set is fixed before the first draw
@@ -345,7 +346,7 @@ Its bounds come from a literal or a call's arguments, so a load error names a re
 value, a range check is one comparison, and `1{digits(2)}` is a second spelling of
 `{int(100,199)}`.
 
-## A column of one reference or name read alone is the column it reads
+## A column that only reads one reference or name is the column it reads
 
 2026-09-15, Lilleman auf Larv.
 
@@ -435,10 +436,10 @@ accepted one changes, so the door stays open for the address records the plan de
 Decided 2026-09-27 by the maintainer, for goals 4 and 5; valid while a selector names
 exactly one row.
 
-Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
+Each selector reads the row it names: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
 renders `Stockholm / Helsinki`, and two items of one choice may select different rows.
 
-## `..` steps up to the parent row, and a step down after it draws afresh, or once per pick
+## `..` steps up to the parent row, and a step down after it draws afresh, or once per name's pick
 
 2026-10-05, larv-review in PR #158. Serves goal 5.4, which has `..` go up one level, and goal
 5.2, which has each `{…}` make a new pick.
@@ -810,7 +811,7 @@ it.
 
 The scope is lexical. A read entering a category, by a reference, through a name or from
 `Fake`, sees no frame (one render of a scope's picks) opened above it, so a category renders
-the same whoever references it. It opens the frames around where it lands: a read through a
+the same whoever references it. Such a read opens the frames around where it lands: a read through a
 name from its pick's memo, so `{n}` and `{n.path}` read one pick of each name inside, and a
 reference or `Fake` fresh ones.
 
@@ -820,6 +821,6 @@ category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them
+## comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and item 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences the restructure deleted. The draw restructure, shipped 2026-10-05, and `todo.md` item 90 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 90 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. The two finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences that change deleted. The change making every `{…}` draw afresh and `todo.md` item 90 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 90 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. The two finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.

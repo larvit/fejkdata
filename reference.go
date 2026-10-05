@@ -155,7 +155,9 @@ func (t *template) resolveLink(folder []string, path, category string, root map[
 }
 
 // columnRead is a record's column read by a format of that one reference or name read alone,
-// which is the column: it takes the column's datatype and null. category and field name it.
+// which is the column: it takes the column's datatype and null. category and field name it;
+// category is "" for a column of the reading template's own record, which checkColumns reaches
+// on its own.
 type columnRead struct {
 	a               arm
 	category, field string
@@ -170,18 +172,21 @@ func linkColumnRead(_ string, t *template) error {
 		return nil
 	}
 	a := ops[0].arms[0]
-	head, category, tail := t.head(a.head), a.head, a.tail
-	switch {
-	case a.kind == namedRead && !a.named.bindsField():
-		ref := a.named.binder.link.refs[a.named.ref]
-		head, category = a.named.head, ref.head
+	head, category, tail := t.head(a.head), a.head[min(1, len(a.head)):], a.tail
+	switch b := a.named; {
+	case a.kind == namedRead && b.bindsField():
+		head, category = b.binder, ""
+		tail = append(append([]string{splitArm(b.ref, nil).head}, b.tail...), a.tail...)
+	case a.kind == namedRead:
+		ref := b.binder.link.refs[b.ref]
+		head, category = b.head, ref.head[1:]
 		tail = append(ref.tail[:len(ref.tail):len(ref.tail)], a.tail...)
-	case a.kind == namedRead || !isRef(a.head):
+	case !isRef(a.head):
 		return nil
 	}
 	target, isTemplate := head.(*template)
 	if isTemplate && target.isRecord && len(tail) == 1 {
-		t.link.readsColumn = &columnRead{a: a, category: category[1:], field: tail[0], column: target.fields[tail[0]]}
+		t.link.readsColumn = &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
 	}
 	return nil
 }

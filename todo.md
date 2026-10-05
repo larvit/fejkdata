@@ -72,8 +72,8 @@
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
-| 96 | 0.1.0 | question | **Refuse two reads of one sibling, one category or one struct category by different spellings, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after the draw restructure, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 96 | 0.1.0 | question | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after every `{…}` draws afresh and the code is restructured, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 90 | 0.1.0 | decision | **Restructure the code into folders named for what they hold: the public API stays in the root package, and the implementation moves into `internal/` packages.** | 6 | 9 | 3 | 9 | 3.2, 3.4 | 13.9 |
@@ -234,13 +234,13 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
 
-### 96. Refuse two reads of one sibling, one category or one struct category by different spellings, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
+### 96. Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
 
-Asked of the maintainer by the product-owner pass of item 4's chunk. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. Item 4 planned the draw checks as names, paths through names, cycles and the repeat cap, so the fence would revise the decision "Every `{…}` draws afresh, and only a name keeps a pick". `{w} {w}`, one spelling twice, stays two draws. Open: whether reads across categories, `{/city.name}, {/country.name}`, count.
+Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. Open: whether reads across categories, `{/city.name}, {/country.name}`, count.
 
-### 5. Run the nine-seat comprehension panel after the draw restructure, and file what it names.
+### 5. Run the nine-seat comprehension panel after every `{…}` draws afresh and the code is restructured, and file what it names.
 
-Needs item 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
+Needs item 90. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and item 90 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -301,7 +301,7 @@ With several `--data-path` layers the author has to work out which directory won
 
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
-Today `personnummer` draws its own sex, so a person bound to `{/sv_SE.sex[f] as s}` needs the template the README's Data section shows to agree with a number.
+Today `personnummer` draws its own sex, so a name and a number agree only through the README Data section's template, which reads both through one bound `sex`.
 
 ### 24. Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.
 

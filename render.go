@@ -168,8 +168,8 @@ func readField(s *generatorState, t *template, sc renderScope, a arm) readValue 
 	return r
 }
 
-// renderLeaf draws and renders what a read lands on: null on a null item, or on a column of one
-// reference alone whose read drew null.
+// renderLeaf draws and renders what a read lands on: null on a null item, or on a column that only
+// reads one reference or name whose read drew null.
 func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
 	n = resolveChoice(s, n)
 	switch leaf := n.(type) {

@@ -185,7 +185,7 @@ func TestNameErrors(t *testing.T) {
 		{"an option", map[string]string{"word": `["a","b"]`, "card": `"{/word as format}{format}"`},
 			`"format" is an option and can never be a name`},
 		{"no reference or field", map[string]string{"card": `{"format":"{word as w}{w}{w}","words":["a","b"]}`},
-			`no field "word"; a name binds a pick of a field, or of a reference`},
+			`no field "word"; a binding names a field, or a reference`},
 		{"read once through a field", map[string]string{"card": `{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`},
 			`name "p" is read once, so it keeps no pick for another read; write {place.x} where it is read`},
 		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
@@ -380,8 +380,8 @@ func TestOneRenderReadsOneNameAcrossNestedTemplates(t *testing.T) {
 func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
 	f := engine(1)
 	for src, want := range map[string]string{
-		`{"format":"{x as n}{n}{n}","x":"{n}"}`:                          `name "n" is read inside "x", the field it binds`,
-		`{"format":"{x as n}{n.a}{n.a}","x":{"format":"{a}","a":"{n}"}}`: `name "n" is read inside "x", the field it binds`,
+		`{"format":"{x as n}{n}{n}","x":"{n}"}`:                          `name "n" is read inside "x", the field bound to it`,
+		`{"format":"{x as n}{n.a}{n.a}","x":{"format":"{a}","a":"{n}"}}`: `name "n" is read inside "x", the field bound to it`,
 		`{"format":"{x as n}{y as m}{n}{n}{m}{m}","x":"{m}","y":"{n}"}`:  "cycle",
 	} {
 		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {

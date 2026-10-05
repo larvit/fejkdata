@@ -316,7 +316,7 @@ func checkBound(ref string, fields map[string]node) error {
 	}
 	missing, err := checkArm(ref, fields, false)
 	if missing {
-		return fmt.Errorf("%w; a name binds a pick of a field, or of a reference, which starts with /, . or ..", err)
+		return fmt.Errorf("%w; a binding names a field, or a reference, which starts with /, . or ..", err)
 	}
 	return err
 }

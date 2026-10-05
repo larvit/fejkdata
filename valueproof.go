@@ -29,7 +29,7 @@ type valueProof struct {
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
 // and one restating the datatype of the column it is.
-// docs/decisions.md#a-column-of-one-reference-alone-is-the-column-it-reads
+// docs/decisions.md#a-column-that-only-reads-one-reference-or-name-is-the-column-it-reads
 func (p *valueProof) checkDatatype(path string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
