@@ -137,8 +137,8 @@ it as nothing.
 A record is one render, so its columns read one pick of each [name](#names) its category
 binds: `"code": "{/currency as c}{c.code}"` beside `"symbol": "{c.symbol}"` is one
 currency, while `{/currency.code}` and `{/currency.symbol}` in two columns may name two. A
-field a name binds draws afresh as a column of its own, so write the column through the name,
-`"where": "{p}"` beside `{place as p}`, for it to agree with the columns reading `p`.
+field the format binds whole, `{place as p}`, is a column holding that pick, so it agrees with
+the columns reading `p`.
 
 A category never references itself: `{/users.first}` or a bare `{/users}` inside `users`
 describes a draw other than the fields beside it. Read a sibling as a field, and put a
