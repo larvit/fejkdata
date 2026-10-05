@@ -6,6 +6,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // checkFunc validates a call at compile time: a known builtin, its args, and, for calc, the
@@ -224,7 +225,7 @@ const (
 )
 
 // splitArm splits one name into head and tail. refs maps a reference to what
-// linkRefs resolved it to; before linking, a reference is whole.
+// resolveLink resolved it to; before linking, a reference is whole.
 func splitArm(name string, refs map[string]refBinding) arm {
 	if grammar.IsRef(name) {
 		b, linked := refs[name]
@@ -278,43 +279,75 @@ type formatOps struct {
 	grow int
 }
 
-func (c *formatOps) function(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
-	var operands []arm
-	for _, operand := range builtinfunc.Operands(tok.Fn, tok.Args) {
-		a := splitArm(operand, refs)
-		if isName(a.head) {
-			a.kind = namedRead
-		}
-		operands = append(operands, a)
-	}
-	c.ops = append(c.ops, op{Token: tok, call: builtinfunc.Prep(tok.Fn, tok.Args), operands: operands})
-}
-
-func (c *formatOps) field(tok grammar.Token, refs map[string]refBinding, isName func(string) bool) {
-	arms := make([]arm, len(tok.Arms))
-	for i, name := range tok.Arms {
-		arms[i] = splitArm(name, refs)
-		if isName(arms[i].head) {
-			arms[i].kind = namedRead
-		}
-	}
-	c.ops = append(c.ops, op{Token: tok, arms: arms})
-}
-
-// compileFormat compiles a parsed format; a {ref as n} token compiles to no op. Call
-// checkTokens first: it is what proves every token valid.
-func compileFormat(toks []grammar.Token, refs map[string]refBinding, isName func(head string) bool) formatOps {
+// compileFormat compiles t's parsed format against its link and its names' targets; a {ref as n}
+// token compiles to no op. checkTokens proved every token valid.
+func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
-	for _, tok := range toks {
+	for _, tok := range t.tokens {
+		o := op{Token: tok}
+		var err error
 		switch tok.Kind {
 		case grammar.LiteralRun:
 			c.grow += len(tok.Lit)
-			c.ops = append(c.ops, op{Token: tok})
 		case grammar.BuiltinCall:
-			c.function(tok, refs, isName)
+			o.call = builtinfunc.Prep(tok.Fn, tok.Args)
+			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), targets)
 		case grammar.NameRead:
-			c.field(tok, refs, isName)
+			o.arms, err = t.compileArms(tok.Arms, targets)
+		case grammar.NameBind:
+			continue
 		}
+		if err != nil {
+			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)
+		}
+		c.ops = append(c.ops, o)
 	}
-	return c
+	return c, nil
+}
+
+func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
+	arms := make([]arm, len(names))
+	for i, name := range names {
+		a, err := t.compileArm(name, targets)
+		if err != nil {
+			return nil, err
+		}
+		arms[i] = a
+	}
+	return arms, nil
+}
+
+// compileArm compiles one read: a path from the head it names, or from what the name it reads
+// through binds.
+func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) (arm, error) {
+	a := splitArm(name, t.link.refs)
+	if !t.isName(a.head) {
+		head := t.head(a.head)
+		if head == nil {
+			panic(invariant.Broken("{%s} reads a head nothing bound", a.spelling))
+		}
+		w := compilePath(head, a.tail)
+		a.steps, a.leaves = w.steps, w.leaves
+		return a, nil
+	}
+	b := t.nameScope.lookup(a.head)
+	if grammar.HasSelector(a.tail) {
+		return a, fmt.Errorf("a path through name %q may not select a row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, grammar.JoinSegments(a.tail))
+	}
+	target := targets[b]
+	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
+	if err := checkPathResolves(target.head, full, a.head); err != nil {
+		return a, err
+	}
+	w := compilePath(target.head, full)
+	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
+	a.levels = make([]string, len(full)+1)
+	for i := range a.levels {
+		a.levels[i] = grammar.JoinSegments(full[:i])
+	}
+	a.path = grammar.JoinSegments(full)
+	return a, nil
 }

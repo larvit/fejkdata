@@ -20,6 +20,7 @@ type nameScope struct {
 }
 
 type nameBinding struct {
+	// Filled by `bindNames`, from the compiled category:
 	name   string
 	ref    string // what it binds, as written: a reference, or a path into a field of binder
 	body   string
@@ -27,9 +28,10 @@ type nameBinding struct {
 	scope  *nameScope
 	index  int
 	binder *template
-	uses   []nameUse
-	head   node
-	tail   []string
+
+	// Filled by `linkTemplates`, from the assembled tree:
+	head node
+	tail []string
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
 	addressed map[string]string
@@ -61,17 +63,16 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 // choice's item, a name a field spells too, a read no field or name answers, and a binding
 // read by nothing.
 func bindNames(root node) error {
-	top := &nameScope{owner: root}
-	scopes := []*nameScope{top}
+	var scopes []*nameScope
 	var gather func(n node, scope *nameScope, inChoice bool, where string) error
 	gather = func(n node, scope *nameScope, inChoice bool, where string) error {
+		if t, isTemplate := n.(*template); n == root || isTemplate && t.repeat > 1 {
+			scope = &nameScope{up: scope, owner: n}
+			scopes = append(scopes, scope)
+			inChoice = false
+		}
 		switch t := n.(type) {
 		case *template:
-			if t.repeat > 1 && n != root {
-				scope = &nameScope{up: scope, owner: t}
-				scopes = append(scopes, scope)
-				inChoice = false
-			}
 			t.nameScope = scope
 			if err := scope.bindAll(t, inChoice, where); err != nil {
 				return err
@@ -82,7 +83,7 @@ func bindNames(root node) error {
 		_, isChoice := n.(*choice)
 		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, inChoice || isChoice, where) })
 	}
-	if err := gather(root, top, false, ""); err != nil {
+	if err := gather(root, nil, false, ""); err != nil {
 		return err
 	}
 	for _, sc := range scopes[1:] {
@@ -92,15 +93,11 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	if err := resolveReads(root, "", scopes); err != nil {
+	reads, err := resolveReads(root, scopes)
+	if err != nil {
 		return err
 	}
-	for _, sc := range scopes {
-		if err := sc.settle(); err != nil {
-			return err
-		}
-	}
-	return nil
+	return checkNameUses(scopes, reads)
 }
 
 // bindAll binds every name t's tokens bind.
@@ -133,16 +130,30 @@ func (sc *nameScope) spelled() string {
 	return "in one repeat"
 }
 
-// settle refuses a binding read by nothing, and hands a scope binding names to its owner, which
-// renders a frame of it.
-func (sc *nameScope) settle() error {
-	for _, b := range sc.order {
-		if len(b.uses) == 0 {
-			return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
+// checkNameUses refuses a binding read by nothing, then each binding checkUses refuses.
+func checkNameUses(scopes []*nameScope, reads map[*nameBinding][]nameUse) error {
+	for _, sc := range scopes {
+		for _, b := range sc.order {
+			if len(reads[b]) == 0 {
+				return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
+			}
 		}
 	}
-	if t, isTemplate := sc.owner.(*template); isTemplate && len(sc.order) > 0 {
-		t.ownNameScope = sc
+	for _, sc := range scopes {
+		for _, b := range sc.order {
+			if err := b.checkUses(reads[b]); err != nil {
+				return fmt.Errorf("%stoken {%s}: %w", b.where, b.body, err)
+			}
+		}
+	}
+	return nil
+}
+
+// ownScope is the scope t renders a frame of, nil where that scope binds no name: a category's,
+// on its root, or a repeat's, per iteration.
+func (t *template) ownScope() *nameScope {
+	if sc := t.nameScope; sc != nil && sc.owner == node(t) && len(sc.order) > 0 {
+		return sc
 	}
 	return nil
 }
@@ -162,34 +173,40 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 	return nil
 }
 
-// resolveReads answers each unbound read under n with a name its template sees, fields before the
-// format as compile reports them, and refuses a field spelling a name. scopes are every scope of
-// the category, which a refusal searches for a name bound where the read cannot see it.
-func resolveReads(n node, where string, scopes []*nameScope) error {
-	t, isTemplate := n.(*template)
-	if err := eachContained(n, where, func(c node, where string) error { return resolveReads(c, where, scopes) }); err != nil {
-		return err
-	}
-	if !isTemplate {
+// resolveReads answers each unbound read under root with a name its template sees, fields before
+// the format as compile reports them, returning every binding's reads, and refuses a field spelling
+// a name. scopes are every scope of the category, which a refusal searches for a name bound where
+// the read cannot see it.
+func resolveReads(root node, scopes []*nameScope) (map[*nameBinding][]nameUse, error) {
+	reads := map[*nameBinding][]nameUse{}
+	var resolve func(n node, where string) error
+	resolve = func(n node, where string) error {
+		t, isTemplate := n.(*template)
+		if err := eachContained(n, where, resolve); err != nil {
+			return err
+		}
+		if !isTemplate {
+			return nil
+		}
+		for _, name := range sortedNames(t.fields) {
+			if b := t.nameScope.lookup(name); b != nil {
+				holder := "the root template"
+				if where != "" {
+					holder = strings.TrimSuffix(where, ": ")
+				}
+				return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.where, b.body, name, holder)
+			}
+		}
+		for _, u := range t.unbound {
+			b := t.nameScope.lookup(u.head)
+			if b == nil {
+				return unresolved(where, u, t.nameScope, scopes)
+			}
+			reads[b] = append(reads[b], nameUse{tail: u.tail, in: t, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
+		}
 		return nil
 	}
-	for _, name := range sortedNames(t.fields) {
-		if b := t.nameScope.lookup(name); b != nil {
-			holder := "the root template"
-			if where != "" {
-				holder = strings.TrimSuffix(where, ": ")
-			}
-			return fmt.Errorf("%stoken {%s}: name %q is a field of %s too; options, fields and names share one namespace, so rename one", b.where, b.body, name, holder)
-		}
-	}
-	for _, u := range t.unbound {
-		b := t.nameScope.lookup(u.head)
-		if b == nil {
-			return unresolved(where, u, t.nameScope, scopes)
-		}
-		b.uses = append(b.uses, nameUse{tail: u.tail, in: t, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
-	}
-	return nil
+	return reads, resolve(root, "")
 }
 
 // unresolved is the refusal of u, a read no field or name answers: naming the repeat binding the
@@ -224,18 +241,6 @@ func (t *template) isName(head string) bool {
 	return !grammar.IsRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
-// linkBindings resolves what each of t's bindings binds to a head node and a tail path.
-func linkBindings(t *template) {
-	for _, tok := range t.tokens {
-		if tok.Kind != grammar.NameBind {
-			continue
-		}
-		b := t.nameScope.bindings[tok.Bound]
-		a := splitArm(b.ref, t.link.refs)
-		b.head, b.tail = t.head(a.head), a.tail
-	}
-}
-
 // namedReads calls fn with every read of a name t's format makes, and the token holding it.
 func namedReads(t *template, fn func(o *op, a *arm) error) error {
 	for i := range t.compiled.ops {
@@ -248,48 +253,6 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 					}
 				}
 			}
-		}
-	}
-	return nil
-}
-
-// linkPasses run in order once every template is linked, each over every template before the next
-// starts: a pass reads what the one before filled in.
-var linkPasses = []func(label string, t *template) error{linkNames, linkColumnRead, checkNameReads, checkCalcNames}
-
-// linkNames compiles t's reads of a name as paths from the head its binding resolved to, once every
-// template is linked, so each binder has resolved what it binds.
-func linkNames(label string, t *template) error {
-	return namedReads(t, func(o *op, a *arm) error {
-		if err := linkName(t, a); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
-		}
-		return nil
-	})
-}
-
-func linkName(t *template, a *arm) error {
-	b := t.nameScope.lookup(a.head)
-	if grammar.HasSelector(a.tail) {
-		return fmt.Errorf("a path through name %q may not select a row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, grammar.JoinSegments(a.tail))
-	}
-	full := append(b.tail[:len(b.tail):len(b.tail)], a.tail...)
-	if err := checkPathResolves(b.head, full, a.head); err != nil {
-		return err
-	}
-	w := compilePath(b.head, full)
-	a.named, a.steps, a.leaves = b, w.steps, w.leaves
-	a.levels = make([]string, len(full)+1)
-	for i := range a.levels {
-		a.levels[i] = grammar.JoinSegments(full[:i])
-	}
-	a.path = grammar.JoinSegments(full)
-	if b.addressed == nil {
-		b.addressed = map[string]string{}
-	}
-	for _, key := range append(a.levels[len(b.tail):], a.path) {
-		if _, seen := b.addressed[key]; !seen {
-			b.addressed[key] = a.spelling
 		}
 	}
 	return nil

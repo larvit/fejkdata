@@ -45,8 +45,8 @@ func shippedShape(f *Generator) string {
 			}
 		case *template:
 			facts[prefix] = "\tformat " + strconv.Quote(n.format) + readsFact(n)
-			if _, columns, err := recordOf(n); err == nil {
-				for _, c := range columns {
+			if record, err := recordOf(n); err == nil {
+				for _, c := range record.columns {
 					fact := "\t" + c.DataType.String()
 					if _, nullable := columnItems(n.fields[c.Name]); nullable {
 						fact += " null"

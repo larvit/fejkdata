@@ -8,18 +8,9 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
-// field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
-// draw of w.
+// checkNameReads refuses a read of a name inside the field bound to it, and a read {n} beside {n.w}
+// where n's pick renders w twice: the pick keeps one draw of w.
 func checkNameReads(label string, t *template) error {
-	for _, tok := range t.tokens {
-		if tok.Kind != grammar.NameBind {
-			continue
-		}
-		if err := t.nameScope.bindings[tok.Bound].checkUses(); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
-		}
-	}
 	return namedReads(t, func(o *op, a *arm) error {
 		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
 			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, o.Body, a.named.name, a.named.ref)
@@ -60,13 +51,13 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
-// checkUses refuses a binding read once at a spot the bound spelling can stand: that spelling
-// draws the same way without the name. A bound field can stand in only where the reading
+// checkUses refuses a binding whose uses read it once at a spot the bound spelling can stand: that
+// spelling draws the same way without the name. A bound field can stand in only where the reading
 // template reaches the binder through fields. Where the spelling would be a CLI argument or tag
 // of one reference alone, that entry point's own refusal then names the bare path.
-func (b *nameBinding) checkUses() error {
-	r := b.uses[0]
-	if len(b.uses) > 1 || r.nested {
+func (b *nameBinding) checkUses(uses []nameUse) error {
+	r := uses[0]
+	if len(uses) > 1 || r.nested {
 		return nil
 	}
 	spelling := b.ref

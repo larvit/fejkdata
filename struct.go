@@ -70,7 +70,6 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 // index path each column fills, and the struct fields carrying tags of their own.
 type structShape struct {
 	record       *template
-	columns      []Column
 	fieldIndexes [][]int
 	nested       []nestedStruct
 }
@@ -266,20 +265,20 @@ func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, 
 	if err := bindInline(root, n, label, true); err != nil {
 		return err
 	}
-	record, columns, err := recordOf(n)
+	record, err := recordOf(n)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
 	proof := &valueProof{}
-	s.fieldIndexes = make([][]int, len(columns))
-	for i, c := range columns {
+	s.fieldIndexes = make([][]int, len(record.columns))
+	for i, c := range record.columns {
 		sf, _ := t.FieldByName(c.Name)
 		if err := proof.checkField(label+"."+c.Name, sf.Type, record.fields[c.Name]); err != nil {
 			return err
 		}
 		s.fieldIndexes[i] = sf.Index
 	}
-	s.record, s.columns = record, columns
+	s.record = record
 	return nil
 }
 
@@ -324,7 +323,7 @@ func (k columnKind) holds(v proven.Facts) bool {
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
 		var frames frameStack
-		for i, c := range renderRecord(state, s.record, s.columns, renderScope{frames: &frames}).columns {
+		for i, c := range renderRecord(state, s.record, renderScope{frames: &frames}).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}

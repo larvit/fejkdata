@@ -122,26 +122,16 @@ func refuseFolderRefs(scope nodeScope) error {
 	})
 }
 
-// linkNodeRefs binds the references in an inline node's templates against the
-// loaded tree.
+// linkNodeRefs links the templates of an inline node against the loaded tree.
 func linkNodeRefs(scope nodeScope, root map[string]node) error {
+	var ts []linkSite
 	if err := scope(func(label string, m node) error {
 		if t, ok := m.(*template); ok {
-			return linkTemplate(nil, label, "", t, root)
+			ts = append(ts, linkSite{t: t, label: label})
 		}
 		return nil
 	}); err != nil {
 		return err
 	}
-	for _, pass := range linkPasses {
-		if err := scope(func(label string, m node) error {
-			if t, ok := m.(*template); ok {
-				return pass(label, t)
-			}
-			return nil
-		}); err != nil {
-			return err
-		}
-	}
-	return nil
+	return linkTemplates(ts, root)
 }
