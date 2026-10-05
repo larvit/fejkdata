@@ -246,7 +246,7 @@ func pathArm(name, head, writtenHead string, segs []string) arm {
 	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
 }
 
-// levelKeys keys each prefix of path, from its first from segments to the whole of it.
+// levelKeys is the key of each prefix of path holding at least from segments, shortest first.
 func levelKeys(path []string, from int) []pickKey {
 	levels := make([]pickKey, len(path)-from+1)
 	for i := range levels {
