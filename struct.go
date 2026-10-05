@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // FakeStruct fills the struct v points to. Each exported field tagged `fake:"…"` is a
@@ -222,14 +223,14 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 	if err := checkTaggedType(sf); err != nil {
 		return nil, err
 	}
-	inline, err := isTemplate(tag)
+	inline, err := grammar.IsTemplate(tag)
 	switch {
 	case err != nil:
 		return nil, err
 	case inline:
 		return inputValue(tag)
 	}
-	if err := checkPathNames(tag); err != nil {
+	if err := grammar.CheckPathNames(tag); err != nil {
 		return nil, err
 	}
 	return "{/" + tag + "}", nil

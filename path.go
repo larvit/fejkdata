@@ -5,156 +5,14 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 )
-
-// splitPath splits a dotted path into segments, a selector — [key or name] after a
-// table's name — becoming a segment of its own, brackets kept, and so does each "..". A
-// dot inside a selector is part of the key or name.
-func splitPath(path string) ([]string, error) {
-	segs := make([]string, 0, strings.Count(path, ".")+2*strings.Count(path, "[")+1)
-	start, open := 0, -1
-	for i := 0; i < len(path); i++ {
-		switch path[i] {
-		case '[':
-			if err := checkOpen(path, i, start, open); err != nil {
-				return nil, err
-			}
-			segs = append(segs, path[start:i])
-			start, open = i, i
-		case ']':
-			if err := checkClose(path, i, open); err != nil {
-				return nil, err
-			}
-			segs = append(segs, path[start:i+1])
-			open = -1
-			segs, i = stepUpAt(segs, path, i+1)
-			start = i + 1
-		case '.':
-			if open < 0 {
-				segs = append(segs, path[start:i])
-				segs, i = stepUpAt(segs, path, i)
-				start = i + 1
-			}
-		}
-	}
-	if open >= 0 {
-		return nil, fmt.Errorf(`%q opens a selector with "[" and never closes it with "]"`, path)
-	}
-	if start < len(path) || start == len(path) && (len(segs) == 0 || segs[len(segs)-1] != "..") {
-		segs = append(segs, path[start:])
-	}
-	return segs, nil
-}
-
-// stepUpAt appends a ".." segment where the dot at i is the first of two, returning the
-// index of the last dot it consumed.
-func stepUpAt(segs []string, path string, i int) ([]string, int) {
-	if i+1 < len(path) && path[i+1] == '.' {
-		return append(segs, ".."), i + 1
-	}
-	return segs, i
-}
-
-// checkOpen refuses a "[" at i that opens no selector: one inside a selector, or one
-// following no name.
-func checkOpen(path string, i, start, open int) error {
-	switch {
-	case open >= 0:
-		return fmt.Errorf(`%q holds a "[" inside a selector, which no key or name may`, path)
-	case i == 0:
-		return fmt.Errorf(`%q starts with "["; a path starts with a name, and a selector follows a table's name`, path)
-	case i == start:
-		return fmt.Errorf(`%q: a selector follows its table's name; write %s`, path, path[:i-1]+path[i:])
-	}
-	return nil
-}
-
-// checkClose refuses a "]" at i that closes no selector, closes an empty one, or is
-// followed by anything but a dot or the end.
-func checkClose(path string, i, open int) error {
-	switch {
-	case open < 0:
-		return fmt.Errorf(`%q holds a "]" that closes no "["`, path)
-	case i == open+1:
-		return fmt.Errorf("%q holds an empty selector; a selector names a row by key or name", path)
-	case i+1 < len(path) && path[i+1] != '.':
-		return fmt.Errorf(`%q: a "]" ends its selector, so a dot or the end must follow it`, path)
-	}
-	return nil
-}
-
-// indexOutside is the first c in s outside a [selector], or -1.
-func indexOutside(s string, c byte) int {
-	depth := 0
-	for i := 0; i < len(s); i++ {
-		switch {
-		case s[i] == '[':
-			depth++
-		case s[i] == ']' && depth > 0:
-			depth--
-		case s[i] == c && depth == 0:
-			return i
-		}
-	}
-	return -1
-}
-
-// cutOutside cuts s around the first sep outside a [selector].
-func cutOutside(s, sep string) (before, after string, found bool) {
-	depth := 0
-	for i := 0; i < len(s); i++ {
-		switch {
-		case s[i] == '[':
-			depth++
-		case s[i] == ']' && depth > 0:
-			depth--
-		case depth == 0 && strings.HasPrefix(s[i:], sep):
-			return s[:i], s[i+len(sep):], true
-		}
-	}
-	return s, "", false
-}
-
-func splitOutside(s string, c byte) []string {
-	var parts []string
-	for {
-		i := indexOutside(s, c)
-		if i < 0 {
-			return append(parts, s)
-		}
-		parts, s = append(parts, s[:i]), s[i+1:]
-	}
-}
-
-func isSelector(seg string) bool { return strings.HasPrefix(seg, "[") }
-
-func hasSelector(segs []string) bool {
-	for _, s := range segs {
-		if isSelector(s) {
-			return true
-		}
-	}
-	return false
-}
-
-func selectorOf(seg string) string { return seg[1 : len(seg)-1] }
-
-// nameSegments is the segments of a path that are names, its selectors and ".." left out.
-func nameSegments(segs []string) []string {
-	out := segs[:0:0]
-	for _, s := range segs {
-		if !isSelector(s) && s != ".." {
-			out = append(out, s)
-		}
-	}
-	return out
-}
 
 // stepInto is what seg names under n: a folder's entry or a template's field.
 func stepInto(n node, seg string) (node, error) {
 	switch {
-	case isSelector(seg):
-		return nil, fmt.Errorf("%s is not a table, so it has no row to select", selectorOf(seg))
+	case grammar.IsSelector(seg):
+		return nil, fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
 	case seg == "..":
 		if c, ok := n.(*tableColumn); ok {
 			return nil, fmt.Errorf(`".." steps up from a table's row, and %q is a column; put the ".." right after the row`, c.t.header[c.i])
@@ -215,7 +73,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	}
 	// A selector further down pins this table by ancestry, so the walk draws only
 	// where none follows; drawing first could pick a row the selector is not inside.
-	r := tableRoute{sel: sel, draw: sel == "" && (descended || len(tail) > 0) && !hasSelector(tail)}
+	r := tableRoute{sel: sel, draw: sel == "" && (descended || len(tail) > 0) && !grammar.HasSelector(tail)}
 	switch {
 	case len(tail) == 0 && sel == "" && !descended:
 		r.next = t
@@ -239,8 +97,8 @@ func (t *table) stepUp(rest []string) error {
 		return fmt.Errorf("path has an empty segment")
 	case len(rest) == 0 || rest[0] != t.parentT.segment:
 		return fmt.Errorf(`".." steps up from %s to its parent table, so name that next: %s`, t.segment, t.climbTo(rest))
-	case hasSelector(rest):
-		return fmt.Errorf(`no selector after "..": a row selected there could lie outside the row stepped up to; select from the table's path from the data root: %s`, joinSegments(append([]string{t.parentT.path}, rest[1:]...)))
+	case grammar.HasSelector(rest):
+		return fmt.Errorf(`no selector after "..": a row selected there could lie outside the row stepped up to; select from the table's path from the data root: %s`, grammar.JoinSegments(append([]string{t.parentT.path}, rest[1:]...)))
 	}
 	return nil
 }
@@ -314,7 +172,7 @@ func (w *pathCheck) walk(n node, tail []string) (node, error) {
 			n, tail, descended = r.next, r.rest, r.descends
 			continue
 		case *template:
-			if isSelector(tail[0]) {
+			if grammar.IsSelector(tail[0]) {
 				break
 			}
 			if err := w.enter(x, tail); err != nil {
@@ -490,11 +348,11 @@ func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []string,
 }
 
 func (t *table) selector(tail []string) (sel string, rest []string, err error) {
-	if len(tail) == 0 || !isSelector(tail[0]) {
+	if len(tail) == 0 || !grammar.IsSelector(tail[0]) {
 		return "", tail, nil
 	}
-	sel, rest = selectorOf(tail[0]), tail[1:]
-	if len(rest) > 0 && isSelector(rest[0]) {
+	sel, rest = grammar.SelectorOf(tail[0]), tail[1:]
+	if len(rest) > 0 && grammar.IsSelector(rest[0]) {
 		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.segment, sel)
 	}
 	return sel, rest, nil
@@ -542,20 +400,7 @@ func checkPathResolves(n node, tail []string, level string) error {
 func compilePath(n node, tail []string) pathCheck {
 	w := pathCheck{tail: tail}
 	if _, err := w.run(n); err != nil {
-		panic(internalError("%s: %v; the path should have been proved before it was compiled", joinSegments(tail), err))
+		panic(internalError("%s: %v; the path should have been proved before it was compiled", grammar.JoinSegments(tail), err))
 	}
 	return w
-}
-
-// joinSegments spells segments as a path: a selector attaches to the name before it, and
-// so do a ".." and the name after it.
-func joinSegments(segs []string) string {
-	var b strings.Builder
-	for i, s := range segs {
-		if b.Len() > 0 && !isSelector(s) && s != ".." && segs[i-1] != ".." {
-			b.WriteByte('.')
-		}
-		b.WriteString(s)
-	}
-	return b.String()
 }

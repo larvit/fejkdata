@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // proven is what a proof knows of every render of a node: bounds on the number each
@@ -191,9 +193,9 @@ func (p *valueProof) proveTemplate(t *template) proven {
 		return v
 	}
 	o := t.compiled.ops[0]
-	body, name, args := o.body, o.fn, o.args
+	body, name, args := o.Body, o.Fn, o.Args
 	switch _, isTransform := transforms[name]; {
-	case o.kind == nameRead:
+	case o.Kind == grammar.NameRead:
 		var leaves []node
 		for _, a := range o.arms {
 			leaves = append(leaves, a.leaves...)
@@ -210,12 +212,12 @@ func (p *valueProof) proveTemplate(t *template) proven {
 }
 
 func (p *valueProof) proveCalc(o op) proven {
-	body, args := o.body, o.args
+	body, args := o.Body, o.Args
 	expr := parsedCalc(args[0])
 	nodes := operandNodes(o)
 	v, doubt := p.proveExpr(expr, func(name string) proven { return p.proveUnion(nodes(name)) })
 	if doubt == "" && !(magnitude(v) <= calcLimit) {
-		doubt = calcText(expr) + " is not proven within 1e300"
+		doubt = grammar.CalcText(expr) + " is not proven within 1e300"
 	}
 	if doubt != "" {
 		return unproven(fmt.Sprintf("{%s}: %s", body, doubt))
@@ -228,27 +230,27 @@ func (p *valueProof) proveCalc(o op) proven {
 const calcLimit = 1e300
 
 // proveExpr bounds a calc expression from its operands, or says why it cannot.
-func (p *valueProof) proveExpr(n calcNode, operand func(name string) proven) (proven, string) {
+func (p *valueProof) proveExpr(n grammar.CalcNode, operand func(name string) proven) (proven, string) {
 	switch n := n.(type) {
-	case calcNum:
+	case grammar.CalcNum:
 		v := float64(n)
 		return bounded(v, v, v == math.Trunc(v)), ""
-	case calcVar:
-		v := operand(string(n))
+	case grammar.CalcVar:
+		v := operand(n.Name)
 		if v.notOperand != "" {
-			return proven{}, fmt.Sprintf("operand %q: %s", string(n), v.notOperand)
+			return proven{}, fmt.Sprintf("operand %q: %s", n.Name, v.notOperand)
 		}
 		return proven{lo: v.lo, hi: v.hi, nonZero: v.nonZero, integral: v.integral}, ""
-	case calcNeg:
-		v, doubt := p.proveExpr(n.x, operand)
+	case grammar.CalcNeg:
+		v, doubt := p.proveExpr(n.X, operand)
 		v.lo, v.hi = -v.hi, -v.lo
 		return v, doubt
-	case calcBin:
-		l, doubt := p.proveExpr(n.l, operand)
+	case grammar.CalcBin:
+		l, doubt := p.proveExpr(n.L, operand)
 		if doubt != "" {
 			return l, doubt
 		}
-		r, doubt := p.proveExpr(n.r, operand)
+		r, doubt := p.proveExpr(n.R, operand)
 		if doubt != "" {
 			return r, doubt
 		}
@@ -258,10 +260,10 @@ func (p *valueProof) proveExpr(n calcNode, operand func(name string) proven) (pr
 }
 
 // combine bounds one operation from the bounds of its sides.
-func combine(n calcBin, l, r proven) (proven, string) {
+func combine(n grammar.CalcBin, l, r proven) (proven, string) {
 	var v proven
 	integral := l.integral && r.integral
-	switch n.operator {
+	switch n.Operator {
 	case '+':
 		v = bounded(l.lo+r.lo, l.hi+r.hi, integral)
 	case '-':
@@ -271,13 +273,13 @@ func combine(n calcBin, l, r proven) (proven, string) {
 		v.nonZero = max(v.nonZero, l.nonZero*r.nonZero)
 	default:
 		if r.nonZero == 0 {
-			return v, fmt.Sprintf("divides by %s, which is not proven nonzero", calcText(n.r))
+			return v, fmt.Sprintf("divides by %s, which is not proven nonzero", grammar.CalcText(n.R))
 		}
 		m := magnitude(l) / r.nonZero
 		v = proven{lo: -m, hi: m, nonZero: l.nonZero / magnitude(r)}
 	}
 	if !(magnitude(v) <= calcLimit) {
-		return v, calcText(n) + " is not proven within 1e300"
+		return v, grammar.CalcText(n) + " is not proven within 1e300"
 	}
 	return v, ""
 }

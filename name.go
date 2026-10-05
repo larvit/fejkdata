@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // nameScope is where a name is bound: a category, or one iteration of a repeat inside it. A
@@ -43,7 +45,7 @@ type nameUse struct {
 }
 
 // bindsField reports whether b binds a path into a field, so a read of it stays in the category.
-func (b *nameBinding) bindsField() bool { return !isRef(b.ref) }
+func (b *nameBinding) bindsField() bool { return !grammar.IsRef(b.ref) }
 
 func (sc *nameScope) lookup(name string) *nameBinding {
 	for ; sc != nil; sc = sc.up {
@@ -104,16 +106,16 @@ func bindNames(root node) error {
 // bindAll binds every name t's tokens bind.
 func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 	for _, tok := range t.tokens {
-		if tok.kind != nameBind {
+		if tok.Kind != grammar.NameBind {
 			continue
 		}
 		if inChoice {
-			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice, or move the item into a category of its own and reference that", where, tok.body)
+			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice, or move the item into a category of its own and reference that", where, tok.Body)
 		}
-		if b, twice := sc.bindings[tok.bound]; twice {
-			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.body, tok.bound, sc.spelled(), b.body)
+		if b, twice := sc.bindings[tok.Bound]; twice {
+			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.Body, tok.Bound, sc.spelled(), b.body)
 		}
-		b := &nameBinding{name: tok.bound, ref: tok.boundRef, body: tok.body, where: where, scope: sc, index: len(sc.order), binder: t}
+		b := &nameBinding{name: tok.Bound, ref: tok.BoundRef, body: tok.Body, where: where, scope: sc, index: len(sc.order), binder: t}
 		if sc.bindings == nil {
 			sc.bindings = map[string]*nameBinding{}
 		}
@@ -219,16 +221,16 @@ func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 }
 
 func (t *template) isName(head string) bool {
-	return !isRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
+	return !grammar.IsRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
 // linkBindings resolves what each of t's bindings binds to a head node and a tail path.
 func linkBindings(t *template) {
 	for _, tok := range t.tokens {
-		if tok.kind != nameBind {
+		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		b := t.nameScope.bindings[tok.bound]
+		b := t.nameScope.bindings[tok.Bound]
 		a := splitArm(b.ref, t.link.refs)
 		b.head, b.tail = t.head(a.head), a.tail
 	}
@@ -260,7 +262,7 @@ var linkPasses = []func(path string, t *template) error{linkNames, linkColumnRea
 func linkNames(path string, t *template) error {
 	return namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.body, err)
+			return fmt.Errorf("%s: token {%s}: %w", t.site.label(path), o.Body, err)
 		}
 		return nil
 	})
@@ -268,8 +270,8 @@ func linkNames(path string, t *template) error {
 
 func linkName(t *template, a *arm) error {
 	b := t.nameScope.lookup(a.head)
-	if hasSelector(a.tail) {
-		return fmt.Errorf("a path through name %q may not select a row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, joinSegments(a.tail))
+	if grammar.HasSelector(a.tail) {
+		return fmt.Errorf("a path through name %q may not select a row; read it directly, {%s.%s}, or bind the row to a name of its own", a.head, b.ref, grammar.JoinSegments(a.tail))
 	}
 	full := append(b.tail[:len(b.tail):len(b.tail)], a.tail...)
 	if err := checkPathResolves(b.head, full, a.head); err != nil {
@@ -279,9 +281,9 @@ func linkName(t *template, a *arm) error {
 	a.named, a.steps, a.leaves = b, w.steps, w.leaves
 	a.levels = make([]string, len(full)+1)
 	for i := range a.levels {
-		a.levels[i] = joinSegments(full[:i])
+		a.levels[i] = grammar.JoinSegments(full[:i])
 	}
-	a.path = joinSegments(full)
+	a.path = grammar.JoinSegments(full)
 	if b.addressed == nil {
 		b.addressed = map[string]string{}
 	}
