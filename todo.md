@@ -73,20 +73,20 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel after every `{…}` draws afresh and the code is restructured, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel once items 97 to 106 have restructured the code, and file what it names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 97 | 0.1.0 | decision | **Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, which takes its entropy source as an argument, and test which packages each package may import.** | 2 | 4 | 2 | 8 | 3.2, 3.4 | 15.4 |
-| 103 | 0.1.0 |  | **Move reading a data tree's JSON and TSV files into `internal/datafiles`, so compiling reads no file.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
+| 102 | 0.1.0 | defect | **Move a table's rows, with their family, proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that refuses a level carrying a `repeat` in the load check and in `Fake` alike.** | 5 | 6 | 4 | 8 | 3.2, 3.4, 5 | 15.9 |
+| 97 | 0.1.0 | decision | **Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, built from a seed, and test which packages each package may import.** | 2 | 4 | 2 | 8 | 3.2, 3.4 | 15.4 |
+| 103 | 0.1.0 |  | **Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands compiling a reader for a table's rows.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
 | 98 | 0.1.0 |  | **Move how the template language is written — format tokens, paths and selectors, reference sigils, names and `calc` syntax — into `internal/grammar`.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 100 | 0.1.0 |  | **Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
-| 99 | 0.1.0 |  | **Move the bounds a load proves of a number, `proven`, into `internal/valueproof`.** | 2 | 3 | 2 | 7 | 3.2, 3.4 | 13.8 |
+| 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes.** | 2 | 2 | 2 | 7 | 3.2 | 14.1 |
 | 101 | 0.1.0 |  | **Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 104 | 0.1.0 |  | **Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes, and replace `binding` with one function per caller.** | 3 | 3 | 2 | 7 | 3.2 | 12.8 |
-| 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
-| 102 | 0.1.0 | defect | **Move a table's rows, with their proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that the load check and the draw both call.** | 5 | 6 | 2 | 8 | 3.2, 3.4 | 11.9 |
+| 99 | 0.1.0 |  | **Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.** | 3 | 4 | 2 | 7 | 3.2, 3.4 | 12.6 |
+| 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -106,14 +106,13 @@
 | 20 | 0.2.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 4 | 15.7 |
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
-| 48 | 0.2.0 | defect | **Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.** | 2 | 2 | 4 | 6 | 5 | 15.1 |
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
-| 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API, its options and the embedded data.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -134,7 +133,6 @@
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
 | 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
-| 7 | 0.3.0 |  | **Fill `arm` in one place.** | 4 | 4 | 2 | 6 | 3.2 | 9.8 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
@@ -154,7 +152,7 @@
 
 ### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
 
-The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users.
@@ -169,15 +167,15 @@ Split it into items before starting. Before the module API ships, a panel of the
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
-Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference.
 
 ### 16. Add the remaining locale categories: company, phone, finance, vehicle, words.
 
-Shape: T = table, t = template, c = choice.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Shape: T = table, t = template, c = choice.
 
 `sv_SE` ([source research](docs/research/research-sources-se.md))
 
@@ -211,7 +209,7 @@ Shape: T = table, t = template, c = choice.
 
 ### 15. Add the remaining `misc` tables and templates, one row of its detail's table per chunk.
 
-Shape: T = table, t = template, c = choice.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Shape: T = table, t = template, c = choice.
 
 | Category | Shape | Source | Licence |
 |---|---|---|---|
@@ -238,31 +236,35 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
 
-`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
 
 ### 96. Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
 
-Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
 
-### 5. Run the nine-seat comprehension panel after every `{…}` draws afresh and the code is restructured, and file what it names.
+### 5. Run the nine-seat comprehension panel once items 97 to 106 have restructured the code, and file what it names.
 
 Needs items 97 to 106. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and items 97 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until then.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `linkName`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Then no test swaps the package's `randomBytes`, as `fejkdata_test.go` does today, failing every `New` in the package while it runs.
 
-### 97. Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, which takes its entropy source as an argument, and test which packages each package may import.
+### 102. Move a table's rows, with their family, proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that refuses a level carrying a `repeat` in the load check and in `Fake` alike.
 
-First of the restructure items 97 to 106, which make each value's writer one a reader can name and move what stands alone into `internal/`; the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`" says why the engine stays. This item's first commit adds a test, using `go/build`, that lists each package's allowed imports; every later item extends it. `newRand` stops reading the package's `randomBytes`, so no test swaps it: `fejkdata_test.go` does today, and every `New` in the package reads the failing source while that test runs. The constructor and the generator's field take the name of what they build, a draw state with its counters, not half of it, and `New`'s local `rng` stops shadowing the `rng` interface.
+Needs items 97 and 101. `internal/rows` owns the parent and child links; the root's table holds `{rows, format, cellTemplates}` and finds its relatives through those links, so the family has one writer and `internal/rows` never sees a template. The lookups keep the weights `sumWeights` parsed, where `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
 
-### 103. Move reading a data tree's JSON and TSV files into `internal/datafiles`, so compiling reads no file.
+### 97. Move the seeded randomness and its `{seq()}` counters into `internal/drawstate`, built from a seed, and test which packages each package may import.
 
-Needs item 98. The folder walk, the hidden-file and empty-folder rules, reading a category's rows, and the check that every TSV is named; the engine compiles each category as the walk hands it over, rows still read lazily, and errors keep their order.
+First of the restructure items 97 to 106, which give each value one writer a reader can name and move what stands alone into `internal/`; the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`" says why the engine stays. This item's first commit adds a test, using `go/build`, that lists each package's allowed imports; every later item extends it. `New` reads the system's entropy for an unseeded generator and hands the seed over, until item 89 moves that read into the CLI. The constructor and the generator's field take the name of what they build, a draw state with its counters, not half of it, and `New`'s local `rng` stops shadowing the `rng` interface. A function module of item 77 reaches the randomness through an interface the root declares; the concrete state stays internal.
+
+### 103. Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands compiling a reader for a table's rows.
+
+Needs item 98. The folder walk, the hidden-file and empty-folder rules, reading a category's rows, and the check that every TSV is named move; the engine compiles each category as the walk hands it over, a table's rows are read through the reader only when its JSON names them, and errors keep their order.
 
 ### 98. Move how the template language is written — format tokens, paths and selectors, reference sigils, names and `calc` syntax — into `internal/grammar`.
 
@@ -270,15 +272,15 @@ Needs item 97. Pure code that reads strings: `scanUnit`, `formatToken` and `pars
 
 ### 100. Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.
 
-Needs items 98 and 99. `checkArgs` takes the arguments alone: `calc`, its one user of the fields, checks its operands where the template links. `ibanArg` joins the builtins, and `callFn` takes `internal/drawstate`'s type.
+Needs item 99. `checkArgs` takes the arguments alone: `calc`, its one user of the fields, checks its operands where the template links, and a load with two mistakes reports the same one first as today. `ibanArg` joins the builtins, and `callFn` takes `internal/drawstate`'s type.
 
-### 99. Move the bounds a load proves of a number, `proven`, into `internal/valueproof`.
+### 106. Settle each record's shape when its template links, so `Generator.records` goes.
 
-Needs item 98. `proven` and the arithmetic over it, `combine`, `bounded`, `printing` and the literal and number readers; proving a node stays with the engine.
+Needs item 105. Settling all 84 shipped record shapes took 0.09 ms on 2026-10-05, so the cache saves nothing. The error for `FakeRecord` on a node that is no record stays at call time. `bindingOfWhole` stops repeating a load-time search on every column of every record draw.
 
 ### 101. Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.
 
-`template.site` serves only labels and the table-cell refusals at compile, so it goes and the walk names the label. `setTablePaths` and the write `linkParent` makes into another table's `children` become one builder.
+`template.site` serves only labels and the table-cell refusals at compile, so it goes and the walk names the label. `setTablePaths` and the write `linkParent` makes into another table's `children` become one builder; `AGENTS.md`'s complexity rule, which names `linkParent` among the dispatches that stay whole, changes with it.
 
 ### 104. Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.
 
@@ -286,21 +288,17 @@ The two-way link `nameScope.owner` ↔ `template.ownNameScope` is written by a t
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
-Needs item 77, which makes an override fail unless it says it replaces.
+Needs item 5 to score 7.0 or above, per `AGENTS.md`'s comprehension rule. Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
-### 106. Settle each record's shape when its template links, so `Generator.records` goes, and replace `binding` with one function per caller.
+### 99. Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.
 
-Needs item 105. Settling all 84 shipped record shapes took 0.09 ms on 2026-10-05, so the cache saves nothing. The error for `FakeRecord` on a node that is no record stays at call time. `bindingOfWhole` stops repeating a load-time search on every column of every record draw.
+Needs item 98. `proven` is keyed by `DataType`, and a package the root imports cannot import the root, so the type moves first. The root declares `type DataType = datatype.DataType` and its four constants by name, so the public spelling stays one; pkg.go.dev then lists the methods under the internal package, which the maintainer accepted on 2026-10-05. `internal/proven` takes `proven` and the arithmetic over it, `combine`, `bounded`, `printing` and the literal and number readers; proving a node stays with the engine in `valueproof.go`.
 
-### 105. Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms — so no step writes into what an earlier one built.
+### 105. Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.
 
-Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote, and `checkNameReads` the arms both filled. `arm` is written three times, by `compileFormat`, `compileArms` and `linkName`. Technical principle: one owner per value.
-
-### 102. Move a table's rows, with their proofs, pins, row draws and lookups, into `internal/rows`, and walk a path through one per-step function that the load check and the draw both call.
-
-Needs items 97 and 101. The root's table holds `{rows, format, cells}`, so `internal/rows` never sees a template. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `walk` refuses a `repeat` level through `enter`, `probePath` does not (item 48). The decision "A path draws through its compiled steps" keeps the two, so this revises it. Technical principle: DRY.
+Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote and writes `link.readsColumn` into the link `linkTemplate` built, and `checkNameReads` reads the arms both filled. `arm` is filled in three places, `compileFormat`, `compileArms` and `linkName`, and `splitArm` runs before the link and again after it, so five seats of an earlier panel traced three phases. Technical principle: one owner per value.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -381,10 +379,6 @@ Say the format is the table's own (`region's format "{name}"`), name the read to
 
 `misc.uuid` gains `variant`, for one.
 
-### 48. Refuse a `Fake` path into a level carrying a `repeat`, as the README's Correlated fields section states.
-
-`probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw.
-
 ### 29. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
 
 Require the path step to reach a sibling category.
@@ -401,9 +395,9 @@ Require the path step to reach a sibling category.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
 
-### 107. Move the template engine into `internal/`, leaving the root the public API, its options and the embedded data.
+### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The public `DataType`, which the engine reads, must keep one spelling: the root aliases the engine's type, or the type moves to a package both import; decide when the item starts. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`", and "The vocabulary sits below `doc.go`'s package clause, not in the package doc" where the vocabulary moves.
+Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107, and what stands alone lives in `internal/`", and "The vocabulary sits below `doc.go`'s package clause, not in the package doc" where the vocabulary moves.
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 
@@ -468,10 +462,6 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 ### 72. Fail the merge gate when test coverage falls below the last recorded figure.
 
 `technical-principles.md` holds that test coverage should not decline. `docker compose run --rm cover` prints the figure, and neither the `Dockerfile` gate nor `.github/workflows/test.yml` checks it.
-
-### 7. Fill `arm` in one place.
-
-`splitArm` runs before the link and again after it, and `compileArm` finishes it from `reference.go`, so five seats traced three phases.
 
 ### 43. Call `templateError` a compile failure in its doc.
 

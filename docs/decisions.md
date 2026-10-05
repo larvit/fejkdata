@@ -836,8 +836,7 @@ engine's types, `template`, `table`, `arm`, `op`, `nameBinding` and the draw sta
 one cycle because several passes each write part of the same structs; the template
 language's recursion needs only a little of it. Moving the engine before items 101 to 106
 give each value one writer would spread that knot across packages, behind forwarding calls
-and a second spelling of `DataType`. The grammar, the number proofs, the draw state and the
-reading of data files read no engine type, and the builtins and a table's rows stop reading
-one once items 100 and 102 cut their edges, so they move now, each behind an import list a
-test checks. Valid until `todo.md` item 107 moves
-the engine.
+from every public method. The grammar, the draw state and the reading of data files read no
+engine type; `DataType`, the proofs' bounds, the builtins and a table's rows stop reading one
+once items 99, 100 and 102 cut their edges, so they move now, each behind an import list a
+test checks. Valid until `todo.md` item 107 moves the engine.
