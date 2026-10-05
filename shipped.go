@@ -101,7 +101,7 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		}
 		site, err := u.load()
 		if err != nil {
-			panic(invariant.Broken("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
+			panic(invariant.Broken("shipped %s: %v; after a change under data/, regenerate shippedindex.go", categoryPath(u.dir, u.name), err))
 		}
 		sites = append(sites, site)
 		queue = append(queue, unloadedReads(root, u.dir, sitesScope([]categorySite{site}))...)

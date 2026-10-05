@@ -255,14 +255,14 @@ func namedReads(t *template, fn func(o *op, a *arm) error) error {
 
 // linkPasses run in order once every template is linked, each over every template before the next
 // starts: a pass reads what the one before filled in.
-var linkPasses = []func(path string, t *template) error{linkNames, linkColumnRead, checkNameReads, checkCalcNames}
+var linkPasses = []func(label string, t *template) error{linkNames, linkColumnRead, checkNameReads, checkCalcNames}
 
 // linkNames compiles t's reads of a name as paths from the head its binding resolved to, once every
 // template is linked, so each binder has resolved what it binds.
-func linkNames(path string, t *template) error {
+func linkNames(label string, t *template) error {
 	return namedReads(t, func(o *op, a *arm) error {
 		if err := linkName(t, a); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", path, o.Body, err)
+			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}
 		return nil
 	})

@@ -23,13 +23,13 @@ func checkCalcFields(args []string, fields map[string]node) error {
 }
 
 // checkCalcNames holds each calc of t reading a name to the checks checkCalcFields makes of a field.
-func checkCalcNames(path string, t *template) error {
+func checkCalcNames(label string, t *template) error {
 	for _, o := range t.compiled.ops {
 		if o.Fn != builtinfunc.CalcName || !slices.ContainsFunc(o.operands, func(a arm) bool { return a.kind == namedRead }) {
 			continue
 		}
 		if err := checkOperands(o.Args[0], builtinfunc.ParsedCalc(o.Args[0]), operandNodes(o)); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", path, o.Body, err)
+			return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 		}
 	}
 	return nil

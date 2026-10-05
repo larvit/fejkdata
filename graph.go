@@ -8,28 +8,29 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// eachNode visits n and every node contained within it once, passing the dot path
-// that reaches each, followed by a table cell's line. It never crosses a reference edge — a {/path} reference is
-// skipped — so a single inline node is walked on its own.
-func eachNode(n node, path string, fn func(path string, n node) error) error {
+// eachNode visits n and every node contained within it once, passing the label naming
+// each in an error: the dot path reaching it, and a table cell's line after it. It never
+// crosses a reference edge — a {/path} reference is skipped — so a single inline node is
+// walked on its own.
+func eachNode(n node, label string, fn func(label string, n node) error) error {
 	seen := map[node]bool{}
 	var visit func(string, node) error
-	visit = func(path string, m node) error {
+	visit = func(label string, m node) error {
 		if m == nil || seen[m] {
 			return nil
 		}
 		seen[m] = true
-		if err := fn(path, m); err != nil {
+		if err := fn(label, m); err != nil {
 			return err
 		}
 		for _, c := range contained(m) {
-			if err := visit(c.labelUnder(path), c.node); err != nil {
+			if err := visit(c.labelIn(label), c.node); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	return visit(path, n)
+	return visit(label, n)
 }
 
 // namedNode is a contained child and the segment reaching it; a choice's items carry
@@ -40,12 +41,12 @@ type namedNode struct {
 	line int // a table cell's line in its rows file, else 0
 }
 
-// labelUnder is the path naming c in an error, a cell by its line.
-func (c namedNode) labelUnder(path string) string {
+// labelIn is c's label inside the node labelled label.
+func (c namedNode) labelIn(label string) string {
 	if c.line > 0 {
-		return fmt.Sprintf("%s, line %d", path, c.line)
+		return fmt.Sprintf("%s, line %d", label, c.line)
 	}
-	return join(path, c.name)
+	return join(label, c.name)
 }
 
 func contained(n node) []namedNode {
@@ -164,9 +165,9 @@ func (m renderCounts) renderCount(n node) int {
 // repeatCheck bounds the renders a repeat multiplies to along any root-to-leaf
 // path, so nested repeats cannot build what one repeat may not.
 // docs/decisions.md#the-repeat-cap-bounds-renders-not-bytes
-func repeatCheck(path string, n node, mem renderCounts) error {
+func repeatCheck(label string, n node, mem renderCounts) error {
 	if t, ok := n.(*template); ok && t.repeat > 1 && mem.renderCount(n) > MaxRepeat {
-		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", path, t.repeat, mem.renderCount(n), MaxRepeat)
+		return fmt.Errorf("%s: repeat %d multiplies to %d renders along one path, above the maximum %d", label, t.repeat, mem.renderCount(n), MaxRepeat)
 	}
 	return nil
 }
@@ -191,25 +192,25 @@ func checkNoCycles(s nodeScope) error {
 		return nil
 	})
 	color := map[node]int{}
-	var visit func(n node, path string) error
-	visit = func(n node, path string) error {
+	var visit func(n node, label string) error
+	visit = func(n node, label string) error {
 		if !inScope[n] {
 			return nil // loaded before this scope and proven then, so it never reaches back into it
 		}
 		switch color[n] {
 		case grey:
-			return fmt.Errorf("reference cycle: %s", path)
+			return fmt.Errorf("reference cycle: %s", label)
 		case black:
 			return nil
 		}
 		color[n] = grey
 		for _, e := range renderEdges(n) {
-			if err := visit(e.to, path+" -> "+e.label); err != nil {
+			if err := visit(e.to, label+" -> "+e.label); err != nil {
 				return err
 			}
 		}
 		color[n] = black
 		return nil
 	}
-	return s(func(path string, n node) error { return visit(n, path) })
+	return s(func(label string, n node) error { return visit(n, label) })
 }

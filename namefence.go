@@ -11,22 +11,22 @@ import (
 // checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
 // field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
 // draw of w.
-func checkNameReads(path string, t *template) error {
+func checkNameReads(label string, t *template) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
 		if err := t.nameScope.bindings[tok.Bound].checkUses(); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", path, tok.Body, err)
+			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
 		}
 	}
 	return namedReads(t, func(o *op, a *arm) error {
 		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
-			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", path, o.Body, a.named.name, a.named.ref)
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, o.Body, a.named.name, a.named.ref)
 		}
 		for _, leaf := range a.leaves {
 			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", path, o.Body, err)
+				return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
 			}
 		}
 		return nil

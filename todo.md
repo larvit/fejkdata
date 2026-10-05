@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 115`
+`Next ID = 117`
 
 | Goal | W |
 |---|---|
@@ -118,6 +118,7 @@
 | 13 | 0.3.0 | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 2 | 2 | 3 | 6 | 4 | 13.7 |
 | 39 | 0.3.0 |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 2 | 3 | 6 | 6 | 13.5 |
 | 51 | 0.3.0 |  | **Spell a table one way across the errors that name it.** | 1 | 2 | 3 | 6 | 6 | 13.5 |
+| 115 | 0.3.0 |  | **Spell a rows file's line one way in every error, naming the file: today a cell reads `g.t.b, line 3`, a cell check `t.tsv: line 3, b` and a link `t.tsv line 3`.** | 1 | 2 | 3 | 6 | 6 | 13.5 |
 | 10 | 0.3.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 11 | 0.3.0 |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 2 | 3 | 5 | 4 | 13.0 |
 | 35 | 0.3.0 |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 2 | 4 | 5 | 8 | 13.0 |
@@ -132,6 +133,7 @@
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
+| 116 | 0.3.0 |  | **Turn a row index into its rows file's line in one function, where eleven sites add 2 today.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
 | 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 2 | 4 | 1 | 4 | 3 | 6.2 |
@@ -421,6 +423,10 @@ An `int64` or `float64` field unproven in range is told to become itself, and a 
 
 `pinRow` names `t.path` and `mustRow` panics with `t.category`, so one table is `territory` and `misc.territory`, and the short spelling names no file where two folders hold that name.
 
+### 115. Spell a rows file's line one way in every error, naming the file: today a cell reads `g.t.b, line 3`, a cell check `t.tsv: line 3, b` and a link `t.tsv line 3`.
+
+The cell's label names the category and column but not the TSV the line is in.
+
 ### 10. Test that every node kind reaches each switch over node kinds.
 
 Today nine, from `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so.
@@ -460,6 +466,10 @@ Its doc says render failure, and it wraps what `NewTemplate` and `NewRecordTempl
 ### 95. Hold a struct's columns and the field each fills in one slice.
 
 `structShape.columns` and `structShape.fieldIndexes` pair up by index alone, against the technical principle "one owner per value".
+
+### 116. Turn a row index into its rows file's line in one function, where eleven sites add 2 today.
+
+`namedNode`'s cell line in `graph.go` and ten sites in `table.go` each add the header line and the one-based count. Item 102 moves the rows into `internal/rows`; the function goes with them.
 
 ### 56. Build on a manual run of `test.yml`.
 
