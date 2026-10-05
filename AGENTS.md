@@ -118,7 +118,7 @@ In [docs/decisions.md](docs/decisions.md):
 
 # Scoring run
 
-The project values for `skills/comprehension-panel/scoring-run.md`:
+The project values for `~/.claude/skills/comprehension-panel/scoring-run.md`:
 
 - `{language}`: Go
 - `{kind}`: a Go library and CLI that renders fake data from JSON templates
