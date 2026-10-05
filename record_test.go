@@ -537,3 +537,24 @@ func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
 		t.Fatalf("the named wrapper does not render: %v", err)
 	}
 }
+
+func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
+	f := newShippedWhole(t, WithSeed(1))
+	records := 0
+	if err := eachNode(&f.root, "", func(label string, n node) error {
+		tm, isTemplate := n.(*template)
+		if !isTemplate || !tm.isRecord || len(tm.fields) == 0 {
+			return nil
+		}
+		records++
+		if len(tm.columns) != len(tm.fields) {
+			t.Errorf("%s: %d record columns, want one per field, %d", label, len(tm.columns), len(tm.fields))
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if records == 0 {
+		t.Fatal("no shipped record walked")
+	}
+}

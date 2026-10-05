@@ -423,3 +423,16 @@ func TestAFieldBindingReadOutsideWhatItBindsLoads(t *testing.T) {
 		t.Errorf("NewTemplate = %v, want a read of n from x.z, outside x.y, accepted", err)
 	}
 }
+
+func TestANameReadBeforeItsBinderLinks(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
+		"row":    `{"format":"{a}|{b}","a":"{p}","b":"{/person as p}{p.first} {p.last}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(2))
+	for i := 0; i < 100; i++ {
+		if a, b, _ := strings.Cut(fake(t, f, "row"), "|"); a != b {
+			t.Fatalf("a = %q, b = %q, want one pick of p", a, b)
+		}
+	}
+}
