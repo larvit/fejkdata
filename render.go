@@ -3,10 +3,12 @@ package fejkdata
 import (
 	"fmt"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // rng is the randomness a builtin sample draws from; *rand.Rand satisfies it. The
-// render path takes the concrete *generatorState instead, which keeps the draws of the walk
+// render path takes the concrete *drawstate.State instead, which keeps the draws of the walk
 // drawing through it off the heap.
 type rng interface {
 	IntN(n int) int
@@ -25,7 +27,7 @@ func (f *Generator) Fake(path string) (string, error) {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
 	f.loadShippedAt(segments)
-	n, pins, err := descend(f.rand, &f.root, segments)
+	n, pins, err := descend(f.draws, &f.root, segments)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
@@ -34,11 +36,11 @@ func (f *Generator) Fake(path string) (string, error) {
 	}
 	var frames frameStack
 	sc, _ := renderScope{frames: &frames}.at(n, &pins).enter(n, nil)
-	return render(f.rand, n, sc), nil
+	return render(f.draws, n, sc), nil
 }
 
 // descend walks a caller's path to the node it names, returning the rows its leaf renders in.
-func descend(s *generatorState, root node, segments []string) (node, pinSet, error) {
+func descend(s *drawstate.State, root node, segments []string) (node, pinSet, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
 	var buf [16]pathStep
 	steps, err := probePath(root, segments, buf[:0])
@@ -51,7 +53,7 @@ func descend(s *generatorState, root node, segments []string) (node, pinSet, err
 }
 
 // renderOnce renders n as one render, over frames of its own.
-func renderOnce(s *generatorState, n node) string {
+func renderOnce(s *drawstate.State, n node) string {
 	var frames frameStack
 	return render(s, n, renderScope{frames: &frames})
 }
@@ -59,7 +61,7 @@ func renderOnce(s *generatorState, n node) string {
 // render evaluates a compiled node to a string. compile validates every node up
 // front, so rendering a compiled tree cannot fail.
 // A child this switch renders is one renderEdges must list too, or the fences miss it.
-func render(s *generatorState, n node, sc renderScope) string {
+func render(s *drawstate.State, n node, sc renderScope) string {
 	switch n := n.(type) {
 	case *choice:
 		return render(s, pick(s, n), sc)
@@ -94,7 +96,7 @@ func render(s *generatorState, n node, sc renderScope) string {
 
 // renderRepeat renders each iteration of t inside the name scopes rendering t, where a name bound
 // outside t keeps its pick, and a name t binds picks again.
-func renderRepeat(s *generatorState, t *template, sc renderScope) string {
+func renderRepeat(s *drawstate.State, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))
 	for i := 0; i < t.repeat; i++ {
@@ -114,14 +116,14 @@ func renderRepeat(s *generatorState, t *template, sc renderScope) string {
 
 // pick selects one item. Uniform choices are O(1); weighted choices are an
 // O(log n) search over precomputed cumulative weights.
-func pick(s *generatorState, c *choice) node {
+func pick(s *drawstate.State, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]
 	}
 	return c.items[pickCum(s, c.cum)]
 }
 
-func expand(s *generatorState, t *template, sc renderScope) string {
+func expand(s *drawstate.State, t *template, sc renderScope) string {
 	var b strings.Builder
 	b.Grow(t.compiled.grow)
 	for i := range t.compiled.ops {
@@ -148,7 +150,7 @@ func expand(s *generatorState, t *template, sc renderScope) string {
 // readField renders one arm of a token. A read of a name, or of a level a read of the name
 // rendering addresses, is kept in that name's pick; every other read draws afresh, so {word}
 // {word} draws twice and {p.a} {p.b} reads two draws of p.
-func readField(s *generatorState, t *template, sc renderScope, a arm) readValue {
+func readField(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
 	switch {
 	case a.kind == namedRead:
 		return readName(s, sc, a)
@@ -170,7 +172,7 @@ func readField(s *generatorState, t *template, sc renderScope, a arm) readValue 
 
 // renderLeaf draws and renders what a read lands on: null on a null item, or on a column that only
 // reads one reference or name whose read drew null.
-func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
+func renderLeaf(s *drawstate.State, n node, sc renderScope) readValue {
 	n = resolveChoice(s, n)
 	switch leaf := n.(type) {
 	case *nullItem:
@@ -185,7 +187,7 @@ func renderLeaf(s *generatorState, n node, sc renderScope) readValue {
 
 // resolveChoice resolves a choice to one variant. Nested choices unwrap too: a draw is one value,
 // not another set to pick from.
-func resolveChoice(s *generatorState, n node) node {
+func resolveChoice(s *drawstate.State, n node) node {
 	for c, ok := n.(*choice); ok; c, ok = n.(*choice) {
 		n = pick(s, c)
 	}

@@ -6,11 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"math/rand/v2"
 	"os"
 	"reflect"
 	"sort"
 	"sync"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
@@ -26,25 +27,13 @@ var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithD
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards rand, records, structs and root, which gains a shipped category on the
+	// mu guards draws, records, structs and root, which gains a shipped category on the
 	// first call reaching it.
 	mu      sync.Mutex
-	rand    *generatorState
+	draws   *drawstate.State
 	root    folder // the categories as the node a path walks from, owned here so a walk allocates none
 	records map[node]recordShape
 	structs map[reflect.Type]structResult
-}
-
-// generatorState is one generator's draw state, kept across its renders: the seeded rng plus
-// the {seq()} counters.
-type generatorState struct {
-	*rand.Rand
-	counters map[string]uint64
-}
-
-func (s *generatorState) next(key string) uint64 {
-	s.counters[key]++
-	return s.counters[key]
 }
 
 type config struct {
@@ -97,11 +86,11 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	rng, err := newRand(c.seed, c.seeded)
+	seed, err := c.drawSeed()
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{rand: rng, root: root}, nil
+	return &Generator{draws: drawstate.New(seed), root: root}, nil
 }
 
 // load is the tree New starts from.
@@ -231,18 +220,16 @@ func join(prefix, name string) string {
 // randomBytes seeds an unseeded generator.
 var randomBytes = crand.Read
 
-func newRand(seed uint64, seeded bool) (*generatorState, error) {
-	var r *rand.Rand
-	if seeded {
-		r = rand.New(rand.NewPCG(seed, seed^0x9e3779b97f4a7c15))
-	} else {
-		var b [16]byte
-		if _, err := randomBytes(b[:]); err != nil {
-			return nil, fmt.Errorf("seeding from crypto/rand: %w", err)
-		}
-		r = rand.New(rand.NewPCG(binary.LittleEndian.Uint64(b[:8]), binary.LittleEndian.Uint64(b[8:])))
+// drawSeed is the seed WithSeed gave, or one read from the system's entropy.
+func (c config) drawSeed() (uint64, error) {
+	if c.seeded {
+		return c.seed, nil
 	}
-	return &generatorState{Rand: r, counters: map[string]uint64{}}, nil
+	var b [8]byte
+	if _, err := randomBytes(b[:]); err != nil {
+		return 0, fmt.Errorf("seeding from crypto/rand: %w", err)
+	}
+	return binary.LittleEndian.Uint64(b[:]), nil
 }
 
 func internalError(format string, a ...any) string {

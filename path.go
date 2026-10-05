@@ -3,6 +3,8 @@ package fejkdata
 import (
 	"fmt"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // splitPath splits a dotted path into segments, a selector — [key or name] after a
@@ -430,7 +432,7 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 // For a read through a name, memo keeps the variant drawn at each of levels, so paths sharing a
 // prefix share it. It returns the leaf and the pins its row is in: a step down after a step up draws
 // afresh, into pins of its own, which memo shares with every path stepping down there.
-func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
+func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []string) (node, *pinSet) {
 	var climbed *table
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {
@@ -458,7 +460,7 @@ func drawSteps(s *generatorState, n node, steps []pathStep, pins *pinSet, memo *
 	return n, pins
 }
 
-func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
+func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	switch st.kind {
 	case stepSelect:
 		if err := pins.pinRow(t, st.row); err != nil {
@@ -480,7 +482,7 @@ func (t *table) drawStep(s *generatorState, st pathStep, pins *pinSet) node {
 	panic(internalError("drawStep has no case for step kind %d", st.kind))
 }
 
-func drawVariant(s *generatorState, c *choice, memo *drawMemo, levels []string, at int) node {
+func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []string, at int) node {
 	if memo == nil {
 		return resolveChoice(s, c)
 	}

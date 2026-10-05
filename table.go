@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // table is a category whose rows come from a TSV beside it: the header names the
@@ -470,20 +472,20 @@ func (t *table) builtLookup() *rowLookup {
 	return &t.lookup
 }
 
-func (t *table) drawRow(s *generatorState) int {
+func (t *table) drawRow(s *drawstate.State) int {
 	if t.cum == nil {
 		return s.IntN(t.rowCount())
 	}
 	return pickCum(s, t.cum)
 }
 
-func pickCum(s *generatorState, cum []float64) int {
+func pickCum(s *drawstate.State, cum []float64) int {
 	x := s.Float64() * cum[len(cum)-1]
 	return min(sort.Search(len(cum), func(i int) bool { return cum[i] > x }), len(cum)-1) // x can round up to the total
 }
 
 // drawUnder picks a row among those linked to parent row pr.
-func (t *table) drawUnder(s *generatorState, pr int) int {
+func (t *table) drawUnder(s *drawstate.State, pr int) int {
 	lookup := t.builtLookup()
 	k := t.parentT.cell(pr, t.parentT.keyIndex)
 	rows := lookup.rowsByParent[k]
@@ -496,7 +498,7 @@ func (t *table) drawUnder(s *generatorState, pr int) int {
 // drawIn is the row of t a path or a named pick reads: the one pinned in p, else one drawn inside the nearest
 // pinned ancestor — its parent drawn inside that first where the ancestor is further up — or
 // over the whole table, and pinned with its ancestors.
-func (t *table) drawIn(s *generatorState, p *pinSet) int {
+func (t *table) drawIn(s *drawstate.State, p *pinSet) int {
 	if r, ok := p.pinned(t); ok {
 		return r
 	}
