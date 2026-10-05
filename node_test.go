@@ -92,9 +92,9 @@ func TestEveryFormatCompilesAtLink(t *testing.T) {
 	}
 	compiledByPath := func() map[string]bool {
 		compiled := map[string]bool{}
-		if err := eachNode(n, "t", func(path string, m node) error {
+		if err := eachNode(n, "t", func(label string, m node) error {
 			if tm, ok := m.(*template); ok {
-				compiled[path+" "+tm.format] = tm.compiled.ops != nil
+				compiled[label+" "+tm.format] = tm.compiled.ops != nil
 			}
 			return nil
 		}); err != nil {
