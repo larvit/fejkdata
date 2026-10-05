@@ -83,7 +83,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 			if _, _, err := grammar.RefShape(name); err != nil {
 				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 			}
-			continue // its target is checked at New (see linkCategories)
+			continue // resolveLink checks its target once the tree is assembled
 		}
 		missing, err := checkArm(name, fields, !operands && len(names) == 1)
 		if err == nil {
@@ -316,8 +316,8 @@ func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarg
 	return arms, nil
 }
 
-// compileArm compiles one read: a path from the head it names, or from what the name it reads
-// through binds.
+// compileArm compiles one read into a path: from the head it names, or, for a read through a
+// name, from what that name binds.
 func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) (arm, error) {
 	a := splitArm(name, t.link.refs)
 	if !t.isName(a.head) {

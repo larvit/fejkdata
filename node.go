@@ -66,7 +66,7 @@ type template struct {
 	// Filled by `linkTemplates`, from the assembled tree:
 	link        templateLink
 	compiled    formatOps
-	readsColumn *columnRead // set when the format is one reference or name read alone reading a record's column
+	readsColumn *columnRead // set when the format only reads one reference or name, and that read is a record's column
 
 	// Filled by `settleRecords`, once the load refused every cycle:
 	columns []recordColumn // a record's, where it has fields, in name order
