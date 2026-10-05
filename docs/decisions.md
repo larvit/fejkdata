@@ -164,7 +164,7 @@ naming the locale, so a folder renames and copies without editing its references
 Data files, the CLI and the Go API are the public API, and a consumer must be able to
 take a minor without an edit — so an added column is a major, since it changes the CSV
 header and the `INSERT` column list, as is a removed value, which changes what a fixture
-holds, and a new option, which reserves a field name. One spelling per result grows by
+holds, and a new option, which reserves a field name. Goal 5.7's refusals grow by
 tightening, so every fence invalidates some file. Each such release names the rejected
 spelling and its replacement in the changelog and in the load error, and that is the
 whole migration: a fence rejects one spelling with one replacement, so the fix is local
@@ -532,7 +532,8 @@ Valid until item 4 makes every `{…}` draw afresh, which revises the shared ste
 
 ## A table selects by one key column, a code, never a free-form name
 
-Decided 2026-09-27 by the maintainer, for goal 5's one spelling per result; valid while
+Decided 2026-09-27 by the maintainer, for goal 5.5: `[SE]` means one row wherever it is
+written. Valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
 selector. The key is the friendliest code the register holds, `misc.territory[SE]` and

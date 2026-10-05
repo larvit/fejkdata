@@ -20,7 +20,6 @@
   run are two ratchets, never compared with each other. A lower score blocks the merge
   even where it may be panel noise: fix what the seats name until the score rises.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
-- A spelling that only restates another is rejected at `New`, and the error names the one to use.
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none
   publishes a spelling.
