@@ -850,9 +850,9 @@ the README's Format string section states. The maintainer ruled the escape impli
 goal: doubled braces and a lone `}` belong to the `{…}` syntax, so the goal names no escape and
 a lone `}` stays an error. Valid while a template escapes a brace by doubling it.
 
-## Goal 7.2's "no escaping" means a template needs no special character beyond `{}`
+## Goal 7.2's "no escaping" means a template needs no special character beyond `{` and `}`
 
-2026-10-05, Lilleman auf Larv. Serves goal 7.2: your first template of your own needs no
-escaping and no options. The maintainer reads it as a template being writable with no special
-character other than the braces, so a literal brace written `{{` or `}}` keeps the goal. Valid
-while a template's only special characters are its braces.
+2026-10-05, Lilleman auf Larv. Serves goal 7.2. The maintainer reads "no escaping" as: a
+template can be written with no special character other than `{` and `}`. A literal brace
+written `{{` or `}}` therefore meets the goal. Valid while `{` and `}` are the only
+characters with a meaning outside a `{…}` token.
