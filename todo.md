@@ -73,18 +73,17 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
-| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run once items 98 to 106 have restructured the code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 5 | 0.1.0 | decision | **Run the nine-seat comprehension panel and larv-review's scoring run once items 99 to 106 have restructured the code, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 102 | 0.1.0 | defect | **Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.** | 5 | 6 | 4 | 8 | 3.2, 3.4, 5 | 15.9 |
 | 103 | 0.1.0 |  | **Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands the engine a reader for each table's rows.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
-| 98 | 0.1.0 | decision | **Move how the template language is written — format tokens, paths and selectors, reference sigils, names and `calc` syntax — into `internal/grammar`.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 100 | 0.1.0 |  | **Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes.** | 2 | 2 | 2 | 7 | 3.2 | 14.1 |
 | 101 | 0.1.0 |  | **Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 104 | 0.1.0 |  | **Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 99 | 0.1.0 |  | **Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.** | 3 | 4 | 2 | 7 | 3.2, 3.4 | 12.6 |
+| 99 | 0.1.0 | decision | **Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.** | 3 | 4 | 2 | 7 | 3.2, 3.4 | 12.6 |
 | 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
@@ -243,9 +242,9 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
 
-### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 98 to 106 have restructured the code, and file what the panel names.
+### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 99 to 106 have restructured the code, and file what the panel names.
 
-Until a panel scores 7.0 or above, only items 98 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh, the move of the draw state and items 98 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until this item runs.
+Until a panel scores 7.0 or above, only items 99 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh, the moves of the draw state and the grammar, and items 99 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until this item runs.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -257,15 +256,11 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 ### 102. Move a table's rows and the links between tables into `internal/rows`, and walk every path through one per-step function, so `Fake` refuses a level carrying a `repeat` as the load check does.
 
-Needs items 98 and 101. `internal/rows` takes the rows, their key and parent proofs, the pins, the row draws and the lookups, and owns the parent and child links. Each rows table holds the engine table that owns it as a payload of a type parameter, set when the rows table is built, so a step to a relative reaches its format and cells with no side map, the links have one writer, and `internal/rows` imports no engine type. The rows code reads `checkName` and the selector spelling from `internal/grammar`. The lookups reuse the weights `sumWeights` parsed; today `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
+Needs item 101. `internal/rows` takes the rows, their key and parent proofs, the pins, the row draws and the lookups, and owns the parent and child links. Each rows table holds the engine table that owns it as a payload of a type parameter, set when the rows table is built, so a step to a relative reaches its format and cells with no side map, the links have one writer, and `internal/rows` imports no engine type. The rows code reads `CheckName` and the selector spelling from `internal/grammar`. The lookups reuse the weights `sumWeights` parsed; today `builtLookup` parses them again. Today `pathCheck.walk` and `probePath` are two loops over one rule for passing a choice, a table or a field, and they have drifted: `probePath` skips `pathCheck.enter`, so `Fake("x.a")` under `"repeat":3` renders one draw where the README's Correlated fields section refuses it; the refusal owes a `CHANGELOG.md` entry. The shared step takes its state as parameters, as `drawSteps` does: one loop switching on a mode raised a repeat of a reference path from 66 to 106 allocations (decision "A path draws through its compiled steps"). Technical principle: DRY.
 
 ### 103. Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands the engine a reader for each table's rows.
 
-Needs item 98. The folder walk, the hidden-file and empty-folder rules, reading a category's rows, and the check that every TSV is named move; the engine compiles each category as the walk hands it over, a table's rows are read through the reader only when its JSON names them, and errors keep their order.
-
-### 98. Move how the template language is written — format tokens, paths and selectors, reference sigils, names and `calc` syntax — into `internal/grammar`.
-
-Pure code that reads strings: `scanUnit`, `formatToken` and `parseFormat`; the spelling half of `path.go`, `splitPath` through `joinSegments`; `refShape`; `checkName`; `isTemplate`; and the `calc` parser. `parseFormat` takes the lister of a builtin's operands as an argument, so the grammar imports no registry.
+The folder walk, the hidden-file and empty-folder rules, reading a category's rows, and the check that every TSV is named move; the engine compiles each category as the walk hands it over, a table's rows are read through the reader only when its JSON names them, and errors keep their order.
 
 ### 100. Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.
 
@@ -291,7 +286,7 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 ### 99. Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.
 
-Needs item 98. `proven` is keyed by `DataType`, and a package the root imports cannot import the root, so the type moves first. The root declares `type DataType = datatype.DataType` and its four constants by name, so the public spelling stays one; pkg.go.dev then lists the methods under the internal package, which the maintainer accepted on 2026-10-05. `internal/datatype` takes `dataTypeNames` and `dataTypeNouns` with the type. `internal/proven` takes `proven` and the arithmetic over it, `combine`, `bounded`, `printing`, `shortestDecimals` and the literal and number readers, and imports `internal/grammar` for the `calc` syntax `combine` reads; proving a node stays with the engine in `valueproof.go`.
+`proven` is keyed by `DataType`, and a package the root imports cannot import the root, so the type moves first. The root declares `type DataType = datatype.DataType` and its four constants by name, so the public spelling stays one; pkg.go.dev then lists the methods under the internal package, which the maintainer accepted on 2026-10-05. `internal/datatype` takes `dataTypeNames` and `dataTypeNouns` with the type. `internal/proven` takes `proven` and the arithmetic over it, `combine`, `bounded`, `printing`, `shortestDecimals` and the literal and number readers, and imports `internal/grammar` for the `calc` syntax `combine` reads; proving a node stays with the engine in `valueproof.go`.
 
 ### 105. Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.
 
@@ -394,7 +389,7 @@ Require the path step to reach a sibling category.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
-Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; the draw state sits in `internal/`, and items 98 to 103 move what else stands alone there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; the draw state and the grammar sit in `internal/`, and items 99 to 103 move what else stands alone there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 
