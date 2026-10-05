@@ -298,8 +298,8 @@ not agree on one among themselves; each must only hold that type.
 
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
-its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}`, while a
-path tag draws afresh as `{/path}` does (goal 4.1); a tagged field that another field hides is refused, not dropped. A named
+its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}` (goal 4.1),
+while a path tag draws afresh as `{/path}` does (goal 5.2); a tagged field that another field hides is refused, not dropped. A named
 struct field is another entity and a record of its own. `fake:"-"` leaves a struct
 field, embedded or named, unfilled, so no name may be `-`; a pointer back to a struct
 already being filled is left alone, since filling it would never end. `New` cannot see a

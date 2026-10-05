@@ -174,6 +174,9 @@ func checkNoCycles(s nodeScope) error {
 	inScope := map[node]bool{}
 	_ = s(func(_ string, n node) error {
 		inScope[n] = true
+		if t, isTable := n.(*table); isTable {
+			inScope[t.rowNode] = true // a selector lands on it, and contained lists it nowhere
+		}
 		return nil
 	})
 	color := map[node]int{}
