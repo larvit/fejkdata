@@ -666,8 +666,8 @@ which says "Chinese, Mandarin" for `zh`.
 
 Where every territory row has a child the column is a `parent`, and the import drops the
 child rows whose territory the set does not ship — 17 of `misc.timezone`'s, Antarctica's
-ten among them. Agreement across a record is worth more than the last rows of a table:
-goal 4.1 wins over goal 14.1 here, as the maintainer confirmed on 2026-10-03.
+ten among them. Agreement across a record is worth more than the last rows of a table
+(goal 4.1), as the maintainer confirmed on 2026-10-03.
 Where no such link can hold the fact stays a column. Layer your own `misc.territory`
 over the shipped one and you must layer `misc.timezone` too, or the link fails at load
 naming the row.

@@ -57,7 +57,6 @@
 | 13 | 0.40 |
 | 13.1 | 0.40 |
 | 14 | 0.35 |
-| 14.1 | 0.35 |
 | 15 | 0.30 |
 | 16 | 0.25 |
 
@@ -66,7 +65,7 @@
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
 | 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 10 | 10 | 10 | 2, 1.1, 9 | 32.5 |
-| 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14.1 | 31.2 |
+| 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
@@ -80,12 +79,12 @@
 | 103 | 0.1.0 |  | **Move the folder walk and the reading of a data tree's JSON and TSV files into `internal/datafiles`, which hands the engine a reader for each table's rows.** | 3 | 4 | 2 | 8 | 3.2, 3.4 | 14.4 |
 | 100 | 0.1.0 |  | **Move the builtins, with their checksums, layouts and transforms, into `internal/builtinfunc`, and check `calc`'s operands where its template links.** | 3 | 5 | 2 | 8 | 3.2, 3.4 | 14.2 |
 | 106 | 0.1.0 |  | **Settle each record's shape when its template links, so `Generator.records` goes.** | 2 | 2 | 2 | 7 | 3.2 | 14.1 |
+| 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 101 | 0.1.0 |  | **Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 104 | 0.1.0 |  | **Create a name scope with its owner in one place, and hand a template's name reads to the checks as a returned value, not appended to its bindings.** | 4 | 4 | 2 | 8 | 3.2 | 13.4 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 99 | 0.1.0 | decision | **Move `DataType` into `internal/datatype`, aliased by the root, and what a proof knows of a value, `proven`, into `internal/proven`.** | 3 | 4 | 2 | 7 | 3.2, 3.4 | 12.6 |
 | 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
-| 111 | 0.1.0 | defect | **Settle goal 14.1 against the three decisions that drop source rows: amend the goal to admit a row dropped by a stated rule that serves a higher goal, or name the item that ends each decision.** | 1 | 2 | 3 | 7 | 14.1 | 9.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -111,7 +110,6 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
-| 110 | 0.2.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
@@ -136,7 +134,7 @@
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
 | 43 | 0.3.0 |  | **Call `templateError` a compile failure in its doc.** | 1 | 1 | 1 | 5 | 3.3 | 9.8 |
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
-| 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14.1 | 9.2 |
+| 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 6 | 14 | 9.2 |
 | 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 1 | 4 | 1 | 8.8 |
 | 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 2 | 4 | 1 | 4 | 3 | 6.2 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 8 | 4.1 | 19.1 |
@@ -272,6 +270,10 @@ Needs item 99. `checkArgs` drops its `fields` parameter: `calc`, the one builtin
 
 Needs item 105. Settling all 84 shipped record shapes took 0.09 ms on 2026-10-05, so the cache saves nothing. The error for `FakeRecord` on a node that is no record stays at call time. `bindingOfWhole` stops repeating a load-time search on every column of every record draw.
 
+### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
+
+Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
+
 ### 101. Set a table's path when it compiles, link a table family in one function, and label a cell's template from the walk, so no template points back at its table.
 
 `template.site` serves only labels and the table-cell refusals at compile, so it goes and the walk names the label. `setTablePaths` and the write `linkParent` makes into another table's `children` become one builder; `AGENTS.md`'s complexity rule, which names `linkParent` among the dispatches that stay whole, changes with it.
@@ -293,10 +295,6 @@ The decision "With only the shipped set, a category loads on the first call reac
 ### 105. Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.
 
 Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs`'s first pass and `linkName` reads them in its second, so swapping the passes hands `linkName` a nil head. `linkPasses` does the same: `linkColumnRead` reads the `arm.named` that `linkNames` wrote and writes `link.readsColumn` into the link `linkTemplate` built, and `checkNameReads` reads the arms both filled. `arm` is filled in three places, `compileFormat`, `compileArms` and `linkName`, and `splitArm` runs before the link and again after it, so five readers of an earlier panel traced three phases. Technical principle: one owner per value.
-
-### 111. Settle goal 14.1 against the three decisions that drop source rows: amend the goal to admit a row dropped by a stated rule that serves a higher goal, or name the item that ends each decision.
-
-Goal 14.1 says a table holds every row its source holds. "`misc.territory` is the spine, and a `misc` table naming a territory links to it" drops 17 `misc.timezone` rows, "A postort's kommun comes from its name, its tätort or its codes, never from distance" drops postorter it cannot place, and "A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places" drops route names and ZCTAs; none names an item ending the conflict. The README's account of goal 14, "the script drops a row only by a rule it states", already reads like the amended goal. Which way is the maintainer's call.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -392,10 +390,6 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` and `loadDir` return on the first in Go's map order.
-
-### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
-
-Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run. The new refusal owes a `CHANGELOG.md` entry.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
