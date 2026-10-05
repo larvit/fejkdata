@@ -85,12 +85,12 @@ func isTableOption(name string) bool {
 // token arm.
 const inSelector = `[]{}"|`
 
-func compileTable(m map[string]any, segment string, files *categoryFiles) (*table, error) {
+func compileTable(m map[string]any, segment string, readRows func(file string) (string, error)) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
 		return nil, err
 	}
-	data, err := files.readRows(o.rows)
+	data, err := readRows(o.rows)
 	if err != nil {
 		return nil, err
 	}

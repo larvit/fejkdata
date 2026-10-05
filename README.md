@@ -971,9 +971,10 @@ graph.go        the node graph: tree walks, containment and render edges, and th
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
-data.go         the load path: fs.FS folders/files -> merged namespace tree, and the bind pipeline every entry point runs
+data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the bind pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
+internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ what a record column holds, which DataType aliases
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path

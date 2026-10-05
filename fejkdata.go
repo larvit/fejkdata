@@ -11,6 +11,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
@@ -40,7 +41,7 @@ type config struct {
 	seed    uint64
 	seeded  bool
 	shipped bool
-	sources []dataSource
+	sources []datafiles.Source
 }
 
 // Option configures a [Generator].
@@ -56,13 +57,13 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources = append(c.sources, dataSource{fsys: os.DirFS(dir), label: dir, onDisk: true, diskPath: dir})
+		c.sources = append(c.sources, datafiles.Source{FS: os.DirFS(dir), Label: dir, OnDisk: true})
 	}
 }
 
 // WithDataFS layers a data tree held in an [fs.FS], such as an embed.FS of your own.
 func WithDataFS(fsys fs.FS) Option {
-	return func(c *config) { c.sources = append(c.sources, dataSource{fsys: fsys}) }
+	return func(c *config) { c.sources = append(c.sources, datafiles.Source{FS: fsys}) }
 }
 
 // WithoutShippedData leaves the shipped data set out, so only the sources given
@@ -99,7 +100,7 @@ func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {
 		return unloadedTree(), nil
 	}
-	var sources []dataSource
+	var sources []datafiles.Source
 	if c.shipped {
 		sources = append(sources, shippedSource)
 	}

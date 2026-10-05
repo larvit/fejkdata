@@ -1,55 +1,17 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/fs"
-	"os"
-	"path"
 	"strings"
 
-	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/datafiles"
 )
 
-// dataSource is one tree to load: an fs.FS and the directory in it to start from.
-// label prefixes file names in errors; onDisk marks diskPath as a directory that must
-// exist.
-type dataSource struct {
-	fsys     fs.FS
-	label    string
-	onDisk   bool
-	diskPath string
-	baseDir  string
-}
-
-func (s dataSource) labelled(p string) string {
-	if s.label == "" {
-		return p
-	}
-	return path.Join(s.label, p)
-}
-
-func loadData(sources []dataSource) (map[string]node, error) {
+func loadData(sources []datafiles.Source) (map[string]node, error) {
 	root := map[string]node{}
 	for _, src := range sources {
-		if src.onDisk {
-			if src.diskPath == "" {
-				return nil, fmt.Errorf("a data path is empty")
-			}
-			info, err := os.Stat(src.diskPath)
-			if err != nil {
-				return nil, fmt.Errorf("data path %s: %w", src.diskPath, err)
-			}
-			if !info.IsDir() {
-				return nil, fmt.Errorf("%s is not a directory", src.diskPath)
-			}
-		}
-		dir := src.baseDir
-		if dir == "" {
-			dir = "."
-		}
-		g, err := loadDir(src, dir)
-		if err != nil {
+		g := &folder{children: map[string]node{}}
+		if err := src.Walk(compileInto(g)); err != nil {
 			return nil, err
 		}
 		mergeChildren(root, g.children)
@@ -63,108 +25,30 @@ func loadData(sources []dataSource) (map[string]node, error) {
 	return root, nil
 }
 
-// loadDir compiles one directory into a folder. Empty subdirectories (no JSON
-// anywhere under them) are skipped rather than added as empty namespaces.
-func loadDir(src dataSource, dir string) (*folder, error) {
-	entries, err := fs.ReadDir(src.fsys, dir)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", src.labelled(dir), err)
-	}
-	g := &folder{children: map[string]node{}}
-	files := newCategoryFiles(src, dir, entries)
-	for _, e := range entries {
-		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
-			continue
+// compileInto compiles each category it is handed into its folder under root.
+func compileInto(root *folder) func(datafiles.Category) error {
+	return func(c datafiles.Category) error {
+		n, err := compileCategory(c.JSON, c.Name, c.ReadRows)
+		if err != nil {
+			return err
 		}
-		full := path.Join(dir, e.Name())
-		if e.IsDir() {
-			if err := loadFolder(src, g, full, e.Name()); err != nil {
-				return nil, err
-			}
-			continue
-		}
-		if err := loadFile(src, g, full, e.Name(), files); err != nil {
-			return nil, err
-		}
-	}
-	for name, named := range files.tsv {
-		if !named && !strings.HasPrefix(name, ".") {
-			return nil, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", src.labelled(path.Join(dir, name)))
-		}
-	}
-	return g, nil
-}
-
-// categoryFiles is what a category may name beside itself: the rows files of its
-// directory, each marked once a category names it.
-type categoryFiles struct {
-	src dataSource
-	dir string
-	tsv map[string]bool
-}
-
-func newCategoryFiles(src dataSource, dir string, entries []fs.DirEntry) *categoryFiles {
-	files := &categoryFiles{src: src, dir: dir, tsv: map[string]bool{}}
-	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
-			files.tsv[e.Name()] = false
-		}
-	}
-	return files
-}
-
-func (c *categoryFiles) readRows(name string) (string, error) {
-	if _, present := c.tsv[name]; !present {
-		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, c.src.labelled(c.dir))
-	}
-	c.tsv[name] = true
-	b, err := fs.ReadFile(c.src.fsys, path.Join(c.dir, name))
-	if err != nil {
-		return "", fmt.Errorf("%s: %w", c.src.labelled(path.Join(c.dir, name)), err)
-	}
-	return string(b), nil
-}
-
-// loadFolder adds a subdirectory as a nested folder, unless nothing under it is data.
-func loadFolder(src dataSource, g *folder, full, name string) error {
-	child, err := loadDir(src, full)
-	if err != nil {
-		return err
-	}
-	if len(child.children) == 0 {
+		madeFolder(root, c.Dir).children[c.Name] = n
 		return nil
 	}
-	if err := grammar.CheckName(name); err != nil {
-		return fmt.Errorf("%s: folder %w", src.labelled(full), err)
-	}
-	g.children[name] = child
-	return nil
 }
 
-// loadFile compiles a *.json file into a category named after it; any other file
-// is skipped.
-func loadFile(src dataSource, g *folder, full, file string, files *categoryFiles) error {
-	if !strings.HasSuffix(file, ".json") {
-		return nil
+// madeFolder is the folder dir names under root, made where it is missing or a category.
+func madeFolder(root *folder, dir []string) *folder {
+	g := root
+	for _, seg := range dir {
+		sub, isFolder := g.children[seg].(*folder)
+		if !isFolder {
+			sub = &folder{children: map[string]node{}}
+			g.children[seg] = sub
+		}
+		g = sub
 	}
-	name := strings.TrimSuffix(file, ".json")
-	if err := grammar.CheckName(name); err != nil {
-		return fmt.Errorf("%s: category %w", src.labelled(full), err)
-	}
-	b, err := fs.ReadFile(src.fsys, full)
-	if err != nil {
-		return fmt.Errorf("%s: %w", src.labelled(full), err)
-	}
-	var raw any
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return fmt.Errorf("%s: %w", src.labelled(full), err)
-	}
-	n, err := compileCategory(raw, name, files)
-	if err != nil {
-		return fmt.Errorf("%s: %w", src.labelled(full), err)
-	}
-	g.children[name] = n
-	return nil
+	return g
 }
 
 // mergeChildren overlays src onto dst. Two folders under the same key merge
