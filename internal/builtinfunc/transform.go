@@ -48,7 +48,7 @@ func unwrapTransform(arg string) (leaf string, chain []func(string) string, err 
 	}
 }
 
-// transformArg proves a transform's chain.
+// transformArg checks that each call nested in the arg is a transform taking one arg.
 func transformArg(a []string) error {
 	_, _, err := unwrapTransform(a[0])
 	return err

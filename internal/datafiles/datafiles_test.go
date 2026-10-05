@@ -20,7 +20,7 @@ func walk(t *testing.T, src Source) ([]handed, error) {
 	t.Helper()
 	var got []handed
 	err := src.Walk(func(c Category) error {
-		got = append(got, handed{c.Dir, c.Name, c.JSON})
+		got = append(got, handed{c.Folders, c.Name, c.JSON})
 		return nil
 	})
 	return got, err
@@ -134,7 +134,7 @@ func TestLoadHandsOneCategoryAndItsRows(t *testing.T) {
 	var got handed
 	var rows string
 	err := src.Load([]string{"sub"}, "t", func(c Category) error {
-		got = handed{c.Dir, c.Name, c.JSON}
+		got = handed{c.Folders, c.Name, c.JSON}
 		var err error
 		rows, err = c.ReadRows("t.tsv")
 		return err

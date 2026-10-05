@@ -14,9 +14,9 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// Value is what a proof knows of every render of a node: bounds on the number each
+// Facts is what a proof knows of every render of a node: bounds on the number each
 // reads as, and per datatype why some render's text is not one ("" when none).
-type Value struct {
+type Facts struct {
 	Lo, Hi     float64
 	NonZero    float64 // every value is at least this far from zero; 0 when one can be zero
 	Integral   bool
@@ -33,7 +33,7 @@ const ShortestDecimals = -1
 const limit = 1e300
 
 // Or is what a proof knows of a render that is either v or w.
-func (v Value) Or(w Value) Value {
+func (v Facts) Or(w Facts) Facts {
 	v.Lo, v.Hi, v.NonZero = min(v.Lo, w.Lo), max(v.Hi, w.Hi), min(v.NonZero, w.NonZero)
 	v.Integral, v.Nullable = v.Integral && w.Integral, v.Nullable || w.Nullable
 	if v.NotOperand == "" {
@@ -48,7 +48,7 @@ func (v Value) Or(w Value) Value {
 }
 
 // OfCalc bounds a calc expression from its operands, or says why it cannot.
-func OfCalc(expr grammar.CalcNode, operand func(name string) Value) (Value, string) {
+func OfCalc(expr grammar.CalcNode, operand func(name string) Facts) (Facts, string) {
 	v, doubt := bound(expr, operand)
 	if doubt == "" && !(magnitude(v) <= limit) {
 		doubt = grammar.CalcText(expr) + " is not proven within 1e300"
@@ -56,7 +56,7 @@ func OfCalc(expr grammar.CalcNode, operand func(name string) Value) (Value, stri
 	return v, doubt
 }
 
-func bound(n grammar.CalcNode, operand func(name string) Value) (Value, string) {
+func bound(n grammar.CalcNode, operand func(name string) Facts) (Facts, string) {
 	switch n := n.(type) {
 	case grammar.CalcNum:
 		v := float64(n)
@@ -64,9 +64,9 @@ func bound(n grammar.CalcNode, operand func(name string) Value) (Value, string) 
 	case grammar.CalcVar:
 		v := operand(n.Name)
 		if v.NotOperand != "" {
-			return Value{}, fmt.Sprintf("operand %q: %s", n.Name, v.NotOperand)
+			return Facts{}, fmt.Sprintf("operand %q: %s", n.Name, v.NotOperand)
 		}
-		return Value{Lo: v.Lo, Hi: v.Hi, NonZero: v.NonZero, Integral: v.Integral}, ""
+		return Facts{Lo: v.Lo, Hi: v.Hi, NonZero: v.NonZero, Integral: v.Integral}, ""
 	case grammar.CalcNeg:
 		v, doubt := bound(n.X, operand)
 		v.Lo, v.Hi = -v.Hi, -v.Lo
@@ -86,8 +86,8 @@ func bound(n grammar.CalcNode, operand func(name string) Value) (Value, string) 
 }
 
 // combine bounds one operation from the bounds of its sides.
-func combine(n grammar.CalcBin, l, r Value) (Value, string) {
-	var v Value
+func combine(n grammar.CalcBin, l, r Facts) (Facts, string) {
+	var v Facts
 	integral := l.Integral && r.Integral
 	switch n.Operator {
 	case '+':
@@ -102,7 +102,7 @@ func combine(n grammar.CalcBin, l, r Value) (Value, string) {
 			return v, fmt.Sprintf("divides by %s, which is not proven nonzero", grammar.CalcText(n.R))
 		}
 		m := magnitude(l) / r.NonZero
-		v = Value{Lo: -m, Hi: m, NonZero: l.NonZero / magnitude(r)}
+		v = Facts{Lo: -m, Hi: m, NonZero: l.NonZero / magnitude(r)}
 	}
 	if !(magnitude(v) <= limit) {
 		return v, grammar.CalcText(n) + " is not proven within 1e300"
@@ -111,8 +111,8 @@ func combine(n grammar.CalcBin, l, r Value) (Value, string) {
 }
 
 // Bounded is a number in [lo, hi], its distance from zero read off the bounds.
-func Bounded(lo, hi float64, integral bool) Value {
-	v := Value{Lo: lo, Hi: hi, Integral: integral}
+func Bounded(lo, hi float64, integral bool) Facts {
+	v := Facts{Lo: lo, Hi: hi, Integral: integral}
 	switch {
 	case lo > 0:
 		v.NonZero = lo
@@ -122,10 +122,10 @@ func Bounded(lo, hi float64, integral bool) Value {
 	return v
 }
 
-func magnitude(v Value) float64 { return math.Max(math.Abs(v.Lo), math.Abs(v.Hi)) }
+func magnitude(v Facts) float64 { return math.Max(math.Abs(v.Lo), math.Abs(v.Hi)) }
 
 // PrintedNumber is what a token printing v to dp decimals holds.
-func PrintedNumber(token string, v Value, dp int) Value {
+func PrintedNumber(token string, v Facts, dp int) Facts {
 	if dp == ShortestDecimals {
 		if v.Integral { // a whole value prints with no point
 			return printedInteger(token, v)
@@ -133,14 +133,14 @@ func PrintedNumber(token string, v Value, dp int) Value {
 		return Printing(token, datatype.Number, v)
 	}
 	half, _ := strconv.ParseFloat("5e-"+strconv.Itoa(dp+1), 64)
-	v = Value{Lo: v.Lo - half, Hi: v.Hi + half, NonZero: math.Max(0, v.NonZero-half), Integral: v.Integral || dp == 0}
+	v = Facts{Lo: v.Lo - half, Hi: v.Hi + half, NonZero: math.Max(0, v.NonZero-half), Integral: v.Integral || dp == 0}
 	if dp == 0 {
 		return printedInteger(token, v)
 	}
 	return Printing(token, datatype.Number, v)
 }
 
-func printedInteger(token string, v Value) Value {
+func printedInteger(token string, v Facts) Facts {
 	v = Printing(token, datatype.Integer, v)
 	if !(magnitude(v) < math.MaxInt64) {
 		v.Not[datatype.Integer] = fmt.Sprintf("{%s} is not proven within int64", token)
@@ -150,7 +150,7 @@ func printedInteger(token string, v Value) Value {
 
 // Printing is v for a token whose every render is text of datatype prints, with a reason
 // against each datatype that text is not.
-func Printing(token string, prints datatype.DataType, v Value) Value {
+func Printing(token string, prints datatype.DataType, v Facts) Facts {
 	for d := datatype.Integer; d < datatype.Count; d++ {
 		if prints != d && !(prints == datatype.Integer && d == datatype.Number) {
 			v.Not[d] = fmt.Sprintf("{%s} prints %s, not %s", token, datatype.Noun(prints), datatype.Noun(d))
@@ -160,8 +160,8 @@ func Printing(token string, prints datatype.DataType, v Value) Value {
 }
 
 // Unproven is a render no datatype and no calc can take, for why.
-func Unproven(why string) Value {
-	v := Value{NotOperand: why}
+func Unproven(why string) Facts {
+	v := Facts{NotOperand: why}
 	for d := datatype.Integer; d < datatype.Count; d++ {
 		v.Not[d] = why
 	}
@@ -174,8 +174,8 @@ var (
 )
 
 // Literal proves fixed text: the number calc reads it as, and each datatype it is.
-func Literal(text string) Value {
-	var v Value
+func Literal(text string) Facts {
+	var v Facts
 	if f, err := strconv.ParseFloat(strings.TrimSpace(text), 64); err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
 		v.NotOperand = fmt.Sprintf("%q is not a number", text)
 	} else {
@@ -196,7 +196,7 @@ func Literal(text string) Value {
 }
 
 // signedZero refuses a zero written with a sign as a typed value, naming it unsigned.
-func signedZero(text string, v Value) Value {
+func signedZero(text string, v Facts) Facts {
 	mantissa, _, _ := strings.Cut(strings.ToLower(text), "e")
 	if !strings.HasPrefix(text, "-") || v.NotOperand != "" || strings.Trim(mantissa, "-0.") != "" {
 		return v

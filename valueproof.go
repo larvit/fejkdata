@@ -12,8 +12,8 @@ import (
 
 // valueProof proves what typed columns and their calc operands hold, each node once per scope.
 type valueProof struct {
-	memo       map[node]proven.Value
-	columnMemo map[node]proven.Value
+	memo       map[node]proven.Facts
+	columnMemo map[node]proven.Facts
 }
 
 // checkDatatype rejects a typed column item some render of which is not text of its datatype,
@@ -65,7 +65,7 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 }
 
 // proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
-func (p *valueProof) proveColumnItem(t *template) proven.Value {
+func (p *valueProof) proveColumnItem(t *template) proven.Facts {
 	if t.link.readsColumn == nil {
 		return p.prove(t)
 	}
@@ -74,15 +74,15 @@ func (p *valueProof) proveColumnItem(t *template) proven.Value {
 
 // proveColumn proves a column over what its items draw, a null item marking it null rather than
 // rendering "".
-func (p *valueProof) proveColumn(n node) proven.Value {
+func (p *valueProof) proveColumn(n node) proven.Facts {
 	if v, done := p.columnMemo[n]; done {
 		return v
 	}
 	if p.columnMemo == nil {
-		p.columnMemo = map[node]proven.Value{}
+		p.columnMemo = map[node]proven.Facts{}
 	}
 	items, nullable := columnItems(n)
-	var v proven.Value
+	var v proven.Facts
 	for i, it := range items {
 		if w := p.proveColumnItem(it); i == 0 {
 			v = w
@@ -95,14 +95,14 @@ func (p *valueProof) proveColumn(n node) proven.Value {
 	return v
 }
 
-func (p *valueProof) prove(n node) proven.Value {
+func (p *valueProof) prove(n node) proven.Facts {
 	if v, done := p.memo[n]; done {
 		return v
 	}
 	if p.memo == nil {
-		p.memo = map[node]proven.Value{}
+		p.memo = map[node]proven.Facts{}
 	}
-	var v proven.Value
+	var v proven.Facts
 	switch n := n.(type) {
 	case *choice:
 		v = p.proveUnion(n.items)
@@ -124,10 +124,10 @@ func (p *valueProof) prove(n node) proven.Value {
 }
 
 // proveCells proves a table column over every cell it may render.
-func (p *valueProof) proveCells(c *tableColumn) proven.Value {
-	var v proven.Value
+func (p *valueProof) proveCells(c *tableColumn) proven.Facts {
+	var v proven.Facts
 	for r := 0; r < c.t.rowCount(); r++ {
-		var w proven.Value
+		var w proven.Facts
 		if cell := c.t.cellTemplate(r, c.i); cell != nil {
 			w = p.prove(cell)
 		} else {
@@ -142,7 +142,7 @@ func (p *valueProof) proveCells(c *tableColumn) proven.Value {
 	return v
 }
 
-func (p *valueProof) proveUnion(nodes []node) proven.Value {
+func (p *valueProof) proveUnion(nodes []node) proven.Facts {
 	v := p.prove(nodes[0])
 	for _, n := range nodes[1:] {
 		v = v.Or(p.prove(n))
@@ -152,7 +152,7 @@ func (p *valueProof) proveUnion(nodes []node) proven.Value {
 
 // proveTemplate proves a template that renders one value: fixed text, or a format that is
 // one token alone.
-func (p *valueProof) proveTemplate(t *template) proven.Value {
+func (p *valueProof) proveTemplate(t *template) proven.Facts {
 	lit, fixed := t.fixedText()
 	switch {
 	case t.repeat != 1:
@@ -181,13 +181,13 @@ func (p *valueProof) proveTemplate(t *template) proven.Value {
 	if v, numeric := builtinfunc.ProveNumber(name, body, args); numeric {
 		return v
 	}
-	return proven.Printing(body, DataTypeString, proven.Value{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
+	return proven.Printing(body, DataTypeString, proven.Facts{NotOperand: fmt.Sprintf("{%s} prints text, not a number", body)})
 }
 
-func (p *valueProof) proveCalc(o op) proven.Value {
+func (p *valueProof) proveCalc(o op) proven.Facts {
 	body, args := o.Body, o.Args
 	nodes := operandNodes(o)
-	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Value { return p.proveUnion(nodes(name)) })
+	v, doubt := proven.OfCalc(builtinfunc.ParsedCalc(args[0]).Expr, func(name string) proven.Facts { return p.proveUnion(nodes(name)) })
 	if doubt != "" {
 		return proven.Unproven(fmt.Sprintf("{%s}: %s", body, doubt))
 	}

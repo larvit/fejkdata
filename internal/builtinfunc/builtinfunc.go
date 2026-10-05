@@ -17,12 +17,9 @@ import (
 // values of the operands it named, which the caller read for it.
 type Call func(s *drawstate.State, emitted string, operands []string) string
 
-// builtin is a format-string function invoked as {name(args)}. It receives the
-// draw state, the output emitted so far in the current expansion (for derivations
-// such as a checksum over preceding digits), and the values of the operands it named
-// (calc and the transforms name them). All must stay pure over (draw state, emitted, operands) so
-// seeded output is reproducible. arity is the exact arg count, or -1 for variadic (then
-// checkArgs does all the validation).
+// builtin is a format-string function invoked as {name(args)}. Its Call stays pure over its
+// inputs, so seeded output is reproducible. arity is the exact arg count, or -1 for variadic,
+// where checkArgs does all the validation.
 type builtin struct {
 	arity int
 	// prep parses validated args once, at compile time, into the closure a render calls.
@@ -36,15 +33,15 @@ type builtin struct {
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
-	proveNumber func(token string, prints datatype.DataType, args []string) proven.Value
+	proveNumber func(token string, prints datatype.DataType, args []string) proven.Facts
 	// prints is the datatype a call's text is, handed to proveNumber: datatype.String where it
 	// reads as a number no column should type, as digits' leading zeros; unset where
 	// proveNumber is nil.
 	prints datatype.DataType
 }
 
-// CalcName is the builtin whose operands the engine checks and proves, since only the engine
-// holds their nodes.
+// CalcName is the builtin whose operands package fejkdata checks and proves, since only it
+// holds the nodes they read.
 const CalcName = "calc"
 
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies.
@@ -92,11 +89,12 @@ func IsTransform(name string) bool {
 }
 
 // ProveNumber proves a call whose every render reads as a finite number, token its body;
-// false for any other call. A calc's proof reads its operands, which the caller proves.
-func ProveNumber(name, token string, args []string) (proven.Value, bool) {
+// false for any other call, calc included: proven.OfCalc proves a calc from its operands,
+// which only the caller holds.
+func ProveNumber(name, token string, args []string) (proven.Facts, bool) {
 	b := builtins[name]
 	if b.proveNumber == nil {
-		return proven.Value{}, false
+		return proven.Facts{}, false
 	}
 	return b.proveNumber(token, b.prints, args), true
 }

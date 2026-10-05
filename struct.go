@@ -310,7 +310,7 @@ var columnKinds = map[reflect.Kind]columnKind{
 
 // holds reports whether a field of this kind holds every value v proves. An integer prints
 // whole, so its bounds round inward first.
-func (k columnKind) holds(v proven.Value) bool {
+func (k columnKind) holds(v proven.Facts) bool {
 	switch k.datatype {
 	case DataTypeString, DataTypeBoolean:
 		return true

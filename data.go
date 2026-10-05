@@ -32,7 +32,7 @@ func compileInto(place func(dir []string) *folder) func(datafiles.Category) erro
 		if err != nil {
 			return err
 		}
-		place(c.Dir).children[c.Name] = n
+		place(c.Folders).children[c.Name] = n
 		return nil
 	}
 }

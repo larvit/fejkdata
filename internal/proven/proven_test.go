@@ -42,8 +42,8 @@ func TestOrKeepsTheBoundsOfBothAndTheFirstReason(t *testing.T) {
 }
 
 func TestOfCalcBoundsAnExpressionFromItsOperands(t *testing.T) {
-	operand := func(name string) Value {
-		return map[string]Value{"a": Bounded(1, 9, true), "b": Bounded(0, 9, true), "big": Bounded(0, 1e299, true), "word": Unproven("it is text")}[name]
+	operand := func(name string) Facts {
+		return map[string]Facts{"a": Bounded(1, 9, true), "b": Bounded(0, 9, true), "big": Bounded(0, 1e299, true), "word": Unproven("it is text")}[name]
 	}
 	for expr, want := range map[string]string{
 		"a * 2 + 1": "",
@@ -69,7 +69,7 @@ func TestOfCalcBoundsAnExpressionFromItsOperands(t *testing.T) {
 		}
 	}
 	lone, _ := grammar.ParseCalc("x")
-	if _, doubt := OfCalc(lone.Expr, func(string) Value { return Bounded(0, 1e301, true) }); doubt != "x is not proven within 1e300" {
+	if _, doubt := OfCalc(lone.Expr, func(string) Facts { return Bounded(0, 1e301, true) }); doubt != "x is not proven within 1e300" {
 		t.Errorf("OfCalc(x) doubts %q, want a lone operand held to the limit", doubt)
 	}
 }

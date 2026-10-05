@@ -975,7 +975,7 @@ data.go         the load path: the categories internal/datafiles hands over, com
 cmd/fejkdata/   the fejkdata CLI
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
-internal/datatype/ what a record column holds, which DataType aliases
+internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks

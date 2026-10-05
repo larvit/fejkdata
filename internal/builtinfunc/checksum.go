@@ -72,9 +72,7 @@ func ibanArg(a []string) error {
 	return nil
 }
 
-// iban generates a structurally valid IBAN for cc: a numeric BBAN of the right
-// length, then mod-97 check digits. Real bank/branch structure isn't modelled —
-// the result passes length and checksum validation, which is what fake data needs.
+// iban generates an IBAN for cc: a numeric BBAN of the right length, then mod-97 check digits.
 func iban(r rng, cc string) string {
 	bban := make([]byte, ibanLen[cc]-4)
 	for i := range bban {

@@ -32,14 +32,14 @@ func FS(fsys fs.FS, base string) Source { return Source{fsys: fsys, base: base} 
 // Category is one category file: the folders above it from the source's base, its name,
 // and its parsed JSON.
 type Category struct {
-	Dir  []string
-	Name string
-	JSON any
-	rows *rowsFiles
+	Folders []string
+	Name    string
+	JSON    any
+	rows    *rowsFiles
 }
 
-// ReadRows reads a rows file beside the category. Reading a file is what names it, so no
-// file is named and left unread.
+// ReadRows reads a rows file beside the category and marks it as named; Walk refuses a rows
+// file no category read.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
 func (s Source) labelled(p string) string {
@@ -87,7 +87,7 @@ func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error
 	rows := newRowsFiles(s, full, entries)
 	handed := false
 	for _, e := range entries {
-		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
+		if strings.HasPrefix(e.Name(), ".") {
 			continue
 		}
 		var holds bool
@@ -109,7 +109,7 @@ func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error
 	return handed, nil
 }
 
-// walkFolder walks a subfolder, and refuses its name once it holds a category.
+// walkFolder walks a subfolder, and refuses its name if it holds a category.
 func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, error) {
 	holds, err := s.walkDir(dir, compile)
 	if err != nil || !holds {
@@ -121,7 +121,7 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 	return true, nil
 }
 
-// Load hands compile the one category file name in the folder dir.
+// Load hands compile the category file name.json in the folder dir.
 func (s Source) Load(dir []string, name string, compile func(Category) error) error {
 	full := s.dirPath(dir)
 	entries, err := fs.ReadDir(s.fsys, full)
@@ -151,7 +151,7 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
-	if err := compile(Category{Dir: dir, Name: name, JSON: raw, rows: rows}); err != nil {
+	if err := compile(Category{Folders: dir, Name: name, JSON: raw, rows: rows}); err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
 	return true, nil
