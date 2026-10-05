@@ -29,7 +29,7 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
+		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven", "internal/rows"},
 		"cmd/fejkdata":         {"."},
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/datafiles":   {"internal/grammar"},
@@ -38,6 +38,7 @@ func TestPackageImports(t *testing.T) {
 		"internal/grammar":     nil,
 		"internal/invariant":   nil,
 		"internal/proven":      {"internal/datatype", "internal/grammar", "internal/invariant"},
+		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	seen := map[string]bool{}
 	eachPackage(t, func(dir string, pkg *build.Package) {
