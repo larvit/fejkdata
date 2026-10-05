@@ -8,8 +8,8 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkFunc validates a call at compile time: a known builtin, its args, and for calc the
-// operands fields holds.
+// checkFunc validates a call at compile time: a known builtin, its args, and, for calc, the
+// operands held in fields.
 func checkFunc(tok grammar.Token, fields map[string]node) error {
 	err := builtinfunc.Check(tok.Fn, tok.Args)
 	if err == nil && tok.Fn == builtinfunc.CalcName {

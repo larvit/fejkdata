@@ -29,7 +29,7 @@ func TestNoRefOperandsMatchesTheOperandGrammar(t *testing.T) {
 			continue
 		}
 		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), grammar.IsRef); b.noRefOperands == takesRef {
-			t.Errorf("%s: noRefOperands = %v, but its operands func reads a reference: %v", name, b.noRefOperands, takesRef)
+			t.Errorf("%s: noRefOperands = %v, yet a reference /x read as an operand: %v", name, b.noRefOperands, takesRef)
 		}
 	}
 }

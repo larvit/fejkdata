@@ -11,9 +11,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// checkCalcFields refuses a calc operand a field holds that is never a number, and a division
-// by a constant zero. An operand no field holds is left for a name to answer, and
-// checkCalcNames checks it once names link.
+// checkCalcFields runs checkOperands over the calc operands fields hold. An operand no field
+// holds is left for a name, which checkCalcNames checks once names link.
 func checkCalcFields(args []string, fields map[string]node) error {
 	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []node {
 		if n, ok := fields[name]; ok {

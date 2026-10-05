@@ -35,7 +35,7 @@ var builtins = withTransforms(map[string]builtin{
 	"ulid":   {arity: 0, prep: sample(ulid)},
 	"nanoid": {arity: 1, checkArgs: posIntArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, checkArgs: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Value {
+	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, checkArgs: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
@@ -49,7 +49,7 @@ var builtins = withTransforms(map[string]builtin{
 	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) Call {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *drawstate.State, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
-	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Value {
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
 	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) Call {
@@ -57,7 +57,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
 		}
-	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, a []string) proven.Value {
+	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, a []string) proven.Facts {
 		return proven.PrintedNumber(token, proven.Bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
 	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) Call {
@@ -78,7 +78,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return strconv.FormatUint(s.Seq(key), 10)
 		}
-	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, _ []string) proven.Value {
+	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, _ []string) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(1, math.MaxInt64, true))
 	}},
 })
