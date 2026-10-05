@@ -941,7 +941,6 @@ Where the project is heading; the sections before Audience document what ships t
     1. A render's cost grows only with the data it reaches.
 14. **Every fact comes from an official or open source,** such as a government
     register.
-    1. A table holds every row its source holds, and nothing added by hand.
 15. **The most common data comes first,** such as names, addresses, phone numbers and
     dates.
 16. **Values look real by default. You can also ask for values that can never reach
