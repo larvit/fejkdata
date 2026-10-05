@@ -214,8 +214,8 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // the record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// recordOf is the fence both record entry points pass: the record template n is, whose columns
-// settleRecords fixed at load for every draw.
+// recordOf is the record template n is, the fence FakeRecord, NewRecordTemplate and FakeStruct
+// pass; settleRecords fixed its columns at load.
 func recordOf(n node) (*template, error) {
 	if tb, isTable := n.(*table); isTable {
 		n = tb.formatTemplate
@@ -246,8 +246,8 @@ type recordColumn struct {
 	boundWhole *nameBinding
 }
 
-// settleRecords fixes the columns of every record in scope, whose datatypes a cycle would walk
-// forever, so bind refuses the scope's cycles first.
+// settleRecords fixes the columns of every record in scope. bind runs it after checkNoCycles: a
+// column's datatype walks the column, and a cycle would walk forever.
 func settleRecords(scope nodeScope) {
 	_ = scope(func(_ string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {

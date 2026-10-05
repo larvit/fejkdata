@@ -7,7 +7,7 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// linkSite is a template to link, with the folder and category it sits in, "" for an inline
+// linkSite is a template to link, with its folder and category, both empty for an inline
 // template, and eachNode's label for it.
 type linkSite struct {
 	t               *template
@@ -61,10 +61,10 @@ type linkedNames struct {
 	uses      map[*nameBinding][]nameUse
 }
 
-// linkTemplates links ts in steps, each over every template before the next starts, each
-// returning what it builds: the references and the compiled formats, kept on each template, the
-// names' targets, keys and reads, passed to the steps after as arguments, and the column each
-// format reads. The bindings take their targets and keys once every check has passed.
+// linkTemplates links ts in steps, each over every template before the next starts. Each step
+// returns what it builds. The references, the compiled format and the column read are kept on each
+// template. The names' targets, keys and reads pass to later steps as arguments, and the bindings
+// take their targets and keys only once every check has passed.
 func linkTemplates(ts []linkSite, root map[string]node) error {
 	for _, s := range ts {
 		link, err := s.t.resolveLink(s.folder, s.label, s.category, root)

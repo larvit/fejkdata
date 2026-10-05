@@ -85,7 +85,7 @@
 | 88 | 0.2.0 |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 2 | 3 | 6 | 6 | 4 | 19.4 |
 | 41 | 0.2.0 | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.5 | 19.1 |
 | 52 | 0.2.0 |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
-| 117 | 0.2.0 |  | **List the fields a category has when a path names one it lacks: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
+| 117 | 0.2.0 |  | **List the fields a path's last step reached when it names one that step lacks: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
@@ -304,7 +304,7 @@ A system that stores the 12-digit form never meets the `+`, so it needs a fixtur
 
 With several `--data-path` layers the author has to work out which directory won, while a parse error on the same file names it.
 
-### 117. List the fields a category has when a path names one it lacks: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.
+### 117. List the fields a path's last step reached when it names one that step lacks: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.
 
 Today the refusal names only the missing field, so a data author fixing a typo opens the category to find the spelling. Item 92 covers the hyphenated `calc` operand only.
 

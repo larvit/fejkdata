@@ -141,8 +141,8 @@ func (sc *nameScope) spelled() string {
 	return "in one repeat"
 }
 
-// ownScope is the scope t renders a frame of, nil where that scope binds no name: a category's,
-// on its root, or a repeat's, per iteration.
+// ownScope is the scope t renders a frame of: a category's, once per render of its root, or a
+// repeat's, once per iteration. It is nil where t owns no scope, or its scope binds no name.
 func (t *template) ownScope() *nameScope {
 	if sc := t.nameScope; sc != nil && sc.owner == node(t) && len(sc.order) > 0 {
 		return sc
@@ -165,10 +165,10 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 	return nil
 }
 
-// resolveReads answers each unbound read under root with a name its template sees, fields before
-// the format as compile reports them, returning every binding read, and refuses a field spelling a
-// name. scopes are every scope of the category, which a refusal searches for a name bound where
-// the read cannot see it.
+// resolveReads answers each unbound read under root with a name its template sees, and returns
+// the set of bindings some read answers to. It refuses a field spelling a name, fields before the
+// format, as compile reports them. A refusal searches scopes, every scope of the category, for a
+// name bound where the read cannot see it.
 func resolveReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
 	read := map[*nameBinding]bool{}
 	var resolve func(n node, where string) error
