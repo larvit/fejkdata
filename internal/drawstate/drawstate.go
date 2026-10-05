@@ -1,5 +1,4 @@
-// Package drawstate holds a generator's seeded randomness, which its draws and builtin
-// samples read, and its {seq()} counters.
+// Package drawstate holds a generator's seeded randomness and its {seq()} counters.
 package drawstate
 
 import "math/rand/v2"

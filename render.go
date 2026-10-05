@@ -8,7 +8,7 @@ import (
 )
 
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies. The
-// render path takes the concrete type instead, which keeps the draws of the walk off the heap.
+// render path takes the concrete type instead, which keeps its draws off the heap.
 type rng interface {
 	IntN(n int) int
 	Float64() float64
