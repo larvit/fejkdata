@@ -14,8 +14,8 @@ func TestSplitArgsQuotesOutsideSelectors(t *testing.T) {
 		"/geo.US.locality[O'Fallon].name, 2":      {"/geo.US.locality[O'Fallon].name", "2"},
 		"'[a,b]'":                                 {"'[a,b]'"},
 	} {
-		if got := SplitArgs(in); !reflect.DeepEqual(got, want) {
-			t.Errorf("SplitArgs(%q) = %q, want %q", in, got, want)
+		if got := splitArgs(in); !reflect.DeepEqual(got, want) {
+			t.Errorf("splitArgs(%q) = %q, want %q", in, got, want)
 		}
 	}
 }

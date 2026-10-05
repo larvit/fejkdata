@@ -75,6 +75,9 @@ func TestCalcFields(t *testing.T) {
 	if got := mustRender(t, engine(1), `{"format":"{calc(a - b)}","a":{"format":"{n}","n":"10"},"b":"3"}`); got != "7" {
 		t.Fatalf("calc(a - b) = %q, want 7", got)
 	}
+	if got := mustRender(t, engine(1), `{"format":"{calc(b * (a - b))}","a":"10","b":"3"}`); got != "21" {
+		t.Fatalf("calc(b * (a - b)) = %q, want 21", got)
+	}
 }
 
 // TestCalcNonNumericIsNaN pins the never-fail rule: a field that sometimes does
