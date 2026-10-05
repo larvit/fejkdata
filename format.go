@@ -204,8 +204,7 @@ type arm struct {
 	head        string
 	writtenHead string // head as written, sigil included
 	tail        []string
-	levels      []string // the path at each level the tail passes through, the head first
-	path        string   // head and tail, the one path every way of writing this read shares
+	levels      []pickKey // the key of each level the steps pass, from the head they start at to the leaf
 	steps       []pathStep
 	leaves      []node // every node the path may land on, one per variant it passes
 	kind        armKind
@@ -230,7 +229,7 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			if linked {
 				head = b.head
 			}
-			return arm{spelling: name, head: head, path: head}
+			return arm{spelling: name, head: head, levels: []pickKey{pickKey(head)}}
 		}
 		sigil, rest, _ := grammar.RefShape(name) // resolveLink proved it, and took b.tail as a suffix of its segments
 		written, _ := grammar.SplitPath(rest)
@@ -238,18 +237,26 @@ func splitArm(name string, refs map[string]refBinding) arm {
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
-		return arm{spelling: name, head: name, path: name}
+		return arm{spelling: name, head: name, levels: []pickKey{pickKey(name)}}
 	}
 	return pathArm(name, segs[0], segs[0], segs[1:])
 }
 
 func pathArm(name, head, writtenHead string, segs []string) arm {
-	levels := []string{head}
-	for i := 0; i < len(segs)-1; i++ {
-		levels = append(levels, head+"."+strings.Join(segs[:i+1], "."))
-	}
-	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
+	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
 }
+
+// levelKeys is the key of each level path passes, the first after its first from segments.
+func levelKeys(path []string, from int) []pickKey {
+	levels := make([]pickKey, len(path)-from+1)
+	for i := range levels {
+		levels[i] = pickKey(grammar.JoinSegments(path[:from+i]))
+	}
+	return levels
+}
+
+// key is the key of the leaf a lands on, the one key every way of writing this read shares.
+func (a arm) key() pickKey { return a.levels[len(a.levels)-1] }
 
 func checkSegments(a arm) error {
 	if len(a.tail) == 0 {
@@ -340,10 +347,6 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	w := compilePath(target.head, full)
 	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
-	a.levels = make([]string, len(full)+1)
-	for i := range a.levels {
-		a.levels[i] = grammar.JoinSegments(full[:i])
-	}
-	a.path = grammar.JoinSegments(full)
+	a.levels = levelKeys(full, 0)
 	return a, nil
 }

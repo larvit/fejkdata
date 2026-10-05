@@ -18,10 +18,9 @@ type renderScope struct {
 	// base is the depth of the frame stack when the read rendering the category entered it,
 	// below which no frame is the category's.
 	base int
-	// pick is the named pick being rendered, nil outside one; pickKey is the path from the name
-	// to what renders.
-	pick    *namedPick
-	pickKey string
+	// pick is the named pick being rendered, nil outside one; pickAt is where in it this renders.
+	pick   *namedPick
+	pickAt pickKey
 }
 
 type renderedRow struct {
