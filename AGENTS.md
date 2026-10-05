@@ -112,4 +112,4 @@ In [docs/decisions.md](docs/decisions.md):
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 - comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh, the move of the draw state and items 98 to 106 ship with no scoring run, and item 5 scores them
-- The template engine stays the root package until item 107; the draw state and items 98 to 103 move what stands alone into `internal/`
+- The template engine stays the root package until item 107; the draw state sits in `internal/`, and items 98 to 103 move what else stands alone there

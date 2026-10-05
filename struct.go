@@ -29,7 +29,7 @@ func (f *Generator) FakeStruct(v any) error {
 	if err != nil {
 		return fmt.Errorf("fejkdata: %w", err)
 	}
-	shape.fill(f.draws, p.Elem())
+	shape.fill(f.drawState, p.Elem())
 	return nil
 }
 

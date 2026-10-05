@@ -76,7 +76,7 @@ var builtins = withTransforms(map[string]builtin{
 			key = a[0]
 		}
 		return func(s *drawstate.State, _ string, _ []string) string {
-			return strconv.FormatUint(s.Next(key), 10)
+			return strconv.FormatUint(s.Seq(key), 10)
 		}
 	}, prints: DataTypeInteger, proveNumber: func(token string, prints DataType, _ []string) proven {
 		return printing(token, prints, bounded(1, math.MaxInt64, true))

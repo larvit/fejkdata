@@ -98,7 +98,7 @@ func fakeTemplate(t *testing.T, f *Generator, s string) string {
 
 // engine builds a seeded generator with no loaded categories, for rendering tests.
 func engine(seed uint64) *Generator {
-	return &Generator{draws: drawstate.New(seed)}
+	return &Generator{drawState: drawstate.New(seed)}
 }
 
 // parse unmarshals a JSON template fragment into its dynamic form.
@@ -133,5 +133,5 @@ func compiled(t *testing.T, s string) node {
 
 func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
-	return renderOnce(f.draws, compiled(t, s))
+	return renderOnce(f.drawState, compiled(t, s))
 }

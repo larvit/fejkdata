@@ -35,7 +35,7 @@ func TestDrawStepsPanicsOnAStepItsNodeLacks(t *testing.T) {
 			t.Errorf("drawSteps(plain, f) recovered %v, want a panic naming the missing field", r)
 		}
 	}()
-	drawSteps(engine(1).draws, compiled(t, `"plain"`), []pathStep{{kind: stepField, name: "f"}}, &pinSet{}, nil, nil)
+	drawSteps(engine(1).drawState, compiled(t, `"plain"`), []pathStep{{kind: stepField, name: "f"}}, &pinSet{}, nil, nil)
 }
 
 func TestDeepDottedPath(t *testing.T) {
