@@ -119,10 +119,10 @@ func compile(v any) (node, error) {
 
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it, and refuses a choice that is a table written as templates.
-func compileCategory(v any, name string, files *categoryFiles) (node, error) {
+func compileCategory(v any, name string, readRows func(file string) (string, error)) (node, error) {
 	if m, ok := v.(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
-			return compileTable(m, name, files)
+			return compileTable(m, name, readRows)
 		}
 	}
 	if items, ok := v.([]any); ok {

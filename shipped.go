@@ -2,10 +2,9 @@ package fejkdata
 
 import (
 	"embed"
-	"fmt"
-	"io/fs"
-	"path"
 	"strings"
+
+	"github.com/larvit/fejkdata/internal/datafiles"
 )
 
 //go:generate env REGENERATE=1 go test -run ^TestShippedIndexIsCurrent$ .
@@ -13,7 +12,7 @@ import (
 //go:embed data
 var shippedFS embed.FS
 
-var shippedSource = dataSource{fsys: shippedFS, baseDir: "data"}
+var shippedSource = datafiles.Source{FS: shippedFS, BaseDir: "data"}
 
 // shippedEntry is a shipped category's entry in shippedindex.go: its parent table, "" for
 // none, and the paths List advertises below it. After changing it, empty
@@ -28,15 +27,7 @@ func unloadedTree() folder {
 	root := folder{children: map[string]node{}}
 	for p, e := range shippedIndex {
 		segs := strings.Split(p, ".")
-		g := &root
-		for _, seg := range segs[:len(segs)-1] {
-			sub, isFolder := g.children[seg].(*folder)
-			if !isFolder {
-				sub = &folder{children: map[string]node{}}
-				g.children[seg] = sub
-			}
-			g = sub
-		}
+		g := madeFolder(&root, segs[:len(segs)-1])
 		if g.unloaded == nil {
 			g.unloaded = map[string]shippedEntry{}
 		}
@@ -107,7 +98,7 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		if !unloaded {
 			continue
 		}
-		site, err := u.load()
+		site, err := u.load(root)
 		if err != nil {
 			panic(internalError("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
 		}
@@ -125,14 +116,8 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 
 // load parses and compiles the category, and moves it from its folder's unloaded map to
 // the folder's children.
-func (u unloadedCategory) load() (categorySite, error) {
-	dir := path.Join(append([]string{shippedSource.baseDir}, u.dir...)...)
-	entries, err := fs.ReadDir(shippedSource.fsys, dir)
-	if err != nil {
-		return categorySite{}, fmt.Errorf("%s: %w", dir, err)
-	}
-	file := u.name + ".json"
-	if err := loadFile(shippedSource, u.in, path.Join(dir, file), file, newCategoryFiles(shippedSource, dir, entries)); err != nil {
+func (u unloadedCategory) load(root *folder) (categorySite, error) {
+	if err := shippedSource.Load(u.dir, u.name, compileInto(root)); err != nil {
 		return categorySite{}, err
 	}
 	delete(u.in.unloaded, u.name)

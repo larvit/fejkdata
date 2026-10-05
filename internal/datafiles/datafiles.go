@@ -1,0 +1,178 @@
+// Package datafiles walks a data tree and reads its category files and their rows.
+package datafiles
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/fs"
+	"os"
+	"path"
+	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
+)
+
+// Source is one tree to load: an fs.FS and the directory in it to start from. Label
+// prefixes file names in errors; OnDisk marks Label as a directory that must exist.
+type Source struct {
+	FS      fs.FS
+	Label   string
+	OnDisk  bool
+	BaseDir string
+}
+
+// Category is one category file: the folders above it from the source's base, its name,
+// and its parsed JSON.
+type Category struct {
+	Dir  []string
+	Name string
+	JSON any
+	rows *rowsFiles
+}
+
+// ReadRows reads a rows file beside the category, marking it named.
+func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
+
+func (s Source) labelled(p string) string {
+	if s.Label == "" {
+		return p
+	}
+	return path.Join(s.Label, p)
+}
+
+func (s Source) base() string {
+	if s.BaseDir == "" {
+		return "."
+	}
+	return s.BaseDir
+}
+
+// Walk hands compile every category of the tree, folders and files in name order. A
+// folder holding no category anywhere below it is skipped; a hidden file or folder is
+// never data.
+func (s Source) Walk(compile func(Category) error) error {
+	if s.OnDisk {
+		if s.Label == "" {
+			return fmt.Errorf("a data path is empty")
+		}
+		info, err := os.Stat(s.Label)
+		if err != nil {
+			return fmt.Errorf("data path %s: %w", s.Label, err)
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("%s is not a directory", s.Label)
+		}
+	}
+	_, err := s.walkDir(nil, compile)
+	return err
+}
+
+// walkDir walks the folder dir names, and reports whether it handed over any category.
+func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error) {
+	full := path.Join(append([]string{s.base()}, dir...)...)
+	entries, err := fs.ReadDir(s.FS, full)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	rows := newRowsFiles(s, full, entries)
+	handed := false
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), ".") { // hidden: a checkout or an editor's file, never data
+			continue
+		}
+		var holds bool
+		if e.IsDir() {
+			holds, err = s.walkFolder(append(dir[:len(dir):len(dir)], e.Name()), compile)
+		} else {
+			holds, err = s.compileFile(dir, e.Name(), rows, compile)
+		}
+		if err != nil {
+			return false, err
+		}
+		handed = handed || holds
+	}
+	for name, named := range rows.tsv {
+		if !named && !strings.HasPrefix(name, ".") {
+			return false, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", s.labelled(path.Join(full, name)))
+		}
+	}
+	return handed, nil
+}
+
+// walkFolder walks a subfolder, and refuses its name once it holds a category.
+func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, error) {
+	holds, err := s.walkDir(dir, compile)
+	if err != nil || !holds {
+		return false, err
+	}
+	if err := grammar.CheckName(dir[len(dir)-1]); err != nil {
+		return false, fmt.Errorf("%s: folder %w", s.labelled(path.Join(append([]string{s.base()}, dir...)...)), err)
+	}
+	return true, nil
+}
+
+// Load hands compile the one category file name in the folder dir.
+func (s Source) Load(dir []string, name string, compile func(Category) error) error {
+	full := path.Join(append([]string{s.base()}, dir...)...)
+	entries, err := fs.ReadDir(s.FS, full)
+	if err != nil {
+		return fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	_, err = s.compileFile(dir, name+".json", newRowsFiles(s, full, entries), compile)
+	return err
+}
+
+// compileFile hands compile a *.json file as a category named after it, and reports
+// whether it was one; any other file is skipped.
+func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile func(Category) error) (bool, error) {
+	if !strings.HasSuffix(file, ".json") {
+		return false, nil
+	}
+	full := path.Join(rows.dir, file)
+	name := strings.TrimSuffix(file, ".json")
+	if err := grammar.CheckName(name); err != nil {
+		return false, fmt.Errorf("%s: category %w", s.labelled(full), err)
+	}
+	b, err := fs.ReadFile(s.FS, full)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	var raw any
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	if err := compile(Category{Dir: dir, Name: name, JSON: raw, rows: rows}); err != nil {
+		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	return true, nil
+}
+
+// rowsFiles is what a category may name beside itself: the rows files of its folder,
+// each marked once a category names it.
+type rowsFiles struct {
+	src Source
+	dir string
+	tsv map[string]bool
+}
+
+func newRowsFiles(src Source, dir string, entries []fs.DirEntry) *rowsFiles {
+	files := &rowsFiles{src: src, dir: dir, tsv: map[string]bool{}}
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
+			files.tsv[e.Name()] = false
+		}
+	}
+	return files
+}
+
+func (r *rowsFiles) read(name string) (string, error) {
+	if _, present := r.tsv[name]; !present {
+		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, r.src.labelled(r.dir))
+	}
+	r.tsv[name] = true
+	b, err := fs.ReadFile(r.src.FS, path.Join(r.dir, name))
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", r.src.labelled(path.Join(r.dir, name)), err)
+	}
+	return string(b), nil
+}
