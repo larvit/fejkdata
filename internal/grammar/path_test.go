@@ -38,3 +38,14 @@ func TestNameSegmentsDropSelectorsAndStepsUp(t *testing.T) {
 		t.Errorf("NameSegments = %q, want [a c]", got)
 	}
 }
+
+func TestCheckSegmentsRefusesAnEmptySegment(t *testing.T) {
+	for _, segs := range [][]string{{""}, {"a", ""}, {"", "a"}, {"a", "", "b"}} {
+		if CheckSegments(segs) == nil {
+			t.Errorf("CheckSegments(%q) = nil, want an error", segs)
+		}
+	}
+	if err := CheckSegments([]string{"a", "[b]", "..", "c"}); err != nil {
+		t.Errorf("CheckSegments = %v, want nil", err)
+	}
+}
