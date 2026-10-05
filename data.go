@@ -25,7 +25,7 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 	return root, nil
 }
 
-// compileInto compiles each category it is handed into the folder place finds for its dir.
+// compileInto compiles each category it is handed into the folder place returns for its Folders.
 func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
 		n, err := compileCategory(c.JSON, c.Name, c.ReadRows)
@@ -37,7 +37,7 @@ func compileInto(place func(dir []string) *folder) func(datafiles.Category) erro
 	}
 }
 
-// madeFolder is the folder dir names under root, made where it is missing or a category.
+// madeFolder is the folder that dir names under root, made where it is missing or a category.
 func madeFolder(root *folder, dir []string) *folder {
 	g := root
 	for _, seg := range dir {

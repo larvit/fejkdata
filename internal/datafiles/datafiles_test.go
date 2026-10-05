@@ -71,7 +71,7 @@ func TestReadRowsReadsOnlyAFileBesideTheCategory(t *testing.T) {
 			return err
 		}
 		if _, err := c.ReadRows("x.tsv"); err == nil || err.Error() != "rows names x.tsv, which is not beside it in "+map[string]string{"t": "lbl", "u": "lbl/sub"}[c.Name] {
-			t.Errorf("ReadRows(x.tsv) = %v, want the file named missing beside %s", err, c.Name)
+			t.Errorf("ReadRows(x.tsv) = %v, want an error saying x.tsv is not beside %s", err, c.Name)
 		}
 		return nil
 	})

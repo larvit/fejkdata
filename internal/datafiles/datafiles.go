@@ -49,7 +49,7 @@ func (s Source) labelled(p string) string {
 	return path.Join(s.label, p)
 }
 
-// dirPath is the folder dir names, as fsys spells it.
+// dirPath is the folder that dir names, as fsys spells it.
 func (s Source) dirPath(dir []string) string {
 	if p := path.Join(append([]string{s.base}, dir...)...); p != "" {
 		return p
@@ -77,7 +77,7 @@ func (s Source) Walk(compile func(Category) error) error {
 	return err
 }
 
-// walkDir walks the folder dir names, and reports whether it handed over any category.
+// walkDir walks the folder that dir names, and reports whether it handed over any category.
 func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error) {
 	full := s.dirPath(dir)
 	entries, err := fs.ReadDir(s.fsys, full)
