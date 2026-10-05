@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/datatype"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // DataType is what a record column holds, which decides how a record writes its value.
@@ -41,7 +42,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 	if name == DataTypeString.String() {
 		return 0, fmt.Errorf("datatype %q is the default, so it has no effect; drop it", name)
 	}
-	for d := DataTypeInteger; d <= DataTypeBoolean; d++ {
+	for d := DataTypeInteger; d < datatype.Count; d++ {
 		if name != d.String() {
 			continue
 		}
@@ -129,7 +130,7 @@ func columnItems(n node) (items []*template, nullable bool) {
 			nullable = true
 		case *tableColumn:
 		default:
-			panic(internalError("columnItems has no case for node %T", n))
+			panic(invariant.Broken("columnItems has no case for node %T", n))
 		}
 	}
 	collect(n)
@@ -175,7 +176,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	case kindText:
 		switch kindOf(other) {
 		case kindText:
-			panic(internalError("two text items hold one datatype, so they never disagree"))
+			panic(invariant.Broken("two text items hold one datatype, so they never disagree"))
 		case kindReads:
 			if !fits {
 				return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, datatype.Noun(want), other.format, asText(other))
@@ -186,7 +187,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 		}
 		return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)
 	}
-	panic(internalError("disagreement has no case for item kind %d", kindOf(fix)))
+	panic(invariant.Broken("disagreement has no case for item kind %d", kindOf(fix)))
 }
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object

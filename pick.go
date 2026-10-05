@@ -1,6 +1,9 @@
 package fejkdata
 
-import "github.com/larvit/fejkdata/internal/drawstate"
+import (
+	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/invariant"
+)
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
 // value each read there produced, keyed by the path from the name, and the table rows they
@@ -140,7 +143,7 @@ func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
 func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 	f := sc.frameOf(a.named.scope)
 	if f == nil {
-		panic(internalError("name %q is read where no frame of its scope renders", a.named.name))
+		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.named.name))
 	}
 	p := &f.picks[a.named.index]
 	if r, done := p.memo.value[a.path]; done {

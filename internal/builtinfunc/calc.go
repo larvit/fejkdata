@@ -8,6 +8,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -28,7 +29,7 @@ func evalCalc(n grammar.CalcNode, operands []string) float64 {
 	case grammar.CalcBin:
 		return Arith(n.Operator, evalCalc(n.L, operands), evalCalc(n.R, operands))
 	}
-	panic(internalError("calc node %#v has no evaluation", n))
+	panic(invariant.Broken("calc node %#v has no evaluation", n))
 }
 
 // Arith applies a calc operator.
@@ -80,7 +81,7 @@ func calcPrep(args []string) Call {
 func ParsedCalc(expr string) grammar.Calc {
 	c, err := grammar.ParseCalc(expr)
 	if err != nil {
-		panic(internalError("calc(%q) passed its check unparsed: %v", expr, err))
+		panic(invariant.Broken("calc(%q) passed its check unparsed: %v", expr, err))
 	}
 	return c
 }

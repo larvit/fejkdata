@@ -8,6 +8,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // checkCalcFields refuses a calc operand a field holds that is never a number, and a division
@@ -40,7 +41,7 @@ func operandNodes(o op) func(name string) []node {
 	return func(name string) []node {
 		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })]
 		if len(a.leaves) == 0 {
-			panic(internalError("calc operand %q was read before it was compiled", name))
+			panic(invariant.Broken("calc operand %q was read before it was compiled", name))
 		}
 		return a.leaves
 	}

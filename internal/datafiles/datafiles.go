@@ -12,14 +12,22 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// Source is one tree to load: an fs.FS and the directory in it to start from. Label
-// prefixes file names in errors; OnDisk marks Label as a directory that must exist.
+// Source is one tree to load: an fs.FS and the directory in it to start from. label
+// prefixes file names in errors; onDisk marks label as a directory that must exist.
 type Source struct {
-	FS      fs.FS
-	Label   string
-	OnDisk  bool
-	BaseDir string
+	fsys   fs.FS
+	label  string
+	onDisk bool
+	base   string
 }
+
+// Dir is the tree in the directory path, its errors labelled with it.
+func Dir(path string) Source {
+	return Source{fsys: os.DirFS(path), label: path, onDisk: true}
+}
+
+// FS is the tree in fsys below base, "" for its root.
+func FS(fsys fs.FS, base string) Source { return Source{fsys: fsys, base: base} }
 
 // Category is one category file: the folders above it from the source's base, its name,
 // and its parsed JSON.
@@ -30,37 +38,39 @@ type Category struct {
 	rows *rowsFiles
 }
 
-// ReadRows reads a rows file beside the category, marking it named.
+// ReadRows reads a rows file beside the category. Reading a file is what names it, so no
+// file is named and left unread.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
 func (s Source) labelled(p string) string {
-	if s.Label == "" {
+	if s.label == "" {
 		return p
 	}
-	return path.Join(s.Label, p)
+	return path.Join(s.label, p)
 }
 
-func (s Source) base() string {
-	if s.BaseDir == "" {
-		return "."
+// dirPath is the folder dir names, as fsys spells it.
+func (s Source) dirPath(dir []string) string {
+	if p := path.Join(append([]string{s.base}, dir...)...); p != "" {
+		return p
 	}
-	return s.BaseDir
+	return "."
 }
 
 // Walk hands compile every category of the tree, folders and files in name order. A
 // folder holding no category anywhere below it is skipped; a hidden file or folder is
 // never data.
 func (s Source) Walk(compile func(Category) error) error {
-	if s.OnDisk {
-		if s.Label == "" {
+	if s.onDisk {
+		if s.label == "" {
 			return fmt.Errorf("a data path is empty")
 		}
-		info, err := os.Stat(s.Label)
+		info, err := os.Stat(s.label)
 		if err != nil {
-			return fmt.Errorf("data path %s: %w", s.Label, err)
+			return fmt.Errorf("data path %s: %w", s.label, err)
 		}
 		if !info.IsDir() {
-			return fmt.Errorf("%s is not a directory", s.Label)
+			return fmt.Errorf("%s is not a directory", s.label)
 		}
 	}
 	_, err := s.walkDir(nil, compile)
@@ -69,8 +79,8 @@ func (s Source) Walk(compile func(Category) error) error {
 
 // walkDir walks the folder dir names, and reports whether it handed over any category.
 func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error) {
-	full := path.Join(append([]string{s.base()}, dir...)...)
-	entries, err := fs.ReadDir(s.FS, full)
+	full := s.dirPath(dir)
+	entries, err := fs.ReadDir(s.fsys, full)
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
@@ -106,15 +116,15 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 		return false, err
 	}
 	if err := grammar.CheckName(dir[len(dir)-1]); err != nil {
-		return false, fmt.Errorf("%s: folder %w", s.labelled(path.Join(append([]string{s.base()}, dir...)...)), err)
+		return false, fmt.Errorf("%s: folder %w", s.labelled(s.dirPath(dir)), err)
 	}
 	return true, nil
 }
 
 // Load hands compile the one category file name in the folder dir.
 func (s Source) Load(dir []string, name string, compile func(Category) error) error {
-	full := path.Join(append([]string{s.base()}, dir...)...)
-	entries, err := fs.ReadDir(s.FS, full)
+	full := s.dirPath(dir)
+	entries, err := fs.ReadDir(s.fsys, full)
 	if err != nil {
 		return fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
@@ -133,7 +143,7 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	if err := grammar.CheckName(name); err != nil {
 		return false, fmt.Errorf("%s: category %w", s.labelled(full), err)
 	}
-	b, err := fs.ReadFile(s.FS, full)
+	b, err := fs.ReadFile(s.fsys, full)
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
@@ -170,7 +180,7 @@ func (r *rowsFiles) read(name string) (string, error) {
 		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, r.src.labelled(r.dir))
 	}
 	r.tsv[name] = true
-	b, err := fs.ReadFile(r.src.FS, path.Join(r.dir, name))
+	b, err := fs.ReadFile(r.src.fsys, path.Join(r.dir, name))
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", r.src.labelled(path.Join(r.dir, name)), err)
 	}

@@ -17,7 +17,7 @@ services:
 
   cover:
     <<: *go
-    command: go test -cover ./...
+    command: go test -cover -coverpkg=./... ./...
 
   bench:
     <<: *go

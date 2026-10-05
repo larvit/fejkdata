@@ -7,6 +7,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // transforms are the builtins that rewrite one operand's value; they nest, so
@@ -20,7 +21,7 @@ var transforms = map[string]func(string) string{
 func withTransforms(calls map[string]builtin) map[string]builtin {
 	for name, fn := range transforms {
 		if _, clash := calls[name]; clash {
-			panic(internalError("%s is registered as a builtin and a transform", name))
+			panic(invariant.Broken("%s is registered as a builtin and a transform", name))
 		}
 		calls[name] = builtin{arity: 1, checkArgs: transformArg, prep: transformPrep(fn), operands: transformOperand}
 	}
@@ -47,7 +48,7 @@ func unwrapTransform(arg string) (leaf string, chain []func(string) string, err 
 	}
 }
 
-// transformArg proves a transform's chain; checkReads proves the operand it reads.
+// transformArg proves a transform's chain.
 func transformArg(a []string) error {
 	_, _, err := unwrapTransform(a[0])
 	return err
@@ -66,7 +67,7 @@ func transformPrep(outer func(string) string) func([]string) Call {
 	return func(a []string) Call {
 		_, chain, err := unwrapTransform(a[0])
 		if err != nil {
-			panic(internalError("transform arg %q reached prep unvalidated: %v", a[0], err))
+			panic(invariant.Broken("transform arg %q reached prep unvalidated: %v", a[0], err))
 		}
 		return func(_ *drawstate.State, _ string, operands []string) string {
 			v := operands[0]

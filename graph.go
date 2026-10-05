@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 	"sort"
+
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // eachNode visits n and every node contained within it once, passing the dot path
@@ -65,7 +67,7 @@ func contained(n node) []namedNode {
 	case *nullItem, *tableRow:
 		return nil
 	default:
-		panic(internalError("contained has no case for node %T", n))
+		panic(invariant.Broken("contained has no case for node %T", n))
 	}
 }
 
@@ -127,7 +129,7 @@ func renderEdges(n node) []renderEdge {
 	case *folder, *nullItem:
 		return nil
 	default:
-		panic(internalError("renderEdges has no case for node %T", n))
+		panic(invariant.Broken("renderEdges has no case for node %T", n))
 	}
 }
 

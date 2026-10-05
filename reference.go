@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // refBinding is what a reference resolves to: the head its category is held
@@ -83,7 +84,7 @@ func compileArms(t *template) {
 func compileArm(t *template, a *arm) {
 	head := t.head(a.head)
 	if head == nil {
-		panic(internalError("{%s} reads a head nothing bound", a.spelling))
+		panic(invariant.Broken("{%s} reads a head nothing bound", a.spelling))
 	}
 	w := compilePath(head, a.tail)
 	a.steps, a.leaves = w.steps, w.leaves

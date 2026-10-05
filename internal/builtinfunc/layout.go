@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 const dayLayout = "2006-01-02"
@@ -56,7 +57,7 @@ func layoutArg(a string) (string, error) {
 func layoutOf(a string) string {
 	layout, err := layoutArg(a)
 	if err != nil {
-		panic(internalError("builtin arg %q reached prep unvalidated: %v", a, err))
+		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a, err))
 	}
 	return layout
 }
@@ -130,11 +131,11 @@ func timeArg(a []string) error {
 func datePrep(a []string) Call {
 	from, err := time.Parse(dayLayout, a[0])
 	if err != nil {
-		panic(internalError("builtin arg %q reached prep unvalidated: %v", a[0], err))
+		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a[0], err))
 	}
 	to, err := time.Parse(dayLayout, a[1])
 	if err != nil {
-		panic(internalError("builtin arg %q reached prep unvalidated: %v", a[1], err))
+		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", a[1], err))
 	}
 	layout, start, span := layoutOf(a[2]), from.Unix(), int(to.Unix()-from.Unix())+86400
 	return func(s *drawstate.State, _ string, _ []string) string {

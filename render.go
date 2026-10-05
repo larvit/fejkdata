@@ -6,6 +6,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // Fake generates a value for a dot path. Each segment descends one level: folder
@@ -83,7 +84,7 @@ func render(s *drawstate.State, n node, sc renderScope) string {
 		}
 		return renderRepeat(s, n, sc)
 	default:
-		panic(internalError("uncompiled node %T", n))
+		panic(invariant.Broken("uncompiled node %T", n))
 	}
 }
 

@@ -31,7 +31,7 @@ type builtin struct {
 	// operands names the fields the call reads, which a render reads for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// noRefOperands says no operand can be a reference, so a name read once there is not refused.
+	// noRefOperands says no operand can be a reference.
 	noRefOperands bool
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
@@ -97,9 +97,13 @@ func ProveNumber(name, token string, args []string) (proven.Value, bool) {
 	return b.proveNumber(token, b.prints, args), true
 }
 
-// NumberCalls lists the calls printing a number, or with text also those whose text is
-// one, as an error names them.
-func NumberCalls(text bool) string {
+// TypedCalls lists the calls whose text a typed column may hold, as an error names them.
+func TypedCalls() string { return numberCalls(false) }
+
+// OperandCalls lists the calls whose text a calc reads as a number, as an error names them.
+func OperandCalls() string { return numberCalls(true) }
+
+func numberCalls(text bool) string {
 	var calls []string
 	for name, b := range builtins {
 		if b.proveNumber != nil && (text || b.prints != datatype.String) {
@@ -115,8 +119,4 @@ func plural(n int) string {
 		return ""
 	}
 	return "s"
-}
-
-func internalError(format string, a ...any) string {
-	return "fejkdata: internal error: " + fmt.Sprintf(format, a...)
 }

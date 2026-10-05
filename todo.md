@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 112`
+`Next ID = 114`
 
 | Goal | W |
 |---|---|
@@ -83,6 +83,7 @@
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 105 | 0.1.0 | principle | **Link each template in steps that each return what they build — its references, its bindings' heads and addressed keys, its compiled arms, its column read — so no step writes into what an earlier one built.** | 6 | 7 | 2 | 9 | 3.2 | 12.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
+| 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
@@ -108,6 +109,7 @@
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 112 | 0.2.0 |  | **Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
@@ -285,6 +287,10 @@ Needs item 104. `linkBindings` writes `nameBinding.head` and `tail` in `linkRefs
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
+### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
+
+`iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 4 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
+
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
 The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. This item revises it: once the caller gives the date, an age is a bound, and the CLI's default date makes output change with the day it runs unless the flag is given. Do the first step before the rest:
@@ -297,7 +303,7 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
-The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 6.1 and 4. `valueproof.go` already proves a typed column's divisor nonzero.
+The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 6.1 and 4. `valueproof.go` already proves a typed column's divisor nonzero. Once every operand is proven, `neverNumeric` and `constantValue` in `calc.go` go, and with them their reading of `NaN` and `Inf` as numbers, which `proven.Literal` refuses: calc reads text as a number one way.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
@@ -374,11 +380,15 @@ Require the path step to reach a sibling category.
 
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
-`readTableOptions` and `loadDir` return on the first in Go's map order.
+`readTableOptions` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
 Needs item 5. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type sits in `internal/`, and items 101 and 102 move a table's rows there", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+
+### 112. Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.
+
+Needs item 36. `checkCalcFields` runs at compile and `checkCalcNames` at link, two passes over one rule. Moving the field check to link before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any links.
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 
@@ -442,7 +452,7 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 
 ### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
 
-`loadDir` indexes hidden TSVs and skips them in two places, so one loads where its comment says a hidden file is never data.
+`internal/datafiles` indexes hidden TSVs in `newRowsFiles` and skips them in `walkDir`, so one loads where its comment says a hidden file is never data.
 
 ### 72. Fail the merge gate when test coverage falls below the last recorded figure.
 
@@ -482,7 +492,7 @@ The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md
 
 ### 66. Cut the README's Layout block to the lines that say what a file name cannot.
 
-`calc.go`, `doc.go` and `cmd/fejkdata/` restate their names.
+`doc.go` and `cmd/fejkdata/` restate their names.
 
 ### 67. Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.
 

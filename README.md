@@ -978,6 +978,7 @@ internal/datafiles/ the walk of a data tree: its folders, its category files and
 internal/datatype/ what a record column holds, which DataType aliases
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path
+internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
