@@ -246,7 +246,7 @@ Asked of the maintainer by the product-owner pass of the chunk that made every `
 
 ### 5. Run the nine-seat comprehension panel and larv-review's scoring run once items 99 to 106 have restructured the code, and file what the panel names.
 
-Until a panel scores 7.0 or above, only items 99 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh, the moves of the draw state and the grammar, and items 99 to 106 ship with no scoring run, and item 5 scores them" suspends every scoring run and panel until this item runs.
+Until a panel scores 7.0 or above, only items 99 to 106 and the exceptions in `AGENTS.md`'s comprehension rule merge. The decision "comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves of the draw state and the grammar, and items 99 to 106" suspends every scoring run and panel until this item runs.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -395,7 +395,7 @@ Require the path step to reach a sibling category.
 
 ### 110. Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 
-Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
+Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run. The new refusal owes a `CHANGELOG.md` entry.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 

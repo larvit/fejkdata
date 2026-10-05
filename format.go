@@ -304,8 +304,6 @@ func pathArm(name, head, writtenHead string, segs []string) arm {
 	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levels, path: head + "." + strings.Join(segs, ".")}
 }
 
-// checkSegments refuses an empty segment in a path, which a field really named "" would
-// otherwise resolve, so a typo would read as a path that worked.
 func checkSegments(a arm) error {
 	if len(a.tail) == 0 {
 		return nil

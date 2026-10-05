@@ -11,8 +11,8 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// evalCalc evaluates an expression over the operand values expand read, so the
-// evaluator touches neither the rng nor the node tree.
+// evalCalc evaluates an expression over the operand values expand already read, so it
+// draws nothing and reads no template node.
 func evalCalc(n grammar.CalcNode, operands []string) float64 {
 	switch n := n.(type) {
 	case grammar.CalcNum:
@@ -209,8 +209,7 @@ func calcPrep(args []string) callFn {
 	}
 }
 
-// parsedCalc parses an expression checkCalc accepted. A nil AST would dereference later, with
-// no message.
+// parsedCalc parses an expression checkCalc accepted.
 func parsedCalc(expr string) grammar.Calc {
 	c, err := grammar.ParseCalc(expr)
 	if err != nil {

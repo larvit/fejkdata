@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// SplitPath splits a dotted path into segments, a selector — [key or name] after a
-// table's name — becoming a segment of its own, brackets kept, and so does each "..". A
-// dot inside a selector is part of the key or name.
+// SplitPath splits a dotted path into segments. A selector, [key or name] after a table's
+// name, is a segment of its own with its brackets kept, and so is each "..". A dot inside a
+// selector belongs to the key or name.
 func SplitPath(path string) ([]string, error) {
 	segs := make([]string, 0, strings.Count(path, ".")+2*strings.Count(path, "[")+1)
 	start, open := 0, -1
@@ -162,8 +162,7 @@ func JoinSegments(segs []string) string {
 	return b.String()
 }
 
-// CheckSegments refuses an unfinished path: "a." and "a...b" each have a segment naming
-// nothing.
+// CheckSegments refuses a path with an empty segment, such as "a." or "a...b".
 func CheckSegments(segs []string) error {
 	if slices.Contains(segs, "") {
 		return fmt.Errorf("path has an empty segment")
