@@ -11,7 +11,6 @@ a fork on a personal instance. Valid while the project wants contribution from o
 the workflow decided nothing, being portable already — `github.api_url` and
 `secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
 
-
 ## The Gitea copy stays, as a pull mirror of GitHub
 
 2026-10-03, decided by the maintainer. Technical principle: one owner per value
@@ -35,11 +34,9 @@ teach the exported API belongs above the clause.
 
 2026-09-02, Lilleman auf Larv.
 
-`format`, `weight`, `repeat`, `separator`, `datatype` and `drawGroup` are reserved;
-every other key is a field. Nesting fields under a key, or prefixing options, would tax
-every template to guard against a misspelt option.
-
-`todo.md` item 4 deletes `drawGroup`, which this reserves.
+`format`, `weight`, `repeat`, `separator` and `datatype` are reserved; every other key
+is a field. Nesting fields under a key, or prefixing options, would tax every template to
+guard against a misspelt option.
 
 ## `{a|b}` stays beside nested choices
 
@@ -136,18 +133,25 @@ Valid while CI proves the shipped set whole and each category alone.
 
 Works against goal 2.3 until `todo.md` item 77 ends it.
 
-## A bare reference draws each time; a reference path is held
+## Every `{…}` draws afresh, and only a name keeps a pick
 
-2026-09-02, Lilleman auf Larv.
+2026-10-05, larv-review on the draw restructure the maintainer planned on 2026-10-03.
+Serves goals 5.2 and 4.1: each `{…}` makes a new pick, and values that belong together come
+from the one pick a name keeps.
 
-Goal 5: `{/p} {/p}` is two draws, as `{word} {word}` is, while every `{/p.first}` in
-one render and draw group reads one draw, and a bare `{/p}` beside them is a load error,
-as `{p}` beside `{p.first}` is: a bare token is by contract an independent draw, a path
-pins its level, and a fresh draw of a pinned level could show another row. A builtin's
-operand holds what it reads for its expansion, references included, so
-`{uppercase(/p)} {/p}` is one draw, and `{/p}` written twice beside it is a load error.
+- `{p.a} {p.b}`, `{w} {uppercase(w)}`, `{/p.first} {/p.last}` and `{/p} {/p}` are two draws
+  each, and `{p as q}{q.a} {q.b}` is one. Nothing is held per format or per render, so no
+  fence guards a hold: the load checks on draws are names, paths through names, cycles and
+  the repeat cap.
+- A name binds a reference or a path into a field of the template binding it, `{place as
+  p}`: an inline template, and a choice of rows inside one category, have no reference to
+  bind, and goal 4.1 holds there too.
+- A name read once is refused where the spelling it binds stands in, and the error names
+  that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc reads no reference or
+  path, and a read inside a nested repeat keeps one pick on every line, so neither is
+  refused.
 
-Goal 5.2 overrides this; `todo.md` item 4 replaces it.
+Valid while goal 5.2 has each `{…}` make a new pick.
 
 ## Reference sigils follow the filesystem
 
@@ -301,7 +305,9 @@ not agree on one among themselves; each must only hold that type.
 
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
-its draws; a tagged field that another field hides is refused, not dropped. A named
+its picks: path tags into one category, two or more of them and none selecting a row, read
+one pick of it, as a category's record columns read one pick of each name (goal 4.1), while
+an inline template in a tag draws afresh as any `{…}` does; a tagged field that another field hides is refused, not dropped. A named
 struct field is another entity and a record of its own. `fake:"-"` leaves a struct
 field, embedded or named, unfilled, so no name may be `-`; a pointer back to a struct
 already being filled is left alone, since filling it would never end. `New` cannot see a
@@ -309,74 +315,15 @@ caller's types, so the first `FakeStruct` for a type compiles its tags and the a
 error included, is kept per type: a test's first call is its load, and no `NewStruct`
 handle is needed, as the cache already compiles once.
 
-## A render shares one reference draw per category, per group
-
-2026-09-15, Lilleman auf Larv.
-
-Every reference path into a category that selects no row, in one `Fake` or one record,
-reads one draw of it, so a value's facts agree across its fields, nested templates and
-columns alike — `{/currency.code}` in one field and `{/currency.symbol}` in another name
-one currency, whichever view renders them. A `repeat` iteration is a render of its own, since
-repeating asks for another entity, and a [draw group](../README.md#draw-group) names further
-entities within one render, so a payer and a payee are two groups over one `person`
-rather than two copies of it. Only references share: a sibling field is local to its own
-expansion, so a `first` column does not silently bind to a `first` in the column next to
-it.
-
-Goal 5.2 overrides this; `todo.md` item 4 replaces it.
-
-## A draw group name is local to its category
-
-2026-09-16, Lilleman auf Larv.
-
-A category's groups are its own entities, so a caller naming a group the same way never
-joins them by accident, and renaming a group inside one file changes no render
-elsewhere. The unnamed group still spans categories, since facts that belong together
-across categories must agree.
-
-`todo.md` item 4 deletes what this decides.
-
-## The expansion hold and the render's draws are two fences
-
-2026-09-16, Lilleman auf Larv.
-
-Goal 3: one proves a sibling path or an operand is reached only by its readers within
-an expansion, the other that reference paths, whole-table reads and a table family's
-rows agree across a render and its draw groups. Their scopes differ and only the second
-tracks rows and pins, so one walk would carry both scopes and tell them apart at every
-step.
-
-`todo.md` item 4 deletes what this decides.
-
-## A render's draws make their maps on the first read
-
-2026-09-29, Lilleman auf Larv.
-
-Every render starts from empty draws, its draw groups included, since goal 3 prices
-a reader meeting two spellings of one empty set. Making the maps where the draws are declared kept a
-record's on its frame's stack, but a `Fake`'s draws live on the `Generator`, so there it
-cost the cheapest render two heap allocations and 240→390 ns, measured 2026-09-28.
-Lazily, a render reading a reference path pays those two allocations, a record or struct
-included, and one reading none pays nothing; goal 13 holds either way.
-
-`todo.md` item 4 deletes what this decides.
-
 ## A category never references itself, and a record's fences run at load
 
 2026-09-16, Lilleman auf Larv.
 
 A category is one unit: a reference back into it — `{/users.first}` inside `users` —
-describes a draw other than the fields beside it, where goal 4 asks facts that belong
-together to come from one draw, so `New` refuses it and the sibling path stays the one
-spelling for a field of one's own. A value two fields share goes in its own category,
-which both reference. That settled, a record's column fences run at `New` too, so a
-category that loads renders as whichever shape is asked for, and a reference reaching
-back into a category through another one is refused there as the overlap it is. Which
-reads those fences weigh differs on purpose: a record-only template's inert format
-renders nothing, so a `drawGroup` on it can never matter and is refused, while one on a
-rendering format can matter to a caller that bare-references it.
-
-`todo.md` item 4 deletes the `drawGroup` refusal this names.
+describes a draw other than the fields beside it, so `New` refuses it and the sibling
+field stays the one spelling for a field of one's own. A value two fields share goes in its
+own category, which each binds to a name (goal 4.1). That settled, a record's column fences
+run at `New` too, so a category that loads renders as a value and as a record alike.
 
 ## A record's column set is fixed before the first draw
 
@@ -404,12 +351,12 @@ Its bounds come from a literal or a call's arguments, so a load error names a re
 value, a range check is one comparison, and `1{digits(2)}` is a second spelling of
 `{int(100,199)}`.
 
-## A column of one reference alone is the column it reads
+## A column of one reference or name read alone is the column it reads
 
 2026-09-15, Lilleman auf Larv.
 
-`{/src.score}` renders exactly what `src.score` draws, so it takes that column's
-datatype and null rather than restating them, and a `datatype` restating the one it
+`{/src.score}` renders exactly what `src.score` draws, and so does `{s.score}` where `s` is
+bound to `/src`, so it takes that column's datatype and null rather than restating them, and a `datatype` restating the one it
 takes is a second spelling. Any other `datatype` still types the values — the one way to
 type a column someone else wrote.
 
@@ -489,46 +436,27 @@ folder or another column name would be asking for a second spelling.
 today; admitting it later is additive, since a refused spelling gains a meaning and no
 accepted one changes, so the door stays open for the address records the plan describes.
 
-## A selected row is fixed, not drawn, and an unnamed read beside it is refused
+## A selected row is fixed, not drawn
 
 Decided 2026-09-27 by the maintainer, for goals 4 and 5; valid while a selector names
 exactly one row.
 
-- Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
-  renders `Stockholm / Helsinki`, and two items of one choice may select different rows.
-- What a path draws beneath a selected row is one draw per selection, per render and
-  group, shared by every path through it: `{/geo.SE.municipality[1281].locality.name}`
-  twice names one locality.
-- A read whose path selects no row is refused beside a selection in its family, in the
-  same render and group, naming the rewrite through each selection and a `drawGroup`:
-  beside `{/misc.territory[SE].capital}`, a writer reading `{/misc.territory.currency}`
-  expects `SEK`, so the error names `{/misc.territory[SE].currency}`, since
-  `Stockholm pays in EUR` would pass review. A second selection does not make the
-  unnamed read load.
+Selected rows never conflict: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
+renders `Stockholm / Helsinki`, and two items of one choice may select different rows.
 
-Checked against three simulated template writers from the Audience, who agreed on each
-case but the last, where two expected a render and all three accepted the refusal.
+## `..` steps up to the parent row, and a step down after it draws afresh, or once per pick
 
-Goal 5.2 overrides its shared draw beneath a selection and its refusal of an unnamed read; `todo.md` item 4 replaces them.
-
-## `..` steps up to the parent row, and a step down after it draws once per render and draw group, or per pick
-
-2026-10-05, larv-review in PR #158. Serves goal 5.4, which has `..` go up one level. A step
-down draws afresh because goal 5.2 has each `{…}` make a new pick, which `todo.md` item 4
-brings to every path.
+2026-10-05, larv-review in PR #158. Serves goal 5.4, which has `..` go up one level, and goal
+5.2, which has each `{…}` make a new pick.
 
 - `..` names the parent table next, `city..country`, as a folder path names the folder it
   enters. `.country` after a row stays the link column's cell.
-- A step down after a `..` draws afresh inside the row stepped up to (`drawSteps`), and the
-  draw fences leave it out (`tableReadOf`), since it pins none of the render's rows: the one
-  exception to [A render shares one reference draw per category, per
-  group](#a-render-shares-one-reference-draw-per-category-per-group). Paths
-  stepping down from one `..` share that draw through their memo (`drawMemo.stepDownPins`),
-  as reference paths share a draw today, so two reads of one step down describe one row.
+- A step down after a `..` draws afresh inside the row stepped up to (`drawSteps`). Under a
+  name, the paths stepping down from one `..` share that draw through the pick's memo
+  (`drawMemo.stepDownPins`), as every level a name's reads pass is shared, so two reads of
+  one step down describe one row.
 - A route through another row is another path to the same data, not a second spelling:
   `city[Oslo]..country.name` and `country[NO].name` both load.
-
-Valid until item 4 makes every `{…}` draw afresh, which revises the shared step down.
 
 ## A table selects by one key column, a code, never a free-form name
 
@@ -589,38 +517,14 @@ rows twice, which is what a category over a register with two natural formats as
 a TSV nothing names stays a load error, since that one is a file forgotten rather than
 shared.
 
-## A table never reaches its own family, by any route
-
-2026-09-17, Lilleman auf Larv.
-
-A `repeat` iteration and a `drawGroup` each draw apart on purpose, but a row that lists
-three localities from other regions is the output the family exists to prevent, so the
-own-family fence walks through both rather than stopping where the draw fences do.
-
-`todo.md` item 4 deletes what this decides.
-
 ## A cell may read a reference, and each row its own
 
 2026-09-29, Lilleman auf Larv.
 
 Goal 4: facts that belong together come from one draw, so a shop row's `phone` cell reads
 `{/sv_SE.phone}` on a Swedish shop and `{/en_US.phone}` on a US one, and the table's
-format, the same for every row, cannot say that. A restructure for goal 3 keeps the fences
-that prove such cells safe. Valid while a table's rows need generators of their own.
-
-`todo.md` item 4 deletes the fences this keeps; a cell may still read a reference.
-
-## Tables carrying token cells stay small
-
-2026-09-17, Lilleman auf Larv.
-
-The family fence compares the reads of every pair of rows that can render together, so a
-table whose every row's cell selects a row of another table loads in time quadratic in
-its rows: about a second at four thousand rows. No shipped table carries such cells, and
-a register is a column set rather than a set of references, so the fence is left as it
-is until a real data set needs the indexed form.
-
-`todo.md` item 4 deletes what this decides.
+format, the same for every row, cannot say that. Valid while a table's rows need
+generators of their own.
 
 ## A path is walked once without drawing before it is walked for real
 
@@ -804,8 +708,8 @@ the register gives each one's state. A second table of the 195 sovereigns would 
 `DK` row beside the territory `DK` row, both carrying Denmark's capital, currency, flag
 and TLD — two owners for one fact, drifting at the next import. Splitting the columns to
 avoid that is worse: put `capital` on the territory alone and a country row can no
-longer name Copenhagen. The column cannot be a `parent`, since a table never reaches its
-own family; a test proves every value names a row instead. A territory the register
+longer name Copenhagen. The column cannot be a `parent`, since a table is never its own
+parent; a test proves every value names a row instead. A territory the register
 records no state for stands alone, which is `EH` alone, and naming one for it would be a
 claim fejkdata has no business making.
 
@@ -910,22 +814,16 @@ it.
 
 The scope is lexical. A read entering a category, by a reference, through a name or from
 `Fake`, sees no frame (one render of a scope's picks) opened above it, so a category renders
-the same whoever references it. A reference path, a read through a name or `Fake` opens the
-frames around where it lands from its own memo, so reads sharing a memo, `{n}` and `{n.path}`
-alike, read one pick; a bare reference lands on a category's root, which opens fresh ones. A reference path's
-memo lasts per render and draw group, a name's per pick, and `Fake("cat.field")`'s per render.
+the same whoever references it. It opens the frames around where it lands: a read through a
+name from its pick's memo, so `{n}` and `{n.path}` read one pick of each name inside, and a
+reference or `Fake` fresh ones.
 
 A pick keeps only the levels a read of the name addresses, so a template draws the same way
-under a name as anywhere else (goal 5.2). A reference read under a pick draws in the draw group
-of the read of the name, the group the draw fences survey it in, so two names bound to one
-category share what it reads by reference path. Where what a name names reads a reference
-path, its reads stay in one draw group and outside any repeat nested where it is bound: a reference path is held per
-draw group and per iteration, so what the pick kept and what it renders afresh would come from
-two draws of it. `todo.md` item 4 ends both: once every `{…}` draws afresh, nothing is held for
-the render.
+under a name as anywhere else (goal 5.2). A read of a name bound to a field stays in the
+category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; items 4 and 90 ship with no scoring run, and item 5 scores them
+## comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units are the draw fences item 4 deletes. Items 4 and 90 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before `todo.md` item 90 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. Items 4 and 90 finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences the restructure deleted. The draw restructure, shipped 2026-10-05, and `todo.md` item 90 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 90 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. The two finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.

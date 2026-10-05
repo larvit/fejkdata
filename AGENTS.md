@@ -43,7 +43,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
-- A bare reference draws each time; a reference path is held
+- Every `{…}` draws afresh, and only a name keeps a pick
 - Reference sigils follow the filesystem
 - A change to what exists is a major; a minor only adds
 - An error is a contract by what it names, not its bytes
@@ -60,15 +60,11 @@ In [docs/decisions.md](docs/decisions.md):
 - Samples say what they emit, transforms what they do
 - A record is a template seen as columns; a Go struct is the one second schema
 - A struct's records follow Go's field access, and compile on first use
-- A render shares one reference draw per category, per group
-- A draw group name is local to its category
-- The expansion hold and the render's draws are two fences
-- A render's draws make their maps on the first read
 - A category never references itself, and a record's fences run at load
 - A record's column set is fixed before the first draw
 - Null is a `null` item, not a rate
 - A typed column holds one value, not composed text
-- A column of one reference alone is the column it reads
+- A column of one reference or name read alone is the column it reads
 - A typed column's calc is refused unless proven
 - `Column` carries text, not a Go value
 - A unit takes the stem of what it is, and a file the stem of the units it holds
@@ -78,17 +74,15 @@ In [docs/decisions.md](docs/decisions.md):
 - A selector is bracketed, and a dot inside it is literal
 - `parent` names the link column and the table alike
 - After a row, a path names a column or a linked table
-- A selected row is fixed, not drawn, and an unnamed read beside it is refused
-- `..` steps up to the parent row, and a step down after it draws once per render and draw group, or per pick
+- A selected row is fixed, not drawn
+- `..` steps up to the parent row, and a step down after it draws afresh, or once per pick
 - A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
 - The choice-of-rows fence guards a data file's root, and requires string fields
 - A table is a record of string columns
 - The key map is built at load, the rest on first draw
 - Two categories may name one TSV
-- A table never reaches its own family, by any route
 - A cell may read a reference, and each row its own
-- Tables carrying token cells stay small
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality
 - A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own
@@ -118,4 +112,4 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; items 4 and 90 ship with no scoring run, and item 5 scores them
+- comprehension floor: every dimension and the overall at 7.0 or above; the draw restructure and item 90 ship with no scoring run, and item 5 scores them
