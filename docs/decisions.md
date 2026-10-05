@@ -841,3 +841,11 @@ value, the builtins and the reading of data files read no engine type, so each s
 package under `internal/`, behind the import list `imports_test.go` checks. A
 table's rows stop reading any engine type once items 101 and 102 remove those reads; item
 102 then moves them into `internal/rows` and adds it to that list. Valid until `todo.md` item 107 moves the engine.
+
+## Goal 5.1 counts `{{`, `}}` and a lone `}` as template syntax, so they are not text printed as written
+
+2026-10-05, Lilleman auf Larv. Serves goal 5.1. Goal 5.1 says everything outside `{…}` prints
+exactly as written, yet `{{` prints `{`, `}}` prints `}`, and a lone `}` is a load error naming
+`}}`, as the README's Format string section states. The maintainer ruled the escape implicit in the
+goal: the braces belong to the `{…}` syntax, so the goal names no exception and a lone `}`
+stays an error. Valid while a template escapes a brace by doubling it.
