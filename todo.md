@@ -374,7 +374,7 @@ Require the path step to reach a sibling category.
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`, and refuse a repeat over a lone `{digits(1)}` at `New`, naming that spelling.
 
-Both render the same run.
+A repeat of 14 over `{digits(1)}` draws every 14-digit run with the odds `{digits(14)}` does, so under goal 5.7 the repeat is a wrapper that changes nothing.
 
 ### 38. Compare `calcParser.binary`'s operator as a rune.
 
