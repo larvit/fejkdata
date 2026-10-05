@@ -87,8 +87,9 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	return r, nil
 }
 
-// stepUp proves a ".." after a row of t can step up: t has a parent, rest names it, and no
-// selector follows, since a row selected below the parent row could lie outside it.
+// stepUp proves a ".." after a row of t can step up: t has a parent, rest has no empty
+// segment and names it, and no selector follows, since a row selected below the parent row
+// could lie outside it.
 func (t *table) stepUp(rest []string) error {
 	if t.parentT == nil {
 		return fmt.Errorf(`%s has no parent table for ".." to step up to`, t.segment)
