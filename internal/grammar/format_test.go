@@ -21,17 +21,15 @@ func TestSplitArgsQuotesOutsideSelectors(t *testing.T) {
 }
 
 func TestParseFormatReadsEachTokenKind(t *testing.T) {
-	toks, err := ParseFormat("a{{{x|/y.z[a.b]}{/p as q}{f(1, n)}", func(fn string, args []string) []string {
-		return args[1:]
-	})
+	toks, err := ParseFormat("a{{{x|/y.z[a.b]}{/p as q}{f(1, n)}")
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := []Token{
 		{Kind: LiteralRun, Lit: "a{"},
-		{Kind: NameRead, Body: "x|/y.z[a.b]", Names: []string{"x", "/y.z[a.b]"}},
+		{Kind: NameRead, Body: "x|/y.z[a.b]", Arms: []string{"x", "/y.z[a.b]"}},
 		{Kind: NameBind, Body: "/p as q", BoundRef: "/p", Bound: "q"},
-		{Kind: BuiltinCall, Body: "f(1, n)", Fn: "f", Args: []string{"1", "n"}, Names: []string{"n"}},
+		{Kind: BuiltinCall, Body: "f(1, n)", Fn: "f", Args: []string{"1", "n"}},
 	}
 	if !reflect.DeepEqual(toks, want) {
 		t.Errorf("ParseFormat = %+v, want %+v", toks, want)
@@ -40,7 +38,7 @@ func TestParseFormatReadsEachTokenKind(t *testing.T) {
 
 func TestParseFormatRefusesUnbalancedBraces(t *testing.T) {
 	for _, format := range []string{"{a", "a}", "{a{b}}", "{f(}"} {
-		if _, err := ParseFormat(format, nil); err == nil {
+		if _, err := ParseFormat(format); err == nil {
 			t.Errorf("ParseFormat(%q) = nil error, want one", format)
 		}
 	}

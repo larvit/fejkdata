@@ -6,18 +6,18 @@ import (
 )
 
 func TestParseCalcPlacesEachOperandAtItsFirstReading(t *testing.T) {
-	n, err := ParseCalc("b * (a - b) / -2")
+	c, err := ParseCalc("b * (a - b) / -2")
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := CalcBin{'/', CalcBin{'*', CalcVar{"b", 0}, CalcBin{'-', CalcVar{"a", 1}, CalcVar{"b", 0}}}, CalcNeg{CalcNum(2)}}
-	if !reflect.DeepEqual(n, want) {
-		t.Errorf("ParseCalc = %#v, want %#v", n, want)
+	if !reflect.DeepEqual(c.Expr, want) {
+		t.Errorf("ParseCalc = %#v, want %#v", c.Expr, want)
 	}
-	if got := CalcVars(n); !reflect.DeepEqual(got, []string{"b", "a"}) {
-		t.Errorf("CalcVars = %q, want [b a]", got)
+	if !reflect.DeepEqual(c.Operands, []string{"b", "a"}) {
+		t.Errorf("Operands = %q, want [b a]", c.Operands)
 	}
-	if got := CalcText(n); got != "((b * (a - b)) / -2)" {
+	if got := CalcText(c.Expr); got != "((b * (a - b)) / -2)" {
 		t.Errorf("CalcText = %q", got)
 	}
 }

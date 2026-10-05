@@ -318,6 +318,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		"locality[L4]..municipality[0180]": "municipality[0180]",
 		"locality[L4]..region":             "..municipality..region",
 		"locality[L4]...municipality":      "empty segment",
+		"locality[L4]..municipality.":      "empty segment",
 		"locality[L4].municipality.name":   "..municipality.name",
 		"locality[L4].name..municipality":  "column",
 		"x..y":                             "only from a table's row",

@@ -101,12 +101,12 @@ func TestCalcReproducible(t *testing.T) {
 // call that is not a calc, and for one whose expression does not parse: none, either way.
 func TestParsedCallReadsOnlyAnOperandBuiltin(t *testing.T) {
 	for _, format := range []string{"{luhn()}", "{calc()}", "{calc(1 +)}", "{calc(()}"} {
-		if toks, err := grammar.ParseFormat(format, builtinOperands); err != nil || len(toks) != 1 || toks[0].Names != nil {
-			t.Errorf("ParseFormat(%q) = %+v, %v, want one call reading no operand", format, toks, err)
+		if toks, err := grammar.ParseFormat(format); err != nil || len(toks) != 1 || tokenReads(toks[0]) != nil {
+			t.Errorf("tokenReads(%q) = %+v, %v, want one call reading no operand", format, toks, err)
 		}
 	}
-	if toks, err := grammar.ParseFormat("{calc(net * qty)}", builtinOperands); err != nil || len(toks) != 1 || len(toks[0].Names) != 2 {
-		t.Errorf("ParseFormat({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
+	if toks, err := grammar.ParseFormat("{calc(net * qty)}"); err != nil || len(toks) != 1 || len(tokenReads(toks[0])) != 2 {
+		t.Errorf("tokenReads({calc(net * qty)}) = %+v, %v, want both operands", toks, err)
 	}
 }
 
