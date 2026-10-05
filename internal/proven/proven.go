@@ -47,8 +47,8 @@ func (v Value) Or(w Value) Value {
 	return v
 }
 
-// Calc bounds a calc expression from its operands, or says why it cannot.
-func Calc(expr grammar.CalcNode, operand func(name string) Value) (Value, string) {
+// OfCalc bounds a calc expression from its operands, or says why it cannot.
+func OfCalc(expr grammar.CalcNode, operand func(name string) Value) (Value, string) {
 	v, doubt := bound(expr, operand)
 	if doubt == "" && !(magnitude(v) <= limit) {
 		doubt = grammar.CalcText(expr) + " is not proven within 1e300"

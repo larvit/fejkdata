@@ -41,7 +41,7 @@ func TestOrKeepsTheBoundsOfBothAndTheFirstReason(t *testing.T) {
 	}
 }
 
-func TestCalcBoundsAnExpressionFromItsOperands(t *testing.T) {
+func TestOfCalcBoundsAnExpressionFromItsOperands(t *testing.T) {
 	operand := func(name string) Value {
 		return map[string]Value{"a": Bounded(1, 9, true), "b": Bounded(0, 9, true), "big": Bounded(0, 1e299, true), "word": Unproven("it is text")}[name]
 	}
@@ -57,20 +57,20 @@ func TestCalcBoundsAnExpressionFromItsOperands(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		v, doubt := Calc(c.Expr, operand)
+		v, doubt := OfCalc(c.Expr, operand)
 		if doubt != want {
-			t.Errorf("Calc(%s) doubts %q, want %q", expr, doubt, want)
+			t.Errorf("OfCalc(%s) doubts %q, want %q", expr, doubt, want)
 		}
 		if expr == "a * 2 + 1" && (v.Lo != 3 || v.Hi != 19 || !v.Integral || v.NonZero != 3) {
-			t.Errorf("Calc(%s) = %+v, want [3, 19], integral, nonzero by 3", expr, v)
+			t.Errorf("OfCalc(%s) = %+v, want [3, 19], integral, nonzero by 3", expr, v)
 		}
 		if expr == "-(a - 10)" && (v.Lo != 1 || v.Hi != 9) {
-			t.Errorf("Calc(%s) = %+v, want [1, 9]", expr, v)
+			t.Errorf("OfCalc(%s) = %+v, want [1, 9]", expr, v)
 		}
 	}
 	lone, _ := grammar.ParseCalc("x")
-	if _, doubt := Calc(lone.Expr, func(string) Value { return Bounded(0, 1e301, true) }); doubt != "x is not proven within 1e300" {
-		t.Errorf("Calc(x) doubts %q, want a lone operand held to the limit", doubt)
+	if _, doubt := OfCalc(lone.Expr, func(string) Value { return Bounded(0, 1e301, true) }); doubt != "x is not proven within 1e300" {
+		t.Errorf("OfCalc(x) doubts %q, want a lone operand held to the limit", doubt)
 	}
 }
 

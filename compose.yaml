@@ -17,7 +17,7 @@ services:
 
   cover:
     <<: *go
-    command: go test -cover -coverpkg=./... ./...
+    command: sh -c "go test -coverpkg=./... -coverprofile=/tmp/cover.out ./... && go tool cover -func=/tmp/cover.out | tail -1"
 
   bench:
     <<: *go

@@ -43,9 +43,9 @@ type builtin struct {
 	prints datatype.DataType
 }
 
-// Calc is the name of the builtin whose operands the caller checks and proves, as nodes only
-// it holds.
-const Calc = "calc"
+// CalcName is the builtin whose operands the engine checks and proves, since only the engine
+// holds their nodes.
+const CalcName = "calc"
 
 // rng is the randomness a builtin sample draws from, which *drawstate.State satisfies.
 type rng interface {
@@ -115,7 +115,7 @@ func numberCalls(text bool) string {
 		}
 	}
 	slices.Sort(calls)
-	return strings.Join(calls, ", ") + " or {calc()}"
+	return strings.Join(calls, ", ") + " or {" + CalcName + "()}"
 }
 
 func plural(n int) string {
