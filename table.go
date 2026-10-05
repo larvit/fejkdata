@@ -382,7 +382,7 @@ func refuseTableBinding(toks []grammar.Token) error {
 	return nil
 }
 
-// linkTables links every table to its parent beside it, the one writer of parentT and
+// linkTables links each table to the parent beside it; it is the only writer of parentT and
 // children.
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
@@ -404,7 +404,7 @@ func linkTables(sites []categorySite) error {
 }
 
 // proveParent is the table among siblings that t's link column names, proved: it has a key,
-// every link cell is one, every row of it is linked to, and its ancestors pass checkAncestors.
+// every link cell is one, and every row of it is linked to; checkAncestors proves the rest.
 // docs/decisions.md#a-parent-row-with-no-child-row-is-a-load-error
 func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	name := t.header[t.parentIndex]
@@ -436,8 +436,8 @@ func (t *table) proveParent(siblings map[string]node) (*table, error) {
 	return p, nil
 }
 
-// checkAncestors proves the chain of parents from p, t's parent, closes nowhere, and holds no
-// column named like t.
+// checkAncestors refuses a cycle in the chain of parents from p, t's parent, and an ancestor
+// with a column named like t.
 func (t *table) checkAncestors(p *table, siblings map[string]node) error {
 	var ancestors []*table
 	for q, seen := p, map[*table]bool{t: true}; q != nil; q, _ = siblings[q.header[q.parentIndex]].(*table) {

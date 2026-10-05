@@ -24,7 +24,7 @@
   before paraphrasing it, and name the register you read before claiming none
   publishes a spelling.
 - A README example is a `json` block that loads and renders as a category; `readme_test.go` runs every one.
-- Cyclomatic complexity is gated at 14. A function that would pass it is decomposed; a table-shaped dispatch at 14, one case per kind, stays whole.
+- Cyclomatic complexity is gated at 14. Split a function that would go over it, except a table-shaped dispatch at 14, a switch with one case per kind of its input, which stays whole.
 
 # Decisions
 
