@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // newGenerator creates a generator over a single data directory, failing on
@@ -96,11 +98,7 @@ func fakeTemplate(t *testing.T, f *Generator, s string) string {
 
 // engine builds a seeded generator with no loaded categories, for rendering tests.
 func engine(seed uint64) *Generator {
-	s, err := newRand(seed, true)
-	if err != nil {
-		panic(err)
-	}
-	return &Generator{rand: s}
+	return &Generator{draws: drawstate.New(seed)}
 }
 
 // parse unmarshals a JSON template fragment into its dynamic form.
@@ -135,5 +133,5 @@ func compiled(t *testing.T, s string) node {
 
 func mustRender(t *testing.T, f *Generator, s string) string {
 	t.Helper()
-	return renderOnce(f.rand, compiled(t, s))
+	return renderOnce(f.draws, compiled(t, s))
 }
