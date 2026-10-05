@@ -136,7 +136,7 @@ func categoryBinding(sites []categorySite, root map[string]node) binding {
 			if err := linkTables(sites); err != nil {
 				return err
 			}
-			return linkRefs(sites, root)
+			return linkCategories(sites, root)
 		},
 	}
 }

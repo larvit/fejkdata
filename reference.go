@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -35,108 +34,6 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// linkRefs links every template of the categories, once all data is merged, so a reference sees
-// the override-resolved tree.
-func linkRefs(sites []categorySite, root map[string]node) error {
-	var ts []linkSite
-	if err := eachTemplate(sites, func(s categorySite, label string, t *template) error {
-		ts = append(ts, linkSite{t: t, folder: s.dir, category: s.path, label: label})
-		return nil
-	}); err != nil {
-		return err
-	}
-	return linkTemplates(ts, root)
-}
-
-// linkSite is a template to link, with the folder and category it sits in, "" for an inline
-// template, and eachNode's label for it.
-type linkSite struct {
-	t               *template
-	folder          []string
-	category, label string
-}
-
-// nameTarget is what a binding resolves to in the assembled tree: the node its head names and the
-// path it reads into that node.
-type nameTarget struct {
-	head node
-	tail []string
-}
-
-// linkTemplates links ts in steps, each over every template before the next starts, each
-// returning what it builds: the references, the names' targets, the compiled formats, the keys
-// each name's reads address, and the column each format reads.
-func linkTemplates(ts []linkSite, root map[string]node) error {
-	for _, s := range ts {
-		link, err := s.t.resolveLink(s.folder, s.label, s.category, root)
-		if err != nil {
-			return err
-		}
-		s.t.link = link
-	}
-	targets := nameTargets(ts)
-	for _, s := range ts {
-		compiled, err := compileFormat(s.t, targets)
-		if err != nil {
-			return fmt.Errorf("%s: %w", s.label, err)
-		}
-		s.t.compiled = compiled
-	}
-	addressed := addressedKeys(ts)
-	for b, target := range targets {
-		b.head, b.tail, b.addressed = target.head, target.tail, addressed[b]
-	}
-	for _, s := range ts {
-		s.t.readsColumn = columnReadOf(s.t)
-	}
-	for _, check := range []func(label string, t *template) error{checkNameReads, checkCalcNames} {
-		for _, s := range ts {
-			if err := check(s.label, s.t); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// nameTargets resolves what each binding of ts binds, from its binder's link.
-func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
-	targets := map[*nameBinding]nameTarget{}
-	for _, s := range ts {
-		for _, tok := range s.t.tokens {
-			if tok.Kind == grammar.NameBind {
-				a := splitArm(tok.BoundRef, s.t.link.refs)
-				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{head: s.t.head(a.head), tail: a.tail}
-			}
-		}
-	}
-	return targets
-}
-
-// addressedKeys is every key the reads of each name in ts land on or pass, from the name, with the
-// spelling of the first read reaching it.
-func addressedKeys(ts []linkSite) map[*nameBinding]map[string]string {
-	keys := map[*nameBinding]map[string]string{}
-	for _, s := range ts {
-		for _, o := range s.t.compiled.ops {
-			for _, a := range slices.Concat(o.arms, o.operands) {
-				if a.kind != namedRead {
-					continue
-				}
-				if keys[a.named] == nil {
-					keys[a.named] = map[string]string{}
-				}
-				for _, key := range append(a.levels[len(a.levels)-len(a.tail)-1:], a.path) {
-					if _, seen := keys[a.named][key]; !seen {
-						keys[a.named][key] = a.spelling
-					}
-				}
-			}
-		}
-	}
-	return keys
-}
-
 // resolveLink binds every reference t reads, refusing one to t's own category:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
 func (t *template) resolveLink(folder []string, label, category string, root map[string]node) (templateLink, error) {
@@ -167,58 +64,6 @@ func (t *template) resolveLink(folder []string, label, category string, root map
 		link.refs[name] = refBinding{head, tail}
 	}
 	return link, nil
-}
-
-// columnRead is a record's column read by a format that only reads one reference or name,
-// which is the column: it takes the column's datatype and null. category and field name it;
-// category is "" for a column of the reading template's own record, which checkColumns reaches
-// on its own.
-type columnRead struct {
-	a               arm
-	category, field string
-	column          node
-}
-
-// columnReadOf is the record's column t's format reads, where the format only reads one reference
-// or name, and nil where it does not.
-func columnReadOf(t *template) *columnRead {
-	ops := t.compiled.ops
-	if t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.NameRead || len(ops[0].arms) != 1 {
-		return nil
-	}
-	a := ops[0].arms[0]
-	head, category, tail := t.head(a.head), a.head[min(1, len(a.head)):], a.tail
-	switch b := a.named; {
-	case a.kind == namedRead && b.bindsField():
-		head, category = b.binder, ""
-		tail = append(append([]string{splitArm(b.ref, nil).head}, b.tail...), a.tail...)
-	case a.kind == namedRead:
-		ref := b.binder.link.refs[b.ref]
-		head, category = b.head, ref.head[1:]
-		tail = append(ref.tail[:len(ref.tail):len(ref.tail)], a.tail...)
-	case !grammar.IsRef(a.head):
-		return nil
-	}
-	if target, isTemplate := head.(*template); isTemplate && target.isRecord && len(tail) == 1 {
-		return &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
-	}
-	return nil
-}
-
-// eachTemplate calls fn once per template of the categories, with the category it sits
-// in and eachNode's label for it.
-func eachTemplate(sites []categorySite, fn func(s categorySite, label string, t *template) error) error {
-	for _, s := range sites {
-		if err := eachNode(s.n, s.path, func(label string, n node) error {
-			if t, isTemplate := n.(*template); isTemplate {
-				return fn(s, label, t)
-			}
-			return nil
-		}); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // resolveCategory walks a dotted path through the folders to the category it

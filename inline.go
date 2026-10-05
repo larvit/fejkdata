@@ -96,7 +96,7 @@ func bindInline(root *folder, n node, label string, typedByGo bool) error {
 	loadShipped(root, unloadedReads(root, nil, scope))
 	return binding{
 		scope:     scope,
-		link:      func() error { return linkNodeRefs(scope, root.children) },
+		link:      func() error { return linkInline(scope, root.children) },
 		typedByGo: typedByGo,
 	}.bind()
 }
@@ -120,18 +120,4 @@ func refuseFolderRefs(scope nodeScope) error {
 		}
 		return nil
 	})
-}
-
-// linkNodeRefs links the templates of an inline node against the loaded tree.
-func linkNodeRefs(scope nodeScope, root map[string]node) error {
-	var ts []linkSite
-	if err := scope(func(label string, m node) error {
-		if t, ok := m.(*template); ok {
-			ts = append(ts, linkSite{t: t, label: label})
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
-	return linkTemplates(ts, root)
 }

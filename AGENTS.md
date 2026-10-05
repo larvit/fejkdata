@@ -111,7 +111,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, the move of a table's rows into `internal/rows`, and items 104 to 106
+- comprehension floor: every dimension and the overall at 7.0 or above; item 5 scores the restructure, which ships unscored: every `{…}` drawing afresh, the moves into `internal/`, cutting a template's pointer to its table, the move of a table's rows into `internal/rows`, and the link in steps that each return what they build
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`

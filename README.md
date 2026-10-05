@@ -967,6 +967,7 @@ struct.go       structs: FakeStruct, fake tags as one record's columns, and a fi
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and link
 format.go       a format's tokens checked against their fields, and compiled
 reference.go    resolving references across the tree
+link.go         linking a template to the assembled tree, in steps: references, names' targets, compiled formats, a name's keys and reads, column reads, and the checks over them
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype

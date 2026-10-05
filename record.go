@@ -10,6 +10,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // Column is one rendered column of a record. Value is the rendered text, which a
@@ -214,7 +215,7 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
 // recordOf is the fence both record entry points pass: the record template n is, whose columns
-// its link fixed for every draw.
+// settleRecords fixed at load for every draw.
 func recordOf(n node) (*template, error) {
 	if tb, isTable := n.(*table); isTable {
 		n = tb.formatTemplate
@@ -229,16 +230,20 @@ func recordOf(n node) (*template, error) {
 	if !t.isRecord {
 		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
+	if len(t.columns) != len(t.fields) {
+		panic(invariant.Broken("record %q was reached before its load settled its columns", t.format))
+	}
 	return t, nil
 }
 
-// recordColumn is one column of a record template: what it writes, the field drawing it, and the
-// name the template binds to that whole field, whose pick the column renders so the row agrees
-// with the columns reading the name.
+// recordColumn is one column of a record template: its name and datatype, the field drawing it,
+// and the name the template binds to that whole field, whose pick the column renders so the row
+// agrees with the columns reading the name.
 type recordColumn struct {
-	Column
-	field node
-	whole *nameBinding
+	name       string
+	datatype   DataType
+	field      node
+	boundWhole *nameBinding
 }
 
 // settleRecords fixes the columns of every record in scope, whose datatypes a cycle would walk
@@ -270,7 +275,7 @@ func recordColumns(t *template) []recordColumn {
 	columns := make([]recordColumn, len(names))
 	for i, name := range names {
 		field := t.fields[name]
-		columns[i] = recordColumn{Column: Column{Name: name, DataType: columnDatatype(field)}, field: field, whole: whole[field]}
+		columns[i] = recordColumn{name: name, datatype: columnDatatype(field), field: field, boundWhole: whole[field]}
 	}
 	return columns
 }
@@ -284,13 +289,12 @@ func renderRecord(s *drawstate.State, t *template, sc renderScope) *Record {
 	r := &Record{columns: make([]Column, len(t.columns))}
 	for i, c := range t.columns {
 		var column readValue
-		if c.whole != nil {
-			column = readName(s, sc, arm{kind: namedRead, named: c.whole, levels: wholeLevels})
+		if c.boundWhole != nil {
+			column = readName(s, sc, arm{kind: namedRead, named: c.boundWhole, levels: wholeLevels})
 		} else {
 			column = renderLeaf(s, c.field, sc)
 		}
-		r.columns[i] = c.Column
-		r.columns[i].Value, r.columns[i].Null = column.text, column.null
+		r.columns[i] = Column{Name: c.name, DataType: c.datatype, Value: column.text, Null: column.null}
 	}
 	return r
 }

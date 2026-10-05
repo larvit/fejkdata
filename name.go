@@ -29,9 +29,8 @@ type nameBinding struct {
 	index  int
 	binder *template
 
-	// Filled by `linkTemplates`, from the assembled tree:
-	head node
-	tail []string
+	// Filled by `linkTemplates`, once every check of the link passed:
+	nameTarget
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
 	addressed map[string]string
@@ -93,11 +92,23 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	reads, err := resolveReads(root, scopes)
+	read, err := resolveReads(root, scopes)
 	if err != nil {
 		return err
 	}
-	return checkNameUses(scopes, reads)
+	return checkRead(scopes, read)
+}
+
+// checkRead refuses a binding of scopes that read does not hold.
+func checkRead(scopes []*nameScope, read map[*nameBinding]bool) error {
+	for _, sc := range scopes {
+		for _, b := range sc.order {
+			if !read[b] {
+				return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
+			}
+		}
+	}
+	return nil
 }
 
 // bindAll binds every name t's tokens bind.
@@ -130,25 +141,6 @@ func (sc *nameScope) spelled() string {
 	return "in one repeat"
 }
 
-// checkNameUses refuses a binding read by nothing, then each binding checkUses refuses.
-func checkNameUses(scopes []*nameScope, reads map[*nameBinding][]nameUse) error {
-	for _, sc := range scopes {
-		for _, b := range sc.order {
-			if len(reads[b]) == 0 {
-				return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
-			}
-		}
-	}
-	for _, sc := range scopes {
-		for _, b := range sc.order {
-			if err := b.checkUses(reads[b]); err != nil {
-				return fmt.Errorf("%stoken {%s}: %w", b.where, b.body, err)
-			}
-		}
-	}
-	return nil
-}
-
 // ownScope is the scope t renders a frame of, nil where that scope binds no name: a category's,
 // on its root, or a repeat's, per iteration.
 func (t *template) ownScope() *nameScope {
@@ -174,11 +166,11 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 }
 
 // resolveReads answers each unbound read under root with a name its template sees, fields before
-// the format as compile reports them, returning every binding's reads, and refuses a field spelling
-// a name. scopes are every scope of the category, which a refusal searches for a name bound where
+// the format as compile reports them, returning every binding read, and refuses a field spelling a
+// name. scopes are every scope of the category, which a refusal searches for a name bound where
 // the read cannot see it.
-func resolveReads(root node, scopes []*nameScope) (map[*nameBinding][]nameUse, error) {
-	reads := map[*nameBinding][]nameUse{}
+func resolveReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
+	read := map[*nameBinding]bool{}
 	var resolve func(n node, where string) error
 	resolve = func(n node, where string) error {
 		t, isTemplate := n.(*template)
@@ -202,11 +194,11 @@ func resolveReads(root node, scopes []*nameScope) (map[*nameBinding][]nameUse, e
 			if b == nil {
 				return unresolved(where, u, t.nameScope, scopes)
 			}
-			reads[b] = append(reads[b], nameUse{tail: u.tail, in: t, operand: u.operand, noRef: u.noRef, nested: t.nameScope != b.scope})
+			read[b] = true
 		}
 		return nil
 	}
-	return reads, resolve(root, "")
+	return read, resolve(root, "")
 }
 
 // unresolved is the refusal of u, a read no field or name answers: naming the repeat binding the
@@ -241,19 +233,29 @@ func (t *template) isName(head string) bool {
 	return !grammar.IsRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
-// namedReads calls fn with every read of a name t's format makes, and the token holding it.
-func namedReads(t *template, fn func(o *op, a *arm) error) error {
+// namedReadAt is one read of a name in a format: the op holding it, the compiled arm, and whether a
+// builtin reads it as an operand.
+type namedReadAt struct {
+	o       *op
+	a       *arm
+	operand bool
+}
+
+// namedReads is every read of a name t's format makes, in format order.
+func namedReads(t *template) []namedReadAt {
+	var out []namedReadAt
 	for i := range t.compiled.ops {
 		o := &t.compiled.ops[i]
-		for _, reads := range [][]arm{o.arms, o.operands} {
-			for j := range reads {
-				if reads[j].kind == namedRead {
-					if err := fn(o, &reads[j]); err != nil {
-						return err
-					}
-				}
+		for j := range o.arms {
+			if o.arms[j].kind == namedRead {
+				out = append(out, namedReadAt{o: o, a: &o.arms[j]})
+			}
+		}
+		for j := range o.operands {
+			if o.operands[j].kind == namedRead {
+				out = append(out, namedReadAt{o: o, a: &o.operands[j], operand: true})
 			}
 		}
 	}
-	return nil
+	return out
 }

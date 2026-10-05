@@ -118,7 +118,7 @@ func linked(t *testing.T, s string) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return n, linkNodeRefs(inlineScope(n, "template"), nil)
+	return n, linkInline(inlineScope(n, "template"), nil)
 }
 
 // compiled parses, compiles and links a JSON fragment into a node.

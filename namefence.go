@@ -8,20 +8,31 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkNameReads refuses a read of a name inside the field bound to it, and a read {n} beside {n.w}
-// where n's pick renders w twice: the pick keeps one draw of w.
-func checkNameReads(label string, t *template) error {
-	return namedReads(t, func(o *op, a *arm) error {
-		if a.named.bindsField() && rendersInside(compilePath(a.named.head, a.named.tail).leaves, t) {
-			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, o.Body, a.named.name, a.named.ref)
+// checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
+// field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
+// draw of w.
+func checkNameReads(label string, t *template, names linkedNames) error {
+	for _, tok := range t.tokens {
+		if tok.Kind != grammar.NameBind {
+			continue
 		}
-		for _, leaf := range a.leaves {
-			if err := a.named.checkOnce(a.spelling, leaf, a.path); err != nil {
-				return fmt.Errorf("%s: token {%s}: %w", label, o.Body, err)
+		b := t.nameScope.bindings[tok.Bound]
+		if err := b.checkUses(names.uses[b]); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
+		}
+	}
+	for _, r := range namedReads(t) {
+		b, target := r.a.named, names.targets[r.a.named]
+		if b.bindsField() && rendersInside(compilePath(target.head, target.tail).leaves, t) {
+			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, r.o.Body, b.name, b.ref)
+		}
+		for _, leaf := range r.a.leaves {
+			if err := checkOnce(names.addressed[b], r.a.spelling, leaf, r.a.path); err != nil {
+				return fmt.Errorf("%s: token {%s}: %w", label, r.o.Body, err)
 			}
 		}
-		return nil
-	})
+	}
+	return nil
 }
 
 // rendersInside reports whether t sits in what one of nodes contains.
@@ -51,8 +62,8 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
-// checkUses refuses a binding whose uses read it once at a spot the bound spelling can stand: that
-// spelling draws the same way without the name. A bound field can stand in only where the reading
+// checkUses refuses a binding whose uses read it once at a spot the bound spelling can stand:
+// that spelling draws the same way without the name. A bound field can stand in only where the reading
 // template reaches the binder through fields. Where the spelling would be a CLI argument or tag
 // of one reference alone, that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses(uses []nameUse) error {
@@ -105,22 +116,23 @@ func calcReads(spelling string) bool {
 	return err == nil && isVar && v.Name == spelling
 }
 
-// checkOnce walks n, rendering at key under b's pick, into each level a read of b addresses.
-func (b *nameBinding) checkOnce(read string, n node, key string) error {
+// checkOnce walks n, rendering at key under a pick, into each level a read of the name addresses:
+// the keys of addressed.
+func checkOnce(addressed map[string]string, read string, n node, key string) error {
 	switch n := n.(type) {
 	case *choice:
 		for _, item := range n.items {
-			if err := b.checkOnce(read, item, key); err != nil {
+			if err := checkOnce(addressed, read, item, key); err != nil {
 				return err
 			}
 		}
 	case *template:
-		return b.checkTemplateOnce(read, n, key)
+		return checkTemplateOnce(addressed, read, n, key)
 	}
 	return nil
 }
 
-func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) error {
+func checkTemplateOnce(addressed map[string]string, read string, t *template, key string) error {
 	reads := map[string]int{}
 	var into []arm
 	for _, o := range t.compiled.ops {
@@ -128,20 +140,20 @@ func (b *nameBinding) checkTemplateOnce(read string, t *template, key string) er
 			if grammar.IsRef(a.head) || a.kind == namedRead {
 				continue
 			}
-			if _, kept := b.addressed[join(key, a.path)]; kept {
+			if _, kept := addressed[join(key, a.path)]; kept {
 				into = append(into, a)
 			}
 			reads[a.head]++
 		}
 	}
 	for _, head := range sortedNames(reads) {
-		if by, kept := b.addressed[join(key, head)]; kept && reads[head] > 1 {
+		if by, kept := addressed[join(key, head)]; kept && reads[head] > 1 {
 			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}
 	}
 	for _, a := range into {
 		for _, leaf := range a.leaves {
-			if err := b.checkOnce(read, leaf, join(key, a.path)); err != nil {
+			if err := checkOnce(addressed, read, leaf, join(key, a.path)); err != nil {
 				return err
 			}
 		}

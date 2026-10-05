@@ -47,11 +47,11 @@ func shippedShape(f *Generator) string {
 			facts[prefix] = "\tformat " + strconv.Quote(n.format) + readsFact(n)
 			if record, err := recordOf(n); err == nil {
 				for _, c := range record.columns {
-					fact := "\t" + c.DataType.String()
-					if _, nullable := columnItems(n.fields[c.Name]); nullable {
+					fact := "\t" + c.datatype.String()
+					if _, nullable := columnItems(c.field); nullable {
 						fact += " null"
 					}
-					facts[join(prefix, c.Name)] = fact
+					facts[join(prefix, c.name)] = fact
 				}
 			}
 		}
