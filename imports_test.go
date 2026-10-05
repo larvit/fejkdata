@@ -29,9 +29,10 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                  {"internal/drawstate"},
+		".":                  {"internal/drawstate", "internal/grammar"},
 		"cmd/fejkdata":       {"."},
 		"internal/drawstate": nil,
+		"internal/grammar":   nil,
 	}
 	seen := map[string]bool{}
 	err = filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 func TestBuiltinIDGenerators(t *testing.T) {
@@ -454,7 +456,7 @@ func TestNoRefOperandsMatchesTheOperandGrammar(t *testing.T) {
 		if b.operands == nil {
 			continue
 		}
-		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), isRef); b.noRefOperands == takesRef {
+		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), grammar.IsRef); b.noRefOperands == takesRef {
 			t.Errorf("%s: noRefOperands = %v, but its operands func reads a reference: %v", name, b.noRefOperands, takesRef)
 		}
 	}
