@@ -332,3 +332,15 @@ func TestAColumnReadingABoundColumnIsThatColumn(t *testing.T) {
 		t.Errorf("the pick was null %d times in 100 records, want both outcomes", nulls)
 	}
 }
+
+func TestAFreshReadInsideANamedPickReadsNoneOfThePick(t *testing.T) {
+	f := engine(5)
+	src := `{"format":"{w as p}{p.a}|{p.a.b}","w":{"format":"{a}","a":{"format":"{c}|{b}","b":["1","2","3"],"c":{"format":"{b}","b":["x","y","z"]}}}}`
+	want := regexp.MustCompile(`^[xyz]\|([123])\|([123])$`)
+	for i := 0; i < 100; i++ {
+		got := mustRender(t, f, src)
+		if m := want.FindStringSubmatch(got); m == nil || m[1] != m[2] {
+			t.Fatalf("draw %d = %q, want p.a's c drawn afresh and its b read from p's pick", i, got)
+		}
+	}
+}
