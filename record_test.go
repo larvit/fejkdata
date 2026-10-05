@@ -199,45 +199,22 @@ func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 	}
 }
 
-func TestRecordRejectsOverlappingReferenceColumns(t *testing.T) {
+func TestRecordColumnsReadingOneReferenceLoad(t *testing.T) {
 	cat := `{"format":"{a}","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`
 	mid := `"{/cat.a}"`
-	for _, c := range []struct{ name, row string }{
-		{"through a column repeat, which draws anew", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`},
-		{"in a group of its own", `{"format":"","whole":{"format":"{/cat.a}","drawGroup":"g"},"inner":"{/cat.a.b}"}`},
+	for _, row := range []string{
+		`{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b}","repeat":2,"separator":"-"}}`,
+		`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`,
+		`{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b} {x}","x":"1"}}`,
+		`{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b} {x}","x":"1"},{"format":"{/cat.a.b}! {x}","x":"2"}]}`,
+		`{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`,
+		`{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`,
+		`{"format":"","whole":"{/mid}","inner":"{/cat.a.b}"}`,
 	} {
-		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "mid": mid, "row": c.row}), WithSeed(1))
+		f := newGenerator(t, writeData(t, map[string]string{"cat": cat, "mid": mid, "row": row}), WithSeed(1))
 		if _, err := f.FakeRecord("row"); err != nil {
-			t.Errorf("%s: FakeRecord = %v, want it accepted", c.name, err)
+			t.Errorf("%s: FakeRecord = %v, want it accepted", row, err)
 		}
-	}
-	for _, c := range []struct{ name, row string }{
-		{"sibling columns", `{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`},
-		{"through a nested template", `{"format":"","whole":"{/cat.a}","inner":{"format":"{/cat.a.b} {x}","x":"1"}}`},
-		{"through a choice variant", `{"format":"","whole":"{/cat.a}","inner":[{"format":"{/cat.a.b} {x}","x":"1"},{"format":"{/cat.a.b}! {x}","x":"2"}]}`},
-		{"as a builtin operand", `{"format":"","whole":"{uppercase(/cat.a)}","inner":"{/cat.a.b}"}`},
-		{"a bare reference beside a path", `{"format":"","whole":"{/cat}","inner":"{/cat.a.b}"}`},
-		{"a column reaching back through another category", `{"format":"","whole":"{/mid}","inner":"{/cat.a.b}"}`},
-	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "mid": mid, "row": c.row})))
-		if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
-			t.Errorf("%s: New = %v, want the overlap refused at load, the way one format is", c.name, err)
-			continue
-		}
-		if !strings.Contains(err.Error(), `"whole"`) || !strings.Contains(err.Error(), `"inner"`) {
-			t.Errorf("%s: error %q names neither column; it must name both", c.name, err)
-		}
-	}
-}
-
-func TestInlineRecordRejectsOverlappingColumns(t *testing.T) {
-	dir := writeData(t, map[string]string{
-		"cat": `{"format":"","a":[{"format":"A={b}","b":"1"},{"format":"A={b}","b":"2"}]}`,
-	})
-	f := newGenerator(t, dir, WithSeed(1))
-	_, err := f.FakeRecordTemplate(`{"format":"","whole":"{/cat.a}","inner":"{/cat.a.b}"}`)
-	if err == nil || !strings.Contains(err.Error(), "renders its own draw of what") {
-		t.Fatalf("inline record over an overlapping pair = %v, want the inline entry point to refuse it too", err)
 	}
 }
 
@@ -276,15 +253,16 @@ func TestRecordBareReferenceStaysIndependentAsAnOperand(t *testing.T) {
 	if !sawMismatch {
 		t.Error("two bare-reference operand columns never disagreed; a bare reference draws on its own, as the plain spelling does")
 	}
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 200; i++ {
 		v, err := f.FakeTemplate("{/cur}|{uppercase(/cur)}")
 		if err != nil {
 			t.Fatal(err)
 		}
 		if parts := strings.Split(v, "|"); !strings.EqualFold(parts[0], parts[1]) {
-			t.Fatalf("one format rendered %q; within an expansion a bare reference is still one draw", v)
+			return
 		}
 	}
+	t.Error("{/cur}|{uppercase(/cur)} never disagreed in 200 renders; each reference draws on its own")
 }
 
 func TestRecordSQLInsert(t *testing.T) {
@@ -315,10 +293,10 @@ func TestRecordRejectsFieldDescent(t *testing.T) {
 	}
 }
 
-func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
+func TestRecordColumnsReadOneName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"currency": `[{"format":"{code}","code":"AUD","symbol":"$"},{"format":"{code}","code":"EUR","symbol":"€","name":"Euro"}]`,
-		"price":    `{"format":"{code} {symbol}","code":"{/currency.code}","symbol":"{/currency.symbol}"}`,
+		"price":    `{"format":"{code} {symbol}","code":"{/currency as c}{c.code}","symbol":"{c.symbol}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	symbols := map[string]string{"AUD": "$", "EUR": "€"}
@@ -341,9 +319,9 @@ func TestRecordSharesAReferenceAcrossColumns(t *testing.T) {
 	}
 }
 
-func TestRepeatIterationsDrawReferencesAnew(t *testing.T) {
+func TestRepeatIterationsPickNamesAnew(t *testing.T) {
 	dir := writeData(t, map[string]string{
-		"party":  `{"format":"{host}: {guests}","guests":{"format":"{/person.first} {/person.last}","repeat":3,"separator":", "},"host":"{/person.first} {/person.last}"}`,
+		"party":  `{"format":"{host}: {guests}","guests":{"format":"{/person as p}{p.first} {p.last}","repeat":3,"separator":", "},"host":"{/person as h}{h.first} {h.last}"}`,
 		"person": drawPeople,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
@@ -379,10 +357,10 @@ func TestRepeatIterationsDrawReferencesAnew(t *testing.T) {
 	}
 }
 
-func TestRecordGroupsDrawApart(t *testing.T) {
+func TestRecordNamesDrawApart(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person":   drawPeople,
-		"transfer": `{"format":"{from_first} {from_last} to {to_first} {to_last}","from_first":{"format":"{/person.first}","drawGroup":"from"},"from_last":{"format":"{/person.last}","drawGroup":"from"},"to_first":{"format":"{/person.first}","drawGroup":"to"},"to_last":{"format":"{/person.last}","drawGroup":"to"}}`,
+		"transfer": `{"format":"{from_first} {from_last} to {to_first} {to_last}","from_first":"{/person as from}{from.first}","from_last":"{from.last}","to_first":"{/person as to}{to.first}","to_last":"{to.last}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	apart := map[string]bool{}
@@ -398,14 +376,14 @@ func TestRecordGroupsDrawApart(t *testing.T) {
 		from, to, _ := strings.Cut(fake(t, f, "transfer"), " to ")
 		for view, pair := range map[string][2]string{"FakeRecord": {m["from_first"] + " " + m["from_last"], m["to_first"] + " " + m["to_last"]}, "Fake": {from, to}} {
 			if !onePerson(pair[0]) || !onePerson(pair[1]) {
-				t.Fatalf("%s drew %q and %q, want each group one person", view, pair[0], pair[1])
+				t.Fatalf("%s drew %q and %q, want each name one person", view, pair[0], pair[1])
 			}
 			apart[view] = apart[view] || pair[0] != pair[1]
 		}
 	}
 	for _, view := range []string{"FakeRecord", "Fake"} {
 		if !apart[view] {
-			t.Errorf("%s: groups from and to drew one person in 100 renders, want a draw each", view)
+			t.Errorf("%s: names from and to drew one person in 100 renders, want a pick each", view)
 		}
 	}
 }
@@ -432,22 +410,19 @@ func TestRecordColumnOfOneReferenceIsTheColumnItReads(t *testing.T) {
 			cols[c.Name] = c
 		}
 		score, code := cols["score"], cols["code"]
-		agree := func(name string, want Column) bool {
-			return cols[name].Null == want.Null && cols[name].Value == want.Value
-		}
+		digit := func(c Column) bool { return len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
+		isScore := func(name string) bool { return cols[name].Null != digit(cols[name]) }
 		switch {
 		case score.DataType != DataTypeInteger || cols["chain"].DataType != DataTypeInteger || code.DataType != DataTypeInteger || cols["pick"].DataType != DataTypeInteger || cols["label"].DataType != DataTypeString || cols["mixed"].DataType != DataTypeString || cols["text"].DataType != DataTypeString:
 			t.Fatalf("%s: want score, chain, code and pick integer columns, label, mixed and text string ones", r.JSON())
-		case score.Null == (len(score.Value) == 1 && score.Value >= "1" && score.Value <= "9"):
-			t.Fatalf("score = %+v, want null or a digit from src.score", score)
+		case !isScore("score") || !isScore("same") || !isScore("chain") || !isScore("dot"):
+			t.Fatalf("%s: want score, same, chain and dot each null or a digit from src.score", r.JSON())
 		case code.Null == (code.Value == "200" || code.Value == "404"):
 			t.Fatalf("code = %+v, want null or a code from src.code", code)
-		case !agree("same", score) || !agree("chain", score) || !agree("dot", score) || !agree("text", code):
-			t.Fatalf("%s: want every read of one src column one draw, through mid too", r.JSON())
-		case cols["pick"].Value != "7" && !agree("pick", score), cols["mixed"].Null || cols["mixed"].Value != "n/a" && cols["mixed"].Value != score.Value:
-			t.Fatalf("pick = %+v, mixed = %+v beside score %+v: want pick 7 or the score's draw, mixed n/a or the score's text", cols["pick"], cols["mixed"], score)
-		case cols["label"].Null || cols["label"].Value != "n="+score.Value:
-			t.Fatalf("label = %+v beside score %+v, want the text of the read, a null as \"\"", cols["label"], score)
+		case cols["pick"].Value != "7" && !isScore("pick"), cols["mixed"].Null || cols["mixed"].Value != "n/a" && cols["mixed"].Value != "" && !digit(cols["mixed"]):
+			t.Fatalf("pick = %+v, mixed = %+v: want pick 7 or a score, mixed n/a or a score's text", cols["pick"], cols["mixed"])
+		case cols["label"].Null || !strings.HasPrefix(cols["label"].Value, "n="):
+			t.Fatalf("label = %+v, want the text of the read, a null as \"\"", cols["label"])
 		case strings.Contains(r.JSON(), `"score":null`) != score.Null:
 			t.Fatalf("JSON() = %s, want a null score written null", r.JSON())
 		}

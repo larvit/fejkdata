@@ -42,8 +42,8 @@ func TestGrowIsALowerBound(t *testing.T) {
 			t.Fatalf("format %q did not compile to a template", format)
 		}
 		for i := 0; i < 50; i++ {
-			var draws renderDraws
-			if got := len(expand(f.rand, tmpl, renderScope{draws: &draws})); got < tmpl.compiled.grow {
+			var frames frameStack
+			if got := len(expand(f.rand, tmpl, renderScope{frames: &frames})); got < tmpl.compiled.grow {
 				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.compiled.grow)
 			}
 		}
@@ -111,10 +111,9 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"contained":   func(n node) { contained(n) },
 		"paths":       func(n node) { paths(n) },
 		"prove":       func(n node) { (&valueProof{}).prove(n) },
-		"reads":       func(n node) { newReadFold().reads(n) },
 		"render": func(n node) {
-			var draws renderDraws
-			render(engine(1).rand, n, renderScope{draws: &draws, row: renderedRow{tbl, 0}})
+			var frames frameStack
+			render(engine(1).rand, n, renderScope{frames: &frames, row: renderedRow{tbl, 0}})
 		},
 		"renderEdges": func(n node) { renderEdges(n) },
 		"stepInto":    func(n node) { _, _ = stepInto(n, "x") },

@@ -15,9 +15,9 @@ func TestTransforms(t *testing.T) {
 	}
 }
 
-func TestTransformReadsTheHeldDraw(t *testing.T) {
+func TestTransformReadsTheNamedDraw(t *testing.T) {
 	f := engine(2)
-	src := `{"format":"{p.first}={lowercase(p.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
+	src := `{"format":"{p as q}{q.first}={lowercase(q.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
 	for i := 0; i < 50; i++ {
 		if got := mustRender(t, f, src); got != "Anna=anna" && got != "Bo=bo" {
 			t.Fatalf("render = %q, want the transform over the same draw", got)
@@ -28,7 +28,7 @@ func TestTransformReadsTheHeldDraw(t *testing.T) {
 func TestTransformOverAReference(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `[{"format":"{first} {last}","first":"Åsa","last":"Öberg"},{"format":"{first} {last}","first":"Bo","last":"Ek","born":"1990"}]`,
-		"email":  `"{/person.first} {/person.last} <{lowercase(ascii(/person.first))}.{lowercase(ascii(/person.last))}@example.com>"`,
+		"email":  `"{/person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>"`,
 	})
 	f := newGenerator(t, dir, WithSeed(5))
 	for i := 0; i < 50; i++ {
@@ -45,7 +45,6 @@ func TestTransformArgs(t *testing.T) {
 		`{"format":"{lowercase(nope)}","x":"v"}`,
 		`{"format":"{ascii(x,y)}","x":"v","y":"w"}`,
 		`{"format":"{lowercase(hex(2))}","x":"v"}`,
-		`{"format":"{lowercase(x)} {x.a}","x":{"format":"{a}","a":"1"}}`,
 	} {
 		if _, err := f.NewTemplate(bad); err == nil {
 			t.Errorf("NewTemplate(%s) = nil error, want it rejected", bad)
