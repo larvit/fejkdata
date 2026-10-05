@@ -504,7 +504,10 @@ option earns its place.
 
 A link is proved against the parent's keys and a key's uniqueness is a data mistake, so
 both are load-time; the row lookup, by name and by parent, serves only a draw, so it waits
-for the first one, keeping `New` linear in the bytes read.
+for the first one, keeping `New` linear in the bytes read. On 2026-10-05 building every
+shipped lookup at load took 13 ms and 3.2 MiB on top of a 60 ms `New`, a cost that grows
+with every locale and with item 78 while most tables are never drawn by name or parent;
+the maintainer kept the lookup on first draw, written once.
 
 ## Two categories may name one TSV
 
@@ -797,7 +800,7 @@ since Go tracks a struct's fields as one, and a repeat of a reference path rose 
 to 106 allocations. `drawSteps` takes its state as parameters and a step holds no node,
 so no benchmark gained an allocation. Valid while Go's escape analysis tracks
 a struct's fields as one. Two loops over one rule work against DRY, and they already
-disagree on a repeat level; `todo.md` item 80 walks both through one per-step function.
+disagree on a repeat level; `todo.md` item 102 walks both through one per-step function.
 
 ## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
 
@@ -822,6 +825,19 @@ category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and item 90 ship with no scoring run, and item 5 scores them
+## comprehension floor: every dimension and the overall at 7.0 or above; the change making every `{…}` draw afresh and items 97 to 106 ship with no scoring run, and item 5 scores them
 
-2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences that change deleted. The change making every `{…}` draw afresh and `todo.md` item 90 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 90 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. The two finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+2026-10-04, Lilleman auf Larv. Serves goal 3. The nine-seat panels in `todo.md`'s git history, 2026-09-22 to 2026-09-30, held the score between 5.2 and 6.1, with Locality lowest at every seat, and the hardest units were the draw fences that change deleted. The change making every `{…}` draw afresh and `todo.md` items 97 to 106 delete or move what the earlier chunks of the below-floor round touched, so a scoring run before item 106 merges would score code about to go; the calc change accepting a name as an operand shipped unscored on 2026-10-05 for that reason. They finish the round `AGENTS.md`'s comprehension rule lets merge below the floor, a restructure the maintainer approved. No scoring run or panel runs until item 5, which runs the nine-seat panel and larv-review's scoring run. The scoring run writes this entry's first scores. Valid until `todo.md` item 5 runs.
+
+## The template engine stays the root package until item 107, and what stands alone lives in `internal/`
+
+2026-10-05, Lilleman auf Larv. Serves goals 3.2 and 3.4. Two architect reviews found the
+engine's types, `template`, `table`, `arm`, `op`, `nameBinding` and the draw state, bound in
+one cycle because several passes each write part of the same structs; the template
+language's recursion needs only a little of it. Moving the engine before items 101 to 106
+give each value one writer would spread that knot across packages, behind forwarding calls
+and a second spelling of `DataType`. The grammar, the number proofs, the draw state and the
+reading of data files read no engine type, and the builtins and a table's rows stop reading
+one once items 100 and 102 cut their edges, so they move now, each behind an import list a
+test checks. Valid until `todo.md` item 107 moves
+the engine.
