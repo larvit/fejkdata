@@ -736,9 +736,9 @@ with no separator. `misc.tld[se]` misses for it, which `todo.md` item 44 ends.
 2026-09-20, Lilleman auf Larv.
 
 A `parent` demands a child for every parent row, so linking them would drop every root
-zone row naming no territory, which is most of them (goal 2). The loader refuses the link
-outright anyway: `tld` is a column of `misc.territory`, and a table may not be named like
-a column of its ancestor.
+zone row naming no territory, which is most of them, and goal 2 wants them shipped. The
+loader refuses the link outright anyway: `tld` is a column of `misc.territory`, and a table
+may not be named like a column of its ancestor.
 
 ## `misc.territory` carries a currency code, it does not link to `misc.currency`
 

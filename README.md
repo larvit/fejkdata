@@ -266,7 +266,7 @@ record, and each of its columns describes the address printed.
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort the import can place in a kommun, by name | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks which ship | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
 | `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
 
