@@ -49,3 +49,11 @@ func TestCheckSegmentsRefusesAnEmptySegment(t *testing.T) {
 		t.Errorf("CheckSegments = %v, want nil", err)
 	}
 }
+
+func TestUnspellableInSelector(t *testing.T) {
+	for s, want := range map[string]string{"SE": "", "a|b": "|", `x"y[`: `"`, "": ""} {
+		if got := UnspellableInSelector(s); got != want {
+			t.Errorf("UnspellableInSelector(%q) = %q, want %q", s, got, want)
+		}
+	}
+}
