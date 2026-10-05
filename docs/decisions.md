@@ -837,8 +837,7 @@ because several passes each write part of the same structs; the template languag
 recursion reads few of those types. Moving the engine before items 101 and 104 to 106 give
 each value one writer would spread that knot across packages, behind forwarding calls from
 every public method. The draw state, the grammar, `DataType`, what a proof knows of a
-value, the builtins and the reading of data files read no engine type, so they sit in
-`internal/drawstate`, `internal/grammar`, `internal/datatype`, `internal/proven`,
-`internal/builtinfunc` and `internal/datafiles`, behind an import list a test checks. A
+value, the builtins and the reading of data files read no engine type, so each sits in a
+package under `internal/`, behind the import list `imports_test.go` checks. A
 table's rows stop reading any engine type once items 101 and 102 remove those reads; item
 102 then moves them into `internal/rows` and adds it to that list. Valid until `todo.md` item 107 moves the engine.

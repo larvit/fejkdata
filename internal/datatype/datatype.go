@@ -15,16 +15,16 @@ const (
 )
 
 // Count is the number of datatypes, for an array indexed by one.
-const Count = len(names)
+const Count = Boolean + 1
 
 var (
-	names = [...]string{"string", "integer", "number", "boolean"}
-	nouns = [...]string{"text", "an integer", "a number", "a boolean"}
+	names = [Count]string{"string", "integer", "number", "boolean"}
+	nouns = [Count]string{"text", "an integer", "a number", "a boolean"}
 )
 
 // String is the datatype as data spells it.
 func (d DataType) String() string {
-	if d < 0 || int(d) >= len(names) {
+	if d < 0 || d >= Count {
 		return fmt.Sprintf("DataType(%d)", int(d))
 	}
 	return names[d]

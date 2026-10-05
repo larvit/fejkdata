@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"reflect"
 	"sort"
 	"sync"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // MaxRepeat caps a repeat, and caps the renders nested repeats multiply to along
@@ -57,13 +57,13 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources = append(c.sources, datafiles.Source{FS: os.DirFS(dir), Label: dir, OnDisk: true})
+		c.sources = append(c.sources, datafiles.Dir(dir))
 	}
 }
 
 // WithDataFS layers a data tree held in an [fs.FS], such as an embed.FS of your own.
 func WithDataFS(fsys fs.FS) Option {
-	return func(c *config) { c.sources = append(c.sources, datafiles.Source{FS: fsys}) }
+	return func(c *config) { c.sources = append(c.sources, datafiles.FS(fsys, "")) }
 }
 
 // WithoutShippedData leaves the shipped data set out, so only the sources given
@@ -161,7 +161,7 @@ func paths(n node) []string {
 		}
 		return out
 	default:
-		panic(internalError("paths has no case for node %T", n))
+		panic(invariant.Broken("paths has no case for node %T", n))
 	}
 }
 
@@ -231,8 +231,4 @@ func (c config) drawSeed() (uint64, error) {
 		return 0, fmt.Errorf("seeding from crypto/rand: %w", err)
 	}
 	return binary.LittleEndian.Uint64(b[:]), nil
-}
-
-func internalError(format string, a ...any) string {
-	return "fejkdata: internal error: " + fmt.Sprintf(format, a...)
 }

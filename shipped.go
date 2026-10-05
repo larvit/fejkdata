@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 //go:generate env REGENERATE=1 go test -run ^TestShippedIndexIsCurrent$ .
@@ -12,7 +13,7 @@ import (
 //go:embed data
 var shippedFS embed.FS
 
-var shippedSource = datafiles.Source{FS: shippedFS, BaseDir: "data"}
+var shippedSource = datafiles.FS(shippedFS, "data")
 
 // shippedEntry is a shipped category's entry in shippedindex.go: its parent table, "" for
 // none, and the paths List advertises below it. After changing it, empty
@@ -100,7 +101,7 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		}
 		site, err := u.load(root)
 		if err != nil {
-			panic(internalError("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
+			panic(invariant.Broken("shipped %s: %v; after a change under data/, regenerate shippedindex.go", join(strings.Join(u.dir, "."), u.name), err))
 		}
 		sites = append(sites, site)
 		queue = append(queue, unloadedReads(root, u.dir, sitesScope([]categorySite{site}))...)
@@ -110,7 +111,7 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 		return
 	}
 	if err := categoryBinding(sites, root.children).bind(); err != nil {
-		panic(internalError("binding shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
+		panic(invariant.Broken("binding shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
 	}
 }
 

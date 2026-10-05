@@ -11,6 +11,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -393,6 +394,6 @@ func setText(field reflect.Value, text string) {
 		field.SetUint(n)
 	}
 	if err != nil {
-		panic(internalError("%q reached a %s field unproven: %v", text, field.Type(), err))
+		panic(invariant.Broken("%q reached a %s field unproven: %v", text, field.Type(), err))
 	}
 }

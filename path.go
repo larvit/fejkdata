@@ -6,6 +6,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // stepInto is what seg names under n: a folder's entry or a template's field.
@@ -36,7 +37,7 @@ func stepInto(n node, seg string) (node, error) {
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.t.header[n.i])
 	case *nullItem:
 	default:
-		panic(internalError("stepInto has no case for node %T", n))
+		panic(invariant.Broken("stepInto has no case for node %T", n))
 	}
 	return nil, fmt.Errorf("no field %q", seg)
 }
@@ -219,7 +220,7 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	case *tableColumn:
 		steps = append(steps, pathStep{kind: stepColumn, at: at, name: t.header[next.i]})
 	default:
-		panic(internalError("%s: a route onto %T", t.segment, r.next))
+		panic(invariant.Broken("%s: a route onto %T", t.segment, r.next))
 	}
 	return steps, nil
 }
@@ -302,13 +303,13 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 		if st.kind == stepField {
 			var err error
 			if n, err = stepInto(n, st.name); err != nil {
-				panic(internalError("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
+				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
 			}
 			continue
 		}
 		t, ok := n.(*table)
 		if !ok {
-			panic(internalError("step %d: a table's step of kind %d on %T", st.at, st.kind, n))
+			panic(invariant.Broken("step %d: a table's step of kind %d on %T", st.at, st.kind, n))
 		}
 		switch {
 		case st.kind == stepParent:
@@ -325,7 +326,7 @@ func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	switch st.kind {
 	case stepSelect:
 		if err := pins.pinRow(t, st.row); err != nil {
-			panic(internalError("%s[%s]: %v", t.segment, st.name, err))
+			panic(invariant.Broken("%s[%s]: %v", t.segment, st.name, err))
 		}
 		return t
 	case stepDraw:
@@ -340,7 +341,7 @@ func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	case stepParent:
 		return t.parentT
 	}
-	panic(internalError("drawStep has no case for step kind %d", st.kind))
+	panic(invariant.Broken("drawStep has no case for step kind %d", st.kind))
 }
 
 func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []string, at int) node {
@@ -403,7 +404,7 @@ func checkPathResolves(n node, tail []string, level string) error {
 func compilePath(n node, tail []string) pathCheck {
 	w := pathCheck{tail: tail}
 	if _, err := w.run(n); err != nil {
-		panic(internalError("%s: %v; the path should have been proved before it was compiled", grammar.JoinSegments(tail), err))
+		panic(invariant.Broken("%s: %v; the path should have been proved before it was compiled", grammar.JoinSegments(tail), err))
 	}
 	return w
 }

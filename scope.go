@@ -1,5 +1,7 @@
 package fejkdata
 
+import "github.com/larvit/fejkdata/internal/invariant"
+
 // readValue is what one read drew: its text, and whether it landed on a null.
 type readValue struct {
 	text string
@@ -42,7 +44,7 @@ func (sc renderScope) at(n node, pins *pinSet) renderScope {
 // rowOf is the row of t its columns render from.
 func (sc renderScope) rowOf(t *table) int {
 	if sc.row.t != t {
-		panic(internalError("a column of %s renders in a scope holding no row of it", t.segment))
+		panic(invariant.Broken("a column of %s renders in a scope holding no row of it", t.segment))
 	}
 	return sc.row.index
 }

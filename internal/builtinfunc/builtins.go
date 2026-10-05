@@ -10,6 +10,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -104,7 +105,7 @@ func chars(alphabet string) func([]string) Call {
 
 const hexDigits = "0123456789abcdef"
 
-// formatFloat prints v to dp decimals, or shortestDecimals, and a zero unsigned.
+// formatFloat prints v to dp decimals, or proven.ShortestDecimals, and a zero unsigned.
 func formatFloat(v float64, dp int) string {
 	s := strconv.FormatFloat(v, 'f', dp, 64)
 	if strings.HasPrefix(s, "-") && strings.Trim(s, "-0.") == "" {
@@ -119,7 +120,7 @@ func formatFloat(v float64, dp int) string {
 func atoi(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {
-		panic(internalError("builtin arg %q reached prep unvalidated: %v", s, err))
+		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", s, err))
 	}
 	return n
 }
@@ -128,7 +129,7 @@ func atoi(s string) int {
 func atof(s string) float64 {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		panic(internalError("builtin arg %q reached prep unvalidated: %v", s, err))
+		panic(invariant.Broken("builtin arg %q reached prep unvalidated: %v", s, err))
 	}
 	return f
 }

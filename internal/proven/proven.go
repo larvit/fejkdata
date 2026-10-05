@@ -11,6 +11,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // Value is what a proof knows of every render of a node: bounds on the number each
@@ -81,7 +82,7 @@ func bound(n grammar.CalcNode, operand func(name string) Value) (Value, string) 
 		}
 		return combine(n, l, r)
 	}
-	panic(fmt.Sprintf("fejkdata: internal error: calc node %T has no bound", n))
+	panic(invariant.Broken("calc node %T has no bound", n))
 }
 
 // combine bounds one operation from the bounds of its sides.
@@ -150,7 +151,7 @@ func printedInteger(token string, v Value) Value {
 // Printing is v for a token whose every render is text of datatype prints, with a reason
 // against each datatype that text is not.
 func Printing(token string, prints datatype.DataType, v Value) Value {
-	for d := datatype.Integer; d <= datatype.Boolean; d++ {
+	for d := datatype.Integer; d < datatype.Count; d++ {
 		if prints != d && !(prints == datatype.Integer && d == datatype.Number) {
 			v.Not[d] = fmt.Sprintf("{%s} prints %s, not %s", token, datatype.Noun(prints), datatype.Noun(d))
 		}
@@ -161,7 +162,7 @@ func Printing(token string, prints datatype.DataType, v Value) Value {
 // Unproven is a render no datatype and no calc can take, for why.
 func Unproven(why string) Value {
 	v := Value{NotOperand: why}
-	for d := datatype.Integer; d <= datatype.Boolean; d++ {
+	for d := datatype.Integer; d < datatype.Count; d++ {
 		v.Not[d] = why
 	}
 	return v

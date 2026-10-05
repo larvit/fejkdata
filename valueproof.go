@@ -6,6 +6,7 @@ import (
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -116,7 +117,7 @@ func (p *valueProof) prove(n node) proven.Value {
 	case *nullItem:
 		v = proven.Unproven(`it reads a null, which renders "" outside its own column`)
 	default:
-		panic(internalError("prove has no case for node %T", n))
+		panic(invariant.Broken("prove has no case for node %T", n))
 	}
 	p.memo[n] = v
 	return v
@@ -193,7 +194,7 @@ func (p *valueProof) proveCalc(o op) proven.Value {
 	return proven.PrintedNumber(body, v, builtinfunc.CalcDecimals(args))
 }
 
-var typedCalls, operandCalls = builtinfunc.NumberCalls(false), builtinfunc.NumberCalls(true)
+var typedCalls, operandCalls = builtinfunc.TypedCalls(), builtinfunc.OperandCalls()
 
 func notOneValue(format, calls string) string {
 	return fmt.Sprintf("%q is not one value; write one literal or one %s, or read one", format, calls)
