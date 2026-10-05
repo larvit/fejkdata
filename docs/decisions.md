@@ -844,8 +844,8 @@ table's rows stop reading any engine type once items 101 and 102 remove those re
 
 ## Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 
-2026-10-05, Lilleman auf Larv. Serves goal 5.1, which says everything outside `{…}` prints
-exactly as written, yet `{{` prints `{`, `}}` prints `}`, and a lone `}` is a load error naming
-`}}`, as the README's Format string section states. The maintainer ruled the escape implicit in the
-goal: doubled braces and a lone `}` belong to the `{…}` syntax, so the goal names no exception and a lone `}`
-stays an error. Valid while a template escapes a brace by doubling it.
+2026-10-05, Lilleman auf Larv. Serves goal 5.1: everything outside `{…}` prints exactly as
+written. Yet `{{` prints `{`, `}}` prints `}`, and a lone `}` is a load error naming `}}`, as
+the README's Format string section states. The maintainer ruled the escape implicit in the
+goal: doubled braces and a lone `}` belong to the `{…}` syntax, so the goal names no escape and
+a lone `}` stays an error. Valid while a template escapes a brace by doubling it.

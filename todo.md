@@ -385,7 +385,7 @@ Require the path step to reach a sibling category.
 
 ### 114. Settle whether goal 7.2's "no escaping" holds for a first template with a literal brace, which must write `{{` or `}}`.
 
-The decision "Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape" keeps a lone `}` a load error. Goal 7.2 promises a first template needs no escaping; the maintainer decides whether that means shell quoting only, or also the doubled brace.
+Under the decision "Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape", a literal brace is written `{{` or `}}`, and a lone `}` is a load error. Goal 7.2 promises a first template needs no escaping. The maintainer decides whether the escaping it rules out is shell quoting only, or the doubled brace too.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
