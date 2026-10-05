@@ -266,8 +266,28 @@ func renderRecord(s *generatorState, t *template, columns []Column, sc renderSco
 	}
 	r := &Record{columns: append([]Column(nil), columns...)}
 	for i := range r.columns {
-		column := renderLeaf(s, t.fields[r.columns[i].Name], sc)
+		field := t.fields[r.columns[i].Name]
+		var column readValue
+		if b := bindingOfWhole(t, field); b != nil {
+			column = readName(s, sc, arm{kind: namedRead, named: b, levels: []string{""}})
+		} else {
+			column = renderLeaf(s, field, sc)
+		}
 		r.columns[i].Value, r.columns[i].Null = column.text, column.null
 	}
 	return r
+}
+
+// bindingOfWhole is the name t binds to the whole of field, whose pick the field's column renders
+// so the row agrees with the columns reading the name; nil where none does.
+func bindingOfWhole(t *template, field node) *nameBinding {
+	if t.ownNameScope == nil {
+		return nil
+	}
+	for _, b := range t.ownNameScope.order {
+		if b.bindsField() && b.binder == t && len(b.tail) == 0 && b.head == field {
+			return b
+		}
+	}
+	return nil
 }

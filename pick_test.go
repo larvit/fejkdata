@@ -285,3 +285,25 @@ func TestASubFieldIsReachableByFake(t *testing.T) {
 		}
 	}
 }
+
+func TestAFieldBoundWholeIsItsPickAsAColumn(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"row": `{"format":"{place as p}{p.locality}","place":[{"format":"{locality}","locality":"Stockholm","zip":"1"},{"format":"{locality}","locality":"Tranås","zip":"5"}],"zip":"{p.zip}"}`,
+	}), WithSeed(1))
+	zips := map[string]string{"Stockholm": "1", "Tranås": "5"}
+	seen := map[string]bool{}
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := r.Columns()
+		if zips[c[0].Value] != c[1].Value {
+			t.Fatalf("%s: want the place column and the zip read through p one place", r.JSON())
+		}
+		seen[c[0].Value] = true
+	}
+	if len(seen) != 2 {
+		t.Errorf("place drew only %v in 100 records, want both", seen)
+	}
+}
