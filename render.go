@@ -89,7 +89,7 @@ func render(s *drawstate.State, n node, env renderEnv) string {
 }
 
 // renderRepeat renders each iteration of t inside the name scopes rendering t, where a name bound
-// outside t keeps its pick, and a name t binds picks again.
+// outside t keeps its pick, and a name t binds takes a fresh pick.
 func renderRepeat(s *drawstate.State, t *template, env renderEnv) string {
 	var b strings.Builder
 	b.Grow(t.repeat * (t.compiled.grow + len(t.separator)))

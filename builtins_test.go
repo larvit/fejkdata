@@ -145,7 +145,7 @@ func TestBuiltinArgLimits(t *testing.T) {
 		`{"format":"{x}","x":"1","repeat":2000000000}`, // repeat -> multi-GB join
 	}
 	for _, tmpl := range bad {
-		if _, err := linked(t, tmpl); err == nil {
+		if _, err := resolved(t, tmpl); err == nil {
 			t.Errorf("compile(%s) = nil error, want a limit rejection", tmpl)
 		}
 	}
@@ -204,12 +204,12 @@ func mustPanic(t *testing.T, name string, call func()) {
 
 func TestClassBuiltinArgs(t *testing.T) {
 	for _, bad := range []string{`"{digits(0)}"`, `"{digits(2000000000)}"`, `"{upper(-1)}"`, `"{lower(x)}"`, `"{digits()}"`, `"{upper(1,2)}"`} {
-		if _, err := linked(t, bad); err == nil {
+		if _, err := resolved(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want the arg rejected", bad)
 		}
 	}
 	for _, ok := range []string{`"{digits(1048576)}"`, `"{upper(1)}"`, `"{lower(26)}"`} {
-		if _, err := linked(t, ok); err != nil {
+		if _, err := resolved(t, ok); err != nil {
 			t.Errorf("compile(%s) = %v", ok, err)
 		}
 	}
@@ -291,7 +291,7 @@ func TestBuiltinDateArgs(t *testing.T) {
 		`"{time('x')}"`:                                       "text",
 		`"{date(1990-01-01,1990-12-31,'15:04')}"`:             "time('15:04')",
 	} {
-		_, err := linked(t, tmpl)
+		_, err := resolved(t, tmpl)
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
 		}
@@ -405,7 +405,7 @@ func TestBuiltinCompileErrors(t *testing.T) {
 		`"{iban(US)}"`,         // unsupported country
 		`"{seq(a,b)}"`,         // seq takes at most one name
 	} {
-		if _, err := linked(t, bad); err == nil {
+		if _, err := resolved(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
 		}
 	}
@@ -419,7 +419,7 @@ func TestArgErrorsNameTheSpelling(t *testing.T) {
 		`"{hex(99999999999999999999)}"`:     "exceeds the maximum",
 		`"{int(007,9)}"`:                    "write 7",
 	} {
-		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
 		}
 	}

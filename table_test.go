@@ -1105,8 +1105,8 @@ func TestAStepSitsAtTheSegmentItConsumes(t *testing.T) {
 		"region[12].name",
 	} {
 		a := splitArm(path, nil)
-		head := f.root.children[a.head].(*table)
-		a.steps = compilePath(head, a.tail).steps
+		start := f.root.children[a.head].(*table)
+		a.steps = compilePath(start, a.tail).steps
 		for _, st := range a.steps {
 			seg := ""
 			switch st.kind {

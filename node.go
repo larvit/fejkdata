@@ -47,7 +47,7 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick. Every format compiles in `resolveTemplates`.
+// an independent draw. Every format compiles in `resolveTemplates`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
@@ -80,7 +80,7 @@ type templateRefs struct {
 
 func (*template) isNode() {}
 
-// startOf is the node an arm's startOf names: a sibling field, or a reference's category.
+// startOf is the node an arm's head names: a sibling field, or a reference's category.
 func (t *template) startOf(name string) node {
 	if grammar.IsRef(name) {
 		return t.refs.categories[name]

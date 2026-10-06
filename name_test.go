@@ -61,7 +61,7 @@ func TestANameKeepsWhatItsPathsAddress(t *testing.T) {
 		differ = differ || got[0][0] != got[0][2]
 	}
 	if !differ {
-		t.Fatal("{w}-{w} under a name drew w once in 100 renders, want each {w} a pick of its own")
+		t.Fatal("{w}-{w} under a name drew w once in 100 renders, want each {w} a draw of its own")
 	}
 }
 

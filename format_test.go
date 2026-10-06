@@ -20,7 +20,7 @@ func TestStringIsAFormat(t *testing.T) {
 	if got := mustRender(t, f, `"{digits(3)}"`); !regexp.MustCompile(`^[0-9]{3}$`).MatchString(got) {
 		t.Errorf(`render("{digits(3)}") = %q, want three digits`, got)
 	}
-	if _, err := linked(t, `"{x}"`); err == nil || !strings.Contains(err.Error(), `no field "x"`) {
+	if _, err := resolved(t, `"{x}"`); err == nil || !strings.Contains(err.Error(), `no field "x"`) {
 		t.Errorf(`compile("{x}") = %v, want a no-field error`, err)
 	}
 }
@@ -50,7 +50,7 @@ func TestBraceEscapes(t *testing.T) {
 		`{"format":"{a{b}","a":"Q"}`: "'{'",
 		`"{x"`:                       "unterminated",
 	} {
-		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
 		}
 	}
@@ -125,7 +125,7 @@ func TestFormatCompileErrors(t *testing.T) {
 		`"{int(1)}"`,                 // wrong arity
 		`"{float(1,2)}"`,             // wrong arity
 	} {
-		if _, err := linked(t, bad); err == nil {
+		if _, err := resolved(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)
 		}
 	}

@@ -55,7 +55,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 	}
 }
 
-// The repeat shape prices what keeps a render's scope off the heap: a copy dropped costs an alloc an iteration.
+// The repeat shape prices what keeps a render's env off the heap: a copy dropped costs an alloc an iteration.
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {
@@ -74,7 +74,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
 		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*s.slack {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f × %.2f); a render's scope reaching the heap is the usual cause", s.name, allocs, s.base*s.slack, s.base, s.slack)
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f × %.2f); a render's env reaching the heap is the usual cause", s.name, allocs, s.base*s.slack, s.base, s.slack)
 		}
 	}
 }

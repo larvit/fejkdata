@@ -59,7 +59,7 @@ func TestReferenceCombinesLoadedPaths(t *testing.T) {
 }
 
 // TestReferenceChain follows a reference to a node that is itself a reference, so
-// linking order cannot matter.
+// resolve order cannot matter.
 func TestReferenceChain(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"a": `"{/b}"`,

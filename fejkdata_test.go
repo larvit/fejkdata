@@ -111,8 +111,8 @@ func parse(t *testing.T, s string) any {
 	return v
 }
 
-// linked compiles a JSON fragment and links it against no data.
-func linked(t *testing.T, s string) (node, error) {
+// resolved compiles a JSON fragment and resolves it against no data.
+func resolved(t *testing.T, s string) (node, error) {
 	t.Helper()
 	n, err := compile(parse(t, s))
 	if err != nil {
@@ -121,10 +121,10 @@ func linked(t *testing.T, s string) (node, error) {
 	return n, resolveInlineTemplates(inlineNodes(n, "template"), nil)
 }
 
-// compiled parses, compiles and links a JSON fragment into a node.
+// compiled parses, compiles and resolves a JSON fragment into a node.
 func compiled(t *testing.T, s string) node {
 	t.Helper()
-	n, err := linked(t, s)
+	n, err := resolved(t, s)
 	if err != nil {
 		t.Fatalf("compile %q: %v", s, err)
 	}

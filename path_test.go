@@ -142,7 +142,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 }
 
 // TestMissingFieldNamesItself keeps the precise diagnosis for the ordinary typo: a
-// single-variant choice always picks the same item, so it needs no every-variant
+// single-variant choice always draws the same item, so it needs no every-variant
 // guard and the error can name the field that is missing.
 func TestMissingFieldNamesItself(t *testing.T) {
 	f := newGenerator(t, "data", WithSeed(1))

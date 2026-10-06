@@ -795,7 +795,7 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Goals 3 and 13: `drawSteps` draws every path from its steps, compiled at resolve by
+Goals 3 and 13: `drawSteps` draws every path from its steps, compiled when templates resolve, by
 `pathCheck` or, for a caller's path, by `probePath` into a stack buffer. Both take each
 step through `takeStep`, and differ only at a choice: the check walks every variant, the
 probe the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
