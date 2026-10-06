@@ -92,7 +92,7 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	read, err := resolveReads(root, scopes)
+	read, err := answerReads(root, scopes)
 	if err != nil {
 		return err
 	}
@@ -165,16 +165,16 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 	return nil
 }
 
-// resolveReads answers each unbound read under root with a name its template sees, and returns
-// the set of bindings some read answers to. It resolves a template's fields before its format, the
+// answerReads answers each unbound read under root with a name its template sees, and returns
+// the set of bindings some read answers to. It answers a template's fields before its format, the
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
-func resolveReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
+func answerReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
 	read := map[*nameBinding]bool{}
-	var resolve func(n node, where string) error
-	resolve = func(n node, where string) error {
+	var answer func(n node, where string) error
+	answer = func(n node, where string) error {
 		t, isTemplate := n.(*template)
-		if err := eachContained(n, where, resolve); err != nil {
+		if err := eachContained(n, where, answer); err != nil {
 			return err
 		}
 		if !isTemplate {
@@ -192,18 +192,18 @@ func resolveReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error)
 		for _, u := range t.unbound {
 			b := t.nameScope.lookup(u.head)
 			if b == nil {
-				return unresolved(where, u, t.nameScope, scopes)
+				return unanswered(where, u, t.nameScope, scopes)
 			}
 			read[b] = true
 		}
 		return nil
 	}
-	return read, resolve(root, "")
+	return read, answer(root, "")
 }
 
-// unresolved is the refusal of u, a read no field or name answers: naming the repeat binding the
+// unanswered is the refusal of u, a read no field or name answers: naming the repeat binding the
 // name where the read cannot see it, else the names the read sees.
-func unresolved(where string, u unboundRead, seen *nameScope, scopes []*nameScope) error {
+func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScope) error {
 	for _, sc := range scopes {
 		if b, ok := sc.bindings[u.head]; ok {
 			at := strings.TrimSuffix(b.where, ": ")

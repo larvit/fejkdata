@@ -10,7 +10,7 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// valueProof proves what typed columns and their calc operands hold, each node once per nodeSet.
+// valueProof proves what typed columns and their calc operands hold, each node once per proof.
 type valueProof struct {
 	memo       map[node]proven.Facts
 	columnMemo map[node]proven.Facts

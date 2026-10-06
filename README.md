@@ -961,14 +961,14 @@ table.go        tables: their options, format and cells, and the link to the par
 name.go         names: {x as n} bindings, the scopes they live in, and the reads they answer
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, the memo a pick keeps, and the reads kept under it
-env.go          the env a render reads names and rows through
+env.go          renderEnv: what a render reads names and rows through
 path.go         the dotted-path walks, and proving a path resolves
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
 format.go       a format's tokens checked against their fields, and compiled
-reference.go    resolving references across the tree
+reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in steps, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor

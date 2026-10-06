@@ -183,18 +183,18 @@ func checkNoCycles(s nodeSet) error {
 		grey  = 1
 		black = 2
 	)
-	inScope := map[node]bool{}
+	inSet := map[node]bool{}
 	_ = s(func(_ string, n node) error {
-		inScope[n] = true
+		inSet[n] = true
 		if t, isTable := n.(*table); isTable {
-			inScope[t.rowNode] = true // a selector lands on it, and contained lists it nowhere
+			inSet[t.rowNode] = true // a selector lands on it, and contained lists it nowhere
 		}
 		return nil
 	})
 	color := map[node]int{}
 	var visit func(n node, label string) error
 	visit = func(n node, label string) error {
-		if !inScope[n] {
+		if !inSet[n] {
 			return nil // loaded before these nodes and proven then, so it never reaches back into it
 		}
 		switch color[n] {

@@ -67,7 +67,7 @@ func mergeChildren(dst, src map[string]node) {
 }
 
 // nodeSet is the set of nodes one validation pass covers: the categories one load
-// binds, or a single inline node.
+// reads, or a single inline node.
 type nodeSet func(fn func(label string, n node) error) error
 
 // categorySite is a loaded category and where it sits: the folder holding it, that
@@ -157,10 +157,9 @@ func (p pipeline) run() error {
 	return checkNodeFences(p.nodes)
 }
 
-// checkNodeFences runs the per-node fences every pipeline runs over its nodes, each
-// over all of them before the next, so which of several broken nodes is reported
-// does not depend on the walk. Its walks recurse unguarded, so run refuses their cycles
-// first.
+// checkNodeFences runs the per-node fences over s, each over every node before the next,
+// so which of several broken nodes is reported does not depend on the walk. Its walks
+// recurse unguarded, so pipeline.run refuses cycles first.
 func checkNodeFences(s nodeSet) error {
 	mem := renderCounts{}
 	if err := s(func(label string, n node) error { return repeatCheck(label, n, mem) }); err != nil {

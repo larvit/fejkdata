@@ -30,7 +30,7 @@ func newShippedWhole(t testing.TB, opts ...Option) *Generator {
 	return f
 }
 
-// loadedCategories is the dot path of every category f has parsed and linked.
+// loadedCategories is the dot path of every category f has parsed and resolved.
 func loadedCategories(f *Generator) []string {
 	var out []string
 	for _, s := range categorySites(&f.root) {

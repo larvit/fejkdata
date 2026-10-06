@@ -120,8 +120,7 @@ func checkBind(t grammar.Token, fields map[string]node) error {
 	return nil
 }
 
-// checkBound proves what a binding names is a reference or a path into a field of the binding
-// template.
+// checkBound proves what a binding binds is a reference or a path into a field of its binder.
 func checkBound(ref string, fields map[string]node) error {
 	if grammar.IsRef(ref) {
 		_, _, err := grammar.RefShape(ref)
@@ -190,7 +189,7 @@ func checkNoRepeatedArm(body string, names []string) error {
 	seen := make(map[string]bool, len(names))
 	for _, name := range names {
 		if seen[name] {
-			return fmt.Errorf("token {%s}: arm %q is repeated; an alternation picks its arms evenly, so skew the odds with a choice's weights instead", body, name)
+			return fmt.Errorf("token {%s}: arm %q is repeated; an alternation draws its arms evenly, so skew the odds with a choice's weights instead", body, name)
 		}
 		seen[name] = true
 	}
@@ -223,17 +222,17 @@ const (
 // resolveRefs resolved it to; before that, a reference is whole.
 func splitArm(name string, refs map[string]resolvedRef) arm {
 	if grammar.IsRef(name) {
-		b, linked := refs[name]
-		if !linked || len(b.tail) == 0 {
+		r, resolved := refs[name]
+		if !resolved || len(r.tail) == 0 {
 			head := name
-			if linked {
-				head = b.head
+			if resolved {
+				head = r.head
 			}
 			return arm{spelling: name, head: head, levels: []pickKey{pickKey(head)}}
 		}
-		sigil, rest, _ := grammar.RefShape(name) // resolveRefs proved it, and took b.tail as a suffix of its segments
+		sigil, rest, _ := grammar.RefShape(name) // resolveRefs proved it, and took r.tail as a suffix of its segments
 		written, _ := grammar.SplitPath(rest)
-		return pathArm(name, b.head, sigil+grammar.JoinSegments(written[:len(written)-len(b.tail)]), b.tail)
+		return pathArm(name, r.head, sigil+grammar.JoinSegments(written[:len(written)-len(r.tail)]), r.tail)
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
@@ -330,7 +329,7 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	if !t.isName(a.head) {
 		start := t.startOf(a.head)
 		if start == nil {
-			panic(invariant.Broken("{%s} reads a head nothing bound", a.spelling))
+			panic(invariant.Broken("{%s} reads a head nothing resolved", a.spelling))
 		}
 		w := compilePath(start, a.tail)
 		a.steps, a.leaves = w.steps, w.leaves

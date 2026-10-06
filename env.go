@@ -43,7 +43,7 @@ func (env renderEnv) at(n node, pins *pinSet) renderEnv {
 // rowOf is the row of t its columns render from.
 func (env renderEnv) rowOf(t *table) int {
 	if env.row.t != t {
-		panic(invariant.Broken("a column of %s renders in a scope holding no row of it", t.rows.Segment()))
+		panic(invariant.Broken("a column of %s renders in an env holding no row of it", t.rows.Segment()))
 	}
 	return env.row.index
 }

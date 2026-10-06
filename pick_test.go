@@ -26,7 +26,7 @@ func varies(t *testing.T, f *Generator, src string, differ func(got string) bool
 			return
 		}
 	}
-	t.Fatalf("400 renders of %s never drew apart, want each {…} a pick of its own", src)
+	t.Fatalf("400 renders of %s never drew apart, want each {…} a draw of its own", src)
 }
 
 func TestEveryTokenDrawsAfresh(t *testing.T) {
@@ -57,7 +57,7 @@ func TestEveryReferenceDrawsAfresh(t *testing.T) {
 			differ = p[0] != p[1]
 		}
 		if !differ {
-			t.Errorf("400 renders of %s never drew apart, want each reference a pick of its own", src)
+			t.Errorf("400 renders of %s never drew apart, want each reference a draw of its own", src)
 		}
 	}
 }
@@ -124,7 +124,7 @@ func TestAFieldBindingIsRefusedWhereNoFieldIs(t *testing.T) {
 		`{"format":"{place as p}{calc(p * 2)}","place":["1","2"]}`:              `write place where it is read`,
 		`{"format":"{place as place}{place}{place}","place":["x","y"]}`:         `name "place" is a field of the root template too`,
 	} {
-		if _, err := linked(t, src); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s = %v, want it refused naming %s", src, err, want)
 		}
 	}

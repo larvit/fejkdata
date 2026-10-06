@@ -24,18 +24,21 @@ package fejkdata
 //     start one each, and `FakeStruct` one per record.
 //   - env — what a render reads names and rows through: `renderEnv`.
 //   - named pick — the draw a token such as {/person as p} binds to a name, drawn
-//     on its first read and kept while its scope renders: a category, or one
-//     repeat iteration: `nameBinding`, `nameScope`, `namedPick`, `pickFrame`.
-//     A scope is only ever a name's.
+//     on its first read and kept while its scope renders: `nameBinding`,
+//     `namedPick`, `pickFrame`.
+//   - scope — where a name is bound: a category, or one repeat iteration: `nameScope`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `pinSet`, `namedPick.pins`, `table.drawStep`.
 //   - family — a table and every table reaching it through a chain of parent
-//     links (`table.linkParent`). Only a table links.
-//   - resolve — tying each template's references and names to the merged tree:
+//     links.
+//   - link — a table's tie to its parent table, each row to its parent row:
+//     `table.linkParent`.
+//   - resolve — tying each template's references and names to the assembled tree:
 //     `resolveTemplates`.
-//   - head — a read's first segment, a string: `arm.head`. The node it names is
+//   - head — the string a read starts from: a field's name, or a reference's
+//     category path with its sigil, /sv_SE.address: `arm.head`. The node it names is
 //     the read's start: `template.startOf`, `nameTarget.start`.
 //   - fence — a load-time check, run over each category, template or struct as it
 //     loads or compiles, so rendering a compiled tree cannot fail.
