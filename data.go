@@ -25,7 +25,6 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 	return root, nil
 }
 
-// compileInto compiles each category it is handed into the folder place returns for its Folders.
 func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
 	return func(c datafiles.Category) error {
 		n, err := compileCategory(c)
@@ -51,9 +50,6 @@ func madeFolder(root *folder, dir []string) *folder {
 	return g
 }
 
-// mergeChildren overlays src onto dst. Two folders under the same key merge
-// recursively (so locales/categories from several paths combine); every other
-// key is replaced, making the last-loaded directory win on a conflict.
 func mergeChildren(dst, src map[string]node) {
 	for k, v := range src {
 		if dg, ok := dst[k].(*folder); ok {
