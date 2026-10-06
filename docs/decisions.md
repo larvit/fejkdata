@@ -391,7 +391,7 @@ cost.
 
 ## The performance gate asserts allocations, not wall-clock time
 
-2026-09-03, Lilleman auf Larv.
+2026-09-03, Lilleman auf Larv. Goal 13.
 
 `AllocsPerRun` is deterministic across machines, so a 10% ceiling does not flake under
 CI load, while time varies with the machine and its neighbours. A rendering slowdown
@@ -399,8 +399,8 @@ almost always costs an allocation too (a lost pre-size, a per-item map, an extra
 The benchmark suite (the README's Development) reports time for a human, not as a pass/fail gate.
 
 A case guarding against one allocation per render, such as a render's scope reaching the
-heap through `pickKey.under`, holds at its baseline with no margin, since 10% of its
-count is less than one allocation. Lilleman auf Larv decided it on 2026-10-06.
+heap through `pickKey.under`, holds at its baseline with no margin: from a baseline of
+10, a 10% margin lets that allocation through. Lilleman auf Larv decided it on 2026-10-06.
 
 ## Rows live in a TSV, the shape in JSON
 
