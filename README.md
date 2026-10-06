@@ -162,7 +162,8 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`
 and `samordningsnummer`, `en_US` adds `ssn`, `itin` and `phone-exchange` (the three
-digits after the area code). `misc` carries `car`, `coordinate`, `creditcard`
+digits after the area code, drawn evenly from the codes NANPA may assign: `200` to `999`,
+except `211`, `311` … `911`, `555`, `950`, `958`, `959` and `976`). `misc` carries `car`, `coordinate`, `creditcard`
 (Luhn-valid), `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
 `httpstatus`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
@@ -268,7 +269,7 @@ record, and each of its columns describes the address printed.
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
 | `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks which ship | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
+| `street` | gatunamn, the ten with most road segments per postort, each segment counted toward the postort of the nearest postal code, so a street near a border may sit under the neighbouring postort | street name, the ten with most address ranges per place | segments; address ranges |
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
