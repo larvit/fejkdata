@@ -241,11 +241,11 @@ Shape: T = table, t = template, c = choice.
 
 Goal 5.9. Today a path is a second spelling of the template that reads it; afterwards only the template remains.
 
-- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, and `--format csv '{/misc.territory[SE]}'` that row. Under `--format sql` the default `--table` is the reference's last segment with selectors removed, `territory` for `{/misc.territory[SE]}`, where today a template defaults to `records`.
+- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, and `--format csv '{/misc.territory[SE]}'` that row. Under `--format sql` the default `--table` is the reference's last segment with selectors removed, taken from the library's parse of the reference, `territory` for `{/misc.territory[SE]}`, where today a template defaults to `records`.
 - `Fake` and `FakeRecord` take a template. `FakeTemplate` folds into `Fake`, `FakeRecordTemplate` into `FakeRecord`, and `IsTemplate` goes, with `grammar.IsTemplate` and the lone-reference refusal.
 - `Fake` of a lone reference costs what `Fake` of its path costs today, and the allocation gate holds a case for it.
 - `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
-- Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in the CLI, a struct tag and `Fake` alike, so `fejkdata sv_SE.person` prints `sv_SE.person`; the maintainer chose this on 2026-10-07, and `CHANGELOG.md` says plainly that such a path now prints as its text. A struct tag's `-` still skips its field.
+- Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in the CLI, a string field's struct tag and `Fake` alike: `fejkdata sv_SE.person` prints `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
 - An unknown reference exits 2, where an unknown path exits 1 today.
 - The README's CLI section gives one line per shell family, PowerShell and cmd.exe included, showing how to quote a template.
