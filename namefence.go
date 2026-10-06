@@ -9,16 +9,15 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
-// field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
-// draw of w.
+// checkNameReads refuses each binding of t read only once, a read of a name inside the field bound
+// to it, and a read {n} beside {n.w} where n's pick renders w twice.
 func checkNameReads(label string, t *template, names resolvedNames) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
 		b := t.nameScope.bindings[tok.Bound]
-		if err := b.checkUses(names.uses[b]); err != nil {
+		if err := b.refuseSingleRead(names.uses[b]); err != nil {
 			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
 		}
 	}
@@ -28,7 +27,7 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, r.o.Body, b.name, b.ref)
 		}
 		for _, leaf := range r.a.leaves {
-			if err := checkOnce(names.addressed[b], r.a.spelling, leaf, r.a.key()); err != nil {
+			if err := refuseTwiceDrawn(names.addressed[b], r.a.spelling, leaf, r.a.key()); err != nil {
 				return fmt.Errorf("%s: token {%s}: %w", label, r.o.Body, err)
 			}
 		}
@@ -63,11 +62,12 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
-// checkUses refuses a binding whose uses read it once at a spot the bound spelling can stand:
-// that spelling draws the same way without the name. A bound field can stand in only where the
-// reading template reaches the binder through fields. Where the spelling would be a CLI argument
-// or tag of one reference alone, that entry point's own refusal then names the bare path.
-func (b *nameBinding) checkUses(uses []nameUse) error {
+// refuseSingleRead refuses b where it is read once, outside a repeat nested where it is bound, at a
+// spot the bound spelling can stand: that spelling draws the same without the name, {/word} for
+// {/word as w}{w}. A bound field stands in only where the reading template reaches the binder
+// through fields, and a calc operand reads neither a reference nor a path. Where the spelling would
+// be a CLI argument or tag of one reference alone, that entry point's own refusal names the bare path.
+func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
 	if len(uses) == 0 {
 		panic(invariant.Broken("name %q has no read at resolve, though its compile found one", b.name))
 	}
@@ -120,23 +120,27 @@ func calcReads(spelling string) bool {
 	return err == nil && isVar && v.Name == spelling
 }
 
-// checkOnce walks n, rendering at key under a pick, into each level a read of the name addresses:
-// the keys of addressed.
-func checkOnce(addressed map[pickKey]string, read string, n node, key pickKey) error {
+// refuseTwiceDrawn refuses read, a read of a name rendering n at key under its pick, where n renders
+// a field twice that another read of the name addresses: the pick keeps one draw of the field, so
+// {n.w} beside {n} for a category {w}-{w} cannot say which it reads. addressed maps each level a
+// read of the name addresses to that read. It walks into every addressed level n renders.
+func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pickKey) error {
 	switch n := n.(type) {
 	case *choice:
 		for _, item := range n.items {
-			if err := checkOnce(addressed, read, item, key); err != nil {
+			if err := refuseTwiceDrawn(addressed, read, item, key); err != nil {
 				return err
 			}
 		}
 	case *template:
-		return checkTemplateOnce(addressed, read, n, key)
+		return refuseTwiceDrawnIn(addressed, read, n, key)
 	}
 	return nil
 }
 
-func checkTemplateOnce(addressed map[pickKey]string, read string, t *template, key pickKey) error {
+// refuseTwiceDrawnIn is refuseTwiceDrawn over t's own reads of its fields; a reference or a read
+// through a name draws apart from the pick.
+func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, key pickKey) error {
 	reads := map[string]int{}
 	var into []arm
 	for _, o := range t.compiled.ops {
@@ -157,7 +161,7 @@ func checkTemplateOnce(addressed map[pickKey]string, read string, t *template, k
 	}
 	for _, a := range into {
 		for _, leaf := range a.leaves {
-			if err := checkOnce(addressed, read, leaf, key.under(a.key())); err != nil {
+			if err := refuseTwiceDrawn(addressed, read, leaf, key.under(a.key())); err != nil {
 				return err
 			}
 		}
