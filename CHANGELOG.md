@@ -101,7 +101,7 @@ replacement, and each removed path, column or flag.
   and carries the same three. `person.prefix` is null where a person has no title,
   where it used to be an empty string, so `--format sql` writes `NULL` and a `string`
   struct field reading it becomes `*string`.
-- `en_US.phone-exchange` draws the three digits after a US area code from the codes
+- `en_US.phone-exchange` draws the three digits after a US area code evenly from the codes
   NANPA may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`,
   `959` and `976`. `en_US.phone` draws its `exchange` from it.
 - `ErrNoColumns` is exported, so a caller can tell the one record fence a path can

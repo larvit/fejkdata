@@ -142,9 +142,9 @@ func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pic
 }
 
 // refuseTwiceDrawnIn is refuseTwiceDrawn over t's own reads of its fields; a reference or a read
-// through a name draws apart from the pick. It steps into each read whose level a read of the name
-// passes, at that read's key under key: beside {n.w.a}, it refuses {n} where n's format reads {w}
-// and w's reads {a}-{a}, since "w" and "w.a" are addressed.
+// through a name draws apart from the pick. It steps into each read whose level a read of the
+// name lands on or passes, at that read's key under key: beside {n.w.a}, it refuses {n} where
+// n's format reads {w} and w's reads {a}-{a}, since "w" and "w.a" are addressed.
 func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, key pickKey) error {
 	reads := map[string]int{}
 	var into []arm

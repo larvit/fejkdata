@@ -29,7 +29,8 @@ package fejkdata
 //     `namedPick`, `pickFrame`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
-//   - level — a node a read's path starts at, passes or lands on. `arm.levels` holds one pick
+//   - level — a prefix of a read's path, from where it starts to its leaf; a choice and the
+//     variant drawn from it, or a table and its row, share one. `arm.levels` holds one pick
 //     key per level, and a step's `pathStep.at` indexes it.
 //   - pick key — the key a memo keeps a level's draw under, the level's path of segments:
 //     `pickKey`, `levelKeys`. A read through a name keys from the node its binding starts at,
