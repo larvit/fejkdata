@@ -968,7 +968,7 @@ record.go       records: Record, the JSON/CSV/SQL serializers, and their entry p
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
 format.go       a format's tokens checked against their fields, and compiled into ops
-arm.go          the compiled read: an arm, the path from its head to its leaf, and the op holding it
+arm.go          the compiled read of one {a|b} alternative or operand: its head, the path to its leaf, and the op holding it
 reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in steps, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences

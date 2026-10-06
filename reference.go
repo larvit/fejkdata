@@ -7,8 +7,8 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// resolvedRef is what a reference resolves to: the head its category is held
-// under, its path from the root behind a "/", and the tail read into it.
+// resolvedRef is what a reference resolves to: the head its category is held under, a "/"
+// and then the category's path from the root, and the tail read into it.
 type resolvedRef struct {
 	head string
 	tail []string

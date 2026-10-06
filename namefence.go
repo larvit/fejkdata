@@ -62,11 +62,12 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
-// refuseSingleRead refuses b where it is read once, outside a repeat nested where it is bound, at a
-// spot the bound spelling can stand: that spelling draws the same without the name, {/word} for
-// {/word as w}{w}. A bound field stands in only where the reading template reaches the binder
-// through fields, and a calc operand reads neither a reference nor a path. Where the spelling would
-// be a CLI argument or tag of one reference alone, that entry point's own refusal names the bare path.
+// refuseSingleRead refuses b when its one read sits in b's own scope, not in a repeat nested inside
+// it, at a spot where the bound spelling could stand. That spelling draws the same without the
+// name: write {/word} for {/word as w}{w}. A bound field can stand in only where the reading
+// template reaches the binder through fields. A calc operand cannot read a reference or a path.
+// Where the spelling would be a whole CLI argument or a whole struct tag, that entry point refuses
+// it and names the bare path.
 func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
 	if len(uses) == 0 {
 		panic(invariant.Broken("name %q has no read at resolve, though its compile found one", b.name))
@@ -120,10 +121,10 @@ func calcReads(spelling string) bool {
 	return err == nil && isVar && v.Name == spelling
 }
 
-// refuseTwiceDrawn refuses read, a read of a name rendering n at key under its pick, where n renders
-// a field twice that another read of the name addresses: the pick keeps one draw of the field, so
-// {n.w} beside {n} for a category {w}-{w} cannot say which it reads. addressed maps each level a
-// read of the name addresses to that read. It walks into every addressed level n renders.
+// refuseTwiceDrawn refuses read, a read of a name landing on n at key under the name's pick, where n
+// renders a field twice and another read of the name addresses that field: the pick keeps one draw
+// of the field, so beside {n} for a category {w}-{w}, {n.w} cannot say which draw it reads.
+// addressed maps each level a read of the name addresses to that read.
 func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pickKey) error {
 	switch n := n.(type) {
 	case *choice:
