@@ -46,7 +46,6 @@ func descend(s *drawstate.State, root node, segments []string) (node, pinSet, er
 	return n, *leafPins, nil
 }
 
-// renderOnce renders n as one render, over frames of its own.
 func renderOnce(s *drawstate.State, n node) string {
 	var frames frameStack
 	return render(s, n, renderEnv{frames: &frames})

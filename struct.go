@@ -127,7 +127,7 @@ func (sc *structCompile) spend(label string) error {
 	return fmt.Errorf(`%s: the struct fields reach more than %d structs; leave a struct field unfilled with fake:"-"`, label, maxStructs)
 }
 
-// t sits at index within c.typ.
+// index is the field index path, as reflect's FieldByIndex takes, from c.typ to t.
 func (c *structFields) gatherFields(t reflect.Type, index []int) error {
 	for i := 0; i < t.NumField(); i++ {
 		sf := t.Field(i)

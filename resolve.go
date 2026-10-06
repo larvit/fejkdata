@@ -32,7 +32,6 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node) error 
 	return resolveTemplates(ts, root)
 }
 
-// resolveInlineTemplates resolves the templates of an inline node against the loaded tree.
 func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 	var ts []templateSite
 	if err := nodes(func(label string, n node) error {
@@ -134,7 +133,6 @@ func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*
 	return keys
 }
 
-// nameUses is every read of each name in ts.
 func nameUses(ts []templateSite) map[*nameBinding][]nameUse {
 	uses := map[*nameBinding][]nameUse{}
 	for _, s := range ts {

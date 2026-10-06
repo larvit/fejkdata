@@ -96,7 +96,6 @@ func siteIn(dir []string, in *folder, name string) categorySite {
 	return categorySite{dir: dir, path: categoryPath(dir, name), in: in, n: in.children[name]}
 }
 
-// categoryPath is the dot path of the category name in the folder dir.
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }
 
 func siteNodes(sites []categorySite) nodeSet {

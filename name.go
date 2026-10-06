@@ -99,7 +99,6 @@ func bindNames(root node) error {
 	return checkEveryNameRead(scopes, read)
 }
 
-// checkEveryNameRead refuses a binding of scopes that nothing reads.
 func checkEveryNameRead(scopes []*nameScope, read map[*nameBinding]bool) error {
 	for _, sc := range scopes {
 		for _, b := range sc.order {
@@ -111,7 +110,6 @@ func checkEveryNameRead(scopes []*nameScope, read map[*nameBinding]bool) error {
 	return nil
 }
 
-// bindAll binds every name t's tokens bind.
 func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
