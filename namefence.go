@@ -66,7 +66,8 @@ func rendersInside(nodes []node, t *template) bool {
 // it, at a spot where the bound spelling could stand. That spelling draws the same without the
 // name: write {/word} for {/word as w}{w}. A bound field can stand in only where the reading
 // template reaches the binder through fields. A single read as a calc operand stands where a calc
-// could not read the spelling, a reference or a path.
+// could not read the spelling, a reference or a path: {/misc.coordinate.lat as lat}{calc(lat * 60)}
+// stands, since {calc(/misc.coordinate.lat * 60)} does not compile.
 // Where the spelling would be a whole CLI argument or a whole struct tag, that entry point refuses
 // it and names the bare path.
 func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
@@ -141,7 +142,9 @@ func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pic
 }
 
 // refuseTwiceDrawnIn is refuseTwiceDrawn over t's own reads of its fields; a reference or a read
-// through a name draws apart from the pick.
+// through a name draws apart from the pick. It steps into each read whose level a read of the name
+// passes, at that read's key under key: beside {n.w.a}, it refuses {n} where n's format reads {w}
+// and w's reads {a}-{a}, since "w" and "w.a" are addressed.
 func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, key pickKey) error {
 	reads := map[string]int{}
 	var into []arm
