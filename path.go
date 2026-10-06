@@ -42,52 +42,6 @@ func stepInto(n node, seg string) (node, error) {
 	return nil, fmt.Errorf("no field %q", seg)
 }
 
-// tableRoute is how a path passes one table: the row it reads, by selector or
-// drawn, what it goes on into, and whether that is a linked table.
-type tableRoute struct {
-	sel      string
-	draw     bool
-	next     node
-	rest     []string
-	descends bool
-	up       bool
-}
-
-// route is how tail passes t. descended means the previous route stepped into t
-// from a row of an ancestor table, so t reads a row even where tail is empty; a
-// table reached otherwise, with no selector and an empty tail, is left to a render's
-// own draw.
-func (t *table) route(tail []string, descended bool) (tableRoute, error) {
-	sel, tail, err := t.selector(tail)
-	if err != nil {
-		return tableRoute{}, err
-	}
-	if len(tail) > 0 && tail[0] == ".." {
-		if err := t.rows.ProveStepUp(tail[1:]); err != nil {
-			return tableRoute{}, err
-		}
-		return tableRoute{sel: sel, draw: sel == "", next: t.rows.Parent().Owner(), rest: tail[2:], descends: true, up: true}, nil
-	}
-	column, child, err := t.step(tail)
-	if err != nil {
-		return tableRoute{}, err
-	}
-	// A selector further down pins this table by ancestry, so the walk draws only
-	// where none follows; drawing first could draw a row the selector is not inside.
-	r := tableRoute{sel: sel, draw: sel == "" && (descended || len(tail) > 0) && !grammar.HasSelector(tail)}
-	switch {
-	case len(tail) == 0 && sel == "" && !descended:
-		r.next = t
-	case len(tail) == 0:
-		r.next = t.rowNode
-	case child != nil:
-		r.next, r.rest, r.descends = child, tail[1:], true
-	default:
-		r.next, r.rest = column, tail[1:]
-	}
-	return r, nil
-}
-
 // pathStep is one step of a compiled path, taken at the node the steps before it
 // reached, a choice there drawn first; at indexes the tail where it is taken, and
 // only a table's step sits past the tail's end. A step holds no node, so a
@@ -183,38 +137,6 @@ func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins 
 	return steps, nil
 }
 
-// routeSteps appends the steps r takes past t, the first at at, pinning in pins the row
-// it selects.
-func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) ([]pathStep, error) {
-	if r.sel != "" {
-		row, err := pins.Select(t.rows, r.sel)
-		if err != nil {
-			return steps, err
-		}
-		steps = append(steps, pathStep{kind: stepSelect, at: at, name: r.sel, row: row})
-		at++
-	}
-	if r.draw {
-		steps = append(steps, pathStep{kind: stepDraw, at: at})
-	}
-	switch next := r.next.(type) {
-	case *table:
-		switch {
-		case r.up:
-			steps = append(steps, pathStep{kind: stepParent, at: at})
-		case next != t:
-			steps = append(steps, pathStep{kind: stepChild, at: at, name: next.rows.Segment()})
-		}
-	case *tableRow:
-		steps = append(steps, pathStep{kind: stepRow, at: at})
-	case *tableColumn:
-		steps = append(steps, pathStep{kind: stepColumn, at: at, name: next.name()})
-	default:
-		panic(invariant.Broken("%s: a route onto %T", t.rows.Segment(), r.next))
-	}
-	return steps, nil
-}
-
 // walkEvery walks every variant and keeps the first one's steps: every variant carries
 // the rest of the path, so each compiles to the same steps past the choice.
 func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
@@ -291,59 +213,11 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 	return n, pins
 }
 
-func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
-	switch st.kind {
-	case stepSelect:
-		if err := pins.PinRow(t.rows, st.row); err != nil {
-			panic(invariant.Broken("%s[%s]: %v", t.rows.Segment(), st.name, err))
-		}
-		return t
-	case stepDraw:
-		t.rows.DrawIn(s, pins)
-		return t
-	case stepRow:
-		return t.rowNode
-	case stepColumn:
-		return t.formatTemplate.fields[st.name]
-	case stepChild:
-		return t.rows.Descendant(st.name).Owner()
-	case stepParent:
-		return t.rows.Parent().Owner()
-	}
-	panic(invariant.Broken("drawStep has no case for step kind %d", st.kind))
-}
-
 func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []pickKey, at int) node {
 	if memo == nil {
 		return drawThroughChoices(s, c)
 	}
 	return memo.variantOf(s, c, levels[at])
-}
-
-func (t *table) selector(tail []string) (sel string, rest []string, err error) {
-	if len(tail) == 0 || !grammar.IsSelector(tail[0]) {
-		return "", tail, nil
-	}
-	sel, rest = grammar.SelectorOf(tail[0]), tail[1:]
-	if len(rest) > 0 && grammar.IsSelector(rest[0]) {
-		return "", nil, fmt.Errorf("%s[%s] is selected twice; one selector names its row", t.rows.Segment(), sel)
-	}
-	return sel, rest, nil
-}
-
-// step is what a tail's first segment names in t: a column, or a table linked to it.
-func (t *table) step(tail []string) (column node, child *table, err error) {
-	if len(tail) == 0 {
-		return nil, nil, nil
-	}
-	if column, ok := t.formatTemplate.fields[tail[0]]; ok {
-		return column, nil, nil
-	}
-	d := t.rows.Descendant(tail[0])
-	if d == nil {
-		return nil, nil, fmt.Errorf("no column or linked table %q in %s", tail[0], t.rows.Segment())
-	}
-	return nil, d.Owner(), nil
 }
 
 // carriedByAll is the choice rule a path that must reach a node on every call obeys:
