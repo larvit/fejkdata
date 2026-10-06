@@ -717,7 +717,7 @@ parent; a test proves every value names a row instead. A territory the register
 records no state for stands alone, which is `EH` alone, and naming one for it would be a
 claim fejkdata has no business making.
 
-## `misc.loglevel` is a table keyed by the syslog code, and named by POSIX's keyword
+## `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code
 
 2026-09-27, Lilleman auf Larv.
 
@@ -725,6 +725,8 @@ A flat list of names carries neither the code a PRI encodes nor a selector reach
 and goal 4 draws the two as one fact. The canonical spelling losing to the one its
 domain writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
 `Informational` stays the `severity` column.
+
+The data still keys it on the code; `todo.md` item 41 brings it to this decision.
 
 ## `misc.tld` keys carry the leading dot, where other tables key on a bare code
 
@@ -832,7 +834,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Last scoring run, 2026-10-07, on commit ac6158e: Navigation 7.00, Locality 5.88, Shape 6.38, Self-sufficiency 6.38, overall 6.25. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.11, Shape 6.67, Self-sufficiency 6.61, overall 6.56. Both rose from the runs of 2026-10-05, whose overalls were 6.13 and 6.17, and Locality is lowest again, as at every panel since 2026-09-22. All nine seats again named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `addressedKeys` builds at load. Items 130 to 143 answer what the panel found, and `todo.md` item 144 runs it again. Valid while `AGENTS.md` gates goal 3 at 7.0.
+Last scoring run, 2026-10-07, on commit ac6158e: Navigation 7.00, Locality 5.88, Shape 6.38, Self-sufficiency 6.38, overall 6.25. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.11, Shape 6.67, Self-sufficiency 6.61, overall 6.56. Both overalls rose from 2026-10-05's 6.13 and 6.17, and Locality is lowest again, as at every panel since 2026-09-22. All nine seats again named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `addressedKeys` builds at load. Items 130 to 143 answer what the panel found, and `todo.md` item 144 runs it again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
 ## The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 

@@ -76,16 +76,16 @@
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 144 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 130 to 143 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
-| 130 | 0.1.0 |  | **Define a level, a pick key and an addressed key in `doc.go`'s vocabulary, with one worked key, and state at `arm.levels` that `pathStep.at` indexes it.** | 1 | 2 | 1 | 9 | 3.4, 3.2 | 16.7 |
+| 130 | 0.1.0 |  | **Define a level, a pick key and an addressed key in `doc.go`'s vocabulary, with the keys of one read worked through, and state at `arm.levels` that `pathStep.at` indexes it.** | 1 | 2 | 1 | 9 | 3.4, 3.2 | 16.7 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 138 | 0.1.0 |  | **Split `geo-se.py` into the steps every country's import takes and the Swedish rules, and share the steps with `geo-us.py`, so a new country's script holds only its own rules.** | 2 | 3 | 3 | 6 | 2.1, 3.2 | 14.6 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 140 | 0.1.0 |  | **Say in the README's geo table that a Swedish street belongs to the postort of its nearest postal code.** | 1 | 1 | 3 | 5 | 3.1 | 13.8 |
-| 133 | 0.1.0 |  | **State at `refuseSingleRead` and `refuseTwiceDrawn` why each rule holds, and what `addressed` holds for `{w}-{w}`, so neither needs the README's Names list open.** | 1 | 2 | 1 | 7 | 3.4 | 13.1 |
+| 140 | 0.1.0 |  | **Say in the README's geo table that a Swedish street is counted, segment by segment, toward the postort of the nearest postal code, so a street near a border may sit under the neighbouring postort.** | 1 | 1 | 3 | 5 | 3.1 | 13.8 |
+| 133 | 0.1.0 |  | **State at `refuseSingleRead` why its case for a calc operand stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.** | 1 | 2 | 1 | 7 | 3.4 | 13.1 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 131 | 0.1.0 |  | **Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.** | 1 | 3 | 1 | 7 | 3.2, 3.1 | 12.8 |
-| 132 | 0.1.0 |  | **Name the path walks by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath` tell apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
+| 132 | 0.1.0 |  | **Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
 | 134 | 0.1.0 |  | **Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.** | 1 | 2 | 1 | 6 | 3.3, 3.2 | 11.3 |
 | 136 | 0.1.0 |  | **Rename `grammar.NameRead` and `grammar.CheckName` for what they read and check, so a name in the engine is only a bound name.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
 | 135 | 0.1.0 |  | **Choose `disagreement`'s message from one table over the two items' kinds.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
@@ -185,7 +185,7 @@ Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten str
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds its pins inline up to a size chosen for a five-deep geo tree, so a deeper tree needs it resized to keep a render off the heap.
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
 
 ### 16. Add the remaining locale categories: company, phone, finance, vehicle, words.
 
@@ -280,9 +280,9 @@ The decision "comprehension floor: every dimension and the overall at 7.0 or abo
 
 A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
-### 130. Define a level, a pick key and an addressed key in `doc.go`'s vocabulary, with one worked key, and state at `arm.levels` that `pathStep.at` indexes it.
+### 130. Define a level, a pick key and an addressed key in `doc.go`'s vocabulary, with the keys of one read worked through, and state at `arm.levels` that `pathStep.at` indexes it.
 
-All nine seats of the 2026-10-07 panel again named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`. Six rebuilt by hand that `addressedKeys`, `keeps` and `readUnder` build a key the same way, and that a fresh read's levels start at its head (`levelKeys(…, 1)`) where a named read's start at `""` (`levelKeys(full, 0)`). Two found that `levels[st.at]` in `drawSteps` lines up with `pathStep.at` by a convention stated nowhere. Five asked for one worked key, such as the levels of `{l.street.name}`.
+All nine seats of the 2026-10-07 panel again named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`. Six rebuilt by hand that `addressedKeys`, `keeps` and `readUnder` build a key the same way, and that a fresh read's levels start at its head (`levelKeys(…, 1)`) where a named read's start at `""` (`levelKeys(full, 0)`). Two found that `drawVariant` and `stepDownPins` index `levels` by `pathStep.at`, by a convention stated nowhere. Five asked for one worked key, such as the levels of `{l.street.name}`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -300,11 +300,11 @@ Needed by item 61. The extender seat of the 2026-10-07 panel, reading for item 6
 
 Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
-### 140. Say in the README's geo table that a Swedish street belongs to the postort of its nearest postal code.
+### 140. Say in the README's geo table that a Swedish street is counted, segment by segment, toward the postort of the nearest postal code, so a street near a border may sit under the neighbouring postort.
 
-`streets` in `data-import/geo-se.py` counts each road segment at its nearest postal code's centroid, so a street near a border lands in the neighbouring postort; the README's row says "per postort". Both inherited architects walked the 3am question to the engine before the data.
+`streets` in `data-import/geo-se.py` counts each road segment at its nearest postal code's centroid, so a street near a border lands in the neighbouring postort; the README's row says "per postort". Both inherited architects searched the engine for the 3am question's cause before the data. Item 63 ends the need for the sentence.
 
-### 133. State at `refuseSingleRead` and `refuseTwiceDrawn` why each rule holds, and what `addressed` holds for `{w}-{w}`, so neither needs the README's Names list open.
+### 133. State at `refuseSingleRead` why its case for a calc operand stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.
 
 Seven of the nine seats of the 2026-10-07 panel needed the README's Names list open to see why the calc case of `refuseSingleRead` stands, and how `refuseTwiceDrawnIn`'s recursion over `addressed` reaches a nested level.
 
@@ -316,11 +316,11 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 ### 131. Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.
 
-Both inherited architects, in the panel and in the scoring run, ranked first gathering the runtime that keeps a name's pick: `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
+Both inherited architects, in the panel and in the scoring run, ranked first one change: gather in one file the runtime that keeps a name's pick, since `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
 
-### 132. Name the path walks by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath` tell apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
+### 132. Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
 
-Six of the nine seats of the 2026-10-07 panel named it. `takeStep`, `stepInto`, `table.step`, `table.drawStep` and `drawSteps` are five units with near names, and `pathPos.descended`'s doc, "route's descended flag for it", defines it by its reader.
+Six of the nine seats of the 2026-10-07 panel named these names: five entry points walk a path, `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath`, and five units with near names step through one, `takeStep`, `stepInto`, `table.step`, `table.drawStep` and `drawSteps`; and `pathPos.descended`'s doc, "route's descended flag for it", defines it by its reader.
 
 ### 134. Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.
 
@@ -328,7 +328,7 @@ Four seats across the 2026-10-07 panel and scoring run took `b.tail` in `recordC
 
 ### 136. Rename `grammar.NameRead` and `grammar.CheckName` for what they read and check, so a name in the engine is only a bound name.
 
-Both architects of the 2026-10-07 panel named it. `grammar.NameRead` is any `{x}` read, a field, a reference or a name, beside `namedRead`, a read through a bound name, one line apart in `columnReadOf`; `grammar.CheckName` checks any identifier. The table option `name` is public and stays.
+Both architects of the 2026-10-07 panel named it. `grammar.NameRead` is any `{x}` read, a field, a reference or a name, beside `namedRead`, a read through a bound name, both in `columnReadOf`; `grammar.CheckName` checks any identifier. The table option `name` is public and stays.
 
 ### 135. Choose `disagreement`'s message from one table over the two items' kinds.
 
@@ -348,11 +348,11 @@ Three seats of the 2026-10-07 panel could not read `length = 3 if largest * 2 >=
 
 ### 137. Move `List`'s path enumeration out of `fejkdata.go` into a file named for it, `position` into `node.go`, and `sortedNames` out of `graph.go`.
 
-Both architects of the 2026-10-07 panel looked for `paths`, `tablePaths`, `sharedPaths` and `subPaths` in `path.go`, `position` in `node.go`, its main reader, and found `sortedNames`, which every file uses, in `graph.go`. Revise the README's Layout block with it.
+Both architects of the 2026-10-07 panel looked for `paths`, `tablePaths`, `sharedPaths` and `subPaths` in `path.go`, `position` in `node.go`, its main reader, and found `sortedNames`, which nine other files use, in `graph.go`. Revise the README's Layout block with it.
 
 ### 141. Delete the doc lines the 2026-10-07 panel read as restating their code, and say what `gatherFields`' `index` is.
 
-Named across seven seats of the 2026-10-07 panel: `load` in `fejkdata.go`, `bindAll`, `checkEveryNameRead`, `nameUses`, `resolveInlineTemplates`, `linkTables`, `compileFields`, `categoryPath`, `labelIn`, `renderOnce`, `rowOf` and `Pins.Select`, and `checkCells`, which compiles and stores. Three seats could not read `gatherFields`' "t sits at index within c.typ."
+Named across seven seats of the 2026-10-07 panel: `load` in `fejkdata.go`, `bindAll`, `checkEveryNameRead`, `nameUses`, `resolveInlineTemplates`, `linkTables`, `compileFields`, `categoryPath`, `labelIn`, `renderOnce`, `rowOf` and `Pins.Select`, and `checkCells`, whose name says it checks where it compiles and stores each cell. Three seats could not read `gatherFields`' "t sits at index within c.typ."
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
