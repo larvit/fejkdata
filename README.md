@@ -173,6 +173,7 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `timezone`, `tld` and `useragent` are [tables](#table), so
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
+
 `en_US.phone` draws its exchange from `en_US.phone-exchange`, which draws evenly from the
 codes NANPA may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`,
 `959` and `976`.
@@ -265,7 +266,7 @@ A `geo` folder holds one tree per country under its alpha-2 code: five
 and drawing its street and postal code inside it. The locale's `address` prints that
 record, and each of its columns describes the address printed. Do not expect a check that a
 Swedish street lies in its postort to pass: a street may sit under a neighbouring postort,
-as the `street` row below says.
+as the `street` row's counting rule explains.
 
 | Table | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|--------|
