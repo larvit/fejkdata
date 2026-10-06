@@ -266,11 +266,13 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	if err != nil {
 		return tableRoute{}, err
 	}
-	// A selector further down pins this table by ancestry, so the walk draws only
-	// where none follows; drawing first could draw a row the selector is not inside.
-	r := tableRoute{sel: sel, draw: sel == "" && (descended || len(tail) > 0) && !grammar.HasSelector(tail)}
+	selected, readsRow := sel != "", descended || len(tail) > 0
+	// A selector further down pins this table by ancestry; drawing first could draw a row the
+	// selector is not inside.
+	pinnedBelow := grammar.HasSelector(tail)
+	r := tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow}
 	switch {
-	case len(tail) == 0 && sel == "" && !descended:
+	case !selected && !readsRow:
 		r.next = t
 	case len(tail) == 0:
 		r.next = t.rowNode

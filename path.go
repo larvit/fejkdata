@@ -183,9 +183,10 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 // drawSteps draws the rows and variants a path's steps read from n, pinning the rows in pins;
 // pins is nil for a sibling path, which never crosses a table, since a table is only a category.
 // For a read through a name, memo keeps the variant drawn at each of levels, so paths sharing a
-// prefix share it. It returns the leaf and the pins its row is in: a step down after a step up draws
-// afresh, into pins of its own, which memo shares with every path stepping down there.
+// prefix share it. It returns the leaf and the pins its row is in.
 func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo *drawMemo, levels []pickKey) (node, *pinSet) {
+	// climbed is the table a ".." stepped up to. The next step down from it draws its row afresh,
+	// into pins of its own, which memo shares with every path of the pick stepping down there.
 	var climbed *rowsTable
 	for _, st := range steps {
 		if c, ok := n.(*choice); ok {
