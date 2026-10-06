@@ -141,6 +141,12 @@ func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
 	return nil
 }
 
+// readName reads the arm a from the pick of its name, held in the frame of the name's scope.
+// When the pick renders another category, enter takes that category's frames from the pick's
+// memo, and renderFrame finds them and opens no new one.
+// So every read through one pick sees one pick of each name the other category binds:
+// {a.street} and {a.postal-code} in data/sv_SE/address.json read one pick of the name l
+// that data/geo/SE/address.json binds.
 func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 	f := sc.frameOf(a.named.scope)
 	if f == nil {
