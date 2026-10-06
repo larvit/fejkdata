@@ -79,13 +79,7 @@
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 123 | 0.1.0 |  | **Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.** | 1 | 2 | 1 | 7 | 3.4, 3.3 | 13.1 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 121 | 0.1.0 |  | **Move `renderEnv`'s methods out of `pick.go` into `env.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.** | 1 | 3 | 1 | 7 | 3.1 | 12.8 |
-| 122 | 0.1.0 |  | **Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `resolvedRef` that its head carries the `/`.** | 2 | 2 | 1 | 7 | 3.4, 3.3 | 12.1 |
-| 124 | 0.1.0 |  | **State the `..` step-down rule where `drawSteps` carries `climbed`, and split `route`'s draw condition into named parts.** | 2 | 2 | 1 | 6 | 3.4 | 10.3 |
-| 126 | 0.1.0 |  | **Name in `geo-se.py` the source of its delivery-digit rule and of its 200 floor.** | 1 | 1 | 1 | 5 | 3.4 | 9.8 |
-| 125 | 0.1.0 |  | **Delete the doc lines the panel read as restating their code.** | 1 | 2 | 1 | 5 | 3.4 | 9.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
@@ -284,35 +278,11 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
-### 123. Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.
-
-Seven of the nine seats in the panel of 2026-10-05 needed the README's Names list open to learn what these refuse.
-
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
 Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
-
-### 121. Move `renderEnv`'s methods out of `pick.go` into `env.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.
-
-Both architects in the panel of 2026-10-05 ranked this first. Revise the README's Layout block with it.
-
-### 122. Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `resolvedRef` that its head carries the `/`.
-
-Seven of the nine seats in the panel of 2026-10-05 named it: `a.head[min(1, len(a.head)):]` and `refs[b.ref].head[1:]` strip a sigil no comment names.
-
-### 124. State the `..` step-down rule where `drawSteps` carries `climbed`, and split `route`'s draw condition into named parts.
-
-Seven of the nine seats in the panel of 2026-10-05 named `route` and `drawSteps`; most learned the step-down rule from the README's Step up section.
-
-### 126. Name in `geo-se.py` the source of its delivery-digit rule and of its 200 floor.
-
-`street_delivery`'s `ONE_POSITION` set and its `018` digits come from `docs/research/research-geo-se.md`'s postal code structure, and `UNMATCHED_POPULATION` from a tätort's floor of 200 people; the script names neither.
-
-### 125. Delete the doc lines the panel read as restating their code.
-
-Named in the panel of 2026-10-05: `Fake` in `inline.go`, `Record.Columns`, `drawItem` in `render.go`, `compileInto`, `mergeChildren`, `tableOptions`, `randomBytes`, `frameStack.push`, `checkCalcFields`, the callers `recordOf`'s doc lists, and "Each step returns what it builds" on `resolveTemplates`.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
