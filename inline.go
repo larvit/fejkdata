@@ -26,7 +26,7 @@ func (t *Template) Fake() string {
 }
 
 // NewTemplate compiles an inline template — a format string or a JSON value — and
-// binds its references against the loaded tree, so repeated renders pay the
+// resolves its references against the loaded tree, so repeated renders pay the
 // compile and validation once. It shares [New]'s guarantees: a bad template errors
 // here, and rendering cannot fail.
 func (f *Generator) NewTemplate(input string) (*Template, error) {
@@ -36,7 +36,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if err := bindInline(&f.root, n, "template", false); err != nil {
+	if err := loadInline(&f.root, n, "template", false); err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Template{g: f, n: n}, nil
@@ -87,24 +87,24 @@ func inputValue(input string) (any, error) {
 	return raw, nil
 }
 
-// bindInline loads the shipped categories n reads, then binds n against root.
-func bindInline(root *folder, n node, label string, typedByGo bool) error {
-	scope := inlineScope(n, label)
-	if err := refuseFolderRefs(scope); err != nil {
+// loadInline loads the shipped categories n reads, then runs n through the pipeline against root.
+func loadInline(root *folder, n node, label string, typedByGo bool) error {
+	nodes := inlineNodes(n, label)
+	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	loadShipped(root, unloadedReads(root, nil, scope))
-	return binding{
-		scope:     scope,
-		link:      func() error { return linkInline(scope, root.children) },
+	loadShipped(root, unloadedReads(root, nil, nodes))
+	return pipeline{
+		nodes:     nodes,
+		resolve:   func() error { return resolveInlineTemplates(nodes, root.children) },
 		typedByGo: typedByGo,
-	}.bind()
+	}.run()
 }
 
-// refuseFolderRefs refuses each reference in scope not written from the root, {/x}: an
+// refuseFolderRefs refuses each reference in nodes not written from the root, {/x}: an
 // inline node sits in no folder.
-func refuseFolderRefs(scope nodeScope) error {
-	return scope(func(label string, m node) error {
+func refuseFolderRefs(nodes nodeSet) error {
+	return nodes(func(label string, m node) error {
 		t, ok := m.(*template)
 		if !ok {
 			return nil

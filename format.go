@@ -83,7 +83,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 			if _, _, err := grammar.RefShape(name); err != nil {
 				return nil, fmt.Errorf("token {%s}: %w", t.Body, err)
 			}
-			continue // resolveLink checks its target once the tree is assembled
+			continue // resolveRefs checks its target once the tree is assembled
 		}
 		missing, err := checkArm(name, fields, !operands && len(names) == 1)
 		if err == nil {
@@ -120,7 +120,7 @@ func checkBind(t grammar.Token, fields map[string]node) error {
 	return nil
 }
 
-// checkBound proves what a binding picks is a reference or a path into a field of the binding
+// checkBound proves what a binding names is a reference or a path into a field of the binding
 // template.
 func checkBound(ref string, fields map[string]node) error {
 	if grammar.IsRef(ref) {
@@ -180,9 +180,9 @@ func tokenReads(t grammar.Token) []string {
 	return t.Arms
 }
 
-// checkNoRepeatedArm rejects {a|a|b}: an alternation picks its arms evenly, so a
+// checkNoRepeatedArm rejects {a|a|b}: an alternation draws its arms evenly, so a
 // repeated one is a second spelling of weight. The error names the spelling that
-// does skew a pick.
+// does skew a draw.
 func checkNoRepeatedArm(body string, names []string) error {
 	if len(names) < 2 {
 		return nil
@@ -197,8 +197,8 @@ func checkNoRepeatedArm(body string, names []string) error {
 	return nil
 }
 
-// arm is one alternative of a {a|b} token or one operand, split into the head
-// `template.head` resolves and the tail of a dotted path into it.
+// arm is one alternative of a {a|b} token or one operand, split into the head,
+// whose node `template.startOf` finds, and the tail of a dotted path into it.
 type arm struct {
 	spelling    string // as written, for messages
 	head        string
@@ -220,8 +220,8 @@ const (
 )
 
 // splitArm splits one name into head and tail. refs maps a reference to what
-// resolveLink resolved it to; before linking, a reference is whole.
-func splitArm(name string, refs map[string]refBinding) arm {
+// resolveRefs resolved it to; before that, a reference is whole.
+func splitArm(name string, refs map[string]resolvedRef) arm {
 	if grammar.IsRef(name) {
 		b, linked := refs[name]
 		if !linked || len(b.tail) == 0 {
@@ -231,7 +231,7 @@ func splitArm(name string, refs map[string]refBinding) arm {
 			}
 			return arm{spelling: name, head: head, levels: []pickKey{pickKey(head)}}
 		}
-		sigil, rest, _ := grammar.RefShape(name) // resolveLink proved it, and took b.tail as a suffix of its segments
+		sigil, rest, _ := grammar.RefShape(name) // resolveRefs proved it, and took b.tail as a suffix of its segments
 		written, _ := grammar.SplitPath(rest)
 		return pathArm(name, b.head, sigil+grammar.JoinSegments(written[:len(written)-len(b.tail)]), b.tail)
 	}
@@ -282,8 +282,8 @@ type formatOps struct {
 	grow int
 }
 
-// compileFormat compiles t's parsed format against its link and its names' targets; a {ref as n}
-// token compiles to no op. checkTokens proved every token valid.
+// compileFormat compiles t's parsed format against its resolved references and its names'
+// targets; a {ref as n} token compiles to no op. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
@@ -326,13 +326,13 @@ func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarg
 // compileArm compiles one read into a path: from the head it names, or, for a read through a
 // name, from what that name binds.
 func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) (arm, error) {
-	a := splitArm(name, t.link.refs)
+	a := splitArm(name, t.refs.byName)
 	if !t.isName(a.head) {
-		head := t.head(a.head)
-		if head == nil {
+		start := t.startOf(a.head)
+		if start == nil {
 			panic(invariant.Broken("{%s} reads a head nothing bound", a.spelling))
 		}
-		w := compilePath(head, a.tail)
+		w := compilePath(start, a.tail)
 		a.steps, a.leaves = w.steps, w.leaves
 		return a, nil
 	}
@@ -342,10 +342,10 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	target := targets[b]
 	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
-	if err := checkPathResolves(target.head, full, a.head); err != nil {
+	if err := checkPathResolves(target.start, full, a.head); err != nil {
 		return a, err
 	}
-	w := compilePath(target.head, full)
+	w := compilePath(target.start, full)
 	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
 	a.levels = levelKeys(full, 0)
 	return a, nil

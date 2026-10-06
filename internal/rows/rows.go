@@ -400,7 +400,7 @@ func (t *Table[O]) Draw(s *drawstate.State) int {
 	return s.Weighted(t.cum)
 }
 
-// drawUnder picks a row among those linked to parent row pr.
+// drawUnder draws a row among those linked to parent row pr.
 func (t *Table[O]) drawUnder(s *drawstate.State, pr int) int {
 	lookup := t.builtLookup()
 	k := t.parent.Cell(pr, t.parent.keyIndex)

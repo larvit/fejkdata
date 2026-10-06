@@ -73,7 +73,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 		return tableRoute{}, err
 	}
 	// A selector further down pins this table by ancestry, so the walk draws only
-	// where none follows; drawing first could pick a row the selector is not inside.
+	// where none follows; drawing first could draw a row the selector is not inside.
 	r := tableRoute{sel: sel, draw: sel == "" && (descended || len(tail) > 0) && !grammar.HasSelector(tail)}
 	switch {
 	case len(tail) == 0 && sel == "" && !descended:
@@ -89,7 +89,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 }
 
 // pathStep is one step of a compiled path, taken at the node the steps before it
-// reached, a choice there resolved first; at indexes the tail where it is taken, and
+// reached, a choice there drawn first; at indexes the tail where it is taken, and
 // only a table's step sits past the tail's end. A step holds no node, so a
 // caller's steps stay on its stack.
 type pathStep struct {
@@ -315,7 +315,7 @@ func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 
 func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []pickKey, at int) node {
 	if memo == nil {
-		return resolveChoice(s, c)
+		return drawThroughChoices(s, c)
 	}
 	return memo.variantOf(s, c, levels[at])
 }

@@ -7,71 +7,71 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// linkSite is a template to link, with its folder and category, both empty for an inline
+// templateSite is a template to resolve, with its folder and category, both empty for an inline
 // template, and eachNode's label for it.
-type linkSite struct {
+type templateSite struct {
 	t               *template
 	folder          []string
 	category, label string
 }
 
-// linkCategories links every template of the categories, once all data is merged, so a reference
-// sees the override-resolved tree.
-func linkCategories(sites []categorySite, root map[string]node) error {
-	var ts []linkSite
+// resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
+// reference sees the override-resolved tree.
+func resolveCategoryTemplates(sites []categorySite, root map[string]node) error {
+	var ts []templateSite
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
 			if t, isTemplate := n.(*template); isTemplate {
-				ts = append(ts, linkSite{t: t, folder: s.dir, category: s.path, label: label})
+				ts = append(ts, templateSite{t: t, folder: s.dir, category: s.path, label: label})
 			}
 			return nil
 		}); err != nil {
 			return err
 		}
 	}
-	return linkTemplates(ts, root)
+	return resolveTemplates(ts, root)
 }
 
-// linkInline links the templates of an inline node against the loaded tree.
-func linkInline(scope nodeScope, root map[string]node) error {
-	var ts []linkSite
-	if err := scope(func(label string, n node) error {
+// resolveInlineTemplates resolves the templates of an inline node against the loaded tree.
+func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
+	var ts []templateSite
+	if err := nodes(func(label string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
-			ts = append(ts, linkSite{t: t, label: label})
+			ts = append(ts, templateSite{t: t, label: label})
 		}
 		return nil
 	}); err != nil {
 		return err
 	}
-	return linkTemplates(ts, root)
+	return resolveTemplates(ts, root)
 }
 
-// nameTarget is what a binding resolves to in the assembled tree: the node its head names and the
-// path it reads into that node.
+// nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
+// the path it reads into that node.
 type nameTarget struct {
-	head node
-	tail []string
+	start node
+	tail  []string
 }
 
-// linkedNames is what the link resolved about the names of a set of templates: each binding's
+// resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
 // target, the keys its reads address, and its reads.
-type linkedNames struct {
+type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
 	addressed map[*nameBinding]map[pickKey]string
 	uses      map[*nameBinding][]nameUse
 }
 
-// linkTemplates links ts in steps, each over every template before the next starts. Each step
+// resolveTemplates resolves ts in steps, each over every template before the next starts. Each step
 // returns what it builds. The references, the compiled format and the column read are kept on each
 // template. The names' targets, keys and reads pass to later steps as arguments, and the bindings
 // take their targets and keys only once every check has passed.
-func linkTemplates(ts []linkSite, root map[string]node) error {
+func resolveTemplates(ts []templateSite, root map[string]node) error {
 	for _, s := range ts {
-		link, err := s.t.resolveLink(s.folder, s.label, s.category, root)
+		refs, err := s.t.resolveRefs(s.folder, s.label, s.category, root)
 		if err != nil {
 			return err
 		}
-		s.t.link = link
+		s.t.refs = refs
 	}
 	targets := nameTargets(ts)
 	for _, s := range ts {
@@ -81,7 +81,7 @@ func linkTemplates(ts []linkSite, root map[string]node) error {
 		}
 		s.t.compiled = compiled
 	}
-	names := linkedNames{targets: targets, addressed: addressedKeys(ts, targets), uses: nameUses(ts)}
+	names := resolvedNames{targets: targets, addressed: addressedKeys(ts, targets), uses: nameUses(ts)}
 	for _, s := range ts {
 		s.t.readsColumn = columnReadOf(s.t, targets)
 	}
@@ -101,14 +101,14 @@ func linkTemplates(ts []linkSite, root map[string]node) error {
 	return nil
 }
 
-// nameTargets resolves what each binding of ts binds, from its binder's link.
-func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
+// nameTargets resolves what each binding of ts binds, from its binder's references.
+func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
 	targets := map[*nameBinding]nameTarget{}
 	for _, s := range ts {
 		for _, tok := range s.t.tokens {
 			if tok.Kind == grammar.NameBind {
-				a := splitArm(tok.BoundRef, s.t.link.refs)
-				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{head: s.t.head(a.head), tail: a.tail}
+				a := splitArm(tok.BoundRef, s.t.refs.byName)
+				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head), tail: a.tail}
 			}
 		}
 	}
@@ -117,7 +117,7 @@ func nameTargets(ts []linkSite) map[*nameBinding]nameTarget {
 
 // addressedKeys is every key the reads of each name in ts land on or pass, from the name's own
 // level, with the spelling of the first read reaching it.
-func addressedKeys(ts []linkSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
+func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
 	keys := map[*nameBinding]map[pickKey]string{}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t) {
@@ -136,7 +136,7 @@ func addressedKeys(ts []linkSite, targets map[*nameBinding]nameTarget) map[*name
 }
 
 // nameUses is every read of each name in ts.
-func nameUses(ts []linkSite) map[*nameBinding][]nameUse {
+func nameUses(ts []templateSite) map[*nameBinding][]nameUse {
 	uses := map[*nameBinding][]nameUse{}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t) {
@@ -171,18 +171,18 @@ func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead 
 		return nil
 	}
 	a := ops[0].arms[0]
-	head, category, tail := t.head(a.head), a.head[min(1, len(a.head)):], a.tail
+	start, category, tail := t.startOf(a.head), a.head[min(1, len(a.head)):], a.tail
 	switch b := a.named; {
 	case a.kind == namedRead && b.bindsField():
-		head, category = b.binder, ""
+		start, category = b.binder, ""
 		tail = append(append([]string{splitArm(b.ref, nil).head}, targets[b].tail...), a.tail...)
 	case a.kind == namedRead:
-		head, category = targets[b].head, b.binder.link.refs[b.ref].head[1:]
+		start, category = targets[b].start, b.binder.refs.byName[b.ref].head[1:]
 		tail = append(targets[b].tail[:len(targets[b].tail):len(targets[b].tail)], a.tail...)
 	case !grammar.IsRef(a.head):
 		return nil
 	}
-	if target, isTemplate := head.(*template); isTemplate && target.isRecord && len(tail) == 1 {
+	if target, isTemplate := start.(*template); isTemplate && target.isRecord && len(tail) == 1 {
 		return &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
 	}
 	return nil

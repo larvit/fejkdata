@@ -11,7 +11,7 @@ import (
 type pickKey string
 
 // under is rel, a key from a fresh read's levels, moved under k, the key of what renders. It never
-// returns k itself: on a render k is sc.pickAt, and a memo keeping it would move every render's scope to the heap.
+// returns k itself: on a render k is env.pickAt, and a memo keeping it would move every render's env to the heap.
 func (k pickKey) under(rel pickKey) pickKey {
 	if k == "" {
 		return rel
@@ -69,9 +69,9 @@ func newPickFrame(scope *nameScope) *pickFrame {
 	return f
 }
 
-// frameStack is the frames of the name scopes rendering, innermost last. A render's scope points
-// at it, and a repeat iteration's shares it: holding the frames in a renderScope would move every
-// render's scope to the heap.
+// frameStack is the frames of the name scopes rendering, innermost last. A render's env points
+// at it, and a repeat iteration's shares it: holding the frames in a renderEnv would move every
+// render's env to the heap.
 type frameStack struct {
 	frames []*pickFrame
 }
@@ -88,20 +88,20 @@ func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
 // enter starts a read landing on n: the read sees no frame opened before it, and gets a frame for
 // each name scope around n, from memo where there is one, so reads sharing memo read one pick of
 // each name. It returns the mark that closes those frames.
-func (sc renderScope) enter(n node, memo *drawMemo) (renderScope, int) {
-	sc = sc.entering()
+func (env renderEnv) enter(n node, memo *drawMemo) (renderEnv, int) {
+	env = env.entering()
 	for scope := scopeAround(n); scope != nil; scope = scope.up {
 		if len(scope.order) > 0 {
-			sc.frames.push(memo.enteredFrame(scope))
+			env.frames.push(memo.enteredFrame(scope))
 		}
 	}
-	return sc, sc.base
+	return env, env.base
 }
 
-// entering is sc as a read entering a category sees it: no frame opened before it, and no pick.
-func (sc renderScope) entering() renderScope {
-	sc.base, sc.pick = len(sc.frames.frames), nil
-	return sc
+// entering is env as a read entering a category sees it: no frame opened before it, and no pick.
+func (env renderEnv) entering() renderEnv {
+	env.base, env.pick = len(env.frames.frames), nil
+	return env
 }
 
 // scopeAround is the innermost name scope a render of n reads names in, short of the frames n
@@ -136,18 +136,18 @@ func (m *drawMemo) enteredFrame(scope *nameScope) *pickFrame {
 
 // renderFrame opens a fresh frame of t's scope, where t binds names and no read entering the
 // category opened one, returning the mark that closes it, or -1.
-func (sc renderScope) renderFrame(t *template) int {
+func (env renderEnv) renderFrame(t *template) int {
 	own := t.ownScope()
-	if own == nil || sc.frameOf(own) != nil {
+	if own == nil || env.frameOf(own) != nil {
 		return -1
 	}
-	return sc.frames.push(newPickFrame(own))
+	return env.frames.push(newPickFrame(own))
 }
 
 // frameOf is the frame of scope rendering since the read entering the category, nil where none is.
-func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
-	for i := len(sc.frames.frames) - 1; i >= sc.base; i-- {
-		if f := sc.frames.frames[i]; f.scope == scope {
+func (env renderEnv) frameOf(scope *nameScope) *pickFrame {
+	for i := len(env.frames.frames) - 1; i >= env.base; i-- {
+		if f := env.frames.frames[i]; f.scope == scope {
 			return f
 		}
 	}
@@ -160,8 +160,8 @@ func (sc renderScope) frameOf(scope *nameScope) *pickFrame {
 // So every read through one pick sees one pick of each name the other category binds:
 // {a.street} and {a.postal-code} in data/sv_SE/address.json read one pick of the name l
 // that data/geo/SE/address.json binds.
-func readName(s *drawstate.State, sc renderScope, a arm) readValue {
-	f := sc.frameOf(a.named.scope)
+func readName(s *drawstate.State, env renderEnv, a arm) readValue {
+	f := env.frameOf(a.named.scope)
 	if f == nil {
 		panic(invariant.Broken("name %q is read where no frame of its scope renders", a.named.name))
 	}
@@ -169,50 +169,50 @@ func readName(s *drawstate.State, sc renderScope, a arm) readValue {
 	if r, done := p.memo.value[a.key()]; done {
 		return r
 	}
-	leaf, pins := p.draw(s, a.named.head, a.steps, a.levels)
+	leaf, pins := p.draw(s, a.named.start, a.steps, a.levels)
 	if a.named.bindsField() {
-		return p.renderAt(s, leaf, pins, a.key(), sc)
+		return p.renderAt(s, leaf, pins, a.key(), env)
 	}
-	sc, mark := sc.enter(leaf, &p.memo)
-	r := p.renderAt(s, leaf, pins, a.key(), sc)
-	sc.frames.pop(mark)
+	env, mark := env.enter(leaf, &p.memo)
+	r := p.renderAt(s, leaf, pins, a.key(), env)
+	env.frames.pop(mark)
 	return r
 }
 
 // drawRowOf draws the row a render of t reads: inside the pick's rows where t renders as part of one.
-func (sc renderScope) drawRowOf(s *drawstate.State, t *table) int {
-	if sc.pick != nil {
-		return t.rows.DrawIn(s, &sc.pick.pins)
+func (env renderEnv) drawRowOf(s *drawstate.State, t *table) int {
+	if env.pick != nil {
+		return t.rows.DrawIn(s, &env.pick.pins)
 	}
 	return t.rows.Draw(s)
 }
 
-// keeps reports whether a read of sc's name addresses the level a starts at.
-func (sc renderScope) keeps(a arm) bool {
-	_, kept := sc.pick.named.addressed[sc.pickAt.under(a.levels[0])]
+// keeps reports whether a read of env's name addresses the level a starts at.
+func (env renderEnv) keeps(a arm) bool {
+	_, kept := env.pick.named.addressed[env.pickAt.under(a.levels[0])]
 	return kept
 }
 
-// readUnder reads a, an arm of t, once per pick: t renders in sc.pick at sc.pickAt, and a read of
-// the name addresses the level a starts at. It keys the value by a's key under sc.pickAt.
-func readUnder(s *drawstate.State, t *template, sc renderScope, a arm) readValue {
-	p, key := sc.pick, sc.pickAt.under(a.key())
+// readUnder reads a, an arm of t, once per pick: t renders in env.pick at env.pickAt, and a read of
+// the name addresses the level a starts at. It keys the value by a's key under env.pickAt.
+func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
+	p, key := env.pick, env.pickAt.under(a.key())
 	if r, done := p.memo.value[key]; done {
 		return r
 	}
 	levels := make([]pickKey, len(a.levels))
 	for i, l := range a.levels[:len(levels)-1] {
-		levels[i] = sc.pickAt.under(l)
+		levels[i] = env.pickAt.under(l)
 	}
 	levels[len(levels)-1] = key
-	leaf, pins := p.draw(s, t.head(a.head), a.steps, levels)
-	return p.renderAt(s, leaf, pins, key, sc)
+	leaf, pins := p.draw(s, t.startOf(a.head), a.steps, levels)
+	return p.renderAt(s, leaf, pins, key, env)
 }
 
-// draw draws the path from head under p, keeping the variant drawn at each of levels, whose last
+// draw draws the path from start under p, keeping the variant drawn at each of levels, whose last
 // is the leaf's key, and returns the leaf and the pins its row is in.
-func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels []pickKey) (node, *pinSet) {
-	leaf, pins := drawSteps(s, head, steps, &p.pins, &p.memo, levels)
+func (p *namedPick) draw(s *drawstate.State, start node, steps []pathStep, levels []pickKey) (node, *pinSet) {
+	leaf, pins := drawSteps(s, start, steps, &p.pins, &p.memo, levels)
 	if c, isChoice := leaf.(*choice); isChoice {
 		leaf = p.memo.variantOf(s, c, levels[len(levels)-1])
 	}
@@ -220,10 +220,10 @@ func (p *namedPick) draw(s *drawstate.State, head node, steps []pathStep, levels
 }
 
 // renderAt renders leaf, drawn at key into pins, as part of p, and keeps what it rendered.
-func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pickKey, sc renderScope) readValue {
-	sc = sc.at(leaf, pins)
-	sc.pick, sc.pickAt = p, key
-	r := renderLeaf(s, leaf, sc)
+func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pickKey, env renderEnv) readValue {
+	env = env.at(leaf, pins)
+	env.pick, env.pickAt = p, key
+	r := renderLeaf(s, leaf, env)
 	if p.memo.value == nil {
 		p.memo.value = map[pickKey]readValue{}
 	}
@@ -235,7 +235,7 @@ func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pi
 func (m *drawMemo) variantOf(s *drawstate.State, c *choice, level pickKey) node {
 	n, drew := m.variant[level]
 	if !drew {
-		n = resolveChoice(s, c)
+		n = drawThroughChoices(s, c)
 		if m.variant == nil {
 			m.variant = map[pickKey]node{}
 		}

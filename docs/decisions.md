@@ -795,7 +795,7 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Goals 3 and 13: `drawSteps` draws every path from its steps, compiled at link by
+Goals 3 and 13: `drawSteps` draws every path from its steps, compiled at resolve by
 `pathCheck` or, for a caller's path, by `probePath` into a stack buffer. Both take each
 step through `takeStep`, and differ only at a choice: the check walks every variant, the
 probe the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
@@ -839,7 +839,7 @@ Last scoring run, 2026-10-05, on commit bcc6858: Navigation 7.00, Locality 5.75,
 2026-10-05, Lilleman auf Larv. Serves goals 3.2 and 3.4. Two architect reviews found the
 engine's types, `template`, `table`, `arm`, `op` and `nameBinding`, bound in one cycle
 because several passes each write part of the same structs; the template language's
-recursion reads few of those types. Moving the engine while several link passes still
+recursion reads few of those types. Moving the engine while several resolve passes still
 wrote each value would have spread that knot across packages, behind forwarding calls from
 every public method. The draw state, the grammar, `DataType`, what a proof knows of a
 value, the builtins, the reading of data files and a table's rows read no engine type, so

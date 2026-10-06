@@ -81,7 +81,7 @@ func TestNodeCompileErrors(t *testing.T) {
 	}
 }
 
-func TestEveryFormatCompilesAtLink(t *testing.T) {
+func TestEveryFormatCompilesAtResolve(t *testing.T) {
 	n, err := compile(parse(t, `{"format":"{a} {b}","a":{"format":"x{c}","c":["1","2"]},"b":"{/w}"}`))
 	if err != nil {
 		t.Fatal(err)
@@ -104,15 +104,15 @@ func TestEveryFormatCompilesAtLink(t *testing.T) {
 	}
 	for format, has := range compiledByPath() {
 		if has {
-			t.Errorf("%s compiled before link", format)
+			t.Errorf("%s compiled before resolve", format)
 		}
 	}
-	if err := linkInline(inlineScope(n, "t"), map[string]node{"w": w}); err != nil {
+	if err := resolveInlineTemplates(inlineNodes(n, "t"), map[string]node{"w": w}); err != nil {
 		t.Fatal(err)
 	}
 	for format, has := range compiledByPath() {
 		if !has {
-			t.Errorf("%s not compiled at link", format)
+			t.Errorf("%s not compiled at resolve", format)
 		}
 	}
 }

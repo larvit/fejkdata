@@ -62,7 +62,7 @@ func TestTokenSubstitution(t *testing.T) {
 	}
 }
 
-func TestAlternationPicksOneField(t *testing.T) {
+func TestAlternationDrawsOneField(t *testing.T) {
 	f := engine(3)
 	seen := map[string]bool{}
 	for i := 0; i < 100; i++ {

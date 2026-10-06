@@ -19,7 +19,7 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 	if len(root) == 0 {
 		return nil, fmt.Errorf("no .json data found")
 	}
-	if err := categoryBinding(categorySites(&folder{children: root}), root).bind(); err != nil {
+	if err := categoryPipeline(categorySites(&folder{children: root}), root).run(); err != nil {
 		return nil, err
 	}
 	return root, nil
@@ -66,9 +66,9 @@ func mergeChildren(dst, src map[string]node) {
 	}
 }
 
-// nodeScope is the set of nodes one validation pass covers: the categories one load
+// nodeSet is the set of nodes one validation pass covers: the categories one load
 // binds, or a single inline node.
-type nodeScope func(fn func(label string, n node) error) error
+type nodeSet func(fn func(label string, n node) error) error
 
 // categorySite is a loaded category and where it sits: the folder holding it, that
 // folder's path, and its own dot path.
@@ -103,7 +103,7 @@ func siteIn(dir []string, in *folder, name string) categorySite {
 // categoryPath is the dot path of the category name in the folder dir.
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }
 
-func sitesScope(sites []categorySite) nodeScope {
+func siteNodes(sites []categorySite) nodeSet {
 	return func(fn func(label string, n node) error) error {
 		for _, s := range sites {
 			if err := eachNode(s.n, s.path, fn); err != nil {
@@ -114,54 +114,54 @@ func sitesScope(sites []categorySite) nodeScope {
 	}
 }
 
-func inlineScope(n node, label string) nodeScope {
+func inlineNodes(n node, label string) nodeSet {
 	return func(fn func(label string, m node) error) error { return eachNode(n, label, fn) }
 }
 
-// binding is one scope's way through bind, the one load pipeline; its fields are where
-// scopes differ.
-type binding struct {
-	scope nodeScope
-	link  func() error
+// pipeline is the one load pipeline, run over one nodeSet; its fields are where
+// entry points differ.
+type pipeline struct {
+	nodes   nodeSet
+	resolve func() error
 	// Set by a caller that proves the columns against their Go types itself.
 	typedByGo bool
 }
 
-// categoryBinding binds the categories of one load, their references resolving
-// against root.
-func categoryBinding(sites []categorySite, root map[string]node) binding {
-	return binding{
-		scope: sitesScope(sites),
-		link: func() error {
+// categoryPipeline is the pipeline over the categories of one load, their references
+// resolving against root.
+func categoryPipeline(sites []categorySite, root map[string]node) pipeline {
+	return pipeline{
+		nodes: siteNodes(sites),
+		resolve: func() error {
 			if err := linkTables(sites); err != nil {
 				return err
 			}
-			return linkCategories(sites, root)
+			return resolveCategoryTemplates(sites, root)
 		},
 	}
 }
 
-func (b binding) bind() error {
-	if err := b.link(); err != nil {
+func (p pipeline) run() error {
+	if err := p.resolve(); err != nil {
 		return err
 	}
-	if err := checkNoCycles(b.scope); err != nil {
+	if err := checkNoCycles(p.nodes); err != nil {
 		return err
 	}
-	settleRecords(b.scope)
-	if !b.typedByGo {
-		if err := checkColumns(b.scope); err != nil {
+	settleRecords(p.nodes)
+	if !p.typedByGo {
+		if err := checkColumns(p.nodes); err != nil {
 			return err
 		}
 	}
-	return checkNodeFences(b.scope)
+	return checkNodeFences(p.nodes)
 }
 
-// checkNodeFences runs the per-node fences every binding needs over a scope, each
-// over the whole scope before the next, so which of several broken nodes is reported
-// does not depend on the walk. Its walks recurse unguarded, so bind refuses the scope's cycles
+// checkNodeFences runs the per-node fences every pipeline runs over its nodes, each
+// over all of them before the next, so which of several broken nodes is reported
+// does not depend on the walk. Its walks recurse unguarded, so run refuses their cycles
 // first.
-func checkNodeFences(s nodeScope) error {
+func checkNodeFences(s nodeSet) error {
 	mem := renderCounts{}
 	if err := s(func(label string, n node) error { return repeatCheck(label, n, mem) }); err != nil {
 		return err

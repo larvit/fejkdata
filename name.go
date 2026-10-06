@@ -29,7 +29,7 @@ type nameBinding struct {
 	index  int
 	binder *template
 
-	// Filled by `linkTemplates`, once every check of the link passed:
+	// Filled by `resolveTemplates`, once every check it runs passed:
 	nameTarget
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
