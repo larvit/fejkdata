@@ -135,9 +135,9 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
 	var frames frameStack
-	sc := renderScope{frames: &frames}
+	env := renderEnv{frames: &frames}
 	if t, isTable := n.(*table); isTable {
-		if n, sc.row, err = tableRecord(f.drawState, t, tail); err != nil {
+		if n, env.row, err = tableRecord(f.drawState, t, tail); err != nil {
 			return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
 		}
 	} else if len(tail) > 0 {
@@ -151,7 +151,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %s %w", path, err)
 	}
-	return renderRecord(f.drawState, record, sc), nil
+	return renderRecord(f.drawState, record, env), nil
 }
 
 // tableRecord walks a path's tail from a table to the table whose row is the record, and that
@@ -184,11 +184,11 @@ func (t *RecordTemplate) Fake() *Record {
 	t.g.mu.Lock()
 	defer t.g.mu.Unlock()
 	var frames frameStack
-	return renderRecord(t.g.drawState, t.template, renderScope{frames: &frames})
+	return renderRecord(t.g.drawState, t.template, renderEnv{frames: &frames})
 }
 
 // NewRecordTemplate compiles an inline record — a JSON object with a format and
-// fields — and binds its references against the loaded tree.
+// fields — and resolves its references against the loaded tree.
 func (f *Generator) NewRecordTemplate(input string) (*RecordTemplate, error) {
 	t, err := f.NewTemplate(input)
 	if err != nil {
@@ -246,10 +246,10 @@ type recordColumn struct {
 	boundWhole *nameBinding
 }
 
-// settleRecords fixes the columns of every record in scope. bind runs it after checkNoCycles: a
+// settleRecords fixes the columns of every record in nodes. The pipeline runs it after checkNoCycles: a
 // column's datatype walks the column, and a cycle would walk forever.
-func settleRecords(scope nodeScope) {
-	_ = scope(func(_ string, n node) error {
+func settleRecords(nodes nodeSet) {
+	_ = nodes(func(_ string, n node) error {
 		if t, isTemplate := n.(*template); isTemplate {
 			t.columns = recordColumns(t)
 		}
@@ -267,8 +267,8 @@ func recordColumns(t *template) []recordColumn {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.tail) == 0 && whole[b.head] == nil {
-			whole[b.head] = b
+		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.tail) == 0 && whole[b.start] == nil {
+			whole[b.start] = b
 		}
 	}
 	names := sortedNames(t.fields)
@@ -281,18 +281,18 @@ func recordColumns(t *template) []recordColumn {
 }
 
 // renderRecord draws each column of t once, in name order, as one render, so the columns read one
-// pick of each name; a table's columns read sc's row.
-func renderRecord(s *drawstate.State, t *template, sc renderScope) *Record {
-	if mark := sc.renderFrame(t); mark >= 0 {
-		defer sc.frames.pop(mark)
+// pick of each name; a table's columns read env's row.
+func renderRecord(s *drawstate.State, t *template, env renderEnv) *Record {
+	if mark := env.renderFrame(t); mark >= 0 {
+		defer env.frames.pop(mark)
 	}
 	r := &Record{columns: make([]Column, len(t.columns))}
 	for i, c := range t.columns {
 		var column readValue
 		if c.boundWhole != nil {
-			column = readName(s, sc, arm{kind: namedRead, named: c.boundWhole, levels: wholeLevels})
+			column = readName(s, env, arm{kind: namedRead, named: c.boundWhole, levels: wholeLevels})
 		} else {
-			column = renderLeaf(s, c.field, sc)
+			column = renderLeaf(s, c.field, env)
 		}
 		r.columns[i] = Column{Name: c.name, DataType: c.datatype, Value: column.text, Null: column.null}
 	}

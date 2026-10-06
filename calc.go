@@ -12,7 +12,7 @@ import (
 )
 
 // checkCalcFields runs checkOperands over the calc operands fields hold. An operand no field
-// holds is left for a name, which checkCalcNames checks once names link.
+// holds is left for a name, which checkCalcNames checks once names resolve.
 func checkCalcFields(args []string, fields map[string]node) error {
 	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []node {
 		if n, ok := fields[name]; ok {
@@ -35,7 +35,7 @@ func checkCalcNames(label string, t *template) error {
 	return nil
 }
 
-// operandNodes lists every node each operand of o may render, once its template and names link.
+// operandNodes lists every node each operand of o may render, once its template and names resolve.
 func operandNodes(o op) func(name string) []node {
 	return func(name string) []node {
 		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })]

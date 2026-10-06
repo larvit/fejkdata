@@ -262,7 +262,7 @@ func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, 
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	if err := bindInline(root, n, label, true); err != nil {
+	if err := loadInline(root, n, label, true); err != nil {
 		return err
 	}
 	record, err := recordOf(n)
@@ -323,7 +323,7 @@ func (k columnKind) holds(v proven.Facts) bool {
 func (s *structShape) fill(state *drawstate.State, v reflect.Value) {
 	if s.record != nil {
 		var frames frameStack
-		for i, c := range renderRecord(state, s.record, renderScope{frames: &frames}).columns {
+		for i, c := range renderRecord(state, s.record, renderEnv{frames: &frames}).columns {
 			setColumn(fieldAt(v, s.fieldIndexes[i]), c)
 		}
 	}

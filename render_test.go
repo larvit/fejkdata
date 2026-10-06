@@ -43,7 +43,7 @@ func TestGrowIsALowerBound(t *testing.T) {
 		}
 		for i := 0; i < 50; i++ {
 			var frames frameStack
-			if got := len(expand(f.drawState, tmpl, renderScope{frames: &frames})); got < tmpl.compiled.grow {
+			if got := len(expand(f.drawState, tmpl, renderEnv{frames: &frames})); got < tmpl.compiled.grow {
 				t.Errorf("format %q: expand emitted %d bytes, below grow %d", format, got, tmpl.compiled.grow)
 			}
 		}
@@ -113,7 +113,7 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"prove":       func(n node) { (&valueProof{}).prove(n) },
 		"render": func(n node) {
 			var frames frameStack
-			render(engine(1).drawState, n, renderScope{frames: &frames, row: renderedRow{tbl, 0}})
+			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
 		"renderEdges": func(n node) { renderEdges(n) },
 		"stepInto":    func(n node) { _, _ = stepInto(n, "x") },

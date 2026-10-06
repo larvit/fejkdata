@@ -428,7 +428,7 @@ func TestAFieldBindingReadOutsideWhatItBindsLoads(t *testing.T) {
 	}
 }
 
-func TestANameReadBeforeItsBinderLinks(t *testing.T) {
+func TestANameReadBeforeItsBinderKeepsOnePick(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"person": `{"format":"{first} {last}","first":["Ada","Bo","Cy"],"last":["Byron","Ek","Lind"]}`,
 		"row":    `{"format":"{a}|{b}","a":"{p}","b":"{/person as p}{p.first} {p.last}"}`,

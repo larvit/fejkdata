@@ -26,8 +26,8 @@ type folder struct {
 
 func (*folder) isNode() {}
 
-// choice picks one of its items. cum holds cumulative weights for a weighted
-// pick; when nil the choice is uniform and selection is O(1). shared is the set of
+// choice draws one of its items. cum holds cumulative weights for a weighted
+// draw; when nil the choice is uniform and selection is O(1). shared is the set of
 // relative dot paths every item can address, so carriedByAll and List both read the one
 // answer to what a path may reach through this choice.
 type choice struct {
@@ -47,7 +47,7 @@ func (*nullItem) isNode() {}
 // template renders a format string, substituting {tokens} from fields. A bare
 // JSON string is a template with no fields. repeat (default 1) renders that format
 // that many times and joins the results with separator (default ""), each render
-// an independent pick. Every format compiles in `linkTemplates`.
+// an independent pick. Every format compiles in `resolveTemplates`.
 type template struct {
 	// Filled by `compileString`, `compileTemplate` and `table.compileRowFormat`:
 	format     string
@@ -63,8 +63,8 @@ type template struct {
 	// Filled by `bindNames`, from the compiled category:
 	nameScope *nameScope // where its tokens look a name up
 
-	// Filled by `linkTemplates`, from the assembled tree:
-	link        templateLink
+	// Filled by `resolveTemplates`, from the assembled tree:
+	refs        templateRefs
 	compiled    formatOps
 	readsColumn *columnRead // set when the format only reads one reference or name, and that read is a record's column
 
@@ -72,18 +72,18 @@ type template struct {
 	columns []recordColumn // a record's, where it has fields, in name order
 }
 
-// templateLink is what a template resolves to in the assembled tree.
-type templateLink struct {
-	refs     map[string]refBinding // each reference the format reads -> what it resolves to
-	refHeads map[string]node       // each refBinding.head -> the category it names
+// templateRefs is what a template resolves to in the assembled tree.
+type templateRefs struct {
+	byName     map[string]resolvedRef // each reference the format reads -> what it resolves to
+	categories map[string]node        // each resolvedRef.head -> the category it names
 }
 
 func (*template) isNode() {}
 
-// head is the node an arm's head names: a sibling field, or a reference's category.
-func (t *template) head(name string) node {
+// startOf is the node an arm's startOf names: a sibling field, or a reference's category.
+func (t *template) startOf(name string) node {
 	if grammar.IsRef(name) {
-		return t.link.refHeads[name]
+		return t.refs.categories[name]
 	}
 	return t.fields[name]
 }
@@ -262,7 +262,7 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		c.items[i] = n
 	}
-	if weighted { // uniform choices skip the weight table and pick in O(1)
+	if weighted { // uniform choices skip the weight table and draw in O(1)
 		if math.IsInf(total, 1) {
 			return nil, fmt.Errorf("choice weights must sum to a finite number, got %v", total)
 		}
@@ -272,9 +272,9 @@ func compileChoice(items []any, pos position) (node, error) {
 	return c, nil
 }
 
-// checkNoRepeatedItem rejects a choice that lists one item twice: a pick is even
+// checkNoRepeatedItem rejects a choice that lists one item twice: a draw is even
 // over the items, so a repeat is a second spelling of weight. The error names the
-// spelling that does skew a pick.
+// spelling that does skew a draw.
 func checkNoRepeatedItem(items []any) error {
 	seen := make(map[string]int, len(items))
 	for i, raw := range items {

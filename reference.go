@@ -7,9 +7,9 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// refBinding is what a reference resolves to: the head its category is held
+// resolvedRef is what a reference resolves to: the head its category is held
 // under, and the tail read into it.
-type refBinding struct {
+type resolvedRef struct {
 	head string
 	tail []string
 }
@@ -34,36 +34,36 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// resolveLink binds every reference t reads, refusing one to t's own category:
+// resolveRefs resolves every reference t reads, refusing one to t's own category:
 // docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (t *template) resolveLink(folder []string, label, category string, root map[string]node) (templateLink, error) {
-	var link templateLink
+func (t *template) resolveRefs(folder []string, label, category string, root map[string]node) (templateRefs, error) {
+	var refs templateRefs
 	names := refTokens(t.tokens)
 	if len(names) == 0 {
-		return link, nil
+		return refs, nil
 	}
-	link.refs = make(map[string]refBinding, len(names))
-	link.refHeads = make(map[string]node, len(names))
+	refs.byName = make(map[string]resolvedRef, len(names))
+	refs.categories = make(map[string]node, len(names))
 	for _, name := range names {
 		segments, err := refSegments(name, folder)
 		if err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		categorySegs, target, tail, err := resolveCategory(root, segments)
 		if err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
 		if category != "" && head == "/"+category {
-			return link, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", label, name)
+			return refs, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", label, name)
 		}
 		if err := checkPathResolves(target, tail, head); err != nil {
-			return link, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
+			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
-		link.refHeads[head] = target
-		link.refs[name] = refBinding{head, tail}
+		refs.categories[head] = target
+		refs.byName[name] = resolvedRef{head, tail}
 	}
-	return link, nil
+	return refs, nil
 }
 
 // resolveCategory walks a dotted path through the folders to the category it

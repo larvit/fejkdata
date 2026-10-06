@@ -8,11 +8,11 @@ type readValue struct {
 	null bool
 }
 
-// renderScope is where a render reads: the frames of the name scopes rendering; and row, the row
+// renderEnv is where a render reads: the frames of the name scopes rendering; and row, the row
 // of the table rendering, which its columns read. It passes by value, and what is read from it
-// reaches a map key, an interface or a func value only as a copy; else sc, and with it every
+// reaches a map key, an interface or a func value only as a copy; else env, and with it every
 // render's frames, moves to the heap.
-type renderScope struct {
+type renderEnv struct {
 	frames *frameStack
 	row    renderedRow
 	// base is the depth of the frame stack when the read rendering the category entered it,
@@ -28,22 +28,22 @@ type renderedRow struct {
 	index int
 }
 
-// at returns the scope n renders in, n being the leaf of a path whose rows sit in pins; where n
-// is a table's row or column, the scope carries the row pins holds for that table.
-func (sc renderScope) at(n node, pins *pinSet) renderScope {
+// at returns the env n renders in, n being the leaf of a path whose rows sit in pins; where n
+// is a table's row or column, the env carries the row pins holds for that table.
+func (env renderEnv) at(n node, pins *pinSet) renderEnv {
 	switch n := n.(type) {
 	case *tableRow:
-		sc.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
+		env.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
 	case *tableColumn:
-		sc.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
+		env.row = renderedRow{n.t, pins.MustRow(n.t.rows)}
 	}
-	return sc
+	return env
 }
 
 // rowOf is the row of t its columns render from.
-func (sc renderScope) rowOf(t *table) int {
-	if sc.row.t != t {
+func (env renderEnv) rowOf(t *table) int {
+	if env.row.t != t {
 		panic(invariant.Broken("a column of %s renders in a scope holding no row of it", t.rows.Segment()))
 	}
-	return sc.row.index
+	return env.row.index
 }

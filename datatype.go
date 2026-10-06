@@ -57,7 +57,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 
 // checkColumns rejects a record column whose items hold different datatypes, checking a column
 // after the columns its items read, so a column read is named before its readers.
-func checkColumns(s nodeScope) error {
+func checkColumns(s nodeSet) error {
 	checked := map[node]bool{}
 	var check func(label, name string, column node) error
 	check = func(label, name string, column node) error {

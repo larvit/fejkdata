@@ -79,11 +79,10 @@
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 120 | 0.1.0 |  | **Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.** | 2 | 4 | 1 | 8 | 3.3 | 13.4 |
 | 123 | 0.1.0 |  | **Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.** | 1 | 2 | 1 | 7 | 3.4, 3.3 | 13.1 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 121 | 0.1.0 |  | **Move `renderScope`'s methods out of `pick.go` into `scope.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.** | 1 | 3 | 1 | 7 | 3.1 | 12.8 |
-| 122 | 0.1.0 |  | **Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `refBinding` that its head carries the `/`.** | 2 | 2 | 1 | 7 | 3.4, 3.3 | 12.1 |
+| 121 | 0.1.0 |  | **Move `renderEnv`'s methods out of `pick.go` into `env.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.** | 1 | 3 | 1 | 7 | 3.1 | 12.8 |
+| 122 | 0.1.0 |  | **Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `resolvedRef` that its head carries the `/`.** | 2 | 2 | 1 | 7 | 3.4, 3.3 | 12.1 |
 | 124 | 0.1.0 |  | **State the `..` step-down rule where `drawSteps` carries `climbed`, and split `route`'s draw condition into named parts.** | 2 | 2 | 1 | 6 | 3.4 | 10.3 |
 | 126 | 0.1.0 |  | **Name in `geo-se.py` the source of its delivery-digit rule and of its 200 floor.** | 1 | 1 | 1 | 5 | 3.4 | 9.8 |
 | 125 | 0.1.0 |  | **Delete the doc lines the panel read as restating their code.** | 1 | 2 | 1 | 5 | 3.4 | 9.5 |
@@ -115,7 +114,7 @@
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
-| 112 | 0.2.0 |  | **Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
+| 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
@@ -285,10 +284,6 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
-### 120. Rename the engine's overloaded nouns, so `scope`, `binding`, `link`, `pick` and `head` each name one thing.
-
-From the panel of 2026-10-05: `nodeScope`, `nameScope` and `renderScope`; `binding`, `nameBinding` and `refBinding`; `linkTemplates` beside `linkTables` and `rows.Link`; `pick` the function beside a named pick; `head` a string on `arm` and a node on `nameTarget`.
-
 ### 123. Name the name fences by what they refuse, and state each rule at `checkOnce`, `checkTemplateOnce` and `checkUses`, so they read without the README's Names list.
 
 Seven of the nine seats in the panel of 2026-10-05 needed the README's Names list open to learn what these refuse.
@@ -299,11 +294,11 @@ Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
-### 121. Move `renderScope`'s methods out of `pick.go` into `scope.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.
+### 121. Move `renderEnv`'s methods out of `pick.go` into `env.go`, a table's route and draw steps out of `path.go` into `table.go`, and `arm`, `op` and `compileArm` out of `format.go` into a file named for the compiled read.
 
 Both architects in the panel of 2026-10-05 ranked this first. Revise the README's Layout block with it.
 
-### 122. Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `refBinding` that its head carries the `/`.
+### 122. Rewrite `columnReadOf` so each case says which column it reads, with a named step stripping the sigil, and say on `resolvedRef` that its head carries the `/`.
 
 Seven of the nine seats in the panel of 2026-10-05 named it: `a.head[min(1, len(a.head)):]` and `refs[b.ref].head[1:]` strip a sigil no comment names.
 
@@ -317,7 +312,7 @@ Seven of the nine seats in the panel of 2026-10-05 named `route` and `drawSteps`
 
 ### 125. Delete the doc lines the panel read as restating their code.
 
-Named in the panel of 2026-10-05: `Fake` in `inline.go`, `Record.Columns`, `pick` in `render.go`, `compileInto`, `mergeChildren`, `tableOptions`, `randomBytes`, `frameStack.push`, `checkCalcFields`, the callers `recordOf`'s doc lists, and "Each step returns what it builds" on `linkTemplates`.
+Named in the panel of 2026-10-05: `Fake` in `inline.go`, `Record.Columns`, `drawItem` in `render.go`, `compileInto`, `mergeChildren`, `tableOptions`, `randomBytes`, `frameStack.push`, `checkCalcFields`, the callers `recordOf`'s doc lists, and "Each step returns what it builds" on `resolveTemplates`.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -426,9 +421,9 @@ Require the path step to reach a sibling category.
 
 The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
-### 112. Check a calc's field operands where its template links, beside its name operands, once item 36 reports every mistake at once.
+### 112. Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.
 
-Needs item 36. `checkCalcFields` runs at compile and `checkCalcNames` at link, two passes over one rule. Moving the field check to link before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any links.
+Needs item 36. `checkCalcFields` runs at compile and `checkCalcNames` in `resolveTemplates`, two passes over one rule. Moving the field check there before item 36 would change which of two mistakes in two category files a load reports, since every category compiles before any resolves.
 
 ### 94. Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.
 

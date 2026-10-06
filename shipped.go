@@ -64,11 +64,11 @@ func (f *Generator) loadShippedAt(segs []string) {
 	}
 }
 
-// unloadedReads is every unloaded shipped category the templates of scope reference, each
+// unloadedReads is every unloaded shipped category the templates of nodes reference, each
 // reference read from the folder dir.
-func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCategory {
+func unloadedReads(root *folder, dir []string, nodes nodeSet) []unloadedCategory {
 	var out []unloadedCategory
-	_ = scope(func(_ string, n node) error {
+	_ = nodes(func(_ string, n node) error {
 		t, isTemplate := n.(*template)
 		if !isTemplate {
 			return nil
@@ -76,7 +76,7 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 		for _, name := range refTokens(t.tokens) {
 			segs, err := refSegments(name, dir)
 			if err != nil {
-				continue // the link reports it
+				continue // resolveRefs reports it
 			}
 			if u, unloaded := unloadedAt(root, segs); unloaded {
 				out = append(out, u)
@@ -88,7 +88,7 @@ func unloadedReads(root *folder, dir []string, scope nodeScope) []unloadedCatego
 }
 
 // loadShipped loads the shipped categories wanted and, for each category it loads, every
-// category it reads and its table family, then binds all it loaded as a whole load binds.
+// category it reads and its table family, then runs all it loaded through a whole load's pipeline.
 // TestEveryShippedCategoryLoadsAlone reaches each category, so a failure here means a stale
 // index.
 func loadShipped(root *folder, wanted []unloadedCategory) {
@@ -104,14 +104,14 @@ func loadShipped(root *folder, wanted []unloadedCategory) {
 			panic(invariant.Broken("shipped %s: %v; after a change under data/, regenerate shippedindex.go", categoryPath(u.dir, u.name), err))
 		}
 		sites = append(sites, site)
-		queue = append(queue, unloadedReads(root, u.dir, sitesScope([]categorySite{site}))...)
+		queue = append(queue, unloadedReads(root, u.dir, siteNodes([]categorySite{site}))...)
 		queue = append(queue, u.linkedTables(e)...)
 	}
 	if len(sites) == 0 {
 		return
 	}
-	if err := categoryBinding(sites, root.children).bind(); err != nil {
-		panic(invariant.Broken("binding shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
+	if err := categoryPipeline(sites, root.children).run(); err != nil {
+		panic(invariant.Broken("loading shipped categories: %v; after a change under data/, regenerate shippedindex.go", err))
 	}
 }
 

@@ -12,7 +12,7 @@ import (
 // checkNameReads refuses each binding of t that checkUses refuses, a read of a name inside the
 // field bound to it, and a read {n} beside {n.w} where n's pick renders w twice: the pick keeps one
 // draw of w.
-func checkNameReads(label string, t *template, names linkedNames) error {
+func checkNameReads(label string, t *template, names resolvedNames) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
 			continue
@@ -24,7 +24,7 @@ func checkNameReads(label string, t *template, names linkedNames) error {
 	}
 	for _, r := range namedReads(t) {
 		b, target := r.a.named, names.targets[r.a.named]
-		if b.bindsField() && rendersInside(compilePath(target.head, target.tail).leaves, t) {
+		if b.bindsField() && rendersInside(compilePath(target.start, target.tail).leaves, t) {
 			return fmt.Errorf("%s: token {%s}: name %q is read inside %q, the field bound to it; read the name outside that field", label, r.o.Body, b.name, b.ref)
 		}
 		for _, leaf := range r.a.leaves {
@@ -69,7 +69,7 @@ func rendersInside(nodes []node, t *template) bool {
 // or tag of one reference alone, that entry point's own refusal then names the bare path.
 func (b *nameBinding) checkUses(uses []nameUse) error {
 	if len(uses) == 0 {
-		panic(invariant.Broken("name %q has no read at link, though its compile found one", b.name))
+		panic(invariant.Broken("name %q has no read at resolve, though its compile found one", b.name))
 	}
 	r := uses[0]
 	if len(uses) > 1 || r.nested {
