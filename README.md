@@ -904,6 +904,8 @@ Where the project is heading; the sections before Audience document what ships t
       spelling to write instead.
    8. When a clearer name turns up, it replaces the old one, even if that needs a new
       major version.
+   9. Everything fejkdata renders is written as a template: on the command line, in a
+      struct tag and in the library.
 6. **Mistakes are caught when the data loads, and the error says plainly what is
    wrong.**
    1. A template that could render a value its own rules forbid, such as `NaN` or `Inf`,

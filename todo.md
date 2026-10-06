@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 129`
+`Next ID = 130`
 
 | Goal | W |
 |---|---|
@@ -32,6 +32,7 @@
 | 5.6 | 0.80 |
 | 5.7 | 0.80 |
 | 5.8 | 0.80 |
+| 5.9 | 0.80 |
 | 6 | 0.75 |
 | 6.1 | 0.75 |
 | 6.2 | 0.75 |
@@ -69,6 +70,7 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
+| 129 | 0.1.0 |  | **Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.** | 5 | 8 | 8 | 10 | 5.9, 5.7, 7 | 25.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
@@ -234,6 +236,20 @@ Shape: T = table, t = template, c = choice.
 | `book` title, author; `genre`; `instrument`; `dish`, `ingredient` | T | Gutenberg catalog, MusicBrainz, USDA | CC0 |
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
+
+### 129. Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.
+
+Goal 5.9, which the maintainer set on 2026-10-06: a path is a second spelling of the template reading it.
+
+- A template of one reference alone is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, `--format csv '{/misc.territory[SE]}'` that row, and `--table` defaults to the reference's last segment.
+- `Fake`, `FakeRecord`, `NewTemplate` and `NewRecordTemplate` take a template. `FakeTemplate` folds into `Fake`, and `IsTemplate` goes.
+- `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
+- Text with no `{…}` prints as written (goal 5.1), so `fejkdata sv_SE.person` prints `sv_SE.person`.
+- An unknown reference exits 2, per the decision "An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing".
+- The lone-reference refusal, the leading-`/` refusal and the path branch of `grammar.IsTemplate` go.
+- This revises the decisions "An argument is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay" and "`--list` stays a plain list of paths". The README's examples, the CLI's usage text and `CHANGELOG.md`'s Breaking section move to the template spelling.
+
+Split it into items for the CLI, struct tags and the library before starting.
 
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
