@@ -37,7 +37,9 @@ NVDB_PAGE = 50000
 OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 TIMEZONE = "Europe/Stockholm"
+# The big cities the delivery-digit rule excepts: docs/research/research-geo-se.md, postnummer Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
+# A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Ortnamn.
 UNMATCHED_POPULATION = 200
 
 
@@ -133,7 +135,8 @@ class Nearest:
 
 
 def street_delivery(name, codes):
-    """The codes delivered to a street: the digit after the postort's own prefix says box, company or reply."""
+    """The codes delivered to a street: the digit after the postort's own prefix is 0 or 1 for boxes and 8 for reply mail,
+    per docs/research/research-geo-se.md, postnummer Structure."""
     if name in ONE_POSITION:
         return [c for c in codes if c[1] != "0"]
     largest = collections.Counter(c[:3] for c in codes).most_common(1)[0][1]
