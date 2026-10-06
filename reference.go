@@ -8,11 +8,14 @@ import (
 )
 
 // resolvedRef is what a reference resolves to: the head its category is held
-// under, and the tail read into it.
+// under, its path from the root behind a "/", and the tail read into it.
 type resolvedRef struct {
 	head string
 	tail []string
 }
+
+// categoryOf is the category path a resolvedRef's head names: the head without its "/".
+func categoryOf(head string) string { return strings.TrimPrefix(head, "/") }
 
 // refSegments resolves a reference written in folder to a path from the root.
 func refSegments(name string, folder []string) ([]string, error) {
