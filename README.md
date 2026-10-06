@@ -853,9 +853,9 @@ renamed or retyped line is a major.
 
 App developers writing tests and fixtures, in Go and at a shell:
 
-- a **bulk fixture author**, thousands of rows into CSV or SQL
+- a **bulk fixture author**, millions of rows into CSV or SQL
 - a **Go test author**, filling a struct with `FakeStruct`
-- a **hand fixture author**, one value at a shell
+- a **hand fixture author**, a few values at a shell
 - a **validator-facing author**, who needs a value a real checker accepts
 - a **data author**, who writes categories under `--data-path` and meets every load
   error the fences raise
@@ -915,7 +915,8 @@ Where the project is heading; the sections before Audience document what ships t
    2. Your first template of your own needs no escaping and no options.
    3. The CLI fills in what you leave out with a sane default: all the shipped data, the
       system's randomness and today's date.
-8. **Data is JSON files and TSV tables. Code is only for what they can't express.**
+8. **Human readable and editable data formats** — source data is saved in JSON or
+   TSV formats when possible.
 9. **Flexible and extensible.**
    1. Data and functions come in modules, a Go module or a data folder, from fejkdata
       or anyone else, and fejkdata's load as anyone else's do.
@@ -933,15 +934,14 @@ Where the project is heading; the sections before Audience document what ships t
 10. **The same seed, date, data and versions always give the same output.**
     1. In the library, the caller supplies everything that can change the output: data,
        seed and date.
-11. **It depends on nothing but Go's standard library.**
+11. **No unnecessary runtime dependencies** — use standard library by default.
 12. **The docs are a map of the template language.**
     1. Every feature has its own heading.
     2. Every example runs as a test and shows its output.
     3. Each rule is stated in one place.
 13. **It is fast enough that you never notice it with the shipped data.**
     1. A render's cost grows only with the data it reaches.
-14. **Every fact comes from an official or open source,** such as a government
-    register.
+14. **Strongly prioritize data sourced from good online sources**
 15. **The most common data comes first,** such as names, addresses, phone numbers and
     dates.
 16. **Values look real by default. You can also ask for values that can never reach
