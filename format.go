@@ -159,7 +159,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 		}
 		return true, fmt.Errorf("no field %q", a.head)
 	}
-	if err := checkPathResolves(field, a.tail, a.head); err != nil {
+	if err := checkPathReaches(field, a.tail, a.head); err != nil {
 		return false, fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return false, nil
@@ -341,7 +341,7 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	target := targets[b]
 	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
-	if err := checkPathResolves(target.start, full, a.head); err != nil {
+	if err := checkPathReaches(target.start, full, a.head); err != nil {
 		return a, err
 	}
 	w := compilePath(target.start, full)

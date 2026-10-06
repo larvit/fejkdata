@@ -962,7 +962,7 @@ name.go         names: {x as n} bindings, the scopes they live in, and the reads
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frames of the name scopes rendering, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through
-path.go         the dotted-path walks, and proving a path resolves
+path.go         the dotted-path walks, and proving a path reaches a node
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype

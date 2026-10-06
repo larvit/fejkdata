@@ -57,7 +57,7 @@ func (t *template) resolveRefs(folder []string, label, category string, root map
 		if category != "" && head == "/"+category {
 			return refs, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", label, name)
 		}
-		if err := checkPathResolves(target, tail, head); err != nil {
+		if err := checkPathReaches(target, tail, head); err != nil {
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		refs.categories[head] = target
