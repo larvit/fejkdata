@@ -241,15 +241,15 @@ Shape: T = table, t = template, c = choice.
 
 Goal 5.9. Today a path is a second spelling of the template that reads it; afterwards only the template remains.
 
-- A template of one reference token and nothing else is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, and `--format csv '{/misc.territory[SE]}'` that row. Under `--format sql` the default `--table` is the reference's last segment with selectors removed, `territory` for `{/misc.territory[SE]}`, where today a template defaults to `records`; item 40 lands with it.
+- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, and `--format csv '{/misc.territory[SE]}'` that row. Under `--format sql` the default `--table` is the reference's last segment with selectors removed, `territory` for `{/misc.territory[SE]}`, where today a template defaults to `records`.
 - `Fake` and `FakeRecord` take a template. `FakeTemplate` folds into `Fake`, `FakeRecordTemplate` into `FakeRecord`, and `IsTemplate` goes, with `grammar.IsTemplate` and the lone-reference refusal.
 - `Fake` of a lone reference costs what `Fake` of its path costs today, and the allocation gate holds a case for it.
 - `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
-- Text that is not a JSON value and holds no `{` or `}` prints as written (goal 5.1), so `fejkdata sv_SE.person` prints `sv_SE.person`. A struct tag's `-` still skips its field.
+- Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in the CLI, a struct tag and `Fake` alike, so `fejkdata sv_SE.person` prints `sv_SE.person`; the maintainer chose this on 2026-10-07, and `CHANGELOG.md` says plainly that such a path now prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
 - An unknown reference exits 2, where an unknown path exits 1 today.
-- The README's CLI section says in one line how to quote a template in each shell family, PowerShell and cmd.exe included.
-- This revises the decisions "An argument is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", and the exit-1 rule for an unknown path in "An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing". The README's examples and exit codes, the godoc examples in `doc.go`, the CLI's usage text and header comment, and `CHANGELOG.md`'s entries move to the template spelling. Delete item 110, which this closes.
+- The README's CLI section gives one line per shell family, PowerShell and cmd.exe included, showing how to quote a template.
+- This revises the decisions "An argument is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", and the exit-1 rule for an unknown path in "An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing". The README's examples and exit codes, the godoc examples in `doc.go`, the CLI's usage text and header comment, and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
 
 Split it into items for the CLI, struct tags and the library before starting.
 
