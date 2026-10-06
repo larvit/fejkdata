@@ -9,8 +9,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// checkNameReads refuses each binding of t read only once, a read of a name inside the field bound
-// to it, and a read {n} beside {n.w} where n's pick renders w twice.
+// checkNameReads refuses each binding of t that refuseSingleRead refuses, a read of a name inside
+// the field bound to it, and a read {n} beside {n.w} where n's pick renders w twice.
 func checkNameReads(label string, t *template, names resolvedNames) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
