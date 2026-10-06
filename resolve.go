@@ -171,15 +171,21 @@ func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead 
 		return nil
 	}
 	a := ops[0].arms[0]
-	start, category, tail := t.startOf(a.head), a.head[min(1, len(a.head)):], a.tail
+	var start node
+	var category string
+	var tail []string
 	switch b := a.named; {
 	case a.kind == namedRead && b.bindsField():
-		start, category = b.binder, ""
-		tail = append(append([]string{splitArm(b.ref, nil).head}, targets[b].tail...), a.tail...)
+		// {f as n}{n}: column f of the record binding n, in t's own category.
+		start, tail = b.binder, append(append([]string{splitArm(b.ref, nil).head}, targets[b].tail...), a.tail...)
 	case a.kind == namedRead:
-		start, category = targets[b].start, b.binder.refs.byName[b.ref].head[1:]
+		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
+		start, category = targets[b].start, categoryOf(b.binder.refs.byName[b.ref].head)
 		tail = append(targets[b].tail[:len(targets[b].tail):len(targets[b].tail)], a.tail...)
-	case !grammar.IsRef(a.head):
+	case grammar.IsRef(a.head):
+		// {/c.x}: column x of category c.
+		start, category, tail = t.startOf(a.head), categoryOf(a.head), a.tail
+	default:
 		return nil
 	}
 	if target, isTemplate := start.(*template); isTemplate && target.isRecord && len(tail) == 1 {
