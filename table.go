@@ -50,7 +50,6 @@ func (t *table) cellTemplate(row, col int) *template {
 
 func (t *table) cellIndex(row, col int) int { return row*len(t.rows.Header()) + col }
 
-// tableOptions are the keys a table object takes; every other key is refused.
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
 
 func isTableOption(name string) bool {

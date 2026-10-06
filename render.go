@@ -109,8 +109,6 @@ func renderRepeat(s *drawstate.State, t *template, env renderEnv) string {
 	return b.String()
 }
 
-// drawItem selects one item. Uniform choices are O(1); weighted choices are an
-// O(log n) search over precomputed cumulative weights.
 func drawItem(s *drawstate.State, c *choice) node {
 	if c.cum == nil {
 		return c.items[s.IntN(len(c.items))]

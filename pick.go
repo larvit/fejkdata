@@ -76,7 +76,6 @@ type frameStack struct {
 	frames []*pickFrame
 }
 
-// push opens f until pop closes it, returning the mark pop takes.
 func (st *frameStack) push(f *pickFrame) int {
 	mark := len(st.frames)
 	st.frames = append(st.frames, f)

@@ -220,7 +220,6 @@ func join(prefix, name string) string {
 	return prefix + "." + name
 }
 
-// randomBytes seeds an unseeded generator.
 var randomBytes = crand.Read
 
 // drawSeed is the seed WithSeed gave, or one read from the system's entropy.

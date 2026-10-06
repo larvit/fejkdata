@@ -30,7 +30,6 @@ type Record struct {
 	columns []Column
 }
 
-// Columns returns the record's columns in name order.
 func (r *Record) Columns() []Column {
 	return append([]Column(nil), r.columns...)
 }
@@ -214,8 +213,7 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // the record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// recordOf is the record template n is, the fence FakeRecord, NewRecordTemplate and FakeStruct
-// pass; settleRecords fixed its columns at load.
+// recordOf is the record template n is; settleRecords fixed its columns at load.
 func recordOf(n node) (*template, error) {
 	if tb, isTable := n.(*table); isTable {
 		n = tb.formatTemplate
