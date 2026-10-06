@@ -398,6 +398,10 @@ CI load, while time varies with the machine and its neighbours. A rendering slow
 almost always costs an allocation too (a lost pre-size, a per-item map, an extra copy).
 The benchmark suite (the README's Development) reports time for a human, not as a pass/fail gate.
 
+A case guarding against one allocation per render, such as a render's scope reaching the
+heap through `pickKey.under`, holds at its baseline with no margin, since 10% of its
+count is less than one allocation. Lilleman auf Larv decided it on 2026-10-06.
+
 ## Rows live in a TSV, the shape in JSON
 
 2026-09-17, Lilleman auf Larv. Goals 8 and 13.
