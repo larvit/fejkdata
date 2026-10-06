@@ -66,8 +66,8 @@ func mergeChildren(dst, src map[string]node) {
 	}
 }
 
-// nodeSet is the set of nodes one validation pass covers: the categories one load
-// reads, or a single inline node.
+// nodeSet is the set of nodes one validation pass covers: one load's categories, or a
+// single inline node.
 type nodeSet func(fn func(label string, n node) error) error
 
 // categorySite is a loaded category and where it sits: the folder holding it, that

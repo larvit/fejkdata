@@ -111,7 +111,7 @@ const (
 	stepParent // up to the table's parent, at the row its own row links to
 )
 
-// pathCheck proves a path resolves whichever way the draws go: every variant of a
+// pathCheck proves a path reaches a node whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. It compiles the steps
 // a draw takes, and every leaf the path may render; level names the head in its errors.
@@ -237,7 +237,7 @@ func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 	return last, nil
 }
 
-// probePath proves a path resolves without drawing, appending to steps the steps a
+// probePath proves a path reaches a node without drawing, appending to steps the steps a
 // draw takes. Where pathCheck walks every variant of a choice, it walks the first,
 // which carriedByAll lets stand for all.
 func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
@@ -346,7 +346,7 @@ func (t *table) step(tail []string) (column node, child *table, err error) {
 	return nil, d.Owner(), nil
 }
 
-// carriedByAll is the choice rule a path that must resolve on every call obeys:
+// carriedByAll is the choice rule a path that must reach a node on every call obeys:
 // the rest of the tail must be one every variant carries.
 func carriedByAll(c *choice, rest []string) error {
 	if want := strings.Join(rest, "."); !c.shared[want] {
@@ -365,7 +365,7 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func checkPathResolves(n node, tail []string, level string) error {
+func checkPathReaches(n node, tail []string, level string) error {
 	_, err := (&pathCheck{level: level, tail: tail}).run(n)
 	return err
 }

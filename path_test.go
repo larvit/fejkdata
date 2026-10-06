@@ -129,7 +129,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}
-	// The same data without the dotted key is fine, and the path resolves.
+	// The same data without the dotted key is fine, and the path reaches a node.
 	f := newGenerator(t, writeData(t, map[string]string{
 		"cat": `{"format":"{a.b}","a":{"format":"{b}","b":"2"}}`,
 	}), WithSeed(1))
