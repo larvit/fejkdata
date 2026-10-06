@@ -11,15 +11,14 @@ import (
 // arm is one alternative of a {a|b} token or one operand, split into the head,
 // whose node `template.startOf` finds, and the tail of a dotted path into it.
 type arm struct {
-	spelling    string // as written, for messages
-	head        string
-	writtenHead string // head as written, sigil included
-	tail        []string
-	levels      []pickKey // the key of each level the steps pass, from the head they start at to the leaf; a step's at indexes it
-	steps       []pathStep
-	leaves      []node // every node the path may land on, one per variant it passes
-	kind        armKind
-	named       *nameBinding // namedRead: the binding of the name it reads through
+	spelling string // as written, for messages
+	head     string
+	tail     []string
+	levels   []pickKey // the key of each level the steps pass, from the head they start at to the leaf; a step's at indexes it
+	steps    []pathStep
+	leaves   []node // every node the path may land on, one per variant it passes
+	kind     armKind
+	named    *nameBinding // namedRead: the binding of the name it reads through
 }
 
 // armKind is how expand reads an arm, fixed at compile.
@@ -42,19 +41,17 @@ func splitArm(name string, refs map[string]resolvedRef) arm {
 			}
 			return arm{spelling: name, head: head, levels: []pickKey{pickKey(head)}}
 		}
-		sigil, rest, _ := grammar.RefShape(name) // resolveRefs proved it, and took r.tail as a suffix of its segments
-		written, _ := grammar.SplitPath(rest)
-		return pathArm(name, r.head, sigil+grammar.JoinSegments(written[:len(written)-len(r.tail)]), r.tail)
+		return pathArm(name, r.head, r.tail)
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
 		return arm{spelling: name, head: name, levels: []pickKey{pickKey(name)}}
 	}
-	return pathArm(name, segs[0], segs[0], segs[1:])
+	return pathArm(name, segs[0], segs[1:])
 }
 
-func pathArm(name, head, writtenHead string, segs []string) arm {
-	return arm{spelling: name, head: head, writtenHead: writtenHead, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
+func pathArm(name, head string, segs []string) arm {
+	return arm{spelling: name, head: head, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
 }
 
 // levelKeys is the key of each prefix of path holding at least from segments, shortest first.
