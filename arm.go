@@ -15,7 +15,7 @@ type arm struct {
 	head        string
 	writtenHead string // head as written, sigil included
 	tail        []string
-	levels      []pickKey // the key of each level the steps pass, from the head they start at to the leaf
+	levels      []pickKey // the key of each level the steps pass, from the head they start at to the leaf; a step's at indexes it
 	steps       []pathStep
 	leaves      []node // every node the path may land on, one per variant it passes
 	kind        armKind

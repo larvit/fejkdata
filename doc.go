@@ -29,6 +29,19 @@ package fejkdata
 //     `namedPick`, `pickFrame`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
+//   - level — a node a read's path starts at, passes or lands on. `arm.levels` holds one pick
+//     key per level, and a step's `pathStep.at` indexes it.
+//   - pick key — the key a memo keeps a level's draw under, the level's path of segments:
+//     `pickKey`, `levelKeys`. A read through a name keys from the node its binding starts at,
+//     as ""; a fresh read keys from its head, and `pickKey.under` moves its keys under the
+//     key of the level it renders in.
+//   - addressed key — a pick key some read of a name lands on or passes, from the name's own
+//     level: `addressedKeys`. A fresh read rendering in a pick is kept in it only where its
+//     first level is addressed: `renderEnv.keeps`, `readUnder`.
+//     In data/geo/SE/address.json, {l.street.name} reads through {.locality as l} at the
+//     levels "", "street" and "street.name", the last its key, and {l.name} adds "name".
+//     Where {p} renders a category whose format reads {first}, and {p.first} sits beside
+//     it, that fresh read's key "first", under {p}'s "", is addressed: both read one draw.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `pinSet`, `namedPick.pins`, `table.drawStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:
