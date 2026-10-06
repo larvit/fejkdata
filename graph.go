@@ -41,7 +41,6 @@ type namedNode struct {
 	line int // a table cell's line in its rows file, else 0
 }
 
-// labelIn is c's label inside the node labelled label.
 func (c namedNode) labelIn(label string) string {
 	if c.line > 0 {
 		return fmt.Sprintf("%s, line %d", label, c.line)

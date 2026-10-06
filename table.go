@@ -203,7 +203,6 @@ func refuseTableBinding(toks []grammar.Token) error {
 	return nil
 }
 
-// linkTables links each table to the parent beside it.
 func linkTables(sites []categorySite) error {
 	for _, s := range sites {
 		t, isTable := s.n.(*table)

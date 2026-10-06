@@ -93,7 +93,6 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
-// load is the tree New starts from.
 // docs/decisions.md#with-only-the-shipped-set-a-category-loads-on-the-first-call-reaching-it-beside-a---data-path-every-category-loads-in-new
 func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {

@@ -100,7 +100,6 @@ func (p *Pins[O]) PinRow(t *Table[O], r int) error {
 	return nil
 }
 
-// Select pins the row of t that sel names, and returns it.
 func (p *Pins[O]) Select(t *Table[O], sel string) (int, error) {
 	r, err := t.find(sel, p)
 	if err != nil {
