@@ -265,13 +265,14 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	if err != nil {
 		return tableRoute{}, err
 	}
-	selected, readsRow := sel != "", descended || len(tail) > 0
+	selected := sel != ""
+	readsRow := selected || descended || len(tail) > 0
 	// A selector further down pins this table by ancestry; drawing first could draw a row the
 	// selector is not inside.
 	pinnedBelow := grammar.HasSelector(tail)
 	r := tableRoute{sel: sel, draw: !selected && readsRow && !pinnedBelow}
 	switch {
-	case !selected && !readsRow:
+	case !readsRow:
 		r.next = t
 	case len(tail) == 0:
 		r.next = t.rowNode

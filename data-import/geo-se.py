@@ -37,7 +37,7 @@ NVDB_PAGE = 50000
 OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 TIMEZONE = "Europe/Stockholm"
-# The big cities the delivery-digit rule excepts: docs/research/research-geo-se.md, postnummer Structure.
+# This script's reading of the "exceptions in big cities" in docs/research/research-geo-se.md, postnummer Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 # A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Ortnamn.
 UNMATCHED_POPULATION = 200
