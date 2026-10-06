@@ -30,6 +30,7 @@ type Record struct {
 	columns []Column
 }
 
+// Columns returns a copy of the record's columns, in name order.
 func (r *Record) Columns() []Column {
 	return append([]Column(nil), r.columns...)
 }

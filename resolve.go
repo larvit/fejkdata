@@ -62,9 +62,8 @@ type resolvedNames struct {
 }
 
 // resolveTemplates resolves ts in steps, each over every template before the next starts. The
-// references, the compiled format and the column read are kept on each template. The names'
-// targets, keys and reads pass to later steps as arguments, and the bindings take their targets
-// and keys only once every check has passed.
+// names' targets, keys and reads pass to later steps as arguments, and the bindings take their
+// targets and keys only once every check has passed.
 func resolveTemplates(ts []templateSite, root map[string]node) error {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, s.category, root)
