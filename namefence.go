@@ -65,7 +65,8 @@ func rendersInside(nodes []node, t *template) bool {
 // refuseSingleRead refuses b when its one read sits in b's own scope, not in a repeat nested inside
 // it, at a spot where the bound spelling could stand. That spelling draws the same without the
 // name: write {/word} for {/word as w}{w}. A bound field can stand in only where the reading
-// template reaches the binder through fields. A calc operand cannot read a reference or a path.
+// template reaches the binder through fields. A single read as a calc operand stands where a calc
+// could not read the spelling, a reference or a path.
 // Where the spelling would be a whole CLI argument or a whole struct tag, that entry point refuses
 // it and names the bare path.
 func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
@@ -121,10 +122,10 @@ func calcReads(spelling string) bool {
 	return err == nil && isVar && v.Name == spelling
 }
 
-// refuseTwiceDrawn refuses read, a read of a name landing on n at key under the name's pick, where n
-// renders a field twice and another read of the name addresses that field: the pick keeps one draw
-// of the field, so beside {n} for a category {w}-{w}, {n.w} cannot say which draw it reads.
-// addressed maps each level a read of the name addresses to that read.
+// refuseTwiceDrawn refuses read, a read of a name that lands on n, where n renders a field twice and
+// another read of the name addresses that field. The pick keeps one draw of the field: where n binds
+// a category whose format is {w}-{w}, a {n.w} beside {n} cannot say which draw it reads. key is n's
+// level under the pick; addressed maps each level a read of the name addresses to that read.
 func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pickKey) error {
 	switch n := n.(type) {
 	case *choice:

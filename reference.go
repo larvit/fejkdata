@@ -7,14 +7,14 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// resolvedRef is what a reference resolves to: the head its category is held under, a "/"
-// and then the category's path from the root, and the tail read into it.
+// resolvedRef is what a reference resolves to. head is "/" and the category's path from the root,
+// the key the category is held under; tail is the path read into the category.
 type resolvedRef struct {
 	head string
 	tail []string
 }
 
-// categoryOf is the category path a resolvedRef's head names: the head without its "/".
+// categoryOf is the category path a resolvedRef's head names.
 func categoryOf(head string) string { return strings.TrimPrefix(head, "/") }
 
 // refSegments resolves a reference written in folder to a path from the root.

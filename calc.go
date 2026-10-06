@@ -11,8 +11,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// checkCalcFields checks each calc operand a field holds; an operand no field holds is a name,
-// which checkCalcNames checks once names resolve.
+// checkCalcFields runs checkOperands over each calc operand naming a field; an operand naming no
+// field is a name, which checkCalcNames checks once names resolve.
 func checkCalcFields(args []string, fields map[string]node) error {
 	return checkOperands(args[0], builtinfunc.ParsedCalc(args[0]), func(name string) []node {
 		if n, ok := fields[name]; ok {
