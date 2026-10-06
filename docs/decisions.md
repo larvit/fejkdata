@@ -677,10 +677,9 @@ naming the row.
 2026-09-20, Lilleman auf Larv.
 
 `misc.httpmethod`, `misc.port`, `misc.httpstatus`, `misc.mimetype` and `misc.tld` weigh
-every row alike, so GET is a ninth of the methods drawn. Goal 14 keeps an authored fact
-out of a sourced table, and no register publishes how often a method, a port or a TLD is
-used, so a weight here would be invented. Where one exists it is read, as
-`misc.timezone` reads GeoNames populations and `sv_SE.first-name` SCB bearers.
+every row alike, so GET is a ninth of the methods drawn. Where a register publishes a
+frequency it is read, as `misc.timezone` reads GeoNames populations and
+`sv_SE.first-name` SCB bearers.
 
 ## `misc.timezone` weighs a zone by the people living in it
 
