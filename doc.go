@@ -31,18 +31,18 @@ package fejkdata
 //     and the value each path read: `drawMemo`.
 //   - level — a prefix of a read's path, from where it starts to its leaf; a choice and the
 //     variant drawn from it, or a table and its row, share one. `arm.levels` holds one pick
-//     key per level, and a step's `pathStep.at` indexes it.
+//     key per level.
 //   - pick key — the key a memo keeps a level's draw under, the level's path of segments:
-//     `pickKey`, `levelKeys`. A read through a name keys from the node its binding starts at,
-//     as ""; a fresh read keys from its head, and `pickKey.under` moves its keys under the
-//     key of the level it renders in.
-//   - addressed key — a pick key some read of a name lands on or passes, from the name's own
-//     level: `addressedKeys`. A fresh read rendering in a pick is kept in it only where its
-//     first level is addressed: `renderEnv.keeps`, `readUnder`.
-//     In data/geo/SE/address.json, {l.street.name} reads through {.locality as l} at the
-//     levels "", "street" and "street.name", the last its key, and {l.name} adds "name".
-//     Where {p} renders a category whose format reads {first}, and {p.first} sits beside
-//     it, that fresh read's key "first", under {p}'s "", is addressed: both read one draw.
+//     `pickKey`, `levelKeys`.
+//   - addressed key — a pick key some read of a name lands on or passes, from the level the
+//     name's binding lands on onward: `addressedKeys`. A fresh read rendering in a pick is
+//     kept in it only where its first level is addressed: `renderEnv.keeps`, `readUnder`.
+//     In data/geo/SE/address.json, {.locality as l} binds l, and {l.street.name} passes the
+//     levels "", "street" and "street.name", the last its key. With {l.name} and
+//     {l.postal-code.code}, l's addressed keys are those three, "name", "postal-code" and
+//     "postal-code.code". Where p binds a category whose format reads {first}, and both {p}
+//     and {p.first} are read, the {first} that {p} renders has the key "first" under {p}'s
+//     key "". {p.first} addresses "first", so both read one draw.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `pinSet`, `namedPick.pins`, `table.drawStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:
