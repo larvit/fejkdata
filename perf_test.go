@@ -59,12 +59,12 @@ func TestNoRenderAllocRegression(t *testing.T) {
 func TestNoReferenceAllocRegression(t *testing.T) {
 	word := `{"format":"{w}","w":["alpha","beta","gamma","delta"]}`
 	for _, s := range []struct {
-		name, json string
-		base       float64
+		name, json  string
+		base, slack float64
 	}{
-		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 25},
-		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 162},
-		{"a read two levels under a pick", `{"format":"{place.geo as g}{g} {g.town.zip}","place":{"format":"{geo}","geo":{"format":"{town.zip}","town":{"format":"{zip}","zip":"1"}}}}`, 12},
+		{"a repeat of a reference path", `{"format":"{r}","r":{"format":"{/word.w}","repeat":20,"separator":", "}}`, 25, 1.10},
+		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 162, 1.10},
+		{"a read two levels under a pick", `{"format":"{place.geo as g}{g} {g.town.zip}","place":{"format":"{geo}","geo":{"format":"{town.zip}","town":{"format":"{zip}","zip":"1"}}}}`, 12, 1},
 	} {
 		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 			"word.json": {Data: []byte(word)},
@@ -73,8 +73,8 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 		if err != nil {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
-		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*1.10 {
-			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); a render's scope reaching the heap is the usual cause", s.name, allocs, s.base*1.10, s.base)
+		if allocs := testing.AllocsPerRun(10000, func() { f.Fake("x") }); allocs > s.base*s.slack {
+			t.Errorf("%s: %.1f allocs/op regressed past %.1f (baseline %.1f × %.2f); a render's scope reaching the heap is the usual cause", s.name, allocs, s.base*s.slack, s.base, s.slack)
 		}
 	}
 }
