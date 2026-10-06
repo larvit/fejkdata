@@ -1,7 +1,7 @@
 # Swedish (sv_SE) fake-data sources — research 2026-09-17
 
 Scope: names, identifiers, phone, company, plates/cars, words, dates/misc, other. Geography excluded.
-"Verified" = fetched and read on 2026-09-17.
+"Verified" = fetched and read for this research.
 
 ## Licence summary (embed in MIT repo?)
 
