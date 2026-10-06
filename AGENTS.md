@@ -101,7 +101,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.timezone` weighs a zone by the people living in it
 - `misc.car` is one flat table, not a make linked to its models
 - `misc.territory` names its sovereign in a column, and there is no `misc.country` table
-- `misc.loglevel` is a table keyed by POSIX's keyword, carrying the code
+- `misc.loglevel` is a table keyed by the syslog code, and named by POSIX's keyword
 - `misc.tld` keys carry the leading dot, where other tables key on a bare code
 - `misc.tld` is a table of its own, and `misc.territory.tld` stays a column
 - `misc.territory` carries a currency code, it does not link to `misc.currency`

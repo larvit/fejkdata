@@ -1,7 +1,7 @@
 # Swedish (sv_SE) fake-data sources — research 2026-09-17
 
 Scope: names, identifiers, phone, company, plates/cars, words, dates/misc, other. Geography excluded.
-"Verified" = fetched and read this session. Local copies of inspected files: `/home/lilleman/.claude/jobs/e377c8d4/tmp/`.
+"Verified" = fetched and read on 2026-09-17.
 
 ## Licence summary (embed in MIT repo?)
 

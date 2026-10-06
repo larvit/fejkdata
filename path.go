@@ -246,7 +246,7 @@ func checkPathReaches(n node, tail []string, level string) error {
 	return err
 }
 
-// compilePath compiles a path checkPathResolves proved.
+// compilePath compiles a path checkPathReaches proved.
 func compilePath(n node, tail []string) pathCheck {
 	w := pathCheck{tail: tail}
 	if _, err := w.run(n); err != nil {
