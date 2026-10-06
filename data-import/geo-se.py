@@ -136,7 +136,8 @@ class Nearest:
 
 def street_delivery(name, codes):
     """The codes delivered to a street. Outside ONE_POSITION's cities, the digit after the postort's own prefix is 0 or 1
-    for boxes and 8 for reply mail; inside them, a second digit 0 marks boxes.
+    for boxes and 8 for reply mail; inside them, a second digit 0 marks boxes. The postort's own prefix is three digits
+    where one three-digit prefix starts at least half its codes, else two.
     Per docs/research/research-geo-se.md, Postal codes → Structure."""
     if name in ONE_POSITION:
         return [c for c in codes if c[1] != "0"]
