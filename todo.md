@@ -82,7 +82,7 @@
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 140 | 0.1.0 |  | **Say in the README's geo table that a Swedish street is counted, segment by segment, toward the postort of the nearest postal code, so a street near a border may sit under the neighbouring postort.** | 1 | 1 | 3 | 5 | 3.1 | 13.8 |
-| 133 | 0.1.0 |  | **State at `refuseSingleRead` why its case for a calc operand stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.** | 1 | 2 | 1 | 7 | 3.4 | 13.1 |
+| 133 | 0.1.0 |  | **Show at `refuseSingleRead`, with a calc that reads a name once, why that read stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.** | 1 | 2 | 1 | 7 | 3.4 | 13.1 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 131 | 0.1.0 |  | **Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.** | 1 | 3 | 1 | 7 | 3.2, 3.1 | 12.8 |
 | 132 | 0.1.0 |  | **Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
@@ -304,7 +304,7 @@ Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}`
 
 `streets` in `data-import/geo-se.py` counts each road segment at its nearest postal code's centroid, so a street near a border lands in the neighbouring postort; the README's row says "per postort". Both inherited architects searched the engine for the 3am question's cause before the data. Item 63 ends the need for the sentence.
 
-### 133. State at `refuseSingleRead` why its case for a calc operand stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.
+### 133. Show at `refuseSingleRead`, with a calc that reads a name once, why that read stands, and at `refuseTwiceDrawnIn` how its recursion through `addressed` reaches a nested level, so neither needs the README's Names list open.
 
 Seven of the nine seats of the 2026-10-07 panel needed the README's Names list open to see why the calc case of `refuseSingleRead` stands, and how `refuseTwiceDrawnIn`'s recursion over `addressed` reaches a nested level.
 
@@ -316,7 +316,7 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 ### 131. Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.
 
-Both inherited architects, in the panel and in the scoring run, ranked first one change: gather in one file the runtime that keeps a name's pick, since `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
+Both inherited architects, in the panel and in the scoring run, ranked one change first: gather the runtime that keeps a name's pick in one file. `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
 
 ### 132. Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
 
@@ -352,7 +352,7 @@ Both architects of the 2026-10-07 panel looked for `paths`, `tablePaths`, `share
 
 ### 141. Delete the doc lines the 2026-10-07 panel read as restating their code, and say what `gatherFields`' `index` is.
 
-Named across seven seats of the 2026-10-07 panel: `load` in `fejkdata.go`, `bindAll`, `checkEveryNameRead`, `nameUses`, `resolveInlineTemplates`, `linkTables`, `compileFields`, `categoryPath`, `labelIn`, `renderOnce`, `rowOf` and `Pins.Select`, and `checkCells`, whose name says it checks where it compiles and stores each cell. Three seats could not read `gatherFields`' "t sits at index within c.typ."
+Named across seven seats of the 2026-10-07 panel: `load` in `fejkdata.go`, `bindAll`, `checkEveryNameRead`, `nameUses`, `resolveInlineTemplates`, `linkTables`, `compileFields`, `categoryPath`, `labelIn`, `renderOnce`, `rowOf` and `Pins.Select`. Three seats could not read `gatherFields`' "t sits at index within c.typ."
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
