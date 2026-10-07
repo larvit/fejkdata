@@ -81,12 +81,6 @@
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
-| 131 | 0.1.0 |  | **Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.** | 1 | 3 | 1 | 7 | 3.2, 3.1 | 12.8 |
-| 132 | 0.1.0 |  | **Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `childNamed` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
-| 134 | 0.1.0 |  | **Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.** | 1 | 2 | 1 | 6 | 3.3, 3.2 | 11.3 |
-| 136 | 0.1.0 |  | **Rename `grammar.NameRead` and `grammar.CheckName` for what they read and check, so a name in the engine is only a bound name.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
-| 135 | 0.1.0 |  | **Choose `disagreement`'s message from one table over the two items' kinds.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
-| 137 | 0.1.0 |  | **Move `List`'s path enumeration out of `fejkdata.go` into a file named for it, `position` into `node.go`, and `sortedNames` out of `graph.go`.** | 1 | 2 | 1 | 5 | 3.1 | 9.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
@@ -294,30 +288,6 @@ Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}`
 Needs item 77, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
-
-### 131. Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.
-
-Both inherited architects, in the panel and in the scoring run, ranked one change first: gather the runtime that keeps a name's pick in one file. `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
-
-### 132. Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `childNamed` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
-
-Six of the nine seats of the 2026-10-07 panel named these names: five entry points walk a path, `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath`, and five units with near names step through one, `takeStep`, `childNamed`, `table.step`, `table.drawStep` and `drawSteps`; and `pathPos.descended`'s doc, "route's descended flag for it", defines it by its reader.
-
-### 134. Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.
-
-Four seats across the 2026-10-07 panel and scoring run took `b.tail` in `recordColumns` for the tail of `ref`; it is promoted from the embedded `nameTarget`, which `resolveTemplates` fills last, and `nameUse.tail` is a string beside it.
-
-### 136. Rename `grammar.NameRead` and `grammar.CheckName` for what they read and check, so a name in the engine is only a bound name.
-
-Both architects of the 2026-10-07 panel named it. `grammar.NameRead` is any `{x}` read, a field, a reference or a name, beside `namedRead`, a read through a bound name, both in `columnReadOf`; `grammar.CheckName` checks any identifier. The table option `name` is public and stays.
-
-### 135. Choose `disagreement`'s message from one table over the two items' kinds.
-
-Five of the nine seats of the 2026-10-07 panel named it: a kind ranking, a swap, a nested switch and a `fits` proof only to choose an error message.
-
-### 137. Move `List`'s path enumeration out of `fejkdata.go` into a file named for it, `position` into `node.go`, and `sortedNames` out of `graph.go`.
-
-Both architects of the 2026-10-07 panel looked for `paths`, `tablePaths`, `sharedPaths` and `subPaths` in `path.go`, `position` in `node.go`, its main reader, and found `sortedNames`, which nine other files use, in `graph.go`. Revise the README's Layout block with it.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
