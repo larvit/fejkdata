@@ -41,6 +41,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Flags follow getopt_long
 - A struct tag is a template by its shape
 - The CLI renders exactly the template on its stdin, and adds nothing
+- The CLI reads only the library's public API
 - A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 - Whitespace around a JSON template is dropped, in `NewTemplate` and on stdin
 - `FakeTemplate` and `NewTemplate` both stay
