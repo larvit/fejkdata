@@ -86,7 +86,7 @@ func TestADefaultWrittenOutIsTheDefault(t *testing.T) {
 	} {
 		sameRenders(t, long, short)
 	}
-	if r := compiled(t, `{"format":"","n":{"format":"1","datatype":"string"}}`).(*template); !r.isRecord || r.fields["n"].(*template).datatype != DataTypeString {
+	if r := compiled(t, `{"format":"","n":{"format":"1","datatype":"string"}}`).(*template); !r.isRecord || *r.fields["n"].(*template).datatype != DataTypeString {
 		t.Error("a column of datatype string is no string column of a record")
 	}
 }

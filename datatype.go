@@ -20,29 +20,26 @@ const (
 	DataTypeBoolean DataType = datatype.Boolean
 )
 
-// datatypeOf reads a template's "datatype" (default DataTypeString).
-func datatypeOf(m map[string]any, pos position) (DataType, error) {
+// datatypeOf reads a template's "datatype", nil where it carries none.
+func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	v, ok := m["datatype"]
 	if !ok {
-		return DataTypeString, nil
+		return nil, nil
 	}
 	name, ok := v.(string)
 	if !ok {
-		return 0, fmt.Errorf("datatype must be a string, got %T", v)
+		return nil, fmt.Errorf("datatype must be a string, got %T", v)
 	}
-	if name == DataTypeString.String() {
-		return DataTypeString, nil
-	}
-	for d := DataTypeInteger; d < datatype.Count; d++ {
+	for d := DataTypeString; d < datatype.Count; d++ {
 		if name != d.String() {
 			continue
 		}
-		if pos != inColumn {
-			return 0, errors.New("datatype only types a record column — a field of the top-level template — so it has no effect here")
+		if pos != inColumn && d != DataTypeString {
+			return nil, errors.New(`datatype only types a record column — a field of the top-level template — so it has no effect here; drop "datatype"`)
 		}
-		return d, nil
+		return &d, nil
 	}
-	return 0, fmt.Errorf(`datatype takes "string", "integer", "number" or "boolean", got %q`, name)
+	return nil, fmt.Errorf(`datatype takes "string", "integer", "number" or "boolean", got %q`, name)
 }
 
 // checkColumns rejects a record column whose items hold different datatypes, checking a column
@@ -100,10 +97,13 @@ func columnDatatype(n node) DataType {
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
 func itemDatatype(t *template) DataType {
-	if !t.declared && t.readsColumn != nil {
+	switch {
+	case t.datatype != nil:
+		return *t.datatype
+	case t.readsColumn != nil:
 		return columnDatatype(t.readsColumn.column)
 	}
-	return t.datatype
+	return DataTypeString
 }
 
 // columnItems is a column's template items, its choices unwrapped, and whether one is null.
@@ -139,7 +139,7 @@ const (
 
 func kindOf(t *template) itemKind {
 	switch {
-	case t.declared:
+	case t.datatype != nil:
 		return kindDeclares
 	case itemDatatype(t) != DataTypeString:
 		return kindReads

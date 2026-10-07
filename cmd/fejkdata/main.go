@@ -291,12 +291,15 @@ func operandError(arg string) error {
 	if fi, err := os.Stat(arg); err == nil && fi.Mode().IsRegular() {
 		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
 	}
-	example, ref := pipeHint, "{/"+strings.TrimPrefix(arg, "/")+"}"
-	if _, lone := loneReference(arg); lone {
+	ref := "{/" + strings.TrimPrefix(arg, "/") + "}"
+	_, argLone := loneReference(arg)
+	inline, err := fejkdata.IsTemplate(arg)
+	_, refLone := loneReference(ref)
+	example := pipeHint
+	switch {
+	case argLone || inline:
 		example = piped(arg)
-	} else if inline, err := fejkdata.IsTemplate(arg); inline {
-		example = piped(arg)
-	} else if _, lone := loneReference(ref); lone && err == nil {
+	case err == nil && refLone:
 		example = piped(ref)
 	}
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
@@ -453,11 +456,8 @@ type input struct {
 // allowed.
 func parseInput(raw string) (input, error) {
 	trimmed := strings.Trim(raw, jsonSpace)
-	switch trimmed {
-	case "":
+	if trimmed == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
-	case "null":
-		return input{}, fmt.Errorf("stdin holds only null, as jq prints for a missing key: %s", pipeHint)
 	}
 	text := raw
 	if json.Valid([]byte(trimmed)) {
@@ -487,18 +487,37 @@ func loneReference(text string) (string, bool) {
 }
 
 // isPath reports whether a reference's body after its / is a path alone: no second /, no
-// folder sigil, and none of the |, ( or " as " a token reads outside a selector.
+// folder sigil, no empty segment, and none of the |, ( or " as " a token reads outside a selector.
 // It copies the grammar, since the CLI reads only the library's public API.
 func isPath(body string) bool {
 	if body == "" || strings.ContainsAny(body[:1], "/.") {
 		return false
 	}
 	names := withoutSelectors(body)
-	if strings.ContainsAny(names, "|(") || strings.Contains(names, " as ") {
+	if strings.ContainsAny(names, "|(") || strings.Contains(names, " as ") || hasEmptySegment(names) {
 		return false
 	}
 	inline, err := fejkdata.IsTemplate(body)
 	return !inline && err == nil
+}
+
+// hasEmptySegment reports whether a dotted path holds a segment with no name: two dots are a
+// step up, and only a step up may end the path.
+func hasEmptySegment(path string) bool {
+	segments := strings.Split(path, ".")
+	stepUp := false
+	for i, seg := range segments[1:] {
+		last := i == len(segments)-2
+		switch {
+		case seg != "":
+			stepUp = false
+		case stepUp && !last, !stepUp && last:
+			return true
+		default:
+			stepUp = !stepUp
+		}
+	}
+	return false
 }
 
 // spacedReference adds to a record refusal that whitespace around a lone reference made

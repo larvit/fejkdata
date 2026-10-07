@@ -51,8 +51,7 @@ type template struct {
 	fields     map[string]node
 	repeat     int
 	separator  string
-	datatype   DataType
-	declared   bool          // carries a "datatype", which wins over the datatype of a column it reads
+	datatype   *DataType     // the "datatype" it carries, which wins over that of a column it reads; nil where none
 	fromString bool          // written as a JSON string rather than an object
 	isRecord   bool          // compiled at the top without a repeat, so its fields are record columns
 	unbound    []unboundRead // the heads its tokens read that no field holds
@@ -116,13 +115,15 @@ const (
 	inColumn                 // a column, or a choice item standing in for one
 )
 
-// compileAt compiles a node that is no choice's item. Only a choice's items carry a
-// weight, so one here would be inert whatever its type.
+// compileAt compiles a node drawn against no other: no choice's item, or a one-item choice's.
+// A weight there does nothing, bar the default 1 written out.
 func compileAt(v any, pos position) (node, error) {
-	if m, ok := v.(map[string]any); ok {
-		if _, weighted := m["weight"]; weighted {
-			return nil, fmt.Errorf("weight only skews a choice's items, so it has no effect here; it is an option and can never be a field")
-		}
+	w, err := weightOf(v)
+	if err != nil {
+		return nil, err
+	}
+	if w != 1 {
+		return nil, fmt.Errorf(`weight %v skews a draw between items, and nothing here is drawn against this one; drop "weight"`, w)
 	}
 	return compileItem(v, pos)
 }
@@ -142,7 +143,7 @@ func compileItem(v any, pos position) (node, error) {
 		return compileTemplate(v, pos)
 	case nil:
 		if pos != inColumn {
-			return compileString("")
+			return nil, fmt.Errorf(`null is a record column's value, and here it only renders "", so write ""`)
 		}
 		return &nullItem{}, nil
 	default:
@@ -158,6 +159,12 @@ func jsonKind(v any) string {
 		return "a number"
 	case bool:
 		return "a boolean"
+	case string:
+		return "a string"
+	case []any:
+		return "a list"
+	case map[string]any:
+		return "an object"
 	}
 	return fmt.Sprintf("%T", v)
 }
@@ -242,13 +249,12 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, declared: o.declared, isRecord: fieldPos == inColumn, unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos == inColumn, unbound: unbound}, nil
 }
 
 // templateOptions is what a template object's option keys say.
 type templateOptions struct {
-	datatype  DataType
-	declared  bool
+	datatype  *DataType
 	format    string
 	repeat    int
 	separator string
@@ -266,7 +272,6 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 		return o, err
 	}
 	o.repeat = repeat
-	_, o.declared = m["datatype"]
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
 		return o, err
 	}
@@ -274,8 +279,8 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 		if o.separator, ok = sv.(string); !ok {
 			return o, fmt.Errorf("separator must be a string, got %T", sv)
 		}
-		if repeat == 1 {
-			return o, fmt.Errorf("separator joins repeated renders, so it has no effect without a repeat above 1")
+		if repeat == 1 && o.separator != "" {
+			return o, fmt.Errorf(`separator %q joins repeated renders, and this template renders once; drop "separator", or add a repeat above 1`, o.separator)
 		}
 	}
 	return o, nil
@@ -332,7 +337,7 @@ func weightOf(raw any) (float64, error) {
 	}
 	w, ok := wv.(float64)
 	if !ok {
-		return 0, fmt.Errorf("weight must be a number, got %T", wv)
+		return 0, fmt.Errorf(`weight is an option and takes a number, not %s; a field cannot be named "weight"`, jsonKind(wv))
 	}
 	if w < 0 || math.IsNaN(w) || math.IsInf(w, 0) {
 		return 0, fmt.Errorf("weight must be finite and positive, got %v", w)
