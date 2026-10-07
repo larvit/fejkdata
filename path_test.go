@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
+func TestCompiledPathStopsAtAMissingSegment(t *testing.T) {
 	n := compiled(t, `{"format":"{a}","a":{"format":"{b}","b":"leaf"}}`)
 	if leaves := compilePath(n, []string{"a", "b"}).leaves; len(leaves) != 1 {
 		t.Fatalf("compilePath(a.b).leaves = %v, want the one leaf", leaves)
@@ -22,7 +22,7 @@ func TestPathCheckStopsAtAMissingSegment(t *testing.T) {
 	}
 }
 
-func TestPathCheckChoiceConsumesNoSegment(t *testing.T) {
+func TestCompiledPathChoiceConsumesNoSegment(t *testing.T) {
 	n := compiled(t, `[{"format":"{f}","f":"1"},{"format":"{f}","f":"2"}]`)
 	if leaves := compilePath(n, []string{"f"}).leaves; len(leaves) != 2 {
 		t.Fatalf("compilePath through a choice = %v, want both variants' f", leaves)
