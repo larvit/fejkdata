@@ -13,8 +13,9 @@ const reservedInIdentifier = ".|({}/[]\""
 
 var reservedList = strings.Join(strings.Split(reservedInIdentifier, ""), " ")
 
-// An identifier names a folder, category, field, column or bound name. CheckIdentifier rejects one
-// that the dot path, {token} and JSON grammars cannot spell, or that a struct tag cannot read.
+// CheckIdentifier rejects an identifier that the dot path, {token} and JSON grammars cannot spell,
+// or that a struct tag cannot read. An identifier names a folder, category, field, column or bound
+// name.
 func CheckIdentifier(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
