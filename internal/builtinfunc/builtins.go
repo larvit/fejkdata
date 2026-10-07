@@ -36,6 +36,9 @@ var builtins = withTransforms(map[string]builtin{
 	"nanoid": {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
 	"hex":    {arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
 	"digits": {arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
+		if atoi(a[0]) == 0 {
+			return proven.Unproven("{" + token + "} prints nothing, which is no number")
+		}
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
 	"upper": {arity: 1, checkArgs: countArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},

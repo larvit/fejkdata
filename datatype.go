@@ -29,7 +29,7 @@ func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	}
 	name, ok := v.(string)
 	if !ok {
-		return nil, fmt.Errorf("datatype must be a string, got %T", v)
+		return nil, fmt.Errorf("datatype must be a string, not %s", jsonKind(v))
 	}
 	for d := DataTypeString; d < datatype.Count; d++ {
 		if name != d.String() {

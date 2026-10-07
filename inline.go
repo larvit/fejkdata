@@ -3,8 +3,8 @@ package fejkdata
 import (
 	"fmt"
 
-	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // Template is an inline template compiled, referenced and validated against a
@@ -70,10 +70,10 @@ func compileInput(input string) (node, error) {
 
 // inputValue reads an inline template as the value compile takes: the JSON value it holds, the
 // whitespace around it dropped, or the input itself as a format string when it is not JSON.
-func inputValue(input string) any {
-	raw, err := datafiles.DecodeJSON([]byte(input))
+func inputValue(input string) jsonvalue.Value {
+	raw, err := jsonvalue.Decode([]byte(input))
 	if err != nil {
-		return input
+		return jsonvalue.String(input)
 	}
 	return raw
 }

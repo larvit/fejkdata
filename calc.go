@@ -114,14 +114,17 @@ func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bo
 	return 0, false
 }
 
-// neverNumeric reports a node no render of which is a number: a null, fixed text that
-// does not parse, or a choice of only such items. text is one such render.
+// neverNumeric reports a node no render of which is a number: a null, a repeat of 0, fixed
+// text that does not parse, or a choice of only such items. text is one such render.
 func neverNumeric(n node) (text string, never bool) {
 	switch n := n.(type) {
 	case *nullItem:
 		return "", true
 	case *template:
 		lit, fixed := n.fixedText()
+		if n.repeat == 0 {
+			return "", true
+		}
 		if !fixed || n.repeat != 1 {
 			return "", false
 		}

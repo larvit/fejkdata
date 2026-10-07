@@ -102,7 +102,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 		}
 		s, isString := v.(string)
 		if !isString {
-			return o, fmt.Errorf("%s must be a string, got %T", k, v)
+			return o, fmt.Errorf("%s must be a string, not %s", k, jsonKind(v))
 		}
 		if k != "format" && s == "" {
 			return o, fmt.Errorf("%s names a column, so it cannot be empty; drop it", k)

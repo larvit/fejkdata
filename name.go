@@ -111,22 +111,37 @@ func (sc *nameScope) bindAll(t *template, where string) error {
 
 // spelled names the scope in an error.
 func (sc *nameScope) spelled() string {
-	if sc.up == nil && sc.kind() != "repeat" {
-		return "outside any repeat"
+	if k := sc.kind(); k != scopeCategory {
+		return "in one " + k.String()
 	}
-	return "in one " + sc.kind()
+	return "outside any repeat"
 }
 
-// kind names what a scope inside the category's is: a repeat, or a choice's item.
-func (sc *nameScope) kind() string {
-	if t, isTemplate := sc.owner.(*template); isTemplate && t.repeat > 1 {
-		return "repeat"
-	}
-	return "choice item"
+// scopeKind is what a name scope is: the category's own, a repeat's, or a choice's item's.
+type scopeKind uint8
+
+const (
+	scopeCategory scopeKind = iota
+	scopeRepeat
+	scopeChoiceItem
+)
+
+func (k scopeKind) String() string {
+	return [...]string{scopeCategory: "category", scopeRepeat: "repeat", scopeChoiceItem: "choice item"}[k]
 }
 
-// ownScope is the scope t renders a frame of: a category's, once per render of its root, or a
-// repeat's, once per iteration. It is nil where t owns no scope, or its scope binds no name.
+func (sc *nameScope) kind() scopeKind {
+	switch t, isTemplate := sc.owner.(*template); {
+	case isTemplate && t.repeat > 1:
+		return scopeRepeat
+	case sc.up == nil:
+		return scopeCategory
+	}
+	return scopeChoiceItem
+}
+
+// ownScope is the scope t renders a frame of: a category's, once per render of its root, a
+// repeat's, once per iteration, or a choice item's, once per draw of the item. It is nil where t owns no scope, or its scope binds no name.
 func (t *template) ownScope() *nameScope {
 	if sc := t.nameScope; sc != nil && sc.owner == node(t) && len(sc.order) > 0 {
 		return sc
@@ -190,7 +205,7 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 			if at == "" {
 				at = "an item of the root choice"
 			}
-			if sc.kind() == "choice item" {
+			if sc.kind() == scopeChoiceItem {
 				return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.err, u.head, at)
 			}
 			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)

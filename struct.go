@@ -12,6 +12,7 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
@@ -95,7 +96,7 @@ type structFields struct {
 	*structCompile
 	typ   reflect.Type
 	label string
-	tags  map[string]any
+	tags  map[string]jsonvalue.Value
 	shape *structShape
 }
 
@@ -105,7 +106,7 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 	}
 	sc.visiting[t] = true
 	defer delete(sc.visiting, t)
-	c := &structFields{structCompile: sc, typ: t, label: label, tags: map[string]any{}, shape: &structShape{}}
+	c := &structFields{structCompile: sc, typ: t, label: label, tags: map[string]jsonvalue.Value{}, shape: &structShape{}}
 	if err := c.gatherFields(t, nil); err != nil {
 		return nil, err
 	}
@@ -214,25 +215,25 @@ func (c *structFields) nest(sf reflect.StructField, elem reflect.Type) error {
 
 // tagValue reads a field's fake tag as the value its column compiles from: an inline template
 // as written, or a path as the reference {/path}.
-func tagValue(sf reflect.StructField, tag string) (any, error) {
+func tagValue(sf reflect.StructField, tag string) (jsonvalue.Value, error) {
 	if err := checkTaggedType(sf); err != nil {
-		return nil, err
+		return jsonvalue.Value{}, err
 	}
 	inline, err := grammar.IsTemplate(tag)
 	switch {
 	case err != nil:
-		return nil, err
+		return jsonvalue.Value{}, err
 	case inline:
 		return inputValue(tag), nil
 	}
 	path, err := grammar.CallerPath(tag)
 	if err != nil {
-		return nil, err
+		return jsonvalue.Value{}, err
 	}
 	if err := grammar.CheckPathIdentifiers(path); err != nil {
-		return nil, err
+		return jsonvalue.Value{}, err
 	}
-	return "{/" + path + "}", nil
+	return jsonvalue.String("{/" + path + "}"), nil
 }
 
 // checkTaggedType rejects a tagged field no column can fill.
@@ -254,9 +255,9 @@ func checkTaggedType(sf reflect.StructField) error {
 
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
-func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]any) error {
-	tags["format"] = ""
-	n, err := compile(tags)
+func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
+	tags["format"] = jsonvalue.String("")
+	n, err := compile(jsonvalue.Object(tags))
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
