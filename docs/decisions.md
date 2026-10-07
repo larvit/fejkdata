@@ -324,10 +324,10 @@ its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}`
 while a path tag draws afresh as `{/path}` does (goal 5.2).
 
 A tag binding a name only an embedding type reads is refused on the embedded type alone, as
-any name read once is, so the embedder binds it in a tag of its own. A tagged field that
+any name nothing reads is, so the embedder binds it in a tag of its own. A tagged field that
 another field hides is refused, not dropped. A named
-struct field is another entity and a record of its own. `fake:"-"` leaves a struct
-field, embedded or named, unfilled, so no name may be `-`; a pointer back to a struct
+struct field is another entity and a record of its own. `fake:"-"` leaves any struct
+field unfilled, so no name may be `-`; a pointer back to a struct
 already being filled is left alone, since filling it would never end. `New` cannot see a
 caller's types, so the first `FakeStruct` for a type compiles its tags and the answer,
 error included, is kept per type: a test's first call is its load, and no `NewStruct`

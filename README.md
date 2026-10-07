@@ -908,10 +908,8 @@ Where the project is heading; the sections before Audience document what ships t
    5. `[SE]` selects one row of a table, and means that row wherever you write it.
    6. If two people could read a template differently, loading it fails, and the
       error shows how to write each meaning.
-   7. Each result has one obvious way to write it. A spelling with a part that doesn't
-      change anything — a default written out, an item listed twice in a choice, a
-      wrapper around what could stand alone — fails to load, and the error shows the
-      spelling to write instead.
+   7. A spelling that suggests you meant something else — such as a range with nothing
+      to draw, `int(5,5)` — fails to load, and the error shows what to write.
    8. When a clearer name turns up, it replaces the old one, even if that needs a new
       major version.
    9. Everything fejkdata renders is written as a template: on the command line, in a
