@@ -333,3 +333,9 @@ func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 		t.Fatalf("New = %v, want the typed column refused over an operand that is not always a number", err)
 	}
 }
+
+func TestARepeatOfZeroIsNoConstant(t *testing.T) {
+	if got := mustRender(t, engine(1), `{"format":"{calc(x / y)}","x":"1","y":{"format":"0","repeat":0}}`); got != "NaN" {
+		t.Errorf("a divisor rendering nothing = %q, want NaN", got)
+	}
+}

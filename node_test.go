@@ -53,7 +53,6 @@ func TestNodeCompileErrors(t *testing.T) {
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf
 		`{"format":"A","weight":"heavy"}`,                               // non-numeric weight
-		`{"format":"x","repeat":0}`,                                     // repeat below 1
 		`{"format":"x","repeat":-2}`,                                    // negative repeat
 		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
 		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat

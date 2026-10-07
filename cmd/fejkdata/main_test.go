@@ -516,9 +516,11 @@ func TestRunNoShippedData(t *testing.T) {
 	if code != 0 || strings.TrimSpace(out) == "" {
 		t.Errorf("run = %d, out=%q", code, out)
 	}
-	code, _, errb = runOut("{/sv_SE.person}", "--no-shipped-data")
-	if code != 2 || !strings.Contains(errb, "--no-shipped-data needs at least one --data-path") {
-		t.Errorf("--no-shipped-data alone = %d, %q, want misuse naming --data-path", code, errb)
+	if code, out, errb := runOut("{digits(3)}", "--no-shipped-data"); code != 0 || len(out) != 3 {
+		t.Errorf("--no-shipped-data alone = %d, %q, %q, want a template reading no data rendered", code, out, errb)
+	}
+	if code, _, errb := runOut("{/sv_SE.person}", "--no-shipped-data"); code != 2 || !strings.Contains(errb, "no entry") {
+		t.Errorf("--no-shipped-data alone = %d, %q, want a reference to nothing refused", code, errb)
 	}
 }
 

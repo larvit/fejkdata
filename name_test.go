@@ -166,6 +166,22 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 	}
 }
 
+func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
+	f, n, both := engine(1), compiled(t, `{"format":"{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), 0
+	for i := 0; i < 100; i++ {
+		switch renderOnce(f.drawState, n) {
+		case "aa", "bb":
+			both++
+		case "c":
+		default:
+			t.Fatal("a name bound in a choice's item read two picks")
+		}
+	}
+	if both == 0 {
+		t.Error("100 renders never drew the item binding a name")
+	}
+}
+
 func TestNameErrors(t *testing.T) {
 	cases := []struct {
 		name  string
@@ -177,7 +193,7 @@ func TestNameErrors(t *testing.T) {
 		{"bound inside a repeat written first", map[string]string{"word": `["a","b"]`, "card": `{"format":"{a}{z}","a":{"format":"{/word as w}{w}","repeat":2},"z":"{/word as w}{w}"}`},
 			`name "w" is bound outside this repeat too`},
 		{"bound in a choice's item", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":["{/word as w}","b"]}`},
-			`a choice's item binds no name`},
+			`name "w" is bound at field "x", inside an item of a choice, which a read outside that item cannot see`},
 		{"bound outside the repeat too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":{"format":"{/word as w}{w}","repeat":2}}`},
 			`name "w" is bound outside this repeat too`},
 		{"a field too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{w}","w":"x"}`},

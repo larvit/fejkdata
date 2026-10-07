@@ -59,12 +59,6 @@ func TestNewLoadsAnyDirName(t *testing.T) {
 	}
 }
 
-func TestNewEmptyDirErrors(t *testing.T) {
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, nil))); err == nil {
-		t.Fatal("New(empty dir) = nil error")
-	}
-}
-
 // TestFoldersBecomeDotPaths checks the core of the new model: a subfolder is a
 // namespace, so data/<loc>/person.json is reachable as "<loc>.person".
 func TestFoldersBecomeDotPaths(t *testing.T) {
