@@ -44,6 +44,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The CLI reads only the library's public API
 - A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 - Whitespace around a JSON template is dropped, in `NewTemplate` and on stdin
+- A JSON string stays a template even where its bare text renders alike
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
