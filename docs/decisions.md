@@ -825,14 +825,15 @@ struct's fields as one, and a repeat of a reference path rose from 66 to 106 all
 benchmark gained an allocation. Valid while Go's escape analysis tracks a struct's fields
 as one.
 
-## A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
+## A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 
 2026-10-03, larv-review in PR #145; approved by Lilleman auf Larv. Goals 5.3 and 5.6.
 `bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
 `"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category
-is the smallest unit holding every field and record column. A choice's item binds no name,
-since a read outside the item would see a binding another item leaves out. A pick is drawn on
+is the smallest unit holding every field and record column. A choice's item binds a name
+for its own reads, picked anew each time the item is drawn; a read outside the item is
+refused, since it would see a binding another item leaves out. A pick is drawn on
 its first read, so a record's columns, rendered in name order, read one pick whichever binds
 it.
 
