@@ -70,23 +70,41 @@ error for an object holding only a format names `"…"`, and that spelling has t
 where it is printed. An argument or struct tag of one reference alone, `{/users}`, is
 refused naming the path `users`: both render the same text, and only the path names a
 record. A folder-relative `{.name}` or `{..name}` is refused naming `{/name}`, since an
-inline template sits in no folder. `IsTemplate` exports the rule, so the CLI, struct
-tags and any other caller read one.
+inline template sits in no folder. `IsTemplate` exports the rule, so struct tags and any
+other caller read one.
+
+## The CLI renders the template on its stdin, less one newline ending it
+
+2026-10-07, Lilleman auf Larv. Serves goals 7 and 7.2.
+
+The CLI takes no path or template as an argument: an argument is misuse, and so is a
+terminal with nothing piped in, which would otherwise wait for typed input. Both errors
+show `echo -n '{/sv_SE.person}' | fejkdata`. One newline ending stdin is dropped, so
+`echo`, a file and a heredoc render as `echo -n` does; only one, so a template that
+should end in a newline ends stdin with two. Any text that is no JSON object, array or
+string, `42` and `null` included, is a format string and prints as written. One
+reference from the root and nothing else, `{/users}`, reads the path it names: it renders
+the same text, and under `--format` it is the record `users`, with `users` the default
+`--table`. `--list` still prints paths, each read as `{/path}`. Valid while the CLI reads
+one template per run.
 
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
 
 2026-09-24, Lilleman auf Larv.
 
-The whole argument is the spelling under test, and `NewTemplate` compiles, links and
+The whole template is the spelling under test, and `NewTemplate` compiles, links and
 validates as one step. An unknown *path* stays a runtime error (exit 1): there the
-argument is well-formed and only the data is absent.
+template is well-formed and only the data is absent.
 
-## A padded JSON argument is rejected, not trimmed
+## The library rejects a padded JSON template, and the CLI trims the whitespace around one on stdin
 
-2026-09-03, Lilleman auf Larv.
+2026-09-03, Lilleman auf Larv; the CLI's trim 2026-10-07, Lilleman auf Larv. Serves goal 7.2.
 
 Padding is the one place the two readings disagree — a format string renders it, JSON
-drops it — so the spelling that renders is named rather than silently chosen.
+drops it — so `NewTemplate` names the spelling that renders rather than silently
+choosing. On stdin, `echo` and a file end in a newline nobody meant to render, so the
+maintainer ruled that the whitespace around a JSON object, array or string is dropped
+before the library reads it. Valid while a JSON template on stdin is one value.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -860,6 +878,6 @@ a lone `}` stays an error. Valid while a template escapes a brace by doubling it
 ## Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 
 2026-10-05, Lilleman auf Larv. Serves goal 7.2. Goals are aims: it is enough that a first
-template can be written with no escape and no options, as `fejkdata 'name: {/sv_SE.person.last}'`
+template can be written with no escape and no options, as `echo -n 'name: {/sv_SE.person.last}' | fejkdata`
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
