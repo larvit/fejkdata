@@ -118,7 +118,7 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	target := targets[b]
 	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
-	if err := checkPathReaches(target.start, full, a.head); err != nil {
+	if err := provePath(target.start, full, a.head); err != nil {
 		return a, err
 	}
 	w := compilePath(target.start, full)

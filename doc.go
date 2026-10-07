@@ -44,7 +44,7 @@ package fejkdata
 //     and {p.first} are read, the {first} that {p} renders has the key "first" under {p}'s
 //     key "". {p.first} addresses "first", so both read one draw.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
-//     `pinSet`, `namedPick.pins`, `table.drawStep`.
+//     `pinSet`, `namedPick.pins`, `table.followStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:
 //     `table.linkParent`.
 //   - family — a table and every table reaching it through a chain of parent

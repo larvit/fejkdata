@@ -9,8 +9,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// stepInto is what seg names under n: a folder's entry or a template's field.
-func stepInto(n node, seg string) (node, error) {
+// childNamed is what seg names under n: a folder's entry or a template's field.
+func childNamed(n node, seg string) (node, error) {
 	switch {
 	case grammar.IsSelector(seg):
 		return nil, fmt.Errorf("%s is not a table, so it has no row to select", grammar.SelectorOf(seg))
@@ -37,7 +37,7 @@ func stepInto(n node, seg string) (node, error) {
 		return nil, fmt.Errorf("no field %q: %q is a column, and a cell holds no fields", seg, n.name())
 	case *nullItem:
 	default:
-		panic(invariant.Broken("stepInto has no case for node %T", n))
+		panic(invariant.Broken("childNamed has no case for node %T", n))
 	}
 	return nil, fmt.Errorf("no field %q", seg)
 }
@@ -65,11 +65,11 @@ const (
 	stepParent // up to the table's parent, at the row its own row links to
 )
 
-// pathCheck proves a path reaches a node whichever way the draws go: every variant of a
+// compiledPath is a path proved to reach a node whichever way the draws go: every variant of a
 // choice carries the rest of it, and is walked, a selector names a row inside the
-// rows selected before it, and no level read carries a repeat. It compiles the steps
+// rows selected before it, and no level read carries a repeat. It holds the steps
 // a draw takes, and every leaf the path may render; level names the head in its errors.
-type pathCheck struct {
+type compiledPath struct {
 	pins   pinSet
 	level  string
 	tail   []string
@@ -77,18 +77,18 @@ type pathCheck struct {
 	leaves []node
 }
 
-func (w *pathCheck) run(n node) (node, error) {
+func (w *compiledPath) run(n node) (node, error) {
 	return w.walk(n, w.tail)
 }
 
-func (w *pathCheck) walk(n node, tail []string) (node, error) {
+func (w *compiledPath) walk(n node, tail []string) (node, error) {
 	at := pathPos{n: n, tail: tail}
 	for at.more() {
 		if c, ok := at.n.(*choice); ok {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
-		if w.steps, err = takeStep(&at, w.tail, w.level, w.steps, &w.pins); err != nil {
+		if w.steps, err = compileStep(&at, w.tail, w.level, w.steps, &w.pins); err != nil {
 			return nil, err
 		}
 	}
@@ -100,35 +100,35 @@ func repeatLevelError(level string) error {
 	return fmt.Errorf("the level %q carries a repeat, so a path cannot read one draw of it; read %q whole", level, level)
 }
 
-// pathPos is where a walk stands: the node reached, the tail left to walk from it, and route's
-// descended flag for it.
+// pathPos is where a walk stands: the node reached, the tail left to walk from it, and fromRow,
+// whether the walk entered n, a table, from a row of a table linked to it.
 type pathPos struct {
-	n         node
-	tail      []string
-	descended bool
+	n       node
+	tail    []string
+	fromRow bool
 }
 
-func (p pathPos) more() bool { return len(p.tail) > 0 || p.descended }
+func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
-// takeStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
+// compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
 // path; level is the prefix an error puts before it.
-func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
+func compileStep(at *pathPos, whole []string, level string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
 	case *table:
-		r, err := x.route(at.tail, at.descended)
+		r, err := x.route(at.tail, at.fromRow)
 		if err != nil {
 			return steps, err
 		}
-		*at = pathPos{n: r.next, tail: r.rest, descended: r.descends}
+		*at = pathPos{n: r.next, tail: r.rest, fromRow: r.nextLinked}
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
 			return steps, repeatLevelError(join(level, strings.Join(whole[:i], ".")))
 		}
 	}
-	next, err := stepInto(at.n, at.tail[0])
+	next, err := childNamed(at.n, at.tail[0])
 	if err != nil {
 		return steps, err
 	}
@@ -139,7 +139,7 @@ func takeStep(at *pathPos, whole []string, level string, steps []pathStep, pins 
 
 // walkEvery walks every variant and keeps the first one's steps: every variant carries
 // the rest of the path, so each compiles to the same steps past the choice.
-func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
+func (w *compiledPath) walkEvery(c *choice, tail []string) (node, error) {
 	if err := carriedByAll(c, tail); err != nil {
 		return nil, err
 	}
@@ -159,10 +159,10 @@ func (w *pathCheck) walkEvery(c *choice, tail []string) (node, error) {
 	return last, nil
 }
 
-// probePath proves a path reaches a node without drawing, appending to steps the steps a
-// draw takes. Where pathCheck walks every variant of a choice, it walks the first,
+// callerPathSteps proves a path reaches a node without drawing, appending to steps the steps a
+// draw takes. Where compiledPath walks every variant of a choice, it walks the first,
 // which carriedByAll lets stand for all.
-func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
+func callerPathSteps(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 	var pins pinSet
 	for at := (pathPos{n: n, tail: tail}); at.more(); {
 		if c, ok := at.n.(*choice); ok {
@@ -173,7 +173,7 @@ func probePath(n node, tail []string, steps []pathStep) ([]pathStep, error) {
 			continue
 		}
 		var err error
-		if steps, err = takeStep(&at, tail, "", steps, &pins); err != nil {
+		if steps, err = compileStep(&at, tail, "", steps, &pins); err != nil {
 			return nil, err
 		}
 	}
@@ -195,7 +195,7 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 		}
 		if st.kind == stepField {
 			var err error
-			if n, err = stepInto(n, st.name); err != nil {
+			if n, err = childNamed(n, st.name); err != nil {
 				panic(invariant.Broken("step %d: %v; a path's steps should have been compiled from the node they are drawn from", st.at, err))
 			}
 			continue
@@ -210,7 +210,7 @@ func drawSteps(s *drawstate.State, n node, steps []pathStep, pins *pinSet, memo 
 		case st.kind == stepChild && climbed != nil:
 			pins, climbed = memo.stepDownPins(pins, climbed, levels, st.at), nil
 		}
-		n = t.drawStep(s, st, pins)
+		n = t.followStep(s, st, pins)
 	}
 	return n, pins
 }
@@ -241,14 +241,14 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func checkPathReaches(n node, tail []string, level string) error {
-	_, err := (&pathCheck{level: level, tail: tail}).run(n)
+func provePath(n node, tail []string, level string) error {
+	_, err := (&compiledPath{level: level, tail: tail}).run(n)
 	return err
 }
 
-// compilePath compiles a path checkPathReaches proved.
-func compilePath(n node, tail []string) pathCheck {
-	w := pathCheck{tail: tail}
+// compilePath compiles a path provePath proved.
+func compilePath(n node, tail []string) compiledPath {
+	w := compiledPath{tail: tail}
 	if _, err := w.run(n); err != nil {
 		panic(invariant.Broken("%s: %v; the path should have been proved before it was compiled", grammar.JoinSegments(tail), err))
 	}

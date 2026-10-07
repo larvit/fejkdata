@@ -798,12 +798,12 @@ the direct chain is the one a reader can predict from the tables' parents.
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
 Goals 3 and 13: `drawSteps` draws every path from its steps, compiled when templates resolve, by
-`pathCheck` or, for a caller's path, by `probePath` into a stack buffer. Both take each
-step through `takeStep`, and differ only at a choice: the check walks every variant, the
-probe the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
-leaked the check's leaves and errors with the draw's pins, arm and memo, since Go tracks a
+`compiledPath` or, for a caller's path, by `callerPathSteps` into a stack buffer. Both take each
+step through `compileStep`, and differ only at a choice: `compiledPath` walks every variant,
+`callerPathSteps` the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
+leaked `compiledPath`'s leaves and errors with the draw's pins, arm and memo, since Go tracks a
 struct's fields as one, and a repeat of a reference path rose from 66 to 106 allocations.
-`drawSteps` and `takeStep` take their state as parameters and a step holds no node, so no
+`drawSteps` and `compileStep` take their state as parameters and a step holds no node, so no
 benchmark gained an allocation. Valid while Go's escape analysis tracks a struct's fields
 as one.
 

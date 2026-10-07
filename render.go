@@ -21,7 +21,7 @@ func (f *Generator) Fake(path string) (string, error) {
 		return "", fmt.Errorf("fejkdata: %w", err)
 	}
 	f.loadShippedAt(segments)
-	n, pins, err := descend(f.drawState, &f.root, segments)
+	n, pins, err := drawCallerPath(f.drawState, &f.root, segments)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
 	}
@@ -33,11 +33,11 @@ func (f *Generator) Fake(path string) (string, error) {
 	return render(f.drawState, n, env), nil
 }
 
-// descend walks a caller's path to the node it names, returning the rows its leaf renders in.
-func descend(s *drawstate.State, root node, segments []string) (node, pinSet, error) {
+// drawCallerPath walks a caller's path to the node it names, returning the rows its leaf renders in.
+func drawCallerPath(s *drawstate.State, root node, segments []string) (node, pinSet, error) {
 	// docs/decisions.md#a-path-is-walked-once-without-drawing-before-it-is-walked-for-real
 	var buf [16]pathStep
-	steps, err := probePath(root, segments, buf[:0])
+	steps, err := callerPathSteps(root, segments, buf[:0])
 	if err != nil {
 		return nil, pinSet{}, err
 	}

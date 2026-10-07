@@ -237,19 +237,19 @@ func (t *table) linkParent(siblings map[string]node) error {
 // tableRoute is how a path passes one table: the row it reads, by selector or
 // drawn, what it goes on into, and whether that is a linked table.
 type tableRoute struct {
-	sel      string
-	draw     bool
-	next     node
-	rest     []string
-	descends bool
-	up       bool
+	sel        string
+	draw       bool
+	next       node
+	rest       []string
+	nextLinked bool
+	up         bool
 }
 
-// route is how tail passes t. descended means the previous route stepped into t
+// route is how tail passes t. fromRow means the previous route stepped into t
 // from a row of an ancestor table, so t reads a row even where tail is empty; a
 // table reached otherwise, with no selector and an empty tail, is left to a render's
 // own draw.
-func (t *table) route(tail []string, descended bool) (tableRoute, error) {
+func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
 	sel, tail, err := t.selector(tail)
 	if err != nil {
 		return tableRoute{}, err
@@ -258,14 +258,14 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 		if err := t.rows.ProveStepUp(tail[1:]); err != nil {
 			return tableRoute{}, err
 		}
-		return tableRoute{sel: sel, draw: sel == "", next: t.rows.Parent().Owner(), rest: tail[2:], descends: true, up: true}, nil
+		return tableRoute{sel: sel, draw: sel == "", next: t.rows.Parent().Owner(), rest: tail[2:], nextLinked: true, up: true}, nil
 	}
-	column, child, err := t.step(tail)
+	column, child, err := t.columnOrLinked(tail)
 	if err != nil {
 		return tableRoute{}, err
 	}
 	selected := sel != ""
-	readsRow := selected || descended || len(tail) > 0
+	readsRow := selected || fromRow || len(tail) > 0
 	// A selector further down pins this table by ancestry; drawing first could draw a row the
 	// selector is not inside.
 	pinnedBelow := grammar.HasSelector(tail)
@@ -276,7 +276,7 @@ func (t *table) route(tail []string, descended bool) (tableRoute, error) {
 	case len(tail) == 0:
 		r.next = t.rowNode
 	case child != nil:
-		r.next, r.rest, r.descends = child, tail[1:], true
+		r.next, r.rest, r.nextLinked = child, tail[1:], true
 	default:
 		r.next, r.rest = column, tail[1:]
 	}
@@ -315,7 +315,7 @@ func routeSteps(steps []pathStep, pins *pinSet, t *table, r tableRoute, at int) 
 	return steps, nil
 }
 
-func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
+func (t *table) followStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	switch st.kind {
 	case stepSelect:
 		if err := pins.PinRow(t.rows, st.row); err != nil {
@@ -334,7 +334,7 @@ func (t *table) drawStep(s *drawstate.State, st pathStep, pins *pinSet) node {
 	case stepParent:
 		return t.rows.Parent().Owner()
 	}
-	panic(invariant.Broken("drawStep has no case for step kind %d", st.kind))
+	panic(invariant.Broken("followStep has no case for step kind %d", st.kind))
 }
 
 func (t *table) selector(tail []string) (sel string, rest []string, err error) {
@@ -348,8 +348,8 @@ func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	return sel, rest, nil
 }
 
-// step is what a tail's first segment names in t: a column, or a table linked to it.
-func (t *table) step(tail []string) (column node, child *table, err error) {
+// columnOrLinked is what a tail's first segment names in t: a column, or a table linked to it.
+func (t *table) columnOrLinked(tail []string) (column node, child *table, err error) {
 	if len(tail) == 0 {
 		return nil, nil, nil
 	}

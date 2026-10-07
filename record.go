@@ -157,7 +157,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 // tableRecord walks a path's tail from a table to the table whose row is the record, and that
 // row, selected or drawn.
 func tableRecord(s *drawstate.State, t *table, tail []string) (node, renderedRow, error) {
-	n, pins, err := descend(s, t, tail)
+	n, pins, err := drawCallerPath(s, t, tail)
 	if err != nil {
 		return nil, renderedRow{}, err
 	}

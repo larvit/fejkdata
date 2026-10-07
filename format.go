@@ -158,7 +158,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 		}
 		return true, fmt.Errorf("no field %q", a.head)
 	}
-	if err := checkPathReaches(field, a.tail, a.head); err != nil {
+	if err := provePath(field, a.tail, a.head); err != nil {
 		return false, fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return false, nil

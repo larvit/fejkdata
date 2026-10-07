@@ -82,7 +82,7 @@
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 131 | 0.1.0 |  | **Move `frameStack` into `env.go`, beside the methods that push and search it, and move `nameTargets`, `addressedKeys` and `nameUses` from `resolve.go` into `name.go`.** | 1 | 3 | 1 | 7 | 3.2, 3.1 | 12.8 |
-| 132 | 0.1.0 |  | **Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
+| 132 | 0.1.0 |  | **Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `childNamed` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.** | 2 | 3 | 1 | 7 | 3.3 | 11.8 |
 | 134 | 0.1.0 |  | **Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.** | 1 | 2 | 1 | 6 | 3.3, 3.2 | 11.3 |
 | 136 | 0.1.0 |  | **Rename `grammar.NameRead` and `grammar.CheckName` for what they read and check, so a name in the engine is only a bound name.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
 | 135 | 0.1.0 |  | **Choose `disagreement`'s message from one table over the two items' kinds.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
@@ -120,7 +120,7 @@
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
 | 14 | 0.3.0 |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 45 | 0.3.0 |  | **Name the node a selector follows in `stepInto`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
+| 45 | 0.3.0 |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 49 | 0.3.0 |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 13 | 0.3.0 | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 2 | 2 | 3 | 6 | 4 | 13.7 |
 | 39 | 0.3.0 |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 2 | 3 | 6 | 6 | 13.5 |
@@ -299,9 +299,9 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 Both inherited architects, in the panel and in the scoring run, ranked one change first: gather the runtime that keeps a name's pick in one file. `frameStack` sits in `pick.go` while `env.go` pushes and searches it, and the name steps of `resolveTemplates` sit apart from `name.go`. Revise the README's Layout block with it.
 
-### 132. Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `stepInto` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
+### 132. Name the path walks and steps by what each does, so `descend`, `probePath`, `pathCheck`, `checkPathReaches`, `compilePath`, `takeStep`, `childNamed` and `table.step` can be told apart by name, `table.drawStep` stops sitting one letter from `drawSteps`, and `pathPos.descended` says what it holds.
 
-Six of the nine seats of the 2026-10-07 panel named these names: five entry points walk a path, `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath`, and five units with near names step through one, `takeStep`, `stepInto`, `table.step`, `table.drawStep` and `drawSteps`; and `pathPos.descended`'s doc, "route's descended flag for it", defines it by its reader.
+Six of the nine seats of the 2026-10-07 panel named these names: five entry points walk a path, `descend`, `probePath`, `pathCheck`, `checkPathReaches` and `compilePath`, and five units with near names step through one, `takeStep`, `childNamed`, `table.step`, `table.drawStep` and `drawSteps`; and `pathPos.descended`'s doc, "route's descended flag for it", defines it by its reader.
 
 ### 134. Hold `nameBinding`'s target in a named field, so `b.target.tail` shows that `resolveTemplates` fills it.
 
@@ -446,7 +446,7 @@ A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{dig
 
 `byte(p.rs[p.pos])` reads U+012B `ī` as `+`, so `{calc(a ī b)}` compiles as `a + b`.
 
-### 45. Name the node a selector follows in `stepInto`'s refusal.
+### 45. Name the node a selector follows in `childNamed`'s refusal.
 
 `sv_SE.person[1].first` answers `1 is not a table`.
 
