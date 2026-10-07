@@ -11,8 +11,8 @@
   wait for one.
 - README goal 3 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
-  dependency bump, a repair of behaviour the README documents, the infrastructure
-  the round itself runs on, and the CLI reading its template from stdin. `todo.md` carries the round: a PR per item it plans, the nine-seat
+  dependency bump, a repair of behaviour the README documents, and the infrastructure
+  the round itself runs on. `todo.md` carries the round: a PR per item it plans, the nine-seat
   findings at depth 1 or a restructure the maintainer approved, then the nine-seat run
   again, until the score passes. At or above 7.0
   every pull request scores with the four-seat run and answers it in one run. No merge
@@ -41,7 +41,7 @@ In [docs/decisions.md](docs/decisions.md):
 - An argument is a template by its shape, not by a flag
 - The CLI renders the template on its stdin, less one newline ending it
 - An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
-- The library rejects a padded JSON template, and the CLI trims the whitespace around one on stdin
+- A padded JSON argument is rejected, not trimmed
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`

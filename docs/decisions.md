@@ -67,9 +67,8 @@ says so. No `--template` flag is needed. Reserving the characters whole — thou
 leading one could collide — keeps one simple name rule instead of a leading-position
 special case. The JSON string is what makes the library's own advice reachable: the
 error for an object holding only a format names `"…"`, and that spelling has to work
-where it is printed. An argument or struct tag of one reference alone, `{/users}`, is
-refused naming the path `users`: both render the same text, and only the path names a
-record. A folder-relative `{.name}` or `{..name}` is refused naming `{/name}`, since an
+where it is printed. A struct tag of one reference alone, `{/users}`, is refused naming
+the path `users`: both render the same text, and only the path names a record. A folder-relative `{.name}` or `{..name}` is refused naming `{/name}`, since an
 inline template sits in no folder. `IsTemplate` exports the rule, so struct tags and any
 other caller read one.
 
@@ -79,14 +78,16 @@ other caller read one.
 
 The CLI takes no path or template as an argument: an argument is misuse, and so is a
 terminal with nothing piped in, which would otherwise wait for typed input. Both errors
-show `echo -n '{/sv_SE.person}' | fejkdata`. One newline ending stdin is dropped, so
-`echo`, a file and a heredoc render as `echo -n` does; only one, so a template that
-should end in a newline ends stdin with two. Any text that is no JSON object, array or
-string, `42` and `null` included, is a format string and prints as written. One
-reference from the root and nothing else, `{/users}`, reads the path it names: it renders
-the same text, and under `--format` it is the record `users`, with `users` the default
-`--table`. `--list` still prints paths, each read as `{/path}`. Valid while the CLI reads
-one template per run.
+show `echo -n '{/sv_SE.person}' | fejkdata`. One newline ending stdin, `\n` or `\r\n`,
+is dropped, so `echo`, a file and a heredoc render as `echo -n` does; only one, so a
+template that should end in a newline ends stdin with two. The rest of stdin reaches
+`NewTemplate` unchanged, so a padded JSON template is refused there, as goal 5.7 asks.
+One reference from the root and nothing else, `{/users}`, reads the path it names: it
+renders the same text, and under `--format` it is the record `users`, with `users` the
+default `--table`; one to nothing exits 1, as an unknown path does. That reading sits in
+the CLI against goal 3.2 until `todo.md` item 129 moves it into the library. `--list`
+still prints paths, each read as `{/path}`. Valid while the CLI reads one template per
+run.
 
 ## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
 
@@ -96,15 +97,12 @@ The whole template is the spelling under test, and `NewTemplate` compiles, links
 validates as one step. An unknown *path* stays a runtime error (exit 1): there the
 template is well-formed and only the data is absent.
 
-## The library rejects a padded JSON template, and the CLI trims the whitespace around one on stdin
+## A padded JSON argument is rejected, not trimmed
 
-2026-09-03, Lilleman auf Larv; the CLI's trim 2026-10-07, Lilleman auf Larv. Serves goal 7.2.
+2026-09-03, Lilleman auf Larv.
 
 Padding is the one place the two readings disagree — a format string renders it, JSON
-drops it — so `NewTemplate` names the spelling that renders rather than silently
-choosing. On stdin, `echo` and a file end in a newline nobody meant to render, so the
-maintainer ruled that the whitespace around a JSON object, array or string is dropped
-before the library reads it. Valid while a JSON template on stdin is one value.
+drops it — so the spelling that renders is named rather than silently chosen.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -851,6 +849,8 @@ Valid while names are read only inside the category binding them.
 ## comprehension floor: every dimension and the overall at 7.0 or above
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
+
+Shipped under the floor by the maintainer's decision of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk.
 
 Last scoring run, 2026-10-07, on commit ad59967: Navigation 7.00, Locality 5.88, Shape 6.50, Self-sufficiency 6.13, overall 6.38. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.06, Shape 6.67, Self-sufficiency 6.56, overall 6.56. Against the runs on ac6158e, the scoring run's overall rose from 6.25 and its Shape from 6.38, while its Self-sufficiency fell from 6.38; the panel's overall held, and its Locality and Self-sufficiency fell by 0.05 each. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `levelKeys` and `addressedKeys` build at load; twelve kept `doc.go`'s vocabulary open beside it. What the two runs found is filed in `todo.md`, and `todo.md` item 153 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 

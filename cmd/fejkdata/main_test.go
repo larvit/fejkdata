@@ -242,8 +242,8 @@ func TestRunMisuse(t *testing.T) {
 	}
 }
 
-// TestRunTakesNoArgument pins the way from the old spelling, a template or a path as
-// an argument, to the one that runs: the template on stdin.
+// TestRunTakesNoArgument pins the error for a path or a template given as an argument:
+// it shows the template piped to stdin.
 func TestRunTakesNoArgument(t *testing.T) {
 	for _, args := range [][]string{{"sv_SE.person"}, {"{/sv_SE.person}"}, {"name:", "{/sv_SE.person.last}"}} {
 		code, out, errb := runOut("", args...)
@@ -267,47 +267,32 @@ func TestRunTerminalStdinIsMisuse(t *testing.T) {
 
 func TestRunDropsOneTrailingNewline(t *testing.T) {
 	for stdin, want := range map[string]string{
-		"hihi":                        "hihi\n",
-		"hihi\n":                      "hihi\n",
-		"hihi\n\n":                    "hihi\n\n",
-		"a\nb\n":                      "a\nb\n",
-		" hihi \n":                    " hihi \n",
-		"hihi\r\n":                    "hihi\r\n",
-		"{{x}}\n":                     "{x}\n",
-		"x: {/sv_SE.person.last}\n\n": "",
+		"hihi":         "hihi\n",
+		"hihi\n":       "hihi\n",
+		"hihi\r\n":     "hihi\n",
+		"hihi\n\n":     "hihi\n\n",
+		"hihi\r\n\r\n": "hihi\r\n\n",
+		"a\nb\n":       "a\nb\n",
+		" hihi \n":     " hihi \n",
+		"{{x}}\n":      "{x}\n",
+		"\"a\"\n":      "a\n",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
-		if want == "" {
-			if code != 0 || !strings.HasPrefix(out, "x: ") || !strings.HasSuffix(out, "\n\n") || strings.Count(out, "\n") != 2 {
-				t.Errorf("run(%q) = %d, %q, %q; want the template's own newline, then the line's", stdin, code, out, errb)
-			}
-			continue
-		}
 		if code != 0 || out != want {
 			t.Errorf("run(%q) = %d, %q, %q; want %q", stdin, code, out, errb, want)
 		}
 	}
-}
-
-func TestRunTextPrintsAsWritten(t *testing.T) {
-	for _, stdin := range []string{"sv_SE.person", "42", "null", "true", "[Skåne län]", "x[1]y", `say "hi"`} {
-		code, out, errb := runOut(stdin)
-		if code != 0 || out != stdin+"\n" {
-			t.Errorf("run(%q) = %d, %q, %q; want the text as written", stdin, code, out, errb)
-		}
+	code, out, errb := runOut("x: {/sv_SE.person.last}\n\n", "--seed", "1")
+	if code != 0 || !strings.HasPrefix(out, "x: ") || !strings.HasSuffix(out, "\n\n") || strings.Count(out, "\n") != 2 {
+		t.Errorf("a template ending in a newline = %d, %q, %q; want its own newline, then the line's", code, out, errb)
 	}
 }
 
-func TestRunTrimsWhitespaceAroundJSON(t *testing.T) {
-	for _, stdin := range []string{
-		"{\"format\":\"{x}\",\"x\":[\"a\",\"b\"]}\n",
-		"  {\"format\":\"{x}\",\"x\":[\"a\",\"b\"]}\n\n",
-		"\t[\"a\",\"b\"]\r\n",
-		" \"a\" \n",
-	} {
-		code, out, errb := runOut(stdin, "--seed", "1")
-		if code != 0 || (out != "a\n" && out != "b\n") {
-			t.Errorf("run(%q) = %d, %q, %q; want a or b", stdin, code, out, errb)
+func TestRunTextPrintsAsWritten(t *testing.T) {
+	for _, stdin := range []string{"sv_SE.person", "[Skåne län]", "x[1]y", `say "hi"`} {
+		code, out, errb := runOut(stdin)
+		if code != 0 || out != stdin+"\n" {
+			t.Errorf("run(%q) = %d, %q, %q; want the text as written", stdin, code, out, errb)
 		}
 	}
 }
@@ -464,6 +449,9 @@ func TestRunTemplateMisuse(t *testing.T) {
 		`{"format":"x"}`:        "is a string",
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
+		" [\"a\",\"b\"]":        "may not be padded",
+		"[\"a\",\"b\"]\n\n":     "may not be padded",
+		"42":                    "number",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
 		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
@@ -579,7 +567,7 @@ func TestRunRecordNDJSON(t *testing.T) {
 }
 
 func TestRunRecordCSVRoundTrips(t *testing.T) {
-	code, out, errb := runOut("{/users}\n", "--seed", "1", "--format", "csv", "--repeat", "3", "--data-path", recordDir(t))
+	code, out, errb := runOut("{/users}\r\n", "--seed", "1", "--format", "csv", "--repeat", "3", "--data-path", recordDir(t))
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}

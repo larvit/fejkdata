@@ -68,8 +68,8 @@ func rendersInside(nodes []node, t *template) bool {
 // template reaches the binder through fields. A single read as a calc operand stands where a calc
 // could not read the spelling, a reference or a path. So {/misc.coordinate.lat as lat}{calc(lat * 60)}
 // stands, since {calc(/misc.coordinate.lat * 60)} does not compile.
-// Where the spelling would be a whole CLI argument or a whole struct tag, that entry point refuses
-// it and names the bare path.
+// Where the spelling would be a whole struct tag, that entry point refuses it and names the bare
+// path.
 func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
 	if len(uses) == 0 {
 		panic(invariant.Broken("name %q has no read at resolve, though its compile found one", b.name))
