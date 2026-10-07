@@ -292,10 +292,12 @@ func operandError(arg string) error {
 		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
 	}
 	example := pipeHint
-	if inline, err := fejkdata.IsTemplate(arg); inline {
-		example = "echo " + shellQuoted(arg) + " | fejkdata"
+	if _, lone := loneReference(arg); lone {
+		example = piped(arg)
+	} else if inline, err := fejkdata.IsTemplate(arg); inline {
+		example = piped(arg)
 	} else if _, lone := loneReference("{/" + arg + "}"); lone && err == nil {
-		example = "echo " + shellQuoted("{/"+arg+"}") + " | fejkdata"
+		example = piped("{/" + arg + "}")
 	}
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
 }
@@ -490,6 +492,15 @@ func spacedReference(template string, err error) error {
 		}
 	}
 	return err
+}
+
+// piped is the command piping template to fejkdata; some shells' echo reads a backslash
+// as an escape, so a template holding one goes through printf.
+func piped(template string) string {
+	if strings.ContainsRune(template, '\\') {
+		return "printf '%s' " + shellQuoted(template) + " | fejkdata"
+	}
+	return "echo " + shellQuoted(template) + " | fejkdata"
 }
 
 // shellQuoted is s as a shell reads it back: bare where it holds nothing a shell expands.
