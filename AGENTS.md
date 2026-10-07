@@ -114,7 +114,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps
-- A name lives in the category binding it, or in the repeat binding it, and is drawn on its first read
+- A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 - comprehension floor: every dimension and the overall at 7.0 or above
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
