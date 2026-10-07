@@ -28,7 +28,7 @@ const usage = `Usage: <template> | fejkdata [flags]
 fejkdata reads one template from stdin and renders it:
 
   echo 'name: {/sv_SE.person.last}' | fejkdata
-  echo '{"format":"{x}\n","x":["bosse","lina"]}' | fejkdata
+  echo '{"format":"{x}","x":["bosse","lina"]}' | fejkdata
   fejkdata < template.txt
 
 fejkdata <<'EOF'
@@ -42,21 +42,21 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 ({/misc.territory[SE]}), and .. steps up from a row to the row it links to
 ({/geo.SE.locality..municipality.name}).
 
-What you send is what renders, and fejkdata adds nothing: a format string keeps
+In text, what you send is what renders, and fejkdata adds nothing: a format string keeps
 every byte, so echo's newline ends each render, and printf '%s' sends none. -n
-joins renders with --separator, empty by default. A JSON template is its JSON, the
-whitespace around it dropped, so 42, true or null alone is refused. A quoted
+joins renders with --separator, empty by default. A JSON template is an object, array
+or string, and the whitespace around it is dropped; 42, true or null alone is refused. A quoted
 heredoc, <<'EOF', passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
-template whose fields are its columns, or a lone reference, {/sv_SE.person}, one
-newline after it allowed — and the rows are written as one JSON array, one JSON
+template whose fields are its columns, or a lone reference, one reference and nothing
+else such as {/sv_SE.person}, one newline after it allowed — and the rows are written as one JSON array, one JSON
 object per line, one CSV row (after a header), or one INSERT.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql
   -h, --help             print this help, then exit
-      --list             list the paths the data offers, each one a reference from the root, then exit
+      --list             list the paths the data offers, each written after {/ in a template, then exit
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 1..1048576 (default 1)
   -s, --seed N           same seed, version and data: identical output
@@ -279,7 +279,8 @@ func (in invocation) checkFlags() error {
 const pipeHint = "echo '{/sv_SE.person}' | fejkdata"
 
 // operandError refuses an argument that is no flag, naming the spelling that reads what
-// it most likely means: stdin for -, a file for a file's name, else a template piped in.
+// it most likely means: dropping it for -, a file for a file's name, else a template
+// piped in.
 func operandError(arg string) error {
 	unexpected := "unexpected argument '" + arg + "'"
 	if arg == "-" {
@@ -289,8 +290,10 @@ func operandError(arg string) error {
 		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
 	}
 	example := pipeHint
-	if inline, err := fejkdata.IsTemplate(arg); !inline && err == nil {
-		example = "echo '{/" + arg + "}' | fejkdata"
+	if inline, err := fejkdata.IsTemplate(arg); inline {
+		example = "echo " + shellQuoted(arg) + " | fejkdata"
+	} else if _, lone := loneReference("{/" + arg + "}"); lone && err == nil {
+		example = "echo " + shellQuoted("{/"+arg+"}") + " | fejkdata"
 	}
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
 }
@@ -324,9 +327,8 @@ func (in invocation) options() []fejkdata.Option {
 	return opts
 }
 
-// write streams the input's renders to w, repeat of them joined by the separator. A
-// value that renders once renders every time, so a render failure comes before anything
-// is written; a write failure surfaces from Flush, bufio keeping the first one.
+// write streams the input's renders to w, repeat of them joined by the separator; a write
+// failure surfaces from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, src input, w io.Writer) error {
 	if in.writesRecords() {
 		return in.writeRecords(f, src, w)
@@ -421,10 +423,14 @@ func defaultTable(path string) string {
 
 // inputError marks a failure that is the input's own fault — no template, one that does
 // not compile, or a stdin that cannot be read. run reports it as misuse (exit 2, with a
-// pointer to --help), unlike a lone reference to nothing, which is a runtime error (exit 1).
+// pointer to --help), unlike a lone reference to nothing under --format, which is a runtime
+// error (exit 1).
 type inputError struct{ error }
 
 func (e inputError) Unwrap() error { return e.error }
+
+// jsonSpace is the whitespace JSON allows around a value.
+const jsonSpace = " \t\r\n"
 
 // input is what stdin holds: the template, and the path a lone reference names as a
 // record.
@@ -433,15 +439,16 @@ type input struct {
 	record   string
 }
 
-// parseInput reads stdin. A format string is its every byte; a JSON template sheds the
-// whitespace around it; a lone reference names a record less one newline ending it.
+// parseInput reads stdin. A format string is every byte of stdin; a JSON template drops
+// the whitespace around it; a lone reference names a record, with one newline ending it
+// allowed.
 func parseInput(raw string) (input, error) {
-	trimmed := strings.TrimSpace(raw)
+	trimmed := strings.Trim(raw, jsonSpace)
 	if trimmed == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
 	}
 	template := raw
-	if strings.ContainsRune(`{["`, rune(trimmed[0])) && json.Valid([]byte(trimmed)) {
+	if json.Valid([]byte(trimmed)) {
 		template = trimmed
 	}
 	text, found := strings.CutSuffix(template, "\n")
@@ -485,7 +492,7 @@ func spacedReference(template string, err error) error {
 
 // shellQuoted is s as a shell reads it back: bare where it holds nothing a shell expands.
 func shellQuoted(s string) string {
-	if s != "" && !strings.ContainsAny(s, " \t'\"$`\\*?[]{}()<>|&;#~!") {
+	if s != "" && !strings.ContainsAny(s, " \t\r\n'\"$`\\*?[]{}()<>|&;#~!") {
 		return s
 	}
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"

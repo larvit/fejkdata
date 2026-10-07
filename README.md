@@ -23,7 +23,7 @@ echo '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table
 echo '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
 echo '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list            # only your data
-echo '{"format":"name: {x}\n","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina
+echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina
 fejkdata < template.txt                                  # a template kept in a file
 fejkdata <<'EOF'                                         # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
@@ -38,10 +38,12 @@ inside one: each dot segment descends one level — folders, then the category (
 file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
 these paths; a template reads one as `{/path}`.
 
-What you send is what renders, and fejkdata adds nothing. A format string keeps every
+In text, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
-its JSON, the whitespace around it dropped, so `42`, `true` or `null` alone is refused. A
+an object, array or string, and the whitespace around it is dropped; `42`, `true` or
+`null` alone is refused. A JSON template that should end each render in a newline writes
+`\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
@@ -63,7 +65,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
-other than a flag, an empty or unreadable stdin, nothing piped in, or a
+other than a flag, an empty, blank or unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 

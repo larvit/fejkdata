@@ -42,7 +42,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A struct tag is a template by its shape
 - The CLI renders exactly the template on its stdin, and adds nothing
 - A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
-- A padded JSON template is rejected, not trimmed
+- `NewTemplate` rejects a padded JSON template, and the CLI's stdin drops the whitespace around one
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
