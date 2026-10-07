@@ -33,14 +33,14 @@ var builtins = withTransforms(map[string]builtin{
 	"ean":    {arity: 0, prep: derive(eanCheck)},
 	"uuid":   {arity: 0, prep: sample(uuidV7)},
 	"ulid":   {arity: 0, prep: sample(ulid)},
-	"nanoid": {arity: 1, checkArgs: posIntArg, prep: chars(nanoidAlphabet)},
-	"hex":    {arity: 1, checkArgs: posIntArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, checkArgs: posIntArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
+	"nanoid": {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
+	"hex":    {arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
+	"digits": {arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
-	"upper": {arity: 1, checkArgs: posIntArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-	"lower": {arity: 1, checkArgs: posIntArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
-	"base64": {arity: 1, checkArgs: posIntArg, prep: func(a []string) Call {
+	"upper": {arity: 1, checkArgs: countArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+	"lower": {arity: 1, checkArgs: countArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
+	"base64": {arity: 1, checkArgs: countArg, prep: func(a []string) Call {
 		n := atoi(a[0])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
@@ -158,7 +158,7 @@ func intArg(s string) (int, error) {
 	}
 	return n, nil
 }
-func posIntArg(a []string) error {
+func countArg(a []string) error {
 	n, err := intArg(a[0])
 	if errors.Is(err, strconv.ErrRange) {
 		return fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
@@ -166,8 +166,8 @@ func posIntArg(a []string) error {
 	if err != nil {
 		return fmt.Errorf("count %w", err)
 	}
-	if n < 1 {
-		return fmt.Errorf("count %q must be positive", a[0])
+	if n < 0 {
+		return fmt.Errorf("count %q must not be negative", a[0])
 	}
 	if n > maxLen {
 		return fmt.Errorf("count %d exceeds the maximum %d", n, maxLen)

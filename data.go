@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
@@ -15,9 +14,6 @@ func loadData(sources []datafiles.Source) (map[string]node, error) {
 			return nil, err
 		}
 		mergeChildren(root, g.children)
-	}
-	if len(root) == 0 {
-		return nil, fmt.Errorf("no .json data found")
 	}
 	if err := categoryPipeline(categorySites(&folder{children: root}), root).run(); err != nil {
 		return nil, err

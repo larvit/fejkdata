@@ -435,7 +435,7 @@ number, and a choice whose every weight is `0`.
 
 ### Repeat
 
-A template may carry `repeat` (a positive integer, default `1`) to render its format
+A template may carry `repeat` (an integer of 0 or more, default `1`; `0` renders nothing) to render its format
 that many times — each an independent draw — joined by `separator` (default `""`):
 
 ```json
@@ -632,7 +632,7 @@ namespace too.
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
-zeros (`+5` and `05` are `5`); bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
+zeros (`+5` and `05` are `5`); a count of `0` renders nothing; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
 time-based id takes its timestamp from the rng, not the clock — so seeded output
 stays reproducible.
@@ -764,7 +764,8 @@ and so are two names bound to one category.
 A name is drawn on its first read, and lives in the category binding it: any field of the
 category may read it, and a record's columns read one pick. Each render of the category picks
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
-iteration, and one bound outside the repeat keeps its pick on every line.
+iteration, and one bound outside the repeat keeps its pick on every line. A name a choice's
+item binds lives in that item, and picks anew each time the item is drawn.
 
 Refused at `New`, each error naming what to write instead:
 
@@ -774,7 +775,8 @@ Refused at `New`, each error naming what to write instead:
 - a binding of anything but a reference, or a field of the template binding it or a path into
   one;
 - a read of a name inside the field bound to it: read it outside that field;
-- a binding in a choice's item, which every other item would leave unbound;
+- a read outside a choice's item of a name bound inside it, which every other item would
+  leave unbound;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;

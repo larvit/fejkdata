@@ -9,12 +9,12 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// nameScope is where a name is bound: a category, or one iteration of a repeat inside it. A
-// token sees its scope's names and every enclosing scope's, so one field may bind a name and
-// another read it.
+// nameScope is where a name is bound: a category, one iteration of a repeat inside it, or one
+// render of a choice's item. A token sees its scope's names and every enclosing scope's, so one
+// field may bind a name and another read it.
 type nameScope struct {
 	up       *nameScope
-	owner    node // the category's root, or the repeat
+	owner    node // the category's root, the repeat, or the choice's item
 	bindings map[string]*nameBinding
 	order    []*nameBinding
 }
@@ -56,28 +56,27 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 }
 
 // bindNames gives every template of a compiled category or inline template the scope its
-// names live in, and refuses a name bound twice along one chain of scopes, a binding in a
-// choice's item, a name a field spells too, and a read no field or name answers.
+// names live in, and refuses a name bound twice along one chain of scopes, a name a field spells
+// too, and a read no field or name answers.
 func bindNames(root node) error {
 	var scopes []*nameScope
-	var gather func(n node, scope *nameScope, inChoice bool, where string) error
-	gather = func(n node, scope *nameScope, inChoice bool, where string) error {
-		if t, isTemplate := n.(*template); n == root || isTemplate && t.repeat > 1 {
+	var gather func(n node, scope *nameScope, item bool, where string) error
+	gather = func(n node, scope *nameScope, item bool, where string) error {
+		if t, isTemplate := n.(*template); n == root || isTemplate && (t.repeat > 1 || item) {
 			scope = &nameScope{up: scope, owner: n}
 			scopes = append(scopes, scope)
-			inChoice = false
 		}
 		switch t := n.(type) {
 		case *template:
 			t.nameScope = scope
-			if err := scope.bindAll(t, inChoice, where); err != nil {
+			if err := scope.bindAll(t, where); err != nil {
 				return err
 			}
 		case *choice:
 			t.nameScope = scope
 		}
 		_, isChoice := n.(*choice)
-		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, inChoice || isChoice, where) })
+		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, isChoice, where) })
 	}
 	if err := gather(root, nil, false, ""); err != nil {
 		return err
@@ -85,20 +84,17 @@ func bindNames(root node) error {
 	for _, sc := range scopes[1:] {
 		for _, b := range sc.order {
 			if outer := sc.up.lookup(b.name); outer != nil {
-				return fmt.Errorf("%stoken {%s}: name %q is bound outside this repeat too, by {%s}; rename one", b.where, b.body, b.name, outer.body)
+				return fmt.Errorf("%stoken {%s}: name %q is bound outside this %s too, by {%s}; rename one", b.where, b.body, b.name, sc.kind(), outer.body)
 			}
 		}
 	}
 	return answerReads(root, scopes)
 }
 
-func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
+func (sc *nameScope) bindAll(t *template, where string) error {
 	for _, tok := range t.tokens {
 		if tok.Kind != grammar.NameBind {
 			continue
-		}
-		if inChoice {
-			return fmt.Errorf("%stoken {%s}: a choice's item binds no name, since every other item would leave it unbound; bind it outside the choice, or move the item into a category of its own and reference that", where, tok.Body)
 		}
 		if b, twice := sc.bindings[tok.Bound]; twice {
 			return fmt.Errorf("%stoken {%s}: name %q is bound twice %s, by {%s} too; rename one", where, tok.Body, tok.Bound, sc.spelled(), b.body)
@@ -115,10 +111,18 @@ func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
 
 // spelled names the scope in an error.
 func (sc *nameScope) spelled() string {
-	if t, isTemplate := sc.owner.(*template); sc.up == nil && !(isTemplate && t.repeat > 1) {
+	if sc.up == nil && sc.kind() != "repeat" {
 		return "outside any repeat"
 	}
-	return "in one repeat"
+	return "in one " + sc.kind()
+}
+
+// kind names what a scope inside the category's is: a repeat, or a choice's item.
+func (sc *nameScope) kind() string {
+	if t, isTemplate := sc.owner.(*template); isTemplate && t.repeat > 1 {
+		return "repeat"
+	}
+	return "choice item"
 }
 
 // ownScope is the scope t renders a frame of: a category's, once per render of its root, or a
@@ -185,6 +189,9 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 			at := strings.TrimSuffix(b.where, ": ")
 			if at == "" {
 				at = "an item of the root choice"
+			}
+			if sc.kind() == "choice item" {
+				return fmt.Errorf("%s%w; name %q is bound at %s, inside an item of a choice, which a read outside that item cannot see; bind it outside the choice", where, u.err, u.head, at)
 			}
 			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
 		}

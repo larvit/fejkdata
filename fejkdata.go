@@ -3,7 +3,6 @@ package fejkdata
 import (
 	crand "crypto/rand"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io/fs"
 	"reflect"
@@ -19,9 +18,6 @@ import (
 const MaxRepeat = 1 << 20
 
 var _ [^uint(0)>>63 - 1]struct{} // docs/decisions.md#64-bit-targets-only
-
-// ErrNoData is returned by New when no source is loaded at all.
-var ErrNoData = errors.New("no data: WithoutShippedData needs at least one WithDataPath or WithDataFS")
 
 // Generator generates fake data from a namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
@@ -73,8 +69,8 @@ func WithoutShippedData() Option {
 // New builds a generator from the shipped data set and the options' sources, merged
 // in order with the last winning a name clash. Each JSON file becomes a category
 // named after the file (address.json -> "address") and each subdirectory a
-// namespace segment. It errors on a missing directory, invalid JSON, invalid data,
-// or no data at all. With only the shipped data, a category loads on the first call
+// namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
+// generator with no data at all renders templates that read none. With only the shipped data, a category loads on the first call
 // reaching it; with WithDataPath or WithDataFS, every category loads here.
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
@@ -102,9 +98,6 @@ func (c config) load() (folder, error) {
 		sources = append(sources, shippedSource)
 	}
 	sources = append(sources, c.sources...)
-	if len(sources) == 0 {
-		return folder{}, ErrNoData
-	}
 	cats, err := loadData(sources)
 	return folder{children: cats}, err
 }

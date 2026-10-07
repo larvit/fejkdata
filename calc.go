@@ -91,7 +91,7 @@ func constantValue(n grammar.CalcNode, operand func(string) []node) (float64, bo
 			return 0, false
 		}
 		t, ok := nodes[0].(*template)
-		if !ok || t.repeat > 1 {
+		if !ok || t.repeat != 1 {
 			return 0, false
 		}
 		lit, fixed := t.fixedText()
@@ -122,7 +122,7 @@ func neverNumeric(n node) (text string, never bool) {
 		return "", true
 	case *template:
 		lit, fixed := n.fixedText()
-		if !fixed || n.repeat > 1 {
+		if !fixed || n.repeat != 1 {
 			return "", false
 		}
 		if _, err := strconv.ParseFloat(strings.TrimSpace(lit), 64); err != nil {

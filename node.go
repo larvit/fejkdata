@@ -301,7 +301,7 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format
-// is rendered and concatenated. A present one must be a positive integer.
+// is rendered and concatenated. A present one must be an integer of 0 or more.
 func repeatOf(m map[string]any) (int, error) {
 	rv, ok := m["repeat"]
 	if !ok {
@@ -311,8 +311,8 @@ func repeatOf(m map[string]any) (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("repeat must be a number, not %s", jsonKind(rv))
 	}
-	if math.IsNaN(r) || math.IsInf(r, 0) || r < 1 || r != math.Trunc(r) {
-		return 0, fmt.Errorf("repeat must be a positive integer, got %v", rv)
+	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
+		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
 	if r > MaxRepeat { // caps the renders one repeat asks for; repeatCheck bounds what nested ones multiply to
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
