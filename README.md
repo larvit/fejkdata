@@ -967,7 +967,7 @@ node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
 name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and what each resolves to at load: its target, its reads and the keys they address
 namefence.go    the load fences over names
-pick.go         a render's named picks: the frames of the name scopes rendering, the memo a pick keeps, and the reads kept under it
+pick.go         a render's named picks: the frame of each name scope rendering, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
 path.go         the dotted-path walks, and proving a path reaches a node
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
@@ -981,7 +981,7 @@ resolve.go      resolving templates against the assembled tree in steps, each ov
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
-datatype.go     column datatypes: DataType, where datatype and null may sit, a column's datatype
+datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI

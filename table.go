@@ -246,7 +246,7 @@ type tableRoute struct {
 }
 
 // route is how tail passes t. fromRow means the previous route stepped into t
-// from a row of an ancestor table, so t reads a row even where tail is empty; a
+// from a row of a table linked to it, so t reads a row even where tail is empty; a
 // table reached otherwise, with no selector and an empty tail, is left to a render's
 // own draw.
 func (t *table) route(tail []string, fromRow bool) (tableRoute, error) {
