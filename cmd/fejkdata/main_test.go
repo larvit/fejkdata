@@ -250,7 +250,8 @@ func TestRunTakesNoOperand(t *testing.T) {
 	}{
 		{[]string{"sv_SE.person"}, "echo '{/sv_SE.person}' | fejkdata"},
 		{[]string{"{/sv_SE.person}"}, "echo '{/sv_SE.person}' | fejkdata"},
-		{[]string{"name: {/sv_SE.person.last}"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"name: {/sv_SE.person.last}"}, "echo 'name: {/sv_SE.person.last}' | fejkdata"},
+		{[]string{"geo.US.locality[O'Fallon].name"}, `echo '{/geo.US.locality[O'\''Fallon].name}' | fejkdata`},
 		{[]string{"en_US.address"}, "echo '{/en_US.address}' | fejkdata"},
 		{[]string{"-"}, "drop it"},
 		{[]string{file}, "fejkdata < " + file},
@@ -480,6 +481,8 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
 		"42":                    "number",
+		"42\n":                  "number",
+		"true\n":                "boolean",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")

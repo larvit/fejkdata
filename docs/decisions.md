@@ -78,22 +78,27 @@ folder. `IsTemplate` exports the rule, so struct tags and any other caller read 
 
 The template comes from stdin, from `echo`, a file or a heredoc, so one command line gets
 a value and a quoted heredoc needs no escape. A format string is stdin's every byte, and
-fejkdata adds no newline of its own: `echo` ends each render with its newline,
+fejkdata adds no newline of its own to text: `echo` ends each render with its newline,
 `printf '%s'` sends none, and `-n` joins renders with `--separator`, empty by default. A
-bench of the README's personas picked this over dropping a newline, or adding one, on
-2026-10-07: one rule a user states in a sentence, at the cost of `printf` or a
-`--separator` now and then. A JSON template is its JSON: the maintainer ruled that the
-whitespace around it is not part of the template, so goal 5.7 does not refuse it on
-stdin, while `NewTemplate` still refuses a padded one. A lone reference, `{/users}` or
-`"{/users}"`, names the record `users` under `--format`, one newline after it allowed,
-with `users` the default `--table`; one to nothing there exits 1, as an unknown path
-does, until `todo.md` item 129 moves the reading into the library, against goal 3.2
-meanwhile. Stdin holding only whitespace is misuse, since an unset variable sends just a
-newline. The CLI takes no argument but its flags: one is misuse naming the spelling that
-reads what it likely means, `fejkdata < FILE` for a file's name, dropping it for `-`,
-and the template piped in otherwise; so is a terminal with nothing piped in, which would
-otherwise wait for typed input. `--list` still prints paths, each read as `{/path}`.
-Valid while the CLI reads one template per run.
+bench of the README's personas picked this on 2026-10-07 over dropping a newline or
+adding one: a rule a user states in one sentence, at the cost of `printf` or a
+`--separator` now and then.
+
+A JSON template is its JSON: the maintainer ruled the whitespace around it no part of the
+template, so goal 5.7 does not refuse it on stdin, while `NewTemplate` still refuses a
+padded one. Stdin holding only whitespace is misuse, since an unset variable sends just a
+newline.
+
+A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
+one newline after it allowed, with `users` the default `--table`; one to nothing there
+exits 1. `todo.md` item 129 moves that reading into the library; until then it works
+against goal 3.2.
+
+The CLI takes no argument but its flags: one is misuse naming the spelling that reads what
+it likely means, `fejkdata < FILE` for a file's name, dropping it for `-`, and the template
+piped in otherwise; so is a terminal with nothing piped in, which would otherwise wait for
+typed input. `--list` prints paths, each read as `{/path}`. Valid while the CLI reads one
+template per run.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
@@ -103,12 +108,15 @@ The whole template is the spelling under test, and `NewTemplate` compiles, links
 validates as one step. Under the CLI's `--format`, a lone reference to nothing exits 1
 until item 129: it reads a path, and only the data is absent.
 
-## A padded JSON template is rejected, not trimmed
+## `NewTemplate` rejects a padded JSON template, and the CLI's stdin drops the whitespace around one
 
-2026-09-03, Lilleman auf Larv. Serves goal 5.7.
+2026-09-03, Lilleman auf Larv; the CLI's stdin 2026-10-07. Serves goal 5.7.
 
 Padding is the one place the two readings disagree — a format string renders it, JSON
-drops it — so the spelling that renders is named rather than silently chosen.
+drops it — so `NewTemplate` names the spelling that renders rather than silently
+choosing. On stdin the maintainer ruled the whitespace around JSON no part of the
+template, as the decision "The CLI renders exactly the template on its stdin, and adds
+nothing" records.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 

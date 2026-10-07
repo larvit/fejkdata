@@ -117,7 +117,7 @@
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
-| 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
+| 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused, padded or not: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
@@ -254,8 +254,8 @@ Goal 5.9. Today a path is a second spelling of the template that reads it; after
 - Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in a string field's struct tag and `Fake` alike, as stdin's text does in the CLI: `Fake("sv_SE.person")` returns `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
 - A lone reference to nothing exits 2 under `--format`, where it exits 1 today.
-- Decide whether a lone reference under `--format` draws as its path draws today or as a template draws: under one seed, the two pick different rows.
-- This revises the decisions "A struct tag is a template by its shape", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", "The CLI renders exactly the template on its stdin, and adds nothing", and the exit-1 rule for an unknown path in "A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129". The README's examples and exit codes, the godoc examples in `doc.go` and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
+- Decide whether a lone reference under `--format` draws as its path draws today or as a template draws: under one seed, drawing `users` as a path and as the template `{/users}` picks different rows.
+- This revises the decisions "A struct tag is a template by its shape", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", "The CLI renders exactly the template on its stdin, and adds nothing", and the exit-1 rule for a lone reference to nothing in "A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129". The README's examples and exit codes, the godoc examples in `doc.go` and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
 
 Split it into items for the CLI, struct tags and the library before starting.
 
@@ -438,7 +438,7 @@ Require the path step to reach a sibling category.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
-### 159. Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused: `42` names `"42"`.
+### 159. Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused, padded or not: `42` names `"42"`.
 
 On stdin `42` is refused as "a number" and `null` with advice to write `""`, which prints nothing; neither names the text the author meant. The goals audit of the stdin change found it.
 
