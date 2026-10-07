@@ -2,8 +2,6 @@
 package datafiles
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -11,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // Source is one tree to load: an fs.FS and the directory in it to start from. label
@@ -35,7 +34,7 @@ func FS(fsys fs.FS, base string) Source { return Source{fsys: fsys, base: base} 
 type Category struct {
 	Folders []string
 	Name    string
-	JSON    any
+	JSON    jsonvalue.Value
 	rows    *rowsFiles
 }
 
@@ -142,7 +141,7 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
-	raw, err := DecodeJSON(b)
+	raw, err := jsonvalue.Decode(b)
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
@@ -178,15 +177,4 @@ func (r *rowsFiles) read(name string) (string, error) {
 		return "", fmt.Errorf("%s: %w", r.src.labelled(path.Join(r.dir, name)), err)
 	}
 	return string(b), nil
-}
-
-// DecodeJSON decodes one JSON value, keeping each number as the json.Number it is written as.
-func DecodeJSON(b []byte) (any, error) {
-	var v any
-	if !json.Valid(b) {
-		return nil, json.Unmarshal(b, &v)
-	}
-	dec := json.NewDecoder(bytes.NewReader(b))
-	dec.UseNumber()
-	return v, dec.Decode(&v)
 }

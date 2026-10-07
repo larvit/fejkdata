@@ -7,8 +7,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // newGenerator creates a generator over a single data directory, failing on
@@ -102,9 +102,9 @@ func engine(seed uint64) *Generator {
 }
 
 // parse unmarshals a JSON template fragment into its dynamic form.
-func parse(t *testing.T, s string) any {
+func parse(t *testing.T, s string) jsonvalue.Value {
 	t.Helper()
-	v, err := datafiles.DecodeJSON([]byte(s))
+	v, err := jsonvalue.Decode([]byte(s))
 	if err != nil {
 		t.Fatalf("parse %q: %v", s, err)
 	}

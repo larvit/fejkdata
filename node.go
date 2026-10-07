@@ -9,6 +9,7 @@ import (
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // node is a compiled element of the namespace tree: a folder, choice, null,
@@ -89,8 +90,8 @@ func (t *template) startOf(name string) node {
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front.
-func compile(v any) (node, error) {
-	n, err := compileItem(v, atTop)
+func compile(v jsonvalue.Value) (node, error) {
+	n, err := compileItem(v.Any(), atTop)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,7 @@ func compile(v any) (node, error) {
 // compileCategory compiles a data file's value, which may be a table over a rows
 // file beside it.
 func compileCategory(c datafiles.Category) (node, error) {
-	if m, ok := c.JSON.(map[string]any); ok {
+	if m, ok := c.JSON.Any().(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
@@ -276,7 +277,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	}
 	if sv, ok := m["separator"]; ok {
 		if o.separator, ok = sv.(string); !ok {
-			return o, fmt.Errorf("separator must be a string, got %T", sv)
+			return o, fmt.Errorf("separator must be a string, not %s", jsonKind(sv))
 		}
 	}
 	return o, nil
