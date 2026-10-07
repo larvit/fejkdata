@@ -38,7 +38,7 @@ inside one: each dot segment descends one level — folders, then the category (
 file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
 these paths; a template reads one as `{/path}`.
 
-In text, what you send is what renders, and fejkdata adds nothing. A format string keeps every
+Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
 an object, array or string, and the whitespace around it is dropped; `42`, `true` or

@@ -28,7 +28,7 @@ replacement, and each removed path, column or flag.
   under [Names](README.md#names).
 - First release: the CLI, the library and the shipped data set.
 - The CLI renders exactly the template on its stdin, `echo '{/sv_SE.person} hihi' |
-  fejkdata`, and adds nothing to text: `echo`'s newline ends the render, and `--separator`
+  fejkdata`, and adds nothing under `--format text`: `echo`'s newline ends the render, and `--separator`
   defaults to empty. Whitespace around a JSON template is dropped. A lone reference,
   `{/users}`, is the record `users` under `--format`. An argument other than a flag, an
   empty or blank stdin, or nothing piped in, exits 2.

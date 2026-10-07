@@ -78,7 +78,7 @@ folder. `IsTemplate` exports the rule, so struct tags and any other caller read 
 
 The template comes from stdin, from `echo`, a file or a heredoc, so one command line gets
 a value and a quoted heredoc needs no escape. A format string is stdin's every byte, and
-fejkdata adds no newline of its own to text: `echo` ends each render with its newline,
+fejkdata adds no newline of its own under `--format text`: `echo` ends each render with its newline,
 `printf '%s'` sends none, and `-n` joins renders with `--separator`, empty by default. A
 bench of the README's personas picked this on 2026-10-07 over dropping a newline or
 adding one: a rule a user states in one sentence, at the cost of `printf` or a
@@ -114,9 +114,8 @@ until item 129: it reads a path, and only the data is absent.
 
 Padding is the one place the two readings disagree — a format string renders it, JSON
 drops it — so `NewTemplate` names the spelling that renders rather than silently
-choosing. On stdin the maintainer ruled the whitespace around JSON no part of the
-template, as the decision "The CLI renders exactly the template on its stdin, and adds
-nothing" records.
+choosing. On stdin the CLI drops it, per the decision "The CLI renders exactly the
+template on its stdin, and adds nothing".
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
