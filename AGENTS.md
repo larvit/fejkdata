@@ -42,7 +42,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A struct tag is a template by its shape
 - The CLI renders exactly the template on its stdin, and adds nothing
 - A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
-- `NewTemplate` rejects a padded JSON template, and the CLI's stdin drops the whitespace around one
+- Whitespace around a JSON template is dropped, in `NewTemplate` and on stdin
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
@@ -59,7 +59,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The repeat cap bounds renders, not bytes
 - 64-bit targets only
 - A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`
-- In data, a default written out and a constant spelled as a sample are load errors
+- In data, a constant spelled as a sample is a load error
 - Samples say what they emit, transforms what they do
 - A record is a template seen as columns; a Go struct is the one second schema
 - A struct's records follow Go's field access, and compile on first use
@@ -81,7 +81,6 @@ In [docs/decisions.md](docs/decisions.md):
 - `..` steps up to the parent row, and a step down after it draws afresh, or once per name's pick
 - A table selects by one key column, a code, never a free-form name
 - A parent row with no child row is a load error
-- The choice-of-rows fence guards a data file's root, and requires string fields
 - A table is a record of string columns
 - The key map is built at load, the rest on first draw
 - Two categories may name one TSV

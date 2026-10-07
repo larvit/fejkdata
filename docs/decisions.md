@@ -65,14 +65,10 @@ can never collide with any of those spellings, and the leading `[` or `"` is gat
 valid JSON so a stray copied bracket never swallows a tag — it names nothing, and says
 so. Reserving the characters whole — though only a leading one
 could collide — keeps one simple name rule instead of a leading-position special case.
-The JSON string is what makes the library's own advice reachable: the error for an
-object holding only a format names `"…"`, and that spelling has to work where it is
-printed. On stdin and in `NewTemplate`, `"x {/a}"` and `x {/a}` render alike, and the
-maintainer kept the JSON string on 2026-10-07, so goal 5.7 does not refuse it: its escapes,
-`\t` and `\n`, carry what bare text cannot. A struct tag of one reference alone,
-`{/users}`, is refused naming the path `users`: both render the same text, and only the
-path names a record. A folder-relative `{.name}` or `{..name}` is refused naming
-`{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so struct tags and any other caller read one.
+A JSON string stays a template even where its bare text renders alike, `"x {/a}"` beside
+`x {/a}`: its escapes put a tab or a newline on one `echo` line. A folder-relative `{.name}` or `{..name}` is refused naming
+`{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so
+struct tags and any other caller read one.
 
 ## The CLI renders exactly the template on its stdin, and adds nothing
 
@@ -86,9 +82,9 @@ bench of the README's personas picked this on 2026-10-07 over dropping a newline
 adding one: a rule a user states in one sentence, at the cost of `printf` or a
 `--separator` now and then.
 
-A JSON template is its JSON: the maintainer ruled the whitespace around it no part of the
-template, so goal 5.7 does not refuse it on stdin, while `NewTemplate` still refuses a
-padded one. Stdin holding only whitespace is misuse, since an unset variable sends just a
+A JSON template is its JSON, so the whitespace around it is no part of the template, per
+the decision "Whitespace around a JSON template is dropped, in `NewTemplate` and on
+stdin". Stdin holding only whitespace is misuse, since an unset variable sends just a
 newline.
 
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
@@ -110,14 +106,14 @@ The whole template is the spelling under test, and `NewTemplate` compiles, links
 validates as one step. Under the CLI's `--format`, a lone reference to nothing exits 1
 until item 129: it reads a path, and only the data is absent.
 
-## `NewTemplate` rejects a padded JSON template, and the CLI's stdin drops the whitespace around one
+## Whitespace around a JSON template is dropped, in `NewTemplate` and on stdin
 
-2026-09-03, Lilleman auf Larv; the CLI's stdin 2026-10-07. Serves goal 5.7.
+2026-10-07, Lilleman auf Larv. Applies KISS.
 
-Padding is the one place the two readings disagree — a format string renders it, JSON
-drops it — so `NewTemplate` names the spelling that renders rather than silently
-choosing. On stdin the CLI drops it, per the decision "The CLI renders exactly the
-template on its stdin, and adds nothing".
+Padding is where the two readings disagree: a format string renders it, JSON drops it. A
+template that parses as JSON is its JSON, so its padding is dropped, as `encoding/json`
+drops it. Goal 5.7 refuses only a spelling that suggests a mistake, and padding around
+JSON suggests none.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -169,10 +165,6 @@ from the one pick a name keeps.
 - `{x as n}` binds a reference, or a field of the template binding it or a path into one,
   `{place as p}`: an inline template, and a choice of rows inside one category, have no reference to
   bind, and goal 4.1 holds there too.
-- A name read once is refused where writing what it binds in its place draws the same, and
-  the error names that spelling (goal 5.7): `{/x as n}{n.y}` is `{/x.y}`. A calc cannot read
-  a reference or a path, so a calc's one read of a name bound to either is not refused, and
-  neither is a read inside a nested repeat, which keeps one pick on every line.
 
 Valid while goal 5.2 has each `{…}` make a new pick.
 
@@ -191,8 +183,8 @@ naming the locale, so a folder renames and copies without editing its references
 Data files, the CLI and the Go API are the public API, and a consumer must be able to
 take a minor without an edit — so an added column is a major, since it changes the CSV
 header and the `INSERT` column list, as is a removed value, which changes what a fixture
-holds, and a new option, which reserves a field name. Goal 5.7's refusals grow by
-tightening, so every fence invalidates some file. Each such release names the rejected
+holds, and a new option, which reserves a field name. A new refusal tightens what
+loads, so every new fence invalidates some file. Each such release names the rejected
 spelling and its replacement in the changelog and in the load error, and that is the
 whole migration: a fence rejects one spelling with one replacement, so the fix is local
 to each site. A fence that would need a non-local rewrite ships a converter with its
@@ -291,14 +283,14 @@ is sometimes not a number loads, and prints `NaN` on each draw where it is not o
 and `NaN` in a string column work against goals 6.1 and 4 until `todo.md` item 81
 refuses them there too.
 
-## In data, a default written out and a constant spelled as a sample are load errors
+## In data, a constant spelled as a sample is a load error
 
-2026-09-24, Lilleman auf Larv.
+2026-09-24, Lilleman auf Larv; narrowed 2026-10-07. Serves goal 5.7.
 
-`weight: 1`, `repeat: 1`, `separator: ""`, `datatype: "string"`, `int(5,5)`,
-`float(1,1,2)`, `+5` and `05` each spell what a shorter form already spells, so each is
-rejected naming that form. The CLI's numbers follow the shell instead: `--seed 007` and
-`--repeat +3` are 7 and 3, as every command line reads them.
+`int(5,5)` and `float(1,1,2)` draw nothing, which suggests a range typed wrong, so each is
+rejected naming the constant. A default written out, `weight: 1`, `repeat: 1`,
+`separator: ""` or `datatype: "string"`, and a number spelled `+5` or `05`, load as the
+shorter form, as the CLI's `--seed 007` and `--repeat +3` do.
 
 ## Samples say what they emit, transforms what they do
 
@@ -515,15 +507,6 @@ A descendant is drawn inside the nearest pinned ancestor, so every ancestor row 
 lead to a row at every level below it, or a render could find nothing to draw. The
 import script drops or fills such rows; the alternative, falling back to a free draw,
 would break the consistency the link exists for without saying so.
-
-## The choice-of-rows fence guards a data file's root, and requires string fields
-
-2026-09-17, Lilleman auf Larv.
-
-A table is a category with a TSV beside its file, so only a root choice has the spelling
-the fence names; a nested choice of same-shaped templates and an inline one keep
-loading. Fields must all be strings because a cell is a string node: a choice whose
-items carry a nested choice is not one table but two linked ones.
 
 ## A table is a record of string columns
 
@@ -865,7 +848,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Shipped under the floor by the maintainer's decision of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk.
+Shipped under the floor by the maintainer's decisions of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk; and narrowing goal 5.7 to the refusals that catch a mistake, dropping the rest.
 
 Last scoring run, 2026-10-07, on commit ad59967: Navigation 7.00, Locality 5.88, Shape 6.50, Self-sufficiency 6.13, overall 6.38. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.06, Shape 6.67, Self-sufficiency 6.56, overall 6.56. Against the runs on ac6158e, the scoring run's overall rose from 6.25 and its Shape from 6.38, while its Self-sufficiency fell from 6.38; the panel's overall held, and its Locality and Self-sufficiency fell by 0.05 each. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `levelKeys` and `addressedKeys` build at load; twelve kept `doc.go`'s vocabulary open beside it. What the two runs found is filed in `todo.md`, and `todo.md` item 153 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
