@@ -29,8 +29,18 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 	if r, isTemplate := compiled(t, `[{"format":"","d":"x"}]`).(*template); !isTemplate || !r.isRecord {
 		t.Error("a one-item choice of a record is no record, want the record it holds")
 	}
-	if _, err := resolved(t, `[{"format":"a","weight":2}]`); err == nil || !strings.Contains(err.Error(), "no effect here") {
-		t.Errorf("a weight on a one-item choice's item = %v, want it refused as doing nothing", err)
+}
+
+func TestAWeightWithNothingToDrawAgainstIsRejected(t *testing.T) {
+	for _, src := range []string{
+		`{"format":"a","weight":2}`,
+		`{"format":"{x}","x":{"format":"a","weight":2}}`,
+		`[{"format":"a","weight":2}]`,
+	} {
+		_, err := resolved(t, src)
+		if err == nil || !strings.Contains(err.Error(), `drop "weight"`) || strings.Contains(err.Error(), "can never be a field") || strings.Contains(err.Error(), "only skews a choice's items") {
+			t.Errorf("compile(%s) = %v, want the weight refused as drawn against nothing, naming the drop", src, err)
+		}
 	}
 }
 
@@ -53,7 +63,7 @@ func TestARepeatedItemCountsAsWritten(t *testing.T) {
 
 func TestASeparatorWithoutARepeatIsRejected(t *testing.T) {
 	for src, want := range map[string]string{
-		`{"format":"{x}","x":"v","separator":","}`: "separator",
+		`{"format":"{x}","x":"v","separator":","}`: `drop "separator"`,
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
@@ -69,8 +79,10 @@ func TestADefaultWrittenOutIsTheDefault(t *testing.T) {
 		`{"format":"{x}","x":["a","b"],"repeat":1}`:                            `{"format":"{x}","x":["a","b"]}`,
 		`{"format":"{x}","x":["a","b"],"repeat":2,"separator":""}`:             `{"format":"{x}","x":["a","b"],"repeat":2}`,
 		`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`: `{"format":"","n":{"format":"{x}","x":["1","2"]}}`,
-		`null`: `""`,
-		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `{"format":"{p}","p":{"format":"{x}","x":["","a"]}}`,
+		`{"format":"a","weight":1}`:                                            `"a"`,
+		`[{"format":"a","weight":1}]`:                                          `"a"`,
+		`{"format":"{x}","x":{"format":"a","weight":1}}`:                       `{"format":"{x}","x":"a"}`,
+		`{"format":"{x}","x":["a","b"],"separator":""}`:                        `{"format":"{x}","x":["a","b"]}`,
 	} {
 		sameRenders(t, long, short)
 	}

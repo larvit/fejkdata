@@ -243,6 +243,16 @@ func TestFakeStructReadsAPathInEachSpelling(t *testing.T) {
 	}
 }
 
+func TestFakeStructTakesTheDatatypeItsGoTypeSets(t *testing.T) {
+	v := struct {
+		N int    `fake:"{\"format\":\"{int(1,9)}\",\"datatype\":\"integer\"}"`
+		S string `fake:"{\"format\":\"x\",\"datatype\":\"string\"}"`
+	}{}
+	if err := structData(t).FakeStruct(&v); err != nil || v.N < 1 || v.N > 9 || v.S != "x" {
+		t.Errorf("FakeStruct = %+v, %v, want each tag's datatype taken as its Go type's", v, err)
+	}
+}
+
 func TestFakeStructErrors(t *testing.T) {
 	f := structData(t)
 	for _, c := range []struct {
@@ -267,11 +277,11 @@ func TestFakeStructErrors(t *testing.T) {
 			A structPlace `fake:"place"`
 		}{}, ".A: a struct field fills from the tags on its own fields"},
 		{&struct {
-			A int `fake:"{\"format\":\"{int(1,9)}\",\"datatype\":\"integer\"}"`
-		}{}, `its Go type int sets the datatype; drop "datatype"`},
+			A int `fake:"{\"format\":\"{int(1,9)}\",\"datatype\":\"number\"}"`
+		}{}, `its Go type int sets the datatype integer; drop "datatype"`},
 		{&struct {
-			A string `fake:"{\"format\":\"x\",\"datatype\":\"string\"}"`
-		}{}, `its Go type string sets the datatype; drop "datatype"`},
+			A string `fake:"{\"format\":\"1\",\"datatype\":\"integer\"}"`
+		}{}, `its Go type string sets the datatype string; drop "datatype"`},
 		{&struct {
 			A int `fake:"[null,\"{int(1,9)}\"]"`
 		}{}, "can draw null, which int cannot hold; make it *int"},
