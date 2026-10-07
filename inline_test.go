@@ -104,7 +104,7 @@ func TestFakeTemplateErrors(t *testing.T) {
 	}{
 		{`{"x":"Q"}`, "missing string \"format\""},
 		{`"{x}"`, `no field "x"`},
-		{`"{digits(0)}"`, "must be positive"},
+		{`"{digits(-1)}"`, "must not be negative"},
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
 	} {

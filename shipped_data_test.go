@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"errors"
 	"reflect"
 	"slices"
 	"strings"
@@ -54,10 +53,21 @@ func TestUserDataMayReferenceShipped(t *testing.T) {
 	}
 }
 
-func TestWithoutShippedDataNeedsASource(t *testing.T) {
-	_, err := New(WithoutShippedData())
-	if err == nil || !strings.Contains(err.Error(), "WithDataPath") || !errors.Is(err, ErrNoData) {
-		t.Fatalf("New(WithoutShippedData()) = %v, want ErrNoData naming WithDataPath", err)
+func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
+	for name, opts := range map[string][]Option{
+		"no source":    {WithoutShippedData()},
+		"empty folder": {WithoutShippedData(), WithDataPath(t.TempDir())},
+	} {
+		f, err := New(opts...)
+		if err != nil {
+			t.Fatalf("%s: New = %v, want a generator holding no data", name, err)
+		}
+		if v, err := f.FakeTemplate("{digits(3)}"); err != nil || len(v) != 3 {
+			t.Errorf("%s: FakeTemplate = %q, %v, want three digits", name, v, err)
+		}
+		if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "no entry") {
+			t.Errorf("%s: Fake(x) = %v, want a reference to nothing refused", name, err)
+		}
 	}
 }
 

@@ -203,7 +203,7 @@ func mustPanic(t *testing.T, name string, call func()) {
 }
 
 func TestClassBuiltinArgs(t *testing.T) {
-	for _, bad := range []string{`"{digits(0)}"`, `"{digits(2000000000)}"`, `"{upper(-1)}"`, `"{lower(x)}"`, `"{digits()}"`, `"{upper(1,2)}"`} {
+	for _, bad := range []string{`"{digits(2000000000)}"`, `"{upper(-1)}"`, `"{lower(x)}"`, `"{digits()}"`, `"{upper(1,2)}"`} {
 		if _, err := resolved(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want the arg rejected", bad)
 		}
@@ -379,13 +379,10 @@ func TestFunctionTokenLuhn(t *testing.T) {
 
 func TestBuiltinCompileErrors(t *testing.T) {
 	for _, bad := range []string{
-		`"{digits(0)}"`,        // count must be positive
 		`"{upper(x)}"`,         // count must be an integer
 		`"{int(a,b)}"`,         // non-integer args
 		`"{int(5,1)}"`,         // min > max
-		`"{hex(0)}"`,           // count must be positive
 		`"{nanoid(-1)}"`,       // negative count
-		`"{base64(0)}"`,        // count must be positive
 		`"{float(1,2,-1)}"`,    // negative decimals
 		`"{float(NaN,NaN,2)}"`, // bounds must be finite
 		`"{float(Inf,Inf,2)}"`, // same-sign infinities
