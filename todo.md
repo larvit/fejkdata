@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 162`
+`Next ID = 163`
 
 | Goal | W |
 |---|---|
@@ -78,6 +78,7 @@
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
+| 162 | 0.1.0 | question | **Decide whether each of five spellings loads under goal 5.7: a binding in a table's format or cell, a path through a name that selects a row, an unknown key in a table object, a table `name` with neither `key` nor `parent`, and a key or name no selector can spell.** | 1 | 2 | 3 | 6 | 5.7 | 14.1 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
@@ -287,6 +288,10 @@ All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the 
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
+
+### 162. Decide whether each of five spellings loads under goal 5.7: a binding in a table's format or cell, a path through a name that selects a row, an unknown key in a table object, a table `name` with neither `key` nor `parent`, and a key or name no selector can spell.
+
+Each stays refused today. Goal 5.7 loads whatever is well-formed and means one thing; for each, what it would mean is not settled. An unknown key such as `repeat` on a table object would silently not repeat. Found while dropping the refusals that guessed at mistakes.
 
 ### 110. Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 

@@ -287,7 +287,8 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 
 ## A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`
 
-2026-09-24, Lilleman auf Larv.
+2026-09-24, Lilleman auf Larv. Serves goal 6.1: a value that is always `NaN` or `Inf` is
+no valid value.
 
 `1/0` and a fixed `"0"` field are decidable, so they join the never-numeric operand as a
 load error; the fold stops where an operand varies, so `a/(b*c)` with `b` fixed at `0`
@@ -329,8 +330,7 @@ The fields an embedded struct promotes are the struct's own — `e.First`, as
 its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}` (goal 4.1),
 while a path tag draws afresh as `{/path}` does (goal 5.2).
 
-A tag binding a name only an embedding type reads is refused on the embedded type alone, as
-any name nothing reads is, so the embedder binds it in a tag of its own. A tagged field that
+A tagged field that
 another field hides is refused, not dropped. A named
 struct field is another entity and a record of its own. `fake:"-"` leaves any struct
 field unfilled, so no name may be `-`; a pointer back to a struct
@@ -439,7 +439,7 @@ heap through `pickKey.under`, holds at its baseline with no margin: from a basel
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
 the JSON says only how a row is composed. The TSV sits beside its category file, named
 by `rows`, so a data directory stays a directory of categories, and one nothing names is
-a load error.
+ignored.
 
 ## A selector is bracketed, and a dot inside it is literal
 
@@ -538,9 +538,7 @@ kept building the lookup on first draw, once per table.
 2026-09-17, Lilleman auf Larv.
 
 Each is a view of the file with its own format and options, at the cost of holding the
-rows twice, which is what a category over a register with two natural formats asks for;
-a TSV nothing names stays a load error, since that one is a file forgotten rather than
-shared.
+rows twice, which is what a category over a register with two natural formats asks for.
 
 ## A cell may read a reference, and each row its own
 
