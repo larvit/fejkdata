@@ -41,8 +41,8 @@ these paths; a template reads one as `{/path}`.
 Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
-an object, array or string, and the whitespace around it is dropped; `null`, `42` or
-`true` alone is refused. A JSON template that should end
+any JSON value, and the whitespace around it is dropped; `42` or `true` alone renders its
+text, and `null` alone renders nothing. A JSON template that should end
 each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
@@ -55,17 +55,17 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, version and data: identical output |
 | `-n`, `--repeat N` | render the template N times (up to 1048576), each an independent draw, streamed |
-| `--separator S` | between repeated renders (default empty) |
+| `--separator S` | between repeated renders (default empty); a record `--format` ignores it |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
-| `--table T` | the INSERT target for `--format sql` (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
-| `--list` | print every path, then exit |
+| `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
+| `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
 | `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
-other than a flag, an empty, blank, `null` or unreadable stdin, nothing piped in, or a
+other than a flag, an empty, blank or unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
@@ -327,8 +327,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
 | `WithoutShippedData()` | load only what you give |
 
-`New` refuses a mistake in the data, and `NewTemplate` one in the template. On a loaded
-generator:
+`New` refuses data that breaks the grammar, could mean two things or cannot render a valid
+value, and `NewTemplate` such a template. On a loaded generator:
 
 - `Fake` fails only for a path that names nothing, could name two things, or reads one
   draw of a level carrying a `repeat`, with the same error every call.
@@ -428,9 +428,10 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
 writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as written,
-so `["a", "a", "b"]` draws `a` two times in three. Rejected at load: a weight that is
-negative, non-numeric or `0` (never drawn — remove the item), and one other than `1`
-where nothing is drawn against it: outside a choice, or on the item of a one-item choice.
+so `["a", "a", "b"]` draws `a` two times in three, and an item of weight `0` is never
+drawn. A weight where nothing is drawn against it, outside a choice or on the item of a
+one-item choice, does nothing. Rejected at load: a weight that is negative or not a
+number, and a choice whose every weight is `0`.
 
 ### Repeat
 
@@ -441,9 +442,9 @@ that many times — each an independent draw — joined by `separator` (default 
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-Renders e.g. `bar foo baz`. Rejected at load: a `separator` other than `""` without a
-`repeat` above `1`, and a `repeat` that multiplies to more than 1 048 576 renders along any path of
-nested repeats.
+Renders e.g. `bar foo baz`. A `separator` without a `repeat` above `1` does nothing.
+Rejected at load: a `repeat` that multiplies to more than 1 048 576 renders along any
+path of nested repeats.
 
 ### Datatype
 
@@ -459,8 +460,8 @@ writes `42` rather than `"42"` and `sql` a bare literal; a column without one, o
 ```
 
 Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
-template, or an item of a choice standing in for one; `datatype` anywhere else, bar
-`string`, is a load error. A typed column holds one value, alone in its format: a
+template, or an item of a choice standing in for one; `datatype` anywhere else does
+nothing. A typed column holds one value, alone in its format: a
 literal, one `{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
 values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
 `0` decimals within int64 — `number` a JSON number, `boolean` `true` or `false`. A value its
@@ -497,9 +498,9 @@ renders a null as `""`. The other items' weights skew its odds:
 { "format": "", "deleted_at": null, "middle": [null, { "format": "{n}", "n": ["Ann", "Eva"], "weight": 3 }] }
 ```
 
-`deleted_at` is null every draw, `middle` a name three draws in four. Rejected at
-load: `null` anywhere but a column, where it only renders `""`, naming `""`, and a
-column whose items hold different datatypes.
+`deleted_at` is null every draw, `middle` a name three draws in four. Anywhere but a
+column, `null` renders `""`. Rejected at load: a column whose items hold different
+datatypes.
 
 ### Table
 
@@ -536,8 +537,8 @@ in a cell draws digits and `{/misc.uuid}` reads a reference, while `{name}` in a
 is refused, since a cell has no sibling. Each cell may select its own row of another
 table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbol}`
 on the next, since only one row renders. `New` proves the header, the options and every
-cell token, and refuses a TSV no category names, a key that is empty or repeats, a
-weight that is not a positive number, and a key or name holding `[`, `]`, `{`, `}`,
+cell token, and refuses a key that is empty or repeats, a weight that is negative or not
+a number, every weight `0` across the table or inside one parent row, and a key or name holding `[`, `]`, `{`, `}`,
 `"` or `|`, which a selector cannot spell; `New` maps the keys, and a name or parent column
 is mapped on the first draw that selects by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
 their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
@@ -631,11 +632,7 @@ namespace too.
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
-zeros (`+5` and `05` are `5`); bounds are finite; a constant sample — `int` or `float`
-with min equal to max, `date` with from equal to to and a layout with no clock field,
-and a `date` or `time` layout naming no field — is rejected naming the text to write
-instead;
-and a length, count or decimal place beyond a sane maximum is rejected, so a
+zeros (`+5` and `05` are `5`); bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
 time-based id takes its timestamp from the rng, not the clock — so seeded output
 stays reproducible.
@@ -677,10 +674,10 @@ between the two days is reachable, so a layout with a clock draws the time too, 
 `from` may equal `to`, which is that one day. The instant is UTC, so a zone in the
 layout prints `UTC` or `Z`.
 The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
-argument stays a name. Rejected at `New`: a bound that is no calendar date, or not
-before the other; an unquoted layout, naming the single-quoted one; a layout naming no field, which is
-text, as is one day in a layout with no clock; for `date` a layout naming no date
-field, naming `time`; and for `time` a layout naming a date field, naming `date`. `{seq()}` spans `Fake`
+argument stays a name. A layout naming no field prints itself, `time` prints a date
+field as 1970-01-01, and `date` over one day with no clock field prints that day.
+Rejected at `New`: a bound that is no calendar date, or after the other, and an unquoted
+or double-quoted layout, naming the single-quoted one. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above.
 
@@ -778,7 +775,6 @@ Refused at `New`, each error naming what to write instead:
   one;
 - a read of a name inside the field bound to it: read it outside that field;
 - a binding in a choice's item, which every other item would leave unbound;
-- a binding nothing reads;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;

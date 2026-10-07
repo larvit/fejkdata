@@ -31,7 +31,7 @@ replacement, and each removed path, column or flag.
   fejkdata`, and adds nothing under `--format text`: `echo`'s newline ends the render, and `--separator`
   defaults to empty. Whitespace around a JSON template is dropped. A lone reference,
   `{/users}`, is the record `users` under `--format`. An argument other than a flag, an
-  empty or blank stdin, one holding only `null`, or nothing piped in, exits 2.
+  empty or blank stdin, or nothing piped in, exits 2.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.territory[SE]`, and descends to a linked table by name, one path drawing each
