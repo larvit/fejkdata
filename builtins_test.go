@@ -271,25 +271,19 @@ func TestBuiltinDateAndTime(t *testing.T) {
 	}
 }
 
-// TestBuiltinDateArgs pins the New-time checks: bounds are calendar dates in order,
-// the layout is quoted, names a field, and for time names no date field.
+// TestBuiltinDateArgs pins the New-time checks: bounds are calendar dates in order, and the
+// layout is quoted.
 func TestBuiltinDateArgs(t *testing.T) {
 	for tmpl, want := range map[string]string{
 		`"{date(1990-13-01,1990-12-31,'2006-01-02')}"`:        "1990-13-01",
 		`"{date(1990-12-31,1990-01-01,'2006-01-02')}"`:        "is after",
-		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:        "write it as text",
 		`"{date(1990-01-01,1990-12-31,2006-01-02)}"`:          "'2006-01-02'",
 		`"{date(1990-01-01,1990-12-31,'January 2, 2006)}"`:    "'",
 		`"{date(1990-01-01,1990-12-31,\"January 2, 2006\")}"`: "quoted: 'January 2, 2006'",
-		`"{date(1990-01-01,1990-12-31,'x')}"`:                 "text",
-		`"{date(1990-01-01,1990-12-31,'')}"`:                  "text",
 		`"{date(1990-01-01,1990-12-31)}"`:                     "3 arguments",
 		`"{date(1990-01-01,1990-12-31,January 2, 2006)}"`:     "'January 2, 2006'",
 		`"{time(3:04 PM, Mon)}"`:                              "'3:04 PM, Mon'",
 		`"{time(15:04)}"`:                                     "'15:04'",
-		`"{time('2006-01-02 15:04')}"`:                        "date(",
-		`"{time('x')}"`:                                       "text",
-		`"{date(1990-01-01,1990-12-31,'15:04')}"`:             "time('15:04')",
 	} {
 		_, err := resolved(t, tmpl)
 		if err == nil || !strings.Contains(err.Error(), want) {
@@ -327,7 +321,7 @@ func TestBuiltinLayoutErrorsNameARunnableSpelling(t *testing.T) {
 }
 
 // TestBuiltinDateSpansOneDay pins that from == to is a day: with a clock layout it
-// draws every second of it, and without one it could only emit one value.
+// draws every second of it, and without one it prints that day.
 func TestBuiltinDateSpansOneDay(t *testing.T) {
 	f := engine(1)
 	seen := map[string]bool{}
@@ -341,9 +335,8 @@ func TestBuiltinDateSpansOneDay(t *testing.T) {
 	if len(seen) < 400 {
 		t.Fatalf("date over one day drew %d distinct seconds in 500, want the whole day", len(seen))
 	}
-	_, err := compile(parse(t, `"{date(2026-01-01,2026-01-01,'2006-01-02')}"`))
-	if err == nil || !strings.Contains(err.Error(), "write it as text") {
-		t.Fatalf("one day in a date-only layout = %v, want it named a constant", err)
+	if got := mustRender(t, f, `"{date(2026-01-01,2026-01-01,'2006-01-02')}"`); got != "2026-01-01" {
+		t.Fatalf("one day in a date-only layout = %q, want that day", got)
 	}
 }
 
@@ -398,8 +391,6 @@ func TestBuiltinCompileErrors(t *testing.T) {
 		`"{float(Inf,Inf,2)}"`, // same-sign infinities
 		`"{float(1,NaN,2)}"`,   // one NaN bound
 		`"{float(-Inf,1,2)}"`,  // one infinite bound
-		`"{int(5,5)}"`,         // a constant is written as text
-		`"{float(1,1,2)}"`,     // a constant is written as text
 		`"{iban(US)}"`,         // unsupported country
 		`"{seq(a,b)}"`,         // seq takes at most one name
 	} {

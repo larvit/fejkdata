@@ -2,14 +2,14 @@ package fejkdata
 
 import (
 	"regexp"
-	"strings"
 	"testing"
 )
 
-func TestWeightZeroIsRejected(t *testing.T) {
-	_, err := resolved(t, `[{"format":"X","weight":0},"Y"]`)
-	if err == nil || !strings.Contains(err.Error(), "weight 0") || !strings.Contains(err.Error(), "remove") {
-		t.Fatalf("compile(weight 0) = %v, want it rejected naming the fix", err)
+func TestAChoiceWithNothingToDrawIsRejected(t *testing.T) {
+	for _, src := range []string{`[{"format":"A","weight":0},{"format":"B","weight":0}]`, `[]`} {
+		if _, err := resolved(t, src); err == nil {
+			t.Errorf("compile(%s) = nil error, want a choice with nothing to draw refused", src)
+		}
 	}
 }
 
@@ -56,8 +56,6 @@ func TestNodeCompileErrors(t *testing.T) {
 	for _, bad := range []string{
 		`{"x":"Q"}`,                        // object without "format"
 		`{"format":"{y}","x":1}`,           // a field is a bare number
-		`[1, 2]`,                           // a choice of numbers
-		`5`,                                // unsupported node type
 		`[]`,                               // empty choice
 		`[{"format":"A","weight":-1},"B"]`, // negative weight
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero

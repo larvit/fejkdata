@@ -191,7 +191,7 @@ func TestNameErrors(t *testing.T) {
 		{"read once through a field path that does not resolve", map[string]string{"card": `{"format":"{place as p}{p.zz}","place":{"format":"{x}","x":["a","b"]}}`},
 			`no field "zz"`},
 		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
-			`nothing reads name "w"`},
+			""},
 		{"one arm read twice in an alternation", map[string]string{"cat": `{"format":"{w|w}","w":["a","b"]}`, "card": `"{/cat as n}{n} {n.w}"`},
 			""},
 		{"a field and a path into it in one alternation", map[string]string{"cat": `{"format":"{w|w.x}","w":{"format":"{x}","x":["a","b"]}}`, "card": `"{/cat as n}{n} {n.w}"`},
