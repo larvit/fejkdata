@@ -42,16 +42,18 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 ({/misc.territory[SE]}), and .. steps up from a row to the row it links to
 ({/geo.SE.locality..municipality.name}).
 
-In text, what you send is what renders, and fejkdata adds nothing: a format string keeps
-every byte, so echo's newline ends each render, and printf '%s' sends none. -n
-joins renders with --separator, empty by default. A JSON template is an object, array
-or string, and the whitespace around it is dropped; 42, true or null alone is refused. A quoted
-heredoc, <<'EOF', passes $, a backslash or a quote as written.
+Under --format text, the default, what you send is what renders, and fejkdata adds
+nothing: a format string keeps every byte, so echo's newline ends each render, and
+printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
+template is an object, array or string, and the whitespace around it is dropped; 42,
+true or null alone is refused. A quoted heredoc, <<'EOF', passes $, a backslash or a
+quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
-template whose fields are its columns, or a lone reference, one reference and nothing
-else such as {/sv_SE.person}, one newline after it allowed — and the rows are written as one JSON array, one JSON
-object per line, one CSV row (after a header), or one INSERT.
+template whose fields are its columns, or a lone reference such as {/sv_SE.person}:
+one reference and nothing else, with one newline after it allowed — and the rows are
+written as one JSON array, one JSON object per line, one CSV row (after a header), or
+one INSERT.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql
