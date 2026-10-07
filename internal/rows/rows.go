@@ -209,8 +209,8 @@ func (t *Table[O]) proveKeys() error {
 	return nil
 }
 
-// sumWeights proves every weight is a positive number, and keeps the weights and their
-// running sum.
+// sumWeights proves every weight is a number of 0 or more, some above 0, and keeps the weights
+// and their running sum.
 func (t *Table[O]) sumWeights() error {
 	if t.weightIndex < 0 {
 		return nil
@@ -219,14 +219,39 @@ func (t *Table[O]) sumWeights() error {
 	total := 0.0
 	for r := range t.cum {
 		w, err := strconv.ParseFloat(t.Cell(r, t.weightIndex), 64)
-		if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w <= 0 {
-			return fmt.Errorf("%s line %d: weight %q is not a positive number", t.file, r+2, t.Cell(r, t.weightIndex))
+		if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w < 0 {
+			return fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, t.Cell(r, t.weightIndex))
 		}
 		total += w
 		t.weights[r], t.cum[r] = w, total
 	}
-	if math.IsInf(total, 0) {
+	switch {
+	case math.IsInf(total, 0):
 		return fmt.Errorf("%s: the weights sum past the largest number", t.file)
+	case total == 0:
+		return fmt.Errorf("%s: every weight is 0, so no row is drawn", t.file)
+	}
+	return t.proveWeightUnderEachParent()
+}
+
+// proveWeightUnderEachParent proves each parent key's rows weigh more than 0 together, so a draw
+// inside that parent's row has a row to draw.
+func (t *Table[O]) proveWeightUnderEachParent() error {
+	if t.parentIndex < 0 {
+		return nil
+	}
+	sums, keys := map[string]float64{}, []string{}
+	for r := range t.weights {
+		k := t.Cell(r, t.parentIndex)
+		if _, seen := sums[k]; !seen {
+			keys = append(keys, k)
+		}
+		sums[k] += t.weights[r]
+	}
+	for _, k := range keys {
+		if sums[k] == 0 {
+			return fmt.Errorf("%s: every row under %s %q weighs 0, so none is drawn there", t.file, t.header[t.parentIndex], k)
+		}
 	}
 	return nil
 }

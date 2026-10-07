@@ -57,8 +57,7 @@ func (sc *nameScope) lookup(name string) *nameBinding {
 
 // bindNames gives every template of a compiled category or inline template the scope its
 // names live in, and refuses a name bound twice along one chain of scopes, a binding in a
-// choice's item, a name a field spells too, a read no field or name answers, and a binding
-// read by nothing.
+// choice's item, a name a field spells too, and a read no field or name answers.
 func bindNames(root node) error {
 	var scopes []*nameScope
 	var gather func(n node, scope *nameScope, inChoice bool, where string) error
@@ -90,22 +89,7 @@ func bindNames(root node) error {
 			}
 		}
 	}
-	read, err := answerReads(root, scopes)
-	if err != nil {
-		return err
-	}
-	return checkEveryNameRead(scopes, read)
-}
-
-func checkEveryNameRead(scopes []*nameScope, read map[*nameBinding]bool) error {
-	for _, sc := range scopes {
-		for _, b := range sc.order {
-			if !read[b] {
-				return fmt.Errorf("%stoken {%s}: nothing reads name %q; drop the token", b.where, b.body, b.name)
-			}
-		}
-	}
-	return nil
+	return answerReads(root, scopes)
 }
 
 func (sc *nameScope) bindAll(t *template, inChoice bool, where string) error {
@@ -161,12 +145,10 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 	return nil
 }
 
-// answerReads answers each unbound read under root with a name its template sees, and returns
-// the set of bindings some read answers to. It answers a template's fields before its format, the
+// answerReads proves each unbound read under root is answered by a name its template sees. It answers a template's fields before its format, the
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
-func answerReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) {
-	read := map[*nameBinding]bool{}
+func answerReads(root node, scopes []*nameScope) error {
 	var answer func(n node, where string) error
 	answer = func(n node, where string) error {
 		t, isTemplate := n.(*template)
@@ -186,15 +168,13 @@ func answerReads(root node, scopes []*nameScope) (map[*nameBinding]bool, error) 
 			}
 		}
 		for _, u := range t.unbound {
-			b := t.nameScope.lookup(u.head)
-			if b == nil {
+			if t.nameScope.lookup(u.head) == nil {
 				return unanswered(where, u, t.nameScope, scopes)
 			}
-			read[b] = true
 		}
 		return nil
 	}
-	return read, answer(root, "")
+	return answer(root, "")
 }
 
 // unanswered is the refusal of u, a read no field or name answers: naming the repeat binding the

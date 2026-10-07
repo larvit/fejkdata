@@ -56,9 +56,6 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	}
 	sc := &structCompile{root: &f.root, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
 	shape, err := sc.compileShape(t, label)
-	if err == nil && shape.empty() {
-		err = fmt.Errorf("%s has no fake tags, so nothing to fill", t)
-	}
 	if f.structs == nil {
 		f.structs = map[reflect.Type]structResult{}
 	}

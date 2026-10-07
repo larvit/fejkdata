@@ -45,8 +45,8 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 Under --format text, the default, what you send is what renders, and fejkdata adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
-template is an object, array or string, and the whitespace around it is dropped; null,
-42 or true alone is refused. A quoted heredoc, <<'EOF',
+template is any JSON value, and the whitespace around it is dropped; 42 or true alone
+renders its text, and null nothing. A quoted heredoc, <<'EOF',
 passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
@@ -58,12 +58,14 @@ one INSERT.
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql
   -h, --help             print this help, then exit
-      --list             list the paths the data offers, each written after {/ in a template, then exit
+      --list             list the paths the data offers, each written after {/ in a template, then exit;
+                         --repeat, --separator, --format and --table do nothing here
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 1..1048576 (default 1)
   -s, --seed N           same seed, version and data: identical output
-      --separator S      string between repeated renders (default empty)
-      --table T          the INSERT target for --format sql (default: a lone reference's last segment, else records)
+      --separator S      string between repeated renders (default empty); a record --format ignores it
+      --table T          the INSERT target for --format sql, ignored under any other
+                         (default: a lone reference's last segment, else records)
       --version          print the version, then exit
 
 A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3);
@@ -71,22 +73,19 @@ A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3)
 `
 
 type invocation struct {
-	args         []string
-	dirs         []string
-	format       string
-	formatSet    bool
-	help         bool
-	list         bool
-	noShipped    bool
-	repeat       int
-	repeatSet    bool
-	seed         uint64
-	seeded       bool
-	separator    string
-	separatorSet bool
-	table        string
-	tableSet     bool
-	version      bool
+	args      []string
+	dirs      []string
+	format    string
+	help      bool
+	list      bool
+	noShipped bool
+	repeat    int
+	seed      uint64
+	seeded    bool
+	separator string
+	table     string
+	tableSet  bool
+	version   bool
 }
 
 type flagDef struct {
@@ -98,7 +97,7 @@ type flagDef struct {
 
 var flagDefs = []flagDef{
 	{"data-path", "d", true, func(in *invocation, v string) error { in.dirs = append(in.dirs, v); return nil }},
-	{"format", "", true, func(in *invocation, v string) error { in.format, in.formatSet = v, true; return nil }},
+	{"format", "", true, func(in *invocation, v string) error { in.format = v; return nil }},
 	{"help", "h", false, func(in *invocation, _ string) error { in.help = true; return nil }},
 	{"list", "", false, func(in *invocation, _ string) error { in.list = true; return nil }},
 	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
@@ -107,7 +106,7 @@ var flagDefs = []flagDef{
 		if err != nil || n < 1 || n > fejkdata.MaxRepeat {
 			return fmt.Errorf("--repeat needs an integer in 1..%d, got %q", fejkdata.MaxRepeat, v)
 		}
-		in.repeat, in.repeatSet = n, true
+		in.repeat = n
 		return nil
 	}},
 	{"seed", "s", true, func(in *invocation, v string) error {
@@ -118,7 +117,7 @@ var flagDefs = []flagDef{
 		in.seed, in.seeded = n, true
 		return nil
 	}},
-	{"separator", "", true, func(in *invocation, v string) error { in.separator, in.separatorSet = v, true; return nil }},
+	{"separator", "", true, func(in *invocation, v string) error { in.separator = v; return nil }},
 	{"table", "", true, func(in *invocation, v string) error { in.table, in.tableSet = v, true; return nil }},
 	{"version", "", false, func(in *invocation, _ string) error { in.version = true; return nil }},
 }
@@ -266,14 +265,8 @@ func (in invocation) checkFlags() error {
 	if _, ok := recordFormats[in.format]; !ok && in.format != "text" {
 		return fmt.Errorf("--format takes %s, got %q", formatNames(), in.format)
 	}
-	if in.tableSet && in.table == "" {
+	if in.tableSet && in.table == "" && in.format == "sql" {
 		return errors.New("--table names the INSERT target, so it cannot be empty")
-	}
-	if in.tableSet && in.format != "sql" {
-		return errors.New("--table names the INSERT target, so it needs --format sql")
-	}
-	if in.writesRecords() && in.separatorSet {
-		return errors.New("--separator joins text values, so it has no effect with --format " + in.format)
 	}
 	return nil
 }
@@ -313,9 +306,6 @@ func (in invocation) check() error {
 	}
 	if len(in.args) > 0 {
 		return operandError(in.args[0])
-	}
-	if in.list && (in.repeatSet || in.separatorSet || in.formatSet || in.tableSet) {
-		return errors.New("--list takes no --repeat, --separator, --format or --table")
 	}
 	return nil
 }
@@ -458,9 +448,6 @@ func parseInput(raw string) (input, error) {
 	trimmed := strings.Trim(raw, jsonSpace)
 	if trimmed == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
-	}
-	if trimmed == "null" {
-		return input{}, fmt.Errorf("stdin holds only null, as jq prints for a missing key: %s", pipeHint)
 	}
 	text := raw
 	if json.Valid([]byte(trimmed)) {

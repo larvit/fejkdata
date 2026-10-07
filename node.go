@@ -1,11 +1,14 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // node is a compiled element of the namespace tree: a folder, choice, null,
@@ -87,7 +90,7 @@ func (t *template) startOf(name string) node {
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front.
 func compile(v any) (node, error) {
-	n, err := compileAt(v, atTop)
+	n, err := compileItem(v, atTop)
 	if err != nil {
 		return nil, err
 	}
@@ -115,22 +118,11 @@ const (
 	inColumn                 // a column, or a choice item standing in for one
 )
 
-// compileAt compiles a node drawn against no other: no choice's item, or a one-item choice's.
-// A weight there does nothing, bar the default 1 written out.
-func compileAt(v any, pos position) (node, error) {
-	if o, isObject := v.(map[string]any); isObject {
-		if w, isNumber := o["weight"].(float64); isNumber && w != 1 {
-			return nil, fmt.Errorf(`weight %v skews a draw between items, and nothing here is drawn against this one; drop "weight"`, w)
-		}
-	}
+// compileItem compiles one node; a weight on it skews only a choice drawing it.
+func compileItem(v any, pos position) (node, error) {
 	if _, err := weightOf(v); err != nil {
 		return nil, err
 	}
-	return compileItem(v, pos)
-}
-
-// compileItem compiles one node, allowing the weight a choice item may carry.
-func compileItem(v any, pos position) (node, error) {
 	switch v := v.(type) {
 	case string:
 		t, err := compileString(v)
@@ -144,19 +136,22 @@ func compileItem(v any, pos position) (node, error) {
 		return compileTemplate(v, pos)
 	case nil:
 		if pos != inColumn {
-			return nil, fmt.Errorf(`null is a record column's value, and here it only renders "", so write ""`)
+			return compileString("")
 		}
 		return &nullItem{}, nil
-	default:
-		return nil, fmt.Errorf("a template value must be a string, a list or an object, not %s", jsonKind(v))
+	case json.Number:
+		return compileString(string(v))
+	case bool:
+		return compileString(strconv.FormatBool(v))
 	}
+	panic(invariant.Broken("compileItem has no case for the JSON value %T", v))
 }
 
-// jsonKind names a JSON value a template cannot hold, in the data format's own
+// jsonKind names the kind of a JSON value an option cannot take, in the data format's own
 // terms rather than the decoding library's.
 func jsonKind(v any) string {
 	switch v.(type) {
-	case float64:
+	case json.Number:
 		return "a number"
 	case bool:
 		return "a boolean"
@@ -198,7 +193,7 @@ func compileChoice(items []any, pos position) (node, error) {
 	case 0:
 		return nil, fmt.Errorf("empty choice")
 	case 1:
-		return compileAt(items[0], pos)
+		return compileItem(items[0], pos)
 	}
 	c := &choice{items: make([]node, len(items))}
 	cum := make([]float64, len(items))
@@ -223,6 +218,9 @@ func compileChoice(items []any, pos position) (node, error) {
 	if weighted { // uniform choices skip the weight table and draw in O(1)
 		if math.IsInf(total, 1) {
 			return nil, fmt.Errorf("choice weights must sum to a finite number, got %v", total)
+		}
+		if total == 0 {
+			return nil, fmt.Errorf("every weight is 0, so the choice has nothing to draw")
 		}
 		c.cum = cum
 	}
@@ -280,9 +278,6 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 		if o.separator, ok = sv.(string); !ok {
 			return o, fmt.Errorf("separator must be a string, got %T", sv)
 		}
-		if repeat == 1 && o.separator != "" {
-			return o, fmt.Errorf(`separator %q joins repeated renders, and this template renders once; drop "separator", or add a repeat above 1`, o.separator)
-		}
 	}
 	return o, nil
 }
@@ -296,7 +291,7 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 		if err := grammar.CheckIdentifier(k); err != nil {
 			return nil, fmt.Errorf("field %w", err)
 		}
-		n, err := compileAt(m[k], pos)
+		n, err := compileItem(m[k], pos)
 		if err != nil {
 			return nil, fmt.Errorf("field %q: %w", k, err)
 		}
@@ -312,9 +307,9 @@ func repeatOf(m map[string]any) (int, error) {
 	if !ok {
 		return 1, nil
 	}
-	r, ok := rv.(float64)
+	r, ok := numberOf(rv)
 	if !ok {
-		return 0, fmt.Errorf("repeat must be a number, got %T", rv)
+		return 0, fmt.Errorf("repeat must be a number, not %s", jsonKind(rv))
 	}
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 1 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be a positive integer, got %v", rv)
@@ -326,7 +321,7 @@ func repeatOf(m map[string]any) (int, error) {
 }
 
 // weightOf reads a node's "weight" (default 1) from its raw JSON form. Only
-// template objects carry weight; a present one must be finite and positive.
+// template objects carry weight; a present one must be finite and not negative.
 func weightOf(raw any) (float64, error) {
 	m, ok := raw.(map[string]any)
 	if !ok {
@@ -336,17 +331,24 @@ func weightOf(raw any) (float64, error) {
 	if !ok {
 		return 1, nil
 	}
-	w, ok := wv.(float64)
+	w, ok := numberOf(wv)
 	if !ok {
 		return 0, fmt.Errorf(`weight is an option and takes a number, not %s; a field cannot be named "weight"`, jsonKind(wv))
 	}
-	if w < 0 || math.IsNaN(w) || math.IsInf(w, 0) {
-		return 0, fmt.Errorf("weight must be finite and positive, got %v", w)
-	}
-	if w == 0 {
-		return 0, fmt.Errorf("weight 0 means the item is never drawn; remove the item instead")
+	if w < 0 || math.IsInf(w, 0) {
+		return 0, fmt.Errorf("weight must be a finite number of 0 or more, got %v", wv)
 	}
 	return w, nil
+}
+
+// numberOf reads a JSON number, one too large for a float64 as an infinity.
+func numberOf(v any) (float64, bool) {
+	n, ok := v.(json.Number)
+	if !ok {
+		return 0, false
+	}
+	f, _ := n.Float64()
+	return f, true
 }
 
 func isOption(name string) bool {

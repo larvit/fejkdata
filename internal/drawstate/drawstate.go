@@ -21,10 +21,15 @@ func (s *State) IntN(n int) int { return s.rand.IntN(n) }
 
 func (s *State) Float64() float64 { return s.rand.Float64() }
 
-// Weighted draws an index into cum, a running sum of positive weights, with odds by weight.
+// Weighted draws an index into cum, a running sum of weights of 0 or more with a positive total,
+// with odds by weight, so an index of weight 0 is never drawn.
 func (s *State) Weighted(cum []float64) int {
-	x := s.Float64() * cum[len(cum)-1]
-	return min(sort.Search(len(cum), func(i int) bool { return cum[i] > x }), len(cum)-1) // x can round up to the total
+	total := cum[len(cum)-1]
+	x := s.Float64() * total
+	if i := sort.Search(len(cum), func(i int) bool { return cum[i] > x }); i < len(cum) {
+		return i
+	}
+	return sort.Search(len(cum), func(i int) bool { return cum[i] >= total }) // x rounded up to the total
 }
 
 // Seq advances the counter {seq(key)} reads, or {seq()} for an empty key, and returns it.

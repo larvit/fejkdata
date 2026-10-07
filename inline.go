@@ -1,9 +1,9 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -71,8 +71,8 @@ func compileInput(input string) (node, error) {
 // inputValue reads an inline template as the value compile takes: the JSON value it holds, the
 // whitespace around it dropped, or the input itself as a format string when it is not JSON.
 func inputValue(input string) any {
-	var raw any
-	if err := json.Unmarshal([]byte(input), &raw); err != nil {
+	raw, err := datafiles.DecodeJSON([]byte(input))
+	if err != nil {
 		return input
 	}
 	return raw

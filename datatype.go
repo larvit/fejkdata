@@ -20,7 +20,8 @@ const (
 	DataTypeBoolean DataType = datatype.Boolean
 )
 
-// datatypeOf reads a template's "datatype", nil where it carries none.
+// datatypeOf reads a template's "datatype", nil where it carries none or sits outside a column,
+// where no datatype applies.
 func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	v, ok := m["datatype"]
 	if !ok {
@@ -34,8 +35,8 @@ func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 		if name != d.String() {
 			continue
 		}
-		if pos != inColumn && d != DataTypeString {
-			return nil, errors.New(`datatype only types a record column — a field of the top-level template — so it has no effect here; drop "datatype"`)
+		if pos != inColumn {
+			return nil, nil
 		}
 		return &d, nil
 	}

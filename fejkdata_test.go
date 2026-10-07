@@ -1,13 +1,13 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"errors"
 	"io/fs"
 	"strings"
 	"testing"
 	"testing/fstest"
 
+	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
@@ -104,8 +104,8 @@ func engine(seed uint64) *Generator {
 // parse unmarshals a JSON template fragment into its dynamic form.
 func parse(t *testing.T, s string) any {
 	t.Helper()
-	var v any
-	if err := json.Unmarshal([]byte(s), &v); err != nil {
+	v, err := datafiles.DecodeJSON([]byte(s))
+	if err != nil {
 		t.Fatalf("parse %q: %v", s, err)
 	}
 	return v

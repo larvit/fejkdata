@@ -186,9 +186,6 @@ func intRangeArgs(a []string) error {
 	if lo > hi {
 		return fmt.Errorf("int(min,max): min %d > max %d", lo, hi)
 	}
-	if lo == hi {
-		return fmt.Errorf("int(%d,%d) is the constant %d; write it as text", lo, hi, lo)
-	}
 	if uint64(hi)-uint64(lo) >= uint64(math.MaxInt64) { // span hi-lo+1 would overflow int -> IntN panic
 		return fmt.Errorf("int(min,max): range %d..%d is too wide", lo, hi)
 	}
@@ -212,9 +209,6 @@ func floatArgs(a []string) error {
 	}
 	if dp < 0 || dp > maxDecimals {
 		return fmt.Errorf("float(min,max,dp): decimals %d out of range 0..%d", dp, maxDecimals)
-	}
-	if lo == hi {
-		return fmt.Errorf("float(%s,%s,%d) is the constant %q; write it as text", a[0], a[1], dp, strconv.FormatFloat(lo, 'f', dp, 64))
 	}
 	if math.IsInf(hi-lo, 0) { // an overflowing span would render as "+Inf"
 		return fmt.Errorf("float(min,max,dp): range %v..%v is too wide", lo, hi)

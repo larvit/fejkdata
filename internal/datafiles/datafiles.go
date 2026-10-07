@@ -2,6 +2,7 @@
 package datafiles
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -38,8 +39,7 @@ type Category struct {
 	rows    *rowsFiles
 }
 
-// ReadRows reads a rows file beside the category and marks it as named; Walk refuses a rows
-// file no category read.
+// ReadRows reads a rows file beside the category.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
 func (s Source) labelled(p string) string {
@@ -101,11 +101,6 @@ func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error
 		}
 		handed = handed || holds
 	}
-	for name, named := range rows.tsv {
-		if !named && !strings.HasPrefix(name, ".") {
-			return false, fmt.Errorf("%s: no category names it in its rows; a table's rows file sits beside a category file naming it", s.labelled(path.Join(full, name)))
-		}
-	}
 	return handed, nil
 }
 
@@ -147,8 +142,8 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
-	var raw any
-	if err := json.Unmarshal(b, &raw); err != nil {
+	raw, err := DecodeJSON(b)
+	if err != nil {
 		return false, fmt.Errorf("%s: %w", s.labelled(full), err)
 	}
 	if err := compile(Category{Folders: dir, Name: name, JSON: raw, rows: rows}); err != nil {
@@ -157,8 +152,7 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	return true, nil
 }
 
-// rowsFiles is what a category may name beside itself: the rows files of its folder,
-// each marked once a category names it.
+// rowsFiles is what a category may name beside itself: the rows files of its folder.
 type rowsFiles struct {
 	src Source
 	dir string
@@ -169,20 +163,30 @@ func newRowsFiles(src Source, dir string, entries []fs.DirEntry) *rowsFiles {
 	files := &rowsFiles{src: src, dir: dir, tsv: map[string]bool{}}
 	for _, e := range entries {
 		if strings.HasSuffix(e.Name(), ".tsv") && !e.IsDir() {
-			files.tsv[e.Name()] = false
+			files.tsv[e.Name()] = true
 		}
 	}
 	return files
 }
 
 func (r *rowsFiles) read(name string) (string, error) {
-	if _, present := r.tsv[name]; !present {
+	if !r.tsv[name] {
 		return "", fmt.Errorf("rows names %s, which is not beside it in %s", name, r.src.labelled(r.dir))
 	}
-	r.tsv[name] = true
 	b, err := fs.ReadFile(r.src.fsys, path.Join(r.dir, name))
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", r.src.labelled(path.Join(r.dir, name)), err)
 	}
 	return string(b), nil
+}
+
+// DecodeJSON decodes one JSON value, keeping each number as the json.Number it is written as.
+func DecodeJSON(b []byte) (any, error) {
+	var v any
+	if !json.Valid(b) {
+		return nil, json.Unmarshal(b, &v)
+	}
+	dec := json.NewDecoder(bytes.NewReader(b))
+	dec.UseNumber()
+	return v, dec.Decode(&v)
 }
