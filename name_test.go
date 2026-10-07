@@ -186,8 +186,6 @@ func TestNameErrors(t *testing.T) {
 			`"format" is an option and can never be a name`},
 		{"no reference or field", map[string]string{"card": `{"format":"{word as w}{w}{w}","words":["a","b"]}`},
 			`no field "word"; a binding names a field, or a reference`},
-		{"read once through a field", map[string]string{"card": `{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`},
-			""},
 		{"read once through a path that does not resolve", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.zz}"`},
 			`no field "zz"`},
 		{"read once through a field path that does not resolve", map[string]string{"card": `{"format":"{place as p}{p.zz}","place":{"format":"{x}","x":["a","b"]}}`},
@@ -198,22 +196,10 @@ func TestNameErrors(t *testing.T) {
 			""},
 		{"a misspelt name", map[string]string{"word": `["a","b"]`, "card": `"{/word as p}{p}{p}{pp}"`},
 			`no field or name "pp"; the names bound here are "p"`},
-		{"read once through a path", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.w} {/word.w}"`},
-			""},
-		{"read once whole, bound to a reference path", map[string]string{"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word.w as c}{c} {/word.w}"`},
-			""},
-		{"read once through a step up", map[string]string{"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/municipality as m}{m..region.name}"`},
-			""},
-		{"read once as a calc operand", map[string]string{"word": `["1","2"]`, "card": `"{/word as w}{calc(w * 2)}"`},
-			""},
 		{"read outside a repeat in the root choice", map[string]string{"word": `["a","b"]`, "card": `[{"format":"{/word as p}{p}{p}","repeat":2},"{p}"]`},
 			`name "p" is bound at an item of the root choice, inside a repeat`},
 		{"an empty name", map[string]string{"word": `["a","b"]`, "card": `"{/word as }"`},
 			"a binding names nothing"},
-		{"read once whole", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
-			""},
-		{"read once whole, as a transform's operand", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}{uppercase(w)}"`},
-			""},
 		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
 			`{n} renders field "w" twice`},
 		{"a binding in a cell", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\tc\nx\t{/word as w}{w}{w}\ny\tz\n"},
@@ -255,6 +241,28 @@ func TestNameErrors(t *testing.T) {
 				t.Fatalf("New() = %v, want an error holding %q", err, c.want)
 			}
 		})
+	}
+}
+
+func TestANameReadOnceLoads(t *testing.T) {
+	for name, files := range map[string]map[string]string{
+		"through a path":                   {"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.w} {/word.w}"`},
+		"whole, bound to a reference path": {"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word.w as c}{c} {/word.w}"`},
+		"through a step up":                {"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/municipality as m}{m..region.name}"`},
+		"as a calc operand":                {"word": `["1","2"]`, "card": `"{/word as w}{calc(w * 2)}"`},
+		"whole":                            {"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
+		"whole, as a transform's operand":  {"word": `["a","b"]`, "card": `"{/word as w}{uppercase(w)}"`},
+	} {
+		withJSON := map[string]string{}
+		for file, body := range files {
+			if !strings.Contains(file, ".") {
+				file += ".json"
+			}
+			withJSON[file] = body
+		}
+		if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, withJSON))); err != nil {
+			t.Errorf("%s: New() = %v, want it to load", name, err)
+		}
 	}
 }
 

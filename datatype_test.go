@@ -48,17 +48,16 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"a weighted item beside a typed one", `[{"format":"1","datatype":"integer"},{"format":"2","weight":3}]`, `give it "datatype": "integer"`},
 		{"an item beside a typed column it reads", `["{/src.score}","5"]`, `write it as {"format":"5","datatype":"integer"}`},
 		{"a typed item beside a string column it reads", `["{/src.code}",{"format":"1","datatype":"integer"}]`, `write it as {"format":"{/src.code}","datatype":"integer"}`},
-		{"text beside a typed column it reads", `["{/src.score}","n/a"]`, `to read that column as text, write {"format":"{text}","text":"{/src.score}"}`},
-		{"a datatype over a typed column", `{"format":"{/src.score}","datatype":"integer"}`, `{/src.score} takes datatype integer from the column it reads; drop "datatype"`},
+		{"text beside a typed column it reads", `["{/src.score}","n/a"]`, `to read that column as text, write "{/src.score}" as {"format":"{/src.score}","datatype":"string"}`},
 		{"a datatype a typed column's values reject", `{"format":"{/src.score}","datatype":"boolean"}`, "{int(1,9)} prints an integer, not a boolean"},
-		{"two typed columns it reads", `["{/src.score}","{/src.flag}"]`, `so to read "{/src.score}" as text, write {"format":"{text}","text":"{/src.score}"}`},
+		{"two typed columns it reads", `["{/src.score}","{/src.flag}"]`, `so to read "{/src.score}" as text, write "{/src.score}" as {"format":"{/src.score}","datatype":"string"}`},
 		{"a typed column read that holds the datatype declared beside it", `[{"format":"1.5","datatype":"number"},"{/src.score}"]`, `so write "{/src.score}" as {"format":"{/src.score}","datatype":"number"}`},
 		{"a typed column read holding the datatype of another", `["{/src.ratio}","{/src.score}"]`, `so write "{/src.ratio}" as {"format":"{/src.ratio}","datatype":"integer"}`},
-		{"text before a typed column it reads", `["n/a","{/src.score}"]`, `to read that column as text, write {"format":"{text}","text":"{/src.score}"}`},
+		{"text before a typed column it reads", `["n/a","{/src.score}"]`, `to read that column as text, write "{/src.score}" as {"format":"{/src.score}","datatype":"string"}`},
 		{"a weighted item beside a typed column it reads", `["{/src.score}",{"format":"5","weight":2}]`, `give it "datatype": "integer"`},
 		{"a typed column read before the datatype it holds", `["{/src.score}",{"format":"1.5","datatype":"number"}]`, `so write "{/src.score}" as {"format":"{/src.score}","datatype":"number"}`},
-		{"a typed column read beside a datatype it does not hold", `["{/src.score}",{"format":"true","datatype":"boolean"}]`, `so to read "{/src.score}" as text, write {"format":"{text}","text":"{/src.score}"}`},
-		{"text beside a weighted typed column read", `[{"format":"{/src.score}","weight":3},"n/a"]`, `to read that column as text, set its "format" to "{text}" and add "text": "{/src.score}"`},
+		{"a typed column read beside a datatype it does not hold", `["{/src.score}",{"format":"true","datatype":"boolean"}]`, `so to read "{/src.score}" as text, write "{/src.score}" as {"format":"{/src.score}","datatype":"string"}`},
+		{"text beside a weighted typed column read", `[{"format":"{/src.score}","weight":3},"n/a"]`, `to read that column as text, give "{/src.score}" "datatype": "string"`},
 		{"a value of the column it reads", `{"format":"{/src.code}","datatype":"integer"}`, `"2x" is not an integer`},
 		{"a null read into text", `{"format":"{x}","x":"{/src.score}","datatype":"integer"}`, "reads a null"},
 		{"a sample with leading zeros", `{"format":"{digits(3)}","datatype":"integer"}`, "{digits(3)} prints text, not an integer"},
@@ -231,5 +230,29 @@ func TestASignedZeroIsZero(t *testing.T) {
 	}
 	if c := r.Columns(); c[0].Value != "-0" || c[1].Value != "-0.00" {
 		t.Errorf("columns = %+v, want each written as its format", c)
+	}
+}
+
+func TestADeclaredDatatypeOverAColumnRead(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"src": `{"format":"","score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
+		"row": `{"format":"","same":{"format":"{/src.score}","datatype":"integer"},"text":{"format":"{/src.score}","datatype":"string"}}`,
+	}), WithSeed(1))
+	empty := 0
+	for i := 0; i < 50; i++ {
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		same, text := r.Columns()[0], r.Columns()[1]
+		if same.DataType != DataTypeInteger || text.DataType != DataTypeString || text.Null {
+			t.Fatalf("columns = %+v, want an integer column restated and a string column never null", r.Columns())
+		}
+		if text.Value == "" {
+			empty++
+		}
+	}
+	if empty == 0 {
+		t.Error(`50 records never read a null as "", want the string column to render one so`)
 	}
 }

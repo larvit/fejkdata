@@ -40,6 +40,9 @@ func TestPackageImports(t *testing.T) {
 		"internal/proven":      {"internal/datatype", "internal/grammar", "internal/invariant"},
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
+	testsAlso := map[string][]string{
+		"cmd/fejkdata": {"internal/grammar"},
+	}
 	seen := map[string]bool{}
 	eachPackage(t, func(dir string, pkg *build.Package) {
 		seen[dir] = true
@@ -49,6 +52,10 @@ func TestPackageImports(t *testing.T) {
 			return
 		}
 		for _, imp := range slices.Concat(pkg.Imports, pkg.TestImports, pkg.XTestImports) {
+			may := may
+			if !slices.Contains(pkg.Imports, imp) {
+				may = slices.Concat(may, testsAlso[dir])
+			}
 			if imp != module && !strings.HasPrefix(imp, module+"/") {
 				continue
 			}

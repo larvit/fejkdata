@@ -302,27 +302,6 @@ func TestNewErrors(t *testing.T) {
 			map[string]string{"a": `{"format":"{x}","x":"1","-":"2"}`},
 			`field "-" is reserved`,
 		},
-		// A repeated arm skews an alternation, which weight is the spelling for.
-		"repeated alternation arm": {
-			map[string]string{"a": `{"format":"{x|x}","x":"1"}`},
-			`arm "x" is repeated`,
-		},
-		"repeated arm among others": {
-			map[string]string{"a": `{"format":"{x|y|x}","x":"1","y":"2"}`},
-			`arm "x" is repeated`,
-		},
-		"repeated path arm": {
-			map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":"1"}}`},
-			`arm "p.v" is repeated`,
-		},
-		// A reference arm is the only kind that reaches the repeat check by passing
-		// the per-arm checks rather than falling through them.
-		"repeated reference arm": {
-			map[string]string{"a": `"x"`, "b": `"{/a|/a}"`},
-			`arm "/a" is repeated`,
-		},
-		// An arm that is broken on its own terms is reported as that, not as a
-		// repeat: the repeat is a consequence of the real mistake.
 		"repeated arm with no path": {
 			map[string]string{"a": `"{/|/}"`},
 			"reference has no path",
@@ -361,9 +340,10 @@ func TestNewErrors(t *testing.T) {
 		"folder named Repeat":        {map[string]string{"Repeat/cat": `"1"`}, "Repeat.cat", "1"},
 		"field with a closing paren": {map[string]string{"a": `{"format":"{b)c}","b)c":"2"}`}, "a", "2"},
 		"repeat without a separator": {map[string]string{"a": `{"format":"{x}","repeat":3,"x":"1"}`}, "a", "111"},
-		// One name in two separate tokens is two independent draws, not a repeated
-		// arm; only a repeat within one alternation is rejected.
-		"one name in two tokens": {map[string]string{"a": `{"format":"{x}{x}","x":"1"}`}, "a", "11"},
+		"one name in two tokens":     {map[string]string{"a": `{"format":"{x}{x}","x":"1"}`}, "a", "11"},
+		"repeated alternation arm":   {map[string]string{"a": `{"format":"{x|x}","x":"1"}`}, "a", "1"},
+		"repeated path arm":          {map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":"1"}}`}, "a", "1"},
+		"repeated reference arm":     {map[string]string{"a": `"x"`, "b": `"{/a|/a}"`}, "b", "x"},
 	}
 	for name, c := range accepted {
 		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
