@@ -163,6 +163,16 @@ func rowShape(raw any) (format string, fields []string, weighted, isRow bool) {
 	return format, fields, weighted, true
 }
 
+// position is where a JSON value sits, which decides whether it may carry a datatype or
+// be null.
+type position int
+
+const (
+	inFormat position = iota // rendered by a format, so neither
+	atTop                    // a category or an inline template, whose fields may be columns
+	inColumn                 // a column, or a choice item standing in for one
+)
+
 // compileAt compiles a node that is no choice's item. Only a choice's items carry a
 // weight, so one here would be inert whatever its type.
 func compileAt(v any, pos position) (node, error) {

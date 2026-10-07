@@ -20,16 +20,6 @@ const (
 	DataTypeBoolean DataType = datatype.Boolean
 )
 
-// position is where a JSON value sits, which decides whether it may carry a datatype or
-// be null.
-type position int
-
-const (
-	inFormat position = iota // rendered by a format, so neither
-	atTop                    // a category or an inline template, whose fields may be columns
-	inColumn                 // a column, or a choice item standing in for one
-)
-
 // datatypeOf reads a template's "datatype" (default DataTypeString).
 func datatypeOf(m map[string]any, pos position) (DataType, error) {
 	v, ok := m["datatype"]
