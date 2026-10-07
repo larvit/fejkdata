@@ -65,8 +65,7 @@ can never collide with any of those spellings, and the leading `[` or `"` is gat
 valid JSON so a stray copied bracket never swallows a tag — it names nothing, and says
 so. Reserving the characters whole — though only a leading one
 could collide — keeps one simple name rule instead of a leading-position special case.
-A JSON string stays a template even where its bare text renders alike, `"x {/a}"` beside
-`x {/a}`: its escapes put a tab or a newline on one `echo` line. A folder-relative `{.name}` or `{..name}` is refused naming
+A folder-relative `{.name}` or `{..name}` is refused naming
 `{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so
 struct tags and any other caller read one.
 
@@ -102,9 +101,9 @@ template per run.
 
 2026-10-07, Lilleman auf Larv. Serves goal 9.6: a CLI carrying your own modules is a few
 lines of Go and works just like `fejkdata`, so `fejkdata`'s own CLI is such a CLI and
-imports nothing under `internal/`. Where it needs a reading the API does not export yet,
-it copies it, and a test pins the copy to the grammar it copies: `isPath` in
-`cmd/fejkdata`, until `todo.md` item 129 moves the lone reference into the library.
+imports nothing under `internal/`. It copies one reading the API does not export yet,
+the lone reference: `isPath` and `withoutSelectors` in `cmd/fejkdata`, pinned to the
+grammar by a test, until `todo.md` item 129 moves that reading into the library.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
@@ -122,6 +121,14 @@ Padding is where the two readings disagree: a format string renders it, JSON dro
 template that parses as JSON is its JSON, so its padding is dropped, as `encoding/json`
 drops it. Goal 5.7 refuses only a spelling that suggests a mistake, and padding around
 JSON suggests none.
+
+## A JSON string stays a template even where its bare text renders alike
+
+2026-10-07, Lilleman auf Larv. Serves goal 5.7: only an obvious mistake fails to load.
+
+`"x {/a}"` and `x {/a}` render alike on stdin, in `NewTemplate` and in a struct tag. The
+quotes are no mistake: inside them `\t` and `\n` write a tab or a newline where the
+template is one line of a Go string, a struct tag or a file.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -296,9 +303,9 @@ refuses them there too.
 2026-09-24, Lilleman auf Larv; narrowed 2026-10-07. Serves goal 5.7.
 
 `int(5,5)` and `float(1,1,2)` draw nothing, which suggests a range typed wrong, so each is
-rejected naming the constant. A default written out, `weight: 1`, `repeat: 1`,
-`separator: ""` or `datatype: "string"`, and a number spelled `+5` or `05`, load as the
-shorter form, as the CLI's `--seed 007` and `--repeat +3` do.
+rejected naming the constant. A default written out, `weight: 1`, `repeat: 1` or
+`separator: ""`, loads wherever it is written, and a number spelled `+5` or `05` loads as
+`5`, as the CLI's `--seed 007` and `--repeat +3` do.
 
 ## Samples say what they emit, transforms what they do
 
@@ -318,8 +325,8 @@ path. The `format` is inert to a record — a record-only template writes `"form
 but it is compiled and fenced, so a template that loads renders as whichever shape is
 asked for. `FakeStruct` takes its columns from a struct instead, because a Go caller has
 already written that schema: the fields name the columns and their types are the
-datatypes, so a tag says only what to draw, and a `datatype` in it would be a second
-spelling of the type. The Go type is a struct column's one datatype, so its items need
+datatypes, so a tag says only what to draw: a `datatype` in it loads where it names the
+one the Go type sets, and is refused where it names another. The Go type is a struct column's one datatype, so its items need
 not agree on one among themselves; each must only hold that type.
 
 ## A struct's records follow Go's field access, and compile on first use
@@ -367,15 +374,16 @@ to agree.
 2026-09-15, Lilleman auf Larv.
 
 A null is one more outcome of a column's draw, so a choice's weights skew it like any
-other; a null-rate option would be a second way to state odds.
+other; a null-rate option would be a second way to state odds. Outside a record column a
+null never renders as null, so it is refused naming `""` (goal 5.7).
 
 ## A typed column holds one value, not composed text
 
 2026-09-15, Lilleman auf Larv.
 
 Its bounds come from a literal or a call's arguments, so a load error names a real
-value, a range check is one comparison, and `1{digits(2)}` is a second spelling of
-`{int(100,199)}`.
+value and a range check is one comparison: `1{digits(2)}` is refused in a typed column,
+where `{int(100,199)}` states its range.
 
 ## A column that only reads one reference or name is the column it reads
 
@@ -629,11 +637,11 @@ Table section teaches it.
 
 ## A layout is always quoted
 
-2026-09-18, Lilleman auf Larv.
+2026-09-18, Lilleman auf Larv. Serves goal 5.6.
 
-A layout may carry the comma that separates arguments, `'January 2, 2006'`, and one
-spelling for every layout beats a rule about which ones need the quotes, so the bare
-spelling is refused naming the quoted one. The layout is Go's reference time because the
+A layout may carry the comma that separates arguments,
+`'January 2, 2006'`, and a bare `2006-01-02` reads like a third date, so a bare layout is
+refused naming the quoted one. The layout is Go's reference time because the
 library renders with it and a Go caller already knows it; its names are English, and a
 locale's own month and weekday names are data.
 

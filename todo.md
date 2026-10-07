@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 160`
+`Next ID = 161`
 
 | Goal | W |
 |---|---|
@@ -119,6 +119,7 @@
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
+| 160 | 0.2.0 |  | **Refuse a sample whose range rounds or formats to one value, `float(1,1.004,2)` or a year-only `date` layout over days of one year, naming the constant.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
@@ -449,6 +450,10 @@ On stdin `42` is refused as "a number", which does not name the text the author 
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
 A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. The maintainer chose 0.2.0 on 2026-10-07.
+
+### 160. Refuse a sample whose range rounds or formats to one value, `float(1,1.004,2)` or a year-only `date` layout over days of one year, naming the constant.
+
+Goal 5.7's own example, a range with nothing to draw. Today only `lo == hi` and `from == to` are refused. The goals audit of the narrowed goal 5.7 found it.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
