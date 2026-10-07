@@ -912,10 +912,9 @@ Where the project is heading; the sections before Audience document what ships t
    5. `[SE]` selects one row of a table, and means that row wherever you write it.
    6. If two people could read a template differently, loading it fails, and the
       error shows how to write each meaning.
-   7. Only an obvious mistake fails to load, and the error shows what to write: a part
-      that does nothing where it is written, such as a range with nothing to draw,
-      `int(5,5)`. A default written out, and a wrapper that could grow, such as a list
-      of one, are no mistakes.
+   7. Whatever is well-formed and means one thing loads, even where part of it does
+      nothing: fejkdata does not guess at mistakes. A load fails only where a template
+      breaks the grammar, could mean two things, or cannot render a valid value.
    8. When a clearer name turns up, it replaces the old one, even if that needs a new
       major version.
    9. Everything fejkdata renders is written as a template: on the command line, in a
