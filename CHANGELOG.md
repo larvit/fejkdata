@@ -40,8 +40,6 @@ replacement, and each removed path, column or flag.
   at `New`: a `name` without a `key` or a `parent`, a name repeating inside one parent
   row, a name spelling another row's key, and a table named like a column of any table
   above it.
-- `New` refuses a root choice of templates sharing one format and one set of string
-  fields, naming the rows TSV to write instead.
 - `misc.territory`, `misc.currency`, `misc.language`, `misc.httpstatus` and
   `misc.mimetype` are tables. `misc.territory` is every ISO 3166-1 territory that has
   a capital, a currency and a TLD, with the columns `calling-code`, `capital`,

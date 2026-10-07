@@ -2,11 +2,9 @@ package builtinfunc
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 	"testing"
 
-	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -19,17 +17,6 @@ func TestRegistryShapes(t *testing.T) {
 		}
 		if b.arity != 0 && b.checkArgs == nil {
 			t.Errorf("builtin %q parses args in prep with no check", name)
-		}
-	}
-}
-
-func TestNoRefOperandsMatchesTheOperandGrammar(t *testing.T) {
-	for name, b := range builtins {
-		if b.operands == nil {
-			continue
-		}
-		if takesRef := slices.ContainsFunc(b.operands([]string{"/x"}), grammar.IsRef); b.noRefOperands == takesRef {
-			t.Errorf("%s: noRefOperands = %v, yet a reference /x read as an operand: %v", name, b.noRefOperands, takesRef)
 		}
 	}
 }

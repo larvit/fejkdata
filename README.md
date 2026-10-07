@@ -41,9 +41,9 @@ these paths; a template reads one as `{/path}`.
 Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
-an object, array or string, and the whitespace around it is dropped; `42`, `true` or
-`null` alone is refused. A JSON template that should end each render in a newline writes
-`\n` in its format, from a quoted heredoc or a file. A
+an object, array or string, and the whitespace around it is dropped; `null` alone
+renders nothing, and `42` or `true` alone is refused. A JSON template that should end
+each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
@@ -336,6 +336,8 @@ generator:
   with the same error every call.
 - `Template.Fake` cannot fail.
 
+A path, wherever a call takes one, may start with `/`, as a reference does.
+
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
@@ -363,7 +365,7 @@ naming a kind that holds it. The tags are a record's columns, so they share its
 describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
 embedded struct promotes are columns of the same record; a named struct field, or a
 pointer to one, fills from its own tags as a record of its own, so its names and picks are
-its own. `fake:"-"` leaves a struct field, embedded or named, or a pointer to one, unfilled.
+its own. `fake:"-"` leaves a field unfilled.
 Untagged fields keep their values, and so does a pointer back to a struct already being filled; a type
 whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
 first call for a type compiles its tags and reports what they get wrong, with the same
@@ -424,28 +426,28 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
 writing it as `{ "format": "AB", "weight": 3 }`. Rejected at load: a weight that
-is negative, non-numeric, `0` (never drawn — remove the item), `1` (the default)
-or outside a choice, and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
+is negative, non-numeric, `0` (never drawn — remove the item) or outside a choice,
+and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
 and the error says so.
 
 ### Repeat
 
-A template may carry `repeat` (an integer above `1`) to render its format that
-many times — each an independent draw — joined by `separator` (default `""`):
+A template may carry `repeat` (a positive integer, default `1`) to render its format
+that many times — each an independent draw — joined by `separator` (default `""`):
 
 ```json
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-Renders e.g. `bar foo baz`. Rejected at load: a `separator` without a `repeat`,
-a `separator` of `""` (the default), and a `repeat` that multiplies to more than
-1 048 576 renders along any path of nested repeats.
+Renders e.g. `bar foo baz`. Rejected at load: a `separator` without a `repeat` above
+`1`, and a `repeat` that multiplies to more than 1 048 576 renders along any path of
+nested repeats.
 
 ### Datatype
 
 A record column may declare `datatype` — `integer`, `number` or `boolean` — so `json`
-writes `42` rather than `"42"` and `sql` a bare literal; a column without one is a
-string:
+writes `42` rather than `"42"` and `sql` a bare literal; a column without one, or with
+`string`, is a string:
 
 ```json
 { "format": "",
@@ -455,10 +457,10 @@ string:
 ```
 
 Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
-template, or an item of a choice standing in for one; `datatype` anywhere else is a
-load error. A typed column holds one value, alone in its format: a literal, one
-`{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
-values. `integer` is an int64 written `0|-?[1-9][0-9]*` — `{float()}` prints one at
+template, or an item of a choice standing in for one; `datatype` anywhere else, bar
+`string`, is a load error. A typed column holds one value, alone in its format: a
+literal, one `{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
+values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
 `0` decimals within int64 — `number` a JSON number, `boolean` `true` or `false`. A value its
 datatype cannot hold is a load error naming it:
 
@@ -493,9 +495,9 @@ renders a null as `""`. The other items' weights skew its odds:
 { "format": "", "deleted_at": null, "middle": [null, { "format": "{n}", "n": ["Ann", "Eva"], "weight": 3 }] }
 ```
 
-`deleted_at` is null every draw, `middle` a name three draws in four. Rejected at
-load: `null` anywhere but a column, naming `""`, and a column whose items hold
-different datatypes.
+`deleted_at` is null every draw, `middle` a name three draws in four. Anywhere but a
+column, `null` is `""`. Rejected at load: a column whose items hold different
+datatypes.
 
 ### Table
 
@@ -541,10 +543,6 @@ is settled by the `sex` selected before it and a name repeating inside one paren
 is refused; a name spelling another row's key is refused, since the key would
 select first and the name never. The table's options are its own — `rows`, `key`,
 `name`, `weight` and `parent` — so a column may be named `name`, as one usually is.
-
-A choice of templates sharing one format and one set of string fields is a table
-written by hand, and `New` refuses it in a data file naming the TSV to write; an
-inline template has no file beside it, so there it stays a choice.
 
 ### Row selection
 
@@ -625,15 +623,13 @@ reference, `..` is the folder above ([References](#references)).
 `format`, `weight`, `repeat`, `separator` and `datatype` are the only options;
 **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
 a [table](#table), so no template carries a field of that name. A [name](#names) shares the
-namespace too. An object that does nothing a
-string can't — only a `format` — is rejected naming the string, as is a one-item
-choice naming its item.
+namespace too.
 
 ### Functions
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
-count, range, country or expression fails fast; an integer is written plain
-(`5`, not `+5` or `05`); bounds are finite; a sample that could only ever emit one
+count, range, country or expression fails fast; an integer may carry a sign or leading
+zeros (`+5` and `05` are `5`); bounds are finite; a sample that could only ever emit one
 value (`int(5,5)`, `float(1,1,2)`) is rejected naming the text to write instead;
 and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
@@ -778,10 +774,7 @@ Refused at `New`, each error naming what to write instead:
   one;
 - a read of a name inside the field bound to it: read it outside that field;
 - a binding in a choice's item, which every other item would leave unbound;
-- a binding nothing reads, or one read only once, unless that read sits in a `repeat`
-  nested where it is bound: write what it binds there instead, `{/word}` for
-  `{/word as w}{w}` and `{/region.name}` for `{/region as r}{r.name}`; a calc cannot read a
-  reference or a path, so a calc's one read of a name bound to either is not refused;
+- a binding nothing reads;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;

@@ -192,19 +192,5 @@ func Literal(text string) Facts {
 	if text != "true" && text != "false" {
 		v.Not[datatype.Boolean] = fmt.Sprintf("%q is not a boolean", text)
 	}
-	return signedZero(text, v)
-}
-
-// signedZero refuses a zero written with a sign as a typed value, naming it unsigned.
-func signedZero(text string, v Facts) Facts {
-	mantissa, _, _ := strings.Cut(strings.ToLower(text), "e")
-	if !strings.HasPrefix(text, "-") || v.NotOperand != "" || strings.Trim(mantissa, "-0.") != "" {
-		return v
-	}
-	for _, d := range []datatype.DataType{datatype.Integer, datatype.Number} {
-		if v.Not[d] == "" {
-			v.Not[d] = fmt.Sprintf("%q is zero written with a sign; write %q", text, text[1:])
-		}
-	}
 	return v
 }

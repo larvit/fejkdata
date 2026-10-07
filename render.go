@@ -16,6 +16,7 @@ import (
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	path = grammar.CallerPath(path)
 	segments, err := grammar.SplitPath(path)
 	if err != nil {
 		return "", fmt.Errorf("fejkdata: %w", err)

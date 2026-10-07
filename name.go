@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -35,15 +34,6 @@ type nameBinding struct {
 	// addressed is every key a read of the name lands on or passes, the spelling of the
 	// first read reaching it beside it; a pick keeps the draws at these keys, and only these.
 	addressed map[pickKey]string
-}
-
-// nameUse is one read of a name: the path it reads into the name, "" for the name itself; the
-// template reading it; whether a builtin reads it as an operand, and whether no reference can
-// stand there; and whether it sits in a repeat nested inside the name's scope.
-type nameUse struct {
-	tail                   string
-	in                     *template
-	operand, noRef, nested bool
 }
 
 // nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
@@ -239,12 +229,10 @@ func (t *template) isName(head string) bool {
 	return !grammar.IsRef(head) && t.fields[head] == nil && t.nameScope.lookup(head) != nil
 }
 
-// namedReadAt is one read of a name in a format: the op holding it, the compiled arm, and whether a
-// builtin reads it as an operand.
+// namedReadAt is one read of a name in a format: the op holding it, and the compiled arm.
 type namedReadAt struct {
-	o       *op
-	a       *arm
-	operand bool
+	o *op
+	a *arm
 }
 
 // namedReads is every read of a name t's format makes, in format order.
@@ -259,7 +247,7 @@ func namedReads(t *template) []namedReadAt {
 		}
 		for j := range o.operands {
 			if o.operands[j].kind == namedRead {
-				out = append(out, namedReadAt{o: o, a: &o.operands[j], operand: true})
+				out = append(out, namedReadAt{o: o, a: &o.operands[j]})
 			}
 		}
 	}
@@ -298,21 +286,4 @@ func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*
 		}
 	}
 	return keys
-}
-
-func nameUses(ts []templateSite) map[*nameBinding][]nameUse {
-	uses := map[*nameBinding][]nameUse{}
-	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
-			b := r.a.named
-			uses[b] = append(uses[b], nameUse{
-				tail:    grammar.JoinSegments(r.a.tail),
-				in:      s.t,
-				operand: r.operand,
-				noRef:   r.operand && builtinfunc.NoRefOperands(r.o.Fn),
-				nested:  s.t.nameScope != b.scope,
-			})
-		}
-	}
-	return uses
 }

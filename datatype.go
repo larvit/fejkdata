@@ -31,7 +31,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 		return 0, fmt.Errorf("datatype must be a string, got %T", v)
 	}
 	if name == DataTypeString.String() {
-		return 0, fmt.Errorf("datatype %q is the default, so it has no effect; drop it", name)
+		return DataTypeString, nil
 	}
 	for d := DataTypeInteger; d < datatype.Count; d++ {
 		if name != d.String() {
@@ -42,7 +42,7 @@ func datatypeOf(m map[string]any, pos position) (DataType, error) {
 		}
 		return d, nil
 	}
-	return 0, fmt.Errorf(`datatype takes "integer", "number" or "boolean", got %q`, name)
+	return 0, fmt.Errorf(`datatype takes "string", "integer", "number" or "boolean", got %q`, name)
 }
 
 // checkColumns rejects a record column whose items hold different datatypes, checking a column
