@@ -272,7 +272,7 @@ neighbouring one.
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks which ship | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
 | `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
 
@@ -960,12 +960,12 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
-list.go         the paths List advertises, every one a node reaches a direct descent at a time
+list.go         the paths List advertises: direct descents only
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
-name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and what each resolves to at load: its target, its reads and the keys they address
+name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target and the keys its reads address
 namefence.go    the load fences over names
 pick.go         a render's named picks: the frame of each name scope rendering, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
@@ -994,7 +994,7 @@ internal/invariant/ the one phrase every package panics with when an invariant b
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
-data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md)
+data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, and the survey of other libraries
 release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)

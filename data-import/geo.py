@@ -10,7 +10,8 @@ CACHE = Path(__file__).resolve().parent / "cache"
 
 
 def parser(doc, country, **own):
-    """The options every country's import takes and the script's own, keyed by name with "_" for "-", in name order."""
+    """A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
+    "_" standing for "-"."""
     options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "streets_per_locality": {"type": int, "default": 10}, **own}
     p = argparse.ArgumentParser(description=doc.splitlines()[0])
     for name in sorted(options):
@@ -63,8 +64,8 @@ class Nearest:
 
 
 def top_streets(count, per_locality, column):
-    """Per locality, the per_locality street names counted most in count, keyed (locality, name), ties by name; each
-    row holds its count in column."""
+    """count maps (locality, street name) to a count. Per locality, the per_locality names counted most, ties broken by
+    name, each row holding its count under column."""
     of = collections.defaultdict(list)
     for (locality, name), n in count.items():
         of[locality].append((n, name))
@@ -72,7 +73,7 @@ def top_streets(count, per_locality, column):
 
 
 def with_streets(places, named):
-    """The places named holds streets for; each other one is logged as dropped."""
+    """The places that named holds streets for; logs each other place as dropped."""
     for key, place in places.items():
         if key not in named:
             label = key if key == place["name"] else f"{key} {place['name']}"

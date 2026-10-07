@@ -65,10 +65,10 @@ const (
 	stepParent // up to the table's parent, at the row its own row links to
 )
 
-// compiledPath is a path proved to reach a node whichever way the draws go: every variant of a
-// choice carries the rest of it, and is walked, a selector names a row inside the
-// rows selected before it, and no level read carries a repeat. It holds the steps
-// a draw takes, and every leaf the path may render; level names the head in its errors.
+// compiledPath walks a path and proves it reaches a node whichever way the draws go: every
+// variant of a choice carries the rest of it, and is walked, a selector names a row inside the
+// rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
+// draw takes, and every leaf the path may render; level names the head in its errors.
 type compiledPath struct {
 	pins   pinSet
 	level  string

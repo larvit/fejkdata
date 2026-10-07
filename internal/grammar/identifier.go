@@ -8,14 +8,13 @@ import (
 // reservedInIdentifier is what an identifier may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
 // call, braces delimit the token, '/' starts a reference, and brackets and a quote
-// open a JSON value. An identifier carrying one is rejected where it is authored rather
-// than where it would be unreachable.
+// open a JSON value. An identifier carrying one is rejected where it is authored.
 const reservedInIdentifier = ".|({}/[]\""
 
 var reservedList = strings.Join(strings.Split(reservedInIdentifier, ""), " ")
 
-// CheckIdentifier rejects an identifier, the name of a folder, category, field or column, that the
-// dot path, {token} and JSON grammars cannot spell, or a struct tag cannot read.
+// An identifier names a folder, category, field, column or bound name. CheckIdentifier rejects one
+// that the dot path, {token} and JSON grammars cannot spell, or that a struct tag cannot read.
 func CheckIdentifier(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
