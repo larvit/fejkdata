@@ -26,7 +26,7 @@ func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 	}
 	for src, want := range map[string]string{
 		`{"format":"","n":{"format":"1","datatype":"int"}}`: `datatype takes "string", "integer", "number" or "boolean", got "int"`,
-		`{"format":"","n":{"format":"1","datatype":1}}`:     "datatype must be a string",
+		`{"format":"","n":{"format":"1","datatype":1}}`:     "datatype must be a string, not a number",
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)

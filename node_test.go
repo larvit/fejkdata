@@ -2,8 +2,19 @@ package fejkdata
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 )
+
+func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
+	if _, err := resolved(t, `{"format":"x","repeat":2,"separator":5}`); err == nil || !strings.Contains(err.Error(), "separator must be a string, not a number") {
+		t.Errorf("separator 5 = %v, want the kind named", err)
+	}
+	_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":5}`, "t.tsv": "a\nx\n"})))
+	if err == nil || !strings.Contains(err.Error(), "key must be a string, not a number") {
+		t.Errorf("key 5 = %v, want the kind named", err)
+	}
+}
 
 func TestWeightSkewsDistribution(t *testing.T) {
 	f := engine(9)

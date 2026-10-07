@@ -310,6 +310,9 @@ func TestFakeStructErrors(t *testing.T) {
 			A int `fake:"person.first"`
 		}{}, `"Ada" is not an integer`},
 		{&struct {
+			A int `fake:"{\"format\":\"{calc(d + 1)}\",\"d\":\"{digits(0)}\"}"`
+		}{}, "{digits(0)} prints nothing, which is no number"},
+		{&struct {
 			A int8 `fake:"{int(0,300)}"`
 		}{}, `"{int(0,300)}" is not proven within int8; narrow it to that range, or make the field int64`},
 		{&struct {

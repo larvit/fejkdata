@@ -29,14 +29,15 @@ func TestPackageImports(t *testing.T) {
 	}
 	checked := 0
 	allowed := map[string][]string{
-		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven", "internal/rows"},
+		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 		"cmd/fejkdata":         {"."},
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
-		"internal/datafiles":   {"internal/grammar"},
+		"internal/datafiles":   {"internal/grammar", "internal/jsonvalue"},
 		"internal/datatype":    nil,
 		"internal/drawstate":   nil,
 		"internal/grammar":     nil,
 		"internal/invariant":   nil,
+		"internal/jsonvalue":   nil,
 		"internal/proven":      {"internal/datatype", "internal/grammar", "internal/invariant"},
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}

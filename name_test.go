@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -179,6 +180,16 @@ func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
 	}
 	if both == 0 {
 		t.Error("100 renders never drew the item binding a name")
+	}
+}
+
+func TestTheRootScopeIsTheCategory(t *testing.T) {
+	root := compiled(t, `{"format":"{x as n}{n}{y}","x":"a","y":{"format":"{z as m}{m}","z":"b","repeat":2}}`).(*template)
+	if k := fmt.Sprint(root.nameScope.kind()); k != "category" {
+		t.Errorf("root scope kind = %q, want category", k)
+	}
+	if k := fmt.Sprint(root.fields["y"].(*template).nameScope.kind()); k != "repeat" {
+		t.Errorf("repeat scope kind = %q, want repeat", k)
 	}
 }
 

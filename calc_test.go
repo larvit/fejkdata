@@ -309,6 +309,15 @@ func TestCalcRefusesABadOperand(t *testing.T) {
 	}
 }
 
+func TestATypedColumnRefusesACalcOverNoDigits(t *testing.T) {
+	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+		"row": `{"format":"","x":{"format":"{calc(d + 1)}","d":"{digits(0)}","datatype":"integer"}}`,
+	})))
+	if err == nil || !strings.Contains(err.Error(), "{digits(0)} prints nothing, which is no number") {
+		t.Fatalf("New = %v, want a calc over {digits(0)} refused in a typed column", err)
+	}
+}
+
 func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"n":     `"{int(1,9)}"`,
@@ -334,8 +343,8 @@ func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 	}
 }
 
-func TestARepeatOfZeroIsNoConstant(t *testing.T) {
-	if got := mustRender(t, engine(1), `{"format":"{calc(x / y)}","x":"1","y":{"format":"0","repeat":0}}`); got != "NaN" {
-		t.Errorf("a divisor rendering nothing = %q, want NaN", got)
+func TestARepeatOfZeroIsNeverANumber(t *testing.T) {
+	if _, err := resolved(t, `{"format":"{calc(x / y)}","x":"1","y":{"format":"0","repeat":0}}`); err == nil || !strings.Contains(err.Error(), `operand "y" is never a number: it renders ""`) {
+		t.Errorf("a calc over a repeat of 0 = %v, want the operand refused as never a number", err)
 	}
 }
