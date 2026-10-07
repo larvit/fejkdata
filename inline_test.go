@@ -175,22 +175,22 @@ func TestIsTemplate(t *testing.T) {
 		"{//sv_SE.person}":                       true,
 		"{/misc.currency[US Dollar (Next day)]}": true,
 		"/sv_SE.person":                          false,
-		"//sv_SE.person":                         false,
 	} {
 		if got, err := IsTemplate(arg); err != nil || got != want {
 			t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
 	for arg, want := range map[string]string{
-		"[abc]":       `starts with "["`,
-		"[abc].field": `starts with "["`,
-		"x[1]y":       `"]"`,
-		"x[[1]]":      `"["`,
-		"x[]":         "empty",
-		"a]b":         `holds a "]"`,
-		"a}b":         `holds a "}"`,
-		`"abc`:        `holds a "\""`,
-		`"a]b`:        `holds a "\""`, // the opener the reader typed, not the bracket behind it
+		"[abc]":          `starts with "["`,
+		"[abc].field":    `starts with "["`,
+		"x[1]y":          `"]"`,
+		"x[[1]]":         `"["`,
+		"x[]":            "empty",
+		"//sv_SE.person": "write /sv_SE.person",
+		"a]b":            `holds a "]"`,
+		"a}b":            `holds a "}"`,
+		`"abc`:           `holds a "\""`,
+		`"a]b`:           `holds a "\""`, // the opener the reader typed, not the bracket behind it
 	} {
 		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)

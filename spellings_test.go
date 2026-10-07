@@ -29,25 +29,29 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 	if r, isTemplate := compiled(t, `[{"format":"","d":"x"}]`).(*template); !isTemplate || !r.isRecord {
 		t.Error("a one-item choice of a record is no record, want the record it holds")
 	}
+	if _, err := resolved(t, `[{"format":"a","weight":2}]`); err == nil || !strings.Contains(err.Error(), "no effect here") {
+		t.Errorf("a weight on a one-item choice's item = %v, want it refused as doing nothing", err)
+	}
 }
 
-func TestRepeatedChoiceItemIsRejected(t *testing.T) {
-	for src, want := range map[string]string{
-		`["a", "a", "b"]`: `{ "format": "a", "weight": 2 }`,
-		`[{"format":"{x}","x":"1"},{"format":"{x}","x":"1"}]`: "repeats item",
-		`{"format":"{w}","w":["", "", "x"]}`:                  `{ "format": "", "weight": 2 }`,
-		`{"format":"","w":[null,null,"a"]}`:                   "a null takes no weight",
-	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error naming %s", src, err, want)
+func TestARepeatedItemCountsAsWritten(t *testing.T) {
+	for _, src := range []string{`["a", "a", "b"]`, `[{"format":"{x}","x":"1"},{"format":"{x}","x":"1"}]`, `{"format":"{w}","w":["", "", "x"]}`, `{"format":"","w":[null,null,"a"]}`, `{"format":"{x|x|y}","x":"1","y":"2"}`} {
+		if _, err := resolved(t, src); err != nil {
+			t.Errorf("compile(%s) = %v, want it loaded", src, err)
 		}
 	}
-	if _, err := resolved(t, `[{"format":"a","weight":2}, "b"]`); err != nil {
-		t.Errorf("compile(weighted a, b) = %v", err)
+	f, n, as := engine(1), compiled(t, `["a", "a", "b"]`), 0
+	for i := 0; i < 600; i++ {
+		if renderOnce(f.drawState, n) == "a" {
+			as++
+		}
+	}
+	if as < 340 || as > 460 {
+		t.Errorf(`["a","a","b"] drew a %d times in 600, want about 400`, as)
 	}
 }
 
-func TestInertObjectIsRejected(t *testing.T) {
+func TestASeparatorWithoutARepeatIsRejected(t *testing.T) {
 	for src, want := range map[string]string{
 		`{"format":"{x}","x":"v","separator":","}`: "separator",
 	} {

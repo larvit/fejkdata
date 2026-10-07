@@ -249,6 +249,7 @@ func TestRunTakesNoOperand(t *testing.T) {
 		want string
 	}{
 		{[]string{"sv_SE.person"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"/en_US.address"}, "echo '{/en_US.address}' | fejkdata"},
 		{[]string{"{/en_US.person}"}, "echo '{/en_US.person}' | fejkdata"},
 		{[]string{"name: {/sv_SE.person.last}"}, "echo 'name: {/sv_SE.person.last}' | fejkdata"},
 		{[]string{"geo.US.locality[O'Fallon].name"}, `echo '{/geo.US.locality[O'\''Fallon].name}' | fejkdata`},
@@ -494,6 +495,8 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"42":                    "number",
 		"42\n":                  "number",
 		"true\n":                "boolean",
+		"null\n":                "only null",
+		" null ":                "only null",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")

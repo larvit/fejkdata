@@ -59,7 +59,6 @@ func TestNodeCompileErrors(t *testing.T) {
 		`[1, 2]`,                           // a choice of numbers
 		`5`,                                // unsupported node type
 		`[]`,                               // empty choice
-		`["a","a"]`,                        // a repeated item is a weight
 		`[{"format":"A","weight":-1},"B"]`, // negative weight
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf

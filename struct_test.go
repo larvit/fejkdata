@@ -270,6 +270,9 @@ func TestFakeStructErrors(t *testing.T) {
 			A int `fake:"{\"format\":\"{int(1,9)}\",\"datatype\":\"integer\"}"`
 		}{}, `its Go type int sets the datatype; drop "datatype"`},
 		{&struct {
+			A string `fake:"{\"format\":\"x\",\"datatype\":\"string\"}"`
+		}{}, `its Go type string sets the datatype; drop "datatype"`},
+		{&struct {
 			A int `fake:"[null,\"{int(1,9)}\"]"`
 		}{}, "can draw null, which int cannot hold; make it *int"},
 		{&struct {

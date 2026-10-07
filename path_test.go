@@ -187,10 +187,11 @@ func TestFakePathNavigation(t *testing.T) {
 
 func TestALeadingSlashIsThePath(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"person": `{"format":"{first}","first":"Ada"}`}), WithSeed(1))
-	for _, path := range []string{"/person", "//person.first"} {
-		if v := fake(t, f, path); v != "Ada" {
-			t.Errorf("Fake(%s) = %q, want Ada", path, v)
-		}
+	if v := fake(t, f, "/person"); v != "Ada" {
+		t.Errorf("Fake(/person) = %q, want Ada", v)
+	}
+	if _, err := f.Fake("//person"); err == nil || !strings.Contains(err.Error(), "write /person") {
+		t.Errorf("Fake(//person) = %v, want it refused naming /person", err)
 	}
 	r, err := f.FakeRecord("/person")
 	if err != nil || len(r.Columns()) != 1 || r.Columns()[0].Value != "Ada" {
