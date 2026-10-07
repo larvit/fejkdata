@@ -68,8 +68,8 @@
 | 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 10 | 10 | 10 | 2, 1.1, 9 | 32.5 |
 | 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
-| 16 | 0.1.0 |  | **Add the remaining locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
-| 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
+| 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
+| 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 129 | 0.1.0 |  | **Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.** | 5 | 8 | 8 | 10 | 5.9, 5.7, 7 | 25.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
@@ -183,7 +183,7 @@ Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten str
 
 Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
 
-### 16. Add the remaining locale categories: company, phone, finance, vehicle, words.
+### 16. Add locale categories: company, phone, finance, vehicle, words.
 
 Shape: T = table, t = template, c = choice.
 
@@ -211,13 +211,13 @@ Shape: T = table, t = template, c = choice.
 | `ein` valid ranges | t | IRS | facts |
 | `company` names, suffix, `naics` | t+T | SEC tickers for patterns, NAICS 2022 | public domain |
 | `phone` NANP with valid NPA (the NXX ships as `en_US.phone-exchange`) | t | NANPA rules | facts |
-| `bankaccount` | t | Fed prefix ranges | facts |
+| `bankaccount` | t | — | — |
 | `licenseplate` per state | T | hand-authored patterns | facts |
 | `car` make, model | T | NHTSA vPIC | public domain |
 | `word`, `sentence`, `paragraph` | T+t | Moby POS or WordNet | public domain / WordNet |
 | month and weekday names, `holiday` | t+T | CLDR en | Unicode |
 
-### 15. Add the remaining `misc` tables and templates, one row of its detail's table per chunk.
+### 15. Add `misc` tables and templates, one row of its detail's table per chunk.
 
 Shape: T = table, t = template, c = choice.
 
@@ -326,11 +326,11 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 
 ### 154. Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.
 
-Needs item 34. Split from item 16, whose other rows ship in 0.1.0.
+Needs item 34.
 
 ### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
 
-Needs item 34: `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn. Split from item 15, whose other rows ship in 0.1.0.
+Needs item 34: `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
