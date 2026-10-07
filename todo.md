@@ -84,7 +84,7 @@
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
-| 147 | 0.1.0 |  | **Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only what `doc.go` defines, a prefix of a read's path, and `checkCells`' new name says it compiles.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
+| 147 | 0.1.0 |  | **Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only a prefix of a read's path, and `checkCells`' new name says it compiles.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
 | 151 | 0.1.0 |  | **Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 149 | 0.1.0 |  | **Say in one line what `config.load` does and what the 64-bit assertion asserts, beside their decision links.** | 1 | 1 | 1 | 5 | 3.4 | 9.8 |
 | 150 | 0.1.0 |  | **Move `columnRead` and `columnReadOf` from `resolve.go` into `datatype.go`, and state at `template.readsColumn` that `renderLeaf`, `proveColumnItem` and `itemDatatype` change with it.** | 1 | 2 | 1 | 5 | 3.1, 3.2 | 9.5 |
@@ -308,9 +308,9 @@ Needed by item 61. The extender seat of the 2026-10-07 panel on ad59967, reading
 
 Three architect seats of the 2026-10-07 panel and scoring run on ad59967 found that `sharedPaths` fills `choice.shared` in `node.go`, which `carriedByAll` reads to accept or refuse every path through a choice, so `List`'s file decides which paths compile; `join` serves `list.go`, `data.go`, `graph.go` and `path.go`.
 
-### 147. Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only what `doc.go` defines, a prefix of a read's path, and `checkCells`' new name says it compiles.
+### 147. Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only a prefix of a read's path, and `checkCells`' new name says it compiles.
 
-`namedNode` in `graph.go` is a child and its segment, beside `namedRead` and `namedPick`, which go through a bound name; `compiledPath.level` is an error's label, where `doc.go` defines a level as a prefix of a read's path; `checkCells` compiles each cell and stores it in `cellTemplates`. Three seats of the 2026-10-07 panel and scoring run on ad59967 named the first two, and four named `checkCells`.
+`namedNode` in `graph.go` is a child and its segment, beside `namedRead` and `namedPick`, which go through a bound name; `compiledPath.level` is an error's label, where a level is a prefix of a read's path; `checkCells` compiles each cell and stores it in `cellTemplates`. Three seats of the 2026-10-07 panel and scoring run on ad59967 named the first two, and four named `checkCells`.
 
 ### 151. Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.
 
