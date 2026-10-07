@@ -61,7 +61,6 @@ In [docs/decisions.md](docs/decisions.md):
 - The repeat cap bounds renders, not bytes
 - 64-bit targets only
 - A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`
-- In data, a constant spelled as a sample is a load error
 - Samples say what they emit, transforms what they do
 - A record is a template seen as columns; a Go struct is the one second schema
 - A struct's records follow Go's field access, and compile on first use
