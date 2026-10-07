@@ -28,38 +28,39 @@ const usage = `Usage: <template> | fejkdata [flags]
 fejkdata reads one template from stdin and renders it:
 
   echo 'name: {/sv_SE.person.last}' | fejkdata
-  echo '{"format":"{x}","x":["bosse","lina"]}' | fejkdata
+  echo '{"format":"{x}\n","x":["bosse","lina"]}' | fejkdata
   fejkdata < template.txt
-  fejkdata <<'EOF'
-  born {date(1990-01-01,2010-12-31,'2006-01-02')}
-  EOF
+
+fejkdata <<'EOF'
+born {date(1990-01-01,2010-12-31,'2006-01-02')}
+EOF
 
 A template is a format string, or a JSON object, array or string. Its {…} tokens
 reach the data by reference from the root, {/sv_SE.person.last}, whether the data
-is shipped or layered with --data-path; everything outside them prints as written,
-and stdin that is JSON is read as JSON, so 42, true or null alone is refused.
-A reference names a category or a dotted path into one ({/sv_SE.person.last}), a
-table's row by key or name ({/misc.territory[SE]}), and .. steps up from a row to
-the row it links to ({/geo.SE.locality..municipality.name}).
+is shipped or layered with --data-path. A reference names a category or a dotted
+path into one ({/sv_SE.person.last}), a table's row by key or name
+({/misc.territory[SE]}), and .. steps up from a row to the row it links to
+({/geo.SE.locality..municipality.name}).
 
-A format string keeps every byte of stdin, so echo's newline renders too. JSON and a
-lone reference drop one newline ending stdin, \n or \r\n, which neither could print.
-A quoted heredoc, <<'EOF', passes a template holding $, a backslash or a quote as
-written.
+What you send is what renders, and fejkdata adds nothing: a format string keeps
+every byte, so echo's newline ends each render, and printf '%s' sends none. -n
+joins renders with --separator, empty by default. A JSON template is its JSON, the
+whitespace around it dropped, so 42, true or null alone is refused. A quoted
+heredoc, <<'EOF', passes $, a backslash or a quote as written.
 
-With --format json, ndjson, csv or sql the template must name a record — a
-template whose fields are its columns, or one reference alone, {/sv_SE.person} —
-and the rows are written as one JSON array, one JSON object per line, one CSV row
-(after a header), or one INSERT.
+With --format json, ndjson, csv or sql the template must be a record — a JSON
+template whose fields are its columns, or a lone reference, {/sv_SE.person}, one
+newline after it allowed — and the rows are written as one JSON array, one JSON
+object per line, one CSV row (after a header), or one INSERT.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql
   -h, --help             print this help, then exit
-      --list             list the paths the data offers, each one a reference's path, then exit
+      --list             list the paths the data offers, each one a reference from the root, then exit
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 1..1048576 (default 1)
   -s, --seed N           same seed, version and data: identical output
-      --separator S      string between repeated values (default newline)
+      --separator S      string between repeated renders (default empty)
       --table T          the INSERT target for --format sql (default: a lone reference's last segment, else records)
       --version          print the version, then exit
 
@@ -184,7 +185,7 @@ func splitFlags(arg string) ([]flagArg, error) {
 }
 
 func parseArgs(argv []string) (invocation, error) {
-	in := invocation{repeat: 1, separator: "\n", format: "text"}
+	in := invocation{repeat: 1, format: "text"}
 	for i := 0; i < len(argv); i++ {
 		arg := argv[i]
 		if arg == "--" {
@@ -277,16 +278,21 @@ func (in invocation) checkFlags() error {
 
 const pipeHint = "echo '{/sv_SE.person}' | fejkdata"
 
-// operandError refuses an operand, naming the spelling that reads what it most likely
-// means: stdin for -, a file for a file's name, else the template piped in.
+// operandError refuses an argument that is no flag, naming the spelling that reads what
+// it most likely means: stdin for -, a file for a file's name, else a template piped in.
 func operandError(arg string) error {
+	unexpected := "unexpected argument '" + arg + "'"
 	if arg == "-" {
-		return errors.New("fejkdata takes no operand, and reads stdin already; drop the -")
+		return fmt.Errorf("%s; stdin is read already, so drop it", unexpected)
 	}
 	if fi, err := os.Stat(arg); err == nil && fi.Mode().IsRegular() {
-		return fmt.Errorf("fejkdata takes no operand; read the file from stdin: fejkdata < %s", arg)
+		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
 	}
-	return fmt.Errorf("fejkdata takes no operand; pipe the template to stdin: %s", pipeHint)
+	example := pipeHint
+	if inline, err := fejkdata.IsTemplate(arg); !inline && err == nil {
+		example = "echo '{/" + arg + "}' | fejkdata"
+	}
+	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
 }
 
 // check rejects a flag combination or an operand that cannot run, before any data is
@@ -318,50 +324,32 @@ func (in invocation) options() []fejkdata.Option {
 	return opts
 }
 
-// write streams the input's renders to w, repeat of them joined by the
-// separator and ended by a newline. A value that renders once renders every time,
-// so a render failure comes before anything is written; a write failure surfaces
-// from Flush, bufio keeping the first one.
+// write streams the input's renders to w, repeat of them joined by the separator. A
+// value that renders once renders every time, so a render failure comes before anything
+// is written; a write failure surfaces from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, src input, w io.Writer) error {
 	if in.writesRecords() {
 		return in.writeRecords(f, src, w)
 	}
-	draw, err := textDraw(f, src)
+	t, err := f.NewTemplate(src.template)
 	if err != nil {
-		return err
+		return inputError{err}
 	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
-		v, err := draw()
-		if err != nil {
-			return err
-		}
 		if i > 0 {
 			out.WriteString(in.separator)
 		}
-		out.WriteString(v)
+		out.WriteString(t.Fake())
 	}
-	out.WriteString("\n")
 	return out.Flush()
-}
-
-// textDraw builds what one text render yields: the value, from a path or a template.
-func textDraw(f *fejkdata.Generator, src input) (func() (string, error), error) {
-	if src.path != "" {
-		return func() (string, error) { return f.Fake(src.path) }, nil
-	}
-	t, err := f.NewTemplate(src.template)
-	if err != nil {
-		return nil, inputError{err}
-	}
-	return func() (string, error) { return t.Fake(), nil }, nil
 }
 
 // recordStream builds the record drawer for the input, plus the INSERT table
 // a sql format names.
 func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fejkdata.Record, error), string, error) {
-	record := func() (*fejkdata.Record, error) { return f.FakeRecord(src.path) }
-	if src.path == "" {
+	record := func() (*fejkdata.Record, error) { return f.FakeRecord(src.record) }
+	if src.record == "" {
 		t, err := f.NewRecordTemplate(src.template)
 		if err != nil {
 			return nil, "", inputError{spacedReference(src.template, err)}
@@ -370,7 +358,7 @@ func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fe
 	}
 	table := in.table
 	if table == "" {
-		table = defaultTable(src.path)
+		table = defaultTable(src.record)
 	}
 	return record, table, nil
 }
@@ -411,7 +399,7 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 }
 
 // defaultTable names the INSERT target when --table is absent: the path's last
-// segment, or "records" for a template that reads no path alone.
+// segment, or "records" when stdin is not a lone reference.
 func defaultTable(path string) string {
 	if path == "" {
 		return "records"
@@ -438,38 +426,37 @@ type inputError struct{ error }
 
 func (e inputError) Unwrap() error { return e.error }
 
-// input is what stdin names: the path a lone reference reads, or else the template.
+// input is what stdin holds: the template, and the path a lone reference names as a
+// record.
 type input struct {
-	path     string
 	template string
+	record   string
 }
 
-// parseInput reads stdin's text. A format string keeps every byte; JSON or a lone
-// reference sheds one newline ending it, which neither could print.
+// parseInput reads stdin. A format string is its every byte; a JSON template sheds the
+// whitespace around it; a lone reference names a record less one newline ending it.
 func parseInput(raw string) (input, error) {
-	if raw == "" {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
 	}
-	if text, found := strings.CutSuffix(raw, "\n"); found {
+	template := raw
+	if strings.ContainsRune(`{["`, rune(trimmed[0])) && json.Valid([]byte(trimmed)) {
+		template = trimmed
+	}
+	text, found := strings.CutSuffix(template, "\n")
+	if found {
 		text = strings.TrimSuffix(text, "\r")
-		if path, lone := loneReference(text); lone {
-			return input{path: path}, nil
-		}
-		if json.Valid([]byte(text)) {
-			return input{template: text}, nil
-		}
 	}
-	if path, lone := loneReference(raw); lone {
-		return input{path: path}, nil
-	}
-	return input{template: raw}, nil
+	record, _ := loneReference(text)
+	return input{template: template, record: record}, nil
 }
 
-// loneReference is the path that text, one reference from the root and nothing else,
-// reads: the path IsTemplate advises writing instead. A JSON string holding one is one.
+// loneReference returns the path that text reads when it is one reference from the root
+// and nothing else, bare or as a JSON string: the path IsTemplate advises writing instead.
 func loneReference(text string) (string, bool) {
 	var unquoted string
-	if json.Unmarshal([]byte(text), &unquoted) == nil {
+	if strings.HasPrefix(text, `"`) && strings.HasSuffix(text, `"`) && json.Unmarshal([]byte(text), &unquoted) == nil {
 		text = unquoted
 	}
 	if !strings.HasPrefix(text, "{/") || !strings.HasSuffix(text, "}") {
@@ -485,15 +472,23 @@ func loneReference(text string) (string, bool) {
 	return path, true
 }
 
-// spacedReference adds to err, a refusal of template as a record, that the whitespace
-// around a lone reference made it text, where it does.
+// spacedReference adds to a record refusal that whitespace around a lone reference made
+// the template text.
 func spacedReference(template string, err error) error {
-	if trimmed := strings.TrimSpace(template); trimmed != template {
+	if trimmed := strings.TrimSpace(template); trimmed != template && errors.Is(err, fejkdata.ErrNoColumns) {
 		if path, lone := loneReference(trimmed); lone {
 			return fmt.Errorf("%w; the whitespace around {/%s} makes it text, so remove it to write the record %s", err, path, path)
 		}
 	}
 	return err
+}
+
+// shellQuoted is s as a shell reads it back: bare where it holds nothing a shell expands.
+func shellQuoted(s string) string {
+	if s != "" && !strings.ContainsAny(s, " \t'\"$`\\*?[]{}()<>|&;#~!") {
+		return s
+	}
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
 func main() {
@@ -512,7 +507,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return misuse(stderr, err)
 	}
 	if in.help {
-		fmt.Fprint(stdout, usage)
+		io.WriteString(stdout, usage)
 		return 0
 	}
 	if in.version {

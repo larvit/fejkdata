@@ -12,19 +12,20 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ## CLI
 
 ```sh
-echo '{/sv_SE.person}' | fejkdata                       # Sara Eriksson
-echo '{/sv_SE.person.last}' | fejkdata                  # Eriksson
-echo '{/sv_SE.person} hihi' | fejkdata                  # Sara Eriksson hihi, then echo's newline
-echo '{/sv_SE.address}' | fejkdata --seed 42            # the same address every run
-echo '{/sv_SE.word}' | fejkdata -n 3 --separator ', '   # nät, barn, sol
-fejkdata --list                                         # every path the data offers
-echo '{/misc.territory[SE].capital}' | fejkdata         # Stockholm — a table's row, selected by key or name
-echo '{/geo.SE.locality[Lund].street}' | fejkdata       # Fjelievägen — a linked table, drawn inside the row
-echo '{/sv_SE.word}' | fejkdata --data-path ./mydata    # layer a directory over the shipped data
-fejkdata --no-shipped-data -d ./mydata --list           # only your data
-echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina
-fejkdata < template.txt                                 # a template kept in a file
-fejkdata <<'EOF'                                        # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
+echo '{/sv_SE.person}' | fejkdata                        # Sara Eriksson
+echo '{/sv_SE.person.last}' | fejkdata                   # Eriksson
+echo '{/sv_SE.person} hihi' | fejkdata                   # Sara Eriksson hihi
+echo '{/sv_SE.address}' | fejkdata --seed 42             # the same address every run
+echo '{/sv_SE.word}' | fejkdata -n 3                     # nät, barn and sol, a line each
+printf '%s' '{/sv_SE.word}' | fejkdata -n 3 --separator ', '   # nät, barn, sol
+fejkdata --list                                          # every path the data offers
+echo '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table's row, selected by key or name
+echo '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
+echo '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
+fejkdata --no-shipped-data -d ./mydata --list            # only your data
+echo '{"format":"name: {x}\n","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina
+fejkdata < template.txt                                  # a template kept in a file
+fejkdata <<'EOF'                                         # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 ```
@@ -32,18 +33,19 @@ EOF
 fejkdata renders the template on its stdin: a format string, or a JSON object, array or
 string. Its `{…}` tokens reach the data by reference from the root,
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike available,
-and everything outside them prints as written; stdin that is JSON is read as JSON, so
-`42`, `true` or `null` alone is refused. A reference names a category, or a field
+and everything outside them prints as written. A reference names a category, or a field
 inside one: each dot segment descends one level — folders, then the category (a JSON
 file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
 these paths; a template reads one as `{/path}`.
 
-A format string keeps every byte of stdin, so `echo`'s newline renders too; `printf '%s'`
-leaves it out. A JSON template or one reference alone drops one newline ending stdin,
-`\n` or `\r\n`, which neither could print. One reference alone, `{/users}`, is the record
-`users` under `--format`. Some shells' `echo` reads a backslash as an escape, so pipe a
+What you send is what renders, and fejkdata adds nothing. A format string keeps every
+byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
+sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
+its JSON, the whitespace around it dropped, so `42`, `true` or `null` alone is refused. A
+lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
+newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
-[Decisions](docs/decisions.md#the-cli-renders-the-template-on-its-stdin-keeping-a-format-strings-every-byte).
+[Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
 | Flag | |
 |------|--|
@@ -51,7 +53,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, version and data: identical output |
 | `-n`, `--repeat N` | render the template N times (up to 1048576), each an independent draw, streamed |
-| `--separator S` | between repeated values (default a newline) |
+| `--separator S` | between repeated renders (default empty) |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql` (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit |
@@ -60,7 +62,8 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
-dir, a lone reference to nothing), `2` misuse — a bad flag, an operand, nothing on stdin, or a
+dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
+other than a flag, an empty or unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
@@ -113,8 +116,7 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql                # IN
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # INSERT into another table
 ```
 
-A record is one reference alone, `{/users}`, or a template whose fields are its
-columns. `--repeat` streams that many records — `json` frames them as one array document,
+`--repeat` streams that many records — `json` frames them as one array document,
 `ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
 per line. Only a category-level template is a record; a field, choice or folder
 errors, and so does a `repeat` on
@@ -550,7 +552,7 @@ A name naming several rows is an error listing their keys, unless a row selected
 before it settles which ([Linked tables](#linked-tables)). A selector is part of the path, so it works
 wherever a path does: `Fake`, `FakeRecord`, a `{/misc.territory[SE].capital}` reference
 and a struct tag. A dot inside the brackets belongs to the key or name, so
-`city[St. Louis]` selects it. A path starts with a name, so `[SE]` alone selects nothing.
+`city[St. Louis]` selects it.
 
 ### Linked tables
 
@@ -996,7 +998,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
-internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether a struct tag is a template or a path
+internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes

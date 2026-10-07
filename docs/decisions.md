@@ -55,7 +55,7 @@ single-dash long flag is rejected naming the double-dash spelling, and `-s=42` i
 rejected naming both short spellings: `=` belongs to the long form, and reading `=42` as
 the value would make `-d=./x` a directory named `=./x`.
 
-## A struct tag is a template by its shape, not by a flag
+## A struct tag is a template by its shape
 
 2026-09-03, Lilleman auf Larv.
 
@@ -63,7 +63,7 @@ A JSON object, array or string, or a string carrying a `{` token, is an inline t
 anything else is a path. A name may not contain a brace, a bracket or a quote, so a path
 can never collide with any of those spellings, and the leading `[` or `"` is gated on
 valid JSON so a stray copied bracket never swallows a tag — it names nothing, and says
-so. No option is needed. Reserving the characters whole — though only a leading one
+so. Reserving the characters whole — though only a leading one
 could collide — keeps one simple name rule instead of a leading-position special case.
 The JSON string is what makes the library's own advice reachable: the error for an
 object holding only a format names `"…"`, and that spelling has to work where it is
@@ -72,32 +72,36 @@ printed. A struct tag of one reference alone, `{/users}`, is refused naming the 
 `{.name}` or `{..name}` is refused naming `{/name}`, since an inline template sits in no
 folder. `IsTemplate` exports the rule, so struct tags and any other caller read one.
 
-## The CLI renders the template on its stdin, keeping a format string's every byte
+## The CLI renders exactly the template on its stdin, and adds nothing
 
 2026-10-07, Lilleman auf Larv. Serves goals 7, 7.1 and 7.2.
 
 The template comes from stdin, from `echo`, a file or a heredoc, so one command line gets
-a value and a quoted heredoc needs no escape. The CLI takes no operand: one is misuse
-naming the spelling that reads what it likely means, `fejkdata < FILE` for a file and
-nothing for `-`, and so is a terminal with nothing piped in, which would otherwise wait
-for typed input. A format string keeps every byte, `echo`'s newline included, since
-everything outside `{…}` prints as written. JSON and one reference alone drop one newline
-ending stdin, `\n` or `\r\n`, which neither could print; the rest reaches `NewTemplate`
-unchanged, so a padded JSON template is refused there, as goal 5.7 asks. One reference
-from the root and nothing else, `{/users}` or `"{/users}"`, reads the path it names: it
-renders the same text, and under `--format` it is the record `users`, with `users` the
-default `--table`; one to nothing exits 1, as an unknown path does. That reading sits in
-the CLI against goal 3.2 until `todo.md` item 129 moves it into the library. `--list`
-still prints paths, each read as `{/path}`. Valid while the CLI reads one template per
-run.
+a value and a quoted heredoc needs no escape. A format string is stdin's every byte, and
+fejkdata adds no newline of its own: `echo` ends each render with its newline,
+`printf '%s'` sends none, and `-n` joins renders with `--separator`, empty by default. A
+bench of the README's personas picked this over dropping a newline, or adding one, on
+2026-10-07: one rule a user states in a sentence, at the cost of `printf` or a
+`--separator` now and then. A JSON template is its JSON: the maintainer ruled that the
+whitespace around it is not part of the template, so goal 5.7 does not refuse it on
+stdin, while `NewTemplate` still refuses a padded one. A lone reference, `{/users}` or
+`"{/users}"`, names the record `users` under `--format`, one newline after it allowed,
+with `users` the default `--table`; one to nothing there exits 1, as an unknown path
+does, until `todo.md` item 129 moves the reading into the library, against goal 3.2
+meanwhile. Stdin holding only whitespace is misuse, since an unset variable sends just a
+newline. The CLI takes no argument but its flags: one is misuse naming the spelling that
+reads what it likely means, `fejkdata < FILE` for a file's name, dropping it for `-`,
+and the template piped in otherwise; so is a terminal with nothing piped in, which would
+otherwise wait for typed input. `--list` still prints paths, each read as `{/path}`.
+Valid while the CLI reads one template per run.
 
-## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save the CLI's lone reference until item 129
+## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
 2026-09-24, Lilleman auf Larv.
 
 The whole template is the spelling under test, and `NewTemplate` compiles, links and
-validates as one step. An unknown *path* stays a runtime error (exit 1): there the
-template is well-formed and only the data is absent.
+validates as one step. Under the CLI's `--format`, a lone reference to nothing exits 1
+until item 129: it reads a path, and only the data is absent.
 
 ## A padded JSON template is rejected, not trimmed
 
@@ -880,6 +884,6 @@ a lone `}` stays an error. Valid while a template escapes a brace by doubling it
 ## Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 
 2026-10-05, Lilleman auf Larv. Serves goal 7.2. Goals are aims: it is enough that a first
-template can be written with no escape and no options, as `echo -n 'name: {/sv_SE.person.last}' | fejkdata`
+template can be written with no escape and no options, as `echo 'name: {/sv_SE.person.last}' | fejkdata`
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
