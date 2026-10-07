@@ -1,14 +1,15 @@
-// Command fejkdata prints fake values from the shipped data and any directories
-// layered over it.
+// Command fejkdata renders the template on its stdin with fake values from the shipped
+// data and any directories layered over it.
 //
-//	fejkdata sv_SE.person                        # a full person
-//	fejkdata sv_SE.person.last                   # just the surname
-//	fejkdata --data-path ./mydata sv_SE.person   # layer custom data; the last dir wins
-//	fejkdata --seed 42 sv_SE.address
+//	echo -n '{/sv_SE.person}' | fejkdata                        # a full person
+//	echo -n 'name: {/sv_SE.person.last}' | fejkdata             # text around a surname
+//	echo -n '{/sv_SE.person}' | fejkdata --data-path ./mydata   # layer custom data; the last dir wins
+//	echo -n '{/sv_SE.address}' | fejkdata --seed 42
 package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -21,41 +22,41 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
-const usage = `Usage: fejkdata [flags] <path|template>
+const usage = `Usage: <template> | fejkdata [flags]
 
-  <path>                 a category, or a dotted path into one (person, person.last);
-                         a table's row by key or name: 'misc.territory[SE]', 'misc.territory[Sweden].tld';
-                         .. steps up from a row to the row it links to: 'geo.SE.locality..municipality.name'
-  <template>             a format string or JSON value to render inline, e.g.
-                         'name: {/sv_SE.person.last}' or '{"format":"{x}","x":["bosse","lina"]}'
+fejkdata reads one template from stdin and renders it:
 
-A layout inside a template is single-quoted, so quote the whole argument with " to
-keep it: "{date(1990-01-01,2010-12-31,'2006-01-02')}".
+  echo -n 'name: {/sv_SE.person.last}' | fejkdata
+  echo -n '{"format":"{x}","x":["bosse","lina"]}' | fejkdata
 
-An argument containing a { token, or a JSON object, array or string, is a
-template; any other argument is a path (a path never contains a brace or a quote,
-and a bracket only as a [selector] after a table's name). Templates reach the
-data by reference from the root — {/sv_SE.person.last} — whether the data is
-shipped or layered with --data-path. An argument carrying a closing brace or a
-quote but no valid JSON names neither.
+A template is a format string, or a JSON object, array or string. Its {…} tokens
+reach the data by reference from the root, {/sv_SE.person.last}, whether the data
+is shipped or layered with --data-path; everything outside them prints as written.
+A reference names a category or a dotted path into one ({/sv_SE.person.last}), a
+table's row by key or name ({/misc.territory[SE]}), and .. steps up from a row to
+the row it links to ({/geo.SE.locality..municipality.name}).
 
-With --format json, ndjson, csv or sql the argument must name a record — a
-template whose fields are its columns — and the rows are written as one JSON
-array, one JSON object per line, one CSV row (after a header), or one INSERT.
+One newline ending stdin is dropped, so echo and echo -n render alike; end it with
+two to print one. Whitespace around a JSON template is dropped too.
+
+With --format json, ndjson, csv or sql the template must name a record — a
+template whose fields are its columns, or one reference alone, {/sv_SE.person} —
+and the rows are written as one JSON array, one JSON object per line, one CSV row
+(after a header), or one INSERT.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql
   -h, --help             print this help, then exit
-      --list             list the paths the data offers, then exit
+      --list             list the paths the data offers, each read from the root, then exit
       --no-shipped-data  load only the --data-path directories
-  -n, --repeat N         render the value N times, 1..1048576 (default 1)
+  -n, --repeat N         render the template N times, 1..1048576 (default 1)
   -s, --seed N           same seed, version and data: identical output
       --separator S      string between repeated values (default newline)
-      --table T          the INSERT target for --format sql (default: the path's last segment, or records for an inline template)
+      --table T          the INSERT target for --format sql (default: a lone reference's last segment, else records)
       --version          print the version, then exit
 
-Flags may come before or after <path|template>; -- ends the flags. A short flag's
-value attaches or follows (-n3, -n 3); short flags bundle (-hn 3).
+A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3);
+-- ends the flags.
 `
 
 type invocation struct {
@@ -65,7 +66,7 @@ type invocation struct {
 	help         bool
 	list         bool
 	noShipped    bool
-	paths        []string
+	args         []string
 	repeat       int
 	repeatSet    bool
 	seed         uint64
@@ -179,11 +180,11 @@ func parseArgs(argv []string) (invocation, error) {
 	for i := 0; i < len(argv); i++ {
 		arg := argv[i]
 		if arg == "--" {
-			in.paths = append(in.paths, argv[i+1:]...)
+			in.args = append(in.args, argv[i+1:]...)
 			return in, nil
 		}
 		if len(arg) < 2 || arg[0] != '-' {
-			in.paths = append(in.paths, arg)
+			in.args = append(in.args, arg)
 			continue
 		}
 		flags, err := splitFlags(arg)
@@ -266,25 +267,22 @@ func (in invocation) checkFlags() error {
 	return nil
 }
 
-// check rejects a flag combination or an argument that cannot run, and reports
-// what the argument names, so its shape is settled before any data is read.
-func (in invocation) check() (argKind, error) {
+// pipeHint is how a template reaches fejkdata, for the errors of a run that has none.
+const pipeHint = "echo -n '{/sv_SE.person}' | fejkdata"
+
+// check rejects a flag combination or an argument that cannot run, before any data is
+// read.
+func (in invocation) check() error {
 	if err := in.checkFlags(); err != nil {
-		return argPath, err
+		return err
 	}
-	if in.list && len(in.paths) > 0 {
-		return argPath, errors.New("--list takes no path")
+	if len(in.args) > 0 {
+		return fmt.Errorf("the template comes from stdin, not from an argument: %s", pipeHint)
 	}
 	if in.list && (in.repeatSet || in.separatorSet || in.formatSet || in.tableSet) {
-		return argPath, errors.New("--list takes no --repeat, --separator, --format or --table")
+		return errors.New("--list takes no --repeat, --separator, --format or --table")
 	}
-	if in.list {
-		return argPath, nil
-	}
-	if len(in.paths) != 1 {
-		return argPath, fmt.Errorf("expected one path or template, got %d%s", len(in.paths), templateSplit(in.paths))
-	}
-	return classify(in.paths[0])
+	return nil
 }
 
 func (in invocation) options() []fejkdata.Option {
@@ -301,15 +299,15 @@ func (in invocation) options() []fejkdata.Option {
 	return opts
 }
 
-// write streams the argument's renders to w, repeat of them joined by the
+// write streams the input's renders to w, repeat of them joined by the
 // separator and ended by a newline. A value that renders once renders every time,
 // so a render failure comes before anything is written; a write failure surfaces
 // from Flush, bufio keeping the first one.
-func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) error {
+func (in invocation) write(f *fejkdata.Generator, src input, w io.Writer) error {
 	if in.writesRecords() {
-		return in.writeRecords(f, kind, w)
+		return in.writeRecords(f, src, w)
 	}
-	draw, err := in.textDraw(f, kind, in.paths[0])
+	draw, err := textDraw(f, src)
 	if err != nil {
 		return err
 	}
@@ -328,25 +326,24 @@ func (in invocation) write(f *fejkdata.Generator, kind argKind, w io.Writer) err
 	return out.Flush()
 }
 
-// textDraw builds what one text render yields: the value, from a path or an
-// inline template.
-func (in invocation) textDraw(f *fejkdata.Generator, kind argKind, arg string) (func() (string, error), error) {
-	if kind != argTemplate {
-		return func() (string, error) { return f.Fake(arg) }, nil
+// textDraw builds what one text render yields: the value, from a path or a template.
+func textDraw(f *fejkdata.Generator, src input) (func() (string, error), error) {
+	if src.path != "" {
+		return func() (string, error) { return f.Fake(src.path) }, nil
 	}
-	t, err := f.NewTemplate(arg)
+	t, err := f.NewTemplate(src.template)
 	if err != nil {
 		return nil, templateError{err}
 	}
 	return func() (string, error) { return t.Fake(), nil }, nil
 }
 
-// recordStream builds the record drawer for the argument, plus the INSERT table
+// recordStream builds the record drawer for the input, plus the INSERT table
 // a sql format names.
-func (in invocation) recordStream(f *fejkdata.Generator, kind argKind, arg string) (func() (*fejkdata.Record, error), string, error) {
-	record := func() (*fejkdata.Record, error) { return f.FakeRecord(arg) }
-	if kind == argTemplate {
-		t, err := f.NewRecordTemplate(arg)
+func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fejkdata.Record, error), string, error) {
+	record := func() (*fejkdata.Record, error) { return f.FakeRecord(src.path) }
+	if src.path == "" {
+		t, err := f.NewRecordTemplate(src.template)
 		if err != nil {
 			return nil, "", templateError{err}
 		}
@@ -354,15 +351,15 @@ func (in invocation) recordStream(f *fejkdata.Generator, kind argKind, arg strin
 	}
 	table := in.table
 	if table == "" {
-		table = defaultTable(arg, kind)
+		table = defaultTable(src.path)
 	}
 	return record, table, nil
 }
 
 // writeRecords streams a record per line in the chosen format, framing a document
 // form with its open/close brackets and a header preceding the first record.
-func (in invocation) writeRecords(f *fejkdata.Generator, kind argKind, w io.Writer) error {
-	record, table, err := in.recordStream(f, kind, in.paths[0])
+func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer) error {
+	record, table, err := in.recordStream(f, src)
 	if err != nil {
 		return err
 	}
@@ -395,9 +392,9 @@ func (in invocation) writeRecords(f *fejkdata.Generator, kind argKind, w io.Writ
 }
 
 // defaultTable names the INSERT target when --table is absent: the path's last
-// segment, or "records" for an inline template that sits in no folder.
-func defaultTable(arg string, kind argKind) string {
-	if kind == argTemplate {
+// segment, or "records" for a template that reads no path alone.
+func defaultTable(arg string) string {
+	if arg == "" {
 		return "records"
 	}
 	var names strings.Builder // the path with its [selectors] cut out
@@ -415,33 +412,68 @@ func defaultTable(arg string, kind argKind) string {
 	return segments[len(segments)-1]
 }
 
-// templateError marks a render failure that is the argument's own fault — an
-// inline template that does not compile. run reports it as misuse (exit 2, with a
-// pointer to --help), unlike an unknown path, which is a runtime error (exit 1).
+// templateError marks a failure that is the input's own fault — no template, or one
+// that does not compile. run reports it as misuse (exit 2, with a pointer to --help),
+// unlike an unknown path, which is a runtime error (exit 1).
 type templateError struct{ error }
 
 func (e templateError) Unwrap() error { return e.error }
 
-type argKind int
-
-const (
-	argPath argKind = iota
-	argTemplate
-)
-
-// classify reads what a positional argument names by its shape (see fejkdata.IsTemplate).
-func classify(arg string) (argKind, error) {
-	inline, err := fejkdata.IsTemplate(arg)
-	if inline {
-		return argTemplate, nil
-	}
-	return argPath, err
+// input is what stdin names: the path a lone reference reads, or else the template as
+// the library takes it.
+type input struct {
+	path     string
+	template string
 }
 
-func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
+// readInput reads stdin less one newline ending it. A JSON object, array or string
+// sheds the whitespace around it; any other text becomes a JSON string, so the library
+// reads it as a format string even where it is JSON of another kind, such as 42.
+func readInput(raw string) (input, error) {
+	text := strings.TrimSuffix(raw, "\n")
+	if text == "" {
+		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
+	}
+	if path, lone := loneReference(text); lone {
+		return input{path: path}, nil
+	}
+	if trimmed := strings.TrimSpace(text); trimmed != "" && strings.ContainsRune(`{["`, rune(trimmed[0])) && json.Valid([]byte(trimmed)) {
+		return input{template: trimmed}, nil
+	}
+	quoted, err := json.Marshal(text)
+	if err != nil {
+		return input{}, err
+	}
+	return input{template: string(quoted)}, nil
+}
 
-// run returns the exit code: 0 ok, 1 runtime error, 2 misuse.
-func run(args []string, stdout, stderr io.Writer) int {
+// loneReference is the path that text, one reference from the root and nothing else,
+// reads: the path IsTemplate advises writing instead.
+func loneReference(text string) (string, bool) {
+	if !strings.HasPrefix(text, "{/") || !strings.HasSuffix(text, "}") {
+		return "", false
+	}
+	if inline, err := fejkdata.IsTemplate(text); inline || err == nil {
+		return "", false
+	}
+	path := strings.TrimLeft(text[1:len(text)-1], "/")
+	if inline, err := fejkdata.IsTemplate(path); inline || err != nil {
+		return "", false
+	}
+	return path, true
+}
+
+func main() {
+	var stdin io.Reader = os.Stdin
+	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
+		stdin = nil
+	}
+	os.Exit(run(os.Args[1:], stdin, os.Stdout, os.Stderr))
+}
+
+// run returns the exit code: 0 ok, 1 runtime error, 2 misuse. A nil stdin is a
+// terminal, which holds no template.
+func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	in, err := parseArgs(args)
 	if err != nil {
 		return misuse(stderr, err)
@@ -454,9 +486,14 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
-	kind, err := in.check()
-	if err != nil {
+	if err := in.check(); err != nil {
 		return misuse(stderr, err)
+	}
+	var src input
+	if !in.list {
+		if src, err = source(stdin); err != nil {
+			return fail(stderr, err)
+		}
 	}
 	f, err := fejkdata.New(in.options()...)
 	if errors.Is(err, fejkdata.ErrNoData) {
@@ -472,29 +509,39 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		return 0
 	}
-	if err := in.write(f, kind, stdout); err != nil {
-		var te templateError
-		if errors.As(err, &te) {
-			return misuse(stderr, te.error)
-		}
-		fmt.Fprintln(stderr, err)
-		if errors.Is(err, fejkdata.ErrNoColumns) {
-			fmt.Fprintln(stderr, "wrap that JSON in single quotes, which keep a shell from expanding its braces")
-		}
-		return 1
+	if err := in.write(f, src, stdout); err != nil {
+		return fail(stderr, err)
 	}
 	return 0
 }
 
-// templateSplit names the cure for a template a shell split on its spaces, which is
-// what several arguments carrying a token mean.
-func templateSplit(paths []string) string {
-	for _, p := range paths {
-		if strings.Contains(p, "{") {
-			return `; a template's spaces split the argument, so wrap the whole argument in "…", or in '…' where it carries double quotes`
-		}
+// source reads the input from stdin.
+func source(stdin io.Reader) (input, error) {
+	if stdin == nil {
+		return input{}, templateError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint)}
 	}
-	return ""
+	raw, err := io.ReadAll(stdin)
+	if err != nil {
+		return input{}, err
+	}
+	src, err := readInput(string(raw))
+	if err != nil {
+		return input{}, templateError{err}
+	}
+	return src, nil
+}
+
+// fail reports err and returns its exit code: 2 for the input's own fault, else 1.
+func fail(stderr io.Writer, err error) int {
+	var te templateError
+	if errors.As(err, &te) {
+		return misuse(stderr, te.error)
+	}
+	fmt.Fprintln(stderr, err)
+	if errors.Is(err, fejkdata.ErrNoColumns) {
+		fmt.Fprintln(stderr, "wrap that JSON in single quotes, which keep a shell from expanding its braces")
+	}
+	return 1
 }
 
 func misuse(stderr io.Writer, err error) int {
