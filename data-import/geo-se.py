@@ -137,6 +137,8 @@ def population_of(name, municipality, tatorter, municipalities, population):
 
 
 def well_cased(name):
+    """Whether each word of name is capitalised: GeoNames also spells some postorter, such as STOCKHOLM and örebro, in
+    capitals or lower case."""
     return all(part[:1].isupper() and (len(part) == 1 or not part.isupper()) for part in re.split(r"[ -]", name))
 
 
@@ -155,7 +157,7 @@ def localities(codes, tatorter, municipalities, population):
             continue
         lat, lon = point
         out[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, tatorter, municipalities, population), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
-    print(f"municipality by {dict(how)}; {len(by_locality) - len(out)} postorter dropped", file=sys.stderr)
+    print(f"municipality by {dict(how)}; {len(by_locality) - len(out)} postorter dropped before streets", file=sys.stderr)
     return out
 
 

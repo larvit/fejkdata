@@ -1,5 +1,5 @@
 // Package grammar is how the template language is written: format tokens, paths and
-// their selectors, reference sigils, names, calc expressions, and whether an argument is a
+// their selectors, reference sigils, identifiers, calc expressions, and whether an argument is a
 // template or a path. It reads strings only.
 package grammar
 
@@ -122,7 +122,7 @@ func ParseFormat(format string) ([]Token, error) {
 }
 
 // FuncCall splits a "{token}" body shaped name(args) into its parts; ok is false
-// for a name-read body. A '(' without a trailing ')' yields ok=false.
+// for a PathRead body. A '(' without a trailing ')' yields ok=false.
 func FuncCall(body string) (name string, args []string, ok bool) {
 	lp := indexOutside(body, '(')
 	if lp < 0 || !strings.HasSuffix(body, ")") {

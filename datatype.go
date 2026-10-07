@@ -161,8 +161,8 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	return message(c)
 }
 
-// clash is two items of one column holding different datatypes: fix, the item to fix, beside
-// other, which holds want; held says what each holds.
+// clash is two items of one column holding different datatypes: other holds want; held says
+// what each holds.
 type clash struct {
 	fix, other *template
 	want       DataType
