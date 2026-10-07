@@ -571,9 +571,6 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		}
 	}
 	f, err := fejkdata.New(in.options()...)
-	if errors.Is(err, fejkdata.ErrNoData) {
-		return misuse(stderr, errors.New("--no-shipped-data needs at least one --data-path"))
-	}
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
