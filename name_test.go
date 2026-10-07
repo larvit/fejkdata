@@ -190,8 +190,6 @@ func TestNameErrors(t *testing.T) {
 			`no field "zz"`},
 		{"read once through a field path that does not resolve", map[string]string{"card": `{"format":"{place as p}{p.zz}","place":{"format":"{x}","x":["a","b"]}}`},
 			`no field "zz"`},
-		{"read by nothing", map[string]string{"word": `["a","b"]`, "card": `"{/word as w}"`},
-			""},
 		{"one arm read twice in an alternation", map[string]string{"cat": `{"format":"{w|w}","w":["a","b"]}`, "card": `"{/cat as n}{n} {n.w}"`},
 			""},
 		{"a field and a path into it in one alternation", map[string]string{"cat": `{"format":"{w|w.x}","w":{"format":"{x}","x":["a","b"]}}`, "card": `"{/cat as n}{n} {n.w}"`},
@@ -247,28 +245,6 @@ func TestNameErrors(t *testing.T) {
 				t.Fatalf("New() = %v, want an error holding %q", err, c.want)
 			}
 		})
-	}
-}
-
-func TestANameReadOnceLoads(t *testing.T) {
-	for name, files := range map[string]map[string]string{
-		"through a path":                   {"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word as a}{a.w} {/word.w}"`},
-		"whole, bound to a reference path": {"word": `{"format":"{w}","w":["a","b"]}`, "card": `"{/word.w as c}{c} {/word.w}"`},
-		"through a step up":                {"region.json": nameTables()["region.json"], "region.tsv": nameTables()["region.tsv"], "municipality.json": nameTables()["municipality.json"], "municipality.tsv": nameTables()["municipality.tsv"], "card": `"{/municipality as m}{m..region.name}"`},
-		"as a calc operand":                {"word": `["1","2"]`, "card": `"{/word as w}{calc(w * 2)}"`},
-		"whole":                            {"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":"{w}"}`},
-		"whole, as a transform's operand":  {"word": `["a","b"]`, "card": `"{/word as w}{uppercase(w)}"`},
-	} {
-		withJSON := map[string]string{}
-		for file, body := range files {
-			if !strings.Contains(file, ".") {
-				file += ".json"
-			}
-			withJSON[file] = body
-		}
-		if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, withJSON))); err != nil {
-			t.Errorf("%s: New() = %v, want it to load", name, err)
-		}
 	}
 }
 

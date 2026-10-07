@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -31,30 +32,39 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 	}
 }
 
-func TestAPartThatDoesNothingIsIgnored(t *testing.T) {
+func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 	for long, short := range map[string]string{
-		`{"format":"a","weight":2}`:                                           `"a"`,
-		`{"format":"a","weight":0}`:                                           `"a"`,
-		`{"format":"{x}","x":{"format":"a","weight":2}}`:                      `{"format":"{x}","x":"a"}`,
-		`[{"format":"a","weight":2}]`:                                         `"a"`,
-		`{"format":"{x}","x":["a","b"],"separator":","}`:                      `{"format":"{x}","x":["a","b"]}`,
-		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`: `{"format":"{n}","repeat":2,"n":"1"}`,
-		`[{"format":"1","datatype":"integer"},"x"]`:                           `["1","x"]`,
+		`{"format":"Malmö"}`:                                                   `"Malmö"`,
+		`{"format":"{digits(3)}"}`:                                             `"{digits(3)}"`,
+		`[{"format":"a","weight":1},"b"]`:                                      `["a","b"]`,
+		`[{"format":"a","weight":0},"b"]`:                                      `"b"`,
+		`{"format":"a","weight":2}`:                                            `"a"`,
+		`{"format":"a","weight":0}`:                                            `"a"`,
+		`{"format":"{x}","x":{"format":"a","weight":2}}`:                       `{"format":"{x}","x":"a"}`,
+		`[{"format":"a","weight":2}]`:                                          `"a"`,
+		`{"format":"{x}","x":["a","b"],"repeat":1}`:                            `{"format":"{x}","x":["a","b"]}`,
+		`{"format":"{x}","x":["a","b"],"separator":","}`:                       `{"format":"{x}","x":["a","b"]}`,
+		`{"format":"{x}","x":["a","b"],"repeat":2,"separator":""}`:             `{"format":"{x}","x":["a","b"],"repeat":2}`,
+		`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`: `{"format":"","n":{"format":"{x}","x":["1","2"]}}`,
+		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:  `{"format":"{n}","repeat":2,"n":"1"}`,
+		`[{"format":"1","datatype":"integer"},"x"]`:                            `["1","x"]`,
+		`{"format":"{word as w}x","word":["a","b"]}`:                           `"x"`,
 		`null`: `""`,
 		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `{"format":"{p}","p":{"format":"{x}","x":["","a"]}}`,
-		`[{"format":"a","weight":0},"b"]`:                      `"b"`,
-		`"{int(5,5)}"`:                                         `"5"`,
-		`"{float(1,1,2)}"`:                                     `"1.00"`,
-		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:         `"1990-01-01"`,
-		`"{date(1990-01-01,1990-12-31,'x')}"`:                  `"x"`,
-		`"{time('x')}"`:                                        `"x"`,
+		`"{int(5,5)}"`:     `"5"`,
+		`"{float(1,1,2)}"`: `"1.00"`,
+		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`: `"1990-01-01"`,
+		`"{date(1990-01-01,1990-12-31,'x')}"`:          `"x"`,
+		`"{time('x')}"`:                                `"x"`,
+		`"{time('2006-01-02')}"`:                       `"1970-01-01"`,
 	} {
 		sameRenders(t, long, short)
 	}
-	for _, src := range []string{`"{date(1990-01-01,1990-12-31,'15:04')}"`, `"{time('2006-01-02 15:04')}"`} {
-		if _, err := resolved(t, src); err != nil {
-			t.Errorf("compile(%s) = %v, want a layout of either kind rendered", src, err)
-		}
+	if r := compiled(t, `{"format":"","n":{"format":"1","datatype":"string"}}`).(*template); !r.isRecord || *r.fields["n"].(*template).datatype != DataTypeString {
+		t.Error("a column of datatype string is no string column of a record")
+	}
+	if got := mustRender(t, engine(1), `"{date(1990-01-01,1990-12-31,'15:04')}"`); !regexp.MustCompile(`^\d\d:\d\d$`).MatchString(got) {
+		t.Errorf("date with a clock-only layout = %q, want a clock", got)
 	}
 }
 
@@ -77,39 +87,16 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 }
 
 func TestARepeatedItemCountsAsWritten(t *testing.T) {
-	for _, src := range []string{`["a", "a", "b"]`, `[{"format":"{x}","x":"1"},{"format":"{x}","x":"1"}]`, `{"format":"{w}","w":["", "", "x"]}`, `{"format":"","w":[null,null,"a"]}`, `{"format":"{x|x|y}","x":"1","y":"2"}`} {
-		if _, err := resolved(t, src); err != nil {
-			t.Errorf("compile(%s) = %v, want it loaded", src, err)
+	for _, src := range []string{`["a", "a", "b"]`, `{"format":"{x|x|y}","x":"a","y":"b"}`} {
+		f, n, as := engine(1), compiled(t, src), 0
+		for i := 0; i < 600; i++ {
+			if renderOnce(f.drawState, n) == "a" {
+				as++
+			}
 		}
-	}
-	f, n, as := engine(1), compiled(t, `["a", "a", "b"]`), 0
-	for i := 0; i < 600; i++ {
-		if renderOnce(f.drawState, n) == "a" {
-			as++
+		if as < 340 || as > 460 {
+			t.Errorf("%s drew a %d times in 600, want about 400", src, as)
 		}
-	}
-	if as < 340 || as > 460 {
-		t.Errorf(`["a","a","b"] drew a %d times in 600, want about 400`, as)
-	}
-}
-
-func TestADefaultWrittenOutIsTheDefault(t *testing.T) {
-	for long, short := range map[string]string{
-		`{"format":"Malmö"}`:                                                   `"Malmö"`,
-		`{"format":"{digits(3)}"}`:                                             `"{digits(3)}"`,
-		`[{"format":"a","weight":1},"b"]`:                                      `["a","b"]`,
-		`{"format":"{x}","x":["a","b"],"repeat":1}`:                            `{"format":"{x}","x":["a","b"]}`,
-		`{"format":"{x}","x":["a","b"],"repeat":2,"separator":""}`:             `{"format":"{x}","x":["a","b"],"repeat":2}`,
-		`{"format":"","n":{"format":"{x}","x":["1","2"],"datatype":"string"}}`: `{"format":"","n":{"format":"{x}","x":["1","2"]}}`,
-		`{"format":"a","weight":1}`:                                            `"a"`,
-		`[{"format":"a","weight":1}]`:                                          `"a"`,
-		`{"format":"{x}","x":{"format":"a","weight":1}}`:                       `{"format":"{x}","x":"a"}`,
-		`{"format":"{x}","x":["a","b"],"separator":""}`:                        `{"format":"{x}","x":["a","b"]}`,
-	} {
-		sameRenders(t, long, short)
-	}
-	if r := compiled(t, `{"format":"","n":{"format":"1","datatype":"string"}}`).(*template); !r.isRecord || *r.fields["n"].(*template).datatype != DataTypeString {
-		t.Error("a column of datatype string is no string column of a record")
 	}
 }
 

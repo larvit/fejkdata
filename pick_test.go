@@ -127,15 +127,25 @@ func TestAFieldBindingIsRefusedWhereNoFieldIs(t *testing.T) {
 }
 
 func TestANameReadOnceIsWhatItBinds(t *testing.T) {
+	word := `"word":{"format":"{w}","w":["a","b"]}`
 	for long, short := range map[string]string{
 		`{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`: `{"format":"{place.x}","place":{"format":"{x}","x":["a","b"]}}`,
 		`{"format":"{place as p}{p}","place":["x","y"]}`:                        `{"format":"{place}","place":["x","y"]}`,
 		`{"format":"{place as p}{calc(p * 2)}","place":["1","2"]}`:              `{"format":"{calc(place * 2)}","place":["1","2"]}`,
+		`{"format":"{place as p}{uppercase(p)}","place":["x","y"]}`:             `{"format":"{uppercase(place)}","place":["x","y"]}`,
+		`{"format":"{place as p}{x}","x":"{p}","place":["x","y"]}`:              `{"format":"{place}","place":["x","y"]}`,
+		`{"format":"{word as a}{a.w} {word.w}",` + word + `}`:                   `{"format":"{word.w} {word.w}",` + word + `}`,
+		`{"format":"{word.w as c}{c} {word.w}",` + word + `}`:                   `{"format":"{word.w} {word.w}",` + word + `}`,
+		`{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`:       `{"format":"{x.a}|{x}","x":{"format":"{a}","a":["1","2"]}}`,
 	} {
 		sameRenders(t, long, short)
 	}
-	if _, err := resolved(t, `{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`); err != nil {
-		t.Errorf("a name bound in a field and read once above it = %v, want it loaded", err)
+	files := with(nameTables(), map[string]string{"long.json": `"{/municipality as m}{m..region.name}"`, "short.json": `"{/municipality..region.name}"`})
+	a, b := newGenerator(t, writeFiles(t, files), WithSeed(1)), newGenerator(t, writeFiles(t, files), WithSeed(1))
+	for i := 0; i < 20; i++ {
+		if x, y := fake(t, a, "long"), fake(t, b, "short"); x != y {
+			t.Fatalf("a name read once through a step up rendered %q where its path rendered %q", x, y)
+		}
 	}
 }
 

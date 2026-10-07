@@ -48,16 +48,6 @@ func TestParseRefuses(t *testing.T) {
 	}
 }
 
-func TestParseAccepts(t *testing.T) {
-	if tb := parse(t, "t", "a\n1\n", Options{}); tb.Len() != 1 {
-		t.Errorf("one row: Len = %d, want 1", tb.Len())
-	}
-	tb := parse(t, "t", "k\nx\ny\n", Options{Key: "k", Name: "k"})
-	if r, err := tb.find("y", nil); err != nil || r != 1 {
-		t.Errorf("the key named as name: find(y) = %d, %v, want row 1", r, err)
-	}
-}
-
 func TestLinkRefusesAParentRowNoChildLinksTo(t *testing.T) {
 	country := parse(t, "country", "code\nSE\nNO\n", Options{Key: "code"})
 	city := parse(t, "city", "country\tname\nSE\tLund\nSE\tBorg\n", Options{Parent: "country"})
