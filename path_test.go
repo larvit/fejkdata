@@ -184,3 +184,16 @@ func TestFakePathNavigation(t *testing.T) {
 		t.Error("Fake(missing) = nil error, want unknown-category error")
 	}
 }
+
+func TestALeadingSlashIsThePath(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"person": `{"format":"{first}","first":"Ada"}`}), WithSeed(1))
+	for _, path := range []string{"/person", "//person.first"} {
+		if v := fake(t, f, path); v != "Ada" {
+			t.Errorf("Fake(%s) = %q, want Ada", path, v)
+		}
+	}
+	r, err := f.FakeRecord("/person")
+	if err != nil || len(r.Columns()) != 1 || r.Columns()[0].Value != "Ada" {
+		t.Errorf("FakeRecord(/person) = %+v, %v, want the record person", r, err)
+	}
+}

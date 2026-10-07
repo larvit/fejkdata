@@ -117,16 +117,25 @@ func TestANamedFieldInARepeatPicksEachLine(t *testing.T) {
 
 func TestAFieldBindingIsRefusedWhereNoFieldIs(t *testing.T) {
 	for src, want := range map[string]string{
-		`{"format":"{nope as p}{p}{p}","place":"x"}`:                            `no field "nope"`,
-		`{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`: `write {place.x} where it is read`,
-		`{"format":"{place as p}{p}","place":["x","y"]}`:                        `write {place} where it is read`,
-		`{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`:       `write {x.a} where it is read`,
-		`{"format":"{place as p}{calc(p * 2)}","place":["1","2"]}`:              `write place where it is read`,
-		`{"format":"{place as place}{place}{place}","place":["x","y"]}`:         `name "place" is a field of the root template too`,
+		`{"format":"{nope as p}{p}{p}","place":"x"}`:                    `no field "nope"`,
+		`{"format":"{place as place}{place}{place}","place":["x","y"]}`: `name "place" is a field of the root template too`,
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s = %v, want it refused naming %s", src, err, want)
 		}
+	}
+}
+
+func TestANameReadOnceIsWhatItBinds(t *testing.T) {
+	for long, short := range map[string]string{
+		`{"format":"{place as p}{p.x}","place":{"format":"{x}","x":["a","b"]}}`: `{"format":"{place.x}","place":{"format":"{x}","x":["a","b"]}}`,
+		`{"format":"{place as p}{p}","place":["x","y"]}`:                        `{"format":"{place}","place":["x","y"]}`,
+		`{"format":"{place as p}{calc(p * 2)}","place":["1","2"]}`:              `{"format":"{calc(place * 2)}","place":["1","2"]}`,
+	} {
+		sameRenders(t, long, short)
+	}
+	if _, err := resolved(t, `{"format":"{n}|{x}","x":{"format":"{a as n}{a}","a":["1","2"]}}`); err != nil {
+		t.Errorf("a name bound in a field and read once above it = %v, want it loaded", err)
 	}
 }
 

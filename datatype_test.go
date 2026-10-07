@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
+func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 	for _, src := range []string{
 		`{"format":"","age":{"format":"{int(18,99)}","datatype":"integer"}}`,
 		`{"format":"","n":{"format":"42","datatype":"integer"}}`,
@@ -17,20 +17,20 @@ func TestDatatypeAndNullSitOnlyInAColumn(t *testing.T) {
 		`{"format":"","middle":[null,"Ann","Eva"]}`,
 		`{"format":"","age":[null,{"format":"{int(18,99)}","datatype":"integer","weight":9}]}`,
 		`{"format":"","pick":[[null,"a"],"b"]}`,
+		`{"format":"","n":{"format":"-0","datatype":"integer"}}`,
+		`{"format":"","n":{"format":"-0.00","datatype":"number"}}`,
 	} {
 		if _, err := resolved(t, src); err != nil {
 			t.Errorf("compile(%s) = %v, want a column to take a datatype and null", src, err)
 		}
 	}
 	for src, want := range map[string]string{
-		`{"format":"","n":{"format":"1","datatype":"int"}}`:                             `datatype takes "integer", "number" or "boolean", got "int"`,
+		`{"format":"","n":{"format":"1","datatype":"int"}}`:                             `datatype takes "string", "integer", "number" or "boolean", got "int"`,
 		`{"format":"","n":{"format":"1","datatype":1}}`:                                 "datatype must be a string",
 		`{"format":"{int(1,9)}","datatype":"integer"}`:                                  "datatype only types a record column",
 		`[{"format":"1","datatype":"integer"},"x"]`:                                     "datatype only types a record column",
 		`{"format":"{p}","p":{"format":"{n}","n":{"format":"1","datatype":"integer"}}}`: "datatype only types a record column",
 		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:           "datatype only types a record column",
-		`null`: `so write ""`,
-		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `so write ""`,
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)
@@ -89,8 +89,6 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		{"an operand past the limit", `{"format":"{calc(a)}","a":"{digits(400)}","datatype":"number"}`, "is not proven within 1e300"},
 		{"a whole calc past int64", `{"format":"{calc(a * 2)}","a":"{seq()}","datatype":"integer"}`, "{calc(a * 2)} is not proven within int64"},
 		{"a whole float past int64", `{"format":"{float(0,1e19,0)}","datatype":"integer"}`, "{float(0,1e19,0)} is not proven within int64"},
-		{"a signed zero integer", `{"format":"-0","datatype":"integer"}`, `"-0" is zero written with a sign; write "0"`},
-		{"a signed zero number", `{"format":"-0.00","datatype":"number"}`, `"-0.00" is zero written with a sign; write "0.00"`},
 	} {
 		row := `{"format":"","col":` + c.column + `}`
 		files := map[string]string{"row": row}
@@ -223,4 +221,15 @@ func TestNullColumn(t *testing.T) {
 
 func TestDisagreementRefusesTwoTextItems(t *testing.T) {
 	mustPanic(t, "two text items", func() { _ = disagreement(&template{}, DataTypeString, &template{}, DataTypeString) })
+}
+
+func TestASignedZeroIsZero(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"row": `{"format":"","i":{"format":"-0","datatype":"integer"},"n":{"format":"-0.00","datatype":"number"}}`}))
+	r, err := f.FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := r.Columns(); c[0].Value != "-0" || c[1].Value != "-0.00" {
+		t.Errorf("columns = %+v, want each written as its format", c)
+	}
 }

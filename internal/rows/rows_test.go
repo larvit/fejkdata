@@ -34,10 +34,9 @@ func TestParseRefuses(t *testing.T) {
 		want       string
 	}{
 		{"no header", "", Options{}, "no header line"},
-		{"one row", "a\n1\n", Options{}, "has one row"},
+		{"no rows", "a\n", Options{}, "has no rows below its header"},
 		{"a short row", "a\tb\n1\t2\n3\n", Options{}, "line 3 has fewer cells"},
 		{"a repeated key", "k\nx\nx\n", Options{Key: "k"}, `key "x" repeats line 2`},
-		{"the key named as name", "k\nx\ny\n", Options{Key: "k", Name: "k"}, "name names the key column"},
 		{"a weight of zero", "k\tw\nx\t1\ny\t0\n", Options{Weight: "w"}, `weight "0" is not a positive number`},
 		{"a key a selector cannot spell", "k\nx\ny|z\n", Options{Key: "k"}, `contains "|"`},
 		{"an option naming no column", "k\nx\ny\n", Options{Key: "nope"}, `key names no column "nope"`},
@@ -45,6 +44,16 @@ func TestParseRefuses(t *testing.T) {
 		if _, err := Parse("o", "t", "g.t", "t.tsv", c.data, c.o); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: Parse = %v, want %q", c.name, err, c.want)
 		}
+	}
+}
+
+func TestParseAccepts(t *testing.T) {
+	if tb := parse(t, "t", "a\n1\n", Options{}); tb.Len() != 1 {
+		t.Errorf("one row: Len = %d, want 1", tb.Len())
+	}
+	tb := parse(t, "t", "k\nx\ny\n", Options{Key: "k", Name: "k"})
+	if r, err := tb.find("y", nil); err != nil || r != 1 {
+		t.Errorf("the key named as name: find(y) = %d, %v, want row 1", r, err)
 	}
 }
 

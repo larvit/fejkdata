@@ -518,6 +518,19 @@ func TestSelectedRowsAgreeAcrossSpellings(t *testing.T) {
 	}
 }
 
+func TestATableOfOneRowOrNamedByItsKeyLoads(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"one.json": `{"format":"{a}","rows":"one.tsv"}`, "one.tsv": "a\nx\n",
+		"kn.json": `{"format":"{a}","rows":"kn.tsv","key":"a","name":"a"}`, "kn.tsv": "a\nx\ny\n",
+	}), WithSeed(1))
+	if v := fake(t, f, "one"); v != "x" {
+		t.Errorf("one = %q, want its one row", v)
+	}
+	if v := fake(t, f, "kn[y]"); v != "y" {
+		t.Errorf("kn[y] = %q, want the row keyed y", v)
+	}
+}
+
 func TestTableFences(t *testing.T) {
 	base := map[string]string{
 		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
@@ -535,7 +548,6 @@ func TestTableFences(t *testing.T) {
 		"name names no column":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","name":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
 		"weight names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
 		"parent names no column":                       {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
-		"key equals name":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"a"}`, "t.tsv": "a\nx\ny\n"}, "drop"},
 		"duplicate key":                                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx\nx\n"}, `"x"`},
 		"empty key":                                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\tb\n\ty\nx\tz\n"}, "empty"},
 		"a bracket in a key":                           {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a"}`, "t.tsv": "a\nx[1]\ny\n"}, `"["`},
@@ -554,7 +566,6 @@ func TestTableFences(t *testing.T) {
 		"no rows":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n"}, "no rows"},
 		"a blank line after the rows":                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb\nx\t1\ny\t2\n\n"}, "line 4"},
 		"a blank line in one column":                   {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n\ny\n"}, "line 3"},
-		"one row":                                      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n"}, "one row"},
 		"empty file":                                   {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": ""}, "header"},
 		"parent is not a table":                        {map[string]string{"p.json": `"x"`, "t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, "not a table"},
 		"parent does not exist":                        {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","parent":"p"}`, "t.tsv": "a\tp\nx\tx\ny\tx\n"}, `"p"`},
@@ -647,34 +658,15 @@ func TestTableFences(t *testing.T) {
 	}
 }
 
-func TestSameShapedChoiceIsATable(t *testing.T) {
+func TestSameShapedChoiceIsAChoice(t *testing.T) {
 	rows := `[{"format":"{name}","name":"Sweden","alpha2":"SE"},{"format":"{name}","name":"Norway","alpha2":"NO"},{"format":"{name}","name":"Denmark","alpha2":"DK"}]`
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"country": rows})))
-	for _, want := range []string{"country.tsv", `"rows"`, `alpha2\tname`, "3 "} {
-		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Fatalf("New(same-shaped choice) = %v, want it refused mentioning %q", err, want)
-		}
-	}
 	weighted := `[{"format":"{name}","name":"Sweden","weight":2},{"format":"{name}","name":"Norway"}]`
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"country": weighted}))); err == nil || !strings.Contains(err.Error(), "weight") {
-		t.Fatalf("New(weighted same-shaped choice) = %v, want it refused naming a weight column", err)
+	f := newGenerator(t, writeData(t, map[string]string{"country": rows, "weighted": weighted}), WithSeed(1))
+	if v := fake(t, f, "country"); v != "Sweden" && v != "Norway" && v != "Denmark" {
+		t.Fatalf("country = %q, want one of its items", v)
 	}
-	accepted := map[string]string{
-		"nested":            `{"format":"{c}","c":` + rows + `}`,
-		"a choice field":    `[{"format":"{maker} {model}","maker":"BMW","model":["X3","X5"]},{"format":"{maker} {model}","maker":"Ford","model":["Focus","Fiesta"]}]`,
-		"different formats": `[{"format":"{a}-{b}","a":"1","b":"2"},{"format":"{b}-{a}","a":"3","b":"4"}]`,
-		"different fields":  `[{"format":"{a}","a":"1","b":"2"},{"format":"{a}","a":"3"}]`,
-		"a string item":     `[{"format":"{a}","a":"1"},"x"]`,
-		"strings":           `["a","b","c"]`,
-	}
-	for name, json := range accepted {
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"x": json}))); err != nil {
-			t.Errorf("%s: New = %v, want it accepted", name, err)
-		}
-	}
-	f := newGenerator(t, writeData(t, map[string]string{"w": `"x"`}))
-	if _, err := f.NewTemplate(rows); err != nil {
-		t.Fatalf("NewTemplate(same-shaped choice) = %v, want an inline template exempt", err)
+	if v := fake(t, f, "weighted"); v != "Sweden" && v != "Norway" {
+		t.Fatalf("weighted = %q, want one of its items", v)
 	}
 }
 

@@ -107,7 +107,6 @@ func TestFakeTemplateErrors(t *testing.T) {
 		{`"{digits(0)}"`, "must be positive"},
 		{`name: {/no.such.path}`, "no entry"},
 		{`name: {..nope}`, "write {/nope}"},
-		{`{"format":"x"}`, "is a string"},
 	} {
 		_, err := f.FakeTemplate(c.input)
 		if err == nil || !strings.Contains(err.Error(), c.want) {
@@ -124,12 +123,15 @@ func TestFakeTemplateJSONString(t *testing.T) {
 	}
 }
 
-func TestPaddedJSONIsRejected(t *testing.T) {
+func TestPaddedJSONIsTheJSON(t *testing.T) {
 	f := shipped(t)
 	in := `{"format":"{x}","x":["a","b"]}`
-	_, err := f.NewTemplate("  " + in + "  ")
-	if err == nil || !strings.Contains(err.Error(), "write "+in) {
-		t.Fatalf("NewTemplate(padded JSON) = %v, want an error naming the unpadded spelling", err)
+	padded, err := f.NewTemplate(" \t" + in + "\n ")
+	if err != nil {
+		t.Fatalf("NewTemplate(padded JSON) = %v, want the JSON it pads", err)
+	}
+	if got := padded.Fake(); got != "a" && got != "b" {
+		t.Fatalf("padded JSON rendered %q, want a or b with no padding", got)
 	}
 }
 
@@ -150,47 +152,45 @@ func TestNewTemplateReusable(t *testing.T) {
 
 func TestIsTemplate(t *testing.T) {
 	for arg, want := range map[string]bool{
-		"sv_SE.person":    false,
-		"person.last":     false,
-		"name: {x}":       true,
-		`{"format":"x"}`:  true,
-		`["a","b"]`:       true,
-		`[1, 2]`:          true,
-		` ["a","b"]`:      true, // padding is the template's own error, not a shape verdict
-		`"hello"`:         true,
-		"{/a}{/b}":        true,
-		"{/a|/b}":         true,
-		"{uppercase(/a)}": true,
-		"{{/a}}":          true,
-		`"{/a} x"`:        true,
-		"x[1]":            false, // a row selected by key or name
-		"x[St. Louis].y":  false,
+		"sv_SE.person":                           false,
+		"person.last":                            false,
+		"name: {x}":                              true,
+		`{"format":"x"}`:                         true,
+		`["a","b"]`:                              true,
+		`[1, 2]`:                                 true,
+		` ["a","b"]`:                             true, // padding is the template's own error, not a shape verdict
+		`"hello"`:                                true,
+		"{/a}{/b}":                               true,
+		"{/a|/b}":                                true,
+		"{uppercase(/a)}":                        true,
+		"{{/a}}":                                 true,
+		`"{/a} x"`:                               true,
+		"x[1]":                                   false, // a row selected by key or name
+		"x[St. Louis].y":                         false,
+		"{/sv_SE.person.last}":                   true,
+		`"{/sv_SE.person}"`:                      true,
+		"{.person.last}":                         true,
+		` "{/sv_SE.person}"`:                     true,
+		`{"format":"{/sv_SE.person}"}`:           true,
+		"{//sv_SE.person}":                       true,
+		"{/misc.currency[US Dollar (Next day)]}": true,
+		"/sv_SE.person":                          false,
+		"//sv_SE.person":                         false,
 	} {
 		if got, err := IsTemplate(arg); err != nil || got != want {
 			t.Errorf("IsTemplate(%q) = %v, %v; want %v", arg, got, err, want)
 		}
 	}
 	for arg, want := range map[string]string{
-		"[abc]":                                  `starts with "["`,
-		"[abc].field":                            `starts with "["`,
-		"x[1]y":                                  `"]"`,
-		"x[[1]]":                                 `"["`,
-		"x[]":                                    "empty",
-		"a]b":                                    `holds a "]"`,
-		"a}b":                                    `holds a "}"`,
-		`"abc`:                                   `holds a "\""`,
-		`"a]b`:                                   `holds a "\""`, // the opener the reader typed, not the bracket behind it
-		"{/sv_SE.person.last}":                   "{/sv_SE.person.last} is the path sv_SE.person.last written as a template; write sv_SE.person.last",
-		`"{/sv_SE.person}"`:                      "write sv_SE.person",
-		"{.person.last}":                         "write person.last",
-		"/sv_SE.person":                          "write sv_SE.person",
-		` "{/sv_SE.person}"`:                     "write sv_SE.person",
-		`{"format":"{/sv_SE.person}"}`:           "write sv_SE.person",
-		"//sv_SE.person":                         "write sv_SE.person",
-		"{//sv_SE.person}":                       "{//sv_SE.person} is the path sv_SE.person written as a template; write sv_SE.person",
-		"/sv_SE/person":                          `path "sv_SE/person" contains "/"`,
-		"{/-}":                                   `path "-" is reserved`,
-		"{/misc.currency[US Dollar (Next day)]}": "write misc.currency[US Dollar (Next day)]",
+		"[abc]":       `starts with "["`,
+		"[abc].field": `starts with "["`,
+		"x[1]y":       `"]"`,
+		"x[[1]]":      `"["`,
+		"x[]":         "empty",
+		"a]b":         `holds a "]"`,
+		"a}b":         `holds a "}"`,
+		`"abc`:        `holds a "\""`,
+		`"a]b`:        `holds a "\""`, // the opener the reader typed, not the bracket behind it
 	} {
 		if _, err := IsTemplate(arg); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("IsTemplate(%q) = %v; want it rejected naming %s", arg, err, want)
