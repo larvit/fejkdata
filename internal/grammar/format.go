@@ -1,5 +1,5 @@
 // Package grammar is how the template language is written: format tokens, paths and
-// their selectors, reference sigils, identifiers, calc expressions, and whether an argument is a
+// their selectors, reference sigils, identifiers, calc expressions, and whether a string is a
 // template or a path. It reads strings only.
 package grammar
 

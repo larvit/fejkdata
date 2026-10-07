@@ -39,9 +39,9 @@ In [docs/decisions.md](docs/decisions.md):
 - Options and fields share one namespace
 - `{a|b}` stays beside nested choices
 - Flags follow getopt_long
-- A struct tag is a template by its shape, not by a flag
-- The CLI renders the template on its stdin, keeping a format string's every byte
-- A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save the CLI's lone reference until item 129
+- A struct tag is a template by its shape
+- The CLI renders exactly the template on its stdin, and adds nothing
+- A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 - A padded JSON template is rejected, not trimmed
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered

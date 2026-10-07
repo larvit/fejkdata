@@ -79,7 +79,7 @@
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 156 | 0.1.0 | question | **Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "An argument is a template by its shape, not by a flag" does.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
+| 156 | 0.1.0 | question | **Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "A struct tag is a template by its shape" does.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
@@ -120,7 +120,7 @@
 | 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
-| 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how PowerShell 5.1 keeps `Göteborg` from reaching the CLI as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
+| 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
@@ -253,9 +253,9 @@ Goal 5.9. Today a path is a second spelling of the template that reads it; after
 - `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
 - Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in a string field's struct tag and `Fake` alike, as stdin's text does in the CLI: `Fake("sv_SE.person")` returns `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
-- An unknown reference exits 2, where an unknown path exits 1 today.
-- Decide whether a lone reference draws as its path draws today or as a template draws: under one seed, `{/sv_SE.person}` and `{/sv_SE.person} hihi` pick different people.
-- This revises the decisions "A struct tag is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", "The CLI renders the template on its stdin, keeping a format string's every byte", and the exit-1 rule for an unknown path in "A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save the CLI's lone reference until item 129". The README's examples and exit codes, the godoc examples in `doc.go`, the CLI's usage text and header comment, and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
+- A lone reference to nothing exits 2 under `--format`, where it exits 1 today.
+- Decide whether a lone reference under `--format` draws as its path draws today or as a template draws: under one seed, the two pick different rows.
+- This revises the decisions "A struct tag is a template by its shape", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", "The CLI renders exactly the template on its stdin, and adds nothing", and the exit-1 rule for an unknown path in "A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129". The README's examples and exit codes, the godoc examples in `doc.go` and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
 
 Split it into items for the CLI, struct tags and the library before starting.
 
@@ -291,9 +291,9 @@ All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the 
 
 Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
-### 156. Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "An argument is a template by its shape, not by a flag" does.
+### 156. Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "A struct tag is a template by its shape" does.
 
-Goal 5.7 refuses a wrapper around what could stand alone. That decision keeps the JSON string because, as a CLI argument, bare text read as a path; stdin reads bare text as a format string, so `"x {/a}"` and `x {/a}` render alike there and in `NewTemplate`. A JSON string still earns its place where its escapes carry what bare text cannot. The goals audit of the stdin change found it.
+Goal 5.7 refuses a wrapper around what could stand alone. That decision keeps the JSON string so the library's advice `"…"` works where it is printed; stdin reads bare text as a format string, so `"x {/a}"` and `x {/a}` render alike there and in `NewTemplate`. A JSON string still earns its place where its escapes carry what bare text cannot. The goals audit of the stdin change found it.
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 
@@ -450,7 +450,7 @@ On stdin `42` is refused as "a number" and `null` with advice to write `""`, whi
 
 `readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
 
-### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how PowerShell 5.1 keeps `Göteborg` from reaching the CLI as `G?teborg`.
+### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
 A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. The maintainer chose 0.2.0 on 2026-10-07.
 

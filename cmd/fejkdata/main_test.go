@@ -36,11 +36,8 @@ func TestRunOutputsValue(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	if strings.TrimSpace(out) == "" {
-		t.Fatalf("empty output, stderr=%q", errb)
-	}
-	if !strings.HasSuffix(out, "\n") {
-		t.Errorf("output should end with newline, got %q", out)
+	if out == "" || strings.Contains(out, "\n") {
+		t.Fatalf("output = %q, stderr=%q; want one value and nothing added", out, errb)
 	}
 }
 
@@ -93,7 +90,7 @@ func TestRunShortFlagValues(t *testing.T) {
 			t.Errorf("run(%v) = %q, want %q", args, got, want)
 		}
 	}
-	_, three, _ := runOut("{/word}", "-s", "1", "-n3", "-d", svSE)
+	_, three, _ := runOut("{/word}\n", "-s", "1", "-n3", "-d", svSE)
 	if lines := strings.Split(strings.TrimRight(three, "\n"), "\n"); len(lines) != 3 {
 		t.Errorf("-n3 gave %d lines: %q", len(lines), three)
 	}
@@ -177,7 +174,7 @@ func TestRunFlagValues(t *testing.T) {
 }
 
 func TestRunRepeat(t *testing.T) {
-	code, out, errb := runOut("{/word}", "--seed", "1", "--repeat", "3", "--data-path", svSE)
+	code, out, errb := runOut("{/word}\n", "--seed", "1", "--repeat", "3", "--data-path", svSE)
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -185,7 +182,7 @@ func TestRunRepeat(t *testing.T) {
 	if len(lines) != 3 {
 		t.Errorf("repeat=3 gave %d lines: %q", len(lines), out)
 	}
-	_, short, _ := runOut("{/word}", "--seed", "1", "-n", "3", "-d", svSE)
+	_, short, _ := runOut("{/word}\n", "--seed", "1", "-n", "3", "-d", svSE)
 	if short != out {
 		t.Errorf("-n 3 = %q, want the same as --repeat 3 %q", short, out)
 	}
@@ -196,8 +193,8 @@ func TestRunSeparator(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	if n := strings.Count(out, "\n"); n != 1 {
-		t.Errorf("want one trailing newline, got %d: %q", n, out)
+	if n := strings.Count(out, "\n"); n != 0 {
+		t.Errorf("want no newline, got %d: %q", n, out)
 	}
 	if !strings.Contains(out, ",") {
 		t.Errorf("values should be comma-joined: %q", out)
@@ -205,7 +202,7 @@ func TestRunSeparator(t *testing.T) {
 }
 
 func TestRunRepeatAdvancesRNG(t *testing.T) {
-	code, out, errb := runOut("{/person}", "--seed", "1", "--repeat", "5", "--data-path", svSE)
+	code, out, errb := runOut("{/person}\n", "--seed", "1", "--repeat", "5", "--data-path", svSE)
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
@@ -253,12 +250,13 @@ func TestRunTakesNoOperand(t *testing.T) {
 	}{
 		{[]string{"sv_SE.person"}, "echo '{/sv_SE.person}' | fejkdata"},
 		{[]string{"{/sv_SE.person}"}, "echo '{/sv_SE.person}' | fejkdata"},
-		{[]string{"name:", "{/sv_SE.person.last}"}, "echo '{/sv_SE.person}' | fejkdata"},
-		{[]string{"-"}, "drop the -"},
+		{[]string{"name: {/sv_SE.person.last}"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"en_US.address"}, "echo '{/en_US.address}' | fejkdata"},
+		{[]string{"-"}, "drop it"},
 		{[]string{file}, "fejkdata < " + file},
 	} {
 		code, out, errb := runOut("", c.args...)
-		if code != 2 || out != "" || !strings.Contains(errb, "takes no operand") || !strings.Contains(errb, c.want) {
+		if code != 2 || out != "" || !strings.Contains(errb, "unexpected argument") || !strings.Contains(errb, c.want) {
 			t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
 		}
 	}
@@ -287,33 +285,43 @@ func TestRunTerminalStdinIsMisuse(t *testing.T) {
 	}
 }
 
-func TestRunNewlineEndingStdin(t *testing.T) {
+func TestRunRendersExactlyWhatIsSent(t *testing.T) {
 	for stdin, want := range map[string]string{
-		"hihi":                             "hihi\n",
-		"hihi\n":                           "hihi\n\n",
-		"hihi\r\n":                         "hihi\r\n\n",
-		"\n":                               "\n\n",
-		"{{x}}\n":                          "{x}\n\n",
-		"\"a\"\n":                          "a\n",
-		"\"a\"\r\n":                        "a\n",
-		"{/misc.territory[SE].alpha2}\n":   "SE\n",
-		"{/misc.territory[SE].alpha2}\r\n": "SE\n",
+		"hihi":                           "hihi",
+		"hihi\n":                         "hihi\n",
+		"hihi\r\n":                       "hihi\r\n",
+		"hihi\n\n":                       "hihi\n\n",
+		"{{x}}\n":                        "{x}\n",
+		"\"a\"\n":                        "a",
+		" \t\"a\"\r\n\n":                 "a",
+		"{/misc.territory[SE].alpha2}":   "SE",
+		"{/misc.territory[SE].alpha2}\n": "SE\n",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
 		if code != 0 || out != want {
 			t.Errorf("run(%q) = %d, %q, %q; want %q", stdin, code, out, errb, want)
 		}
 	}
-	code, out, errb := runOut("x: {/sv_SE.person.last}\n", "--seed", "1")
-	if code != 0 || !strings.HasPrefix(out, "x: ") || !strings.HasSuffix(out, "\n\n") || strings.Count(out, "\n") != 2 {
-		t.Errorf("echo's format string = %d, %q, %q; want echo's newline, then the line's", code, out, errb)
+	if code, out, errb := runOut("{\"format\":\"{x}\\n\",\"x\":[\"a\",\"b\"]}\n"); code != 0 || (out != "a\n" && out != "b\n") {
+		t.Errorf("a JSON template's format = %d, %q, %q; want its own newline only", code, out, errb)
+	}
+	if code, out, errb := runOut("{/sv_SE.word}\n", "--seed", "1", "-n", "3", "--separator", ","); code != 0 || strings.Count(out, "\n,") != 2 || !strings.HasSuffix(out, "\n") {
+		t.Errorf("echo's newline and a separator = %d, %q, %q; want each render's newline, then the separator", code, out, errb)
+	}
+}
+
+func TestRunRefusesBlankStdin(t *testing.T) {
+	for _, stdin := range []string{"", "\n", " \r\n\t"} {
+		if code, out, errb := runOut(stdin); code != 2 || out != "" || !strings.Contains(errb, "holds no template") {
+			t.Errorf("run(%q) = %d, %q, %q; want misuse naming the empty stdin", stdin, code, out, errb)
+		}
 	}
 }
 
 func TestRunTextPrintsAsWritten(t *testing.T) {
 	for _, stdin := range []string{"sv_SE.person", "[Skåne län]", "x[1]y", `say "hi"`} {
 		code, out, errb := runOut(stdin)
-		if code != 0 || out != stdin+"\n" {
+		if code != 0 || out != stdin {
 			t.Errorf("run(%q) = %d, %q, %q; want the text as written", stdin, code, out, errb)
 		}
 	}
@@ -330,7 +338,7 @@ func TestRunMultipleDataPaths(t *testing.T) {
 }
 
 func TestRunUnknownCategoryFails(t *testing.T) {
-	code, _, errb := runOut("{/nope}", "--data-path", svSE)
+	code, _, errb := runOut("{/nope}", "--data-path", svSE, "--format", "csv")
 	if code != 1 {
 		t.Fatalf("run = %d, want 1", code)
 	}
@@ -394,7 +402,7 @@ func TestRunShippedDataByDefault(t *testing.T) {
 		t.Errorf("--list without --data-path = %d, %q", code, list)
 	}
 	code, _, errb = runOut("{/person}")
-	if code != 1 || !strings.Contains(errb, "person") {
+	if code != 2 || !strings.Contains(errb, "person") {
 		t.Errorf("a category outside the shipped tree: code %d, stderr %q", code, errb)
 	}
 }
@@ -409,17 +417,17 @@ func TestRunSelectsATableRow(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if code, out, errb := runOut("{/region[12]}", "--no-shipped-data", "-d", dir); code != 0 || out != "Skåne län\n" {
+	if code, out, errb := runOut("{/region[12]}", "--no-shipped-data", "-d", dir); code != 0 || out != "Skåne län" {
 		t.Fatalf("{/region[12]} = %d, %q, stderr=%q", code, out, errb)
 	}
-	if code, out, _ := runOut("{/region[Skåne län].code}", "--no-shipped-data", "-d", dir); code != 0 || out != "12\n" {
+	if code, out, _ := runOut("{/region[Skåne län].code}", "--no-shipped-data", "-d", dir); code != 0 || out != "12" {
 		t.Fatalf("{/region[Skåne län].code} = %d, %q", code, out)
 	}
 	if code, out, _ := runOut("{/region[12]}", "--no-shipped-data", "-d", dir, "--format", "sql"); code != 0 || out != `INSERT INTO "region" ("code", "name") VALUES ('12', 'Skåne län');`+"\n" {
 		t.Fatalf("--format sql {/region[12]} = %d, %q, want the table named without its selector", code, out)
 	}
-	if code, _, errb := runOut("{/region[99]}", "--no-shipped-data", "-d", dir); code != 1 || !strings.Contains(errb, `"99"`) {
-		t.Fatalf("{/region[99]} = %d, stderr=%q, want a runtime error naming the row", code, errb)
+	if code, _, errb := runOut("{/region[99]}", "--no-shipped-data", "-d", dir); code != 2 || !strings.Contains(errb, `"99"`) {
+		t.Fatalf("{/region[99]} = %d, stderr=%q, want misuse naming the row", code, errb)
 	}
 	if code, out, _ := runOut("{/misc.territory[SE]}", "--seed", "1", "--format", "csv"); code != 0 || !strings.HasPrefix(out, "alpha2,") || !strings.Contains(out, "\nSE,SWE,") {
 		t.Fatalf("--format csv {/misc.territory[SE]} = %d, %q", code, out)
@@ -437,7 +445,7 @@ func TestUsageReferencesResolve(t *testing.T) {
 
 func TestRunOperandMisuseBeforeLoad(t *testing.T) {
 	code, _, errb := runOut("", "--no-shipped-data", "x")
-	if code != 2 || !strings.Contains(errb, "takes no operand") || strings.Contains(errb, "--data-path") {
+	if code != 2 || !strings.Contains(errb, "unexpected argument") || strings.Contains(errb, "--data-path") {
 		t.Fatalf("an operand with no data = %d, %q; want the operand refused before any load", code, errb)
 	}
 }
@@ -448,19 +456,19 @@ func TestRunInlineTemplate(t *testing.T) {
 		t.Fatalf("inline format string = %d, %q, stderr %q", code, out, errb)
 	}
 	code, out, errb = runOut(`{"format":"name: {x}","x":["bosse","lina"]}`, "--seed", "1")
-	if code != 0 || (out != "name: bosse\n" && out != "name: lina\n") {
+	if code != 0 || (out != "name: bosse" && out != "name: lina") {
 		t.Fatalf("inline JSON template = %d, %q, want one name, stderr %q", code, out, errb)
 	}
 	code, out, errb = runOut(`"name: {/sv_SE.person.last}"`, "--seed", "1")
 	if code != 0 || !strings.HasPrefix(out, "name: ") || strings.Contains(out, "{") {
 		t.Fatalf("inline JSON string = %d, %q, stderr %q", code, out, errb)
 	}
-	code, out, errb = runOut(`{digits(1)}`, "--seed", "1", "-n", "2")
+	code, out, errb = runOut("{digits(1)}\n", "--seed", "1", "-n", "2")
 	if code != 0 || len(strings.Split(strings.TrimRight(out, "\n"), "\n")) != 2 {
 		t.Fatalf("inline template with --repeat = %d, %q, stderr %q", code, out, errb)
 	}
 	code, out, errb = runOut("{/sv_SE.person} hihi", "--seed", "1")
-	if code != 0 || !strings.HasSuffix(out, " hihi\n") || strings.Contains(out, "{") {
+	if code != 0 || !strings.HasSuffix(out, " hihi") || strings.Contains(out, "{") {
 		t.Fatalf("a reference and text = %d, %q, stderr %q", code, out, errb)
 	}
 }
@@ -471,8 +479,6 @@ func TestRunTemplateMisuse(t *testing.T) {
 		`{"format":"x"}`:        "is a string",
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
-		" [\"a\",\"b\"]":        "may not be padded",
-		"[\"a\",\"b\"]\n\n":     "may not be padded",
 		"42":                    "number",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
@@ -520,7 +526,7 @@ func TestRunRepeatIsBounded(t *testing.T) {
 		t.Fatal(err)
 	}
 	code, out, errb := runOut("{/x}", "--no-shipped-data", "-d", dir, "--repeat", "1048576", "--separator", "")
-	if code != 0 || len(out) != 1048576+1 {
+	if code != 0 || len(out) != 1048576 {
 		t.Errorf("repeat at the cap = %d, %d bytes, stderr %q; want every render streamed", code, len(out), errb)
 	}
 }
