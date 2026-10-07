@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 161`
+`Next ID = 162`
 
 | Goal | W |
 |---|---|
@@ -123,6 +123,7 @@
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 161 | 0.2.0 |  | **Refuse an identifier that starts or ends with whitespace, so `{ x as p}` loads as `{x as p}` or every field can be bound to a name.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -464,6 +465,10 @@ The decision "With only the shipped set, a category loads on the first call reac
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
 The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+
+### 161. Refuse an identifier that starts or ends with whitespace, so `{ x as p}` loads as `{x as p}` or every field can be bound to a name.
+
+`grammar/identifier.go` allows a field named ` x`, and `{ x}` reads it, but `checkBind` in `format.go` refuses every padded binding, so no spelling binds that field to a name (goal 4.1), and the refusal names one meaning only (goal 5.6). The goals audit of the narrowed goal 5.7 found it.
 
 ### 112. Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.
 

@@ -118,12 +118,13 @@ const (
 // compileAt compiles a node drawn against no other: no choice's item, or a one-item choice's.
 // A weight there does nothing, bar the default 1 written out.
 func compileAt(v any, pos position) (node, error) {
-	w, err := weightOf(v)
-	if err != nil {
-		return nil, err
+	if o, isObject := v.(map[string]any); isObject {
+		if w, isNumber := o["weight"].(float64); isNumber && w != 1 {
+			return nil, fmt.Errorf(`weight %v skews a draw between items, and nothing here is drawn against this one; drop "weight"`, w)
+		}
 	}
-	if w != 1 {
-		return nil, fmt.Errorf(`weight %v skews a draw between items, and nothing here is drawn against this one; drop "weight"`, w)
+	if _, err := weightOf(v); err != nil {
+		return nil, err
 	}
 	return compileItem(v, pos)
 }
