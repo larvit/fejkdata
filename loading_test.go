@@ -226,23 +226,23 @@ func TestNewErrors(t *testing.T) {
 	}{
 		"separator without repeat": {
 			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
-			"has no effect without a repeat above 1",
+			`drop "separator"`,
 		},
 		"separator with an explicit repeat of 1": {
 			map[string]string{"a": `{"format":"{x}","x":"1","separator":","}`},
-			"has no effect without a repeat above 1",
+			`drop "separator"`,
 		},
 		"weight outside a choice": {
 			map[string]string{"a": `{"format":"x","weight":5}`},
-			"weight only skews a choice's items",
+			`drop "weight"`,
 		},
 		"non-numeric weight outside a choice": {
 			map[string]string{"a": `{"format":"x","weight":"bad"}`},
-			"weight only skews a choice's items",
+			"takes a number, not a string",
 		},
 		"weight used as a field": {
 			map[string]string{"a": `{"format":"{name} {weight}kg","name":"Anvil","weight":["7"]}`},
-			"can never be a field",
+			`a field cannot be named "weight"`,
 		},
 		"an option name used as a token": {
 			map[string]string{"a": `"{weight}"`},

@@ -30,7 +30,9 @@ func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 		`{"format":"{int(1,9)}","datatype":"integer"}`:                                  "datatype only types a record column",
 		`[{"format":"1","datatype":"integer"},"x"]`:                                     "datatype only types a record column",
 		`{"format":"{p}","p":{"format":"{n}","n":{"format":"1","datatype":"integer"}}}`: "datatype only types a record column",
-		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:           "datatype only types a record column",
+		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:           `so it has no effect here; drop "datatype"`,
+		`null`: `so write ""`,
+		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `so write ""`,
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)

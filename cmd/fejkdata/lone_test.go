@@ -22,21 +22,26 @@ func grammarLoneReference(text string) (string, bool) {
 
 func TestLoneReferenceAgreesWithTheGrammar(t *testing.T) {
 	for _, text := range []string{
-		"{/sv_SE.person}",
+		" {/x}",
+		"x",
+		"{.x}",
+		"{/.x}",
+		"{//x}",
+		"{/a...b}",
+		"{/a..b}",
+		"{/a..}",
+		"{/a.[x]}",
+		"{/a.}",
+		"{/a|/b}",
+		"{/a}{/b}",
 		"{/misc.currency[US Dollar (Next day)]}",
+		"{/sv_SE.person}",
 		"{/t[a as b].c}",
 		"{/t[f(x)]}",
-		"{/a}{/b}",
+		"{/x as p}",
+		"{/x(1)}",
 		"{/x}}",
 		"{/}",
-		"{/.x}",
-		" {/x}",
-		"{/a|/b}",
-		"{/x as p}",
-		"{//x}",
-		"{/x(1)}",
-		"{.x}",
-		"x",
 	} {
 		path, lone := loneReference(text)
 		want, wantLone := grammarLoneReference(text)
