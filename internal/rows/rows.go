@@ -94,7 +94,7 @@ func (t *Table[O]) parseRows(data string) error {
 	t.header = strings.Split(header, "\t")
 	t.col = make(map[string]int, len(t.header))
 	for i, name := range t.header {
-		if err := grammar.CheckName(name); err != nil {
+		if err := grammar.CheckIdentifier(name); err != nil {
 			return fmt.Errorf("column %w", err)
 		}
 		if _, dup := t.col[name]; dup {

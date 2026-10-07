@@ -123,7 +123,7 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 		switch o.Kind {
 		case grammar.LiteralRun:
 			b.WriteString(o.Lit)
-		case grammar.NameRead:
+		case grammar.PathRead:
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
 		case grammar.BuiltinCall:
 			var operands []string

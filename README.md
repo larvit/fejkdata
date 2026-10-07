@@ -989,7 +989,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
-internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, names, calc syntax, and whether an argument is a template or a path
+internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether an argument is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes

@@ -167,7 +167,7 @@ func (t *table) compileRowFormat(format string) error {
 		return err
 	}
 	for _, tok := range toks {
-		if tok.Kind != grammar.NameRead {
+		if tok.Kind != grammar.PathRead {
 			continue
 		}
 		for _, name := range tok.Arms {

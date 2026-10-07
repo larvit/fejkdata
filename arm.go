@@ -77,7 +77,7 @@ func checkSegments(a arm) error {
 // or a builtin already prepared with its args.
 type op struct {
 	grammar.Token
-	arms []arm // grammar.NameRead: the '|' alternatives, split into head and tail once
+	arms []arm // grammar.PathRead: the '|' alternatives, split into head and tail once
 	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func
 	// fixed; expand reads them before the call. nil for a builtin that reads none.

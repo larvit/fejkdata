@@ -115,7 +115,7 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 	if err != nil || !holds {
 		return false, err
 	}
-	if err := grammar.CheckName(dir[len(dir)-1]); err != nil {
+	if err := grammar.CheckIdentifier(dir[len(dir)-1]); err != nil {
 		return false, fmt.Errorf("%s: folder %w", s.labelled(s.dirPath(dir)), err)
 	}
 	return true, nil
@@ -140,7 +140,7 @@ func (s Source) compileFile(dir []string, file string, rows *rowsFiles, compile 
 	}
 	full := path.Join(rows.dir, file)
 	name := strings.TrimSuffix(file, ".json")
-	if err := grammar.CheckName(name); err != nil {
+	if err := grammar.CheckIdentifier(name); err != nil {
 		return false, fmt.Errorf("%s: category %w", s.labelled(full), err)
 	}
 	b, err := fs.ReadFile(s.fsys, full)

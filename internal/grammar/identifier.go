@@ -5,18 +5,18 @@ import (
 	"strings"
 )
 
-// reservedInName is what a category, folder or field name may not contain: a dot
+// reservedInIdentifier is what an identifier may not contain: a dot
 // separates the segments of a path, '|' the arms of a token, '(' opens a function
 // call, braces delimit the token, '/' starts a reference, and brackets and a quote
-// open a JSON value. A name carrying one is rejected where it is authored rather
+// open a JSON value. An identifier carrying one is rejected where it is authored rather
 // than where it would be unreachable.
-const reservedInName = ".|({}/[]\""
+const reservedInIdentifier = ".|({}/[]\""
 
-var reservedList = strings.Join(strings.Split(reservedInName, ""), " ")
+var reservedList = strings.Join(strings.Split(reservedInIdentifier, ""), " ")
 
-// CheckName rejects a name the dot path, {token} and JSON grammars cannot spell, or a struct
-// tag cannot read.
-func CheckName(name string) error {
+// CheckIdentifier rejects an identifier, the name of a folder, category, field or column, that the
+// dot path, {token} and JSON grammars cannot spell, or a struct tag cannot read.
+func CheckIdentifier(name string) error {
 	if name == "" {
 		return fmt.Errorf("%q is empty, which is not a path segment, so List never offers it", name)
 	}
@@ -26,21 +26,21 @@ func CheckName(name string) error {
 	if strings.Contains(name, AsWord) {
 		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, AsWord)
 	}
-	if i := strings.IndexAny(name, reservedInName); i >= 0 {
+	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {
 		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
 			name, name[i:i+1], reservedList)
 	}
 	return nil
 }
 
-// CheckPathNames rejects a dotted path with a segment no name may be.
-func CheckPathNames(path string) error {
+// CheckPathIdentifiers rejects a dotted path with a segment no identifier may be.
+func CheckPathIdentifiers(path string) error {
 	segs, err := SplitPath(path)
 	if err != nil {
 		return err
 	}
-	for _, seg := range NameSegments(segs) {
-		if err := CheckName(seg); err != nil {
+	for _, seg := range IdentifierSegments(segs) {
+		if err := CheckIdentifier(seg); err != nil {
 			return fmt.Errorf("path %w", err)
 		}
 	}

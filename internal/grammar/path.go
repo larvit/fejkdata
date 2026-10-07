@@ -150,8 +150,8 @@ func UnspellableInSelector(s string) string {
 	return ""
 }
 
-// NameSegments is the segments of a path that are names, its selectors and ".." left out.
-func NameSegments(segs []string) []string {
+// IdentifierSegments is the segments of a path that are identifiers, its selectors and ".." left out.
+func IdentifierSegments(segs []string) []string {
 	out := segs[:0:0]
 	for _, s := range segs {
 		if !IsSelector(s) && s != ".." {

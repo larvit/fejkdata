@@ -66,7 +66,7 @@ type Token struct {
 	Body string   // the braces' content, as written
 	Fn   string   // BuiltinCall
 	Args []string // BuiltinCall
-	Arms []string // NameRead: the '|' alternatives
+	Arms []string // PathRead: the '|' alternatives
 	// NameBind: the reference it binds, and the name.
 	BoundRef, Bound string
 }
@@ -77,7 +77,7 @@ const (
 	BuiltinCall TokenKind = iota + 1
 	LiteralRun
 	NameBind
-	NameRead
+	PathRead
 )
 
 const AsWord = " as "
@@ -104,7 +104,7 @@ func ParseFormat(format string) ([]Token, error) {
 			return nil
 		}
 		if indexOutside(u.body, '(') < 0 {
-			toks = append(toks, Token{Kind: NameRead, Body: u.body, Arms: splitOutside(u.body, '|')})
+			toks = append(toks, Token{Kind: PathRead, Body: u.body, Arms: splitOutside(u.body, '|')})
 			return nil
 		}
 		name, args, ok := FuncCall(u.body)
