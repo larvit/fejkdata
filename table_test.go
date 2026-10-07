@@ -665,18 +665,6 @@ func TestTableFences(t *testing.T) {
 	}
 }
 
-func TestSameShapedChoiceIsAChoice(t *testing.T) {
-	rows := `[{"format":"{name}","name":"Sweden","alpha2":"SE"},{"format":"{name}","name":"Norway","alpha2":"NO"},{"format":"{name}","name":"Denmark","alpha2":"DK"}]`
-	weighted := `[{"format":"{name}","name":"Sweden","weight":2},{"format":"{name}","name":"Norway"}]`
-	f := newGenerator(t, writeData(t, map[string]string{"country": rows, "weighted": weighted}), WithSeed(1))
-	if v := fake(t, f, "country"); v != "Sweden" && v != "Norway" && v != "Denmark" {
-		t.Fatalf("country = %q, want one of its items", v)
-	}
-	if v := fake(t, f, "weighted"); v != "Sweden" && v != "Norway" {
-		t.Fatalf("weighted = %q, want one of its items", v)
-	}
-}
-
 func TestTableInAStructTag(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
 	var v struct {

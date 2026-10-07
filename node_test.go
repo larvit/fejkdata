@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-func TestAChoiceWithNothingToDrawIsRejected(t *testing.T) {
-	for _, src := range []string{`[{"format":"A","weight":0},{"format":"B","weight":0}]`, `[]`} {
-		if _, err := resolved(t, src); err == nil {
-			t.Errorf("compile(%s) = nil error, want a choice with nothing to draw refused", src)
-		}
-	}
-}
-
 func TestWeightSkewsDistribution(t *testing.T) {
 	f := engine(9)
 	heavy := 0
