@@ -266,8 +266,8 @@ func recordColumns(t *template) []recordColumn {
 		if tok.Kind != grammar.NameBind {
 			continue
 		}
-		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.tail) == 0 && whole[b.start] == nil {
-			whole[b.start] = b
+		if b := t.nameScope.bindings[tok.Bound]; b.bindsField() && len(b.target.tail) == 0 && whole[b.target.start] == nil {
+			whole[b.target.start] = b
 		}
 	}
 	names := sortedNames(t.fields)

@@ -69,21 +69,6 @@ func newPickFrame(scope *nameScope) *pickFrame {
 	return f
 }
 
-// frameStack is the frames of the name scopes rendering, innermost last. A render's env points
-// at it, and a repeat iteration's shares it: holding the frames in a renderEnv would move every
-// render's env to the heap.
-type frameStack struct {
-	frames []*pickFrame
-}
-
-func (st *frameStack) push(f *pickFrame) int {
-	mark := len(st.frames)
-	st.frames = append(st.frames, f)
-	return mark
-}
-
-func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
-
 // scopeAround is the innermost name scope a render of n reads names in, short of the frames n
 // renders itself, one per iteration of a repeat.
 func scopeAround(n node) *nameScope {
@@ -129,7 +114,7 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	if r, done := p.memo.value[a.key()]; done {
 		return r
 	}
-	leaf, pins := p.draw(s, a.named.start, a.steps, a.levels)
+	leaf, pins := p.draw(s, a.named.target.start, a.steps, a.levels)
 	if a.named.bindsField() {
 		return p.renderAt(s, leaf, pins, a.key(), env)
 	}
