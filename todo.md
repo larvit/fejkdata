@@ -79,7 +79,6 @@
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 156 | 0.1.0 | question | **Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "A struct tag is a template by its shape" does.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
@@ -290,10 +289,6 @@ All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the 
 ### 110. Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 
 Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
-
-### 156. Refuse a JSON string whose text stands alone as a format string, `"x {/a}"`, naming the bare text, or keep it as the decision "A struct tag is a template by its shape" does.
-
-Goal 5.7 refuses a wrapper around what could stand alone. That decision keeps the JSON string so the library's advice `"…"` works where it is printed; stdin reads bare text as a format string, so `"x {/a}"` and `x {/a}` render alike there and in `NewTemplate`. A JSON string still earns its place where its escapes carry what bare text cannot. The goals audit of the stdin change found it.
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 
