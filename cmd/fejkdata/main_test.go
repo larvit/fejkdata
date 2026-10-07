@@ -495,8 +495,8 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"42":                    "number",
 		"42\n":                  "number",
 		"true\n":                "boolean",
-		"null\n":                `write ""`,
-		" null ":                `write ""`,
+		"null\n":                "jq",
+		" null ":                "jq",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")

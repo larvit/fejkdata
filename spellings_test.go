@@ -36,6 +36,7 @@ func TestAWeightWithNothingToDrawAgainstIsRejected(t *testing.T) {
 		`{"format":"a","weight":2}`,
 		`{"format":"{x}","x":{"format":"a","weight":2}}`,
 		`[{"format":"a","weight":2}]`,
+		`{"format":"a","weight":0}`,
 	} {
 		_, err := resolved(t, src)
 		if err == nil || !strings.Contains(err.Error(), `drop "weight"`) || strings.Contains(err.Error(), "can never be a field") || strings.Contains(err.Error(), "only skews a choice's items") {
