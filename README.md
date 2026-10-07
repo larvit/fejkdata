@@ -54,7 +54,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, version and data: identical output |
-| `-n`, `--repeat N` | render the template N times (up to 1048576), each an independent draw, streamed |
+| `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, or `[]` under `--format json` |
 | `--separator S` | between repeated renders (default empty); a record `--format` ignores it |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
