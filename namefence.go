@@ -3,24 +3,13 @@ package fejkdata
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// checkNameReads refuses each binding of t that refuseSingleRead refuses, a read of a name inside
-// the field bound to it, and a read {n} beside {n.w} where n's pick renders w twice.
+// checkNameReads refuses a read of a name inside the field bound to it, and a read {n} beside {n.w}
+// where n's pick renders w twice.
 func checkNameReads(label string, t *template, names resolvedNames) error {
-	for _, tok := range t.tokens {
-		if tok.Kind != grammar.NameBind {
-			continue
-		}
-		b := t.nameScope.bindings[tok.Bound]
-		if err := b.refuseSingleRead(names.uses[b]); err != nil {
-			return fmt.Errorf("%s: token {%s}: %w", label, tok.Body, err)
-		}
-	}
 	for _, r := range namedReads(t) {
 		b, target := r.a.named, names.targets[r.a.named]
 		if b.bindsField() && rendersInside(compilePath(target.start, target.tail).leaves, t) {
@@ -60,66 +49,6 @@ func rendersInside(nodes []node, t *template) bool {
 		}
 	}
 	return false
-}
-
-// refuseSingleRead refuses b when its one read sits in b's own scope, not in a repeat nested inside
-// it, at a spot where the bound spelling could stand. That spelling draws the same without the
-// name: write {/word} for {/word as w}{w}. A bound field can stand in only where the reading
-// template reaches the binder through fields. A single read as a calc operand stands where a calc
-// could not read the spelling, a reference or a path. So {/misc.coordinate.lat as lat}{calc(lat * 60)}
-// stands, since {calc(/misc.coordinate.lat * 60)} does not compile.
-// A whole struct tag of that spelling is refused, naming the bare path.
-func (b *nameBinding) refuseSingleRead(uses []nameUse) error {
-	if len(uses) == 0 {
-		panic(invariant.Broken("name %q has no read at resolve, though its compile found one", b.name))
-	}
-	r := uses[0]
-	if len(uses) > 1 || r.nested {
-		return nil
-	}
-	spelling := b.ref
-	if b.bindsField() {
-		down, reaches := fieldPathTo(r.in, b.binder)
-		if !reaches {
-			return nil
-		}
-		spelling = grammar.JoinSegments(append(down, b.ref))
-	}
-	switch {
-	case strings.HasPrefix(r.tail, ".."):
-		spelling += r.tail
-	case r.tail != "":
-		spelling += "." + r.tail
-	}
-	if r.noRef && !calcReads(spelling) {
-		return nil
-	}
-	if !r.operand {
-		spelling = "{" + spelling + "}"
-	}
-	return fmt.Errorf("name %q is read once, so it keeps no pick for another read; write %s where it is read, and drop the token", b.name, spelling)
-}
-
-// fieldPathTo is the fields leading from t down to the template target, if t reaches it so.
-func fieldPathTo(t, target *template) ([]string, bool) {
-	if t == target {
-		return nil, true
-	}
-	for _, name := range sortedNames(t.fields) {
-		if sub, isTemplate := t.fields[name].(*template); isTemplate {
-			if rest, reaches := fieldPathTo(sub, target); reaches {
-				return append([]string{name}, rest...), true
-			}
-		}
-	}
-	return nil, false
-}
-
-// calcReads reports whether a calc reads spelling as one operand.
-func calcReads(spelling string) bool {
-	c, err := grammar.ParseCalc(spelling)
-	v, isVar := c.Expr.(grammar.CalcVar)
-	return err == nil && isVar && v.Name == spelling
 }
 
 // refuseTwiceDrawn refuses read, a read of a name that lands on n, where n renders a field twice and

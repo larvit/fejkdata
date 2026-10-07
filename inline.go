@@ -3,7 +3,6 @@ package fejkdata
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
 )
@@ -55,9 +54,8 @@ func (f *Generator) FakeTemplate(input string) (string, error) {
 
 // IsTemplate reports whether arg is an inline template rather than a path, by its shape: an
 // arg holding a {, or a valid JSON array or string, is a template, and anything else is a
-// path. A path errors where it holds a } or a quote, starts with [, or is no valid path; so
-// do a template of one reference alone, which is a path written as a template, and a path
-// written with a leading /.
+// path. A path errors where it holds a } or a quote, starts with [, or is no valid path. A path
+// may start with /, as a reference does, and every call taking a path drops it.
 func IsTemplate(arg string) (bool, error) {
 	inline, err := grammar.IsTemplate(arg)
 	if err != nil {
@@ -67,24 +65,17 @@ func IsTemplate(arg string) (bool, error) {
 }
 
 func compileInput(input string) (node, error) {
-	v, err := inputValue(input)
-	if err != nil {
-		return nil, err
-	}
-	return compile(v)
+	return compile(inputValue(input))
 }
 
-// inputValue reads an inline template as the value compile takes: the JSON value it holds, or
-// the input itself as a format string when it is not JSON.
-func inputValue(input string) (any, error) {
+// inputValue reads an inline template as the value compile takes: the JSON value it holds, the
+// whitespace around it dropped, or the input itself as a format string when it is not JSON.
+func inputValue(input string) any {
 	var raw any
 	if err := json.Unmarshal([]byte(input), &raw); err != nil {
-		return input, nil
+		return input
 	}
-	if trimmed := strings.TrimSpace(input); trimmed != input {
-		return nil, fmt.Errorf("a JSON template may not be padded with spaces, which a format string would render; write %s", trimmed)
-	}
-	return raw, nil
+	return raw
 }
 
 // loadInline loads the shipped categories n reads, then runs n through the pipeline against root.

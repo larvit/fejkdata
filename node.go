@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"slices"
-	"sort"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -99,68 +96,14 @@ func compile(v any) (node, error) {
 }
 
 // compileCategory compiles a data file's value, which may be a table over a rows
-// file beside it, and refuses a choice that is a table written as templates.
+// file beside it.
 func compileCategory(c datafiles.Category) (node, error) {
 	if m, ok := c.JSON.(map[string]any); ok {
 		if _, isTable := m["rows"]; isTable {
 			return compileTable(m, c.Folders, c.Name, c.ReadRows)
 		}
 	}
-	if items, ok := c.JSON.([]any); ok {
-		if err := checkNotRows(items, c.Name); err != nil {
-			return nil, err
-		}
-	}
 	return compile(c.JSON)
-}
-
-// checkNotRows refuses a choice of templates sharing one format and one set of
-// string fields: each item is a row, and the rows file is the spelling for that.
-// docs/decisions.md#the-choice-of-rows-fence-guards-a-data-files-root-and-requires-string-fields
-func checkNotRows(items []any, name string) error {
-	var format string
-	var fields []string
-	weighted := false
-	for i, raw := range items {
-		f, keys, w, isRow := rowShape(raw)
-		if !isRow || i > 0 && (f != format || !slices.Equal(keys, fields)) {
-			return nil
-		}
-		format, fields, weighted = f, keys, weighted || w
-	}
-	if len(items) < 2 || len(fields) == 0 {
-		return nil
-	}
-	weight := ""
-	if weighted {
-		weight = `, a weight column, and "weight" naming it`
-	}
-	return fmt.Errorf("a choice of %d templates with one format and the fields %v is a table; write the rows in %s.tsv with the header %q%s, and the category as {\"format\": %q, \"rows\": \"%s.tsv\"}",
-		len(items), fields, name, strings.Join(fields, "\t"), weight, format, name)
-}
-
-// rowShape reads a choice item as a row: a template whose every field is a string,
-// with its format, its sorted field names, and whether it carries a weight.
-func rowShape(raw any) (format string, fields []string, weighted, isRow bool) {
-	m, ok := raw.(map[string]any)
-	if !ok {
-		return "", nil, false, false
-	}
-	format, _ = m["format"].(string)
-	for k, v := range m {
-		if k == "weight" {
-			weighted = true
-			continue
-		}
-		if _, isString := v.(string); !isString || isOption(k) && k != "format" {
-			return "", nil, false, false
-		}
-		if k != "format" {
-			fields = append(fields, k)
-		}
-	}
-	sort.Strings(fields)
-	return format, fields, weighted, true
 }
 
 // position is where a JSON value sits, which decides whether it may carry a datatype or
@@ -199,7 +142,7 @@ func compileItem(v any, pos position) (node, error) {
 		return compileTemplate(v, pos)
 	case nil:
 		if pos != inColumn {
-			return nil, fmt.Errorf(`null is a record column's value; here it only renders "", so write ""`)
+			return compileString("")
 		}
 		return &nullItem{}, nil
 	default:
@@ -247,7 +190,10 @@ func compileChoice(items []any, pos position) (node, error) {
 		return nil, fmt.Errorf("empty choice")
 	}
 	if len(items) == 1 {
-		return nil, fmt.Errorf("a one-item choice is its item; write the item")
+		if _, err := weightOf(items[0]); err != nil {
+			return nil, err
+		}
+		return compileItem(items[0], pos)
 	}
 	if err := checkNoRepeatedItem(items); err != nil {
 		return nil, err
@@ -326,9 +272,6 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(fields) == 0 && o.repeat == 1 && !o.weighted && o.datatype == DataTypeString {
-		return nil, fmt.Errorf("an object holding only a format is a string; write %q", o.format)
-	}
 	toks, unbound, err := parseChecked(o.format, fields)
 	if err != nil {
 		return nil, err
@@ -342,7 +285,6 @@ type templateOptions struct {
 	format    string
 	repeat    int
 	separator string
-	weighted  bool
 }
 
 func readOptions(m map[string]any, pos position) (templateOptions, error) {
@@ -367,11 +309,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 		if repeat == 1 {
 			return o, fmt.Errorf("separator joins repeated renders, so it has no effect without a repeat above 1")
 		}
-		if o.separator == "" {
-			return o, fmt.Errorf("separator \"\" is the default, so it has no effect; drop it")
-		}
 	}
-	_, o.weighted = m["weight"]
 	return o, nil
 }
 
@@ -394,7 +332,7 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format
-// is rendered and concatenated. A present one must be an integer above 1.
+// is rendered and concatenated. A present one must be a positive integer.
 func repeatOf(m map[string]any) (int, error) {
 	rv, ok := m["repeat"]
 	if !ok {
@@ -406,9 +344,6 @@ func repeatOf(m map[string]any) (int, error) {
 	}
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 1 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be a positive integer, got %v", rv)
-	}
-	if r == 1 {
-		return 0, fmt.Errorf("repeat 1 is the default, so it has no effect; drop it")
 	}
 	if r > MaxRepeat { // caps the renders one repeat asks for; repeatCheck bounds what nested ones multiply to
 		return 0, fmt.Errorf("repeat %v exceeds the maximum %d", rv, MaxRepeat)
@@ -436,9 +371,6 @@ func weightOf(raw any) (float64, error) {
 	}
 	if w == 0 {
 		return 0, fmt.Errorf("weight 0 means the item is never drawn; remove the item instead")
-	}
-	if w == 1 {
-		return 0, fmt.Errorf("weight 1 is the default, so it has no effect; drop it")
 	}
 	return w, nil
 }

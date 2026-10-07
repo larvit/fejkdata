@@ -144,9 +144,6 @@ func (c *structFields) gatherField(sf reflect.StructField) error {
 	elem := structOf(sf.Type)
 	switch {
 	case tagged && tag == "-":
-		if elem == nil {
-			return fmt.Errorf(`%s.%s: fake:"-" leaves a struct field unfilled, and any other untagged field keeps its value already; drop the tag`, c.label, sf.Name)
-		}
 		return nil
 	case tagged:
 		return c.addTag(sf, tag)
@@ -229,12 +226,13 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 	case err != nil:
 		return nil, err
 	case inline:
-		return inputValue(tag)
+		return inputValue(tag), nil
 	}
-	if err := grammar.CheckPathIdentifiers(tag); err != nil {
+	path := grammar.CallerPath(tag)
+	if err := grammar.CheckPathIdentifiers(path); err != nil {
 		return nil, err
 	}
-	return "{/" + tag + "}", nil
+	return "{/" + path + "}", nil
 }
 
 // checkTaggedType rejects a tagged field no column can fill.

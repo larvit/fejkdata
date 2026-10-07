@@ -45,11 +45,10 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 }
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
-// target, the keys its reads address, and its reads.
+// target, and the keys its reads address.
 type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
 	addressed map[*nameBinding]map[pickKey]string
-	uses      map[*nameBinding][]nameUse
 }
 
 // resolveTemplates resolves ts in steps, each over every template before the next starts. The
@@ -71,7 +70,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 		s.t.compiled = compiled
 	}
-	names := resolvedNames{targets: targets, addressed: addressedKeys(ts, targets), uses: nameUses(ts)}
+	names := resolvedNames{targets: targets, addressed: addressedKeys(ts, targets)}
 	for _, s := range ts {
 		s.t.readsColumn = columnReadOf(s.t, targets)
 	}

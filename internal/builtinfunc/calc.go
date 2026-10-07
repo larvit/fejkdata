@@ -56,7 +56,7 @@ func checkCalc(args []string) error {
 		return fmt.Errorf("calc(%q): %w", args[0], err)
 	}
 	if len(args) == 2 {
-		dp, err := plainInt(args[1])
+		dp, err := intArg(args[1])
 		if err != nil {
 			return fmt.Errorf("calc decimals %w", err)
 		}

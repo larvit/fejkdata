@@ -66,7 +66,7 @@ var builtins = withTransforms(map[string]builtin{
 	}},
 	"date":   {arity: -1, checkArgs: dateArgs, prep: datePrep},
 	"time":   {arity: -1, checkArgs: timeArg, prep: timePrep},
-	CalcName: {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands, noRefOperands: true},
+	CalcName: {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
@@ -148,8 +148,7 @@ func randChars(r rng, n int, alphabet string) string {
 	return string(b)
 }
 
-// plainInt parses an integer arg written the one way: no sign, no leading zero.
-func plainInt(s string) (int, error) {
+func intArg(s string) (int, error) {
 	n, err := strconv.Atoi(s)
 	if errors.Is(err, strconv.ErrRange) {
 		return 0, fmt.Errorf("%q is past the integer range: %w", s, err)
@@ -157,13 +156,10 @@ func plainInt(s string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("%q is not an integer", s)
 	}
-	if strconv.Itoa(n) != s {
-		return 0, fmt.Errorf("%q is not a plain integer; write %d", s, n)
-	}
 	return n, nil
 }
 func posIntArg(a []string) error {
-	n, err := plainInt(a[0])
+	n, err := intArg(a[0])
 	if errors.Is(err, strconv.ErrRange) {
 		return fmt.Errorf("count %q exceeds the maximum %d", a[0], maxLen)
 	}
@@ -179,11 +175,11 @@ func posIntArg(a []string) error {
 	return nil
 }
 func intRangeArgs(a []string) error {
-	lo, err := plainInt(a[0])
+	lo, err := intArg(a[0])
 	if err != nil {
 		return fmt.Errorf("int(min,max): min %w", err)
 	}
-	hi, err := plainInt(a[1])
+	hi, err := intArg(a[1])
 	if err != nil {
 		return fmt.Errorf("int(min,max): max %w", err)
 	}
@@ -204,7 +200,7 @@ func floatArgs(a []string) error {
 	if e1 != nil || e2 != nil {
 		return fmt.Errorf("float(min,max,dp) needs numeric bounds, got %q,%q", a[0], a[1])
 	}
-	dp, err := plainInt(a[2])
+	dp, err := intArg(a[2])
 	if err != nil {
 		return fmt.Errorf("float(min,max,dp): decimals %w", err)
 	}

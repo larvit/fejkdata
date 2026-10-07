@@ -103,7 +103,7 @@ func (t *Table[O]) parseRows(data string) error {
 		t.col[name] = i
 	}
 	if header == data {
-		return fmt.Errorf("has no rows below its header; a table is at least two rows")
+		return fmt.Errorf("has no rows below its header; a table is at least one row")
 	}
 	m := len(t.header)
 	t.cells = make([]string, 0, m*(strings.Count(rest, "\n")+1))
@@ -117,9 +117,6 @@ func (t *Table[O]) parseRows(data string) error {
 			break
 		}
 		rest = more
-	}
-	if t.Len() < 2 {
-		return fmt.Errorf("has one row, which is a template; write it as one")
 	}
 	return nil
 }
@@ -141,13 +138,10 @@ func (t *Table[O]) appendRow(row string, line int) error {
 	return nil
 }
 
-// bindOptions resolves each option to its column, refuses a name option naming the key column, and
-// proves what the options claim of the cells: a key is unique, a weight a positive number.
+// bindOptions resolves each option to its column, and proves what the options claim of the cells: a
+// key is unique, a weight a positive number.
 func (t *Table[O]) bindOptions() error {
 	o := t.options
-	if o.Key != "" && o.Key == o.Name {
-		return fmt.Errorf("name names the key column %q, which a selector already reads; drop it", o.Name)
-	}
 	for _, opt := range []struct {
 		name, value string
 		into        *int

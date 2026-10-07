@@ -45,9 +45,9 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 Under --format text, the default, what you send is what renders, and fejkdata adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
-template is an object, array or string, and the whitespace around it is dropped; 42,
-true or null alone is refused. A quoted heredoc, <<'EOF', passes $, a backslash or a
-quote as written.
+template is an object, array or string, and the whitespace around it is dropped; null
+alone renders nothing, and 42 or true alone is refused. A quoted heredoc, <<'EOF',
+passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/sv_SE.person}:
@@ -410,7 +410,13 @@ func defaultTable(path string) string {
 	if path == "" {
 		return "records"
 	}
-	var names strings.Builder // the path with its [selectors] cut out
+	segments := strings.Split(withoutSelectors(path), ".")
+	return segments[len(segments)-1]
+}
+
+// withoutSelectors is path with its [selectors] cut out.
+func withoutSelectors(path string) string {
+	var names strings.Builder
 	for depth, i := 0, 0; i < len(path); i++ {
 		switch {
 		case path[i] == '[':
@@ -421,8 +427,7 @@ func defaultTable(path string) string {
 			names.WriteByte(path[i])
 		}
 	}
-	segments := strings.Split(names.String(), ".")
-	return segments[len(segments)-1]
+	return names.String()
 }
 
 // inputError marks a failure that is the input's own fault — no template, one that does
@@ -464,23 +469,32 @@ func parseInput(raw string) (input, error) {
 }
 
 // loneReference returns the path that text reads when it is one reference from the root
-// and nothing else, bare or as a JSON string: the path IsTemplate advises writing instead.
+// and nothing else, bare or as a JSON string.
 func loneReference(text string) (string, bool) {
 	var unquoted string
 	if strings.HasPrefix(text, `"`) && strings.HasSuffix(text, `"`) && json.Unmarshal([]byte(text), &unquoted) == nil {
 		text = unquoted
 	}
-	if !strings.HasPrefix(text, "{/") || !strings.HasSuffix(text, "}") {
-		return "", false
-	}
-	if inline, err := fejkdata.IsTemplate(text); inline || err == nil {
-		return "", false
-	}
-	path := text[2 : len(text)-1]
-	if inline, err := fejkdata.IsTemplate(path); inline || err != nil {
+	path, opens := strings.CutPrefix(text, "{/")
+	path, closes := strings.CutSuffix(path, "}")
+	if !opens || !closes || !isPath(path) {
 		return "", false
 	}
 	return path, true
+}
+
+// isPath reports whether a reference's body after its / is a path alone: no second /, no
+// folder sigil, and none of the |, ( or " as " a token reads outside a selector.
+func isPath(body string) bool {
+	if body == "" || strings.ContainsAny(body[:1], "/.") {
+		return false
+	}
+	names := withoutSelectors(body)
+	if strings.ContainsAny(names, "|(") || strings.Contains(names, " as ") {
+		return false
+	}
+	inline, err := fejkdata.IsTemplate(body)
+	return !inline && err == nil
 }
 
 // spacedReference adds to a record refusal that whitespace around a lone reference made

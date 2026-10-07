@@ -28,8 +28,6 @@ type builtin struct {
 	// operands names the fields the call reads, which a render reads for it; nil
 	// for a builtin that reads none.
 	operands func(args []string) []string
-	// noRefOperands says no operand can be a reference.
-	noRefOperands bool
 	// proveNumber bounds the number a call's text reads as, token its body, and says which
 	// datatypes that text is not; set it where every render reads as a finite number, which
 	// makes the call a calc operand, and leave it nil otherwise.
@@ -78,9 +76,6 @@ func Operands(name string, args []string) []string {
 	}
 	return b.operands(args)
 }
-
-// NoRefOperands reports a builtin no operand of which can be a reference.
-func NoRefOperands(name string) bool { return builtins[name].noRefOperands }
 
 // IsTransform reports a builtin that rewrites the text of its one operand.
 func IsTransform(name string) bool {
