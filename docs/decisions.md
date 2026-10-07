@@ -70,9 +70,9 @@ object holding only a format names `"…"`, and that spelling has to work where 
 printed. On stdin and in `NewTemplate`, `"x {/a}"` and `x {/a}` render alike, and the
 maintainer kept the JSON string on 2026-10-07, so goal 5.7 does not refuse it: its escapes,
 `\t` and `\n`, carry what bare text cannot. A struct tag of one reference alone,
-`{/users}`, is refused naming the path `users`: both render the same text, and only the path names a record. A folder-relative
-`{.name}` or `{..name}` is refused naming `{/name}`, since an inline template sits in no
-folder. `IsTemplate` exports the rule, so struct tags and any other caller read one.
+`{/users}`, is refused naming the path `users`: both render the same text, and only the
+path names a record. A folder-relative `{.name}` or `{..name}` is refused naming
+`{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so struct tags and any other caller read one.
 
 ## The CLI renders exactly the template on its stdin, and adds nothing
 
