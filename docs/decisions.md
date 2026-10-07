@@ -85,7 +85,7 @@ adding one: a rule a user states in one sentence, at the cost of `printf` or a
 A JSON template is its JSON, so the whitespace around it is no part of the template, per
 the decision "Whitespace around a JSON template is dropped, in `NewTemplate` and on
 stdin". Stdin holding only whitespace is misuse, since an unset variable sends just a
-newline.
+newline, and so is stdin holding only `null`, which `jq` prints for a missing key.
 
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
 one newline after it allowed, with `users` the default `--table`; one to nothing there
@@ -97,6 +97,14 @@ it likely means, `fejkdata < FILE` for a file's name, dropping it for `-`, and t
 piped in otherwise; so is a terminal with nothing piped in, which would otherwise wait for
 typed input. `--list` prints paths, each read as `{/path}`. Valid while the CLI reads one
 template per run.
+
+## The CLI reads only the library's public API
+
+2026-10-07, Lilleman auf Larv. Serves goal 9.6: a CLI carrying your own modules is a few
+lines of Go and works just like `fejkdata`, so `fejkdata`'s own CLI is such a CLI and
+imports nothing under `internal/`. Where it needs a reading the API does not export yet,
+it copies it, and a test pins the copy to the grammar it copies: `isPath` in
+`cmd/fejkdata`, until `todo.md` item 129 moves the lone reference into the library.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
