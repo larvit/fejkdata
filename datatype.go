@@ -150,35 +150,58 @@ func kindOf(t *template) itemKind {
 // disagreement names the fix for items a and b of one column holding different datatypes, fixing
 // the one that declares least, a when both declare alike.
 func disagreement(a *template, da DataType, b *template, db DataType) error {
-	fix, other, want := a, b, db
+	c := clash{fix: a, other: b, want: db, held: fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)}
 	if kindOf(b) < kindOf(a) {
-		fix, other, want = b, a, da
+		c.fix, c.other, c.want = b, a, da
 	}
-	held := fmt.Sprintf("its items hold %s and %s; a column holds one datatype", da, db)
-	fits := (&valueProof{}).proveColumnItem(fix).Not[want] == ""
-	switch kindOf(fix) {
-	case kindDeclares:
-		return errors.New(held)
-	case kindReads:
-		if fits {
-			return fmt.Errorf("%s, so %s", held, typedAs(fix, want))
-		}
-		return fmt.Errorf("%s, so to read %q as text, %s", held, fix.format, asText(fix))
-	case kindText:
-		switch kindOf(other) {
-		case kindText:
-			panic(invariant.Broken("two text items hold one datatype, so they never disagree"))
-		case kindReads:
-			if !fits {
-				return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, fix.format, datatype.Noun(want), other.format, asText(other))
-			}
-		}
-		if fix.fromString { // an object may carry a weight, which this spelling would drop
-			return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, fix.format, fix.format, want)
-		}
-		return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, fix.format, want, want)
+	message, ok := disagreements[[2]itemKind{kindOf(c.fix), kindOf(c.other)}]
+	if !ok {
+		panic(invariant.Broken("two text items hold one datatype, so they never disagree"))
 	}
-	panic(invariant.Broken("disagreement has no case for item kind %d", kindOf(fix)))
+	return message(c)
+}
+
+// clash is two items of one column holding different datatypes: fix, the item to fix, beside
+// other, which holds want; held says what each holds.
+type clash struct {
+	fix, other *template
+	want       DataType
+	held       string
+}
+
+// disagreements is a clash's message by the kinds of its items, fix's first.
+var disagreements = map[[2]itemKind]func(clash) error{
+	{kindDeclares, kindDeclares}: clash.bothDeclare,
+	{kindReads, kindReads}:       clash.retypeRead,
+	{kindReads, kindDeclares}:    clash.retypeRead,
+	{kindText, kindReads}:        clash.textBesideRead,
+	{kindText, kindDeclares}:     clash.declareText,
+}
+
+func (c clash) bothDeclare() error { return errors.New(c.held) }
+
+// fits reports whether fix may hold want.
+func (c clash) fits() bool { return (&valueProof{}).proveColumnItem(c.fix).Not[c.want] == "" }
+
+func (c clash) retypeRead() error {
+	if c.fits() {
+		return fmt.Errorf("%s, so %s", c.held, typedAs(c.fix, c.want))
+	}
+	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.format, asText(c.fix))
+}
+
+func (c clash) textBesideRead() error {
+	if !c.fits() {
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.format, datatype.Noun(c.want), c.other.format, asText(c.other))
+	}
+	return c.declareText()
+}
+
+func (c clash) declareText() error {
+	if c.fix.fromString { // an object may carry a weight, which this spelling would drop
+		return fmt.Errorf(`item %q declares no datatype, and a column holds one; write it as {"format":%q,"datatype":%q}`, c.fix.format, c.fix.format, c.want)
+	}
+	return fmt.Errorf(`item %q declares no datatype beside one holding %s; a column holds one, so give it "datatype": %q`, c.fix.format, c.want, c.want)
 }
 
 // typedAs names the spelling giving a column-read item datatype d, keeping the other keys an object
