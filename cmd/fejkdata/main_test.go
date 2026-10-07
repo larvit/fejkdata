@@ -249,10 +249,11 @@ func TestRunTakesNoOperand(t *testing.T) {
 		want string
 	}{
 		{[]string{"sv_SE.person"}, "echo '{/sv_SE.person}' | fejkdata"},
-		{[]string{"{/sv_SE.person}"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"{/en_US.person}"}, "echo '{/en_US.person}' | fejkdata"},
 		{[]string{"name: {/sv_SE.person.last}"}, "echo 'name: {/sv_SE.person.last}' | fejkdata"},
 		{[]string{"geo.US.locality[O'Fallon].name"}, `echo '{/geo.US.locality[O'\''Fallon].name}' | fejkdata`},
 		{[]string{"en_US.address"}, "echo '{/en_US.address}' | fejkdata"},
+		{[]string{`C:\temp {/sv_SE.person}`}, `printf '%s' 'C:\temp {/sv_SE.person}' | fejkdata`},
 		{[]string{"-"}, "drop it"},
 		{[]string{file}, "fejkdata < " + file},
 	} {
