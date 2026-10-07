@@ -104,7 +104,7 @@ type columnRead struct {
 // or name, and nil where it does not or t declares a string, which reads the column as text.
 func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
 	ops := t.compiled.ops
-	if t.declared && t.datatype == DataTypeString || t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.PathRead || len(ops[0].arms) != 1 {
+	if t.datatype != nil && *t.datatype == DataTypeString || t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.PathRead || len(ops[0].arms) != 1 {
 		return nil
 	}
 	a := ops[0].arms[0]

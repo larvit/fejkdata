@@ -77,6 +77,7 @@ func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, 
 	reads := map[string]int{}
 	var into []arm
 	for _, o := range t.compiled.ops {
+		heads := map[string]bool{} // one op draws once, whichever arm it takes
 		for _, a := range slices.Concat(o.arms, o.operands) {
 			if grammar.IsRef(a.head) || a.kind == namedRead {
 				continue
@@ -84,7 +85,10 @@ func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, 
 			if _, kept := addressed[key.under(a.key())]; kept {
 				into = append(into, a)
 			}
-			reads[a.head]++
+			heads[a.head] = true
+		}
+		for head := range heads {
+			reads[head]++
 		}
 	}
 	for _, head := range sortedNames(reads) {

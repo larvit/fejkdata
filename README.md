@@ -120,8 +120,8 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 
 `--repeat` streams that many records — `json` frames them as one array document,
 `ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
-per line. Only a category-level template is a record; a field, choice or folder
-errors, and so does a `repeat` on
+per line. Only a category-level template is a record, or a one-item choice of one; a
+field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
 is fine.
@@ -342,7 +342,8 @@ A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
 CLI's `--format` writes. `FakeRecord` and `FakeRecordTemplate` take a record; a
-path or template that is not one — a bare string, a choice, or a folder — errors.
+path or template that is not one — a bare string, a choice of more than one item, or a
+folder — errors.
 
 ```go
 type User struct {
@@ -369,7 +370,8 @@ its own. `fake:"-"` leaves a field unfilled.
 Untagged fields keep their values, and so does a pointer back to a struct already being filled; a type
 whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
 first call for a type compiles its tags and reports what they get wrong, with the same
-error on every later call; a `datatype` in a tag names the Go type that already sets it.
+error on every later call; a `datatype` in a tag other than the one its Go type sets is
+refused, naming that type.
 
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
@@ -427,8 +429,8 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
 writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as written,
 so `["a", "a", "b"]` draws `a` two times in three. Rejected at load: a weight that is
-negative, non-numeric or `0` (never drawn — remove the item), and one where it does
-nothing: outside a choice, or on the item of a one-item choice.
+negative, non-numeric or `0` (never drawn — remove the item), and one other than `1`
+where nothing is drawn against it: outside a choice, or on the item of a one-item choice.
 
 ### Repeat
 
@@ -439,8 +441,8 @@ that many times — each an independent draw — joined by `separator` (default 
 { "format": "{word}", "repeat": 3, "separator": " ", "word": ["foo", "bar", "baz"] }
 ```
 
-Renders e.g. `bar foo baz`. Rejected at load: a `separator` without a `repeat` above
-`1`, and a `repeat` that multiplies to more than 1 048 576 renders along any path of
+Renders e.g. `bar foo baz`. Rejected at load: a `separator` other than `""` without a
+`repeat` above `1`, and a `repeat` that multiplies to more than 1 048 576 renders along any path of
 nested repeats.
 
 ### Datatype
@@ -495,9 +497,9 @@ renders a null as `""`. The other items' weights skew its odds:
 { "format": "", "deleted_at": null, "middle": [null, { "format": "{n}", "n": ["Ann", "Eva"], "weight": 3 }] }
 ```
 
-`deleted_at` is null every draw, `middle` a name three draws in four. Anywhere but a
-column, `null` is `""`. Rejected at load: a column whose items hold different
-datatypes.
+`deleted_at` is null every draw, `middle` a name three draws in four. Rejected at
+load: `null` anywhere but a column, where it only renders `""`, naming `""`, and a
+column whose items hold different datatypes.
 
 ### Table
 
@@ -629,8 +631,10 @@ namespace too.
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
-zeros (`+5` and `05` are `5`); bounds are finite; a sample that could only ever emit one
-value (`int(5,5)`, `float(1,1,2)`) is rejected naming the text to write instead;
+zeros (`+5` and `05` are `5`); bounds are finite; a constant sample — `int` or `float`
+with min equal to max, `date` with from equal to to and a layout with no clock field,
+and a `date` or `time` layout naming no field — is rejected naming the text to write
+instead;
 and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
 time-based id takes its timestamp from the rng, not the clock — so seeded output

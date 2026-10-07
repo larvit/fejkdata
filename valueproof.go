@@ -19,31 +19,32 @@ type valueProof struct {
 // checkDatatype rejects a typed column item some render of which is not text of its datatype.
 func (p *valueProof) checkDatatype(label string, n node) error {
 	t, ok := n.(*template)
-	if !ok || t.datatype == DataTypeString {
+	if !ok || t.datatype == nil || *t.datatype == DataTypeString {
 		return nil
 	}
-	if reason := p.proveColumnItem(t).Not[t.datatype]; reason != "" {
-		return fmt.Errorf("%s: datatype %s: %s", label, t.datatype, reason)
+	if reason := p.proveColumnItem(t).Not[*t.datatype]; reason != "" {
+		return fmt.Errorf("%s: datatype %s: %s", label, *t.datatype, reason)
 	}
 	return nil
 }
 
-// checkField rejects a column a field of Go type ft cannot fill: a datatype, which the Go type
-// sets, a null outside a pointer, or a value its kind's datatype or range refuses.
+// checkField rejects a column a field of Go type ft cannot fill: a datatype other than the one the
+// Go type sets, a null outside a pointer, or a value its kind's datatype or range refuses.
 func (p *valueProof) checkField(label string, ft reflect.Type, column node) error {
-	items, _ := columnItems(column)
-	for _, it := range items {
-		if it.declared {
-			return fmt.Errorf("%s: its Go type %s sets the datatype; drop \"datatype\"", label, ft)
-		}
-	}
 	elem := ft
 	if ft.Kind() == reflect.Pointer {
 		elem = ft.Elem()
-	} else if p.proveColumn(column).Nullable {
-		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
 	}
 	kind := columnKinds[elem.Kind()]
+	items, _ := columnItems(column)
+	for _, it := range items {
+		if it.datatype != nil && *it.datatype != kind.datatype {
+			return fmt.Errorf("%s: its Go type %s sets the datatype %s; drop \"datatype\"", label, ft, kind.datatype)
+		}
+	}
+	if ft.Kind() != reflect.Pointer && p.proveColumn(column).Nullable {
+		return fmt.Errorf("%s: its tag can draw null, which %s cannot hold; make it *%s", label, ft, ft)
+	}
 	if kind.datatype == DataTypeString {
 		return nil
 	}
