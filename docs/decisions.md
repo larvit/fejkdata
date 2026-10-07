@@ -84,7 +84,7 @@ adding one: a rule a user states in one sentence, at the cost of `printf` or a
 A JSON template is its JSON, so the whitespace around it is no part of the template, per
 the decision "Whitespace around a JSON template is dropped, in `NewTemplate` and on
 stdin". Stdin holding only whitespace is misuse, since an unset variable sends just a
-newline, and so is stdin holding only `null`, which `jq` prints for a missing key.
+newline.
 
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
 one newline after it allowed, with `users` the default `--table`; one to nothing there
@@ -119,12 +119,12 @@ until item 129: it reads a path, and only the data is absent.
 
 Padding is where the two readings disagree: a format string renders it, JSON drops it. A
 template that parses as JSON is its JSON, so its padding is dropped, as `encoding/json`
-drops it. Goal 5.7: only an obvious mistake fails to load, and padding around JSON is
-none.
+drops it. Goal 5.7 loads it: it is well-formed and means one thing.
 
 ## A JSON string stays a template even where its bare text renders alike
 
-2026-10-07, Lilleman auf Larv. Serves goal 5.7: only an obvious mistake fails to load.
+2026-10-07, Lilleman auf Larv. Serves goal 5.7: whatever is well-formed and means one thing
+loads.
 
 `"x {/a}"` and `x {/a}` render alike on stdin, in `NewTemplate` and in a struct tag. The
 quotes are no mistake: inside them `\t` and `\n` write a tab or a newline where the
@@ -298,15 +298,6 @@ is sometimes not a number loads, and prints `NaN` on each draw where it is not o
 and `NaN` in a string column work against goals 6.1 and 4 until `todo.md` item 81
 refuses them there too.
 
-## In data, a constant spelled as a sample is a load error
-
-2026-09-24, Lilleman auf Larv; narrowed 2026-10-07. Serves goal 5.7.
-
-`int(5,5)` and `float(1,1,2)` draw nothing, which suggests a range typed wrong, so each is
-rejected naming the constant. A default written out, `weight: 1`, `repeat: 1` or
-`separator: ""`, loads wherever it is written, and a number spelled `+5` or `05` loads as
-`5`, as the CLI's `--seed 007` and `--repeat +3` do.
-
 ## Samples say what they emit, transforms what they do
 
 2026-09-02, Lilleman auf Larv.
@@ -375,7 +366,7 @@ to agree.
 
 A null is one more outcome of a column's draw, so a choice's weights skew it like any
 other; a null-rate option would be a second way to state odds. Outside a record column a
-null never renders as null, so it is refused naming `""` (goal 5.7).
+null renders `""`.
 
 ## A typed column holds one value, not composed text
 
@@ -863,7 +854,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Shipped under the floor by the maintainer's decisions of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk; and narrowing goal 5.7 to the refusals that catch a mistake, dropping the rest, with the scoring run and its ratchet waived for that chunk too.
+Shipped under the floor by the maintainer's decisions of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake, with the scoring run and its ratchet waived for that chunk too.
 
 Last scoring run, 2026-10-07, on commit ad59967: Navigation 7.00, Locality 5.88, Shape 6.50, Self-sufficiency 6.13, overall 6.38. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.06, Shape 6.67, Self-sufficiency 6.56, overall 6.56. Against the runs on ac6158e, the scoring run's overall rose from 6.25 and its Shape from 6.38, while its Self-sufficiency fell from 6.38; the panel's overall held, and its Locality and Self-sufficiency fell by 0.05 each. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `levelKeys` and `addressedKeys` build at load; twelve kept `doc.go`'s vocabulary open beside it. What the two runs found is filed in `todo.md`, and `todo.md` item 153 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
