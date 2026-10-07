@@ -6,55 +6,58 @@ reproducible.
 
 ```sh
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest
-fejkdata sv_SE.person          # Sara Eriksson
+echo -n '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 ## CLI
 
 ```sh
-fejkdata sv_SE.person                          # Sara Eriksson
-fejkdata sv_SE.person.last                     # Eriksson
-fejkdata --seed 42 sv_SE.address               # the same address every run
-fejkdata -n 3 --separator ', ' sv_SE.word      # nät, barn, sol
-fejkdata --list                                # every path the data offers
-fejkdata 'misc.territory[SE].capital'          # Stockholm — a table's row, selected by key or name
-fejkdata 'geo.SE.locality[Lund].street'        # Fjelievägen — a linked table, drawn inside the row
-fejkdata --data-path ./mydata sv_SE.word       # layer a directory over the shipped data
-fejkdata --no-shipped-data -d ./mydata --list  # only your data
-fejkdata 'name: {/sv_SE.person.last}'          # name: <a surname> — an inline template
-fejkdata "{date(1990-01-01,2010-12-31,'2006-01-02')}"  # 2003-11-27 — the argument in "…", the layout in '…'
-fejkdata '{"format":"name: {x}","x":["bosse","lina"]}'  # name: bosse or name: lina
+echo -n '{/sv_SE.person}' | fejkdata                        # Sara Eriksson
+echo -n '{/sv_SE.person.last}' | fejkdata                   # Eriksson
+echo -n '{/sv_SE.person} hihi' | fejkdata                   # Sara Eriksson hihi
+echo -n '{/sv_SE.address}' | fejkdata --seed 42             # the same address every run
+echo -n '{/sv_SE.word}' | fejkdata -n 3 --separator ', '    # nät, barn, sol
+fejkdata --list                                             # every path the data offers
+echo -n '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table's row, selected by key or name
+echo -n '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
+echo -n '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
+fejkdata --no-shipped-data -d ./mydata --list               # only your data
+echo -n "{date(1990-01-01,2010-12-31,'2006-01-02')}" | fejkdata   # 2003-11-27 — the layout in '…'
+echo -n '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata  # name: bosse or name: lina
+fejkdata < template.txt                                     # a template kept in a file
 ```
 
-A path names a category, or a field inside one: each dot segment descends one
-level — folders, then the category (a JSON file), then fields — and `[SE]` after a
-[table](#table) selects its row. An argument that is
-a JSON object, array or string, or that carries a `{` token, is instead an
-**inline template**: a format string or a JSON value compiled and rendered on the
-spot. Its tokens reach the data by reference from the root —
-`{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike
-available. A path never contains a brace or a quote, and a bracket only as a selector
-after a name, so the two spellings cannot collide; which spellings an inline template
-rejects, and what each names instead, is under
-[Decisions](docs/decisions.md#an-argument-is-a-template-by-its-shape-not-by-a-flag).
+fejkdata renders the template on its stdin: a format string, or a JSON object, array or
+string. Its `{…}` tokens reach the data by reference from the root,
+`{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike available,
+and everything outside them prints as written. A reference names a category, or a field
+inside one: each dot segment descends one level — folders, then the category (a JSON
+file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
+these paths; a template reads one as `{/path}`.
+
+One newline ending stdin is dropped, so `echo` and `echo -n`, a file and a heredoc
+render alike; end stdin with two newlines to print one. Whitespace around a JSON
+template is dropped too. Which spellings a template rejects, and what each names
+instead, is under
+[Decisions](docs/decisions.md#the-cli-renders-the-template-on-its-stdin-less-one-newline-ending-it).
 
 | Flag | |
 |------|--|
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, version and data: identical output |
-| `-n`, `--repeat N` | render the value N times (up to 1048576), each an independent draw, streamed |
+| `-n`, `--repeat N` | render the template N times (up to 1048576), each an independent draw, streamed |
 | `--separator S` | between repeated values (default a newline) |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
-| `--table T` | the INSERT target for `--format sql` (default: the path's last segment, or `records` for an inline template) |
+| `--table T` | the INSERT target for `--format sql` (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit |
 | `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
-dir, unknown path), `2` misuse — a bad flag, an argument that names neither a
-template nor a path, or an inline template that does not compile. From a checkout:
+dir, unknown path), `2` misuse — a bad flag, an argument, nothing on stdin, or a
+template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
 ### Your own data
@@ -74,9 +77,9 @@ A category is a JSON file in a directory. Save this as `mydata/sql.json`:
 ```
 
 ```sh
-fejkdata --seed 1 --data-path ./mydata sql
+echo -n '{/sql}' | fejkdata --seed 1 --data-path ./mydata
 # INSERT INTO users VALUES('zoom'),('wahoo'),('blip');
-fejkdata --repeat 100 --data-path ./mydata sql > seed.sql
+echo -n '{/sql}' | fejkdata --repeat 100 --data-path ./mydata > seed.sql
 ```
 
 That `format` string is the free-form spelling — you hand-write the whole row.
@@ -99,14 +102,15 @@ the whole. `--format json|ndjson|csv|sql` writes the records; the library's
 ```
 
 ```sh
-fejkdata --seed 1 --data-path ./mydata --format json users            # [{"first":"Bo","last":"Lovelace"}]
-fejkdata --seed 1 --data-path ./mydata --format ndjson users          # {"first":"Bo","last":"Lovelace"}
-fejkdata --seed 1 --data-path ./mydata --format csv  users            # first,last  →  Bo,Lovelace
-fejkdata --seed 1 --data-path ./mydata --format sql  users            # INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');
-fejkdata --seed 1 --data-path ./mydata --format sql --table people users # INSERT into another table
+echo -n '{/users}' | fejkdata --seed 1 -d ./mydata --format json               # [{"first":"Bo","last":"Lovelace"}]
+echo -n '{/users}' | fejkdata --seed 1 -d ./mydata --format ndjson             # {"first":"Bo","last":"Lovelace"}
+echo -n '{/users}' | fejkdata --seed 1 -d ./mydata --format csv                # first,last  →  Bo,Lovelace
+echo -n '{/users}' | fejkdata --seed 1 -d ./mydata --format sql                # INSERT INTO "users" ("first", "last") VALUES ('Bo', 'Lovelace');
+echo -n '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # INSERT into another table
 ```
 
-`--repeat` streams that many records — `json` frames them as one array document,
+A record is one reference alone, `{/users}`, or a template whose fields are its
+columns. `--repeat` streams that many records — `json` frames them as one array document,
 `ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
 per line. Only a category-level template is a record; a field, choice or folder
 errors, and so does a `repeat` on
@@ -342,7 +346,7 @@ type User struct {
 
 `FakeStruct` fills a struct through a pointer: each exported field tagged `fake:"…"` is
 a column of one record, its tag a path or an inline template — told apart by
-`IsTemplate`, as the CLI tells an argument — and its Go type the column's
+`IsTemplate` — and its Go type the column's
 [datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
 which a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
 kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
@@ -503,11 +507,11 @@ SE	Sweden	10500000
 ```
 
 ```sh
-fejkdata -d ./mydata country                    # Sweden (SE), about half the time
-fejkdata -d ./mydata country.alpha2             # NO
-fejkdata -d ./mydata 'country[SE]'              # Sweden (SE)
-fejkdata -d ./mydata 'country[Norway].alpha2'   # NO
-fejkdata -d ./mydata --format csv country       # alpha2,name,population  →  SE,Sweden,10500000
+echo -n '{/country}' | fejkdata -d ./mydata                  # Sweden (SE), about half the time
+echo -n '{/country.alpha2}' | fejkdata -d ./mydata           # NO
+echo -n '{/country[SE]}' | fejkdata -d ./mydata              # Sweden (SE)
+echo -n '{/country[Norway].alpha2}' | fejkdata -d ./mydata   # NO
+echo -n '{/country}' | fejkdata -d ./mydata --format csv     # alpha2,name,population  →  SE,Sweden,10500000
 ```
 
 `rows` names the TSV beside the category file; `key` names the column a path
@@ -542,8 +546,7 @@ A name naming several rows is an error listing their keys, unless a row selected
 before it settles which ([Linked tables](#linked-tables)). A selector is part of the path, so it works
 wherever a path does: `Fake`, `FakeRecord`, a `{/misc.territory[SE].capital}` reference
 and a struct tag. A dot inside the brackets belongs to the key or name, so
-`city[St. Louis]` selects it. A path starts with a name, and `[` still opens a JSON
-array at the start of a CLI argument, so `'[SE]'` alone names nothing.
+`city[St. Louis]` selects it. A path starts with a name, so `[SE]` alone selects nothing.
 
 ### Linked tables
 
@@ -564,10 +567,10 @@ Stockholm	SE	990000
 ```
 
 ```sh
-fejkdata -d ./mydata 'country[SE].city'      # Stockholm or Göteborg
-fejkdata -d ./mydata country.city.name       # a country drawn, then a city inside it
-fejkdata -d ./mydata 'city[Oslo].country'    # NO — the link column's cell
-fejkdata -d ./mydata '{/city as c}{c.name}, {c..country.name}'   # Oslo, Norway — one city and its country
+echo -n '{/country[SE].city}' | fejkdata -d ./mydata    # Stockholm or Göteborg
+echo -n '{/country.city.name}' | fejkdata -d ./mydata   # a country drawn, then a city inside it
+echo -n '{/city[Oslo].country}' | fejkdata -d ./mydata  # NO — the link column's cell
+echo -n '{/city as c}{c.name}, {c..country.name}' | fejkdata -d ./mydata   # Oslo, Norway — one city and its country
 ```
 
 A path descends from a row to a linked table by name, at any depth, and `--list`
@@ -589,10 +592,10 @@ chain of parents that closes, and a table named like a column of any table above
 after the `..`:
 
 ```sh
-fejkdata -d ./mydata 'city[Oslo]..country.name'       # Norway
-fejkdata -d ./mydata 'city..country'                  # a city drawn, then its country: Sweden (SE)
-fejkdata -d ./mydata 'city[Göteborg]..country.city'   # Stockholm or Göteborg, drawn afresh
-fejkdata -d ./mydata '{/city as c}{c}, {c..country.name}'  # Oslo, Norway
+echo -n '{/city[Oslo]..country.name}' | fejkdata -d ./mydata       # Norway
+echo -n '{/city..country}' | fejkdata -d ./mydata                  # a city drawn, then its country: Sweden (SE)
+echo -n '{/city[Göteborg]..country.city}' | fejkdata -d ./mydata   # Stockholm or Göteborg, drawn afresh
+echo -n '{/city as c}{c}, {c..country.name}' | fejkdata -d ./mydata  # Oslo, Norway
 ```
 
 It steps up from a selected row, a drawn row or a [name](#names) bound to a row, one

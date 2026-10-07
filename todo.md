@@ -70,7 +70,7 @@
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
-| 129 | 0.1.0 |  | **Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.** | 5 | 8 | 8 | 10 | 5.9, 5.7, 7 | 25.0 |
+| 129 | 0.1.0 |  | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 5.7, 7 | 25.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
@@ -240,15 +240,15 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-### 129. Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.
+### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
 Goal 5.9. Today a path is a second spelling of the template that reads it; afterwards only the template remains.
 
-- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is. `--format json '{/users}'` prints the columns of `users`, and `--format csv '{/misc.territory[SE]}'` that row. Under `--format sql` the default `--table` is the reference's last segment with selectors removed, taken from the library's parse of the reference, `territory` for `{/misc.territory[SE]}`, where today a template defaults to `records`.
+- A lone reference, a template of one reference token and nothing else, is what it references, as a record column reading one reference already is: `FakeRecord("{/users}")` returns the columns of `users`. The CLI's `loneReference` then goes, and `--format sql` takes its default `--table` from the library's parse of the reference.
 - `Fake` and `FakeRecord` take a template. `FakeTemplate` folds into `Fake`, `FakeRecordTemplate` into `FakeRecord`, and `IsTemplate` goes, with `grammar.IsTemplate` and the lone-reference refusal.
 - `Fake` of a lone reference costs what `Fake` of its path costs today, and the allocation gate holds a case for it.
 - `List` and `--list` give each entry as the template that renders it, `{/sv_SE.person}`.
-- Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in the CLI, a string field's struct tag and `Fake` alike: `fejkdata sv_SE.person` prints `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
+- Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in a string field's struct tag and `Fake` alike, as stdin's text does in the CLI: `Fake("sv_SE.person")` returns `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
 - An unknown reference exits 2, where an unknown path exits 1 today.
 - The README's CLI section gives one line per shell family, PowerShell and cmd.exe included, showing how to quote a template.
