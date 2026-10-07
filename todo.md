@@ -72,16 +72,13 @@
 | 15 | 0.1.0 |  | **Add the remaining `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 129 | 0.1.0 |  | **Take a template wherever fejkdata renders, so `fejkdata '{/sv_SE.person}'`, `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written.** | 5 | 8 | 8 | 10 | 5.9, 5.7, 7 | 25.0 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 34 | 0.1.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
-| 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
-| 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
 | 147 | 0.1.0 |  | **Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only a prefix of a read's path, and `checkCells`' new name says it compiles.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
@@ -92,7 +89,9 @@
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
+| 34 | 0.2.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
+| 91 | 0.2.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 88 | 0.2.0 |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 2 | 3 | 6 | 6 | 4 | 19.4 |
 | 41 | 0.2.0 | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.5 | 19.1 |
@@ -116,6 +115,7 @@
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 94 | 0.2.0 |  | **Refuse a name whose every read passes one deeper level, naming the binding of that level: `{place as p}{p.geo.town.name} {p.geo.town.zip}` is `{place.geo.town as t}{t.name} {t.zip}`.** | 3 | 3 | 3 | 5 | 5.7 | 10.2 |
@@ -258,10 +258,6 @@ Split it into items for the CLI, struct tags and the library before starting.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
 
-### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
-
-`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
-
 ### 96. Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.
 
 Asked of the maintainer by the product-owner pass of the chunk that made every `{…}` draw afresh. Since every `{…}` draws afresh, `{net} x {qty} = {calc(net * qty, 2)}`, `{place.postal-code} {place.locality}` and struct tags `sv_SE.address.street` beside `sv_SE.address.postal-code` load and may render a pair that disagrees, and nothing tells the author to bind a name (goal 4.1). Goal 5.6 asks such a template to fail, showing `{place as p}{p.postal-code} {p.locality}` for one place and two names for two. The decision "Every `{…}` draws afresh, and only a name keeps a pick" lists the draw checks as names, paths through names, cycles and the repeat cap, so this fence revises it. `{w} {w}`, one spelling twice, stays two draws. The maintainer answered yes on 2026-10-05, for reads inside one category or one struct; reads across categories, `{/city.name}, {/country.name}`, keep loading.
@@ -269,10 +265,6 @@ Asked of the maintainer by the product-owner pass of the chunk that made every `
 ### 153. Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.
 
 The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
-
-### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
-
-A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -293,12 +285,6 @@ Today `fejkdata 'sv_SE.person.'` reports `no field ""`, while `{/sv_SE.person.}`
 ### 10. Test that every node kind reaches each switch over node kinds.
 
 Today nine, from `render` to `columnItems`, must agree, and only `render` and `renderEdges` say so. Three architect seats of the 2026-10-07 panel and scoring run on ad59967 named the switches kept in step by hand.
-
-### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
-
-Needs item 77, which makes an override fail unless it says it replaces.
-
-The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
 ### 148. State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.
 
@@ -346,9 +332,17 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 - Rewrite the README's `--seed` and `WithSeed` rows to goal 10's wording, and name the new required option in the changelog: `New` breaks a second time here, after item 89, as the maintainer accepted.
 - Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
 
+### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
+
+`isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
+
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
 The decision "A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`" lets `{calc(a/(b*c))}` with `b` fixed at `"0"` write `Inf` into every row. An operand that is sometimes not a number prints `NaN`. Both work against goals 6.1 and 4. `valueproof.go` already proves a typed column's divisor nonzero. Once every operand is proven, `neverNumeric` and `constantValue` in `calc.go` go, and with them their reading of `NaN` and `Inf` as numbers, which `proven.Literal` refuses: calc reads text as a number one way.
+
+### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
+
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
@@ -430,6 +424,12 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
+
+### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
+
+Needs item 77, which makes an override fail unless it says it replaces.
+
+The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
