@@ -17,7 +17,7 @@ func TestLiteralSaysWhichDatatypesItsTextIs(t *testing.T) {
 		{"1.5", [datatype.Count]bool{datatype.Integer: true, datatype.Boolean: true}},
 		{"true", [datatype.Count]bool{datatype.Integer: true, datatype.Number: true}},
 		{"007", [datatype.Count]bool{datatype.Integer: true, datatype.Number: true, datatype.Boolean: true}},
-		{"-0", [datatype.Count]bool{datatype.Integer: true, datatype.Number: true, datatype.Boolean: true}},
+		{"-0", [datatype.Count]bool{datatype.Boolean: true}},
 	} {
 		v := Literal(c.text)
 		for d := datatype.Integer; d < datatype.Count; d++ {
@@ -25,9 +25,6 @@ func TestLiteralSaysWhichDatatypesItsTextIs(t *testing.T) {
 				t.Errorf("Literal(%q).Not[%s] = %q", c.text, d, v.Not[d])
 			}
 		}
-	}
-	if v := Literal("-0"); v.Not[datatype.Integer] != `"-0" is zero written with a sign; write "0"` {
-		t.Errorf("Literal(-0) = %q, want the unsigned spelling named", v.Not[datatype.Integer])
 	}
 }
 

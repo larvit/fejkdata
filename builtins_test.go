@@ -398,8 +398,6 @@ func TestBuiltinCompileErrors(t *testing.T) {
 		`"{float(Inf,Inf,2)}"`, // same-sign infinities
 		`"{float(1,NaN,2)}"`,   // one NaN bound
 		`"{float(-Inf,1,2)}"`,  // one infinite bound
-		`"{digits(05)}"`,       // no leading zero
-		`"{int(+1,5)}"`,        // a bound is a plain integer
 		`"{int(5,5)}"`,         // a constant is written as text
 		`"{float(1,1,2)}"`,     // a constant is written as text
 		`"{iban(US)}"`,         // unsupported country
@@ -412,15 +410,20 @@ func TestBuiltinCompileErrors(t *testing.T) {
 }
 
 func TestArgErrorsNameTheSpelling(t *testing.T) {
-	for src, want := range map[string]string{
-		`"{float(1,2,02)}"`:                 "write 2",
-		`{"format":"{calc(a,02)}","a":"1"}`: "write 2",
-		`"{digits(+5)}"`:                    "write 5",
-		`"{hex(99999999999999999999)}"`:     "exceeds the maximum",
-		`"{int(007,9)}"`:                    "write 7",
+	if _, err := resolved(t, `"{hex(99999999999999999999)}"`); err == nil || !strings.Contains(err.Error(), "exceeds the maximum") {
+		t.Errorf("compile(hex past the range) = %v, want the maximum named", err)
+	}
+}
+
+func TestASignOrLeadingZeroIsTheInteger(t *testing.T) {
+	for long, short := range map[string]string{
+		`"{float(1,2,02)}"`:                 `"{float(1,2,2)}"`,
+		`{"format":"{calc(a,02)}","a":"1"}`: `{"format":"{calc(a,2)}","a":"1"}`,
+		`"{digits(+5)}"`:                    `"{digits(5)}"`,
+		`"{digits(05)}"`:                    `"{digits(5)}"`,
+		`"{int(007,9)}"`:                    `"{int(7,9)}"`,
+		`"{int(+1,5)}"`:                     `"{int(1,5)}"`,
 	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error saying %q", src, err, want)
-		}
+		sameRenders(t, long, short)
 	}
 }

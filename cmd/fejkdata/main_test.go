@@ -475,10 +475,20 @@ func TestRunInlineTemplate(t *testing.T) {
 	}
 }
 
+func TestRunFormatTakesOnlyALoneReferenceAsARecord(t *testing.T) {
+	for _, stdin := range []string{"{//sv_SE.person}", "{/sv_SE.person|/misc.uuid}", "{/sv_SE.person as p}", "{/}", "{/.sv_SE.person}"} {
+		if code, out, errb := runOut(stdin, "--format", "json"); code != 2 || out != "" {
+			t.Errorf("run(%q, --format json) = %d, %q, %q; want misuse", stdin, code, out, errb)
+		}
+	}
+	if code, out, errb := runOut(`{"format":"x"}`); code != 0 || out != "x" {
+		t.Errorf(`run({"format":"x"}) = %d, %q, %q; want x`, code, out, errb)
+	}
+}
+
 func TestRunTemplateMisuse(t *testing.T) {
 	for stdin, want := range map[string]string{
 		"{bad":                  "unterminated",
-		`{"format":"x"}`:        "is a string",
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
 		"42":                    "number",

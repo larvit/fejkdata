@@ -54,17 +54,13 @@ func TestNodeCompileErrors(t *testing.T) {
 	// Every structural problem is caught up front, at compile/New time, never
 	// deferred to a random render that happens to hit the bad branch.
 	for _, bad := range []string{
-		`{"x":"Q"}`,                           // object without "format"
-		`{"format":"{y}","x":1}`,              // a field is a bare number
-		`[1, 2]`,                              // a choice of numbers
-		`5`,                                   // unsupported node type
-		`[]`,                                  // empty choice
-		`["x"]`,                               // a one-item choice is its item
-		`["a","a"]`,                           // a repeated item is a weight
-		`{"format":"x"}`,                      // an object holding only a format is a string
-		`[{"format":"a","weight":1},"b"]`,     // weight 1 is the default
-		`{"format":"{x}","x":"v","repeat":1}`, // repeat 1 is the default
-		`[{"format":"A","weight":-1},"B"]`,    // negative weight
+		`{"x":"Q"}`,                        // object without "format"
+		`{"format":"{y}","x":1}`,           // a field is a bare number
+		`[1, 2]`,                           // a choice of numbers
+		`5`,                                // unsupported node type
+		`[]`,                               // empty choice
+		`["a","a"]`,                        // a repeated item is a weight
+		`[{"format":"A","weight":-1},"B"]`, // negative weight
 		`[{"format":"A","weight":0},{"format":"B","weight":0}]`,         // weights sum to zero
 		`[{"format":"A","weight":1e308},{"format":"B","weight":1e308}]`, // weights overflow to +Inf
 		`{"format":"A","weight":"heavy"}`,                               // non-numeric weight
@@ -73,7 +69,6 @@ func TestNodeCompileErrors(t *testing.T) {
 		`{"format":"x","repeat":1.5}`,                                   // non-integer repeat
 		`{"format":"x","repeat":"two"}`,                                 // non-numeric repeat
 		`{"format":"x","repeat":2,"separator":5}`,                       // non-string separator
-		`{"format":"{x}","x":"v","repeat":2,"separator":""}`,            // separator "" is the default
 	} {
 		if _, err := resolved(t, bad); err == nil {
 			t.Errorf("compile(%s) = nil error, want error", bad)

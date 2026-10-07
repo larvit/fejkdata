@@ -222,6 +222,27 @@ func TestFakeStructLeavesAPointerBackAlone(t *testing.T) {
 	}
 }
 
+func TestFakeStructReadsAPathInEachSpelling(t *testing.T) {
+	v := struct {
+		Path   string `fake:"person.first"`
+		Ref    string `fake:"{/person.first}"`
+		Quoted string `fake:"\"{/person.first}\""`
+		Slash  string `fake:"/person.first"`
+		Kept   string `fake:"-"`
+	}{Kept: "kept"}
+	if err := structData(t).FakeStruct(&v); err != nil {
+		t.Fatal(err)
+	}
+	for name, got := range map[string]string{"Path": v.Path, "Ref": v.Ref, "Quoted": v.Quoted, "Slash": v.Slash} {
+		if got != "Ada" && got != "Bo" {
+			t.Errorf("%s = %q, want a first name", name, got)
+		}
+	}
+	if v.Kept != "kept" {
+		t.Errorf(`Kept = %q, want fake:"-" to leave it as it was`, v.Kept)
+	}
+}
+
 func TestFakeStructErrors(t *testing.T) {
 	f := structData(t)
 	for _, c := range []struct {
@@ -288,12 +309,6 @@ func TestFakeStructErrors(t *testing.T) {
 			A string `fake:"nope.x"`
 		}{}, `no entry "nope"`},
 		{&struct {
-			A string `fake:"{/person.first}"`
-		}{}, "is the path person.first written as a template; write person.first"},
-		{&struct {
-			A string `fake:"\"{/person.first}\""`
-		}{}, "is the path person.first written as a template; write person.first"},
-		{&struct {
 			A string `fake:"a|b"`
 		}{}, `contains "|"`},
 		{&struct {
@@ -305,12 +320,6 @@ func TestFakeStructErrors(t *testing.T) {
 		{&struct {
 			A string `fake:"{.person.first} x"`
 		}{}, "write {/person.first}"},
-		{&struct {
-			A string `fake:"/person.first"`
-		}{}, "write person.first"},
-		{&struct {
-			A string `fake:"-"`
-		}{}, `fake:"-" leaves a struct field unfilled`},
 		{&struct{ *structGiven }{}, "an unexported embedded pointer field cannot be set"},
 		{&struct {
 			structGiven
