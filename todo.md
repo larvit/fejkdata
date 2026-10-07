@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 154`
+`Next ID = 156`
 
 | Goal | W |
 |---|---|
@@ -88,6 +88,8 @@
 | 152 | 0.1.0 |  | **Delete the doc lines that restate their code.** | 1 | 2 | 1 | 5 | 3.4 | 9.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
+| 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
+| 155 | 0.2.0 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 2 | 2 | 6 | 7 | 2, 15 | 22.8 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 34 | 0.2.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
@@ -209,7 +211,7 @@ Shape: T = table, t = template, c = choice.
 | `ein` valid ranges | t | IRS | facts |
 | `company` names, suffix, `naics` | t+T | SEC tickers for patterns, NAICS 2022 | public domain |
 | `phone` NANP with valid NPA (the NXX ships as `en_US.phone-exchange`) | t | NANPA rules | facts |
-| `routing` ABA with check, `bankaccount` | t | Fed prefix ranges | facts |
+| `bankaccount` | t | Fed prefix ranges | facts |
 | `licenseplate` per state | T | hand-authored patterns | facts |
 | `car` make, model | T | NHTSA vPIC | public domain |
 | `word`, `sentence`, `paragraph` | T+t | Moby POS or WordNet | public domain / WordNet |
@@ -223,7 +225,7 @@ Shape: T = table, t = template, c = choice.
 |---|---|---|---|
 | `ip` v4 documentation ranges, private, CIDR; `ipv6` `2001:db8::/32`; `mac` locally administered | t | RFC 5737, 1918, 9637 | facts |
 | `creditcard` per network: IIN, length, CVV, expiry | T+t | network rules, `{luhn()}` | facts |
-| `bic`, `isin`, `cusip` | t | structure rules | facts |
+| `bic` | t | structure rules | facts |
 | `ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin`, `sku` | t | check-digit rules, GS1 demo prefix 952 | facts |
 | `product` name, adjective, material, department, `garmentsize` | T/c | LLM-written lists | — |
 | `airport` IATA, ICAO, territory, municipality; `airline`; `aircraft`; `flight`, `seat`, `pnr` | T+t | OurAirports, Wikidata | public domain, CC0 |
@@ -321,6 +323,14 @@ GoReleaser attaches the binaries to the release the tag workflow publishes, and 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
 `iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 4 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
+
+### 154. Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.
+
+Needs item 34. Split from item 16, whose other rows ship in 0.1.0.
+
+### 155. Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.
+
+Needs item 34: `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn. Split from item 15, whose other rows ship in 0.1.0.
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
