@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 157`
+`Next ID = 160`
 
 | Goal | W |
 |---|---|
@@ -74,6 +74,7 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 96 | 0.1.0 |  | **Refuse two reads into one sibling, category or struct category that no name joins, `{place.postal-code} {place.locality}`, showing the spelling for one pick and the one for two.** | 4 | 4 | 7 | 7 | 5.6, 4 | 20.9 |
 | 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
@@ -116,8 +117,10 @@
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 5.7 | 14.1 |
+| 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how PowerShell 5.1 keeps `Göteborg` from reaching the CLI as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
@@ -251,8 +254,8 @@ Goal 5.9. Today a path is a second spelling of the template that reads it; after
 - Text that is not a JSON value and holds no `{…}` prints as written (goal 5.1), in a string field's struct tag and `Fake` alike, as stdin's text does in the CLI: `Fake("sv_SE.person")` returns `sv_SE.person`. `CHANGELOG.md` says that a path with no `{…}` prints as its text. A struct tag's `-` still skips its field.
 - Where text with no `{…}` is refused, as a record or in a typed struct field, and it spells a path the data offers, the error names `{/that.path}`.
 - An unknown reference exits 2, where an unknown path exits 1 today.
-- The README's CLI section gives one line per shell family, PowerShell and cmd.exe included, showing how to quote a template.
-- This revises the decisions "An argument is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", and the exit-1 rule for an unknown path in "An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing". The README's examples and exit codes, the godoc examples in `doc.go`, the CLI's usage text and header comment, and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
+- Decide whether a lone reference draws as its path draws today or as a template draws: under one seed, `{/sv_SE.person}` and `{/sv_SE.person} hihi` pick different people.
+- This revises the decisions "A struct tag is a template by its shape, not by a flag", "`FakeTemplate` and `NewTemplate` both stay", "`--list` stays a plain list of paths", "The CLI renders the template on its stdin, keeping a format string's every byte", and the exit-1 rule for an unknown path in "A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save the CLI's lone reference until item 129". The README's examples and exit codes, the godoc examples in `doc.go`, the CLI's usage text and header comment, and `CHANGELOG.md`'s entries move to the template spelling. Delete items 40 and 110, which this closes.
 
 Split it into items for the CLI, struct tags and the library before starting.
 
@@ -267,6 +270,10 @@ Asked of the maintainer by the product-owner pass of the chunk that made every `
 ### 153. Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.
 
 The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
+
+### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
+
+Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -431,6 +438,10 @@ Require the path step to reach a sibling category.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
+### 159. Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused: `42` names `"42"`.
+
+On stdin `42` is refused as "a number" and `null` with advice to write `""`, which prints nothing; neither names the text the author meant. The goals audit of the stdin change found it.
+
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
@@ -438,6 +449,10 @@ Require the path step to reach a sibling category.
 ### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
 
 `readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
+
+### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how PowerShell 5.1 keeps `Göteborg` from reaching the CLI as `G?teborg`.
+
+A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. The maintainer chose 0.2.0 on 2026-10-07.
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 

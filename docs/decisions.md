@@ -55,41 +55,43 @@ single-dash long flag is rejected naming the double-dash spelling, and `-s=42` i
 rejected naming both short spellings: `=` belongs to the long form, and reading `=42` as
 the value would make `-d=./x` a directory named `=./x`.
 
-## An argument is a template by its shape, not by a flag
+## A struct tag is a template by its shape, not by a flag
 
 2026-09-03, Lilleman auf Larv.
 
 A JSON object, array or string, or a string carrying a `{` token, is an inline template;
 anything else is a path. A name may not contain a brace, a bracket or a quote, so a path
 can never collide with any of those spellings, and the leading `[` or `"` is gated on
-valid JSON so a stray copied bracket never swallows an argument — it names nothing, and
-says so. No `--template` flag is needed. Reserving the characters whole — though only a
-leading one could collide — keeps one simple name rule instead of a leading-position
-special case. The JSON string is what makes the library's own advice reachable: the
-error for an object holding only a format names `"…"`, and that spelling has to work
-where it is printed. A struct tag of one reference alone, `{/users}`, is refused naming
-the path `users`: both render the same text, and only the path names a record. A folder-relative `{.name}` or `{..name}` is refused naming `{/name}`, since an
-inline template sits in no folder. `IsTemplate` exports the rule, so struct tags and any
-other caller read one.
+valid JSON so a stray copied bracket never swallows a tag — it names nothing, and says
+so. No option is needed. Reserving the characters whole — though only a leading one
+could collide — keeps one simple name rule instead of a leading-position special case.
+The JSON string is what makes the library's own advice reachable: the error for an
+object holding only a format names `"…"`, and that spelling has to work where it is
+printed. A struct tag of one reference alone, `{/users}`, is refused naming the path
+`users`: both render the same text, and only the path names a record. A folder-relative
+`{.name}` or `{..name}` is refused naming `{/name}`, since an inline template sits in no
+folder. `IsTemplate` exports the rule, so struct tags and any other caller read one.
 
-## The CLI renders the template on its stdin, less one newline ending it
+## The CLI renders the template on its stdin, keeping a format string's every byte
 
-2026-10-07, Lilleman auf Larv. Serves goals 7 and 7.2.
+2026-10-07, Lilleman auf Larv. Serves goals 7, 7.1 and 7.2.
 
-The CLI takes no path or template as an argument: an argument is misuse, and so is a
-terminal with nothing piped in, which would otherwise wait for typed input. Both errors
-show `echo -n '{/sv_SE.person}' | fejkdata`. One newline ending stdin, `\n` or `\r\n`,
-is dropped, so `echo`, a file and a heredoc render as `echo -n` does; only one, so a
-template that should end in a newline ends stdin with two. The rest of stdin reaches
-`NewTemplate` unchanged, so a padded JSON template is refused there, as goal 5.7 asks.
-One reference from the root and nothing else, `{/users}`, reads the path it names: it
+The template comes from stdin, from `echo`, a file or a heredoc, so one command line gets
+a value and a quoted heredoc needs no escape. The CLI takes no operand: one is misuse
+naming the spelling that reads what it likely means, `fejkdata < FILE` for a file and
+nothing for `-`, and so is a terminal with nothing piped in, which would otherwise wait
+for typed input. A format string keeps every byte, `echo`'s newline included, since
+everything outside `{…}` prints as written. JSON and one reference alone drop one newline
+ending stdin, `\n` or `\r\n`, which neither could print; the rest reaches `NewTemplate`
+unchanged, so a padded JSON template is refused there, as goal 5.7 asks. One reference
+from the root and nothing else, `{/users}` or `"{/users}"`, reads the path it names: it
 renders the same text, and under `--format` it is the record `users`, with `users` the
 default `--table`; one to nothing exits 1, as an unknown path does. That reading sits in
 the CLI against goal 3.2 until `todo.md` item 129 moves it into the library. `--list`
 still prints paths, each read as `{/path}`. Valid while the CLI reads one template per
 run.
 
-## An inline template that does not compile is misuse (exit 2), including a reference that resolves to nothing
+## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save the CLI's lone reference until item 129
 
 2026-09-24, Lilleman auf Larv.
 
@@ -97,9 +99,9 @@ The whole template is the spelling under test, and `NewTemplate` compiles, links
 validates as one step. An unknown *path* stays a runtime error (exit 1): there the
 template is well-formed and only the data is absent.
 
-## A padded JSON argument is rejected, not trimmed
+## A padded JSON template is rejected, not trimmed
 
-2026-09-03, Lilleman auf Larv.
+2026-09-03, Lilleman auf Larv. Serves goal 5.7.
 
 Padding is the one place the two readings disagree — a format string renders it, JSON
 drops it — so the spelling that renders is named rather than silently chosen.

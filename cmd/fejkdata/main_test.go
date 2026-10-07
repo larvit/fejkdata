@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -224,7 +225,6 @@ func TestRunMisuse(t *testing.T) {
 	}{
 		{"", nil},
 		{"", []string{"--data-path", svSE}},
-		{"\n", []string{"--data-path", svSE}},
 		{"{/person}", []string{"-d", svSE, "word"}},
 		{"", []string{"-d", svSE, "--list", "person"}},
 		{"{/sv_SE.person}", []string{"--no-shipped-data"}},
@@ -242,14 +242,36 @@ func TestRunMisuse(t *testing.T) {
 	}
 }
 
-// TestRunTakesNoArgument pins the error for a path or a template given as an argument:
-// it shows the template piped to stdin.
-func TestRunTakesNoArgument(t *testing.T) {
-	for _, args := range [][]string{{"sv_SE.person"}, {"{/sv_SE.person}"}, {"name:", "{/sv_SE.person.last}"}} {
-		code, out, errb := runOut("", args...)
-		if code != 2 || out != "" || !strings.Contains(errb, "stdin") || !strings.Contains(errb, "| fejkdata") {
-			t.Errorf("run(%v) = %d, %q, %q; want misuse showing a template piped to fejkdata", args, code, out, errb)
+func TestRunTakesNoOperand(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "users.tmpl")
+	if err := os.WriteFile(file, []byte("{/sv_SE.person}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"sv_SE.person"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"{/sv_SE.person}"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"name:", "{/sv_SE.person.last}"}, "echo '{/sv_SE.person}' | fejkdata"},
+		{[]string{"-"}, "drop the -"},
+		{[]string{file}, "fejkdata < " + file},
+	} {
+		code, out, errb := runOut("", c.args...)
+		if code != 2 || out != "" || !strings.Contains(errb, "takes no operand") || !strings.Contains(errb, c.want) {
+			t.Errorf("run(%v) = %d, %q, %q; want misuse naming %q", c.args, code, out, errb, c.want)
 		}
+	}
+}
+
+type failingReader struct{}
+
+func (failingReader) Read([]byte) (int, error) { return 0, errors.New("bad file descriptor") }
+
+func TestRunUnreadableStdinIsMisuse(t *testing.T) {
+	var out, errb bytes.Buffer
+	if code := run(nil, failingReader{}, &out, &errb); code != 2 || !strings.Contains(errb.String(), "cannot be read") {
+		t.Errorf("run with an unreadable stdin = %d, %q; want misuse naming it", code, errb.String())
 	}
 }
 
@@ -265,26 +287,26 @@ func TestRunTerminalStdinIsMisuse(t *testing.T) {
 	}
 }
 
-func TestRunDropsOneTrailingNewline(t *testing.T) {
+func TestRunNewlineEndingStdin(t *testing.T) {
 	for stdin, want := range map[string]string{
-		"hihi":         "hihi\n",
-		"hihi\n":       "hihi\n",
-		"hihi\r\n":     "hihi\n",
-		"hihi\n\n":     "hihi\n\n",
-		"hihi\r\n\r\n": "hihi\r\n\n",
-		"a\nb\n":       "a\nb\n",
-		" hihi \n":     " hihi \n",
-		"{{x}}\n":      "{x}\n",
-		"\"a\"\n":      "a\n",
+		"hihi":                             "hihi\n",
+		"hihi\n":                           "hihi\n\n",
+		"hihi\r\n":                         "hihi\r\n\n",
+		"\n":                               "\n\n",
+		"{{x}}\n":                          "{x}\n\n",
+		"\"a\"\n":                          "a\n",
+		"\"a\"\r\n":                        "a\n",
+		"{/misc.territory[SE].alpha2}\n":   "SE\n",
+		"{/misc.territory[SE].alpha2}\r\n": "SE\n",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
 		if code != 0 || out != want {
 			t.Errorf("run(%q) = %d, %q, %q; want %q", stdin, code, out, errb, want)
 		}
 	}
-	code, out, errb := runOut("x: {/sv_SE.person.last}\n\n", "--seed", "1")
+	code, out, errb := runOut("x: {/sv_SE.person.last}\n", "--seed", "1")
 	if code != 0 || !strings.HasPrefix(out, "x: ") || !strings.HasSuffix(out, "\n\n") || strings.Count(out, "\n") != 2 {
-		t.Errorf("a template ending in a newline = %d, %q, %q; want its own newline, then the line's", code, out, errb)
+		t.Errorf("echo's format string = %d, %q, %q; want echo's newline, then the line's", code, out, errb)
 	}
 }
 
@@ -413,10 +435,10 @@ func TestUsageReferencesResolve(t *testing.T) {
 	}
 }
 
-func TestRunArgumentMisuseBeforeLoad(t *testing.T) {
+func TestRunOperandMisuseBeforeLoad(t *testing.T) {
 	code, _, errb := runOut("", "--no-shipped-data", "x")
-	if code != 2 || !strings.Contains(errb, "stdin") || strings.Contains(errb, "--data-path") {
-		t.Fatalf("an argument with no data = %d, %q; want the argument refused before any load", code, errb)
+	if code != 2 || !strings.Contains(errb, "takes no operand") || strings.Contains(errb, "--data-path") {
+		t.Fatalf("an operand with no data = %d, %q; want the operand refused before any load", code, errb)
 	}
 }
 
@@ -452,6 +474,7 @@ func TestRunTemplateMisuse(t *testing.T) {
 		" [\"a\",\"b\"]":        "may not be padded",
 		"[\"a\",\"b\"]\n\n":     "may not be padded",
 		"42":                    "number",
+		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
 		if code != 2 || out != "" || !strings.Contains(errb, "try 'fejkdata --help'") || !strings.Contains(errb, want) {
@@ -602,6 +625,17 @@ func TestRunRecordDefaultTable(t *testing.T) {
 	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "sql", "--data-path", recordDir(t))
 	if code != 0 || !strings.HasPrefix(out, `INSERT INTO "users" (`) {
 		t.Fatalf("default table = %d, %q, want the reference's last segment; stderr %q", code, out, errb)
+	}
+}
+
+func TestRunRecordOfAQuotedLoneReference(t *testing.T) {
+	code, out, errb := runOut(`"{/users}"`, "--seed", "1", "--format", "sql", "--data-path", recordDir(t))
+	if code != 0 || !strings.HasPrefix(out, `INSERT INTO "users" (`) {
+		t.Fatalf("a JSON string holding {/users} = %d, %q, %q; want the record users", code, out, errb)
+	}
+	code, out, errb = runOut("{/users} ", "--format", "csv", "--data-path", recordDir(t))
+	if code != 2 || out != "" || !strings.Contains(errb, "whitespace around {/users}") {
+		t.Errorf("{/users} and a space = %d, %q, %q; want misuse naming the whitespace", code, out, errb)
 	}
 }
 
