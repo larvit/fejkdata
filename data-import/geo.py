@@ -1,4 +1,4 @@
-"""The steps every country's geo import takes."""
+"""The steps a country's geo import may share with another's."""
 import argparse
 import collections
 import math
@@ -9,12 +9,12 @@ DATA = Path(__file__).resolve().parent.parent / "data" / "geo"
 CACHE = Path(__file__).resolve().parent / "cache"
 
 
-def parser(doc, country):
-    """The options every country's import takes; a script adds its own before parse_args."""
+def parser(doc, country, **own):
+    """The options every country's import takes and the script's own, keyed by name with "_" for "-", in name order."""
+    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "streets_per_locality": {"type": int, "default": 10}, **own}
     p = argparse.ArgumentParser(description=doc.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
-    p.add_argument("--out", default=str(DATA / country))
-    p.add_argument("--streets-per-locality", type=int, default=10)
+    for name in sorted(options):
+        p.add_argument("--" + name.replace("_", "-"), **options[name])
     return p
 
 

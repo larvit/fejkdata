@@ -156,7 +156,7 @@ func disagreement(a *template, da DataType, b *template, db DataType) error {
 	}
 	message, ok := disagreements[[2]itemKind{kindOf(c.fix), kindOf(c.other)}]
 	if !ok {
-		panic(invariant.Broken("two text items hold one datatype, so they never disagree"))
+		panic(invariant.Broken("disagreement has no message for item kinds %d and %d; two text items hold one datatype, so they never disagree", kindOf(c.fix), kindOf(c.other)))
 	}
 	return message(c)
 }

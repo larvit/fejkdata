@@ -154,9 +154,7 @@ def streets(cache, counties, locality_of_zcta, per_locality):
 
 
 def main():
-    p = geo.parser(__doc__, "US")
-    p.add_argument("--min-population", type=int, default=25000)
-    a = p.parse_args()
+    a = geo.parser(__doc__, "US", min_population={"type": int, "default": 25000}).parse_args()
     cache, out = geo.directories(a)
 
     state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
