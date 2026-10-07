@@ -61,7 +61,7 @@ one INSERT.
       --list             list the paths the data offers, each written after {/ in a template, then exit;
                          --repeat, --separator, --format and --table do nothing here
       --no-shipped-data  load only the --data-path directories
-  -n, --repeat N         render the template N times, 1..1048576 (default 1)
+  -n, --repeat N         render the template N times, 0..1048576 (default 1)
   -s, --seed N           same seed, version and data: identical output
       --separator S      string between repeated renders (default empty); a record --format ignores it
       --table T          the INSERT target for --format sql, ignored under any other
@@ -103,8 +103,8 @@ var flagDefs = []flagDef{
 	{"no-shipped-data", "", false, func(in *invocation, _ string) error { in.noShipped = true; return nil }},
 	{"repeat", "n", true, func(in *invocation, v string) error {
 		n, err := strconv.Atoi(v)
-		if err != nil || n < 1 || n > fejkdata.MaxRepeat {
-			return fmt.Errorf("--repeat needs an integer in 1..%d, got %q", fejkdata.MaxRepeat, v)
+		if err != nil || n < 0 || n > fejkdata.MaxRepeat {
+			return fmt.Errorf("--repeat needs an integer in 0..%d, got %q", fejkdata.MaxRepeat, v)
 		}
 		in.repeat = n
 		return nil
@@ -370,6 +370,9 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		return err
 	}
 	format := recordFormats[in.format]
+	if in.repeat == 0 {
+		return writeNoRecord(record, format, w)
+	}
 	out := bufio.NewWriter(w)
 	if format.open != "" {
 		out.WriteString(format.open)
@@ -395,6 +398,19 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 	}
 	out.WriteByte('\n')
 	return out.Flush()
+}
+
+// writeNoRecord writes zero records: an empty document where the format frames one, else nothing. It
+// draws one record and drops it, so a lone reference to nothing fails as it would with records.
+func writeNoRecord(record func() (*fejkdata.Record, error), format recordFormat, w io.Writer) error {
+	if _, err := record(); err != nil {
+		return err
+	}
+	if format.open == "" {
+		return nil
+	}
+	_, err := io.WriteString(w, format.open+format.close+"\n")
+	return err
 }
 
 // defaultTable names the INSERT target when --table is absent: the path's last
