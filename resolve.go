@@ -3,7 +3,6 @@ package fejkdata
 import (
 	"fmt"
 
-	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
@@ -43,13 +42,6 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 		return err
 	}
 	return resolveTemplates(ts, root)
-}
-
-// nameTarget is what a binding resolves to in the assembled tree: start, the node its head names, and
-// the path it reads into that node.
-type nameTarget struct {
-	start node
-	tail  []string
 }
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
@@ -94,60 +86,9 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 	}
 	for b, target := range targets {
-		b.nameTarget, b.addressed = target, names.addressed[b]
+		b.target, b.addressed = target, names.addressed[b]
 	}
 	return nil
-}
-
-// nameTargets resolves what each binding of ts binds, from its binder's references.
-func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
-	targets := map[*nameBinding]nameTarget{}
-	for _, s := range ts {
-		for _, tok := range s.t.tokens {
-			if tok.Kind == grammar.NameBind {
-				a := splitArm(tok.BoundRef, s.t.refs.byName)
-				targets[s.t.nameScope.bindings[tok.Bound]] = nameTarget{start: s.t.startOf(a.head), tail: a.tail}
-			}
-		}
-	}
-	return targets
-}
-
-// addressedKeys is every key the reads of each name in ts land on or pass, from the name's own
-// level, with the spelling of the first read reaching it.
-func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
-	keys := map[*nameBinding]map[pickKey]string{}
-	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
-			b := r.a.named
-			if keys[b] == nil {
-				keys[b] = map[pickKey]string{}
-			}
-			for _, key := range r.a.levels[len(targets[b].tail):] {
-				if _, seen := keys[b][key]; !seen {
-					keys[b][key] = r.a.spelling
-				}
-			}
-		}
-	}
-	return keys
-}
-
-func nameUses(ts []templateSite) map[*nameBinding][]nameUse {
-	uses := map[*nameBinding][]nameUse{}
-	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
-			b := r.a.named
-			uses[b] = append(uses[b], nameUse{
-				tail:    grammar.JoinSegments(r.a.tail),
-				in:      s.t,
-				operand: r.operand,
-				noRef:   r.operand && builtinfunc.NoRefOperands(r.o.Fn),
-				nested:  s.t.nameScope != b.scope,
-			})
-		}
-	}
-	return uses
 }
 
 // columnRead is a record's column read by a format that only reads one reference or name,

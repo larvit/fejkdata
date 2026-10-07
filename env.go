@@ -11,6 +11,21 @@ type readValue struct {
 	null bool
 }
 
+// frameStack is the frames of the name scopes rendering, innermost last. A render's env points
+// at it, and a repeat iteration's shares it: holding the frames in a renderEnv would move every
+// render's env to the heap.
+type frameStack struct {
+	frames []*pickFrame
+}
+
+func (st *frameStack) push(f *pickFrame) int {
+	mark := len(st.frames)
+	st.frames = append(st.frames, f)
+	return mark
+}
+
+func (st *frameStack) pop(mark int) { st.frames = st.frames[:mark] }
+
 // renderEnv is where a render reads: the frames of the name scopes rendering; and row, the row
 // of the table rendering, which its columns read. It passes by value, and what is read from it
 // reaches a map key, an interface or a func value only as a copy; else env, and with it every
