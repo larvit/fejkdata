@@ -31,16 +31,47 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 	}
 }
 
-func TestAWeightWithNothingToDrawAgainstIsRejected(t *testing.T) {
-	for _, src := range []string{
-		`{"format":"a","weight":2}`,
-		`{"format":"{x}","x":{"format":"a","weight":2}}`,
-		`[{"format":"a","weight":2}]`,
-		`{"format":"a","weight":0}`,
+func TestAPartThatDoesNothingIsIgnored(t *testing.T) {
+	for long, short := range map[string]string{
+		`{"format":"a","weight":2}`:                                           `"a"`,
+		`{"format":"a","weight":0}`:                                           `"a"`,
+		`{"format":"{x}","x":{"format":"a","weight":2}}`:                      `{"format":"{x}","x":"a"}`,
+		`[{"format":"a","weight":2}]`:                                         `"a"`,
+		`{"format":"{x}","x":["a","b"],"separator":","}`:                      `{"format":"{x}","x":["a","b"]}`,
+		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`: `{"format":"{n}","repeat":2,"n":"1"}`,
+		`[{"format":"1","datatype":"integer"},"x"]`:                           `["1","x"]`,
+		`null`: `""`,
+		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `{"format":"{p}","p":{"format":"{x}","x":["","a"]}}`,
+		`[{"format":"a","weight":0},"b"]`:                      `"b"`,
+		`"{int(5,5)}"`:                                         `"5"`,
+		`"{float(1,1,2)}"`:                                     `"1.00"`,
+		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`:         `"1990-01-01"`,
+		`"{date(1990-01-01,1990-12-31,'x')}"`:                  `"x"`,
+		`"{time('x')}"`:                                        `"x"`,
 	} {
-		_, err := resolved(t, src)
-		if err == nil || !strings.Contains(err.Error(), `drop "weight"`) || strings.Contains(err.Error(), "can never be a field") || strings.Contains(err.Error(), "only skews a choice's items") {
-			t.Errorf("compile(%s) = %v, want the weight refused as drawn against nothing, naming the drop", src, err)
+		sameRenders(t, long, short)
+	}
+	for _, src := range []string{`"{date(1990-01-01,1990-12-31,'15:04')}"`, `"{time('2006-01-02 15:04')}"`} {
+		if _, err := resolved(t, src); err != nil {
+			t.Errorf("compile(%s) = %v, want a layout of either kind rendered", src, err)
+		}
+	}
+}
+
+func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{
+		"n": `{"format":"{a} {b} {c} {d}","a":5,"b":1.50,"c":12345678901234567890,"d":true}`,
+		"l": `[1e3]`,
+	}), WithSeed(1))
+	if v := fake(t, f, "n"); v != "5 1.50 12345678901234567890 true" {
+		t.Errorf("n = %q, want each number and boolean as written", v)
+	}
+	if v := fake(t, f, "l"); v != "1e3" {
+		t.Errorf("l = %q, want 1e3 as written", v)
+	}
+	for in, want := range map[string]string{"42": "42", " false ": "false", "[7]": "7"} {
+		if v, err := f.FakeTemplate(in); err != nil || v != want {
+			t.Errorf("FakeTemplate(%q) = %q, %v, want %q", in, v, err, want)
 		}
 	}
 }
@@ -59,16 +90,6 @@ func TestARepeatedItemCountsAsWritten(t *testing.T) {
 	}
 	if as < 340 || as > 460 {
 		t.Errorf(`["a","a","b"] drew a %d times in 600, want about 400`, as)
-	}
-}
-
-func TestASeparatorWithoutARepeatIsRejected(t *testing.T) {
-	for src, want := range map[string]string{
-		`{"format":"{x}","x":"v","separator":","}`: `drop "separator"`,
-	} {
-		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("compile(%s) = %v, want an error mentioning %s", src, err, want)
-		}
 	}
 }
 

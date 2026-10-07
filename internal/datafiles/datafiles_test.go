@@ -80,10 +80,9 @@ func TestReadRowsReadsOnlyAFileBesideTheCategory(t *testing.T) {
 	}
 }
 
-func TestWalkRefusesARowsFileNoCategoryNames(t *testing.T) {
-	_, err := walk(t, Source{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "a.tsv": {Data: []byte("key\n")}}, label: "lbl"})
-	if err == nil || !strings.HasPrefix(err.Error(), "lbl/a.tsv: no category names it in its rows") {
-		t.Errorf("Walk = %v, want a.tsv refused as named by no category", err)
+func TestWalkIgnoresARowsFileNoCategoryNames(t *testing.T) {
+	if _, err := walk(t, Source{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "a.tsv": {Data: []byte("key\n")}}, label: "lbl"}); err != nil {
+		t.Errorf("Walk = %v, want a.tsv ignored", err)
 	}
 }
 

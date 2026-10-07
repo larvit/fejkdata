@@ -253,6 +253,13 @@ func TestFakeStructTakesTheDatatypeItsGoTypeSets(t *testing.T) {
 	}
 }
 
+func TestFakeStructWithNoTagsFillsNothing(t *testing.T) {
+	v := struct{ A string }{A: "kept"}
+	if err := structData(t).FakeStruct(&v); err != nil || v.A != "kept" {
+		t.Errorf("FakeStruct = %+v, %v, want nothing filled", v, err)
+	}
+}
+
 func TestFakeStructErrors(t *testing.T) {
 	f := structData(t)
 	for _, c := range []struct {
@@ -263,7 +270,6 @@ func TestFakeStructErrors(t *testing.T) {
 		{(*structUser)(nil), "through a non-nil pointer"},
 		{new(int), "through a non-nil pointer"},
 		{nil, "through a non-nil pointer"},
-		{&struct{ A string }{}, "has no fake tags"},
 		{&struct {
 			a string `fake:"person.first"`
 		}{}, ".a: unexported"},

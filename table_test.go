@@ -531,6 +531,15 @@ func TestATableOfOneRowOrNamedByItsKeyLoads(t *testing.T) {
 	}
 }
 
+func TestARowOfWeightZeroIsNeverDrawn(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}), WithSeed(1))
+	for i := 0; i < 50; i++ {
+		if v := fake(t, f, "t"); v != "y" {
+			t.Fatalf("t = %q, want only the row of a positive weight", v)
+		}
+	}
+}
+
 func TestTableFences(t *testing.T) {
 	base := map[string]string{
 		"region.json": `{"format":"{name}","rows":"region.tsv","key":"code","name":"name"}`,
@@ -541,7 +550,6 @@ func TestTableFences(t *testing.T) {
 		want  string
 	}{
 		"rows names a missing file":                    {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`}, "t.tsv"},
-		"a TSV nothing names":                          {with(base, map[string]string{"stray.tsv": "a\nx\n"}), "stray.tsv"},
 		"rows outside its folder":                      {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"../region.tsv"}`}), "beside"},
 		"rows not a tsv":                               {with(base, map[string]string{"t.json": `{"format":"{code}","rows":"region.txt"}`, "region.txt": "code\n1\n"}), ".tsv"},
 		"key names no column":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"b"}`, "t.tsv": "a\nx\ny\n"}, `"b"`},
@@ -557,7 +565,6 @@ func TestTableFences(t *testing.T) {
 		"a name that is another row's key":             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":"a","name":"n"}`, "t.tsv": "a\tn\nx\ty\ny\tz\n"}, `"y"`},
 		"a descendant named like an ancestor's column": {with(geo(), map[string]string{"region.tsv": "code\tname\tpopulation\tlocality\n01\tStockholms län\t2400000\tx\n12\tSkåne län\t1400000\ty\n14\tVästra Götalands län\t1750000\tz\n"}), `"locality"`},
 		"weight not a number":                          {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\tmany\ny\t2\n"}, `"many"`},
-		"weight zero":                                  {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t0\ny\t2\n"}, "0"},
 		"weight negative":                              {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t-1\ny\t2\n"}, "-1"},
 		"reserved column name":                         {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\tb.c\nx\ty\n"}, `"b.c"`},
 		"duplicate column":                             {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\ta\nx\ty\n"}, `"a"`},

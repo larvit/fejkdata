@@ -25,14 +25,8 @@ func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 		}
 	}
 	for src, want := range map[string]string{
-		`{"format":"","n":{"format":"1","datatype":"int"}}`:                             `datatype takes "string", "integer", "number" or "boolean", got "int"`,
-		`{"format":"","n":{"format":"1","datatype":1}}`:                                 "datatype must be a string",
-		`{"format":"{int(1,9)}","datatype":"integer"}`:                                  "datatype only types a record column",
-		`[{"format":"1","datatype":"integer"},"x"]`:                                     "datatype only types a record column",
-		`{"format":"{p}","p":{"format":"{n}","n":{"format":"1","datatype":"integer"}}}`: "datatype only types a record column",
-		`{"format":"{n}","repeat":2,"n":{"format":"1","datatype":"integer"}}`:           `so it has no effect here; drop "datatype"`,
-		`null`: `so write ""`,
-		`{"format":"{p}","p":{"format":"{x}","x":[null,"a"]}}`: `so write ""`,
+		`{"format":"","n":{"format":"1","datatype":"int"}}`: `datatype takes "string", "integer", "number" or "boolean", got "int"`,
+		`{"format":"","n":{"format":"1","datatype":1}}`:     "datatype must be a string",
 	} {
 		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error containing %q", src, err, want)

@@ -492,11 +492,6 @@ func TestRunTemplateMisuse(t *testing.T) {
 		"{bad":                  "unterminated",
 		"name: {/no.such.path}": "no entry",
 		"a } b":                 "}}",
-		"42":                    "number",
-		"42\n":                  "number",
-		"true\n":                "boolean",
-		"null\n":                "jq",
-		" null ":                "jq",
 		"{//sv_SE.person}":      "write {/sv_SE.person}",
 	} {
 		code, out, errb := runOut(stdin, "--seed", "1")
@@ -548,11 +543,24 @@ func TestRunRepeatIsBounded(t *testing.T) {
 	}
 }
 
-func TestRunListTakesNoRepeatOrSeparator(t *testing.T) {
-	for _, args := range [][]string{{"--list", "-n", "3"}, {"--list", "--separator", ","}} {
-		code, _, errb := runOut("", args...)
-		if code != 2 || !strings.Contains(errb, "--list takes no") {
-			t.Errorf("run(%v) = %d, %q, want misuse", args, code, errb)
+func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
+	for _, args := range [][]string{{"--list", "-n", "3"}, {"--list", "--separator", ","}, {"--list", "--format", "json"}, {"--list", "--table", "t"}} {
+		if code, out, errb := runOut("", args...); code != 0 || !strings.Contains(out, "sv_SE.person\n") {
+			t.Errorf("run(%v) = %d, stderr %q, want the list", args, code, errb)
+		}
+	}
+	dir := recordDir(t)
+	for _, args := range [][]string{{"--format", "json", "--separator", ","}, {"--table", "t"}, {"--format", "json", "--table", "t"}} {
+		if code, out, errb := runOut("{/users}", append(args, "--data-path", dir)...); code != 0 || out == "" {
+			t.Errorf("run(%v) = %d, %q, %q, want the render", args, code, out, errb)
+		}
+	}
+}
+
+func TestRunRendersAnyJSONValue(t *testing.T) {
+	for stdin, want := range map[string]string{"42": "42", "42\n": "42", "true\n": "true", "null\n": "", " null ": ""} {
+		if code, out, errb := runOut(stdin); code != 0 || out != want {
+			t.Errorf("run(%q) = %d, %q, %q, want %q", stdin, code, out, errb, want)
 		}
 	}
 }
@@ -679,9 +687,6 @@ func TestRunRecordMisuse(t *testing.T) {
 		want string
 	}{
 		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, sql or text"},
-		{[]string{"--format", "json", "--separator", ","}, "--separator joins text values"},
-		{[]string{"--table", "t"}, "--table names the INSERT target"},
-		{[]string{"--format", "json", "--table", "t"}, "--table names the INSERT target"},
 		{[]string{"--format", "sql", "--table", ""}, "--table names the INSERT target"},
 	} {
 		code, out, errb := runOut("{/users}", c.args...)
