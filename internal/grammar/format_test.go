@@ -27,7 +27,7 @@ func TestParseFormatReadsEachTokenKind(t *testing.T) {
 	}
 	want := []Token{
 		{Kind: LiteralRun, Lit: "a{"},
-		{Kind: NameRead, Body: "x|/y.z[a.b]", Arms: []string{"x", "/y.z[a.b]"}},
+		{Kind: PathRead, Body: "x|/y.z[a.b]", Arms: []string{"x", "/y.z[a.b]"}},
 		{Kind: NameBind, Body: "/p as q", BoundRef: "/p", Bound: "q"},
 		{Kind: BuiltinCall, Body: "f(1, n)", Fn: "f", Args: []string{"1", "n"}},
 	}

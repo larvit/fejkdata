@@ -381,7 +381,7 @@ func compileFields(m map[string]any, pos position) (map[string]node, error) {
 		if isOption(k) {
 			continue
 		}
-		if err := grammar.CheckName(k); err != nil {
+		if err := grammar.CheckIdentifier(k); err != nil {
 			return nil, fmt.Errorf("field %w", err)
 		}
 		n, err := compileAt(m[k], pos)

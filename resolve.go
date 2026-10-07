@@ -105,7 +105,7 @@ type columnRead struct {
 // or name, and nil where it does not.
 func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
 	ops := t.compiled.ops
-	if t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.NameRead || len(ops[0].arms) != 1 {
+	if t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.PathRead || len(ops[0].arms) != 1 {
 		return nil
 	}
 	a := ops[0].arms[0]

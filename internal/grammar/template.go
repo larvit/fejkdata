@@ -34,7 +34,7 @@ func isJSONStart(arg string) bool {
 
 // pathAdvice refuses a spelling of path, naming path to write, or why no name can spell it.
 func pathAdvice(path, refusal string) error {
-	if err := CheckPathNames(path); err != nil {
+	if err := CheckPathIdentifiers(path); err != nil {
 		return err
 	}
 	return fmt.Errorf("%s; write %s", refusal, path)
@@ -71,7 +71,7 @@ func loneReference(arg string) (string, bool) {
 
 // loneRef is the reference a format of one reference token and nothing else reads.
 func loneRef(toks []Token) (string, bool) {
-	if len(toks) != 1 || toks[0].Kind != NameRead || len(toks[0].Arms) != 1 || !IsRef(toks[0].Arms[0]) {
+	if len(toks) != 1 || toks[0].Kind != PathRead || len(toks[0].Arms) != 1 || !IsRef(toks[0].Arms[0]) {
 		return "", false
 	}
 	return toks[0].Arms[0], true

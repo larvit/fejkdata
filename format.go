@@ -60,7 +60,7 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 		return checkReads(t, fields, true)
 	case grammar.NameBind:
 		return nil, checkBind(t, fields)
-	case grammar.NameRead:
+	case grammar.PathRead:
 		unbound, err := checkReads(t, fields, false)
 		if err != nil {
 			return nil, err
@@ -113,7 +113,7 @@ func checkBind(t grammar.Token, fields map[string]node) error {
 	if isOption(name) {
 		return fmt.Errorf("token {%s}: %q is an option and can never be a name; rename it", t.Body, name)
 	}
-	if err := grammar.CheckName(name); err != nil {
+	if err := grammar.CheckIdentifier(name); err != nil {
 		return fmt.Errorf("token {%s}: name %w", t.Body, err)
 	}
 	return nil
@@ -167,7 +167,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 // hintableRef reports whether {/name} is a reference the grammar accepts, so the
 // hint never names a spelling that fails too.
 func hintableRef(name string) bool {
-	return grammar.CheckPathNames(name) == nil
+	return grammar.CheckPathIdentifiers(name) == nil
 }
 
 // tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads.
@@ -214,7 +214,7 @@ func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps,
 		case grammar.BuiltinCall:
 			o.call = builtinfunc.Prep(tok.Fn, tok.Args)
 			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), targets)
-		case grammar.NameRead:
+		case grammar.PathRead:
 			o.arms, err = t.compileArms(tok.Arms, targets)
 		case grammar.NameBind:
 			continue

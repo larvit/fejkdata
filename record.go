@@ -145,7 +145,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	}
 	record, err := recordOf(n)
 	if errors.Is(err, ErrNoColumns) {
-		ns := grammar.NameSegments(segments)
+		ns := grammar.IdentifierSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
 	if err != nil {

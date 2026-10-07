@@ -167,7 +167,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Facts {
 	o := t.compiled.ops[0]
 	body, name, args := o.Body, o.Fn, o.Args
 	switch {
-	case o.Kind == grammar.NameRead:
+	case o.Kind == grammar.PathRead:
 		var leaves []node
 		for _, a := range o.arms {
 			leaves = append(leaves, a.leaves...)

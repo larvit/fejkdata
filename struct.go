@@ -231,7 +231,7 @@ func tagValue(sf reflect.StructField, tag string) (any, error) {
 	case inline:
 		return inputValue(tag)
 	}
-	if err := grammar.CheckPathNames(tag); err != nil {
+	if err := grammar.CheckPathIdentifiers(tag); err != nil {
 		return nil, err
 	}
 	return "{/" + tag + "}", nil

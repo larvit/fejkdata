@@ -33,9 +33,9 @@ func TestSplitPathRefusesAStraySelectorBracket(t *testing.T) {
 	}
 }
 
-func TestNameSegmentsDropSelectorsAndStepsUp(t *testing.T) {
-	if got := NameSegments([]string{"a", "[b]", "..", "c"}); !reflect.DeepEqual(got, []string{"a", "c"}) {
-		t.Errorf("NameSegments = %q, want [a c]", got)
+func TestIdentifierSegmentsDropSelectorsAndStepsUp(t *testing.T) {
+	if got := IdentifierSegments([]string{"a", "[b]", "..", "c"}); !reflect.DeepEqual(got, []string{"a", "c"}) {
+		t.Errorf("IdentifierSegments = %q, want [a c]", got)
 	}
 }
 
