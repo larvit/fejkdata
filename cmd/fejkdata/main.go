@@ -45,8 +45,8 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 Under --format text, the default, what you send is what renders, and fejkdata adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
-template is an object, array or string, and the whitespace around it is dropped; null
-alone renders nothing, and 42 or true alone is refused. A quoted heredoc, <<'EOF',
+template is an object, array or string, and the whitespace around it is dropped; null,
+42 or true alone is refused. A quoted heredoc, <<'EOF',
 passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
@@ -291,13 +291,13 @@ func operandError(arg string) error {
 	if fi, err := os.Stat(arg); err == nil && fi.Mode().IsRegular() {
 		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
 	}
-	example := pipeHint
+	example, ref := pipeHint, "{/"+strings.TrimPrefix(arg, "/")+"}"
 	if _, lone := loneReference(arg); lone {
 		example = piped(arg)
 	} else if inline, err := fejkdata.IsTemplate(arg); inline {
 		example = piped(arg)
-	} else if _, lone := loneReference("{/" + arg + "}"); lone && err == nil {
-		example = piped("{/" + arg + "}")
+	} else if _, lone := loneReference(ref); lone && err == nil {
+		example = piped(ref)
 	}
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
 }
@@ -448,24 +448,27 @@ type input struct {
 	record   string
 }
 
-// parseInput reads stdin. A format string is every byte of stdin; a JSON template drops
-// the whitespace around it; a lone reference names a record, with one newline ending it
+// parseInput reads stdin as the template, and as a record where it is a lone reference: JSON
+// with the whitespace around it dropped, else a format string with one newline ending it
 // allowed.
 func parseInput(raw string) (input, error) {
 	trimmed := strings.Trim(raw, jsonSpace)
-	if trimmed == "" {
+	switch trimmed {
+	case "":
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
+	case "null":
+		return input{}, fmt.Errorf("stdin holds only null, as jq prints for a missing key: %s", pipeHint)
 	}
-	template := raw
+	text := raw
 	if json.Valid([]byte(trimmed)) {
-		template = trimmed
+		text = trimmed
 	}
-	text, found := strings.CutSuffix(template, "\n")
+	text, found := strings.CutSuffix(text, "\n")
 	if found {
 		text = strings.TrimSuffix(text, "\r")
 	}
 	record, _ := loneReference(text)
-	return input{template: template, record: record}, nil
+	return input{template: raw, record: record}, nil
 }
 
 // loneReference returns the path that text reads when it is one reference from the root
@@ -485,6 +488,7 @@ func loneReference(text string) (string, bool) {
 
 // isPath reports whether a reference's body after its / is a path alone: no second /, no
 // folder sigil, and none of the |, ( or " as " a token reads outside a selector.
+// It copies the grammar, since the CLI reads only the library's public API.
 func isPath(body string) bool {
 	if body == "" || strings.ContainsAny(body[:1], "/.") {
 		return false

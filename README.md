@@ -41,8 +41,8 @@ these paths; a template reads one as `{/path}`.
 Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
-an object, array or string, and the whitespace around it is dropped; `null` alone
-renders nothing, and `42` or `true` alone is refused. A JSON template that should end
+an object, array or string, and the whitespace around it is dropped; `null`, `42` or
+`true` alone is refused. A JSON template that should end
 each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
@@ -65,7 +65,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
-other than a flag, an empty, blank or unreadable stdin, nothing piped in, or a
+other than a flag, an empty, blank, `null` or unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
@@ -336,7 +336,7 @@ generator:
   with the same error every call.
 - `Template.Fake` cannot fail.
 
-A path, wherever a call takes one, may start with `/`, as a reference does.
+A path, wherever a call takes one, may start with one `/`, as a reference does.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
@@ -409,8 +409,8 @@ are two draws each. Only a [name](#names) keeps one pick for every read of it.
 
 Renders e.g. `100 Main St, Apt 4B — tel 555-0199`. Random characters come from
 the sample functions, so a phone pattern is `070-{digits(3)} {digits(2)} {digits(2)}`.
-A lone `}` is a load error naming `}}`; the arms of `{a|b}` must differ, a
-repeated arm being a second spelling of [weight](#weight).
+A lone `}` is a load error naming `}}`. A repeated arm counts as written, so
+`{a|a|b}` draws `a` two times in three.
 
 ### Weight
 
@@ -425,10 +425,10 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 ```
 
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
-writing it as `{ "format": "AB", "weight": 3 }`. Rejected at load: a weight that
-is negative, non-numeric, `0` (never drawn — remove the item) or outside a choice,
-and a repeated item — `["a", "a", "b"]` is `[{ "format": "a", "weight": 2 }, "b"]`,
-and the error says so.
+writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as written,
+so `["a", "a", "b"]` draws `a` two times in three. Rejected at load: a weight that is
+negative, non-numeric or `0` (never drawn — remove the item), and one where it does
+nothing: outside a choice, or on the item of a one-item choice.
 
 ### Repeat
 
@@ -472,9 +472,9 @@ order.id: datatype integer: "1{digits(2)}" is not one value; write one literal o
 A column whose format is one read of a record's column and nothing else —
 `"score": "{/src.score}"`, `"score": "{s.score}"` with `s` bound to `/src`, or `"a": "{p}"`
 beside `{place as p}` in its own record — is that column: it takes the column's datatype and
-is null where the column is, and a struct field tagged `src.score` is nil there. A `datatype` of its own types the
-column's values where they prove it, and one restating the datatype it takes is refused.
-Any other read renders the column's text, a null as `""`.
+is null where the column is, and a struct field tagged `src.score` is nil there. A
+`datatype` of its own types the column's values where they prove it, and `"string"`
+reads them as text. Any other read renders the column's text, a null as `""`.
 
 A typed column's `{calc()}` must be proven to print a number: each operand a number
 literal, an `{int()}`, `{float()}`, `{seq()}` or `{digits()}` call, a calc, or a read of

@@ -61,13 +61,7 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 	case grammar.NameBind:
 		return nil, checkBind(t, fields)
 	case grammar.PathRead:
-		unbound, err := checkReads(t, fields, false)
-		if err != nil {
-			return nil, err
-		}
-		// Last, so an arm broken on its own terms is reported as that: a repeat is
-		// the consequence of such a mistake, not the mistake itself.
-		return unbound, checkNoRepeatedArm(t.Body, t.Arms)
+		return checkReads(t, fields, false)
 	}
 	return nil, nil
 }
@@ -176,23 +170,6 @@ func tokenReads(t grammar.Token) []string {
 		return builtinfunc.Operands(t.Fn, t.Args)
 	}
 	return t.Arms
-}
-
-// checkNoRepeatedArm rejects {a|a|b}: an alternation draws its arms evenly, so a
-// repeated one is a second spelling of weight. The error names the spelling that
-// does skew a draw.
-func checkNoRepeatedArm(body string, names []string) error {
-	if len(names) < 2 {
-		return nil
-	}
-	seen := make(map[string]bool, len(names))
-	for _, name := range names {
-		if seen[name] {
-			return fmt.Errorf("token {%s}: arm %q is repeated; an alternation draws its arms evenly, so skew the odds with a choice's weights instead", body, name)
-		}
-		seen[name] = true
-	}
-	return nil
 }
 
 // formatOps is a compiled format: its ops, and the size of its literal text.

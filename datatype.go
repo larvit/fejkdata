@@ -100,7 +100,7 @@ func columnDatatype(n node) DataType {
 
 // itemDatatype is the datatype a column item declares, else that of the column it reads.
 func itemDatatype(t *template) DataType {
-	if t.datatype == DataTypeString && t.readsColumn != nil {
+	if !t.declared && t.readsColumn != nil {
 		return columnDatatype(t.readsColumn.column)
 	}
 	return t.datatype
@@ -139,7 +139,7 @@ const (
 
 func kindOf(t *template) itemKind {
 	switch {
-	case t.datatype != DataTypeString:
+	case t.declared:
 		return kindDeclares
 	case itemDatatype(t) != DataTypeString:
 		return kindReads
@@ -187,12 +187,12 @@ func (c clash) retypeRead() error {
 	if c.fits() {
 		return fmt.Errorf("%s, so %s", c.held, typedAs(c.fix, c.want))
 	}
-	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.format, asText(c.fix))
+	return fmt.Errorf("%s, so to read %q as text, %s", c.held, c.fix.format, typedAs(c.fix, DataTypeString))
 }
 
 func (c clash) textBesideRead() error {
 	if !c.fits() {
-		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.format, datatype.Noun(c.want), c.other.format, asText(c.other))
+		return fmt.Errorf(`item %q is not %s, the datatype item %q takes from the column it reads; to read that column as text, %s`, c.fix.format, datatype.Noun(c.want), c.other.format, typedAs(c.other, DataTypeString))
 	}
 	return c.declareText()
 }
@@ -211,13 +211,4 @@ func typedAs(t *template, d DataType) string {
 		return fmt.Sprintf(`write %q as {"format":%q,"datatype":%q}`, t.format, t.format, d)
 	}
 	return fmt.Sprintf(`give %q "datatype": %q`, t.format, d)
-}
-
-// asText names the spelling that reads the column a column-read item reads as text, keeping the
-// other keys an object item carries.
-func asText(t *template) string {
-	if t.fromString {
-		return fmt.Sprintf(`write {"format":"{text}","text":%q}`, t.format)
-	}
-	return fmt.Sprintf(`set its "format" to "{text}" and add "text": %q`, t.format)
 }
