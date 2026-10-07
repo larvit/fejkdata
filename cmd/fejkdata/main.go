@@ -9,7 +9,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -36,8 +35,8 @@ A reference names a category or a dotted path into one ({/sv_SE.person.last}), a
 table's row by key or name ({/misc.territory[SE]}), and .. steps up from a row to
 the row it links to ({/geo.SE.locality..municipality.name}).
 
-One newline ending stdin is dropped, so echo and echo -n render alike; end it with
-two to print one. Whitespace around a JSON template is dropped too.
+One newline ending stdin, \n or \r\n, is dropped, so echo and echo -n render
+alike; end stdin with two to print one.
 
 With --format json, ndjson, csv or sql the template must name a record — a
 template whose fields are its columns, or one reference alone, {/sv_SE.person} —
@@ -60,13 +59,13 @@ A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3)
 `
 
 type invocation struct {
+	args         []string
 	dirs         []string
 	format       string
 	formatSet    bool
 	help         bool
 	list         bool
 	noShipped    bool
-	args         []string
 	repeat       int
 	repeatSet    bool
 	seed         uint64
@@ -267,7 +266,6 @@ func (in invocation) checkFlags() error {
 	return nil
 }
 
-// pipeHint is how a template reaches fejkdata, for the errors of a run that has none.
 const pipeHint = "echo -n '{/sv_SE.person}' | fejkdata"
 
 // check rejects a flag combination or an argument that cannot run, before any data is
@@ -333,7 +331,7 @@ func textDraw(f *fejkdata.Generator, src input) (func() (string, error), error) 
 	}
 	t, err := f.NewTemplate(src.template)
 	if err != nil {
-		return nil, templateError{err}
+		return nil, inputError{err}
 	}
 	return func() (string, error) { return t.Fake(), nil }, nil
 }
@@ -345,7 +343,7 @@ func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fe
 	if src.path == "" {
 		t, err := f.NewRecordTemplate(src.template)
 		if err != nil {
-			return nil, "", templateError{err}
+			return nil, "", inputError{err}
 		}
 		record = func() (*fejkdata.Record, error) { return t.Fake(), nil }
 	}
@@ -393,58 +391,51 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 
 // defaultTable names the INSERT target when --table is absent: the path's last
 // segment, or "records" for a template that reads no path alone.
-func defaultTable(arg string) string {
-	if arg == "" {
+func defaultTable(path string) string {
+	if path == "" {
 		return "records"
 	}
 	var names strings.Builder // the path with its [selectors] cut out
-	for depth, i := 0, 0; i < len(arg); i++ {
+	for depth, i := 0, 0; i < len(path); i++ {
 		switch {
-		case arg[i] == '[':
+		case path[i] == '[':
 			depth++
-		case arg[i] == ']':
+		case path[i] == ']':
 			depth--
 		case depth == 0:
-			names.WriteByte(arg[i])
+			names.WriteByte(path[i])
 		}
 	}
 	segments := strings.Split(names.String(), ".")
 	return segments[len(segments)-1]
 }
 
-// templateError marks a failure that is the input's own fault — no template, or one
-// that does not compile. run reports it as misuse (exit 2, with a pointer to --help),
-// unlike an unknown path, which is a runtime error (exit 1).
-type templateError struct{ error }
+// inputError marks a failure that is the input's own fault — no template, or one that
+// does not compile. run reports it as misuse (exit 2, with a pointer to --help), unlike
+// an unknown path, which is a runtime error (exit 1).
+type inputError struct{ error }
 
-func (e templateError) Unwrap() error { return e.error }
+func (e inputError) Unwrap() error { return e.error }
 
-// input is what stdin names: the path a lone reference reads, or else the template as
-// the library takes it.
+// input is what stdin names: the path a lone reference reads, or else the template.
 type input struct {
 	path     string
 	template string
 }
 
-// readInput reads stdin less one newline ending it. A JSON object, array or string
-// sheds the whitespace around it; any other text becomes a JSON string, so the library
-// reads it as a format string even where it is JSON of another kind, such as 42.
-func readInput(raw string) (input, error) {
-	text := strings.TrimSuffix(raw, "\n")
+// parseInput reads stdin's text less one newline ending it.
+func parseInput(raw string) (input, error) {
+	text, found := strings.CutSuffix(raw, "\n")
+	if found {
+		text = strings.TrimSuffix(text, "\r")
+	}
 	if text == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
 	}
 	if path, lone := loneReference(text); lone {
 		return input{path: path}, nil
 	}
-	if trimmed := strings.TrimSpace(text); trimmed != "" && strings.ContainsRune(`{["`, rune(trimmed[0])) && json.Valid([]byte(trimmed)) {
-		return input{template: trimmed}, nil
-	}
-	quoted, err := json.Marshal(text)
-	if err != nil {
-		return input{}, err
-	}
-	return input{template: string(quoted)}, nil
+	return input{template: text}, nil
 }
 
 // loneReference is the path that text, one reference from the root and nothing else,
@@ -491,7 +482,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	}
 	var src input
 	if !in.list {
-		if src, err = source(stdin); err != nil {
+		if src, err = readStdin(stdin); err != nil {
 			return fail(stderr, err)
 		}
 	}
@@ -515,25 +506,23 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	return 0
 }
 
-// source reads the input from stdin.
-func source(stdin io.Reader) (input, error) {
+func readStdin(stdin io.Reader) (input, error) {
 	if stdin == nil {
-		return input{}, templateError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint)}
+		return input{}, inputError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint)}
 	}
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
 		return input{}, err
 	}
-	src, err := readInput(string(raw))
+	src, err := parseInput(string(raw))
 	if err != nil {
-		return input{}, templateError{err}
+		return input{}, inputError{err}
 	}
 	return src, nil
 }
 
-// fail reports err and returns its exit code: 2 for the input's own fault, else 1.
 func fail(stderr io.Writer, err error) int {
-	var te templateError
+	var te inputError
 	if errors.As(err, &te) {
 		return misuse(stderr, te.error)
 	}

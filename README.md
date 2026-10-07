@@ -35,10 +35,11 @@ inside one: each dot segment descends one level — folders, then the category (
 file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
 these paths; a template reads one as `{/path}`.
 
-One newline ending stdin is dropped, so `echo` and `echo -n`, a file and a heredoc
-render alike; end stdin with two newlines to print one. Whitespace around a JSON
-template is dropped too. Which spellings a template rejects, and what each names
-instead, is under
+One newline ending stdin, `\n` or `\r\n`, is dropped, so `echo` and `echo -n`, a file
+and a heredoc render alike; end stdin with two newlines to print one. Some shells' `echo`
+reads a backslash as an escape, so pipe a template holding one with `printf '%s'` or from
+a file. One reference alone, `{/users}`, is the record `users` under `--format`; the
+rest of stdin's rules are under
 [Decisions](docs/decisions.md#the-cli-renders-the-template-on-its-stdin-less-one-newline-ending-it).
 
 | Flag | |
@@ -56,7 +57,7 @@ instead, is under
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
-dir, unknown path), `2` misuse — a bad flag, an argument, nothing on stdin, or a
+dir, a lone reference to nothing), `2` misuse — a bad flag, an argument, nothing on stdin, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
@@ -992,7 +993,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
-internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether an argument is a template or a path
+internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether a struct tag is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes

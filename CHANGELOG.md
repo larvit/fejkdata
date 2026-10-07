@@ -28,10 +28,9 @@ replacement, and each removed path, column or flag.
   under [Names](README.md#names).
 - First release: the CLI, the library and the shipped data set.
 - The CLI renders the template piped to its stdin, `echo -n '{/sv_SE.person} hihi' |
-  fejkdata`, and takes no path or template as an argument. One newline ending stdin is
-  dropped, and so is the whitespace around a JSON template. A template of one reference
-  alone, `{/users}`, is the record `users` under `--format`. An argument, or nothing
-  piped in, exits 2.
+  fejkdata`, and takes no path or template as an argument. One newline ending stdin,
+  `\n` or `\r\n`, is dropped. A template of one reference alone, `{/users}`, is the
+  record `users` under `--format`. An argument, or nothing piped in, exits 2.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.territory[SE]`, and descends to a linked table by name, one path drawing each
