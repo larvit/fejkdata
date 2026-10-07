@@ -3,12 +3,10 @@
 
     TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--streets-per-locality N] [--out DIR]
 """
-import argparse
 import collections
 import csv
 import io
 import json
-import math
 import os
 import re
 import sys
@@ -16,6 +14,7 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+import geo
 import source
 import tsv
 import xlsx
@@ -34,8 +33,6 @@ TATORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&
 POSTAL_CODES = "https://download.geonames.org/export/zip/SE.zip"
 NVDB = "https://api.trafikinfo.trafikverket.se/v2/data.json"
 NVDB_PAGE = 50000
-OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "SE"
-CACHE = Path(__file__).resolve().parent / "cache"
 TIMEZONE = "Europe/Stockholm"
 # This script's reading of the "exceptions in big cities" in docs/research/research-geo-se.md, Postal codes → Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
@@ -106,34 +103,6 @@ def nvdb_segments(cache, key):
         yield name, float(lat), float(lon)
 
 
-class Nearest:
-    """Nearest point by an equirectangular distance, over a degree grid."""
-
-    def __init__(self, points, cell=0.05):
-        self.cell = cell
-        self.grid = collections.defaultdict(list)
-        for lat, lon, value in points:
-            self.grid[(int(lat // cell), int(lon // cell))].append((lat, lon, value))
-
-    def find(self, lat, lon):
-        ci, cj = int(lat // self.cell), int(lon // self.cell)
-        best, best_d = None, math.inf
-        ring = 0
-        while ring < 400:
-            for i in range(ci - ring, ci + ring + 1):
-                for j in range(cj - ring, cj + ring + 1):
-                    if max(abs(i - ci), abs(j - cj)) != ring:
-                        continue
-                    for plat, plon, value in self.grid.get((i, j), ()):
-                        d = (plat - lat) ** 2 + ((plon - lon) * math.cos(math.radians(lat))) ** 2
-                        if d < best_d:
-                            best, best_d = value, d
-            if best is not None and math.sqrt(best_d) < ring * self.cell * math.cos(math.radians(lat)):
-                return best
-            ring += 1
-        return best
-
-
 def street_delivery(name, codes):
     """The codes delivered to a street. A postort's own prefix is three digits where one three-digit prefix starts at
     least half its codes, else two. Outside ONE_POSITION's cities, the digit after that prefix is 0 or 1 for boxes and 8
@@ -181,11 +150,10 @@ def localities(codes, tatorter, municipalities, population):
         municipality, method = municipality_of(name, rows, tatorter, municipalities)
         how[method] += 1
         kept = street_delivery(name, [r["code"].replace(" ", "") for r in rows])
-        with_point = [r for r in rows if r["lat"] is not None]
-        if municipality is None or not kept or not with_point or not well_cased(name):
+        point = geo.centroid(rows)
+        if municipality is None or not kept or point is None or not well_cased(name):
             continue
-        lat = sum(r["lat"] for r in with_point) / len(with_point)
-        lon = sum(r["lon"] for r in with_point) / len(with_point)
+        lat, lon = point
         out[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, tatorter, municipalities, population), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
     print(f"municipality by {dict(how)}; {len(by_locality) - len(out)} postorter dropped", file=sys.stderr)
     return out
@@ -193,37 +161,29 @@ def localities(codes, tatorter, municipalities, population):
 
 def streets(segments, codes, localities, per_locality):
     """The names with most segments per locality, each segment at its nearest code centroid."""
-    nearest = Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
+    nearest = geo.Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
     count = collections.Counter()
     for name, lat, lon in segments:
         if name[0].isalpha():
             count[(nearest.find(lat, lon), name)] += 1
-    of = collections.defaultdict(list)
-    for (locality, name), n in count.items():
-        of[locality].append((n, name))
-    return {locality: [{"name": name, "locality": locality, "segments": n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, named in of.items()}
+    return geo.top_streets(count, per_locality, "segments")
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
+    p = geo.parser(__doc__, "SE")
     p.add_argument("--key-file", help="file holding the Trafikverket API key; TRAFIKVERKET_API_KEY otherwise")
-    p.add_argument("--out", default=str(OUT))
-    p.add_argument("--streets-per-locality", type=int, default=10)
     a = p.parse_args()
     key = Path(a.key_file).read_text().strip() if a.key_file else os.environ.get("TRAFIKVERKET_API_KEY")
     if not key:
         sys.exit("set TRAFIKVERKET_API_KEY or pass --key-file")
-    cache, out = Path(a.cache), Path(a.out)
-    cache.mkdir(parents=True, exist_ok=True)
-    out.mkdir(parents=True, exist_ok=True)
+    cache, out = geo.directories(a)
 
     regions, municipalities = scb_codes(cache)
     population = scb_population(cache)
     codes = geonames(cache)
     places = localities(codes, scb_tatorter(cache), municipalities, population)
     named = streets(nvdb_segments(cache, key), codes, places, a.streets_per_locality)
-    places = {name: l for name, l in places.items() if name in named}
+    places = geo.with_streets(places, named)
     empty = sorted(m for m in municipalities if not any(l["municipality"] == m for l in places.values()))
     if empty:
         sys.exit(f"municipalities without a locality: {empty}")

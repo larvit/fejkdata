@@ -3,7 +3,6 @@
 
     data-import/geo-us.py [--cache DIR] [--min-population N] [--streets-per-locality N] [--out DIR]
 """
-import argparse
 import collections
 import concurrent.futures
 import csv
@@ -12,8 +11,8 @@ import re
 import struct
 import sys
 import zipfile
-from pathlib import Path
 
+import geo
 import source
 import tsv
 
@@ -24,8 +23,6 @@ COUNTIES = POPULATION.format("counties/totals/co-est2025-alldata.csv")
 PLACES = POPULATION.format("cities/totals/sub-est2025.csv")
 ZCTA_PLACE = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_place20_natl.txt"
 TIGER = "https://www2.census.gov/geo/tiger/TIGER2025/{0}/tl_2025_{1}_{2}.zip"
-OUT = Path(__file__).resolve().parent.parent / "data" / "geo" / "US"
-CACHE = Path(__file__).resolve().parent / "cache"
 ESTIMATE = "POPESTIMATE2025"
 CDP = "57"
 HIGHWAY = re.compile(r"\b(I- |Hwy |Highway |Loop |Rte |Route |Rd )\d")
@@ -153,23 +150,14 @@ def streets(cache, counties, locality_of_zcta, per_locality):
             if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
                 for z in zips.get(r["TLID"], ()):
                     count[(locality_of_zcta[z], r["FULLNAME"])] += 1
-    of = collections.defaultdict(list)
-    for (locality, name), n in count.items():
-        of[locality].append((n, name))
-    named = {locality: [{"name": name, "locality": locality, "addresses": n} for n, name in sorted(ranked, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, ranked in of.items()}
-    return named, addresses
+    return geo.top_streets(count, per_locality, "addresses"), addresses
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--cache", default=str(CACHE))
+    p = geo.parser(__doc__, "US")
     p.add_argument("--min-population", type=int, default=25000)
-    p.add_argument("--out", default=str(OUT))
-    p.add_argument("--streets-per-locality", type=int, default=10)
     a = p.parse_args()
-    cache, out = Path(a.cache), Path(a.out)
-    cache.mkdir(parents=True, exist_ok=True)
-    out.mkdir(parents=True, exist_ok=True)
+    cache, out = geo.directories(a)
 
     state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
     regions = {r["USPS"]: {"abbr": r["USPS"], "code": r["GEOID"], "name": r["NAME"], "population": state_population[r["GEOID"]], "timezone": TIMEZONES[r["USPS"]]} for r in gazetteer(cache, "state")}
@@ -185,9 +173,7 @@ def main():
     places = localities(cache, a.min_population, counties)
     locality_of_zcta = postal_codes(cache, places)
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.streets_per_locality)
-    for geoid in [l for l in places if l not in named]:
-        print(f"{geoid} {places[geoid]['name']}: no streets, dropped", file=sys.stderr)
-        del places[geoid]
+    places = geo.with_streets(places, named)
     kept_counties = {l["municipality"] for l in places.values()}
     kept_regions = {counties[c]["region"] for c in kept_counties}
 

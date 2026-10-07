@@ -77,7 +77,6 @@
 | 144 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 130 to 143 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 91 | 0.1.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 138 | 0.1.0 |  | **Split `geo-se.py` into the steps every country's import takes and the Swedish rules, and share the steps with `geo-us.py`, so a new country's script holds only its own rules.** | 2 | 3 | 3 | 6 | 2.1, 3.2 | 14.6 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake`, `FakeRecord` and the CLI take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 79 | 0.1.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
@@ -270,10 +269,6 @@ A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
-
-### 138. Split `geo-se.py` into the steps every country's import takes and the Swedish rules, and share the steps with `geo-us.py`, so a new country's script holds only its own rules.
-
-Needed by item 61. The extender seat of the 2026-10-07 panel, reading for item 61, could not tell in `localities` and its helpers which steps a Norwegian script keeps; `geo-us.py` copies the per-locality street ranking of `streets` in `geo-se.py`.
 
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
