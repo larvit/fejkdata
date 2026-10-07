@@ -67,7 +67,7 @@ var nodeSwitchSkips = map[string][]string{
 	"columnItems": {"folder", "table", "tableRow"},
 	"prove":       {"folder"},
 	"render":      {"folder"},
-	"stepInto":    {"choice", "table", "tableRow"},
+	"childNamed":  {"choice", "table", "tableRow"},
 }
 
 func TestNodeSwitchesHandleEveryKind(t *testing.T) {
@@ -116,7 +116,7 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
 		"renderEdges": func(n node) { renderEdges(n) },
-		"stepInto":    func(n node) { _, _ = stepInto(n, "x") },
+		"childNamed":  func(n node) { _, _ = childNamed(n, "x") },
 	} {
 		mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
 		for _, kind := range kinds {
