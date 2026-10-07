@@ -115,7 +115,7 @@
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
-| 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused, padded or not: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
+| 159 | 0.2.0 |  | **Name the quoted spelling where a template that is a bare JSON number or boolean is refused, padded or not: `42` names `"42"`.** | 1 | 2 | 3 | 6 | 6, 5.1 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
@@ -432,9 +432,9 @@ Require the path step to reach a sibling category.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
-### 159. Name the quoted spelling where a template that is a bare JSON number, boolean or null is refused, padded or not: `42` names `"42"`.
+### 159. Name the quoted spelling where a template that is a bare JSON number or boolean is refused, padded or not: `42` names `"42"`.
 
-On stdin `42` is refused as "a number" and `null` with advice to write `""`, which prints nothing; neither names the text the author meant. The goals audit of the stdin change found it.
+On stdin `42` is refused as "a number", which does not name the text the author meant. The goals audit of the stdin change found it.
 
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
