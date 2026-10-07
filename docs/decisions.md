@@ -102,7 +102,7 @@ template per run.
 2026-10-07, Lilleman auf Larv. Serves goal 9.6: a CLI carrying your own modules is a few
 lines of Go and works just like `fejkdata`, so `fejkdata`'s own CLI is such a CLI and
 imports nothing under `internal/`. It copies one reading the API does not export yet,
-the lone reference: `isPath` and `withoutSelectors` in `cmd/fejkdata`, pinned to the
+the lone reference: `isPath`, `hasEmptySegment` and `withoutSelectors` in `cmd/fejkdata`, pinned to the
 grammar by a test, until `todo.md` item 129 moves that reading into the library.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
@@ -119,8 +119,8 @@ until item 129: it reads a path, and only the data is absent.
 
 Padding is where the two readings disagree: a format string renders it, JSON drops it. A
 template that parses as JSON is its JSON, so its padding is dropped, as `encoding/json`
-drops it. Goal 5.7 refuses only a spelling that suggests a mistake, and padding around
-JSON suggests none.
+drops it. Goal 5.7: only an obvious mistake fails to load, and padding around JSON is
+none.
 
 ## A JSON string stays a template even where its bare text renders alike
 
@@ -640,8 +640,8 @@ Table section teaches it.
 2026-09-18, Lilleman auf Larv. Serves goal 5.6.
 
 A layout may carry the comma that separates arguments,
-`'January 2, 2006'`, and a bare `2006-01-02` reads like a third date, so a bare layout is
-refused naming the quoted one. The layout is Go's reference time because the
+`'January 2, 2006'`, a bare `2006-01-02` reads like a third date, and a double-quoted one
+could be quotes printed in the output, so each is refused naming the single-quoted one. The layout is Go's reference time because the
 library renders with it and a Go caller already knows it; its names are English, and a
 locale's own month and weekday names are data.
 

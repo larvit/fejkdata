@@ -459,6 +459,9 @@ func parseInput(raw string) (input, error) {
 	if trimmed == "" {
 		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
 	}
+	if trimmed == "null" {
+		return input{}, fmt.Errorf("stdin holds only null, as jq prints for a missing key: %s", pipeHint)
+	}
 	text := raw
 	if json.Valid([]byte(trimmed)) {
 		text = trimmed
@@ -511,7 +514,7 @@ func hasEmptySegment(path string) bool {
 		switch {
 		case seg != "":
 			stepUp = false
-		case stepUp && !last, !stepUp && last:
+		case stepUp != last:
 			return true
 		default:
 			stepUp = !stepUp
