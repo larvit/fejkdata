@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 
@@ -53,6 +52,7 @@ type template struct {
 	repeat     int
 	separator  string
 	datatype   DataType
+	declared   bool          // carries a "datatype", which wins over the datatype of a column it reads
 	fromString bool          // written as a JSON string rather than an object
 	isRecord   bool          // compiled at the top without a repeat, so its fields are record columns
 	unbound    []unboundRead // the heads its tokens read that no field holds
@@ -186,17 +186,11 @@ func compileChoice(items []any, pos position) (node, error) {
 	if pos == inColumn {
 		itemPos = inColumn
 	}
-	if len(items) == 0 {
+	switch len(items) {
+	case 0:
 		return nil, fmt.Errorf("empty choice")
-	}
-	if len(items) == 1 {
-		if _, err := weightOf(items[0]); err != nil {
-			return nil, err
-		}
-		return compileItem(items[0], pos)
-	}
-	if err := checkNoRepeatedItem(items); err != nil {
-		return nil, err
+	case 1:
+		return compileAt(items[0], pos)
 	}
 	c := &choice{items: make([]node, len(items))}
 	cum := make([]float64, len(items))
@@ -228,34 +222,6 @@ func compileChoice(items []any, pos position) (node, error) {
 	return c, nil
 }
 
-// checkNoRepeatedItem rejects a choice that lists one item twice: a draw is even
-// over the items, so a repeat is a second spelling of weight. The error names the
-// spelling that does skew a draw.
-func checkNoRepeatedItem(items []any) error {
-	seen := make(map[string]int, len(items))
-	for i, raw := range items {
-		key, isString := raw.(string)
-		if !isString {
-			b, err := json.Marshal(raw)
-			if err != nil {
-				return err
-			}
-			key = "\x00" + string(b)
-		}
-		if j, dup := seen[key]; dup {
-			if s, isString := raw.(string); isString {
-				return fmt.Errorf("choice item %q is repeated; skew the odds with a weight instead: { \"format\": %q, \"weight\": 2 }", s, s)
-			}
-			if raw == nil {
-				return fmt.Errorf("choice item %d repeats null; a null takes no weight, so weight the other items instead", i)
-			}
-			return fmt.Errorf("choice item %d repeats item %d; skew the odds with a weight on one of them instead", i, j)
-		}
-		seen[key] = i
-	}
-	return nil
-}
-
 func compileTemplate(m map[string]any, pos position) (node, error) {
 	if _, isTable := m["rows"]; isTable {
 		return nil, fmt.Errorf("rows names a TSV beside a category's file, so only a category is a table; an inline template has no file beside it")
@@ -276,12 +242,13 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos == inColumn, unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, declared: o.declared, isRecord: fieldPos == inColumn, unbound: unbound}, nil
 }
 
 // templateOptions is what a template object's option keys say.
 type templateOptions struct {
 	datatype  DataType
+	declared  bool
 	format    string
 	repeat    int
 	separator string
@@ -299,6 +266,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 		return o, err
 	}
 	o.repeat = repeat
+	_, o.declared = m["datatype"]
 	if o.datatype, err = datatypeOf(m, pos); err != nil {
 		return o, err
 	}

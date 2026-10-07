@@ -16,16 +16,11 @@ type valueProof struct {
 	columnMemo map[node]proven.Facts
 }
 
-// checkDatatype rejects a typed column item some render of which is not text of its datatype,
-// and one restating the datatype of the column it is.
-// docs/decisions.md#a-column-that-only-reads-one-reference-or-name-is-the-column-it-reads
+// checkDatatype rejects a typed column item some render of which is not text of its datatype.
 func (p *valueProof) checkDatatype(label string, n node) error {
 	t, ok := n.(*template)
 	if !ok || t.datatype == DataTypeString {
 		return nil
-	}
-	if r := t.readsColumn; r != nil && columnDatatype(r.column) == t.datatype {
-		return fmt.Errorf(`%s: %s takes datatype %s from the column it reads; drop "datatype"`, label, t.format, t.datatype)
 	}
 	if reason := p.proveColumnItem(t).Not[t.datatype]; reason != "" {
 		return fmt.Errorf("%s: datatype %s: %s", label, t.datatype, reason)
@@ -38,7 +33,7 @@ func (p *valueProof) checkDatatype(label string, n node) error {
 func (p *valueProof) checkField(label string, ft reflect.Type, column node) error {
 	items, _ := columnItems(column)
 	for _, it := range items {
-		if it.datatype != DataTypeString {
+		if it.declared {
 			return fmt.Errorf("%s: its Go type %s sets the datatype; drop \"datatype\"", label, ft)
 		}
 	}

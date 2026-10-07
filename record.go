@@ -125,7 +125,10 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path = grammar.CallerPath(path)
+	path, err := grammar.CallerPath(path)
+	if err != nil {
+		return nil, fmt.Errorf("fejkdata: %w", err)
+	}
 	segments, err := grammar.SplitPath(path)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
