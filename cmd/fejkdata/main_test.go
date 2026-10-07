@@ -101,7 +101,7 @@ func TestRunShortFlagValues(t *testing.T) {
 		{[]string{"-s=42", "-d", svSE}, "-s42"},
 		{[]string{"-s=42", "-d", svSE}, "--seed=42"},
 		{[]string{"-d=" + svSE}, "--data-path="},
-		{[]string{"-nd", "3", "-d", svSE}, `--repeat needs an integer in 1..1048576, got "d"`},
+		{[]string{"-nd", "3", "-d", svSE}, `--repeat needs an integer in 0..1048576, got "d"`},
 		{[]string{"--seed=", "-d", svSE}, `--seed needs an unsigned integer, got ""`},
 	} {
 		code, out, errb := runOut("{/word}", c.args...)
@@ -160,7 +160,7 @@ func TestRunFlagValues(t *testing.T) {
 		{[]string{"-d", svSE, "--seed"}, "--seed needs a value"},
 		{[]string{"--seed", "x", "-d", svSE}, "--seed"},
 		{[]string{"--list=1", "-d", svSE}, "--list takes no value"},
-		{[]string{"--repeat", "0", "-d", svSE}, "--repeat"},
+		{[]string{"--repeat", "-1", "-d", svSE}, "--repeat"},
 		{[]string{"-n", "-1", "-d", svSE}, "--repeat"},
 	} {
 		code, _, errb := runOut("{/person}", c.args...)
@@ -524,6 +524,27 @@ func TestRunNoShippedData(t *testing.T) {
 	}
 }
 
+func TestRunRepeatOfZeroWritesNoRecord(t *testing.T) {
+	dir := recordDir(t)
+	for _, c := range []struct {
+		args []string
+		want string
+	}{
+		{nil, ""},
+		{[]string{"--format", "json"}, "[]\n"},
+		{[]string{"--format", "ndjson"}, ""},
+		{[]string{"--format", "csv"}, ""},
+		{[]string{"--format", "sql"}, ""},
+	} {
+		if code, out, errb := runOut("{/users}", append(c.args, "-n", "0", "-d", dir)...); code != 0 || out != c.want {
+			t.Errorf("run(-n 0 %v) = %d, %q, %q, want %q", c.args, code, out, errb, c.want)
+		}
+	}
+	if code, _, _ := runOut("{/nope}", "-n", "0", "--format", "json", "-d", dir); code != 1 {
+		t.Errorf("run(-n 0) of a reference to nothing = %d, want 1", code)
+	}
+}
+
 func TestRunRepeatIsBounded(t *testing.T) {
 	for _, args := range [][]string{
 		{"--repeat", "9223372036854775807"},
@@ -531,7 +552,7 @@ func TestRunRepeatIsBounded(t *testing.T) {
 		{"-n", "99999999999"},
 	} {
 		code, out, errb := runOut("{/sv_SE.word}", args...)
-		if code != 2 || out != "" || !strings.Contains(errb, "1..1048576") {
+		if code != 2 || out != "" || !strings.Contains(errb, "0..1048576") {
 			t.Errorf("run(%v) = %d, %q, %q, want misuse naming the range", args, code, out, errb)
 		}
 	}
