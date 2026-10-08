@@ -83,8 +83,7 @@ adding one: a rule a user states in one sentence, at the cost of `printf` or a
 
 A JSON template is its JSON, so the whitespace around it is no part of the template, per
 the decision "Whitespace around a JSON template is dropped, in `NewTemplate` and on
-stdin". Stdin holding only whitespace is misuse, since an unset variable sends just a
-newline.
+stdin". Stdin holding only whitespace is a template like any other, and renders it.
 
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
 one newline after it allowed, with `users` the default `--table`; one to nothing there
@@ -339,15 +338,14 @@ caller's types, so the first `FakeStruct` for a type compiles its tags and the a
 error included, is kept per type: a test's first call is its load, and no `NewStruct`
 handle is needed, as the cache already compiles once.
 
-## A category never references itself, and a record's fences run at load
+## A category may reference itself, and a record's fences run at load
 
-2026-09-16, Lilleman auf Larv.
+2026-09-16, Lilleman auf Larv; revised 2026-10-07. Serves goals 5.2 and 5.7.
 
-A category is one unit: a reference back into it — `{/users.first}` inside `users` —
-describes a draw other than the fields beside it, so `New` refuses it and the sibling
-field stays the one spelling for a field of one's own. A value two fields share goes in its
-own category, which one field binds to a name and both read (goal 4.1). That settled, a record's column fences
-run at `New` too, so a category that loads renders as a value and as a record alike.
+A reference back into a category, `{/users.first}` inside `users`, is a fresh draw, as
+every `{…}` is; only a cycle is refused. A value two fields share goes in its own
+category, which one field binds to a name and both read (goal 4.1). A record's column
+fences run at `New` too, so a category that loads renders as a value and as a record alike.
 
 ## A record's column set is fixed before the first draw
 
@@ -370,7 +368,8 @@ null renders `""`.
 
 ## A typed column holds one value, not composed text
 
-2026-09-15, Lilleman auf Larv.
+2026-09-15, Lilleman auf Larv. Serves goal 6.1: a typed column's values are proven valid at
+load, and composed text is not proven.
 
 Its bounds come from a literal or a call's arguments, so a load error names a real
 value and a range check is one comparison: `1{digits(2)}` is refused in a typed column,

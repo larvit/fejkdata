@@ -117,7 +117,7 @@
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
-| 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
@@ -141,7 +141,6 @@
 | 23 | 0.3.0 |  | **Give every other shipped category that could reach something real a path that never does.** | 3 | 6 | 6 | 7 | 16 | 11.0 |
 | 75 | 0.3.0 |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 6 | 4 | 7 | 12.2 | 10.8 |
 | 33 | 0.3.0 |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 4 | 5 | 4 | 5 | 5 | 10.8 |
-| 47 | 0.3.0 | defect | **Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.** | 1 | 1 | 2 | 5 | 6 | 10.2 |
 | 72 | 0.3.0 | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 3 | 2 | 5 | 3 | 10.2 |
 | 30 | 0.3.0 |  | **Draw `email.local` from `username`, so the two share one handle list.** | 2 | 2 | 3 | 5 | 8 | 10.0 |
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 1 | 5 | 3.2 | 9.5 |
@@ -444,9 +443,9 @@ Require the path step to reach a sibling category.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
 
-### 46. Report the same error every load for a table with two bad options, and for a folder with two unnamed rows files.
+### 46. Report the same error every load for a table with two bad options.
 
-`readTableOptions` in `table.go` and `walkDir` in `internal/datafiles` return on the first in Go's map order.
+`readTableOptions` in `table.go` returns on the first in Go's map order.
 
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
@@ -525,10 +524,6 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 ### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
 
 `readme_test.go` loads and renders each `json` block, but runs no `sh` example (CLI, Records, Table, Linked tables), no `go` example (Library) and no `text` block of error text, and compares no "Renders e.g." output, so goal 12.2 is not met.
-
-### 47. Refuse a category naming a hidden rows file, `"rows": ".x.tsv"`, as a rows file that is not there.
-
-`internal/datafiles` indexes hidden TSVs in `newRowsFiles` and skips them in `walkDir`, so one loads where its comment says a hidden file is never data.
 
 ### 72. Fail the merge gate when test coverage falls below the last recorded figure.
 

@@ -64,7 +64,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Samples say what they emit, transforms what they do
 - A record is a template seen as columns; a Go struct is the one second schema
 - A struct's records follow Go's field access, and compile on first use
-- A category never references itself, and a record's fences run at load
+- A category may reference itself, and a record's fences run at load
 - A record's column set is fixed before the first draw
 - Null is a `null` item, not a rate
 - A typed column holds one value, not composed text
