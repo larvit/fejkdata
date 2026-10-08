@@ -35,7 +35,7 @@ func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 		if name != d.String() {
 			continue
 		}
-		if pos != inColumn {
+		if !pos.column() {
 			return nil, nil
 		}
 		return &d, nil

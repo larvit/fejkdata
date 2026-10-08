@@ -7,7 +7,7 @@ import (
 )
 
 // Value is a JSON value that only Decode, String and Object make, so a template never compiles
-// from a value encoding/json decoded with its numbers as float64.
+// from a value encoding/json decoded with its numbers as float64. The zero Value is JSON null.
 type Value struct{ v any }
 
 // Decode decodes one JSON value, keeping each number as the json.Number it is written as.

@@ -257,7 +257,7 @@ func checkTaggedType(sf reflect.StructField) error {
 // only what its field's Go type can.
 func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
 	tags["format"] = jsonvalue.String("")
-	n, err := compile(jsonvalue.Object(tags))
+	n, err := compileFrom(jsonvalue.Object(tags), atGoTop)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}

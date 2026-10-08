@@ -389,8 +389,8 @@ Every value is a **node**, nestable without limit:
 | choice | `["a", "b", …]` | one item, picked at random |
 | template | `{"format": "…", …}` | its format, with `{name}` tokens rendering the named fields |
 | table | `{"format": "…", "rows": "x.tsv", …}` | its format over one row of the TSV beside it ([Table](#table)) |
-| number | `5`, `1.50` | its text as written; refused in a record column, where it could be text, `"5"`, or a typed value, `{"format": "5", "datatype": "integer"}` |
-| boolean | `true` | its text; refused in a record column, where it could be text, `"true"`, or a typed value, `{"format": "true", "datatype": "boolean"}` |
+| number | `5`, `1.50` | its text as written; refused in a record column, where it could be text, `"5"`, or a typed value, `{"format": "5", "datatype": "integer"}`, bar a struct tag's, which its field's Go type types |
+| boolean | `true` | its text; refused in a record column, where it could be text, `"true"`, or a typed value, `{"format": "true", "datatype": "boolean"}`, bar a struct tag's, which its field's Go type types |
 
 ### Format string
 
