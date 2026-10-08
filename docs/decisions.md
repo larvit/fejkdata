@@ -118,9 +118,9 @@ until item 129: it reads a path, and only the data is absent.
 
 Padding is where the two readings disagree: a format string renders it, JSON drops it. A
 template that parses as a JSON object, array, string or `null` is its JSON, so its padding
-is dropped, as `encoding/json` drops it. A bare number or boolean gains nothing from the
-JSON reading, so it is a format string, and `echo 42` prints its newline as `echo x` does
-(goal 5.1).
+is dropped, as `encoding/json` drops it. `null` stays JSON, since it is how a template
+renders nothing. A bare number or boolean gains nothing from the JSON reading, so it is a
+format string, and `echo 42` prints its newline as `echo x` does (goal 5.1).
 
 ## A JSON string stays a template even where its bare text renders alike
 
