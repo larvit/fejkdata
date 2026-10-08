@@ -46,8 +46,8 @@ Under --format text, the default, what you send is what renders, and fejkdata ad
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
 template is any JSON value, and the whitespace around it is dropped; 42 or true alone
-renders its text, and null nothing. A quoted heredoc, <<'EOF',
-passes $, a backslash or a quote as written.
+renders its text, and null nothing. An empty or blank stdin renders as it is. A
+quoted heredoc, <<'EOF', passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/sv_SE.person}:
@@ -439,8 +439,8 @@ func withoutSelectors(path string) string {
 	return names.String()
 }
 
-// inputError marks a failure that is the input's own fault — no template, one that does
-// not compile, or a stdin that cannot be read. run reports it as misuse (exit 2, with a
+// inputError marks a failure that is the input's own fault — nothing piped in, a template
+// that does not compile, or a stdin that cannot be read. run reports it as misuse (exit 2, with a
 // pointer to --help), unlike a lone reference to nothing under --format, which is a runtime
 // error (exit 1).
 type inputError struct{ error }
@@ -460,11 +460,8 @@ type input struct {
 // parseInput reads stdin as the template, and as a record where it is a lone reference: JSON
 // with the whitespace around it dropped, else a format string with one newline ending it
 // allowed.
-func parseInput(raw string) (input, error) {
+func parseInput(raw string) input {
 	trimmed := strings.Trim(raw, jsonSpace)
-	if trimmed == "" {
-		return input{}, fmt.Errorf("stdin holds no template: %s", pipeHint)
-	}
 	text := raw
 	if json.Valid([]byte(trimmed)) {
 		text = trimmed
@@ -474,7 +471,7 @@ func parseInput(raw string) (input, error) {
 		text = strings.TrimSuffix(text, "\r")
 	}
 	record, _ := loneReference(text)
-	return input{template: raw, record: record}, nil
+	return input{template: raw, record: record}
 }
 
 // loneReference returns the path that text reads when it is one reference from the root
@@ -611,11 +608,7 @@ func readStdin(stdin io.Reader) (input, error) {
 	if err != nil {
 		return input{}, inputError{fmt.Errorf("stdin cannot be read: %w", err)}
 	}
-	src, err := parseInput(string(raw))
-	if err != nil {
-		return input{}, inputError{err}
-	}
-	return src, nil
+	return parseInput(string(raw)), nil
 }
 
 func fail(stderr io.Writer, err error) int {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -141,11 +142,32 @@ func compileItem(v any, pos position) (node, error) {
 		}
 		return &nullItem{}, nil
 	case json.Number:
+		if pos == inColumn {
+			return nil, typedOrText(string(v), numberType(v))
+		}
 		return compileString(string(v))
 	case bool:
+		if pos == inColumn {
+			return nil, typedOrText(strconv.FormatBool(v), DataTypeBoolean)
+		}
 		return compileString(strconv.FormatBool(v))
 	}
 	panic(invariant.Broken("compileItem has no case for the JSON value %T", v))
+}
+
+// typedOrText refuses a bare JSON number or boolean in a record column, which could be the
+// text it spells or a value of datatype d, naming both spellings.
+func typedOrText(text string, d DataType) error {
+	return fmt.Errorf(`%s in a record column could be text or a value of datatype %s; write %q for text, or {"format":%q,"datatype":%q}`, text, d, text, text, d)
+}
+
+// numberType is the datatype a JSON number spells: an integer where it has no fraction or
+// exponent, else a number.
+func numberType(n json.Number) DataType {
+	if strings.ContainsAny(string(n), ".eE") {
+		return DataTypeNumber
+	}
+	return DataTypeInteger
 }
 
 // jsonKind names the kind of a JSON value an option cannot take, in the data format's own
@@ -194,6 +216,9 @@ func compileChoice(items []any, pos position) (node, error) {
 	case 0:
 		return nil, fmt.Errorf("empty choice")
 	case 1:
+		if w, err := weightOf(items[0]); err == nil && w == 0 {
+			return nil, fmt.Errorf("every weight is 0, so the choice has nothing to draw")
+		}
 		return compileItem(items[0], pos)
 	}
 	c := &choice{items: make([]node, len(items))}

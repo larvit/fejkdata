@@ -37,9 +37,8 @@ func refSegments(name string, folder []string) ([]string, error) {
 	return append(append([]string{}, base...), segs...), nil
 }
 
-// resolveRefs resolves every reference t reads, refusing one to t's own category:
-// docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load
-func (t *template) resolveRefs(folder []string, label, category string, root map[string]node) (templateRefs, error) {
+// resolveRefs resolves every reference t reads.
+func (t *template) resolveRefs(folder []string, label string, root map[string]node) (templateRefs, error) {
 	var refs templateRefs
 	names := refTokens(t.tokens)
 	if len(names) == 0 {
@@ -57,9 +56,6 @@ func (t *template) resolveRefs(folder []string, label, category string, root map
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
-		if category != "" && head == "/"+category {
-			return refs, fmt.Errorf("%s: reference {%s}: names the category it sits in; read a sibling field as a path, or move the shared value into its own category and reference that", label, name)
-		}
 		if err := provePath(target, tail, head); err != nil {
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}

@@ -9,9 +9,9 @@ import (
 // templateSite is a template to resolve, with its folder and category, both empty for an inline
 // template, and eachNode's label for it.
 type templateSite struct {
-	t               *template
-	folder          []string
-	category, label string
+	t      *template
+	folder []string
+	label  string
 }
 
 // resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
@@ -21,7 +21,7 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node) error 
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
 			if t, isTemplate := n.(*template); isTemplate {
-				ts = append(ts, templateSite{t: t, folder: s.dir, category: s.path, label: label})
+				ts = append(ts, templateSite{t: t, folder: s.dir, label: label})
 			}
 			return nil
 		}); err != nil {
@@ -56,7 +56,7 @@ type resolvedNames struct {
 // targets and keys only once every check has passed.
 func resolveTemplates(ts []templateSite, root map[string]node) error {
 	for _, s := range ts {
-		refs, err := s.t.resolveRefs(s.folder, s.label, s.category, root)
+		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
 			return err
 		}
