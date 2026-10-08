@@ -921,7 +921,7 @@ Where the project is heading; the sections before Audience document what ships t
       major version.
    9. Everything fejkdata renders is written as a template: on the command line, in a
       struct tag and in the library.
-6. **Mistakes are caught when the data loads, and the error says plainly what is
+6. **Errors surface when the data loads, never mid-render, and say plainly what is
    wrong.**
    1. A template that could render a value its own rules forbid, such as `NaN` or `Inf`,
       fails to load instead.
