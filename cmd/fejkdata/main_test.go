@@ -220,8 +220,6 @@ func TestRunMisuse(t *testing.T) {
 		stdin string
 		args  []string
 	}{
-		{"", nil},
-		{"", []string{"--data-path", svSE}},
 		{"{/person}", []string{"-d", svSE, "word"}},
 		{"", []string{"-d", svSE, "--list", "person"}},
 		{"{/sv_SE.person}", []string{"--no-shipped-data"}},
@@ -313,10 +311,10 @@ func TestRunRendersExactlyWhatIsSent(t *testing.T) {
 	}
 }
 
-func TestRunRefusesBlankStdin(t *testing.T) {
+func TestRunRendersBlankStdin(t *testing.T) {
 	for _, stdin := range []string{"", "\n", " \r\n\t"} {
-		if code, out, errb := runOut(stdin); code != 2 || out != "" || !strings.Contains(errb, "holds no template") {
-			t.Errorf("run(%q) = %d, %q, %q; want misuse naming the empty stdin", stdin, code, out, errb)
+		if code, out, errb := runOut(stdin); code != 0 || out != stdin {
+			t.Errorf("run(%q) = %d, %q, %q; want the blank template rendered as it is", stdin, code, out, errb)
 		}
 	}
 }

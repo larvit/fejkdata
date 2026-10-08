@@ -218,17 +218,20 @@ func TestRecordColumnsReadingOneReferenceLoad(t *testing.T) {
 	}
 }
 
-func TestRecordRejectsAColumnReadingItsOwnRecord(t *testing.T) {
-	for _, c := range []struct{ name, column string }{
-		{"a path into itself", `"full":"{/person.first} {/person.last}"`},
-		{"the record read whole", `"whole":"{/person}"`},
-		{"the record as an operand", `"up":"{uppercase(/person)}"`},
-	} {
-		person := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],` + c.column + `}`
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"person": person})))
-		if err == nil || !strings.Contains(err.Error(), "names the category it sits in") {
-			t.Errorf("%s: New = %v, want it refused at load; the column would contradict the columns beside it", c.name, err)
+func TestRecordColumnReadingItsOwnRecordIsAFreshDraw(t *testing.T) {
+	person := `{"format":"{first} {last}","first":["Ada","Bo"],"last":["Lovelace","Ek"],"other":"{/person.first}"}`
+	f := newGenerator(t, writeData(t, map[string]string{"person": person}), WithSeed(1))
+	apart := false
+	for i := 0; i < 50 && !apart; i++ {
+		r, err := f.FakeRecord("person")
+		if err != nil {
+			t.Fatal(err)
 		}
+		c := r.Columns()
+		apart = c[0].Value != c[2].Value
+	}
+	if !apart {
+		t.Error("other matched first in 50 records, want a draw of its own")
 	}
 }
 

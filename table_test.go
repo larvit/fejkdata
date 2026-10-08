@@ -590,7 +590,7 @@ func TestTableFences(t *testing.T) {
 		"format names no column":                       {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
 		"format reads into a column":                   {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
 		"a reference into a column":                    {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
-		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "names the category it sits in"},
+		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "cycle"},
 	}
 	for name, c := range rejected {
 		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, c.files)))

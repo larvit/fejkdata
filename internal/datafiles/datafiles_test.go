@@ -86,6 +86,18 @@ func TestWalkIgnoresARowsFileNoCategoryNames(t *testing.T) {
 	}
 }
 
+func TestARowsFileMayBeHidden(t *testing.T) {
+	var rows string
+	err := Source{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, ".a.tsv": {Data: []byte("key\nA\n")}}}.Walk(func(c Category) error {
+		var err error
+		rows, err = c.ReadRows(".a.tsv")
+		return err
+	})
+	if err != nil || rows != "key\nA\n" {
+		t.Errorf("Walk = %v, read %q, want the hidden rows file read", err, rows)
+	}
+}
+
 func TestWalkLabelsWhatACategoryFileGetsWrong(t *testing.T) {
 	for _, c := range []struct {
 		name    string
