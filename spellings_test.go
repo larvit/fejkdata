@@ -30,6 +30,9 @@ func TestOneItemChoiceIsItsItem(t *testing.T) {
 	if r, isTemplate := compiled(t, `[{"format":"","d":"x"}]`).(*template); !isTemplate || !r.isRecord {
 		t.Error("a one-item choice of a record is no record, want the record it holds")
 	}
+	if _, err := resolved(t, `[{"format":"a","weight":0}]`); err == nil || !strings.Contains(err.Error(), "every weight is 0") {
+		t.Errorf("a one-item choice of weight 0 = %v, want it refused as having nothing to draw", err)
+	}
 }
 
 func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
@@ -70,9 +73,25 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 	}
 }
 
+func TestAJSONNumberOrBooleanInARecordColumnIsRefused(t *testing.T) {
+	for src, want := range map[string][]string{
+		`{"format":"","n":5}`:       {`"5"`, `{"format":"5","datatype":"integer"}`},
+		`{"format":"","n":1.50}`:    {`"1.50"`, `{"format":"1.50","datatype":"number"}`},
+		`{"format":"","b":true}`:    {`"true"`, `{"format":"true","datatype":"boolean"}`},
+		`{"format":"","n":[5,"x"]}`: {`"5"`, `{"format":"5","datatype":"integer"}`},
+	} {
+		_, err := resolved(t, src)
+		for _, w := range want {
+			if err == nil || !strings.Contains(err.Error(), w) {
+				t.Errorf("compile(%s) = %v, want both spellings, %s among them", src, err, w)
+			}
+		}
+	}
+}
+
 func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
-		"n": `{"format":"{a} {b} {c} {d}","a":5,"b":1.50,"c":12345678901234567890,"d":true}`,
+		"n": `{"format":"{x}","x":{"format":"{a} {b} {c} {d}","a":5,"b":1.50,"c":12345678901234567890,"d":true}}`,
 		"l": `[1e3]`,
 	}), WithSeed(1))
 	if v := fake(t, f, "n"); v != "5 1.50 12345678901234567890 true" {

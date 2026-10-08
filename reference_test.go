@@ -129,19 +129,22 @@ func TestDotPrefixedDataEntriesAreSkipped(t *testing.T) {
 	}
 }
 
-// TestReferenceIntoItsOwnCategoryIsRejected pins the unit a category is: a reference
-// back into it describes a draw other than the fields beside it, whether the format
-// renders that field or not, so it is refused at load rather than left to disagree in
-// the record view.
-func TestReferenceIntoItsOwnCategoryIsRejected(t *testing.T) {
+func TestAReferenceIntoItsOwnCategoryIsAFreshDraw(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"cat": `{"format":"{y} {x}","x":"{/cat.y}","y":["1","2"]}`}), WithSeed(1))
+	seen := map[string]bool{}
+	for i := 0; i < 50; i++ {
+		seen[fake(t, f, "cat")] = true
+	}
+	if !seen["1 2"] && !seen["2 1"] {
+		t.Errorf("cat drew %v in 50 renders, want x a draw apart from y", seen)
+	}
 	for name, file := range map[string]string{
-		"the category whole":      `{"format":"hi","x":"see {/cat}"}`,
-		"a field of its own":      `{"format":"hi","x":"{/cat.y}","y":"1"}`,
-		"a path the format reads": `{"format":"{/cat.y}","y":"1"}`,
+		"the category in its format": `{"format":"{/cat}"}`,
+		"a field reading itself":     `{"format":"{x}","x":"{/cat.x}"}`,
 	} {
 		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
-		if err == nil || !strings.Contains(err.Error(), "names the category it sits in") {
-			t.Errorf("%s: New = %v, want the reference into its own category refused", name, err)
+		if err == nil || !strings.Contains(err.Error(), "cycle") {
+			t.Errorf("%s: New = %v, want the cycle refused", name, err)
 		}
 	}
 	// Reading a sibling as a path is the spelling that stays.
