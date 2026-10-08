@@ -26,10 +26,8 @@ func (s *State) Float64() float64 { return s.rand.Float64() }
 func (s *State) Weighted(cum []float64) int {
 	total := cum[len(cum)-1]
 	x := s.Float64() * total
-	if i := sort.Search(len(cum), func(i int) bool { return cum[i] > x }); i < len(cum) {
-		return i
-	}
-	return sort.Search(len(cum), func(i int) bool { return cum[i] >= total }) // x rounded up to the total
+	// x stays below total: a product of a float64 under 1 and a positive float64 rounds below it.
+	return sort.Search(len(cum), func(i int) bool { return cum[i] > x })
 }
 
 // Seq advances the counter {seq(key)} reads, or {seq()} for an empty key, and returns it.
