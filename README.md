@@ -154,11 +154,10 @@ column the format binds to a name, as `{place as p}` binds `place`, holds that s
 agrees with the columns reading `p`; a column bound only in part, `{place.town as t}`, draws
 afresh, so bind it whole and read `{p.town}`.
 
-A category never references itself: `{/users.first}` or a bare `{/users}` inside `users`
-describes a draw other than the fields beside it. Read a sibling as a field, and put a
-value two fields share in its own category, bind it to a name in one field, and read the
-name in both
-([Decisions](docs/decisions.md#a-category-never-references-itself-and-a-records-fences-run-at-load)).
+A reference into a category's own fields, `{/users.first}` inside `users`, is a draw of its
+own, apart from the fields beside it; to share one draw, read the sibling as a field, or bind
+it to a name and read the name
+([Decisions](docs/decisions.md#a-category-may-reference-itself-and-a-records-fences-run-at-load)).
 
 ## Data
 
