@@ -254,13 +254,20 @@ func TestFakeStructTakesTheDatatypeItsGoTypeSets(t *testing.T) {
 }
 
 func TestFakeStructTypesABareNumberOrBooleanByItsGoType(t *testing.T) {
-	v := struct {
-		N int    `fake:"[5, 6]"`
-		B bool   `fake:"[true, false]"`
-		S string `fake:"[7.50]"`
-	}{}
-	if err := structData(t).FakeStruct(&v); err != nil || (v.N != 5 && v.N != 6) || v.S != "7.50" {
-		t.Errorf("FakeStruct = %+v, %v, want each value typed by its field", v, err)
+	f, seen := structData(t), map[bool]bool{}
+	for i := 0; i < 30; i++ {
+		v := struct {
+			N int    `fake:"[5, 6]"`
+			B bool   `fake:"[true, false]"`
+			S string `fake:"[7.50]"`
+		}{}
+		if err := f.FakeStruct(&v); err != nil || (v.N != 5 && v.N != 6) || v.S != "7.50" {
+			t.Fatalf("FakeStruct = %+v, %v, want each value typed by its field", v, err)
+		}
+		seen[v.B] = true
+	}
+	if len(seen) != 2 {
+		t.Errorf("B took %v in 30 fills, want true and false", seen)
 	}
 }
 

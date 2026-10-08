@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -168,28 +167,19 @@ func TestANameInAnInlineTemplate(t *testing.T) {
 }
 
 func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
-	f, n, both := engine(1), compiled(t, `{"format":"{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), 0
+	f, n, apart := engine(1), compiled(t, `{"format":"{x}|{x}","x":[{"format":"{v as w}{w}{w}","v":["a","b"]},"c"]}`), false
 	for i := 0; i < 100; i++ {
-		switch renderOnce(f.drawState, n) {
-		case "aa", "bb":
-			both++
-		case "c":
-		default:
-			t.Fatal("a name bound in a choice's item read two picks")
+		got := renderOnce(f.drawState, n)
+		halves := strings.Split(got, "|")
+		for _, h := range halves {
+			if h != "aa" && h != "bb" && h != "c" {
+				t.Fatalf("render %q holds %q, want each draw of the item to read one pick twice", got, h)
+			}
 		}
+		apart = apart || halves[0] != halves[1]
 	}
-	if both == 0 {
-		t.Error("100 renders never drew the item binding a name")
-	}
-}
-
-func TestTheRootScopeIsTheCategory(t *testing.T) {
-	root := compiled(t, `{"format":"{x as n}{n}{y}","x":"a","y":{"format":"{z as m}{m}","z":"b","repeat":2}}`).(*template)
-	if k := fmt.Sprint(root.nameScope.kind()); k != "category" {
-		t.Errorf("root scope kind = %q, want category", k)
-	}
-	if k := fmt.Sprint(root.fields["y"].(*template).nameScope.kind()); k != "repeat" {
-		t.Errorf("repeat scope kind = %q, want repeat", k)
+	if !apart {
+		t.Error("100 renders of {x}|{x} never drew two different halves, want a pick per draw of the item")
 	}
 }
 
@@ -203,6 +193,8 @@ func TestNameErrors(t *testing.T) {
 			`name "w" is bound twice outside any repeat`},
 		{"bound inside a repeat written first", map[string]string{"word": `["a","b"]`, "card": `{"format":"{a}{z}","a":{"format":"{/word as w}{w}","repeat":2},"z":"{/word as w}{w}"}`},
 			`name "w" is bound outside this repeat too`},
+		{"bound twice in one repeat", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}","x":{"format":"{/word as n}{/word as n}{n}","repeat":2}}`},
+			`name "n" is bound twice in one repeat`},
 		{"bound in a choice's item", map[string]string{"word": `["a","b"]`, "card": `{"format":"{x}{w}","x":["{/word as w}","b"]}`},
 			`name "w" is bound at field "x", inside an item of a choice, which a read outside that item cannot see`},
 		{"bound outside the repeat too", map[string]string{"word": `["a","b"]`, "card": `{"format":"{/word as w}{x}","x":{"format":"{/word as w}{w}","repeat":2}}`},

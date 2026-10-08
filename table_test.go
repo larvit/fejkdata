@@ -590,6 +590,8 @@ func TestTableFences(t *testing.T) {
 		"format names no column":                       {map[string]string{"t.json": `{"format":"{b}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `no column "b"`},
 		"format reads into a column":                   {map[string]string{"t.json": `{"format":"{a.x}","rows":"t.tsv"}`, "t.tsv": "a\nx\ny\n"}, `"a"`},
 		"a reference into a column":                    {with(base, map[string]string{"t.json": `"{/region.name.x}"`}), "column"},
+		"every row under one parent weighing 0":        {map[string]string{"p.json": `{"format":"{k}","rows":"p.tsv","key":"k"}`, "p.tsv": "k\nA\nB\n", "c.json": `{"format":"{n}","rows":"c.tsv","parent":"p","weight":"w"}`, "c.tsv": "n\tp\tw\nx\tA\t0\ny\tB\t1\n"}, `every row under p "A" weighs 0`},
+		"weights summing past the largest number":      {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","weight":"w"}`, "t.tsv": "a\tw\nx\t1e308\ny\t1e308\n"}, "past the largest number"},
 		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "cycle"},
 	}
 	for name, c := range rejected {

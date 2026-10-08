@@ -197,4 +197,16 @@ func TestALeadingSlashIsThePath(t *testing.T) {
 	if err != nil || len(r.Columns()) != 1 || r.Columns()[0].Value != "Ada" {
 		t.Errorf("FakeRecord(/person) = %+v, %v, want the record person", r, err)
 	}
+	if _, err := f.FakeRecord("//person"); err == nil || !strings.Contains(err.Error(), "write /person") {
+		t.Errorf("FakeRecord(//person) = %v, want it refused naming /person", err)
+	}
+	if _, err := f.FakeRecord("person["); err == nil || !strings.Contains(err.Error(), "never closes") {
+		t.Errorf("FakeRecord(person[) = %v, want the open selector named", err)
+	}
+	var v struct {
+		A string `fake:"//person"`
+	}
+	if err := f.FakeStruct(&v); err == nil || !strings.Contains(err.Error(), "write /person") {
+		t.Errorf("FakeStruct(//person tag) = %v, want it refused naming /person", err)
+	}
 }

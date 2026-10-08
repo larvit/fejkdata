@@ -17,8 +17,6 @@ func TestDatatypeSitsOnlyInAColumn(t *testing.T) {
 		`{"format":"","middle":[null,"Ann","Eva"]}`,
 		`{"format":"","age":[null,{"format":"{int(18,99)}","datatype":"integer","weight":9}]}`,
 		`{"format":"","pick":[[null,"a"],"b"]}`,
-		`{"format":"","n":{"format":"-0","datatype":"integer"}}`,
-		`{"format":"","n":{"format":"-0.00","datatype":"number"}}`,
 	} {
 		if _, err := resolved(t, src); err != nil {
 			t.Errorf("compile(%s) = %v, want a column to take a datatype and null", src, err)

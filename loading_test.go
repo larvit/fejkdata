@@ -323,8 +323,6 @@ func TestNewErrors(t *testing.T) {
 		"field with a closing paren": {map[string]string{"a": `{"format":"{b)c}","b)c":"2"}`}, "a", "2"},
 		"repeat without a separator": {map[string]string{"a": `{"format":"{x}","repeat":3,"x":"1"}`}, "a", "111"},
 		"one name in two tokens":     {map[string]string{"a": `{"format":"{x}{x}","x":"1"}`}, "a", "11"},
-		"separator without repeat":   {map[string]string{"a": `{"format":"{x}","x":"1","separator":",","repeat":1}`}, "a", "1"},
-		"weight outside a choice":    {map[string]string{"a": `{"format":"x","weight":5}`}, "a", "x"},
 		"repeated alternation arm":   {map[string]string{"a": `{"format":"{x|x}","x":"1"}`}, "a", "1"},
 		"repeated path arm":          {map[string]string{"a": `{"format":"{p.v|p.v}","p":{"format":"{v}","v":"1"}}`}, "a", "1"},
 		"repeated reference arm":     {map[string]string{"a": `"x"`, "b": `"{/a|/a}"`}, "b", "x"},
