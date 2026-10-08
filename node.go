@@ -172,7 +172,7 @@ func typedOrText(text string, ds ...DataType) error {
 			return fmt.Errorf(`%s in a record column could be text or a value of datatype %s; write %q for text, or {"format":%q,"datatype":%q}`, text, d, text, text, d)
 		}
 	}
-	return fmt.Errorf(`%s in a record column could be text or a typed value, though no datatype holds it; write %q for text`, text, text)
+	return fmt.Errorf(`%s in a record column fits no datatype; write %q for text`, text, text)
 }
 
 // jsonKind names the kind of a JSON value an option cannot take, in the data format's own

@@ -46,9 +46,9 @@ Under --format text, the default, what you send is what renders, and fejkdata ad
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
 object, array or string drops the whitespace around it, and null alone renders nothing;
-42 or true alone is a format string, printed as written. An empty or blank stdin
-renders as it is. A
-quoted heredoc, <<'EOF', passes $, a backslash or a quote as written.
+42 or true alone is a format string, printed as written. An empty or blank stdin is a
+format string like any other, and renders as sent. A quoted heredoc, <<'EOF', passes $,
+a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/sv_SE.person}:
@@ -468,9 +468,8 @@ type input struct {
 	record   string
 }
 
-// parseInput reads stdin as the template, and as a record where it is a lone reference: JSON
-// with the whitespace around it dropped, else a format string with one newline ending it
-// allowed.
+// parseInput keeps stdin whole as the template, and names a record where stdin is a lone
+// reference once JSON's surrounding whitespace, or one final newline, is cut.
 func parseInput(raw string) input {
 	trimmed := strings.Trim(raw, jsonSpace)
 	text := raw
