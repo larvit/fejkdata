@@ -35,7 +35,7 @@ fejkdata <<'EOF'
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 
-A template is a format string, or any JSON value. Its {…} tokens
+A template is a format string, or a JSON object, array, string or null. Its {…} tokens
 reach the data by reference from the root, {/sv_SE.person.last}, whether the data
 is shipped or layered with --data-path. A reference names a category or a dotted
 path into one ({/sv_SE.person.last}), a table's row by key or name
@@ -606,7 +606,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if err := in.write(f, src, stdout); err != nil {
-		return fail(stderr, in.noDataCause(err))
+		return fail(stderr, err)
 	}
 	return 0
 }
@@ -620,18 +620,6 @@ func readStdin(stdin io.Reader) (input, error) {
 		return input{}, inputError{fmt.Errorf("stdin cannot be read: %w", err)}
 	}
 	return parseInput(string(raw)), nil
-}
-
-// noDataCause adds the flags that left the generator without data to an error saying none is
-// loaded.
-func (in invocation) noDataCause(err error) error {
-	if !in.noShipped || len(in.dirs) > 0 || !strings.HasSuffix(err.Error(), "no data is loaded") {
-		return err
-	}
-	if te, isInput := err.(inputError); isInput {
-		return inputError{fmt.Errorf("%w: --no-shipped-data and no --data-path", te.error)}
-	}
-	return fmt.Errorf("%w: --no-shipped-data and no --data-path", err)
 }
 
 func fail(stderr io.Writer, err error) int {

@@ -30,7 +30,7 @@ born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 ```
 
-fejkdata renders the template on its stdin: a format string, or any JSON value. Its `{…}` tokens reach the data by reference from the root,
+fejkdata renders the template on its stdin: a format string, or a JSON object, array, string or `null`. Its `{…}` tokens reach the data by reference from the root,
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike available,
 and everything outside them prints as written. A reference names a category, or a field
 inside one: each dot segment descends one level — folders, then the category (a JSON
