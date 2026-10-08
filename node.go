@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -273,7 +274,12 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	}
 	fieldPos := inFormat
 	if o.repeat == 1 {
-		fieldPos = map[position]position{atTop: inColumn, atGoTop: inGoColumn}[pos]
+		switch pos {
+		case atTop:
+			fieldPos = inColumn
+		case atGoTop:
+			fieldPos = inGoColumn
+		}
 	}
 	fields, err := compileFields(m, fieldPos)
 	if err != nil {
@@ -346,6 +352,9 @@ func repeatOf(m map[string]any) (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("repeat must be a number, not %s", jsonKind(rv))
 	}
+	if err := notTiny("repeat", rv, r); err != nil {
+		return 0, err
+	}
 	if math.IsNaN(r) || math.IsInf(r, 0) || r < 0 || r != math.Trunc(r) {
 		return 0, fmt.Errorf("repeat must be an integer of 0 or more, got %v", rv)
 	}
@@ -373,7 +382,17 @@ func weightOf(raw any) (float64, error) {
 	if w < 0 || math.IsInf(w, 0) {
 		return 0, fmt.Errorf("weight must be a finite number of 0 or more, got %v", wv)
 	}
-	return w, nil
+	return w, notTiny("weight", wv, w)
+}
+
+// notTiny refuses the number v of option name where it reads as 0 though a digit of it is not
+// 0, as 1e-400 does: no float64 holds the number written.
+func notTiny(name string, v any, f float64) error {
+	mantissa, _, _ := strings.Cut(strings.ToLower(string(v.(json.Number))), "e")
+	if f == 0 && strings.ContainsAny(mantissa, "123456789") {
+		return fmt.Errorf("%s %s is too close to 0 to tell from it", name, v)
+	}
+	return nil
 }
 
 // numberOf reads a JSON number, one too large for a float64 as an infinity.
