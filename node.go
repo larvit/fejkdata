@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
+	"github.com/larvit/fejkdata/internal/proven"
 )
 
 // node is a compiled element of the namespace tree: a folder, choice, null,
@@ -91,8 +91,11 @@ func (t *template) startOf(name string) node {
 
 // compile converts parsed JSON — a category or an inline template — into a node tree,
 // validating structure up front.
-func compile(v jsonvalue.Value) (node, error) {
-	n, err := compileItem(v.Any(), atTop)
+func compile(v jsonvalue.Value) (node, error) { return compileFrom(v, atTop) }
+
+// compileFrom is compile with the root at pos: atTop, or atGoTop for a struct's tags.
+func compileFrom(v jsonvalue.Value, pos position) (node, error) {
+	n, err := compileItem(v.Any(), pos)
 	if err != nil {
 		return nil, err
 	}
@@ -115,10 +118,15 @@ func compileCategory(c datafiles.Category) (node, error) {
 type position int
 
 const (
-	inFormat position = iota // rendered by a format, so neither
-	atTop                    // a category or an inline template, whose fields may be columns
-	inColumn                 // a column, or a choice item standing in for one
+	inFormat   position = iota // rendered by a format, so neither
+	atTop                      // a category or an inline template, whose fields may be columns
+	inColumn                   // a column, or a choice item standing in for one
+	atGoTop                    // a struct's tags, whose fields are columns a Go type types
+	inGoColumn                 // a column a struct field's Go type types, or a choice item in one
 )
+
+// column reports a position that is a record column.
+func (p position) column() bool { return p == inColumn || p == inGoColumn }
 
 // compileItem compiles one node; a weight on it skews only a choice drawing it.
 func compileItem(v any, pos position) (node, error) {
@@ -137,13 +145,13 @@ func compileItem(v any, pos position) (node, error) {
 	case map[string]any:
 		return compileTemplate(v, pos)
 	case nil:
-		if pos != inColumn {
+		if !pos.column() {
 			return compileString("")
 		}
 		return &nullItem{}, nil
 	case json.Number:
 		if pos == inColumn {
-			return nil, typedOrText(string(v), numberType(v))
+			return nil, typedOrText(string(v), DataTypeInteger, DataTypeNumber)
 		}
 		return compileString(string(v))
 	case bool:
@@ -156,18 +164,15 @@ func compileItem(v any, pos position) (node, error) {
 }
 
 // typedOrText refuses a bare JSON number or boolean in a record column, which could be the
-// text it spells or a value of datatype d, naming both spellings.
-func typedOrText(text string, d DataType) error {
-	return fmt.Errorf(`%s in a record column could be text or a value of datatype %s; write %q for text, or {"format":%q,"datatype":%q}`, text, d, text, text, d)
-}
-
-// numberType is the datatype a JSON number spells: an integer where it has no fraction or
-// exponent, else a number.
-func numberType(n json.Number) DataType {
-	if strings.ContainsAny(string(n), ".eE") {
-		return DataTypeNumber
+// text it spells or a typed value, naming the text and the first of ds that holds it.
+func typedOrText(text string, ds ...DataType) error {
+	held := proven.Literal(text)
+	for _, d := range ds {
+		if held.Not[d] == "" {
+			return fmt.Errorf(`%s in a record column could be text or a value of datatype %s; write %q for text, or {"format":%q,"datatype":%q}`, text, d, text, text, d)
+		}
 	}
-	return DataTypeInteger
+	return fmt.Errorf(`%s in a record column could be text or a typed value, though no datatype holds it; write %q for text`, text, text)
 }
 
 // jsonKind names the kind of a JSON value an option cannot take, in the data format's own
@@ -209,14 +214,18 @@ func (t *template) fixedText() (string, bool) {
 
 func compileChoice(items []any, pos position) (node, error) {
 	itemPos := inFormat
-	if pos == inColumn {
-		itemPos = inColumn
+	if pos.column() {
+		itemPos = pos
 	}
 	switch len(items) {
 	case 0:
 		return nil, fmt.Errorf("empty choice")
 	case 1:
-		if w, err := weightOf(items[0]); err == nil && w == 0 {
+		w, err := weightOf(items[0])
+		if err != nil {
+			return nil, err
+		}
+		if w == 0 {
 			return nil, fmt.Errorf("every weight is 0, so the choice has nothing to draw")
 		}
 		return compileItem(items[0], pos)
@@ -263,8 +272,8 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 		return nil, err
 	}
 	fieldPos := inFormat
-	if pos == atTop && o.repeat == 1 {
-		fieldPos = inColumn
+	if o.repeat == 1 {
+		fieldPos = map[position]position{atTop: inColumn, atGoTop: inGoColumn}[pos]
 	}
 	fields, err := compileFields(m, fieldPos)
 	if err != nil {
@@ -274,7 +283,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos == inColumn, unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
 }
 
 // templateOptions is what a template object's option keys say.
