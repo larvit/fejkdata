@@ -386,7 +386,8 @@ over the one it reads: the one way to type a column someone else wrote.
 
 ## A typed column's calc is refused unless proven
 
-2026-09-15, Lilleman auf Larv.
+2026-09-15, Lilleman auf Larv. Serves goal 6.1, read as: a template fails to load where
+the loader cannot prove it renders no forbidden value.
 
 Operand bounds must keep each divisor from zero and the result finite; what they cannot
 show is refused rather than trusted, since a bare `NaN` breaks the JSON and SQL it lands
