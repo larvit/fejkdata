@@ -60,7 +60,6 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 		`"{date(1990-01-01,1990-01-01,'2006-01-02')}"`: `"1990-01-01"`,
 		`"{date(1990-01-01,1990-12-31,'x')}"`:          `"x"`,
 		`"{time('x')}"`:                                `"x"`,
-		`"{time('2006-01-02')}"`:                       `"1970-01-01"`,
 	} {
 		sameRenders(t, long, short)
 	}
@@ -108,7 +107,7 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 	if v := fake(t, f, "l"); v != "1e3" {
 		t.Errorf("l = %q, want 1e3 as written", v)
 	}
-	for in, want := range map[string]string{"42": "42", " false ": "false", "[7]": "7"} {
+	for in, want := range map[string]string{"42": "42", " false ": " false ", "42\n": "42\n", "[7]": "7"} {
 		if v, err := f.FakeTemplate(in); err != nil || v != want {
 			t.Errorf("FakeTemplate(%q) = %q, %v, want %q", in, v, err, want)
 		}

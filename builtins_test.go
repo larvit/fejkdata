@@ -276,6 +276,7 @@ func TestBuiltinDateAndTime(t *testing.T) {
 func TestBuiltinDateArgs(t *testing.T) {
 	for tmpl, want := range map[string]string{
 		`"{date(1990-13-01,1990-12-31,'2006-01-02')}"`:        "1990-13-01",
+		`"{time('2006-01-02 15:04')}"`:                        "write date(from,to,layout)",
 		`"{date(1990-12-31,1990-01-01,'2006-01-02')}"`:        "is after",
 		`"{date(1990-01-01,1990-12-31,2006-01-02)}"`:          "'2006-01-02'",
 		`"{date(1990-01-01,1990-12-31,'January 2, 2006)}"`:    "'",

@@ -517,7 +517,7 @@ func TestRunNoShippedData(t *testing.T) {
 	if code, out, errb := runOut("{digits(3)}", "--no-shipped-data"); code != 0 || len(out) != 3 {
 		t.Errorf("--no-shipped-data alone = %d, %q, %q, want a template reading no data rendered", code, out, errb)
 	}
-	if code, _, errb := runOut("{/sv_SE.person}", "--no-shipped-data"); code != 2 || !strings.Contains(errb, "no entry") {
+	if code, _, errb := runOut("{/sv_SE.person}", "--no-shipped-data"); code != 2 || !strings.Contains(errb, "no data is loaded: --no-shipped-data and no --data-path") {
 		t.Errorf("--no-shipped-data alone = %d, %q, want a reference to nothing refused", code, errb)
 	}
 }
@@ -531,7 +531,7 @@ func TestRunRepeatOfZeroWritesNoRecord(t *testing.T) {
 		{nil, ""},
 		{[]string{"--format", "json"}, "[]\n"},
 		{[]string{"--format", "ndjson"}, ""},
-		{[]string{"--format", "csv"}, ""},
+		{[]string{"--format", "csv"}, "first,last\n"},
 		{[]string{"--format", "sql"}, ""},
 	} {
 		if code, out, errb := runOut("{/users}", append(c.args, "-n", "0", "-d", dir)...); code != 0 || out != c.want {
@@ -574,7 +574,6 @@ func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
 		{"", []string{"--list"}, []string{"--separator", ","}},
 		{"", []string{"--list"}, []string{"--format", "json"}},
 		{"", []string{"--list"}, []string{"--table", "t"}},
-		{"{/users}", []string{"--format", "json", "-n", "2"}, []string{"--separator", ","}},
 		{"{/users}", nil, []string{"--table", "t"}},
 		{"{/users}", []string{"--format", "json"}, []string{"--table", "t"}},
 	} {
@@ -587,8 +586,14 @@ func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
 	}
 }
 
+func TestRunReadsABareNumberAsAFormatString(t *testing.T) {
+	if code, out, errb := runOut("42\n", "-n", "3"); code != 0 || out != "42\n42\n42\n" {
+		t.Errorf("echo 42 | fejkdata -n 3 = %d, %q, %q, want 42 on three lines", code, out, errb)
+	}
+}
+
 func TestRunRendersAnyJSONValue(t *testing.T) {
-	for stdin, want := range map[string]string{"42": "42", "42\n": "42", "true\n": "true", "null\n": "", " null ": ""} {
+	for stdin, want := range map[string]string{"42": "42", "42\n": "42\n", "true\n": "true\n", " 7 ": " 7 ", "null\n": "", " null ": ""} {
 		if code, out, errb := runOut(stdin); code != 0 || out != want {
 			t.Errorf("run(%q) = %d, %q, %q, want %q", stdin, code, out, errb, want)
 		}
@@ -718,6 +723,10 @@ func TestRunRecordMisuse(t *testing.T) {
 	}{
 		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, sql or text"},
 		{[]string{"--format", "sql", "--table", ""}, "--table names the INSERT target"},
+		{[]string{"--format", "csv", "--separator", ";"}, `--separator joins text renders; --format csv always separates fields with ","`},
+		{[]string{"--format", "json", "--separator", ","}, "--separator joins text renders"},
+		{[]string{"--format", "ndjson", "--separator", ","}, "--separator joins text renders"},
+		{[]string{"--format", "sql", "--separator", ","}, "--separator joins text renders"},
 	} {
 		code, out, errb := runOut("{/users}", c.args...)
 		if code != 2 || out != "" || !strings.Contains(errb, c.want) {

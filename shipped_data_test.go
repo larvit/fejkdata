@@ -53,6 +53,12 @@ func TestUserDataMayReferenceShipped(t *testing.T) {
 	}
 }
 
+func TestAGeneratorWithDataSaysNothingOfNoData(t *testing.T) {
+	if _, err := shipped(t).Fake("nope"); err == nil || strings.Contains(err.Error(), "no data is loaded") {
+		t.Errorf("Fake(nope) = %v, want no entry without the no-data note", err)
+	}
+}
+
 func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 	for name, opts := range map[string][]Option{
 		"no source":    {WithoutShippedData()},
@@ -65,8 +71,14 @@ func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 		if v, err := f.FakeTemplate("{digits(3)}"); err != nil || len(v) != 3 {
 			t.Errorf("%s: FakeTemplate = %q, %v, want three digits", name, v, err)
 		}
-		if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "no entry") {
-			t.Errorf("%s: Fake(x) = %v, want a reference to nothing refused", name, err)
+		if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+			t.Errorf("%s: Fake(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+		}
+		if _, err := f.NewTemplate("{/x}"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+			t.Errorf("%s: NewTemplate({/x}) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+		}
+		if _, err := f.FakeRecord("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+			t.Errorf("%s: FakeRecord(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
 		}
 	}
 }
