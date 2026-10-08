@@ -65,7 +65,9 @@ can never collide with any of those spellings, and the leading `[` or `"` is gat
 valid JSON so a stray copied bracket never swallows a tag — it names nothing, and says
 so. Reserving the characters whole — though only a leading one
 could collide — keeps one simple name rule instead of a leading-position special case.
-A folder-relative `{.name}` or `{..name}` is refused naming
+A JSON string stays a template even where its bare text renders alike, `"x {/a}"` beside
+`x {/a}`: inside the quotes `\t` and `\n` write a tab or a newline on one line. A
+folder-relative `{.name}` or `{..name}` is refused naming
 `{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so
 struct tags and any other caller read one.
 
@@ -81,9 +83,7 @@ bench of the README's personas picked this on 2026-10-07 over dropping a newline
 adding one: a rule a user states in one sentence, at the cost of `printf` or a
 `--separator` now and then.
 
-A JSON template is its JSON, so the whitespace around it is no part of the template, per
-the decision "Whitespace around a JSON template is dropped, in `NewTemplate` and on
-stdin". Stdin holding only whitespace is a template like any other, and renders it.
+Stdin holding only whitespace is a format string, and renders as sent.
 
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
 one newline after it allowed, with `users` the default `--table`; one to nothing there
@@ -100,9 +100,9 @@ template per run.
 
 2026-10-07, Lilleman auf Larv. Serves goal 9.6: a CLI carrying your own modules is a few
 lines of Go and works just like `fejkdata`, so `fejkdata`'s own CLI is such a CLI and
-imports nothing under `internal/`. It copies one reading the API does not export yet,
-the lone reference: `isPath`, `hasEmptySegment` and `withoutSelectors` in `cmd/fejkdata`, pinned to the
-grammar by a test, until `todo.md` item 129 moves that reading into the library.
+its non-test code imports nothing under `internal/`. Until `todo.md` item 129 moves it into
+the library, the CLI copies how the grammar tells a lone reference, in `isPath`,
+`hasEmptySegment` and `withoutSelectors`, and a test pins the copy to the grammar.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129
 
@@ -112,7 +112,7 @@ The whole template is the spelling under test, and `NewTemplate` compiles, links
 validates as one step. Under the CLI's `--format`, a lone reference to nothing exits 1
 until item 129: it reads a path, and only the data is absent.
 
-## Whitespace around a JSON template is dropped, in `NewTemplate` and on stdin
+## Whitespace around a JSON object, array, string or null is dropped, and a bare number or boolean is a format string
 
 2026-10-07, Lilleman auf Larv. Applies KISS.
 
@@ -121,15 +121,6 @@ template that parses as a JSON object, array, string or `null` is its JSON, so i
 is dropped, as `encoding/json` drops it. `null` stays JSON, since it is how a template
 renders nothing. A bare number or boolean gains nothing from the JSON reading, so it is a
 format string, and `echo 42` prints its newline as `echo x` does (goal 5.1).
-
-## A JSON string stays a template even where its bare text renders alike
-
-2026-10-07, Lilleman auf Larv. Serves goal 5.7: whatever is well-formed and means one thing
-loads.
-
-`"x {/a}"` and `x {/a}` render alike on stdin, in `NewTemplate` and in a struct tag. The
-quotes are no mistake: inside them `\t` and `\n` write a tab or a newline where the
-template is one line of a Go string, a struct tag or a file.
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -345,16 +336,14 @@ handle is needed, as the cache already compiles once.
 2026-09-16, Lilleman auf Larv; revised 2026-10-07. Serves goals 5.2 and 5.7.
 
 A reference back into a category, `{/users.first}` inside `users`, is a fresh draw, as
-every `{…}` is; only a cycle is refused. A value two fields share goes in its own
-category, which one field binds to a name and both read (goal 4.1). A record's column
-fences run at `New` too, so a category that loads renders as a value and as a record alike.
+every `{…}` is; only a cycle is refused. A record's column fences run at `New` too, so a category that loads renders as a value and as a record alike.
 
 ## A record's column set is fixed before the first draw
 
 2026-09-04, Lilleman auf Larv.
 
 Only a category-level template is a record: a path descending into a field, or naming a
-folder or a choice, errors. A tail may pass through a choice whose variants carry
+folder or a choice of more than one item, errors. A tail may pass through a choice whose variants carry
 different fields, so the columns — and with them the CSV header written once ahead of
 every row — would vary per draw. A fixed column set is what the CSV and `INSERT`
 contracts rest on, so the restriction holds even where a particular choice would happen
@@ -631,8 +620,9 @@ Table section teaches it.
 2026-09-18, Lilleman auf Larv. Serves goal 5.6.
 
 A layout may carry the comma that separates arguments,
-`'January 2, 2006'`, a bare `2006-01-02` reads like a third date, and a double-quoted one
-could be quotes printed in the output, so each is refused naming the single-quoted one. The layout is Go's reference time because the
+`'January 2, 2006'`. A bare `2006-01-02` reads like a third date, and a double-quoted
+layout could be quotes printed in the output, so both are refused, naming the
+single-quoted spelling. The layout is Go's reference time because the
 library renders with it and a Go caller already knows it; its names are English, and a
 locale's own month and weekday names are data.
 
@@ -855,7 +845,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Shipped under the floor by the maintainer's decisions of 2026-10-07: the CLI reading its template from stdin, with the scoring run and its ratchet waived for that chunk; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake, with the scoring run and its ratchet waived for that chunk too.
+Shipped under the floor by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 
 Last scoring run, 2026-10-07, on commit ad59967: Navigation 7.00, Locality 5.88, Shape 6.50, Self-sufficiency 6.13, overall 6.38. The nine-seat panel at depth 1, run beside it: Navigation 7.17, Locality 6.06, Shape 6.67, Self-sufficiency 6.56, overall 6.56. Against the runs on ac6158e, the scoring run's overall rose from 6.25 and its Shape from 6.38, while its Self-sufficiency fell from 6.38; the panel's overall held, and its Locality and Self-sufficiency fell by 0.05 each. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats named the named-pick read path hardest: `readField`, `readName`, `readUnder` and `keeps`, with the pick keys `levelKeys` and `addressedKeys` build at load; twelve kept `doc.go`'s vocabulary open beside it. What the two runs found is filed in `todo.md`, and `todo.md` item 153 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
