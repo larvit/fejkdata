@@ -114,7 +114,7 @@
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
-| 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
+| 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
@@ -435,7 +435,7 @@ Say the format is the table's own (`region's format "{name}"`), name the read to
 
 Require the path step to reach a sibling category.
 
-### 42. Refuse a struct tag's `datatype` naming the Go type that sets it before proving its values, as the README's Library section promises.
+### 42. Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
@@ -503,7 +503,7 @@ Today a cell reads `g.t.b, line 3` (`namedNode.labelIn`), a cell check `t.tsv: l
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`.
 
-A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{digits(14)}` does. Both load; the shipped data writes the shorter one. Re-pin seeded output in its own commit.
+A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{digits(14)}` does. Both load; make the shipped data write the shorter one. Re-pin seeded output in its own commit.
 
 ### 11. Test that every `geo` tree holds the five table names and the `address` columns that port across countries.
 

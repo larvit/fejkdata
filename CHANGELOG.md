@@ -22,7 +22,8 @@ replacement, and each removed path, column or flag.
   `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints nothing;
   `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. `{x as n}` binds a
   reference, a sibling field or a path into one; a name lives in the category binding it,
-  and picks again on every iteration of a `repeat` binding it. A struct's tags share its
+  and picks again on every iteration of a `repeat`, or every draw of a choice item,
+  binding it. A struct's tags share its
   names, `{/sv_SE.person as p}{p.first}` beside `{p.sex}`. A name is a `{calc()}`
   operand: `{/misc.coordinate.lat as lat}{calc(lat * 60)}`. What `New` refuses is listed
   under [Names](README.md#names).
@@ -32,7 +33,17 @@ replacement, and each removed path, column or flag.
   defaults to empty. Whitespace around a JSON object, array or string template is
   dropped, and a bare number or boolean is a format string, printed as written. A lone reference,
   `{/users}`, is the record `users` under `--format`. An argument other than a flag, or
-  nothing piped in, exits 2; an empty or blank stdin is a template, and renders as it is.
+  nothing piped in, exits 2; an empty or blank stdin is a format string, and renders as
+  sent.
+- A template or data file loads whatever is well-formed and means one thing, even where
+  part of it does nothing: a default written out, a one-item choice, an object holding only
+  a format, a constant sample such as `{int(5,5)}`, a `weight`, `separator` or `datatype`
+  where it does nothing, a name nothing reads, a repeated item, which counts as written, a
+  weight of `0`, which is never drawn, a `repeat` or count of `0`, which renders nothing,
+  `+5`, `05` and `-0`, and a reference into the category it sits in. A rows file no
+  category names is ignored. `New` with no data loads, and renders templates that read
+  none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--format` and `--table`,
+  and `--table` is ignored without `--format sql`.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.territory[SE]`, and descends to a linked table by name, one path drawing each

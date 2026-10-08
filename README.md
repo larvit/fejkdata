@@ -41,8 +41,8 @@ Under `--format text`, the default, what you send is what renders, and fejkdata 
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON object, array
 or string drops the whitespace around it, and `null` alone renders nothing; `42` or `true`
-alone is a format string, so it prints as written, newline included. An empty or blank stdin is a template too, and
-renders as it is. A JSON template that should end
+alone is a format string, so it prints as written, newline included. An empty or blank stdin is a format string like
+any other, and renders as sent. A JSON template that should end
 each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
@@ -120,7 +120,7 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 
 `--repeat` streams that many records — `json` frames them as one array document,
 `ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
-per line. Only a category-level template is a record, or a one-item choice of one; a
+per line. Only a category-level template is a record, or a one-item choice holding one; a
 field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
@@ -329,7 +329,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithoutShippedData()` | load only what you give |
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
-value, and `NewTemplate` such a template. On a loaded generator:
+value, and `NewTemplate` refuses such a template. On a loaded generator:
 
 - `Fake` fails only for a path that names nothing, could name two things, or reads one
   draw of a level carrying a `repeat`, with the same error every call.
@@ -388,8 +388,12 @@ Every value is a **node**, nestable without limit:
 | choice | `["a", "b", …]` | one item, picked at random |
 | template | `{"format": "…", …}` | its format, with `{name}` tokens rendering the named fields |
 | table | `{"format": "…", "rows": "x.tsv", …}` | its format over one row of the TSV beside it ([Table](#table)) |
-| number | `5`, `1.50` | its text as written; refused in a record column, where it could be text, `"5"`, or a typed value, `{"format": "5", "datatype": "integer"}`, bar a struct tag's, which its field's Go type types |
-| boolean | `true` | its text; refused in a record column, where it could be text, `"true"`, or a typed value, `{"format": "true", "datatype": "boolean"}`, bar a struct tag's, which its field's Go type types |
+| number | `5`, `1.50` | its text as written |
+| boolean | `true` | its text as written |
+
+In a record column a bare number or boolean is refused, since it could be the text `"5"`
+or the typed value `{"format": "5", "datatype": "integer"}`. In a struct tag, the
+field's Go type decides.
 
 ### Format string
 
@@ -433,8 +437,8 @@ Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighte
 writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as written,
 so `["a", "a", "b"]` draws `a` two times in three, and an item of weight `0` is never
 drawn. A weight outside a choice does nothing, and so does one above `0` on the item of
-a one-item choice. Rejected at load: a weight that is negative or not a number, and a
-choice whose every weight is `0`, a one-item choice of weight `0` among them.
+a one-item choice. Rejected at load: a weight that is negative, not a number, or too
+close to `0` to tell from it, such as `1e-400`, and a choice whose every weight is `0`, a one-item choice of weight `0` among them.
 
 ### Repeat
 
@@ -531,8 +535,8 @@ echo '{/country}' | fejkdata -d ./mydata --format csv     # alpha2,name,populati
 ```
 
 `rows` names the TSV beside the category file; `key` names the column a path
-selects a row by, `name` a column it also selects by, `weight` a column of positive
-numbers that skews the draw, and `parent` the table a column links to
+selects a row by, `name` a column it also selects by, `weight` a column of numbers
+of 0 or more that skews the draw, and `parent` the table a column links to
 ([Linked tables](#linked-tables)). The format's `{tokens}` read the columns, and the
 columns are the [record](#records)'s columns, so `--format csv` writes the rows and
 `--list` shows `country.alpha2`. A cell is a string node: `1{digits(2)} {digits(2)}`
@@ -540,8 +544,8 @@ in a cell draws digits and `{/misc.uuid}` reads a reference, while `{name}` in a
 is refused, since a cell has no sibling. Each cell may select its own row of another
 table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbol}`
 on the next, since only one row renders. `New` proves the header, the options and every
-cell token, and refuses a key that is empty or repeats, a weight that is negative or not
-a number, every weight `0` across the table or inside one parent row, and a key or name holding `[`, `]`, `{`, `}`,
+cell token, and refuses a key that is empty or repeats, a weight that is negative, not
+a number or too close to `0` to tell from it, every weight `0` across the table or inside one parent row, and a key or name holding `[`, `]`, `{`, `}`,
 `"` or `|`, which a selector cannot spell; `New` maps the keys, and a name or parent column
 is mapped on the first draw that selects by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
 their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
@@ -679,10 +683,10 @@ layout prints `UTC` or `Z`.
 The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. A layout naming no field prints itself, `date` with a clock-only
 layout prints the drawn instant's clock, and `date` over one day with no clock field prints
-that day; `time` with a layout naming a date field is refused, naming `date`, since `time`
-draws no date.
-Rejected at `New`: a bound that is no calendar date, or after the other, and an unquoted
-or double-quoted layout, naming the single-quoted one. `{seq()}` spans `Fake`
+that day.
+Rejected at `New`: a bound that is no calendar date, or after the other; an unquoted
+or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
+date field, naming `date`, since `time` draws no date. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above.
 
@@ -743,8 +747,7 @@ so `{.person.first} {.person.last}` may name two people. Bind the person to a [n
 {p.last}`. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, reads a field not every variant
 of a choice carries, and a reference that leads back to its own value, directly,
-mutually or through a chain. A reference into the category it sits in is a fresh draw
-like any other.
+mutually or through a chain.
 
 ### Names
 
@@ -781,8 +784,8 @@ Refused at `New`, each error naming what to write instead:
 - a binding of anything but a reference, or a field of the template binding it or a path into
   one;
 - a read of a name inside the field bound to it: read it outside that field;
-- a read outside a choice's item of a name bound inside it, which every other item would
-  leave unbound;
+- reading a name outside the choice item that binds it, since the other items leave it
+  unbound;
 - a path through a name that selects a row;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;
