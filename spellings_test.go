@@ -75,10 +75,11 @@ func TestAPartWithNoEffectRendersAsWithoutIt(t *testing.T) {
 
 func TestAJSONNumberOrBooleanInARecordColumnIsRefused(t *testing.T) {
 	for src, want := range map[string][]string{
-		`{"format":"","n":5}`:       {`"5"`, `{"format":"5","datatype":"integer"}`},
-		`{"format":"","n":1.50}`:    {`"1.50"`, `{"format":"1.50","datatype":"number"}`},
-		`{"format":"","b":true}`:    {`"true"`, `{"format":"true","datatype":"boolean"}`},
-		`{"format":"","n":[5,"x"]}`: {`"5"`, `{"format":"5","datatype":"integer"}`},
+		`{"format":"","n":5}`:                    {`"5"`, `{"format":"5","datatype":"integer"}`},
+		`{"format":"","n":1.50}`:                 {`"1.50"`, `{"format":"1.50","datatype":"number"}`},
+		`{"format":"","b":true}`:                 {`"true"`, `{"format":"true","datatype":"boolean"}`},
+		`{"format":"","n":12345678901234567890}`: {`"12345678901234567890"`, `{"format":"12345678901234567890","datatype":"number"}`},
+		`{"format":"","n":[5,"x"]}`:              {`"5"`, `{"format":"5","datatype":"integer"}`},
 	} {
 		_, err := resolved(t, src)
 		for _, w := range want {
@@ -86,6 +87,13 @@ func TestAJSONNumberOrBooleanInARecordColumnIsRefused(t *testing.T) {
 				t.Errorf("compile(%s) = %v, want both spellings, %s among them", src, err, w)
 			}
 		}
+	}
+}
+
+func TestAJSONNumberNoDatatypeHoldsIsOfferedAsTextAlone(t *testing.T) {
+	_, err := resolved(t, `{"format":"","n":1e400}`)
+	if err == nil || !strings.Contains(err.Error(), `write "1e400" for text`) || strings.Contains(err.Error(), `"datatype"`) {
+		t.Errorf("compile(1e400 in a column) = %v, want text offered alone", err)
 	}
 }
 
