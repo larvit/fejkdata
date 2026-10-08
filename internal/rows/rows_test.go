@@ -38,6 +38,7 @@ func TestParseRefuses(t *testing.T) {
 		{"a short row", "a\tb\n1\t2\n3\n", Options{}, "line 3 has fewer cells"},
 		{"a repeated key", "k\nx\nx\n", Options{Key: "k"}, `key "x" repeats line 2`},
 		{"every weight zero", "k\tw\nx\t0\ny\t0\n", Options{Weight: "w"}, "every weight is 0"},
+		{"a weight too close to 0", "k\tw\nx\t1\ny\t1e-400\n", Options{Weight: "w"}, "line 3: weight 1e-400 is too close to 0 to tell from it"},
 		{"a negative weight", "k\tw\nx\t1\ny\t-1\n", Options{Weight: "w"}, `weight "-1" is not a number of 0 or more`},
 		{"a key a selector cannot spell", "k\nx\ny|z\n", Options{Key: "k"}, `contains "|"`},
 		{"an option naming no column", "k\nx\ny\n", Options{Key: "nope"}, `key names no column "nope"`},
