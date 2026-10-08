@@ -517,7 +517,7 @@ func TestRunNoShippedData(t *testing.T) {
 	if code, out, errb := runOut("{digits(3)}", "--no-shipped-data"); code != 0 || len(out) != 3 {
 		t.Errorf("--no-shipped-data alone = %d, %q, %q, want a template reading no data rendered", code, out, errb)
 	}
-	if code, _, errb := runOut("{/sv_SE.person}", "--no-shipped-data"); code != 2 || !strings.Contains(errb, "no data is loaded: --no-shipped-data and no --data-path") {
+	if code, _, errb := runOut("{/sv_SE.person}", "--no-shipped-data"); code != 2 || !strings.HasSuffix(errb, "no data is loaded\ntry 'fejkdata --help'\n") {
 		t.Errorf("--no-shipped-data alone = %d, %q, want a reference to nothing refused", code, errb)
 	}
 }
