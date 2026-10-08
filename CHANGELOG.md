@@ -30,8 +30,8 @@ replacement, and each removed path, column or flag.
 - The CLI renders exactly the template on its stdin, `echo '{/sv_SE.person} hihi' |
   fejkdata`, and adds nothing under `--format text`: `echo`'s newline ends the render, and `--separator`
   defaults to empty. Whitespace around a JSON template is dropped. A lone reference,
-  `{/users}`, is the record `users` under `--format`. An argument other than a flag, an
-  empty or blank stdin, or nothing piped in, exits 2.
+  `{/users}`, is the record `users` under `--format`. An argument other than a flag, or
+  nothing piped in, exits 2; an empty or blank stdin is a template, and renders as it is.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.territory[SE]`, and descends to a linked table by name, one path drawing each

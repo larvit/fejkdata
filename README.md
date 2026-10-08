@@ -42,7 +42,8 @@ Under `--format text`, the default, what you send is what renders, and fejkdata 
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
 sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
 any JSON value, and the whitespace around it is dropped; `42` or `true` alone renders its
-text, and `null` alone renders nothing. A JSON template that should end
+text, and `null` alone renders nothing. An empty or blank stdin is a template too, and
+renders as it is. A JSON template that should end
 each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
 newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
@@ -65,7 +66,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
-other than a flag, an empty, blank or unreadable stdin, nothing piped in, or a
+other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
@@ -387,6 +388,8 @@ Every value is a **node**, nestable without limit:
 | choice | `["a", "b", …]` | one item, picked at random |
 | template | `{"format": "…", …}` | its format, with `{name}` tokens rendering the named fields |
 | table | `{"format": "…", "rows": "x.tsv", …}` | its format over one row of the TSV beside it ([Table](#table)) |
+| number | `5`, `1.50` | its text as written; refused in a record column, where it could be text, `"5"`, or a typed value, `{"format": "5", "datatype": "integer"}` |
+| boolean | `true` | its text; refused in a record column, where it could be text, `"true"`, or a typed value, `{"format": "true", "datatype": "boolean"}` |
 
 ### Format string
 
@@ -429,9 +432,9 @@ An item of a choice may carry a `weight` (default `1`) to skew its odds:
 Renders `070-412 38 91` ten times as often as `08-…`. A string item is weighted by
 writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as written,
 so `["a", "a", "b"]` draws `a` two times in three, and an item of weight `0` is never
-drawn. A weight where nothing is drawn against it, outside a choice or on the item of a
-one-item choice, does nothing. Rejected at load: a weight that is negative or not a
-number, and a choice whose every weight is `0`.
+drawn. A weight outside a choice does nothing, and so does one above `0` on the item of
+a one-item choice. Rejected at load: a weight that is negative or not a number, and a
+choice whose every weight is `0`, a one-item choice of weight `0` among them.
 
 ### Repeat
 
@@ -737,8 +740,9 @@ Renders e.g. `Hej, Pat Smith!`. Each reference draws afresh ([Format string](#fo
 so `{.person.first} {.person.last}` may name two people. Bind the person to a [name](#names) to read one: `{.person as p}{p.first}
 {p.last}`. Rejected at `New`: a path that is
 unknown, names a folder, has no folder above, reads a field not every variant
-of a choice carries, or names the category the reference sits in, and a reference
-that leads back to its own value, directly, mutually or through a chain.
+of a choice carries, and a reference that leads back to its own value, directly,
+mutually or through a chain. A reference into the category it sits in is a fresh draw
+like any other.
 
 ### Names
 

@@ -57,8 +57,8 @@ func (s Source) dirPath(dir []string) string {
 }
 
 // Walk hands compile every category of the tree, folders and files in name order. A
-// folder holding no category anywhere below it is skipped; a hidden file or folder is
-// never data.
+// folder holding no category anywhere below it is skipped; a hidden file or folder is no
+// category, though a category may name a hidden rows file beside it.
 func (s Source) Walk(compile func(Category) error) error {
 	if s.onDisk {
 		if s.label == "" {
