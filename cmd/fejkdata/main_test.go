@@ -565,15 +565,24 @@ func TestRunRepeatIsBounded(t *testing.T) {
 }
 
 func TestRunIgnoresAFlagWithNoEffect(t *testing.T) {
-	for _, args := range [][]string{{"--list", "-n", "3"}, {"--list", "--separator", ","}, {"--list", "--format", "json"}, {"--list", "--table", "t"}} {
-		if code, out, errb := runOut("", args...); code != 0 || !strings.Contains(out, "sv_SE.person\n") {
-			t.Errorf("run(%v) = %d, stderr %q, want the list", args, code, errb)
-		}
-	}
 	dir := recordDir(t)
-	for _, args := range [][]string{{"--format", "json", "--separator", ","}, {"--table", "t"}, {"--format", "json", "--table", "t"}} {
-		if code, out, errb := runOut("{/users}", append(args, "--data-path", dir)...); code != 0 || out == "" {
-			t.Errorf("run(%v) = %d, %q, %q, want the render", args, code, out, errb)
+	for _, c := range []struct {
+		stdin         string
+		base, ignored []string
+	}{
+		{"", []string{"--list"}, []string{"-n", "3"}},
+		{"", []string{"--list"}, []string{"--separator", ","}},
+		{"", []string{"--list"}, []string{"--format", "json"}},
+		{"", []string{"--list"}, []string{"--table", "t"}},
+		{"{/users}", []string{"--format", "json", "-n", "2"}, []string{"--separator", ","}},
+		{"{/users}", nil, []string{"--table", "t"}},
+		{"{/users}", []string{"--format", "json"}, []string{"--table", "t"}},
+	} {
+		args := append([]string{"--seed", "1", "--data-path", dir}, c.base...)
+		_, want, _ := runOut(c.stdin, args...)
+		code, got, errb := runOut(c.stdin, append(args, c.ignored...)...)
+		if code != 0 || want == "" || got != want {
+			t.Errorf("run(%v + %v) = %d, %q, %q; want what %v alone prints, %q", c.base, c.ignored, code, got, errb, c.base, want)
 		}
 	}
 }

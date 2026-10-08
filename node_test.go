@@ -7,12 +7,32 @@ import (
 )
 
 func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
-	if _, err := resolved(t, `{"format":"x","repeat":2,"separator":5}`); err == nil || !strings.Contains(err.Error(), "separator must be a string, not a number") {
-		t.Errorf("separator 5 = %v, want the kind named", err)
+	for src, want := range map[string]string{
+		`{"format":"x","repeat":2,"separator":5}`:  "separator must be a string, not a number",
+		`{"format":"x","repeat":true}`:             "repeat must be a number, not a boolean",
+		`{"format":"x","repeat":2,"separator":{}}`: "separator must be a string, not an object",
+		`[{"format":"a","weight":-1}]`:             "weight must be a finite number of 0 or more",
+	} {
+		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("compile(%s) = %v, want %q", src, err, want)
+		}
 	}
 	_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":5}`, "t.tsv": "a\nx\n"})))
 	if err == nil || !strings.Contains(err.Error(), "key must be a string, not a number") {
 		t.Errorf("key 5 = %v, want the kind named", err)
+	}
+}
+
+func TestAnOptionTooCloseToZeroIsRefused(t *testing.T) {
+	for _, src := range []string{`[{"format":"a","weight":1e-400},"b"]`, `{"format":"{x}","x":"a","repeat":1e-400}`} {
+		if _, err := resolved(t, src); err == nil || !strings.Contains(err.Error(), "1e-400") {
+			t.Errorf("compile(%s) = %v, want the number too close to 0 named", src, err)
+		}
+	}
+	for _, src := range []string{`[{"format":"a","weight":0.0},"b"]`, `{"format":"x","repeat":0e5}`} {
+		if _, err := resolved(t, src); err != nil {
+			t.Errorf("compile(%s) = %v, want a zero written as zero loaded", src, err)
+		}
 	}
 }
 
