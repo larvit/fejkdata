@@ -20,8 +20,7 @@ const (
 	DataTypeBoolean DataType = datatype.Boolean
 )
 
-// datatypeOf reads a template's "datatype", nil where it carries none or sits outside a column,
-// where no datatype applies.
+// datatypeOf reads a template's "datatype", nil where it carries none or sits outside a column.
 func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	v, ok := m["datatype"]
 	if !ok {

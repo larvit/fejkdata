@@ -103,7 +103,7 @@ func (t *Table[O]) parseRows(data string) error {
 		t.col[name] = i
 	}
 	if header == data {
-		return fmt.Errorf("has no rows below its header; a table is at least one row")
+		return fmt.Errorf("has no rows below its header; a table holds at least one row")
 	}
 	m := len(t.header)
 	t.cells = make([]string, 0, m*(strings.Count(rest, "\n")+1))
@@ -139,7 +139,7 @@ func (t *Table[O]) appendRow(row string, line int) error {
 }
 
 // bindOptions resolves each option to its column, and proves what the options claim of the cells: a
-// key is unique, a weight a positive number.
+// key is unique, and a weight is a number of 0 or more.
 func (t *Table[O]) bindOptions() error {
 	o := t.options
 	for _, opt := range []struct {
