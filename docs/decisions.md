@@ -66,7 +66,7 @@ valid JSON so a stray copied bracket never swallows a tag — it names nothing, 
 so. Reserving the characters whole — though only a leading one
 could collide — keeps one simple name rule instead of a leading-position special case.
 A JSON string stays a template even where its bare text renders alike, `"x {/a}"` beside
-`x {/a}`: inside the quotes `\t` and `\n` write a tab or a newline on one line. A
+`x {/a}`: inside the quotes, `\t` and `\n` let a one-line template write a tab or a newline. A
 folder-relative `{.name}` or `{..name}` is refused naming
 `{/name}`, since an inline template sits in no folder. `IsTemplate` exports the rule, so
 struct tags and any other caller read one.

@@ -36,14 +36,14 @@ replacement, and each removed path, column or flag.
   nothing piped in, exits 2; an empty or blank stdin is a format string, and renders as
   sent.
 - A template or data file loads whatever is well-formed and means one thing, even where
-  part of it does nothing: a default written out, a one-item choice, an object holding only
-  a format, a constant sample such as `{int(5,5)}`, a `weight`, `separator` or `datatype`
-  where it does nothing, a name nothing reads, a repeated item, which counts as written, a
-  weight of `0`, which is never drawn, a `repeat` or count of `0`, which renders nothing,
-  `+5`, `05` and `-0`, and a reference into the category it sits in. A rows file no
+  part of it does nothing: a default written out; a one-item choice; an object holding only
+  a format; a constant sample such as `{int(5,5)}`; a `weight`, `separator` or `datatype`
+  where it does nothing; a name nothing reads; a repeated item, which counts as written; a
+  weight of `0`, which is never drawn; a `repeat` or count of `0`, which renders nothing;
+  `+5`, `05` and `-0`; and a reference into the category it sits in. A rows file no
   category names is ignored. `New` with no data loads, and renders templates that read
-  none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--format` and `--table`,
-  and `--table` is ignored without `--format sql`.
+  none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--separator`, `--format`
+  and `--table`, and `--table` is ignored without `--format sql`.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
   `misc.territory[SE]`, and descends to a linked table by name, one path drawing each
