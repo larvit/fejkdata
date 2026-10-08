@@ -438,7 +438,7 @@ writing it as `{ "format": "AB", "weight": 3 }`. A repeated item counts as writt
 so `["a", "a", "b"]` draws `a` two times in three, and an item of weight `0` is never
 drawn. A weight outside a choice does nothing, and so does one above `0` on the item of
 a one-item choice. Rejected at load: a weight that is negative, not a number, or too
-close to `0` to tell from it, such as `1e-400`, and a choice whose every weight is `0`, a one-item choice of weight `0` among them.
+close to `0` to tell from it, such as `1e-400`; and a choice whose every weight is `0`, a one-item choice of weight `0` among them.
 
 ### Repeat
 
