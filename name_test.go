@@ -176,7 +176,7 @@ func TestAChoiceItemKeepsTheNamesItBinds(t *testing.T) {
 				t.Fatalf("render %q holds %q, want each draw of the item to read one pick twice", got, h)
 			}
 		}
-		apart = apart || halves[0] != halves[1]
+		apart = apart || halves[0] != "c" && halves[1] != "c" && halves[0] != halves[1]
 	}
 	if !apart {
 		t.Error("100 renders of {x}|{x} never drew two different halves, want a pick per draw of the item")
