@@ -29,7 +29,8 @@ replacement, and each removed path, column or flag.
 - First release: the CLI, the library and the shipped data set.
 - The CLI renders exactly the template on its stdin, `echo '{/sv_SE.person} hihi' |
   fejkdata`, and adds nothing under `--format text`: `echo`'s newline ends the render, and `--separator`
-  defaults to empty. Whitespace around a JSON template is dropped. A lone reference,
+  defaults to empty. Whitespace around a JSON object, array or string template is
+  dropped, and a bare number or boolean is a format string, printed as written. A lone reference,
   `{/users}`, is the record `users` under `--format`. An argument other than a flag, or
   nothing piped in, exits 2; an empty or blank stdin is a template, and renders as it is.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
@@ -100,7 +101,7 @@ replacement, and each removed path, column or flag.
   from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`, whose
   `ssn.mmdd`, `ssn.mmdd.m` and `ssn.mmdd.d` go with it. `en_US.ssn` now draws the
   ranges the SSA assigns and carries the columns `area`, `group` and `serial`, so
-  `--format csv en_US.ssn` writes a header where it used to fail; `en_US.itin` is new
+  `echo '{/en_US.ssn}' | fejkdata --format csv` writes a header where it used to fail; `en_US.itin` is new
   and carries the same three. `person.prefix` is null where a person has no title,
   where it used to be an empty string, so `--format sql` writes `NULL` and a `string`
   struct field reading it becomes `*string`.

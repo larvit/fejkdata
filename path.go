@@ -25,7 +25,7 @@ func childNamed(n node, seg string) (node, error) {
 		if child, ok := n.children[seg]; ok {
 			return child, nil
 		}
-		return nil, fmt.Errorf("no entry %q", seg)
+		return nil, noEntry{seg}
 	case *template:
 		if child, ok := n.fields[seg]; ok {
 			return child, nil

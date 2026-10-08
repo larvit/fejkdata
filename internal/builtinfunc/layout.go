@@ -83,8 +83,17 @@ func timeArg(a []string) error {
 	if err := layoutArity("time", 1, a); err != nil {
 		return err
 	}
-	_, err := layoutArg(a[0])
+	layout, err := layoutArg(a[0])
+	if err == nil && namesADateField(layout) {
+		return fmt.Errorf("time(layout): '%s' names a date field, and time draws no date; write date(from,to,layout)", layout)
+	}
 	return err
+}
+
+// namesADateField reports a layout that prints two instants differing in their date alone apart.
+func namesADateField(layout string) bool {
+	day, nextYear := time.Date(2001, 2, 3, 4, 5, 6, 0, time.UTC), time.Date(2010, 11, 12, 4, 5, 6, 0, time.UTC)
+	return day.Format(layout) != nextYear.Format(layout)
 }
 
 // datePrep draws a second in [from 00:00:00, to 23:59:59] UTC; the span is counted

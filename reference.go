@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -77,7 +78,7 @@ func resolveCategory(root map[string]node, segments []string) (categorySegs []st
 	}
 	n, ok := g.children[segments[i]]
 	if !ok {
-		return nil, nil, nil, fmt.Errorf("no entry %q", segments[i])
+		return nil, nil, nil, noEntry{segments[i]}
 	}
 	return segments[:i+1], n, segments[i+1:], nil
 }
@@ -113,4 +114,19 @@ func refTokens(toks []grammar.Token) []string {
 		}
 	}
 	return refs
+}
+
+// noEntry is a path segment naming nothing in the folder it reads.
+type noEntry struct{ seg string }
+
+func (e noEntry) Error() string { return fmt.Sprintf("no entry %q", e.seg) }
+
+// noDataNote adds to err, where a segment names nothing and f holds no data at all, that no
+// data is loaded.
+func (f *Generator) noDataNote(err error) error {
+	var ne noEntry
+	if errors.As(err, &ne) && len(f.root.children) == 0 && len(f.root.unloaded) == 0 {
+		return fmt.Errorf("%w; no data is loaded", err)
+	}
+	return err
 }

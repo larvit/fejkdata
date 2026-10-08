@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -36,7 +37,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if err := loadInline(&f.root, n, "template", false); err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
+		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", err))
 	}
 	return &Template{g: f, n: n}, nil
 }
@@ -68,11 +69,16 @@ func compileInput(input string) (node, error) {
 	return compile(inputValue(input))
 }
 
-// inputValue reads an inline template as the value compile takes: the JSON value it holds, the
-// whitespace around it dropped, or the input itself as a format string when it is not JSON.
+// inputValue reads an inline template as the value compile takes: the JSON object, array, string
+// or null it holds, the whitespace around it dropped, or else the input itself as a format string,
+// a bare number or boolean among them.
 func inputValue(input string) jsonvalue.Value {
 	raw, err := jsonvalue.Decode([]byte(input))
 	if err != nil {
+		return jsonvalue.String(input)
+	}
+	switch raw.Any().(type) {
+	case json.Number, bool:
 		return jsonvalue.String(input)
 	}
 	return raw
