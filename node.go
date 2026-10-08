@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -385,11 +384,9 @@ func weightOf(raw any) (float64, error) {
 	return w, notTiny("weight", wv, w)
 }
 
-// notTiny refuses the number v of option name where it reads as 0 though a digit of it is not
-// 0, as 1e-400 does: no float64 holds the number written.
+// notTiny refuses the number v of option name where grammar.Underflows does.
 func notTiny(name string, v any, f float64) error {
-	mantissa, _, _ := strings.Cut(strings.ToLower(string(v.(json.Number))), "e")
-	if f == 0 && strings.ContainsAny(mantissa, "123456789") {
+	if grammar.Underflows(string(v.(json.Number)), f) {
 		return fmt.Errorf("%s %s is too close to 0 to tell from it", name, v)
 	}
 	return nil

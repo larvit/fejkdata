@@ -218,9 +218,13 @@ func (t *Table[O]) sumWeights() error {
 	t.weights, t.cum = make([]float64, t.Len()), make([]float64, t.Len())
 	total := 0.0
 	for r := range t.cum {
-		w, err := strconv.ParseFloat(t.Cell(r, t.weightIndex), 64)
+		cell := t.Cell(r, t.weightIndex)
+		w, err := strconv.ParseFloat(cell, 64)
 		if err != nil || math.IsInf(w, 0) || math.IsNaN(w) || w < 0 {
-			return fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, t.Cell(r, t.weightIndex))
+			return fmt.Errorf("%s line %d: weight %q is not a number of 0 or more", t.file, r+2, cell)
+		}
+		if grammar.Underflows(cell, w) {
+			return fmt.Errorf("%s line %d: weight %s is too close to 0 to tell from it", t.file, r+2, cell)
 		}
 		total += w
 		t.weights[r], t.cum[r] = w, total
