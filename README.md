@@ -168,7 +168,9 @@ category named after the file, each subdirectory a dot-path segment, so
 `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
-which binds a [name](#names), nor be `-`, which a struct tag reserves; dot-prefixed entries are skipped, so a data directory can also be a checkout.
+which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-prefixed
+entry is never a category or a folder, so a data directory can also be a checkout, though
+a category may name a hidden rows file beside it.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
