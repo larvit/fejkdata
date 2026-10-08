@@ -136,7 +136,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.loadShippedAt(segments)
 	_, n, tail, err := resolveCategory(f.root.children, segments)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %s: %w", path, err)
+		return nil, f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))
 	}
 	var frames frameStack
 	env := renderEnv{frames: &frames}

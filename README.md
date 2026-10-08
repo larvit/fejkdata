@@ -30,8 +30,7 @@ born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 ```
 
-fejkdata renders the template on its stdin: a format string, or a JSON object, array or
-string. Its `{…}` tokens reach the data by reference from the root,
+fejkdata renders the template on its stdin: a format string, or any JSON value. Its `{…}` tokens reach the data by reference from the root,
 `{/sv_SE.person.last}`, so shipped and `--data-path` categories are alike available,
 and everything outside them prints as written. A reference names a category, or a field
 inside one: each dot segment descends one level — folders, then the category (a JSON
@@ -40,9 +39,9 @@ these paths; a template reads one as `{/path}`.
 
 Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
-sends none; `-n` joins renders with `--separator`, empty by default. A JSON template is
-any JSON value, and the whitespace around it is dropped; `42` or `true` alone renders its
-text, and `null` alone renders nothing. An empty or blank stdin is a template too, and
+sends none; `-n` joins renders with `--separator`, empty by default. A JSON object, array
+or string drops the whitespace around it, and `null` alone renders nothing; `42` or `true`
+alone is a format string, so it prints as written, newline included. An empty or blank stdin is a template too, and
 renders as it is. A JSON template that should end
 each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
 lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
@@ -55,8 +54,8 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, version and data: identical output |
-| `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, or `[]` under `--format json` |
-| `--separator S` | between repeated renders (default empty); a record `--format` ignores it |
+| `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` |
+| `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
@@ -678,8 +677,10 @@ between the two days is reachable, so a layout with a clock draws the time too, 
 `from` may equal `to`, which is that one day. The instant is UTC, so a zone in the
 layout prints `UTC` or `Z`.
 The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
-argument stays a name. A layout naming no field prints itself, `time` prints a date
-field as 1970-01-01, and `date` over one day with no clock field prints that day.
+argument stays a name. A layout naming no field prints itself, `date` with a clock-only
+layout prints the drawn instant's clock, and `date` over one day with no clock field prints
+that day; `time` with a layout naming a date field is refused, naming `date`, since `time`
+draws no date.
 Rejected at `New`: a bound that is no calendar date, or after the other, and an unquoted
 or double-quoted layout, naming the single-quoted one. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for

@@ -27,7 +27,7 @@ func (f *Generator) Fake(path string) (string, error) {
 	f.loadShippedAt(segments)
 	n, pins, err := drawCallerPath(f.drawState, &f.root, segments)
 	if err != nil {
-		return "", fmt.Errorf("fejkdata: %s: %w", path, err)
+		return "", f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))
 	}
 	if _, ok := n.(*folder); ok {
 		return "", fmt.Errorf("fejkdata: %s names a folder, not a value", path)

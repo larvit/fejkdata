@@ -35,7 +35,7 @@ fejkdata <<'EOF'
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 
-A template is a format string, or a JSON object, array or string. Its {…} tokens
+A template is a format string, or any JSON value. Its {…} tokens
 reach the data by reference from the root, {/sv_SE.person.last}, whether the data
 is shipped or layered with --data-path. A reference names a category or a dotted
 path into one ({/sv_SE.person.last}), a table's row by key or name
@@ -45,8 +45,9 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 Under --format text, the default, what you send is what renders, and fejkdata adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
-template is any JSON value, and the whitespace around it is dropped; 42 or true alone
-renders its text, and null nothing. An empty or blank stdin renders as it is. A
+object, array or string drops the whitespace around it, and null alone renders nothing;
+42 or true alone is a format string, printed as written. An empty or blank stdin
+renders as it is. A
 quoted heredoc, <<'EOF', passes $, a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
@@ -61,9 +62,11 @@ one INSERT.
       --list             list the paths the data offers, each written after {/ in a template, then exit;
                          --repeat, --separator, --format and --table do nothing here
       --no-shipped-data  load only the --data-path directories
-  -n, --repeat N         render the template N times, 0..1048576 (default 1)
+  -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
+                         [] under --format json, or the header under --format csv
   -s, --seed N           same seed, version and data: identical output
-      --separator S      string between repeated renders (default empty); a record --format ignores it
+      --separator S      string between repeated renders (default empty); refused with a record
+                         --format, which has its own separators
       --table T          the INSERT target for --format sql, ignored under any other
                          (default: a lone reference's last segment, else records)
       --version          print the version, then exit
@@ -73,19 +76,20 @@ A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3)
 `
 
 type invocation struct {
-	args      []string
-	dirs      []string
-	format    string
-	help      bool
-	list      bool
-	noShipped bool
-	repeat    int
-	seed      uint64
-	seeded    bool
-	separator string
-	table     string
-	tableSet  bool
-	version   bool
+	args         []string
+	dirs         []string
+	format       string
+	help         bool
+	list         bool
+	noShipped    bool
+	repeat       int
+	seed         uint64
+	seeded       bool
+	separator    string
+	separatorSet bool
+	table        string
+	tableSet     bool
+	version      bool
 }
 
 type flagDef struct {
@@ -117,7 +121,7 @@ var flagDefs = []flagDef{
 		in.seed, in.seeded = n, true
 		return nil
 	}},
-	{"separator", "", true, func(in *invocation, v string) error { in.separator = v; return nil }},
+	{"separator", "", true, func(in *invocation, v string) error { in.separator, in.separatorSet = v, true; return nil }},
 	{"table", "", true, func(in *invocation, v string) error { in.table, in.tableSet = v, true; return nil }},
 	{"version", "", false, func(in *invocation, _ string) error { in.version = true; return nil }},
 }
@@ -233,15 +237,16 @@ type recordFormat struct {
 	open   string
 	close  string
 	sep    string
+	writes string // what it writes between values, which --separator would seem to set
 }
 
 // recordFormats is every --format that writes records. json frames the records
 // as one array document; ndjson writes one object per line.
 var recordFormats = map[string]recordFormat{
-	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n"},
-	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n"},
-	"ndjson": {line: jsonLine, sep: "\n"},
-	"sql":    {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }, sep: "\n"},
+	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n", writes: `always separates fields with ","`},
+	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n", writes: "writes the records as one JSON array"},
+	"ndjson": {line: jsonLine, sep: "\n", writes: "writes one record per line"},
+	"sql":    {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }, sep: "\n", writes: "writes one INSERT per line"},
 }
 
 func jsonLine(r *fejkdata.Record, _ string) string { return r.JSON() }
@@ -267,6 +272,9 @@ func (in invocation) checkFlags() error {
 	}
 	if in.tableSet && in.table == "" && in.format == "sql" {
 		return errors.New("--table names the INSERT target, so it cannot be empty")
+	}
+	if f, records := recordFormats[in.format]; records && in.separatorSet && !in.list {
+		return fmt.Errorf("--separator joins text renders; --format %s %s", in.format, f.writes)
 	}
 	return nil
 }
@@ -400,16 +408,19 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 	return out.Flush()
 }
 
-// writeNoRecord writes zero records: an empty document where the format frames one, else nothing. It
-// draws one record and drops it, so a lone reference to nothing fails as it would with records.
+// writeNoRecord writes zero records: the header where the format writes one, an empty document
+// where it frames one, else nothing. It draws one record, which names the header's columns, so a
+// lone reference to nothing fails as it would with records.
 func writeNoRecord(record func() (*fejkdata.Record, error), format recordFormat, w io.Writer) error {
-	if _, err := record(); err != nil {
+	r, err := record()
+	switch {
+	case err != nil:
 		return err
+	case format.header != nil:
+		_, err = io.WriteString(w, format.header(r)+"\n")
+	case format.open != "":
+		_, err = io.WriteString(w, format.open+format.close+"\n")
 	}
-	if format.open == "" {
-		return nil
-	}
-	_, err := io.WriteString(w, format.open+format.close+"\n")
 	return err
 }
 
@@ -595,7 +606,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if err := in.write(f, src, stdout); err != nil {
-		return fail(stderr, err)
+		return fail(stderr, in.noDataCause(err))
 	}
 	return 0
 }
@@ -609,6 +620,18 @@ func readStdin(stdin io.Reader) (input, error) {
 		return input{}, inputError{fmt.Errorf("stdin cannot be read: %w", err)}
 	}
 	return parseInput(string(raw)), nil
+}
+
+// noDataCause adds the flags that left the generator without data to an error saying none is
+// loaded.
+func (in invocation) noDataCause(err error) error {
+	if !in.noShipped || len(in.dirs) > 0 || !strings.HasSuffix(err.Error(), "no data is loaded") {
+		return err
+	}
+	if te, isInput := err.(inputError); isInput {
+		return inputError{fmt.Errorf("%w: --no-shipped-data and no --data-path", te.error)}
+	}
+	return fmt.Errorf("%w: --no-shipped-data and no --data-path", err)
 }
 
 func fail(stderr io.Writer, err error) int {
