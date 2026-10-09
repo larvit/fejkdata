@@ -152,7 +152,7 @@ func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 	switch {
 	case a.kind == namedRead:
 		return readName(s, env, a)
-	case env.pick != nil && !grammar.IsRef(a.head) && env.keeps(a):
+	case keptInPick(env, a):
 		return readUnder(s, t, env, a)
 	}
 	env.pick = nil

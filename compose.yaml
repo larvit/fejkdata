@@ -47,7 +47,6 @@ services:
     <<: *go
     command: go mod tidy
 
-  # Interactive shell for ad-hoc work: docker compose run --rm dev
   dev:
     <<: *go
     command: sh

@@ -54,15 +54,6 @@ func pathArm(name, head string, segs []string) arm {
 	return arm{spelling: name, head: head, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
 }
 
-// levelKeys is the key of each prefix of path holding at least from segments, shortest first.
-func levelKeys(path []string, from int) []pickKey {
-	levels := make([]pickKey, len(path)-from+1)
-	for i := range levels {
-		levels[i] = pickKey(grammar.JoinSegments(path[:from+i]))
-	}
-	return levels
-}
-
 // key is the key of the leaf a lands on, the one key every way of writing this read shares.
 func (a arm) key() pickKey { return a.levels[len(a.levels)-1] }
 

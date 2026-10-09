@@ -68,10 +68,10 @@ const (
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
-// draw takes, and every leaf the path may render; level names the head in its errors.
+// draw takes, and every leaf the path may render; label names the head in its errors.
 type compiledPath struct {
 	pins   pinSet
-	level  string
+	label  string
 	tail   []string
 	steps  []pathStep
 	leaves []node
@@ -88,7 +88,7 @@ func (w *compiledPath) walk(n node, tail []string) (node, error) {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
-		if w.steps, err = compileStep(&at, w.tail, w.level, w.steps, &w.pins); err != nil {
+		if w.steps, err = compileStep(&at, w.tail, w.label, w.steps, &w.pins); err != nil {
 			return nil, err
 		}
 	}
@@ -112,8 +112,8 @@ func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
-// path; level is the prefix an error puts before it.
-func compileStep(at *pathPos, whole []string, level string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
+// path; label is the prefix an error puts before it.
+func compileStep(at *pathPos, whole []string, label string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
 	case *table:
@@ -125,7 +125,7 @@ func compileStep(at *pathPos, whole []string, level string, steps []pathStep, pi
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
-			return steps, repeatLevelError(join(level, strings.Join(whole[:i], ".")))
+			return steps, repeatLevelError(join(label, strings.Join(whole[:i], ".")))
 		}
 	}
 	next, err := childNamed(at.n, at.tail[0])
@@ -222,6 +222,36 @@ func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []pickKey
 	return memo.variantOf(s, c, levels[at])
 }
 
+// sharedPaths is the sub-paths every item carries — the only ones a path may step
+// through a choice to reach. It intersects, bailing as soon as the set
+// is empty, which is immediate for a choice of plain strings.
+func sharedPaths(items []node, intoRepeats bool) map[string]bool {
+	shared := subPaths(items[0], intoRepeats)
+	for _, it := range items[1:] {
+		if len(shared) == 0 {
+			return nil
+		}
+		next := subPaths(it, intoRepeats)
+		for p := range shared {
+			if !next[p] {
+				delete(shared, p)
+			}
+		}
+	}
+	return shared
+}
+
+// subPaths is paths(n, intoRepeats) as a set, without the empty path that means n itself.
+func subPaths(n node, intoRepeats bool) map[string]bool {
+	out := map[string]bool{}
+	for _, p := range paths(n, intoRepeats) {
+		if p != "" {
+			out[p] = true
+		}
+	}
+	return out
+}
+
 // carriedByAll is the choice rule a path that must reach a node on every call obeys:
 // the rest of the tail must be one every variant carries.
 func carriedByAll(c *choice, rest []string) error {
@@ -241,8 +271,8 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func provePath(n node, tail []string, level string) error {
-	_, err := (&compiledPath{level: level, tail: tail}).run(n)
+func provePath(n node, tail []string, label string) error {
+	_, err := (&compiledPath{label: label, tail: tail}).run(n)
 	return err
 }
 

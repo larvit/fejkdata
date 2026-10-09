@@ -2,8 +2,6 @@ package fejkdata
 
 import (
 	"fmt"
-
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // templateSite is a template to resolve, with its folder and category, both empty for an inline
@@ -86,47 +84,6 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	}
 	for b, target := range targets {
 		b.target, b.addressed = target, names.addressed[b]
-	}
-	return nil
-}
-
-// columnRead is a record's column read by a format that only reads one reference or name,
-// which is the column: it takes the column's datatype and null. category and field name it;
-// category is "" for a column of the reading template's own record, which checkColumns reaches
-// on its own.
-type columnRead struct {
-	a               arm
-	category, field string
-	column          node
-}
-
-// columnReadOf is the record's column t's format reads, where the format only reads one reference
-// or name, and nil where it does not or t declares a string, which reads the column as text.
-func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
-	ops := t.compiled.ops
-	if t.datatype != nil && *t.datatype == DataTypeString || t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.PathRead || len(ops[0].arms) != 1 {
-		return nil
-	}
-	a := ops[0].arms[0]
-	var start node
-	var category string
-	var tail []string
-	switch b := a.named; {
-	case a.kind == namedRead && b.bindsField():
-		// {f as n}{n}: column f of the record binding n, in t's own category.
-		start, tail = b.binder, append(append([]string{splitArm(b.ref, nil).head}, targets[b].tail...), a.tail...)
-	case a.kind == namedRead:
-		// {/c as n}{n.x} or {/c.x as n}{n}: column x of category c.
-		start, category = targets[b].start, categoryOf(b.binder.refs.byName[b.ref].head)
-		tail = append(targets[b].tail[:len(targets[b].tail):len(targets[b].tail)], a.tail...)
-	case grammar.IsRef(a.head):
-		// {/c.x}: column x of category c.
-		start, category, tail = t.startOf(a.head), categoryOf(a.head), a.tail
-	default:
-		return nil
-	}
-	if target, isTemplate := start.(*template); isTemplate && target.isRecord && len(tail) == 1 {
-		return &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
 	}
 	return nil
 }

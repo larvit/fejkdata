@@ -987,11 +987,11 @@ shipped.go      the embedded data set, and loading a shipped category on the fir
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
-name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target and the keys its reads address
+name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target
 namefence.go    the load fences over names
-pick.go         a render's named picks: the frame of each name scope rendering, the memo a pick keeps, and the reads kept under it
+pick.go         a render's named picks: the key of each level a pick keeps a draw at, built at load and read at render, the frame of each name scope rendering, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
-path.go         the dotted-path walks, and proving a path reaches a node
+path.go         the dotted-path walks, proving a path reaches a node, and the sub-paths every variant of a choice carries
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
 record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
@@ -1001,9 +1001,9 @@ arm.go          the compiled read of one {a|b} alternative or operand: its head,
 reference.go    one reference's resolution: its sigil, its category, its tail
 resolve.go      resolving templates against the assembled tree in steps, each over every template before the next
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
-sorted.go       sortedNames: a map's keys, sorted
+sorted.go       sortedNames, a map's keys sorted, and join, two dotted paths joined
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
-datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype
+datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype, and a format that only reads a column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cmd/fejkdata/   the fejkdata CLI

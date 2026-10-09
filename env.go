@@ -111,9 +111,3 @@ func (env renderEnv) drawRowOf(s *drawstate.State, t *table) int {
 	}
 	return t.rows.Draw(s)
 }
-
-// keeps reports whether a read of env's name addresses the level a starts at.
-func (env renderEnv) keeps(a arm) bool {
-	_, kept := env.pick.named.addressed[env.pickAt.under(a.levels[0])]
-	return kept
-}

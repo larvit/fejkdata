@@ -330,7 +330,6 @@ func (t *Table[O]) checkAncestors(p *Table[O], sibling func(name string) *Table[
 	return nil
 }
 
-// Children is the tables linked to t, sorted by segment.
 func (t *Table[O]) Children() []*Table[O] {
 	out := make([]*Table[O], 0, len(t.children))
 	for _, c := range t.children {

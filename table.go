@@ -74,7 +74,7 @@ func compileTable(m map[string]any, dir []string, name string, readRows func(fil
 	if t.rows, err = rows.Parse(t, name, categoryPath(dir, name), o.rows, data, o.options); err != nil {
 		return nil, err
 	}
-	if err := t.checkCells(); err != nil {
+	if err := t.compileCells(); err != nil {
 		return nil, fmt.Errorf("%s: %w", o.rows, err)
 	}
 	if err := t.compileRowFormat(o.format); err != nil {
@@ -118,8 +118,8 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	return o, nil
 }
 
-// checkCells compiles every cell carrying a token.
-func (t *table) checkCells() error {
+// compileCells compiles every cell carrying a token into cellTemplates.
+func (t *table) compileCells() error {
 	header := t.rows.Header()
 	for row := 0; row < t.rows.Len(); row++ {
 		for col := range header {

@@ -32,43 +32,43 @@ func eachNode(n node, label string, fn func(label string, n node) error) error {
 	return visit(label, n)
 }
 
-// namedNode is a contained child and the segment reaching it; a choice's items carry
+// containedNode is a contained child and the segment reaching it; a choice's items carry
 // no segment, matching how a dot path steps over a choice.
-type namedNode struct {
+type containedNode struct {
 	name string
 	node node
 	line int // a table cell's line in its rows file, else 0
 }
 
-func (c namedNode) labelIn(label string) string {
+func (c containedNode) labelIn(label string) string {
 	if c.line > 0 {
 		return fmt.Sprintf("%s, line %d", label, c.line)
 	}
 	return join(label, c.name)
 }
 
-func contained(n node) []namedNode {
+func contained(n node) []containedNode {
 	switch n := n.(type) {
 	case *folder:
-		return namedNodes(n.children)
+		return containedByName(n.children)
 	case *choice:
-		out := make([]namedNode, len(n.items))
+		out := make([]containedNode, len(n.items))
 		for i, it := range n.items {
-			out[i] = namedNode{node: it}
+			out[i] = containedNode{node: it}
 		}
 		return out
 	case *template:
-		return namedNodes(n.fields)
+		return containedByName(n.fields)
 	case *table:
-		return append([]namedNode{{node: n.formatTemplate}}, namedNodes(n.formatTemplate.fields)...)
+		return append([]containedNode{{node: n.formatTemplate}}, containedByName(n.formatTemplate.fields)...)
 	case *tableColumn:
 		if len(n.t.cellTemplates) == 0 {
 			return nil
 		}
-		var out []namedNode
+		var out []containedNode
 		for r := 0; r < n.t.rows.Len(); r++ {
 			if cell := n.t.cellTemplate(r, n.i); cell != nil {
-				out = append(out, namedNode{node: cell, line: r + 2})
+				out = append(out, containedNode{node: cell, line: r + 2})
 			}
 		}
 		return out
@@ -79,10 +79,10 @@ func contained(n node) []namedNode {
 	}
 }
 
-func namedNodes(m map[string]node) []namedNode {
-	out := make([]namedNode, 0, len(m))
+func containedByName(m map[string]node) []containedNode {
+	out := make([]containedNode, 0, len(m))
 	for _, name := range sortedNames(m) {
-		out = append(out, namedNode{name: name, node: m[name]})
+		out = append(out, containedNode{name: name, node: m[name]})
 	}
 	return out
 }
@@ -95,8 +95,7 @@ type renderEdge struct {
 }
 
 // renderEdges lists the children rendering n recurses into, mirroring render: a
-// choice's items, and a template's field/reference tokens plus its operands. A
-// folder renders nothing, so it has no edges.
+// choice's items, and a template's field/reference tokens plus its operands.
 func renderEdges(n node) []renderEdge {
 	switch n := n.(type) {
 	case *choice:

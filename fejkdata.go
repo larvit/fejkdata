@@ -17,7 +17,8 @@ import (
 // any one path; the CLI's --repeat shares it.
 const MaxRepeat = 1 << 20
 
-var _ [^uint(0)>>63 - 1]struct{} // docs/decisions.md#64-bit-targets-only
+// Fails to compile where uint is narrower than 64 bits: docs/decisions.md#64-bit-targets-only
+var _ [^uint(0)>>63 - 1]struct{}
 
 // Generator generates fake data from a namespace tree. Create one with [New].
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
@@ -88,7 +89,8 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
-// docs/decisions.md#with-only-the-shipped-set-a-category-loads-on-the-first-call-reaching-it-beside-a---data-path-every-category-loads-in-new
+// load builds the tree New starts from: with only the shipped set, every category unloaded; else
+// every source loaded and merged. docs/decisions.md#with-only-the-shipped-set-a-category-loads-on-the-first-call-reaching-it-beside-a---data-path-every-category-loads-in-new
 func (c config) load() (folder, error) {
 	if c.shipped && len(c.sources) == 0 {
 		return unloadedTree(), nil
