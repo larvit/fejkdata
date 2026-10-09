@@ -68,8 +68,8 @@ follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
-`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`; `@main` instead builds
-main's CLI on the last release's library and data.
+`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`. Install main's CLI this way:
+`go install …/cmd/fejkdata@main` builds it on the last release's library and data.
 
 ### Your own data
 
@@ -322,7 +322,7 @@ s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
-fejkdata.Version                          // "v0.1.0": the release this library is
+fejkdata.Version                          // "v0.1.0": the newest release; a build between releases builds on it
 ```
 
 | Option | |
