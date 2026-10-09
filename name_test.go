@@ -449,3 +449,15 @@ func TestANameReadBeforeItsBinderKeepsOnePick(t *testing.T) {
 		}
 	}
 }
+
+func TestARowThroughANameHintsAPathThatLoads(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, nameTables()), WithSeed(1))
+	for tmpl, hint := range map[string]string{"{/region as r}{r[01]}": "{/region[01]}", "{/region as r}{r[01].municipality}": "{/region[01].municipality}"} {
+		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), "read it directly, "+hint+",") {
+			t.Errorf("NewTemplate(%s) = %v, want the hint %s", tmpl, err, hint)
+		}
+		if _, err := f.NewTemplate(hint); err != nil {
+			t.Errorf("NewTemplate(%s), the hint, = %v", hint, err)
+		}
+	}
+}
