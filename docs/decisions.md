@@ -7,9 +7,7 @@
 Goal 1 wants the usage the tool earns and goal 3 expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
-a fork on a personal instance. Valid while the project wants contribution from outside:
-the workflow decided nothing, being portable already — `github.api_url` and
-`secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
+a fork on a personal instance. Valid while the project wants contribution from outside.
 
 ## The Gitea copy stays, as a pull mirror of GitHub
 
@@ -138,24 +136,24 @@ and `regexp.Match`, not two spellings of one result.
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
 still lives in `data/`; `--data-path` layers over it.
 
-`todo.md` item 182 revises it: a library imports the shipped data as Go modules.
+`todo.md` item 182 revises it: a library imports the shipped data as Go packages.
 
-## The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0
+## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` item 179, `todo.md` item 180, `todo.md` item 181, `todo.md` item 182, `todo.md` item 183, `todo.md` item 184, `todo.md` item 185 and `todo.md` item 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; Go packages in the core's module, not Go modules of their own, from 2026-10-09. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` item 180, `todo.md` item 181, `todo.md` item 182, `todo.md` item 183, `todo.md` item 184, `todo.md` item 185 and `todo.md` item 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
 
-- One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
+- One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported, and Go links only the packages a program imports.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
-- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
+- A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
-- A module's manifest names the fejkdata version it was built for, and any version but the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. Every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change. Each shipped module requires the core at its own version.
-- Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release.
+- A module's manifest names the fejkdata version it was built for, and any version but the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. The shipped packages sit in the core's module, so they match it by construction. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change.
+- The README's one version covers the library, the CLI and the data, and CI cuts one tag per release.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
-- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale. The README's Versioning section gives each module's tag spelling, and says to pin every fejkdata module at one version.
+- The CLI is a library call. One exported list names every shipped package, and `fejkdata`'s own `main` passes it to that call. The list lives in a package of its own, so a library importing the core links no data it did not import. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
 - Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
-Valid while the shipped data outgrows what every library user should download.
+Valid while downloading every shipped package costs a library user little, since `go get` fetches a whole module. Past that, the largest packages move into nested Go modules that keep their import paths; the `go` command refuses a module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`).
 
 ## With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 
