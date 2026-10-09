@@ -835,10 +835,10 @@ the same whoever references it. Such a read opens the frames around where it lan
 name from its pick's memo, so `{n}` and `{n.path}` read one pick of each name inside, and a
 reference or `Fake` fresh ones.
 
-A name is a closure: it reaches every template nested inside the scope binding it, its
-fields, choice items and repeats, and keeps one pick through the draw, while a name bound
-inside a repeat picks anew on each iteration. It never reaches into a category a reference
-enters. A name an enclosing scope binds may not be bound again, so no name shadows another.
+A name is a closure. It reaches every field, choice item and repeat nested inside the
+scope binding it, and keeps one pick through the draw. A name bound inside a repeat picks
+anew on each iteration. A name an enclosing scope binds may not be bound again, so no name
+shadows another.
 The maintainer ruled so on 2026-10-09.
 
 A pick keeps only the levels a read of the name addresses, so a template draws the same way
