@@ -3,12 +3,12 @@ package fejkdata
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io/fs"
 	"os"
 	"path"
 	"reflect"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -79,12 +79,7 @@ func shippedManifest(whole *Generator) ([]byte, error) {
 	var b bytes.Buffer
 	b.WriteString("{\n\t\"index\": {")
 	for i, s := range categorySites(&whole.root) {
-		e := datafiles.IndexEntry{Paths: paths(s.n, false), Reads: categoryReads(&whole.root, s)}
-		if t, isTable := s.n.(*table); isTable {
-			e.Parent = t.rows.Options().Parent
-		}
-		sort.Strings(e.Paths)
-		line, err := json.Marshal(e)
+		line, err := json.Marshal(indexEntry(&whole.root, s))
 		if err != nil {
 			return nil, err
 		}
@@ -100,12 +95,8 @@ func shippedManifest(whole *Generator) ([]byte, error) {
 
 func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	t.Helper()
-	b, err := os.ReadFile(shippedManifestFile)
+	m, err := shippedSource.Manifest()
 	if err != nil {
-		t.Fatal(err)
-	}
-	var m datafiles.Manifest
-	if err := json.Unmarshal(b, &m); err != nil {
 		t.Fatal(err)
 	}
 	return m.Index
@@ -255,6 +246,9 @@ func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
 	if first == nil || !strings.Contains(first.Error(), "{/nope}") {
 		t.Fatalf(`Fake("bad") = %v, want an error naming {/nope}`, first)
 	}
+	if !errors.Is(first, ErrLoad) {
+		t.Fatalf(`Fake("bad") = %v, want it to wrap ErrLoad`, first)
+	}
 	if _, again := f.Fake("bad"); again == nil || again.Error() != first.Error() {
 		t.Fatalf(`Fake("bad") again = %v, want %v`, again, first)
 	}
@@ -268,6 +262,9 @@ func TestABrokenManifestFailsNew(t *testing.T) {
 		`{`:                                    datafiles.ManifestFile,
 		`{"indx": {}}`:                         "indx",
 		`{"index": {"a..b": {"paths": [""]}}}`: "a..b",
+		`{"index": {}} {}`:                     "more than one JSON value",
+		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:     `parent "b" names no entry`,
+		`{"index": {"a": {"paths": [""], "reads": ["b..c"]}}}`: "b..c",
 	} {
 		_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		if err == nil || !strings.Contains(err.Error(), want) {
@@ -346,16 +343,34 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 	wg.Wait()
 }
 
-// categoryReads is the sorted path of every other category s's templates reference.
-func categoryReads(root *folder, s categorySite) []string {
-	seen := map[string]bool{s.path: true}
-	var out []string
-	for _, c := range referenced(root, s.dir, siteNodes([]categorySite{s})) {
-		if p := c.path(); !seen[p] {
-			seen[p] = true
-			out = append(out, p)
+func TestAStaleIndexEntryFailsItsFirstReachNamingTheManifest(t *testing.T) {
+	table := map[string]string{
+		"country.json": `{"format":"{name}","rows":"country.tsv","key":"code"}`,
+		"country.tsv":  "code\tname\nSE\tSweden\n",
+		"city.json":    `{"format":"{name}","rows":"city.tsv","key":"name","parent":"country"}`,
+		"city.tsv":     "name\tcountry\nOslo\tSE\n",
+		"word.json":    `{"format":"{a}","a":"x"}`,
+	}
+	for index, reach := range map[string]string{
+		`{"index": {"word": {"paths": [""]}}}`: "word",
+		`{"index": {"word": {"paths": ["", "a"], "reads": ["city"]}, "city": {"paths": [""]}, "country": {"paths": [""]}}}`:                        "word",
+		`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "city", "city.country", "city.name", "code", "name"]}}}`: "city",
+	} {
+		fsys := fstest.MapFS{".fejkdata.json": {Data: []byte(index)}}
+		for name, data := range table {
+			fsys[name] = &fstest.MapFile{Data: []byte(data)}
+		}
+		f, err := New(WithoutShippedData(), WithDataFS(fsys))
+		if err != nil {
+			t.Fatalf("New(%s) = %v", index, err)
+		}
+		_, first := f.Fake(reach)
+		if first == nil || !strings.Contains(first.Error(), ".fejkdata.json") || !strings.Contains(first.Error(), "stale") {
+			t.Errorf("Fake(%q) under %s = %v, want the stale entry named", reach, index, first)
+			continue
+		}
+		if _, again := f.Fake(reach); again == nil || again.Error() != first.Error() {
+			t.Errorf("Fake(%q) again = %v, want %v", reach, again, first)
 		}
 	}
-	sort.Strings(out)
-	return out
 }
