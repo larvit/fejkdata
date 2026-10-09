@@ -9,6 +9,7 @@ import (
 	"path"
 	"reflect"
 	"slices"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -262,7 +263,10 @@ func TestABrokenManifestFailsNew(t *testing.T) {
 		`{`:                                    datafiles.ManifestFile,
 		`{"indx": {}}`:                         "indx",
 		`{"index": {"a..b": {"paths": [""]}}}`: "a..b",
-		`{"index": {}} {}`:                     "more than one JSON value",
+		`{"index": {}} {}`:                     "after top-level value",
+		`{"INDEX": {}}`:                        `unknown key "INDEX"`,
+		`{"index": {"a": {"Paths": [""]}}}`:    `unknown key "Paths"`,
+		`{"index": {"a": {}, "b": {}}}`:        `"b": paths is missing`,
 		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:     `parent "b" names no entry`,
 		`{"index": {"a": {"paths": [""], "reads": ["b..c"]}}}`: "b..c",
 	} {
@@ -343,34 +347,56 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 	wg.Wait()
 }
 
-func TestAStaleIndexEntryFailsItsFirstReachNamingTheManifest(t *testing.T) {
-	table := map[string]string{
-		"country.json": `{"format":"{name}","rows":"country.tsv","key":"code"}`,
-		"country.tsv":  "code\tname\nSE\tSweden\n",
-		"city.json":    `{"format":"{name}","rows":"city.tsv","key":"name","parent":"country"}`,
-		"city.tsv":     "name\tcountry\nOslo\tSE\n",
-		"word.json":    `{"format":"{a}","a":"x"}`,
+func TestAParentColumnItsIndexEntryOmitsFailsTheFirstReachNamingTheManifest(t *testing.T) {
+	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "code", "name"]}}}`)},
+		"country.json":   {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
+		"country.tsv":    {Data: []byte("code\tname\nSE\tSweden\n")},
+		"city.json":      {Data: []byte(`{"format":"{name}","rows":"city.tsv","key":"name","parent":"country"}`)},
+		"city.tsv":       {Data: []byte("name\tcountry\nOslo\tSE\n")},
+	}))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
 	}
-	for index, reach := range map[string]string{
-		`{"index": {"word": {"paths": [""]}}}`: "word",
-		`{"index": {"word": {"paths": ["", "a"], "reads": ["city"]}, "city": {"paths": [""]}, "country": {"paths": [""]}}}`:                        "word",
-		`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "city", "city.country", "city.name", "code", "name"]}}}`: "city",
-	} {
-		fsys := fstest.MapFS{".fejkdata.json": {Data: []byte(index)}}
-		for name, data := range table {
-			fsys[name] = &fstest.MapFile{Data: []byte(data)}
-		}
-		f, err := New(WithoutShippedData(), WithDataFS(fsys))
-		if err != nil {
-			t.Fatalf("New(%s) = %v", index, err)
-		}
-		_, first := f.Fake(reach)
-		if first == nil || !strings.Contains(first.Error(), ".fejkdata.json") || !strings.Contains(first.Error(), "stale") {
-			t.Errorf("Fake(%q) under %s = %v, want the stale entry named", reach, index, first)
-			continue
-		}
-		if _, again := f.Fake(reach); again == nil || again.Error() != first.Error() {
-			t.Errorf("Fake(%q) again = %v, want %v", reach, again, first)
+	if _, err := f.Fake("country"); err != nil {
+		t.Fatalf(`Fake("country") = %v`, err)
+	}
+	_, first := f.Fake("city")
+	if first == nil || !strings.Contains(first.Error(), ".fejkdata.json") || !strings.Contains(first.Error(), `parent ""`) {
+		t.Fatalf(`Fake("city") = %v, want the entry's parent named`, first)
+	}
+	if _, again := f.Fake("city"); again == nil || again.Error() != first.Error() {
+		t.Fatalf(`Fake("city") again = %v, want %v`, again, first)
+	}
+}
+
+func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
+	f, err := New(WithSeed(1), WithDataPath(writeFiles(t, map[string]string{
+		"sv_SE/nickname.json": `{"format":"{name}","rows":"nickname.tsv","key":"name","parent":"sex"}`,
+		"sv_SE/nickname.tsv":  "name\tsex\nKalle\tm\nLotta\tf\n",
+	})))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	if got := fake(t, f, "sv_SE.sex[m].nickname"); got != "Kalle" {
+		t.Fatalf("sv_SE.sex[m].nickname = %q, want Kalle", got)
+	}
+	if got := fake(t, f, "sv_SE.person"); got == "" {
+		t.Fatal("sv_SE.person rendered empty")
+	}
+}
+
+// indexEntry is what an index says of the loaded category s.
+func indexEntry(root *folder, s categorySite) datafiles.IndexEntry {
+	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: paths(s.n, false)}
+	sort.Strings(e.Paths)
+	seen := map[string]bool{s.path: true}
+	for _, c := range referenced(root, s.dir, siteNodes([]categorySite{s})) {
+		if p := categoryPath(c.dir, c.name); !seen[p] {
+			seen[p] = true
+			e.Reads = append(e.Reads, p)
 		}
 	}
+	sort.Strings(e.Reads)
+	return e
 }
