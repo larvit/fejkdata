@@ -941,6 +941,8 @@ Where the project is heading; the sections before Audience document what ships t
       fails to load instead.
    2. Data that reads something nobody provided fails to load, and the error names the
       module that provides it by default, or says that none does.
+   3. A module from fejkdata is proven whole before it ships; a module from anyone else
+      may load on first reach, and its author proves it.
 7. **One command line gets you a value.**
    1. Flags work like in other command-line tools, and can go anywhere on the line.
    2. Your first template of your own needs no escaping and no options.
