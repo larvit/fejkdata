@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"slices"
@@ -12,9 +11,15 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// ErrLoad marks the error of a category that fails to load on the first call reaching it,
-// which only a source whose manifest carries an index defers to then.
+// ErrLoad marks data that fails to load: in New, or on the first call reaching a category
+// of an indexed source.
 var ErrLoad = errors.New("data fails to load")
+
+// loadError is a load's error, unchanged in its text, matching ErrLoad.
+type loadError struct{ error }
+
+func (e loadError) Unwrap() error      { return e.error }
+func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // indexed is a category an index names and no call has reached yet, and the source holding it.
 type indexed struct {
@@ -39,7 +44,7 @@ type categoryAt struct {
 	name string
 }
 
-func (c categoryAt) path() string { return categoryPath(c.dir, c.name) }
+func (c categoryAt) unloaded() bool { return c.in.unloaded[c.name] != nil }
 
 // categoryOn is the category, loaded or not, that a path from root names or passes.
 func categoryOn(root *folder, segs []string) (categoryAt, bool) {
@@ -47,10 +52,8 @@ func categoryOn(root *folder, segs []string) (categoryAt, bool) {
 	if i == len(segs) {
 		return categoryAt{}, false
 	}
-	if _, unloaded := g.unloaded[segs[i]]; !unloaded && g.children[segs[i]] == nil {
-		return categoryAt{}, false
-	}
-	return categoryAt{dir: segs[:i:i], in: g, name: segs[i]}, true
+	c := categoryAt{dir: segs[:i:i], in: g, name: segs[i]}
+	return c, c.unloaded() || g.children[c.name] != nil
 }
 
 // loadCallerPath strips the / a caller's path may start with, splits the path, and loads the
@@ -64,9 +67,9 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 	if err != nil {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	if c, ok := categoryOn(&f.root, segs); ok {
+	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
 		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
-			return "", nil, fmt.Errorf("fejkdata: %w: %w", ErrLoad, err)
+			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
 	return path, segs, nil
@@ -95,9 +98,9 @@ func referenced(root *folder, dir []string, nodes nodeSet) []categoryAt {
 	return out
 }
 
-// dependencies is every category, loaded or not, that s references, the table beside s
-// that its parent column names, and every unloaded table beside s whose parent s is.
-func dependencies(root *folder, s categorySite) []categoryAt {
+// needs is every category, loaded or not, that s references, the table beside s that its
+// parent column names, and every unloaded table beside s whose parent s is.
+func needs(root *folder, s categorySite) []categoryAt {
 	out := referenced(root, s.dir, siteNodes([]categorySite{s}))
 	if parent := parentOf(s.n); parent != "" {
 		out = append(out, categoryAt{dir: s.dir, in: s.in, name: parent})
@@ -110,25 +113,25 @@ func dependencies(root *folder, s categorySite) []categoryAt {
 	return out
 }
 
-// dependents is every unloaded category under root whose index entry leads to one of
+// affectedBy is every unloaded category under root whose index entry leads to one of
 // paths: through its reads, its parent or a child table, and through other unloaded
 // categories.
-func dependents(root *folder, paths []string) []categoryAt {
+func affectedBy(root *folder, paths []string) []categoryAt {
 	if len(paths) == 0 {
 		return nil
 	}
 	unloaded := unloadedUnder(root)
-	from := map[string][]string{} // a path, and the unloaded categories leading to it
+	readers := map[string][]string{}
 	for _, p := range sortedNames(unloaded) {
 		c := unloaded[p]
 		e := c.in.unloaded[c.name].entry
 		for _, r := range e.Reads {
-			from[r] = append(from[r], p)
+			readers[r] = append(readers[r], p)
 		}
 		if e.Parent != "" {
 			parent := categoryPath(c.dir, e.Parent)
-			from[parent] = append(from[parent], p)
-			from[p] = append(from[p], parent)
+			readers[parent] = append(readers[parent], p)
+			readers[p] = append(readers[p], parent)
 		}
 	}
 	var out []categoryAt
@@ -136,14 +139,12 @@ func dependents(root *folder, paths []string) []categoryAt {
 	queue := slices.Clone(paths)
 	sort.Strings(queue)
 	for ; len(queue) > 0; queue = queue[1:] {
-		for _, p := range from[queue[0]] {
-			c, isUnloaded := unloaded[p]
-			if !isUnloaded || seen[p] {
-				continue
+		for _, p := range readers[queue[0]] {
+			if c, isUnloaded := unloaded[p]; isUnloaded && !seen[p] {
+				seen[p] = true
+				out = append(out, c)
+				queue = append(queue, p)
 			}
-			seen[p] = true
-			out = append(out, c)
-			queue = append(queue, p)
 		}
 	}
 	return out
@@ -155,7 +156,7 @@ func unloadedUnder(root *folder) map[string]categoryAt {
 	walk = func(g *folder, dir []string) {
 		for name := range g.unloaded {
 			c := categoryAt{dir: dir, in: g, name: name}
-			out[c.path()] = c
+			out[categoryPath(dir, name)] = c
 		}
 		for name, n := range g.children {
 			if sub, isFolder := n.(*folder); isFolder {
@@ -167,87 +168,71 @@ func unloadedUnder(root *folder) map[string]categoryAt {
 	return out
 }
 
-// loadReached loads the unloaded categories among wanted, and every unloaded category they
-// or sites depend on, then runs sites and all it loaded through a whole load's pipeline.
-// On an error it puts back what it loaded, so the next call fails the same way. Checking
-// each parent column against its entry before linking keeps that whole: a table then
-// loads with its parent, so no table loaded earlier links to one put back.
+// loadReached loads the unloaded categories among wanted and every unloaded category they
+// or sites need, then runs sites and all it loaded through a whole load's pipeline. On an
+// error it puts back what it loaded, so the next call fails the same way.
 func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
-		queue = append(queue, dependencies(root, s)...)
+		queue = append(queue, needs(root, s)...)
 	}
-	type load struct {
-		site categorySite
-		was  *indexed
-	}
-	var loads []load
-	putBack := func() {
-		for _, l := range loads {
-			l.site.in.putUnloaded(l.site.name, l.was)
-		}
-	}
-	for ; len(queue) > 0; queue = queue[1:] {
-		c := queue[0]
-		x, unloaded := c.in.unloaded[c.name]
-		if !unloaded {
-			continue
-		}
-		err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in }))
-		if err == nil {
-			loads = append(loads, load{site: siteIn(c.dir, c.in, c.name), was: x})
-			if parentOf(c.in.children[c.name]) != x.entry.Parent {
-				err = staleEntry(root, loads[len(loads)-1].site, x)
-			}
-		}
-		if err != nil {
-			putBack()
-			return err
-		}
-		queue = append(queue, dependencies(root, loads[len(loads)-1].site)...)
-	}
-	for _, l := range loads {
-		sites = append(sites[:len(sites):len(sites)], l.site)
-	}
-	if len(sites) == 0 {
-		return nil
-	}
-	err := categoryPipeline(sites, root.children).run()
-	for _, l := range loads {
-		if err == nil && !sameEntry(indexEntry(root, l.site), l.was.entry) {
-			err = staleEntry(root, l.site, l.was)
-		}
+	var b batch
+	err := b.load(root, queue)
+	if err == nil {
+		err = b.run(root, sites)
 	}
 	if err != nil {
-		putBack()
+		b.putBack()
 	}
 	return err
 }
 
-// indexEntry is what an index says of the loaded category s.
-func indexEntry(root *folder, s categorySite) datafiles.IndexEntry {
-	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: paths(s.n, false)}
-	sort.Strings(e.Paths)
-	seen := map[string]bool{s.path: true}
-	for _, c := range referenced(root, s.dir, siteNodes([]categorySite{s})) {
-		if p := c.path(); !seen[p] {
-			seen[p] = true
-			e.Reads = append(e.Reads, p)
+// batch is the categories one loadReached loaded, each beside the entry it was loaded from.
+type batch []loaded
+
+type loaded struct {
+	site categorySite
+	was  *indexed
+}
+
+// load loads each unloaded category in queue and what it needs. A table whose parent
+// column disagrees with its entry stops it, so a table loads with its parent and no table
+// loaded before links to one putBack removes.
+func (b *batch) load(root *folder, queue []categoryAt) error {
+	for ; len(queue) > 0; queue = queue[1:] {
+		c := queue[0]
+		x := c.in.unloaded[c.name]
+		if x == nil {
+			continue
 		}
+		if err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in })); err != nil {
+			return err
+		}
+		s := siteIn(c.dir, c.in, c.name)
+		*b = append(*b, loaded{site: s, was: x})
+		if parent := parentOf(s.n); parent != x.entry.Parent {
+			return fmt.Errorf("%s: the index entry for %s names parent %q, and its table's parent column is %q", x.src.ManifestPath(), s.path, x.entry.Parent, parent)
+		}
+		queue = append(queue, needs(root, s)...)
 	}
-	sort.Strings(e.Reads)
-	return e
+	return nil
 }
 
-func sameEntry(a, b datafiles.IndexEntry) bool {
-	return a.Parent == b.Parent && slices.Equal(a.Paths, b.Paths) && slices.Equal(a.Reads, b.Reads)
+func (b batch) run(root *folder, sites []categorySite) error {
+	sites = slices.Clip(sites)
+	for _, l := range b {
+		sites = append(sites, l.site)
+	}
+	if len(sites) == 0 {
+		return nil
+	}
+	return categoryPipeline(sites, root.children).run()
 }
 
-// staleEntry names the entry x holds for s, and the entry s calls for. Before linking,
-// the paths and reads it names may still lack what s's family adds.
-func staleEntry(root *folder, s categorySite, x *indexed) error {
-	want, _ := json.Marshal(indexEntry(root, s))
-	return fmt.Errorf("%s: the index entry for %s is stale; the category calls for %s", x.src.ManifestPath(), s.path, want)
+func (b batch) putBack() {
+	for _, l := range b {
+		l.site.in.putUnloaded(l.site.name, l.was)
+	}
 }
 
 func parentOf(n node) string {

@@ -178,10 +178,10 @@ first call reaching it, and its author proves each loads. Any other source loads
 or on a category a later source replaced. The index names every category of its source,
 so a category file it leaves out never loads. The shipped set's
 [`data/.fejkdata.json`](data/.fejkdata.json) shows the shape: each category's dot path,
-its `parent` table, every path `List` advertises below it, `""` for the category itself,
-and the other categories its templates `reads`. A category whose entry says otherwise
-fails at first reach, naming the entry it calls for. `//go:embed` of a directory leaves
-the manifest out; name it in the pattern too.
+its `parent` table, an entry of the same index, every path `List` advertises below it,
+`""` for the category itself, and the other categories its templates `reads`. A table
+whose parent column differs from its entry's `parent` fails at first reach.
+`//go:embed` of a directory leaves the manifest out; name it in the pattern too.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -342,8 +342,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. A category of an indexed source is
-checked on the first call reaching it instead, and a failure there wraps `ErrLoad`, the
-same error every call. On a loaded generator:
+checked on the first call reaching it instead. Data that fails to load, in `New` or
+there, gives an error matching `ErrLoad`, the same every call. On a loaded generator:
 
 - `Fake` fails only for a path that names nothing, could name two things, or reads one
   draw of a level carrying a `repeat`, with the same error every call, or with `ErrLoad`.

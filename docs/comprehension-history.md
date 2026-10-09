@@ -202,3 +202,25 @@ Inherited architect, decided by:
 - Shape: `index.go:159` `reaching`: four near-synonyms, `reaching`, `reachedFrom`, `loadReached` and `referenced`, and `referenced` and `categoryUnder` return loaded categories too
 - Shape: `data.go:40` `place`: shares its name with `compileInto`'s parameter, and returns a closure answering one question two ways
 - Locality: `internal/datafiles/datafiles.go:83` `embeddedManifests`: hidden global state for a small saving
+
+## 2026-10-09T17:32:44Z, PR #202 at fdc6a04, against 2652779
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | same | same | worse |
+| Inherited architect | same | worse | worse | worse | worse |
+
+Mid A, decided by:
+
+- Locality, Overall: `index.go:175` `loadReached`: one loop loads, puts back on failure, checks each entry before linking and again after the pipeline, and its rollback rests on an ordering invariant its comment argues
+- Locality: `data.go:13` `loadSources`: whether a category loads in New means holding every source and every index entry together, through `standing` snapshots and `dependents`
+- Shape: `index.go:36` `categoryAt`: a near-synonym of `categorySite`, beside `dependencies` and `dependents`, which differ by two letters and run in opposite directions
+
+Inherited architect, decided by:
+
+- Locality, Overall: `index.go:175` `loadReached`: five jobs in one queue loop, with a cross-call ordering invariant to hold
+- Locality, Shape: `data.go:13` `loadSources`: one source can make another load early through identity-compared snapshots and a reverse graph over index entries
+- Shape: `index.go:36` `categoryAt`: two near-synonym types for where a category sits, and three near-identical function names
+- Self-sufficiency: `index.go:248` `staleEntry`: its note on linking cannot be read without knowing the pipeline, and `config.load` points at a paragraph-long decision anchor

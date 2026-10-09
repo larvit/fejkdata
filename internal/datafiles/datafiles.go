@@ -2,14 +2,13 @@
 package datafiles
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -99,37 +98,121 @@ func (s Source) Manifest() (Manifest, error) {
 // ManifestPath is the manifest's path as errors name it.
 func (s Source) ManifestPath() string { return s.labelled(path.Join(s.base, ManifestFile)) }
 
+// decodeManifest decodes a manifest, refusing any key or shape it does not define, and
+// reports every mistake in the order of the entries naming them.
 func decodeManifest(b []byte) (Manifest, error) {
-	dec := json.NewDecoder(bytes.NewReader(b))
-	dec.DisallowUnknownFields()
-	var m Manifest
-	if err := dec.Decode(&m); err != nil {
+	var raw any
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return Manifest{}, err
 	}
-	if _, err := dec.Token(); err != io.EOF {
-		return Manifest{}, fmt.Errorf("more than one JSON value")
+	top, isObject := raw.(map[string]any)
+	if !isObject {
+		return Manifest{}, fmt.Errorf("a manifest is a JSON object")
 	}
-	for p, e := range m.Index {
-		for _, q := range append([]string{p}, e.Reads...) {
-			if err := checkCategoryPath(q); err != nil {
-				return Manifest{}, fmt.Errorf("index entry %q: %w", p, err)
-			}
-		}
-		if e.Parent == "" {
+	var m Manifest
+	var errs []error
+	for _, k := range sortedKeys(top) {
+		if k != "index" {
+			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index", k))
 			continue
 		}
-		if err := grammar.CheckIdentifier(e.Parent); err != nil {
-			return Manifest{}, fmt.Errorf("index entry %q: parent %w", p, err)
+		index, isObject := top[k].(map[string]any)
+		if !isObject {
+			errs = append(errs, fmt.Errorf("index is a JSON object of category paths"))
+			continue
 		}
-		sibling := e.Parent
-		if dot := strings.LastIndexByte(p, '.'); dot >= 0 {
-			sibling = p[:dot+1] + e.Parent
-		}
-		if _, ok := m.Index[sibling]; !ok {
-			return Manifest{}, fmt.Errorf("index entry %q: parent %q names no entry beside it", p, e.Parent)
+		m.Index = map[string]IndexEntry{}
+		for _, p := range sortedKeys(index) {
+			e, err := decodeEntry(p, index[p])
+			if err != nil {
+				errs = append(errs, fmt.Errorf("index entry %q: %w", p, err))
+			}
+			m.Index[p] = e
 		}
 	}
+	for _, p := range sortedKeys(m.Index) {
+		if err := checkParent(m.Index, p); err != nil {
+			errs = append(errs, fmt.Errorf("index entry %q: %w", p, err))
+		}
+	}
+	if len(errs) > 0 {
+		return Manifest{}, errors.Join(errs...)
+	}
 	return m, nil
+}
+
+func decodeEntry(p string, v any) (IndexEntry, error) {
+	var e IndexEntry
+	errs := []error{checkCategoryPath(p)}
+	fields, isObject := v.(map[string]any)
+	if !isObject {
+		return e, fmt.Errorf("an entry is a JSON object of parent, paths and reads")
+	}
+	if _, has := fields["paths"]; !has {
+		errs = append(errs, fmt.Errorf("paths is missing"))
+	}
+	var err error
+	for _, k := range sortedKeys(fields) {
+		switch k {
+		case "parent":
+			var isString bool
+			if e.Parent, isString = fields[k].(string); !isString {
+				err = fmt.Errorf("parent is a string")
+			} else if err = grammar.CheckIdentifier(e.Parent); err != nil {
+				err = fmt.Errorf("parent %w", err)
+			}
+		case "paths":
+			e.Paths, err = stringList(k, fields[k], func(q string) error {
+				if q == "" {
+					return nil
+				}
+				return checkCategoryPath(q)
+			})
+		case "reads":
+			e.Reads, err = stringList(k, fields[k], checkCategoryPath)
+		default:
+			err = fmt.Errorf("unknown key %q; an entry holds parent, paths and reads", k)
+		}
+		errs = append(errs, err)
+	}
+	return e, errors.Join(errs...)
+}
+
+// stringList is the JSON array of strings v, each passing check.
+func stringList(key string, v any, check func(string) error) ([]string, error) {
+	items, isArray := v.([]any)
+	if !isArray {
+		return nil, fmt.Errorf("%s is an array of strings", key)
+	}
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		s, isString := item.(string)
+		if !isString {
+			return nil, fmt.Errorf("%s is an array of strings", key)
+		}
+		if err := check(s); err != nil {
+			return nil, fmt.Errorf("%s: %w", key, err)
+		}
+		out = append(out, s)
+	}
+	return out, nil
+}
+
+// checkParent refuses a parent naming no entry beside p: a table loads with its parent,
+// from one source.
+func checkParent(index map[string]IndexEntry, p string) error {
+	parent := index[p].Parent
+	if parent == "" {
+		return nil
+	}
+	sibling := parent
+	if dot := strings.LastIndexByte(p, '.'); dot >= 0 {
+		sibling = p[:dot+1] + parent
+	}
+	if _, ok := index[sibling]; !ok {
+		return fmt.Errorf("parent %q names no entry beside it in this index", parent)
+	}
+	return nil
 }
 
 func checkCategoryPath(p string) error {
@@ -139,6 +222,15 @@ func checkCategoryPath(p string) error {
 		}
 	}
 	return nil
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // Walk hands compile every category of the tree, folders and files in name order. A

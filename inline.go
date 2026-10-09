@@ -91,7 +91,7 @@ func loadInline(root *folder, n node, label string, typedByGo bool) error {
 		return err
 	}
 	if err := loadReached(root, nil, referenced(root, nil, nodes)); err != nil {
-		return fmt.Errorf("%w: %w", ErrLoad, err)
+		return loadError{err}
 	}
 	return pipeline{
 		nodes:     nodes,

@@ -172,8 +172,11 @@ error. So does every indexed category it reads, and every indexed category depen
 through references or table links, on a category it provides or a later source
 replaced, so a replacement or a stand-in breaking a reader fails `New`. Goal 6.3: an
 indexed source from anyone else may fail at first reach; `Fake` then returns the load's
-error wrapping `ErrLoad`, the same every call. A category whose index entry disagrees
-with it fails there too, so a stale index never decides what loads.
+error, matching `ErrLoad`, the same every call. A first reach checks only a table's
+`parent` against its entry, so a table loads with its parent and a failed load puts
+back whole. Proving the rest of an index is its author's, with the tool `todo.md` item
+194 plans: checked against the merged tree, an entry's paths and reads would blame the
+manifest for a table or a stand-in another source adds.
 
 Valid while CI proves the shipped set whole and each category alone.
 
