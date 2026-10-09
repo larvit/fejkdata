@@ -436,3 +436,20 @@ Read most (opens and searches):
 - `DATA-LICENSES.md` 16
 - `compose.yaml` 16
 - `env.go` 16
+
+## Reading cost, chunk f73b4c751678, finished 2026-10-09T13:02:23Z
+
+340530 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 15
+- `docs/decisions.md` 14
+- `README.md` 4
+- `.github/workflows/test.yml` 2
+- `compose.yaml` 2
+- `fejkdata.go` 2
+- `go.mod` 2
+- `release-tooling/publish_release.py` 2
+- `shipped.go` 2
+- `shippedindex.go` 2
