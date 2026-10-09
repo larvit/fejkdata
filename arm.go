@@ -100,7 +100,7 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	b := t.nameScope.lookup(a.head)
 	if grammar.HasSelector(a.tail) {
-		if !grammar.IsRef(b.ref) {
+		if b.bindsField() {
 			return a, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", a.head)
 		}
 		return a, fmt.Errorf("a path through name %q may not select a row; read the row without the name, {%s}, or bind it to a name of its own", a.head, grammar.JoinSegments(append([]string{b.ref}, a.tail...)))
