@@ -332,7 +332,7 @@ Carries out the decision "The shipped data is Go modules a library imports by ch
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` adds `(devel)` to the release it builds on; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` adds its VCS pseudo-version, or `(devel)` under `go run`, to the release it builds on; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 

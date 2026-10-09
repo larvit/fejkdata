@@ -286,7 +286,7 @@ it, so no gate step may resolve one outside `go.work`: no `go mod download`, no 
 tidy` outside the root, and no `github.com/larvit/fejkdata/...` pattern. `./...` stops at
 a nested module, so every gate command runs over `go list -m -f '{{.Dir}}/...'`. A
 nested module needs no `go.sum` line for the core: `go install …@vX.Y.Z` fetches and
-verifies it, proven on Go 1.22.12 and 1.27.1 against a file proxy. Before the first tag,
+verifies it, which CI's install job checks once the tags exist. Before the first tag,
 `go install …/cmd/fejkdata@latest` fails on that `require`, so the README's install line
 says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note once
 v0.1.0 is tagged.
