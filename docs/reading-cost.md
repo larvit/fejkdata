@@ -453,3 +453,20 @@ Read most (opens and searches):
 - `release-tooling/publish_release.py` 2
 - `shipped.go` 2
 - `shippedindex.go` 2
+
+## Reading cost, chunk af1b90b1481c, finished 2026-10-09T17:00:45Z
+
+91452 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `todo.md` 5
+- `cmd/fejkdata/main_test.go` 3
+- `CHANGELOG.md` 2
+- `docs/decisions.md` 2
+- `imports_test.go` 2
+- `.dockerignore` 1
+- `.github/workflows/test.yml` 1
+- `cmd/fejkdata/main.go` 1
+- `compose.yaml` 1
