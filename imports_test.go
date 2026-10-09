@@ -83,23 +83,6 @@ func TestPackageImports(t *testing.T) {
 // eachPackage calls fn with every Go package in the repository and its slash-separated directory.
 func eachPackage(t *testing.T, fn func(dir string, pkg *build.Package)) {
 	t.Helper()
-	for _, dir := range sourceDirs(t) {
-		pkg, err := build.ImportDir(dir, 0)
-		var noGo *build.NoGoError
-		if errors.As(err, &noGo) {
-			continue
-		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		fn(dir, pkg)
-	}
-}
-
-// sourceDirs returns every slash-separated directory of the repository but hidden ones and testdata.
-func sourceDirs(t *testing.T) []string {
-	t.Helper()
-	var dirs []string
 	err := filepath.WalkDir(".", func(dir string, d fs.DirEntry, err error) error {
 		if err != nil || !d.IsDir() {
 			return err
@@ -107,11 +90,18 @@ func sourceDirs(t *testing.T) []string {
 		if dir != "." && (strings.HasPrefix(d.Name(), ".") || d.Name() == "testdata") {
 			return filepath.SkipDir
 		}
-		dirs = append(dirs, filepath.ToSlash(dir))
+		pkg, err := build.ImportDir(dir, 0)
+		var noGo *build.NoGoError
+		if errors.As(err, &noGo) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		fn(filepath.ToSlash(dir), pkg)
 		return nil
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	return dirs
 }

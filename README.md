@@ -5,7 +5,7 @@ it as a Go library or the CLI — no data on disk, no dependencies, and a seed m
 reproducible.
 
 ```sh
-go install github.com/larvit/fejkdata/cmd/fejkdata@latest   # releases start at v0.1.0
+go install github.com/larvit/fejkdata/cmd/fejkdata@latest   # before v0.1.0: clone, then go install ./cmd/fejkdata
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 

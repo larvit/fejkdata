@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 190`
+`Next ID = 191`
 
 | Goal | W |
 |---|---|
@@ -107,6 +107,7 @@
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
+| 190 | 0.2.0 | decision | **Drop the README's install-from-a-clone note once v0.1.0 is tagged, so its first line is `go install …/cmd/fejkdata@latest` alone.** | 1 | 1 | 3 | 6 | 1.1 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
@@ -422,6 +423,10 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
+
+### 190. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so its first line is `go install …/cmd/fejkdata@latest` alone.
+
+Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, whose `require` of the core at the release being cut no proxy serves.
 
 ### 44. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 

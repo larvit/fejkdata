@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,7 +21,11 @@ func TestVersionIsTheNewestChangelogHeading(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		src = regexp.MustCompile(`(?m)^const Version = ".*"$`).ReplaceAll(src, []byte(`const Version = "`+want+`"`))
+		decl := regexp.MustCompile(`(?m)^const Version = ".*"$`)
+		if n := len(decl.FindAll(src, -1)); n != 1 {
+			t.Fatalf("%s holds %d lines `const Version = \"…\"`, want 1", versionFile, n)
+		}
+		src = decl.ReplaceAll(src, []byte(`const Version = "`+want+`"`))
 		if err := os.WriteFile(versionFile, src, 0o644); err != nil {
 			t.Fatal(err)
 		}
@@ -46,15 +51,37 @@ func TestWorkspaceRequiresAreAtVersion(t *testing.T) {
 	}
 }
 
+// The release tags every tracked go.mod's module, so the gate covers every go.mod outside .git.
 func TestEveryGoModIsInGoWork(t *testing.T) {
 	var used []string
 	for _, m := range workspaceModules(t) {
 		used = append(used, m.dir)
 	}
-	for _, dir := range sourceDirs(t) {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil && !slices.Contains(used, dir) {
+	err := filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() && d.Name() == ".git" {
+			return filepath.SkipDir
+		}
+		if dir := filepath.ToSlash(filepath.Dir(path)); d.Name() == "go.mod" && !slices.Contains(used, dir) {
 			t.Errorf("%s/go.mod is not in go.work's use list, so the gate does not cover it", dir)
 		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTopChangelogHeadingIsUnreleasedOrAVersion(t *testing.T) {
+	changelog, err := os.ReadFile("CHANGELOG.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	top := regexp.MustCompile(`(?m)^## \[([^\]]*)\]`).FindSubmatch(changelog)
+	if top == nil || !regexp.MustCompile(`^(Unreleased|\d+\.\d+\.\d+)$`).Match(top[1]) {
+		t.Errorf("CHANGELOG.md's top heading is not [Unreleased] or [X.Y.Z], which the release job refuses")
 	}
 }
 

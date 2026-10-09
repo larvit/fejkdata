@@ -284,9 +284,12 @@ alone joins the modules in a checkout, and a gate test refuses a `replace`. A mo
 `require` of another names the release being cut, which no proxy serves until CI tags
 it, so no gate step may resolve one outside `go.work`: no `go mod download`, no `go mod
 tidy` outside the root, and no `github.com/larvit/fejkdata/...` pattern. `./...` stops at
-a nested module, so every gate command runs over `go list -m -f '{{.Dir}}/...'`. Before
-the first tag, `go install …/cmd/fejkdata@latest` fails on that `require`, so the README
-installs from a clone until v0.1.0.
+a nested module, so every gate command runs over `go list -m -f '{{.Dir}}/...'`. A
+nested module needs no `go.sum` line for the core: `go install …@vX.Y.Z` fetches and
+verifies it, proven on Go 1.22.12 and 1.27.1 against a file proxy. Before the first tag,
+`go install …/cmd/fejkdata@latest` fails on that `require`, so the README's install line
+says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note once
+v0.1.0 is tagged.
 
 Valid while the repository holds more than one Go module.
 

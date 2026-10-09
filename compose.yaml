@@ -10,7 +10,7 @@ x-go: &go
     GOMODCACHE: /cache/mod
     REPIN: ${REPIN:-}
 
-# `./...` stops at a nested module, so a command over every module names each one go.work uses.
+# docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-no-published-gomod-carries-a-replace
 services:
   test:
     <<: *go

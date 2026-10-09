@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      # GOPROXY=direct and GOWORK=off install what the tags serve, not a proxy's copy or the checkout.
+      # GOPROXY=direct and GOWORK=off install what the tags serve.
       - run: |
           docker compose run --rm -T -e GOPROXY=direct -e GOWORK=off -e TAG dev sh -c '
             go install github.com/larvit/fejkdata/cmd/fejkdata@"$TAG" &&
