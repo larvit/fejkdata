@@ -91,9 +91,8 @@ def tagged_at(req, tag: str) -> str | None:
 	return req(f"git/tags/{obj['sha']}")["object"]["sha"] if obj["type"] == "tag" else obj["sha"]
 
 
-def is_release_commit_of(req, commit: str, sha: str) -> bool:
-	"""Whether commit's one parent is sha."""
-	return [p["sha"] for p in req(f"git/commits/{commit}")["parents"]] == [sha]
+def parents(req, commit: str) -> list[str]:
+	return [p["sha"] for p in req(f"git/commits/{commit}")["parents"]]
 
 
 def unlisted(mods, packages) -> list[str]:
@@ -123,9 +122,13 @@ def publish(version: str, body: str, mods, packages, sha: str, req) -> tuple[int
 	tags = [tag if d == "." else f"{d}/{tag}" for d in mods]
 	at = {t: tagged_at(req, t) for t in tags}
 	tagged = sorted({c for c in at.values() if c})
-	if len(tagged) > 1 or not all(is_release_commit_of(req, c, sha) for c in tagged):
-		burnt = ", ".join(f"{t} at {c}" for t, c in at.items() if c)
-		print(f"{burnt}: not one release commit of {sha}; the version is burnt, bump the heading", file=sys.stderr)
+	found_at = ", ".join(f"{t} at {c}" for t, c in at.items() if c)
+	above = parents(req, tagged[0]) if len(tagged) == 1 else []
+	if len(tagged) == 1 and len(above) == 1 and above != [sha]:
+		print(f"{found_at}: a release commit of {above[0]}; rerun the release job of {above[0]} to finish it", file=sys.stderr)
+		return 1, None
+	if len(tagged) > 1 or (tagged and above != [sha]):
+		print(f"{found_at}: not one release commit of {sha}; the version is burnt, bump the heading", file=sys.stderr)
 		return 1, None
 	target = tagged[0] if tagged else release_commit(req, sha, release_go_mods(mods, packages, tag), tag)
 	for t in tags:

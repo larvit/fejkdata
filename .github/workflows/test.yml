@@ -43,6 +43,7 @@ jobs:
       - name: Release tooling tests
         run: python3 -m unittest discover -s release-tooling -p '*_test.py'
       - name: The go.mod files a release would write
+        if: ${{ steps.changes.outputs.code == 'true' }}
         run: |
           git archive HEAD | docker compose run --rm -T packages > packages.txt
           python3 release-tooling/publish_release.py --check packages.txt
@@ -62,6 +63,9 @@ jobs:
     needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-26.04
+    concurrency:
+      cancel-in-progress: false
+      group: release
     permissions:
       contents: write
     outputs:
