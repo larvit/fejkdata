@@ -57,7 +57,7 @@ func (t *template) resolveRefs(folder []string, label string, root map[string]no
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		head := "/" + strings.Join(categorySegs, ".")
-		if err := provePath(target, tail, head); err != nil {
+		if err := provePath(target, tail, head, 0); err != nil {
 			return refs, fmt.Errorf("%s: reference {%s}: %w", label, name, err)
 		}
 		refs.categories[head] = target
