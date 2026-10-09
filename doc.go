@@ -29,9 +29,9 @@ package fejkdata
 //     `namedPick`, `pickFrame`.
 //   - memo — what a named pick keeps its draws in, the variant drawn at each level
 //     and the value each path read: `drawMemo`.
-//   - level — a prefix of a read's path, from where it starts to its leaf: `pickKey`.
-//   - pick key — the key a memo keeps a level's draw under: `pickKey`.
-//   - addressed key — a pick key some read of a name lands on or passes: `pickKey`.
+//   - level — `pickKey`.
+//   - pick key — `pickKey`.
+//   - addressed key — `pickKey`.
 //   - pin — fixing which row of a table one path, or one named pick, uses:
 //     `pinSet`, `namedPick.pins`, `table.followStep`.
 //   - link — a table's tie to its parent table, each row to its parent row:

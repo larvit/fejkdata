@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -68,10 +69,10 @@ const (
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
-// draw takes, and every leaf the path may render; label names the head in its errors.
+// draw takes, and every leaf the path may render; head names where it starts in its errors.
 type compiledPath struct {
 	pins   pinSet
-	label  string
+	head   string
 	tail   []string
 	steps  []pathStep
 	leaves []node
@@ -88,7 +89,7 @@ func (w *compiledPath) walk(n node, tail []string) (node, error) {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
-		if w.steps, err = compileStep(&at, w.tail, w.label, w.steps, &w.pins); err != nil {
+		if w.steps, err = compileStep(&at, w.tail, w.head, w.steps, &w.pins); err != nil {
 			return nil, err
 		}
 	}
@@ -112,8 +113,8 @@ func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
-// path; label is the prefix an error puts before it.
-func compileStep(at *pathPos, whole []string, label string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
+// path; head is the prefix an error puts before it.
+func compileStep(at *pathPos, whole []string, head string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
 	case *table:
@@ -125,7 +126,7 @@ func compileStep(at *pathPos, whole []string, label string, steps []pathStep, pi
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
-			return steps, repeatLevelError(join(label, strings.Join(whole[:i], ".")))
+			return steps, repeatLevelError(join(head, grammar.JoinSegments(whole[:i])))
 		}
 	}
 	next, err := childNamed(at.n, at.tail[0])
@@ -222,6 +223,73 @@ func drawVariant(s *drawstate.State, c *choice, memo *drawMemo, levels []pickKey
 	return memo.variantOf(s, c, levels[at])
 }
 
+// paths lists the dot paths addressable from n, relative to it, where "" is n
+// itself. A folder has no value of its own, so it contributes only its children's.
+// With intoRepeats, it also lists the paths below a level carrying a repeat, so a path
+// there meets the repeat's refusal.
+func paths(n node, intoRepeats bool) []string {
+	switch n := n.(type) {
+	case *folder:
+		var out []string
+		for _, name := range sortedNames(n.children) {
+			out = appendUnder(out, name, paths(n.children[name], intoRepeats))
+		}
+		for _, name := range sortedNames(n.unloaded) {
+			out = appendUnder(out, name, n.unloaded[name].paths)
+		}
+		return out
+	case *template:
+		out := []string{""}
+		if n.repeat > 1 && !intoRepeats {
+			return out
+		}
+		for _, name := range sortedNames(n.fields) {
+			out = appendUnder(out, name, paths(n.fields[name], intoRepeats))
+		}
+		return out
+	case *table:
+		return tablePaths(n, intoRepeats)
+	case *tableColumn, *tableRow, *nullItem:
+		return []string{""}
+	case *choice:
+		shared := n.shared
+		if !intoRepeats {
+			shared = sharedPaths(n.items, false)
+		}
+		return append([]string{""}, sortedNames(shared)...)
+	default:
+		panic(invariant.Broken("paths has no case for node %T", n))
+	}
+}
+
+func appendUnder(out []string, name string, ps []string) []string {
+	for _, p := range ps {
+		out = append(out, join(name, p))
+	}
+	return out
+}
+
+// tablePaths is a table's columns, then each table linked to it under its name: the
+// direct descents, a step at a time.
+func tablePaths(t *table, intoRepeats bool) []string {
+	out := append([]string{""}, t.rows.Header()...)
+	sort.Strings(out[1:])
+	for _, c := range t.rows.Children() {
+		out = appendUnder(out, c.Segment(), paths(c.Owner(), intoRepeats))
+	}
+	return out
+}
+
+func join(prefix, name string) string {
+	switch {
+	case prefix == "":
+		return name
+	case name == "":
+		return prefix
+	}
+	return prefix + "." + name
+}
+
 // sharedPaths is the sub-paths every item carries — the only ones a path may step
 // through a choice to reach. It intersects, bailing as soon as the set
 // is empty, which is immediate for a choice of plain strings.
@@ -271,8 +339,8 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func provePath(n node, tail []string, label string) error {
-	_, err := (&compiledPath{label: label, tail: tail}).run(n)
+func provePath(n node, tail []string, head string) error {
+	_, err := (&compiledPath{head: head, tail: tail}).run(n)
 	return err
 }
 
