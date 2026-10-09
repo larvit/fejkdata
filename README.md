@@ -848,7 +848,8 @@ the output.
 Semver tags, `v0.1.0` first: `vX.Y.Z` tags the library and `cmd/fejkdata/vX.Y.Z` the
 CLI's module, both on one release commit CI adds on top of `main`. `main` names no
 version, so `go get github.com/larvit/fejkdata@main` records a `v0.0.0-…` pseudo-version,
-which sorts below every release. One version covers the shipped data, the
+which sorts below every release: `go get -u` and dependency bots move it back to the
+newest release, so pin `@main` again to stay on it. One version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
@@ -1065,7 +1066,8 @@ supported Go, and must pass before it can be merged — unless it changes none o
 the files the build and its tests read, nor the workflow itself, in which case
 it's skipped. That build runs vet, complexity, the format check and the tests; the
 rest of the gate is CI's changelog check against the PR base and the release
-tooling's tests. Run the build and the release tooling's tests locally before pushing. The lowest Go builds the `portable`
+tooling's tests and the `go.mod` files a release would write. Run the build and the
+release tooling's tests locally before pushing. The lowest Go builds the `portable`
 stage, all of the build bar the format check:
 
 ```sh
@@ -1073,6 +1075,7 @@ docker build .                                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 docker compose run --rm release-tooling -m unittest discover -s release-tooling -p '*_test.py'
+git archive HEAD | docker compose run --rm -T packages > /tmp/packages.txt && python3 release-tooling/publish_release.py --check /tmp/packages.txt
 ```
 
 Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
@@ -1119,8 +1122,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
-and merge. Once `main` passes the gate, CI adds a release commit on top of it, which
-makes each module require the modules it imports at that version. It tags that commit
+and merge. Once `main` passes the gate, CI adds a release commit on top of it, on
+branch `release/vX.Y.Z`, which makes each module require the modules it imports at that
+version. It tags that commit
 `vX.Y.Z` for the library and `<dir>/vX.Y.Z` for every other module, publishes the GitHub
 release with the section as its body, then installs the CLI from its tag and renders
 one template. A top heading of `[Unreleased]`
