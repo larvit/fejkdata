@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 179`
+`Next ID = 190`
 
 | Goal | W |
 |---|---|
@@ -65,22 +65,31 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 77 | 0.1.0 | decision | **Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.** | 5 | 10 | 10 | 10 | 2, 1.1, 9 | 32.5 |
 | 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
+| 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
+| 182 | 0.1.0 | decision | **Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as nested Go modules exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.** | 7 | 9 | 9 | 10 | 2.3, 2 | 27.8 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
+| 184 | 0.1.0 | decision | **Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.** | 4 | 5 | 7 | 9 | 9.6, 2 | 25.8 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
+| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version differs from `fejkdata.Version`, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
+| 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
+| 179 | 0.1.0 | decision | **Make `cmd/fejkdata` a Go module of its own in a committed `go.work`, with the gate covering every module and CI cutting one tag per module in lockstep.** | 6 | 5 | 4 | 8 | 2.3, 1.1 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
+| 189 | 0.1.0 | question | **Decide whether item 180 absorbs item 79, and item 179 absorbs item 54, moving both into 0.1.0.** | 1 | 1 | 3 | 6 | 3 | 15.6 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
+| 188 | 0.1.0 | question | **Decide whether a module from outside fejkdata may load lazily through its manifest's index, letting its data's mistakes surface mid-render.** | 1 | 1 | 3 | 6 | 6, 9.1 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
+| 180 | 0.1.0 | decision | **Load a source whose `.fejkdata.json` carries an index on first reach and any other source in `New`, with the shipped index moved from `shippedindex.go` into that manifest.** | 6 | 6 | 5 | 8 | 13, 9.1 | 12.1 |
+| 187 | 0.1.0 | question | **Decide whether a manifest's version must equal `fejkdata.Version` exactly, or only share its minor before 1.0.** | 1 | 1 | 3 | 6 | 9.1 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -119,6 +128,7 @@
 | 171 | 0.2.0 |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 3 | 2 | 7 | 3, 3.2 | 12.8 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
 | 107 | 0.2.0 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 186 | 0.2.0 | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 6 | 7 | 5 | 8 | 9.5, 9.1 | 11.8 |
 | 168 | 0.2.0 | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 4 | 2 | 6 | 3 | 11.8 |
 | 161 | 0.2.0 |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 175 | 0.2.0 |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
@@ -164,28 +174,17 @@
 
 ## Details
 
-### 77. Split the shipped data into Go modules per locale and country, which a library imports by choice, and embed every one in the CLI.
-
-The CLI binary may grow to hundreds of MB. The maintainer decided on 2026-10-04, under goals 2.3, 6.2, 7.3, 9 and 10.1:
-- One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
-- A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
-- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
-- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. A read nothing provides fails, naming the module that provides that path by default or saying none does. Nothing loads a default on its own, and anything providing the same paths stands in.
-- A module's manifest names the fejkdata version it was built for, and a mismatch fails in `New`, naming the `go get` line that aligns them. Each shipped module requires the core at its own version.
-- Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release, which revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag".
-- Two sources defining one name fail to load, unless an option says the second replaces the first; every read of that name, a shipped module's included, then reads the second. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line. This revises the decisions "A `--data-path` override rebinds every reference to the category it replaces" and "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`".
-- The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
-- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale. The README's Versioning section gives each module's tag spelling, and says to pin every fejkdata module at one version.
-
-Split it into items before starting. Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
-
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
-Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
+Needs item 182. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
+Needs item 182, which moves the paths under `data/` this item writes. Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
+
+### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
+
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch module against the workspace or a pre-release tag. Bench the geo modules' package names, `data.Modules()`, and the error naming the import set. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -221,6 +220,15 @@ Shape: T = table, t = template, c = choice.
 | `word`, `sentence`, `paragraph` | T+t | Moby POS or WordNet | public domain / WordNet |
 | month and weekday names, `holiday` | t+T | CLDR en | Unicode |
 
+### 182. Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as nested Go modules exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.
+
+Needs items 179 and 180. Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one".
+- Each module's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
+- The module `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and requires every data module; the core requires none, so a library user's module graph never holds the list.
+- The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
+- Core tests read the modules from the checkout through `os.DirFS`, never by import, so no module cycle forms. Each data module's own test calls `New(WithDataFS(FS))`, which keeps its `require` of the core. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
+- Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own". Items 61 and 78 rewrite paths under `data/`, so they follow this item.
+
 ### 15. Add `misc` tables and templates, one row of its detail's table per chunk.
 
 Shape: T = table, t = template, c = choice.
@@ -243,6 +251,13 @@ Shape: T = table, t = template, c = choice.
 | `book` title, author; `genre`; `instrument`; `dish`, `ingredient` | T | Gutenberg catalog, MusicBrainz, USDA | CC0 |
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
+
+### 184. Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.
+
+Needs item 182. Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one".
+- `cmd/fejkdata/main.go` moves into package `github.com/larvit/fejkdata/cli` in the core module, and `imports_test.go` keeps `cli` off `internal/`. `cli`'s tests use fixture modules; the command module keeps one end-to-end test over the real modules.
+- The README's Library quick start shows the whole import block for one locale, a section shows a custom CLI as example code, and Versioning gives each module's tag spelling and says to pin every fejkdata module at one version. Layout and Development follow.
+- Revises the decision "The CLI reads only the library's public API" to name `cli`.
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -279,13 +294,33 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
+### 183. Fail `New` when a manifest's `fejkdata` version differs from `fejkdata.Version`, naming the `go get` line that aligns them.
+
+Needs item 182, and item 187's answer for what counts as a match. Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". The generator writes `Version` into every manifest, and item 179's release script regenerates them.
+
+### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
+
+Needs item 180. Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from index names and walked names, without parsing. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal.
+
+### 179. Make `cmd/fejkdata` a Go module of its own in a committed `go.work`, with the gate covering every module and CI cutting one tag per module in lockstep.
+
+Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". Lands before 0.1.0 is cut: a nested `cmd/fejkdata` module added after core v0.1.0 ships the command would make `go install …/cmd/fejkdata` ambiguous.
+- The Dockerfile copies `go.work` and every `go.mod`. `vet`, `test`, `build`, `cover` and `bench`, in `compose.yaml` and the Dockerfile, cover every workspace module; prove on Go 1.22.12 whether `./...` crosses them, else loop over `go list -m -f '{{.Dir}}'`. The gate fails on a `replace` in any `go.mod`. CI's change filter adds `go.work` and `**/go.mod`.
+- Add `fejkdata.Version`, which `--version` prints in place of the build info. A gate test checks that a versioned top changelog heading and every intra-repo `require` equal it, and a release-tooling script rewrites all of them from the heading, so cutting a release stays one decision.
+- `publish_release.py` creates `vX.Y.Z` and `<dir>/vX.Y.Z` for every `go.work` module through `git/refs`, idempotent per tag. A job after tagging runs `GOPROXY=direct go install …/cmd/fejkdata@vX.Y.Z` and one render.
+- Revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag", and adds one: the modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`.
+
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
 `reading-cost` on 2026-10-09: the last 5 chunks' median is 96842 new input tokens before their first commit, the 5 before them 79101. Read most over the last 5 (opens and searches): `README.md` 45, `todo.md` 24, `AGENTS.md` 23, `cmd/fejkdata/main.go` 23, `CHANGELOG.md` 21, `pick.go` 21, `path.go` 20, `env.go` 19, `fejkdata.go` 19, `arm.go` 18. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 182, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+
+### 189. Decide whether item 180 absorbs item 79, and item 179 absorbs item 54, moving both into 0.1.0.
+
+Item 180's per-entry reads are what item 79 needs, and item 179 rewrites the tag code item 54 fixes. Absorbing either deletes it from the plan, and the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" cites item 79.
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
@@ -299,9 +334,25 @@ The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` re
 
 Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
+### 188. Decide whether a module from outside fejkdata may load lazily through its manifest's index, letting its data's mistakes surface mid-render.
+
+Goal 6 wants every mistake at load; goal 9.1 wants fejkdata's modules to load as anyone's do. CI proves fejkdata's own modules whole. The choices: honour an index only on fejkdata's own modules; publish the index generator, so a module's author can prove theirs; or accept the risk. Item 180 waits on the answer.
+
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
+
+### 180. Load a source whose `.fejkdata.json` carries an index on first reach and any other source in `New`, with the shipped index moved from `shippedindex.go` into that manifest.
+
+Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
+- `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
+- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach. That is item 79; item 189 asks whether this item absorbs it.
+- Core tests move to `fstest.MapFS` fixtures carrying manifests.
+- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`". Item 188 asks whether a module from outside fejkdata loads lazily too.
+
+### 187. Decide whether a manifest's version must equal `fejkdata.Version` exactly, or only share its minor before 1.0.
+
+Exact equality suits fejkdata's own modules, which release in lockstep, but breaks every module from outside fejkdata on each patch release. Item 183 waits on the answer.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -325,7 +376,7 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 - Explore how a caller passes input data, such as the date a number is read on, to a render: in the template, as a plain option, or both. Make the library require the date, as item 89 makes it require the seed, and let the CLI default it to the system's when its flag is absent. Bench the spelling; `--now` reads like the clock. Shape the input so it can later narrow the draws to adults, children, 65 and over, or a mix, and so let a test ask for a centenarian; narrowing itself waits for its own item.
 - Draw birthdates back past 100 years before the given date, so a `+` can appear. Read in 2026, the oldest shipped birthdate is 96 years old, so no draw carries a `+` until 2030. Skatteverket's test series reaches back to 1890, with birth numbers 980/981 before 1900. Draw no birthdate after the given date.
 - Weight the ages by the territory's population, so the share of `+` numbers follows its demography: [research-age-bands.md](docs/research/research-age-bands.md).
-- Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 77), and update the README's personnummer recipe and its "a day in 1930–2025" count.
+- Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 186), and update the README's personnummer recipe and its "a day in 1930–2025" count.
 - Rewrite the README's `--seed` and `WithSeed` rows to goal 10's wording, and name the new required option in the changelog: `New` breaks a second time here, after item 89, as the maintainer accepted.
 - Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
 
@@ -447,7 +498,7 @@ A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a
 
 ### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
 
-Needs item 77, which makes an override fail unless it says it replaces.
+Needs item 181, which makes an override fail unless it says it replaces.
 
 The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
@@ -458,6 +509,10 @@ Eleven seats of the 2026-10-09 panel named the "change them together" in `readsC
 ### 107. Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.
 
 Needs item 178, which splits it into items before any code moves. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+
+### 186. Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.
+
+Carries out the decision "The shipped data becomes Go modules a library imports by choice, and the CLI carries every one". Needs the caller-given date items 89 and 26 add. A function asks for its inputs through one generic mechanism, and `internal/drawstate` stays internal. `cli.Main`'s signature grows here, which a minor before 1.0 allows. Write its detail when it is planned.
 
 ### 168. Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.
 

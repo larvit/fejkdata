@@ -138,7 +138,24 @@ and `regexp.Match`, not two spellings of one result.
 A directory a machine happens to have would make `--seed 42` machine-dependent. Data
 still lives in `data/`; `--data-path` layers over it.
 
-`todo.md` item 77 revises it: a library imports the shipped data as Go modules.
+`todo.md` item 182 revises it: a library imports the shipped data as Go modules.
+
+## The shipped data becomes Go modules a library imports by choice, and the CLI carries every one
+
+2026-10-04, Lilleman auf Larv. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` item 179, `todo.md` item 180, `todo.md` item 181, `todo.md` item 182, `todo.md` item 183, `todo.md` item 184, `todo.md` item 185 and `todo.md` item 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+
+- One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
+- A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
+- A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
+- A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. A read nothing provides fails, naming the module that provides that path by default or saying none does. Nothing loads a default on its own, and anything providing the same paths stands in.
+- A module's manifest names the fejkdata version it was built for, and a mismatch fails in `New`, naming the `go get` line that aligns them. Each shipped module requires the core at its own version.
+- Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release.
+- Two sources defining one name fail to load, unless an option says the second replaces the first; every read of that name, a shipped module's included, then reads the second. In the CLI, a flag standing on its own, benched with the data and hand fixture authors, does the same for a `--data-path`, so flags still go anywhere on the line.
+- The builtins stay in fejkdata itself. A module's function asks for the inputs it needs through one generic mechanism, and gets the randomness and the date the generator uses. The README asks for functions with no side effects of their own.
+- The CLI is a library call. One exported list names every shipped module, and `fejkdata`'s own `main` passes it to that call. The list lives where no library user's module graph pulls in every shipped module, and the architect places it. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale. The README's Versioning section gives each module's tag spelling, and says to pin every fejkdata module at one version.
+- Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
+
+Valid while the shipped data outgrows what every library user should download.
 
 ## With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 
@@ -158,7 +175,7 @@ set, against goal 13, until `todo.md` item 79 ends it.
 
 Valid while CI proves the shipped set whole and each category alone.
 
-Works against goal 2.3 until `todo.md` item 77 ends it.
+Works against goal 2.3 until `todo.md` item 182 ends it.
 
 ## Every `{…}` draws afresh, and only a name keeps a pick
 
@@ -259,7 +276,7 @@ references read. Accepted: overriding is the point of layering, the error names 
 reference and the field, and the fix is the consumer's file carrying the fields the
 shipped tree reads.
 
-A `--data-path` category replaces a shipped one without saying so, against goal 9.3, until `todo.md` item 77 ends it.
+A `--data-path` category replaces a shipped one without saying so, against goal 9.3, until `todo.md` item 181 ends it.
 
 ## The repeat cap bounds renders, not bytes
 
