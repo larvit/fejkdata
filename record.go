@@ -303,4 +303,4 @@ func renderRecord(s *drawstate.State, t *template, env renderEnv) *Record {
 }
 
 // wholeLevels is the levels of a read of a whole name, as compileArm compiles {n}.
-var wholeLevels = []pickKey{""}
+var wholeLevels = levelKeys(nil, 0)

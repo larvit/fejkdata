@@ -39,13 +39,13 @@ func splitArm(name string, refs map[string]resolvedRef) arm {
 			if resolved {
 				head = r.head
 			}
-			return arm{spelling: name, head: head, levels: []pickKey{pickKey(head)}}
+			return arm{spelling: name, head: head, levels: levelKeys([]string{head}, 1)}
 		}
 		return pathArm(name, r.head, r.tail)
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
-		return arm{spelling: name, head: name, levels: []pickKey{pickKey(name)}}
+		return arm{spelling: name, head: name, levels: levelKeys([]string{name}, 1)}
 	}
 	return pathArm(name, segs[0], segs[1:])
 }

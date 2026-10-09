@@ -10,13 +10,3 @@ func sortedNames[V any](m map[string]V) []string {
 	sort.Strings(names)
 	return names
 }
-
-func join(prefix, name string) string {
-	switch {
-	case prefix == "":
-		return name
-	case name == "":
-		return prefix
-	}
-	return prefix + "." + name
-}

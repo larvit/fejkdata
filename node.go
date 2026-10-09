@@ -68,7 +68,8 @@ type template struct {
 	refs     templateRefs
 	compiled formatOps
 	// readsColumn is set when the format only reads one reference or name, and that read is a
-	// record's column. renderLeaf, proveColumnItem and itemDatatype each read it: change them together.
+	// record's column. checkColumns, itemDatatype, proveColumnItem and renderLeaf each read it: change
+	// them together.
 	readsColumn *columnRead
 
 	// Filled by `settleRecords`, once the load refused every cycle:

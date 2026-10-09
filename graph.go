@@ -94,8 +94,7 @@ type renderEdge struct {
 	label string
 }
 
-// renderEdges lists the children rendering n recurses into, mirroring render: a
-// choice's items, and a template's field/reference tokens plus its operands.
+// renderEdges lists the children rendering n recurses into, mirroring render.
 func renderEdges(n node) []renderEdge {
 	switch n := n.(type) {
 	case *choice:
