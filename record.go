@@ -125,15 +125,10 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path, err := grammar.CallerPath(path)
+	path, segments, err := f.callerPath(path)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
+		return nil, err
 	}
-	segments, err := grammar.SplitPath(path)
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	f.loadShippedAt(segments)
 	_, n, tail, err := resolveCategory(f.root.children, segments)
 	if err != nil {
 		return nil, f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))

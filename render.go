@@ -16,15 +16,10 @@ import (
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path, err := grammar.CallerPath(path)
+	path, segments, err := f.callerPath(path)
 	if err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
+		return "", err
 	}
-	segments, err := grammar.SplitPath(path)
-	if err != nil {
-		return "", fmt.Errorf("fejkdata: %w", err)
-	}
-	f.loadShippedAt(segments)
 	n, pins, err := drawCallerPath(f.drawState, &f.root, segments)
 	if err != nil {
 		return "", f.noDataNote(fmt.Errorf("fejkdata: %s: %w", path, err))
