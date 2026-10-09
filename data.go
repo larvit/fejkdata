@@ -6,19 +6,67 @@ import (
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
 
-func loadData(sources []datafiles.Source) (map[string]node, error) {
-	root := map[string]node{}
+// loadSources merges sources in order, the last winning a clash. A source whose manifest
+// carries an index leaves its categories unloaded; every other source's categories load
+// here, with what they reach and every unloaded category leading to one of them or to one a
+// later source replaced.
+func loadSources(sources []datafiles.Source) (folder, error) {
+	root := folder{children: map[string]node{}}
+	targets := map[string]bool{}
 	for _, src := range sources {
-		g := &folder{children: map[string]node{}}
-		if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
-			return nil, err
+		before := categoriesUnder(&root)
+		provides, err := place(&root, src)
+		if err != nil {
+			return folder{}, err
 		}
-		mergeChildren(root, g.children)
+		if len(before) == 0 {
+			continue
+		}
+		after := categoriesUnder(&root)
+		for p := range before {
+			if provides(p) || !after[p] {
+				targets[p] = true
+			}
+		}
 	}
-	if err := categoryPipeline(categorySites(&folder{children: root}), root).run(); err != nil {
+	sites := categorySites(&root)
+	for _, s := range sites {
+		targets[s.path] = true
+	}
+	return root, loadReached(&root, sites, reaching(&root, targets))
+}
+
+// place adds the categories of src to root, and returns whether src provides a path.
+func place(root *folder, src datafiles.Source) (func(string) bool, error) {
+	m, err := src.Manifest()
+	if err != nil {
 		return nil, err
 	}
-	return root, nil
+	if m.Index != nil {
+		placeIndex(root, src, m.Index)
+		return func(p string) bool { _, ok := m.Index[p]; return ok }, nil
+	}
+	g := &folder{children: map[string]node{}}
+	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
+		return nil, err
+	}
+	mergeFolder(root, g)
+	provided := categoriesUnder(g)
+	return func(p string) bool { return provided[p] }, nil
+}
+
+// categoriesUnder is the path of every category under root, loaded or not.
+func categoriesUnder(root *folder) map[string]bool {
+	out := map[string]bool{}
+	for _, s := range categorySites(root) {
+		out[s.path] = true
+	}
+	unloaded := map[string]categoryAt{}
+	unloadedUnder(root, nil, unloaded)
+	for p := range unloaded {
+		out[p] = true
+	}
+	return out
 }
 
 func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {
@@ -40,21 +88,23 @@ func madeFolder(root *folder, dir []string) *folder {
 		if !isFolder {
 			sub = &folder{children: map[string]node{}}
 			g.children[seg] = sub
+			delete(g.unloaded, seg)
 		}
 		g = sub
 	}
 	return g
 }
 
-func mergeChildren(dst, src map[string]node) {
-	for k, v := range src {
-		if dg, ok := dst[k].(*folder); ok {
+func mergeFolder(dst, src *folder) {
+	for k, v := range src.children {
+		if dg, ok := dst.children[k].(*folder); ok {
 			if sg, ok := v.(*folder); ok {
-				mergeChildren(dg.children, sg.children)
+				mergeFolder(dg, sg)
 				continue
 			}
 		}
-		dst[k] = v
+		dst.children[k] = v
+		delete(dst.unloaded, k)
 	}
 }
 
@@ -63,9 +113,10 @@ func mergeChildren(dst, src map[string]node) {
 type nodeSet func(fn func(label string, n node) error) error
 
 // categorySite is a loaded category and where it sits: the folder holding it, that
-// folder's path, and its own dot path.
+// folder's path, its name and its own dot path.
 type categorySite struct {
 	dir  []string
+	name string
 	path string
 	in   *folder
 	n    node
@@ -89,7 +140,7 @@ func categorySites(root *folder) []categorySite {
 }
 
 func siteIn(dir []string, in *folder, name string) categorySite {
-	return categorySite{dir: dir, path: categoryPath(dir, name), in: in, n: in.children[name]}
+	return categorySite{dir: dir, name: name, path: categoryPath(dir, name), in: in, n: in.children[name]}
 }
 
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }

@@ -172,6 +172,12 @@ which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-pre
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
+A source whose root holds `.fejkdata.json` with an `index` loads each category on the
+first call reaching it, and its author proves each loads. The shipped set's
+[`data/.fejkdata.json`](data/.fejkdata.json) shows the shape: each category's dot path,
+its `parent` table, the `paths` `List` advertises below it, and the categories it
+`reads`. `//go:embed` of a directory leaves the manifest out; name it in the pattern too.
+
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`
@@ -332,8 +338,9 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. On a loaded generator:
 
-- `Fake` fails only for a path that names nothing, could name two things, or reads one
-  draw of a level carrying a `repeat`, with the same error every call.
+- `Fake` fails only for a path that names nothing, could name two things, reads one
+  draw of a level carrying a `repeat`, or reaches a category of an indexed source that
+  fails to load, with the same error every call.
 - `FakeStruct` fails only for a non-struct argument or a type its tags do not describe,
   with the same error every call.
 - `Template.Fake` cannot fail.
@@ -833,10 +840,11 @@ advertises no such path; read that level whole.
 
 The target is about a microsecond per value (goal 13).
 
-With only the shipped set, `New` loads nothing: a category loads on the first `Fake`,
-`FakeRecord`, `FakeStruct` or template that reads it, with every category it reads and
-its whole table family. Beside `--data-path`, `WithDataPath` or `WithDataFS`, every
-category loads in `New`. Each file is parsed, validated and weight-indexed once, bar a
+A source with an [index](#data), as the shipped set has, loads nothing in `New`: a
+category loads on the first `Fake`, `FakeRecord`, `FakeStruct` or template that reads
+it, with every category it reads and its whole table family. A source without one loads
+in `New`, with the indexed categories it reads and every indexed category reaching one
+it replaces, so each mistake it causes is `New`'s error. Each file is parsed, validated and weight-indexed once, bar a
 table's name and parent columns, which are mapped on the first `Fake` that selects by
 name or descends through it. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
@@ -985,8 +993,8 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
-shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
-shippedindex.go the index of shipped categories, generated from data/
+shipped.go      the embedded data set
+index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
 node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
 name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target
@@ -1044,7 +1052,7 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: data/.fejkdata.json from data/
 docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
 ```
 
@@ -1076,7 +1084,7 @@ what the score asks of a pull request. Goal 5 is checked against simulated templ
 writers from the Audience.
 
 A change to the shipped data runs `generate` above first and commits
-[`shippedindex.go`](shippedindex.go) with the change, then re-pins
+[`data/.fejkdata.json`](data/.fejkdata.json) with the change, then re-pins
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) in its own commit:
 
 ```sh
