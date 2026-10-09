@@ -185,7 +185,8 @@ Needs item 180. Carries out the decision "The shipped data is Go packages a libr
 - Each package's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
 - The package `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data package; the core imports none, so a library links only the data it imports.
 - The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
-- A data package imports nothing of the core, so core tests may import data packages. Each data package's own test calls `New(WithDataFS(FS))`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
+- A data package imports nothing of the core, so core tests may import data packages. Each data package's own test calls `New(WithDataFS(FS))`. `imports_test.go` lists each data package with no imports, lets its test import `.`, and lets `.` import data packages from tests only, so a library importing the core links no data.
+- Each package embeds `.fejkdata.json` by name or through `all:`, since `//go:embed` of a directory leaves out files starting with `.`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
 - Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own".
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
@@ -293,7 +294,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 183. Fail `New` when a manifest's `fejkdata` version is not exactly the core's version, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". A shipped package's manifest names no version, since it ships in the core's module. A module from anyone else names the version it was built for. The core reads its own from `debug.ReadBuildInfo()` outside the pure comparison, and the check passes when that version is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records the core's version.
+Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". A shipped package's manifest names no version, since it ships in the core's Go module. A module from anyone else names the version it was built for. The core reads its own from `debug.ReadBuildInfo()` outside the pure comparison, and the check passes when that version is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records the core's version.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
