@@ -368,3 +368,20 @@ Read most (opens and searches):
 - `arm.go` 2
 - `compose.yaml` 2
 - `docs/decisions.md` 2
+
+## Reading cost, chunk 379810cdbae5, finished 2026-10-09T10:01:14Z
+
+68500 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `render_test.go` 6
+- `todo.md` 3
+- `README.md` 2
+- `docs/decisions.md` 2
+- `AGENTS.md` 1
+- `CHANGELOG.md` 1
+- `doc.go` 1
+- `doc_test.go` 1
+- `node.go` 1
+- `render.go` 1
