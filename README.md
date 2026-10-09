@@ -908,7 +908,7 @@ Where the project is heading; the sections before Audience document what ships t
    1. It covers the ten most-spoken languages and the Nordic countries.
    2. Each locale covers the common categories: names, addresses, phone numbers, ids,
       companies and dates.
-   3. The shipped data comes in Go modules, and a library gets only the modules it is
+   3. The shipped data comes in Go packages, and a library gets only the packages it is
       handed.
 3. **The code is easy to understand.**
    1. You can go from a bug to the code behind it without asking anyone.
@@ -951,7 +951,7 @@ Where the project is heading; the sections before Audience document what ships t
 8. **Human readable and editable data formats** — source data is saved in JSON or
    TSV formats when possible.
 9. **Flexible and extensible.**
-   1. Data and functions come in modules, a Go module or a data folder, from fejkdata
+   1. Data and functions come in modules, a Go package or a data folder, from fejkdata
       or anyone else, and fejkdata's load as anyone else's do.
    2. A module names the modules it reads by default, and anything providing the same
       paths can stand in for one.

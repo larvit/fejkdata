@@ -46,7 +46,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Whitespace around a JSON object, array, string or null is dropped, and a bare number or boolean is a format string
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
-- The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0
+- The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 - With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 - Every `{…}` draws afresh, and only a name keeps a pick
 - Reference sigils follow the filesystem
