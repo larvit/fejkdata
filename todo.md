@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 164`
+`Next ID = 167`
 
 | Goal | W |
 |---|---|
@@ -74,12 +74,14 @@
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
+| 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
-| 162 | 0.1.0 | question | **Decide whether each of five spellings loads under goal 5.7: a binding in a table's format or cell, a path through a name that selects a row, an unknown key in a table object, a table `name` with neither `key` nor `parent`, and a key or name no selector can spell.** | 1 | 2 | 3 | 6 | 5.7 | 14.1 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
+| 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
@@ -272,6 +274,10 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
 
+### 164. Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.
+
+The maintainer answered item 162 on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. Revise that decision's title and the README's Names list with it.
+
 ### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
@@ -284,17 +290,21 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the named-pick read path hardest, and twelve kept `doc.go`'s vocabulary open beside `pick.go`, `env.go` and `namefence.go` to follow it. Load builds a pick key in `levelKeys` (`arm.go`) and `addressedKeys` (`name.go`), and render builds the same key in `keeps` (`env.go`) and `readUnder` (`pick.go`); five seats named the two sides agreeing by hand as the unit they least want to change. `readUnder`'s loop stops one level short and its next line builds that level's key the same way, which one seat searched for a difference. Update the README's Layout block, and leave `doc.go` a one-line entry per term naming `pickKey`.
 
+### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
+
+The maintainer answered item 162 on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, because the ambiguity error lists rows by key; `country[Sweden]` means one row where names are unique.
+
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
 
-### 162. Decide whether each of five spellings loads under goal 5.7: a binding in a table's format or cell, a path through a name that selects a row, an unknown key in a table object, a table `name` with neither `key` nor `parent`, and a key or name no selector can spell.
-
-Each stays refused today. Goal 5.7 loads whatever is well-formed and means one thing; for each, what it would mean is not settled. An unknown key such as `repeat` on a table object would silently not repeat. Found while dropping the refusals that guessed at mistakes.
-
 ### 110. Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
 
 Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
+
+### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
+
+The maintainer answered item 162 on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table; a path naming such a key still fails to parse.
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 
