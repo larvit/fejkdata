@@ -62,7 +62,7 @@ type unhandledNode struct{}
 
 func (*unhandledNode) isNode() {}
 
-// nodeSwitchSkips is the kinds a switch is never handed: its callers step past them first.
+// nodeSwitchSkips names, per switch, the kinds it is never handed.
 var nodeSwitchSkips = map[string][]string{
 	"childNamed":       {"choice", "table", "tableRow"},
 	"columnItems":      {"folder", "table", "tableRow"},
@@ -111,14 +111,14 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{next: n}, 0) },
 		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
 	}
-	found := exhaustiveNodeSwitches(t, kinds)
+	found := nodeSwitchesPanickingOnOtherKinds(t, kinds)
 	listed := make([]string, 0, len(switches))
 	for name := range switches {
 		listed = append(listed, name)
 	}
 	slices.Sort(listed)
 	if !slices.Equal(found, listed) {
-		t.Fatalf("the functions switching over node kinds with a panicking default are %v, this test calls %v; call each here", found, listed)
+		t.Fatalf("functions with a type switch over node kinds and a panicking default: %v; this test calls %v; call each function found", found, listed)
 	}
 	for name, call := range switches {
 		mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
@@ -160,9 +160,7 @@ func nodeKinds(t *testing.T) []string {
 	return kinds
 }
 
-// exhaustiveNodeSwitches names each function holding a type switch that has a case for a
-// node kind and a default that panics, a method as recv.name.
-func exhaustiveNodeSwitches(t *testing.T, kinds []string) []string {
+func nodeSwitchesPanickingOnOtherKinds(t *testing.T, kinds []string) []string {
 	t.Helper()
 	var names []string
 	_, files := sourceFiles(t)
