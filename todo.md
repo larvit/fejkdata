@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 170`
+`Next ID = 178`
 
 | Goal | W |
 |---|---|
@@ -73,15 +73,22 @@
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 177 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 170 to 175 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
+| 170 | 0.1.0 |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 3 | 2 | 8 | 3, 3.2 | 14.7 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
+| 171 | 0.1.0 |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 3 | 2 | 7 | 3, 3.2 | 12.8 |
+| 176 | 0.1.0 | question | **Group the root package's files by area in their names, so a listing shows the load, names, render, proof and API groups the README's Layout lists.** | 2 | 4 | 1 | 7 | 3.2 | 11.6 |
+| 175 | 0.1.0 |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
+| 172 | 0.1.0 |  | **Pass `drawSteps` the kind of read it draws by name, where a nil `pins` means a sibling path and a nil `memo` a fresh read.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
+| 173 | 0.1.0 |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 2 | 3 | 1 | 6 | 3.2 | 10.1 |
+| 174 | 0.1.0 |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` name twice.** | 1 | 1 | 1 | 5 | 3.2 | 9.8 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -178,7 +185,7 @@ Needs item 77. Ten streets per place crowds 500 Stockholm customers onto ten str
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. The extender seat of the 2026-10-09 panel, reading for this item, found nothing saying which of `geo-se.py`'s rules a new country takes: `well_cased` drops a name spelled in capitals, as Bring's register spells every poststed; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -264,7 +271,7 @@ The README's Audience names a bulk fixture author writing millions of rows, and 
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
 
-### 153. Run the nine-seat comprehension panel and the scoring run again, and file what the panel names.
+### 177. Run the nine-seat comprehension panel and the scoring run again once items 170 to 175 have merged, and file what the panel names.
 
 The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
 
@@ -288,6 +295,10 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, since `ambiguous`, which reports a name matching several rows, lists those rows by key. Afterwards `ambiguous` lists them by line, the header being line 1, and ends with "make the names unique, or add a key column".
 
+### 170. Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.
+
+All 13 seats of the 2026-10-09 panel on b9d1af6 named `keptInPick` and `readUnder` hardest, and 12 would least want to modify the rule they apply. A key `addressedKeys` builds at load must equal the one `pickKey.under` builds at render, and a mismatch splits a correlated draw without an error. `refuseTwiceDrawnIn` applies the same rule at load in code of its own. Say there why a fresh read's levels start at its head, `levelKeys(…, 1)` in `pathArm`, and a named read's at its target, `levelKeys(full, 0)` in `compileArm`, which three seats rebuilt by hand.
+
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
@@ -299,6 +310,30 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
+
+### 171. Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.
+
+Eleven seats of the 2026-10-09 panel named the field's "change them together" (`node.go`) as action at a distance across `datatype.go`, `valueproof.go` and `render.go`.
+
+### 176. Group the root package's files by area in their names, so a listing shows the load, names, render, proof and API groups the README's Layout lists.
+
+The architect seats of both 2026-10-09 runs named the 25 flat root files the worst level of the tree, and found the named-pick machinery spread over `name.go`, `namefence.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go` with no file naming it as one area. A prefix per area is a restructure, which `AGENTS.md` lets the round take only with the maintainer's approval, and it revises the decision "A unit takes the stem of what it is, and a file the stem of the units it holds". Approve, reject or reshape it.
+
+### 175. Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.
+
+Reread: `readField`'s note on clearing the pick (`render.go`), `pickKey.under`, which three seats read backwards, `scopeAround`'s "short of the frames n renders itself", `enter` returning `env.base` as the pop mark, and `walkEvery`'s three-index slice, which three seats found unmarked. Restating: `compileCells`, `columnOrLinked`, `render`'s first line, `categorySites`, `madeFolder`, `categoryOf`, `rendersInside`, `templateSite`, `templateOptions`, `compileFrom`, `flagArg`, `drawSeed`, the `calc` parser's precedence line in `internal/grammar`, and `compileChoice`'s note that a uniform choice draws in O(1), which `choice`'s doc already says. A doc comment `go doc` shows on an exported name stays.
+
+### 172. Pass `drawSteps` the kind of read it draws by name, where a nil `pins` means a sibling path and a nil `memo` a fresh read.
+
+Ten seats of the 2026-10-09 panel named `drawSteps` (`path.go`); three named the nil arguments as the mode they had to infer.
+
+### 173. Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.
+
+`checkReads` "proves each name t reads", `splitArm` "splits one name into head and tail" and asks `t.isName` of the result in `compileArm`, and `refTokens` returns "reference names". Both architect seats of the 2026-10-09 panel and the scoring run's architect named the word as one name over several concepts, against the decision "One name, one meaning". Item 136 did this for `internal/grammar`.
+
+### 174. Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` name twice.
+
+`compileStep` copies one into the other (`path.go`). Two seats of the 2026-10-09 panel named it.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
