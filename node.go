@@ -20,12 +20,26 @@ type node interface{ isNode() }
 // folder is a namespace of named children, built from a directory of JSON files
 // and subdirectories. It has no value of its own: descend into a named child by
 // dot path; rendering one is an error (see Fake).
+// A name stands in children or in unloaded, never both; put and putUnloaded keep it so.
 type folder struct {
 	children map[string]node
-	unloaded map[string]indexed // the categories here an index names and no call has reached yet
+	unloaded map[string]*indexed // the categories here an index names and no call has reached yet
 }
 
 func (*folder) isNode() {}
+
+func (g *folder) put(name string, n node) {
+	g.children[name] = n
+	delete(g.unloaded, name)
+}
+
+func (g *folder) putUnloaded(name string, x *indexed) {
+	delete(g.children, name)
+	if g.unloaded == nil {
+		g.unloaded = map[string]*indexed{}
+	}
+	g.unloaded[name] = x
+}
 
 // choice draws one of its items. cum holds cumulative weights for a weighted
 // draw; when nil the choice is uniform and selection is O(1). shared is the set of

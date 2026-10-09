@@ -73,8 +73,7 @@ func WithoutShippedData() Option {
 // namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
 // generator with no data at all renders templates that read none. A source whose
 // .fejkdata.json carries an index, as the shipped set's does, loads each category on the
-// first call reaching it. Every other source loads here, with what it reads and every
-// indexed category reaching what it replaces.
+// first call reaching it, and fails there with [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {
@@ -91,7 +90,7 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
-// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads-and-every-indexed-category-reaching-what-it-replaces
+// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads-and-every-indexed-category-depending-on-what-it-provides-or-a-later-source-replaced
 func (c config) load() (folder, error) {
 	var sources []datafiles.Source
 	if c.shipped {

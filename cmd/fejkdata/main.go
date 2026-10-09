@@ -340,7 +340,7 @@ func (in invocation) write(f *fejkdata.Generator, src input, w io.Writer) error 
 	}
 	t, err := f.NewTemplate(src.template)
 	if err != nil {
-		return inputError{err}
+		return templateError(err)
 	}
 	out := bufio.NewWriter(w)
 	for i := 0; i < in.repeat; i++ {
@@ -359,7 +359,7 @@ func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fe
 	if src.record == "" {
 		t, err := f.NewRecordTemplate(src.template)
 		if err != nil {
-			return nil, "", inputError{spacedReference(src.template, err)}
+			return nil, "", templateError(spacedReference(src.template, err))
 		}
 		record = func() (*fejkdata.Record, error) { return t.Fake(), nil }
 	}
@@ -619,6 +619,14 @@ func readStdin(stdin io.Reader) (input, error) {
 		return input{}, inputError{fmt.Errorf("stdin cannot be read: %w", err)}
 	}
 	return parseInput(string(raw)), nil
+}
+
+// templateError is misuse unless the data the template reads failed to load.
+func templateError(err error) error {
+	if errors.Is(err, fejkdata.ErrLoad) {
+		return err
+	}
+	return inputError{err}
 }
 
 func fail(stderr io.Writer, err error) int {
