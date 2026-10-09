@@ -107,7 +107,7 @@
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
-| 190 | 0.2.0 | decision | **Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.** | 1 | 1 | 3 | 6 | 1.1 | 16.8 |
+| 191 | 0.2.0 | decision | **Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.** | 1 | 1 | 3 | 6 | 1.1 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
@@ -167,6 +167,7 @@
 | 68 | 0.4.0 | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 2 | 1 | 1 | 3 | 1.1 | 5.8 |
 | 69 | 1.0.0 |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 3 | 7 | 9 | 1.1 | 30.2 |
 | 70 | 1.0.0 |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 6 | 6 | 6 | 1.1 | 19.5 |
+| 190 | 1.1.0 | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 6 | 9 | 7 | 8 | 1, 4 | 21.8 |
 
 ## Details
 
@@ -424,7 +425,7 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
 
-### 190. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.
+### 191. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.
 
 Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, which requires no version of the core.
 
@@ -627,3 +628,27 @@ Gitea converts a repository to a mirror only by re-creating it, so until that ru
 ### 69. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
 The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; pairing a street with its exact postnummer rewrites shipped rows, so a minor with no breaking change follows it first.
+
+### 190. Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.
+
+Pseudonymising a copy of production is work a hosted model cannot do well: sending the data out is the leak, a model cannot keep one person's fake identical across tables and runs, and millions of rows cost real money. A model can still name which columns hold personal data and of what kind; fejkdata then replaces them offline. Greenmask, PostgreSQL Anonymizer and Presidio cover parts of this; none draws Swedish values a real validator accepts.
+
+Proposed goal, its place among the others for the maintainer to choose:
+
+> **It pseudonymises a real dataset on your own machine: each personal value becomes a valid fake one.**
+> 1. Columns you do not name pass through byte for byte.
+> 2. The same value under the same key becomes the same fake, in every table and every run; without the key, nobody can tell which real value a fake came from.
+> 3. Values that belong to one person come from one pick, so a row's name, email and personnummer still agree.
+> 4. Two values never become one fake in a column that must stay unique.
+
+Proposed audience persona: a **pseudonymising author**, who replaces the personal data in a copy of production before it reaches a test or staging environment, and relies on one real value giving one fake across tables and runs.
+
+Items to file once the goal is in:
+
+1. Read CSV and NDJSON records on stdin, replace the columns a mapping names with a template's render, and stream every other column through unchanged. The flag or file spelling goes to a bench with the persona first.
+2. Seed each replaced value's draw from HMAC-SHA256 under a key read from a file or the environment, never a flag. An unkeyed hash fails sub-goal 2: every personnummer can be hashed and the mapping reversed.
+3. Key a whole row's pick by one identity column, such as a customer id, so goal 4.1's named pick holds for a person across rows and tables.
+4. Redraw on a collision in a column marked unique, deterministically from the key, within a memory bound the README states.
+5. Keep, on request, a personnummer's birth date or sex and a postal code's region, the docs naming what each kept field gives away.
+6. Read a PostgreSQL `COPY` or MySQL `INSERT` dump.
+7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone.

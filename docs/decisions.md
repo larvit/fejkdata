@@ -291,7 +291,7 @@ otherwise write a require. A nested module needs no `go.sum` line for the core:
 `go install …@vX.Y.Z` fetches and verifies it, which CI's install job checks once the
 tags exist. `go install …/cmd/fejkdata@main` cannot build, so main's CLI installs from a
 checkout. Before the first tag `@latest` resolves `main` too, so the README's install
-line says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note
+line says to install from a clone until v0.1.0, and `todo.md` item 191 drops that note
 once v0.1.0 is tagged.
 
 Valid while the repository holds more than one Go module, and no module requires one
