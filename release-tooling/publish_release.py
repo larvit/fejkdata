@@ -25,7 +25,7 @@ def request(path: str, data: dict | None = None):
 		data=json.dumps(data).encode() if data else None,
 		headers={"Authorization": f"token {os.environ['FORGE_TOKEN']}", "Content-Type": "application/json"},
 	)
-	with urllib.request.urlopen(req) as resp:
+	with urllib.request.urlopen(req, timeout=30) as resp:
 		return json.load(resp)
 
 

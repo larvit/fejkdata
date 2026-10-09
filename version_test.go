@@ -2,12 +2,14 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"errors"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -51,7 +53,23 @@ func TestWorkspaceRequiresAreAtVersion(t *testing.T) {
 	}
 }
 
-// The release tags every tracked go.mod's module, so the gate covers every go.mod outside .git.
+// The release tags every tracked go.mod's module, so the gate covers every go.mod outside a hidden directory.
+func TestWorkspaceModulesRequireWhatTheyImport(t *testing.T) {
+	for _, m := range workspaceModules(t) {
+		required := map[string]bool{m.Module.Path: true}
+		for _, r := range m.requiresOfWorkspace {
+			required[r.Path] = true
+		}
+		deps := goCmd(t, m.dir, "list", "-deps", "-test", "-f", "{{with .Module}}{{.Path}}{{end}}", "./...")
+		for _, dep := range strings.Fields(string(deps)) {
+			if m.workspace[dep] && !required[dep] {
+				t.Errorf("%s/go.mod does not require %s, which it imports: go.work hides that until go install fails", m.dir, dep)
+				required[dep] = true
+			}
+		}
+	}
+}
+
 func TestEveryGoModIsInGoWork(t *testing.T) {
 	var used []string
 	for _, m := range workspaceModules(t) {
@@ -61,7 +79,7 @@ func TestEveryGoModIsInGoWork(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() && d.Name() == ".git" {
+		if d.IsDir() && path != "." && strings.HasPrefix(d.Name(), ".") {
 			return filepath.SkipDir
 		}
 		if dir := filepath.ToSlash(filepath.Dir(path)); d.Name() == "go.mod" && !slices.Contains(used, dir) {
@@ -127,6 +145,7 @@ type goMod struct {
 
 	dir                 string
 	requiresOfWorkspace []modulePath
+	workspace           map[string]bool
 }
 
 // workspaceModules returns the modules go.work uses, as the go command reads them.
@@ -148,6 +167,7 @@ func workspaceModules(t *testing.T) []goMod {
 		paths[m.Module.Path] = true
 	}
 	for i, m := range mods {
+		mods[i].workspace = paths
 		for _, r := range m.Require {
 			if paths[r.Path] {
 				mods[i].requiresOfWorkspace = append(mods[i].requiresOfWorkspace, r)
@@ -163,7 +183,9 @@ func goCmd(t *testing.T, dir string, args ...string) []byte {
 	cmd.Dir = dir
 	out, err := cmd.Output()
 	if err != nil {
-		t.Fatalf("go %v in %s: %v", args, dir, err)
+		var exit *exec.ExitError
+		errors.As(err, &exit)
+		t.Fatalf("go %v in %s: %v\n%s", args, dir, err, exit.Stderr)
 	}
 	return out
 }

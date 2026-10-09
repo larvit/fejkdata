@@ -59,7 +59,10 @@ services:
       - .:/app
     entrypoint: python3
 
-  release-tooling: *python
+  release-tooling:
+    <<: *python
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
 
 volumes:
   gocache:
