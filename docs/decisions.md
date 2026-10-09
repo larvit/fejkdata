@@ -146,7 +146,7 @@ still lives in `data/`; `--data-path` layers over it.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
-- A module whose version is not the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. Every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change. Each shipped module's release commit requires the core at its own version.
+- A module's manifest names the fejkdata version it was built for, and any version but the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. Every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change. Each shipped module requires the core at its own version.
 - Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
@@ -268,7 +268,9 @@ The heading is the only place a version is written. CI adds a release commit on 
 the merged one, which writes each module's `require` of the modules it imports at that
 version, and tags it `vX.Y.Z` for the root and `<dir>/vX.Y.Z` for the rest, because `go`
 resolves a nested module's version only from a tag carrying its directory. The release
-commit stays off `main`, so `main`'s pseudo-versions read `v0.0.0-…`. CI checks every
+commit stays off `main`, on branch `release/vX.Y.Z`, so `main`'s pseudo-versions read `v0.0.0-…`.
+The gate runs the same package listing and prints the `go.mod` files a release would
+write, and a release refuses a listing that misses a module. CI checks every
 tag before it creates any, so a tag on anything but a release commit of the merged one
 burns the version whole. A version already released publishes nothing.
 `publish_release.py` speaks GitHub's git data API; the Gitea pull mirror runs no release.
@@ -292,7 +294,8 @@ checkout. Before the first tag `@latest` resolves `main` too, so the README's in
 line says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note
 once v0.1.0 is tagged.
 
-Valid while the repository holds more than one Go module.
+Valid while the repository holds more than one Go module, and no module requires one
+outside the workspace: the release commit writes no `// indirect` line and no `go.sum`.
 
 ## A `--data-path` override rebinds every reference to the category it replaces
 

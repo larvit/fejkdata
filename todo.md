@@ -78,7 +78,7 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 183 | 0.1.0 | decision | **Fail `New` when a module's version is not exactly the core's, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
+| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly the core's, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
@@ -220,9 +220,9 @@ Shape: T = table, t = template, c = choice.
 
 Needs item 180. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0".
 - Each module's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
-- The module `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and requires every data module; the core requires none, so a library user's module graph never holds the list.
+- The module `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data module, which its release commit requires; the core requires none, so a library user's module graph never holds the list.
 - The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
-- Core tests read the modules from the checkout through `os.DirFS`, never by import, so no module cycle forms. Each data module's own test calls `New(WithDataFS(FS))`, which keeps its `require` of the core. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
+- Core tests read the modules from the checkout through `os.DirFS`, never by import, so no module cycle forms. Each data module's own test calls `New(WithDataFS(FS))`, so its release commit requires the core. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
 - Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own".
 
 ### 15. Add `misc` tables and templates, one row of its detail's table per chunk.
@@ -290,9 +290,9 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
-### 183. Fail `New` when a module's version is not exactly the core's, naming the `go get` line that aligns them.
+### 183. Fail `New` when a manifest's `fejkdata` version is not exactly the core's, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". `main` names no version, so `New` reads both versions from `debug.ReadBuildInfo()`'s `Deps`, the module named by the manifest's path, and skips the check where either is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records `Deps`; where it does not, the release commit also writes each manifest's version and a `fejkdata.Version` constant, which reads `(devel)` on `main`.
+Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". `main` names no version: a shipped manifest's `fejkdata` field is empty there, and the release commit writes it. The core's own version comes from `debug.ReadBuildInfo()`'s `Deps`, read in the shell and passed to a pure comparison, which skips where either side is empty or `(devel)`, as in a checkout. Probe first that a library user's `go test` binary records `Deps`; where it does not, the release commit also writes a `fejkdata.Version` constant, which reads `(devel)` on `main`.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
@@ -324,7 +324,7 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 ### 180. Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.
 
-Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"module": path, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
+Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
 - Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.

@@ -42,6 +42,10 @@ jobs:
           fi
       - name: Release tooling tests
         run: python3 -m unittest discover -s release-tooling -p '*_test.py'
+      - name: The go.mod files a release would write
+        run: |
+          git archive HEAD | docker compose run --rm -T packages > packages.txt
+          python3 release-tooling/publish_release.py --check packages.txt
       # `docker build` streams the context to the daemon. A compose bind-mount of
       # `.` mounts an empty host dir instead, because the job is itself a container.
       - name: Latest supported Go
@@ -67,10 +71,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Each module's packages and their dependencies
-        run: |
-          git archive HEAD | docker compose run --rm -T dev sh -c '
-            mkdir /tmp/src && tar -x -C /tmp/src && cd /tmp/src &&
-            go list -test -f "{{with .Module}}{{.Path}}{{range \$.Deps}} {{.}}{{end}}{{end}}" $(go list -m -f "{{.Dir}}/...")' > packages.txt
+        run: git archive HEAD | docker compose run --rm -T packages > packages.txt
       - id: publish
         run: python3 release-tooling/publish_release.py packages.txt
         env:

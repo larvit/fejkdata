@@ -24,6 +24,14 @@ services:
     <<: *go
     command: sh -c 'go test -run XXX -bench . -benchmem $$(go list -m -f "{{.Dir}}/...")'
 
+  # Reads the source as a tar on stdin, since a bind mount of . is empty on CI.
+  packages:
+    <<: *go
+    command: >-
+      sh -c 'set -e; mkdir /tmp/src; tar -x -C /tmp/src; cd /tmp/src;
+      pkgs="$$(go list -m -f "{{.Dir}}/...")";
+      go list -test -f "{{with .Module}}{{.Path}}{{range $$.Deps}} {{.}}{{end}}{{end}}" $$pkgs'
+
   generate:
     <<: *go
     command: go generate ./...
