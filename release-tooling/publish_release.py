@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""Publish the release that CHANGELOG.md's top heading names: tag SHA for every go.work module, then the release.
+"""Publish the release that CHANGELOG.md's top heading names: tag SHA for every Go module, then the release.
 
-A top heading of `[Unreleased]` publishes nothing, and a tag already at another commit publishes nothing either.
-Each tag and the release are made only where missing, so a rerun finishes what an interrupted run began.
-Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA; GITHUB_OUTPUT, when set, gets `tag=vX.Y.Z`.
+A top heading of `[Unreleased]`, or a version already released, publishes nothing. A tag of the version
+at another commit burns it, and publishes nothing either. Each tag and the release are made only where
+missing, so a rerun finishes what an interrupted run began.
+Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA; GITHUB_OUTPUT, when set, gets
+`tag=vX.Y.Z` for a version this run published.
 """
 
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
 
-from workspace import top_heading, workspace_dirs
+HEADING = re.compile(r"^## \[([^\]]+)\].*?$\n?(.*?)(?=^## \[|\Z)", re.M | re.S)
 
 
 def request(path: str, data: dict | None = None):
@@ -26,27 +29,61 @@ def request(path: str, data: dict | None = None):
 		return json.load(resp)
 
 
-def found(path: str):
+def top_heading(changelog: str) -> tuple[str, str] | None:
+	"""The top `## [...]` heading's version and its section's body, or None."""
+	top = HEADING.search(changelog)
+	return (top.group(1), top.group(2).strip()) if top else None
+
+
+def module_dirs() -> list[str]:
+	"""The directory of every tracked go.mod, `.` for the root; a gate test holds go.work to the same set."""
+	out = subprocess.run(["git", "ls-files", "-z", "--", "go.mod", "*/go.mod"], capture_output=True, check=True, text=True)
+	return sorted(os.path.dirname(p) or "." for p in out.stdout.split("\0") if p)
+
+
+def found(req, path: str):
 	"""The object at path, or None where the forge answers 404."""
 	try:
-		return request(path)
+		return req(path)
 	except urllib.error.HTTPError as e:
 		if e.code != 404:
 			raise
 		return None
 
 
-def tagged_at(tag: str) -> str | None:
+def tagged_at(req, tag: str) -> str | None:
 	"""The commit tag points at, or None where it does not exist."""
-	ref = found(f"git/ref/tags/{tag}")
+	ref = found(req, f"git/ref/tags/{tag}")
 	if ref is None:
 		return None
 	obj = ref["object"]
-	return request(f"git/tags/{obj['sha']}")["object"]["sha"] if obj["type"] == "tag" else obj["sha"]
+	return req(f"git/tags/{obj['sha']}")["object"]["sha"] if obj["type"] == "tag" else obj["sha"]
+
+
+def publish(version: str, body: str, dirs: list[str], sha: str, req) -> tuple[int, str | None]:
+	"""Tag sha for every module in dirs and release version; the exit code, and the tag where this run released it."""
+	tag = f"v{version}"
+	release = found(req, f"releases/tags/{tag}")
+	if release is not None:
+		print(f"{tag} already published: {release['html_url']}")
+		return 0, None
+	tags = [tag if d == "." else f"{d}/{tag}" for d in dirs]
+	at = {t: tagged_at(req, t) for t in tags}
+	burnt = [f"{t} exists at {c}, not {sha}" for t, c in at.items() if c not in (None, sha)]
+	if burnt:
+		print("; ".join(burnt) + "; the version is burnt, bump the heading", file=sys.stderr)
+		return 1, None
+	for t in tags:
+		if at[t] is None:
+			req("git/refs", {"ref": f"refs/tags/{t}", "sha": sha})
+			print(f"tagged {t}")
+	print(req("releases", {"body": body, "name": tag, "tag_name": tag, "target_commitish": sha})["html_url"])
+	return 0, tag
 
 
 def main() -> int:
-	top = top_heading()
+	with open("CHANGELOG.md", encoding="utf-8") as f:
+		top = top_heading(f.read())
 	if top is None:
 		print("CHANGELOG.md has no `## [...]` heading", file=sys.stderr)
 		return 1
@@ -57,25 +94,11 @@ def main() -> int:
 	if not re.fullmatch(r"\d+\.\d+\.\d+", version):
 		print(f"top heading `[{version}]` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1
-	tag, sha = f"v{version}", os.environ["SHA"]
-	tags = [tag if d == "." else f"{d}/{tag}" for d in workspace_dirs()]
-	at = {t: tagged_at(t) for t in tags}
-	burnt = [f"{t} exists at {c}, not {sha}" for t, c in at.items() if c not in (None, sha)]
-	if burnt:
-		print("; ".join(burnt) + "; the version is burnt, bump the heading", file=sys.stderr)
-		return 1
-	for t in tags:
-		if at[t] is None:
-			request("git/refs", {"ref": f"refs/tags/{t}", "sha": sha})
-			print(f"tagged {t}")
-	release = found(f"releases/tags/{tag}")
-	if release is None:
-		release = request("releases", {"body": body, "name": tag, "tag_name": tag, "target_commitish": sha})
-	print(release["html_url"])
-	if "GITHUB_OUTPUT" in os.environ:
+	code, tag = publish(version, body, module_dirs(), os.environ["SHA"], request)
+	if tag and "GITHUB_OUTPUT" in os.environ:
 		with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
 			f.write(f"tag={tag}\n")
-	return 0
+	return code
 
 
 if __name__ == "__main__":

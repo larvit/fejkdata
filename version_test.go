@@ -66,6 +66,18 @@ func TestNoGoModCarriesReplace(t *testing.T) {
 	}
 }
 
+func TestWorkspaceModulesShareTheLowestGo(t *testing.T) {
+	var work struct{ Go string }
+	if err := json.Unmarshal(goCmd(t, ".", "work", "edit", "-json"), &work); err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range workspaceModules(t) {
+		if m.Go != work.Go {
+			t.Errorf("%s/go.mod states go %s, go.work %s: raising the lowest Go raises it in every module", m.dir, m.Go, work.Go)
+		}
+	}
+}
+
 func newestRelease(t *testing.T) string {
 	t.Helper()
 	changelog, err := os.ReadFile("CHANGELOG.md")
@@ -82,6 +94,7 @@ type modulePath struct{ Path, Version string }
 
 type goMod struct {
 	Module  modulePath
+	Go      string
 	Require []modulePath
 	Replace []struct{ Old modulePath }
 

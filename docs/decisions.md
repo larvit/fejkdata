@@ -265,12 +265,15 @@ heading is burnt, not fixed. The heading on a gate-passed `main` commit is the t
 instead: the tags can land only there, and the GitHub release the same job publishes
 keeps one text as its body and is where prebuilt binaries will attach.
 
-Every module `go.work` names gets its tag at that commit, `vX.Y.Z` for the root and
-`<dir>/vX.Y.Z` for the rest, because `go` resolves a nested module's version only from
-a tag carrying its directory. CI checks every tag before it creates any, so a tag at
-another commit burns the version whole. `fejkdata.Version` and every module's `require`
-of another equal the newest versioned heading, which a gate test checks and
-`release-tooling/set_version.py` writes, so the heading stays the one decision.
+Every Go module gets its tag at that commit, `vX.Y.Z` for the root and `<dir>/vX.Y.Z`
+for the rest, because `go` resolves a nested module's version only from a tag carrying
+its directory. CI checks every tag before it creates any, so a tag at another commit
+burns the version whole, and a version already released publishes nothing. `fejkdata.Version`
+and every module's `require` of another equal the newest versioned heading, which a
+gate test checks and `go generate` writes, so the heading stays the one decision.
+`publish_release.py` speaks GitHub's git refs API; the Gitea pull mirror runs no release.
+The install check runs after tagging: a rehearsal before it would install from module
+zips the release tooling builds, which tests that tooling, not the path `go install` takes.
 
 ## The modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`
 
@@ -279,9 +282,11 @@ of another equal the newest versioned heading, which a gate test checks and
 `go install …@vX.Y.Z` refuses a module whose `go.mod` holds a `replace`, so `go.work`
 alone joins the modules in a checkout, and a gate test refuses a `replace`. A module's
 `require` of another names the release being cut, which no proxy serves until CI tags
-it, so no gate step may resolve one outside `go.work`: no `go mod download`, and no
-`github.com/larvit/fejkdata/...` pattern. `./...` stops at a nested module, so every gate
-command runs over `go list -m -f '{{.Dir}}/...'`.
+it, so no gate step may resolve one outside `go.work`: no `go mod download`, no `go mod
+tidy` outside the root, and no `github.com/larvit/fejkdata/...` pattern. `./...` stops at
+a nested module, so every gate command runs over `go list -m -f '{{.Dir}}/...'`. Before
+the first tag, `go install …/cmd/fejkdata@latest` fails on that `require`, so the README
+installs from a clone until v0.1.0.
 
 Valid while the repository holds more than one Go module.
 

@@ -291,7 +291,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 183. Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and `release-tooling/set_version.py` rewrites them.
+Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and `go generate` rewrites them from the changelog heading, as it rewrites `Version`.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
@@ -331,7 +331,7 @@ Carries out the decision "The shipped data is Go modules a library imports by ch
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` adds `(devel)` to the release it builds on; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 

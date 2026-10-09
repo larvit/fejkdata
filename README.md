@@ -5,7 +5,7 @@ it as a Go library or the CLI — no data on disk, no dependencies, and a seed m
 reproducible.
 
 ```sh
-go install github.com/larvit/fejkdata/cmd/fejkdata@latest
+go install github.com/larvit/fejkdata/cmd/fejkdata@latest   # releases start at v0.1.0
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
@@ -67,7 +67,7 @@ follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
-`go run ./cmd/fejkdata …`.
+`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`.
 
 ### Your own data
 
@@ -1023,7 +1023,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the script setting the version from it
+release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1046,8 +1046,8 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/
-docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/, Version and requires from CHANGELOG.md
+docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy, the root module only
 ```
 
 A `--user` command answering `permission denied` on `/cache` has met root-owned
@@ -1062,15 +1062,16 @@ docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g
 Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged — unless it changes none of
 the files the build and its tests read, nor the workflow itself, in which case
-it's skipped. That build is the whole gate but the
-changelog check, which CI runs against the PR base — vet, complexity, format check
-and tests — so run it locally before pushing. The lowest Go builds the `portable`
-stage, all of that bar the format check:
+it's skipped. That build runs vet, complexity, the format check and the tests; the
+rest of the gate is CI's changelog check against the PR base and the release
+tooling's tests. Run the build and those tests locally before pushing. The lowest Go builds the `portable`
+stage, all of the build bar the format check:
 
 ```sh
 docker build .                                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
+docker compose run --rm release-tooling -m unittest discover -s release-tooling -p '*_test.py'
 ```
 
 Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
@@ -1117,15 +1118,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
-set `fejkdata.Version` and every module's `require` of another from that heading, and
-merge:
-
-```sh
-docker compose run --rm --user "$(id -u):$(id -g)" release-tooling release-tooling/set_version.py
-```
-
-Once `main` passes the gate, CI tags that commit `vX.Y.Z` and `<dir>/vX.Y.Z` for every
-module `go.work` names, publishes the GitHub release with the section as its body, then
+run `generate` above, which sets `fejkdata.Version` and every module's `require` of
+another from that heading, and merge. Once `main` passes the gate, CI tags that commit
+`vX.Y.Z` and `<dir>/vX.Y.Z` for every module, publishes the GitHub release with the section as its body, then
 installs the CLI from its tag and renders one template. A top heading of `[Unreleased]`
 publishes nothing.
 

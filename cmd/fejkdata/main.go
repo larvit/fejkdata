@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
@@ -580,7 +581,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if in.version {
-		fmt.Fprintln(stdout, "fejkdata "+fejkdata.Version)
+		fmt.Fprintln(stdout, versionLine(fejkdata.Version, buildVersion()))
 		return 0
 	}
 	if err := in.check(); err != nil {
@@ -636,4 +637,23 @@ func misuse(stderr io.Writer, err error) int {
 	// A library error already names the program, so the prefix is not doubled.
 	fmt.Fprintf(stderr, "fejkdata: %s\ntry 'fejkdata --help'\n", strings.TrimPrefix(err.Error(), "fejkdata: "))
 	return 2
+}
+
+// versionLine names the release, and the build's own version where it is another, such as a checkout's.
+func versionLine(release, build string) string {
+	switch build {
+	case release:
+		return "fejkdata " + release
+	case "", "(devel)":
+		build = "devel"
+	}
+	return "fejkdata " + release + " (" + build + ")"
+}
+
+// buildVersion is the module version go install stamps into the binary, or "" where none is.
+func buildVersion() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		return info.Main.Version
+	}
+	return ""
 }

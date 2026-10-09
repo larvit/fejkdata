@@ -10,6 +10,7 @@ x-go: &go
     GOMODCACHE: /cache/mod
     REPIN: ${REPIN:-}
 
+# `./...` stops at a nested module, so a command over every module names each one go.work uses.
 services:
   test:
     <<: *go
