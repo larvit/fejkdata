@@ -33,15 +33,10 @@ const (
 // resolveRefs resolved it to; before that, a reference is whole.
 func splitArm(name string, refs map[string]resolvedRef) arm {
 	if grammar.IsRef(name) {
-		r, resolved := refs[name]
-		if !resolved || len(r.tail) == 0 {
-			head := name
-			if resolved {
-				head = r.head
-			}
-			return pathArm(name, head, nil)
+		if r, resolved := refs[name]; resolved {
+			return pathArm(name, r.head, r.tail)
 		}
-		return pathArm(name, r.head, r.tail)
+		return pathArm(name, name, nil)
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
