@@ -179,3 +179,26 @@ Ruling: same
 |---|---|---|---|---|---|
 | Mid A | same | same | same | same | same |
 | Inherited architect | same | same | same | same | same |
+
+## 2026-10-09T17:21:57Z, PR #202 at 65b2de8, against 2652779
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | same | same | worse |
+| Inherited architect | same | worse | worse | worse | worse |
+
+Mid A, decided by:
+
+- Locality, Overall: `data.go:13` `loadSources`: one pass mixes lazy and eager loading through before/after snapshots, a `provides` closure and a reverse graph search, and the skip of the first source is unexplained
+- Locality: `data.go:107` `mergeFolder`: a category must sit in one of two maps, `children` or `unloaded`, kept by deletes in four functions across two files
+- Locality: `internal/datafiles/datafiles.go:83` `embeddedManifests`: a process-wide cache in a package that was otherwise pure
+
+Inherited architect, decided by:
+
+- Locality, Self-sufficiency: `data.go:13` `loadSources`: nothing says why replaced paths drag their readers in, or what the `!after[p]` case covers
+- Locality: `index.go:113` `loadReached`: its rollback claims the next call fails the same way, which holds only while no parent table was linked to a rolled-back child
+- Shape: `index.go:159` `reaching`: four near-synonyms, `reaching`, `reachedFrom`, `loadReached` and `referenced`, and `referenced` and `categoryUnder` return loaded categories too
+- Shape: `data.go:40` `place`: shares its name with `compileInto`'s parameter, and returns a closure answering one question two ways
+- Locality: `internal/datafiles/datafiles.go:83` `embeddedManifests`: hidden global state for a small saving

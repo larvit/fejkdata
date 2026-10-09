@@ -154,7 +154,7 @@ still lives in `data/`; `--data-path` layers over it.
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
-## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads and every indexed category reaching what it replaces
+## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads and every indexed category depending on what it provides or a later source replaced
 
 2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
 
@@ -168,10 +168,12 @@ load. `go generate` writes the shipped set's manifest from `data/`;
 and each shipped category alone into a fresh `New`, so none fails at first reach.
 
 Goal 6: a source without an index loads whole in `New`, so each mistake in it is `New`'s
-error. So does every indexed category it reads, and every indexed category leading
-through references or table links to one that it or any later source replaced, so a
-replacement breaking a reader fails `New`. Goal 6.3: an indexed source from anyone else
-may fail at first reach; `Fake` then returns the load's error, the same every call.
+error. So does every indexed category it reads, and every indexed category depending,
+through references or table links, on a category it provides or a later source
+replaced, so a replacement or a stand-in breaking a reader fails `New`. Goal 6.3: an
+indexed source from anyone else may fail at first reach; `Fake` then returns the load's
+error wrapping `ErrLoad`, the same every call. A category whose index entry disagrees
+with it fails there too, so a stale index never decides what loads.
 
 Valid while CI proves the shipped set whole and each category alone.
 

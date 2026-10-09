@@ -7,64 +7,65 @@ import (
 )
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
-// carries an index leaves its categories unloaded; every other source's categories load
-// here, with what they reach and every unloaded category leading to one of them or to one a
-// later source replaced.
+// carries an index leaves its categories unloaded; every other source loads here. So do
+// the unloaded categories that depend on one it loaded or on one a later source replaced,
+// so that a reader such a change breaks fails New, not a first reach.
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
-	targets := map[string]bool{}
+	var changed []string
 	for _, src := range sources {
-		before := categoriesUnder(&root)
-		provides, err := place(&root, src)
+		replaced, err := addSource(&root, src)
 		if err != nil {
 			return folder{}, err
 		}
-		if len(before) == 0 {
-			continue
-		}
-		after := categoriesUnder(&root)
-		for p := range before {
-			if provides(p) || !after[p] {
-				targets[p] = true
-			}
-		}
+		changed = append(changed, replaced...)
 	}
 	sites := categorySites(&root)
 	for _, s := range sites {
-		targets[s.path] = true
+		changed = append(changed, s.path)
 	}
-	return root, loadReached(&root, sites, reaching(&root, targets))
+	return root, loadReached(&root, sites, dependents(&root, changed))
 }
 
-// place adds the categories of src to root, and returns whether src provides a path.
-func place(root *folder, src datafiles.Source) (func(string) bool, error) {
+// addSource adds the categories of src to root, and returns the path of each category
+// already there that src replaced or put out of reach.
+func addSource(root *folder, src datafiles.Source) ([]string, error) {
 	m, err := src.Manifest()
 	if err != nil {
 		return nil, err
 	}
+	before := standing(root)
 	if m.Index != nil {
 		placeIndex(root, src, m.Index)
-		return func(p string) bool { _, ok := m.Index[p]; return ok }, nil
+	} else {
+		g := &folder{children: map[string]node{}}
+		if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
+			return nil, err
+		}
+		mergeFolder(root, g)
 	}
-	g := &folder{children: map[string]node{}}
-	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
-		return nil, err
+	if len(before) == 0 {
+		return nil, nil
 	}
-	mergeFolder(root, g)
-	provided := categoriesUnder(g)
-	return func(p string) bool { return provided[p] }, nil
+	after := standing(root)
+	var replaced []string
+	for p, was := range before {
+		if after[p] != was {
+			replaced = append(replaced, p)
+		}
+	}
+	return replaced, nil
 }
 
-// categoriesUnder is the path of every category under root, loaded or not.
-func categoriesUnder(root *folder) map[string]bool {
-	out := map[string]bool{}
+// standing is what stands at the path of every category under root: its node, or its
+// unloaded entry.
+func standing(root *folder) map[string]any {
+	out := map[string]any{}
 	for _, s := range categorySites(root) {
-		out[s.path] = true
+		out[s.path] = s.n
 	}
-	unloaded := map[string]categoryAt{}
-	unloadedUnder(root, nil, unloaded)
-	for p := range unloaded {
-		out[p] = true
+	for p, c := range unloadedUnder(root) {
+		out[p] = c.in.unloaded[c.name]
 	}
 	return out
 }
@@ -75,7 +76,7 @@ func compileInto(place func(dir []string) *folder) func(datafiles.Category) erro
 		if err != nil {
 			return err
 		}
-		place(c.Folders).children[c.Name] = n
+		place(c.Folders).put(c.Name, n)
 		return nil
 	}
 }
@@ -87,8 +88,7 @@ func madeFolder(root *folder, dir []string) *folder {
 		sub, isFolder := g.children[seg].(*folder)
 		if !isFolder {
 			sub = &folder{children: map[string]node{}}
-			g.children[seg] = sub
-			delete(g.unloaded, seg)
+			g.put(seg, sub)
 		}
 		g = sub
 	}
@@ -103,8 +103,7 @@ func mergeFolder(dst, src *folder) {
 				continue
 			}
 		}
-		dst.children[k] = v
-		delete(dst.unloaded, k)
+		dst.put(k, v)
 	}
 }
 
@@ -116,10 +115,10 @@ type nodeSet func(fn func(label string, n node) error) error
 // folder's path, its name and its own dot path.
 type categorySite struct {
 	dir  []string
-	name string
-	path string
 	in   *folder
 	n    node
+	name string
+	path string
 }
 
 // categorySites lists every category under root, folders and names in sorted order.
@@ -140,7 +139,7 @@ func categorySites(root *folder) []categorySite {
 }
 
 func siteIn(dir []string, in *folder, name string) categorySite {
-	return categorySite{dir: dir, name: name, path: categoryPath(dir, name), in: in, n: in.children[name]}
+	return categorySite{dir: dir, in: in, n: in.children[name], name: name, path: categoryPath(dir, name)}
 }
 
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }

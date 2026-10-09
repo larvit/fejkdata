@@ -64,7 +64,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
-dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
+dir, data that fails to load, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
@@ -173,10 +173,15 @@ entry is never a category or a folder, so a data directory can also be a checkou
 a category may name a hidden rows file beside it.
 
 A source whose root holds `.fejkdata.json` with an `index` loads each category on the
-first call reaching it, and its author proves each loads. The shipped set's
+first call reaching it, and its author proves each loads. Any other source loads in
+`New`, and so does every indexed category that depends on what such a source provides
+or on a category a later source replaced. The index names every category of its source,
+so a category file it leaves out never loads. The shipped set's
 [`data/.fejkdata.json`](data/.fejkdata.json) shows the shape: each category's dot path,
-its `parent` table, the `paths` `List` advertises below it, and the categories it
-`reads`. `//go:embed` of a directory leaves the manifest out; name it in the pattern too.
+its `parent` table, every path `List` advertises below it, `""` for the category itself,
+and the other categories its templates `reads`. A category whose entry says otherwise
+fails at first reach, naming the entry it calls for. `//go:embed` of a directory leaves
+the manifest out; name it in the pattern too.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -336,13 +341,14 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithoutShippedData()` | load only what you give |
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
-value, and `NewTemplate` refuses such a template. On a loaded generator:
+value, and `NewTemplate` refuses such a template. A category of an indexed source is
+checked on the first call reaching it instead, and a failure there wraps `ErrLoad`, the
+same error every call. On a loaded generator:
 
-- `Fake` fails only for a path that names nothing, could name two things, reads one
-  draw of a level carrying a `repeat`, or reaches a category of an indexed source that
-  fails to load, with the same error every call.
+- `Fake` fails only for a path that names nothing, could name two things, or reads one
+  draw of a level carrying a `repeat`, with the same error every call, or with `ErrLoad`.
 - `FakeStruct` fails only for a non-struct argument or a type its tags do not describe,
-  with the same error every call.
+  with the same error every call, or with `ErrLoad`.
 - `Template.Fake` cannot fail.
 
 A path, wherever a call takes one, may start with one `/`, as a reference does.
@@ -842,9 +848,7 @@ The target is about a microsecond per value (goal 13).
 
 A source with an [index](#data), as the shipped set has, loads nothing in `New`: a
 category loads on the first `Fake`, `FakeRecord`, `FakeStruct` or template that reads
-it, with every category it reads and its whole table family. A source without one loads
-in `New`, with the indexed categories it reads and every indexed category reaching one
-it replaces, so each mistake it causes is `New`'s error. Each file is parsed, validated and weight-indexed once, bar a
+it, with every category it reads and its whole table family. Each file is parsed, validated and weight-indexed once, bar a
 table's name and parent columns, which are mapped on the first `Fake` that selects by
 name or descends through it. A `Fake` call then costs about what its output
 costs: an unweighted pick is O(1) whatever the list's length, a weighted one
@@ -866,7 +870,7 @@ and regenerate seeded fixtures and expected values when you raise that version.
 |---------|-------|-------|
 | Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another; change a table's key, name, weight or parent column, or remove a row | a path outside a record's columns, a locale, a value in a list, a row |
 | Records (a table is one) | remove, rename, retype or add a column; let a column be null | a record, as a new category |
-| Data format | a fence: a spelling `New` rejects that it accepted; a template option, since it reserves a field name | a builtin |
+| Data format | a fence: a spelling `New` rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
 

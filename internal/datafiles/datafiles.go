@@ -3,7 +3,6 @@ package datafiles
 
 import (
 	"bytes"
-	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
@@ -79,46 +77,27 @@ type IndexEntry struct {
 	Reads  []string `json:"reads,omitempty"`
 }
 
-// embeddedManifests holds each manifest read from an embed.FS, whose files never change.
-var embeddedManifests sync.Map
-
-type embeddedManifest struct {
-	fsys embed.FS
-	base string
-}
-
 // Manifest reads the manifest at the source's root, the zero Manifest where there is none.
 func (s Source) Manifest() (Manifest, error) {
-	e, embedded := s.fsys.(embed.FS)
-	key := embeddedManifest{fsys: e, base: s.base}
-	if m, read := embeddedManifests.Load(key); embedded && read {
-		return m.(Manifest), nil
+	if err := s.check(); err != nil {
+		return Manifest{}, err
 	}
-	m, err := s.readManifest()
-	if embedded && err == nil {
-		embeddedManifests.Store(key, m)
-	}
-	return m, err
-}
-
-func (s Source) readManifest() (Manifest, error) {
-	if s.onDisk && s.label == "" {
-		return Manifest{}, nil // Walk refuses the empty data path
-	}
-	full := path.Join(s.base, ManifestFile)
-	b, err := fs.ReadFile(s.fsys, full)
+	b, err := fs.ReadFile(s.fsys, path.Join(s.base, ManifestFile))
 	if errors.Is(err, fs.ErrNotExist) {
 		return Manifest{}, nil
 	}
 	if err != nil {
-		return Manifest{}, fmt.Errorf("%s: %w", s.labelled(full), err)
+		return Manifest{}, fmt.Errorf("%s: %w", s.ManifestPath(), err)
 	}
 	m, err := decodeManifest(b)
 	if err != nil {
-		return Manifest{}, fmt.Errorf("%s: %w", s.labelled(full), err)
+		return Manifest{}, fmt.Errorf("%s: %w", s.ManifestPath(), err)
 	}
 	return m, nil
 }
+
+// ManifestPath is the manifest's path as errors name it.
+func (s Source) ManifestPath() string { return s.labelled(path.Join(s.base, ManifestFile)) }
 
 func decodeManifest(b []byte) (Manifest, error) {
 	dec := json.NewDecoder(bytes.NewReader(b))
@@ -130,34 +109,65 @@ func decodeManifest(b []byte) (Manifest, error) {
 	if _, err := dec.Token(); err != io.EOF {
 		return Manifest{}, fmt.Errorf("more than one JSON value")
 	}
-	for p := range m.Index {
-		for _, seg := range strings.Split(p, ".") {
-			if err := grammar.CheckIdentifier(seg); err != nil {
-				return Manifest{}, fmt.Errorf("index names %q: %w", p, err)
+	for p, e := range m.Index {
+		for _, q := range append([]string{p}, e.Reads...) {
+			if err := checkCategoryPath(q); err != nil {
+				return Manifest{}, fmt.Errorf("index entry %q: %w", p, err)
 			}
+		}
+		if e.Parent == "" {
+			continue
+		}
+		if err := grammar.CheckIdentifier(e.Parent); err != nil {
+			return Manifest{}, fmt.Errorf("index entry %q: parent %w", p, err)
+		}
+		sibling := e.Parent
+		if dot := strings.LastIndexByte(p, '.'); dot >= 0 {
+			sibling = p[:dot+1] + e.Parent
+		}
+		if _, ok := m.Index[sibling]; !ok {
+			return Manifest{}, fmt.Errorf("index entry %q: parent %q names no entry beside it", p, e.Parent)
 		}
 	}
 	return m, nil
+}
+
+func checkCategoryPath(p string) error {
+	for _, seg := range strings.Split(p, ".") {
+		if err := grammar.CheckIdentifier(seg); err != nil {
+			return fmt.Errorf("%q: %w", p, err)
+		}
+	}
+	return nil
 }
 
 // Walk hands compile every category of the tree, folders and files in name order. A
 // folder holding no category anywhere below it is skipped; a hidden file or folder is no
 // category, though a category may name a hidden rows file beside it.
 func (s Source) Walk(compile func(Category) error) error {
-	if s.onDisk {
-		if s.label == "" {
-			return fmt.Errorf("a data path is empty")
-		}
-		info, err := os.Stat(s.label)
-		if err != nil {
-			return fmt.Errorf("data path %s: %w", s.label, err)
-		}
-		if !info.IsDir() {
-			return fmt.Errorf("%s is not a directory", s.label)
-		}
+	if err := s.check(); err != nil {
+		return err
 	}
 	_, err := s.walkDir(nil, compile)
 	return err
+}
+
+// check refuses a data path that is empty or names no directory.
+func (s Source) check() error {
+	if !s.onDisk {
+		return nil
+	}
+	if s.label == "" {
+		return fmt.Errorf("a data path is empty")
+	}
+	info, err := os.Stat(s.label)
+	if err != nil {
+		return fmt.Errorf("data path %s: %w", s.label, err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("%s is not a directory", s.label)
+	}
+	return nil
 }
 
 // walkDir walks the folder that dir names, and reports whether it handed over any category.
