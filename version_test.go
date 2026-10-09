@@ -53,7 +53,6 @@ func TestWorkspaceRequiresAreAtVersion(t *testing.T) {
 	}
 }
 
-// The release tags every tracked go.mod's module, so the gate covers every go.mod outside a hidden directory.
 func TestWorkspaceModulesRequireWhatTheyImport(t *testing.T) {
 	for _, m := range workspaceModules(t) {
 		required := map[string]bool{m.Module.Path: true}
@@ -70,6 +69,7 @@ func TestWorkspaceModulesRequireWhatTheyImport(t *testing.T) {
 	}
 }
 
+// The release tags every tracked go.mod's module, so the gate covers every go.mod outside a hidden directory.
 func TestEveryGoModIsInGoWork(t *testing.T) {
 	var used []string
 	for _, m := range workspaceModules(t) {
@@ -183,9 +183,11 @@ func goCmd(t *testing.T, dir string, args ...string) []byte {
 	cmd.Dir = dir
 	out, err := cmd.Output()
 	if err != nil {
-		var exit *exec.ExitError
-		errors.As(err, &exit)
-		t.Fatalf("go %v in %s: %v\n%s", args, dir, err, exit.Stderr)
+		var stderr []byte
+		if exit := (*exec.ExitError)(nil); errors.As(err, &exit) {
+			stderr = exit.Stderr
+		}
+		t.Fatalf("go %v in %s: %v\n%s", args, dir, err, stderr)
 	}
 	return out
 }
