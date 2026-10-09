@@ -546,8 +546,8 @@ table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbo
 on the next, since only one row renders. `New` proves the header, the options and every
 cell token, and refuses:
 
-- a JSON key other than `format`, `rows`, `key`, `name`, `weight` and `parent`, which could
-  be meant as a field or as an option a table does not take;
+- a JSON member other than `format`, `rows`, `key`, `name`, `weight` and `parent`, which
+  could be meant as a field or as an option a table does not take;
 - a key cell that is empty or repeats;
 - a weight that is negative, not a number, or too close to `0` to tell from it;
 - every weight `0`, across the table or inside one parent row;
@@ -781,7 +781,8 @@ A name is drawn on its first read, and lives in the category binding it: any fie
 category may read it, and a record's columns read one pick. Each render of the category picks
 anew, and so does each bare reference to it. A name a `repeat` binds picks again on every
 iteration, and one bound outside the repeat keeps its pick on every line. A name a choice's
-item binds lives in that item, and picks anew each time the item is drawn.
+item binds lives in that item, and picks anew each time the item is drawn. A category a
+reference enters does not see the name; bind it in the category that reads it.
 
 Refused at `New`, each error naming what to write instead:
 
@@ -793,8 +794,8 @@ Refused at `New`, each error naming what to write instead:
 - a read of a name inside the field bound to it: read it outside that field;
 - reading a name outside the choice item that binds it, since the other items leave it
   unbound;
-- a path through a name that selects a row, since it could mean that row whatever the name
-  picked, or that row only where the name's pick holds it;
+- a path through a name that selects a row: `{r.municipality[0180]}` could mean municipality
+  0180 whatever region `r` picked, or 0180 only where `r` picked the region holding it;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;
 - a binding in a table's format or cell.
