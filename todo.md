@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 190`
+`Next ID = 191`
 
 | Goal | W |
 |---|---|
@@ -167,6 +167,7 @@
 | 68 | 0.4.0 | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 2 | 1 | 1 | 3 | 1.1 | 5.8 |
 | 69 | 1.0.0 |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 3 | 7 | 9 | 1.1 | 30.2 |
 | 70 | 1.0.0 |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 6 | 6 | 6 | 1.1 | 19.5 |
+| 190 | 1.1.0 | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 6 | 9 | 7 | 8 | 1, 4 | 21.8 |
 
 ## Details
 
@@ -631,3 +632,27 @@ Gitea converts a repository to a mirror only by re-creating it, so until that ru
 ### 69. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
 The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; pairing a street with its exact postnummer rewrites shipped rows, so a minor with no breaking change follows it first.
+
+### 190. Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.
+
+Pseudonymising a copy of production is work a hosted model cannot do well: sending the data out is the leak, a model cannot keep one person's fake identical across tables and runs, and millions of rows cost real money. A model can still name which columns hold personal data and of what kind; fejkdata then replaces them offline. Greenmask, PostgreSQL Anonymizer and Presidio cover parts of this; none draws Swedish values a real validator accepts.
+
+Proposed goal, its place among the others for the maintainer to choose:
+
+> **It pseudonymises a real dataset on your own machine: each personal value becomes a valid fake one.**
+> 1. Columns you do not name pass through byte for byte.
+> 2. The same value under the same key becomes the same fake, in every table and every run; without the key, nobody can tell which real value a fake came from.
+> 3. Values that belong to one person come from one pick, so a row's name, email and personnummer still agree.
+> 4. Two values never become one fake in a column that must stay unique.
+
+Proposed audience persona: a **pseudonymising author**, who replaces the personal data in a copy of production before it reaches a test or staging environment, and relies on one real value giving one fake across tables and runs.
+
+Items to file once the goal is in:
+
+1. Read CSV and NDJSON records on stdin, replace the columns a mapping names with a template's render, and stream every other column through unchanged. The flag or file spelling goes to a bench with the persona first.
+2. Seed each replaced value's draw from HMAC-SHA256 under a key read from a file or the environment, never a flag. An unkeyed hash fails sub-goal 2: every personnummer can be hashed and the mapping reversed.
+3. Key a whole row's pick by one identity column, such as a customer id, so goal 4.1's named pick holds for a person across rows and tables.
+4. Redraw on a collision in a column marked unique, deterministically from the key, within a memory bound the README states.
+5. Keep, on request, a personnummer's birth date or sex and a postal code's region, the docs naming what each kept field gives away.
+6. Read a PostgreSQL `COPY` or MySQL `INSERT` dump.
+7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone.
