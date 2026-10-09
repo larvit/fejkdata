@@ -72,22 +72,24 @@ def top_streets(count, per_locality, column):
     return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, named in of.items()}
 
 
-def fence(regions, municipalities, localities, streets):
-    """Meet the loader's fence that every parent row has a child row: drop each locality streets holds no rows for, then
-    each municipality and region left without one, logging each drop. regions and municipalities map a code to a row,
-    and a municipality row names its region under "region". localities map a key to a locality row: name, municipality,
-    population, lat and lon, besides the columns its country adds. streets maps a locality's key to its street rows.
-    Returns the kept regions, municipalities and localities."""
-    localities = kept(localities, streets, "streets")
-    municipalities = kept(municipalities, {l["municipality"] for l in localities.values()}, "localities")
-    regions = kept(regions, {m["region"] for m in municipalities.values()}, "municipalities")
-    return regions, municipalities, localities
+def fence(regions, municipalities, localities, streets, postal_codes):
+    """Meet the loader's fence that every parent row has a child row: keep each locality both streets and postal_codes
+    hold a key for, then each municipality and region left with a child. regions and municipalities map a code to a
+    row, and a municipality row names its region under "region". localities map a key to a locality row: name,
+    municipality, population, lat and lon, besides the columns its country adds. Returns the kept rows, then the dropped
+    rows, each a dict of the three tables by name."""
+    kept = {"locality": {k: l for k, l in localities.items() if k in streets and k in postal_codes}}
+    parents = {l["municipality"] for l in kept["locality"].values()}
+    kept["municipality"] = {c: m for c, m in municipalities.items() if c in parents}
+    parents = {m["region"] for m in kept["municipality"].values()}
+    kept["region"] = {c: r for c, r in regions.items() if c in parents}
+    every = {"locality": localities, "municipality": municipalities, "region": regions}
+    dropped = {table: {k: row for k, row in rows.items() if k not in kept[table]} for table, rows in every.items()}
+    return kept, dropped
 
 
-def kept(parents, children, kind):
-    """The parents whose key children holds; logs each other parent as dropped."""
-    for key, parent in parents.items():
-        if key not in children:
-            label = key if key == parent["name"] else f"{key} {parent['name']}"
-            print(f"{label}: no {kind}, dropped", file=sys.stderr)
-    return {key: parent for key, parent in parents.items() if key in children}
+def log_dropped(rows, why):
+    """Logs each row as dropped for why, by its key and its name where the two differ."""
+    for key, row in rows.items():
+        label = key if key == row["name"] else f"{key} {row['name']}"
+        print(f"{label}: {why}, dropped", file=sys.stderr)

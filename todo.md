@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 168`
+`Next ID = 169`
 
 | Goal | W |
 |---|---|
@@ -118,6 +118,7 @@
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
 | 107 | 0.2.0 | decision | **Move the template engine into `internal/`, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 168 | 0.2.0 | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 4 | 2 | 6 | 3 | 11.8 |
 | 161 | 0.2.0 |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
@@ -440,6 +441,10 @@ The decision "With only the shipped set, a category loads on the first call reac
 ### 107. Move the template engine into `internal/`, leaving the root the public API and its options.
 
 The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+
+### 168. Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.
+
+Filed by the principles audit of item 148's chunk, against "Most, if not all, code should have automated tests" in `technical-principles.md`. No Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Item 148 checked `geo.fence` by regenerating both countries' TSVs byte-identical from the source cache, which needs the full downloads. Item 61 puts a geo script per country on `fence`.
 
 ### 161. Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.
 
