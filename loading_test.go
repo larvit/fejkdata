@@ -205,8 +205,8 @@ func TestNewErrors(t *testing.T) {
 	if err := os.WriteFile(file, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(file)); err == nil {
-		t.Error("New(file) = nil error, want not-a-directory error")
+	if _, err := New(WithoutShippedData(), WithDataPath(file)); err == nil || !strings.Contains(err.Error(), "xx_XX is not a directory") {
+		t.Errorf("New(file) = %v, want not-a-directory error", err)
 	}
 	// Invalid JSON in a category file fails.
 	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {

@@ -790,3 +790,20 @@ func TestRunRecordOfAFieldlessPath(t *testing.T) {
 		t.Errorf("stdout = %q, want nothing", out)
 	}
 }
+
+func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
+	dir := t.TempDir()
+	for name, data := range map[string]string{
+		".fejkdata.json": `{"index": {"bad": {"paths": [""]}}}`,
+		"bad.json":       `"{/nope}"`,
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, args := range [][]string{{"-d", dir}, {"-d", dir, "--format", "json"}} {
+		if code, _, errb := runOut("{/bad}", args...); code != 1 || !strings.Contains(errb, "{/nope}") {
+			t.Errorf("%v on a category failing to load = %d, %q; want exit 1 naming the reference", args, code, errb)
+		}
+	}
+}
