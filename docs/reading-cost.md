@@ -419,3 +419,20 @@ Read most (opens and searches):
 - `inline.go` 1
 - `reference.go` 1
 - `shipped.go` 1
+
+## Reading cost, chunk 21603e0f3240, finished 2026-10-09T12:30:43Z
+
+2855972 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 25
+- `CHANGELOG.md` 22
+- `cmd/fejkdata/main.go` 20
+- `node.go` 19
+- `testdata/shipped_shape.txt` 19
+- `AGENTS.md` 18
+- `arm.go` 17
+- `DATA-LICENSES.md` 16
+- `compose.yaml` 16
+- `env.go` 16
