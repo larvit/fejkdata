@@ -140,3 +140,24 @@ Inherited architect, would restructure first:
 
 - `pick.go:179` `readName`: keeping one named pick needs `name.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go` held at once
 - `node.go:52` `template`: filled in four phases by four functions
+
+## 2026-10-09T11:09:34Z, PR #195 at 344023d, against 1c342bc
+
+Ruling: better
+
+| Seat | Vote |
+|---|---|
+| Mid A | better |
+| Inherited architect | better |
+
+Mid A, decided by:
+
+- `shipped.go:61` `loadCallerPath`: `Fake` and `FakeRecord` get their segments from the one call that loads them, where each repeated the split and the load
+- `node.go:30` `choice`: the `shared` comment says what the field counts, where it claimed `List` reads it
+- `data-import/tsv.py:7` `write`: its check and message match the loader's one-row rule
+
+Inherited architect, decided by:
+
+- `shipped.go:61` `loadCallerPath`: the load-before-walk order is held by data flow, where a comment on `loadShippedAt` stated it
+- `node.go:30` `choice`: the `shared` comment no longer sends a `--list` bug to the wrong field
+- `README.md:163` `## Data`: the opening names the `geo` trees the section documents
