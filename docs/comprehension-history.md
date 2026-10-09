@@ -183,3 +183,28 @@ Inherited architect, decided by:
 - Self-sufficiency: `cmd/fejkdata/go.mod:5` `require`: read cold it pins a version that does not exist, and why it works sits in other files
 - Self-sufficiency: `README.md:71` CLI section: the label reads as an instruction for the command the sentence warns against
 - Locality: `compose.yaml:47` `tidy`: runs on the root module only while the other services cover every module, with nothing at the service saying so
+
+## 2026-10-09T14:48:51Z, PR #199 at b3411ec, against 2652779
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | worse | worse | worse |
+| Inherited architect | worse | worse | worse | worse | worse |
+
+Mid A, decided by:
+
+- Locality, Shape: `release-tooling/publish_release.py:111` `publish`: deciding between rerun, burnt and proceed needs the whole release-commit scheme in mind, and its names say little
+- Locality: `release-tooling/publish_release.py:58` `release_go_mods`: which requires ship is spread over the compose service, the script, git ls-files and a gate test
+- Self-sufficiency: `cmd/fejkdata/go.mod:1` module: imports the library with no require, which only go.work and the release docs explain
+- Self-sufficiency: `compose.yaml:14` test: the go list -m pattern is explained only through a decisions anchor
+- Shape: `compose.yaml:55` tidy: covers the root only while its siblings cover every module
+
+Inherited architect, decided by:
+
+- Locality, Navigation: `release-tooling/publish_release.py:58` `release_go_mods`: the go.mod a user installs exists only on a release branch, written from a listing made in another container
+- Shape: `release-tooling/publish_release.py:122` `publish`: two compound conditions over competing names decide the tag states, where the base had one linear check
+- Self-sufficiency: `Dockerfile:7` comment: the go list -m pattern is explained only by a decisions anchor
+- Locality: `compose.yaml:17` test: the module-spanning list is copied into six services while generate, cyclo and tidy stay on the root
+- Navigation: `.github/workflows/test.yml:77` release job: tracing a bad release input crosses three files
