@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 167`
+`Next ID = 168`
 
 | Goal | W |
 |---|---|
@@ -76,6 +76,7 @@
 | 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 10, 148 and 151 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
+| 167 | 0.1.0 |  | **Lower the reading cost of the files chunks read most before their first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
@@ -275,6 +276,10 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 ### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
+
+### 167. Lower the reading cost of the files chunks read most before their first commit.
+
+`reading-cost` on 2026-10-09: the last 5 chunks' median is 152553 new input tokens before their first commit, the 5 before them 75959. Read most over the last 5 (opens and searches): `README.md` 67, `AGENTS.md` 41, `CHANGELOG.md` 39, `cmd/fejkdata/main.go` 39, `arm.go` 31, `pick.go` 23, `path.go` 20, `data-import/geo-se.py` 19, `fejkdata.go` 19, `env.go` 18. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
