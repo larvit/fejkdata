@@ -161,3 +161,25 @@ Inherited architect, decided by:
 - `shipped.go:61` `loadCallerPath`: the load-before-walk order is held by data flow, where a comment on `loadShippedAt` stated it
 - `node.go:30` `choice`: the `shared` comment no longer sends a `--list` bug to the wrong field
 - `README.md:163` `## Data`: the opening names the `geo` trees the section documents
+
+## 2026-10-09T13:47:17Z, PR #199 at aea1f9d, against 2652779
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | same | worse | worse |
+| Inherited architect | same | worse | same | worse | worse |
+
+Mid A, decided by:
+
+- Locality: `version.go:3` `Version`: one version string must agree in the changelog heading, the constant, the CLI's require and the tags, and a `_test.go` file rewrites source elsewhere under REGENERATE
+- Locality, Self-sufficiency: `compose.yaml:14` `test`: every command builds its package list with `go list -m`, and why the CLI needs its own module sits only in docs/decisions.md
+- Self-sufficiency: `README.md:71` "Install main's CLI from a checkout": the sentence names `@main`, which is no checkout install, and contradicts itself
+
+Inherited architect, decided by:
+
+- Locality: `version_test.go:19` `TestVersionIsTheNewestChangelogHeading`: one release spreads over seven places, and the test rewrites version.go and every go.mod under REGENERATE
+- Self-sufficiency: `cmd/fejkdata/go.mod:5` `require`: read cold it pins a version that does not exist, and why it works sits in other files
+- Self-sufficiency: `README.md:71` CLI section: the label reads as an instruction for the command the sentence warns against
+- Locality: `compose.yaml:47` `tidy`: runs on the root module only while the other services cover every module, with nothing at the service saying so
