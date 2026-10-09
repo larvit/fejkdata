@@ -171,14 +171,20 @@ def main():
     places = localities(cache, a.min_population, counties)
     locality_of_zcta = postal_codes(cache, places)
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.streets_per_locality)
-    regions, counties, places = geo.fence(regions, counties, places, named)
+    zctas = collections.defaultdict(list)
+    for zcta, locality in sorted(locality_of_zcta.items()):
+        if addresses[zcta]:
+            zctas[locality].append(zcta)
+    kept, dropped = geo.fence(regions, counties, places, named, zctas)
+    geo.log_dropped(dropped["locality"], "no street or postal code")
+    print(f"counties without a place, dropped: {len(dropped['municipality'])}; states: {sorted(dropped['region'])}", file=sys.stderr)
+    places = kept["locality"]
 
-    tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(regions.items())])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(counties.items())])
+    tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
+    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(kept["municipality"].items())])
     tsv.write(out / "locality.tsv", ["code", "name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
-    tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], [{"code": z, "locality": l, "addresses": addresses[z]} for z, l in sorted(locality_of_zcta.items()) if addresses[z] and l in places])
+    tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], sorted(({"code": z, "locality": l, "addresses": addresses[z]} for l in places for z in zctas[l]), key=lambda r: r["code"]))
     tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(named) for s in named[locality]])
-
 
 if __name__ == "__main__":
     main()

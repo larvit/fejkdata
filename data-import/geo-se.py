@@ -178,21 +178,24 @@ def main():
         sys.exit("set TRAFIKVERKET_API_KEY or pass --key-file")
     cache, out = geo.directories(a)
 
-    regions, municipalities = scb_codes(cache)
+    region_names, municipality_names = scb_codes(cache)
     population = scb_population(cache)
     codes = geonames(cache)
-    places = localities(codes, scb_tatorter(cache), municipalities, population)
+    places = localities(codes, scb_tatorter(cache), municipality_names, population)
     named = streets(nvdb_segments(cache, key), codes, places, a.streets_per_locality)
-    regions = {c: {"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in regions.items()}
-    municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipalities.items()}
-    regions, municipalities, places = geo.fence(regions, municipalities, places, named)
+    regions = {c: {"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in region_names.items()}
+    municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipality_names.items()}
+    kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
+    geo.log_dropped(dropped["locality"], "no street or postal code")
+    if dropped["municipality"]:
+        sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}")
+    places = kept["locality"]
 
-    tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(regions.items())])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [m for _, m in sorted(municipalities.items())])
+    tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
+    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [m for _, m in sorted(kept["municipality"].items())])
     tsv.write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
     tsv.write(out / "postal-code.tsv", ["code", "locality"], sorted(({"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in places.values() for c in l["codes"]), key=lambda r: r["code"]))
     tsv.write(out / "street.tsv", ["name", "locality", "segments"], [s for locality in sorted(named) for s in named[locality]])
-
 
 if __name__ == "__main__":
     main()
