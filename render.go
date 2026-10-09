@@ -16,7 +16,7 @@ import (
 func (f *Generator) Fake(path string) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path, segments, err := f.callerPath(path)
+	path, segments, err := f.loadCallerPath(path)
 	if err != nil {
 		return "", err
 	}

@@ -58,9 +58,9 @@ func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
 	return unloadedCategory{dir: segs[:i:i], in: g, name: segs[i]}, true
 }
 
-// callerPath is a caller's path without its leading /, and split, with the shipped category
-// it names or descends into loaded: a walk is a query and loads nothing.
-func (f *Generator) callerPath(path string) (string, []string, error) {
+// loadCallerPath strips the / a caller's path may start with, splits the path, and loads the
+// shipped category it names or descends into. The caller walks it next, and a walk loads nothing.
+func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 	path, err := grammar.CallerPath(path)
 	if err != nil {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)

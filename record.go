@@ -125,7 +125,7 @@ func literal(c Column, quote func(string) string, nullText string) string {
 func (f *Generator) FakeRecord(path string) (*Record, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	path, segments, err := f.callerPath(path)
+	path, segments, err := f.loadCallerPath(path)
 	if err != nil {
 		return nil, err
 	}
