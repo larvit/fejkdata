@@ -82,7 +82,6 @@
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
-| 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
 | 151 | 0.1.0 |  | **Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
@@ -301,10 +300,6 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
-
-### 148. State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.
-
-Needed by item 61. The extender seat of the 2026-10-07 panel on ad59967, reading for item 61, rebuilt the row's keys, `name`, `municipality`, `population`, `lat`, `lon` and `codes`, from `geo-se.py` and `geo-us.py` side by side. It found the fence met two ways: `geo-se.py`'s `main` exits on a kommun with no locality, while `geo-us.py`'s `main` prunes counties and regions left with none.
 
 ### 151. Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.
 
