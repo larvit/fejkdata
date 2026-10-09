@@ -10,8 +10,8 @@ x-go: &go
     GOMODCACHE: /cache/mod
     REPIN: ${REPIN:-}
 
-# ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-no-published-gomod-carries-a-replace
 services:
+  # ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-no-published-gomod-carries-a-replace
   test:
     <<: *go
     command: sh -c 'go test -race $$(go list -m -f "{{.Dir}}/...")'

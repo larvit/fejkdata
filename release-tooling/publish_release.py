@@ -52,7 +52,7 @@ def found(req, path: str):
 
 
 def tagged_at(req, tag: str) -> str | None:
-	"""The commit tag points at, or None where it does not exist."""
+	"""The commit `tag` points at, or None where no such tag exists."""
 	ref = found(req, f"git/ref/tags/{tag}")
 	if ref is None:
 		return None
@@ -61,7 +61,7 @@ def tagged_at(req, tag: str) -> str | None:
 
 
 def publish(version: str, body: str, dirs: list[str], sha: str, req) -> tuple[int, str | None]:
-	"""Tag sha for every module in dirs and release version; the exit code, and the tag where this run released it."""
+	"""Tag sha for each module in dirs, then publish the release; return the exit code and, when this run published it, the tag."""
 	tag = f"v{version}"
 	release = found(req, f"releases/tags/{tag}")
 	if release is not None:

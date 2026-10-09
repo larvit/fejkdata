@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// TestPackageImports holds each package in the repository to the module packages it may import.
+// TestPackageImports holds each package in the repository to the root module's packages it may import.
 func TestPackageImports(t *testing.T) {
 	mod, err := os.ReadFile("go.mod")
 	if err != nil {

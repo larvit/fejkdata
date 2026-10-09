@@ -59,7 +59,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
-| `--version` | print `fejkdata vX.Y.Z`, the release, then exit; a build of other source adds its own version, such as `(devel)` |
+| `--version` | print `fejkdata vX.Y.Z`, the release, then exit; a build not from a release tag adds its own version in parentheses, such as `(devel)` |
 | `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
@@ -68,8 +68,8 @@ follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
-`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`. Install main's CLI this way:
-`go install …/cmd/fejkdata@main` builds it on the last release's library and data.
+`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`. Install main's CLI from a checkout:
+`go install …/cmd/fejkdata@main` builds main's CLI on the last release's library and data.
 
 ### Your own data
 
@@ -322,7 +322,7 @@ s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
-fejkdata.Version                          // "v0.1.0": the newest release; a build between releases builds on it
+fejkdata.Version                          // "v0.1.0": the newest release, also in source committed since
 ```
 
 | Option | |
@@ -989,7 +989,7 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
-version.go      Version, the release this source belongs to
+version.go      Version, the newest release
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
@@ -1013,7 +1013,7 @@ calc.go         the {calc()} operand checks: never a number, and a constant zero
 datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype, and a format that only reads a column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
-cmd/fejkdata/   the fejkdata CLI, a Go module of its own, which go.work joins to the library's
+cmd/fejkdata/   the fejkdata CLI, a Go module of its own, joined to the library's module by go.work
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
@@ -1067,7 +1067,7 @@ supported Go, and must pass before it can be merged — unless it changes none o
 the files the build and its tests read, nor the workflow itself, in which case
 it's skipped. That build runs vet, complexity, the format check and the tests; the
 rest of the gate is CI's changelog check against the PR base and the release
-tooling's tests. Run the build and those tests locally before pushing. The lowest Go builds the `portable`
+tooling's tests. Run the build and the release tooling's tests locally before pushing. The lowest Go builds the `portable`
 stage, all of the build bar the format check:
 
 ```sh
@@ -1121,9 +1121,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
-run `generate` above, which sets `fejkdata.Version` and every module's `require` of
-another from that heading, and merge. Once `main` passes the gate, CI tags that commit
-`vX.Y.Z` and `<dir>/vX.Y.Z` for every module, publishes the GitHub release with the section as its body, then
+run `generate` above, and merge. `generate` sets `fejkdata.Version` and every module's
+`require` of another from that heading. Once `main` passes the gate, CI tags that commit
+`vX.Y.Z` for the library and `<dir>/vX.Y.Z` for every other module, publishes the GitHub release with the section as its body, then
 installs the CLI from its tag and renders one template. A top heading of `[Unreleased]`
 publishes nothing.
 

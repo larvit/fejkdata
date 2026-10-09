@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 191`
+`Next ID = 192`
 
 | Goal | W |
 |---|---|
@@ -87,6 +87,7 @@
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 180 | 0.1.0 | decision | **Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.** | 6 | 6 | 5 | 8 | 13, 9.1 | 12.1 |
+| 191 | 0.1.0 | question | **Drop the clause "the workflow decided nothing, being portable already" from the decision "GitHub is canonical, and the module path names it", now that `publish_release.py` speaks GitHub's git refs API.** | 1 | 1 | 1 | 4 | 3 | 8.0 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -107,7 +108,7 @@
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
-| 190 | 0.2.0 | decision | **Drop the README's install-from-a-clone note once v0.1.0 is tagged, so its first line is `go install …/cmd/fejkdata@latest` alone.** | 1 | 1 | 3 | 6 | 1.1 | 16.8 |
+| 190 | 0.2.0 | decision | **Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.** | 1 | 1 | 3 | 6 | 1.1 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
@@ -330,6 +331,10 @@ Carries out the decision "The shipped data is Go modules a library imports by ch
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
 - Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`", ending its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
 
+### 191. Drop the clause "the workflow decided nothing, being portable already" from the decision "GitHub is canonical, and the module path names it", now that `publish_release.py` speaks GitHub's git refs API.
+
+The prose review of item 179's chunk found the clause contradicts the revised decision "The changelog heading is the one spelling of a release; CI cuts one tag per module", which says the Gitea pull mirror runs no release. The decision predates that chunk, so the maintainer decides.
+
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` adds its VCS pseudo-version, or `(devel)` under `go run`, to the release it builds on; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
@@ -424,9 +429,9 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
 
-### 190. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so its first line is `go install …/cmd/fejkdata@latest` alone.
+### 190. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.
 
-Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, whose `require` of the core at the release being cut no proxy serves.
+Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, whose `require` of the core at `v0.0.0` no proxy serves.
 
 ### 44. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 

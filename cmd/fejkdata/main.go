@@ -650,7 +650,7 @@ func versionLine(release, build string) string {
 	return "fejkdata " + release + " (" + build + ")"
 }
 
-// buildVersion is the module version go install stamps into the binary, or "" where none is.
+// buildVersion is the main module's version from the build info, "(devel)" under go run, or "" without build info.
 func buildVersion() string {
 	if info, ok := debug.ReadBuildInfo(); ok {
 		return info.Main.Version

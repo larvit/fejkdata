@@ -69,7 +69,7 @@ func TestWorkspaceModulesRequireWhatTheyImport(t *testing.T) {
 	}
 }
 
-// The release tags every tracked go.mod's module, so the gate covers every go.mod outside a hidden directory.
+// The release tags every tracked go.mod's module, so the gate covers every go.mod.
 func TestEveryGoModIsInGoWork(t *testing.T) {
 	var used []string
 	for _, m := range workspaceModules(t) {
