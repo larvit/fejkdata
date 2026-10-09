@@ -334,9 +334,9 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
-- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach. A `--data-path` run then no longer parses the whole shipped set.
+- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
-- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`"., and ends its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
+- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`", ending its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
