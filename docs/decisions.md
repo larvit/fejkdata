@@ -174,9 +174,9 @@ replaced, so a replacement or a stand-in breaking a reader fails `New`. Goal 6.3
 indexed source from anyone else may fail at first reach; `Fake` then returns the load's
 error, matching `ErrLoad`, the same every call. A first reach checks only a table's
 `parent` against its entry, so a table loads with its parent and a failed load puts
-back whole. Proving the rest of an index is its author's, with the tool `todo.md` item
-194 plans: checked against the merged tree, an entry's paths and reads would blame the
-manifest for a table or a stand-in another source adds.
+back whole. Proving the rest of an index is its author's, with the tool
+`todo.md` item 194 plans: checked against the merged tree, an entry's paths and reads
+would blame the manifest for a table or a stand-in another source adds.
 
 Valid while CI proves the shipped set whole and each category alone.
 

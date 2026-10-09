@@ -224,3 +224,28 @@ Inherited architect, decided by:
 - Locality, Shape: `data.go:13` `loadSources`: one source can make another load early through identity-compared snapshots and a reverse graph over index entries
 - Shape: `index.go:36` `categoryAt`: two near-synonym types for where a category sits, and three near-identical function names
 - Self-sufficiency: `index.go:248` `staleEntry`: its note on linking cannot be read without knowing the pipeline, and `config.load` points at a paragraph-long decision anchor
+
+## 2026-10-09T17:39:40Z, PR #202 at 0bdb100, against 2652779
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | worse | same | worse |
+| Inherited architect | same | worse | worse | same | worse |
+
+Mid A, decided by:
+
+- Locality, Overall: `data.go:13` `loadSources`: whether an indexed category loads in New depends on source order and what other sources hold, through before-and-after snapshots
+- Locality: `index.go:119` `affectedBy`: trusts the manifest's `reads` to match the templates, with nothing beside the code checking it
+- Locality, Shape: `index.go:174` `loadReached`: a rollback batch to reason about, with names that say less than `unloadedReads` and `linkedTables` did
+- Shape: `index.go:16` `ErrLoad`: a public error every entry point depends on, in a file named for the index
+- Shape: `internal/datafiles/datafiles.go:103` `decodeManifest`: a hand-written strict decoder doubles the package's responsibilities
+
+Inherited architect, decided by:
+
+- Locality, Overall: `data.go:13` `loadSources`: New's load set follows dependencies forward from templates and backward from the manifest's `reads`, and a stale `reads` leaves a broken reader for its first reach
+- Locality: `index.go:201` `batch.load`: the unloaded entry is deleted three calls away, and `putBack` reverses it
+- Locality, Shape: `data.go:62` `standing`: a `map[string]any` of nodes and entries compared by identity
+- Shape: `index.go:1` `index.go`: fifteen units under generic names in a file named for the index, `ErrLoad` among them
+- Shape: `internal/datafiles/datafiles.go:103` `decodeManifest`: a strict JSON decoder shares the tree walker's file with no seam
