@@ -161,3 +161,12 @@ Inherited architect, decided by:
 - `shipped.go:61` `loadCallerPath`: the load-before-walk order is held by data flow, where a comment on `loadShippedAt` stated it
 - `node.go:30` `choice`: the `shared` comment no longer sends a `--list` bug to the wrong field
 - `README.md:163` `## Data`: the opening names the `geo` trees the section documents
+
+## 2026-10-09T16:48:45Z, PR #201 at c3ef728, against 2652779
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | same | same | same |
