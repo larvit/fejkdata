@@ -1,103 +1,129 @@
 package fejkdata
 
 import (
-	"io/fs"
+	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
-	"strings"
 	"testing"
 )
 
-const setVersion = "docker compose run --rm --user \"$(id -u):$(id -g)\" release-tooling release-tooling/set_version.py"
+const versionFile = "version.go"
 
+// REGENERATE=1 rewrites Version and every workspace module's require of another.
 func TestVersionIsTheNewestChangelogHeading(t *testing.T) {
+	want := newestRelease(t)
+	if os.Getenv("REGENERATE") == "1" {
+		src, err := os.ReadFile(versionFile)
+		if err != nil {
+			t.Fatal(err)
+		}
+		src = regexp.MustCompile(`(?m)^const Version = ".*"$`).ReplaceAll(src, []byte(`const Version = "`+want+`"`))
+		if err := os.WriteFile(versionFile, src, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range workspaceModules(t) {
+			for _, r := range m.requiresOfWorkspace {
+				goCmd(t, m.dir, "mod", "edit", "-require="+r.Path+"@"+want)
+			}
+		}
+		return
+	}
+	if Version != want {
+		t.Errorf("Version = %q, want %q from CHANGELOG.md's newest versioned heading; regenerate: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", Version, want)
+	}
+}
+
+func TestWorkspaceRequiresAreAtVersion(t *testing.T) {
+	for _, m := range workspaceModules(t) {
+		for _, r := range m.requiresOfWorkspace {
+			if r.Version != Version {
+				t.Errorf("%s/go.mod requires %s %s, want %s; regenerate: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", m.dir, r.Path, r.Version, Version)
+			}
+		}
+	}
+}
+
+func TestEveryGoModIsInGoWork(t *testing.T) {
+	var used []string
+	for _, m := range workspaceModules(t) {
+		used = append(used, m.dir)
+	}
+	for _, dir := range sourceDirs(t) {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil && !slices.Contains(used, dir) {
+			t.Errorf("%s/go.mod is not in go.work's use list, so the gate does not cover it", dir)
+		}
+	}
+}
+
+func TestNoGoModCarriesReplace(t *testing.T) {
+	for _, m := range workspaceModules(t) {
+		for _, r := range m.Replace {
+			t.Errorf("%s/go.mod replaces %s: go.work joins the modules, and go install refuses a module carrying a replace", m.dir, r.Old.Path)
+		}
+	}
+}
+
+func newestRelease(t *testing.T) string {
+	t.Helper()
 	changelog, err := os.ReadFile("CHANGELOG.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "v0.0.0"
 	if m := regexp.MustCompile(`(?m)^## \[(\d+\.\d+\.\d+)\]`).FindSubmatch(changelog); m != nil {
-		want = "v" + string(m[1])
+		return "v" + string(m[1])
 	}
-	if Version != want {
-		t.Errorf("Version = %q, want %q from CHANGELOG.md's newest versioned heading; run %s", Version, want, setVersion)
-	}
+	return "v0.0.0"
 }
 
-func TestWorkspaceModulesRequireEachOtherAtVersion(t *testing.T) {
-	uses := workspaceModules(t)
-	for _, dir := range goModDirs(t) {
-		if !slices.Contains(uses, dir) {
-			t.Errorf("%s/go.mod is not in go.work's use list, so the gate does not cover it", dir)
-		}
+type modulePath struct{ Path, Version string }
+
+type goMod struct {
+	Module  modulePath
+	Require []modulePath
+	Replace []struct{ Old modulePath }
+
+	dir                 string
+	requiresOfWorkspace []modulePath
+}
+
+// workspaceModules returns the modules go.work uses, as the go command reads them.
+func workspaceModules(t *testing.T) []goMod {
+	t.Helper()
+	var work struct{ Use []struct{ DiskPath string } }
+	if err := json.Unmarshal(goCmd(t, ".", "work", "edit", "-json"), &work); err != nil {
+		t.Fatal(err)
 	}
-	for _, dir := range uses {
-		mod, err := os.ReadFile(filepath.Join(dir, "go.mod"))
-		if err != nil {
+	var mods []goMod
+	paths := map[string]bool{}
+	for _, u := range work.Use {
+		var m goMod
+		m.dir = filepath.ToSlash(filepath.Clean(u.DiskPath))
+		if err := json.Unmarshal(goCmd(t, m.dir, "mod", "edit", "-json"), &m); err != nil {
 			t.Fatal(err)
 		}
-		for _, line := range strings.Split(string(mod), "\n") {
-			f := strings.Fields(line)
-			if len(f) > 0 && f[0] == "replace" {
-				t.Errorf("%s/go.mod carries %q: go.work joins the modules, and a published go.mod carries no replace", dir, line)
-			}
-			if len(f) > 0 && f[0] == "require" {
-				f = f[1:]
-			}
-			if len(f) >= 2 && (f[0] == "github.com/larvit/fejkdata" || strings.HasPrefix(f[0], "github.com/larvit/fejkdata/")) && f[1] != Version {
-				t.Errorf("%s/go.mod requires %s %s, want %s; run %s", dir, f[0], f[1], Version, setVersion)
+		mods = append(mods, m)
+		paths[m.Module.Path] = true
+	}
+	for i, m := range mods {
+		for _, r := range m.Require {
+			if paths[r.Path] {
+				mods[i].requiresOfWorkspace = append(mods[i].requiresOfWorkspace, r)
 			}
 		}
 	}
+	return mods
 }
 
-// workspaceModules returns the directories go.work's use directives name, cleaned and slash-separated.
-func workspaceModules(t *testing.T) []string {
+func goCmd(t *testing.T, dir string, args ...string) []byte {
 	t.Helper()
-	work, err := os.ReadFile("go.work")
+	cmd := exec.Command("go", args...)
+	cmd.Dir = dir
+	out, err := cmd.Output()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("go %v in %s: %v", args, dir, err)
 	}
-	var dirs []string
-	inUse := false
-	for _, line := range strings.Split(string(work), "\n") {
-		f := strings.Fields(line)
-		switch {
-		case inUse && len(f) == 1 && f[0] == ")":
-			inUse = false
-		case inUse && len(f) == 1:
-			dirs = append(dirs, filepath.ToSlash(filepath.Clean(f[0])))
-		case len(f) == 2 && f[0] == "use" && f[1] == "(":
-			inUse = true
-		case len(f) == 2 && f[0] == "use":
-			dirs = append(dirs, filepath.ToSlash(filepath.Clean(f[1])))
-		}
-	}
-	if len(dirs) == 0 {
-		t.Fatal("go.work uses no module")
-	}
-	return dirs
-}
-
-func goModDirs(t *testing.T) []string {
-	t.Helper()
-	var dirs []string
-	err := filepath.WalkDir(".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() && path != "." && (strings.HasPrefix(d.Name(), ".") || d.Name() == "testdata") {
-			return filepath.SkipDir
-		}
-		if d.Name() == "go.mod" {
-			dirs = append(dirs, filepath.ToSlash(filepath.Dir(path)))
-		}
-		return nil
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	return dirs
+	return out
 }

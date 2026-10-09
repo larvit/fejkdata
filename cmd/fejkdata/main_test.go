@@ -379,8 +379,21 @@ func TestRunVersion(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("--version = %d, stderr=%q", code, errb)
 	}
-	if want := "fejkdata " + fejkdata.Version + "\n"; out != want {
-		t.Errorf("--version = %q, want %q", out, want)
+	if !strings.HasPrefix(out, "fejkdata "+fejkdata.Version) {
+		t.Errorf("--version = %q, want it to open with the release, fejkdata %s", out, fejkdata.Version)
+	}
+}
+
+func TestVersionLine(t *testing.T) {
+	for _, c := range []struct{ release, build, want string }{
+		{"v0.1.0", "v0.1.0", "fejkdata v0.1.0"},
+		{"v0.1.0", "v0.1.1-0.20261010120000-abcdef123456", "fejkdata v0.1.0 (v0.1.1-0.20261010120000-abcdef123456)"},
+		{"v0.1.0", "(devel)", "fejkdata v0.1.0 (devel)"},
+		{"v0.0.0", "", "fejkdata v0.0.0 (devel)"},
+	} {
+		if got := versionLine(c.release, c.build); got != c.want {
+			t.Errorf("versionLine(%q, %q) = %q, want %q", c.release, c.build, got, c.want)
+		}
 	}
 }
 
