@@ -402,3 +402,20 @@ Read most (opens and searches):
 - `data-import/geo-us.py` 1
 - `data-import/geo.py` 1
 - `data-import/tsv.py` 1
+
+## Reading cost, chunk c484375b01f5, finished 2026-10-09T10:53:55Z
+
+60588 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `README.md` 2
+- `docs/decisions.md` 2
+- `record.go` 2
+- `render.go` 2
+- `CHANGELOG.md` 1
+- `docs/comprehension-history.md` 1
+- `inline.go` 1
+- `reference.go` 1
+- `shipped.go` 1
