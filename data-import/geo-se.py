@@ -195,7 +195,8 @@ def main():
     tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [m for _, m in sorted(kept["municipality"].items())])
     tsv.write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
     tsv.write(out / "postal-code.tsv", ["code", "locality"], sorted(({"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in places.values() for c in l["codes"]), key=lambda r: r["code"]))
-    tsv.write(out / "street.tsv", ["name", "locality", "segments"], [s for locality in sorted(named) for s in named[locality]])
+    tsv.write(out / "street.tsv", ["name", "locality", "segments"], [s for locality in sorted(places) for s in named[locality]])
+
 
 if __name__ == "__main__":
     main()

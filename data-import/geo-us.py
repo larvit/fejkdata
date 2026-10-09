@@ -125,7 +125,7 @@ def localities(cache, min_population, counties):
     return out
 
 
-def postal_codes(cache, localities):
+def zcta_localities(cache, localities):
     """Each ZCTA whose largest part inside an incorporated place lies in a shipped place."""
     parts = {}
     for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
@@ -169,7 +169,7 @@ def main():
     print(f"counties without a population estimate, dropped: {dict(unestimated)}", file=sys.stderr)
 
     places = localities(cache, a.min_population, counties)
-    locality_of_zcta = postal_codes(cache, places)
+    locality_of_zcta = zcta_localities(cache, places)
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.streets_per_locality)
     zctas = collections.defaultdict(list)
     for zcta, locality in sorted(locality_of_zcta.items()):
@@ -184,7 +184,8 @@ def main():
     tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(kept["municipality"].items())])
     tsv.write(out / "locality.tsv", ["code", "name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
     tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], sorted(({"code": z, "locality": l, "addresses": addresses[z]} for l in places for z in zctas[l]), key=lambda r: r["code"]))
-    tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(named) for s in named[locality]])
+    tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(places) for s in named[locality]])
+
 
 if __name__ == "__main__":
     main()

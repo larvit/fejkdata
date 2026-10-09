@@ -76,13 +76,14 @@ def fence(regions, municipalities, localities, streets, postal_codes):
     """Meet the loader's fence that every parent row has a child row: keep each locality both streets and postal_codes
     hold a key for, then each municipality and region left with a child. regions and municipalities map a code to a
     row, and a municipality row names its region under "region". localities map a key to a locality row: name,
-    municipality, population, lat and lon, besides the columns its country adds. Returns the kept rows, then the dropped
-    rows, each a dict of the three tables by name."""
-    kept = {"locality": {k: l for k, l in localities.items() if k in streets and k in postal_codes}}
-    parents = {l["municipality"] for l in kept["locality"].values()}
-    kept["municipality"] = {c: m for c, m in municipalities.items() if c in parents}
-    parents = {m["region"] for m in kept["municipality"].values()}
-    kept["region"] = {c: r for c, r in regions.items() if c in parents}
+    municipality, population, lat and lon, besides the columns its country adds. streets and postal_codes map a locality's
+    key to its rows. Returns the kept rows, then the dropped rows, each a dict keyed by table: "locality", "municipality"
+    and "region"."""
+    kept = {"locality": {k: l for k, l in localities.items() if streets.get(k) and postal_codes.get(k)}}
+    municipality_codes = {l["municipality"] for l in kept["locality"].values()}
+    kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
+    region_codes = {m["region"] for m in kept["municipality"].values()}
+    kept["region"] = {c: r for c, r in regions.items() if c in region_codes}
     every = {"locality": localities, "municipality": municipalities, "region": regions}
     dropped = {table: {k: row for k, row in rows.items() if k not in kept[table]} for table, rows in every.items()}
     return kept, dropped
