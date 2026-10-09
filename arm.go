@@ -39,13 +39,13 @@ func splitArm(name string, refs map[string]resolvedRef) arm {
 			if resolved {
 				head = r.head
 			}
-			return arm{spelling: name, head: head, levels: levelKeys([]string{head}, 1)}
+			return pathArm(name, head, nil)
 		}
 		return pathArm(name, r.head, r.tail)
 	}
 	segs, err := grammar.SplitPath(name)
 	if err != nil || len(segs) == 1 {
-		return arm{spelling: name, head: name, levels: levelKeys([]string{name}, 1)}
+		return pathArm(name, name, nil)
 	}
 	return pathArm(name, segs[0], segs[1:])
 }
@@ -109,7 +109,7 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	target := targets[b]
 	full := append(target.tail[:len(target.tail):len(target.tail)], a.tail...)
-	if err := provePath(target.start, full, a.head); err != nil {
+	if err := provePath(target.start, full, a.head, len(target.tail)); err != nil {
 		return a, err
 	}
 	w := compilePath(target.start, full)

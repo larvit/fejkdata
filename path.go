@@ -69,13 +69,15 @@ const (
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
-// draw takes, and every leaf the path may render; head names where it starts in its errors.
+// draw takes, and every leaf the path may render. Its errors spell a level as head, then the
+// segments of tail after the first headSpans, which head already spells.
 type compiledPath struct {
-	pins   pinSet
-	head   string
-	tail   []string
-	steps  []pathStep
-	leaves []node
+	pins      pinSet
+	head      string
+	headSpans int
+	tail      []string
+	steps     []pathStep
+	leaves    []node
 }
 
 func (w *compiledPath) run(n node) (node, error) {
@@ -89,7 +91,7 @@ func (w *compiledPath) walk(n node, tail []string) (node, error) {
 			return w.walkEvery(c, at.tail)
 		}
 		var err error
-		if w.steps, err = compileStep(&at, w.tail, w.head, w.steps, &w.pins); err != nil {
+		if w.steps, err = compileStep(&at, w.tail, w.head, w.headSpans, w.steps, &w.pins); err != nil {
 			return nil, err
 		}
 	}
@@ -113,8 +115,8 @@ func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
-// path; head is the prefix an error puts before it.
-func compileStep(at *pathPos, whole []string, head string, steps []pathStep, pins *pinSet) ([]pathStep, error) {
+// path; an error spells a level of it as head, then the segments after the first headSpans.
+func compileStep(at *pathPos, whole []string, head string, headSpans int, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
 	case *table:
@@ -126,7 +128,7 @@ func compileStep(at *pathPos, whole []string, head string, steps []pathStep, pin
 		return routeSteps(steps, pins, x, r, i)
 	case *template:
 		if x.repeat > 1 && !grammar.IsSelector(at.tail[0]) {
-			return steps, repeatLevelError(join(head, grammar.JoinSegments(whole[:i])))
+			return steps, repeatLevelError(join(head, grammar.JoinSegments(whole[headSpans:i])))
 		}
 	}
 	next, err := childNamed(at.n, at.tail[0])
@@ -174,7 +176,7 @@ func callerPathSteps(n node, tail []string, steps []pathStep) ([]pathStep, error
 			continue
 		}
 		var err error
-		if steps, err = compileStep(&at, tail, "", steps, &pins); err != nil {
+		if steps, err = compileStep(&at, tail, "", 0, steps, &pins); err != nil {
 			return nil, err
 		}
 	}
@@ -339,8 +341,8 @@ func unreachableInChoice(c *choice, want string) error {
 	return fmt.Errorf("not every variant of this %d-way choice carries %q; all carry %v", len(c.items), want, offered)
 }
 
-func provePath(n node, tail []string, head string) error {
-	_, err := (&compiledPath{head: head, tail: tail}).run(n)
+func provePath(n node, tail []string, head string, headSpans int) error {
+	_, err := (&compiledPath{head: head, headSpans: headSpans, tail: tail}).run(n)
 	return err
 }
 
