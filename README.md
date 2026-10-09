@@ -59,17 +59,15 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
-| `--version` | print `fejkdata vX.Y.Z`, the release, then exit; a build not from a release tag adds its own version in parentheses, such as `(devel)` |
-| `-h`, `--help` | print, then exit |
+| `--version`, `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (missing
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
-template that does not compile. From a checkout:
-`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`. Install main's CLI from a checkout:
-`go install …/cmd/fejkdata@main` builds main's CLI on the last release's library and data.
+template that does not compile. Main's CLI runs from a checkout:
+`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`.
 
 ### Your own data
 
@@ -322,7 +320,6 @@ s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
-fejkdata.Version                          // "v0.1.0": the newest release, also in source committed since
 ```
 
 | Option | |
@@ -848,8 +845,10 @@ the output.
 
 ## Versioning
 
-Semver tags on `main`, `v0.1.0` first: `vX.Y.Z` tags the library and
-`cmd/fejkdata/vX.Y.Z` the CLI's module, both at one commit. One version covers the shipped data, the
+Semver tags, `v0.1.0` first: `vX.Y.Z` tags the library and `cmd/fejkdata/vX.Y.Z` the
+CLI's module, both on one release commit CI adds on top of `main`. `main` names no
+version, so `go get github.com/larvit/fejkdata@main` records a `v0.0.0-…` pseudo-version,
+which sorts below every release. One version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
@@ -989,7 +988,6 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
-version.go      Version, the newest release
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
@@ -1049,7 +1047,7 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/, Version and requires from CHANGELOG.md
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: shippedindex.go from data/
 docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy, the root module only
 ```
 
@@ -1120,11 +1118,12 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.p
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
 
-To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
-run `generate` above, and merge. `generate` sets `fejkdata.Version` and every module's
-`require` of another from that heading. Once `main` passes the gate, CI tags that commit
-`vX.Y.Z` for the library and `<dir>/vX.Y.Z` for every other module, publishes the GitHub release with the section as its body, then
-installs the CLI from its tag and renders one template. A top heading of `[Unreleased]`
+To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
+and merge. Once `main` passes the gate, CI adds a release commit on top of it, which
+makes each module require the modules it imports at that version. It tags that commit
+`vX.Y.Z` for the library and `<dir>/vX.Y.Z` for every other module, publishes the GitHub
+release with the section as its body, then installs the CLI from its tag and renders
+one template. A top heading of `[Unreleased]`
 publishes nothing.
 
 ## License

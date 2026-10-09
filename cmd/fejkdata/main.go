@@ -581,7 +581,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 	if in.version {
-		fmt.Fprintln(stdout, versionLine(fejkdata.Version, buildVersion()))
+		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
 		return 0
 	}
 	if err := in.check(); err != nil {
@@ -639,21 +639,10 @@ func misuse(stderr io.Writer, err error) int {
 	return 2
 }
 
-// versionLine names the release, and the build's own version where it is another, such as a checkout's.
-func versionLine(release, build string) string {
-	switch build {
-	case release:
-		return "fejkdata " + release
-	case "", "(devel)":
-		build = "devel"
-	}
-	return "fejkdata " + release + " (" + build + ")"
-}
-
-// buildVersion is the main module's version from the build info, "(devel)" under go run, or "" without build info.
+// buildVersion is the module version go install stamps into the binary, or "devel".
 func buildVersion() string {
-	if info, ok := debug.ReadBuildInfo(); ok {
+	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" {
 		return info.Main.Version
 	}
-	return ""
+	return "devel"
 }

@@ -66,8 +66,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Each module's packages and their dependencies
+        run: |
+          git archive HEAD | docker compose run --rm -T dev sh -c '
+            mkdir /tmp/src && tar -x -C /tmp/src && cd /tmp/src &&
+            go list -test -f "{{with .Module}}{{.Path}}{{range \$.Deps}} {{.}}{{end}}{{end}}" $(go list -m -f "{{.Dir}}/...")' > packages.txt
       - id: publish
-        run: python3 release-tooling/publish_release.py
+        run: python3 release-tooling/publish_release.py packages.txt
         env:
           FORGE_API_URL: ${{ github.api_url }}
           FORGE_REPOSITORY: ${{ github.repository }}

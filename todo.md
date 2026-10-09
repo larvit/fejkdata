@@ -78,7 +78,7 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
+| 183 | 0.1.0 | decision | **Fail `New` when a module's version is not exactly the core's, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
@@ -87,7 +87,6 @@
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 180 | 0.1.0 | decision | **Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.** | 6 | 6 | 5 | 8 | 13, 9.1 | 12.1 |
-| 191 | 0.1.0 | question | **Drop the clause "the workflow decided nothing, being portable already" from the decision "GitHub is canonical, and the module path names it", now that `publish_release.py` speaks GitHub's git refs API.** | 1 | 1 | 1 | 4 | 3 | 8.0 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -291,9 +290,9 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
-### 183. Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.
+### 183. Fail `New` when a module's version is not exactly the core's, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and `go generate` rewrites them from the changelog heading, as it rewrites `Version`.
+Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". `main` names no version, so `New` reads both versions from `debug.ReadBuildInfo()`'s `Deps`, the module named by the manifest's path, and skips the check where either is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records `Deps`; where it does not, the release commit also writes each manifest's version and a `fejkdata.Version` constant, which reads `(devel)` on `main`.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
@@ -325,19 +324,15 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 ### 180. Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.
 
-Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
+Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"module": path, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
 - Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
 - Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`", ending its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
 
-### 191. Drop the clause "the workflow decided nothing, being portable already" from the decision "GitHub is canonical, and the module path names it", now that `publish_release.py` speaks GitHub's git refs API.
-
-The prose review of item 179's chunk found the clause contradicts the revised decision "The changelog heading is the one spelling of a release; CI cuts one tag per module", which says the Gitea pull mirror runs no release. The decision predates that chunk, so the maintainer decides.
-
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` adds its VCS pseudo-version, or `(devel)` under `go run`, to the release it builds on; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build's `--version` prints its VCS pseudo-version, or `(devel)` under `go run`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
@@ -431,7 +426,7 @@ Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in 
 
 ### 190. Drop the README's install-from-a-clone note once v0.1.0 is tagged, so the README's install line is `go install …/cmd/fejkdata@latest` alone.
 
-Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, whose `require` of the core at `v0.0.0` no proxy serves.
+Until the first `cmd/fejkdata/v*` tag, `@latest` resolves the nested module at a pseudo-version of `main`, which requires no version of the core.
 
 ### 44. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 

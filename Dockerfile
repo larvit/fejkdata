@@ -4,7 +4,7 @@ FROM golang:${GO_VERSION} AS portable
 WORKDIR /app
 
 COPY . .
-# ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-no-published-gomod-carries-a-replace
+# ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-main-carries-no-require-of-one-module-by-another-nor-any-replace
 RUN pkgs="$(go list -m -f '{{.Dir}}/...')" && \
 	go vet $pkgs && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \

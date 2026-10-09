@@ -7,9 +7,7 @@
 Goal 1 wants the usage the tool earns and goal 3 expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
-a fork on a personal instance. Valid while the project wants contribution from outside:
-the workflow decided nothing, being portable already — `github.api_url` and
-`secrets.GITHUB_TOKEN` resolve on either host, so only the names moved.
+a fork on a personal instance. Valid while the project wants contribution from outside.
 
 ## The Gitea copy stays, as a pull mirror of GitHub
 
@@ -148,7 +146,7 @@ still lives in `data/`; `--data-path` layers over it.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
-- A module's manifest names the fejkdata version it was built for, and any version but the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. Every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change. Each shipped module requires the core at its own version.
+- A module whose version is not the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09. Every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs. A module from anyone else then needs a new release on every fejkdata release, even when its data did not change. Each shipped module's release commit requires the core at its own version.
 - Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
@@ -256,41 +254,43 @@ there, which is the `portable` stage, and never runs `gofmt` over this source, s
 latest toolchain alone defines the one canonical form goal 3 asks a reader to meet.
 Valid while the lowest supported Go is not the latest.
 
-## The changelog heading is the one spelling of a release; CI cuts one tag per module
+## The changelog heading is the one spelling of a release; CI tags a release commit for every module
 
-2026-09-16, Lilleman auf Larv; one tag per module from 2026-10-09. Serves goals 1.1 and 10.
+2026-09-16, Lilleman auf Larv; a release commit and one tag per module from 2026-10-09.
+Serves goals 1.1 and 10.
 
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
-instead: the tags can land only there, and the GitHub release the same job publishes
-keeps one text as its body and is where prebuilt binaries will attach.
+instead: the tags can land only on top of it, and the GitHub release the same job
+publishes keeps one text as its body and is where prebuilt binaries will attach.
 
-Every Go module gets its tag at that commit, `vX.Y.Z` for the root and `<dir>/vX.Y.Z`
-for the rest, because `go` resolves a nested module's version only from a tag carrying
-its directory. CI checks every tag before it creates any, so a tag at another commit
-burns the version whole. A version already released publishes nothing. `fejkdata.Version`
-and every module's `require` of another equal the newest versioned heading, which a
-gate test checks and `go generate` writes, so the heading stays the one decision.
-`publish_release.py` speaks GitHub's git refs API; the Gitea pull mirror runs no release.
+The heading is the only place a version is written. CI adds a release commit on top of
+the merged one, which writes each module's `require` of the modules it imports at that
+version, and tags it `vX.Y.Z` for the root and `<dir>/vX.Y.Z` for the rest, because `go`
+resolves a nested module's version only from a tag carrying its directory. The release
+commit stays off `main`, so `main`'s pseudo-versions read `v0.0.0-…`. CI checks every
+tag before it creates any, so a tag on anything but a release commit of the merged one
+burns the version whole. A version already released publishes nothing.
+`publish_release.py` speaks GitHub's git data API; the Gitea pull mirror runs no release.
 The install check runs after tagging: a rehearsal before it would install from module
 zips the release tooling builds, which tests that tooling, not the path `go install` takes.
 
-## The modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`
+## The modules develop in one committed `go.work`, and `main` carries no `require` of one module by another, nor any `replace`
 
-2026-10-09, Lilleman auf Larv. Serves goals 1.1 and 2.3.
+2026-10-09, Lilleman auf Larv. Serves goals 1.1, 2.3 and 3.2.
 
-`go install …@vX.Y.Z` refuses a module whose `go.mod` holds a `replace`, so `go.work`
-alone joins the modules in a checkout, and a gate test refuses a `replace`. A module's
-`require` of another names the newest release. On the commit that cuts a release, no
-proxy serves that version until CI tags it, and before the first release none serves
-`v0.0.0`, so no gate step may resolve one outside `go.work`: no `go mod download`, no `go mod
-tidy` outside the root, and no `github.com/larvit/fejkdata/...` pattern. `./...` stops at
-a nested module, so every gate command runs over `go list -m -f '{{.Dir}}/...'`. A
-nested module needs no `go.sum` line for the core: `go install …@vX.Y.Z` fetches and
-verifies it, which CI's install job checks once the tags exist. Before the first tag,
-`go install …/cmd/fejkdata@latest` fails on that `require`, so the README's install line
-says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note once
-v0.1.0 is tagged.
+`go.work` makes every module it uses a main module, so on `main` one module imports
+another with no `require`, and nothing there names a version to keep in step: the
+release commit writes the requires. A gate test refuses such a `require` on `main`, and
+a `replace` anywhere, since `go install …@vX.Y.Z` refuses a module carrying one.
+`./...` stops at a nested module, so every gate command runs over
+`go list -m -f '{{.Dir}}/...'`, and `go mod tidy` runs on the root only, where it would
+otherwise write a require. A nested module needs no `go.sum` line for the core:
+`go install …@vX.Y.Z` fetches and verifies it, which CI's install job checks once the
+tags exist. `go install …/cmd/fejkdata@main` cannot build, so main's CLI installs from a
+checkout. Before the first tag `@latest` resolves `main` too, so the README's install
+line says to install from a clone until v0.1.0, and `todo.md` item 190 drops that note
+once v0.1.0 is tagged.
 
 Valid while the repository holds more than one Go module.
 

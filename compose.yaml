@@ -11,7 +11,7 @@ x-go: &go
     REPIN: ${REPIN:-}
 
 services:
-  # ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-no-published-gomod-carries-a-replace
+  # ./... stops at a nested module: docs/decisions.md#the-modules-develop-in-one-committed-gowork-and-main-carries-no-require-of-one-module-by-another-nor-any-replace
   test:
     <<: *go
     command: sh -c 'go test -race $$(go list -m -f "{{.Dir}}/...")'
