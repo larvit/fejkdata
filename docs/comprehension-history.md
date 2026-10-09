@@ -41,3 +41,24 @@ Inherited architect, decided by:
 - `pick.go:9` `pickKey`: a pick-key bug needs one file, where it needed four and the vocabulary
 - `render.go:155` `readField`: one named predicate, `keptInPick`, states the keep rule
 - `path.go:72` `compiledPath`: `headSpans` is the costliest new read in the diff
+
+## 2026-10-09T09:30:15Z, PR #190 at d9f0fc9, against ee4b40b
+
+Ruling: better
+
+| Seat | Vote |
+|---|---|
+| Mid A | better |
+| Inherited architect | better |
+
+Mid A, decided by:
+
+- `pick.go:9` `pickKey`: the definitions and the code building and reading the keys share one file
+- `render.go:155` `readField`: `keptInPick` holds the whole keep rule and its own nil check
+- `path.go:74` `compiledPath`: `headSpans` and the bare 0 its callers pass cost a second read
+
+Inherited architect, decided by:
+
+- `pick.go:9` `pickKey`: the 3am mechanism reads in one file, in reading order
+- `datatype.go:217` `columnRead`: beside its consumers, and `node.go:70` names its four readers
+- `path.go:119` `compileStep`: six parameters, the one place that reads harder
