@@ -237,7 +237,7 @@ func paths(n node, intoRepeats bool) []string {
 			out = appendUnder(out, name, paths(n.children[name], intoRepeats))
 		}
 		for _, name := range sortedNames(n.unloaded) {
-			out = appendUnder(out, name, n.unloaded[name].paths)
+			out = appendUnder(out, name, n.unloaded[name].entry.Paths)
 		}
 		return out
 	case *template:

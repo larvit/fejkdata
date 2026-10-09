@@ -140,7 +140,7 @@ still lives in `data/`; `--data-path` layers over it.
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 180, 181, 182, 184, 185 and 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 182, 184, 185 and 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -154,21 +154,24 @@ still lives in `data/`; `--data-path` layers over it.
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
-## With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
+## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads and every indexed category reaching what it replaces
 
-2026-10-03, a restructure the maintainer approved.
+2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
 
-Goal 13: `New` pays nothing for a category a run never reaches, which matters once the
-shipped set grows to hundreds of MB. A category loads with every category it references
-and its whole table family, and binds as a whole load does, so it renders the same as
-after a whole load. `List` reads `shippedindex.go`, which `go generate` writes from
-`data/`; `TestShippedIndexIsCurrent` fails while the index is stale. CI loads the whole
-shipped set, and each shipped category alone into a fresh `New`, so none fails at first
-reach.
+Goal 13: `New` pays nothing for a category a run never reaches. A manifest,
+`.fejkdata.json` at a source's root, may carry an index: each category's parent table,
+the paths `List` advertises below it and the categories its templates reference. A
+category of an indexed source loads with every category it references and its whole
+table family, and binds as a whole load does, so it renders the same as after a whole
+load. `go generate` writes the shipped set's manifest from `data/`;
+`TestShippedManifestIsCurrent` fails while it is stale. CI loads the whole shipped set,
+and each shipped category alone into a fresh `New`, so none fails at first reach.
 
-Goal 6: beside a `--data-path`, `WithDataPath` or `WithDataFS`, every category loads in
-`New`, so each mistake in the user's data is `New`'s error. That parses the whole shipped
-set, against goal 13, until `todo.md` item 180 ends it.
+Goal 6: a source without an index loads whole in `New`, so each mistake in it is `New`'s
+error. So does every indexed category it reads, and every indexed category leading
+through references or table links to one that it or any later source replaced, so a
+replacement breaking a reader fails `New`. Goal 6.3: an indexed source from anyone else
+may fail at first reach; `Fake` then returns the load's error, the same every call.
 
 Valid while CI proves the shipped set whole and each category alone.
 

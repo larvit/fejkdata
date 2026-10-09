@@ -84,13 +84,15 @@ func inputValue(input string) jsonvalue.Value {
 	return raw
 }
 
-// loadInline loads the shipped categories n reads, then runs n through the pipeline against root.
+// loadInline loads the unloaded categories n reads, then runs n through the pipeline against root.
 func loadInline(root *folder, n node, label string, typedByGo bool) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	loadShipped(root, unloadedReads(root, nil, nodes))
+	if err := loadReached(root, nil, referenced(root, nil, nodes)); err != nil {
+		return err
+	}
 	return pipeline{
 		nodes:     nodes,
 		resolve:   func() error { return resolveInlineTemplates(nodes, root.children) },

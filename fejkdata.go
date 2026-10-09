@@ -24,7 +24,7 @@ var _ [^uint(0)>>63 - 1]struct{}
 // It is safe for concurrent use; a seeded sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
-	// mu guards drawState, structs and root, which gains a shipped category on the
+	// mu guards drawState, structs and root, which gains an indexed category on the
 	// first call reaching it.
 	mu        sync.Mutex
 	drawState *drawstate.State
@@ -71,8 +71,10 @@ func WithoutShippedData() Option {
 // in order with the last winning a name clash. Each JSON file becomes a category
 // named after the file (address.json -> "address") and each subdirectory a
 // namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
-// generator with no data at all renders templates that read none. With only the shipped data, a category loads on the first call
-// reaching it; with WithDataPath or WithDataFS, every category loads here.
+// generator with no data at all renders templates that read none. A source whose
+// .fejkdata.json carries an index, as the shipped set's does, loads each category on the
+// first call reaching it. Every other source loads here, with what it reads and every
+// indexed category reaching what it replaces.
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {
@@ -89,18 +91,14 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
-// load builds the tree New starts from. docs/decisions.md#with-only-the-shipped-set-a-category-loads-on-the-first-call-reaching-it-beside-a---data-path-every-category-loads-in-new
+// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads-and-every-indexed-category-reaching-what-it-replaces
 func (c config) load() (folder, error) {
-	if c.shipped && len(c.sources) == 0 {
-		return unloadedTree(), nil
-	}
 	var sources []datafiles.Source
 	if c.shipped {
 		sources = append(sources, shippedSource)
 	}
 	sources = append(sources, c.sources...)
-	cats, err := loadData(sources)
-	return folder{children: cats}, err
+	return loadSources(sources)
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,

@@ -2,11 +2,17 @@
 package datafiles
 
 import (
+	"bytes"
+	"embed"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
@@ -54,6 +60,84 @@ func (s Source) dirPath(dir []string) string {
 		return p
 	}
 	return "."
+}
+
+// ManifestFile is the file at a source's root that describes the source.
+const ManifestFile = ".fejkdata.json"
+
+// Manifest is what a source's manifest says of it.
+type Manifest struct {
+	// Index is every category of the source by dot path; nil where the manifest has none.
+	Index map[string]IndexEntry `json:"index"`
+}
+
+// IndexEntry is what an index says of a category: its parent table, "" for none, the paths
+// List advertises below it, and the categories its templates reference.
+type IndexEntry struct {
+	Parent string   `json:"parent,omitempty"`
+	Paths  []string `json:"paths"`
+	Reads  []string `json:"reads,omitempty"`
+}
+
+// embeddedManifests holds each manifest read from an embed.FS, whose files never change.
+var embeddedManifests sync.Map
+
+type embeddedManifest struct {
+	fsys embed.FS
+	base string
+}
+
+// Manifest reads the manifest at the source's root, the zero Manifest where there is none.
+func (s Source) Manifest() (Manifest, error) {
+	e, embedded := s.fsys.(embed.FS)
+	key := embeddedManifest{fsys: e, base: s.base}
+	if m, read := embeddedManifests.Load(key); embedded && read {
+		return m.(Manifest), nil
+	}
+	m, err := s.readManifest()
+	if embedded && err == nil {
+		embeddedManifests.Store(key, m)
+	}
+	return m, err
+}
+
+func (s Source) readManifest() (Manifest, error) {
+	if s.onDisk && s.label == "" {
+		return Manifest{}, nil // Walk refuses the empty data path
+	}
+	full := path.Join(s.base, ManifestFile)
+	b, err := fs.ReadFile(s.fsys, full)
+	if errors.Is(err, fs.ErrNotExist) {
+		return Manifest{}, nil
+	}
+	if err != nil {
+		return Manifest{}, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	m, err := decodeManifest(b)
+	if err != nil {
+		return Manifest{}, fmt.Errorf("%s: %w", s.labelled(full), err)
+	}
+	return m, nil
+}
+
+func decodeManifest(b []byte) (Manifest, error) {
+	dec := json.NewDecoder(bytes.NewReader(b))
+	dec.DisallowUnknownFields()
+	var m Manifest
+	if err := dec.Decode(&m); err != nil {
+		return Manifest{}, err
+	}
+	if _, err := dec.Token(); err != io.EOF {
+		return Manifest{}, fmt.Errorf("more than one JSON value")
+	}
+	for p := range m.Index {
+		for _, seg := range strings.Split(p, ".") {
+			if err := grammar.CheckIdentifier(seg); err != nil {
+				return Manifest{}, fmt.Errorf("index names %q: %w", p, err)
+			}
+		}
+	}
+	return m, nil
 }
 
 // Walk hands compile every category of the tree, folders and files in name order. A

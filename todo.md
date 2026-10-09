@@ -86,7 +86,6 @@
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
-| 180 | 0.1.0 | decision | **Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.** | 6 | 6 | 5 | 8 | 13, 9.1 | 12.1 |
 | 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 1 | 3 | 6 | 10 | 11.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
@@ -182,7 +181,7 @@ Needs item 182, which moves the paths under `data/` this item writes. Pick the t
 
 ### 182. Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.
 
-Needs item 180. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
 - Each package's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
 - The package `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data package; the core imports none, so a library links only the data it imports.
 - The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
@@ -192,7 +191,7 @@ Needs item 180. Carries out the decision "The shipped data is Go packages a libr
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, and the error naming the import set. Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -299,7 +298,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
-Needs item 180. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
@@ -324,14 +323,6 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
-
-### 180. Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
-- `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
-- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
-- Core tests move to `fstest.MapFS` fixtures carrying manifests.
-- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`", ending its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
 
 ### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
 
