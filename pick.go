@@ -14,12 +14,13 @@ import (
 // fresh read, the template it sits in. Load gives each read one key per level, in levelKeys.
 //
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
-// binding lands on onward; load gathers them in addressedKeys. A fresh read rendering in a pick
-// is kept in it only where its first level, moved under the key of what renders, is addressed:
-// keptInPick, then readUnder.
+// binding lands on onward; load gathers them in addressedKeys. When a template a pick renders
+// reads a field, such as the {first} that {p} renders, the pick keeps that read's value only if
+// the read's first-level key, put under the rendering template's key, is one of the name's
+// addressed keys. keptInPick decides this, and readUnder reads it.
 //
 // In data/geo/SE/address.json, {.locality as l} binds l, and {l.street.name} passes the levels
-// "", "street" and "street.name", the last its key. With {l.name} and {l.postal-code.code},
+// "", "street" and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code},
 // l's addressed keys are those three, "name", "postal-code" and "postal-code.code". Where p
 // binds a category whose format reads {first}, and both {p} and {p.first} are read, the {first}
 // that {p} renders has the key "first" under {p}'s key "". {p.first} addresses "first", so both

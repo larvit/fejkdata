@@ -69,8 +69,8 @@ const (
 // compiledPath walks a path and proves it reaches a node whichever way the draws go: every
 // variant of a choice carries the rest of it, and is walked, a selector names a row inside the
 // rows selected before it, and no level read carries a repeat. Once run, it holds the steps a
-// draw takes, and every leaf the path may render. Its errors spell a level as head, then the
-// segments of tail after the first headSpans, which head already spells.
+// draw takes, and every leaf the path may render. headSpans is how many of tail's first segments
+// head stands for. An error names a level as head, then tail's segments after those, up to that level.
 type compiledPath struct {
 	pins      pinSet
 	head      string
@@ -115,7 +115,7 @@ func (p pathPos) more() bool { return len(p.tail) > 0 || p.fromRow }
 
 // compileStep takes the first step of at.tail from at.n, which must not be a choice, moves at past
 // it, and appends the step to steps: a field, or the route through a table. whole is the full
-// path; an error spells a level of it as head, then the segments after the first headSpans.
+// path; head and headSpans spell an error's level, as in compiledPath.
 func compileStep(at *pathPos, whole []string, head string, headSpans int, steps []pathStep, pins *pinSet) ([]pathStep, error) {
 	i := len(whole) - len(at.tail)
 	switch x := at.n.(type) {
