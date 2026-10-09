@@ -385,3 +385,20 @@ Read most (opens and searches):
 - `doc_test.go` 1
 - `node.go` 1
 - `render.go` 1
+
+## Reading cost, chunk 3374028f1e29, finished 2026-10-09T10:35:44Z
+
+69756 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `README.md` 3
+- `docs/decisions.md` 3
+- `CHANGELOG.md` 2
+- `AGENTS.md` 1
+- `compose.yaml` 1
+- `data-import/geo-se.py` 1
+- `data-import/geo-us.py` 1
+- `data-import/geo.py` 1
+- `data-import/tsv.py` 1
