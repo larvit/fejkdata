@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 def write(path, columns, rows):
-    """Write the rows as a TSV of at least one row, each cell stripped, non-empty and free of tabs, newlines and braces."""
+    """Write the rows as a TSV of a header and at least one row, each cell stripped, non-empty and free of tabs, newlines and braces."""
     lines = ["\t".join(columns)]
     for row in rows:
         cells = [str(row[c]).strip() for c in columns]

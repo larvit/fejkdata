@@ -160,10 +160,10 @@ it to a name and read the name
 
 ## Data
 
-The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`),
-a `geo` folder holding a tree of places per country (`SE`, `US`), and a
-locale-neutral `misc` folder — is embedded, so the CLI and the library work with
-no data on disk. A directory is a namespace: each JSON file is a category named
+The shipped set under [`data/`](data) is embedded, so the CLI and the library
+work with no data on disk. It holds one folder per locale (`en_US`, `sv_SE`), a
+`geo` folder with a tree of places per country (`SE`, `US`), and a
+locale-neutral `misc` folder. A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json`
 is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
@@ -1018,7 +1018,7 @@ internal/proven/ what a proof knows of a value, and the bounds a calc takes from
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
-docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores of how readable the code is, and what each change cost to read
+docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading
 testdata/       the pinned shipped shape (see Versioning)
 ```
