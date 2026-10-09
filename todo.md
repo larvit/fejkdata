@@ -276,7 +276,7 @@ The decision "comprehension floor: every dimension and the overall at 7.0 or abo
 
 ### 164. Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.
 
-The maintainer answered item 162 on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. Revise that decision's title and the README's Names list with it.
+The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. Revise that decision's title and the README's Names list with it.
 
 ### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
 
@@ -292,7 +292,7 @@ All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the 
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
-The maintainer answered item 162 on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, because the ambiguity error lists rows by key; `country[Sweden]` means one row where names are unique.
+The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, since its error for a name matching several rows lists them by key.
 
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
@@ -304,7 +304,7 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
-The maintainer answered item 162 on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table; a path naming such a key still fails to parse.
+The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table.
 
 ### 10. Test that every node kind reaches each switch over node kinds.
 

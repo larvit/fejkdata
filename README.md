@@ -544,16 +544,22 @@ in a cell draws digits and `{/misc.uuid}` reads a reference, while `{name}` in a
 is refused, since a cell has no sibling. Each cell may select its own row of another
 table, `{/misc.currency[SEK].symbol}` on one row and `{/misc.currency[EUR].symbol}`
 on the next, since only one row renders. `New` proves the header, the options and every
-cell token, and refuses a JSON key other than `format`, `rows`, `key`, `name`, `weight` and `parent`,
-which could be a field or an option a table does not take, a key that is empty or repeats, a weight that is negative, not
-a number or too close to `0` to tell from it, every weight `0` across the table or inside one parent row, and a key or name holding `[`, `]`, `{`, `}`,
-`"` or `|`, which a selector cannot spell; `New` maps the keys, and a name or parent column
-is mapped on the first draw that selects by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
+cell token, and refuses:
+
+- a JSON key other than `format`, `rows`, `key`, `name`, `weight` and `parent`, which could
+  be meant as a field or as an option a table does not take;
+- a key cell that is empty or repeats;
+- a weight that is negative, not a number, or too close to `0` to tell from it;
+- every weight `0`, across the table or inside one parent row;
+- a key or name holding `[`, `]`, `{`, `}`, `"` or `|`, which a selector cannot spell.
+
+`New` maps the keys, and a name or parent column is mapped on the first draw that selects
+by name or descends through the table. A `name` needs a `key`, since a name naming several rows is reported by
 their keys, or a `parent`, inside whose row a name names one row, so `first-name[Kim]`
 is settled by the `sex` selected before it and a name repeating inside one parent row
 is refused; a name spelling another row's key is refused, since the key would
-select first and the name never. The table's options are its own — `rows`, `key`,
-`name`, `weight` and `parent` — so a column may be named `name`, as one usually is.
+select first and the name never. A table's options are its own, so a column may be named
+`name`, as one usually is.
 
 ### Row selection
 
@@ -787,8 +793,8 @@ Refused at `New`, each error naming what to write instead:
 - a read of a name inside the field bound to it: read it outside that field;
 - reading a name outside the choice item that binds it, since the other items leave it
   unbound;
-- a path through a name that selects a row, which could mean that row whatever the name
-  picked, or that row only inside it;
+- a path through a name that selects a row, since it could mean that row whatever the name
+  picked, or that row only where the name's pick holds it;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;
 - a binding in a table's format or cell.
