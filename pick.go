@@ -2,12 +2,28 @@ package fejkdata
 
 import (
 	"github.com/larvit/fejkdata/internal/drawstate"
+	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// pickKey is a level's path of segments from a root keyed "": for a named read, the node its
-// name's target starts at; for a fresh read, the template it sits in. under moves a fresh read's
-// key into the pick it renders in.
+// pickKey is the key a named pick's memo keeps one level's draw under.
+//
+// A level is a prefix of a read's path, from where it starts to its leaf; a choice and the
+// variant drawn from it, or a table and its row, share one. A level's key is its path of
+// segments from a root keyed "": for a named read, the node its name's target starts at; for a
+// fresh read, the template it sits in. Load gives each read one key per level, in levelKeys.
+//
+// A name's addressed keys are the keys some read of it lands on or passes, from the level its
+// binding lands on onward; load gathers them in addressedKeys. A fresh read rendering in a pick
+// is kept in it only where its first level, moved under the key of what renders, is addressed:
+// keptInPick, then readUnder.
+//
+// In data/geo/SE/address.json, {.locality as l} binds l, and {l.street.name} passes the levels
+// "", "street" and "street.name", the last its key. With {l.name} and {l.postal-code.code},
+// l's addressed keys are those three, "name", "postal-code" and "postal-code.code". Where p
+// binds a category whose format reads {first}, and both {p} and {p.first} are read, the {first}
+// that {p} renders has the key "first" under {p}'s key "". {p.first} addresses "first", so both
+// read one draw.
 type pickKey string
 
 // under is rel, a key from a fresh read's levels, moved under k, the key of what renders. It never
@@ -17,6 +33,59 @@ func (k pickKey) under(rel pickKey) pickKey {
 		return rel
 	}
 	return k + "." + rel
+}
+
+// levelKeys is the key of each prefix of path holding at least from segments, shortest first.
+func levelKeys(path []string, from int) []pickKey {
+	levels := make([]pickKey, len(path)-from+1)
+	for i := range levels {
+		levels[i] = pickKey(grammar.JoinSegments(path[:from+i]))
+	}
+	return levels
+}
+
+// addressedKeys is every key the reads of each name in ts land on or pass, from the name's own
+// level, with the spelling of the first read reaching it.
+func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
+	keys := map[*nameBinding]map[pickKey]string{}
+	for _, s := range ts {
+		for _, r := range namedReads(s.t) {
+			b := r.a.named
+			if keys[b] == nil {
+				keys[b] = map[pickKey]string{}
+			}
+			for _, key := range r.a.levels[len(targets[b].tail):] {
+				if _, seen := keys[b][key]; !seen {
+					keys[b][key] = r.a.spelling
+				}
+			}
+		}
+	}
+	return keys
+}
+
+// keptInPick reports whether a, a fresh read rendering in env.pick, is kept in it: a reads a
+// field, and a read of the pick's name addresses the level a starts at.
+func keptInPick(env renderEnv, a arm) bool {
+	if env.pick == nil || grammar.IsRef(a.head) {
+		return false
+	}
+	_, kept := env.pick.named.addressed[env.pickAt.under(a.levels[0])]
+	return kept
+}
+
+// readUnder reads a, an arm of t kept in env.pick, once per pick, keyed by a's key under env.pickAt.
+func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
+	p, key := env.pick, env.pickAt.under(a.key())
+	if r, done := p.memo.value[key]; done {
+		return r
+	}
+	levels := make([]pickKey, len(a.levels))
+	for i, l := range a.levels {
+		levels[i] = env.pickAt.under(l)
+	}
+	leaf, pins := p.draw(s, t.startOf(a.head), a.steps, levels)
+	return p.renderAt(s, leaf, pins, key, env)
 }
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
@@ -122,22 +191,6 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	r := p.renderAt(s, leaf, pins, a.key(), env)
 	env.frames.pop(mark)
 	return r
-}
-
-// readUnder reads a, an arm of t, once per pick: t renders in env.pick at env.pickAt, and a read of
-// the name addresses the level a starts at. It keys the value by a's key under env.pickAt.
-func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
-	p, key := env.pick, env.pickAt.under(a.key())
-	if r, done := p.memo.value[key]; done {
-		return r
-	}
-	levels := make([]pickKey, len(a.levels))
-	for i, l := range a.levels[:len(levels)-1] {
-		levels[i] = env.pickAt.under(l)
-	}
-	levels[len(levels)-1] = key
-	leaf, pins := p.draw(s, t.startOf(a.head), a.steps, levels)
-	return p.renderAt(s, leaf, pins, key, env)
 }
 
 // draw draws the path from start under p, keeping the variant drawn at each of levels, whose last

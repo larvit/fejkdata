@@ -73,23 +73,17 @@
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 153 | 0.1.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once items 10, 148 and 151 have merged, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 145 | 0.1.0 |  | **Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.** | 2 | 3 | 1 | 9 | 3.4, 3.2 | 15.4 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 10 | 0.1.0 |  | **Test that every node kind reaches each switch over node kinds.** | 1 | 3 | 2 | 6 | 3.2 | 13.1 |
 | 148 | 0.1.0 |  | **State in `geo.py` the locality row each country's script hands it, and meet the fence that every parent row has a child row in one shared step.** | 2 | 3 | 2 | 6 | 2.1, 3.2 | 12.6 |
-| 146 | 0.1.0 |  | **Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.** | 1 | 2 | 1 | 6 | 3.1, 3.2 | 11.3 |
-| 147 | 0.1.0 |  | **Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only a prefix of a read's path, and `checkCells`' new name says it compiles.** | 1 | 2 | 1 | 6 | 3.3 | 11.3 |
 | 151 | 0.1.0 |  | **Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
-| 149 | 0.1.0 |  | **Say in one line what `config.load` does and what the 64-bit assertion asserts, beside their decision links.** | 1 | 1 | 1 | 5 | 3.4 | 9.8 |
-| 150 | 0.1.0 |  | **Move `columnRead` and `columnReadOf` from `resolve.go` into `datatype.go`, and state at `template.readsColumn` that `renderLeaf`, `proveColumnItem` and `itemDatatype` change with it.** | 1 | 2 | 1 | 5 | 3.1, 3.2 | 9.5 |
-| 152 | 0.1.0 |  | **Delete the doc lines that restate their code.** | 1 | 2 | 1 | 5 | 3.4 | 9.5 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -270,7 +264,7 @@ The README's Audience names a bulk fixture author writing millions of rows, and 
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
 
-### 153. Run the nine-seat comprehension panel and the scoring run again once items 145 to 152 and item 10 have merged, and file what the panel names.
+### 153. Run the nine-seat comprehension panel and the scoring run again once items 10, 148 and 151 have merged, and file what the panel names.
 
 The decision "comprehension floor: every dimension and the overall at 7.0 or above" holds the scores this run is measured against.
 
@@ -285,10 +279,6 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 77, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
-
-### 145. Move `doc.go`'s definitions of a level, a pick key and an addressed key, with their worked example, to `pickKey` in `pick.go`, and gather `levelKeys`, `addressedKeys`, `renderEnv.keeps` and `readField`'s kept read beside `readUnder`, so a reader follows a named read in one file.
-
-All 13 seats of the 2026-10-07 panel and scoring run on ad59967 again named the named-pick read path hardest, and twelve kept `doc.go`'s vocabulary open beside `pick.go`, `env.go` and `namefence.go` to follow it. Load builds a pick key in `levelKeys` (`arm.go`) and `addressedKeys` (`name.go`), and render builds the same key in `keeps` (`env.go`) and `readUnder` (`pick.go`); five seats named the two sides agreeing by hand as the unit they least want to change. `readUnder`'s loop stops one level short and its next line builds that level's key the same way, which one seat searched for a difference. Update the README's Layout block, and leave `doc.go` a one-line entry per term naming `pickKey`.
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
@@ -314,29 +304,9 @@ Today nine, from `render` to `columnItems`, must agree, and only `render` and `r
 
 Needed by item 61. The extender seat of the 2026-10-07 panel on ad59967, reading for item 61, rebuilt the row's keys, `name`, `municipality`, `population`, `lat`, `lon` and `codes`, from `geo-se.py` and `geo-us.py` side by side. It found the fence met two ways: `geo-se.py`'s `main` exits on a kommun with no locality, while `geo-us.py`'s `main` prunes counties and regions left with none.
 
-### 146. Move `sharedPaths` and `subPaths` from `list.go` beside `carriedByAll` in `path.go`, and `join` beside `sortedNames` in `sorted.go`.
-
-Three architect seats of the 2026-10-07 panel and scoring run on ad59967 found that `sharedPaths` fills `choice.shared` in `node.go`, which `carriedByAll` reads to accept or refuse every path through a choice, so `List`'s file decides which paths compile; `join` serves `list.go`, `data.go`, `graph.go` and `path.go`.
-
-### 147. Rename `namedNode`, `compiledPath.level` and `checkCells`, so "named" means bound to a name, "level" means only a prefix of a read's path, and `checkCells`' new name says it compiles.
-
-`namedNode` in `graph.go` is a child and its segment, beside `namedRead` and `namedPick`, which go through a bound name; `compiledPath.level` is an error's label, where a level is a prefix of a read's path; `checkCells` compiles each cell and stores it in `cellTemplates`. Three seats of the 2026-10-07 panel and scoring run on ad59967 named the first two, and four named `checkCells`.
-
 ### 151. Load a caller's path and walk it in one `Generator` method, so no entry point walks the root before the shipped category the path names has loaded.
 
 `Fake` and `FakeRecord` each call `loadShippedAt` before they walk, and its doc asks the next entry point to do the same. The greenfield architect of the 2026-10-07 panel on ad59967 named it the one corner a new senior would break without warning. A test passing `WithDataPath` would not catch it, because then `New` loads every category.
-
-### 149. Say in one line what `config.load` does and what the 64-bit assertion asserts, beside their decision links.
-
-Five seats of the 2026-10-07 panel and scoring run on ad59967 met a bare decision link where a definition belonged: `config.load` in `fejkdata.go` has only the link as its doc, and `var _ [^uint(0)>>63 - 1]struct{}` only a link beside it.
-
-### 150. Move `columnRead` and `columnReadOf` from `resolve.go` into `datatype.go`, and state at `template.readsColumn` that `renderLeaf`, `proveColumnItem` and `itemDatatype` change with it.
-
-Two seats of the 2026-10-07 scoring run on ad59967 found `readsColumn` changing what `renderLeaf`, `proveColumnItem` and `itemDatatype` do, and found that by grep; `columnReadOf`, which sets it, sits in `resolve.go`, apart from all three.
-
-### 152. Delete the doc lines that restate their code.
-
-Named by seats of the 2026-10-07 panel and scoring run on ad59967: `Children` in `internal/rows/rows.go`, `spelled` in `name.go`, the line in `graph.go` saying a folder has no edges, the Dockerfile's "Module layer cached separately from source." and `compose.yaml`'s "Interactive shell for ad-hoc work".
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -509,7 +479,7 @@ In `internal/rows`, `Pins.PinRow` names `t.path` and `Pins.MustRow` panics with 
 
 ### 115. Spell a rows file's line one way in every error, naming the file.
 
-Today a cell reads `g.t.b, line 3` (`namedNode.labelIn`), a cell check `t.tsv: line 3, b` (`checkCells`) and a link `t.tsv line 3` (`rows.Table.Link`). A reference cycle found from a table's format through a cell names no line at all: `reference cycle: g.t -> format -> b -> b -> /h -> …`, where the column-to-cell step in `renderEdges` repeats the column name.
+Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.tsv: line 3, b` (`compileCells`) and a link `t.tsv line 3` (`rows.Table.Link`). A reference cycle found from a table's format through a cell names no line at all: `reference cycle: g.t -> format -> b -> b -> /h -> …`, where the column-to-cell step in `renderEdges` repeats the column name.
 
 ### 14. Spell `misc.creditcard`'s digit runs `{digits(n)}`.
 
@@ -545,7 +515,7 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 
 ### 116. Turn a row index into its rows file's line in one function.
 
-Today `namedNode`'s cell line in `graph.go`, `table.checkCells` and each site in `internal/rows` add the header line and the one-based count.
+Today `containedNode`'s cell line in `graph.go`, `table.compileCells` and each site in `internal/rows` add the header line and the one-based count.
 
 ### 56. Build on a manual run of `test.yml`.
 

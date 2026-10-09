@@ -109,7 +109,6 @@ func (sc *nameScope) bindAll(t *template, where string) error {
 	return nil
 }
 
-// spelled names the scope in an error.
 func (sc *nameScope) spelled() string {
 	if k := sc.kind(); k != scopeCategory {
 		return "in one " + k.String()
@@ -268,24 +267,4 @@ func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
 		}
 	}
 	return targets
-}
-
-// addressedKeys is every key the reads of each name in ts land on or pass, from the name's own
-// level, with the spelling of the first read reaching it.
-func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*nameBinding]map[pickKey]string {
-	keys := map[*nameBinding]map[pickKey]string{}
-	for _, s := range ts {
-		for _, r := range namedReads(s.t) {
-			b := r.a.named
-			if keys[b] == nil {
-				keys[b] = map[pickKey]string{}
-			}
-			for _, key := range r.a.levels[len(targets[b].tail):] {
-				if _, seen := keys[b][key]; !seen {
-					keys[b][key] = r.a.spelling
-				}
-			}
-		}
-	}
-	return keys
 }

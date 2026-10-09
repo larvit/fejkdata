@@ -3,7 +3,6 @@ FROM golang:${GO_VERSION} AS portable
 
 WORKDIR /app
 
-# Module layer cached separately from source.
 COPY go.mod ./
 RUN go mod download
 
