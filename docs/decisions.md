@@ -836,7 +836,7 @@ name from its pick's memo, so `{n}` and `{n.path}` read one pick of each name in
 reference or `Fake` fresh ones.
 
 A name is a closure. It reaches every field, choice item and repeat nested inside the
-scope binding it, and keeps one pick through the draw. A name bound inside a repeat picks
+scope binding it, bar the field bound to it, and keeps one pick through the draw. A name bound inside a repeat picks
 anew on each iteration. A name an enclosing scope binds may not be bound again, so no name
 shadows another.
 The maintainer ruled so on 2026-10-09.
