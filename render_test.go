@@ -64,11 +64,11 @@ func (*unhandledNode) isNode() {}
 
 // nodeSwitchSkips is the kinds a switch is never handed: its callers step past them first.
 var nodeSwitchSkips = map[string][]string{
-	"childNamed":  {"choice", "table", "tableRow"},
-	"columnItems": {"folder", "table", "tableRow"},
-	"prove":       {"folder"},
-	"render":      {"folder"},
-	"routeSteps":  {"choice", "folder", "nullItem", "template"},
+	"childNamed":       {"choice", "table", "tableRow"},
+	"columnItems":      {"folder", "table", "tableRow"},
+	"render":           {"folder"},
+	"routeSteps":       {"choice", "folder", "nullItem", "template"},
+	"valueProof.prove": {"folder"},
 }
 
 func TestNodeSwitchesHandleEveryKind(t *testing.T) {
@@ -103,13 +103,13 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"columnItems": func(n node) { columnItems(n) },
 		"contained":   func(n node) { contained(n) },
 		"paths":       func(n node) { paths(n, false) },
-		"prove":       func(n node) { (&valueProof{}).prove(n) },
 		"render": func(n node) {
 			var frames frameStack
 			render(engine(1).drawState, n, renderEnv{frames: &frames, row: renderedRow{tbl, 0}})
 		},
-		"renderEdges": func(n node) { renderEdges(n) },
-		"routeSteps":  func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{next: n}, 0) },
+		"renderEdges":      func(n node) { renderEdges(n) },
+		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{next: n}, 0) },
+		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
 	}
 	found := exhaustiveNodeSwitches(t, kinds)
 	listed := make([]string, 0, len(switches))
@@ -161,7 +161,7 @@ func nodeKinds(t *testing.T) []string {
 }
 
 // exhaustiveNodeSwitches names each function holding a type switch that has a case for a
-// node kind and a default that panics.
+// node kind and a default that panics, a method as recv.name.
 func exhaustiveNodeSwitches(t *testing.T, kinds []string) []string {
 	t.Helper()
 	var names []string
@@ -172,9 +172,13 @@ func exhaustiveNodeSwitches(t *testing.T, kinds []string) []string {
 			if !isFunc || d.Body == nil {
 				continue
 			}
+			name := d.Name.Name
+			if recv := receiverType(d.Recv); recv != "" {
+				name = recv + "." + name
+			}
 			ast.Inspect(d.Body, func(n ast.Node) bool {
-				if sw, isTypeSwitch := n.(*ast.TypeSwitchStmt); isTypeSwitch && switchesOverNode(sw, kinds) {
-					names = append(names, d.Name.Name)
+				if sw, isTypeSwitch := n.(*ast.TypeSwitchStmt); isTypeSwitch && panicsOnOtherNodeKinds(sw, kinds) {
+					names = append(names, name)
 				}
 				return true
 			})
@@ -184,7 +188,7 @@ func exhaustiveNodeSwitches(t *testing.T, kinds []string) []string {
 	return slices.Compact(names)
 }
 
-func switchesOverNode(sw *ast.TypeSwitchStmt, kinds []string) bool {
+func panicsOnOtherNodeKinds(sw *ast.TypeSwitchStmt, kinds []string) bool {
 	casesNode, panics := false, false
 	for _, stmt := range sw.Body.List {
 		clause := stmt.(*ast.CaseClause)
