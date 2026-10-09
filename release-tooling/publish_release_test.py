@@ -26,6 +26,7 @@ class Forge:
 		self.commits = {"abc": {"tree": "t0", "parents": ["base"]}, **(commits or {})}
 		self.posts = []
 		self.trees = {}
+		self.heads = {}
 
 	def __call__(self, path, data=None):
 		if data is not None:
@@ -38,6 +39,8 @@ class Forge:
 			return {"object": {"type": "tag", "sha": "tagobject"}}
 		if path == "git/tags/tagobject":
 			return {"object": {"sha": next(iter(self.annotated.values()))}}
+		if path.startswith("git/ref/heads/") and path.removeprefix("git/ref/") in self.heads:
+			return {"object": {"type": "commit", "sha": self.heads[path.removeprefix("git/ref/")]}}
 		if kind == "releases" and name in self.releases:
 			return self.releases[name]
 		if path.startswith("git/commits/") and path.removeprefix("git/commits/") in self.commits:
@@ -46,6 +49,9 @@ class Forge:
 		raise urllib.error.HTTPError(path, 404, "Not Found", {}, None)
 
 	def post(self, path, data):
+		if path == "git/refs" and data["ref"].startswith("refs/heads/"):
+			self.heads[data["ref"].removeprefix("refs/")] = data["sha"]
+			return {}
 		if path == "git/refs":
 			self.refs[data["ref"].removeprefix("refs/tags/")] = data["sha"]
 			return {}
@@ -59,9 +65,9 @@ class Forge:
 		return self.releases[data["tag_name"]]
 
 
-def run(forge):
+def run(forge, packages=PACKAGES):
 	with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-		return publish("0.1.0", "notes", MODS, PACKAGES, "abc", forge)
+		return publish("0.1.0", "notes", MODS, packages, "abc", forge)
 
 
 class ReleaseGoMods(unittest.TestCase):
@@ -77,7 +83,8 @@ class Publish(unittest.TestCase):
 	def test_fresh_release_commits_the_requires_then_tags_that_commit(self):
 		forge = Forge()
 		self.assertEqual(run(forge), (0, "v0.1.0"))
-		self.assertEqual(forge.posts, ["git/trees", "git/commits", "git/refs", "git/refs", "releases"])
+		self.assertEqual(forge.posts, ["git/trees", "git/commits", "git/refs", "git/refs", "git/refs", "releases"])
+		self.assertEqual(forge.heads, {"heads/release/v0.1.0": "rel"})
 		self.assertEqual(forge.trees["t1"]["base_tree"], "t0")
 		self.assertEqual(forge.trees["t1"]["tree"], [{"path": "cmd/fejkdata/go.mod", "mode": "100644", "type": "blob", "content": CLI_GO_MOD}])
 		self.assertEqual(forge.commits["rel"]["parents"], ["abc"])
@@ -87,8 +94,9 @@ class Publish(unittest.TestCase):
 	def test_rerun_finishes_a_partial_release_on_its_release_commit(self):
 		forge = Forge(refs={"v0.1.0": "c1"}, commits={"c1": {"tree": "t9", "parents": ["abc"]}})
 		self.assertEqual(run(forge), (0, "v0.1.0"))
-		self.assertEqual(forge.posts, ["git/refs", "releases"])
+		self.assertEqual(forge.posts, ["git/refs", "git/refs", "releases"])
 		self.assertEqual(forge.refs["cmd/fejkdata/v0.1.0"], "c1")
+		self.assertEqual(forge.heads, {"heads/release/v0.1.0": "c1"})
 
 	def test_push_after_release_publishes_nothing(self):
 		forge = Forge(refs={"v0.1.0": "old", "cmd/fejkdata/v0.1.0": "old"}, releases={"v0.1.0": {"html_url": "u"}})
@@ -109,7 +117,12 @@ class Publish(unittest.TestCase):
 	def test_annotated_tag_counts_at_its_commit(self):
 		forge = Forge(annotated={"v0.1.0": "c1"}, commits={"c1": {"tree": "t9", "parents": ["abc"]}})
 		self.assertEqual(run(forge), (0, "v0.1.0"))
-		self.assertEqual(forge.posts, ["git/refs", "releases"])
+		self.assertEqual(forge.posts, ["git/refs", "git/refs", "releases"])
+
+	def test_a_module_with_no_listed_package_creates_nothing(self):
+		forge = Forge()
+		self.assertEqual(run(forge, packages=PACKAGES[:1]), (1, None))
+		self.assertEqual(forge.posts, [])
 
 
 class TopHeading(unittest.TestCase):
