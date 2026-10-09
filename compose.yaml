@@ -13,15 +13,15 @@ x-go: &go
 services:
   test:
     <<: *go
-    command: go test -race ./...
+    command: sh -c 'go test -race $$(go list -m -f "{{.Dir}}/...")'
 
   cover:
     <<: *go
-    command: sh -c "go test -coverpkg=./... -coverprofile=/tmp/cover.out ./... && go tool cover -func=/tmp/cover.out | tail -1"
+    command: sh -c 'pkgs="$$(go list -m -f "{{.Dir}}/...")" && go test -coverpkg="$$(go list $$pkgs | paste -sd, -)" -coverprofile=/tmp/cover.out $$pkgs && go tool cover -func=/tmp/cover.out | tail -1'
 
   bench:
     <<: *go
-    command: go test -run XXX -bench . -benchmem ./...
+    command: sh -c 'go test -run XXX -bench . -benchmem $$(go list -m -f "{{.Dir}}/...")'
 
   generate:
     <<: *go
@@ -29,7 +29,7 @@ services:
 
   vet:
     <<: *go
-    command: go vet ./...
+    command: sh -c 'go vet $$(go list -m -f "{{.Dir}}/...")'
 
   cyclo:
     <<: *go
@@ -37,7 +37,7 @@ services:
 
   build:
     <<: *go
-    command: go build ./...
+    command: sh -c 'go build $$(go list -m -f "{{.Dir}}/...")'
 
   fmt:
     <<: *go
@@ -51,12 +51,14 @@ services:
     <<: *go
     command: sh
 
-  data-import:
+  data-import: &python
     image: python:3.14.8-slim
     working_dir: /app
     volumes:
       - .:/app
     entrypoint: python3
+
+  release-tooling: *python
 
 volumes:
   gocache:

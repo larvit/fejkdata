@@ -845,7 +845,8 @@ the output.
 
 ## Versioning
 
-Semver tags on `main`, `v0.1.0` first; one version covers the shipped data, the
+Semver tags on `main`, `v0.1.0` first: `vX.Y.Z` tags the library and
+`cmd/fejkdata/vX.Y.Z` the CLI's module, both at one commit. One version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
@@ -985,6 +986,7 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
+version.go      Version, the release this source belongs to
 shipped.go      the embedded data set, and loading a shipped category on the first call reaching it
 shippedindex.go the index of shipped categories, generated from data/
 node.go         the node model and JSON -> node compilation
@@ -1008,7 +1010,7 @@ calc.go         the {calc()} operand checks: never a number, and a constant zero
 datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype, and a format that only reads a column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
-cmd/fejkdata/   the fejkdata CLI
+cmd/fejkdata/   the fejkdata CLI, a Go module of its own, which go.work joins to the library's
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
@@ -1021,7 +1023,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading
+release-tooling/ the release CI publishes from the changelog heading, and the script setting the version from it
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1034,7 +1036,7 @@ Source is bind-mounted; build caches persist in the `gocache` volume.
 docker compose run --rm test    # go test -race
 docker compose run --rm cover   # tests with coverage
 docker compose run --rm bench   # benchmarks
-docker compose run --rm build   # compile the library
+docker compose run --rm build   # compile every module
 docker compose run --rm vet     # go vet
 docker compose run --rm cyclo   # cyclomatic complexity over 14 (test files excluded)
 docker compose run --rm dev     # interactive shell
@@ -1114,9 +1116,17 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.p
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
 ```
 
-To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
-and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
-the GitHub release with the section as its body. A top heading of `[Unreleased]`
+To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`,
+set `fejkdata.Version` and every module's `require` of another from that heading, and
+merge:
+
+```sh
+docker compose run --rm --user "$(id -u):$(id -g)" release-tooling release-tooling/set_version.py
+```
+
+Once `main` passes the gate, CI tags that commit `vX.Y.Z` and `<dir>/vX.Y.Z` for every
+module `go.work` names, publishes the GitHub release with the section as its body, then
+installs the CLI from its tag and renders one template. A top heading of `[Unreleased]`
 publishes nothing.
 
 ## License

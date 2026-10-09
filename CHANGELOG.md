@@ -125,3 +125,6 @@ replacement, and each removed path, column or flag.
   its own quotes, a row of a table with no key is named as the path that selects it,
   `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record
   that gives it one.
+- `Version` names the release, and `fejkdata --version` prints it.
+- The CLI is a Go module of its own, `github.com/larvit/fejkdata/cmd/fejkdata`, tagged
+  `cmd/fejkdata/vX.Y.Z` at the commit the library's `vX.Y.Z` tags.

@@ -3,13 +3,11 @@ FROM golang:${GO_VERSION} AS portable
 
 WORKDIR /app
 
-COPY go.mod ./
-RUN go mod download
-
 COPY . .
-RUN go vet ./... && \
+RUN pkgs="$(go list -m -f '{{.Dir}}/...')" && \
+	go vet $pkgs && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
-	go test -race ./...
+	go test -race $pkgs
 
 FROM portable
 RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \

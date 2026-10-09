@@ -142,7 +142,7 @@ still lives in `data/`; `--data-path` layers over it.
 
 ## The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` item 179, `todo.md` item 180, `todo.md` item 181, `todo.md` item 182, `todo.md` item 183, `todo.md` item 184, `todo.md` item 185 and `todo.md` item 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` item 180, `todo.md` item 181, `todo.md` item 182, `todo.md` item 183, `todo.md` item 184, `todo.md` item 185 and `todo.md` item 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
 
 - One module per locale, one per country's `geo/` tree, and one for `misc`. A module registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -256,14 +256,34 @@ there, which is the `portable` stage, and never runs `gofmt` over this source, s
 latest toolchain alone defines the one canonical form goal 3 asks a reader to meet.
 Valid while the lowest supported Go is not the latest.
 
-## The changelog heading is the one spelling of a release; CI cuts the tag
+## The changelog heading is the one spelling of a release; CI cuts one tag per module
 
-2026-09-16, Lilleman auf Larv.
+2026-09-16, Lilleman auf Larv; one tag per module from 2026-10-09. Serves goals 1.1 and 10.
 
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
-instead: the tag can land only there, and the GitHub release the same job publishes
+instead: the tags can land only there, and the GitHub release the same job publishes
 keeps one text as its body and is where prebuilt binaries will attach.
+
+Every module `go.work` names gets its tag at that commit, `vX.Y.Z` for the root and
+`<dir>/vX.Y.Z` for the rest, because `go` resolves a nested module's version only from
+a tag carrying its directory. CI checks every tag before it creates any, so a tag at
+another commit burns the version whole. `fejkdata.Version` and every module's `require`
+of another equal the newest versioned heading, which a gate test checks and
+`release-tooling/set_version.py` writes, so the heading stays the one decision.
+
+## The modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`
+
+2026-10-09, Lilleman auf Larv. Serves goals 1.1 and 2.3.
+
+`go install …@vX.Y.Z` refuses a module whose `go.mod` holds a `replace`, so `go.work`
+alone joins the modules in a checkout, and a gate test refuses a `replace`. A module's
+`require` of another names the release being cut, which no proxy serves until CI tags
+it, so no gate step may resolve one outside `go.work`: no `go mod download`, and no
+`github.com/larvit/fejkdata/...` pattern. `./...` stops at a nested module, so every gate
+command runs over `go list -m -f '{{.Dir}}/...'`.
+
+Valid while the repository holds more than one Go module.
 
 ## A `--data-path` override rebinds every reference to the category it replaces
 

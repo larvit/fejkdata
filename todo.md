@@ -80,7 +80,6 @@
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
-| 179 | 0.1.0 | decision | **Make `cmd/fejkdata` a Go module of its own in a committed `go.work`, with the gate covering every module and CI cutting one tag per module in lockstep.** | 6 | 5 | 4 | 8 | 2.3, 1.1 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
@@ -218,7 +217,7 @@ Shape: T = table, t = template, c = choice.
 
 ### 182. Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as nested Go modules exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.
 
-Needs items 179 and 180. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0".
+Needs item 180. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0".
 - Each module's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
 - The module `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and requires every data module; the core requires none, so a library user's module graph never holds the list.
 - The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
@@ -292,19 +291,11 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 183. Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and item 179's release script regenerates them.
+Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and `release-tooling/set_version.py` rewrites them.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
 Needs item 180. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal.
-
-### 179. Make `cmd/fejkdata` a Go module of its own in a committed `go.work`, with the gate covering every module and CI cutting one tag per module in lockstep.
-
-Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". Lands before 0.1.0 is cut: a nested `cmd/fejkdata` module added after core v0.1.0 ships the command would make `go install …/cmd/fejkdata` ambiguous.
-- The Dockerfile copies `go.work` and every `go.mod`. `vet`, `test`, `build`, `cover` and `bench`, in `compose.yaml` and the Dockerfile, cover every workspace module; prove on Go 1.22.12 whether `./...` crosses them, else loop over `go list -m -f '{{.Dir}}'`. The gate fails on a `replace` in any `go.mod`. CI's change filter adds `go.work` and `**/go.mod`.
-- Add `fejkdata.Version`, which `--version` prints in place of the build info. A gate test checks that a versioned top changelog heading and every intra-repo `require` equal it, and a release-tooling script rewrites all of them from the heading, so cutting a release stays one decision.
-- `publish_release.py` creates `vX.Y.Z` and `<dir>/vX.Y.Z` for every `go.work` module through `git/refs`, idempotent per tag. It reads an existing tag through `git/ref/tags/{tag}`: GitHub answers `tags/{tag}` with 404 whatever exists, so today's guard against a tag already at another commit never fires. A job after tagging runs `GOPROXY=direct go install …/cmd/fejkdata@vX.Y.Z` and one render.
-- Revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag", and adds one: the modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 

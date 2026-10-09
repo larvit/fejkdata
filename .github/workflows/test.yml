@@ -27,7 +27,7 @@ jobs:
           else
             base='${{ github.event.before }}'
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data testdata README.md; then
+          if git diff --quiet "$base"...HEAD -- '*.go' go.work go.mod go.sum '**/go.mod' '**/go.sum' Dockerfile .dockerignore .github data testdata README.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
@@ -58,13 +58,34 @@ jobs:
     runs-on: ubuntu-26.04
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.publish.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - run: python3 release-tooling/publish_release.py
+      - id: publish
+        run: python3 release-tooling/publish_release.py
         env:
           FORGE_API_URL: ${{ github.api_url }}
           FORGE_REPOSITORY: ${{ github.repository }}
           FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
+
+  install:
+    name: Install the released CLI
+    needs: release
+    if: needs.release.outputs.tag != ''
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: |
+          docker compose run --rm -T -e GOPROXY=direct -e GOWORK=off -e TAG dev sh -c '
+            go install github.com/larvit/fejkdata/cmd/fejkdata@"$TAG" &&
+            bin="$(go env GOPATH)/bin/fejkdata" &&
+            test "$("$bin" --version)" = "fejkdata $TAG" &&
+            echo "{/sv_SE.person}" | "$bin"'
+        env:
+          TAG: ${{ needs.release.outputs.tag }}

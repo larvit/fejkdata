@@ -56,7 +56,8 @@ In [docs/decisions.md](docs/decisions.md):
 - Formats are checked after all data is loaded, so their errors name the category
 - Raising the lowest supported Go is a major
 - The format check runs on the latest Go only
-- The changelog heading is the one spelling of a release; CI cuts the tag
+- The changelog heading is the one spelling of a release; CI cuts one tag per module
+- The modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`
 - A `--data-path` override rebinds every reference to the category it replaces
 - The repeat cap bounds renders, not bytes
 - 64-bit targets only
