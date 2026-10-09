@@ -988,7 +988,7 @@ node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
 name.go         names: {x as n} bindings, the scopes they live in, the reads they answer, and each binding's target
 namefence.go    the load fences over names
-pick.go         a render's named picks: the key of each level a pick keeps a draw at, built at load and read at render, the frame of each name scope rendering, the memo a pick keeps, and the reads kept under it
+pick.go         a render's named picks: each level's pick key, the frame each name scope renders in, the memo a pick keeps, and the reads kept under it
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
 path.go         the dotted-path walks: the paths List advertises, the sub-paths every variant of a choice carries, proving a path reaches a node, and drawing it
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
