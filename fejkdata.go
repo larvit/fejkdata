@@ -73,7 +73,8 @@ func WithoutShippedData() Option {
 // namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
 // generator with no data at all renders templates that read none. A source whose
 // .fejkdata.json carries an index, as the shipped set's does, loads each category on the
-// first call reaching it, and fails there with [ErrLoad].
+// first call reaching it. Data failing to load, here or there, gives an error matching
+// [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {
@@ -81,7 +82,7 @@ func New(opts ...Option) (*Generator, error) {
 	}
 	root, err := c.load()
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
+		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
 	}
 	seed, err := c.drawSeed()
 	if err != nil {

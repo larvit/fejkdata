@@ -24,7 +24,7 @@ func loadSources(sources []datafiles.Source) (folder, error) {
 	for _, s := range sites {
 		changed = append(changed, s.path)
 	}
-	return root, loadReached(&root, sites, dependents(&root, changed))
+	return root, loadReached(&root, sites, affectedBy(&root, changed))
 }
 
 // addSource adds the categories of src to root, and returns the path of each category
@@ -111,13 +111,10 @@ func mergeFolder(dst, src *folder) {
 // single inline node.
 type nodeSet func(fn func(label string, n node) error) error
 
-// categorySite is a loaded category and where it sits: the folder holding it, that
-// folder's path, its name and its own dot path.
+// categorySite is a loaded category, where it sits and its own dot path.
 type categorySite struct {
-	dir  []string
-	in   *folder
+	categoryAt
 	n    node
-	name string
 	path string
 }
 
@@ -139,7 +136,7 @@ func categorySites(root *folder) []categorySite {
 }
 
 func siteIn(dir []string, in *folder, name string) categorySite {
-	return categorySite{dir: dir, in: in, n: in.children[name], name: name, path: categoryPath(dir, name)}
+	return categorySite{categoryAt: categoryAt{dir: dir, in: in, name: name}, n: in.children[name], path: categoryPath(dir, name)}
 }
 
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }
