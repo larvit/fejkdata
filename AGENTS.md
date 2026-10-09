@@ -9,7 +9,7 @@
 - CodeRabbit skips every pull request until the repository has 10 GitHub stars: check
   its status once when a PR is marked ready, answer a review if one is there, and never
   wait for one.
-- README goal 3 is gated at 7.0 on the `comprehension-panel` skill, and below it
+- From 0.2.0, README goal 3 is gated at 7.0 on the `comprehension-panel` skill, and below it
   nothing else merges — no feature, no category, no data — bar a security fix, a
   dependency bump, a repair of behaviour the README documents, the infrastructure
   the round itself runs on, and a chunk the comprehension-floor decision lists as
@@ -21,7 +21,7 @@
   run are two ratchets, never compared with each other. A lower score blocks the merge
   even where it may be panel noise: fix what the seats name until the score rises. A PR
   that only records a run's scores and files what its seats name merges even when a
-  score fell.
+  score fell. Through 0.1.0 the floor holds no merge back; the ratchets still do.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none
@@ -114,7 +114,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
-- comprehension floor: every dimension and the overall at 7.0 or above
+- comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
