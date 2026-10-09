@@ -278,7 +278,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
-`reading-cost` on 2026-10-09: the last 5 chunks' median is 152553 new input tokens before their first commit, the 5 before them 75959. Read most over the last 5 (opens and searches): `README.md` 67, `AGENTS.md` 41, `CHANGELOG.md` 39, `cmd/fejkdata/main.go` 39, `arm.go` 31, `pick.go` 23, `path.go` 20, `data-import/geo-se.py` 19, `fejkdata.go` 19, `env.go` 18. The chunk shipping this item runs `reading-cost --reset`.
+`reading-cost` on 2026-10-09: the last 5 chunks' median is 152553 new input tokens before their first commit, the 5 before them 75959. Read most over the last 5 (opens and searches): `README.md` 67, `AGENTS.md` 40, `cmd/fejkdata/main.go` 39, `CHANGELOG.md` 38, `arm.go` 33, `pick.go` 21, `todo.md` 21, `path.go` 20, `data-import/geo-se.py` 19, `env.go` 19. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 

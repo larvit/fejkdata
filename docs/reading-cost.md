@@ -351,3 +351,20 @@ Read most (opens and searches):
 - `arm.go` 15
 - `fejkdata.go` 15
 - `path.go` 15
+
+## Reading cost, chunk 99b75bd10e88, finished 2026-10-09T09:49:13Z
+
+93957 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 9
+- `name.go` 6
+- `README.md` 5
+- `graph.go` 4
+- `env.go` 3
+- `path.go` 3
+- `resolve.go` 3
+- `arm.go` 2
+- `compose.yaml` 2
+- `docs/decisions.md` 2
