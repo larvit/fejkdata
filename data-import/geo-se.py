@@ -188,7 +188,7 @@ def main():
     kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
     geo.log_dropped_localities(dropped["locality"])
     if dropped["municipality"] or dropped["region"]:
-        sys.exit(f"left without a child: municipalities {sorted(dropped['municipality'])}, regions {sorted(dropped['region'])}")
+        sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
     places = kept["locality"]
 
     tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
