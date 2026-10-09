@@ -72,10 +72,22 @@ def top_streets(count, per_locality, column):
     return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, named in of.items()}
 
 
-def with_streets(places, named):
-    """The places that named holds streets for; logs each other place as dropped."""
-    for key, place in places.items():
-        if key not in named:
-            label = key if key == place["name"] else f"{key} {place['name']}"
-            print(f"{label}: no streets, dropped", file=sys.stderr)
-    return {key: place for key, place in places.items() if key in named}
+def fence(regions, municipalities, localities, streets):
+    """Meet the loader's fence that every parent row has a child row: drop each locality streets holds no rows for, then
+    each municipality and region left without one, logging each drop. regions and municipalities map a code to a row,
+    and a municipality row names its region under "region". localities map a key to a locality row: name, municipality,
+    population, lat and lon, besides the columns its country adds. streets maps a locality's key to its street rows.
+    Returns the kept regions, municipalities and localities."""
+    localities = kept(localities, streets, "streets")
+    municipalities = kept(municipalities, {l["municipality"] for l in localities.values()}, "localities")
+    regions = kept(regions, {m["region"] for m in municipalities.values()}, "municipalities")
+    return regions, municipalities, localities
+
+
+def kept(parents, children, kind):
+    """The parents whose key children holds; logs each other parent as dropped."""
+    for key, parent in parents.items():
+        if key not in children:
+            label = key if key == parent["name"] else f"{key} {parent['name']}"
+            print(f"{label}: no {kind}, dropped", file=sys.stderr)
+    return {key: parent for key, parent in parents.items() if key in children}

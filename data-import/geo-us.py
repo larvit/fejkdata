@@ -171,12 +171,10 @@ def main():
     places = localities(cache, a.min_population, counties)
     locality_of_zcta = postal_codes(cache, places)
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.streets_per_locality)
-    places = geo.with_streets(places, named)
-    kept_counties = {l["municipality"] for l in places.values()}
-    kept_regions = {counties[c]["region"] for c in kept_counties}
+    regions, counties, places = geo.fence(regions, counties, places, named)
 
-    tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(regions.items()) if r["abbr"] in kept_regions])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(counties.items()) if c["code"] in kept_counties])
+    tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(regions.items())])
+    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(counties.items())])
     tsv.write(out / "locality.tsv", ["code", "name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
     tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], [{"code": z, "locality": l, "addresses": addresses[z]} for z, l in sorted(locality_of_zcta.items()) if addresses[z] and l in places])
     tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(named) for s in named[locality]])
