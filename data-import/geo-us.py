@@ -126,7 +126,7 @@ def localities(cache, min_population, counties):
 
 
 def zcta_localities(cache, localities):
-    """Each ZCTA whose largest part inside an incorporated place lies in a shipped place, mapped to that place."""
+    """Each ZCTA mapped to the incorporated place holding most of its land inside incorporated places, where that place is shipped."""
     parts = {}
     for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
         if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
@@ -177,7 +177,7 @@ def main():
             zctas[locality].append(zcta)
     kept, dropped = geo.fence(regions, counties, places, named, zctas)
     geo.log_dropped_localities(dropped["locality"])
-    print(f"counties without a place, dropped: {len(dropped['municipality'])}; states: {sorted(dropped['region'])}", file=sys.stderr)
+    print(f"counties without a place, dropped: {len(dropped['municipality'])}; states without a county, dropped: {sorted(dropped['region'])}", file=sys.stderr)
     places = kept["locality"]
 
     tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])

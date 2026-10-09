@@ -285,7 +285,7 @@ neighbouring one.
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place of 25,000 people or more with a postal code of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place of 25,000 people or more with a postal code and a street of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
 | `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
 

@@ -73,12 +73,14 @@ def top_streets(count, per_locality, column):
 
 
 def fence(regions, municipalities, localities, streets, postal_codes):
-    """Meet the loader's fence that every parent row has a child row: keep each locality that has entries in both
-    streets and postal_codes, each a map from a locality's key to its entries, then each municipality and region left
-    with a child. regions and municipalities map a code to a row, and a municipality row names its region under
-    "region". localities map a key to a locality row: name, municipality, population, lat and lon, besides the columns
-    its country adds. Returns the kept rows, then the dropped rows, each a dict keyed by table: "locality",
-    "municipality" and "region"."""
+    """Meet the loader's fence that every parent row has a child row. Keeps each locality with entries in both streets
+    and postal_codes, then each municipality and region left with a child.
+
+    regions and municipalities map a code to a row; a municipality row names its region under "region". localities,
+    streets and postal_codes map a locality's key to its row, its streets and its postal codes. A locality row holds
+    name, municipality, population, lat and lon, plus its country's own keys.
+
+    Returns kept, then dropped: each maps "locality", "municipality" and "region" to that table's rows."""
     kept = {"locality": {k: l for k, l in localities.items() if streets.get(k) and postal_codes.get(k)}}
     municipality_codes = {l["municipality"] for l in kept["locality"].values()}
     kept["municipality"] = {c: m for c, m in municipalities.items() if c in municipality_codes}
@@ -90,7 +92,7 @@ def fence(regions, municipalities, localities, streets, postal_codes):
 
 
 def log_dropped_localities(rows):
-    """Logs each locality row as dropped, by its key and its name where the two differ."""
+    """Logs each locality row as dropped, by its key, plus its name where that differs."""
     for key, row in rows.items():
         label = key if key == row["name"] else f"{key} {row['name']}"
-        print(f"{label}: no street or postal code, dropped", file=sys.stderr)
+        print(f"{label}: no street or no postal code, dropped", file=sys.stderr)

@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 169`
+`Next ID = 170`
 
 | Goal | W |
 |---|---|
@@ -122,6 +122,7 @@
 | 161 | 0.2.0 |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 108 | 0.2.0 | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 1 | 1 | 4 | 3.4 | 8.0 |
+| 169 | 0.2.0 | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 1 | 1 | 4 | 3 | 8.0 |
 | 38 | 0.3.0 | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 45 | 0.3.0 |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 49 | 0.3.0 |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
@@ -444,7 +445,7 @@ The engine returns column values and the root builds `Record`. Revises the decis
 
 ### 168. Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.
 
-Filed by the principles audit of item 148's chunk, against "Most, if not all, code should have automated tests" in `technical-principles.md`. No Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Item 148 checked `geo.fence` by regenerating both countries' TSVs byte-identical from the source cache, which needs the full downloads. Item 61 puts a geo script per country on `fence`.
+Against "Most, if not all, code should have automated tests" in `technical-principles.md`: no Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Today `geo.fence` is checked only by regenerating both countries' TSVs from the full downloads and diffing them. Item 61 adds a geo script per country, each calling `fence`.
 
 ### 161. Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.
 
@@ -457,6 +458,10 @@ Needs item 36. `checkCalcFields` runs at compile and `checkCalcNames` in `resolv
 ### 108. Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.
 
 Item 26 revises the decision, but the decision does not point back to it.
+
+### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
+
+Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
 ### 38. Compare `calcParser.binary`'s operator as a rune.
 
