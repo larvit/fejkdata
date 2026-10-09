@@ -59,7 +59,8 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
-| `--version`, `-h`, `--help` | print, then exit |
+| `--version` | print `fejkdata vX.Y.Z`, the release, then exit; a build of other source adds its own version, such as `(devel)` |
+| `-h`, `--help` | print, then exit |
 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
@@ -67,7 +68,8 @@ follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 dir, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
-`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`.
+`go run ./cmd/fejkdata …`, or `go install ./cmd/fejkdata`; `@main` instead builds
+main's CLI on the last release's library and data.
 
 ### Your own data
 
@@ -320,6 +322,7 @@ s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
+fejkdata.Version                          // "v0.1.0": the release this library is
 ```
 
 | Option | |
