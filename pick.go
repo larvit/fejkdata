@@ -82,9 +82,10 @@ func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 		return r
 	}
 	levels := make([]pickKey, len(a.levels))
-	for i, l := range a.levels {
+	for i, l := range a.levels[:len(levels)-1] {
 		levels[i] = env.pickAt.under(l)
 	}
+	levels[len(levels)-1] = key // the leaf's level, already moved; moving it again allocates
 	leaf, pins := p.draw(s, t.startOf(a.head), a.steps, levels)
 	return p.renderAt(s, leaf, pins, key, env)
 }
