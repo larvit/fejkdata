@@ -174,3 +174,16 @@ func BenchmarkWideTokens100(b *testing.B) {
 func BenchmarkWideTokens500(b *testing.B) {
 	benchPath(b, tmpData(b, "wide", wideTokenJSON(500)), "wide")
 }
+
+// New decodes the shipped manifest and loads nothing else.
+func TestNoNewAllocRegression(t *testing.T) {
+	const base = 2501.0
+	allocs := testing.AllocsPerRun(100, func() {
+		if _, err := New(WithSeed(1)); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if allocs > base*1.10 {
+		t.Errorf("New: %.1f allocs/op regressed past %.1f (baseline %.1f + 10%%); bump the baseline only as a deliberate change", allocs, base*1.10, base)
+	}
+}
