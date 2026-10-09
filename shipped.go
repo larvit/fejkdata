@@ -2,9 +2,11 @@ package fejkdata
 
 import (
 	"embed"
+	"fmt"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
+	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
@@ -56,12 +58,21 @@ func unloadedAt(root *folder, segs []string) (unloadedCategory, bool) {
 	return unloadedCategory{dir: segs[:i:i], in: g, name: segs[i]}, true
 }
 
-// loadShippedAt loads the shipped category a caller's path names or descends into. An entry
-// point calls it before walking root: a walk is a query and loads nothing.
-func (f *Generator) loadShippedAt(segs []string) {
+// callerPath is a caller's path without its leading /, and split, with the shipped category
+// it names or descends into loaded: a walk is a query and loads nothing.
+func (f *Generator) callerPath(path string) (string, []string, error) {
+	path, err := grammar.CallerPath(path)
+	if err != nil {
+		return "", nil, fmt.Errorf("fejkdata: %w", err)
+	}
+	segs, err := grammar.SplitPath(path)
+	if err != nil {
+		return "", nil, fmt.Errorf("fejkdata: %w", err)
+	}
 	if u, unloaded := unloadedAt(&f.root, segs); unloaded {
 		loadShipped(&f.root, []unloadedCategory{u})
 	}
+	return path, segs, nil
 }
 
 // unloadedReads is every unloaded shipped category the templates of nodes reference, each
