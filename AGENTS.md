@@ -21,7 +21,7 @@
   run are two ratchets, never compared with each other. A lower score blocks the merge
   even where it may be panel noise: fix what the seats name until the score rises. A PR
   that only records a run's scores and files what its seats name merges even when a
-  score fell. Through 0.1.0 the floor holds no merge back; the ratchets still do.
+  score fell. Through 0.1.0, a merge is blocked only by a paired ruling that rules worse.
 - Hard tabs. No comment by default; delete a restatement, a rationale, history, or a file preamble.
 - Prose naming a source states what that source states: read the register's own field
   before paraphrasing it, and name the register you read before claiming none

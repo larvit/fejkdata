@@ -851,7 +851,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Every 0.1.0 chunk ships under the floor, the scoring run at the release's end included, by the maintainer's decision of 2026-10-09: 0.1.0 ships features, and the round's items 170 to 175 and 177 move to 0.2.0, after item 178 plans how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
+By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the floor, including the chunk that holds the release's scoring run, so that 0.1.0 can ship features. Items 170 to 175 and 177 move to 0.2.0. Item 178 plans first how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
 
 Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 
