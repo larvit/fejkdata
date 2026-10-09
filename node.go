@@ -29,7 +29,7 @@ func (*folder) isNode() {}
 
 // choice draws one of its items. cum holds cumulative weights for a weighted
 // draw; when nil the choice is uniform and selection is O(1). shared is the set of
-// relative dot paths every item can address, into a repeat too, which carriedByAll reads.
+// relative dot paths every item can address, into a repeat too.
 type choice struct {
 	items     []node
 	cum       []float64
