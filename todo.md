@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 192`
+`Next ID = 194`
 
 | Goal | W |
 |---|---|
@@ -71,6 +71,7 @@
 | 182 | 0.1.0 | decision | **Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.** | 6 | 8 | 9 | 10 | 2.3, 2 | 29.0 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
+| 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 184 | 0.1.0 | decision | **Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.** | 4 | 5 | 7 | 9 | 9.6, 2 | 25.8 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
@@ -78,7 +79,6 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly the core's version, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
@@ -105,6 +105,7 @@
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
+| 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.3, 2 | 17.8 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
@@ -227,6 +228,10 @@ Shape: T = table, t = template, c = choice.
 | `word`, `sentence`, `paragraph` | T+t | Moby POS or WordNet | public domain / WordNet |
 | month and weekday names, `holiday` | t+T | CLDR en | Unicode |
 
+### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
+
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 78 and 61 grow them inside 0.1.0.
+
 ### 15. Add `misc` tables and templates, one row of its detail's table per chunk.
 
 Shape: T = table, t = template, c = choice.
@@ -292,10 +297,6 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
-### 183. Fail `New` when a manifest's `fejkdata` version is not exactly the core's version, naming the `go get` line that aligns them.
-
-Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". A shipped package's manifest names no version, since it ships in the core's Go module. A module from anyone else names the version it was built for. The core reads its own from `debug.ReadBuildInfo()` outside the pure comparison, and the check passes when that version is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records the core's version.
-
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
 Needs item 180. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal.
@@ -326,7 +327,7 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 ### 180. Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`, where a shipped package's manifest leaves out `fejkdata`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
 - Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
@@ -421,6 +422,10 @@ The maintainer chose on 2026-10-09 to regroup the engine into packages in 0.2.0,
 - Calc lives in five places, and paths are walked by `compiledPath`, `callerPathSteps` and `drawSteps` over one `compileStep`.
 
 The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several load stages each write part of the same structs. The plan answers four questions. How does load finish each value before render reads it? Which packages does that give, and what is each one's fan-out? How does the allocation gate hold? Which of items 170 to 175 does it answer or close? It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.
+
+### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.
+
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 

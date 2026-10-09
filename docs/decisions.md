@@ -140,19 +140,19 @@ still lives in `data/`; `--data-path` layers over it.
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 180, 181, 182, 183, 184, 185 and 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 180, 181, 182, 184, 185 and 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
-- A module from anyone else names, in its manifest, the fejkdata version it was built for, and any other version than the core's fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09, so such a module needs a new release on every fejkdata release, even when its data did not change. A shipped package's manifest names no version: it ships in the core's Go module.
+- A manifest names no fejkdata version, and `New` checks none: the shipped packages ship in the core's Go module, and a module from anyone else keeps loading across a minor or a patch, as the README's Versioning promises. The maintainer chose so on 2026-10-09.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
 - The CLI is a library call. One exported list names every shipped package, and `fejkdata`'s own `main` passes it to that call. The list lives in a package of its own, so a library importing the core links no data it did not import. A custom CLI is the same few lines with other modules added, and no code exists only for custom CLIs. A README section shows it with example code, and the README's Library quick start shows the whole import block for one locale.
 - Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
 
-Valid while downloading every shipped package costs a library user little, since `go get` fetches the whole Go module. Past that, the largest packages move into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice; the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`).
+Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
 ## With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`
 
