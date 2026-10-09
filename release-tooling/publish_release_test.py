@@ -108,6 +108,14 @@ class Publish(unittest.TestCase):
 		self.assertEqual(run(forge), (1, None))
 		self.assertEqual(forge.posts, [])
 
+	def test_tags_on_an_earlier_pushs_release_commit_create_nothing(self):
+		forge = Forge(refs={"v0.1.0": "c0", "cmd/fejkdata/v0.1.0": "c0"}, commits={"c0": {"tree": "t9", "parents": ["earlier"]}})
+		err = io.StringIO()
+		with redirect_stdout(io.StringIO()), redirect_stderr(err):
+			self.assertEqual(publish("0.1.0", "notes", MODS, PACKAGES, "abc", forge), (1, None))
+		self.assertIn("rerun the release job of earlier", err.getvalue())
+		self.assertEqual(forge.posts, [])
+
 	def test_tags_on_two_commits_create_nothing(self):
 		commits = {"c1": {"tree": "t", "parents": ["abc"]}, "c2": {"tree": "t", "parents": ["abc"]}}
 		forge = Forge(refs={"v0.1.0": "c1", "cmd/fejkdata/v0.1.0": "c2"}, commits=commits)

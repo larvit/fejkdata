@@ -36,17 +36,11 @@ func TestEveryGoModIsInGoWork(t *testing.T) {
 	}
 }
 
-func TestNoGoModRequiresAWorkspaceModule(t *testing.T) {
-	mods := workspaceModules(t)
-	paths := map[string]bool{}
-	for _, m := range mods {
-		paths[m.Module.Path] = true
-	}
-	for _, m := range mods {
+// A release commit writes requires of workspace modules only, so a require of anything else would install at whatever version is newest.
+func TestNoGoModRequiresAnything(t *testing.T) {
+	for _, m := range workspaceModules(t) {
 		for _, r := range m.Require {
-			if paths[r.Path] {
-				t.Errorf("%s/go.mod requires %s: go.work joins the modules, and the release commit writes their requires", m.dir, r.Path)
-			}
+			t.Errorf("%s/go.mod requires %s: go.work joins the workspace modules, the release commit writes their requires, and it writes none from outside", m.dir, r.Path)
 		}
 	}
 }
