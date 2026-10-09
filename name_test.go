@@ -453,11 +453,17 @@ func TestANameReadBeforeItsBinderKeepsOnePick(t *testing.T) {
 func TestARowThroughANameHintsAPathThatLoads(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, nameTables()), WithSeed(1))
 	for tmpl, hint := range map[string]string{"{/region as r}{r[01]}": "{/region[01]}", "{/region as r}{r[01].municipality}": "{/region[01].municipality}"} {
-		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), "read it directly, "+hint+",") {
+		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), "read the row without the name, "+hint+",") {
 			t.Errorf("NewTemplate(%s) = %v, want the hint %s", tmpl, err, hint)
 		}
 		if _, err := f.NewTemplate(hint); err != nil {
 			t.Errorf("NewTemplate(%s), the hint, = %v", hint, err)
 		}
+	}
+	files := nameTables()
+	files["card.json"] = `{"format":"{x as r}{r[01]}","x":"{/region}"}`
+	want := `a path through name "r" may not select a row; bind the row to a name of its own`
+	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+		t.Errorf("New(a field-bound name selecting a row) = %v, want %s", err, want)
 	}
 }
