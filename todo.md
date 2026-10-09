@@ -36,6 +36,7 @@
 | 6 | 0.75 |
 | 6.1 | 0.75 |
 | 6.2 | 0.75 |
+| 6.3 | 0.75 |
 | 7 | 0.70 |
 | 7.1 | 0.70 |
 | 7.2 | 0.70 |
@@ -77,19 +78,16 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version does not match `fejkdata.Version`, as item 187 defines a match, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
+| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 179 | 0.1.0 | decision | **Make `cmd/fejkdata` a Go module of its own in a committed `go.work`, with the gate covering every module and CI cutting one tag per module in lockstep.** | 6 | 5 | 4 | 8 | 2.3, 1.1 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 189 | 0.1.0 | question | **Decide whether item 180 absorbs item 79, and item 179 absorbs item 54, moving items 79 and 54 into 0.1.0.** | 1 | 1 | 3 | 6 | 3 | 15.6 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 188 | 0.1.0 | question | **Decide whether a module from outside fejkdata may load lazily through its manifest's index, letting its data's mistakes surface mid-render.** | 1 | 1 | 3 | 6 | 6, 9.1 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 180 | 0.1.0 | decision | **Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.** | 6 | 6 | 5 | 8 | 13, 9.1 | 12.1 |
-| 187 | 0.1.0 | question | **Decide whether a manifest's version must equal `fejkdata.Version` exactly, or only share its minor before 1.0.** | 1 | 1 | 3 | 6 | 9.1 | 11.9 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
@@ -112,7 +110,6 @@
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
-| 54 | 0.2.0 | defect | **Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.** | 2 | 1 | 3 | 6 | 1.1 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
 | 20 | 0.2.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 4 | 15.7 |
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
@@ -124,7 +121,6 @@
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
-| 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 171 | 0.2.0 |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 3 | 2 | 7 | 3, 3.2 | 12.8 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
 | 107 | 0.2.0 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
@@ -294,9 +290,9 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
-### 183. Fail `New` when a manifest's `fejkdata` version does not match `fejkdata.Version`, as item 187 defines a match, naming the `go get` line that aligns them.
+### 183. Fail `New` when a manifest's `fejkdata` version is not exactly `fejkdata.Version`, naming the `go get` line that aligns them.
 
-Needs item 182, and item 187's answer for what counts as a match. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and item 179's release script regenerates them.
+Needs item 182. Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The generator writes `Version` into every manifest, and item 179's release script regenerates them.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
@@ -307,7 +303,7 @@ Needs item 180. Carries out the decision "The shipped data is Go modules a libra
 Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". Lands before 0.1.0 is cut: a nested `cmd/fejkdata` module added after core v0.1.0 ships the command would make `go install …/cmd/fejkdata` ambiguous.
 - The Dockerfile copies `go.work` and every `go.mod`. `vet`, `test`, `build`, `cover` and `bench`, in `compose.yaml` and the Dockerfile, cover every workspace module; prove on Go 1.22.12 whether `./...` crosses them, else loop over `go list -m -f '{{.Dir}}'`. The gate fails on a `replace` in any `go.mod`. CI's change filter adds `go.work` and `**/go.mod`.
 - Add `fejkdata.Version`, which `--version` prints in place of the build info. A gate test checks that a versioned top changelog heading and every intra-repo `require` equal it, and a release-tooling script rewrites all of them from the heading, so cutting a release stays one decision.
-- `publish_release.py` creates `vX.Y.Z` and `<dir>/vX.Y.Z` for every `go.work` module through `git/refs`, idempotent per tag. A job after tagging runs `GOPROXY=direct go install …/cmd/fejkdata@vX.Y.Z` and one render.
+- `publish_release.py` creates `vX.Y.Z` and `<dir>/vX.Y.Z` for every `go.work` module through `git/refs`, idempotent per tag. It reads an existing tag through `git/ref/tags/{tag}`: GitHub answers `tags/{tag}` with 404 whatever exists, so today's guard against a tag already at another commit never fires. A job after tagging runs `GOPROXY=direct go install …/cmd/fejkdata@vX.Y.Z` and one render.
 - Revises the decision "The changelog heading is the one spelling of a release; CI cuts the tag", and adds one: the modules develop in one committed `go.work`, and no published `go.mod` carries a `replace`.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
@@ -317,10 +313,6 @@ Carries out the decision "The shipped data is Go modules a library imports by ch
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 182, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
-
-### 189. Decide whether item 180 absorbs item 79, and item 179 absorbs item 54, moving items 79 and 54 into 0.1.0.
-
-Item 180's per-entry reads are what item 79 needs, and item 179 rewrites the tag code item 54 fixes. Absorbing one deletes the absorbed item from the plan, and the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" cites item 79.
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
@@ -334,10 +326,6 @@ The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` re
 
 Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
 
-### 188. Decide whether a module from outside fejkdata may load lazily through its manifest's index, letting its data's mistakes surface mid-render.
-
-Goal 6 wants every mistake at load; goal 9.1 wants fejkdata's modules to load as anyone's do. CI proves fejkdata's own modules whole. The choices: honour an index only on fejkdata's own modules; publish the index generator, so a module's author can prove theirs; or accept the risk. Item 180 waits on the answer.
-
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
@@ -346,13 +334,9 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 Carries out the decision "The shipped data is Go modules a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
-- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach. That is item 79; item 189 asks whether this item absorbs it.
+- Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach. A `--data-path` run then no longer parses the whole shipped set.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
-- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`". Item 188 asks whether a module from outside fejkdata loads lazily too.
-
-### 187. Decide whether a manifest's version must equal `fejkdata.Version` exactly, or only share its minor before 1.0.
-
-Exact equality suits fejkdata's own modules, which release in lockstep, but breaks every module from outside fejkdata on each patch release. Item 183 waits on the answer.
+- Revises the decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`"., and ends its conflict with goal 13. A module from anyone else loads on first reach too, as goal 6.3 allows.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -452,10 +436,6 @@ Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in 
 
 The decision "`misc.tld` keys carry the leading dot, where other tables key on a bare code" leaves `misc.tld[se]` missing today.
 
-### 54. Read the tag through `git/ref/tags/{tag}` in `publish_release.py`.
-
-GitHub answers `tags/{tag}` with 404 whatever exists, so the burnt-version guard never fires and a release lands on a tag already pointing at another commit.
-
 ### 31. Rename `misc.territory.country` to `sovereign`.
 
 It holds a code, and `country` collides with the `misc.country` path it replaced.
@@ -495,12 +475,6 @@ Require the path step to reach a sibling category.
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
 A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. The maintainer chose 0.2.0 on 2026-10-07.
-
-### 79. Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.
-
-Needs item 181, which makes an override fail unless it says it replaces.
-
-The decision "With only the shipped set, a category loads on the first call reaching it; beside a `--data-path`, every category loads in `New`" parses the whole shipped set on every `--data-path` run, about 45 ms today and seconds once items 61 and 78 land. Goal 6 needs only the user's categories, the shipped ones they override, the shipped ones they read, and the shipped ones whose reads reach an overridden category, so the index would carry each category's reads.
 
 ### 171. Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.
 

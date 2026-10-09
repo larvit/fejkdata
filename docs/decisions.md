@@ -148,7 +148,7 @@ still lives in `data/`; `--data-path` layers over it.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data module is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
-- A module's manifest names the fejkdata version it was built for, and a mismatch fails in `New`, naming the `go get` line that aligns them. Each shipped module requires the core at its own version.
+- A module's manifest names the fejkdata version it was built for, and any version but the core's own fails in `New`, naming the `go get` line that aligns them. The maintainer chose exact equality on 2026-10-09: every fejkdata module is tested with the others in one checkout and tagged at one commit, so only the combination CI tested runs, and a module from anyone else takes a release even where its data did not change. Each shipped module requires the core at its own version.
 - Every shipped module releases in lockstep, under one version number, so the README's one version still covers the library, the CLI and the data. CI cuts one tag per module per release.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
@@ -171,7 +171,7 @@ reach.
 
 Goal 6: beside a `--data-path`, `WithDataPath` or `WithDataFS`, every category loads in
 `New`, so each mistake in the user's data is `New`'s error. That parses the whole shipped
-set, against goal 13, until `todo.md` item 79 ends it.
+set, against goal 13, until `todo.md` item 180 ends it.
 
 Valid while CI proves the shipped set whole and each category alone.
 
