@@ -78,7 +78,7 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly the core's, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
+| 183 | 0.1.0 | decision | **Fail `New` when a manifest's `fejkdata` version is not exactly the core's version, naming the `go get` line that aligns them.** | 3 | 2 | 5 | 7 | 6 | 17.0 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
@@ -185,12 +185,12 @@ Needs item 180. Carries out the decision "The shipped data is Go packages a libr
 - Each package's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
 - The package `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data package; the core imports none, so a library links only the data it imports.
 - The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
-- A data package imports nothing of the core, so core tests may import data packages, and each data package's own test calls `New(WithDataFS(FS))`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
+- A data package imports nothing of the core, so core tests may import data packages. Each data package's own test calls `New(WithDataFS(FS))`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
 - Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own".
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, and the error naming the import set. Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, and the error naming the import set. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -291,9 +291,9 @@ The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decis
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
 
-### 183. Fail `New` when a manifest's `fejkdata` version is not exactly the core's, naming the `go get` line that aligns them.
+### 183. Fail `New` when a manifest's `fejkdata` version is not exactly the core's version, naming the `go get` line that aligns them.
 
-Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". A shipped package's manifest names no version, since it ships in the core's module. A module from anyone else names the version it was built for. The core reads its own from `debug.ReadBuildInfo()` in the shell and passes it to a pure comparison, which skips where it is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records the core's version.
+Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". A shipped package's manifest names no version, since it ships in the core's module. A module from anyone else names the version it was built for. The core reads its own from `debug.ReadBuildInfo()` outside the pure comparison, and the check passes when that version is `(devel)` or missing, as in a checkout. Probe first that a library user's `go test` binary records the core's version.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
@@ -325,7 +325,7 @@ The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/r
 
 ### 180. Load on first reach a source whose `.fejkdata.json` carries an index, and any other source in `New`; move the shipped index from `shippedindex.go` into that manifest.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". The manifest is `.fejkdata.json` at a module's root, hidden so it is no category: `{"fejkdata": version, "reads": {path prefix: module}, "index": {category: {"parent", "paths", "reads"}}}`, where a shipped package's manifest leaves out `fejkdata`. `go generate` writes it from the data, as it writes `shippedindex.go` today, and `TestShippedIndexIsCurrent` becomes a test that it is current.
 - `internal/datafiles` reads the manifest, and `shipped.go`'s unloaded tree is built per source from its index, so fejkdata's data loads as anyone's does (goal 9.1).
 - Each index entry carries the categories it reads. Beside a `--data-path`, `New` loads the user's categories, what they read and the shipped categories reaching a replaced one; the rest load on first reach.
 - Core tests move to `fstest.MapFS` fixtures carrying manifests.
@@ -333,7 +333,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
 
-GitHub answers `tags/{tag}` with 404 whatever exists, so a release job on another commit than the tag's publishes the release on that old tag instead of stopping.
+GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
