@@ -62,3 +62,24 @@ Inherited architect, decided by:
 - `pick.go:9` `pickKey`: the 3am mechanism reads in one file, in reading order
 - `datatype.go:217` `columnRead`: beside its consumers, and `node.go:70` names its four readers
 - `path.go:119` `compileStep`: six parameters, the one place that reads harder
+
+## 2026-10-09T10:16:38Z, PR #193 at c27e8b7, against d74c0ed
+
+Ruling: better
+
+| Seat | Vote |
+|---|---|
+| Mid A | better |
+| Inherited architect | better |
+
+Mid A, decided by:
+
+- `data-import/geo.py:75` `fence`: one named step states the locality row and drops childless parents level by level, where `with_streets` pruned localities alone
+- `data-import/geo-us.py:174` `main`: the county and region pruning no longer hides inside the `tsv.write` comprehensions
+- `data-import/geo-se.py:186` `main`: builds its rows before the fence, so it has the US script's shape
+
+Inherited architect, decided by:
+
+- `data-import/geo.py:75` `fence`: the loader's parent-has-a-child rule is named in the import code and applied in one place at all three levels
+- `data-import/geo-us.py:174` `main`: one `fence` call before any write replaces filters buried in the writes
+- `data-import/geo-se.py:186` `main`: both scripts read alike, build rows, fence, write
