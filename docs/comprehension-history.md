@@ -104,3 +104,39 @@ Inherited architect, decided by:
 - `data-import/geo.py:75` `fence`: one unit owns the chain from locality to municipality to region, where the base spread it over `with_streets` and both `main`s
 - `data-import/geo-us.py:128` `zcta_localities`: the name and docstring say what it maps to
 - `data-import/geo-se.py:181` `main`: `region_names` and `municipality_names` say they map codes to names, and the rows are built once before the fence
+
+## 2026-10-07, scoring run at ad59967
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mean | 7.00 | 5.88 | 6.50 | 6.13 | 6.38 |
+
+## 2026-10-09T11:04:29Z, PR #195 at b9d1af6
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 6.5 | 7 | 7 | 7 |
+| Mid A | 7.5 | 6 | 6.5 | 7 | 6.5 |
+| Maintainability senior | 7.5 | 6 | 6.5 | 6.5 | 6.5 |
+| Inherited architect | 7 | 5.5 | 6 | 7 | 6.5 |
+| Mean | 7.38 | 6.00 | 6.50 | 6.88 | 6.63 |
+
+Junior A, hardest first:
+
+- `pick.go:70` `keptInPick`: a level, a first-level key, that key moved under `env.pickAt`, and the name's addressed set, held at once
+- `namefence.go:76` `refuseTwiceDrawnIn`: mirrors the keep rule in `keptInPick`, and nothing ties the two in code
+
+Mid A, hardest first:
+
+- `pick.go:79` `readUnder`: a key built at load in `addressedKeys` must equal one built at render through `pickKey.under`, and a mismatch is silent
+- `node.go:70` `readsColumn`: four functions in three files must change together
+
+Maintainability senior, hardest first:
+
+- `render.go:146` `readField`: whether a read is kept in a pick rests on string keys from three places and on `env.pick` cleared at the right moment
+- `path.go:190` `drawSteps`: a nil `pins` or `memo` names the mode, and `climbed` carries state across iterations
+
+Inherited architect, would restructure first:
+
+- `pick.go:179` `readName`: keeping one named pick needs `name.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go` held at once
+- `node.go:52` `template`: filled in four phases by four functions
