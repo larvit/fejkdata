@@ -162,9 +162,9 @@ it to a name and read the name
 
 The shipped set under [`data/`](data) — one folder per locale (`en_US`, `sv_SE`),
 a `geo` folder of each country's places, and a locale-neutral `misc` folder — is
-embedded, so the CLI and the library work with no data on disk. A directory is a namespace: each JSON file is a
-category named after the file, each subdirectory a dot-path segment, so
-`mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
+embedded, so the CLI and the library work with no data on disk. A directory is a
+namespace: each JSON file is a category named after the file, each subdirectory
+a dot-path segment, so `mydata/sv_SE/person.json` is `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
 which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-prefixed
