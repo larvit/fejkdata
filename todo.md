@@ -97,7 +97,7 @@
 | 117 | 0.2.0 |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
-| 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one pass, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
+| 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `NewRecordTemplate`, `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
@@ -118,7 +118,7 @@
 | 79 | 0.2.0 | decision | **Beside a `--data-path`, load in `New` the user's categories, the shipped ones they override or read, and the shipped ones whose reads reach an overridden one; load the rest on first reach.** | 6 | 6 | 7 | 8 | 13 | 12.9 |
 | 171 | 0.2.0 |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 3 | 2 | 7 | 3, 3.2 | 12.8 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
-| 107 | 0.2.0 | decision | **Move the template engine into `internal/` packages grouped by area, which share no state, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
+| 107 | 0.2.0 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 168 | 0.2.0 | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 4 | 2 | 6 | 3 | 11.8 |
 | 161 | 0.2.0 |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 175 | 0.2.0 |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
@@ -339,7 +339,7 @@ The decision "A constant zero divisor is a load error; in a string column a divi
 
 ### 177. Run the nine-seat comprehension panel and the scoring run again once item 107 has moved the engine, and file what the panel names.
 
-The decision "comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0" holds the scores this run is measured against.
+Needs item 107. The decision "comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0" holds the scores this run is measured against.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -378,16 +378,16 @@ Today `personnummer` draws its own sex, so a name and a number agree only throug
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
 
-### 178. Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one pass, then file the moves as items.
+### 178. Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.
 
 The maintainer chose on 2026-10-09 to regroup the engine into packages in 0.2.0, untangled first, over naming the root files by area. What the panels of 2026-10-09 on b9d1af6 found:
 
 - The 25 flat root files are the worst level of the tree; both architect seats grouped them by hand into public API, load, names, render, paths and proofs.
-- The named-pick machinery spans `name.go`, `namefence.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go`, and every seat found it hardest. A key `addressedKeys` builds at load must equal one `pickKey.under` builds at render.
+- The named-pick machinery spans `name.go`, `namefence.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go`, and every seat found it hardest.
 - `template` is filled in four phases by four functions, `readsColumn` has four readers in three files, and `renderEnv` shares one `frameStack` by pointer behind a by-value env.
 - Calc lives in five places, and paths are walked by `compiledPath`, `callerPathSteps` and `drawSteps` over one `compileStep`.
 
-The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several passes each write part of the same structs. The plan says how load hands render values no later pass writes, which packages that yields and the fan-out of each, how the allocation gate holds, and which of items 170 to 175 it answers or closes. It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.
+The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several load stages each write part of the same structs. The plan answers four questions. How does load finish each value before render reads it? Which packages does that give, and what is each one's fan-out? How does the allocation gate hold? Which of items 170 to 175 does it answer or close? It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 
@@ -455,9 +455,9 @@ The decision "With only the shipped set, a category loads on the first call reac
 
 Eleven seats of the 2026-10-09 panel named the "change them together" in `readsColumn`'s comment (`node.go`) as action at a distance across `datatype.go`, `valueproof.go` and `render.go`.
 
-### 107. Move the template engine into `internal/` packages grouped by area, which share no state, leaving the root the public API and its options.
+### 107. Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.
 
-Needs item 178, and is split into the items it files before any code moves. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
+Needs item 178, which splits it into items before any code moves. The engine returns column values and the root builds `Record`. Revises the decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`", and, if the vocabulary moves, "The vocabulary sits below `doc.go`'s package clause, not in the package doc".
 
 ### 168. Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.
 
