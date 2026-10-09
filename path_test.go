@@ -83,6 +83,11 @@ func TestPathRefusesALevelCarryingARepeat(t *testing.T) {
 			t.Errorf("Fake(%q) = %v, but List() advertises it", p, err)
 		}
 	}
+	for tmpl, level := range map[string]string{"{/outer.inner as p}{p.a}": "p", "{/outer as o}{o.inner.a}": "o.inner"} {
+		if _, err := f.NewTemplate(tmpl); err == nil || !strings.Contains(err.Error(), fmt.Sprintf("the level %q carries a repeat", level)) {
+			t.Errorf("NewTemplate(%s) = %v, want the level %s named", tmpl, err, level)
+		}
+	}
 }
 
 // TestPathThroughChoice pins the rule that keeps a dotted path from rendering on
