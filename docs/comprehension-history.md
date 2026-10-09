@@ -83,3 +83,24 @@ Inherited architect, decided by:
 - `data-import/geo.py:75` `fence`: the loader's parent-has-a-child rule is named in the import code and applied in one place at all three levels
 - `data-import/geo-us.py:174` `main`: one `fence` call before any write replaces filters buried in the writes
 - `data-import/geo-se.py:186` `main`: both scripts read alike, build rows, fence, write
+
+## 2026-10-09T10:29:19Z, PR #193 at 8433689, against d74c0ed
+
+Ruling: better
+
+| Seat | Vote |
+|---|---|
+| Mid A | better |
+| Inherited architect | better |
+
+Mid A, decided by:
+
+- `data-import/geo.py:75` `fence`: the parent-has-a-child rule lives in one function whose docstring states the rule, each argument's shape and what it returns
+- `data-import/geo-us.py:174` `main`: `zctas` is built once and fenced, and every write reads from `kept` with no filter of its own
+- `data-import/geo-us.py:128` `zcta_localities`: the name says it returns a ZCTA-to-place map, where `postal_codes` pointed at the wrong output
+
+Inherited architect, decided by:
+
+- `data-import/geo.py:75` `fence`: one unit owns the chain from locality to municipality to region, where the base spread it over `with_streets` and both `main`s
+- `data-import/geo-us.py:128` `zcta_localities`: the name and docstring say what it maps to
+- `data-import/geo-se.py:181` `main`: `region_names` and `municipality_names` say they map codes to names, and the rows are built once before the fence
