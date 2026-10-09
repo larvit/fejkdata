@@ -847,11 +847,13 @@ category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above
+## comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
 
-Shipped under the floor by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
+Every 0.1.0 chunk ships under the floor, the scoring run at the release's end included, by the maintainer's decision of 2026-10-09: 0.1.0 ships features, and the round's items 170 to 175 and 177 move to 0.2.0, after item 178 plans how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
+
+Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 
 The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
 
