@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"io/fs"
 	"reflect"
 	"slices"
 	"strings"
@@ -131,6 +132,13 @@ func TestWithDataFSLayersEachModuleOverTheOneBefore(t *testing.T) {
 	}
 	if got := fake(t, f, "x") + fake(t, f, "y"); got != "ba" {
 		t.Errorf("x and y = %q, want b's x and a's y", got)
+	}
+}
+
+func TestWithDataFSRefusesANilModule(t *testing.T) {
+	var unset fs.FS
+	if _, err := New(WithDataFS(fstest.MapFS{}, unset)); err == nil || !strings.Contains(err.Error(), "WithDataFS module 2 is nil") {
+		t.Errorf("New(WithDataFS(fsys, nil)) = %v, want module 2 named nil", err)
 	}
 }
 
