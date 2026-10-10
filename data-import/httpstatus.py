@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/httpstatus.tsv from the IANA HTTP Status Code Registry.
+"""Rebuild data/misc/misc/httpstatus.tsv from the IANA HTTP Status Code Registry.
 
     data-import/httpstatus.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -14,7 +14,7 @@ import source
 import tsv
 
 SOURCE = "https://www.iana.org/assignments/http-status-codes/http-status-codes-1.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "httpstatus.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "httpstatus.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "reason"]
 

@@ -1,0 +1,27 @@
+{
+	"index": {
+		"sv_SE.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"sv_SE.birth-number": {"parent":"sex","paths":["","number","sex"]},
+		"sv_SE.color": {"paths":[""]},
+		"sv_SE.company": {"paths":["","base","suffix"]},
+		"sv_SE.date": {"paths":[""]},
+		"sv_SE.email": {"paths":["","domain","local","local.n"]},
+		"sv_SE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"sv_SE.ip": {"paths":[""]},
+		"sv_SE.last-name": {"paths":["","count","name"]},
+		"sv_SE.person": {"paths":["","first","last","prefix","sex"]},
+		"sv_SE.personnummer": {"paths":[""]},
+		"sv_SE.phone": {"paths":["","a","b","c","prefix"]},
+		"sv_SE.price": {"paths":["","amt","ore"]},
+		"sv_SE.samordningsnummer": {"paths":[""]},
+		"sv_SE.sentence": {"paths":["","adj","noun","prep","verb"]},
+		"sv_SE.sex": {"paths":["","birth-number","birth-number.number","birth-number.sex","code","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"sv_SE.time": {"paths":[""]},
+		"sv_SE.title": {"paths":["","name","share"]},
+		"sv_SE.url": {"paths":["","host","path"]},
+		"sv_SE.username": {"paths":["","n"]},
+		"sv_SE.version": {"paths":["","n","pre","suffix"]},
+		"sv_SE.word": {"paths":[""]}
+	},
+	"reads": ["github.com/larvit/fejkdata/data/geo/SE"]
+}

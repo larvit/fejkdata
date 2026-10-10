@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/geo/US/*.tsv from the Census Bureau's Gazetteer, population estimates, ZCTA relationships and TIGER/Line files (public domain).
+"""Rebuild data/geo/US/geo/US/*.tsv from the Census Bureau's Gazetteer, population estimates, ZCTA relationships and TIGER/Line files (public domain).
 
     data-import/geo-us.py [--cache DIR] [--min-population N] [--streets-per-locality N] [--out DIR]
 """

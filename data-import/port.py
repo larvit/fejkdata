@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/port.tsv from the IANA Service Name and Transport Protocol Port Number Registry.
+"""Rebuild data/misc/misc/port.tsv from the IANA Service Name and Transport Protocol Port Number Registry.
 
     data-import/port.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -17,7 +17,7 @@ import source
 import tsv
 
 SOURCE = "https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "port.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "port.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["number", "service"]
 FLOOR = 4000

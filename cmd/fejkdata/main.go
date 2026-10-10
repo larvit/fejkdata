@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"runtime/debug"
 	"sort"
@@ -20,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/data"
 )
 
 const usage = `Usage: <template> | fejkdata [flags]
@@ -319,10 +321,11 @@ func (in invocation) check() error {
 }
 
 func (in invocation) options() []fejkdata.Option {
-	var opts []fejkdata.Option
-	if in.noShipped {
-		opts = append(opts, fejkdata.WithoutShippedData())
+	var modules []fs.FS
+	if !in.noShipped {
+		modules = data.Modules()
 	}
+	opts := []fejkdata.Option{fejkdata.WithDataFS(modules...)}
 	for _, dir := range in.dirs {
 		opts = append(opts, fejkdata.WithDataPath(dir))
 	}

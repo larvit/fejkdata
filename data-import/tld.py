@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/tld.tsv from the IANA Root Zone Database.
+"""Rebuild data/misc/misc/tld.tsv from the IANA Root Zone Database.
 
     data-import/tld.py [--source URL_OR_FILE] [--zone URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -20,7 +20,7 @@ import tsv
 
 SOURCE = "https://www.iana.org/domains/root/db"
 ZONE = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "tld.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "tld.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["tld", "type", "unicode"]
 TYPES = ("country-code", "generic", "generic-restricted", "infrastructure", "sponsored")

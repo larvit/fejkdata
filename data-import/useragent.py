@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/useragent.tsv from microlinkhq/top-user-agents (MIT).
+"""Rebuild data/misc/misc/useragent.tsv from microlinkhq/top-user-agents (MIT).
 
     data-import/useragent.py [--source URL] [--cache DIR] [--out FILE]
 
@@ -16,7 +16,7 @@ import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/microlinkhq/top-user-agents/master/src"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "useragent.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "useragent.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["browser", "device", "os", "ua"]
 # First match wins: a Chromium fork this list does not name ships as Chrome.

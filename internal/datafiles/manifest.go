@@ -19,6 +19,8 @@ const ManifestFile = ".fejkdata.json"
 type Manifest struct {
 	// Index is every category of the source by dot path; nil where the manifest has none.
 	Index map[string]IndexEntry `json:"index"`
+	// Reads is every module the source reads by default, directly or through another.
+	Reads []string `json:"reads"`
 }
 
 // IndexEntry is what an index says of a category: its parent table, "" for none, and the
@@ -65,15 +67,42 @@ func decodeManifest(b []byte) (Manifest, error) {
 	var m Manifest
 	var errs []error
 	for _, k := range sortedKeys(top) {
-		if k != "index" {
-			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index", k))
-			continue
+		switch k {
+		case "index":
+			var indexErrs []error
+			m.Index, indexErrs = decodeIndex(top[k])
+			errs = append(errs, indexErrs...)
+		case "reads":
+			var err error
+			m.Reads, err = decodeReads(top[k])
+			errs = append(errs, err)
+		default:
+			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index and reads", k))
 		}
-		var indexErrs []error
-		m.Index, indexErrs = decodeIndex(top[k])
-		errs = append(errs, indexErrs...)
 	}
 	return m, errors.Join(errs...)
+}
+
+// decodeReads decodes the modules a source reads, each named by a non-empty string.
+func decodeReads(v any) ([]string, error) {
+	items, isList := v.([]any)
+	if !isList {
+		return nil, fmt.Errorf("reads must be a list, not %s", jsonvalue.Kind(v))
+	}
+	out := make([]string, 0, len(items))
+	var errs []error
+	for i, item := range items {
+		module, isString := item.(string)
+		switch {
+		case !isString:
+			errs = append(errs, fmt.Errorf("reads item %d must be a string, not %s", i+1, jsonvalue.Kind(item)))
+		case module == "":
+			errs = append(errs, fmt.Errorf("reads item %d is empty; it names a module", i+1))
+		default:
+			out = append(out, module)
+		}
+	}
+	return out, errors.Join(errs...)
 }
 
 func decodeIndex(v any) (map[string]IndexEntry, []error) {

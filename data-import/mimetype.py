@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/mimetype.tsv from mime-db (MIT), the IANA media type registry with extensions.
+"""Rebuild data/misc/misc/mimetype.tsv from mime-db (MIT), the IANA media type registry with extensions.
 
     data-import/mimetype.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -13,7 +13,7 @@ import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/jshttp/mime-db/master/db.json"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "mimetype.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "mimetype.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["ext", "type"]
 FIXUPS = {"application/mp4": "mp4s", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/quicktime": "mov"}

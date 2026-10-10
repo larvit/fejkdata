@@ -17,12 +17,14 @@ type indexed struct {
 	src   datafiles.Source
 }
 
-// placeIndex sets every category the index names as unloaded in root, in place of what
+// placeIndex sets every category m's index names as unloaded in root, in place of what
 // root holds at its path.
-func placeIndex(root *folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
-	for _, p := range sortedNames(index) {
+func placeIndex(root *folder, src datafiles.Source, m datafiles.Manifest) {
+	for _, p := range sortedNames(m.Index) {
 		segs := strings.Split(p, ".")
-		madeFolder(root, segs[:len(segs)-1]).putUnloaded(segs[len(segs)-1], &indexed{entry: index[p], src: src})
+		g, name := madeFolder(root, segs[:len(segs)-1]), segs[len(segs)-1]
+		g.putUnloaded(name, &indexed{entry: m.Index[p], src: src})
+		g.setReads(name, m.Reads)
 	}
 }
 

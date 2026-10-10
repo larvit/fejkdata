@@ -1,15 +1,18 @@
 package fejkdata
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 )
 
 // templateSite is a template to resolve, with its folder and category, both empty for an inline
 // template, and eachNode's label for it.
 type templateSite struct {
-	t      *template
-	folder []string
-	label  string
+	t        *template
+	folder   []string
+	label    string
+	category *categorySite
 }
 
 // resolveCategoryTemplates resolves every template of the categories, once all data is merged, so a
@@ -19,7 +22,7 @@ func resolveCategoryTemplates(sites []categorySite, root map[string]node) error 
 	for _, s := range sites {
 		if err := eachNode(s.n, s.path, func(label string, n node) error {
 			if t, isTemplate := n.(*template); isTemplate {
-				ts = append(ts, templateSite{t: t, folder: s.dir, label: label})
+				ts = append(ts, templateSite{t: t, folder: s.dir, label: label, category: &s})
 			}
 			return nil
 		}); err != nil {
@@ -56,7 +59,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	for _, s := range ts {
 		refs, err := s.t.resolveRefs(s.folder, s.label, root)
 		if err != nil {
-			return err
+			return s.withReads(err)
 		}
 		s.t.refs = refs
 	}
@@ -86,4 +89,17 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		b.target, b.addressed = target, names.addressed[b]
 	}
 	return nil
+}
+
+// withReads adds to err, where a reference of a category names nothing, the modules the
+// category's manifest names it reading by default, or that it names none.
+func (s templateSite) withReads(err error) error {
+	var ne noEntry
+	if s.category == nil || !errors.As(err, &ne) {
+		return err
+	}
+	if len(s.category.reads) == 0 {
+		return fmt.Errorf("%w, and the module holding %s names no module it reads by default", err, s.category.path)
+	}
+	return fmt.Errorf("%w; the module holding %s reads by default %s", err, s.category.path, strings.Join(s.category.reads, ", "))
 }
