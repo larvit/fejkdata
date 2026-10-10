@@ -84,8 +84,8 @@ func (loadError) Is(target error) bool { return target == ErrLoad }
 // namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
 // generator with no data at all renders templates that read none. A source whose
 // .fejkdata.json carries an index, as the shipped set's does, loads each category on the
-// first call reaching it. Data failing to load, here or there, gives an error matching
-// [ErrLoad].
+// first call reaching it. Data failing to load, in New or on that first call, gives an
+// error matching [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	c := config{shipped: true}
 	for _, opt := range opts {

@@ -176,7 +176,7 @@ func checkParent(index map[string]IndexEntry, p string) error {
 		sibling = p[:dot+1] + parent
 	}
 	if _, ok := index[sibling]; !ok {
-		return fmt.Errorf("parent %q names no entry beside it in this index", parent)
+		return fmt.Errorf("parent %q names no entry in this entry's folder; a table in an indexed source links only to a parent in the same index, so to link under another source's table, drop this index and the source loads in New", parent)
 	}
 	return nil
 }

@@ -156,8 +156,7 @@ Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo
 
 ## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
 
-2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09,
-and narrowed by the maintainer on 2026-10-10.
+2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
 
 Goal 13: `New` pays nothing for a category a run never reaches. A manifest,
 `.fejkdata.json` at a source's root, may carry an index: each category's parent table and
@@ -171,11 +170,11 @@ at first reach.
 Goal 6: a source without an index loads whole in `New`, with every indexed category it
 reads, so each mistake in it is `New`'s error. Goal 6.3: an indexed source from anyone
 else may fail at first reach; the call then returns the load's error, matching
-`ErrLoad`, the same every call. So does an indexed category reading one that another
-source replaced, where the replacement breaks it. The maintainer chose that on
-2026-10-10 over loading in `New` every indexed category depending on a replaced one:
-readers of three rounds ruled that rule harder to follow (goal 3), and it needed every
-entry to list what its templates read.
+`ErrLoad`, the same every call. An indexed category reading one that another source
+replaced fails the same way, at its first reach, when the replacement breaks it. The
+maintainer chose that on 2026-10-10 over loading in `New` every indexed category
+depending on a replaced one: three rounds of the comprehension panel ruled that rule
+harder to follow (goal 3), and it needed every entry to list what its templates read.
 
 A first reach checks only a table's `parent` against its entry, so a table loads with its
 parent and a failed load puts back whole. Proving the rest of an index is its author's,

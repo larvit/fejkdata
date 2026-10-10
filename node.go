@@ -23,7 +23,7 @@ type node interface{ isNode() }
 // A name stands in children or in unloaded, never both; put and putUnloaded keep it so.
 type folder struct {
 	children map[string]node
-	unloaded map[string]*indexed // the categories here an index names and no call has reached yet
+	unloaded map[string]*indexed
 }
 
 func (*folder) isNode() {}
