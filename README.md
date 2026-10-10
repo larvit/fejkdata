@@ -163,7 +163,8 @@ it to a name and read the name
 The shipped data comes in modules, each a Go package under [`data/`](data) that embeds
 its files, so nothing is read from disk: one per locale (`en_US`, `sv_SE`), one per
 country's tree of places (`geo/SE`, `geo/US`), and the locale-neutral `misc`. The CLI
-carries every module, and a library loads those it imports ([Library](#library)). A
+carries every module, and a library loads those it passes to `WithDataFS`
+([Library](#library)). A
 directory is a namespace: each JSON file is a category named after the file, each
 subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is `sv_SE.person` and
 replaces the shipped one. A module's tree spells its namespace the same way, so

@@ -90,7 +90,7 @@ func loadInline(root *folder, n node, label string, typedByGo bool) error {
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	if err := loadReached(root, nil, referenced(root, nil, nodes)); err != nil {
+	if err := loadReached(root, nil, referenced(root, nil, nodes), nil); err != nil {
 		return loadError{err}
 	}
 	return pipeline{

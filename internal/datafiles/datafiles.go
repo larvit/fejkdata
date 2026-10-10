@@ -12,13 +12,12 @@ import (
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
-// Source is one tree to load: an fs.FS and the directory in it to start from. label
-// prefixes file names in errors; onDisk marks label as a directory that must exist.
+// Source is one tree to load, from the root of an fs.FS. label prefixes file names in
+// errors; onDisk marks label as a directory that must exist.
 type Source struct {
 	fsys   fs.FS
 	label  string
 	onDisk bool
-	base   string
 }
 
 // Dir is the tree in the directory path, its errors labelled with it.
@@ -26,10 +25,10 @@ func Dir(path string) Source {
 	return Source{fsys: os.DirFS(path), label: path, onDisk: true}
 }
 
-// FS is the tree in fsys below base, "" for its root.
-func FS(fsys fs.FS, base string) Source { return Source{fsys: fsys, base: base} }
+// FS is the tree in fsys.
+func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
-// Category is one category file: the folders above it from the source's base, its name,
+// Category is one category file: the folders above it from the source's root, its name,
 // and its parsed JSON.
 type Category struct {
 	Folders []string
@@ -50,7 +49,7 @@ func (s Source) labelled(p string) string {
 
 // dirPath is the folder that dir names, as fsys spells it.
 func (s Source) dirPath(dir []string) string {
-	if p := path.Join(append([]string{s.base}, dir...)...); p != "" {
+	if p := path.Join(dir...); p != "" {
 		return p
 	}
 	return "."

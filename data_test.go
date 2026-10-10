@@ -63,7 +63,7 @@ func TestShippedDataCategories(t *testing.T) {
 	}
 }
 
-// TestShippedMiscCategories covers the locale-neutral data/misc folder: a proper
+// TestShippedMiscCategories covers the locale-neutral misc module: a proper
 // v4 UUID (version/variant nibbles fixed), a MAC address, and credit-card numbers
 // whose trailing {luhn()} check passes.
 func TestShippedMiscCategories(t *testing.T) {
@@ -467,8 +467,8 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 	}
 }
 
-// TestShippedNamespacedTree loads the whole data/ tree (not a single locale) and
-// reaches each locale through its folder segment: data/sv_SE/person -> sv_SE.person.
+// TestShippedNamespacedTree loads every shipped module and reaches each locale through its
+// folder segment: data/sv_SE/sv_SE/person.json -> sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {

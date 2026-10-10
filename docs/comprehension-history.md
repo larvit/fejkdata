@@ -304,3 +304,29 @@ Junior A, decided by:
 - Locality, Shape: `node.go:23` `folder`: `put` and `putUnloaded` keep a name in one map, where `compileInto` and `unloadedCategory.load` kept it as a pair
 - Locality, Shape: `data.go:12` `loadSources`: one load path, where `config.load` forked and `loadShipped` was a second, panic-only pipeline
 - Shape: `data.go:81` `categorySite`: embeds `categoryAt`, where `unloadedCategory` repeated its fields
+
+## 2026-10-10T11:11:16Z, PR #203 at 421bb49, against bf1becb
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | worse | same | worse |
+| Inherited architect | same | worse | worse | same | worse |
+
+Mid A, decided by:
+
+- Locality, Overall: `node.go:28` `folder.reads`: a third per-name map beside children and unloaded with no invariant tying it to them; every placement site must remember a separate setReads call (`data.go:36` addSource, `data.go:76` mergeFolder, `index.go:27` placeIndex)
+- Locality, Shape: `resolve.go:96` `withReads`: the manifest's reads travels through folder, categorySite.reads and templateSite.category to feed one error clause, four files to hold for one sentence of error text
+- Shape: `internal/datafiles/manifest.go:22` `Manifest.Reads`: reads as a load dependency the loader acts on, though it only feeds error text, and "reads" already means a template reading a name or column
+- Shape: `data/geo/SE/fs.go:2` `SE`: package names SE, US, en_US, sv_SE; in Modules SE.FS sits beside sv_SE.FS with nothing saying which is geography
+- Locality: `fejkdata.go:94` `New`: loads exactly what the options name, easier than the hidden config{shipped: true} default, though config.given brings back a smaller flag
+
+Inherited architect, decided by:
+
+- Locality, Shape, Overall: `node.go:27` `folder.reads`: a third per-name map that put and putUnloaded leave alone, so addSource, mergeFolder and placeIndex must each call setReads, and batch.load relies on placeIndex having done it; action at a distance for one error suffix
+- Locality: `resolve.go:94` `templateSite.withReads`: reads travels folder, categorySite.reads, a *categorySite per template, then withReads, four hops across three files
+- Shape: `data/geo/SE/fs.go:2` `SE`: bare package names SE and US do not say geography at WithDataFS(sv_SE.FS, SE.FS); the namespace-doubling rule lives only in README and test code
+- Shape, Self-sufficiency: `internal/datafiles/manifest.go:22` `Manifest.Reads`: suggests it drives loading though it only feeds withReads; "by default" needs README goal 9.2
+- Locality, Navigation: `data/modules.go:17` `Modules`: the hidden shippedFS default is gone; Modules lists the modules, errNoData names the fix, and the CLI loads data.Modules() in plain sight
+- Locality: `fejkdata.go:40` `config.given`: WithDataFS() with no arguments differs from no option, learnt only from its comment

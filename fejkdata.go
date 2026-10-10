@@ -65,7 +65,7 @@ func WithDataPath(dir string) Option {
 func WithDataFS(modules ...fs.FS) Option {
 	return func(c *config) {
 		for _, fsys := range modules {
-			c.sources = append(c.sources, datafiles.FS(fsys, ""))
+			c.sources = append(c.sources, datafiles.FS(fsys))
 		}
 		c.given = true
 	}

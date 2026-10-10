@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"path"
 	"sort"
 	"strings"
 
@@ -19,7 +18,8 @@ const ManifestFile = ".fejkdata.json"
 type Manifest struct {
 	// Index is every category of the source by dot path; nil where the manifest has none.
 	Index map[string]IndexEntry `json:"index"`
-	// Reads is every module the source reads by default, directly or through another.
+	// Reads is every module the source reads by default, directly or through another; the
+	// error for a reference naming nothing names them, and nothing loads them.
 	Reads []string `json:"reads"`
 }
 
@@ -35,7 +35,7 @@ func (s Source) Manifest() (Manifest, error) {
 	if err := s.check(); err != nil {
 		return Manifest{}, err
 	}
-	b, err := fs.ReadFile(s.fsys, path.Join(s.base, ManifestFile))
+	b, err := fs.ReadFile(s.fsys, ManifestFile)
 	if errors.Is(err, fs.ErrNotExist) {
 		return Manifest{}, nil
 	}
@@ -50,7 +50,7 @@ func (s Source) Manifest() (Manifest, error) {
 }
 
 // ManifestPath is the manifest's path as errors name it.
-func (s Source) ManifestPath() string { return s.labelled(path.Join(s.base, ManifestFile)) }
+func (s Source) ManifestPath() string { return s.labelled(ManifestFile) }
 
 // decodeManifest decodes a manifest, refusing any key or shape it does not define, and
 // reports every mistake: first each entry's own, in path order, then each parent naming
