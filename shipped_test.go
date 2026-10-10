@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"maps"
 	"os"
-	"path"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -19,6 +18,10 @@ import (
 	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
+	"github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/data/geo/SE"
+	"github.com/larvit/fejkdata/data/geo/US"
+	"github.com/larvit/fejkdata/data/misc"
 	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
@@ -47,25 +50,16 @@ func (m shippedModule) holds(path string) bool {
 	return strings.HasPrefix(path, strings.ReplaceAll(m.dir, "/", ".")+".")
 }
 
-// shippedModules is every module data.Modules lists, each folder found by descending its
-// tree while a folder holds one folder and nothing else.
+// shippedModules is every module data.Modules lists, each beside its folder under data/.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
-	var out []shippedModule
-	for _, fsys := range data.Modules() {
-		dir := "."
-		for {
-			entries, err := fs.ReadDir(fsys, dir)
-			if err != nil {
-				t.Fatal(err)
-			}
-			entries = slices.DeleteFunc(entries, func(e fs.DirEntry) bool { return strings.HasPrefix(e.Name(), ".") })
-			if len(entries) != 1 || !entries[0].IsDir() {
-				break
-			}
-			dir = path.Join(dir, entries[0].Name())
-		}
-		out = append(out, shippedModule{fsys: fsys, dir: dir})
+	out := []shippedModule{{en_US.FS, "en_US"}, {SE.FS, "geo/SE"}, {US.FS, "geo/US"}, {misc.FS, "misc"}, {sv_SE.FS, "sv_SE"}}
+	var listed []fs.FS
+	for _, m := range out {
+		listed = append(listed, m.fsys)
+	}
+	if !slices.Equal(listed, data.Modules()) {
+		t.Fatal("data.Modules() lists other modules than shippedModules does")
 	}
 	return out
 }
@@ -180,7 +174,7 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	t.Helper()
 	index := map[string]datafiles.IndexEntry{}
 	for _, m := range shippedModules(t) {
-		manifest, err := datafiles.FS(m.fsys, "").Manifest()
+		manifest, err := datafiles.FS(m.fsys).Manifest()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -191,7 +185,7 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 
 func TestEachShippedModuleNamesWhatItReads(t *testing.T) {
 	for _, m := range shippedModules(t) {
-		manifest, err := datafiles.FS(m.fsys, "").Manifest()
+		manifest, err := datafiles.FS(m.fsys).Manifest()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -200,6 +194,33 @@ func TestEachShippedModuleNamesWhatItReads(t *testing.T) {
 		}
 		if slices.Contains(manifest.Reads, m.importPath()) {
 			t.Errorf("%s reads %v, want itself left out", m.dir, manifest.Reads)
+		}
+	}
+}
+
+func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
+	modules := shippedModules(t)
+	for _, m := range modules {
+		manifest, err := datafiles.FS(m.fsys).Manifest()
+		if err != nil {
+			t.Fatal(err)
+		}
+		set := []fs.FS{m.fsys}
+		for _, read := range manifest.Reads {
+			i := slices.IndexFunc(modules, func(r shippedModule) bool { return r.importPath() == read })
+			if i < 0 {
+				t.Fatalf("%s reads %s, which no shipped module is", m.dir, read)
+			}
+			set = append(set, modules[i].fsys)
+		}
+		f, err := New(WithDataFS(set...))
+		if err != nil {
+			t.Fatalf("New(%s with what it reads) = %v", m.dir, err)
+		}
+		for _, p := range sortedNames(manifest.Index) {
+			if _, err := f.Fake(p); err != nil {
+				t.Errorf("%s with what it reads: Fake(%q) = %v", m.dir, p, err)
+			}
 		}
 	}
 }
@@ -233,6 +254,19 @@ func TestADataPathManifestNamesWhatItReads(t *testing.T) {
 	})
 	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
 		t.Errorf("New = %v, want the module x reads named", err)
+	}
+}
+
+func TestAnIndexedModuleNamesWhatItReads(t *testing.T) {
+	f, err := New(WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"x": {"paths": [""]}}, "reads": ["example.com/places"]}`)},
+		"x.json":         {Data: []byte(`"{/place}"`)},
+	}))
+	if err != nil {
+		t.Fatalf("New = %v", err)
+	}
+	if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
+		t.Errorf(`Fake("x") = %v, want the module x reads named`, err)
 	}
 }
 
@@ -405,8 +439,8 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"index": {"a": {"paths": ["", "x", "x"]}}}`:               {`paths item 3 repeats "x"`},
 		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:          {`parent "b" names no entry`},
 		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`:         {`unknown key "reads"`},
-		`{"reads": "b"}`:     {"reads must be a list, not a string"},
-		`{"reads": ["", 3]}`: {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
+		`{"index": {}, "reads": "b"}`:                               {"reads must be a list, not a string"},
+		`{"index": {}, "reads": ["", 3]}`:                           {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
 	} {
 		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
