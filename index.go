@@ -60,7 +60,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, []categoryAt{c}, nil); err != nil {
+		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -107,9 +107,8 @@ func needs(root *folder, s categorySite) []categoryAt {
 
 // loadReached loads the unloaded categories among wanted and every unloaded category they
 // or sites need, then runs sites and all it loaded through a whole load's pipeline. On an
-// error it puts back what it loaded, so the next call fails the same way. defaultModules
-// holds, by path, the modules the source of each of sites reads by default.
-func loadReached(root *folder, sites []categorySite, wanted []categoryAt, defaultModules map[string][]string) error {
+// error it puts back what it loaded, so the next call fails the same way.
+func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
@@ -120,14 +119,6 @@ func loadReached(root *folder, sites []categorySite, wanted []categoryAt, defaul
 		err = b.run(root, sites)
 	}
 	if err != nil {
-		err = withDefaultModules(err, func(category string) []string {
-			for _, l := range b {
-				if l.site.path == category {
-					return l.was.defaultModules
-				}
-			}
-			return defaultModules[category]
-		})
 		b.putBack()
 	}
 	return err
@@ -158,6 +149,7 @@ func (b *batch) load(root *folder, queue []categoryAt) error {
 			return err
 		}
 		s := siteIn(c.dir, c.in, c.name)
+		s.defaultModules = x.defaultModules
 		*b = append(*b, loaded{site: s, was: x})
 		if parent := parentOf(s.n); parent != x.entry.Parent {
 			return fmt.Errorf("%s: the index entry for %s %s, and its table %s", x.src.ManifestPath(), s.path, namesParent(x.entry.Parent), namesParent(parent))
@@ -176,19 +168,6 @@ func (b batch) run(root *folder, sites []categorySite) error {
 		return nil
 	}
 	return categoryPipeline(sites, root.children).run()
-}
-
-// withDefaultModules adds to err, where a reference of a category names nothing, the modules
-// the category's source reads by default, or that it names none.
-func withDefaultModules(err error, of func(category string) []string) error {
-	var u unresolvedRead
-	if !errors.As(err, &u) {
-		return err
-	}
-	if modules := of(u.category); len(modules) > 0 {
-		return fmt.Errorf("%w; the module holding %s reads by default %s", err, u.category, strings.Join(modules, ", "))
-	}
-	return fmt.Errorf("%w, and the module holding %s names no module it reads by default", err, u.category)
 }
 
 func (b batch) putBack() {
