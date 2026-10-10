@@ -107,7 +107,7 @@ func TestReferenceErrors(t *testing.T) {
 		"field key using the reference prefix": {"cat": `{"format":"hi","..x":"{/nope}"}`},
 	}
 	for name, files := range cases {
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
+		if _, err := New(WithDataPath(writeData(t, files))); err == nil {
 			t.Errorf("%s: New = nil error, want a reference error", name)
 		}
 	}
@@ -142,13 +142,13 @@ func TestAReferenceIntoItsOwnCategoryIsAFreshDraw(t *testing.T) {
 		"the category in its format": `{"format":"{/cat}"}`,
 		"a field reading itself":     `{"format":"{x}","x":"{/cat.x}"}`,
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+		_, err := New(WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil || !strings.Contains(err.Error(), "cycle") {
 			t.Errorf("%s: New = %v, want the cycle refused", name, err)
 		}
 	}
 	// Reading a sibling as a path is the spelling that stays.
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	if _, err := New(WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{y.v}","y":{"format":"{v}","v":["1","2"]}}`,
 	}))); err != nil {
 		t.Errorf("New = %v, want the sibling path accepted", err)
@@ -173,7 +173,7 @@ func TestNewErrorIsDeterministic(t *testing.T) {
 		dir := writeData(t, files)
 		var first string
 		for i := 0; i < 50; i++ {
-			_, err := New(WithoutShippedData(), WithDataPath(dir))
+			_, err := New(WithDataPath(dir))
 			if err == nil {
 				t.Fatalf("%s: New = nil error, want a load error", name)
 			}
@@ -206,11 +206,11 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		{
 			"bad reference reached through another reference",
 			map[string]string{"a": `"{/b}"`, "b": `"{/nope}"`},
-			`fejkdata: b: reference {/nope}: no entry "nope"`,
+			`fejkdata: b: reference {/nope}: no entry "nope", and the module holding b names no module it reads by default`,
 		},
 	}
 	for _, c := range cases {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
+		_, err := New(WithDataPath(writeData(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error", c.name)
 			continue
@@ -222,7 +222,7 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 }
 
 func TestReferenceThroughChoiceNeedsEveryVariant(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"who":  `[{"format":"{f}{h}","f":"1","h":"x"},{"format":"{g}{h}","g":"2","h":"y"}]`,
 		"card": `"{/who.f}"`,
 	})))
@@ -255,7 +255,7 @@ func TestReferencesIntoOneLevelLoad(t *testing.T) {
 		{"row": `{"format":"{p.first} {/hop}","p":[{"format":"{first}","first":"A","last":"1"},{"format":"{first}","first":"B","last":"2"}]}`, "hop": `"{/row.p.last}"`},
 		{"sv_SE/person": cat, "sv_SE/mail": `"{.person} <{/sv_SE.person.p.first}>"`},
 	} {
-		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)), WithSeed(1))
+		f, err := New(WithDataPath(writeData(t, files)), WithSeed(1))
 		if err != nil {
 			t.Errorf("New(%v) = %v, want each read a draw of its own", files, err)
 			continue
@@ -325,7 +325,7 @@ func TestReferenceSigilErrors(t *testing.T) {
 		"missing sibling":          {"sv_SE/a": `"{.nope}"`},
 		"slash in a field name":    {"a": `{"format":"{x}","x":"1","a/b":"2"}`},
 	} {
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err == nil {
+		if _, err := New(WithDataPath(writeData(t, files))); err == nil {
 			t.Errorf("%s: New = nil error, want a reference error", name)
 		}
 	}
@@ -336,7 +336,7 @@ func TestSlashAfterAReferenceSigilIsRejected(t *testing.T) {
 		"after ..": {"sv_SE/person": `"Ada"`, "sv_SE/deep/a": `"{../person}"`},
 		"after .":  {"sv_SE/person": `"Ada"`, "sv_SE/a": `"{./person}"`},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
+		_, err := New(WithDataPath(writeData(t, files)))
 		if err == nil || !strings.Contains(err.Error(), "person}") || !strings.Contains(err.Error(), "write {") {
 			t.Errorf("%s: New = %v, want the slash rejected naming the spelling", name, err)
 		}
@@ -344,7 +344,7 @@ func TestSlashAfterAReferenceSigilIsRejected(t *testing.T) {
 }
 
 func TestACycleThroughASelectedRowIsRefused(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{
+	_, err := New(WithDataPath(writeFiles(t, map[string]string{
 		"x.json": `{"format":"{v} {/y}","rows":"x.tsv","key":"code"}`,
 		"x.tsv":  "code\tv\n1\ta\n2\tb\n",
 		"y.json": `"{/x[1]}"`,

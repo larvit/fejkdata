@@ -16,7 +16,7 @@ func tmpl(t *testing.T, f *Generator, input string) string {
 
 func shipped(t *testing.T, opts ...Option) *Generator {
 	t.Helper()
-	f, err := New(append([]Option{WithSeed(1)}, opts...)...)
+	f, err := New(append([]Option{withShipped(), WithSeed(1)}, opts...)...)
 	if err != nil {
 		t.Fatal(err)
 	}

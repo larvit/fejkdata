@@ -17,7 +17,7 @@ func TestAnOptionOfTheWrongKindIsNamedByItsJSONKind(t *testing.T) {
 			t.Errorf("compile(%s) = %v, want %q", src, err, want)
 		}
 	}
-	_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":5}`, "t.tsv": "a\nx\n"})))
+	_, err := New(WithDataPath(writeFiles(t, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv","key":5}`, "t.tsv": "a\nx\n"})))
 	if err == nil || !strings.Contains(err.Error(), "key must be a string, not a number") {
 		t.Errorf("key 5 = %v, want the kind named", err)
 	}

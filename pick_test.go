@@ -152,7 +152,7 @@ func TestANameReadOnceIsWhatItBinds(t *testing.T) {
 func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
 	// A path token renders what it lands on, not the level it started from, so the
 	// cycle walk has to follow it there.
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"{p.x}","p":{"format":"static","x":"{/b}"}}`,
 		"b": `"{/a}"`,
 	})))
@@ -162,7 +162,7 @@ func TestCycleReachedOnlyByAPathTokenIsRejected(t *testing.T) {
 }
 
 func TestACycleInALaterVariantIsRejected(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{p.x}","p":[{"format":"h","x":"safe"},{"format":"h","x":"{/hop}"}]}`,
 		"hop": `"{/cat}"`,
 	})))
@@ -172,7 +172,7 @@ func TestACycleInALaterVariantIsRejected(t *testing.T) {
 }
 
 func TestCycleThroughAPathTokenIsRejected(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"{p.x}","p":{"format":"{x}","x":"{/b}"}}`,
 		"b": `"{/a}"`,
 	})))
@@ -190,7 +190,7 @@ func TestADeepDiamondChainLoads(t *testing.T) {
 			`{"format":"{a}{b}","a":"{/l%d}","b":"{/l%d}"}`, i-1, i-1)
 	}
 	files["thing"] = `{"format":"{p.first} {/l30}","p":{"format":"x","first":["A","B"]}}`
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, files))); err != nil {
+	if _, err := New(WithDataPath(writeData(t, files))); err != nil {
 		t.Fatalf("New = %v, want a deep diamond chain to load", err)
 	}
 }
@@ -208,7 +208,7 @@ func TestNestedChoiceDrawsOneVariant(t *testing.T) {
 }
 
 func TestRepeatingLevelIsNamedInTheError(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"[{p.a.b}]","p":{"format":"{a}","a":{"format":"{b}","repeat":3,"separator":",","b":"z"}}}`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), `"p.a"`) {
@@ -223,7 +223,7 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 		`{"format":"[{p.a}]","p":{"format":"{a}","repeat":3,"separator":",","a":"z"}}`,
 		`{"format":"[{p.a}]","p":[{"format":"{a}","repeat":3,"separator":",","a":"x"},{"format":"{a}","a":"y"}]}`,
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat})))
+		_, err := New(WithDataPath(writeData(t, map[string]string{"cat": cat})))
 		if err == nil || !strings.Contains(err.Error(), "repeat") {
 			t.Errorf("New(%s) = %v, want a path into a repeating level rejected", cat, err)
 		}
@@ -231,7 +231,7 @@ func TestPathIntoARepeatingLevelIsRejected(t *testing.T) {
 }
 
 func TestPathIntoAPlainTemplateNamesTheMissingField(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{a.nope}","a":{"format":"x","b":"1"}}`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), `no field "nope"`) {
@@ -273,7 +273,7 @@ func TestDottedTokenErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": c.file})))
+		_, err := New(WithDataPath(writeData(t, map[string]string{"cat": c.file})))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want it to mention %q", name, err, c.want)
 		}
@@ -285,7 +285,7 @@ func TestEmptyPathSegmentIsRejected(t *testing.T) {
 		"trailing dot": `{"format":"[{a.}]","a":"x"}`,
 		"triple dot":   `{"format":"[{a...b}]","a":"x"}`,
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": file})))
+		_, err := New(WithDataPath(writeData(t, map[string]string{"cat": file})))
 		if err == nil || !strings.Contains(err.Error(), "empty segment") {
 			t.Errorf("%s: New = %v, want it to name the empty segment", name, err)
 		}
@@ -294,7 +294,7 @@ func TestEmptyPathSegmentIsRejected(t *testing.T) {
 
 func TestASubFieldIsReachableByFake(t *testing.T) {
 	dir := writeData(t, map[string]string{"address": places("{place as p}{p.postal-code} {p.locality}")})
-	f, err := New(WithoutShippedData(), WithDataPath(dir), WithSeed(9))
+	f, err := New(WithDataPath(dir), WithSeed(9))
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}

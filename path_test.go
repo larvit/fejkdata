@@ -130,7 +130,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"cat": `[{"format":"{a.b}","a.b":"1"},{"format":"{a}","a":{"format":"{b}","b":"2"}}]`,
 	})
-	_, err := New(WithoutShippedData(), WithDataPath(dir))
+	_, err := New(WithDataPath(dir))
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}
@@ -150,7 +150,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 // single-variant choice always draws the same item, so it needs no every-variant
 // guard and the error can name the field that is missing.
 func TestMissingFieldNamesItself(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(1))
+	f := shipped(t, WithSeed(1))
 	_, err := f.Fake("sv_SE.person.typo")
 	if err == nil || !strings.Contains(err.Error(), `no field "typo"`) {
 		t.Errorf("Fake(person.typo) = %v, want it to name the missing field", err)

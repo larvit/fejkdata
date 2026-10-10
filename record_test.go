@@ -530,7 +530,7 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 // command a fixture author types: a category of one value has no columns, and the
 // error names the record that gives it one.
 func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(1))
+	f := shipped(t, WithSeed(1))
 	want := `{"format":"","personnummer":"{/sv_SE.personnummer}"}`
 	_, err := f.FakeRecord("sv_SE.personnummer")
 	if err == nil || !strings.Contains(err.Error(), want) {

@@ -65,7 +65,7 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 		if strings.Contains(body, "…") {
 			continue
 		}
-		f, err := New(WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1))
+		f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1))
 		if err != nil {
 			t.Errorf("README example does not load: %v\n%s", err, body)
 			continue
@@ -91,7 +91,7 @@ func TestReadmeRecordExample(t *testing.T) {
 	if block == nil {
 		t.Fatal("README lost the Records example")
 	}
-	f, err := New(WithDataPath(writeData(t, map[string]string{"users": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"users": block[1]})), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestReadmeSQLExampleOutput(t *testing.T) {
 	if block == nil || want == nil {
 		t.Fatal("README lost the SQL example or its printed output")
 	}
-	f, err := New(WithDataPath(writeData(t, map[string]string{"sql": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"sql": block[1]})), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +135,7 @@ func TestReadmeDatatypeExample(t *testing.T) {
 		t.Fatal("README lost the Datatype section")
 	}
 	block := jsonBlock.FindStringSubmatch(src[i:])
-	f, err := New(WithDataPath(writeData(t, map[string]string{"order": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"order": block[1]})), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func TestReadmeTableExample(t *testing.T) {
 		t.Fatal("README Table section has no json block")
 	}
 	body := src[i:][at[2]:at[3]]
-	f, err := New(WithDataPath(writeFiles(t, exampleFiles(t, src, i+at[0], body))), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, i+at[0], body))), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}

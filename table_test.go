@@ -165,7 +165,7 @@ func TestTableCellsAreStringNodes(t *testing.T) {
 		"place.json": `{"format":"{name}","rows":"place.tsv"}`,
 		"place.tsv":  "name\tzip\nA\t{name}\nB\t2\n",
 	})
-	if _, err := New(WithoutShippedData(), WithDataPath(bad)); err == nil || !strings.Contains(err.Error(), "place.tsv") || !strings.Contains(err.Error(), `no field "name"`) {
+	if _, err := New(WithDataPath(bad)); err == nil || !strings.Contains(err.Error(), "place.tsv") || !strings.Contains(err.Error(), `no field "name"`) {
 		t.Fatalf("New = %v, want a cell reading a column refused, naming the file", err)
 	}
 }
@@ -327,7 +327,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
 		}
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{
+		_, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{
 			"x.json": `{"format":"{y}","y":"a"}`,
 			"t.json": strconv.Quote("{/" + path + "}"),
 		}))))
@@ -335,7 +335,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
 		}
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
+	if _, err := New(WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
 		t.Errorf("{a..b} on a field: New = %v, want an error mentioning only from a table's row", err)
 	}
 }
@@ -464,7 +464,7 @@ func TestTableSelectorInAReference(t *testing.T) {
 		"selector on template":           {`"{/x[1].a}"`, "not a table"},
 		"selector on repeating template": {`"{/rep[1]}"`, "not a table"},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
+		_, err := New(WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want an error mentioning %q", name, err, c.want)
 		}
@@ -484,7 +484,7 @@ func TestTableReadsBesideEachOtherLoad(t *testing.T) {
 		`"{/region[12].locality[L4].name} {/region[12].locality[L7].name}"`,
 		`"{/region[14].name} {/locality[L4].name}"`,
 	} {
-		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
+		f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want each read a draw of its own", json, err)
 			continue
@@ -504,7 +504,7 @@ func TestSelectedRowsAgreeAcrossSpellings(t *testing.T) {
 		"a draw under the selection": `"{/region[12].name}|{/region[12].municipality.locality[L4].name}"`,
 	}
 	for name, json := range accepted {
-		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
+		f, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{"x.json": json}))), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 			continue
@@ -595,7 +595,7 @@ func TestTableFences(t *testing.T) {
 		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "cycle"},
 	}
 	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, c.files)))
+		_, err := New(WithDataPath(writeFiles(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want it rejected at load", name)
 			continue
@@ -616,7 +616,7 @@ func TestTableFences(t *testing.T) {
 		"a cell repeating a reference":                   with(base, map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\nx\n{/region} {/region} {uppercase(/region)}\n"}),
 	}
 	for name, files := range accepted {
-		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files)), WithSeed(1))
+		f, err := New(WithDataPath(writeFiles(t, files)), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
 			continue
@@ -627,7 +627,7 @@ func TestTableFences(t *testing.T) {
 			}
 		}
 	}
-	if _, err := New(WithoutShippedData(), WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
+	if _, err := New(WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
 		t.Fatalf("New(WithDataFS) = %v, want a table loaded from any fs.FS", err)
 	}
 	inline := newGenerator(t, writeFiles(t, base))
@@ -711,7 +711,7 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 	}
 	symbols := regexp.MustCompile(`€|kr|\$`)
 	for name, more := range accepted {
-		g, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
+		g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 			continue
@@ -743,7 +743,7 @@ func TestTableRowsAreAlternatives(t *testing.T) {
 		"a cell reaching another's cells":               {"y.json": `{"format":"{sym}","rows":"y.tsv","key":"k"}`, "y.tsv": "k\tsym\n1\t{/cur[SEK].sym}\n2\t{/cur[USD].sym}\n", "cur.tsv": "code\tsym\nEUR\t€\nSEK\tkr\nUSD\t$\n", "country.tsv": "alpha2\tname\tmoney\nFI\tFinland\t{/y[1].sym} {/cur[EUR].sym}\nSE\tSweden\t{/cur[SEK].sym}\n"},
 	}
 	for name, more := range twoRows {
-		g, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
+		g, err := New(WithDataPath(writeFiles(t, with(files, more))), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want each read a draw of its own", name, err)
 			continue
@@ -765,7 +765,7 @@ func TestTableOverridesByLayering(t *testing.T) {
 		"misc/language.json": `{"format":"{name}","rows":"language.tsv","key":"code"}`,
 		"misc/language.tsv":  "code\tname\nxx\tNowhere\nyy\tElsewhere\n",
 	})
-	f, err := New(WithDataPath(mine), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(mine), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -778,7 +778,7 @@ func TestTableOverridesByLayering(t *testing.T) {
 }
 
 func TestShippedTables(t *testing.T) {
-	f := newGenerator(t, "data/misc", WithSeed(1))
+	f := newGenerator(t, "data/misc/misc", WithSeed(1))
 	for path, want := range map[string]string{
 		"territory[SE]":                         "Sweden",
 		"territory[Sweden].alpha3":              "SWE",
@@ -893,7 +893,7 @@ func TestShippedTables(t *testing.T) {
 		Method     string `fake:"{m.method}"`
 		Safe       bool   `fake:"{m.safe}"`
 	}
-	if err := newGenerator(t, "data", WithSeed(1)).FakeStruct(&row); err != nil {
+	if err := shipped(t, WithSeed(1)).FakeStruct(&row); err != nil {
 		t.Fatalf("FakeStruct into a bool = %v, want the register's yes and no shipped as true and false", err)
 	}
 	want, named := map[string][2]bool{
@@ -992,7 +992,7 @@ func TestEveryTldRowSpellsItsKey(t *testing.T) {
 // columns asked for and that every row fills them.
 func shippedRows(t *testing.T, file string, want ...string) (map[string]int, [][]string) {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("data", "misc", file))
+	data, err := os.ReadFile(filepath.Join("data", "misc", "misc", file))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1122,7 +1122,7 @@ func TestCellReadsLoadAndRender(t *testing.T) {
 		"region.tsv":       "code\tname\tpopulation\tnote\n01\tStockholms län\t2400000\t{/addr}\n12\tSkåne län\t1400000\t-\n14\tVästra Götalands län\t1750000\t-\n",
 	})
 	for _, x := range []string{`"{/region.note} {/municipality.note}"`, `"{/region}|{/municipality}"`} {
-		f, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, with(cells, map[string]string{"x.json": x}))), WithSeed(1))
+		f, err := New(WithDataPath(writeFiles(t, with(cells, map[string]string{"x.json": x}))), WithSeed(1))
 		if err != nil {
 			t.Fatalf("New(%s) = %v, want the cells accepted", x, err)
 		}
@@ -1136,7 +1136,7 @@ func TestDatatypeRefusesARowRead(t *testing.T) {
 	for _, format := range []string{"{/region}", "{/region[01]}"} {
 		files := with(geo(), map[string]string{"row.json": `{"format":"","col":{"format":"` + format + `","datatype":"integer"}}`})
 		want := `"{name}" renders a row of region, which is composed text`
-		if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s: New = %v, want an error containing %q", format, err, want)
 		}
 	}
@@ -1148,12 +1148,12 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 		"g/t.tsv":  "a\tb\nx\t-\ny\t{/nope}\n",
 	}
 	want := "g.t.b, line 3: reference {/nope}"
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+	if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a cell's bad reference: New = %v, want it to contain %q", err, want)
 	}
 	files["g/t.json"], files["g/t.tsv"] = `{"format":"{a} {/nope}","rows":"t.tsv","key":"a"}`, "a\tb\nx\t-\ny\t-\n"
 	want = "g.t: reference {/nope}"
-	if _, err := New(WithoutShippedData(), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+	if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a format's bad reference: New = %v, want it to contain %q", err, want)
 	}
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))
@@ -1165,7 +1165,7 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 			t.Errorf("Fake(%s) = %v, want it to contain %q", path, err, want)
 		}
 	}
-	shipped, err := New(WithSeed(1))
+	shipped, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}

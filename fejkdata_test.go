@@ -7,9 +7,12 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
+
+func withShipped() Option { return WithDataFS(data.Modules()...) }
 
 // newGenerator creates a generator over a single data directory, failing on
 // error. Most tests load one dir; newGeneratorN loads several (last-loaded wins
@@ -21,7 +24,7 @@ func newGenerator(t *testing.T, dir string, opts ...Option) *Generator {
 
 func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 	t.Helper()
-	all := []Option{WithoutShippedData()}
+	var all []Option
 	for _, dir := range dirs {
 		all = append(all, WithDataPath(dir))
 	}
@@ -43,14 +46,14 @@ func fake(t *testing.T, f *Generator, path string) string {
 }
 
 func TestNewMissingDirectory(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath("data/de_DE"))
+	_, err := New(WithDataPath("data/de_DE"))
 	if err == nil || !strings.Contains(err.Error(), "de_DE") || !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("New(missing) error = %v, want the real error, naming the path", err)
 	}
 }
 
 func TestNewRejectsAnEmptyDataPath(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(""))
+	_, err := New(WithDataPath(""))
 	if err == nil || !strings.Contains(err.Error(), "empty") {
 		t.Fatalf("New(WithDataPath(\"\")) = %v, want the empty path named", err)
 	}
@@ -60,14 +63,14 @@ func TestNewReportsAnEntropyFailure(t *testing.T) {
 	saved := randomBytes
 	randomBytes = func([]byte) (int, error) { return 0, errors.New("no entropy") }
 	defer func() { randomBytes = saved }()
-	_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"w.json": {Data: []byte(`"x"`)}}))
+	_, err := New(WithDataFS(fstest.MapFS{"w.json": {Data: []byte(`"x"`)}}))
 	if err == nil || !strings.Contains(err.Error(), "no entropy") {
 		t.Fatalf("New() without entropy = %v, want the failure reported", err)
 	}
 }
 
 func TestWithSeedIsDeterministic(t *testing.T) {
-	a, b := newGenerator(t, "data", WithSeed(42)), newGenerator(t, "data", WithSeed(42))
+	a, b := shipped(t, WithSeed(42)), shipped(t, WithSeed(42))
 	for i := 0; i < 50; i++ {
 		if x, y := fake(t, a, "sv_SE.person"), fake(t, b, "sv_SE.person"); x != y {
 			t.Fatalf("same seed diverged at %d: %q != %q", i, x, y)
@@ -76,7 +79,7 @@ func TestWithSeedIsDeterministic(t *testing.T) {
 }
 
 func TestDifferentSeedsDiffer(t *testing.T) {
-	a, b := newGenerator(t, "data", WithSeed(1)), newGenerator(t, "data", WithSeed(2))
+	a, b := shipped(t, WithSeed(1)), shipped(t, WithSeed(2))
 	for i := 0; i < 50; i++ {
 		if fake(t, a, "en_US.person") != fake(t, b, "en_US.person") {
 			return

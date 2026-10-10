@@ -88,7 +88,7 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		for name, body := range tree {
 			files[name] = body
 		}
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
+		_, err := New(WithDataPath(writeData(t, files)))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want an error containing %q", c.name, err, c.want)
 		}
@@ -102,14 +102,14 @@ func TestDatatypeRejectsAValueItsTypeRejects(t *testing.T) {
 		`[{"format":"1","datatype":"integer"},{"format":"1.5","datatype":"number"}]`:   "its items hold integer and number; a column holds one datatype",
 	} {
 		row := `{"format":"","col":` + column + `}`
-		if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"row": row}))); err == nil || !strings.HasSuffix(err.Error(), want) {
+		if _, err := New(WithDataPath(writeData(t, map[string]string{"row": row}))); err == nil || !strings.HasSuffix(err.Error(), want) {
 			t.Errorf("items of two declared datatypes %s: New = %v, want an error ending %q", column, err, want)
 		}
 		if _, err := newGenerator(t, writeData(t, tree)).NewTemplate(row); err == nil || !strings.HasSuffix(err.Error(), want) {
 			t.Errorf("items of two declared datatypes %s: NewTemplate = %v, want an error ending %q", column, err, want)
 		}
 	}
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"a": `{"format":"","c":["{/b.x}",{"format":"1","datatype":"integer"}]}`,
 		"b": `{"format":"","x":["2",{"format":"1","datatype":"integer"}]}`,
 	})))
@@ -148,7 +148,7 @@ func TestDatatypeAcceptsAColumnThatAlwaysParses(t *testing.T) {
 	} {
 		row := `{"format":"","col":` + column + `}`
 		src := `{"format":"","code":["200","404"],"n":{"format":"{int(1,9)}","datatype":"integer"}}`
-		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1))
+		f, err := New(WithDataPath(writeData(t, map[string]string{"cat": cat, "row": row, "src": src})), WithSeed(1))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it loaded", column, err)
 			continue

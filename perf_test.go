@@ -44,7 +44,7 @@ func TestNoRenderAllocRegression(t *testing.T) {
 			{"format":"y","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J"}]}`, 3},
 	}
 	for _, s := range shapes {
-		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
+		f, err := New(WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
 		if err != nil {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
@@ -66,7 +66,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 		{"a repeat of a name", `{"format":"{r}","r":{"format":"{/word as n}{n.w}{n.w}","repeat":20,"separator":", "}}`, 162, 1.10},
 		{"a read two levels under a pick", `{"format":"{place.geo as g}{g} {g.town.zip}","place":{"format":"{geo}","geo":{"format":"{town.zip}","town":{"format":"{zip}","zip":"1"}}}}`, 12, 1},
 	} {
-		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+		f, err := New(WithDataFS(fstest.MapFS{
 			"word.json": {Data: []byte(word)},
 			"x.json":    {Data: []byte(s.json)},
 		}))
@@ -81,7 +81,7 @@ func TestNoReferenceAllocRegression(t *testing.T) {
 
 // A table read pins a row inline and reads its cells in place.
 func TestNoTableAllocRegression(t *testing.T) {
-	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+	f, err := New(WithDataFS(fstest.MapFS{
 		"region.json": {Data: []byte(`{"format":"{name}","rows":"region.tsv","key":"code","weight":"population"}`)},
 		"region.tsv":  {Data: []byte("code\tname\tpopulation\n01\tStockholms län\t2400000\n12\tSkåne län\t1400000\n14\tVästra Götalands län\t1750000\n")},
 		"x.json":      {Data: []byte(`"{/region.name}, {/region.code}"`)},
@@ -113,7 +113,7 @@ func TestNoTableAllocRegression(t *testing.T) {
 		}
 		deep[name+".json"], deep[name+".tsv"] = &fstest.MapFile{Data: []byte(category)}, &fstest.MapFile{Data: []byte(rows)}
 	}
-	f, err = New(WithoutShippedData(), WithDataFS(deep))
+	f, err = New(WithDataFS(deep))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestNoRecordAllocRegression(t *testing.T) {
 		{"record 3 columns", `{"format":"","a":"x","b":"y","c":"z"}`},
 		{"record 50 columns", wideTokenJSON(50)},
 	} {
-		f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
+		f, err := New(WithDataFS(fstest.MapFS{"x.json": {Data: []byte(s.json)}}))
 		if err != nil {
 			t.Fatalf("New(%s): %v", s.name, err)
 		}
@@ -148,7 +148,7 @@ func TestNoRecordAllocRegression(t *testing.T) {
 }
 
 func TestNoStructAllocRegression(t *testing.T) {
-	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{"x.json": {Data: []byte(`{"format":"","a":"x","b":"y","c":"z"}`)}}))
+	f, err := New(WithDataFS(fstest.MapFS{"x.json": {Data: []byte(`{"format":"","a":"x","b":"y","c":"z"}`)}}))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,20 +166,24 @@ func TestNoStructAllocRegression(t *testing.T) {
 	}
 }
 
-func BenchmarkNestedDepth25(b *testing.B)  { benchPath(b, tmpData(b, "deep", nestedJSON(25)), "deep") }
-func BenchmarkNestedDepth100(b *testing.B) { benchPath(b, tmpData(b, "deep", nestedJSON(100)), "deep") }
+func BenchmarkNestedDepth25(b *testing.B) {
+	benchPath(b, WithDataPath(tmpData(b, "deep", nestedJSON(25))), "deep")
+}
+func BenchmarkNestedDepth100(b *testing.B) {
+	benchPath(b, WithDataPath(tmpData(b, "deep", nestedJSON(100))), "deep")
+}
 func BenchmarkWideTokens100(b *testing.B) {
-	benchPath(b, tmpData(b, "wide", wideTokenJSON(100)), "wide")
+	benchPath(b, WithDataPath(tmpData(b, "wide", wideTokenJSON(100))), "wide")
 }
 func BenchmarkWideTokens500(b *testing.B) {
-	benchPath(b, tmpData(b, "wide", wideTokenJSON(500)), "wide")
+	benchPath(b, WithDataPath(tmpData(b, "wide", wideTokenJSON(500))), "wide")
 }
 
-// New decodes the shipped manifest and loads nothing else.
+// New decodes the shipped modules' manifests and loads nothing else.
 func TestNoNewAllocRegression(t *testing.T) {
-	const base = 2449.0
+	const base = 2864.0
 	allocs := testing.AllocsPerRun(100, func() {
-		if _, err := New(WithSeed(1)); err != nil {
+		if _, err := New(withShipped(), WithSeed(1)); err != nil {
 			t.Fatal(err)
 		}
 	})

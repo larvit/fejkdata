@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	svSE = "../../data/sv_SE"
-	enUS = "../../data/en_US"
-	misc = "../../data/misc"
+	svSE = "../../data/sv_SE/sv_SE"
+	enUS = "../../data/en_US/en_US"
+	misc = "../../data/misc/misc"
 )
 
 func runOut(stdin string, args ...string) (int, string, string) {
