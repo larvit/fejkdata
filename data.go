@@ -11,18 +11,22 @@ import (
 // the unloaded categories it needs: docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
-	defaultModules := map[string][]string{}
+	walked := map[string][]string{}
 	for _, src := range sources {
-		if err := addSource(&root, src, defaultModules); err != nil {
+		if err := addSource(&root, src, walked); err != nil {
 			return folder{}, err
 		}
 	}
-	return root, loadReached(&root, categorySites(&root), nil, defaultModules)
+	sites := categorySites(&root)
+	for i := range sites {
+		sites[i].defaultModules = walked[sites[i].path]
+	}
+	return root, loadReached(&root, sites, nil)
 }
 
-// addSource places src's categories in root, and sets in defaultModules, for each category
-// it loads, the modules src reads by default.
-func addSource(root *folder, src datafiles.Source, defaultModules map[string][]string) error {
+// addSource places src's categories in root, and sets in walked, for each category it loads
+// here, the modules src reads by default.
+func addSource(root *folder, src datafiles.Source, walked map[string][]string) error {
 	m, err := src.Manifest()
 	if err != nil {
 		return err
@@ -36,7 +40,7 @@ func addSource(root *folder, src datafiles.Source, defaultModules map[string][]s
 		return err
 	}
 	for _, s := range categorySites(g) {
-		defaultModules[s.path] = m.Reads
+		walked[s.path] = m.Reads
 	}
 	mergeFolder(root, g)
 	return nil
@@ -83,11 +87,13 @@ func mergeFolder(dst, src *folder) {
 // single inline node.
 type nodeSet func(fn func(label string, n node) error) error
 
-// categorySite is a loaded category, where it sits and its own dot path.
+// categorySite is a loaded category, where it sits, its own dot path, and the modules its
+// source reads by default.
 type categorySite struct {
 	categoryAt
-	n    node
-	path string
+	n              node
+	path           string
+	defaultModules []string
 }
 
 // categorySites lists every category under root, folders and names in sorted order.

@@ -583,8 +583,9 @@ when a source carries it.
 2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
 Serves goal 6.2. `sv_SE.FS` loads alone, and `sv_SE.address` then fails at first reach,
 naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads. `New`
-checks no `reads`: a stand-in providing the same paths under another name would fail it
-(goal 9.2).
+checks no `reads`: a check by module name fails a stand-in providing the same paths (goal
+9.2), and a check by path needs every reference, which only loading each indexed category
+gives, against goal 13.
 `--no-shipped-data -d` takes a locale's folder with its country's, or a set of one's own.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
