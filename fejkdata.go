@@ -67,7 +67,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	return func(c *config) {
 		for i, fsys := range modules {
 			if fsys == nil {
-				c.err = fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1)
+				c.err = errors.Join(c.err, fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1))
 				continue
 			}
 			c.sources = append(c.sources, datafiles.FS(fsys))
