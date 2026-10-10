@@ -18,8 +18,8 @@ const ManifestFile = ".fejkdata.json"
 type Manifest struct {
 	// Index is every category of the source by dot path; nil where the manifest has none.
 	Index map[string]IndexEntry `json:"index"`
-	// Reads is every module the source reads by default, directly or through another; the
-	// error for a reference naming nothing names them, and nothing loads them.
+	// Reads is every module the source reads by default, directly or through another;
+	// nothing loads them.
 	Reads []string `json:"reads"`
 }
 

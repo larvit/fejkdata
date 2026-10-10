@@ -62,7 +62,7 @@ func WithDataPath(dir string) Option {
 // WithDataFS layers modules, each a data tree held in an [fs.FS], over what is loaded
 // before them, in order. A module may be a data package's FS, such as one of
 // github.com/larvit/fejkdata/data's Modules, or an embed.FS of your own. WithDataFS()
-// with none loads no data.
+// loads no data.
 func WithDataFS(modules ...fs.FS) Option {
 	return func(c *config) {
 		for i, fsys := range modules {
@@ -76,7 +76,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	}
 }
 
-var errNoData = errors.New("fejkdata: New was given no data to load; pass WithDataFS(data.Modules()...), importing github.com/larvit/fejkdata/data, for every module fejkdata ships, WithDataFS or WithDataPath with your own, or WithDataFS() for none")
+var errNoData = errors.New("fejkdata: New was given no data to load; pass WithDataFS(data.Modules()...) for every module fejkdata ships (import github.com/larvit/fejkdata/data); WithDataFS or WithDataPath for your own; or WithDataFS() for none")
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
 // of an indexed source.

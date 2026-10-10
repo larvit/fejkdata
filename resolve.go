@@ -91,8 +91,8 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	return nil
 }
 
-// withDefaultModules adds to err, where a reference of a category names nothing, the modules
-// the category's source reads by default, or that it names none.
+// Where err is a category's reference finding nothing, withDefaultModules adds the modules the
+// category's source reads by default, or says it reads none.
 func (s templateSite) withDefaultModules(err error) error {
 	var ne noEntry
 	if s.category == nil || !errors.As(err, &ne) {

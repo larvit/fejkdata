@@ -131,11 +131,10 @@ and `regexp.Match`, not two spellings of one result.
 
 ## The shipped data is embedded, not discovered
 
-2026-09-02, Lilleman auf Larv.
+2026-09-02, Lilleman auf Larv. Serves goal 2: nothing is fetched at run time.
 
-A directory a machine happens to have would make `--seed 42` machine-dependent. Each Go
-package under `data/` embeds its own files, and a library imports the packages it reads;
-`--data-path` layers over them.
+A directory a machine happens to have would make `--seed 42` machine-dependent;
+`--data-path` layers over the embedded packages.
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
@@ -143,7 +142,7 @@ package under `data/` embeds its own files, and a library imports the packages i
 
 - One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
-- A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. It is an exported `var FS embed.FS`, the shape `//go:embed` gives; a function returning it would guard only against a program reassigning a dependency of its own. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
+- A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. It is an exported `var FS embed.FS`, the shape `//go:embed` gives; a function returning it would only stop a program reassigning the FS variable of a package it imports. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
 - A manifest names no fejkdata version, and `New` checks none: the shipped packages ship in the core's Go module, and a module from anyone else keeps loading across a minor or a patch, as the README's Versioning promises. The maintainer chose so on 2026-10-09.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
@@ -578,15 +577,14 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale's `address` reads its country's `geo` tree, and the locale module's manifest reads that module
+## A locale's `address` reads its country's `geo` tree, and the locale module's manifest reads its country's geo module
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
 Serves goal 6.2. `sv_SE.FS` loads alone, and `sv_SE.address` then fails at first reach,
-naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads. `New`
-checks no `reads`: a check by module name fails a stand-in providing the same paths (goal
-9.2), and a check by path needs every reference, which only loading each indexed category
-gives, against goal 13.
-`--no-shipped-data -d` takes a locale's folder with its country's, or a set of one's own.
+naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads.
+`New` does not check that each module a manifest reads was given. A check by module name
+would refuse a stand-in providing the same paths (goal 9.2). A check by path needs every
+reference, and only loading each indexed category finds them, which goal 13 rules out.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
 

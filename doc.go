@@ -1,9 +1,9 @@
 // Package fejkdata generates fake data from recursive JSON templates.
 //
 // Data lives in JSON, not in Go, and comes in modules: a Go package exporting an fs.FS,
-// or a folder. A generator loads the modules you name, such as every one fejkdata ships
-// from the package github.com/larvit/fejkdata/data; folders and files become a dot-path
-// namespace, then generate values by path:
+// or a folder. A generator loads the modules you name, such as data.Modules(), every
+// module fejkdata ships, from github.com/larvit/fejkdata/data; folders and files become a
+// dot-path namespace, then generate values by path:
 //
 //	f, _ := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42))
 //	f.Fake("sv_SE.address")          // "Räfsalsvägen 43\n442 42 Kungälv"

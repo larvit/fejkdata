@@ -182,7 +182,7 @@ Pick the ten from a published ranking of languages by total speakers, such as Et
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -491,7 +491,7 @@ Reread: `readField`'s note on clearing the pick (`render.go`), `pickKey.under`, 
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
-Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic, as do `layout.go`, `transform.go` and `calc.go`; two parsers can drift, and a drift panics at compile instead of failing the load.
+Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
 
 ### 112. Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.
 
