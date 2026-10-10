@@ -271,3 +271,36 @@ Inherited architect, decided by:
 - Locality: `data.go:12` `loadSources`: one load path, where `config.load` hid a mode switch between lazy and eager loading
 - Locality: `index.go:107` `loadReached`: returns a load error, and names a manifest entry drifted from its table, where `loadShipped` panicked on a hand-regenerated Go file
 - Locality: `node.go:23` `folder`: the children-or-unloaded rule stated once and kept by two methods
+
+## 2026-10-10T09:21:22Z, PR #202 at b77ec94, against 2652779
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | same | same | better |
+| Inherited architect | same | worse | same | same | worse |
+| Maintainability senior | same | better | same | better | better |
+| Junior A | same | better | better | same | better |
+
+Mid A, decided by:
+
+- Locality, Overall: `node.go:31` `folder.put`: two methods keep a name in `children` or `unloaded`, where `unloadedCategory.load` kept it by a separate delete
+- Locality, Overall: `data.go:22` `addSource`: each source's own manifest decides how it loads, where adding any data path switched the whole shipped set to eager loading
+
+Inherited architect, decided by:
+
+- Locality, Overall: `index.go:109` `loadReached`: one function serves New and first reach, rolls back through `putBack`, and rests on facts held elsewhere
+- Locality: `index.go:22` `placeIndex`: how sources merge depends on their order and on which kind each is, and the children-or-unloaded rule holds only while `put` is the one writer
+
+Maintainability senior, decided by:
+
+- Locality, Overall: `data.go:12` `loadSources`: every source goes through one path, where `config.load` branched between two load paths of different eagerness
+- Locality: `index.go:15` `indexed`: an unloaded entry carries its own source, where `unloadedCategory.load` was wired to the global `shippedSource`
+- Self-sufficiency, Overall: `internal/datafiles/manifest.go:56` `decodeManifest`: the index is data checked strictly, where `shippedEntry` told the reader to empty a generated literal by hand
+
+Junior A, decided by:
+
+- Locality, Shape: `node.go:23` `folder`: `put` and `putUnloaded` keep a name in one map, where `compileInto` and `unloadedCategory.load` kept it as a pair
+- Locality, Shape: `data.go:12` `loadSources`: one load path, where `config.load` forked and `loadShipped` was a second, panic-only pipeline
+- Shape: `data.go:81` `categorySite`: embeds `categoryAt`, where `unloadedCategory` repeated its fields
