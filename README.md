@@ -64,7 +64,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 `--name value` and `--name=value` both work, a short flag's value attaches or
 follows (`-n3`, `-n 3`) and short flags bundle (`-hn 3`) — see
 [Decisions](docs/decisions.md#flags-follow-getopt_long); flags go anywhere, `--` ends them. Exit codes: `0` success, `1` runtime error (data
-that fails to load, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
+that fails to load, a missing `-d` folder included, a lone reference to nothing under `--format`), `2` misuse — a bad flag, an argument
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
