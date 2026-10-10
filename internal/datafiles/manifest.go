@@ -90,6 +90,7 @@ func decodeReads(v any) ([]string, error) {
 		return nil, fmt.Errorf("reads must be a list, not %s", jsonvalue.Kind(v))
 	}
 	out := make([]string, 0, len(items))
+	seen := map[string]bool{}
 	var errs []error
 	for i, item := range items {
 		module, isString := item.(string)
@@ -98,7 +99,10 @@ func decodeReads(v any) ([]string, error) {
 			errs = append(errs, fmt.Errorf("reads item %d must be a string, not %s", i+1, jsonvalue.Kind(item)))
 		case module == "":
 			errs = append(errs, fmt.Errorf("reads item %d is empty; it names a module", i+1))
+		case seen[module]:
+			errs = append(errs, fmt.Errorf("reads item %d repeats %q", i+1, module))
 		default:
+			seen[module] = true
 			out = append(out, module)
 		}
 	}
