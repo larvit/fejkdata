@@ -191,8 +191,6 @@ func typedOrText(text string, ds ...DataType) error {
 	return fmt.Errorf(`%s in a record column fits no datatype; write %q for text`, text, text)
 }
 
-// jsonKind names the kind of a JSON value an option cannot take, in the data format's own
-// terms rather than the decoding library's.
 func compileString(s string) (*template, error) {
 	toks, unbound, err := parseChecked(s, nil)
 	if err != nil {

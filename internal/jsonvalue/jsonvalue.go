@@ -39,7 +39,8 @@ func Object(fields map[string]Value) Value {
 // bool or nil.
 func (v Value) Any() any { return v.v }
 
-// Kind names the kind of a value as Any gives it, such as "a number" or "a list".
+// Kind names the kind of a value as Any gives it, in the data format's own terms, such as
+// "a number" or "a list".
 func Kind(v any) string {
 	switch v.(type) {
 	case json.Number:

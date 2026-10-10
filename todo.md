@@ -192,7 +192,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. An entry lists every path below its category, its linked tables' too, so `geo.*.region` repeats its whole family; an entry holding only its own paths, `List` composing a family from the entries naming it as `parent`, would shrink the manifest that decoding makes most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10). Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 

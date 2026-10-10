@@ -249,3 +249,25 @@ Inherited architect, decided by:
 - Locality, Shape: `data.go:62` `standing`: a `map[string]any` of nodes and entries compared by identity
 - Shape: `index.go:1` `index.go`: fifteen units under generic names in a file named for the index, `ErrLoad` among them
 - Shape: `internal/datafiles/datafiles.go:103` `decodeManifest`: a strict JSON decoder shares the tree walker's file with no seam
+
+## 2026-10-10T09:09:41Z, PR #202 at d34cc42, against 2652779
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | same | better |
+| Inherited architect | same | better | same | same | better |
+
+Mid A, decided by:
+
+- Locality, Overall: `data.go:12` `loadSources`: one path, each source indexed or walked then one `loadReached`, where `config.load` switched between a lazy and an eager mode
+- Locality: `index.go:107` `loadReached`: a failed load puts back what it loaded and returns an error, where `loadShipped` panicked partway through
+- Locality, Shape: `node.go:31` `folder.put`: two methods keep a name in `children` or `unloaded`, never both
+- Shape: `index.go:29` `categoryAt`: `shipped.go` is only the embed, and `categorySite` embeds `categoryAt` in place of a duplicated `unloadedCategory`
+
+Inherited architect, decided by:
+
+- Locality: `data.go:12` `loadSources`: one load path, where `config.load` hid a mode switch between lazy and eager loading
+- Locality: `index.go:107` `loadReached`: returns a load error, and names a manifest entry drifted from its table, where `loadShipped` panicked on a hand-regenerated Go file
+- Locality: `node.go:23` `folder`: the children-or-unloaded rule stated once and kept by two methods
