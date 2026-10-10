@@ -128,5 +128,5 @@ replacement, and each removed path, column or flag.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
   category on the first call reaching it, as the shipped set does. Data failing to load,
   in `New` or there, gives an error matching `ErrLoad`, and the CLI exits 1. A source without
-  one loads in `New`, with the shipped categories it reads and every shipped category
-  depending on one it replaces; the rest of the shipped set still loads on first reach.
+  one loads in `New`, with the shipped categories it reads; the rest of the shipped set,
+  a reader of a category it replaces too, loads on first reach.

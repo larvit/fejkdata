@@ -7,6 +7,7 @@ import (
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 	"github.com/larvit/fejkdata/internal/rows"
 )
 
@@ -102,7 +103,7 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 		}
 		s, isString := v.(string)
 		if !isString {
-			return o, fmt.Errorf("%s must be a string, not %s", k, jsonKind(v))
+			return o, fmt.Errorf("%s must be a string, not %s", k, jsonvalue.Kind(v))
 		}
 		if k != "format" && s == "" {
 			return o, fmt.Errorf("%s names a column, so it cannot be empty; drop it", k)

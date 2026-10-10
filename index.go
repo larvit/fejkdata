@@ -1,25 +1,13 @@
 package fejkdata
 
 import (
-	"errors"
 	"fmt"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/grammar"
 )
-
-// ErrLoad marks data that fails to load: in New, or on the first call reaching a category
-// of an indexed source.
-var ErrLoad = errors.New("data fails to load")
-
-// loadError is a load's error, unchanged in its text, matching ErrLoad.
-type loadError struct{ error }
-
-func (e loadError) Unwrap() error      { return e.error }
-func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // indexed is a category an index names and no call has reached yet, and the source holding it.
 type indexed struct {
@@ -110,61 +98,6 @@ func needs(root *folder, s categorySite) []categoryAt {
 			out = append(out, categoryAt{dir: s.dir, in: s.in, name: name})
 		}
 	}
-	return out
-}
-
-// affectedBy is every unloaded category under root whose index entry leads to one of
-// paths: through its reads, its parent or a child table, and through other unloaded
-// categories.
-func affectedBy(root *folder, paths []string) []categoryAt {
-	if len(paths) == 0 {
-		return nil
-	}
-	unloaded := unloadedUnder(root)
-	readers := map[string][]string{}
-	for _, p := range sortedNames(unloaded) {
-		c := unloaded[p]
-		e := c.in.unloaded[c.name].entry
-		for _, r := range e.Reads {
-			readers[r] = append(readers[r], p)
-		}
-		if e.Parent != "" {
-			parent := categoryPath(c.dir, e.Parent)
-			readers[parent] = append(readers[parent], p)
-			readers[p] = append(readers[p], parent)
-		}
-	}
-	var out []categoryAt
-	seen := map[string]bool{}
-	queue := slices.Clone(paths)
-	sort.Strings(queue)
-	for ; len(queue) > 0; queue = queue[1:] {
-		for _, p := range readers[queue[0]] {
-			if c, isUnloaded := unloaded[p]; isUnloaded && !seen[p] {
-				seen[p] = true
-				out = append(out, c)
-				queue = append(queue, p)
-			}
-		}
-	}
-	return out
-}
-
-func unloadedUnder(root *folder) map[string]categoryAt {
-	out := map[string]categoryAt{}
-	var walk func(g *folder, dir []string)
-	walk = func(g *folder, dir []string) {
-		for name := range g.unloaded {
-			c := categoryAt{dir: dir, in: g, name: name}
-			out[categoryPath(dir, name)] = c
-		}
-		for name, n := range g.children {
-			if sub, isFolder := n.(*folder); isFolder {
-				walk(sub, append(dir[:len(dir):len(dir)], name))
-			}
-		}
-	}
-	walk(root, nil)
 	return out
 }
 

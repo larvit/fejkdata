@@ -174,13 +174,13 @@ a category may name a hidden rows file beside it.
 
 A source whose root holds `.fejkdata.json` with an `index` loads each category on the
 first call reaching it, and its author proves each loads. Any other source loads in
-`New`, and so does every indexed category that depends on what such a source provides
-or on a category a later source replaced. The index names every category of its source,
-so a category file it leaves out never loads. The shipped set's
-[`data/.fejkdata.json`](data/.fejkdata.json) shows the shape: each category's dot path,
-its `parent` table, an entry of the same index, every path `List` advertises below it,
-`""` for the category itself, and the other categories its templates `reads`. A table
-whose parent column differs from its entry's `parent` fails at first reach.
+`New`, with the indexed categories it reads. A shipped category reading one that another
+source replaced loads on its own first reach, and fails there if the replacement breaks
+it. The index names every category of its source, so a category file it leaves out never
+loads. The shipped set's [`data/.fejkdata.json`](data/.fejkdata.json) shows the shape:
+each category's dot path, its `parent` table, an entry of the same index, and every path
+`List` advertises below it, `""` for the category itself. A table whose parent column
+differs from its entry's `parent` fails at first reach.
 `//go:embed` of a directory leaves the manifest out; name it in the pattern too.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
