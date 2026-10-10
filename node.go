@@ -24,8 +24,6 @@ type node interface{ isNode() }
 type folder struct {
 	children map[string]node
 	unloaded map[string]*indexed
-	// reads is, for each category, the modules its source's manifest names it reading by default.
-	reads map[string][]string
 }
 
 func (*folder) isNode() {}
@@ -33,17 +31,6 @@ func (*folder) isNode() {}
 func (g *folder) put(name string, n node) {
 	g.children[name] = n
 	delete(g.unloaded, name)
-}
-
-func (g *folder) setReads(name string, reads []string) {
-	if len(reads) == 0 {
-		delete(g.reads, name)
-		return
-	}
-	if g.reads == nil {
-		g.reads = map[string][]string{}
-	}
-	g.reads[name] = reads
 }
 
 func (g *folder) putUnloaded(name string, x *indexed) {

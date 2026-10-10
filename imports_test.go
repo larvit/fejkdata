@@ -48,7 +48,7 @@ func TestPackageImports(t *testing.T) {
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	testsAlso := map[string][]string{
-		".":            {"data", "data/sv_SE"},
+		".":            {"data", "data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/sv_SE"},
 		"cmd/fejkdata": {"internal/grammar"},
 		"data/en_US":   {"."},
 		"data/geo/SE":  {"."},

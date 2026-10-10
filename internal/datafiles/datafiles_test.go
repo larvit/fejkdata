@@ -49,13 +49,6 @@ func TestWalkHandsEachCategoryInOrder(t *testing.T) {
 	}
 }
 
-func TestWalkStartsAtTheBaseDir(t *testing.T) {
-	got, err := walk(t, Source{fsys: fstest.MapFS{"data/a.json": {Data: []byte(`"x"`)}, "b.json": {Data: []byte(`"y"`)}}, base: "data"})
-	if err != nil || len(got) != 1 || got[0].name != "a" || got[0].dir != nil {
-		t.Errorf("Walk = %#v, %v, want a alone at the base", got, err)
-	}
-}
-
 func TestReadRowsReadsOnlyAFileBesideTheCategory(t *testing.T) {
 	src := Source{fsys: fstest.MapFS{
 		"t.json":     {Data: []byte(`{"rows":"t.tsv"}`)},
@@ -138,10 +131,10 @@ func TestWalkRefusesADiskPathThatIsNoDirectory(t *testing.T) {
 
 func TestLoadHandsOneCategoryAndItsRows(t *testing.T) {
 	src := Source{fsys: fstest.MapFS{
-		"data/sub/t.json": {Data: []byte(`{"rows":"t.tsv"}`)},
-		"data/sub/t.tsv":  {Data: []byte("key\nA\n")},
-		"data/sub/u.json": {Data: []byte(`{`)},
-	}, base: "data"}
+		"sub/t.json": {Data: []byte(`{"rows":"t.tsv"}`)},
+		"sub/t.tsv":  {Data: []byte("key\nA\n")},
+		"sub/u.json": {Data: []byte(`{`)},
+	}}
 	var got handed
 	var rows string
 	err := src.Load([]string{"sub"}, "t", func(c Category) error {
