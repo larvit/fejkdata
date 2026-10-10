@@ -4,6 +4,7 @@ package jsonvalue
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // Value is a JSON value that only Decode, String and Object make, so a template never compiles
@@ -37,3 +38,22 @@ func Object(fields map[string]Value) Value {
 // Any is the value as encoding/json decodes it: a map[string]any, []any, string, json.Number,
 // bool or nil.
 func (v Value) Any() any { return v.v }
+
+// Kind names the kind of a value as Any gives it, such as "a number" or "a list".
+func Kind(v any) string {
+	switch v.(type) {
+	case json.Number:
+		return "a number"
+	case bool:
+		return "a boolean"
+	case string:
+		return "a string"
+	case []any:
+		return "a list"
+	case map[string]any:
+		return "an object"
+	case nil:
+		return "null"
+	}
+	return fmt.Sprintf("%T", v)
+}

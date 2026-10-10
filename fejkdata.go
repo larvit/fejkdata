@@ -3,6 +3,7 @@ package fejkdata
 import (
 	crand "crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io/fs"
 	"reflect"
@@ -67,6 +68,16 @@ func WithoutShippedData() Option {
 	return func(c *config) { c.shipped = false }
 }
 
+// ErrLoad marks data that fails to load: in New, or on the first call reaching a category
+// of an indexed source.
+var ErrLoad = errors.New("data fails to load")
+
+// loadError is a load's error, unchanged in its text, matching ErrLoad.
+type loadError struct{ error }
+
+func (e loadError) Unwrap() error      { return e.error }
+func (loadError) Is(target error) bool { return target == ErrLoad }
+
 // New builds a generator from the shipped data set and the options' sources, merged
 // in order with the last winning a name clash. Each JSON file becomes a category
 // named after the file (address.json -> "address") and each subdirectory a
@@ -91,7 +102,7 @@ func New(opts ...Option) (*Generator, error) {
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
 }
 
-// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads-and-every-indexed-category-depending-on-what-it-provides-or-a-later-source-replaced
+// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func (c config) load() (folder, error) {
 	var sources []datafiles.Source
 	if c.shipped {

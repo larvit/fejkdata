@@ -7,6 +7,7 @@ import (
 	"github.com/larvit/fejkdata/internal/datatype"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
+	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // DataType is what a record column holds, which decides how a record writes its value. It
@@ -29,7 +30,7 @@ func datatypeOf(m map[string]any, pos position) (*DataType, error) {
 	}
 	name, ok := v.(string)
 	if !ok {
-		return nil, fmt.Errorf("datatype must be a string, not %s", jsonKind(v))
+		return nil, fmt.Errorf("datatype must be a string, not %s", jsonvalue.Kind(v))
 	}
 	for d := DataTypeString; d < datatype.Count; d++ {
 		if name != d.String() {

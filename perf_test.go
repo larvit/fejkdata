@@ -177,7 +177,7 @@ func BenchmarkWideTokens500(b *testing.B) {
 
 // New decodes the shipped manifest and loads nothing else.
 func TestNoNewAllocRegression(t *testing.T) {
-	const base = 2501.0
+	const base = 2449.0
 	allocs := testing.AllocsPerRun(100, func() {
 		if _, err := New(WithSeed(1)); err != nil {
 			t.Fatal(err)

@@ -7,67 +7,33 @@ import (
 )
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
-// carries an index leaves its categories unloaded; every other source loads here. So do
-// the unloaded categories that depend on one it loaded or on one a later source replaced,
-// so that a reader such a change breaks fails New, not a first reach.
+// carries an index leaves its categories unloaded; every other source loads here, with
+// the unloaded categories it needs.
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
-	var changed []string
 	for _, src := range sources {
-		replaced, err := addSource(&root, src)
-		if err != nil {
+		if err := addSource(&root, src); err != nil {
 			return folder{}, err
 		}
-		changed = append(changed, replaced...)
 	}
-	sites := categorySites(&root)
-	for _, s := range sites {
-		changed = append(changed, s.path)
-	}
-	return root, loadReached(&root, sites, affectedBy(&root, changed))
+	return root, loadReached(&root, categorySites(&root), nil)
 }
 
-// addSource adds the categories of src to root, and returns the path of each category
-// already there that src replaced or put out of reach.
-func addSource(root *folder, src datafiles.Source) ([]string, error) {
+func addSource(root *folder, src datafiles.Source) error {
 	m, err := src.Manifest()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	before := standing(root)
 	if m.Index != nil {
 		placeIndex(root, src, m.Index)
-	} else {
-		g := &folder{children: map[string]node{}}
-		if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
-			return nil, err
-		}
-		mergeFolder(root, g)
+		return nil
 	}
-	if len(before) == 0 {
-		return nil, nil
+	g := &folder{children: map[string]node{}}
+	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
+		return err
 	}
-	after := standing(root)
-	var replaced []string
-	for p, was := range before {
-		if after[p] != was {
-			replaced = append(replaced, p)
-		}
-	}
-	return replaced, nil
-}
-
-// standing is what stands at the path of every category under root: its node, or its
-// unloaded entry.
-func standing(root *folder) map[string]any {
-	out := map[string]any{}
-	for _, s := range categorySites(root) {
-		out[s.path] = s.n
-	}
-	for p, c := range unloadedUnder(root) {
-		out[p] = c.in.unloaded[c.name]
-	}
-	return out
+	mergeFolder(root, g)
+	return nil
 }
 
 func compileInto(place func(dir []string) *folder) func(datafiles.Category) error {

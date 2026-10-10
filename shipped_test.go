@@ -263,7 +263,7 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{`:                                                 {datafiles.ManifestFile},
 		`{"index": {}} {}`:                                  {"after top-level value"},
 		`{"indx": {}, "INDEX": {}}`:                         {`unknown key "INDEX"`, `unknown key "indx"`},
-		`{"index": []}`:                                     {"index must be an object, not an array"},
+		`{"index": []}`:                                     {"index must be an object, not a list"},
 		`{"index": {"a..b": 5}}`:                            {`"a..b"`, "must be an object, not a number"},
 		`{"index": {"a": {"Paths": [""]}}}`:                 {`unknown key "Paths"`, "paths is missing"},
 		`{"index": {"a": {}, "b": {}}}`:                     {`"a": paths is missing`, `"b": paths is missing`},

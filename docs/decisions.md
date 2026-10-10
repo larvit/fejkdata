@@ -154,29 +154,32 @@ still lives in `data/`; `--data-path` layers over it.
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
-## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads and every indexed category depending on what it provides or a later source replaced
+## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
 
-2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
+2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09,
+and narrowed by the maintainer on 2026-10-10.
 
 Goal 13: `New` pays nothing for a category a run never reaches. A manifest,
-`.fejkdata.json` at a source's root, may carry an index: each category's parent table,
-the paths `List` advertises below it and the categories its templates reference. A
-category of an indexed source loads with every category it references and its whole
-table family, and binds as a whole load does, so it renders the same as after a whole
-load. `go generate` writes the shipped set's manifest from `data/`;
-`TestShippedManifestIsCurrent` fails while it is stale. CI loads the whole shipped set,
-and each shipped category alone into a fresh `New`, so none fails at first reach.
+`.fejkdata.json` at a source's root, may carry an index: each category's parent table and
+the paths `List` advertises below it. A category of an indexed source loads with every
+category it references and its whole table family, and binds as a whole load does, so
+it renders the same as after a whole load. `go generate` writes the shipped set's
+manifest from `data/`; `TestShippedManifestIsCurrent` fails while it is stale. CI loads
+the whole shipped set, and each shipped category alone into a fresh `New`, so none fails
+at first reach.
 
-Goal 6: a source without an index loads whole in `New`, so each mistake in it is `New`'s
-error. So does every indexed category it reads, and every indexed category depending,
-through references or table links, on a category it provides or a later source
-replaced, so a replacement or a stand-in breaking a reader fails `New`. Goal 6.3: an
-indexed source from anyone else may fail at first reach; `Fake` then returns the load's
-error, matching `ErrLoad`, the same every call. A first reach checks only a table's
-`parent` against its entry, so a table loads with its parent and a failed load puts
-back whole. Proving the rest of an index is its author's, with the tool
-`todo.md` item 194 plans: checked against the merged tree, an entry's paths and reads
-would blame the manifest for a table or a stand-in another source adds.
+Goal 6: a source without an index loads whole in `New`, with every indexed category it
+reads, so each mistake in it is `New`'s error. Goal 6.3: an indexed source from anyone
+else may fail at first reach; the call then returns the load's error, matching
+`ErrLoad`, the same every call. So does an indexed category reading one that another
+source replaced, where the replacement breaks it. The maintainer chose that on
+2026-10-10 over loading in `New` every indexed category depending on a replaced one:
+readers of three rounds ruled that rule harder to follow (goal 3), and it needed every
+entry to list what its templates read.
+
+A first reach checks only a table's `parent` against its entry, so a table loads with its
+parent and a failed load puts back whole. Proving the rest of an index is its author's,
+with the tool `todo.md` item 194 plans.
 
 Valid while CI proves the shipped set whole and each category alone.
 

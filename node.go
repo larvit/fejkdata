@@ -193,22 +193,6 @@ func typedOrText(text string, ds ...DataType) error {
 
 // jsonKind names the kind of a JSON value an option cannot take, in the data format's own
 // terms rather than the decoding library's.
-func jsonKind(v any) string {
-	switch v.(type) {
-	case json.Number:
-		return "a number"
-	case bool:
-		return "a boolean"
-	case string:
-		return "a string"
-	case []any:
-		return "a list"
-	case map[string]any:
-		return "an object"
-	}
-	return fmt.Sprintf("%T", v)
-}
-
 func compileString(s string) (*template, error) {
 	toks, unbound, err := parseChecked(s, nil)
 	if err != nil {
@@ -332,7 +316,7 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	}
 	if sv, ok := m["separator"]; ok {
 		if o.separator, ok = sv.(string); !ok {
-			return o, fmt.Errorf("separator must be a string, not %s", jsonKind(sv))
+			return o, fmt.Errorf("separator must be a string, not %s", jsonvalue.Kind(sv))
 		}
 	}
 	return o, nil
@@ -365,7 +349,7 @@ func repeatOf(m map[string]any) (int, error) {
 	}
 	r, ok := numberOf(rv)
 	if !ok {
-		return 0, fmt.Errorf("repeat must be a number, not %s", jsonKind(rv))
+		return 0, fmt.Errorf("repeat must be a number, not %s", jsonvalue.Kind(rv))
 	}
 	if err := notTiny("repeat", rv, r); err != nil {
 		return 0, err
@@ -392,7 +376,7 @@ func weightOf(raw any) (float64, error) {
 	}
 	w, ok := numberOf(wv)
 	if !ok {
-		return 0, fmt.Errorf(`weight is an option and takes a number, not %s; a field cannot be named "weight"`, jsonKind(wv))
+		return 0, fmt.Errorf(`weight is an option and takes a number, not %s; a field cannot be named "weight"`, jsonvalue.Kind(wv))
 	}
 	if w < 0 || math.IsInf(w, 0) {
 		return 0, fmt.Errorf("weight must be a finite number of 0 or more, got %v", wv)
