@@ -209,7 +209,7 @@ func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
 	}
 }
 
-func TestAnIndexedSourceStandsLikeTheShippedOne(t *testing.T) {
+func TestAnIndexedSourceLoadsOnFirstReachLikeTheShippedOne(t *testing.T) {
 	fsys := fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"a": {"paths": [""]}, "b": {"paths": [""]}, "sub.c": {"paths": ["", "d"]}}}`)},
 		"a.json":         {Data: []byte(`"{/b}!"`)},
@@ -356,7 +356,7 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 	wg.Wait()
 }
 
-func TestAParentColumnItsIndexEntryOmitsFailsTheFirstReachNamingTheManifest(t *testing.T) {
+func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
 	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "code", "name"]}}}`)},
 		"country.json":   {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
@@ -371,7 +371,7 @@ func TestAParentColumnItsIndexEntryOmitsFailsTheFirstReachNamingTheManifest(t *t
 		t.Fatalf(`Fake("country") = %v`, err)
 	}
 	_, first := f.Fake("city")
-	if first == nil || !strings.Contains(first.Error(), ".fejkdata.json") || !strings.Contains(first.Error(), `parent ""`) {
+	if first == nil || !strings.Contains(first.Error(), ".fejkdata.json") || !strings.Contains(first.Error(), "names no parent") {
 		t.Fatalf(`Fake("city") = %v, want the entry's parent named`, first)
 	}
 	if _, again := f.Fake("city"); again == nil || again.Error() != first.Error() {
@@ -400,4 +400,16 @@ func indexEntry(s categorySite) datafiles.IndexEntry {
 	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: paths(s.n, false)}
 	sort.Strings(e.Paths)
 	return e
+}
+
+func TestAnIndexedCategoryWithNoFileNamesTheManifest(t *testing.T) {
+	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"gone": {"paths": [""]}}}`)},
+	}))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	if _, err := f.Fake("gone"); err == nil || !strings.Contains(err.Error(), ".fejkdata.json indexes gone") {
+		t.Fatalf(`Fake("gone") = %v, want the manifest naming gone`, err)
+	}
 }
