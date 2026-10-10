@@ -91,8 +91,10 @@ func decodeIndex(v any) (map[string]IndexEntry, []error) {
 		index[p] = e
 	}
 	for _, p := range sortedKeys(index) {
-		if err := checkParent(index, p); err != nil {
-			errs = append(errs, fmt.Errorf("index entry %q: %w", p, err))
+		for _, err := range []error{checkOutside(index, p), checkParent(index, p)} {
+			if err != nil {
+				errs = append(errs, fmt.Errorf("index entry %q: %w", p, err))
+			}
 		}
 	}
 	return index, errs
@@ -146,6 +148,7 @@ func decodePaths(v any) ([]string, error) {
 		return nil, fmt.Errorf("paths must be a list, not %s", jsonvalue.Kind(v))
 	}
 	out := make([]string, 0, len(items))
+	seen := map[string]bool{}
 	var errs []error
 	for i, item := range items {
 		q, isString := item.(string)
@@ -159,9 +162,26 @@ func decodePaths(v any) ([]string, error) {
 				continue
 			}
 		}
+		if seen[q] {
+			errs = append(errs, fmt.Errorf("paths item %d repeats %q", i+1, q))
+			continue
+		}
+		seen[q] = true
 		out = append(out, q)
 	}
 	return out, errors.Join(errs...)
+}
+
+// checkOutside refuses an entry whose path passes through another entry's category.
+func checkOutside(index map[string]IndexEntry, p string) error {
+	segs := strings.Split(p, ".")
+	for n := 1; n < len(segs); n++ {
+		outer := strings.Join(segs[:n], ".")
+		if _, isEntry := index[outer]; isEntry {
+			return fmt.Errorf("%q is a category, so it holds no other", outer)
+		}
+	}
+	return nil
 }
 
 // checkParent refuses a parent naming no entry beside p: a table loads with its parent,
