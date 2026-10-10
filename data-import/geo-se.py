@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/geo/SE/*.tsv from SCB (CC0), GeoNames (CC BY 4.0) and Trafikverket NVDB (CC0).
+"""Rebuild data/geo/SE/geo/SE/*.tsv from SCB (CC0), GeoNames (CC BY 4.0) and Trafikverket NVDB (CC0).
 
     TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--streets-per-locality N] [--out DIR]
 """

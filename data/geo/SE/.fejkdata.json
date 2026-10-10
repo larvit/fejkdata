@@ -1,0 +1,10 @@
+{
+	"index": {
+		"geo.SE.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"geo.SE.locality": {"parent":"municipality","paths":["","lat","lon","municipality","name","population","postal-code","postal-code.code","postal-code.locality","street","street.locality","street.name","street.segments"]},
+		"geo.SE.municipality": {"parent":"region","paths":["","code","locality","locality.lat","locality.lon","locality.municipality","locality.name","locality.population","locality.postal-code","locality.postal-code.code","locality.postal-code.locality","locality.street","locality.street.locality","locality.street.name","locality.street.segments","name","population","region"]},
+		"geo.SE.postal-code": {"parent":"locality","paths":["","code","locality"]},
+		"geo.SE.region": {"paths":["","code","municipality","municipality.code","municipality.locality","municipality.locality.lat","municipality.locality.lon","municipality.locality.municipality","municipality.locality.name","municipality.locality.population","municipality.locality.postal-code","municipality.locality.postal-code.code","municipality.locality.postal-code.locality","municipality.locality.street","municipality.locality.street.locality","municipality.locality.street.name","municipality.locality.street.segments","municipality.name","municipality.population","municipality.region","name","population","timezone"]},
+		"geo.SE.street": {"parent":"locality","paths":["","locality","name","segments"]}
+	}
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/httpmethod.tsv from the IANA HTTP Method Registry.
+"""Rebuild data/misc/misc/httpmethod.tsv from the IANA HTTP Method Registry.
 
     data-import/httpmethod.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -18,7 +18,7 @@ import source
 import tsv
 
 SOURCE = "https://www.iana.org/assignments/http-methods/methods.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "httpmethod.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "httpmethod.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["idempotent", "method", "safe"]
 CORE = re.compile(r"\[RFC9110, Section 9\.3\.|\[RFC5789, Section 2\]")

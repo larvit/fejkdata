@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/currency.tsv from datasets/currency-codes (PDDL) and CLDR's symbols (Unicode).
+"""Rebuild data/misc/misc/currency.tsv from datasets/currency-codes (PDDL) and CLDR's symbols (Unicode).
 
     data-import/currency.py [--source URL_OR_FILE] [--symbols URL_OR_FILE ...] [--cache DIR] [--out FILE]
 
@@ -19,7 +19,7 @@ SYMBOLS = [
     "https://raw.githubusercontent.com/unicode-org/cldr/main/common/main/en.xml",
     "https://raw.githubusercontent.com/unicode-org/cldr/main/common/main/root.xml",
 ]
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "currency.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "currency.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "decimals", "name", "numeric", "symbol"]
 

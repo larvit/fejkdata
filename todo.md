@@ -68,7 +68,6 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
-| 182 | 0.1.0 | decision | **Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.** | 6 | 8 | 9 | 10 | 2.3, 2 | 29.0 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
@@ -174,21 +173,11 @@
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
-Needs item 182. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
+Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Needs item 182, which moves the paths under `data/` this item writes. Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
-
-### 182. Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
-- Each package's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
-- The package `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data package; the core imports none, so a library links only the data it imports.
-- The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
-- A data package imports nothing of the core, so core tests may import data packages. Each data package's own test calls `New(WithDataFS(FS))`. `imports_test.go` lists each data package with no imports, lets its test import `.`, and lets `.` import data packages from tests only, so a library importing the core links no data.
-- Each package embeds `.fejkdata.json` by name or through `all:`, since `//go:embed` of a directory leaves out files starting with `.`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
-- Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own".
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
@@ -257,7 +246,7 @@ Shape: T = table, t = template, c = choice.
 
 ### 184. Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.
 
-Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
 - `cmd/fejkdata/main.go` moves into package `github.com/larvit/fejkdata/cli` in the core module, and `imports_test.go` keeps `cli` off `internal/`. `cli`'s tests use fixture modules; `cmd/fejkdata` keeps one end-to-end test over the real packages.
 - The README's Library quick start shows the whole import block for one locale, and a section shows a custom CLI as example code. Layout and Development follow.
 - Revises the decision "The CLI reads only the library's public API" to name `cli`.
@@ -307,7 +296,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 182, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, where `New` already starts refusing a call naming no data, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 

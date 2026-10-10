@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain).
+"""Rebuild data/en_US/en_US/first-name.tsv and last-name.tsv from SSA baby names and the Census 2010 surnames (public domain).
 
     data-import/names-us.py [--names URL_OR_FILE] [--surnames URL_OR_FILE] [--from-year YEAR] [--first N] [--last N] [--cache DIR] [--out DIR]
 
@@ -20,7 +20,7 @@ import tsv
 
 NAMES = "https://raw.githubusercontent.com/hackerb9/ssa-baby-names/master/alldata.txt"
 SURNAMES = "https://www2.census.gov/topics/genealogy/2010surnames/names.zip"
-OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
+OUT = Path(__file__).resolve().parent.parent / "data" / "en_US" / "en_US"
 CACHE = Path(__file__).resolve().parent / "cache"
 MC = re.compile(r"^Mc([a-z])")
 PLACEHOLDERS = {"Baby", "Female", "Infant", "Male", "Notnamed", "Unknown", "Unnamed"}

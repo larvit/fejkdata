@@ -133,14 +133,13 @@ and `regexp.Match`, not two spellings of one result.
 
 2026-09-02, Lilleman auf Larv.
 
-A directory a machine happens to have would make `--seed 42` machine-dependent. Data
-still lives in `data/`; `--data-path` layers over it.
-
-`todo.md` item 182 revises it: a library imports the shipped data as Go packages.
+A directory a machine happens to have would make `--seed 42` machine-dependent. Each Go
+package under `data/` embeds its own files, and a library imports the packages it reads;
+`--data-path` layers over them.
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 182, 184, 185 and 186; until then the shipped data is embedded whole, as the decision "The shipped data is embedded, not discovered" states. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185 and 186. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -162,8 +161,8 @@ Goal 13: `New` pays nothing for a category a run never reaches. A manifest,
 `.fejkdata.json` at a source's root, may carry an index: each category's parent table and
 the paths `List` advertises below it. A category of an indexed source loads with every
 category it references and its whole table family, and binds as a whole load does, so
-it renders the same as after a whole load. `go generate` writes the shipped set's
-manifest from `data/`; `TestShippedManifestIsCurrent` fails while it is stale. CI loads
+it renders the same as after a whole load. `go generate` writes each shipped
+module's manifest; `TestShippedManifestsAreCurrent` fails while one is stale. CI loads
 the whole shipped set, and each shipped category alone into a fresh `New`, so none fails
 at first reach.
 
@@ -181,8 +180,6 @@ parent and a failed load puts back whole. Proving the rest of an index is its au
 with the tool `todo.md` item 194 plans.
 
 Valid while CI proves the shipped set whole and each category alone.
-
-Works against goal 2.3 until `todo.md` item 182 ends it.
 
 ## Every `{…}` draws afresh, and only a name keeps a pick
 
@@ -581,12 +578,12 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own
+## A locale's `address` reads its country's `geo` tree, and the locale module's manifest reads that module
 
-2026-09-24, Lilleman auf Larv.
-
-`data/sv_SE` alone no longer loads: a test loads `data` and prefixes the locale, and
-`--no-shipped-data -d` takes the whole `data` folder or a set of one's own.
+2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
+Serves goal 6.2. `sv_SE.FS` loads alone, and `sv_SE.address` then fails at first reach,
+naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads.
+`--no-shipped-data -d` takes a locale's folder with its country's, or a set of one's own.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
 

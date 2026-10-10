@@ -8,7 +8,7 @@ import (
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
 // carries an index leaves its categories unloaded; every other source loads here, with
-// the unloaded categories it needs.
+// the unloaded categories it needs: docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
 	for _, src := range sources {
@@ -25,12 +25,15 @@ func addSource(root *folder, src datafiles.Source) error {
 		return err
 	}
 	if m.Index != nil {
-		placeIndex(root, src, m.Index)
+		placeIndex(root, src, m)
 		return nil
 	}
 	g := &folder{children: map[string]node{}}
 	if err := src.Walk(compileInto(func(dir []string) *folder { return madeFolder(g, dir) })); err != nil {
 		return err
+	}
+	for _, s := range categorySites(g) {
+		s.in.setReads(s.name, m.Reads)
 	}
 	mergeFolder(root, g)
 	return nil
@@ -70,6 +73,7 @@ func mergeFolder(dst, src *folder) {
 			}
 		}
 		dst.put(k, v)
+		dst.setReads(k, src.reads[k])
 	}
 }
 
@@ -80,8 +84,9 @@ type nodeSet func(fn func(label string, n node) error) error
 // categorySite is a loaded category, where it sits and its own dot path.
 type categorySite struct {
 	categoryAt
-	n    node
-	path string
+	n     node
+	path  string
+	reads []string
 }
 
 // categorySites lists every category under root, folders and names in sorted order.
@@ -102,7 +107,7 @@ func categorySites(root *folder) []categorySite {
 }
 
 func siteIn(dir []string, in *folder, name string) categorySite {
-	return categorySite{categoryAt: categoryAt{dir: dir, in: in, name: name}, n: in.children[name], path: categoryPath(dir, name)}
+	return categorySite{categoryAt: categoryAt{dir: dir, in: in, name: name}, n: in.children[name], path: categoryPath(dir, name), reads: in.reads[name]}
 }
 
 func categoryPath(dir []string, name string) string { return join(strings.Join(dir, "."), name) }

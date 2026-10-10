@@ -1,0 +1,27 @@
+{
+	"index": {
+		"en_US.address": {"paths":["","locality","postal-code","region","street","street-number"]},
+		"en_US.color": {"paths":[""]},
+		"en_US.company": {"paths":["","base","suffix"]},
+		"en_US.date": {"paths":[""]},
+		"en_US.email": {"paths":["","domain","local","local.n"]},
+		"en_US.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"en_US.ip": {"paths":[""]},
+		"en_US.itin": {"paths":["","area","group","serial"]},
+		"en_US.last-name": {"paths":["","count","name"]},
+		"en_US.person": {"paths":["","first","last","prefix","sex"]},
+		"en_US.phone": {"paths":["","area","exchange","line"]},
+		"en_US.phone-exchange": {"paths":[""]},
+		"en_US.price": {"paths":["","amt","cents"]},
+		"en_US.sentence": {"paths":["","adj","noun","prep","verb"]},
+		"en_US.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","name","title","title.name","title.sex","title.share"]},
+		"en_US.ssn": {"paths":["","area","group","serial"]},
+		"en_US.time": {"paths":[""]},
+		"en_US.title": {"parent":"sex","paths":["","name","sex","share"]},
+		"en_US.url": {"paths":["","host","path"]},
+		"en_US.username": {"paths":["","n"]},
+		"en_US.version": {"paths":["","n","pre","suffix"]},
+		"en_US.word": {"paths":[""]}
+	},
+	"reads": ["github.com/larvit/fejkdata/data/geo/US"]
+}

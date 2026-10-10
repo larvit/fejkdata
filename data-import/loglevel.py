@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/loglevel.tsv from RFC 5424 and POSIX <syslog.h>.
+"""Rebuild data/misc/misc/loglevel.tsv from RFC 5424 and POSIX <syslog.h>.
 
     data-import/loglevel.py [--source URL_OR_FILE] [--posix URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -18,7 +18,7 @@ import tsv
 
 SOURCE = "https://www.rfc-editor.org/rfc/rfc5424.txt"
 POSIX = "https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/syslog.h.html"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "loglevel.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "loglevel.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "keyword", "severity"]
 TABLE = re.compile(r"Table 1\.\s+Syslog Message Facilities(.*?)Table 2\.\s+Syslog Message Severities", re.S)

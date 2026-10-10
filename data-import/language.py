@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/language.tsv from datasets/language-codes (PDDL), the LoC ISO 639-2 register.
+"""Rebuild data/misc/misc/language.tsv from datasets/language-codes (PDDL), the LoC ISO 639-2 register.
 
     data-import/language.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -15,7 +15,7 @@ import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/datasets/language-codes/main/data/language-codes-full.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "language.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "language.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["code", "code3", "name"]
 

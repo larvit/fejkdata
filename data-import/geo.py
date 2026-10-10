@@ -12,7 +12,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 def parser(doc, country, **own):
     """A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
     "_" standing for "-"."""
-    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "streets_per_locality": {"type": int, "default": 10}, **own}
+    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country / "geo" / country)}, "streets_per_locality": {"type": int, "default": 10}, **own}
     p = argparse.ArgumentParser(description=doc.splitlines()[0])
     for name in sorted(options):
         p.add_argument("--" + name.replace("_", "-"), **options[name])
