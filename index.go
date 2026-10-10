@@ -11,10 +11,12 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// indexed is a category an index names and no call has reached yet, and the source holding it.
+// indexed is a category an index names and no call has reached yet, the source holding it,
+// and the modules that source reads by default.
 type indexed struct {
-	entry datafiles.IndexEntry
-	src   datafiles.Source
+	entry          datafiles.IndexEntry
+	src            datafiles.Source
+	defaultModules []string
 }
 
 // placeIndex sets every category m's index names as unloaded in root, in place of what
@@ -22,9 +24,7 @@ type indexed struct {
 func placeIndex(root *folder, src datafiles.Source, m datafiles.Manifest) {
 	for _, p := range sortedNames(m.Index) {
 		segs := strings.Split(p, ".")
-		g, name := madeFolder(root, segs[:len(segs)-1]), segs[len(segs)-1]
-		g.putUnloaded(name, &indexed{entry: m.Index[p], src: src})
-		g.setReads(name, m.Reads)
+		madeFolder(root, segs[:len(segs)-1]).putUnloaded(segs[len(segs)-1], &indexed{entry: m.Index[p], src: src, defaultModules: m.Reads})
 	}
 }
 
@@ -60,7 +60,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
+		if err := loadReached(&f.root, nil, []categoryAt{c}, nil); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -107,8 +107,9 @@ func needs(root *folder, s categorySite) []categoryAt {
 
 // loadReached loads the unloaded categories among wanted and every unloaded category they
 // or sites need, then runs sites and all it loaded through a whole load's pipeline. On an
-// error it puts back what it loaded, so the next call fails the same way.
-func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error {
+// error it puts back what it loaded, so the next call fails the same way. defaultModules
+// holds, by path, the modules the source of each of sites reads by default.
+func loadReached(root *folder, sites []categorySite, wanted []categoryAt, defaultModules map[string][]string) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
@@ -119,6 +120,14 @@ func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error 
 		err = b.run(root, sites)
 	}
 	if err != nil {
+		err = withDefaultModules(err, func(category string) []string {
+			for _, l := range b {
+				if l.site.path == category {
+					return l.was.defaultModules
+				}
+			}
+			return defaultModules[category]
+		})
 		b.putBack()
 	}
 	return err
@@ -167,6 +176,19 @@ func (b batch) run(root *folder, sites []categorySite) error {
 		return nil
 	}
 	return categoryPipeline(sites, root.children).run()
+}
+
+// withDefaultModules adds to err, where a reference of a category names nothing, the modules
+// the category's source reads by default, or that it names none.
+func withDefaultModules(err error, of func(category string) []string) error {
+	var u unresolvedRead
+	if !errors.As(err, &u) {
+		return err
+	}
+	if modules := of(u.category); len(modules) > 0 {
+		return fmt.Errorf("%w; the module holding %s reads by default %s", err, u.category, strings.Join(modules, ", "))
+	}
+	return fmt.Errorf("%w, and the module holding %s names no module it reads by default", err, u.category)
 }
 
 func (b batch) putBack() {

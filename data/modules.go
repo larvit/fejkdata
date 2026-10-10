@@ -1,4 +1,5 @@
-// Package data lists every module fejkdata ships.
+// Package data lists every module fejkdata ships. A module's tree spells its namespace:
+// data/geo/SE embeds geo/SE/…, whose categories are geo.SE.*.
 package data
 
 import (

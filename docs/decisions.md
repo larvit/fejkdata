@@ -143,7 +143,7 @@ package under `data/` embeds its own files, and a library imports the packages i
 
 - One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
-- A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
+- A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. It is an exported `var FS embed.FS`, the shape `//go:embed` gives; a function returning it would guard only against a program reassigning a dependency of its own. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
 - A manifest names no fejkdata version, and `New` checks none: the shipped packages ship in the core's Go module, and a module from anyone else keeps loading across a minor or a patch, as the README's Versioning promises. The maintainer chose so on 2026-10-09.
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
@@ -582,7 +582,9 @@ when a source carries it.
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
 Serves goal 6.2. `sv_SE.FS` loads alone, and `sv_SE.address` then fails at first reach,
-naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads.
+naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads. `New`
+checks no `reads`: a stand-in providing the same paths under another name would fail it
+(goal 9.2).
 `--no-shipped-data -d` takes a locale's folder with its country's, or a set of one's own.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
