@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"sort"
@@ -80,7 +81,7 @@ func shippedManifest(whole *Generator) ([]byte, error) {
 	var b bytes.Buffer
 	b.WriteString("{\n\t\"index\": {")
 	for i, s := range categorySites(&whole.root) {
-		line, err := json.Marshal(indexEntry(&whole.root, s))
+		line, err := json.Marshal(indexEntry(s))
 		if err != nil {
 			return nil, err
 		}
@@ -187,31 +188,30 @@ func TestADataPathLoadsWhatItReads(t *testing.T) {
 	}
 }
 
-func TestADataPathLoadsTheShippedCategoriesReachingWhatItReplaces(t *testing.T) {
-	f, err := New(WithDataPath(writeFiles(t, map[string]string{
-		"sv_SE/last-name.json": `{"format":"{name}","rows":"last-name.tsv","key":"name"}`,
-		"sv_SE/last-name.tsv":  "name\nSvensson\n",
-	})))
-	if err != nil {
-		t.Fatalf("New() = %v", err)
-	}
-	got := loadedCategories(f)
-	for _, w := range []string{"sv_SE.last-name", "sv_SE.person"} {
-		if !slices.Contains(got, w) {
-			t.Errorf("New loaded %v, want %s among them", got, w)
+func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
+	for name, opt := range map[string]Option{
+		"a data path": WithDataPath(writeData(t, map[string]string{"sv_SE/last-name": `"x"`})),
+		"an indexed source": WithDataFS(fstest.MapFS{
+			".fejkdata.json":       {Data: []byte(`{"index": {"sv_SE.last-name": {"paths": [""]}}}`)},
+			"sv_SE/last-name.json": {Data: []byte(`"x"`)},
+		}),
+	} {
+		f, err := New(opt)
+		if err != nil {
+			t.Fatalf("New(%s) = %v", name, err)
 		}
-	}
-	if slices.Contains(got, "misc.uuid") {
-		t.Errorf("New loaded %v, want misc.uuid left unloaded", got)
-	}
-	if _, err := New(WithDataPath(writeData(t, map[string]string{"sv_SE/last-name": `"x"`}))); err == nil || !strings.Contains(err.Error(), "sv_SE.person") {
-		t.Fatalf("New(a last-name the shipped person cannot read) = %v, want an error naming sv_SE.person", err)
+		if got := loadedCategories(f); slices.Contains(got, "sv_SE.person") {
+			t.Errorf("New(%s) loaded %v, want sv_SE.person left for its first reach", name, got)
+		}
+		if _, err := f.Fake("sv_SE.person"); !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), "sv_SE.person") {
+			t.Errorf(`%s: Fake("sv_SE.person") = %v, want ErrLoad naming sv_SE.person`, name, err)
+		}
 	}
 }
 
 func TestAnIndexedSourceStandsLikeTheShippedOne(t *testing.T) {
 	fsys := fstest.MapFS{
-		".fejkdata.json": {Data: []byte(`{"index": {"a": {"paths": [""], "reads": ["b"]}, "b": {"paths": [""]}, "sub.c": {"paths": ["", "d"]}}}`)},
+		".fejkdata.json": {Data: []byte(`{"index": {"a": {"paths": [""]}, "b": {"paths": [""]}, "sub.c": {"paths": ["", "d"]}}}`)},
 		"a.json":         {Data: []byte(`"{/b}!"`)},
 		"b.json":         {Data: []byte(`"x"`)},
 		"sub/c.json":     {Data: []byte(`{"format":"{d}","d":"y"}`)},
@@ -258,32 +258,41 @@ func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
 	}
 }
 
-func TestABrokenManifestFailsNew(t *testing.T) {
-	for manifest, want := range map[string]string{
-		`{`:                                    datafiles.ManifestFile,
-		`{"indx": {}}`:                         "indx",
-		`{"index": {"a..b": {"paths": [""]}}}`: "a..b",
-		`{"index": {}} {}`:                     "after top-level value",
-		`{"INDEX": {}}`:                        `unknown key "INDEX"`,
-		`{"index": {"a": {"Paths": [""]}}}`:    `unknown key "Paths"`,
-		`{"index": {"a": {}, "b": {}}}`:        `"b": paths is missing`,
-		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:     `parent "b" names no entry`,
-		`{"index": {"a": {"paths": [""], "reads": ["b..c"]}}}`: "b..c",
+func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
+	for manifest, want := range map[string][]string{
+		`{`:                                                 {datafiles.ManifestFile},
+		`{"index": {}} {}`:                                  {"after top-level value"},
+		`{"indx": {}, "INDEX": {}}`:                         {`unknown key "INDEX"`, `unknown key "indx"`},
+		`{"index": []}`:                                     {"index must be an object, not an array"},
+		`{"index": {"a..b": 5}}`:                            {`"a..b"`, "must be an object, not a number"},
+		`{"index": {"a": {"Paths": [""]}}}`:                 {`unknown key "Paths"`, "paths is missing"},
+		`{"index": {"a": {}, "b": {}}}`:                     {`"a": paths is missing`, `"b": paths is missing`},
+		`{"index": {"a": {"paths": ["x..y", 3]}}}`:          {`"x..y"`, "paths item 2 must be a string, not a number"},
+		`{"index": {"a": {"paths": [""], "parent": 5}}}`:    {"parent must be a string, not a number"},
+		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:  {`parent "b" names no entry`},
+		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`: {`unknown key "reads"`},
 	} {
 		_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
-		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, want)
+		for _, w := range want {
+			if err == nil || !strings.Contains(err.Error(), w) {
+				t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, w)
+			}
+		}
+		if err != nil && strings.Count(err.Error(), "\n") >= len(want) {
+			t.Errorf("New(manifest %s) = %v, want %d mistakes, each once", manifest, err, len(want))
 		}
 	}
 }
 
-func TestAnIndexedSourceReplacingAShippedCategoryLoadsItsReadersInNew(t *testing.T) {
-	_, err := New(WithDataFS(fstest.MapFS{
-		".fejkdata.json":       {Data: []byte(`{"index": {"sv_SE.last-name": {"paths": [""]}}}`)},
-		"sv_SE/last-name.json": {Data: []byte(`"x"`)},
-	}))
-	if err == nil || !strings.Contains(err.Error(), "sv_SE.person") {
-		t.Fatalf("New() = %v, want an error naming sv_SE.person", err)
+func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
+	for name, opt := range map[string]Option{
+		"a missing data path": WithDataPath(filepath.Join(t.TempDir(), "nope")),
+		"a broken category":   WithDataPath(writeData(t, map[string]string{"x": `{ not json`})),
+		"a broken manifest":   WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(`{`)}}),
+	} {
+		if _, err := New(opt); !errors.Is(err, ErrLoad) {
+			t.Errorf("New(%s) = %v, want it to match ErrLoad", name, err)
+		}
 	}
 }
 
@@ -387,16 +396,8 @@ func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
 }
 
 // indexEntry is what an index says of the loaded category s.
-func indexEntry(root *folder, s categorySite) datafiles.IndexEntry {
+func indexEntry(s categorySite) datafiles.IndexEntry {
 	e := datafiles.IndexEntry{Parent: parentOf(s.n), Paths: paths(s.n, false)}
 	sort.Strings(e.Paths)
-	seen := map[string]bool{s.path: true}
-	for _, c := range referenced(root, s.dir, siteNodes([]categorySite{s})) {
-		if p := categoryPath(c.dir, c.name); !seen[p] {
-			seen[p] = true
-			e.Reads = append(e.Reads, p)
-		}
-	}
-	sort.Strings(e.Reads)
 	return e
 }
