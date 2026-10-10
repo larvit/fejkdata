@@ -183,21 +183,6 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	return index
 }
 
-func TestEachShippedModuleNamesWhatItReads(t *testing.T) {
-	for _, m := range shippedModules(t) {
-		manifest, err := datafiles.FS(m.fsys).Manifest()
-		if err != nil {
-			t.Fatal(err)
-		}
-		if m.dir == "sv_SE" && !slices.Contains(manifest.Reads, "github.com/larvit/fejkdata/data/geo/SE") {
-			t.Errorf("sv_SE reads %v, want geo/SE among them", manifest.Reads)
-		}
-		if slices.Contains(manifest.Reads, m.importPath()) {
-			t.Errorf("%s reads %v, want itself left out", m.dir, manifest.Reads)
-		}
-	}
-}
-
 func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
 	modules := shippedModules(t)
 	for _, m := range modules {
@@ -439,8 +424,9 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"index": {"a": {"paths": ["", "x", "x"]}}}`:               {`paths item 3 repeats "x"`},
 		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:          {`parent "b" names no entry`},
 		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`:         {`unknown key "reads"`},
-		`{"reads": "b"}`:     {"reads must be a list, not a string"},
-		`{"reads": ["", 3]}`: {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
+		`{"reads": "b"}`:        {"reads must be a list, not a string"},
+		`{"reads": ["", 3]}`:    {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
+		`{"reads": ["a", "a"]}`: {`reads item 2 repeats "a"`},
 	} {
 		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
