@@ -303,14 +303,14 @@ func TestCalcRefusesABadOperand(t *testing.T) {
 			"zero": `"0"`,
 			"card": card,
 		})
-		if _, err := New(WithDataPath(dir), WithSeed(1)); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := New(withShipped(), WithDataPath(dir), WithSeed(1)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("New with card %s = %v, want an error containing %q", card, err, want)
 		}
 	}
 }
 
 func TestATypedColumnRefusesACalcOverNoDigits(t *testing.T) {
-	_, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithDataPath(writeData(t, map[string]string{
 		"row": `{"format":"","x":{"format":"{calc(d + 1)}","d":"{digits(0)}","datatype":"integer"}}`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "{digits(0)} prints nothing, which is no number") {
@@ -338,7 +338,7 @@ func TestATypedColumnProvesACalcOverAName(t *testing.T) {
 		"word":  `["1","x"]`,
 		"order": `{"format":"{/word as w}{w}","double":{"format":"{calc(w * 2)}","datatype":"integer"}}`,
 	})
-	if _, err := New(WithDataPath(bad), WithSeed(1)); err == nil || !strings.Contains(err.Error(), `operand "w": "x" is not a number`) {
+	if _, err := New(withShipped(), WithDataPath(bad), WithSeed(1)); err == nil || !strings.Contains(err.Error(), `operand "w": "x" is not a number`) {
 		t.Fatalf("New = %v, want the typed column refused over an operand that is not always a number", err)
 	}
 }

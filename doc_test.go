@@ -265,7 +265,7 @@ func TestGoExamplesPrintWhatTheyRender(t *testing.T) {
 		if lines == nil {
 			t.Errorf("%s prints no seeded Fake, so nothing holds its example to a render", name)
 		}
-		f, err := New(WithSeed(42))
+		f, err := New(withShipped(), WithSeed(42))
 		if err != nil {
 			t.Fatal(err)
 		}
