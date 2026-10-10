@@ -37,6 +37,7 @@ type config struct {
 	seed    uint64
 	seeded  bool
 	sources []datafiles.Source
+	err     error
 	// given is whether an option named the data to load, though it may name none.
 	given bool
 }
@@ -64,14 +65,18 @@ func WithDataPath(dir string) Option {
 // with none loads no data.
 func WithDataFS(modules ...fs.FS) Option {
 	return func(c *config) {
-		for _, fsys := range modules {
+		for i, fsys := range modules {
+			if fsys == nil {
+				c.err = fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1)
+				continue
+			}
 			c.sources = append(c.sources, datafiles.FS(fsys))
 		}
 		c.given = true
 	}
 }
 
-var errNoData = errors.New("fejkdata: New names no data to load; pass WithDataFS(data.Modules()...), importing github.com/larvit/fejkdata/data, for every module fejkdata ships, WithDataFS or WithDataPath with your own, or WithDataFS() for none")
+var errNoData = errors.New("fejkdata: New was given no data to load; pass WithDataFS(data.Modules()...), importing github.com/larvit/fejkdata/data, for every module fejkdata ships, WithDataFS or WithDataPath with your own, or WithDataFS() for none")
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
 // of an indexed source.
@@ -98,6 +103,9 @@ func New(opts ...Option) (*Generator, error) {
 	}
 	if !c.given {
 		return nil, errNoData
+	}
+	if c.err != nil {
+		return nil, c.err
 	}
 	root, err := loadSources(c.sources)
 	if err != nil {

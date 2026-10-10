@@ -361,7 +361,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 `data.Modules()` is every shipped module, and links all of them into your program. To link
 only the ones you read, pass each package's `FS` with the modules its manifest reads:
 `WithDataFS(sv_SE.FS, SE.FS)` from `github.com/larvit/fejkdata/data/sv_SE` and
-`github.com/larvit/fejkdata/data/geo/SE`. `New` fails where no `WithDataFS` or
+`github.com/larvit/fejkdata/data/geo/SE`, or `en_US.FS` with `US.FS` from
+`github.com/larvit/fejkdata/data/geo/US`; `misc` reads none. `New` fails where no `WithDataFS` or
 `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -898,6 +899,7 @@ and regenerate seeded fixtures and expected values when you raise that version.
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
+| Data packages | rename or remove a package; move a category to another package; add a module to a package's `reads` | a package |
 
 A patch changes no row of this table: performance, docs, or a fix inside a promised
 behaviour that adds or removes no value and changes no path, format or spelling.
