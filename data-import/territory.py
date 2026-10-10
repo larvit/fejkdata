@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/territory.tsv from datasets/country-codes (PDDL).
+"""Rebuild data/misc/misc/territory.tsv from datasets/country-codes (PDDL).
 
     data-import/territory.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 """
@@ -14,7 +14,7 @@ import source
 import tsv
 
 SOURCE = "https://raw.githubusercontent.com/datasets/country-codes/main/data/country-codes.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "territory.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "territory.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["alpha2", "alpha3", "calling-code", "capital", "country", "currency", "flag", "languages", "name", "numeric", "tld"]
 SOVEREIGN = re.compile(r"^(?:Part of|Territor(?:y|ies) of|Crown dependency of|Commonwealth of|Associated with) ([A-Z]{2})$")

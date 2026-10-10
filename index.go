@@ -11,18 +11,20 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// indexed is a category an index names and no call has reached yet, and the source holding it.
+// indexed is a category an index names and no call has reached yet, the source holding it,
+// and the modules that source reads by default.
 type indexed struct {
-	entry datafiles.IndexEntry
-	src   datafiles.Source
+	entry          datafiles.IndexEntry
+	src            datafiles.Source
+	defaultModules []string
 }
 
-// placeIndex sets every category the index names as unloaded in root, in place of what
+// placeIndex sets every category m's index names as unloaded in root, in place of what
 // root holds at its path.
-func placeIndex(root *folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
-	for _, p := range sortedNames(index) {
+func placeIndex(root *folder, src datafiles.Source, m datafiles.Manifest) {
+	for _, p := range sortedNames(m.Index) {
 		segs := strings.Split(p, ".")
-		madeFolder(root, segs[:len(segs)-1]).putUnloaded(segs[len(segs)-1], &indexed{entry: index[p], src: src})
+		madeFolder(root, segs[:len(segs)-1]).putUnloaded(segs[len(segs)-1], &indexed{entry: m.Index[p], src: src, defaultModules: m.Reads})
 	}
 }
 
@@ -147,6 +149,7 @@ func (b *batch) load(root *folder, queue []categoryAt) error {
 			return err
 		}
 		s := siteIn(c.dir, c.in, c.name)
+		s.defaultModules = x.defaultModules
 		*b = append(*b, loaded{site: s, was: x})
 		if parent := parentOf(s.n); parent != x.entry.Parent {
 			return fmt.Errorf("%s: the index entry for %s %s, and its table %s", x.src.ManifestPath(), s.path, namesParent(x.entry.Parent), namesParent(parent))

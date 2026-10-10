@@ -50,7 +50,7 @@ func TestShippedDataCategories(t *testing.T) {
 			regexp.MustCompile(`^\d{1,3}( \d{3})?(,\d{2})? kr$`)},
 	}
 
-	f := newGenerator(t, "data", WithSeed(1))
+	f := shipped(t, WithSeed(1))
 	for _, c := range cases {
 		for i := 0; i < 200; i++ {
 			if v := fake(t, f, "en_US."+c.path); !c.en.MatchString(v) {
@@ -63,11 +63,11 @@ func TestShippedDataCategories(t *testing.T) {
 	}
 }
 
-// TestShippedMiscCategories covers the locale-neutral data/misc folder: a proper
+// TestShippedMiscCategories covers the locale-neutral misc module: a proper
 // v4 UUID (version/variant nibbles fixed), a MAC address, and credit-card numbers
 // whose trailing {luhn()} check passes.
 func TestShippedMiscCategories(t *testing.T) {
-	f := newGenerator(t, "data/misc", WithSeed(1))
+	f := newGenerator(t, "data/misc/misc", WithSeed(1))
 	v4 := regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 	mac := regexp.MustCompile(`^([0-9a-f]{2}:){5}[0-9a-f]{2}$`)
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
@@ -95,7 +95,7 @@ func TestShippedMiscCategories(t *testing.T) {
 // codes follow their standard shape, dotted sub-paths resolve, emoji is a real
 // glyph, and a coordinate parses to a point within geographic bounds.
 func TestShippedMiscReferenceData(t *testing.T) {
-	f := newGenerator(t, "data/misc", WithSeed(1))
+	f := newGenerator(t, "data/misc/misc", WithSeed(1))
 	re := map[string]*regexp.Regexp{
 		"currency":              regexp.MustCompile(`^[A-Z]{3}$`),
 		"currency.name":         regexp.MustCompile(`\p{L}`),
@@ -158,7 +158,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 // TestSwedishPersonNamesHaveNoTripleLetter pins an orthographic rule the shape
 // regexes miss: no generated name repeats a character three times over.
 func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(11))
+	f := shipped(t, WithSeed(11))
 	for _, path := range []string{"sv_SE.person", "sv_SE.person.last"} {
 		for i := 0; i < 20000; i++ {
 			name := fake(t, f, path)
@@ -177,7 +177,7 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 // male), the trailing digit is a Luhn checksum over the other nine, and a
 // samordningsnummer is the same with 60 added to the day.
 func TestSwedishPersonnummer(t *testing.T) {
-	sv := newGenerator(t, "data", WithSeed(1))
+	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^\d{6}-23[89]\d$`)
 	sawLongMonthEnd, birth := false, map[string]bool{}
 	for i := 0; i < 2000; i++ {
@@ -216,7 +216,7 @@ func TestSwedishPersonnummer(t *testing.T) {
 // 666, its group 01-99 and its serial 0001-9999; an ITIN is 9XX-GG-XXXX with GG
 // in 50-65, 70-88, 90-92 or 94-99.
 func TestShippedUSTaxIds(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(5))
+	f := shipped(t, WithSeed(5))
 	ssn := regexp.MustCompile(`^(\d{3})-(\d{2})-(\d{4})$`)
 	itin := regexp.MustCompile(`^9\d{2}-(5\d|6[0-5]|7\d|8[0-8]|9[0-24-9])-\d{4}$`)
 	for i := 0; i < 2000; i++ {
@@ -240,7 +240,7 @@ func TestShippedUSTaxIds(t *testing.T) {
 // TestShippedPersonNames pins the name tables: a sex pins its first names, a name
 // both sexes carry appears under both, and the record's sex agrees with its name.
 func TestShippedPersonNames(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(9))
+	f := shipped(t, WithSeed(9))
 	for path, want := range map[string]string{
 		"sv_SE.sex[f]":                        "kvinna",
 		"sv_SE.sex[man].code":                 "m",
@@ -281,7 +281,7 @@ func TestShippedPersonNames(t *testing.T) {
 // TestShippedPersonIsOneNamedPick pins that a person's first name, sex and title come
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(9))
+	f := shipped(t, WithSeed(9))
 	for _, locale := range []string{"sv_SE", "en_US"} {
 		apart := false
 		for i := 0; i < 300; i++ {
@@ -302,7 +302,7 @@ func TestShippedPersonIsOneNamedPick(t *testing.T) {
 }
 
 func TestShippedSwedishPhone(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(11))
+	f := shipped(t, WithSeed(11))
 	re := regexp.MustCompile(`^0\d{1,2}-\d{3} \d{2} \d{2}$`)
 	for i := 0; i < 50; i++ {
 		if n := fake(t, f, "sv_SE.phone"); !re.MatchString(n) {
@@ -312,7 +312,7 @@ func TestShippedSwedishPhone(t *testing.T) {
 }
 
 func TestShippedSwedishAddress(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(3))
+	f := shipped(t, WithSeed(3))
 	digit := regexp.MustCompile(`\d`)
 	for i := 0; i < 30; i++ {
 		a := fake(t, f, "sv_SE.address")
@@ -333,7 +333,7 @@ func TestShippedSwedishAddress(t *testing.T) {
 // locality and region are one place in the geo tables, read through a name in a template or
 // across a struct's tags, and that a reference beside the name is another address.
 func TestShippedAddressIsOneNamedPick(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(3))
+	f := shipped(t, WithSeed(3))
 	for _, c := range []struct{ locale, country, template, largest string }{
 		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}|", "Stockholm"},
 		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}", "New York"},
@@ -379,7 +379,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 // one locality holds, the region empty for SE, whose address carries none.
 func geoPlaces(t *testing.T, country string) map[string]bool {
 	rows := func(table string) [][]string {
-		b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
+		b, err := os.ReadFile("data/geo/" + country + "/geo/" + country + "/" + table + ".tsv")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -417,7 +417,7 @@ func geoPlaces(t *testing.T, country string) map[string]bool {
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(7))
+	f := shipped(t, WithSeed(7))
 	for _, path := range []string{"sv_SE.person", "en_US.person"} {
 		for i := 0; i < 30; i++ {
 			if name := fake(t, f, path); len(name) < 3 || !regexp.MustCompile(`\S \S`).MatchString(name) {
@@ -429,7 +429,7 @@ func TestShippedPersonHasParts(t *testing.T) {
 
 // NANPA's central office code records mark N11, 555, 950, 958, 959 and 976 unassignable.
 func TestShippedUSPhone(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(11))
+	f := shipped(t, WithSeed(11))
 	re := regexp.MustCompile(`^(?:\(\d{3}\) |\d{3}-)([2-9]\d{2})-\d{4}$`)
 	unassignable := map[string]bool{"555": true, "950": true, "958": true, "959": true, "976": true}
 	for i := 0; i < 2000; i++ {
@@ -467,10 +467,10 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 	}
 }
 
-// TestShippedNamespacedTree loads the whole data/ tree (not a single locale) and
-// reaches each locale through its folder segment: data/sv_SE/person -> sv_SE.person.
+// TestShippedNamespacedTree loads every shipped module and reaches each locale through its
+// folder segment: data/sv_SE/sv_SE/person.json -> sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(1))
+	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {
 		if got := fake(t, f, path); got == "" {
 			t.Fatalf("Fake(%q) returned empty", path)
@@ -514,7 +514,7 @@ func luhnValid(s string) bool {
 var swedishName = regexp.MustCompile(`^\p{L}+([ -]\p{L}+)*$`)
 
 func TestShippedStreetIsARegisteredName(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(5))
+	f := shipped(t, WithSeed(5))
 	street := regexp.MustCompile(`^\p{L}[\p{L}\d:.-]*([ -][\p{L}\d:.-]+)*$`)
 	for i := 0; i < 300; i++ {
 		if s := fake(t, f, "sv_SE.address.street"); !street.MatchString(s) {
@@ -526,7 +526,7 @@ func TestShippedStreetIsARegisteredName(t *testing.T) {
 func TestShippedLastNameComposition(t *testing.T) {
 	// last is a choice of patronymic {first}sson templates, compound
 	// {first}{last} templates and literal surnames.
-	f := newGenerator(t, "data", WithSeed(6))
+	f := shipped(t, WithSeed(6))
 	for i := 0; i < 300; i++ {
 		if s := fake(t, f, "sv_SE.person.last"); !swedishName.MatchString(s) {
 			t.Fatalf("last name %q is not a Swedish surname", s)
@@ -536,7 +536,7 @@ func TestShippedLastNameComposition(t *testing.T) {
 
 func TestShippedStreetNumberFormats(t *testing.T) {
 	// Reachable via a hyphenated path; covers all five weighted number variants.
-	f := newGenerator(t, "data", WithSeed(8))
+	f := shipped(t, WithSeed(8))
 	re := regexp.MustCompile(`^[1-9]\d{0,2}[A-Z]?$`)
 	for i := 0; i < 300; i++ {
 		if n := fake(t, f, "sv_SE.address.street-number"); !re.MatchString(n) {
@@ -548,7 +548,7 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 // TestShippedUSTitleAgreesWithSex pins that one person's title and sex agree, and
 // that the everyday titles are reachable.
 func TestShippedUSTitleAgreesWithSex(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(4))
+	f := shipped(t, WithSeed(4))
 	female := map[string]bool{"Miss": true, "Mrs": true, "Ms": true}
 	seen := map[string]bool{}
 	for i := 0; i < 3000; i++ {

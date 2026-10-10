@@ -160,12 +160,15 @@ it to a name and read the name
 
 ## Data
 
-The shipped set under [`data/`](data) is embedded, so the CLI and the library
-work with no data on disk. It holds one folder per locale (`en_US`, `sv_SE`), a
-`geo` folder with a tree of places per country (`SE`, `US`), and a
-locale-neutral `misc` folder. A directory is a namespace: each JSON file is a category named
-after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json`
-is `sv_SE.person` and replaces the shipped one.
+The shipped data comes in modules, each a Go package under [`data/`](data): one per
+locale (`en_US`, `sv_SE`), one per country's tree of places (`geo/SE`, `geo/US`), and
+the locale-neutral `misc`. Each embeds its files, so nothing is read from disk. The CLI
+carries every module, and a library loads those it passes to `WithDataFS`
+([Library](#library)). A
+directory is a namespace: each JSON file is a category named after the file, each
+subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is `sv_SE.person` and
+replaces the shipped one. A module's tree spells its namespace the same way, so
+`sv_SE`'s person is `data/sv_SE/sv_SE/person.json`.
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
 which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-prefixed
@@ -181,12 +184,19 @@ every category of its source, so a category file it leaves out never loads.
 
 The index maps each category's dot path to an entry: `parent`, the table it links to,
 which needs its own entry in the same folder; and `paths`, every path `List` advertises
-below the category, `""` for the category itself. The shipped set's
-[`data/.fejkdata.json`](data/.fejkdata.json) is one, so delete it from a copy of `data/`
-you edit, or keep its index current. A table whose parent column differs from its
+below the category, `""` for the category itself. Each shipped module's manifest, such as
+[`data/sv_SE/.fejkdata.json`](data/sv_SE/.fejkdata.json), is one, so delete it from a
+copy you edit, or keep its index current. A table whose parent column differs from its
 entry's `parent` fails at first reach, and a table linking under another source's table
 needs a source without an index. `//go:embed` of a directory leaves the manifest out, and
 the source then loads whole in `New`; name it in the pattern too.
+
+A manifest's `reads` lists, by any name its author chooses, every module the source's
+references read unless another source provides the same paths, directly or through
+another module; a manifest may carry it without an index. Nothing loads these modules:
+pass them yourself. A shipped module names a Go package: `sv_SE`'s manifest reads
+`github.com/larvit/fejkdata/data/geo/SE`. A reference to a path nothing provides fails,
+naming those modules, or saying the manifest names none.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -322,7 +332,12 @@ go get github.com/larvit/fejkdata   # Go 1.22+
 ```
 
 ```go
-f, err := fejkdata.New(fejkdata.WithSeed(42))
+import (
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/data"
+)
+
+f, err := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42))
 if err != nil {
 	log.Fatal(err)
 }
@@ -342,8 +357,23 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 |--------|--|
 | `WithSeed(n)` | same seed, version and data: identical sequence |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
-| `WithDataFS(fsys)` | layer an `fs.FS`, such as your own `embed.FS` |
-| `WithoutShippedData()` | load only what you give |
+| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `FS`, or your own `embed.FS`; `WithDataFS()` loads none |
+
+`data.Modules()` is every shipped module, and links all of them into your program. To link
+only the ones you read, pass each package's `FS` with the modules its manifest reads:
+
+```go
+import (
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/data/geo/SE"
+	"github.com/larvit/fejkdata/data/sv_SE"
+)
+
+f, err := fejkdata.New(fejkdata.WithDataFS(sv_SE.FS, SE.FS))
+```
+
+`en_US` reads `geo/US`; `misc` reads none. `New` fails where no `WithDataFS` or
+`WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. A category of an indexed source is
@@ -762,7 +792,7 @@ A reference renders a node from elsewhere in the data — the path `Fake` takes,
 across every loaded source — so one category borrows another. The sigil says
 where the path starts, as in a filesystem: `{/en_US.person}` from the data root,
 `{.username}` from the folder this file sits in, `{..username}` from the folder
-above. `data/sv_SE/email.json` can therefore read its own locale's `username`
+above. `data/sv_SE/sv_SE/email.json` can therefore read its own locale's `username`
 without naming `sv_SE`:
 
 ```json
@@ -879,6 +909,7 @@ and regenerate seeded fixtures and expected values when you raise that version.
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
+| Data packages | rename or remove a package; move a category to another package; add a module to a package's `reads` | a package |
 
 A patch changes no row of this table: performance, docs, or a fix inside a promised
 behaviour that adds or removes no value and changes no path, format or spelling.
@@ -1003,7 +1034,6 @@ Where the project is heading; the sections before Audience document what ships t
 ```
 doc.go          the package doc, and the vocabulary the package is written in
 fejkdata.go     Generator, New, options, List
-shipped.go      the embedded data set
 index.go        a source's index: its categories left unloaded, and loading one on the first call reaching it
 node.go         the node model and JSON -> node compilation
 table.go        tables: their options, format and cells, the link to the parent beside them, and how a path passes and draws a table
@@ -1036,7 +1066,7 @@ internal/invariant/ the one phrase every package panics with when an invariant b
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
-data/           shipped data (JSON, and a TSV per table), embedded at build: locale folders, geo, misc
+data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading
@@ -1062,7 +1092,7 @@ Commands that rewrite source keep your file ownership when run with `--user`:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" fmt       # gofmt -w .
-docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: data/.fejkdata.json from data/
+docker compose run --rm --user "$(id -u):$(id -g)" generate  # go generate: each data/ module's .fejkdata.json
 docker compose run --rm --user "$(id -u):$(id -g)" tidy      # go mod tidy
 ```
 
@@ -1093,8 +1123,8 @@ Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) s
 what the score asks of a pull request. Goal 5 is checked against simulated template
 writers from the Audience.
 
-A change to the shipped data runs `generate` above first and commits
-[`data/.fejkdata.json`](data/.fejkdata.json) with the change, then re-pins
+A change to the shipped data runs `generate` above first and commits each module's
+`.fejkdata.json` with the change, then re-pins
 [`testdata/shipped_shape.txt`](testdata/shipped_shape.txt) in its own commit:
 
 ```sh

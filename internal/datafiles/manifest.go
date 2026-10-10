@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"path"
 	"sort"
 	"strings"
 
@@ -19,6 +18,9 @@ const ManifestFile = ".fejkdata.json"
 type Manifest struct {
 	// Index is every category of the source by dot path; nil where the manifest has none.
 	Index map[string]IndexEntry `json:"index"`
+	// Reads is every module the source reads by default, directly or through another;
+	// nothing loads them.
+	Reads []string `json:"reads"`
 }
 
 // IndexEntry is what an index says of a category: its parent table, "" for none, and the
@@ -33,7 +35,7 @@ func (s Source) Manifest() (Manifest, error) {
 	if err := s.check(); err != nil {
 		return Manifest{}, err
 	}
-	b, err := fs.ReadFile(s.fsys, path.Join(s.base, ManifestFile))
+	b, err := fs.ReadFile(s.fsys, ManifestFile)
 	if errors.Is(err, fs.ErrNotExist) {
 		return Manifest{}, nil
 	}
@@ -48,7 +50,7 @@ func (s Source) Manifest() (Manifest, error) {
 }
 
 // ManifestPath is the manifest's path as errors name it.
-func (s Source) ManifestPath() string { return s.labelled(path.Join(s.base, ManifestFile)) }
+func (s Source) ManifestPath() string { return s.labelled(ManifestFile) }
 
 // decodeManifest decodes a manifest, refusing any key or shape it does not define, and
 // reports every mistake: first each entry's own, in path order, then each parent naming
@@ -65,15 +67,46 @@ func decodeManifest(b []byte) (Manifest, error) {
 	var m Manifest
 	var errs []error
 	for _, k := range sortedKeys(top) {
-		if k != "index" {
-			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index", k))
-			continue
+		switch k {
+		case "index":
+			var indexErrs []error
+			m.Index, indexErrs = decodeIndex(top[k])
+			errs = append(errs, indexErrs...)
+		case "reads":
+			var err error
+			m.Reads, err = decodeReads(top[k])
+			errs = append(errs, err)
+		default:
+			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index and reads", k))
 		}
-		var indexErrs []error
-		m.Index, indexErrs = decodeIndex(top[k])
-		errs = append(errs, indexErrs...)
 	}
 	return m, errors.Join(errs...)
+}
+
+// decodeReads decodes the modules a source reads, each named by a non-empty string.
+func decodeReads(v any) ([]string, error) {
+	items, isList := v.([]any)
+	if !isList {
+		return nil, fmt.Errorf("reads must be a list, not %s", jsonvalue.Kind(v))
+	}
+	out := make([]string, 0, len(items))
+	seen := map[string]bool{}
+	var errs []error
+	for i, item := range items {
+		module, isString := item.(string)
+		switch {
+		case !isString:
+			errs = append(errs, fmt.Errorf("reads item %d must be a string, not %s", i+1, jsonvalue.Kind(item)))
+		case module == "":
+			errs = append(errs, fmt.Errorf("reads item %d is empty; it names a module", i+1))
+		case seen[module]:
+			errs = append(errs, fmt.Errorf("reads item %d repeats %q", i+1, module))
+		default:
+			seen[module] = true
+			out = append(out, module)
+		}
+	}
+	return out, errors.Join(errs...)
 }
 
 func decodeIndex(v any) (map[string]IndexEntry, []error) {

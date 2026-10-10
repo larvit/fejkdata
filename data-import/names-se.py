@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/sv_SE/first-name.tsv and last-name.tsv from SCB's whole-population name counts (CC0, "Källa: SCB").
+"""Rebuild data/sv_SE/sv_SE/first-name.tsv and last-name.tsv from SCB's whole-population name counts (CC0, "Källa: SCB").
 
     data-import/names-se.py [--source URL_OR_FILE] [--first N] [--last N] [--cache DIR] [--out DIR]
 
@@ -14,7 +14,7 @@ import tsv
 import xlsx
 
 SOURCE = "https://www.scb.se/contentassets/9fe7dbb460994c72b835163dbc491ef9/namn-med-minst-tva-barare-31-december-2022.xlsx"
-OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
+OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE" / "sv_SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 SHEETS = {"f": "Tilltalsnamn kvinnor", "m": "Tilltalsnamn män"}
 SURNAMES = "Efternamn"

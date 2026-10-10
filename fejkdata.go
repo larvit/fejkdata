@@ -36,8 +36,10 @@ type Generator struct {
 type config struct {
 	seed    uint64
 	seeded  bool
-	shipped bool
 	sources []datafiles.Source
+	err     error
+	// given is whether an option named the data to load, though it may name none.
+	given bool
 }
 
 // Option configures a [Generator].
@@ -53,20 +55,28 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources = append(c.sources, datafiles.Dir(dir))
+		c.sources, c.given = append(c.sources, datafiles.Dir(dir)), true
 	}
 }
 
-// WithDataFS layers a data tree held in an [fs.FS], such as an embed.FS of your own.
-func WithDataFS(fsys fs.FS) Option {
-	return func(c *config) { c.sources = append(c.sources, datafiles.FS(fsys, "")) }
+// WithDataFS layers modules, each a data tree held in an [fs.FS], over what is loaded
+// before them, in order. A module may be a data package's FS, such as one of
+// github.com/larvit/fejkdata/data's Modules, or an embed.FS of your own. WithDataFS()
+// loads no data.
+func WithDataFS(modules ...fs.FS) Option {
+	return func(c *config) {
+		for i, fsys := range modules {
+			if fsys == nil {
+				c.err = errors.Join(c.err, fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1))
+				continue
+			}
+			c.sources = append(c.sources, datafiles.FS(fsys))
+		}
+		c.given = true
+	}
 }
 
-// WithoutShippedData leaves the shipped data set out, so only the sources given
-// with [WithDataPath] and [WithDataFS] load.
-func WithoutShippedData() Option {
-	return func(c *config) { c.shipped = false }
-}
+var errNoData = errors.New("fejkdata: New was given no data to load; pass WithDataFS(data.Modules()...) for every module fejkdata ships (import github.com/larvit/fejkdata/data); WithDataFS or WithDataPath for your own; or WithDataFS() for none")
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
 // of an indexed source.
@@ -78,20 +88,26 @@ type loadError struct{ error }
 func (e loadError) Unwrap() error      { return e.error }
 func (loadError) Is(target error) bool { return target == ErrLoad }
 
-// New builds a generator from the shipped data set and the options' sources, merged
-// in order with the last winning a name clash. Each JSON file becomes a category
-// named after the file (address.json -> "address") and each subdirectory a
-// namespace segment. It errors on a missing directory, invalid JSON or invalid data; a
-// generator with no data at all renders templates that read none. A source whose
-// .fejkdata.json carries an index, as the shipped set's does, loads each category on the
-// first call reaching it. Data failing to load, in New or on that first call, gives an
-// error matching [ErrLoad].
+// New builds a generator from the options' sources, merged in order with the last
+// winning a name clash; it fails where no [WithDataFS] or [WithDataPath] names the data
+// to load. Each JSON file becomes a category named after the file (address.json ->
+// "address") and each subdirectory a namespace segment. It errors on a missing
+// directory, invalid JSON or invalid data; a generator with no data at all renders
+// templates that read none. A source whose .fejkdata.json carries an index, as each
+// shipped module's does, loads each category on the first call reaching it. Data failing
+// to load, in New or on that first call, gives an error matching [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
-	c := config{shipped: true}
+	var c config
 	for _, opt := range opts {
 		opt(&c)
 	}
-	root, err := c.load()
+	if !c.given {
+		return nil, errNoData
+	}
+	if c.err != nil {
+		return nil, c.err
+	}
+	root, err := loadSources(c.sources)
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
 	}
@@ -100,16 +116,6 @@ func New(opts ...Option) (*Generator, error) {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	return &Generator{drawState: drawstate.New(seed), root: root}, nil
-}
-
-// load builds the tree New starts from. docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
-func (c config) load() (folder, error) {
-	var sources []datafiles.Source
-	if c.shipped {
-		sources = append(sources, shippedSource)
-	}
-	sources = append(sources, c.sources...)
-	return loadSources(sources)
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/protocol.tsv from the IANA Protocol Numbers registry.
+"""Rebuild data/misc/misc/protocol.tsv from the IANA Protocol Numbers registry.
 
     data-import/protocol.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
@@ -17,7 +17,7 @@ import source
 import tsv
 
 SOURCE = "https://www.iana.org/assignments/protocol-numbers/protocol-numbers-1.csv"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "protocol.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "protocol.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")

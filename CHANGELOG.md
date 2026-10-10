@@ -41,8 +41,8 @@ replacement, and each removed path, column or flag.
   where it does nothing; a name nothing reads; a repeated item, which counts as written; a
   weight of `0`, which is never drawn; a `repeat` or count of `0`, which renders nothing;
   `+5`, `05` and `-0`; and a reference into the category it sits in. A rows file no
-  category names is ignored. `New` with no data loads, and renders templates that read
-  none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--separator`, `--format`
+  category names is ignored. `New(WithDataFS())` loads no data, and renders templates that
+  read none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--separator`, `--format`
   and `--table`, and `--table` is ignored without `--format sql`.
 - Table categories: a category JSON naming a `rows` TSV beside it, with the options
   `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
@@ -92,8 +92,8 @@ replacement, and each removed path, column or flag.
   and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
   `address` record binding one locality and drawing its street and postal code inside
   it. `sv_SE.address` and `en_US.address` bind those records once, so
-  `en_US.address.street` no longer carries `name` and `suffix`, and a locale folder
-  loads only beside `geo`.
+  `en_US.address.street` no longer carries `name` and `suffix`, and a locale's `address`
+  reads its country's `geo` module.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
   within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.
   `sv_SE.date`, `en_US.date`, `sv_SE.time` and `en_US.time` render through them, so
@@ -125,9 +125,17 @@ replacement, and each removed path, column or flag.
   its own quotes, a row of a table with no key is named as the path that selects it,
   `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record
   that gives it one.
+- The shipped data comes in Go packages, one per module, each exporting `FS`:
+  `github.com/larvit/fejkdata/data/en_US`, `…/sv_SE`, `…/misc`, `…/geo/SE` and
+  `…/geo/US`. `data.Modules()`, from `github.com/larvit/fejkdata/data`, lists every one,
+  and the CLI carries them all. `New` loads the modules `WithDataFS(modules...)` names and
+  the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
+  is given. A manifest's `reads` lists the modules its source reads by default, and a
+  reference to a path nothing provides fails, naming those modules or saying there are
+  none.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
-  category on the first call reaching it, as the shipped set does. Data failing to load,
+  category on the first call reaching it, as each shipped module does. Data failing to load,
   in `New` or on that first call, gives an error matching `ErrLoad`, and the CLI exits 1.
-  A source without an index loads in `New`, with the shipped categories it reads. Every
+  A source without an index loads in `New`, with the indexed categories it reads. Every
   other shipped category loads on the first call reaching it, so one your replacement
   breaks fails there.

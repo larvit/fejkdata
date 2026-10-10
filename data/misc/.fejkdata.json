@@ -1,0 +1,24 @@
+{
+	"index": {
+		"misc.car": {"paths":["","make","model"]},
+		"misc.coordinate": {"paths":["","lat","lon"]},
+		"misc.creditcard": {"paths":["","d"]},
+		"misc.currency": {"paths":["","code","decimals","name","numeric","symbol"]},
+		"misc.datetime": {"paths":[""]},
+		"misc.emoji": {"paths":[""]},
+		"misc.httpmethod": {"paths":["","idempotent","method","safe"]},
+		"misc.httpstatus": {"paths":["","code","reason"]},
+		"misc.language": {"paths":["","code","code3","name"]},
+		"misc.loglevel": {"paths":["","code","keyword","severity"]},
+		"misc.mac": {"paths":[""]},
+		"misc.mimetype": {"paths":["","ext","type"]},
+		"misc.objectid": {"paths":[""]},
+		"misc.port": {"paths":["","number","service"]},
+		"misc.protocol": {"paths":["","keyword","name","number"]},
+		"misc.territory": {"paths":["","alpha2","alpha3","calling-code","capital","country","currency","flag","languages","name","numeric","timezone","timezone.offset","timezone.territory","timezone.weight","timezone.zone","tld"]},
+		"misc.timezone": {"parent":"territory","paths":["","offset","territory","weight","zone"]},
+		"misc.tld": {"paths":["","tld","type","unicode"]},
+		"misc.useragent": {"paths":["","browser","device","os","ua"]},
+		"misc.uuid": {"paths":["","variant"]}
+	}
+}

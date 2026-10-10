@@ -304,3 +304,67 @@ Junior A, decided by:
 - Locality, Shape: `node.go:23` `folder`: `put` and `putUnloaded` keep a name in one map, where `compileInto` and `unloadedCategory.load` kept it as a pair
 - Locality, Shape: `data.go:12` `loadSources`: one load path, where `config.load` forked and `loadShipped` was a second, panic-only pipeline
 - Shape: `data.go:81` `categorySite`: embeds `categoryAt`, where `unloadedCategory` repeated its fields
+
+## 2026-10-10T11:11:16Z, PR #203 at 421bb49, against bf1becb
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | worse | same | worse |
+| Inherited architect | same | worse | worse | same | worse |
+
+Mid A, decided by:
+
+- Locality, Overall: `node.go:28` `folder.reads`: a third per-name map beside children and unloaded with no invariant tying it to them; every placement site must remember a separate setReads call (`data.go:36` addSource, `data.go:76` mergeFolder, `index.go:27` placeIndex)
+- Locality, Shape: `resolve.go:96` `withReads`: the manifest's reads travels through folder, categorySite.reads and templateSite.category to feed one error clause, four files to hold for one sentence of error text
+- Shape: `internal/datafiles/manifest.go:22` `Manifest.Reads`: reads as a load dependency the loader acts on, though it only feeds error text, and "reads" already means a template reading a name or column
+- Shape: `data/geo/SE/fs.go:2` `SE`: package names SE, US, en_US, sv_SE; in Modules SE.FS sits beside sv_SE.FS with nothing saying which is geography
+- Locality: `fejkdata.go:94` `New`: loads exactly what the options name, easier than the hidden config{shipped: true} default, though config.given brings back a smaller flag
+
+Inherited architect, decided by:
+
+- Locality, Shape, Overall: `node.go:27` `folder.reads`: a third per-name map that put and putUnloaded leave alone, so addSource, mergeFolder and placeIndex must each call setReads, and batch.load relies on placeIndex having done it; action at a distance for one error suffix
+- Locality: `resolve.go:94` `templateSite.withReads`: reads travels folder, categorySite.reads, a *categorySite per template, then withReads, four hops across three files
+- Shape: `data/geo/SE/fs.go:2` `SE`: bare package names SE and US do not say geography at WithDataFS(sv_SE.FS, SE.FS); the namespace-doubling rule lives only in README and test code
+- Shape, Self-sufficiency: `internal/datafiles/manifest.go:22` `Manifest.Reads`: suggests it drives loading though it only feeds withReads; "by default" needs README goal 9.2
+- Locality, Navigation: `data/modules.go:17` `Modules`: the hidden shippedFS default is gone; Modules lists the modules, errNoData names the fix, and the CLI loads data.Modules() in plain sight
+- Locality: `fejkdata.go:40` `config.given`: WithDataFS() with no arguments differs from no option, learnt only from its comment
+
+## 2026-10-10T11:24:33Z, PR #203 at 70e552c, against bf1becb
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | worse | same | same |
+| Inherited architect | worse | worse | better | same | worse |
+| Maintainability senior | worse | same | worse | same | worse |
+| Junior A | same | worse | same | same | same |
+
+Mid A, decided by:
+
+- Locality: `fejkdata.go:94` `New`: loads only the modules its options name or fails with errNoData; the base silently added the embedded shippedSource in config.load
+- Shape: `internal/datafiles/manifest.go:23` `Manifest.Reads`: Reads and categorySite.defaultModules suggest a loaded dependency, though only a hint reads them, and "by default" is never set against anything
+- Locality, Shape: `data.go:12` `loadSources`: default modules reach a category by two routes, the walked map and indexed.defaultModules, and templateSite gains a pointer only to carry them
+- Shape: `data/modules.go:18` `Modules`: package names SE, US, sv_SE, en_US are unidiomatic, and every embedded path repeats itself
+
+Inherited architect, decided by:
+
+- Locality, Overall: `data.go:12` `loadSources`: addSource fills a side map keyed by path that loadSources copies onto sites after the merge, so merge order and clashes must be reasoned about on the core load path
+- Locality, Shape: `data.go:92` `categorySite.defaultModules`: the manifest's module list passes four carriers, set at two distant places and not by siteIn, so a future caller resolving siteIn sites gets a false "names no module" message
+- Navigation: `data/geo/SE/geo/SE/address.json` `geo.SE.address`: every shipped file sits under a stuttered path
+- Shape: `fejkdata.go:65` `WithDataFS`: the root no longer embeds data, datafiles.Source drops base, and data sits behind data/modules.go and five small packages
+- Navigation, Shape: `internal/datafiles/manifest.go:23` `Manifest.Reads`: import paths that look resolved though nothing resolves them, generated by a test reached only through go:generate
+
+Maintainability senior, decided by:
+
+- Navigation, Overall: `data/geo/SE/geo/SE/address.json` `geo.SE.address`: the path repeats the namespace inside the module, one extra hop from category to file, two for geo
+- Shape: `internal/datafiles/manifest.go:21` `Manifest.Reads`: reads sounds like a loaded dependency, and the same list is also defaultModules and walked
+- Navigation, Shape: `data/modules.go:15` `go:generate`: regenerating a module's manifest runs a test one package up
+- Shape: `data.go:20` `loadSources`: defaultModules reaches categorySite by two routes, and siteIn leaves it empty
+
+Junior A, decided by:
+
+- Locality: `data.go:12` `loadSources`: default modules pass through four files, an out-parameter map patched onto sites after the merge for walked sources and indexed.defaultModules copied in batch.load for indexed ones
+- Locality: `fejkdata.go:94` `New`: reads straight through with no hidden default source, which only partly offsets the above

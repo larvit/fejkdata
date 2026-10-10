@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 195`
+`Next ID = 196`
 
 | Goal | W |
 |---|---|
@@ -68,7 +68,6 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 78 | 0.1.0 | decision | **Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.** | 6 | 7 | 10 | 10 | 2, 14 | 31.2 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
-| 182 | 0.1.0 | decision | **Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.** | 6 | 8 | 9 | 10 | 2.3, 2 | 29.0 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
@@ -129,6 +128,7 @@
 | 168 | 0.2.0 | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 4 | 2 | 6 | 3 | 11.8 |
 | 161 | 0.2.0 |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 2 | 2 | 2 | 6 | 5.6, 4.1 | 11.7 |
 | 175 | 0.2.0 |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 6 | 3.4 | 11.3 |
+| 195 | 0.2.0 | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 3 | 3 | 2 | 6 | 3 | 11.1 |
 | 112 | 0.2.0 |  | **Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 172 | 0.2.0 |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 2 | 1 | 6 | 3.2 | 10.3 |
 | 173 | 0.2.0 |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 2 | 3 | 1 | 6 | 3.2 | 10.1 |
@@ -174,25 +174,15 @@
 
 ### 78. Ship 10% of every place's streets, at least 10, and 10% of all US places drawn by population, each place weighted by population.
 
-Needs item 182. Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
+Ten streets per place crowds 500 Stockholm customers onto ten streets. `geo-se.py` and `geo-us.py` keep 10% of each place's streets, at least 10. `geo-us.py` draws 10% of every Census place, down to the smallest village, picking each with odds by population, and every table weights a place by its population, so a draw is not mostly tiny villages. Replaces the decision "The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more", which the maintainer withdrew on 2026-10-03. Re-pin seeded output and the shape in their own commits.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
-Needs item 182, which moves the paths under `data/` this item writes. Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
-
-### 182. Ship `en_US`, `sv_SE`, `misc`, `geo/SE` and `geo/US` as Go packages exporting `FS`, listed by `data.Modules()`, and fail a bare `New()` naming `WithDataFS`.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
-- Each package's directory is a data root, so its tree spells its namespace: `data/sv_SE/` is `github.com/larvit/fejkdata/data/sv_SE` and holds `sv_SE/*.json`; `data/geo/SE/` holds `geo/SE/…`. Each package exports only `var FS embed.FS`, with no `init`, and carries a generated manifest whose `reads` names the modules it reads, `sv_SE` naming `geo/SE`.
-- The package `github.com/larvit/fejkdata/data` exports `Modules() []fs.FS` and imports every data package; the core imports none, so a library links only the data it imports.
-- The core stops embedding data. `WithDataFS` takes several. `WithoutShippedData` goes, and `--no-shipped-data` loads none of the modules the CLI carries. A read nothing provides fails, naming the module from the reader's manifest or saying none does, and the first error names the whole set to import.
-- A data package imports nothing of the core, so core tests may import data packages. Each data package's own test calls `New(WithDataFS(FS))`. `imports_test.go` lists each data package with no imports, lets its test import `.`, and lets `.` import data packages from tests only, so a library importing the core links no data.
-- Each package embeds `.fejkdata.json` by name or through `all:`, since `//go:embed` of a directory leaves out files starting with `.`. `data-import/` output paths, `AGENTS.md`, CI's changelog filter and the shape pin follow the move.
-- Revises the decisions "The shipped data is embedded, not discovered" and "A locale's `address` reads its country's `geo` tree, so a locale folder is no data set on its own".
+Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -257,7 +247,7 @@ Shape: T = table, t = template, c = choice.
 
 ### 184. Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.
 
-Needs item 182. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
 - `cmd/fejkdata/main.go` moves into package `github.com/larvit/fejkdata/cli` in the core module, and `imports_test.go` keeps `cli` off `internal/`. `cli`'s tests use fixture modules; `cmd/fejkdata` keeps one end-to-end test over the real packages.
 - The README's Library quick start shows the whole import block for one locale, and a section shows a custom CLI as example code. Layout and Development follow.
 - Revises the decision "The CLI reads only the library's public API" to name `cli`.
@@ -303,11 +293,11 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
-`reading-cost` on 2026-10-09: the last 5 chunks' median is 96842 new input tokens before their first commit, the 5 before them 79101. Read most over the last 5 (opens and searches): `README.md` 45, `todo.md` 24, `AGENTS.md` 23, `cmd/fejkdata/main.go` 23, `CHANGELOG.md` 21, `pick.go` 21, `path.go` 20, `env.go` 19, `fejkdata.go` 19, `arm.go` 18. The chunk shipping this item runs `reading-cost --reset`.
+`reading-cost` on 2026-10-10: the last 5 chunks' median is 112728 new input tokens before their first commit, the 5 before them 93957. Read most over the last 5 (opens and searches): `README.md` 47, `todo.md` 32, `CHANGELOG.md` 26, `docs/decisions.md` 23, `cmd/fejkdata/main.go` 21, `compose.yaml` 20, `node.go` 19, `testdata/shipped_shape.txt` 19, `AGENTS.md` 18, `arm.go` 17. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. This item ships in 0.1.0 beside item 182, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, where `New` already starts refusing a call naming no data, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
@@ -425,7 +415,7 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 ### 194. Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.
 
-Goal 6.3 has an author prove their module, and goal 9.1 has fejkdata's data load as anyone's; today only fejkdata's own test, `TestShippedManifestIsCurrent` over `indexEntry`, writes and checks an index. A category file the index leaves out never loads, silently.
+Goal 6.3 has an author prove their module, and goal 9.1 has fejkdata's data load as anyone's; today only fejkdata's own test, `TestShippedManifestsAreCurrent` over `indexEntry`, writes and checks an index. A category file the index leaves out never loads, silently.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
@@ -498,6 +488,10 @@ Against "Most, if not all, code should have automated tests" in `technical-princ
 ### 175. Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.
 
 Reread: `readField`'s note on clearing the pick (`render.go`), `pickKey.under`, which three seats read backwards, `scopeAround`'s "short of the frames n renders itself", `enter` returning `env.base` as the pop mark, and add a line at `walkEvery`'s three-index slice, which three seats found unmarked. Restating: `compileCells`, `columnOrLinked`, `render`'s first line, `categorySites`, `madeFolder`, `categoryOf`, `rendersInside`, `templateSite`, `templateOptions`, `compileFrom`, `flagArg`, `drawSeed`, the `calc` parser's precedence line in `internal/grammar`, and `compileChoice`'s note that a uniform choice draws in O(1), which `choice`'s doc already says. A doc comment `go doc` shows on an exported name stays.
+
+### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
+
+Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
 
 ### 112. Check a calc's field operands where its template resolves, beside its name operands, once item 36 reports every mistake at once.
 

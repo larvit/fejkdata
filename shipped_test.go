@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
+	"maps"
 	"os"
-	"path"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -16,10 +17,14 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/larvit/fejkdata/data"
+	"github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/data/geo/SE"
+	"github.com/larvit/fejkdata/data/geo/US"
+	"github.com/larvit/fejkdata/data/misc"
+	"github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
-
-var shippedManifestFile = path.Join("data", datafiles.ManifestFile)
 
 // withoutManifest is fsys with its manifest hidden, so it loads whole in New.
 type withoutManifest struct{ fs.FS }
@@ -31,15 +36,43 @@ func (w withoutManifest) Open(name string) (fs.File, error) {
 	return w.FS.Open(name)
 }
 
+// shippedModule is a module data.Modules lists, and its folder under data/, slash-separated.
+type shippedModule struct {
+	fsys fs.FS
+	dir  string
+}
+
+// importPath is the Go package the module's FS is exported from.
+func (m shippedModule) importPath() string { return "github.com/larvit/fejkdata/data/" + m.dir }
+
+// holds reports whether the category at path is the module's: its tree spells its folder.
+func (m shippedModule) holds(path string) bool {
+	return strings.HasPrefix(path, strings.ReplaceAll(m.dir, "/", ".")+".")
+}
+
+// shippedModules is every module data.Modules lists, each beside its folder under data/.
+func shippedModules(t testing.TB) []shippedModule {
+	t.Helper()
+	out := []shippedModule{{en_US.FS, "en_US"}, {SE.FS, "geo/SE"}, {US.FS, "geo/US"}, {misc.FS, "misc"}, {sv_SE.FS, "sv_SE"}}
+	var listed []fs.FS
+	for _, m := range out {
+		listed = append(listed, m.fsys)
+	}
+	if !slices.Equal(listed, data.Modules()) {
+		t.Fatal("data.Modules() lists other modules than shippedModules does")
+	}
+	return out
+}
+
 // newShippedWhole loads every shipped category in New, as a source without an index does, so
 // a test reads the whole shipped tree.
 func newShippedWhole(t testing.TB, opts ...Option) *Generator {
 	t.Helper()
-	data, err := fs.Sub(shippedFS, "data")
-	if err != nil {
-		t.Fatal(err)
+	var modules []fs.FS
+	for _, m := range shippedModules(t) {
+		modules = append(modules, withoutManifest{m.fsys})
 	}
-	f, err := New(append([]Option{WithoutShippedData(), WithDataFS(withoutManifest{data})}, opts...)...)
+	f, err := New(append([]Option{WithDataFS(modules...)}, opts...)...)
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -55,57 +88,175 @@ func loadedCategories(f *Generator) []string {
 	return out
 }
 
-// REGENERATE=1 rewrites the manifest.
-func TestShippedManifestIsCurrent(t *testing.T) {
-	got, err := shippedManifest(newShippedWhole(t))
+// REGENERATE=1 rewrites the manifests.
+func TestShippedManifestsAreCurrent(t *testing.T) {
+	modules := shippedModules(t)
+	manifests, err := shippedManifests(newShippedWhole(t), modules)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if os.Getenv("REGENERATE") == "1" {
-		if err := os.WriteFile(shippedManifestFile, got, 0o644); err != nil {
+	for i, m := range modules {
+		file := filepath.Join("data", filepath.FromSlash(m.dir), datafiles.ManifestFile)
+		if os.Getenv("REGENERATE") == "1" {
+			if err := os.WriteFile(file, manifests[i], 0o644); err != nil {
+				t.Fatal(err)
+			}
+			continue
+		}
+		want, err := os.ReadFile(file)
+		if err != nil {
 			t.Fatal(err)
 		}
-		return
-	}
-	want, err := os.ReadFile(shippedManifestFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(got) != string(want) {
-		t.Fatalf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", shippedManifestFile)
+		if string(manifests[i]) != string(want) {
+			t.Errorf("%s is stale; regenerate it: docker compose run --rm --user \"$(id -u):$(id -g)\" generate", file)
+		}
 	}
 }
 
-// shippedManifest is the manifest of whole's tree, one category a line.
-func shippedManifest(whole *Generator) ([]byte, error) {
-	var b bytes.Buffer
-	b.WriteString("{\n\t\"index\": {")
-	for i, s := range categorySites(&whole.root) {
+// shippedManifests is each module's manifest, read from whole's tree: its index, one category a
+// line, and every other module it reads, directly or through another.
+func shippedManifests(whole *Generator, modules []shippedModule) ([][]byte, error) {
+	owner := func(path string) int {
+		return slices.IndexFunc(modules, func(m shippedModule) bool { return m.holds(path) })
+	}
+	index := make([][]string, len(modules))
+	direct := make([][]int, len(modules))
+	for _, s := range categorySites(&whole.root) {
+		i := owner(s.path)
+		if i < 0 {
+			return nil, fmt.Errorf("no shipped module holds %s", s.path)
+		}
 		line, err := json.Marshal(indexEntry(s))
 		if err != nil {
 			return nil, err
 		}
-		if i > 0 {
-			b.WriteString(",")
-		}
 		key, _ := json.Marshal(s.path)
-		b.WriteString("\n\t\t" + string(key) + ": " + string(line))
+		index[i] = append(index[i], "\n\t\t"+string(key)+": "+string(line))
+		for _, c := range needs(&whole.root, s) {
+			if j := owner(categoryPath(c.dir, c.name)); j != i && !slices.Contains(direct[i], j) {
+				direct[i] = append(direct[i], j)
+			}
+		}
 	}
-	b.WriteString("\n\t}\n}\n")
-	return b.Bytes(), nil
+	out := make([][]byte, len(modules))
+	for i := range modules {
+		var b bytes.Buffer
+		b.WriteString("{\n\t\"index\": {" + strings.Join(index[i], ",") + "\n\t}")
+		if reads := readsOf(i, direct, modules); len(reads) > 0 {
+			line, _ := json.Marshal(reads)
+			b.WriteString(",\n\t\"reads\": " + string(line))
+		}
+		b.WriteString("\n}\n")
+		out[i] = b.Bytes()
+	}
+	return out, nil
+}
+
+// readsOf is every module module i reads, directly or through another, by import path.
+func readsOf(i int, direct [][]int, modules []shippedModule) []string {
+	seen := map[int]bool{i: true}
+	queue := slices.Clone(direct[i])
+	var out []string
+	for ; len(queue) > 0; queue = queue[1:] {
+		j := queue[0]
+		if seen[j] {
+			continue
+		}
+		seen[j] = true
+		out = append(out, modules[j].importPath())
+		queue = append(queue, direct[j]...)
+	}
+	sort.Strings(out)
+	return out
 }
 
 func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	t.Helper()
-	m, err := shippedSource.Manifest()
-	if err != nil {
-		t.Fatal(err)
+	index := map[string]datafiles.IndexEntry{}
+	for _, m := range shippedModules(t) {
+		manifest, err := datafiles.FS(m.fsys).Manifest()
+		if err != nil {
+			t.Fatal(err)
+		}
+		maps.Copy(index, manifest.Index)
 	}
-	return m.Index
+	return index
+}
+
+func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
+	modules := shippedModules(t)
+	for _, m := range modules {
+		manifest, err := datafiles.FS(m.fsys).Manifest()
+		if err != nil {
+			t.Fatal(err)
+		}
+		set := []fs.FS{m.fsys}
+		for _, read := range manifest.Reads {
+			i := slices.IndexFunc(modules, func(r shippedModule) bool { return r.importPath() == read })
+			if i < 0 {
+				t.Fatalf("%s reads %s, which no shipped module is", m.dir, read)
+			}
+			set = append(set, modules[i].fsys)
+		}
+		f, err := New(WithDataFS(set...))
+		if err != nil {
+			t.Fatalf("New(%s with what it reads) = %v", m.dir, err)
+		}
+		for _, p := range sortedNames(manifest.Index) {
+			if _, err := f.Fake(p); err != nil {
+				t.Errorf("%s with what it reads: Fake(%q) = %v", m.dir, p, err)
+			}
+		}
+	}
+}
+
+func TestAReadNoModuleProvidesNamesTheReadersModules(t *testing.T) {
+	f, err := New(WithDataFS(sv_SE.FS))
+	if err != nil {
+		t.Fatalf("New(WithDataFS(sv_SE.FS)) = %v", err)
+	}
+	if _, err := f.Fake("sv_SE.address"); err == nil || !strings.Contains(err.Error(), "the module holding sv_SE.address reads by default github.com/larvit/fejkdata/data/geo/SE") {
+		t.Errorf(`Fake("sv_SE.address") = %v, want the module it reads named`, err)
+	}
+	for name, opt := range map[string]Option{
+		"no manifest":     WithDataPath(writeData(t, map[string]string{"x": `"{/y}"`})),
+		"no reads in one": WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(`{"index": {"x": {"paths": [""]}}}`)}, "x.json": {Data: []byte(`"{/y}"`)}}),
+	} {
+		f, err := New(opt)
+		if err == nil {
+			_, err = f.Fake("x")
+		}
+		if err == nil || !strings.Contains(err.Error(), "the module holding x names no module it reads by default") {
+			t.Errorf("%s: x = %v, want it said that x's module names none", name, err)
+		}
+	}
+}
+
+func TestADataPathManifestNamesWhatItReads(t *testing.T) {
+	dir := writeFiles(t, map[string]string{
+		".fejkdata.json": `{"reads": ["example.com/places"]}`,
+		"x.json":         `"{/place}"`,
+	})
+	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
+		t.Errorf("New = %v, want the module x reads named", err)
+	}
+}
+
+func TestAnIndexedModuleNamesWhatItReads(t *testing.T) {
+	f, err := New(WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"x": {"paths": [""]}}, "reads": ["example.com/places"]}`)},
+		"x.json":         {Data: []byte(`"{/place}"`)},
+	}))
+	if err != nil {
+		t.Fatalf("New = %v", err)
+	}
+	if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
+		t.Errorf(`Fake("x") = %v, want the module x reads named`, err)
+	}
 }
 
 func TestNewLoadsNoShippedCategory(t *testing.T) {
-	f, err := New()
+	f, err := New(withShipped())
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -149,7 +300,7 @@ func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 			absent: []string{"sv_SE.person"},
 		},
 	} {
-		f, err := New()
+		f, err := New(withShipped())
 		if err != nil {
 			t.Fatalf("New() = %v", err)
 		}
@@ -171,7 +322,7 @@ func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 }
 
 func TestADataPathLoadsWhatItReads(t *testing.T) {
-	f, err := New(WithDataPath(writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -196,7 +347,7 @@ func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
 			"sv_SE/last-name.json": {Data: []byte(`"x"`)},
 		}),
 	} {
-		f, err := New(opt)
+		f, err := New(withShipped(), opt)
 		if err != nil {
 			t.Fatalf("New(%s) = %v", name, err)
 		}
@@ -216,7 +367,7 @@ func TestAnIndexedSourceLoadsOnFirstReachLikeTheShippedOne(t *testing.T) {
 		"b.json":         {Data: []byte(`"x"`)},
 		"sub/c.json":     {Data: []byte(`{"format":"{d}","d":"y"}`)},
 	}
-	f, err := New(WithoutShippedData(), WithDataFS(fsys), WithSeed(1))
+	f, err := New(WithDataFS(fsys), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -235,7 +386,7 @@ func TestAnIndexedSourceLoadsOnFirstReachLikeTheShippedOne(t *testing.T) {
 }
 
 func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
-	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+	f, err := New(WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"bad": {"paths": [""]}, "good": {"paths": [""]}}}`)},
 		"bad.json":       {Data: []byte(`"{/nope}"`)},
 		"good.json":      {Data: []byte(`"fine"`)},
@@ -273,8 +424,11 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"index": {"a": {"paths": ["", "x", "x"]}}}`:               {`paths item 3 repeats "x"`},
 		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:          {`parent "b" names no entry`},
 		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`:         {`unknown key "reads"`},
+		`{"reads": "b"}`:        {"reads must be a list, not a string"},
+		`{"reads": ["", 3]}`:    {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
+		`{"reads": ["a", "a"]}`: {`reads item 2 repeats "a"`},
 	} {
-		_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
+		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
 			if err == nil || !strings.Contains(err.Error(), w) {
 				t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, w)
@@ -292,7 +446,7 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 		"a broken category":   WithDataPath(writeData(t, map[string]string{"x": `{ not json`})),
 		"a broken manifest":   WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(`{`)}}),
 	} {
-		if _, err := New(opt); !errors.Is(err, ErrLoad) {
+		if _, err := New(withShipped(), opt); !errors.Is(err, ErrLoad) {
 			t.Errorf("New(%s) = %v, want it to match ErrLoad", name, err)
 		}
 	}
@@ -301,14 +455,14 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 	whole := newShippedWhole(t)
 	paths := whole.List()
-	lazy, err := New()
+	lazy, err := New(withShipped())
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
 	if got := lazy.List(); !reflect.DeepEqual(got, paths) {
 		t.Fatalf("List() on demand = %v, want %v", got, paths)
 	}
-	a, err := New(WithSeed(7))
+	a, err := New(withShipped(), WithSeed(7))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -326,7 +480,7 @@ func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 
 func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 	for _, p := range sortedNames(shippedIndex(t)) {
-		f, err := New()
+		f, err := New(withShipped())
 		if err != nil {
 			t.Fatalf("New() = %v", err)
 		}
@@ -337,7 +491,7 @@ func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 }
 
 func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
-	f, err := New()
+	f, err := New(withShipped())
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -359,7 +513,7 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 }
 
 func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
-	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+	f, err := New(WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "code", "name"]}}}`)},
 		"country.json":   {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
 		"country.tsv":    {Data: []byte("code\tname\nSE\tSweden\n")},
@@ -382,7 +536,7 @@ func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
 }
 
 func TestADataPathTableUnderAShippedTableLoads(t *testing.T) {
-	f, err := New(WithSeed(1), WithDataPath(writeFiles(t, map[string]string{
+	f, err := New(withShipped(), WithSeed(1), WithDataPath(writeFiles(t, map[string]string{
 		"sv_SE/nickname.json": `{"format":"{name}","rows":"nickname.tsv","key":"name","parent":"sex"}`,
 		"sv_SE/nickname.tsv":  "name\tsex\nKalle\tm\nLotta\tf\n",
 	})))
@@ -405,7 +559,7 @@ func indexEntry(s categorySite) datafiles.IndexEntry {
 }
 
 func TestAnIndexedCategoryWithNoFileNamesTheManifest(t *testing.T) {
-	f, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{
+	f, err := New(WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"gone": {"paths": [""]}}}`)},
 	}))
 	if err != nil {

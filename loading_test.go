@@ -139,7 +139,7 @@ func TestMultiPathMergesFolders(t *testing.T) {
 // tree: everything List advertises renders, every time, and the sub-fields the
 // README advertises are discoverable.
 func TestListedPathsAllRender(t *testing.T) {
-	f := newGenerator(t, "data", WithSeed(4))
+	f := shipped(t, WithSeed(4))
 	paths := f.List()
 	for _, p := range paths {
 		for i := 0; i < 20; i++ {
@@ -187,12 +187,12 @@ func TestRepeatProductAlongAPathIsCapped(t *testing.T) {
 			"b": `{"format":"x","repeat":2048}`,
 		},
 	} {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, files)))
+		_, err := New(WithDataPath(writeData(t, files)))
 		if err == nil || !strings.Contains(err.Error(), "repeat") || !strings.Contains(err.Error(), "1048576") {
 			t.Errorf("%s: New = %v, want the repeat product rejected naming the maximum", name, err)
 		}
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{
+	if _, err := New(WithDataPath(writeData(t, map[string]string{
 		"cat": `{"format":"{a}{c}","repeat":1024,"a":{"format":"{b}","repeat":1024,"b":"x"},"c":{"format":"y","repeat":1024}}`,
 	}))); err != nil {
 		t.Errorf("New = %v, want 1024 x 1024 along one path accepted", err)
@@ -205,11 +205,11 @@ func TestNewErrors(t *testing.T) {
 	if err := os.WriteFile(file, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := New(WithoutShippedData(), WithDataPath(file)); err == nil || !strings.Contains(err.Error(), "xx_XX is not a directory") {
+	if _, err := New(WithDataPath(file)); err == nil || !strings.Contains(err.Error(), "xx_XX is not a directory") {
 		t.Errorf("New(file) = %v, want not-a-directory error", err)
 	}
 	// Invalid JSON in a category file fails.
-	if _, err := New(WithoutShippedData(), WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {
+	if _, err := New(WithDataPath(writeData(t, map[string]string{"broken": `{ not json`}))); err == nil {
 		t.Error("New(invalid JSON) = nil error")
 	}
 	// An option that cannot take effect, and a category or folder no dot path can
@@ -300,7 +300,7 @@ func TestNewErrors(t *testing.T) {
 		},
 	}
 	for name, c := range rejected {
-		_, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
+		_, err := New(WithDataPath(writeData(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want it rejected at load", name)
 			continue
@@ -328,7 +328,7 @@ func TestNewErrors(t *testing.T) {
 		"repeated reference arm":     {map[string]string{"a": `"x"`, "b": `"{/a|/a}"`}, "b", "x"},
 	}
 	for name, c := range accepted {
-		f, err := New(WithoutShippedData(), WithDataPath(writeData(t, c.files)))
+		f, err := New(WithDataPath(writeData(t, c.files)))
 		if err != nil {
 			t.Errorf("%s: New = %v, want it accepted", name, err)
 			continue

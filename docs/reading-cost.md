@@ -470,3 +470,20 @@ Read most (opens and searches):
 - `.github/workflows/test.yml` 1
 - `cmd/fejkdata/main.go` 1
 - `compose.yaml` 1
+
+## Reading cost, chunk 2f68b5245844, finished 2026-10-10T10:55:47Z
+
+112728 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 9
+- `todo.md` 6
+- `docs/decisions.md` 5
+- `shipped_test.go` 2
+- `CHANGELOG.md` 1
+- `compose.yaml` 1
+- `data.go` 1
+- `fejkdata.go` 1
+- `inline.go` 1
+- `internal/datafiles/datafiles.go` 1

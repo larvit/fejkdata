@@ -19,7 +19,7 @@ import (
 // the read's first-level key, put under the rendering template's key, is one of the name's
 // addressed keys. keptInPick decides this, and readUnder reads it.
 //
-// In data/geo/SE/address.json, {.locality as l} binds l, and {l.street.name} passes the levels
+// In geo.SE.address, {.locality as l} binds l, and {l.street.name} passes the levels
 // "", "street" and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code},
 // l's addressed keys are those three, "name", "postal-code" and "postal-code.code". Where p
 // binds a category whose format reads {first}, and both {p} and {p.first} are read, the {first}
@@ -174,8 +174,8 @@ func (m *drawMemo) enteredFrame(scope *nameScope) *pickFrame {
 // When the pick renders another category, enter takes that category's frames from the pick's
 // memo, and renderFrame finds them and opens no new one.
 // So every read through one pick sees one pick of each name the other category binds:
-// {a.street} and {a.postal-code} in data/sv_SE/address.json read one pick of the name l
-// that data/geo/SE/address.json binds.
+// {a.street} and {a.postal-code} in sv_SE.address read one pick of the name l
+// that geo.SE.address binds.
 func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	f := env.frameOf(a.named.scope)
 	if f == nil {

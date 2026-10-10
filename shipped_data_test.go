@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"io/fs"
 	"reflect"
 	"slices"
 	"strings"
@@ -9,8 +10,16 @@ import (
 	"testing/fstest"
 )
 
-func TestNewDefaultsToShippedData(t *testing.T) {
-	f, err := New(WithSeed(1))
+func TestABareNewFailsNamingWithDataFS(t *testing.T) {
+	for name, opts := range map[string][]Option{"no option": nil, "only a seed": {WithSeed(1)}} {
+		if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithDataFS(data.Modules()...)") {
+			t.Errorf("New(%s) = %v, want it refused, naming WithDataFS(data.Modules()...)", name, err)
+		}
+	}
+}
+
+func TestEveryShippedModuleLoads(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -27,7 +36,7 @@ func TestNewDefaultsToShippedData(t *testing.T) {
 
 func TestWithDataPathLayersOverShipped(t *testing.T) {
 	dir := writeData(t, map[string]string{"sv_SE/word": `"only-mine"`, "greeting": `"hej"`})
-	f, err := New(WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
@@ -44,7 +53,7 @@ func TestWithDataPathLayersOverShipped(t *testing.T) {
 
 func TestUserDataMayReferenceShipped(t *testing.T) {
 	dir := writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})
-	f, err := New(WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
@@ -61,8 +70,8 @@ func TestAGeneratorWithDataSaysNothingOfNoData(t *testing.T) {
 
 func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 	for name, opts := range map[string][]Option{
-		"no source":    {WithoutShippedData()},
-		"empty folder": {WithoutShippedData(), WithDataPath(t.TempDir())},
+		"no module":    {WithDataFS()},
+		"empty folder": {WithDataPath(t.TempDir())},
 	} {
 		f, err := New(opts...)
 		if err != nil {
@@ -83,7 +92,7 @@ func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 	}
 }
 
-func TestWithoutShippedDataListsOnlyOwn(t *testing.T) {
+func TestADataPathAloneListsOnlyItsOwn(t *testing.T) {
 	dir := writeData(t, map[string]string{"greeting": `"hej"`})
 	f := newGenerator(t, dir, WithSeed(1))
 	if got := f.List(); !reflect.DeepEqual(got, []string{"greeting"}) {
@@ -98,7 +107,7 @@ func TestWithDataFS(t *testing.T) {
 		".hidden.json":   {Data: []byte(`"ignored"`)},
 		"broken/no.json": {Data: []byte(`"x"`)},
 	}
-	f, err := New(WithoutShippedData(), WithDataFS(fsys), WithSeed(1))
+	f, err := New(WithDataFS(fsys), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New(WithDataFS) = %v", err)
 	}
@@ -109,13 +118,32 @@ func TestWithDataFS(t *testing.T) {
 		t.Errorf("nested.x.y = %q, want z", got)
 	}
 	bad := fstest.MapFS{"broken.json": {Data: []byte(`{ not json`)}}
-	if _, err := New(WithoutShippedData(), WithDataFS(bad)); err == nil || !strings.Contains(err.Error(), "broken.json") {
+	if _, err := New(WithDataFS(bad)); err == nil || !strings.Contains(err.Error(), "broken.json") {
 		t.Errorf("New(bad fs) = %v, want an error naming the file", err)
 	}
 }
 
+func TestWithDataFSLayersEachModuleOverTheOneBefore(t *testing.T) {
+	a := fstest.MapFS{"x.json": {Data: []byte(`"a"`)}, "y.json": {Data: []byte(`"a"`)}}
+	b := fstest.MapFS{"x.json": {Data: []byte(`"b"`)}}
+	f, err := New(WithDataFS(a, b))
+	if err != nil {
+		t.Fatalf("New(WithDataFS(a, b)) = %v", err)
+	}
+	if got := fake(t, f, "x") + fake(t, f, "y"); got != "ba" {
+		t.Errorf("x and y = %q, want b's x and a's y", got)
+	}
+}
+
+func TestWithDataFSRefusesANilModule(t *testing.T) {
+	var unset fs.FS
+	if _, err := New(WithDataFS(fstest.MapFS{}, unset)); err == nil || !strings.Contains(err.Error(), "WithDataFS module 2 is nil") {
+		t.Errorf("New(WithDataFS(fsys, nil)) = %v, want module 2 named nil", err)
+	}
+}
+
 func TestFakeIsSafeForConcurrentUse(t *testing.T) {
-	f, err := New(WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}

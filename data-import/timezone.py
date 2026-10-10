@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild data/misc/timezone.tsv from the IANA tzdb tarball (public domain) and GeoNames (CC BY 4.0).
+"""Rebuild data/misc/misc/timezone.tsv from the IANA tzdb tarball (public domain) and GeoNames (CC BY 4.0).
 
     data-import/timezone.py [--source URL_OR_FILE] [--cities URL_OR_FILE] [--cache DIR] [--out FILE] [--territories FILE]
 
@@ -22,8 +22,8 @@ import tsv
 
 SOURCE = "https://data.iana.org/time-zones/tzdata-latest.tar.gz"
 CITIES = "https://download.geonames.org/export/dump/cities15000.zip"
-OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "timezone.tsv"
-TERRITORIES = Path(__file__).resolve().parent.parent / "data" / "misc" / "territory.tsv"
+OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "timezone.tsv"
+TERRITORIES = Path(__file__).resolve().parent.parent / "data" / "misc" / "misc" / "territory.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["offset", "territory", "weight", "zone"]
 REGIONS = ["africa", "antarctica", "asia", "australasia", "backward", "etcetera", "europe", "northamerica", "southamerica"]
