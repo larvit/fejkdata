@@ -439,8 +439,8 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"index": {"a": {"paths": ["", "x", "x"]}}}`:               {`paths item 3 repeats "x"`},
 		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:          {`parent "b" names no entry`},
 		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`:         {`unknown key "reads"`},
-		`{"index": {}, "reads": "b"}`:                               {"reads must be a list, not a string"},
-		`{"index": {}, "reads": ["", 3]}`:                           {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
+		`{"reads": "b"}`:     {"reads must be a list, not a string"},
+		`{"reads": ["", 3]}`: {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
 	} {
 		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
