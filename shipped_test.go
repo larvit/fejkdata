@@ -260,17 +260,19 @@ func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
 
 func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 	for manifest, want := range map[string][]string{
-		`{`:                                                 {datafiles.ManifestFile},
-		`{"index": {}} {}`:                                  {"after top-level value"},
-		`{"indx": {}, "INDEX": {}}`:                         {`unknown key "INDEX"`, `unknown key "indx"`},
-		`{"index": []}`:                                     {"index must be an object, not a list"},
-		`{"index": {"a..b": 5}}`:                            {`"a..b"`, "must be an object, not a number"},
-		`{"index": {"a": {"Paths": [""]}}}`:                 {`unknown key "Paths"`, "paths is missing"},
-		`{"index": {"a": {}, "b": {}}}`:                     {`"a": paths is missing`, `"b": paths is missing`},
-		`{"index": {"a": {"paths": ["x..y", 3]}}}`:          {`"x..y"`, "paths item 2 must be a string, not a number"},
-		`{"index": {"a": {"paths": [""], "parent": 5}}}`:    {"parent must be a string, not a number"},
-		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:  {`parent "b" names no entry`},
-		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`: {`unknown key "reads"`},
+		`{`:                                              {datafiles.ManifestFile},
+		`{"index": {}} {}`:                               {"after top-level value"},
+		`{"indx": {}, "INDEX": {}}`:                      {`unknown key "INDEX"`, `unknown key "indx"`},
+		`{"index": []}`:                                  {"index must be an object, not a list"},
+		`{"index": {"a..b": 5}}`:                         {`"a..b"`, "must be an object, not a number"},
+		`{"index": {"a": {"Paths": [""]}}}`:              {`unknown key "Paths"`, "paths is missing"},
+		`{"index": {"a": {}, "b": {}}}`:                  {`"a": paths is missing`, `"b": paths is missing`},
+		`{"index": {"a": {"paths": ["x..y", 3]}}}`:       {`"x..y"`, "paths item 2 must be a string, not a number"},
+		`{"index": {"a": {"paths": [""], "parent": 5}}}`: {"parent must be a string, not a number"},
+		`{"index": {"a": {"paths": [""]}, "a.b": {"paths": [""]}}}`: {`index entry "a.b": "a" is a category, so it holds no other`},
+		`{"index": {"a": {"paths": ["", "x", "x"]}}}`:               {`paths item 3 repeats "x"`},
+		`{"index": {"a": {"paths": [""], "parent": "b"}}}`:          {`parent "b" names no entry`},
+		`{"index": {"a": {"paths": [""], "reads": ["b"]}}}`:         {`unknown key "reads"`},
 	} {
 		_, err := New(WithoutShippedData(), WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
