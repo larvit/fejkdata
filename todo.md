@@ -192,7 +192,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. An entry lists every path below its category, its linked tables' too, so `geo.*.region` repeats its whole family; an entry holding only its own paths, `List` composing a family from the entries naming it as `parent`, would shrink the manifest that decoding makes most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10). Record the ruling in `docs/`.
+Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench the geo packages' names, `data.Modules()`, the error naming the import set, and the `.fejkdata.json` manifest a data author writes by hand. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -425,7 +425,7 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 ### 194. Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.
 
-Goal 6.3 has an author prove their module, and goal 9.1 has fejkdata's data load as anyone's; today only a test of fejkdata's own writes and checks an index (`TestShippedManifestIsCurrent` over `indexEntry`). A category file the index leaves out never loads, silently. The principles audit of item 180's chunk found it.
+Goal 6.3 has an author prove their module, and goal 9.1 has fejkdata's data load as anyone's; today only fejkdata's own test, `TestShippedManifestIsCurrent` over `indexEntry`, writes and checks an index. A category file the index leaves out never loads, silently.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 

@@ -1,7 +1,9 @@
 package fejkdata
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"slices"
 	"strings"
 
@@ -15,8 +17,8 @@ type indexed struct {
 	src   datafiles.Source
 }
 
-// placeIndex sets every category index names unloaded in root, in place of what root holds
-// at its path.
+// placeIndex sets every category the index names as unloaded in root, in place of what
+// root holds at its path.
 func placeIndex(root *folder, src datafiles.Source, index map[string]datafiles.IndexEntry) {
 	for _, p := range sortedNames(index) {
 		segs := strings.Split(p, ".")
@@ -128,9 +130,9 @@ type loaded struct {
 	was  *indexed
 }
 
-// load loads each unloaded category in queue and what it needs. A table whose parent
-// column disagrees with its entry stops it, so a table loads with its parent and no table
-// loaded before links to one putBack removes.
+// load loads each unloaded category in queue and what it needs. It stops at a table whose
+// parent column disagrees with its entry. Otherwise a table could load without its parent,
+// or an earlier table could link to one that putBack then removes.
 func (b *batch) load(root *folder, queue []categoryAt) error {
 	for ; len(queue) > 0; queue = queue[1:] {
 		c := queue[0]
@@ -139,12 +141,15 @@ func (b *batch) load(root *folder, queue []categoryAt) error {
 			continue
 		}
 		if err := x.src.Load(c.dir, c.name, compileInto(func([]string) *folder { return c.in })); err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				err = fmt.Errorf("%s indexes %s: %w", x.src.ManifestPath(), categoryPath(c.dir, c.name), err)
+			}
 			return err
 		}
 		s := siteIn(c.dir, c.in, c.name)
 		*b = append(*b, loaded{site: s, was: x})
 		if parent := parentOf(s.n); parent != x.entry.Parent {
-			return fmt.Errorf("%s: the index entry for %s names parent %q, and its table's parent column is %q", x.src.ManifestPath(), s.path, x.entry.Parent, parent)
+			return fmt.Errorf("%s: the index entry for %s %s, and its table %s", x.src.ManifestPath(), s.path, namesParent(x.entry.Parent), namesParent(parent))
 		}
 		queue = append(queue, needs(root, s)...)
 	}
@@ -166,6 +171,13 @@ func (b batch) putBack() {
 	for _, l := range b {
 		l.site.in.putUnloaded(l.site.name, l.was)
 	}
+}
+
+func namesParent(parent string) string {
+	if parent == "" {
+		return "names no parent"
+	}
+	return fmt.Sprintf("names parent %q", parent)
 }
 
 func parentOf(n node) string {
