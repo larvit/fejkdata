@@ -8,7 +8,8 @@ import (
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
 // carries an index leaves its categories unloaded; every other source loads here, with
-// the unloaded categories it needs: docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
+// the unloaded categories it needs.
+// docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
 	walked := map[string][]string{}
@@ -24,8 +25,8 @@ func loadSources(sources []datafiles.Source) (folder, error) {
 	return root, loadReached(&root, sites, nil)
 }
 
-// addSource places src's categories in root, and sets in walked, for each category it loads
-// here, the modules src reads by default.
+// addSource places src's categories in root. For each category it loads now, it records in
+// walked the modules src reads by default.
 func addSource(root *folder, src datafiles.Source, walked map[string][]string) error {
 	m, err := src.Manifest()
 	if err != nil {

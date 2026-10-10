@@ -160,9 +160,9 @@ it to a name and read the name
 
 ## Data
 
-The shipped data comes in modules, each a Go package under [`data/`](data) that embeds
-its files, so nothing is read from disk: one per locale (`en_US`, `sv_SE`), one per
-country's tree of places (`geo/SE`, `geo/US`), and the locale-neutral `misc`. The CLI
+The shipped data comes in modules, each a Go package under [`data/`](data): one per
+locale (`en_US`, `sv_SE`), one per country's tree of places (`geo/SE`, `geo/US`), and
+the locale-neutral `misc`. Each embeds its files, so nothing is read from disk. The CLI
 carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A
 directory is a namespace: each JSON file is a category named after the file, each
@@ -191,11 +191,12 @@ entry's `parent` fails at first reach, and a table linking under another source'
 needs a source without an index. `//go:embed` of a directory leaves the manifest out, and
 the source then loads whole in `New`; name it in the pattern too.
 
-A manifest's `reads` lists, by any name its author chooses, every module the source
-reads by default, directly or through another; a manifest may carry it without an
-index. A shipped module names a Go package: `sv_SE`'s manifest reads
-`github.com/larvit/fejkdata/data/geo/SE`. A reference naming nothing fails with the
-modules its category's manifest reads, or says it names none.
+A manifest's `reads` lists, by any name its author chooses, every module the source's
+references read unless another source provides the same paths, directly or through
+another module; a manifest may carry it without an index. Nothing loads these modules:
+pass them yourself. A shipped module names a Go package: `sv_SE`'s manifest reads
+`github.com/larvit/fejkdata/data/geo/SE`. A reference to a path nothing provides fails,
+naming those modules, or saying the manifest names none.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -360,9 +361,18 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 `data.Modules()` is every shipped module, and links all of them into your program. To link
 only the ones you read, pass each package's `FS` with the modules its manifest reads:
-`WithDataFS(sv_SE.FS, SE.FS)` from `github.com/larvit/fejkdata/data/sv_SE` and
-`github.com/larvit/fejkdata/data/geo/SE`, or `en_US.FS` with `US.FS` from
-`github.com/larvit/fejkdata/data/geo/US`; `misc` reads none. `New` fails where no `WithDataFS` or
+
+```go
+import (
+	"github.com/larvit/fejkdata"
+	"github.com/larvit/fejkdata/data/geo/SE"
+	"github.com/larvit/fejkdata/data/sv_SE"
+)
+
+f, err := fejkdata.New(fejkdata.WithDataFS(sv_SE.FS, SE.FS))
+```
+
+`en_US` reads `geo/US`; `misc` reads none. `New` fails where no `WithDataFS` or
 `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -1056,7 +1066,7 @@ internal/invariant/ the one phrase every package panics with when an invariant b
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
-data/           the shipped modules, a Go package each that embeds its categories (JSON, and a TSV per table) and its manifest, and Modules, which lists them
+data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading
