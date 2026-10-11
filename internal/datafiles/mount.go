@@ -22,7 +22,10 @@ func (m mounted) Open(name string) (fs.File, error) {
 	}
 	if ok {
 		f, err := m.fsys.Open(".")
-		return mountRoot{File: f, name: path.Base(name)}, err
+		if err != nil {
+			return nil, err
+		}
+		return mountRoot{File: f, name: path.Base(name)}, nil
 	}
 	if next, ok := m.towards(name); ok {
 		return &mountDir{name: path.Base(name), next: next}, nil
@@ -70,7 +73,10 @@ type mountRoot struct {
 
 func (r mountRoot) Stat() (fs.FileInfo, error) {
 	info, err := r.File.Stat()
-	return renamed{FileInfo: info, name: r.name}, err
+	if err != nil {
+		return nil, err
+	}
+	return renamed{FileInfo: info, name: r.name}, nil
 }
 
 func (r mountRoot) ReadDir(n int) ([]fs.DirEntry, error) {
