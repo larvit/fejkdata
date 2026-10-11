@@ -17,8 +17,7 @@ import (
 )
 
 // shipped holds the shipped modules as read from the checkout, each folder under ../data
-// holding a manifest, so these tests link no data package; cmd/fejkdata runs over the
-// packages themselves.
+// holding a manifest, so these tests link no data package.
 var shipped = func() []fs.FS {
 	var modules []fs.FS
 	err := filepath.WalkDir(filepath.Join("..", "data"), func(path string, d fs.DirEntry, err error) error {

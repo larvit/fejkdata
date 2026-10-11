@@ -362,8 +362,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
-A shipped package's `Modules()` is its `FS` and every module it reads, a locale's country's
-places among them, which its package imports, so your program links only what you read.
+A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
+locale's country's places. Your program links only the packages it imports.
 `data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
 links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
 are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
@@ -450,7 +450,6 @@ func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 Add `*.tsv` to the embed where your data holds a table. The CLI takes `fejkdata`'s flags
 and exit codes, and names itself by the file it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
 `--version` prints your module's version beside the fejkdata version it is built with.
-`fejkdata`'s own `main` is `os.Exit(cli.Main(data.Modules()...))`.
 
 ## Data format
 

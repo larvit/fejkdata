@@ -98,9 +98,9 @@ template per run.
 
 2026-10-07, Lilleman auf Larv; revised 2026-10-11 to name package `cli`. Serves goal 9.6: a
 CLI carrying your own modules is a few lines of Go over `cli.Main` and works just like
-`fejkdata`, so `fejkdata`'s own CLI is such a CLI, and `cli`'s non-test code imports nothing
-under `internal/`. Until `todo.md` item 129 moves it into
-the library, the CLI copies how the grammar tells a lone reference, in `isPath`,
+`fejkdata`. `cli`'s non-test code imports nothing under `internal/`, so whatever the CLI
+does, a program of your own can do through the public API. Until `todo.md` item 129 moves
+the lone-reference check into the library, the CLI copies how the grammar tells a lone reference, in `isPath`,
 `hasEmptySegment` and `withoutSelectors`, and a test pins the copy to the grammar.
 
 ## A template that does not compile is misuse (exit 2), including a reference that resolves to nothing, save a lone reference under the CLI's `--format` until item 129

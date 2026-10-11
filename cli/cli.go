@@ -1,6 +1,6 @@
 // Package cli is the fejkdata command: it renders the template on its stdin with fake
 // values from the modules it is given and any directories layered over them. A program
-// passing its own modules to Main is a fejkdata CLI carrying them, as
+// passing its own modules to Main is a fejkdata CLI carrying them, for example
 // os.Exit(cli.Main(append(data.Modules(), mydata)...)).
 package cli
 
@@ -544,8 +544,8 @@ func spacedReference(template string, err error) error {
 	return err
 }
 
-// piped is the command piping template to the command name; some shells' echo reads a
-// backslash as an escape, so a template holding one goes through printf.
+// piped is the command piping template into the command called name; some shells' echo
+// reads a backslash as an escape, so a template holding one goes through printf.
 func piped(template, name string) string {
 	if strings.ContainsRune(template, '\\') {
 		return "printf '%s' " + shellQuoted(template) + " | " + name
@@ -673,8 +673,8 @@ func report(stderr io.Writer, name string, err error) {
 // the module's.
 var fejkdataModule = reflect.TypeOf((*fejkdata.Generator)(nil)).Elem().PkgPath()
 
-// versionLine names the fejkdata version the binary is built with, after the main module's
-// version under the command name where another module's main package carries the CLI.
+// versionLine names the fejkdata version the binary is built with. Where another module's
+// main package carries the CLI, the main module's version comes first, under the command name.
 func versionLine(name string, info *debug.BuildInfo) string {
 	if info == nil {
 		return "fejkdata devel"
