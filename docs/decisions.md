@@ -933,3 +933,15 @@ a lone `}` stays an error. Valid while a template escapes a brace by doubling it
 template can be written with no escape and no options, as `echo 'name: {/sv_SE.person.last}' | fejkdata`
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
+
+## The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries
+
+2026-10-11, Lilleman auf Larv. Serves goal 2.1. [The Ethnologue
+200](https://www.ethnologue.com/insights/ethnologue200/) for 2026 ranks languages by first-
+and second-language speakers together: English, Mandarin Chinese, Hindi, Spanish, Standard
+Arabic, French, Bengali, Portuguese, Indonesian and Urdu. Russian is eleventh. Each ships in
+the country holding most of its speakers: `en_US`, `zh_CN`, `hi_IN`, `es_MX`, `ar_EG`,
+`fr_FR`, `bn_BD`, `pt_BR`, `id_ID` and `ur_PK`. The Nordic countries are `sv_SE`, `nb_NO`,
+`da_DK`, `fi_FI` and `is_IS`. Before either ships, `todo.md` item 209 confirms Egypt and
+`todo.md` item 214 Pakistan from Ethnologue's country pages. Valid until Ethnologue's
+ranking changes its ten.

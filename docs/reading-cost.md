@@ -521,3 +521,20 @@ Read most (opens and searches):
 - `data-import/geo-us.py` 1
 - `data-import/geo.py` 1
 - `data-import/source.py` 1
+
+## Reading cost, chunk a8085e6ee71e, finished 2026-10-11T17:14:17Z
+
+90566 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `data-import/geo-us.py` 6
+- `README.md` 4
+- `todo.md` 4
+- `data-import/geo-se.py` 3
+- `compose.yaml` 2
+- `data/geo/US/locality.tsv` 2
+- `data_test.go` 2
+- `.gitignore` 1
+- `AGENTS.md` 1
+- `CHANGELOG.md` 1

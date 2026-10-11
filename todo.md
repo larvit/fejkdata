@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 202`
+`Next ID = 217`
 
 | Goal | W |
 |---|---|
@@ -66,15 +66,28 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
+| 210 | 0.1.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2.1 | 26.2 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
+| 215 | 0.1.0 | question | **Choose the street source for a country with no open national address register: OpenStreetMap under ODbL, or ship its places without streets.** | 1 | 1 | 6 | 8 | 2.1, 14 | 25.9 |
 | 184 | 0.1.0 | decision | **Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.** | 4 | 5 | 7 | 9 | 9.6, 2 | 25.8 |
 | 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
+| 206 | 0.1.0 |  | **Add `zh_CN` with its `geo/CN` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
+| 208 | 0.1.0 |  | **Add `es_MX` with its `geo/MX` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
+| 212 | 0.1.0 |  | **Add `pt_BR` with its `geo/BR` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
+| 202 | 0.1.0 |  | **Add `nb_NO` with its `geo/NO` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
+| 203 | 0.1.0 |  | **Add `da_DK` with its `geo/DK` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
+| 204 | 0.1.0 |  | **Add `fi_FI` with its `geo/FI` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
+| 207 | 0.1.0 |  | **Add `hi_IN` with its `geo/IN` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 209 | 0.1.0 | decision | **Add `ar_EG` with its `geo/EG` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 211 | 0.1.0 |  | **Add `bn_BD` with its `geo/BD` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 213 | 0.1.0 |  | **Add `id_ID` with its `geo/ID` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 214 | 0.1.0 | decision | **Add `ur_PK` with its `geo/PK` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 205 | 0.1.0 |  | **Add `is_IS` with its `geo/IS` tree.** | 3 | 6 | 6 | 8 | 2.1 | 22.7 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
@@ -88,6 +101,7 @@
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
+| 216 | 0.1.0 |  | **Share between countries what `geo-se.py` and `data_test.go` fix for SE, in the first locale chunk that needs each.** | 2 | 2 | 2 | 6 | 3.2 | 12.3 |
 | 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 1 | 3 | 6 | 10 | 11.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
@@ -175,10 +189,6 @@
 
 ## Details
 
-### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
-
-Pick the ten from a published ranking of languages by total speakers, such as Ethnologue's, each in the country where it has the most speakers, and record the ranking in the decision that names them. The Nordic ones are sv_SE (shipped), nb_NO, da_DK, fi_FI and is_IS. A new country decides three rules `geo-se.py` fixes for SE: `well_cased` drops a name spelled in capitals, and Bring's register spells every poststed so; a locality is keyed by name in SE and by code in US; and `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions. A second country reading GeoNames' postal codes moves `geonames()` from `geo-se.py`, and the nearest-centroid street assignment in its `streets()`, into `geo.py`. Each locale carries goal 2.2's categories, and its `address` reads its country's `geo/` tree by reference. `rows.Pins` holds eight pins inline, sized for a five-deep geo tree; a deeper tree needs more to keep a render off the heap.
-
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
 Needs item 184; 0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench `data.Modules()` and the `.fejkdata.json` manifest a data author writes by hand in use; the package names, the manifest's `reads` and `namespace` and the errors naming the import set were benched on 2026-10-11. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
@@ -219,7 +229,11 @@ Shape: T = table, t = template, c = choice.
 
 ### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 78 and 61 grow them inside 0.1.0.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 214, a locale each, grow them inside 0.1.0.
+
+### 210. Add `fr_FR` with its `geo/FR` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. France holds more French speakers than DR Congo, 64M to 49M by the OIF figures on Wikipedia's "Geographical distribution of French speakers". The Base Adresse Nationale (Licence Ouverte 2.0) holds every street with its code postal.
 
 ### 15. Add `misc` tables and templates, one row of its detail's table per chunk.
 
@@ -244,6 +258,10 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
+### 215. Choose the street source for a country with no open national address register: OpenStreetMap under ODbL, or ship its places without streets.
+
+Items 206, 207, 209, 211, 213 and 214 need it. ODbL binds a database derived from OpenStreetMap to share-alike and attribution, which `DATA-LICENSES.md` would carry for every program linking that package.
+
 ### 184. Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
@@ -254,6 +272,18 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 ### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
 
 GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
+
+### 206. Add `zh_CN` with its `geo/CN` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Mandarin is the second-largest language, written in simplified characters in China. A province, prefecture and county tree may be deeper than five levels: `rows.Pins` holds eight pins inline, so a deeper tree needs more to keep a render off the heap.
+
+### 208. Add `es_MX` with its `geo/MX` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Mexico holds most of Spanish's speakers. SEPOMEX publishes every código postal with its asentamiento.
+
+### 212. Add `pt_BR` with its `geo/BR` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Brazil holds most of Portuguese's speakers. IBGE's CNEFE lists every address with its CEP.
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -277,6 +307,42 @@ Split it into items for the CLI, struct tags and the library before starting.
 ### 163. Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.
 
 The README's Audience names a bulk fixture author writing millions of rows, and `-n 5000000` is misuse today, so they loop. The decision "The repeat cap bounds renders, not bytes" covers nested repeats in data, not `-n`. The README's Functions section justifies the builtin caps by a fat-fingered `hex(2000000000)`, a guess at a mistake under goal 5.7; the reason that holds is that one render may not allocate gigabytes. The goals audit of the narrowed goal 5.7 found it.
+
+### 202. Add `nb_NO` with its `geo/NO` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Kartverket's address register (CC BY 4.0) holds every street with its postnummer. Bring's postal register spells every poststed in capitals, which `well_cased` in `geo-se.py` would drop. Bokmål, the written standard most Norwegians use.
+
+### 203. Add `da_DK` with its `geo/DK` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Danmarks Adresseregister through Datafordeler (free) holds every street with its postnummer.
+
+### 204. Add `fi_FI` with its `geo/FI` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Posti's free postal code file names each postinumeroalue; Finland is bilingual, so a street carries its Finnish name and, where the municipality is bilingual, its Swedish one is a column.
+
+### 207. Add `hi_IN` with its `geo/IN` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Hindi in Devanagari. India's PIN code directory is open data on data.gov.in.
+
+### 209. Add `ar_EG` with its `geo/EG` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Standard Arabic has no native speakers; Egypt is the most populous country writing it. Confirm from Ethnologue's country pages before starting, and record what they say in the decision.
+
+### 211. Add `bn_BD` with its `geo/BD` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Bangladesh holds most of Bengali's speakers, India the rest.
+
+### 213. Add `id_ID` with its `geo/ID` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Indonesian is spoken almost only in Indonesia.
+
+### 214. Add `ur_PK` with its `geo/PK` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Urdu is Pakistan's national language, yet India has more native speakers: 50.8M by its 2011 census against Pakistan's 22.3M by its 2023 one. Confirm from Ethnologue's country pages that Pakistan holds more speakers in all before starting; else the locale is ur_IN. Record what they say in the decision.
+
+### 205. Add `is_IS` with its `geo/IS` tree.
+
+Goal 2.1, under the decision "The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries". The locale carries goal 2.2's categories, as `sv_SE` and `en_US` do, and its `address` reads its country's `geo/` tree by reference. Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
 
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
@@ -304,7 +370,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
-`reading-cost` on 2026-10-11: the last 5 chunks' median is 112728 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `todo.md` 40, `README.md` 37, `docs/decisions.md` 29, `CHANGELOG.md` 11, `data_test.go` 9, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5, `compose.yaml` 5. The chunk shipping this item runs `reading-cost --reset`.
+`reading-cost` on 2026-10-11: the last 5 chunks' median is 91452 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 37, `todo.md` 29, `docs/decisions.md` 15, `CHANGELOG.md` 12, `data_test.go` 11, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `data-import/geo-us.py` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
@@ -329,6 +395,10 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 ### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
 
 The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
+
+### 216. Share between countries what `geo-se.py` and `data_test.go` fix for SE, in the first locale chunk that needs each.
+
+A second country reading GeoNames' postal codes moves `geonames()`, and the nearest-centroid street assignment in `streets()`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
 
 ### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
 
