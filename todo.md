@@ -123,12 +123,12 @@
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
 | 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.2, 2 | 17.8 |
-| 228 | 0.2.0 |  | **Offer `{/path as p}` for a token whose unbound head names no loaded data, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 2 | 5 | 6 | 6, 4.1 | 17.7 |
+| 228 | 0.2.0 |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 2 | 5 | 6 | 6, 4.1 | 17.7 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 194 | 0.2.0 | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 4 | 5 | 7 | 6.3, 9.1 | 17.5 |
 | 219 | 0.2.0 |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 221 | 0.2.0 |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
-| 229 | 0.2.0 |  | **Say where a template that opens like JSON fails to parse as JSON, by line and column, before it renders as a format string.** | 2 | 2 | 5 | 6 | 6, 5.1 | 17.1 |
+| 229 | 0.2.0 |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 2 | 2 | 5 | 6 | 6, 5.1 | 17.1 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
@@ -136,7 +136,7 @@
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
 | 20 | 0.2.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 4 | 15.7 |
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
-| 224 | 0.2.0 |  | **Name the module in every error about its manifest or its files, where the module is an `fs.FS` whose root is the module.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
+| 224 | 0.2.0 |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
 | 170 | 0.2.0 |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 3 | 2 | 8 | 3, 3.2 | 14.7 |
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
@@ -450,11 +450,11 @@ Needs item 107. The decision "comprehension floor: every dimension and the overa
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
-A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name. Binding the path instead, `{p.price as pr}`, says `no field "p"; a binding names a field, or a reference…` though `p` is a bound name.
+A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name. A data author who bound a row, `{.product as p}`, then bound its column, `{p.price as pr}`, got `no field "p"; a binding names a field, or a reference…` though `p` is a bound name.
 
 ### 223. Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.
 
-From the 2026-10-11 audience bench: `"user_id": "{/users.id}"` draws a fresh user, so `{seq()}` makes it 1, 2, 3 beside the order's own id, and the workaround types the user count twice, in `-n` and in `{int(1,N)}`.
+From the 2026-10-11 audience bench: `"user_id": "{/users.id}"` draws a fresh user for each order, so its `{seq()}` id names no user the run wrote. The workaround types the user count twice, in `-n` and in `{int(1,N)}`.
 
 ### 36. Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.
 
@@ -504,7 +504,7 @@ The decision "The template engine stays the root package until item 107; what re
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
 
-### 228. Offer `{/path as p}` for a token whose unbound head names no loaded data, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
+### 228. Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
 
 From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkArm` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
 
