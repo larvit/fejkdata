@@ -6,22 +6,18 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
-	"github.com/larvit/fejkdata/internal/invariant"
 	"github.com/larvit/fejkdata/internal/jsonvalue"
 )
 
 // Source is one tree to load, from the root of an fs.FS. label prefixes file names in
-// errors; onDisk marks label as a directory that must exist. mount is the folders the
-// tree's root sits under, in the namespace its categories are reached by.
+// errors; onDisk marks label as a directory that must exist.
 type Source struct {
 	fsys   fs.FS
 	label  string
 	onDisk bool
-	mount  []string
 }
 
 // Dir is the tree in the directory path, its errors labelled with it.
@@ -32,16 +28,16 @@ func Dir(path string) Source {
 // FS is the tree in fsys.
 func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
-// Mounted is s with its root under the dot path namespace, "" for the namespace's root.
+// Mounted is s with its tree under the folders the dot path namespace spells, "" for none.
 func (s Source) Mounted(namespace string) Source {
 	if namespace != "" {
-		s.mount = strings.Split(namespace, ".")
+		s.fsys = mounted{fsys: s.fsys, at: strings.ReplaceAll(namespace, ".", "/")}
 	}
 	return s
 }
 
-// Category is one category file: the folders above it in the namespace, its name, and its
-// parsed JSON.
+// Category is one category file: the folders above it from the source's root, its name,
+// and its parsed JSON.
 type Category struct {
 	Folders []string
 	Name    string
@@ -52,26 +48,16 @@ type Category struct {
 // ReadRows reads a rows file beside the category.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
-// labelled is the file p of fsys as errors name it: under the source's label, or, for a
-// mounted source with none, beside its namespace, "sv_SE (address.json)".
 func (s Source) labelled(p string) string {
-	switch {
-	case s.label != "":
-		return path.Join(s.label, p)
-	case s.mount != nil && p == ".":
-		return strings.Join(s.mount, ".")
-	case s.mount != nil:
-		return fmt.Sprintf("%s (%s)", strings.Join(s.mount, "."), p)
+	if s.label == "" {
+		return p
 	}
-	return p
+	return path.Join(s.label, p)
 }
 
-// dirPath is the folder that the namespace folders dir name, as fsys spells it.
+// dirPath is the folder that dir names, as fsys spells it.
 func (s Source) dirPath(dir []string) string {
-	if len(dir) < len(s.mount) || !slices.Equal(dir[:len(s.mount)], s.mount) {
-		panic(invariant.Broken("folder %s lies outside the mount %s", strings.Join(dir, "."), strings.Join(s.mount, ".")))
-	}
-	if p := path.Join(dir[len(s.mount):]...); p != "" {
+	if p := path.Join(dir...); p != "" {
 		return p
 	}
 	return "."
@@ -84,7 +70,7 @@ func (s Source) Walk(compile func(Category) error) error {
 	if err := s.check(); err != nil {
 		return err
 	}
-	_, err := s.walkDir(slices.Clip(s.mount), compile)
+	_, err := s.walkDir(nil, compile)
 	return err
 }
 
@@ -145,7 +131,7 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 	return true, nil
 }
 
-// Load hands compile the category file name.json in the namespace folder dir.
+// Load hands compile the category file name.json in the folder dir.
 func (s Source) Load(dir []string, name string, compile func(Category) error) error {
 	full := s.dirPath(dir)
 	entries, err := fs.ReadDir(s.fsys, full)
