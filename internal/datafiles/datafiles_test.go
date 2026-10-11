@@ -162,6 +162,20 @@ func TestDirReadsTheDirectoryAndLabelsItsErrorsWithIt(t *testing.T) {
 	}
 }
 
+func TestAMountedDirNamesItsFilesWhereTheyAreOnDisk(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "sub"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "sub", "a.json"), []byte(`{`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, err := walk(t, Dir(dir).Mounted("my.data"))
+	if err == nil || !strings.HasPrefix(err.Error(), filepath.ToSlash(filepath.Join(dir, "sub", "a.json"))+": ") {
+		t.Errorf("Walk = %v, want the error to name the file on disk", err)
+	}
+}
+
 func TestAMountedTreeIsAValidFS(t *testing.T) {
 	m := mounted{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`"y"`)}}, at: "my/data"}
 	if err := fstest.TestFS(m, "my/data/a.json", "my/data/sub/b.json"); err != nil {
