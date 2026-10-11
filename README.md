@@ -364,7 +364,9 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 A shipped package's `Modules()` is its `FS` and every module it reads, a locale's country's
 places among them, which its package imports, so your program links only what you read.
-`data.Modules()` is every shipped module, and links all of them. Two locales are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
+`data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
+links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
+are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
 `postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
@@ -422,6 +424,33 @@ refused, naming that type.
 A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
 stream for that value and everything drawn after it.
+
+### Your own CLI
+
+Package `cli` is the `fejkdata` command, and its `Main` takes the modules the command
+loads, so a CLI carrying your own data is a `main` package of your own:
+
+```go
+package main
+
+import (
+	"embed"
+	"os"
+
+	"github.com/larvit/fejkdata/cli"
+	"github.com/larvit/fejkdata/data"
+)
+
+//go:embed *.json *.tsv
+var mydata embed.FS
+
+func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
+```
+
+It takes `fejkdata`'s flags and exit codes, and names itself by the file it runs from in
+its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
+`--version` prints your module's version beside the fejkdata version it is built with.
+`fejkdata`'s own `main` is `os.Exit(cli.Main(data.Modules()...))`.
 
 ## Data format
 
@@ -1022,32 +1051,6 @@ Where the project is heading; the sections before Audience document what ships t
     dates.
 16. **Values look real by default. You can also ask for values that can never reach
     anything real,** such as a domain nobody can register.
-
-### Your own CLI
-
-Package `cli` is the `fejkdata` command, and its `Main` takes the modules the command
-loads, so a CLI carrying your own data is a `main` package of your own:
-
-```go
-package main
-
-import (
-	"embed"
-	"os"
-
-	"github.com/larvit/fejkdata/cli"
-	"github.com/larvit/fejkdata/data"
-)
-
-//go:embed *.json
-var mydata embed.FS
-
-func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
-```
-
-It takes `fejkdata`'s flags and exit codes, `--no-shipped-data` leaves out the modules
-passed to `Main`, and `--version` prints the fejkdata version it is built with.
-`fejkdata`'s own `main` is `os.Exit(cli.Main(data.Modules()...))`.
 
 ## Layout
 

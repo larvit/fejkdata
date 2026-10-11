@@ -1,6 +1,7 @@
 // Package cli is the fejkdata command: it renders the template on its stdin with fake
 // values from the modules it is given and any directories layered over them. A program
-// passing its own modules to Main is a fejkdata CLI carrying them.
+// passing its own modules to Main is a fejkdata CLI carrying them, as
+// os.Exit(cli.Main(append(data.Modules(), mydata)...)).
 package cli
 
 import (
@@ -11,6 +12,8 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"reflect"
 	"runtime/debug"
 	"sort"
 	"strconv"
@@ -276,41 +279,41 @@ func (in invocation) checkFlags() error {
 	return nil
 }
 
-const pipeHint = "echo '{/sv_SE.person}' | fejkdata"
+func pipeHint(name string) string { return "echo '{/sv_SE.person}' | " + name }
 
 // operandError refuses an argument that is no flag, naming the spelling that reads what
 // it most likely means: dropping it for -, a file for a file's name, else a template
 // piped in.
-func operandError(arg string) error {
+func operandError(arg, name string) error {
 	unexpected := "unexpected argument '" + arg + "'"
 	if arg == "-" {
 		return fmt.Errorf("%s; stdin is read already, so drop it", unexpected)
 	}
 	if fi, err := os.Stat(arg); err == nil && fi.Mode().IsRegular() {
-		return fmt.Errorf("%s; read a file from stdin: fejkdata < %s", unexpected, shellQuoted(arg))
+		return fmt.Errorf("%s; read a file from stdin: %s < %s", unexpected, name, shellQuoted(arg))
 	}
 	ref := "{/" + strings.TrimPrefix(arg, "/") + "}"
 	_, argLone := loneReference(arg)
 	inline, err := fejkdata.IsTemplate(arg)
 	_, refLone := loneReference(ref)
-	example := pipeHint
+	example := pipeHint(name)
 	switch {
 	case argLone || inline:
-		example = piped(arg)
+		example = piped(arg, name)
 	case err == nil && refLone:
-		example = piped(ref)
+		example = piped(ref, name)
 	}
 	return fmt.Errorf("%s; the template is read from stdin: %s", unexpected, example)
 }
 
 // check rejects a flag combination or an operand that cannot run, before any data is
 // read.
-func (in invocation) check() error {
+func (in invocation) check(name string) error {
 	if err := in.checkFlags(); err != nil {
 		return err
 	}
 	if len(in.args) > 0 {
-		return operandError(in.args[0])
+		return operandError(in.args[0], name)
 	}
 	return nil
 }
@@ -541,13 +544,13 @@ func spacedReference(template string, err error) error {
 	return err
 }
 
-// piped is the command piping template to fejkdata; some shells' echo reads a backslash
-// as an escape, so a template holding one goes through printf.
-func piped(template string) string {
+// piped is the command piping template to the command name; some shells' echo reads a
+// backslash as an escape, so a template holding one goes through printf.
+func piped(template, name string) string {
 	if strings.ContainsRune(template, '\\') {
-		return "printf '%s' " + shellQuoted(template) + " | fejkdata"
+		return "printf '%s' " + shellQuoted(template) + " | " + name
 	}
-	return "echo " + shellQuoted(template) + " | fejkdata"
+	return "echo " + shellQuoted(template) + " | " + name
 }
 
 // shellQuoted is s as a shell reads it back: bare where it holds nothing a shell expands.
@@ -566,30 +569,33 @@ func Main(modules ...fs.FS) int {
 	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
 		stdin = nil
 	}
-	return run(modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
+	name := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
+	return run(name, modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
 }
 
-// run is Main over the given streams. A nil stdin is a terminal, which holds no template.
-func run(modules []fs.FS, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
+// run is Main over the given streams, run as the command name. A nil stdin is a terminal,
+// which holds no template.
+func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	in, err := parseArgs(args)
 	if err != nil {
-		return misuse(stderr, err)
+		return misuse(stderr, name, err)
 	}
 	if in.help {
-		io.WriteString(stdout, usage)
+		io.WriteString(stdout, strings.ReplaceAll(usage, "fejkdata", name))
 		return 0
 	}
 	if in.version {
-		fmt.Fprintln(stdout, "fejkdata "+buildVersion())
+		info, _ := debug.ReadBuildInfo()
+		fmt.Fprintln(stdout, versionLine(name, info))
 		return 0
 	}
-	if err := in.check(); err != nil {
-		return misuse(stderr, err)
+	if err := in.check(name); err != nil {
+		return misuse(stderr, name, err)
 	}
 	var src input
 	if !in.list {
-		if src, err = readStdin(stdin); err != nil {
-			return fail(stderr, err)
+		if src, err = readStdin(stdin, name); err != nil {
+			return fail(stderr, name, err)
 		}
 	}
 	f, err := fejkdata.New(in.options(modules)...)
@@ -604,14 +610,14 @@ func run(modules []fs.FS, args []string, stdin io.Reader, stdout, stderr io.Writ
 		return 0
 	}
 	if err := in.write(f, src, stdout); err != nil {
-		return fail(stderr, err)
+		return fail(stderr, name, err)
 	}
 	return 0
 }
 
-func readStdin(stdin io.Reader) (input, error) {
+func readStdin(stdin io.Reader, name string) (input, error) {
 	if stdin == nil {
-		return input{}, inputError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint)}
+		return input{}, inputError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint(name))}
 	}
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
@@ -628,10 +634,10 @@ func templateError(err error) error {
 	return inputError{err}
 }
 
-func fail(stderr io.Writer, err error) int {
+func fail(stderr io.Writer, name string, err error) int {
 	var te inputError
 	if errors.As(err, &te) {
-		return misuse(stderr, te.error)
+		return misuse(stderr, name, te.error)
 	}
 	fmt.Fprintln(stderr, err)
 	if errors.Is(err, fejkdata.ErrNoColumns) {
@@ -640,26 +646,39 @@ func fail(stderr io.Writer, err error) int {
 	return 1
 }
 
-func misuse(stderr io.Writer, err error) int {
-	// A library error already names the program, so the prefix is not doubled.
-	fmt.Fprintf(stderr, "fejkdata: %s\ntry 'fejkdata --help'\n", strings.TrimPrefix(err.Error(), "fejkdata: "))
+func misuse(stderr io.Writer, name string, err error) int {
+	// A library error opens with the library's name, so the prefix is not doubled.
+	fmt.Fprintf(stderr, "%s: %s\ntry '%s --help'\n", name, strings.TrimPrefix(err.Error(), "fejkdata: "), name)
 	return 2
 }
 
-// buildVersion is the version of the fejkdata module go install stamps into the binary,
-// whichever module's main package carries the CLI, or "devel".
-func buildVersion() string {
-	info, _ := debug.ReadBuildInfo()
-	return moduleVersion(info)
-}
+// fejkdataModule is the path of the module holding the library; the root package's path is
+// the module's.
+var fejkdataModule = reflect.TypeOf((*fejkdata.Generator)(nil)).Elem().PkgPath()
 
-func moduleVersion(info *debug.BuildInfo) string {
-	if info != nil {
-		for _, m := range append([]*debug.Module{&info.Main}, info.Deps...) {
-			if m.Path == "github.com/larvit/fejkdata" && m.Version != "" && m.Version != "(devel)" {
-				return m.Version
-			}
+// versionLine names the fejkdata version the binary is built with, after the main module's
+// version under the command name where another module's main package carries the CLI.
+func versionLine(name string, info *debug.BuildInfo) string {
+	if info == nil {
+		return "fejkdata devel"
+	}
+	line := "fejkdata " + moduleVersion(info.Main)
+	for _, m := range info.Deps {
+		if m.Path == fejkdataModule {
+			line = name + " " + moduleVersion(info.Main) + ", fejkdata " + moduleVersion(*m)
 		}
 	}
-	return "devel"
+	return line
+}
+
+// moduleVersion is the version m is built at: the replacement's where a replace directive
+// names one, and "devel" where it carries none, as a local directory does.
+func moduleVersion(m debug.Module) string {
+	if m.Replace != nil {
+		m = *m.Replace
+	}
+	if m.Version == "" || m.Version == "(devel)" {
+		return "devel"
+	}
+	return m.Version
 }
