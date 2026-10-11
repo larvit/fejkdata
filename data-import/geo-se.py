@@ -38,7 +38,7 @@ TIMEZONE = "Europe/Stockholm"
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 # A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn.
 UNMATCHED_POPULATION = 200
-# Not a street: a road number, a ferry route, a cycle path or road association's label, a placeholder, or two names
+# Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
 # or a description in one.
 NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,")
 PARTICLES = {"af", "de", "von"}
@@ -166,7 +166,7 @@ def localities(codes, tatorter, municipalities, population):
 
 
 def street_name(name):
-    """Whether name is a street's, opening with a capital or a nobiliary particle and with no word spelled in capitals."""
+    # A word of four capitals or fewer is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan.
     opening = name[0].isupper() or name.split()[0] in PARTICLES
     return opening and not NOT_A_STREET.search(name) and not any(len(w) >= 5 and w.isupper() for w in name.split())
 
