@@ -1,9 +1,15 @@
 // Package geous is fejkdata's US places module, whose categories are geo.US.*.
 package geous
 
-import "embed"
+import (
+	"embed"
+	"io/fs"
+)
 
-// FS holds the module's categories and its manifest; pass it to fejkdata.WithDataFS.
+// FS holds the module's categories and its manifest.
 //
 //go:embed *.json *.tsv .fejkdata.json
 var FS embed.FS
+
+// Modules returns FS, which reads no other module, to pass to fejkdata.WithDataFS.
+func Modules() []fs.FS { return []fs.FS{FS} }

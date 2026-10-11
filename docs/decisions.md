@@ -591,12 +591,17 @@ its ZIPs would shape the two trees differently, so both draw inside the pinned l
 and an address agrees at that level. A street's own code is the exact pairing to add
 when a source carries it.
 
-## A locale's `address` reads its country's `geo` tree, whose module a program loads beside it
+## A locale package imports its country's geo package, and its `Modules()` returns both
 
-2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
-Serves goal 9.2. `svse.FS` loads alone, and `sv_SE.address` then fails at first reach with
-`no entry "geo"`, so anything providing `geo.SE`'s paths can stand in for `geose`. Until
-`todo.md` item 196 names the missing module in that error, it works against goal 6.2.
+2026-09-24, Lilleman auf Larv; revised 2026-10-11, when the shipped data became Go packages,
+from a bench of a Go test author, a data author and a custom-CLI builder, 3 to 0. Serves
+goals 6.2 and 9.2. A locale's `address` reads its country's `geo` tree, so `svse` imports
+`geose` and `svse.Modules()` returns both: the Go import graph states the dependency, and a
+program passing `Modules()` cannot leave the places out. `svse.FS` alone loads for a stand-in
+providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach with
+`no entry "geo"`; until `todo.md` item 196 names the missing module in that error, the bare
+`FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
+them; a data package imports only the packages it reads.
 
 ## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
 

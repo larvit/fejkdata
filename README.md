@@ -356,23 +356,24 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 |--------|--|
 | `WithSeed(n)` | same seed, version and data: identical sequence |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
-| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `FS`, or your own `embed.FS`; `WithDataFS()` loads none |
+| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()`, or your own `embed.FS`; `WithDataFS()` loads none |
 
 `data.Modules()` is every shipped module, and links all of them into your program. To link
-only the ones you read, pass each locale's `FS` with its country's places:
+only the ones you read, pass a package's `Modules()`: its `FS` and every module it reads, a
+locale's country's places among them, which its package imports:
 
 ```go
 import (
 	"github.com/larvit/fejkdata"
-	geose "github.com/larvit/fejkdata/data/geo/SE"
 	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
-f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS, geose.FS))
+f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...))
 ```
 
-`enus` goes with `geous`; `misc` and the geo packages stand alone. `New` fails where no `WithDataFS` or
-`WithDataPath` names the data to load.
+To stand in your own places, pass the locale's `FS` alone beside them:
+`WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
+data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. A category of an indexed source is

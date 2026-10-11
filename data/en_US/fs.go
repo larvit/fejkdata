@@ -1,9 +1,19 @@
-// Package enus is fejkdata's en_US locale module, whose categories are en_US.*. Its address reads geous's places.
+// Package enus is fejkdata's en_US locale module, whose categories are en_US.*; its address reads
+// geo.US, which package geous holds.
 package enus
 
-import "embed"
+import (
+	"embed"
+	"io/fs"
 
-// FS holds the module's categories and its manifest; pass it to fejkdata.WithDataFS.
+	geous "github.com/larvit/fejkdata/data/geo/US"
+)
+
+// FS holds the locale alone, its categories and its manifest; pass Modules unless your own
+// data stands in for geo.US.
 //
 //go:embed *.json *.tsv .fejkdata.json
 var FS embed.FS
+
+// Modules returns FS and every module it reads, to pass to fejkdata.WithDataFS.
+func Modules() []fs.FS { return append([]fs.FS{FS}, geous.Modules()...) }

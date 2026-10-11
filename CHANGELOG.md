@@ -128,7 +128,8 @@ replacement, and each removed path, column or flag.
 - The shipped data comes in Go packages, one per module, each exporting `FS`:
   `github.com/larvit/fejkdata/data/en_US` (package `enus`), `…/sv_SE` (`svse`), `…/misc`,
   `…/geo/SE` (`geose`) and `…/geo/US` (`geous`). `data.Modules()`, from `github.com/larvit/fejkdata/data`, lists every one,
-  and the CLI carries them all. `New` loads the modules `WithDataFS(modules...)` names and
+  and the CLI carries them all. Each package's `Modules()` returns its `FS` and every module
+  it reads: `svse.Modules()` holds the Swedish places too. `New` loads the modules `WithDataFS(modules...)` names and
   the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
   is given. A manifest's `namespace` mounts its source under a dot path.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
