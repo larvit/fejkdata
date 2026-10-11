@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/enus"
+	enus "github.com/larvit/fejkdata/data/en_US"
 )
 
 func TestFSLoadsByItsManifest(t *testing.T) {

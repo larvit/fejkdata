@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	svSE, enUS, misc = bareCopy(tmp, "svse"), bareCopy(tmp, "enus"), bareCopy(tmp, "misc")
+	svSE, enUS, misc = bareCopy(tmp, "sv_SE"), bareCopy(tmp, "en_US"), bareCopy(tmp, "misc")
 	code := m.Run()
 	os.RemoveAll(tmp)
 	os.Exit(code)
