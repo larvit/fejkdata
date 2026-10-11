@@ -58,7 +58,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 		return "", nil, fmt.Errorf("fejkdata: %w", err)
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
-		if err := loadReached(&f.root, f.manifestReads, nil, []categoryAt{c}); err != nil {
+		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
 			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
 		}
 	}
@@ -105,9 +105,8 @@ func needs(root *folder, s categorySite) []categoryAt {
 
 // loadReached loads the unloaded categories among wanted and every unloaded category they
 // or sites need, then runs sites and all it loaded through a whole load's pipeline. On an
-// error it puts back what it loaded, so the next call fails the same way, and notes which
-// namespace of reads, every namespace the loaded manifests read, nothing in root provides.
-func loadReached(root *folder, reads []string, sites []categorySite, wanted []categoryAt) error {
+// error it puts back what it loaded, so the next call fails the same way.
+func loadReached(root *folder, sites []categorySite, wanted []categoryAt) error {
 	queue := wanted
 	for _, s := range sites {
 		queue = append(queue, needs(root, s)...)
@@ -119,9 +118,8 @@ func loadReached(root *folder, reads []string, sites []categorySite, wanted []ca
 	}
 	if err != nil {
 		b.putBack()
-		return withMissingModules(err, root, reads)
 	}
-	return nil
+	return err
 }
 
 // batch is the categories one loadReached loaded, each beside the entry it was loaded from.

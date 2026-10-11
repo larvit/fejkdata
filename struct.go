@@ -55,7 +55,7 @@ func (f *Generator) structShapeOf(t reflect.Type) (*structShape, error) {
 	if label == "" {
 		label = "struct"
 	}
-	sc := &structCompile{root: &f.root, reads: f.manifestReads, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
+	sc := &structCompile{root: &f.root, visiting: map[reflect.Type]bool{}, structsLeft: maxStructs}
 	shape, err := sc.compileShape(t, label)
 	if f.structs == nil {
 		f.structs = map[reflect.Type]structResult{}
@@ -85,7 +85,6 @@ func (s *structShape) empty() bool { return s.record == nil && len(s.nested) == 
 // rather than filled without end, and how many more structs it may walk.
 type structCompile struct {
 	root        *folder
-	reads       []string
 	visiting    map[reflect.Type]bool
 	structsLeft int
 }
@@ -112,7 +111,7 @@ func (sc *structCompile) compileShape(t reflect.Type, label string) (*structShap
 		return nil, err
 	}
 	if len(c.tags) > 0 {
-		if err := c.shape.compileRecord(sc.root, sc.reads, t, label, c.tags); err != nil {
+		if err := c.shape.compileRecord(sc.root, t, label, c.tags); err != nil {
 			return nil, err
 		}
 	}
@@ -256,13 +255,13 @@ func checkTaggedType(sf reflect.StructField) error {
 
 // compileRecord compiles the tagged fields of t as one record, and proves each column holds
 // only what its field's Go type can.
-func (s *structShape) compileRecord(root *folder, reads []string, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
+func (s *structShape) compileRecord(root *folder, t reflect.Type, label string, tags map[string]jsonvalue.Value) error {
 	tags["format"] = jsonvalue.String("")
 	n, err := compileFrom(jsonvalue.Object(tags), atGoTop)
 	if err != nil {
 		return fmt.Errorf("%s: %w", label, err)
 	}
-	if err := loadInline(root, reads, n, label, true); err != nil {
+	if err := loadInline(root, n, label, true); err != nil {
 		return err
 	}
 	record, err := recordOf(n)
