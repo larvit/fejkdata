@@ -182,3 +182,22 @@ func TestAMountedTreeIsAValidFS(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestAMountedSourceNamesItsManifestBesideItsFiles(t *testing.T) {
+	dir := t.TempDir()
+	for name, c := range map[string]struct {
+		src  Source
+		want string
+	}{
+		"an fs.FS":    {FS(fstest.MapFS{}).Mounted("my.data"), "my/data/.fejkdata.json"},
+		"a data path": {Dir(dir).Mounted("my.data"), filepath.ToSlash(filepath.Join(dir, ".fejkdata.json"))},
+	} {
+		if got := c.src.ManifestPath(); got != c.want {
+			t.Errorf("%s: ManifestPath() = %q, want %q", name, got, c.want)
+		}
+	}
+	m, err := FS(fstest.MapFS{ManifestFile: {Data: []byte(`{"namespace": "my.data"}`)}}).Mounted("my.data").Manifest()
+	if err != nil || m.Namespace != "my.data" {
+		t.Errorf("Manifest() after Mounted = %+v, %v, want the manifest read from beside the files", m, err)
+	}
+}

@@ -597,6 +597,18 @@ func indexEntry(s categorySite) datafiles.IndexEntry {
 	return e
 }
 
+func TestAMountedIndexedCategoryWithNoFileNamesTheManifestBesideItsFiles(t *testing.T) {
+	f, err := New(WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"index": {"my.gone": {"paths": [""]}}, "namespace": "my"}`)},
+	}))
+	if err != nil {
+		t.Fatalf("New() = %v", err)
+	}
+	if _, err := f.Fake("my.gone"); err == nil || !strings.Contains(err.Error(), "my/.fejkdata.json indexes my.gone") {
+		t.Fatalf(`Fake("my.gone") = %v, want the manifest named as my/.fejkdata.json`, err)
+	}
+}
+
 func TestAnIndexedCategoryWithNoFileNamesTheManifest(t *testing.T) {
 	f, err := New(WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"gone": {"paths": [""]}}}`)},
