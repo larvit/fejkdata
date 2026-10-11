@@ -161,3 +161,10 @@ func TestDirReadsTheDirectoryAndLabelsItsErrorsWithIt(t *testing.T) {
 		t.Errorf("Walk = %v, want a file refused as no directory", err)
 	}
 }
+
+func TestAMountedTreeIsAValidFS(t *testing.T) {
+	m := mounted{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`"y"`)}}, at: "my/data"}
+	if err := fstest.TestFS(m, "my/data/a.json", "my/data/sub/b.json"); err != nil {
+		t.Fatal(err)
+	}
+}

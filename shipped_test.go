@@ -39,6 +39,7 @@ func (w withoutManifest) Open(name string) (fs.File, error) {
 // manifest mounts it under.
 type shippedModule struct {
 	fsys      fs.FS
+	modules   func() []fs.FS
 	dir       string
 	namespace string
 }
@@ -68,7 +69,13 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 // namespace, a dot a slash.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
-	out := []shippedModule{{fsys: enus.FS, namespace: "en_US"}, {fsys: geose.FS, namespace: "geo.SE"}, {fsys: geous.FS, namespace: "geo.US"}, {fsys: misc.FS, namespace: "misc"}, {fsys: svse.FS, namespace: "sv_SE"}}
+	out := []shippedModule{
+		{fsys: enus.FS, modules: enus.Modules, namespace: "en_US"},
+		{fsys: geose.FS, modules: geose.Modules, namespace: "geo.SE"},
+		{fsys: geous.FS, modules: geous.Modules, namespace: "geo.US"},
+		{fsys: misc.FS, modules: misc.Modules, namespace: "misc"},
+		{fsys: svse.FS, modules: svse.Modules, namespace: "sv_SE"},
+	}
 	for i := range out {
 		out[i].dir = strings.ReplaceAll(out[i].namespace, ".", "/")
 	}
@@ -198,32 +205,31 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 	return index
 }
 
-func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
+func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
 	modules := shippedModules(t)
 	_, reads, err := shippedManifests(newShippedWhole(t), modules)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for i, m := range modules {
+		set := m.modules()
+		for _, read := range reads[i] {
+			j := slices.IndexFunc(modules, func(r shippedModule) bool { return r.namespace == read })
+			if j < 0 || !slices.Contains(set, modules[j].fsys) {
+				t.Errorf("%s reads %s, which its Modules leaves out", m.namespace, read)
+			}
+		}
 		manifest, err := datafiles.FS(m.fsys).Manifest()
 		if err != nil {
 			t.Fatal(err)
 		}
-		set := []fs.FS{m.fsys}
-		for _, read := range reads[i] {
-			i := slices.IndexFunc(modules, func(r shippedModule) bool { return r.namespace == read })
-			if i < 0 {
-				t.Fatalf("%s reads %s, which no shipped module is", m.dir, read)
-			}
-			set = append(set, modules[i].fsys)
-		}
 		f, err := New(WithDataFS(set...))
 		if err != nil {
-			t.Fatalf("New(%s with what it reads) = %v", m.dir, err)
+			t.Fatalf("New(%s's Modules) = %v", m.namespace, err)
 		}
 		for _, p := range sortedNames(manifest.Index) {
 			if _, err := f.Fake(p); err != nil {
-				t.Errorf("%s with what it reads: Fake(%q) = %v", m.dir, p, err)
+				t.Errorf("%s's Modules: Fake(%q) = %v", m.namespace, p, err)
 			}
 		}
 	}
@@ -247,8 +253,8 @@ func TestAMountedModuleNamesItsRootFolderByItsNamespace(t *testing.T) {
 		".fejkdata.json": {Data: []byte(`{"namespace": "my.data"}`)},
 		"t.json":         {Data: []byte(`{"format":"{name}","rows":"t.tsv","key":"name"}`)},
 	}))
-	if err == nil || !strings.Contains(err.Error(), "not beside it in my.data") || strings.Contains(err.Error(), "(.)") {
-		t.Errorf("New = %v, want the root folder named by its namespace alone", err)
+	if err == nil || !strings.Contains(err.Error(), "not beside it in my/data") {
+		t.Errorf("New = %v, want the root folder named by its namespace's folders", err)
 	}
 }
 
@@ -257,7 +263,7 @@ func TestAMountedModuleNamesItsFilesByItsNamespace(t *testing.T) {
 		".fejkdata.json": {Data: []byte(`{"namespace": "my.data"}`)},
 		"word.json":      {Data: []byte(`{`)},
 	}))
-	if err == nil || !strings.Contains(err.Error(), "my.data (word.json)") {
+	if err == nil || !strings.Contains(err.Error(), "my/data/word.json") {
 		t.Errorf("New = %v, want the broken file named under its namespace", err)
 	}
 }
