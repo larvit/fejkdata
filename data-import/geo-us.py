@@ -152,7 +152,7 @@ def capitals(cache, places, counties):
         if code:
             out.add(code)
         else:
-            print(f"{state} {name}: capital is no incorporated place", file=sys.stderr)
+            print(f"{state} {name}: capital matches no incorporated place by GNIS id or by a name unique in its state", file=sys.stderr)
     return out
 
 
