@@ -120,7 +120,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 - Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
-- The locales are Ethnologue 2026's ten largest languages, each in the country with most of its speakers, and the Nordic countries
+- The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, and the Nordic countries
 
 # Scoring run
 
