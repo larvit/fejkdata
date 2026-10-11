@@ -67,14 +67,14 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 243 | 0.1.0 |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 2 | 7 | 8 | 2.1, 4 | 26.7 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
-| 230 | 0.1.0 |  | **Add `sv_SE.organisationsnummer`, its group digit per legal form and its Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
+| 230 | 0.1.0 |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
 | 210 | 0.1.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2 | 26.2 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
-| 235 | 0.1.0 |  | **Add `sv_SE.bankgiro`, `sv_SE.plusgiro` and `sv_SE.bankaccount`, each with the clearing number and check digit a bank's validator accepts.** | 3 | 5 | 7 | 8 | 4, 2 | 24.9 |
+| 235 | 0.1.0 |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 3 | 5 | 7 | 8 | 4, 2 | 24.9 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
-| 234 | 0.1.0 |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its E.164 form, `+46 70 123 45 67`.** | 2 | 3 | 7 | 7 | 2.1, 4 | 24.5 |
+| 234 | 0.1.0 |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 3 | 7 | 7 | 2.1, 4 | 24.5 |
 | 227 | 0.1.0 |  | **Add a README quick start per task, for the bulk fixture author and the Go test author, each rendering one person whose name, sex, id, email and address agree.** | 1 | 2 | 7 | 6 | 1, 7 | 24.5 |
 | 202 | 0.1.0 |  | **Add `nb_NO` with its `geo/NO` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
 | 203 | 0.1.0 |  | **Add `da_DK` with its `geo/DK` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
@@ -85,14 +85,14 @@
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 241 | 0.1.0 |  | **Give `sv_SE.person` a `birthdate`.** | 2 | 2 | 6 | 6 | 2.1 | 20.9 |
 | 217 | 0.1.0 |  | **Add `de_DE` with its `geo/DE` tree.** | 3 | 7 | 7 | 6 | 2 | 20.6 |
-| 231 | 0.1.0 |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from the patterns they hold.** | 2 | 3 | 6 | 6 | 2.1 | 20.6 |
-| 244 | 0.1.0 |  | **Give `en_US.company` suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 4 | 6 | 6 | 2.1 | 20.4 |
+| 231 | 0.1.0 |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 3 | 6 | 6 | 2.1 | 20.6 |
+| 244 | 0.1.0 |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 4 | 6 | 6 | 2.1 | 20.4 |
 | 247 | 0.1.0 |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 4 | 6 | 6 | 2, 4 | 20.4 |
 | 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 239 | 0.1.0 |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
 | 250 | 0.1.0 |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
-| 246 | 0.1.0 |  | **Add `en_US.bankaccount`, an account number of at most the 17 digits a Nacha ACH entry holds.** | 1 | 2 | 5 | 5 | 2.1 | 18.0 |
+| 246 | 0.1.0 |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 5 | 5 | 2.1 | 18.0 |
 | 198 | 0.1.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
@@ -103,7 +103,7 @@
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 238 | 0.1.0 |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
-| 249 | 0.1.0 |  | **Draw `en_US.word`, `en_US.sentence` and a new `en_US.paragraph` from Moby or WordNet, each part of speech a path of its own.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
+| 249 | 0.1.0 |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
 | 240 | 0.1.0 |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 2 | 2 | 4 | 5 | 2 | 15.0 |
 | 197 | 0.1.0 | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 3 | 2 | 8 | 3.2, 3 | 14.7 |
@@ -226,7 +226,7 @@ The IRS's prefix list is facts. [Source research](docs/research/research-sources
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217, a locale each, grow them inside 0.1.0.
 
-### 230. Add `sv_SE.organisationsnummer`, its group digit per legal form and its Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
+### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
 Bolagsverket's group digits and the Luhn rule are facts. [Source research](docs/research/research-sources-se.md).
 
@@ -280,15 +280,15 @@ Goal 5.9. Today a path is a second spelling of the template that reads it; after
 
 Split it into items for the CLI, struct tags and the library before starting.
 
-### 235. Add `sv_SE.bankgiro`, `sv_SE.plusgiro` and `sv_SE.bankaccount`, each with the clearing number and check digit a bank's validator accepts.
+### 235. Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.
 
-Bankinfrastruktur's clearing table and Bankgirot's rules are facts; cite BSAB. [Source research](docs/research/research-sources-se.md).
+Bankinfrastruktur's clearing table and Bankgirot's rules are facts; cite Bankinfrastruktur i Sverige AB. [Source research](docs/research/research-sources-se.md).
 
 ### 163. Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.
 
 The README's Audience names a bulk fixture author writing millions of rows, and `-n 5000000` is misuse today, so they loop. The decision "The repeat cap bounds renders, not bytes" covers nested repeats in data, not `-n`. The README's Functions section justifies the builtin caps by a fat-fingered `hex(2000000000)`, a guess at a mistake under goal 5.7; the reason that holds is that one render may not allocate gigabytes. The goals audit of the narrowed goal 5.7 found it.
 
-### 234. Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its E.164 form, `+46 70 123 45 67`.
+### 234. Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.
 
 PTS's 2024 numbering plan is facts, no licence stated; cite PTS. Today the fixed numbers draw from 20 area codes. [Source research](docs/research/research-sources-se.md).
 
@@ -310,11 +310,11 @@ Posti's free postal code file names each postinumeroalue, and Digiroad (CC BY 4.
 
 ### 236. Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.
 
-Transportstyrelsen's rules are facts. [Source research](docs/research/research-sources-se.md).
+Transportstyrelsen's 99 blocked combinations are facts, with no licence stated; the `ABC 123` and `ABC 12A` formats come from sv.wikipedia, unconfirmed by Transportstyrelsen. [Source research](docs/research/research-sources-se.md).
 
 ### 245. Draw `en_US.phone` from every area code NANPA has in service.
 
-Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. NANPA's rules are facts. [Source research](docs/research/research-sources-world.md).
+Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. No research file covers NANPA yet: find its list of area codes in service and that list's licence first.
 
 ### 205. Add `is_IS` with its `geo/IS` tree.
 
@@ -326,23 +326,23 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 241. Give `sv_SE.person` a `birthdate`.
 
-The decision "No builtin reads the clock, so a date is bounded by days, never by an age" rules out an age; draw the date between fixed days.
+The decision "No builtin reads the clock, so a date is bounded by days, never by an age" rules out an age; draw the date between two fixed dates.
 
 ### 217. Add `de_DE` with its `geo/DE` tree.
 
 GeoNames publishes Germany's postal codes. Its address data is published by each Land; where open registers cover every Land, they are its street source, else it ships without streets (decision: no open address register covering it whole).
 
-### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from the patterns they hold.
+### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
 
 Bolagsverket's registration statistics are CC BY 2.5 SE; derive name-token frequencies from its bulk file offline and embed no row of it. [Source research](docs/research/research-sources-se.md).
 
-### 244. Give `en_US.company` suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
+### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
 
 NAICS 2022 is public domain; SEC's `company_tickers.json` is free to reuse. [Source research](docs/research/research-sources-world.md).
 
 ### 247. Add `en_US.licenseplate`, drawn per state from that state's pattern.
 
-Hand-authored patterns, facts. [Source research](docs/research/research-sources-world.md).
+No open list of state patterns exists: write each state's pattern by hand and check it against that state's DMV. Wikipedia's list (CC BY-SA) and openalpr's (AGPL) may be read, never copied. [Source research](docs/research/research-sources-world.md).
 
 ### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
 
@@ -358,11 +358,11 @@ CLDR is under the Unicode licence; the law is facts. [Source research](docs/rese
 
 ### 250. Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.
 
-CLDR is under the Unicode licence; 5 U.S.C. 6103 is facts. [Source research](docs/research/research-sources-world.md).
+CLDR is under the Unicode licence. [Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
 
-### 246. Add `en_US.bankaccount`, an account number of at most the 17 digits a Nacha ACH entry holds.
+### 246. Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.
 
-No national register defines the account number; item 154 adds the routing number beside it.
+No national register defines the account number, and no research file covers Nacha yet. Item 154 adds the routing number beside it.
 
 ### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
 
@@ -382,7 +382,7 @@ SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no 
 
 ### 233. Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.
 
-Same terms as SNI: "Källa: SCB". [Source research](docs/research/research-sources-se.md).
+SCB's SSYK pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
 
 ### 237. Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.
 
@@ -404,9 +404,9 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 
 SALDO's morphology is CC BY 4.0; cite Språkbanken (2017), DOI 10.23695/agcm-ny22. [Source research](docs/research/research-sources-se.md).
 
-### 249. Draw `en_US.word`, `en_US.sentence` and a new `en_US.paragraph` from Moby or WordNet, each part of speech a path of its own.
+### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
 
-Moby is public domain; WordNet's licence asks for its notice on every copy. [Source research](docs/research/part3-science-text-dates.md).
+Moby is public domain; WordNet's licence requires its notice and disclaimer on every copy. [Source research](docs/research/part3-science-text-dates.md).
 
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
