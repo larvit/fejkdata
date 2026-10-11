@@ -2,6 +2,7 @@
 package datafiles
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -91,14 +92,24 @@ func (s Source) check() error {
 		return fmt.Errorf("a data path is empty")
 	}
 	info, err := os.Stat(s.label)
+	if errors.Is(err, fs.ErrNotExist) {
+		return noDirectory(s.label)
+	}
 	if err != nil {
 		return fmt.Errorf("data path %s: %w", s.label, err)
 	}
 	if !info.IsDir() {
-		return fmt.Errorf("%s is not a directory", s.label)
+		return fmt.Errorf("data path %s: not a directory", s.label)
 	}
 	return nil
 }
+
+// noDirectory is a data path naming nothing, which errors.Is still matches as fs.ErrNotExist.
+type noDirectory string
+
+func (d noDirectory) Error() string { return "data path " + string(d) + ": no such directory" }
+
+func (noDirectory) Unwrap() error { return fs.ErrNotExist }
 
 // walkDir walks the folder that dir names, and reports whether it handed over any category.
 func (s Source) walkDir(dir []string, compile func(Category) error) (bool, error) {

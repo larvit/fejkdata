@@ -143,7 +143,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	record, err := recordOf(n)
-	if errors.Is(err, ErrNoColumns) {
+	if errors.Is(err, ErrNoColumns) || errors.Is(err, errChoiceRecord) {
 		ns := grammar.IdentifierSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
@@ -209,9 +209,11 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// ErrNoColumns is the one record fence a path can answer, so its entry point names
-// the record to write instead.
+// ErrNoColumns and errChoiceRecord are the record fences a path can answer, so its entry
+// point names the record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
+
+var errChoiceRecord = errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 
 // recordOf is the record template n is; settleRecords fixed its columns at load.
 func recordOf(n node) (*template, error) {
@@ -220,7 +222,7 @@ func recordOf(n node) (*template, error) {
 	}
 	t, ok := n.(*template)
 	if !ok {
-		return nil, errors.New("names a choice, not a template; a record is a template whose fields are its columns")
+		return nil, errChoiceRecord
 	}
 	if len(t.fields) == 0 {
 		return nil, ErrNoColumns

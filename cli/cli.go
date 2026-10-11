@@ -27,8 +27,9 @@ const usage = `Usage: <template> | COMMAND [flags]
 
 COMMAND reads one template from stdin and renders it:
 
-  echo 'name: {/sv_SE.person.last}' | COMMAND
+  echo 'id: {int(1,999)}' | COMMAND
   echo '{"format":"{x}","x":["bosse","lina"]}' | COMMAND
+  COMMAND --list                     # the paths a {/path} reference reads
   COMMAND < template.txt
 
 COMMAND <<'EOF'
@@ -36,11 +37,10 @@ born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 
 A template is a format string, or a JSON object, array, string or null. Its {…} tokens
-reach the data by reference from the root, {/sv_SE.person.last}, whether the data
-is shipped or layered with --data-path. A reference names a category or a dotted
-path into one ({/sv_SE.person.last}), a table's row by key or name
-({/misc.territory[SE]}), and .. steps up from a row to the row it links to
-({/geo.SE.locality..municipality.name}).
+reach the data by reference from the root, {/path}, for any path --list prints, whether
+the data is shipped or layered with --data-path. A reference names a category or a
+dotted path into one, a table's row by key or name ({/table[KEY]}), and .. steps up
+from a row to the row it links to.
 
 Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
@@ -51,7 +51,7 @@ format string like any other, and renders as sent. A quoted heredoc, <<'EOF', pa
 a backslash or a quote as written.
 
 With --format json, ndjson, csv or sql the template must be a record — a JSON
-template whose fields are its columns, or a lone reference such as {/sv_SE.person}:
+template whose fields are its columns, or a lone reference such as {/path}:
 one reference and nothing else, with one newline after it allowed — and the rows are
 written as one JSON array, one JSON object per line, one CSV row (after a header), or
 one INSERT.
@@ -73,6 +73,8 @@ one INSERT.
 
 A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3);
 -- ends the flags.
+
+Exit codes: 0 success, 1 runtime error, 2 misuse.
 `
 
 type invocation struct {
@@ -279,7 +281,7 @@ func (in invocation) checkFlags() error {
 	return nil
 }
 
-func pipeHint(name string) string { return "echo '{/sv_SE.person}' | " + name }
+func pipeHint(name string) string { return "echo 'id: {int(1,999)}' | " + name }
 
 // operandError refuses an argument that is no flag, naming the spelling that reads what
 // it most likely means: dropping it for -, a file for a file's name, else a template
