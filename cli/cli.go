@@ -29,7 +29,6 @@ COMMAND reads one template from stdin and renders it:
 
   echo 'id: {int(1,999)}' | COMMAND
   echo '{"format":"{x}","x":["bosse","lina"]}' | COMMAND
-  COMMAND --list                     # the paths a {/path} reference reads
   COMMAND < template.txt
 
 COMMAND <<'EOF'
@@ -630,7 +629,7 @@ func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, s
 
 func readStdin(stdin io.Reader, name string) (input, error) {
 	if stdin == nil {
-		return input{}, inputError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s", pipeHint(name))}
+		return input{}, inputError{fmt.Errorf("the template comes from stdin, and nothing is piped in: %s; %s --list prints the paths a {/path} reference reads", pipeHint(name), name)}
 	}
 	raw, err := io.ReadAll(stdin)
 	if err != nil {
