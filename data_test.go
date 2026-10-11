@@ -436,7 +436,8 @@ func TestShippedCapitalsAndBigPlaces(t *testing.T) {
 func TestShippedSwedishStreetsAreStreetNames(t *testing.T) {
 	refused := map[string]bool{
 		"Färjeled Henriksdalsbryggan - Barnängsbryggan": true, "HÄLLSÄTTERSLEDEN": true, "Kärrs VSF": true,
-		"Länsväg 694": true, "NN": true, "tornslingan": true, "Öresundsvägen, Bondevägen": true,
+		"Länsväg 694": true, "NN": true, "Risövägen,Dejstolvägen,Runvägen": true, "tornslingan": true,
+		"Öresundsvägen, Bondevägen": true,
 	}
 	for _, r := range geoRows(t, "SE", "street") {
 		if refused[r[0]] {
