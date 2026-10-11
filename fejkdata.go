@@ -93,9 +93,10 @@ func (loadError) Is(target error) bool { return target == ErrLoad }
 // to load. Each JSON file becomes a category named after the file (address.json ->
 // "address") and each subdirectory a namespace segment. It errors on a missing
 // directory, invalid JSON or invalid data. WithDataFS() alone loads no data, and the
-// generator renders templates that read none. A source whose .fejkdata.json carries an index, as each
-// shipped module's does, loads each category on the first call reaching it. Data failing
-// to load, in New or on that first call, gives an error matching [ErrLoad].
+// generator renders templates that read none. A source whose .fejkdata.json carries an
+// index, as each shipped module's does, loads each category on the first call reaching
+// it. Data failing to load, in New or on that first call, gives an error matching
+// [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	var c config
 	for _, opt := range opts {

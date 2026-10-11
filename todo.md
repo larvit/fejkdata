@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 228`
+`Next ID = 230`
 
 | Goal | W |
 |---|---|
@@ -123,10 +123,12 @@
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
 | 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.2, 2 | 17.8 |
+| 228 | 0.2.0 |  | **Offer `{/path as p}` for a token whose unbound head names no loaded data, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 2 | 5 | 6 | 6, 4.1 | 17.7 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 194 | 0.2.0 | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 4 | 5 | 7 | 6.3, 9.1 | 17.5 |
 | 219 | 0.2.0 |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 221 | 0.2.0 |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
+| 229 | 0.2.0 |  | **Say where a template that opens like JSON fails to parse as JSON, by line and column, before it renders as a format string.** | 2 | 2 | 5 | 6 | 6, 5.1 | 17.1 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
@@ -501,6 +503,10 @@ The decision "The template engine stays the root package until item 107; what re
 ### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
+
+### 228. Offer `{/path as p}` for a token whose unbound head names no loaded data, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
+
+From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkArm` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 

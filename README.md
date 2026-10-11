@@ -392,9 +392,9 @@ A path, wherever a call takes one, may start with one `/`, as a reference does.
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
-CLI's `--format` writes, each without a trailing newline. `FakeRecord` and `FakeRecordTemplate` take a record; a
-path or template that is not one — a bare string, a choice of more than one item, or a
-folder — errors.
+CLI's `--format` writes, each without a trailing newline. `FakeRecord` and
+`FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
+choice of more than one item, or a folder — errors.
 
 ```go
 type User struct {
