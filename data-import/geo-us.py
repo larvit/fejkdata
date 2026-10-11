@@ -12,6 +12,7 @@ import random
 import re
 import struct
 import sys
+import urllib.parse
 import zipfile
 
 import geo
@@ -27,10 +28,18 @@ ZCTA_PLACE = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/ta
 TIGER = "https://www2.census.gov/geo/tiger/TIGER2025/{0}/tl_2025_{1}_{2}.zip"
 ESTIMATE = "POPESTIMATE2025"
 CDP = "57"
+# Each state's capital from Wikidata (CC0), with the capital's GNIS ids, which the Gazetteer carries as ANSICODE.
+CAPITALS = "https://query.wikidata.org/sparql?" + urllib.parse.urlencode({"query": """
+SELECT ?iso ?capitalLabel ?gnis WHERE {
+  ?state wdt:P31 wd:Q35657; wdt:P300 ?iso; wdt:P36 ?capital.
+  OPTIONAL { ?capital wdt:P590 ?gnis. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}"""})
+ALWAYS = 100000
 HIGHWAY = re.compile(r"\b(I- |Hwy |Highway |Loop |Rte |Route |Rd )\d")
 SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|comunidad|zona urbana|metropolitan government|metro government|consolidated government|unified government|urban county|corporation|plantation)( \(balance\))?$")
-# Places whose Census name is a merged government's; the postal city is what an address carries.
-NAMES = {"1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4752006": "Nashville"}
+# Places whose Census name is not the postal city an address carries.
+NAMES = {"1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "1608830": "Boise", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4752006": "Nashville"}
 TIMEZONES = {
     "AK": "America/Anchorage", "AL": "America/Chicago", "AR": "America/Chicago", "AZ": "America/Phoenix",
     "CA": "America/Los_Angeles", "CO": "America/Denver", "CT": "America/New_York", "DC": "America/New_York",
@@ -117,13 +126,30 @@ def localities(cache, counties):
     out = {}
     for r in gazetteer(cache, "place"):
         geoid, population = r["GEOID"], place_population.get(r["GEOID"], 0)
-        if r["FUNCSTAT"] not in ("A", "F", "N") or r["LSAD"] == CDP or not county_part.get(geoid):
+        if r["FUNCSTAT"] not in ("A", "B", "F", "N") or r["LSAD"] == CDP or not county_part.get(geoid):
             continue
         county = max(county_part[geoid])[1]
         if county not in counties:
             print(f"{geoid} {r['NAME']}: county {county} unknown, dropped", file=sys.stderr)
             continue
-        out[geoid] = {"code": geoid, "name": place_name(geoid, r["NAME"]), "municipality": county, "population": population, "lat": r["INTPTLAT"], "lon": r["INTPTLONG"]}
+        out[geoid] = {"code": geoid, "gnis": int(r["ANSICODE"]), "name": place_name(geoid, r["NAME"]), "municipality": county, "population": population, "lat": r["INTPTLAT"], "lon": r["INTPTLONG"]}
+    return out
+
+
+def capitals(cache, places, counties):
+    """The codes of the places that are a state's capital, matched by any of its GNIS ids, else by name inside the state."""
+    by_gnis = {p["gnis"]: code for code, p in places.items()}
+    by_name = {(counties[p["municipality"]]["region"], p["name"]): code for code, p in places.items()}
+    gnis_of = collections.defaultdict(set)
+    for r in csv.DictReader(io.StringIO(text(source.fetch(CAPITALS, cache, "capitals.csv", magic=b"iso,", headers={"Accept": "text/csv"})))):
+        gnis_of[(r["iso"].removeprefix("US-"), r["capitalLabel"])].add(int(r["gnis"] or 0))
+    out = set()
+    for (state, name), ids in sorted(gnis_of.items()):
+        code = next((by_gnis[i] for i in sorted(ids) if i in by_gnis), None) or by_name.get((state, name))
+        if code:
+            out.add(code)
+        else:
+            print(f"{state} {name}: capital is no incorporated place", file=sys.stderr)
     return out
 
 
@@ -165,7 +191,7 @@ def streets(cache, counties, locality_of_zcta, share, minimum):
 
 
 def main():
-    a = geo.parser(__doc__, "US", place_share={"type": float, "default": 0.1}).parse_args()
+    a = geo.parser(__doc__, "US", 0.25, place_share={"type": float, "default": 0.1}).parse_args()
     cache, out = geo.directories(a)
 
     state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
@@ -181,7 +207,11 @@ def main():
 
     places = localities(cache, counties)
     owner_of_zcta = zcta_localities(cache, places)
-    places = drawn({p: places[p] for p in set(owner_of_zcta.values())}, a.place_share)
+    capital_codes = capitals(cache, places, counties)
+    owners = {p: places[p] for p in set(owner_of_zcta.values())}
+    for code in sorted(capital_codes - set(owners)):
+        print(f"{code} {places[code]['name']}: capital owns no ZCTA, dropped", file=sys.stderr)
+    places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= ALWAYS}
     locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
     zctas = collections.defaultdict(list)
