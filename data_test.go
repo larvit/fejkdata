@@ -375,20 +375,55 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	}
 }
 
+// TestShippedPlacesSpreadAddresses pins that a city ships a tenth of its streets, not ten,
+// and that the US places reach below a town.
+func TestShippedPlacesSpreadAddresses(t *testing.T) {
+	cases := []struct {
+		country, city string
+		smallest      int
+	}{
+		{"SE", "Göteborg", 200},
+		{"US", "3651000", 2500},
+	}
+	for _, c := range cases {
+		streets := 0
+		for _, r := range geoRows(t, c.country, "street") {
+			if r[1] == c.city {
+				streets++
+			}
+		}
+		if streets < 100 {
+			t.Errorf("geo.%s: %s ships %d streets, want a tenth of its streets, at least 100", c.country, c.city, streets)
+		}
+		population := map[string]int{"SE": 2, "US": 3}[c.country]
+		smallest := -1
+		for _, r := range geoRows(t, c.country, "locality") {
+			if n, err := strconv.Atoi(r[population]); err == nil && (smallest < 0 || n < smallest) {
+				smallest = n
+			}
+		}
+		if smallest < 0 || smallest > c.smallest {
+			t.Errorf("geo.%s: the smallest locality holds %d people, want one of %d or fewer", c.country, smallest, c.smallest)
+		}
+	}
+}
+
+func geoRows(t *testing.T, country, table string) [][]string {
+	b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out [][]string
+	for _, line := range strings.Split(strings.TrimSpace(string(b)), "\n")[1:] {
+		out = append(out, strings.Split(line, "\t"))
+	}
+	return out
+}
+
 // geoPlaces reads a country's geo tables into every "street|postal-code|locality|region"
 // one locality holds, the region empty for SE, whose address carries none.
 func geoPlaces(t *testing.T, country string) map[string]bool {
-	rows := func(table string) [][]string {
-		b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
-		if err != nil {
-			t.Fatal(err)
-		}
-		var out [][]string
-		for _, line := range strings.Split(strings.TrimSpace(string(b)), "\n")[1:] {
-			out = append(out, strings.Split(line, "\t"))
-		}
-		return out
-	}
+	rows := func(table string) [][]string { return geoRows(t, country, table) }
 	name, region := map[string]string{}, map[string]string{}
 	if country == "US" {
 		county := map[string]string{}
