@@ -605,16 +605,18 @@ them; a data package imports only the packages it reads.
 
 ## The default embed holds every Swedish postort the import can place, a tenth of the US places owning a ZCTA drawn by population, and a tenth of each place's streets, at least ten
 
-2026-10-11, Lilleman auf Larv, through `todo.md` item 78. Goals 2 and 14: ten streets a
-place crowded 500 Stockholm customers onto ten streets, and US places of 25,000 or more
-left out every town and village. `geo-us.py` draws among the places owning a ZCTA, since
-a place owning none can carry no postal code, with Efraimidis and Spirakis's weighted
-sampling from a fixed seed, so a rerun on the same sources draws the same places. The
-draw keeps about 950 of the 1,584 places of 25,000 or more, and its smallest place holds
-210 people. On 2026-10-11 the embed grew from 1.3 MB to 5.2 MB, and the first draw of
-`en_US.address` took 75 ms against 19 ms before, within goal 13. `--place-share`,
-`--street-share` and `--min-streets` on the import scripts build another set. Valid while
-the first reach of a country stays unnoticed beside a test run.
+2026-10-11, Lilleman auf Larv. Goals 2 and 14: ten streets a place crowded 500
+Stockholm customers onto ten streets, and US places of 25,000 or more left out every
+town and village. `geo-us.py` draws among the places owning a ZCTA, since a place owning
+none can carry no postal code, with Efraimidis and Spirakis's weighted sampling. Each
+place's random number is seeded by its GEOID, so a rerun on the same sources draws the
+same places, and a place added to or dropped from the sources moves only the places near
+the cut. The draw keeps 968 of the 1,584 places of 25,000 or more and 310 of those of
+100,000 or more, and its smallest place holds 93 people. On 2026-10-11 the embed grew
+from 1.3 MB to 5.2 MB, and the first draw of `en_US.address` took 75 ms against 19 ms
+before, within goal 13. `--place-share`, `--street-share` and `--min-streets` on the
+import scripts build another set. Valid while the first reach of a country stays
+unnoticed beside a test run.
 
 ## A locale's `address` binds its country's record once and prints it whole
 

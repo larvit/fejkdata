@@ -128,12 +128,12 @@ def localities(cache, counties):
 
 
 def drawn(places, share):
-    """The share of the places with people, each drawn with odds by its population, the same set on every run:
-    Efraimidis and Spirakis's weighted sampling without replacement."""
-    rng = random.Random(0)
-    peopled = sorted(code for code, p in places.items() if p["population"] > 0)
-    key = {code: math.log(1 - rng.random()) / places[code]["population"] for code in peopled}
-    return {code: places[code] for code in sorted(peopled, key=key.get, reverse=True)[:round(len(peopled) * share)]}
+    """The share of the places with people, each drawn with odds by its population: Efraimidis and Spirakis's weighted
+    sampling without replacement. Each place's random number is seeded by its code, so a place added or dropped from
+    the sources moves only the places near the cut."""
+    peopled = [code for code, p in places.items() if p["population"] > 0]
+    key = {code: math.log(1 - random.Random(code).random()) / places[code]["population"] for code in peopled}
+    return {code: places[code] for code in sorted(peopled, key=lambda c: (key[c], c), reverse=True)[:round(len(peopled) * share)]}
 
 
 def zcta_localities(cache, localities):
