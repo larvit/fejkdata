@@ -17,12 +17,12 @@ const ManifestFile = ".fejkdata.json"
 // Manifest is what a source's manifest says of it.
 type Manifest struct {
 	// Index is every category of the source by dot path; nil where the manifest has none.
-	Index map[string]IndexEntry `json:"index"`
-	// Reads is every module the source reads by default, directly or through another;
-	// nothing loads them.
-	Reads []string `json:"reads"`
+	Index map[string]IndexEntry
 	// Namespace is the dot path the source's root sits under, "" for the namespace's root.
-	Namespace string `json:"namespace"`
+	Namespace string
+	// Reads is the namespace of every module the source reads unless another source
+	// provides the same paths, directly or through another; nothing loads them.
+	Reads []string
 }
 
 // IndexEntry is what an index says of a category: its parent table, "" for none, and the
@@ -108,7 +108,7 @@ func decodeNamespace(v any) (string, error) {
 	return namespace, nil
 }
 
-// decodeReads decodes the modules a source reads, each named by a non-empty string.
+// decodeReads decodes the namespaces of the modules a source reads.
 func decodeReads(v any) ([]string, error) {
 	items, isList := v.([]any)
 	if !isList {
@@ -118,17 +118,17 @@ func decodeReads(v any) ([]string, error) {
 	seen := map[string]bool{}
 	var errs []error
 	for i, item := range items {
-		module, isString := item.(string)
+		namespace, isString := item.(string)
 		switch {
 		case !isString:
 			errs = append(errs, fmt.Errorf("reads item %d must be a string, not %s", i+1, jsonvalue.Kind(item)))
-		case module == "":
-			errs = append(errs, fmt.Errorf("reads item %d is empty; it names a module", i+1))
-		case seen[module]:
-			errs = append(errs, fmt.Errorf("reads item %d repeats %q", i+1, module))
+		case checkCategoryPath(namespace) != nil:
+			errs = append(errs, fmt.Errorf("reads item %d: %w", i+1, checkCategoryPath(namespace)))
+		case seen[namespace]:
+			errs = append(errs, fmt.Errorf("reads item %d repeats %q", i+1, namespace))
 		default:
-			seen[module] = true
-			out = append(out, module)
+			seen[namespace] = true
+			out = append(out, namespace)
 		}
 	}
 	return out, errors.Join(errs...)

@@ -36,8 +36,8 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if err := loadInline(&f.root, n, "template", false); err != nil {
-		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", withDefaultModules(err, f.defaultModules)))
+	if err := loadInline(&f.root, f.manifestReads, n, "template", false); err != nil {
+		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", err))
 	}
 	return &Template{g: f, n: n}, nil
 }
@@ -84,13 +84,14 @@ func inputValue(input string) jsonvalue.Value {
 	return raw
 }
 
-// loadInline loads the unloaded categories n reads, then runs n through the pipeline against root.
-func loadInline(root *folder, n node, label string, typedByGo bool) error {
+// loadInline loads the unloaded categories n reads, then runs n through the pipeline against root;
+// reads is every namespace the loaded manifests read.
+func loadInline(root *folder, reads []string, n node, label string, typedByGo bool) error {
 	nodes := inlineNodes(n, label)
 	if err := refuseFolderRefs(nodes); err != nil {
 		return err
 	}
-	if err := loadReached(root, nil, referenced(root, nil, nodes)); err != nil {
+	if err := loadReached(root, reads, nil, referenced(root, nil, nodes)); err != nil {
 		return loadError{err}
 	}
 	return pipeline{

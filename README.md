@@ -184,23 +184,24 @@ every category of its source, so a category file it leaves out never loads.
 The index maps each category's dot path to an entry: `parent`, the table it links to,
 which needs its own entry in the same folder; and `paths`, every path `List` advertises
 below the category, `""` for the category itself. Each shipped module's manifest, such as
-[`data/svse/.fejkdata.json`](data/svse/.fejkdata.json), is one, so delete it from a
-copy you edit, or keep its index current. A table whose parent column differs from its
-entry's `parent` fails at first reach, and a table linking under another source's table
-needs a source without an index. `//go:embed` of a directory leaves the manifest out, and
-the source then loads whole in `New`; name it in the pattern too.
+[`data/svse/.fejkdata.json`](data/svse/.fejkdata.json), carries one, so in a copy you
+edit, delete its `index` and keep its `namespace` and `reads`, or keep the index current.
+A table whose parent column differs from its entry's `parent` fails at first reach, and a
+table linking under another source's table needs a source without an index. `//go:embed`
+of a directory leaves the manifest out, and the source then loads whole in `New` and at
+the root, with no `namespace`; name the manifest in the pattern too.
 
 A manifest's `namespace` is the dot path its source's root sits under: a folder holding
 `person.json` with `"namespace": "sv_SE"` provides `sv_SE.person`, its subfolders adding
 segments below that. Each shipped module carries one, so `data/svse/person.json` is
 `sv_SE.person`.
 
-A manifest's `reads` lists, by any name its author chooses, every module the source's
-references read unless another source provides the same paths, directly or through
-another module. Nothing loads these modules: pass them yourself. A shipped module names a
-Go package: `svse`'s manifest reads `github.com/larvit/fejkdata/data/geose`. Data whose
-reference names a path nothing provides fails to load, asking whether a module is
-missing and naming every module the loaded manifests read, or saying they name none.
+A manifest's `reads` lists the namespace of every module the source's references read
+unless another source provides the same paths, directly or through another module.
+Nothing loads these modules: pass them yourself. `svse`'s manifest reads `geo.SE`. Data
+whose reference names a path nothing provides fails to load; where a namespace the loaded
+manifests read is one nothing loaded provides, the error asks whether a module is missing
+and names it, and otherwise it says no loaded manifest names a module to add.
 `namespace` and `reads` need no index.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
@@ -305,7 +306,7 @@ What the two locales do not share: `en_US.address` carries a `region` column the
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
 
-A `geo` folder holds one tree per country under its alpha-2 code: five
+The `geo` namespace holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
 and drawing its street and postal code inside it. The locale's `address` prints that
 record, and each of its columns describes the address printed. Do not assert that a Swedish
@@ -377,7 +378,7 @@ import (
 f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS, geose.FS))
 ```
 
-`enus` reads `geous`; `misc` reads none. `New` fails where no `WithDataFS` or
+`enus` reads `geous`; `misc` and the geo packages read none. `New` fails where no `WithDataFS` or
 `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
