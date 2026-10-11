@@ -4,11 +4,11 @@ package data
 import (
 	"io/fs"
 
-	"github.com/larvit/fejkdata/data/enus"
-	"github.com/larvit/fejkdata/data/geose"
-	"github.com/larvit/fejkdata/data/geous"
+	enus "github.com/larvit/fejkdata/data/en_US"
+	geose "github.com/larvit/fejkdata/data/geo/SE"
+	geous "github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
-	"github.com/larvit/fejkdata/data/svse"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
 //go:generate env REGENERATE=1 go test -run ^TestShippedManifestsAreCurrent$ ..

@@ -126,8 +126,8 @@ replacement, and each removed path, column or flag.
   `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record
   that gives it one.
 - The shipped data comes in Go packages, one per module, each exporting `FS`:
-  `github.com/larvit/fejkdata/data/enus`, `…/svse`, `…/misc`, `…/geose` and
-  `…/geous`. `data.Modules()`, from `github.com/larvit/fejkdata/data`, lists every one,
+  `github.com/larvit/fejkdata/data/en_US` (package `enus`), `…/sv_SE` (`svse`), `…/misc`,
+  `…/geo/SE` (`geose`) and `…/geo/US` (`geous`). `data.Modules()`, from `github.com/larvit/fejkdata/data`, lists every one,
   and the CLI carries them all. `New` loads the modules `WithDataFS(modules...)` names and
   the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
   is given. A manifest's `namespace` mounts its source under a dot path.

@@ -417,3 +417,35 @@ Inherited architect, decided by:
 - Navigation, Self-sufficiency: `data/svse/.fejkdata.json:26` `namespace`: a namespace no longer mirrors its folder, so the path alone no longer finds the file
 - Self-sufficiency: `internal/datafiles/manifest.go:23` `Manifest.Reads`: its comment and withMissingModules' only make sense after the README
 - Locality: `internal/datafiles/datafiles.go:77` `Source.Walk`: the mount is translated in opposite directions by Walk and Load
+
+## 2026-10-11T11:30:01Z, PR #203 at 2a4694b, against bf1becb
+
+Ruling: worse
+
+Fell: Navigation. Under the floor of 7.0: Navigation 6.88, so the same ruling counts as worse.
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | worse | better | same | same | same |
+| Inherited architect | worse | same | same | same | same |
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 7 | 6 | 6.5 | 6.5 | 6.5 |
+| Inherited architect | 6.5 | 5.5 | 5.5 | 6.5 | 6 |
+| Mean | 6.88 | 5.63 | 6.13 | 6.25 | 6.13 |
+
+Mid A, decided by:
+
+- Locality: `fejkdata.go:66` `WithDataFS`: every module is named at the call site, where the base silently started each generator from a package-level embed
+- Navigation: `data/geose/fs.go:1` `geose`: a dotfile manifest decides the namespace and the folder follows a lowered, no-separator rule, one translation step from a failing path to its file
+- Navigation: `internal/datafiles/datafiles.go:57` `Source.labelled`: a shipped file's error prints sv_SE (address.json), where the base printed the openable data/sv_SE/address.json
+- Locality: `data.go:27` `addSource`: where a category lands depends on a field in a hidden file, a partial offset
+
+Inherited architect, decided by:
+
+- Navigation: `data/svse/fs.go:1` `svse`: the step from a dot path to a folder goes through the lowered-namespace rule, stated only in the README and each package doc
+- Navigation: `internal/datafiles/datafiles.go:57` `labelled`: errors name sv_SE (address.json), not a path that opens as written
+- Locality: `fejkdata.go:99` `New`: New loads exactly its options, cancelled by `data/svse/fs.go:1`'s dependency on geose that nothing in Go expresses
