@@ -376,18 +376,21 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	}
 }
 
-// TestShippedPlacesSpreadAddresses pins that a big city ships 100 streets or more, and that
-// some US place holds under 2,500 people.
+// TestShippedPlacesSpreadAddresses pins that Göteborg ships every street, Los Angeles a
+// quarter of its streets, and that some US place holds under 2,500 people.
 func TestShippedPlacesSpreadAddresses(t *testing.T) {
-	for country, city := range map[string]string{"SE": "Göteborg", "US": "3651000"} {
+	for country, city := range map[string]struct {
+		key   string
+		least int
+	}{"SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
 		streets := 0
 		for _, r := range geoRows(t, country, "street") {
-			if r[1] == city {
+			if r[1] == city.key {
 				streets++
 			}
 		}
-		if streets < 100 {
-			t.Errorf("geo.%s: %s ships %d streets, want at least 100", country, city, streets)
+		if streets < city.least {
+			t.Errorf("geo.%s: %s ships %d streets, want at least %d", country, city.key, streets, city.least)
 		}
 	}
 	header, _, _ := strings.Cut(geoTSV(t, "US", "locality"), "\n")
@@ -405,6 +408,28 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 		}
 	}
 	t.Error("geo.US: every locality holds 2500 people or more, want places drawn down to villages")
+}
+
+// TestShippedCapitalsAndBigPlaces pins state capitals and places of 100,000 or more that a
+// draw by population leaves out.
+func TestShippedCapitalsAndBigPlaces(t *testing.T) {
+	state := map[string]string{}
+	for _, r := range geoRows(t, "US", "municipality") {
+		state[r[0]] = r[2]
+	}
+	shipped := map[string]bool{}
+	for _, r := range geoRows(t, "US", "locality") {
+		shipped[r[1]+", "+state[r[2]]] = true
+	}
+	for _, place := range []string{
+		"Albany, NY", "Augusta, ME", "Baton Rouge, LA", "Bismarck, ND", "Boise, ID", "Charleston, WV",
+		"Frankfort, KY", "Harrisburg, PA", "Helena, MT", "Juneau, AK", "Kansas City, KS", "Lafayette, LA",
+		"Montpelier, VT", "New Orleans, LA", "Pierre, SD", "St. Paul, MN", "Stockton, CA",
+	} {
+		if !shipped[place] {
+			t.Errorf("geo.US: no locality %s, want every state capital and place of 100,000 or more", place)
+		}
+	}
 }
 
 func geoTSV(t *testing.T, country, table string) string {
