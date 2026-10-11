@@ -14,7 +14,7 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
     if path.exists():
         return path.read_bytes()
     for attempt in range(1, 6):
-        req = urllib.request.Request(source, data=data, headers={"User-Agent": "fejkdata data-import", **(headers or {})})
+        req = urllib.request.Request(source, data=data, headers={"User-Agent": "fejkdata-data-import (https://github.com/larvit/fejkdata)", **(headers or {})})
         try:
             with urllib.request.urlopen(req, timeout=600) as r:
                 body = r.read()

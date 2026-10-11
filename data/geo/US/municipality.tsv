@@ -27,6 +27,7 @@ code	name	region	population
 01125	Tuscaloosa County	AL	241368
 01127	Walker County	AL	65140
 02020	Anchorage Municipality	AK	287155
+02110	Juneau City and Borough	AK	31609
 02185	North Slope Borough	AK	10582
 04003	Cochise County	AZ	126332
 04005	Coconino County	AZ	144368
@@ -115,6 +116,7 @@ code	name	region	population
 08069	Larimer County	CO	377292
 08089	Otero County	CO	17683
 08091	Ouray County	CO	5265
+08101	Pueblo County	CO	169277
 08105	Rio Grande County	CO	11087
 08107	Routt County	CO	25329
 08123	Weld County	CO	378426
@@ -168,6 +170,7 @@ code	name	region	population
 13045	Carroll County	GA	131036
 13051	Chatham County	GA	311855
 13057	Cherokee County	GA	299273
+13059	Clarke County	GA	129921
 13063	Clayton County	GA	297471
 13067	Cobb County	GA	793345
 13073	Columbia County	GA	169189
@@ -305,6 +308,7 @@ code	name	region	population
 20173	Sedgwick County	KS	538433
 20175	Seward County	KS	21073
 20177	Shawnee County	KS	178607
+20209	Wyandotte County	KS	170597
 21009	Barren County	KY	45641
 21015	Boone County	KY	145316
 21021	Boyle County	KY	31632
@@ -315,6 +319,7 @@ code	name	region	population
 21049	Clark County	KY	37888
 21059	Daviess County	KY	104898
 21067	Fayette County	KY	329751
+21073	Franklin County	KY	52649
 21085	Grayson County	KY	27406
 21093	Hardin County	KY	113482
 21101	Henderson County	KY	44255
@@ -337,6 +342,7 @@ code	name	region	population
 22055	Lafayette Parish	LA	257949
 22057	Lafourche Parish	LA	95505
 22061	Lincoln Parish	LA	48360
+22071	Orleans Parish	LA	362154
 22073	Ouachita Parish	LA	158542
 22077	Pointe Coupee Parish	LA	19520
 22097	St. Landry Parish	LA	80765
@@ -344,6 +350,7 @@ code	name	region	population
 22105	Tangipahoa Parish	LA	141346
 22117	Washington Parish	LA	44937
 23001	Androscoggin County	ME	116487
+23011	Kennebec County	ME	129067
 23019	Penobscot County	ME	157967
 23031	York County	ME	222434
 24001	Allegany County	MD	66848
@@ -446,6 +453,7 @@ code	name	region	population
 30013	Cascade County	MT	85029
 30017	Custer County	MT	12034
 30031	Gallatin County	MT	128740
+30049	Lewis and Clark County	MT	75331
 30057	Madison County	MT	10026
 30063	Missoula County	MT	123513
 30081	Ravalli County	MT	48582
@@ -564,6 +572,7 @@ code	name	region	population
 37191	Wayne County	NC	122278
 37195	Wilson County	NC	81150
 38009	Bottineau County	ND	6284
+38015	Burleigh County	ND	103251
 38017	Cass County	ND	201794
 38035	Grand Forks County	ND	74501
 38101	Ward County	ND	68233
@@ -644,6 +653,7 @@ code	name	region	population
 42021	Cambria County	PA	128968
 42035	Clinton County	PA	37870
 42037	Columbia County	PA	66193
+42043	Dauphin County	PA	293351
 42045	Delaware County	PA	580937
 42049	Erie County	PA	265832
 42055	Franklin County	PA	160652
@@ -684,6 +694,7 @@ code	name	region	population
 45079	Richland County	SC	434956
 45083	Spartanburg County	SC	380857
 46005	Beadle County	SD	19624
+46065	Hughes County	SD	17570
 46081	Lawrence County	SD	29459
 46099	Minnehaha County	SD	212691
 46103	Pennington County	SD	116792
@@ -735,7 +746,9 @@ code	name	region	population
 48139	Ellis County	TX	240867
 48141	El Paso County	TX	877858
 48149	Fayette County	TX	25459
+48157	Fort Bend County	TX	975191
 48165	Gaines County	TX	23956
+48167	Galveston County	TX	372207
 48171	Gillespie County	TX	28527
 48177	Gonzales County	TX	20159
 48181	Grayson County	TX	153613
@@ -801,6 +814,7 @@ code	name	region	population
 51195	Wise County	VA	34824
 51510	Alexandria city	VA	160662
 51540	Charlottesville city	VA	44388
+51550	Chesapeake city	VA	255332
 51600	Fairfax city	VA	26772
 51610	Falls Church city	VA	15159
 51650	Hampton city	VA	137315
@@ -831,6 +845,7 @@ code	name	region	population
 53073	Whatcom County	WA	236392
 53077	Yakima County	WA	259185
 54011	Cabell County	WV	91183
+54039	Kanawha County	WV	172381
 54045	Logan County	WV	30375
 54047	McDowell County	WV	16878
 54059	Mingo County	WV	21455

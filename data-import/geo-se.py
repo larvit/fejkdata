@@ -172,7 +172,7 @@ def streets(segments, codes, localities, share, minimum):
 
 
 def main():
-    a = geo.parser(__doc__, "SE", key_file={"help": "file holding the Trafikverket API key; TRAFIKVERKET_API_KEY otherwise"}).parse_args()
+    a = geo.parser(__doc__, "SE", 1.0, key_file={"help": "file holding the Trafikverket API key; TRAFIKVERKET_API_KEY otherwise"}).parse_args()
     key = Path(a.key_file).read_text().strip() if a.key_file else os.environ.get("TRAFIKVERKET_API_KEY")
     if not key:
         sys.exit("set TRAFIKVERKET_API_KEY or pass --key-file")
