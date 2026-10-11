@@ -449,3 +449,26 @@ Inherited architect, decided by:
 - Navigation: `data/svse/fs.go:1` `svse`: the step from a dot path to a folder goes through the lowered-namespace rule, stated only in the README and each package doc
 - Navigation: `internal/datafiles/datafiles.go:57` `labelled`: errors name sv_SE (address.json), not a path that opens as written
 - Locality: `fejkdata.go:99` `New`: New loads exactly its options, cancelled by `data/svse/fs.go:1`'s dependency on geose that nothing in Go expresses
+
+## 2026-10-11T13:08:34Z, PR #203 at fb2c809, against bf1becb
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | same | same | better |
+| Inherited architect | better | better | same | better | better |
+
+Mid A, decided by:
+
+- Locality, Overall: `fejkdata.go:66` `WithDataFS`: the caller names every module and New refuses no data naming the fix, where the base prepended a package-level shippedSource behind config{shipped: true}
+- Locality: `data/sv_SE/fs.go:19` `Modules`: sv_SE reading geo.SE is a Go import with a doc line, not only a template reference inside address.json
+- Shape: `internal/datafiles/mount.go:13` `mounted`: a hand-built virtual fs.FS replaces a base string, balanced by Source losing a field and Walk, Load and Manifest turning path-agnostic
+
+Inherited architect, decided by:
+
+- Locality, Navigation, Overall: `data/sv_SE/fs.go:19` `Modules`: a locale reading its country's places is a Go import, one hop in code where the base needed the README or a trace through JSON references
+- Locality, Self-sufficiency: `fejkdata.go:66` `WithDataFS`: every source is named at the call site, and leaving them all out gives an error that spells the fix
+- Navigation: `data/modules.go:17` `Modules`: shipped data has a Go home inside data/, each module's manifest beside its files
+- Shape: `internal/datafiles/mount.go:13` `mounted`: seven small types fake the folders above the mount, balanced by Source keeping one form and truthful per-module packages
+- Self-sufficiency: `data/sv_SE/fs.go:1` `svse`: each module says in code which namespace it supplies and what it reads

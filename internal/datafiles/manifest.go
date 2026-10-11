@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"path"
 	"sort"
 	"strings"
 
@@ -49,7 +50,12 @@ func (s Source) Manifest() (Manifest, error) {
 }
 
 // ManifestPath is the manifest's path as errors name it.
-func (s Source) ManifestPath() string { return s.labelled(ManifestFile) }
+func (s Source) ManifestPath() string {
+	if m, isMounted := s.fsys.(mounted); isMounted {
+		return s.labelled(path.Join(m.at, ManifestFile))
+	}
+	return s.labelled(ManifestFile)
+}
 
 // decodeManifest decodes a manifest, refusing any key or shape it does not define, and
 // reports every mistake: first each entry's own, in path order, then each parent naming
