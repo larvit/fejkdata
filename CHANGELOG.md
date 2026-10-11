@@ -139,9 +139,9 @@ replacement, and each removed path, column or flag.
   is given. A manifest's `namespace` mounts its source under a dot path.
 - Package `github.com/larvit/fejkdata/cli` is the `fejkdata` command: `cli.Main(modules...)`
   runs it over the modules given, and returns its exit code, so a `main` package calling
-  `cli.Main(append(data.Modules(), mydata)...)` builds a CLI carrying your own data, which
-  names itself by its file in its help and errors. `--version` prints the fejkdata
-  module's version, after the custom CLI's own where the CLI is one.
+  `cli.Main(append(data.Modules(), mydata)...)` builds a CLI carrying your own data. That
+  CLI names itself in its help and errors by the file it runs from, and its `--version`
+  prints its own module's version before fejkdata's.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
   category on the first call reaching it, as each shipped module does. Data failing to load,
   in `New` or on that first call, gives an error matching `ErrLoad`, and the CLI exits 1.

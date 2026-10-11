@@ -190,7 +190,7 @@
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench `data.Modules()` and the `.fejkdata.json` manifest a data author writes by hand in use; the package names, the manifest's `reads` and `namespace` and the errors naming the import set were benched on 2026-10-11. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. The custom CLI's builder also rules whether `--no-shipped-data`, `-d`'s "layer over the shipped data" and the help's `sv_SE` examples keep their wording where `cli.Main` carries their own modules, which the flag drops too. Record the ruling in `docs/`.
+0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench `data.Modules()` and the `.fejkdata.json` manifest a data author writes by hand in use; the package names, the manifest's `reads` and `namespace` and the errors naming the import set were benched on 2026-10-11. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. The custom CLI's builder also rules whether the help keeps three wordings where `cli.Main` carries the builder's own modules: `--no-shipped-data`, which drops those modules too; `-d`'s "layer over the shipped data"; and the `sv_SE` examples. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -688,7 +688,7 @@ The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md
 
 ### 66. Cut the README's Layout block to the lines that say what a file name cannot.
 
-`doc.go` and `cmd/fejkdata/` restate their names.
+`doc.go` restates its name.
 
 ### 67. Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.
 
