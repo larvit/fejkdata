@@ -92,7 +92,7 @@
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 216 | 0.1.0 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 2 | 6 | 3.2 | 12.3 |
-| 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 1 | 3 | 6 | 10 | 11.4 |
+| 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 2 | 3 | 6 | 10 | 11.1 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 206 | 0.2.0 |  | **Add `zh_CN` with its `geo/CN` tree.** | 4 | 8 | 8 | 8 | 2 | 25.2 |
 | 208 | 0.2.0 |  | **Add `es_MX` with its `geo/MX` tree.** | 4 | 8 | 8 | 8 | 2 | 25.2 |
@@ -190,7 +190,7 @@
 
 ### 185. Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.
 
-0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench `data.Modules()` and the `.fejkdata.json` manifest a data author writes by hand in use; the package names, the manifest's `reads` and `namespace` and the errors naming the import set were benched on 2026-10-11. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. Record the ruling in `docs/`.
+0.1.0 is not cut before it. Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Seats: the Go test author, the bulk fixture author, a custom CLI's builder, and a data author with a `-d` folder and the replace flag, each in a scratch Go module against the checkout or a pre-release tag. Bench `data.Modules()` and the `.fejkdata.json` manifest a data author writes by hand in use; the package names, the manifest's `reads` and `namespace` and the errors naming the import set were benched on 2026-10-11. Decoding the manifest is most of `New`'s cost (about 0.55 ms and 2449 allocations on 2026-10-10, 2864 allocations once each module carried its own manifest). An entry lists every path below its category, its linked tables' paths too, so `geo.*.region` repeats its whole family. An entry holding only its own paths, with `List` composing a family from the entries naming it as `parent`, would shrink it. The custom CLI's builder also rules whether `--no-shipped-data`, `-d`'s "layer over the shipped data" and the help's `sv_SE` examples keep their wording where `cli.Main` carries their own modules, which the flag drops too. Record the ruling in `docs/`.
 
 ### 16. Add locale categories: company, phone, finance, vehicle, words.
 
@@ -362,7 +362,7 @@ A second country reading GeoNames' postal codes moves `geonames()`, and the `str
 
 ### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
 
-GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing.
+GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing. A test over a stub of `request` runs in the merge gate and pins the guard, which no test covers today.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 

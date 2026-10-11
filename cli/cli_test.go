@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -15,15 +16,22 @@ import (
 	"testing/fstest"
 )
 
-// shipped holds the shipped modules as read from the checkout, so these tests link no data
-// package; cmd/fejkdata runs over the packages themselves.
-var shipped = []fs.FS{
-	os.DirFS("../data/en_US"),
-	os.DirFS("../data/geo/SE"),
-	os.DirFS("../data/geo/US"),
-	os.DirFS("../data/misc"),
-	os.DirFS("../data/sv_SE"),
-}
+// shipped holds the shipped modules as read from the checkout, each folder under ../data
+// holding a manifest, so these tests link no data package; cmd/fejkdata runs over the
+// packages themselves.
+var shipped = func() []fs.FS {
+	var modules []fs.FS
+	err := filepath.WalkDir(filepath.Join("..", "data"), func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.Name() == ".fejkdata.json" {
+			modules = append(modules, os.DirFS(filepath.Dir(path)))
+		}
+		return err
+	})
+	if err != nil || len(modules) == 0 {
+		panic(fmt.Sprintf("no shipped module found under ../data: %v", err))
+	}
+	return modules
+}()
 
 // svSE, enUS and misc are copies of a shipped module's files without its manifest, so a test
 // layers its categories unprefixed with -d.
@@ -70,25 +78,25 @@ func bareCopy(tmp, module string) string {
 
 func runOut(stdin string, args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
-	code := run(shipped, args, strings.NewReader(stdin), &out, &errb)
+	code := run("fejkdata", shipped, args, strings.NewReader(stdin), &out, &errb)
 	return code, out.String(), errb.String()
 }
 
 // runTerminal runs as from a shell with nothing piped in.
 func runTerminal(args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
-	code := run(shipped, args, nil, &out, &errb)
+	code := run("fejkdata", shipped, args, nil, &out, &errb)
 	return code, out.String(), errb.String()
 }
 
 func TestRunLoadsTheModulesItIsGiven(t *testing.T) {
 	module := fstest.MapFS{"pet.json": {Data: []byte(`{"format":"{name}","name":["Fido"]}`)}}
 	var out, errb bytes.Buffer
-	if code := run([]fs.FS{module}, nil, strings.NewReader("{/pet}"), &out, &errb); code != 0 || out.String() != "Fido" {
+	if code := run("fejkdata", []fs.FS{module}, nil, strings.NewReader("{/pet}"), &out, &errb); code != 0 || out.String() != "Fido" {
 		t.Errorf("run over a module holding pet = %d, %q, %q, want Fido", code, out.String(), errb.String())
 	}
 	out.Reset()
-	if code := run([]fs.FS{module}, []string{"--list"}, nil, &out, &errb); code != 0 || out.String() != "pet\npet.name\n" {
+	if code := run("fejkdata", []fs.FS{module}, []string{"--list"}, nil, &out, &errb); code != 0 || out.String() != "pet\npet.name\n" {
 		t.Errorf("--list over a module holding pet = %d, %q, want pet and pet.name only", code, out.String())
 	}
 }
@@ -331,7 +339,7 @@ func (failingReader) Read([]byte) (int, error) { return 0, errors.New("bad file 
 
 func TestRunUnreadableStdinIsMisuse(t *testing.T) {
 	var out, errb bytes.Buffer
-	if code := run(shipped, nil, failingReader{}, &out, &errb); code != 2 || !strings.Contains(errb.String(), "cannot be read") {
+	if code := run("fejkdata", shipped, nil, failingReader{}, &out, &errb); code != 2 || !strings.Contains(errb.String(), "cannot be read") {
 		t.Errorf("run with an unreadable stdin = %d, %q; want misuse naming it", code, errb.String())
 	}
 }
@@ -434,17 +442,39 @@ func TestRunHelpOnStdout(t *testing.T) {
 	}
 }
 
-func TestModuleVersionNamesFejkdatasVersion(t *testing.T) {
-	custom := &debug.BuildInfo{
-		Main: debug.Module{Path: "example.com/mycli", Version: "v9.0.0"},
-		Deps: []*debug.Module{{Path: "github.com/larvit/fejkdata", Version: "v0.1.0"}},
+func TestVersionLineNamesFejkdatasVersion(t *testing.T) {
+	fejkdata := func(version string, replace *debug.Module) *debug.Module {
+		return &debug.Module{Path: "github.com/larvit/fejkdata", Version: version, Replace: replace}
 	}
-	own := &debug.BuildInfo{Main: debug.Module{Path: "github.com/larvit/fejkdata", Version: "v0.1.0"}}
-	checkout := &debug.BuildInfo{Main: debug.Module{Path: "github.com/larvit/fejkdata", Version: "(devel)"}}
-	for info, want := range map[*debug.BuildInfo]string{custom: "v0.1.0", own: "v0.1.0", checkout: "devel", nil: "devel"} {
-		if got := moduleVersion(info); got != want {
-			t.Errorf("moduleVersion(%+v) = %q, want %q", info, got, want)
+	mycli := debug.Module{Path: "example.com/mycli", Version: "v9.0.0"}
+	for _, c := range []struct {
+		info *debug.BuildInfo
+		want string
+	}{
+		{&debug.BuildInfo{Main: *fejkdata("v0.1.0", nil)}, "fejkdata v0.1.0"},
+		{&debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, "fejkdata devel"},
+		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", nil)}}, "mycli v9.0.0, fejkdata v0.1.0"},
+		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "../fejkdata"})}}, "mycli v9.0.0, fejkdata devel"},
+		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "example.com/fork", Version: "v0.1.1"})}}, "mycli v9.0.0, fejkdata v0.1.1"},
+		{nil, "fejkdata devel"},
+	} {
+		if got := versionLine("mycli", c.info); got != c.want {
+			t.Errorf("versionLine(mycli, %+v) = %q, want %q", c.info, got, c.want)
 		}
+	}
+}
+
+func TestRunNamesItselfByTheCommandName(t *testing.T) {
+	var out, errb bytes.Buffer
+	if code := run("mycli", shipped, []string{"--nope"}, nil, &out, &errb); code != 2 || errb.String() != "mycli: unknown flag --nope\ntry 'mycli --help'\n" {
+		t.Errorf("mycli --nope = %d, %q", code, errb.String())
+	}
+	errb.Reset()
+	if code := run("mycli", shipped, nil, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli\n") {
+		t.Errorf("mycli with nothing piped = %d, %q, want a pipe into mycli", code, errb.String())
+	}
+	if code := run("mycli", shipped, []string{"--help"}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
+		t.Errorf("mycli --help = %d, %q, want mycli named throughout", code, out.String())
 	}
 }
 
