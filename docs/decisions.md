@@ -603,7 +603,7 @@ providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach
 `FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
 them; a data package imports only the packages it reads.
 
-## The default embed holds every Swedish postort the import can place with all its streets, and of the US places that hold most of a postal code's land every state capital, every place of 100,000 and a population-weighted tenth of the rest, each with a quarter of its streets, at least ten
+## The default embed holds every Swedish postort the import can place with all its streets, and of the US places that hold most of a postal code's land a population-weighted tenth, every state capital and every place of 100,000, each with a quarter of its streets, at least ten
 
 2026-10-11, Lilleman auf Larv; revised the same day, after a tenth of the streets gave
 Göteborg 163 and Stockholm 37. Goals 2 and 14: ten streets per place put 500 Stockholm
@@ -615,8 +615,8 @@ postal code. The draw alone kept 310 of the 343 places of 100,000 or more and le
 or name`; every capital and every place of 100,000 now ships beside the draw, and its
 smallest place holds 93 people. The capitals are each state's `capital` (P36) in
 [Wikidata](https://www.wikidata.org/), matched to a Census place by its GNIS id and
-else by name in its state. Honolulu, a census-designated place, is the one capital and
-the one place of 100,000 that cannot ship. Every Swedish street is 174k rows; a quarter
+else by a name no other place in its state carries. No census-designated place ships,
+so Honolulu is the one capital missing. Every Swedish street is 174k rows; a quarter
 of the US streets 475k. On 2026-10-11 the embed grew from 5.2 MB to 16 MB, and a CLI
 run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
 `misc.territory` 3 ms, within goal 13. `--place-share`, `--street-share` and

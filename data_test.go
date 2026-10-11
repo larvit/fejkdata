@@ -376,8 +376,8 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	}
 }
 
-// TestShippedPlacesSpreadAddresses pins that Göteborg ships every street, Los Angeles a
-// quarter of its streets, and that some US place holds under 2,500 people.
+// TestShippedPlacesSpreadAddresses pins that Göteborg ships 1,500 streets or more, Los
+// Angeles 2,500 or more, and that some US place holds under 2,500 people.
 func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	for country, city := range map[string]struct {
 		key   string
