@@ -441,14 +441,14 @@ import (
 	"github.com/larvit/fejkdata/data"
 )
 
-//go:embed *.json *.tsv
+//go:embed *.json
 var mydata embed.FS
 
 func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 ```
 
-It takes `fejkdata`'s flags and exit codes, and names itself by the file it runs from in
-its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
+Add `*.tsv` to the embed where your data holds a table. The CLI takes `fejkdata`'s flags
+and exit codes, and names itself by the file it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
 `--version` prints your module's version beside the fejkdata version it is built with.
 `fejkdata`'s own `main` is `os.Exit(cli.Main(data.Modules()...))`.
 

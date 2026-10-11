@@ -22,16 +22,16 @@ import (
 	"github.com/larvit/fejkdata"
 )
 
-const usage = `Usage: <template> | fejkdata [flags]
-       fejkdata --list | --help | --version
+const usage = `Usage: <template> | COMMAND [flags]
+       COMMAND --list | --help | --version
 
-fejkdata reads one template from stdin and renders it:
+COMMAND reads one template from stdin and renders it:
 
-  echo 'name: {/sv_SE.person.last}' | fejkdata
-  echo '{"format":"{x}","x":["bosse","lina"]}' | fejkdata
-  fejkdata < template.txt
+  echo 'name: {/sv_SE.person.last}' | COMMAND
+  echo '{"format":"{x}","x":["bosse","lina"]}' | COMMAND
+  COMMAND < template.txt
 
-fejkdata <<'EOF'
+COMMAND <<'EOF'
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 
@@ -42,7 +42,7 @@ path into one ({/sv_SE.person.last}), a table's row by key or name
 ({/misc.territory[SE]}), and .. steps up from a row to the row it links to
 ({/geo.SE.locality..municipality.name}).
 
-Under --format text, the default, what you send is what renders, and fejkdata adds
+Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
 object, array or string drops the whitespace around it, and null alone renders nothing;
@@ -569,7 +569,13 @@ func Main(modules ...fs.FS) int {
 	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
 		stdin = nil
 	}
-	name := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
+	name := filepath.Base(os.Args[0])
+	if ext := filepath.Ext(name); strings.EqualFold(ext, ".exe") {
+		name = strings.TrimSuffix(name, ext)
+	}
+	if name == "." || name == "" {
+		name = "fejkdata"
+	}
 	return run(name, modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
 }
 
@@ -581,7 +587,7 @@ func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, s
 		return misuse(stderr, name, err)
 	}
 	if in.help {
-		io.WriteString(stdout, strings.ReplaceAll(usage, "fejkdata", name))
+		io.WriteString(stdout, strings.ReplaceAll(usage, "COMMAND", name))
 		return 0
 	}
 	if in.version {
@@ -600,8 +606,7 @@ func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, s
 	}
 	f, err := fejkdata.New(in.options(modules)...)
 	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
+		return fail(stderr, name, err)
 	}
 	if in.list {
 		for _, p := range f.List() {
@@ -639,7 +644,7 @@ func fail(stderr io.Writer, name string, err error) int {
 	if errors.As(err, &te) {
 		return misuse(stderr, name, te.error)
 	}
-	fmt.Fprintln(stderr, err)
+	report(stderr, name, err)
 	if errors.Is(err, fejkdata.ErrNoColumns) {
 		fmt.Fprintln(stderr, "wrap that JSON in single quotes, which keep a shell from expanding its braces")
 	}
@@ -647,9 +652,14 @@ func fail(stderr io.Writer, name string, err error) int {
 }
 
 func misuse(stderr io.Writer, name string, err error) int {
-	// A library error opens with the library's name, so the prefix is not doubled.
-	fmt.Fprintf(stderr, "%s: %s\ntry '%s --help'\n", name, strings.TrimPrefix(err.Error(), "fejkdata: "), name)
+	report(stderr, name, err)
+	fmt.Fprintf(stderr, "try '%s --help'\n", name)
 	return 2
+}
+
+// report writes err under the command name, in place of the library's own.
+func report(stderr io.Writer, name string, err error) {
+	fmt.Fprintf(stderr, "%s: %s\n", name, strings.TrimPrefix(err.Error(), "fejkdata: "))
 }
 
 // fejkdataModule is the path of the module holding the library; the root package's path is
@@ -662,13 +672,15 @@ func versionLine(name string, info *debug.BuildInfo) string {
 	if info == nil {
 		return "fejkdata devel"
 	}
-	line := "fejkdata " + moduleVersion(info.Main)
+	if info.Main.Path == fejkdataModule {
+		return "fejkdata " + moduleVersion(info.Main)
+	}
 	for _, m := range info.Deps {
 		if m.Path == fejkdataModule {
-			line = name + " " + moduleVersion(info.Main) + ", fejkdata " + moduleVersion(*m)
+			return name + " " + moduleVersion(info.Main) + ", fejkdata " + moduleVersion(*m)
 		}
 	}
-	return line
+	return name + " " + moduleVersion(info.Main) + ", fejkdata devel"
 }
 
 // moduleVersion is the version m is built at: the replacement's where a replace directive
