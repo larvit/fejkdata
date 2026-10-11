@@ -392,6 +392,9 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	}
 	header, _, _ := strings.Cut(geoTSV(t, "US", "locality"), "\n")
 	population := slices.Index(strings.Split(header, "\t"), "population")
+	if population < 0 {
+		t.Fatal("geo.US locality.tsv has no population column")
+	}
 	for _, r := range geoRows(t, "US", "locality") {
 		n, err := strconv.Atoi(r[population])
 		if err != nil {
