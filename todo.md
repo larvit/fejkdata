@@ -366,7 +366,7 @@ GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exist
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
+GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. The binaries carry the stamped tag, which `--version` prints. v0.1.0 ships first, so it can be tested before it is packaged.
 
 ### 206. Add `zh_CN` with its `geo/CN` tree.
 

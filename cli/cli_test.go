@@ -473,6 +473,10 @@ func TestRunNamesItselfByTheCommandName(t *testing.T) {
 	if code := run("mycli", shipped, nil, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli\n") {
 		t.Errorf("mycli with nothing piped = %d, %q, want a pipe into mycli", code, errb.String())
 	}
+	errb.Reset()
+	if code := run("mycli", shipped, []string{"-d", "/nope"}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") {
+		t.Errorf("mycli -d /nope = %d, %q, want a load error under mycli", code, errb.String())
+	}
 	if code := run("mycli", shipped, []string{"--help"}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
 		t.Errorf("mycli --help = %d, %q, want mycli named throughout", code, out.String())
 	}
