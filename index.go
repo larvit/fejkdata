@@ -59,7 +59,7 @@ func (f *Generator) loadCallerPath(path string) (string, []string, error) {
 	}
 	if c, ok := categoryOn(&f.root, segs); ok && c.unloaded() {
 		if err := loadReached(&f.root, nil, []categoryAt{c}); err != nil {
-			return "", nil, fmt.Errorf("fejkdata: %w", loadError{err})
+			return "", nil, fmt.Errorf("fejkdata: %w", withDefaultModules(loadError{err}, f.defaultModules))
 		}
 	}
 	return path, segs, nil

@@ -121,6 +121,19 @@ type noEntry struct{ seg string }
 
 func (e noEntry) Error() string { return fmt.Sprintf("no entry %q", e.seg) }
 
+// withDefaultModules adds to err, where data fails to load because a segment names nothing, the
+// modules the loaded sources' manifests read by default, or that they name none.
+func withDefaultModules(err error, modules []string) error {
+	var ne noEntry
+	if !errors.Is(err, ErrLoad) || !errors.As(err, &ne) {
+		return err
+	}
+	if len(modules) == 0 {
+		return fmt.Errorf("%w, and no loaded module names a module it reads by default", err)
+	}
+	return fmt.Errorf("%w; the loaded modules read by default %s", err, strings.Join(modules, ", "))
+}
+
 // noDataNote adds to err, where a segment names nothing and f holds no data at all, that no
 // data is loaded.
 func (f *Generator) noDataNote(err error) error {
