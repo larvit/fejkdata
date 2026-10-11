@@ -512,3 +512,30 @@ Junior A, decided by:
 - Locality: `internal/datafiles/datafiles.go:34` `Source.Mounted`: at changes both fsys and how errors label files, and a second Mounted call does nothing silently
 - Self-sufficiency: `data/sv_SE/fs.go:1` `svse`: each package doc states its namespace and what it reads, and Modules names exactly what it pulls in
 - Self-sufficiency: `fejkdata.go:79` `errNoData`: the error names the call that loads the shipped data
+
+## 2026-10-11T18:50:05Z, PR #209 at fbe2fde, against d157e45
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | same | same | better |
+| Inherited architect | same | better | better | same | better |
+
+Mid A, decided by:
+
+- Locality, Overall: `cli/cli.go:318` `options`: the modules a run loads come in through Main and run, where the base fetched data.Modules() inside the flag handling
+- Locality: `internal/datafiles/datafiles.go:56` `labelled`: reads Source.at, where the base type-asserted the FS to recover the mount point
+- Locality, Shape: `internal/datafiles/mount.go:11` `mounted`: two types and one helper, no hidden read flag, where the base held five
+- Locality: `internal/datafiles/datafiles.go:34` `Mounted`: the mount point is stored twice, and a second call is silently ignored
+- Shape: `cli/cli.go:104` `no-shipped-data`: in a custom CLI the flag drops whatever Main was given, which only Main's doc says
+- Shape, Self-sufficiency: `data-import/geo-us.py:219` `main`: the street share is a bare positional float, and places is rebound partway
+
+Inherited architect, decided by:
+
+- Shape, Locality: `internal/datafiles/mount.go:8` `mounted`: Open, ReadFile and ReadDir over one helper, where the base faked a tree in five types
+- Locality: `internal/datafiles/manifest.go:53` `ManifestPath`: reads the explicit Source.at, though at is stored twice and only Mounted keeps them in step
+- Locality: `cli/cli.go:318` `options`: the shipped set comes in through Main, run and options, where the base fixed it deep in the flag handling
+- Shape: `cli/cli.go:104` `no-shipped-data`: once Main takes any modules, the flag's name promises less than it does
+- Shape: `data-import/geo-us.py:211` `main`: places is rebound from every incorporated place to the shipped ones
+- Locality: `cli/cli.go:651` `moduleVersion`: a pure function over the build info picks fejkdata's version by path
