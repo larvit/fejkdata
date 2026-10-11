@@ -472,3 +472,43 @@ Inherited architect, decided by:
 - Navigation: `data/modules.go:17` `Modules`: shipped data has a Go home inside data/, each module's manifest beside its files
 - Shape: `internal/datafiles/mount.go:13` `mounted`: seven small types fake the folders above the mount, balanced by Source keeping one form and truthful per-module packages
 - Self-sufficiency: `data/sv_SE/fs.go:1` `svse`: each module says in code which namespace it supplies and what it reads
+
+## 2026-10-11T13:18:20Z, PR #203 at 3d4131b, against bf1becb
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | worse | same | same |
+| Inherited architect | same | worse | worse | same | worse |
+| Maintainability senior | same | worse | same | same | worse |
+| Junior A | same | worse | worse | better | worse |
+
+Mid A, decided by:
+
+- Shape: `internal/datafiles/mount.go:13` `mounted`: a hand-built virtual fs.FS of five types replaces a base string joined in dirPath
+- Locality, Shape: `internal/datafiles/datafiles.go:34` `Source.Mounted`: one field drives file reads, error labels and the manifest read, and a second Mounted call does nothing
+- Locality: `data/sv_SE/fs.go:19` `Modules`: a locale reading its country's places is a Go import with a package comment
+- Locality: `fejkdata.go:99` `New`: every source is named at the call site, where the base loaded shipped data implicitly
+- Shape: `data/modules.go:17` `Modules`: six packages, five near-identical boilerplate
+
+Inherited architect, decided by:
+
+- Locality, Shape, Overall: `internal/datafiles/mount.go:13` `mounted`: a fake fs.FS of five types with made-up folders above the mount, where the base had a base string; where it rots first
+- Locality: `internal/datafiles/datafiles.go:34` `Source.Mounted`: the mount point kept in Source.at and mounted.at, and labelled undoes it through underMount
+- Locality, Self-sufficiency: `index.go:22` `placeIndex`: index keys carry the full namespaced path, which only the mount maps back, stated nowhere at either site
+- Locality: `fejkdata.go:41` `config.given`: every source explicit and errNoData names the fix, a partial offset
+- Navigation: `data/modules.go:14` `go:generate`: the manifest generator lives in a test of the parent package
+
+Maintainability senior, decided by:
+
+- Locality, Overall: `internal/datafiles/mount.go:13` `mounted`: a fake fs.FS inventing the folders above the mount, so tracing why a file opens means following three paths in Open, where the base prefixed one base string
+- Locality: `internal/datafiles/datafiles.go:56` `labelled`: one field serves the manifest read, file opens and error labels, and labelled undoes the mount through code in mount.go
+- Locality: `fejkdata.go:99` `New`: the hidden shipped default is gone, a partial offset
+
+Junior A, decided by:
+
+- Shape, Locality, Overall: `internal/datafiles/mount.go:13` `mounted`: about 130 lines and five types fake folders so a module's root shows up under its namespace, where prefixing Category.Folders looks like the obvious alternative
+- Locality: `internal/datafiles/datafiles.go:34` `Source.Mounted`: at changes both fsys and how errors label files, and a second Mounted call does nothing silently
+- Self-sufficiency: `data/sv_SE/fs.go:1` `svse`: each package doc states its namespace and what it reads, and Modules names exactly what it pulls in
+- Self-sufficiency: `fejkdata.go:79` `errNoData`: the error names the call that loads the shipped data
