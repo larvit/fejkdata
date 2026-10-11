@@ -13,11 +13,13 @@ import (
 )
 
 // Source is one tree to load, from the root of an fs.FS. label prefixes file names in
-// errors; onDisk marks label as a directory that must exist.
+// errors; onDisk marks label as a directory that must exist; at is the folder fsys mounts the
+// tree at, "" for its root.
 type Source struct {
 	fsys   fs.FS
 	label  string
 	onDisk bool
+	at     string
 }
 
 // Dir is the tree in the directory path, its errors labelled with it.
@@ -30,8 +32,9 @@ func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
 // Mounted is s with its tree under the folders the dot path namespace spells, "" for none.
 func (s Source) Mounted(namespace string) Source {
-	if namespace != "" {
-		s.fsys = mounted{fsys: s.fsys, at: strings.ReplaceAll(namespace, ".", "/")}
+	if namespace != "" && s.at == "" {
+		s.at = strings.ReplaceAll(namespace, ".", "/")
+		s.fsys = mounted{fsys: s.fsys, at: s.at}
 	}
 	return s
 }
@@ -48,14 +51,14 @@ type Category struct {
 // ReadRows reads a rows file beside the category.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
-// labelled is the file p as errors name it: under the source's label, as the labelled tree
-// spells it, below any mount.
+// labelled is the file p as errors name it: a labelled source's as its own tree spells it,
+// below the mount.
 func (s Source) labelled(p string) string {
 	if s.label == "" {
 		return p
 	}
-	if m, isMounted := s.fsys.(mounted); isMounted {
-		p, _ = m.inner(p)
+	if inner, below := underMount(s.at, p); below {
+		p = inner
 	}
 	return path.Join(s.label, p)
 }
