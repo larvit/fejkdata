@@ -569,14 +569,20 @@ func Main(modules ...fs.FS) int {
 	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
 		stdin = nil
 	}
-	name := filepath.Base(os.Args[0])
+	return run(commandName(os.Args[0]), modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
+}
+
+// commandName is the name the command runs under: the file arg0 names, less a Windows
+// .exe, or fejkdata where arg0 names none.
+func commandName(arg0 string) string {
+	name := filepath.Base(arg0)
 	if ext := filepath.Ext(name); strings.EqualFold(ext, ".exe") {
 		name = strings.TrimSuffix(name, ext)
 	}
 	if name == "." || name == "" {
-		name = "fejkdata"
+		return "fejkdata"
 	}
-	return run(name, modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
+	return name
 }
 
 // run is Main over the given streams, run as the command name. A nil stdin is a terminal,
@@ -657,9 +663,10 @@ func misuse(stderr io.Writer, name string, err error) int {
 	return 2
 }
 
-// report writes err under the command name, in place of the library's own.
+// report writes err under the command name, in place of the library's own on each line.
 func report(stderr io.Writer, name string, err error) {
-	fmt.Fprintf(stderr, "%s: %s\n", name, strings.TrimPrefix(err.Error(), "fejkdata: "))
+	msg := strings.ReplaceAll(strings.TrimPrefix(err.Error(), "fejkdata: "), "\nfejkdata: ", "\n"+name+": ")
+	fmt.Fprintf(stderr, "%s: %s\n", name, msg)
 }
 
 // fejkdataModule is the path of the module holding the library; the root package's path is

@@ -456,10 +456,25 @@ func TestVersionLineNamesFejkdatasVersion(t *testing.T) {
 		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", nil)}}, "mycli v9.0.0, fejkdata v0.1.0"},
 		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "../fejkdata"})}}, "mycli v9.0.0, fejkdata devel"},
 		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.1.0", &debug.Module{Path: "example.com/fork", Version: "v0.1.1"})}}, "mycli v9.0.0, fejkdata v0.1.1"},
+		{&debug.BuildInfo{Main: mycli}, "mycli v9.0.0, fejkdata devel"},
 		{nil, "fejkdata devel"},
 	} {
 		if got := versionLine("mycli", c.info); got != c.want {
 			t.Errorf("versionLine(mycli, %+v) = %q, want %q", c.info, got, c.want)
+		}
+	}
+}
+
+func TestCommandNameIsTheFileItRunsFrom(t *testing.T) {
+	for arg0, want := range map[string]string{
+		"/usr/local/bin/mycli": "mycli",
+		"mycli.EXE":            "mycli",
+		"mycli.exe":            "mycli",
+		"my.cli":               "my.cli",
+		"":                     "fejkdata",
+	} {
+		if got := commandName(arg0); got != want {
+			t.Errorf("commandName(%q) = %q, want %q", arg0, got, want)
 		}
 	}
 }
@@ -474,7 +489,11 @@ func TestRunNamesItselfByTheCommandName(t *testing.T) {
 		t.Errorf("mycli with nothing piped = %d, %q, want a pipe into mycli", code, errb.String())
 	}
 	errb.Reset()
-	if code := run("mycli", shipped, []string{"-d", "/nope"}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") {
+	if code := run("mycli", []fs.FS{nil, nil}, nil, strings.NewReader("x"), &out, &errb); code != 1 || strings.Count(errb.String(), "mycli: ") != 2 || strings.Contains(errb.String(), "fejkdata") {
+		t.Errorf("mycli over two nil modules = %d, %q, want each line under mycli", code, errb.String())
+	}
+	errb.Reset()
+	if code := run("mycli", shipped, []string{"-d", "/nope"}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") || strings.Contains(errb.String(), "fejkdata") {
 		t.Errorf("mycli -d /nope = %d, %q, want a load error under mycli", code, errb.String())
 	}
 	if code := run("mycli", shipped, []string{"--help"}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
