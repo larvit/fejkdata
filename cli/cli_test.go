@@ -345,7 +345,7 @@ func TestRunUnreadableStdinIsMisuse(t *testing.T) {
 
 func TestRunTerminalStdinIsMisuse(t *testing.T) {
 	code, out, errb := runTerminal("--seed", "1")
-	if code != 2 || out != "" || !strings.Contains(errb, "| fejkdata") {
+	if code != 2 || out != "" || !strings.Contains(errb, "nothing is piped in: echo 'id: {int(1,999)}' | fejkdata; fejkdata --list prints the paths a {/path} reference reads\n") {
 		t.Errorf("run with nothing piped = %d, %q, %q; want misuse showing a template piped to fejkdata", code, out, errb)
 	}
 	for _, args := range [][]string{{"--list"}, {"--help"}, {"--version"}} {
@@ -484,7 +484,7 @@ func TestRunNamesItselfByTheCommandName(t *testing.T) {
 		t.Errorf("mycli --nope = %d, %q", code, errb.String())
 	}
 	errb.Reset()
-	if code := run("mycli", shipped, nil, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli\n") {
+	if code := run("mycli", shipped, nil, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli; mycli --list prints") {
 		t.Errorf("mycli with nothing piped = %d, %q, want a pipe into mycli", code, errb.String())
 	}
 	errb.Reset()
