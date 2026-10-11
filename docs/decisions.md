@@ -555,7 +555,7 @@ A link is proved against the parent's keys and a key's uniqueness is a data mist
 both are load-time; the row lookup, by name and by parent, serves only a draw, so it waits
 for the first one, keeping `New` linear in the bytes read. On 2026-10-05, building every
 shipped lookup at load added 13 ms and 3.2 MiB to a 60 ms `New`. That cost grows with every
-locale and with item 78, and most tables are never drawn by name or parent. The maintainer
+locale and every place the geo tables ship, and most tables are never drawn by name or parent. The maintainer
 kept building the lookup on first draw, once per table.
 
 ## Two categories may name one TSV
@@ -603,17 +603,18 @@ providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach
 `FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
 them; a data package imports only the packages it reads.
 
-## The default embed holds every Swedish postort the import can place and give a street-delivery code and a street, and the US places of 25,000 or more
+## The default embed holds every Swedish postort the import can place, a tenth of the US places owning a ZCTA drawn by population, and a tenth of each place's streets, at least ten
 
-2026-09-24, Lilleman auf Larv.
-
-Sweden fits whole in 700 KB; every US place of 10,000 would pass a megabyte and fetch
-1,200 counties of TIGER files, so the threshold sits where the two countries match in
-size, and `--min-population` and `--streets-per-locality` on the import scripts build a
-fuller set. Loading the whole shipped set took about 45 ms, about 20 ms of it the two
-trees.
-
-Withdrawn by the maintainer on 2026-10-03; `todo.md` item 78 replaces it.
+2026-10-11, Lilleman auf Larv, through `todo.md` item 78. Goals 2 and 14: ten streets a
+place crowded 500 Stockholm customers onto ten streets, and US places of 25,000 or more
+left out every town and village. `geo-us.py` draws among the places owning a ZCTA, since
+a place owning none can carry no postal code, with Efraimidis and Spirakis's weighted
+sampling from a fixed seed, so a rerun on the same sources draws the same places. The
+draw keeps about 950 of the 1,584 places of 25,000 or more, and its smallest place holds
+210 people. On 2026-10-11 the embed grew from 1.3 MB to 5.2 MB, and the first draw of
+`en_US.address` took 75 ms against 19 ms before, within goal 13. `--place-share`,
+`--street-share` and `--min-streets` on the import scripts build another set. Valid while
+the first reach of a country stays unnoticed beside a test run.
 
 ## A locale's `address` binds its country's record once and prints it whole
 
@@ -640,8 +641,8 @@ postort none of the three rules place is dropped, as is one not cased like a pla
 `I- 55 Bus` and `US Hwy 1` carry the most address ranges in many places and would head
 every address, so the import drops names spelled as a route. A ZCTA goes to the place
 its largest in-place part lies in, census-designated places left out since they never
-ship, and ships only when that place does, so a few dozen places whose every code lies
-mostly in a bigger neighbour ship no address; counting the land outside every place too
+ship, and ships only when that place does, so a place whose every code lies mostly in a
+bigger neighbour is never drawn; counting the land outside every place too
 would drop a quarter of the places, whose codes straddle unincorporated land, for a
 postal city the USPS mostly names the same way.
 

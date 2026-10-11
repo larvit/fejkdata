@@ -311,9 +311,9 @@ neighbouring one.
 |-------|----------|----------|--------|
 | `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place of 25,000 people or more with a postal code and a street of its own, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
+| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | a tenth of the incorporated places owning a ZCTA, drawn with odds by population, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, the ten with most road segments per postort | street name, the ten with most address ranges per place | segments; address ranges |
+| `street` | gatunamn, the tenth with most road segments per postort, at least ten | street name, the tenth with most address ranges per place, at least ten | segments; address ranges |
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
@@ -1139,7 +1139,7 @@ A shipped table built from a source is rebuilt by its script under
 `data-import/cache/`, which is ignored by version control and grows past a
 gigabyte, so pass `--cache DIR` to reuse a copy you already have and delete it to
 fetch afresh; `geo-us.py` fetches two
-TIGER/Line files per county it ships, a few hundred megabytes, `geo-se.py` needs
+TIGER/Line files per county it ships, about a gigabyte, `geo-se.py` needs
 a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
 and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
