@@ -318,9 +318,9 @@ neighbouring one.
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
 `geo.US.region[IL].locality[Springfield]` settles which Springfield. The US places are
-the incorporated places that hold most of some postal code's land: a tenth of them drawn
-with odds by population, and every state capital but Honolulu and every place of 100,000
-or more beside, so a smaller city may be missing: look one up in
+the incorporated places that hold most of some postal code's land: a tenth of them, drawn
+with odds by population, plus every state capital but Honolulu and every place of 100,000
+or more, so a smaller city may be missing: look one up in
 [`locality.tsv`](data/geo/US/locality.tsv) before selecting it. A region row
 carries its `timezone`, the state's predominant zone, and a locality its `lat` and
 `lon`. What ports across countries is the five table names, the `name` column,

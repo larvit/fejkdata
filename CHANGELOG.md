@@ -96,8 +96,8 @@ replacement, and each removed path, column or flag.
   reads its country's `geo` module. Every Swedish postort the import can place and give
   a street ships with all its streets. Of the US incorporated places that hold most of
   some postal code's land, a tenth drawn by population down to villages of a hundred
-  people ships, and every state capital but Honolulu and every place of 100,000 or more
-  beside, so a smaller city may be missing; each carries a quarter of its streets, at
+  people ships, plus every state capital but Honolulu and every place of 100,000 or more,
+  so a smaller city may be missing; each carries a quarter of its streets, at
   least ten.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
   within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.
