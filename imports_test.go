@@ -38,7 +38,7 @@ func TestPackageImports(t *testing.T) {
 		"data/misc":            nil,
 		"data/svse":            nil,
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
-		"internal/datafiles":   {"internal/grammar", "internal/jsonvalue"},
+		"internal/datafiles":   {"internal/grammar", "internal/invariant", "internal/jsonvalue"},
 		"internal/datatype":    nil,
 		"internal/drawstate":   nil,
 		"internal/grammar":     nil,

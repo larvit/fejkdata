@@ -206,7 +206,7 @@ func TestNewErrorPathIsCanonical(t *testing.T) {
 		{
 			"bad reference reached through another reference",
 			map[string]string{"a": `"{/b}"`, "b": `"{/nope}"`},
-			`fejkdata: b: reference {/nope}: no entry "nope", and no loaded manifest names a module to add`,
+			`fejkdata: b: reference {/nope}: no entry "nope"`,
 		},
 	}
 	for _, c := range cases {
