@@ -6,7 +6,7 @@
 // dot-path namespace, then generate values by path:
 //
 //	f, _ := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42))
-//	f.Fake("sv_SE.address")          // "Illergatan 43\n442 42 Kungälv"
+//	f.Fake("sv_SE.address")          // "Trekungagatan 43\n442 42 Kungälv"
 //	f.Fake("sv_SE.address.locality") // "Umeå": a second call draws afresh
 //
 // Several sources merge in order, the last winning a name clash, so custom data
