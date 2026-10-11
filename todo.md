@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 200`
+`Next ID = 202`
 
 | Goal | W |
 |---|---|
@@ -66,18 +66,21 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
+| 200 | 0.1.0 |  | **Ship every Swedish street and a quarter of each US place's streets, at least ten.** | 2 | 2 | 9 | 9 | 2 | 32.6 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
 | 184 | 0.1.0 | decision | **Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.** | 4 | 5 | 7 | 9 | 9.6, 2 | 25.8 |
+| 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
+| 199 | 0.1.0 |  | **Ship every state capital and every US place of 100,000 or more beside the drawn tenth of the US places.** | 2 | 3 | 6 | 7 | 2, 16 | 22.5 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 199 | 0.1.0 | question | **Decide whether every state capital, or every US place of 100,000 or more, ships beside the drawn tenth.** | 2 | 2 | 6 | 6 | 2, 16 | 20.9 |
 | 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
+| 198 | 0.1.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
 | 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
@@ -106,7 +109,6 @@
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
 | 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.3, 2 | 17.8 |
-| 198 | 0.2.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 194 | 0.2.0 | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 4 | 5 | 7 | 6.3, 9.1 | 17.5 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
@@ -174,6 +176,10 @@
 | 190 | 1.1.0 | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 6 | 9 | 7 | 8 | 1, 4 | 21.8 |
 
 ## Details
+
+### 200. Ship every Swedish street and a quarter of each US place's streets, at least ten.
+
+The maintainer chose these shares on 2026-10-11, after a tenth gave Göteborg 163 streets and Stockholm 37. Measured that day against a tenth: every Swedish street is 174k rows and 4.5 MB, with the first `sv_SE.address` in 74 ms; a quarter of the US streets is about 457k rows and 10 MB. The defaults of `--street-share` move per country, and the decision "The default embed holds every Swedish postort…" is revised to match. Re-pin seeded output in its own commit.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
@@ -251,6 +257,10 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 - The README's Library quick start shows the whole import block for one locale, and a section shows a custom CLI as example code. Layout and Development follow.
 - Revises the decision "The CLI reads only the library's public API" to name `cli`.
 
+### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
+
+GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
+
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
 Goal 5.9. Today a path is a second spelling of the template that reads it; afterwards only the template remains.
@@ -274,13 +284,13 @@ Split it into items for the CLI, struct tags and the library before starting.
 
 The README's Audience names a bulk fixture author writing millions of rows, and `-n 5000000` is misuse today, so they loop. The decision "The repeat cap bounds renders, not bytes" covers nested repeats in data, not `-n`. The README's Functions section justifies the builtin caps by a fat-fingered `hex(2000000000)`, a guess at a mistake under goal 5.7; the reason that holds is that one render may not allocate gigabytes. The goals audit of the narrowed goal 5.7 found it.
 
+### 199. Ship every state capital and every US place of 100,000 or more beside the drawn tenth of the US places.
+
+The maintainer ruled so on 2026-10-11. The draw by population leaves out about 25 of the 335 places of 100,000 or more, and some state capitals, so a test author pinning a city they know hits `no row of … has key or name`. Shipping them always keeps such selectors working across a refresh of the sources. Source the capitals from a published list and cite it in the decision on the default embed; a capital owning no ZCTA, such as one whose codes lie mostly in a neighbour, is named in the import's log.
+
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
-
-### 199. Decide whether every state capital, or every US place of 100,000 or more, ships beside the drawn tenth.
-
-The draw by population leaves out about 25 of the 335 places of 100,000 or more, and some state capitals, so a test author pinning a city they know may hit `no row of … has key or name`. Shipping them always would keep such selectors working across a refresh of the sources, so a refresh need not wait for a major to drop one, at the cost of a draw that is no longer one rule.
 
 ### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
 
@@ -289,6 +299,10 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 ### 164. Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.
 
 The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. A cell reads no name its table's format binds. Revise that decision's title and the README's Names list with it.
+
+### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
+
+`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
 
 ### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
 
@@ -419,10 +433,6 @@ The decision "The template engine stays the root package until item 107; what re
 ### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
-
-### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
-
-`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 
