@@ -67,7 +67,7 @@ func TestShippedDataCategories(t *testing.T) {
 // v4 UUID (version/variant nibbles fixed), a MAC address, and credit-card numbers
 // whose trailing {luhn()} check passes.
 func TestShippedMiscCategories(t *testing.T) {
-	f := newGenerator(t, "data/misc/misc", WithSeed(1))
+	f := newBareModule(t, "misc", WithSeed(1))
 	v4 := regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 	mac := regexp.MustCompile(`^([0-9a-f]{2}:){5}[0-9a-f]{2}$`)
 	objectid := regexp.MustCompile(`^[0-9a-f]{24}$`)
@@ -95,7 +95,7 @@ func TestShippedMiscCategories(t *testing.T) {
 // codes follow their standard shape, dotted sub-paths resolve, emoji is a real
 // glyph, and a coordinate parses to a point within geographic bounds.
 func TestShippedMiscReferenceData(t *testing.T) {
-	f := newGenerator(t, "data/misc/misc", WithSeed(1))
+	f := newBareModule(t, "misc", WithSeed(1))
 	re := map[string]*regexp.Regexp{
 		"currency":              regexp.MustCompile(`^[A-Z]{3}$`),
 		"currency.name":         regexp.MustCompile(`\p{L}`),
@@ -379,7 +379,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 // one locality holds, the region empty for SE, whose address carries none.
 func geoPlaces(t *testing.T, country string) map[string]bool {
 	rows := func(table string) [][]string {
-		b, err := os.ReadFile("data/geo/" + country + "/geo/" + country + "/" + table + ".tsv")
+		b, err := os.ReadFile("data/geo" + strings.ToLower(country) + "/" + table + ".tsv")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -468,7 +468,7 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 }
 
 // TestShippedNamespacedTree loads every shipped module and reaches each locale through its
-// folder segment: data/sv_SE/sv_SE/person.json -> sv_SE.person.
+// namespace: data/svse/person.json, mounted under sv_SE, is sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {

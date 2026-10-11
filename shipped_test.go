@@ -18,11 +18,11 @@ import (
 	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
-	"github.com/larvit/fejkdata/data/en_US"
-	"github.com/larvit/fejkdata/data/geo/SE"
-	"github.com/larvit/fejkdata/data/geo/US"
+	"github.com/larvit/fejkdata/data/enus"
+	"github.com/larvit/fejkdata/data/geose"
+	"github.com/larvit/fejkdata/data/geous"
 	"github.com/larvit/fejkdata/data/misc"
-	"github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/data/svse"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
 
@@ -36,24 +36,42 @@ func (w withoutManifest) Open(name string) (fs.File, error) {
 	return w.FS.Open(name)
 }
 
-// shippedModule is a module data.Modules lists, and its folder under data/, slash-separated.
+// shippedModule is a module data.Modules lists, its folder under data/, and the namespace its
+// manifest mounts it under.
 type shippedModule struct {
-	fsys fs.FS
-	dir  string
+	fsys      fs.FS
+	dir       string
+	namespace string
 }
 
 // importPath is the Go package the module's FS is exported from.
 func (m shippedModule) importPath() string { return "github.com/larvit/fejkdata/data/" + m.dir }
 
-// holds reports whether the category at path is the module's: its tree spells its folder.
-func (m shippedModule) holds(path string) bool {
-	return strings.HasPrefix(path, strings.ReplaceAll(m.dir, "/", ".")+".")
+// holds reports whether the category at path is the module's.
+func (m shippedModule) holds(path string) bool { return strings.HasPrefix(path, m.namespace+".") }
+
+// whole is the module's files with a manifest naming only its namespace, so it loads whole in New.
+func (m shippedModule) whole(t testing.TB) fs.FS {
+	t.Helper()
+	out := fstest.MapFS{datafiles.ManifestFile: {Data: []byte(`{"namespace": "` + m.namespace + `"}`)}}
+	err := fs.WalkDir(m.fsys, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || p == datafiles.ManifestFile {
+			return err
+		}
+		b, err := fs.ReadFile(m.fsys, p)
+		out[p] = &fstest.MapFile{Data: b}
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return out
 }
 
 // shippedModules is every module data.Modules lists, each beside its folder under data/.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
-	out := []shippedModule{{en_US.FS, "en_US"}, {SE.FS, "geo/SE"}, {US.FS, "geo/US"}, {misc.FS, "misc"}, {sv_SE.FS, "sv_SE"}}
+	out := []shippedModule{{enus.FS, "enus", "en_US"}, {geose.FS, "geose", "geo.SE"}, {geous.FS, "geous", "geo.US"}, {misc.FS, "misc", "misc"}, {svse.FS, "svse", "sv_SE"}}
 	var listed []fs.FS
 	for _, m := range out {
 		listed = append(listed, m.fsys)
@@ -70,7 +88,7 @@ func newShippedWhole(t testing.TB, opts ...Option) *Generator {
 	t.Helper()
 	var modules []fs.FS
 	for _, m := range shippedModules(t) {
-		modules = append(modules, withoutManifest{m.fsys})
+		modules = append(modules, m.whole(t))
 	}
 	f, err := New(append([]Option{WithDataFS(modules...)}, opts...)...)
 	if err != nil {
@@ -141,7 +159,8 @@ func shippedManifests(whole *Generator, modules []shippedModule) ([][]byte, erro
 	out := make([][]byte, len(modules))
 	for i := range modules {
 		var b bytes.Buffer
-		b.WriteString("{\n\t\"index\": {" + strings.Join(index[i], ",") + "\n\t}")
+		namespace, _ := json.Marshal(modules[i].namespace)
+		b.WriteString("{\n\t\"index\": {" + strings.Join(index[i], ",") + "\n\t},\n\t\"namespace\": " + string(namespace))
 		if reads := readsOf(i, direct, modules); len(reads) > 0 {
 			line, _ := json.Marshal(reads)
 			b.WriteString(",\n\t\"reads\": " + string(line))
@@ -211,11 +230,11 @@ func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
 }
 
 func TestAReadNoModuleProvidesNamesTheReadersModules(t *testing.T) {
-	f, err := New(WithDataFS(sv_SE.FS))
+	f, err := New(WithDataFS(svse.FS))
 	if err != nil {
-		t.Fatalf("New(WithDataFS(sv_SE.FS)) = %v", err)
+		t.Fatalf("New(WithDataFS(svse.FS)) = %v", err)
 	}
-	if _, err := f.Fake("sv_SE.address"); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default github.com/larvit/fejkdata/data/geo/SE") {
+	if _, err := f.Fake("sv_SE.address"); err == nil || !strings.Contains(err.Error(), "is a module missing? The loaded modules read github.com/larvit/fejkdata/data/geose") {
 		t.Errorf(`Fake("sv_SE.address") = %v, want the module it reads named`, err)
 	}
 	for name, opt := range map[string]Option{
@@ -226,7 +245,7 @@ func TestAReadNoModuleProvidesNamesTheReadersModules(t *testing.T) {
 		if err == nil {
 			_, err = f.Fake("x")
 		}
-		if err == nil || !strings.Contains(err.Error(), "no loaded module names a module it reads by default") {
+		if err == nil || !strings.Contains(err.Error(), "no loaded manifest names a module to add") {
 			t.Errorf("%s: x = %v, want it said that no loaded module names one", name, err)
 		}
 	}
@@ -237,7 +256,7 @@ func TestADataPathManifestNamesWhatItReads(t *testing.T) {
 		".fejkdata.json": `{"reads": ["example.com/places"]}`,
 		"x.json":         `"{/place}"`,
 	})
-	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default example.com/places") {
+	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "is a module missing? The loaded modules read example.com/places") {
 		t.Errorf("New = %v, want the module x reads named", err)
 	}
 }
@@ -250,8 +269,43 @@ func TestAnIndexedModuleNamesWhatItReads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
-	if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default example.com/places") {
-		t.Errorf(`Fake("x") = %v, want the module x reads named`, err)
+	const note = "is a module missing? The loaded modules read example.com/places"
+	for name, reach := range map[string]func() error{
+		"Fake":         func() error { _, err := f.Fake("x"); return err },
+		"FakeTemplate": func() error { _, err := f.FakeTemplate("{/x}"); return err },
+		"FakeStruct": func() error {
+			return f.FakeStruct(&struct {
+				A string `fake:"/x"`
+			}{})
+		},
+	} {
+		if err := reach(); err == nil || strings.Count(err.Error(), note) != 1 {
+			t.Errorf("%s reaching x = %v, want the module x reads named once", name, err)
+		}
+	}
+	if _, err := f.FakeTemplate("{/nope}"); err == nil || strings.Contains(err.Error(), "module") {
+		t.Errorf("FakeTemplate({/nope}) = %v, want no module named: no load failed", err)
+	}
+}
+
+func TestANamespaceMountsAModuleUnderIt(t *testing.T) {
+	for name, opt := range map[string]Option{
+		"a data path": WithDataPath(writeFiles(t, map[string]string{
+			".fejkdata.json": `{"namespace": "my.data"}`,
+			"word.json":      `"hej"`,
+		})),
+		"an indexed source": WithDataFS(fstest.MapFS{
+			".fejkdata.json": {Data: []byte(`{"index": {"my.data.word": {"paths": [""]}}, "namespace": "my.data"}`)},
+			"word.json":      {Data: []byte(`"hej"`)},
+		}),
+	} {
+		f, err := New(opt)
+		if err != nil {
+			t.Fatalf("New(%s) = %v", name, err)
+		}
+		if got := fake(t, f, "my.data.word"); got != "hej" {
+			t.Errorf("%s: my.data.word = %q, want hej", name, got)
+		}
 	}
 }
 
@@ -427,6 +481,9 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"reads": "b"}`:        {"reads must be a list, not a string"},
 		`{"reads": ["", 3]}`:    {"reads item 1 is empty", "reads item 2 must be a string, not a number"},
 		`{"reads": ["a", "a"]}`: {`reads item 2 repeats "a"`},
+		`{"namespace": 5}`:      {"namespace must be a string, not a number"},
+		`{"namespace": "a..b"}`: {`namespace "a..b"`},
+		`{"index": {"b.x": {"paths": [""]}}, "namespace": "a"}`: {`index entry "b.x" lies outside the namespace "a"`},
 	} {
 		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {

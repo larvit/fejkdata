@@ -1,18 +1,18 @@
-package sv_SE_test
+package enus_test
 
 import (
 	"io/fs"
 	"testing"
 
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/data/enus"
 )
 
 func TestFSLoadsByItsManifest(t *testing.T) {
-	if _, err := fs.Stat(sv_SE.FS, ".fejkdata.json"); err != nil {
+	if _, err := fs.Stat(enus.FS, ".fejkdata.json"); err != nil {
 		t.Fatalf("FS holds no manifest: %v", err)
 	}
-	f, err := fejkdata.New(fejkdata.WithDataFS(sv_SE.FS))
+	f, err := fejkdata.New(fejkdata.WithDataFS(enus.FS))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(FS)) = %v", err)
 	}
