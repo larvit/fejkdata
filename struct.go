@@ -31,7 +31,7 @@ func (f *Generator) FakeStruct(v any) error {
 	defer f.mu.Unlock()
 	shape, err := f.structShapeOf(p.Elem().Type())
 	if err != nil {
-		return fmt.Errorf("fejkdata: %w", err)
+		return fmt.Errorf("fejkdata: %w", withDefaultModules(err, f.defaultModules))
 	}
 	shape.fill(f.drawState, p.Elem())
 	return nil

@@ -31,6 +31,8 @@ type Generator struct {
 	drawState *drawstate.State
 	root      folder // the categories as the node a path walks from, owned here so a walk allocates none
 	structs   map[reflect.Type]structResult
+	// defaultModules is every module the loaded sources' manifests read by default.
+	defaultModules []string
 }
 
 type config struct {
@@ -107,15 +109,15 @@ func New(opts ...Option) (*Generator, error) {
 	if c.err != nil {
 		return nil, c.err
 	}
-	root, err := loadSources(c.sources)
+	root, modules, err := loadSources(c.sources)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
+		return nil, fmt.Errorf("fejkdata: %w", withDefaultModules(loadError{err}, modules))
 	}
 	seed, err := c.drawSeed()
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{drawState: drawstate.New(seed), root: root}, nil
+	return &Generator{drawState: drawstate.New(seed), root: root, defaultModules: modules}, nil
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,

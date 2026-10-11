@@ -37,7 +37,7 @@ func (f *Generator) NewTemplate(input string) (*Template, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if err := loadInline(&f.root, n, "template", false); err != nil {
-		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", err))
+		return nil, f.noDataNote(fmt.Errorf("fejkdata: %w", withDefaultModules(err, f.defaultModules)))
 	}
 	return &Template{g: f, n: n}, nil
 }

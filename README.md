@@ -195,8 +195,9 @@ A manifest's `reads` lists, by any name its author chooses, every module the sou
 references read unless another source provides the same paths, directly or through
 another module; a manifest may carry it without an index. Nothing loads these modules:
 pass them yourself. A shipped module names a Go package: `sv_SE`'s manifest reads
-`github.com/larvit/fejkdata/data/geo/SE`. A reference to a path nothing provides fails,
-naming those modules, or saying the manifest names none.
+`github.com/larvit/fejkdata/data/geo/SE`. Data whose reference names a path nothing
+provides fails to load, naming every module the loaded manifests read, or saying they
+name none.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,

@@ -131,8 +131,8 @@ replacement, and each removed path, column or flag.
   and the CLI carries them all. `New` loads the modules `WithDataFS(modules...)` names and
   the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
   is given. A manifest's `reads` lists the modules its source reads by default, and a
-  reference to a path nothing provides fails, naming those modules or saying there are
-  none.
+  reference to a path nothing provides fails to load, naming every module the loaded
+  manifests read, or saying there are none.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
   category on the first call reaching it, as each shipped module does. Data failing to load,
   in `New` or on that first call, gives an error matching `ErrLoad`, and the CLI exits 1.
