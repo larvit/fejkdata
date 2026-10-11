@@ -343,7 +343,7 @@ f, err := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed
 if err != nil {
 	log.Fatal(err)
 }
-v, err := f.Fake("sv_SE.address") // "Illergatan 43\n442 42 Kungälv"
+v, err := f.Fake("sv_SE.address") // "Trekungagatan 43\n442 42 Kungälv"
 paths := f.List()                  // the paths Fake renders, sorted; direct descents only
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
