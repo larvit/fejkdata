@@ -48,9 +48,14 @@ type Category struct {
 // ReadRows reads a rows file beside the category.
 func (c Category) ReadRows(name string) (string, error) { return c.rows.read(name) }
 
+// labelled is the file p as errors name it: under the source's label, as the labelled tree
+// spells it, below any mount.
 func (s Source) labelled(p string) string {
 	if s.label == "" {
 		return p
+	}
+	if m, isMounted := s.fsys.(mounted); isMounted {
+		p, _ = m.inner(p)
 	}
 	return path.Join(s.label, p)
 }
