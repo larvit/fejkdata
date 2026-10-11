@@ -563,12 +563,23 @@ func TestRunSelectsATableRow(t *testing.T) {
 	}
 }
 
-func TestUsageReferencesResolve(t *testing.T) {
-	for _, token := range regexp.MustCompile(`\{/[^}]+\}`).FindAllString(usage, -1) {
-		code, out, errb := runOut(token, "--seed", "1")
-		if code != 0 || strings.TrimSpace(out) == "" {
-			t.Errorf("usage advertises %s: run = %d, %q, stderr %q", token, code, out, errb)
+func TestUsageExamplesRenderWithNoData(t *testing.T) {
+	examples := regexp.MustCompile(`(?m)^  echo '([^']*)' \| COMMAND$`).FindAllStringSubmatch(usage+"\n  "+pipeHint("COMMAND")+"\n", -1)
+	if len(examples) < 3 {
+		t.Fatalf("usage and pipe hint hold %d echo examples, want the help's two and the hint's", len(examples))
+	}
+	for _, e := range examples {
+		if code, out, errb := runOut(e[1], "--no-shipped-data"); code != 0 || strings.TrimSpace(out) == "" {
+			t.Errorf("echo %q with no data: run = %d, %q, stderr %q", e[1], code, out, errb)
 		}
+	}
+	for _, token := range regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1) {
+		if token != "{/path}" && token != "{/table[KEY]}" {
+			t.Errorf("usage names %s, a path a custom CLI may not carry", token)
+		}
+	}
+	if !strings.Contains(usage, "\nExit codes: 0 success, 1 runtime error, 2 misuse.\n") {
+		t.Errorf("usage does not list the exit codes")
 	}
 }
 
