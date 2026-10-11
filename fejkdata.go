@@ -31,15 +31,15 @@ type Generator struct {
 	drawState *drawstate.State
 	root      folder // the categories as the node a path walks from, owned here so a walk allocates none
 	structs   map[reflect.Type]structResult
-	// defaultModules is every module the loaded sources' manifests read by default.
-	defaultModules []string
+	// manifestReads is every namespace the loaded sources' manifests read.
+	manifestReads []string
 }
 
 type config struct {
-	seed    uint64
-	seeded  bool
-	sources []datafiles.Source
-	err     error
+	seed       uint64
+	seeded     bool
+	sources    []datafiles.Source
+	nilModules error
 	// given is whether an option named the data to load, though it may name none.
 	given bool
 }
@@ -69,7 +69,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	return func(c *config) {
 		for i, fsys := range modules {
 			if fsys == nil {
-				c.err = errors.Join(c.err, fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1))
+				c.nilModules = errors.Join(c.nilModules, fmt.Errorf("fejkdata: WithDataFS module %d is nil", i+1))
 				continue
 			}
 			c.sources = append(c.sources, datafiles.FS(fsys))
@@ -106,18 +106,18 @@ func New(opts ...Option) (*Generator, error) {
 	if !c.given {
 		return nil, errNoData
 	}
-	if c.err != nil {
-		return nil, c.err
+	if c.nilModules != nil {
+		return nil, c.nilModules
 	}
-	root, modules, err := loadSources(c.sources)
+	root, reads, err := loadSources(c.sources)
 	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", withDefaultModules(loadError{err}, modules))
+		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
 	}
 	seed, err := c.drawSeed()
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", err)
 	}
-	return &Generator{drawState: drawstate.New(seed), root: root, defaultModules: modules}, nil
+	return &Generator{drawState: drawstate.New(seed), root: root, manifestReads: reads}, nil
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,

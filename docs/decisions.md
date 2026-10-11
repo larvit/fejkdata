@@ -140,7 +140,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185 and 186. The CLI binary may grow to hundreds of MB.
 
-- One Go package per locale, one per country's `geo/` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
+- One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
 - A data package's `FS` is an `fs.FS` passed to `WithDataFS`, as anyone's data is, and `New` takes several. It is an exported `var FS embed.FS`, the shape `//go:embed` gives; a function returning it would only stop a program reassigning the FS variable of a package it imports. A module carrying functions loads through an option of its own, so a data module that starts carrying functions breaks its users. Such a function reaches the randomness through an interface the root declares; `internal/drawstate`'s type stays internal.
 - A module names, in a manifest, every module it reads by default, directly or through another, so the first error names the whole set to import. A manifest is optional: a `--data-path` folder without one is a module. Nothing loads a default on its own.
@@ -160,7 +160,9 @@ custom-CLI builder. Serves goals 1 and 3.3. `sv_SE` ships as `data/svse`, `en_US
 Go linters flag a capital or an underscore in a package name, and `SE.FS` read as a type.
 Each package holds its files at its root, and its manifest's `namespace` puts them under
 the namespace, so no path repeats it. The bench also chose `reads` for what a module reads
-by default and the wording of the errors naming it. Valid until a locale's lowered name
+by default and the wording of the errors naming it. A `reads` entry is a namespace, so the
+error names only what nothing loaded provides, and with every module loaded a typo names
+none. Valid until a locale's lowered name
 clashes with another's.
 
 ## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
@@ -592,7 +594,7 @@ when a source carries it.
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
 Serves goal 6.2. `svse.FS` loads alone, and `sv_SE.address` then fails at first reach,
-naming `github.com/larvit/fejkdata/data/geose`, which `svse`'s manifest reads.
+naming `geo.SE`, which `svse`'s manifest reads and nothing loaded provides.
 `New` does not check that each module a manifest reads was given. A check by module name
 would refuse a stand-in providing the same paths (goal 9.2). A check by path needs every
 reference, and only loading each indexed category finds them, which goal 13 rules out.

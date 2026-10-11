@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -30,10 +31,15 @@ func Dir(path string) Source {
 // FS is the tree in fsys.
 func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
-// Mounted is s with its root under the dot path namespace, "" for the namespace's root.
+// Mounted is s with its root under the dot path namespace, "" for the namespace's root. A
+// source with no label of its own names its files in errors by the namespace's folders.
 func (s Source) Mounted(namespace string) Source {
-	if namespace != "" {
-		s.mount = strings.Split(namespace, ".")
+	if namespace == "" {
+		return s
+	}
+	s.mount = strings.Split(namespace, ".")
+	if s.label == "" {
+		s.label = path.Join(s.mount...)
 	}
 	return s
 }
@@ -139,6 +145,9 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 // Load hands compile the category file name.json in the folder dir of the namespace, which
 // lies under the source's mount.
 func (s Source) Load(dir []string, name string, compile func(Category) error) error {
+	if len(dir) < len(s.mount) || !slices.Equal(dir[:len(s.mount)], s.mount) {
+		return fmt.Errorf("%s.%s lies outside the namespace %s", strings.Join(dir, "."), name, strings.Join(s.mount, "."))
+	}
 	full := s.dirPath(dir[len(s.mount):])
 	entries, err := fs.ReadDir(s.fsys, full)
 	if err != nil {

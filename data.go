@@ -9,12 +9,12 @@ import (
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
 // carries an index leaves its categories unloaded; every other source loads here, with
-// the unloaded categories it needs. It also returns, sorted, every module the sources'
-// manifests read by default.
+// the unloaded categories it needs. It also returns, sorted, every namespace the sources'
+// manifests read.
 // docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
 func loadSources(sources []datafiles.Source) (folder, []string, error) {
 	root := folder{children: map[string]node{}}
-	var modules []string
+	var reads []string
 	for _, src := range sources {
 		m, err := src.Manifest()
 		if err != nil {
@@ -23,14 +23,14 @@ func loadSources(sources []datafiles.Source) (folder, []string, error) {
 		if err := addSource(&root, src, m); err != nil {
 			return folder{}, nil, err
 		}
-		for _, module := range m.Reads {
-			if !slices.Contains(modules, module) {
-				modules = append(modules, module)
+		for _, namespace := range m.Reads {
+			if !slices.Contains(reads, namespace) {
+				reads = append(reads, namespace)
 			}
 		}
 	}
-	slices.Sort(modules)
-	return root, modules, loadReached(&root, categorySites(&root), nil)
+	slices.Sort(reads)
+	return root, reads, loadReached(&root, reads, categorySites(&root), nil)
 }
 
 func addSource(root *folder, src datafiles.Source, m datafiles.Manifest) error {

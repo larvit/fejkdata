@@ -121,17 +121,25 @@ type noEntry struct{ seg string }
 
 func (e noEntry) Error() string { return fmt.Sprintf("no entry %q", e.seg) }
 
-// withDefaultModules adds to err, where data fails to load because a segment names nothing, the
-// modules the loaded sources' manifests read by default, or that they name none.
-func withDefaultModules(err error, modules []string) error {
+// withMissingModules adds to err, where a path names nothing, each namespace of reads that
+// nothing in root provides, as the modules a loaded manifest reads and none loaded; or else
+// that no loaded manifest names a module to add, the mistake being the path's own.
+func withMissingModules(err error, root *folder, reads []string) error {
 	var ne noEntry
-	if !errors.Is(err, ErrLoad) || !errors.As(err, &ne) {
+	if !errors.As(err, &ne) {
 		return err
 	}
-	if len(modules) == 0 {
+	var missing []string
+	for _, namespace := range reads {
+		segs := strings.Split(namespace, ".")
+		if _, i := folderAt(root, segs); i < len(segs) {
+			missing = append(missing, namespace)
+		}
+	}
+	if len(missing) == 0 {
 		return fmt.Errorf("%w, and no loaded manifest names a module to add", err)
 	}
-	return fmt.Errorf("%w; is a module missing? The loaded modules read %s", err, strings.Join(modules, ", "))
+	return fmt.Errorf("%w; is a module missing? The loaded modules read %s, which nothing loaded provides", err, strings.Join(missing, ", "))
 }
 
 // noDataNote adds to err, where a segment names nothing and f holds no data at all, that no
