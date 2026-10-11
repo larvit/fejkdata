@@ -934,7 +934,7 @@ template can be written with no escape and no options, as `echo 'name: {/sv_SE.p
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
 
-## The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, and the Nordic countries
+## The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
 
 2026-10-11, Lilleman auf Larv. Serves goal 2.1. [The Ethnologue
 200](https://www.ethnologue.com/insights/ethnologue200/) for 2026 ranks languages by first-
@@ -942,7 +942,18 @@ and second-language speakers together: English, Mandarin Chinese, Hindi, Spanish
 Arabic, French, Bengali, Portuguese, Indonesian and Urdu. Each ships in the country with the
 most speakers of it: `en_US`, `zh_CN`, `hi_IN`, `es_MX`, `ar_EG`, `fr_FR`, `bn_BD`, `pt_BR`,
 `id_ID` and `ur_PK`. The Nordic countries are `sv_SE`, `nb_NO`, `da_DK`, `fi_FI` and
-`is_IS`. Each locale carries goal 2.2's categories, and its `address` reads its country's
-`geo/` tree by reference. Egypt and Pakistan are not yet confirmed: `todo.md` item 209 and
-`todo.md` item 214 check each against Ethnologue's country pages before it ships, and record
-the result here. Valid until Ethnologue's ranking changes its ten.
+`is_IS`. The maintainer added `de_DE` on 2026-10-11, and moved every locale outside the
+Nordic countries, France and Germany to 0.2.0. Each locale carries goal 2.2's categories,
+and its `address` reads its country's `geo/` tree by reference. Egypt and Pakistan are not
+yet confirmed: `todo.md` item 209 and `todo.md` item 214 check each against Ethnologue's
+country pages before it ships, and record the result here. Valid until Ethnologue's ranking
+changes its ten.
+
+## A country with no open national address register ships its places and postal codes without streets
+
+2026-10-11, Lilleman auf Larv. Serves goal 2. Where no register publishes a country's
+streets under an open licence, the only source is OpenStreetMap, and its ODbL binds a
+derived database to share-alike and attribution, which every program linking that country's
+geo package would carry. Its `address` prints no street, and the README's Data section says
+why beside that country. It holds today for China, India, Egypt, Bangladesh, Indonesia and
+Pakistan. Valid until the maintainer accepts ODbL data, or the country opens a register.

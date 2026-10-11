@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 217`
+`Next ID = 218`
 
 | Goal | W |
 |---|---|
@@ -71,24 +71,16 @@
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
 | 210 | 0.1.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2.1 | 26.2 |
 | 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
-| 215 | 0.1.0 | question | **Choose the street source for a country with no open national address register: OpenStreetMap under ODbL, or ship its places without streets.** | 1 | 1 | 6 | 8 | 2.1, 14 | 25.9 |
 | 184 | 0.1.0 | decision | **Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.** | 4 | 5 | 7 | 9 | 9.6, 2 | 25.8 |
 | 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
-| 206 | 0.1.0 |  | **Add `zh_CN` with its `geo/CN` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
-| 208 | 0.1.0 |  | **Add `es_MX` with its `geo/MX` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
-| 212 | 0.1.0 |  | **Add `pt_BR` with its `geo/BR` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
 | 202 | 0.1.0 |  | **Add `nb_NO` with its `geo/NO` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
 | 203 | 0.1.0 |  | **Add `da_DK` with its `geo/DK` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
 | 204 | 0.1.0 |  | **Add `fi_FI` with its `geo/FI` tree.** | 3 | 7 | 7 | 8 | 2.1 | 24.4 |
-| 207 | 0.1.0 |  | **Add `hi_IN` with its `geo/IN` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
-| 209 | 0.1.0 | decision | **Add `ar_EG` with its `geo/EG` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
-| 211 | 0.1.0 |  | **Add `bn_BD` with its `geo/BD` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
-| 213 | 0.1.0 |  | **Add `id_ID` with its `geo/ID` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
-| 214 | 0.1.0 | decision | **Add `ur_PK` with its `geo/PK` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
 | 205 | 0.1.0 |  | **Add `is_IS` with its `geo/IS` tree.** | 3 | 6 | 6 | 8 | 2.1 | 22.7 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
+| 217 | 0.1.0 |  | **Add `de_DE` with its `geo/DE` tree.** | 3 | 7 | 7 | 6 | 2 | 20.6 |
 | 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 198 | 0.1.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
@@ -104,7 +96,15 @@
 | 216 | 0.1.0 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 2 | 6 | 3.2 | 12.3 |
 | 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 1 | 3 | 6 | 10 | 11.4 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
+| 206 | 0.2.0 |  | **Add `zh_CN` with its `geo/CN` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
+| 208 | 0.2.0 |  | **Add `es_MX` with its `geo/MX` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
+| 212 | 0.2.0 |  | **Add `pt_BR` with its `geo/BR` tree.** | 4 | 8 | 8 | 8 | 2.1 | 25.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
+| 207 | 0.2.0 |  | **Add `hi_IN` with its `geo/IN` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 209 | 0.2.0 | decision | **Add `ar_EG` with its `geo/EG` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 211 | 0.2.0 |  | **Add `bn_BD` with its `geo/BD` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 213 | 0.2.0 |  | **Add `id_ID` with its `geo/ID` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
+| 214 | 0.2.0 | decision | **Add `ur_PK` with its `geo/PK` tree.** | 4 | 8 | 7 | 8 | 2.1 | 23.2 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.2, 15 | 22.8 |
 | 155 | 0.2.0 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 2 | 2 | 6 | 7 | 2, 15 | 22.8 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
@@ -229,7 +229,7 @@ Shape: T = table, t = template, c = choice.
 
 ### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 214, a locale each, grow them inside 0.1.0.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217, a locale each, grow them inside 0.1.0.
 
 ### 210. Add `fr_FR` with its `geo/FR` tree.
 
@@ -258,10 +258,6 @@ Shape: T = table, t = template, c = choice.
 | `lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword`, `quote` | T/c | lorem ipsum, LLM-written | — |
 | `direction`, `continent`, `ulid` | c/t | — | — |
 
-### 215. Choose the street source for a country with no open national address register: OpenStreetMap under ODbL, or ship its places without streets.
-
-Items 206, 207, 209, 211, 213 and 214 need it. ODbL requires share-alike and attribution for any database derived from OpenStreetMap. `DATA-LICENSES.md` would then carry both for every program that links a geo package built from it.
-
 ### 184. Make the CLI the library call `cli.Main(modules ...fs.FS) int`, with `fejkdata`'s own `main` one line over `data.Modules()`.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0".
@@ -272,18 +268,6 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 ### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
 
 GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
-
-### 206. Add `zh_CN` with its `geo/CN` tree.
-
-Written in simplified characters. `rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap.
-
-### 208. Add `es_MX` with its `geo/MX` tree.
-
-Mexico holds the most Spanish speakers. SEPOMEX publishes every código postal with its asentamiento, and INEGI's Marco Geoestadístico names the streets.
-
-### 212. Add `pt_BR` with its `geo/BR` tree.
-
-Brazil holds the most Portuguese speakers. IBGE's CNEFE lists every address with its CEP.
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -320,26 +304,6 @@ Danmarks Adresseregister through Datafordeler (free) holds every street with its
 
 Posti's free postal code file names each postinumeroalue, and Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
 
-### 207. Add `hi_IN` with its `geo/IN` tree.
-
-Hindi is written in Devanagari. India's PIN code directory is open data on data.gov.in.
-
-### 209. Add `ar_EG` with its `geo/EG` tree.
-
-Standard Arabic has no native speakers. Confirm from Ethnologue's country pages that Egypt holds the most second-language speakers, and record the answer in the decision.
-
-### 211. Add `bn_BD` with its `geo/BD` tree.
-
-Bangladesh holds the most Bengali speakers.
-
-### 213. Add `id_ID` with its `geo/ID` tree.
-
-Indonesian is spoken almost only in Indonesia.
-
-### 214. Add `ur_PK` with its `geo/PK` tree.
-
-Urdu is Pakistan's national language, yet India has more native speakers: 50.8M by its 2011 census against Pakistan's 22.3M by its 2023 one. Confirm from Ethnologue's country pages that Pakistan holds the most speakers in all, else the locale is ur_IN, and record the answer in the decision.
-
 ### 205. Add `is_IS` with its `geo/IS` tree.
 
 Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
@@ -347,6 +311,10 @@ Staðfangaskrá, Iceland's address register, holds every street with its póstn�
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
+
+### 217. Add `de_DE` with its `geo/DE` tree.
+
+The maintainer added Germany on 2026-10-11, as the decision "The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany" records. GeoNames publishes Germany's postal codes. Find an open national address register for its streets first; without one, it ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
 
 ### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
 
@@ -408,9 +376,41 @@ GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exist
 
 GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. A checkout build prints `devel` for `--version`; the binaries carry the stamped tag. v0.1.0 ships first, so it can be tested before it is packaged.
 
+### 206. Add `zh_CN` with its `geo/CN` tree.
+
+Written in simplified characters. `rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
+
+### 208. Add `es_MX` with its `geo/MX` tree.
+
+Mexico holds the most Spanish speakers. SEPOMEX publishes every código postal with its asentamiento, and INEGI's Marco Geoestadístico names the streets.
+
+### 212. Add `pt_BR` with its `geo/BR` tree.
+
+Brazil holds the most Portuguese speakers. IBGE's CNEFE lists every address with its CEP.
+
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
 `iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 4 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
+
+### 207. Add `hi_IN` with its `geo/IN` tree.
+
+Hindi is written in Devanagari. India's PIN code directory is open data on data.gov.in. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
+
+### 209. Add `ar_EG` with its `geo/EG` tree.
+
+Standard Arabic has no native speakers. Confirm from Ethnologue's country pages that Egypt holds the most second-language speakers, and record the answer in the decision. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
+
+### 211. Add `bn_BD` with its `geo/BD` tree.
+
+Bangladesh holds the most Bengali speakers. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
+
+### 213. Add `id_ID` with its `geo/ID` tree.
+
+Indonesian is spoken almost only in Indonesia. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
+
+### 214. Add `ur_PK` with its `geo/PK` tree.
+
+Urdu is Pakistan's national language, yet India has more native speakers: 50.8M by its 2011 census against Pakistan's 22.3M by its 2023 one. Confirm from Ethnologue's country pages that Pakistan holds the most speakers in all, else the locale is ur_IN, and record the answer in the decision. It ships without streets, as the decision "A country with no open national address register ships its places and postal codes without streets" says.
 
 ### 154. Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.
 
