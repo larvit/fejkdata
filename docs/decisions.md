@@ -96,9 +96,10 @@ template per run.
 
 ## The CLI reads only the library's public API
 
-2026-10-07, Lilleman auf Larv. Serves goal 9.6: a CLI carrying your own modules is a few
-lines of Go and works just like `fejkdata`, so `fejkdata`'s own CLI is such a CLI and
-its non-test code imports nothing under `internal/`. Until `todo.md` item 129 moves it into
+2026-10-07, Lilleman auf Larv; revised 2026-10-11 to name package `cli`. Serves goal 9.6: a
+CLI carrying your own modules is a few lines of Go over `cli.Main` and works just like
+`fejkdata`, so `fejkdata`'s own CLI is such a CLI, and `cli`'s non-test code imports nothing
+under `internal/`. Until `todo.md` item 129 moves it into
 the library, the CLI copies how the grammar tells a lone reference, in `isPath`,
 `hasEmptySegment` and `withoutSelectors`, and a test pins the copy to the grammar.
 
@@ -138,7 +139,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.

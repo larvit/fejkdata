@@ -337,10 +337,10 @@ go get github.com/larvit/fejkdata   # Go 1.22+
 ```go
 import (
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
-f, err := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42))
+f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(42))
 if err != nil {
 	log.Fatal(err)
 }
@@ -362,20 +362,9 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
-`data.Modules()` is every shipped module, and links all of them into your program. To link
-only the ones you read, pass a package's `Modules()`: its `FS` and every module it reads, a
-locale's country's places among them, which its package imports:
-
-```go
-import (
-	"github.com/larvit/fejkdata"
-	svse "github.com/larvit/fejkdata/data/sv_SE"
-)
-
-f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...))
-```
-
-Two locales are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
+A shipped package's `Modules()` is its `FS` and every module it reads, a locale's country's
+places among them, which its package imports, so your program links only what you read.
+`data.Modules()` is every shipped module, and links all of them. Two locales are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
 `postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
@@ -1034,6 +1023,32 @@ Where the project is heading; the sections before Audience document what ships t
 16. **Values look real by default. You can also ask for values that can never reach
     anything real,** such as a domain nobody can register.
 
+### Your own CLI
+
+Package `cli` is the `fejkdata` command, and its `Main` takes the modules the command
+loads, so a CLI carrying your own data is a `main` package of your own:
+
+```go
+package main
+
+import (
+	"embed"
+	"os"
+
+	"github.com/larvit/fejkdata/cli"
+	"github.com/larvit/fejkdata/data"
+)
+
+//go:embed *.json
+var mydata embed.FS
+
+func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
+```
+
+It takes `fejkdata`'s flags and exit codes, `--no-shipped-data` leaves out the modules
+passed to `Main`, and `--version` prints the fejkdata version it is built with.
+`fejkdata`'s own `main` is `os.Exit(cli.Main(data.Modules()...))`.
+
 ## Layout
 
 ```
@@ -1061,7 +1076,8 @@ calc.go         the {calc()} operand checks: never a number, and a constant zero
 datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype, and a format that only reads a column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
-cmd/fejkdata/   the fejkdata CLI
+cli/            the fejkdata command, as the library call Main
+cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
