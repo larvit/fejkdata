@@ -139,7 +139,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 186 and 196. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -149,7 +149,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 - In the CLI, a flag of its own says a `--data-path` replaces what it clashes with, so flags still go anywhere on the line. Data authors and hand fixture authors bench it.
 - The README asks for functions with no side effects of their own.
 - The CLI is a library call. One exported list names every shipped package, and `fejkdata`'s own `main` passes it to that call. The list lives in a package of its own, so a library importing the core links no data it did not import. A custom CLI is the same few lines with other modules added. No API and no flag exists only for custom CLIs; `Main` tells one apart only by its build info and file name, so its help and errors carry its name and its `--version` its own module's version beside fejkdata's. The maintainer chose so on 2026-10-11.
-- Before the module API ships, a panel of the README's audience personas tries pulling in data with it.
+- The help's examples and its hint for an empty stdin read no data, so each renders in any custom CLI; `--list` points to the paths. "Shipped data", in `--no-shipped-data` and in `-d`'s help, names the modules passed to `Main`, a custom CLI's own included. A custom-CLI builder ruled so on 2026-10-11, in the audience bench that preceded the module API's release.
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 

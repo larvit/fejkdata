@@ -352,6 +352,8 @@ v = t.Fake()                                              // render many times, 
 r, err := f.FakeRecord("users")           // one record: each field a column
 s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
 r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
+rt, err := f.NewRecordTemplate(`{"format":"","id":"{seq(users)}"}`) // compile a record once
+r = rt.Fake()                             // render a row; loop this for bulk output
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
 ```
@@ -363,7 +365,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
 A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
-locale's country's places. Your program links only the packages it imports.
+locale's country's places; `misc.*` comes from `misc.Modules()`, in
+`github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
 `data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
 links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
 are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
@@ -389,7 +392,7 @@ A path, wherever a call takes one, may start with one `/`, as a reference does.
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
-CLI's `--format` writes. `FakeRecord` and `FakeRecordTemplate` take a record; a
+CLI's `--format` writes, each without a trailing newline. `FakeRecord` and `FakeRecordTemplate` take a record; a
 path or template that is not one — a bare string, a choice of more than one item, or a
 folder — errors.
 
@@ -400,6 +403,12 @@ type User struct {
 	Age  uint8   `fake:"{int(18,99)}"`
 	Nick *string `fake:"[null, \"{/sv_SE.username}\"]"`
 	Home Address // filled from Address's own tags
+}
+
+type Address struct {
+	Street     string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
+	PostalCode string `fake:"{a.postal-code}"` // the same address's code
+	Locality   string `fake:"{a.locality}"`
 }
 ```
 
@@ -447,7 +456,10 @@ var mydata embed.FS
 func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 ```
 
-Add `*.tsv` to the embed where your data holds a table. The CLI takes `fejkdata`'s flags
+The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
+`{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
+its data when it runs, so a test calling `fejkdata.New(fejkdata.WithDataFS(...))` over the
+same modules catches broken data at `go test`. The CLI takes `fejkdata`'s flags
 and exit codes, and names itself by the file it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
 `--version` prints your module's version beside the fejkdata version it is built with.
 
@@ -768,7 +780,8 @@ Rejected at `New`: a bound that is no calendar date, or after the other; an unqu
 or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
 date field, naming `date`, since `time` draws no date. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
-the SQL example above.
+the SQL example above; give each table its own counter, `{seq(orders)}`, where one
+generator fills several.
 
 ### Computation
 
