@@ -104,7 +104,7 @@ func (s Source) check() error {
 	return nil
 }
 
-// noDirectory is a data path naming nothing, which errors.Is still matches as fs.ErrNotExist.
+// noDirectory is a data path naming nothing.
 type noDirectory string
 
 func (d noDirectory) Error() string { return "data path " + string(d) + ": no such directory" }

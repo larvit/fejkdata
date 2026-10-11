@@ -36,10 +36,10 @@ born {date(1990-01-01,2010-12-31,'2006-01-02')}
 EOF
 
 A template is a format string, or a JSON object, array, string or null. Its {…} tokens
-reach the data by reference from the root, {/path}, for any path --list prints, whether
-the data is shipped or layered with --data-path. A reference names a category or a
-dotted path into one, a table's row by key or name ({/table[KEY]}), and .. steps up
-from a row to the row it links to.
+reach the data by reference from the root: {/path}, for any path --list prints, shipped
+or layered with --data-path. A reference names a category or a dotted path into one, a
+table's row by key or name ({/table[KEY]}), and .. steps up from a row to the row it
+links to.
 
 Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and

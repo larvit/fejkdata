@@ -25,7 +25,7 @@ func Decode(b []byte) (Value, error) {
 	return Value{v}, err
 }
 
-// located prefixes a syntax error with the line and column of the byte it stopped at.
+// located prefixes a syntax error with the line and column where decoding stopped.
 func located(b []byte, err error) error {
 	var syntax *json.SyntaxError
 	if !errors.As(err, &syntax) {

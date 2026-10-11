@@ -209,11 +209,10 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// ErrNoColumns is a record fence a path can answer, so its entry point names the record to
-// write instead.
+// ErrNoColumns matches the error for a record with no fields; FakeRecord's names the
+// one-column record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// errChoiceRecord is the other fence a path can answer.
 var errChoiceRecord = errors.New("names a choice, not a template; a record is a template whose fields are its columns")
 
 // recordOf is the record template n is; settleRecords fixed its columns at load.

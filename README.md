@@ -458,9 +458,9 @@ func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 
 The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
 `{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
-its data when it runs, so a test calling `fejkdata.New(fejkdata.WithDataFS(...))` over the
-same modules, rendering each path once where a module carries an index, catches broken
-data at `go test`. The CLI takes `fejkdata`'s flags
+its data only when it runs. To catch broken data at `go test`, call
+`fejkdata.New(fejkdata.WithDataFS(...))` over the same modules, and render each path once:
+a module with an index checks a category only when a call first reaches it. The CLI takes `fejkdata`'s flags
 and exit codes, and names itself by the file it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
 `--version` prints your module's version beside the fejkdata version it is built with.
 
@@ -781,7 +781,7 @@ Rejected at `New`: a bound that is no calendar date, or after the other; an unqu
 or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
 date field, naming `date`, since `time` draws no date. `{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
-the SQL example above; give each table its own counter, `{seq(orders)}`, where one
+the SQL example above; give each record its own counter, `{seq(orders)}`, where one
 generator fills several.
 
 ### Computation
