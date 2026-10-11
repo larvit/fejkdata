@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/geose"
+	geose "github.com/larvit/fejkdata/data/geo/SE"
 )
 
 func TestFSLoadsByItsManifest(t *testing.T) {

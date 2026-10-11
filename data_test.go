@@ -379,7 +379,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 // one locality holds, the region empty for SE, whose address carries none.
 func geoPlaces(t *testing.T, country string) map[string]bool {
 	rows := func(table string) [][]string {
-		b, err := os.ReadFile("data/geo" + strings.ToLower(country) + "/" + table + ".tsv")
+		b, err := os.ReadFile("data/geo/" + country + "/" + table + ".tsv")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -468,7 +468,7 @@ func TestShippedTableCellsAreTrimmed(t *testing.T) {
 }
 
 // TestShippedNamespacedTree loads every shipped module and reaches each locale through its
-// namespace: data/svse/person.json, mounted under sv_SE, is sv_SE.person.
+// namespace: data/sv_SE/person.json, mounted under sv_SE, is sv_SE.person.
 func TestShippedNamespacedTree(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for _, path := range []string{"sv_SE.person", "en_US.person", "sv_SE.address.locality"} {

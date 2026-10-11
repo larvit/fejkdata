@@ -17,11 +17,11 @@ import (
 	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
-	"github.com/larvit/fejkdata/data/enus"
-	"github.com/larvit/fejkdata/data/geose"
-	"github.com/larvit/fejkdata/data/geous"
+	enus "github.com/larvit/fejkdata/data/en_US"
+	geose "github.com/larvit/fejkdata/data/geo/SE"
+	geous "github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
-	"github.com/larvit/fejkdata/data/svse"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
 
@@ -65,12 +65,12 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 }
 
 // shippedModules is every module data.Modules lists, each beside its folder under data/: its
-// namespace in lower case without separators.
+// namespace, a dot a slash.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{{fsys: enus.FS, namespace: "en_US"}, {fsys: geose.FS, namespace: "geo.SE"}, {fsys: geous.FS, namespace: "geo.US"}, {fsys: misc.FS, namespace: "misc"}, {fsys: svse.FS, namespace: "sv_SE"}}
 	for i := range out {
-		out[i].dir = strings.ToLower(strings.NewReplacer(".", "", "_", "").Replace(out[i].namespace))
+		out[i].dir = strings.ReplaceAll(out[i].namespace, ".", "/")
 	}
 	var listed []fs.FS
 	for _, m := range out {
@@ -226,6 +226,29 @@ func TestEachShippedModuleRendersBesideTheModulesItReads(t *testing.T) {
 				t.Errorf("%s with what it reads: Fake(%q) = %v", m.dir, p, err)
 			}
 		}
+	}
+}
+
+func TestALocaleAloneFailsAtItsAddressNamingTheMissingGeo(t *testing.T) {
+	f, err := New(WithDataFS(svse.FS))
+	if err != nil {
+		t.Fatalf("New(WithDataFS(svse.FS)) = %v", err)
+	}
+	if _, err := f.Fake("sv_SE.address"); !errors.Is(err, ErrLoad) || !strings.Contains(err.Error(), `reference {/geo.SE.address}: no entry "geo"`) {
+		t.Errorf(`Fake("sv_SE.address") = %v, want a load error naming the missing geo`, err)
+	}
+	if got := fake(t, f, "sv_SE.person"); got == "" {
+		t.Error("sv_SE.person rendered empty, want the locale's other categories to load alone")
+	}
+}
+
+func TestAMountedModuleNamesItsRootFolderByItsNamespace(t *testing.T) {
+	_, err := New(WithDataFS(fstest.MapFS{
+		".fejkdata.json": {Data: []byte(`{"namespace": "my.data"}`)},
+		"t.json":         {Data: []byte(`{"format":"{name}","rows":"t.tsv","key":"name"}`)},
+	}))
+	if err == nil || !strings.Contains(err.Error(), "not beside it in my.data") || strings.Contains(err.Error(), "(.)") {
+		t.Errorf("New = %v, want the root folder named by its namespace alone", err)
 	}
 }
 
