@@ -570,3 +570,20 @@ Read most (opens and searches):
 - `cmd/fejkdata/main.go` 1
 - `compose.yaml` 1
 - `data/modules.go` 1
+
+## Reading cost, chunk d67229c6358e, finished 2026-10-11T21:39:58Z
+
+372546 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 30
+- `todo.md` 10
+- `cli/cli.go` 5
+- `cli/cli_test.go` 3
+- `CHANGELOG.md` 2
+- `data/sv_SE/.fejkdata.json` 2
+- `docs/decisions.md` 2
+- `internal/datafiles/datafiles.go` 2
+- `record.go` 2
+- `compose.yaml` 1
