@@ -185,7 +185,7 @@ The index maps each category's dot path to an entry: `parent`, the table it link
 which needs its own entry in the same folder; and `paths`, every path `List` advertises
 below the category, `""` for the category itself. Each shipped module's manifest, such as
 [`data/svse/.fejkdata.json`](data/svse/.fejkdata.json), carries one, so in a copy you
-edit, delete its `index` and keep its `namespace` and `reads`, or keep the index current.
+edit, delete its `index` and keep its `namespace`, or keep the index current.
 A table whose parent column differs from its entry's `parent` fails at first reach, and a
 table linking under another source's table needs a source without an index. `//go:embed`
 of a directory leaves the manifest out, and the source then loads whole in `New` and at
@@ -193,16 +193,8 @@ the root, with no `namespace`; name the manifest in the pattern too.
 
 A manifest's `namespace` is the dot path its source's root sits under: a folder holding
 `person.json` with `"namespace": "sv_SE"` provides `sv_SE.person`, its subfolders adding
-segments below that. Each shipped module carries one, so `data/svse/person.json` is
-`sv_SE.person`.
-
-A manifest's `reads` lists the namespace of every module the source's references read
-unless another source provides the same paths, directly or through another module.
-Nothing loads these modules: pass them yourself. `svse`'s manifest reads `geo.SE`. Data
-whose reference names a path nothing provides fails to load; where a namespace the loaded
-manifests read is one nothing loaded provides, the error asks whether a module is missing
-and names it, and otherwise it says no loaded manifest names a module to add.
-`namespace` and `reads` need no index.
+segments below that. It needs no index. Each shipped module carries one, so
+`data/svse/person.json` is `sv_SE.person`.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -366,7 +358,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `FS`, or your own `embed.FS`; `WithDataFS()` loads none |
 
 `data.Modules()` is every shipped module, and links all of them into your program. To link
-only the ones you read, pass each package's `FS` with the modules its manifest reads:
+only the ones you read, pass each locale's `FS` with its country's places:
 
 ```go
 import (
@@ -378,7 +370,7 @@ import (
 f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS, geose.FS))
 ```
 
-`enus` reads `geous`; `misc` and the geo packages read none. `New` fails where no `WithDataFS` or
+`enus` goes with `geous`; `misc` and the geo packages stand alone. `New` fails where no `WithDataFS` or
 `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -915,7 +907,7 @@ and regenerate seeded fixtures and expected values when you raise that version.
 | Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
-| Data packages | rename or remove a package; move a category to another package; add a module to a package's `reads` | a package |
+| Data packages | rename or remove a package; move a category to another package; make a package read another it did not | a package |
 
 A patch changes no row of this table: performance, docs, or a fix inside a promised
 behaviour that adds or removes no value and changes no path, format or spelling.

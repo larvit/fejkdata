@@ -23,6 +23,5 @@
 		"en_US.version": {"paths":["","n","pre","suffix"]},
 		"en_US.word": {"paths":[""]}
 	},
-	"namespace": "en_US",
-	"reads": ["geo.US"]
+	"namespace": "en_US"
 }

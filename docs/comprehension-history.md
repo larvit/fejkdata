@@ -392,3 +392,28 @@ Inherited architect, decided by:
 - Shape: `data/geo/SE/fs.go:2` `SE`: a package named SE reads as Sweden beside sv_SE, and "module" means a Go package here
 - Shape: `reference.go:126` `withDefaultModules`: one concept spelled reads, defaultModules and "read by default", the last defined only in the README
 - Locality: `fejkdata.go:114` `New`: four call sites apply loadError, withDefaultModules and noDataNote in a fixed order, offset by the hidden shipped source being gone
+
+## 2026-10-11T10:44:13Z, PR #203 at 36b5062, against bf1becb
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | worse | worse | worse | same | worse |
+| Inherited architect | worse | worse | same | worse | worse |
+
+Mid A, decided by:
+
+- Locality, Shape, Overall: `index.go:110` `loadReached`: a reads parameter runs through four layers only to add a note to an error, and reads already means a template's reads
+- Navigation: `internal/datafiles/datafiles.go:36` `Source.Mounted`: a shipped module's broken file is labelled geo/SE/address.json, a path that no longer exists
+- Locality: `internal/datafiles/datafiles.go:77` `Source.Walk`: Walk adds the mount and Load removes it, two forms of a folder path in one type
+- Locality: `fejkdata.go:68` `WithDataFS`: the shipped data no longer loads silently, a partial offset
+- Shape: `reference.go:127` `withMissingModules`: a typo in manifest-less data still gets a note about modules
+
+Inherited architect, decided by:
+
+- Locality, Overall: `index.go:110` `loadReached`: reads threaded through six signatures for one error note
+- Navigation: `internal/datafiles/datafiles.go:36` `Source.Mounted`: errors name sv_SE/address.json, a path that does not exist, where the base named the real data/sv_SE/address.json
+- Navigation, Self-sufficiency: `data/svse/.fejkdata.json:26` `namespace`: a namespace no longer mirrors its folder, so the path alone no longer finds the file
+- Self-sufficiency: `internal/datafiles/manifest.go:23` `Manifest.Reads`: its comment and withMissingModules' only make sense after the README
+- Locality: `internal/datafiles/datafiles.go:77` `Source.Walk`: the mount is translated in opposite directions by Walk and Load

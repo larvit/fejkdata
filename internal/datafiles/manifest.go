@@ -20,9 +20,6 @@ type Manifest struct {
 	Index map[string]IndexEntry
 	// Namespace is the dot path the source's root sits under, "" for the namespace's root.
 	Namespace string
-	// Reads is the namespace of every module the source reads unless another source
-	// provides the same paths, directly or through another; nothing loads them.
-	Reads []string
 }
 
 // IndexEntry is what an index says of a category: its parent table, "" for none, and the
@@ -78,12 +75,8 @@ func decodeManifest(b []byte) (Manifest, error) {
 			var err error
 			m.Namespace, err = decodeNamespace(top[k])
 			errs = append(errs, err)
-		case "reads":
-			var err error
-			m.Reads, err = decodeReads(top[k])
-			errs = append(errs, err)
 		default:
-			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index, namespace and reads", k))
+			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index and namespace", k))
 		}
 	}
 	for _, p := range sortedKeys(m.Index) {
@@ -106,32 +99,6 @@ func decodeNamespace(v any) (string, error) {
 		return "", fmt.Errorf("namespace %w", err)
 	}
 	return namespace, nil
-}
-
-// decodeReads decodes the namespaces of the modules a source reads.
-func decodeReads(v any) ([]string, error) {
-	items, isList := v.([]any)
-	if !isList {
-		return nil, fmt.Errorf("reads must be a list, not %s", jsonvalue.Kind(v))
-	}
-	out := make([]string, 0, len(items))
-	seen := map[string]bool{}
-	var errs []error
-	for i, item := range items {
-		namespace, isString := item.(string)
-		switch {
-		case !isString:
-			errs = append(errs, fmt.Errorf("reads item %d must be a string, not %s", i+1, jsonvalue.Kind(item)))
-		case checkCategoryPath(namespace) != nil:
-			errs = append(errs, fmt.Errorf("reads item %d: %w", i+1, checkCategoryPath(namespace)))
-		case seen[namespace]:
-			errs = append(errs, fmt.Errorf("reads item %d repeats %q", i+1, namespace))
-		default:
-			seen[namespace] = true
-			out = append(out, namespace)
-		}
-	}
-	return out, errors.Join(errs...)
 }
 
 func decodeIndex(v any) (map[string]IndexEntry, []error) {
