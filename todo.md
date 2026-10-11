@@ -66,7 +66,6 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 200 | 0.1.0 |  | **Ship every Swedish street and a quarter of each US place's streets, at least ten.** | 2 | 2 | 9 | 9 | 2 | 32.6 |
 | 61 | 0.1.0 |  | **Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.** | 4 | 9 | 9 | 10 | 2.1 | 30.8 |
 | 185 | 0.1.0 | decision | **Seat a panel of the README's audience personas to pull data in through the module API and build a custom CLI, and fix what it names.** | 1 | 3 | 7 | 8 | 2.3, 1 | 28.2 |
 | 16 | 0.1.0 |  | **Add locale categories: company, phone, finance, vehicle, words.** | 3 | 8 | 8 | 9 | 2.2, 15 | 28.1 |
@@ -76,7 +75,6 @@
 | 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
 | 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
 | 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
-| 199 | 0.1.0 |  | **Ship every state capital and every US place of 100,000 or more beside the drawn tenth of the US places.** | 2 | 3 | 6 | 7 | 2, 16 | 22.5 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
@@ -176,10 +174,6 @@
 | 190 | 1.1.0 | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 6 | 9 | 7 | 8 | 1, 4 | 21.8 |
 
 ## Details
-
-### 200. Ship every Swedish street and a quarter of each US place's streets, at least ten.
-
-The maintainer chose these shares on 2026-10-11, after a tenth gave Göteborg 163 streets and Stockholm 37. Measured that day against a tenth: every Swedish street is 174k rows and 4.5 MB, with the first `sv_SE.address` in 74 ms; a quarter of the US streets is about 457k rows and 10 MB. The defaults of `--street-share` move per country, and the decision "The default embed holds every Swedish postort…" is revised to match. Re-pin seeded output in its own commit.
 
 ### 61. Add a locale, with its `geo/` tree, for each of the ten most-spoken languages and each Nordic country.
 
@@ -283,10 +277,6 @@ Split it into items for the CLI, struct tags and the library before starting.
 ### 163. Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.
 
 The README's Audience names a bulk fixture author writing millions of rows, and `-n 5000000` is misuse today, so they loop. The decision "The repeat cap bounds renders, not bytes" covers nested repeats in data, not `-n`. The README's Functions section justifies the builtin caps by a fat-fingered `hex(2000000000)`, a guess at a mistake under goal 5.7; the reason that holds is that one render may not allocate gigabytes. The goals audit of the narrowed goal 5.7 found it.
-
-### 199. Ship every state capital and every US place of 100,000 or more beside the drawn tenth of the US places.
-
-The maintainer ruled so on 2026-10-11. The draw by population leaves out about 25 of the 335 places of 100,000 or more, and some state capitals, so a test author pinning a city they know hits `no row of … has key or name`. Shipping them always keeps such selectors working across a refresh of the sources. Source the capitals from a published list and cite it in the decision on the default embed; a capital owning no ZCTA, such as one whose codes lie mostly in a neighbour, is named in the import's log.
 
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
