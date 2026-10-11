@@ -313,14 +313,14 @@ neighbouring one.
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
 | `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, every one; [`geo-se.py`](data-import/geo-se.py)'s `street_name` drops a name that is not a street's | street name, per place the quarter with most address ranges, at least ten | segments; address ranges |
+| `street` | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | segments; address ranges |
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
-`geo.US.region[IL].locality[Springfield]` settles which Springfield. The US places are
-the incorporated places that hold most of some postal code's land: a tenth of them, drawn
-with odds by population, plus every state capital but Honolulu and every place of 100,000
-or more, so a smaller city may be missing: look one up in
+`geo.US.region[IL].locality[Springfield]` settles which Springfield. The US places come
+from the incorporated places that hold most of some postal code's land: a tenth of them,
+drawn with odds by population, every state capital but Honolulu, and every place of
+100,000 or more. A smaller city may be missing, so look one up in
 [`locality.tsv`](data/geo/US/locality.tsv) before selecting it. A region row
 carries its `timezone`, the state's predominant zone, and a locality its `lat` and
 `lon`. What ports across countries is the five table names, the `name` column,

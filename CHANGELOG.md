@@ -89,15 +89,15 @@ replacement, and each removed path, column or flag.
   either, with the `severity` RFC 5424 spells beside it.
 - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
   `locality`, `postal-code` and `street`, weighted by population and address counts
-  and built from SCB, GeoNames, Trafikverket NVDB and the US Census Bureau, and an
+  and built from SCB, GeoNames, Trafikverket NVDB, the US Census Bureau and Wikidata, and an
   `address` record binding one locality and drawing its street and postal code inside
   it. `sv_SE.address` and `en_US.address` bind those records once, so
   `en_US.address.street` no longer carries `name` and `suffix`, and a locale's `address`
   reads its country's `geo` module. Every Swedish postort the import can place and give
   a street ships with all its streets. Of the US incorporated places that hold most of
-  some postal code's land, a tenth drawn by population down to villages of a hundred
-  people ships, plus every state capital but Honolulu and every place of 100,000 or more,
-  so a smaller city may be missing; each carries a quarter of its streets, at
+  some postal code's land, a tenth ships, drawn by population down to villages of a
+  hundred people, and so do every state capital but Honolulu and every place of 100,000
+  or more. A smaller city may be missing. Each place carries a quarter of its streets, at
   least ten.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
   within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.
