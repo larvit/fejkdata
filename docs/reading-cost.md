@@ -487,3 +487,20 @@ Read most (opens and searches):
 - `fejkdata.go` 1
 - `inline.go` 1
 - `internal/datafiles/datafiles.go` 1
+
+## Reading cost, chunk 1c769e839e3a, finished 2026-10-11T14:05:12Z
+
+200600 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 13
+- `todo.md` 8
+- `CHANGELOG.md` 6
+- `cmd/fejkdata/main.go` 6
+- `docs/decisions.md` 6
+- `shipped_test.go` 6
+- `DATA-LICENSES.md` 5
+- `bench_test.go` 5
+- `data_test.go` 5
+- `data.go` 4
