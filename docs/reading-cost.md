@@ -538,3 +538,18 @@ Read most (opens and searches):
 - `.gitignore` 1
 - `AGENTS.md` 1
 - `CHANGELOG.md` 1
+
+## Reading cost, chunk c1a0ce6b3d32, finished 2026-10-11T18:41:31Z
+
+76079 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 10
+- `docs/decisions.md` 6
+- `README.md` 4
+- `AGENTS.md` 2
+- `data-import/geo-se.py` 2
+- `CHANGELOG.md` 1
+- `data-import/geo-us.py` 1
+- `data-import/geo.py` 1
