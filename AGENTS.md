@@ -90,7 +90,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A path is walked once without drawing before it is walked for real
 - A country's postal codes and streets are siblings under its locality
 - A locale package imports its country's geo package, and its `Modules()` returns both
-- The default embed holds every Swedish postort the import can place with all its streets, and of the US places that hold most of a postal code's land every state capital, every place of 100,000 and a population-weighted tenth of the rest, each with a quarter of its streets, at least ten
+- The default embed holds every Swedish postort the import can place with all its streets, and of the US places that hold most of a postal code's land a population-weighted tenth, every state capital and every place of 100,000, each with a quarter of its streets, at least ten
 - A locale's `address` binds its country's record once and prints it whole
 - A postort's kommun comes from its name, its tätort or its codes, never from distance
 - A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places

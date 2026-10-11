@@ -28,18 +28,18 @@ ZCTA_PLACE = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/ta
 TIGER = "https://www2.census.gov/geo/tiger/TIGER2025/{0}/tl_2025_{1}_{2}.zip"
 ESTIMATE = "POPESTIMATE2025"
 CDP = "57"
-# Each state's capital from Wikidata (CC0), with the capital's GNIS ids, which the Gazetteer carries as ANSICODE.
+# Each state's capital from Wikidata, with the capital's GNIS ids, which the Gazetteer carries as ANSICODE.
 CAPITALS = "https://query.wikidata.org/sparql?" + urllib.parse.urlencode({"query": """
 SELECT ?iso ?capitalLabel ?gnis WHERE {
   ?state wdt:P31 wd:Q35657; wdt:P300 ?iso; wdt:P36 ?capital.
   OPTIONAL { ?capital wdt:P590 ?gnis. }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }"""})
-ALWAYS = 100000
+SHIPPED_POPULATION = 100000
 HIGHWAY = re.compile(r"\b(I- |Hwy |Highway |Loop |Rte |Route |Rd )\d")
 SUFFIX = re.compile(r" (city and borough|city|town|village|borough|municipality|comunidad|zona urbana|metropolitan government|metro government|consolidated government|unified government|urban county|corporation|plantation)( \(balance\))?$")
 # Places whose Census name is not the postal city an address carries.
-NAMES = {"1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "1608830": "Boise", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4752006": "Nashville"}
+NAMES = {"0665042": "Ventura", "1303440": "Athens", "1304204": "Augusta", "1349008": "Macon", "1608830": "Boise", "2146027": "Lexington", "2148006": "Louisville", "3011397": "Butte", "4732742": "Hartsville", "4744382": "Lynchburg", "4752006": "Nashville"}
 TIMEZONES = {
     "AK": "America/Anchorage", "AL": "America/Chicago", "AR": "America/Chicago", "AZ": "America/Phoenix",
     "CA": "America/Los_Angeles", "CO": "America/Denver", "CT": "America/New_York", "DC": "America/New_York",
@@ -137,9 +137,12 @@ def localities(cache, counties):
 
 
 def capitals(cache, places, counties):
-    """The codes of the places that are a state's capital, matched by any of its GNIS ids, else by name inside the state."""
+    """The codes of the places that are a state's capital, matched by any of its GNIS ids, else by a name no other place in the state carries."""
     by_gnis = {p["gnis"]: code for code, p in places.items()}
-    by_name = {(counties[p["municipality"]]["region"], p["name"]): code for code, p in places.items()}
+    named = collections.defaultdict(list)
+    for code, p in places.items():
+        named[(counties[p["municipality"]]["region"], p["name"])].append(code)
+    by_name = {key: codes[0] for key, codes in named.items() if len(codes) == 1}
     gnis_of = collections.defaultdict(set)
     for r in csv.DictReader(io.StringIO(text(source.fetch(CAPITALS, cache, "capitals.csv", magic=b"iso,", headers={"Accept": "text/csv"})))):
         gnis_of[(r["iso"].removeprefix("US-"), r["capitalLabel"])].add(int(r["gnis"] or 0))
@@ -211,7 +214,7 @@ def main():
     owners = {p: places[p] for p in set(owner_of_zcta.values())}
     for code in sorted(capital_codes - set(owners)):
         print(f"{code} {places[code]['name']}: capital owns no ZCTA, dropped", file=sys.stderr)
-    places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= ALWAYS}
+    places = drawn(owners, a.place_share) | {code: p for code, p in owners.items() if code in capital_codes or p["population"] >= SHIPPED_POPULATION}
     locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
     named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
     zctas = collections.defaultdict(list)
