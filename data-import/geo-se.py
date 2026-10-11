@@ -40,7 +40,7 @@ ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 UNMATCHED_POPULATION = 200
 # Not a street: a road number, a ferry route, a cycle path or road association's label, a placeholder, or two names
 # or a description in one.
-NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|, ")
+NOT_A_STREET = re.compile(r"^(Europaväg|Länsväg|Riksväg) \d|^Färjeled |\b(GC|SMF|VSF)\b|^NN$|,")
 PARTICLES = {"af", "de", "von"}
 
 
