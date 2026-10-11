@@ -553,3 +553,20 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `data-import/geo-us.py` 1
 - `data-import/geo.py` 1
+
+## Reading cost, chunk 0cd4f425fa6f, finished 2026-10-11T21:08:07Z
+
+102267 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `CHANGELOG.md` 6
+- `todo.md` 6
+- `cli/cli_test.go` 4
+- `docs/decisions.md` 3
+- `cmd/fejkdata/main_test.go` 2
+- `AGENTS.md` 1
+- `cmd/fejkdata/main.go` 1
+- `compose.yaml` 1
+- `data/modules.go` 1
