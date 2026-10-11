@@ -1,18 +1,18 @@
-package en_US_test
+package svse_test
 
 import (
 	"io/fs"
 	"testing"
 
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/en_US"
+	"github.com/larvit/fejkdata/data/svse"
 )
 
 func TestFSLoadsByItsManifest(t *testing.T) {
-	if _, err := fs.Stat(en_US.FS, ".fejkdata.json"); err != nil {
+	if _, err := fs.Stat(svse.FS, ".fejkdata.json"); err != nil {
 		t.Fatalf("FS holds no manifest: %v", err)
 	}
-	f, err := fejkdata.New(fejkdata.WithDataFS(en_US.FS))
+	f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(FS)) = %v", err)
 	}

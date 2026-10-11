@@ -12,11 +12,48 @@ import (
 	"testing"
 )
 
-const (
-	svSE = "../../data/sv_SE/sv_SE"
-	enUS = "../../data/en_US/en_US"
-	misc = "../../data/misc/misc"
-)
+// svSE, enUS and misc are copies of a shipped module's files without its manifest, so a test
+// layers its categories unprefixed with -d.
+var svSE, enUS, misc string
+
+func TestMain(m *testing.M) {
+	tmp, err := os.MkdirTemp("", "fejkdata-cli-test")
+	if err != nil {
+		panic(err)
+	}
+	svSE, enUS, misc = bareCopy(tmp, "svse"), bareCopy(tmp, "enus"), bareCopy(tmp, "misc")
+	code := m.Run()
+	os.RemoveAll(tmp)
+	os.Exit(code)
+}
+
+// bareCopy copies the category and rows files of the shipped module in data/<module> into a
+// folder under tmp, and returns that folder.
+func bareCopy(tmp, module string) string {
+	src, dst := filepath.Join("..", "..", "data", module), filepath.Join(tmp, module)
+	if err := os.Mkdir(dst, 0o755); err != nil {
+		panic(err)
+	}
+	for _, pattern := range []string{"*.json", "*.tsv"} {
+		files, err := filepath.Glob(filepath.Join(src, pattern))
+		if err != nil {
+			panic(err)
+		}
+		for _, f := range files {
+			if strings.HasPrefix(filepath.Base(f), ".") {
+				continue
+			}
+			b, err := os.ReadFile(f)
+			if err == nil {
+				err = os.WriteFile(filepath.Join(dst, filepath.Base(f)), b, 0o644)
+			}
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+	return dst
+}
 
 func runOut(stdin string, args ...string) (int, string, string) {
 	var out, errb bytes.Buffer

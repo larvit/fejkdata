@@ -778,7 +778,7 @@ func TestTableOverridesByLayering(t *testing.T) {
 }
 
 func TestShippedTables(t *testing.T) {
-	f := newGenerator(t, "data/misc/misc", WithSeed(1))
+	f := newBareModule(t, "misc", WithSeed(1))
 	for path, want := range map[string]string{
 		"territory[SE]":                         "Sweden",
 		"territory[Sweden].alpha3":              "SWE",
@@ -992,7 +992,7 @@ func TestEveryTldRowSpellsItsKey(t *testing.T) {
 // columns asked for and that every row fills them.
 func shippedRows(t *testing.T, file string, want ...string) (map[string]int, [][]string) {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("data", "misc", "misc", file))
+	data, err := os.ReadFile(filepath.Join("data", "misc", file))
 	if err != nil {
 		t.Fatal(err)
 	}

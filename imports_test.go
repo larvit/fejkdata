@@ -31,12 +31,12 @@ func TestPackageImports(t *testing.T) {
 	allowed := map[string][]string{
 		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 		"cmd/fejkdata":         {".", "data"},
-		"data":                 {"data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/sv_SE"},
-		"data/en_US":           nil,
-		"data/geo/SE":          nil,
-		"data/geo/US":          nil,
+		"data":                 {"data/enus", "data/geose", "data/geous", "data/misc", "data/svse"},
+		"data/enus":            nil,
+		"data/geose":           nil,
+		"data/geous":           nil,
 		"data/misc":            nil,
-		"data/sv_SE":           nil,
+		"data/svse":            nil,
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/datafiles":   {"internal/grammar", "internal/jsonvalue"},
 		"internal/datatype":    nil,
@@ -48,13 +48,13 @@ func TestPackageImports(t *testing.T) {
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	testsAlso := map[string][]string{
-		".":            {"data", "data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/sv_SE"},
+		".":            {"data", "data/enus", "data/geose", "data/geous", "data/misc", "data/svse"},
 		"cmd/fejkdata": {"internal/grammar"},
-		"data/en_US":   {"."},
-		"data/geo/SE":  {"."},
-		"data/geo/US":  {"."},
+		"data/enus":    {"."},
+		"data/geose":   {"."},
+		"data/geous":   {"."},
 		"data/misc":    {"."},
-		"data/sv_SE":   {"."},
+		"data/svse":    {"."},
 	}
 	seen := map[string]bool{}
 	eachPackage(t, func(dir string, pkg *build.Package) {

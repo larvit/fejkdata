@@ -3,6 +3,8 @@ package fejkdata
 import (
 	"errors"
 	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -31,6 +33,17 @@ func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 	f, err := New(append(all, opts...)...)
 	if err != nil {
 		t.Fatalf("New(%q): %v", dirs, err)
+	}
+	return f
+}
+
+// newBareModule loads the shipped module in data/<module> without its manifest, so its
+// categories sit at the root, failing on error.
+func newBareModule(t *testing.T, module string, opts ...Option) *Generator {
+	t.Helper()
+	f, err := New(append([]Option{WithDataFS(withoutManifest{os.DirFS(filepath.Join("data", module))})}, opts...)...)
+	if err != nil {
+		t.Fatalf("New(%s without its manifest): %v", module, err)
 	}
 	return f
 }
