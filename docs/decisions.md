@@ -603,12 +603,13 @@ providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach
 `FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
 them; a data package imports only the packages it reads.
 
-## The default embed holds every Swedish postort the import can place, a tenth of the US places owning a ZCTA drawn by population, and a tenth of each place's streets, at least ten
+## The default embed holds every Swedish postort the import can place, a tenth of the US places that are a postal code's main town drawn by population, and a tenth of each place's streets, at least ten
 
 2026-10-11, Lilleman auf Larv. Goals 2 and 14: ten streets a place crowded 500
 Stockholm customers onto ten streets, and US places of 25,000 or more left out every
-town and village. `geo-us.py` draws among the places owning a ZCTA, since a place owning
-none can carry no postal code, with Efraimidis and Spirakis's weighted sampling. Each
+town and village. `geo-us.py` draws among the places that are some ZCTA's main town, the
+place holding most of its land inside places, since any other place can carry no postal
+code, with Efraimidis and Spirakis's weighted sampling. Each
 place's random number is seeded by its GEOID, so a rerun on the same sources draws the
 same places, and a place added to or dropped from the sources moves only the places near
 the cut. The draw keeps 968 of the 1,584 places of 25,000 or more and 310 of those of
