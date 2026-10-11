@@ -603,18 +603,25 @@ providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach
 `FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
 them; a data package imports only the packages it reads.
 
-## The default embed holds every Swedish postort the import can place, a population-weighted tenth of the US places that hold most of a postal code's land, and a tenth of each place's streets, at least ten
+## The default embed holds every Swedish postort the import can place with all its streets, and of the US places that hold most of a postal code's land every state capital, every place of 100,000 and a population-weighted tenth of the rest, each with a quarter of its streets, at least ten
 
-2026-10-11, Lilleman auf Larv. Goals 2 and 14: ten streets per place put 500 Stockholm
+2026-10-11, Lilleman auf Larv; revised the same day, after a tenth of the streets gave
+Göteborg 163 and Stockholm 37. Goals 2 and 14: ten streets per place put 500 Stockholm
 customers on ten streets, and US places of 25,000 or more left out every town and
 village. `geo-us.py` draws with Efraimidis and Spirakis's weighted sampling. It draws
 only among places holding most of some ZCTA's land, since no other place can carry a
-postal code. The draw keeps 968 of the 1,584 places of 25,000 or more and 310 of those of
-100,000 or more, and its smallest place holds 93 people. On 2026-10-11 the embed grew
-from 1.3 MB to 5.2 MB, and the first draw of `en_US.address` took 75 ms against 19 ms
-before, within goal 13. `--place-share`, `--street-share` and `--min-streets` on the
-import scripts build another set. Valid while the first reach of a country stays
-unnoticed beside a test run.
+postal code. The draw alone kept 310 of the 343 places of 100,000 or more and left out
+13 state capitals, so a test author pinning a city they know hit `no row of … has key
+or name`; every capital and every place of 100,000 now ships beside the draw, and its
+smallest place holds 93 people. The capitals are each state's `capital` (P36) in
+[Wikidata](https://www.wikidata.org/), matched to a Census place by its GNIS id and
+else by name in its state. Honolulu, a census-designated place, is the one capital and
+the one place of 100,000 that cannot ship. Every Swedish street is 174k rows; a quarter
+of the US streets 475k. On 2026-10-11 the embed grew from 5.2 MB to 16 MB, and a CLI
+run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
+`misc.territory` 3 ms, within goal 13. `--place-share`, `--street-share` and
+`--min-streets` on the import scripts build another set. Valid while the first reach of
+a country stays unnoticed beside a test run.
 
 ## A locale's `address` binds its country's record once and prints it whole
 
