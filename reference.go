@@ -129,9 +129,9 @@ func withDefaultModules(err error, modules []string) error {
 		return err
 	}
 	if len(modules) == 0 {
-		return fmt.Errorf("%w, and no loaded module names a module it reads by default", err)
+		return fmt.Errorf("%w, and no loaded manifest names a module to add", err)
 	}
-	return fmt.Errorf("%w; the loaded modules read by default %s", err, strings.Join(modules, ", "))
+	return fmt.Errorf("%w; is a module missing? The loaded modules read %s", err, strings.Join(modules, ", "))
 }
 
 // noDataNote adds to err, where a segment names nothing and f holds no data at all, that no

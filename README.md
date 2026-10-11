@@ -160,15 +160,14 @@ it to a name and read the name
 
 ## Data
 
-The shipped data comes in modules, each a Go package under [`data/`](data): one per
-locale (`en_US`, `sv_SE`), one per country's tree of places (`geo/SE`, `geo/US`), and
-the locale-neutral `misc`. Each embeds its files, so nothing is read from disk. The CLI
-carries every module, and a library loads those it passes to `WithDataFS`
-([Library](#library)). A
-directory is a namespace: each JSON file is a category named after the file, each
-subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is `sv_SE.person` and
-replaces the shipped one. A module's tree spells its namespace the same way, so
-`sv_SE`'s person is `data/sv_SE/sv_SE/person.json`.
+The shipped data comes in modules, each a Go package under [`data/`](data) named by its
+namespace in lower case without separators: one per locale (`enus` for `en_US`, `svse`
+for `sv_SE`), one per country's tree of places (`geose` for `geo.SE`, `geous` for
+`geo.US`), and the locale-neutral `misc`. Each embeds its files, so nothing is read from
+disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
+([Library](#library)). A directory is a namespace: each JSON file is a category named
+after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
+`sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
 which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-prefixed
@@ -185,19 +184,24 @@ every category of its source, so a category file it leaves out never loads.
 The index maps each category's dot path to an entry: `parent`, the table it links to,
 which needs its own entry in the same folder; and `paths`, every path `List` advertises
 below the category, `""` for the category itself. Each shipped module's manifest, such as
-[`data/sv_SE/.fejkdata.json`](data/sv_SE/.fejkdata.json), is one, so delete it from a
+[`data/svse/.fejkdata.json`](data/svse/.fejkdata.json), is one, so delete it from a
 copy you edit, or keep its index current. A table whose parent column differs from its
 entry's `parent` fails at first reach, and a table linking under another source's table
 needs a source without an index. `//go:embed` of a directory leaves the manifest out, and
 the source then loads whole in `New`; name it in the pattern too.
 
+A manifest's `namespace` is the dot path its source's root sits under: a folder holding
+`person.json` with `"namespace": "sv_SE"` provides `sv_SE.person`, its subfolders adding
+segments below that. Each shipped module carries one, so `data/svse/person.json` is
+`sv_SE.person`.
+
 A manifest's `reads` lists, by any name its author chooses, every module the source's
 references read unless another source provides the same paths, directly or through
-another module; a manifest may carry it without an index. Nothing loads these modules:
-pass them yourself. A shipped module names a Go package: `sv_SE`'s manifest reads
-`github.com/larvit/fejkdata/data/geo/SE`. Data whose reference names a path nothing
-provides fails to load, naming every module the loaded manifests read, or saying they
-name none.
+another module. Nothing loads these modules: pass them yourself. A shipped module names a
+Go package: `svse`'s manifest reads `github.com/larvit/fejkdata/data/geose`. Data whose
+reference names a path nothing provides fails to load, asking whether a module is
+missing and naming every module the loaded manifests read, or saying they name none.
+`namespace` and `reads` need no index.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -366,14 +370,14 @@ only the ones you read, pass each package's `FS` with the modules its manifest r
 ```go
 import (
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/geo/SE"
-	"github.com/larvit/fejkdata/data/sv_SE"
+	"github.com/larvit/fejkdata/data/geose"
+	"github.com/larvit/fejkdata/data/svse"
 )
 
-f, err := fejkdata.New(fejkdata.WithDataFS(sv_SE.FS, SE.FS))
+f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS, geose.FS))
 ```
 
-`en_US` reads `geo/US`; `misc` reads none. `New` fails where no `WithDataFS` or
+`enus` reads `geous`; `misc` reads none. `New` fails where no `WithDataFS` or
 `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -793,7 +797,7 @@ A reference renders a node from elsewhere in the data — the path `Fake` takes,
 across every loaded source — so one category borrows another. The sigil says
 where the path starts, as in a filesystem: `{/en_US.person}` from the data root,
 `{.username}` from the folder this file sits in, `{..username}` from the folder
-above. `data/sv_SE/sv_SE/email.json` can therefore read its own locale's `username`
+above. `sv_SE.email` can therefore read its own locale's `username`
 without naming `sv_SE`:
 
 ```json

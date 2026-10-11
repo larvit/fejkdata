@@ -34,6 +34,7 @@ func loadSources(sources []datafiles.Source) (folder, []string, error) {
 }
 
 func addSource(root *folder, src datafiles.Source, m datafiles.Manifest) error {
+	src = src.Mounted(m.Namespace)
 	if m.Index != nil {
 		placeIndex(root, src, m.Index)
 		return nil

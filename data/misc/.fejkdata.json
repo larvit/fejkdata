@@ -20,5 +20,6 @@
 		"misc.tld": {"paths":["","tld","type","unicode"]},
 		"misc.useragent": {"paths":["","browser","device","os","ua"]},
 		"misc.uuid": {"paths":["","variant"]}
-	}
+	},
+	"namespace": "misc"
 }
