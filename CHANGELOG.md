@@ -137,6 +137,10 @@ replacement, and each removed path, column or flag.
   it reads: `svse.Modules()` holds the Swedish places too. `New` loads the modules `WithDataFS(modules...)` names and
   the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
   is given. A manifest's `namespace` mounts its source under a dot path.
+- Package `github.com/larvit/fejkdata/cli` is the `fejkdata` command: `cli.Main(modules...)`
+  runs it over the modules given, and returns its exit code, so a `main` package passing
+  `append(data.Modules(), mydata)` builds a CLI carrying your own data. `--version` prints
+  the fejkdata module's version, `devel` in a build from a checkout.
 - A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
   category on the first call reaching it, as each shipped module does. Data failing to load,
   in `New` or on that first call, gives an error matching `ErrLoad`, and the CLI exits 1.
