@@ -356,7 +356,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 |--------|--|
 | `WithSeed(n)` | same seed, version and data: identical sequence |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
-| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()`, or your own `embed.FS`; `WithDataFS()` loads none |
+| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
 `data.Modules()` is every shipped module, and links all of them into your program. To link
 only the ones you read, pass a package's `Modules()`: its `FS` and every module it reads, a
@@ -371,7 +371,9 @@ import (
 f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...))
 ```
 
-To stand in your own places, pass the locale's `FS` alone beside them:
+Two locales are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
+own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address` with the
+columns that port, `street`, `street-number`, `postal-code` and `locality`:
 `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
 data to load.
 
