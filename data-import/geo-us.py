@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Rebuild data/geo/US/*.tsv from the Census Bureau's Gazetteer, population estimates, ZCTA relationships and TIGER/Line files (public domain).
 
-    data-import/geo-us.py [--cache DIR] [--min-population N] [--streets-per-locality N] [--out DIR]
+    data-import/geo-us.py [--cache DIR] [--min-streets N] [--place-share F] [--street-share F] [--out DIR]
 """
 import collections
 import concurrent.futures
 import csv
 import io
+import math
+import random
 import re
 import struct
 import sys
@@ -104,8 +106,8 @@ def place_name(geoid, name):
     return stripped
 
 
-def localities(cache, min_population, counties):
-    """Each shipped place with its county, population and centroid."""
+def localities(cache, counties):
+    """Each incorporated place with its county, population and centroid."""
     place_population, county_part = {}, collections.defaultdict(list)
     for r in csv_rows(cache, PLACES, "sub-est2025.csv"):
         if r["SUMLEV"] == "162":
@@ -115,7 +117,7 @@ def localities(cache, min_population, counties):
     out = {}
     for r in gazetteer(cache, "place"):
         geoid, population = r["GEOID"], place_population.get(r["GEOID"], 0)
-        if r["FUNCSTAT"] not in ("A", "F", "N") or r["LSAD"] == CDP or population < min_population or not county_part.get(geoid):
+        if r["FUNCSTAT"] not in ("A", "F", "N") or r["LSAD"] == CDP or not county_part.get(geoid):
             continue
         county = max(county_part[geoid])[1]
         if county not in counties:
@@ -125,8 +127,17 @@ def localities(cache, min_population, counties):
     return out
 
 
+def drawn(places, share):
+    """The share of the places with people, each drawn with odds by its population, the same set on every run:
+    Efraimidis and Spirakis's weighted sampling without replacement."""
+    rng = random.Random(0)
+    peopled = sorted(code for code, p in places.items() if p["population"] > 0)
+    key = {code: math.log(1 - rng.random()) / places[code]["population"] for code in peopled}
+    return {code: places[code] for code in sorted(peopled, key=key.get, reverse=True)[:round(len(peopled) * share)]}
+
+
 def zcta_localities(cache, localities):
-    """Each ZCTA mapped to the incorporated place holding most of its land inside incorporated places, where that place is shipped."""
+    """Each ZCTA mapped to the incorporated place holding most of its land inside incorporated places, where localities holds that place."""
     parts = {}
     for r in csv.DictReader(io.StringIO(text(source.fetch(ZCTA_PLACE, cache, "zcta-place.txt"))), delimiter="|"):
         if r["GEOID_ZCTA5_20"] and r["GEOID_PLACE_20"] and not r["NAMELSAD_PLACE_20"].endswith(" CDP"):
@@ -135,7 +146,7 @@ def zcta_localities(cache, localities):
     return {zcta: place for zcta, place in largest.items() if place in localities}
 
 
-def streets(cache, counties, locality_of_zcta, per_locality):
+def streets(cache, counties, locality_of_zcta, share, minimum):
     """The names with most TIGER address ranges per place, and the address ranges per ZCTA."""
     with concurrent.futures.ThreadPoolExecutor(3) as pool:
         list(pool.map(lambda c: (tiger_zip(cache, "addr", c), tiger_zip(cache, "featnames", c)), counties))
@@ -150,11 +161,11 @@ def streets(cache, counties, locality_of_zcta, per_locality):
             if r["PAFLAG"] == "P" and r["FULLNAME"] and not HIGHWAY.search(r["FULLNAME"]):
                 for z in zips.get(r["TLID"], ()):
                     count[(locality_of_zcta[z], r["FULLNAME"])] += 1
-    return geo.top_streets(count, per_locality, "addresses"), addresses
+    return geo.top_streets(count, share, minimum, "addresses"), addresses
 
 
 def main():
-    a = geo.parser(__doc__, "US", min_population={"type": int, "default": 25000}).parse_args()
+    a = geo.parser(__doc__, "US", place_share={"type": float, "default": 0.1}).parse_args()
     cache, out = geo.directories(a)
 
     state_population = {r["STATE"]: r[ESTIMATE] for r in csv_rows(cache, STATES, "nst-est2025.csv") if r["SUMLEV"] == "040"}
@@ -168,9 +179,11 @@ def main():
         counties[r["GEOID"]] = {"code": r["GEOID"], "name": r["NAME"], "region": r["USPS"], "population": county_population[r["GEOID"]]}
     print(f"counties without a population estimate, dropped: {dict(unestimated)}", file=sys.stderr)
 
-    places = localities(cache, a.min_population, counties)
-    locality_of_zcta = zcta_localities(cache, places)
-    named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.streets_per_locality)
+    places = localities(cache, counties)
+    owner_of_zcta = zcta_localities(cache, places)
+    places = drawn({p: places[p] for p in set(owner_of_zcta.values())}, a.place_share)
+    locality_of_zcta = {zcta: p for zcta, p in owner_of_zcta.items() if p in places}
+    named, addresses = streets(cache, sorted({l["municipality"] for l in places.values()}), locality_of_zcta, a.street_share, a.min_streets)
     zctas = collections.defaultdict(list)
     for zcta, locality in sorted(locality_of_zcta.items()):
         if addresses[zcta]:
