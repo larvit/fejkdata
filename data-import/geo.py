@@ -12,7 +12,7 @@ CACHE = Path(__file__).resolve().parent / "cache"
 def parser(doc, country, **own):
     """A parser for the options every country's import takes, plus the script's own: each keyword names one option, with
     "_" standing for "-"."""
-    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "streets_per_locality": {"type": int, "default": 10}, **own}
+    options = {"cache": {"default": str(CACHE)}, "out": {"default": str(DATA / country)}, "min_streets": {"type": int, "default": 10}, "street_share": {"type": float, "default": 0.1}, **own}
     p = argparse.ArgumentParser(description=doc.splitlines()[0])
     for name in sorted(options):
         p.add_argument("--" + name.replace("_", "-"), **options[name])
@@ -63,13 +63,13 @@ class Nearest:
         return best
 
 
-def top_streets(count, per_locality, column):
-    """count maps (locality, street name) to a count. Returns, per locality, rows for the per_locality names counted
-    most, ties broken by name; each row holds its count under column."""
+def top_streets(count, share, minimum, column):
+    """count maps (locality, street name) to a count. Returns, per locality, rows for the share of its names counted
+    most, at least minimum of them, ties broken by name; each row holds its count under column."""
     of = collections.defaultdict(list)
     for (locality, name), n in count.items():
         of[locality].append((n, name))
-    return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:per_locality]] for locality, named in of.items()}
+    return {locality: [{"name": name, "locality": locality, column: n} for n, name in sorted(named, key=lambda s: (-s[0], s[1]))[:max(minimum, math.ceil(len(named) * share))]] for locality, named in of.items()}
 
 
 def fence(regions, municipalities, localities, streets, postal_codes):

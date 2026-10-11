@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rebuild data/geo/SE/*.tsv from SCB (CC0), GeoNames (CC BY 4.0) and Trafikverket NVDB (CC0).
 
-    TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--streets-per-locality N] [--out DIR]
+    TRAFIKVERKET_API_KEY=… data-import/geo-se.py [--key-file FILE] [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 """
 import collections
 import csv
@@ -161,14 +161,14 @@ def localities(codes, tatorter, municipalities, population):
     return out
 
 
-def streets(segments, codes, localities, per_locality):
+def streets(segments, codes, localities, share, minimum):
     """The names with most segments per locality, each segment at its nearest code centroid."""
     nearest = geo.Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
     count = collections.Counter()
     for name, lat, lon in segments:
         if name[0].isalpha():
             count[(nearest.find(lat, lon), name)] += 1
-    return geo.top_streets(count, per_locality, "segments")
+    return geo.top_streets(count, share, minimum, "segments")
 
 
 def main():
@@ -182,7 +182,7 @@ def main():
     population = scb_population(cache)
     codes = geonames(cache)
     places = localities(codes, scb_tatorter(cache), municipality_names, population)
-    named = streets(nvdb_segments(cache, key), codes, places, a.streets_per_locality)
+    named = streets(nvdb_segments(cache, key), codes, places, a.street_share, a.min_streets)
     regions = {c: {"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in region_names.items()}
     municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipality_names.items()}
     kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
