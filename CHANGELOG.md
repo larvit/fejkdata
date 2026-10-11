@@ -93,9 +93,9 @@ replacement, and each removed path, column or flag.
   `address` record binding one locality and drawing its street and postal code inside
   it. `sv_SE.address` and `en_US.address` bind those records once, so
   `en_US.address.street` no longer carries `name` and `suffix`, and a locale's `address`
-  reads its country's `geo` module. Every Swedish postort ships, and a tenth of the US
-  incorporated places that are a postal code's main town, drawn by population down to
-  villages of a hundred people, so a city of any size may be missing; each place carries
+  reads its country's `geo` module. Every Swedish postort the import can place and give
+  a street ships, and a tenth of the US incorporated places that hold most of some postal
+  code's land, drawn by population down to villages of a hundred people, so a city of any size may be missing; each place carries
   a tenth of its streets, at least ten.
 - `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
   within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.

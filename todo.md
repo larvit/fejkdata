@@ -280,7 +280,7 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 199. Decide whether every state capital, or every US place of 100,000 or more, ships beside the drawn tenth.
 
-The draw by population leaves out about 25 of the 335 places of 100,000 or more, and some state capitals, so a test author pinning a city they know may hit `no row of locality`. Shipping them always would keep such selectors working across a refresh of the sources, at the cost of a draw that is no longer one rule.
+The draw by population leaves out about 25 of the 335 places of 100,000 or more, and some state capitals, so a test author pinning a city they know may hit `no row of … has key or name`. Shipping them always would keep such selectors working across a refresh of the sources, so a refresh need not wait for a major to drop one, at the cost of a draw that is no longer one rule.
 
 ### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
 
@@ -422,7 +422,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
 
-`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are a tenth of mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
+`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 

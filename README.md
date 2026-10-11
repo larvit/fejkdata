@@ -313,13 +313,13 @@ neighbouring one.
 | `municipality` | kommun, by code or name | county, by FIPS code or name | population |
 | `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
 | `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, the tenth with most road segments per postort, at least ten | street name, the tenth with most address ranges per place, at least ten | segments; address ranges |
+| `street` | gatunamn, per postort the tenth with most road segments, at least ten | street name, per place the tenth with most address ranges, at least ten | segments; address ranges |
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
 `geo.US.region[IL].locality[Springfield]` settles which Springfield. The US places are a
-tenth of the incorporated places that are a postal code's main town, drawn with odds by
-population, so a city of any size may be missing: look one up in
+tenth of the incorporated places that hold most of some postal code's land, drawn with
+odds by population, so a city of any size may be missing: look one up in
 [`locality.tsv`](data/geo/US/locality.tsv) before selecting it. A region row
 carries its `timezone`, the state's predominant zone, and a locality its `lat` and
 `lon`. What ports across countries is the five table names, the `name` column,

@@ -129,7 +129,7 @@ def localities(cache, counties):
 
 def drawn(places, share):
     """The share of the places with people, each drawn with odds by its population: Efraimidis and Spirakis's weighted
-    sampling without replacement. Each place's random number is seeded by its code, so a place added or dropped from
+    sampling without replacement. Each place's random number is seeded by its code, so a place added to or dropped from
     the sources moves only the places near the cut."""
     peopled = [code for code, p in places.items() if p["population"] > 0]
     key = {code: math.log(1 - random.Random(code).random()) / places[code]["population"] for code in peopled}

@@ -376,8 +376,8 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	}
 }
 
-// TestShippedPlacesSpreadAddresses pins that a city ships a tenth of its streets, not ten,
-// and that the US places reach below a town.
+// TestShippedPlacesSpreadAddresses pins that a big city ships 100 streets or more, and that
+// some US place holds under 2,500 people.
 func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	for country, city := range map[string]string{"SE": "Göteborg", "US": "3651000"} {
 		streets := 0
@@ -387,7 +387,7 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 			}
 		}
 		if streets < 100 {
-			t.Errorf("geo.%s: %s ships %d streets, want a tenth of its streets, at least 100", country, city, streets)
+			t.Errorf("geo.%s: %s ships %d streets, want at least 100", country, city, streets)
 		}
 	}
 	header, _, _ := strings.Cut(geoTSV(t, "US", "locality"), "\n")
