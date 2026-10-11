@@ -215,7 +215,7 @@ func TestAReadNoModuleProvidesNamesTheReadersModules(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New(WithDataFS(sv_SE.FS)) = %v", err)
 	}
-	if _, err := f.Fake("sv_SE.address"); err == nil || !strings.Contains(err.Error(), "the module holding sv_SE.address reads by default github.com/larvit/fejkdata/data/geo/SE") {
+	if _, err := f.Fake("sv_SE.address"); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default github.com/larvit/fejkdata/data/geo/SE") {
 		t.Errorf(`Fake("sv_SE.address") = %v, want the module it reads named`, err)
 	}
 	for name, opt := range map[string]Option{
@@ -226,8 +226,8 @@ func TestAReadNoModuleProvidesNamesTheReadersModules(t *testing.T) {
 		if err == nil {
 			_, err = f.Fake("x")
 		}
-		if err == nil || !strings.Contains(err.Error(), "the module holding x names no module it reads by default") {
-			t.Errorf("%s: x = %v, want it said that x's module names none", name, err)
+		if err == nil || !strings.Contains(err.Error(), "no loaded module names a module it reads by default") {
+			t.Errorf("%s: x = %v, want it said that no loaded module names one", name, err)
 		}
 	}
 }
@@ -237,7 +237,7 @@ func TestADataPathManifestNamesWhatItReads(t *testing.T) {
 		".fejkdata.json": `{"reads": ["example.com/places"]}`,
 		"x.json":         `"{/place}"`,
 	})
-	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
+	if _, err := New(WithDataPath(dir)); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default example.com/places") {
 		t.Errorf("New = %v, want the module x reads named", err)
 	}
 }
@@ -250,7 +250,7 @@ func TestAnIndexedModuleNamesWhatItReads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
-	if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "the module holding x reads by default example.com/places") {
+	if _, err := f.Fake("x"); err == nil || !strings.Contains(err.Error(), "the loaded modules read by default example.com/places") {
 		t.Errorf(`Fake("x") = %v, want the module x reads named`, err)
 	}
 }
