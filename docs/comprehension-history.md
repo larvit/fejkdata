@@ -539,3 +539,27 @@ Inherited architect, decided by:
 - Shape: `cli/cli.go:104` `no-shipped-data`: once Main takes any modules, the flag's name promises less than it does
 - Shape: `data-import/geo-us.py:211` `main`: places is rebound from every incorporated place to the shipped ones
 - Locality: `cli/cli.go:651` `moduleVersion`: a pure function over the build info picks fejkdata's version by path
+
+## 2026-10-11T19:02:27Z, PR #209 at 69af4c1, against d157e45
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | same | better |
+| Inherited architect | same | better | better | same | better |
+
+Mid A, decided by:
+
+- Shape, Locality: `internal/datafiles/mount.go:11` `mounted`: serves Open, ReadFile and ReadDir with one stateless entry type, where the base faked a full tree with a read flag
+- Locality: `internal/datafiles/datafiles.go:18` `Source`: the mount point is a field, where labelled and ManifestPath type-asserted the FS; a second Mounted is silently ignored
+- Locality: `cli/cli.go:321` `invocation.options`: the modules and the command name arrive as parameters, where the base called data.Modules() in the flag logic
+- Shape: `cli/cli.go:678` `versionLine`: the CLI is its own package and main is one line, partly offset by the version line's branches and the COMMAND placeholder
+
+Inherited architect, decided by:
+
+- Shape, Locality: `internal/datafiles/mount.go:11` `mounted`: two types and one pure underMount, where the base faked an fs.File tree in five types with a read cursor
+- Locality: `internal/datafiles/manifest.go:53` `ManifestPath`: the manifest reads through s.at whether called before or after Mounted, removing the base's order dependence
+- Locality: `internal/datafiles/datafiles.go:34` `Mounted`: a second call is a silent no-op and at lives twice; where it rots first
+- Shape: `cmd/fejkdata/main.go:12` `main`: the binary is one line over a library package, where the base bound the CLI to data.Modules() inside the flag handling
+- Locality: `cli/cli.go:667` `report`: rewrites the library's prefix inside the joined error text, a string-level contract with another package
