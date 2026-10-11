@@ -64,8 +64,8 @@ class Nearest:
 
 
 def top_streets(count, share, minimum, column):
-    """count maps (locality, street name) to a count. Returns, per locality, rows for the share of its names counted
-    most, at least minimum of them, ties broken by name; each row holds its count under column."""
+    """count maps (locality, street name) to a count. Returns, per locality, rows for its most-counted names, share of
+    them rounded up and at least minimum, ties broken by name; each row holds its count under column."""
     of = collections.defaultdict(list)
     for (locality, name), n in count.items():
         of[locality].append((n, name))
