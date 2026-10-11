@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 197`
+`Next ID = 198`
 
 | Goal | W |
 |---|---|
@@ -83,6 +83,7 @@
 | 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
+| 197 | 0.1.0 | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 3 | 2 | 8 | 3.2, 3 | 14.7 |
 | 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
 | 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
@@ -307,6 +308,10 @@ Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` see
 ### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
 
 The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, since `ambiguous`, which reports a name matching several rows, lists those rows by key. Afterwards `ambiguous` lists them by line, the header being line 1, and ends with "make the names unique, or add a key column".
+
+### 197. Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.
+
+Item 182 shipped on 2026-10-11 over a paired ruling with Shape fallen, by the maintainer's decision recorded in the comprehension-floor entry. Three seats named the same two costs: `mounted` in `internal/datafiles/mount.go`, a partial `fs.FS` that fakes the folders above a module's namespace and serves only `ReadDir` and `ReadFile`; and `Source.at`, which is at once the mounted flag, the prefix `labelled` strips from error labels and the folder `Manifest` reads from. Tried and ruled down within item 182: doubled folders (`data/sv_SE/sv_SE/`), the mount as a prefix on `Category.Folders` that `Load` strips (two coordinate systems), and a complete `fs.FS` wrapper. Whatever replaces it keeps errors naming files where they are on disk for a data path, and keeps `index.go` unaware of namespaces.
 
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
