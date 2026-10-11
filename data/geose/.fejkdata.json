@@ -6,5 +6,6 @@
 		"geo.SE.postal-code": {"parent":"locality","paths":["","code","locality"]},
 		"geo.SE.region": {"paths":["","code","municipality","municipality.code","municipality.locality","municipality.locality.lat","municipality.locality.lon","municipality.locality.municipality","municipality.locality.name","municipality.locality.population","municipality.locality.postal-code","municipality.locality.postal-code.code","municipality.locality.postal-code.locality","municipality.locality.street","municipality.locality.street.locality","municipality.locality.street.name","municipality.locality.street.segments","municipality.name","municipality.population","municipality.region","name","population","timezone"]},
 		"geo.SE.street": {"parent":"locality","paths":["","locality","name","segments"]}
-	}
+	},
+	"namespace": "geo.SE"
 }

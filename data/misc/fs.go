@@ -1,9 +1,9 @@
-// Package misc is fejkdata's misc module.
+// Package misc is fejkdata's locale-neutral module, whose categories are misc.*.
 package misc
 
 import "embed"
 
-// FS holds the misc categories and the module's manifest; pass it to fejkdata.WithDataFS.
+// FS holds the module's categories and its manifest; pass it to fejkdata.WithDataFS.
 //
-//go:embed misc .fejkdata.json
+//go:embed *.json *.tsv .fejkdata.json
 var FS embed.FS

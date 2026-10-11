@@ -78,7 +78,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	}
 }
 
-var errNoData = errors.New("fejkdata: New was given no data to load; pass WithDataFS(data.Modules()...) for every module fejkdata ships (import github.com/larvit/fejkdata/data); WithDataFS or WithDataPath for your own; or WithDataFS() for none")
+var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
 // of an indexed source.

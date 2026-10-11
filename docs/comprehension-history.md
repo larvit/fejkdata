@@ -368,3 +368,27 @@ Junior A, decided by:
 
 - Locality: `data.go:12` `loadSources`: default modules pass through four files, an out-parameter map patched onto sites after the merge for walked sources and indexed.defaultModules copied in batch.load for indexed ones
 - Locality: `fejkdata.go:94` `New`: reads straight through with no hidden default source, which only partly offsets the above
+
+## 2026-10-11T09:52:08Z, PR #203 at 4c4bbcc, against bf1becb
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | worse | same | worse |
+| Inherited architect | worse | same | worse | same | worse |
+
+Mid A, decided by:
+
+- Shape, Overall: `data/geo/SE/fs.go:2` `SE`: each module embeds a tree repeating its own name, and the package names SE, US, en_US, sv_SE are unidiomatic; five thin packages plus a list replace one embed
+- Shape: `reference.go:124` `withDefaultModules`: "default modules" suggests modules that load by default, though nothing loads them; "by default" is spelled out only in the README
+- Locality, Shape: `inline.go:40` `NewTemplate`: errors are decorated twice, by hand, at four entry points
+- Locality: `fejkdata.go:101` `New`: the hidden shipped default is gone, offsetting the above
+
+Inherited architect, decided by:
+
+- Navigation, Overall: `data/sv_SE/fs.go:8` `FS`: every data file sits under a doubled folder, data/sv_SE/sv_SE/, data/geo/SE/geo/SE/, a stop at each hop of the 3am path
+- Navigation: `data/modules.go:15` `go:generate`: the module list is written twice and the manifest writer lives in a root test run from the data package
+- Shape: `data/geo/SE/fs.go:2` `SE`: a package named SE reads as Sweden beside sv_SE, and "module" means a Go package here
+- Shape: `reference.go:126` `withDefaultModules`: one concept spelled reads, defaultModules and "read by default", the last defined only in the README
+- Locality: `fejkdata.go:114` `New`: four call sites apply loadError, withDefaultModules and noDataNote in a fixed order, offset by the hidden shipped source being gone

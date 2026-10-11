@@ -152,6 +152,17 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
+## A shipped package is named by its namespace in lower case without separators, and its manifest mounts it there with `namespace`
+
+2026-10-11, Lilleman auf Larv, from a bench of a Go test author, a data author and a
+custom-CLI builder. Serves goals 1 and 3.3. `sv_SE` ships as `data/svse`, `en_US` as
+`data/enus`, `geo.SE` as `data/geose`, `geo.US` as `data/geous`, and `misc` as `data/misc`:
+Go linters flag a capital or an underscore in a package name, and `SE.FS` read as a type.
+Each package holds its files at its root, and its manifest's `namespace` puts them under
+the namespace, so no path repeats it. The bench also chose `reads` for what a module reads
+by default and the wording of the errors naming it. Valid until a locale's lowered name
+clashes with another's.
+
 ## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
 
 2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
@@ -580,8 +591,8 @@ when a source carries it.
 ## A locale's `address` reads its country's `geo` tree, and the locale module's manifest reads its country's geo module
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-10, when the shipped data became Go packages.
-Serves goal 6.2. `sv_SE.FS` loads alone, and `sv_SE.address` then fails at first reach,
-naming `github.com/larvit/fejkdata/data/geo/SE`, which `sv_SE`'s manifest reads.
+Serves goal 6.2. `svse.FS` loads alone, and `sv_SE.address` then fails at first reach,
+naming `github.com/larvit/fejkdata/data/geose`, which `svse`'s manifest reads.
 `New` does not check that each module a manifest reads was given. A check by module name
 would refuse a stand-in providing the same paths (goal 9.2). A check by path needs every
 reference, and only loading each indexed category finds them, which goal 13 rules out.

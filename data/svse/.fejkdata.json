@@ -23,5 +23,6 @@
 		"sv_SE.version": {"paths":["","n","pre","suffix"]},
 		"sv_SE.word": {"paths":[""]}
 	},
-	"reads": ["github.com/larvit/fejkdata/data/geo/SE"]
+	"namespace": "sv_SE",
+	"reads": ["github.com/larvit/fejkdata/data/geose"]
 }

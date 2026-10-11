@@ -21,6 +21,8 @@ type Manifest struct {
 	// Reads is every module the source reads by default, directly or through another;
 	// nothing loads them.
 	Reads []string `json:"reads"`
+	// Namespace is the dot path the source's root sits under, "" for the namespace's root.
+	Namespace string `json:"namespace"`
 }
 
 // IndexEntry is what an index says of a category: its parent table, "" for none, and the
@@ -72,15 +74,38 @@ func decodeManifest(b []byte) (Manifest, error) {
 			var indexErrs []error
 			m.Index, indexErrs = decodeIndex(top[k])
 			errs = append(errs, indexErrs...)
+		case "namespace":
+			var err error
+			m.Namespace, err = decodeNamespace(top[k])
+			errs = append(errs, err)
 		case "reads":
 			var err error
 			m.Reads, err = decodeReads(top[k])
 			errs = append(errs, err)
 		default:
-			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index and reads", k))
+			errs = append(errs, fmt.Errorf("unknown key %q; a manifest holds index, namespace and reads", k))
+		}
+	}
+	for _, p := range sortedKeys(m.Index) {
+		if m.Namespace != "" && !strings.HasPrefix(p, m.Namespace+".") {
+			errs = append(errs, fmt.Errorf("index entry %q lies outside the namespace %q", p, m.Namespace))
 		}
 	}
 	return m, errors.Join(errs...)
+}
+
+func decodeNamespace(v any) (string, error) {
+	namespace, isString := v.(string)
+	if !isString {
+		return "", fmt.Errorf("namespace must be a string, not %s", jsonvalue.Kind(v))
+	}
+	if namespace == "" {
+		return "", nil
+	}
+	if err := checkCategoryPath(namespace); err != nil {
+		return "", fmt.Errorf("namespace %w", err)
+	}
+	return namespace, nil
 }
 
 // decodeReads decodes the modules a source reads, each named by a non-empty string.

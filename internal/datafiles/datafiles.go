@@ -13,11 +13,13 @@ import (
 )
 
 // Source is one tree to load, from the root of an fs.FS. label prefixes file names in
-// errors; onDisk marks label as a directory that must exist.
+// errors; onDisk marks label as a directory that must exist. mount is the folders the
+// tree's root sits under, in the namespace its categories are reached by.
 type Source struct {
 	fsys   fs.FS
 	label  string
 	onDisk bool
+	mount  []string
 }
 
 // Dir is the tree in the directory path, its errors labelled with it.
@@ -28,8 +30,16 @@ func Dir(path string) Source {
 // FS is the tree in fsys.
 func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
-// Category is one category file: the folders above it from the source's root, its name,
-// and its parsed JSON.
+// Mounted is s with its root under the dot path namespace, "" for the namespace's root.
+func (s Source) Mounted(namespace string) Source {
+	if namespace != "" {
+		s.mount = strings.Split(namespace, ".")
+	}
+	return s
+}
+
+// Category is one category file: the folders above it in the namespace, its name, and its
+// parsed JSON.
 type Category struct {
 	Folders []string
 	Name    string
@@ -62,7 +72,10 @@ func (s Source) Walk(compile func(Category) error) error {
 	if err := s.check(); err != nil {
 		return err
 	}
-	_, err := s.walkDir(nil, compile)
+	_, err := s.walkDir(nil, func(c Category) error {
+		c.Folders = append(s.mount[:len(s.mount):len(s.mount)], c.Folders...)
+		return compile(c)
+	})
 	return err
 }
 
@@ -123,9 +136,10 @@ func (s Source) walkFolder(dir []string, compile func(Category) error) (bool, er
 	return true, nil
 }
 
-// Load hands compile the category file name.json in the folder dir.
+// Load hands compile the category file name.json in the folder dir of the namespace, which
+// lies under the source's mount.
 func (s Source) Load(dir []string, name string, compile func(Category) error) error {
-	full := s.dirPath(dir)
+	full := s.dirPath(dir[len(s.mount):])
 	entries, err := fs.ReadDir(s.fsys, full)
 	if err != nil {
 		return fmt.Errorf("%s: %w", s.labelled(full), err)

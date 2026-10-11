@@ -23,5 +23,6 @@
 		"en_US.version": {"paths":["","n","pre","suffix"]},
 		"en_US.word": {"paths":[""]}
 	},
-	"reads": ["github.com/larvit/fejkdata/data/geo/US"]
+	"namespace": "en_US",
+	"reads": ["github.com/larvit/fejkdata/data/geous"]
 }
