@@ -960,10 +960,9 @@ Where the project is heading; the sections before Audience document what ships t
       it where developers read.
 2. **Enough data ships built in to fill a real test database: the CLI carries all of it, a
    library imports what it needs, and nothing is fetched at run time.**
-   1. It covers the ten most-spoken languages and the Nordic countries.
-   2. Each locale covers the common categories: names, addresses, phone numbers, ids,
+   1. Each locale covers the common categories: names, addresses, phone numbers, ids,
       companies and dates.
-   3. The shipped data comes in Go packages, and a program links only the packages it
+   2. The shipped data comes in Go packages, and a program links only the packages it
       imports.
 3. **The code is easy to understand.**
    1. You can go from a bug to the code behind it without asking anyone.

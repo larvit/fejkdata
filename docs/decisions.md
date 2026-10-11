@@ -138,7 +138,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -936,24 +936,24 @@ while `{{` and `}}` are the template syntax's only escape.
 
 ## The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
 
-2026-10-11, Lilleman auf Larv. Serves goal 2.1. [The Ethnologue
+2026-10-11, Lilleman auf Larv. Serves goal 2. [The Ethnologue
 200](https://www.ethnologue.com/insights/ethnologue200/) for 2026 ranks languages by first-
 and second-language speakers together: English, Mandarin Chinese, Hindi, Spanish, Standard
 Arabic, French, Bengali, Portuguese, Indonesian and Urdu. Each ships in the country with the
 most speakers of it: `en_US`, `zh_CN`, `hi_IN`, `es_MX`, `ar_EG`, `fr_FR`, `bn_BD`, `pt_BR`,
 `id_ID` and `ur_PK`. The Nordic countries are `sv_SE`, `nb_NO`, `da_DK`, `fi_FI` and
-`is_IS`. The maintainer added `de_DE` on 2026-10-11, and moved every locale outside the
-Nordic countries, France and Germany to 0.2.0. Each locale carries goal 2.2's categories,
-and its `address` reads its country's `geo/` tree by reference. Egypt and Pakistan are not
-yet confirmed: `todo.md` item 209 and `todo.md` item 214 check each against Ethnologue's
-country pages before it ships, and record the result here. Valid until Ethnologue's ranking
-changes its ten.
+`is_IS`, and the maintainer adds Germany, `de_DE`. Each locale carries goal 2.1's
+categories, and its `address` reads its country's `geo/` tree by reference. Egypt and
+Pakistan are not yet confirmed: `todo.md` item 209 and `todo.md` item 214 check each against
+Ethnologue's country pages before it ships, and record the result here. Valid until
+Ethnologue's ranking changes its ten.
 
-## A country with no open national address register ships its places and postal codes without streets
+## A country with no open address register covering it whole ships its places and postal codes without streets
 
-2026-10-11, Lilleman auf Larv. Serves goal 2. Where no register publishes a country's
-streets under an open licence, the only source is OpenStreetMap, and its ODbL binds a
-derived database to share-alike and attribution, which every program linking that country's
-geo package would carry. Its `address` prints no street, and the README's Data section says
-why beside that country. It holds today for China, India, Egypt, Bangladesh, Indonesia and
-Pakistan. Valid until the maintainer accepts ODbL data, or the country opens a register.
+2026-10-11, Lilleman auf Larv. Serves goal 2.2. Where no open register covers a country's
+streets, the only source is OpenStreetMap. ODbL binds a database derived from it to
+share-alike and attribution, and every program linking that country's geo package would
+inherit both terms. So that country's `address` prints no street, and the README's Data
+section says why beside each such country. This works against goal 2.1 until
+`todo.md` item 218 gives those countries streets. Valid until the maintainer accepts ODbL
+data, or the country opens a register.
