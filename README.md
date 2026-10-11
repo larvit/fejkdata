@@ -372,9 +372,9 @@ f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...))
 ```
 
 Two locales are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
-own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address` with the
-columns that port, `street`, `street-number`, `postal-code` and `locality`:
-`WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
+own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
+with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
+`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
 data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid

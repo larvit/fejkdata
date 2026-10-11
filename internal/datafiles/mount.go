@@ -45,11 +45,22 @@ func (m mounted) ReadDir(name string) ([]fs.DirEntry, error) {
 
 // inner is name as fsys spells it, where name lies at or below at.
 func (m mounted) inner(name string) (string, bool) {
-	if name == m.at {
+	inner, below := underMount(m.at, name)
+	return inner, below && fs.ValidPath(name)
+}
+
+// underMount is name as the tree mounted at at spells it, where name lies at or below at.
+func underMount(at, name string) (string, bool) {
+	switch name {
+	case at:
 		return ".", true
+	case "":
+		return name, false
 	}
-	rest, below := strings.CutPrefix(name, m.at+"/")
-	return rest, below && fs.ValidPath(name)
+	if at == "" {
+		return name, true
+	}
+	return strings.CutPrefix(name, at+"/")
 }
 
 // towards is the folder below name on the way to at, where name lies above at.
