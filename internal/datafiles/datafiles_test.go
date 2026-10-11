@@ -100,7 +100,7 @@ func TestWalkLabelsWhatACategoryFileGetsWrong(t *testing.T) {
 		want    string
 	}{
 		{"its compile", fstest.MapFS{"a.json": {Data: []byte(`"x"`)}}, errors.New("bad"), "lbl/a.json: bad"},
-		{"its JSON", fstest.MapFS{"a.json": {Data: []byte(`{`)}}, nil, "lbl/a.json: unexpected end of JSON input"},
+		{"its JSON", fstest.MapFS{"a.json": {Data: []byte(`{`)}}, nil, "lbl/a.json: line 1, column 1: unexpected end of JSON input"},
 		{"its name", fstest.MapFS{"a.b.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b.json: category "},
 		{"its folder's name", fstest.MapFS{"a.b/c.json": {Data: []byte(`"x"`)}}, nil, "lbl/a.b: folder "},
 	} {
@@ -121,11 +121,11 @@ func TestWalkRefusesADiskPathThatIsNoDirectory(t *testing.T) {
 	dir := t.TempDir()
 	for _, c := range []struct{ path, want string }{
 		{"", "a data path is empty"},
-		{filepath.Join(dir, "none"), "data path " + filepath.Join(dir, "none") + ": "},
+		{filepath.Join(dir, "none"), "data path " + filepath.Join(dir, "none") + ": no such directory"},
 	} {
 		_, err := walk(t, Dir(c.path))
-		if err == nil || !strings.HasPrefix(err.Error(), c.want) {
-			t.Errorf("Walk(%q) = %v, want it to start %q", c.path, err, c.want)
+		if err == nil || err.Error() != c.want {
+			t.Errorf("Walk(%q) = %v, want %q", c.path, err, c.want)
 		}
 	}
 }
@@ -158,7 +158,7 @@ func TestDirReadsTheDirectoryAndLabelsItsErrorsWithIt(t *testing.T) {
 	if err == nil || !strings.HasPrefix(err.Error(), filepath.ToSlash(filepath.Join(dir, "a.json"))+": ") {
 		t.Errorf("Walk = %v, want the error labelled with the directory", err)
 	}
-	if _, err := walk(t, Dir(filepath.Join(dir, "a.json"))); err == nil || err.Error() != filepath.Join(dir, "a.json")+" is not a directory" {
+	if _, err := walk(t, Dir(filepath.Join(dir, "a.json"))); err == nil || err.Error() != "data path "+filepath.Join(dir, "a.json")+": not a directory" {
 		t.Errorf("Walk = %v, want a file refused as no directory", err)
 	}
 }

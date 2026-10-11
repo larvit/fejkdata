@@ -89,6 +89,12 @@ func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 		if _, err := f.FakeRecord("x"); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
 			t.Errorf("%s: FakeRecord(x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
 		}
+		var tagged struct {
+			X string `fake:"x"`
+		}
+		if err := f.FakeStruct(&tagged); err == nil || !strings.Contains(err.Error(), "no data is loaded") {
+			t.Errorf("%s: FakeStruct(tag x) = %v, want a reference to nothing refused, saying no data is loaded", name, err)
+		}
 	}
 }
 
