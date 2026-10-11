@@ -424,10 +424,23 @@ func TestShippedCapitalsAndBigPlaces(t *testing.T) {
 	for _, place := range []string{
 		"Albany, NY", "Augusta, ME", "Baton Rouge, LA", "Bismarck, ND", "Boise, ID", "Charleston, WV",
 		"Frankfort, KY", "Harrisburg, PA", "Helena, MT", "Juneau, AK", "Kansas City, KS", "Lafayette, LA",
-		"Montpelier, VT", "New Orleans, LA", "Pierre, SD", "St. Paul, MN", "Stockton, CA",
+		"Lexington, KY", "Montpelier, VT", "New Orleans, LA", "Pierre, SD", "St. Paul, MN", "Stockton, CA",
+		"Ventura, CA",
 	} {
 		if !shipped[place] {
 			t.Errorf("geo.US: no locality %s, want every state capital and place of 100,000 or more", place)
+		}
+	}
+}
+
+func TestShippedSwedishStreetsAreStreetNames(t *testing.T) {
+	refused := map[string]bool{
+		"Färjeled Henriksdalsbryggan - Barnängsbryggan": true, "HÄLLSÄTTERSLEDEN": true, "Kärrs VSF": true,
+		"Länsväg 694": true, "NN": true, "tornslingan": true, "Öresundsvägen, Bondevägen": true,
+	}
+	for _, r := range geoRows(t, "SE", "street") {
+		if refused[r[0]] {
+			t.Errorf("geo.SE: street %q in %s, want no road number, ferry route, label, placeholder, two names or miscased name", r[0], r[1])
 		}
 	}
 }
