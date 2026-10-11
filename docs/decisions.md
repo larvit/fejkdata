@@ -138,7 +138,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185 and 186. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.3, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 184, 185, 186 and 196. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -152,15 +152,19 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 Valid while the shipped data stays under 100 MiB, which a gate test holds (`todo.md` item 192): `go get` fetches the whole Go module, and the `go` command refuses a Go module zip over 500 MiB (`MaxZipFile` in `golang.org/x/mod/zip`). Past it, `todo.md` item 193 moves the largest packages into nested Go modules that keep their import paths, each requiring the core release that drops the package, so no build sees it twice.
 
-## A shipped package is named by its namespace in lower case without separators, and its manifest mounts it there with `namespace`
+## A shipped package's folder spells its namespace, its Go name is that namespace in lower case without separators, and its manifest mounts it with `namespace`
 
-2026-10-11, Lilleman auf Larv, from a bench of a Go test author, a data author and a
-custom-CLI builder. Serves goals 1 and 3.3. `sv_SE` ships as `data/svse`, `en_US` as
-`data/enus`, `geo.SE` as `data/geose`, `geo.US` as `data/geous`, and `misc` as `data/misc`:
-Go linters flag a capital or an underscore in a package name, and `SE.FS` read as a type.
-Each package holds its files at its root, and its manifest's `namespace` puts them under
-the namespace, so no path repeats it. Valid until a locale's lowered name clashes with
-another's.
+2026-10-11, Lilleman auf Larv, from two benches of a Go test author, a data author and a
+custom-CLI builder. Serves goals 1 and 3.3. `sv_SE` ships in `data/sv_SE` as package
+`svse`, `en_US` in `data/en_US` as `enus`, `geo.SE` in `data/geo/SE` as `geose`, `geo.US` in
+`data/geo/US` as `geous`, and `misc` in `data/misc`: Go linters flag a capital or an
+underscore in a package name, and `SE.FS` read as a type, while a folder spelling its
+namespace takes a reader from a dot path in an error or a template to its file. The second
+bench chose that over flat folders such as `data/svse`, 2 to 1, at the cost of a package
+name that differs from its folder. A locale is one folder, never a language folder holding
+regions: `en_US` and `en_GB` are different languages that share a name. Each package
+holds its files at its root, and its manifest's `namespace` puts them under the namespace,
+so no path repeats it. Valid until a locale's lowered name clashes with another's.
 
 ## A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
 

@@ -58,6 +58,8 @@ func (s Source) labelled(p string) string {
 	switch {
 	case s.label != "":
 		return path.Join(s.label, p)
+	case s.mount != nil && p == ".":
+		return strings.Join(s.mount, ".")
 	case s.mount != nil:
 		return fmt.Sprintf("%s (%s)", strings.Join(s.mount, "."), p)
 	}

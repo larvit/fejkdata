@@ -47,7 +47,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `FakeTemplate` and `NewTemplate` both stay
 - The shipped data is embedded, not discovered
 - The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
-- A shipped package is named by its namespace in lower case without separators, and its manifest mounts it there with `namespace`
+- A shipped package's folder spells its namespace, its Go name is that namespace in lower case without separators, and its manifest mounts it with `namespace`
 - A source whose manifest carries an index loads each category on first reach; any other loads in `New`, with what it reads
 - Every `{…}` draws afresh, and only a name keeps a pick
 - Reference sigils follow the filesystem

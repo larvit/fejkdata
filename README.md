@@ -160,10 +160,11 @@ it to a name and read the name
 
 ## Data
 
-The shipped data comes in modules, each a Go package under [`data/`](data) named by its
-namespace in lower case without separators: one per locale (`enus` for `en_US`, `svse`
-for `sv_SE`), one per country's tree of places (`geose` for `geo.SE`, `geous` for
-`geo.US`), and the locale-neutral `misc`. Each embeds its files, so nothing is read from
+The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
+its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/sv_SE`), one per
+country's tree of places (`data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/misc`. A package's Go name is its namespace in lower case without separators:
+`svse`, `enus`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is read from
 disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -184,7 +185,7 @@ every category of its source, so a category file it leaves out never loads.
 The index maps each category's dot path to an entry: `parent`, the table it links to,
 which needs its own entry in the same folder; and `paths`, every path `List` advertises
 below the category, `""` for the category itself. Each shipped module's manifest, such as
-[`data/svse/.fejkdata.json`](data/svse/.fejkdata.json), carries one, so in a copy you
+[`data/sv_SE/.fejkdata.json`](data/sv_SE/.fejkdata.json), carries one, so in a copy you
 edit, delete its `index` and keep its `namespace`, or keep the index current.
 A table whose parent column differs from its entry's `parent` fails at first reach, and a
 table linking under another source's table needs a source without an index. `//go:embed`
@@ -194,7 +195,7 @@ the root, with no `namespace`; name the manifest in the pattern too.
 A manifest's `namespace` is the dot path its source's root sits under: a folder holding
 `person.json` with `"namespace": "sv_SE"` provides `sv_SE.person`, its subfolders adding
 segments below that. It needs no index. Each shipped module carries one, so
-`data/svse/person.json` is `sv_SE.person`.
+`data/sv_SE/person.json` is `sv_SE.person`.
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
@@ -363,8 +364,8 @@ only the ones you read, pass each locale's `FS` with its country's places:
 ```go
 import (
 	"github.com/larvit/fejkdata"
-	"github.com/larvit/fejkdata/data/geose"
-	"github.com/larvit/fejkdata/data/svse"
+	geose "github.com/larvit/fejkdata/data/geo/SE"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
 f, err := fejkdata.New(fejkdata.WithDataFS(svse.FS, geose.FS))
