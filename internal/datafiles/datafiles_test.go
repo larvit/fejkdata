@@ -2,6 +2,7 @@ package datafiles
 
 import (
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -176,10 +177,23 @@ func TestAMountedDirNamesItsFilesWhereTheyAreOnDisk(t *testing.T) {
 	}
 }
 
-func TestAMountedTreeIsAValidFS(t *testing.T) {
+func TestAMountedTreeListsAndReadsUnderItsMount(t *testing.T) {
 	m := mounted{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`"y"`)}}, at: "my/data"}
-	if err := fstest.TestFS(m, "my/data/a.json", "my/data/sub/b.json"); err != nil {
-		t.Fatal(err)
+	for dir, want := range map[string][]string{".": {"my"}, "my": {"data"}, "my/data": {"a.json", "sub"}, "my/data/sub": {"b.json"}} {
+		entries, err := fs.ReadDir(m, dir)
+		var got []string
+		for _, e := range entries {
+			got = append(got, e.Name())
+		}
+		if err != nil || !reflect.DeepEqual(got, want) {
+			t.Errorf("ReadDir(%q) = %v, %v, want %v", dir, got, err, want)
+		}
+	}
+	if b, err := fs.ReadFile(m, "my/data/sub/b.json"); err != nil || string(b) != `"y"` {
+		t.Errorf(`ReadFile("my/data/sub/b.json") = %q, %v, want "y"`, b, err)
+	}
+	if _, err := fs.ReadFile(m, "other/a.json"); !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf(`ReadFile("other/a.json") = %v, want it not to exist`, err)
 	}
 }
 
