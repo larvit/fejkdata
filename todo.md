@@ -304,7 +304,7 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
-`reading-cost` on 2026-10-11: the last 5 chunks' median is 200600 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 58, `todo.md` 34, `CHANGELOG.md` 31, `cmd/fejkdata/main.go` 27, `docs/decisions.md` 27, `DATA-LICENSES.md` 21, `compose.yaml` 20, `node.go` 19, `testdata/shipped_shape.txt` 19, `AGENTS.md` 18. The chunk shipping this item runs `reading-cost --reset`.
+`reading-cost` on 2026-10-11: the last 5 chunks' median is 112728 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `todo.md` 40, `README.md` 37, `docs/decisions.md` 29, `CHANGELOG.md` 11, `data_test.go` 9, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5, `compose.yaml` 5. The chunk shipping this item runs `reading-cost --reset`.
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
