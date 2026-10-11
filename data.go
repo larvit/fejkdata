@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
@@ -9,28 +8,20 @@ import (
 
 // loadSources merges sources in order, the last winning a clash. A source whose manifest
 // carries an index leaves its categories unloaded; every other source loads here, with
-// the unloaded categories it needs. It also returns, sorted, every namespace the sources'
-// manifests read.
+// the unloaded categories it needs.
 // docs/decisions.md#a-source-whose-manifest-carries-an-index-loads-each-category-on-first-reach-any-other-loads-in-new-with-what-it-reads
-func loadSources(sources []datafiles.Source) (folder, []string, error) {
+func loadSources(sources []datafiles.Source) (folder, error) {
 	root := folder{children: map[string]node{}}
-	var reads []string
 	for _, src := range sources {
 		m, err := src.Manifest()
 		if err != nil {
-			return folder{}, nil, err
+			return folder{}, err
 		}
 		if err := addSource(&root, src, m); err != nil {
-			return folder{}, nil, err
-		}
-		for _, namespace := range m.Reads {
-			if !slices.Contains(reads, namespace) {
-				reads = append(reads, namespace)
-			}
+			return folder{}, err
 		}
 	}
-	slices.Sort(reads)
-	return root, reads, loadReached(&root, reads, categorySites(&root), nil)
+	return root, loadReached(&root, categorySites(&root), nil)
 }
 
 func addSource(root *folder, src datafiles.Source, m datafiles.Manifest) error {

@@ -23,6 +23,5 @@
 		"sv_SE.version": {"paths":["","n","pre","suffix"]},
 		"sv_SE.word": {"paths":[""]}
 	},
-	"namespace": "sv_SE",
-	"reads": ["geo.SE"]
+	"namespace": "sv_SE"
 }
