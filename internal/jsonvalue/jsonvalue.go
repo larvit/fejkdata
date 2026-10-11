@@ -4,7 +4,9 @@ package jsonvalue
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"unicode/utf8"
 )
 
 // Value is a JSON value that only Decode, String and Object make, so a template never compiles
@@ -15,12 +17,24 @@ type Value struct{ v any }
 func Decode(b []byte) (Value, error) {
 	var v any
 	if !json.Valid(b) {
-		return Value{}, json.Unmarshal(b, &v)
+		return Value{}, located(b, json.Unmarshal(b, &v))
 	}
 	dec := json.NewDecoder(bytes.NewReader(b))
 	dec.UseNumber()
 	err := dec.Decode(&v)
 	return Value{v}, err
+}
+
+// located prefixes a syntax error with the line and column of the byte it stopped at.
+func located(b []byte, err error) error {
+	var syntax *json.SyntaxError
+	if !errors.As(err, &syntax) {
+		return err
+	}
+	before := b[:max(syntax.Offset-1, 0)]
+	line := bytes.Count(before, []byte("\n")) + 1
+	column := utf8.RuneCount(before[bytes.LastIndexByte(before, '\n')+1:]) + 1
+	return fmt.Errorf("line %d, column %d: %w", line, column, err)
 }
 
 // String is the JSON string s.
