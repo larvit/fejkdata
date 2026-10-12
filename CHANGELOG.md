@@ -4,7 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
-## [Unreleased]
+## [0.1.0] - 2026-10-13
 
 The first release: a Go library and a CLI that render locale-aware fake data from JSON
 templates, and the data they ship with. The
