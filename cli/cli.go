@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -63,7 +64,7 @@ one INSERT.
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
                          [] under --format json, or the header under --format csv
-  -s, --seed N           same seed, version and data: identical output
+  -s, --seed N           same seed, version and data: identical output (default: a random seed)
       --separator S      string between repeated renders (default empty); refused with a record
                          --format, which has its own separators
       --table T          the INSERT target for --format sql, ignored under any other
@@ -327,10 +328,11 @@ func (in invocation) options(modules []fs.FS) []fejkdata.Option {
 	for _, dir := range in.dirs {
 		opts = append(opts, fejkdata.WithDataPath(dir))
 	}
-	if in.seeded {
-		opts = append(opts, fejkdata.WithSeed(in.seed))
+	seed := in.seed
+	if !in.seeded {
+		seed = rand.Uint64()
 	}
-	return opts
+	return append(opts, fejkdata.WithSeed(seed))
 }
 
 // write streams the input's renders to w, repeat of them joined by the separator; a write

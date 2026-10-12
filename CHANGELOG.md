@@ -18,17 +18,19 @@ and any release may change what a seed draws, so pin one exact version
 
 - The CLI, `fejkdata`, renders exactly the template on its stdin and adds nothing:
   `echo '{/sv_SE.person} hihi' | fejkdata` prints e.g. `Sara Eriksson hihi`. `--seed`
-  repeats a run's output while the version and data stay the same, `-n` renders the
-  template that many times, and `--list` prints the paths the data offers.
+  repeats a run's output while the version and data stay the same, and without it the
+  CLI seeds from the system; `-n` renders the template that many times, and `--list`
+  prints the paths the data offers.
   `--data-path` layers a directory of your own data over the shipped set, and
   `--no-shipped-data` loads that directory alone. `--format json|ndjson|csv|sql` writes
   a record's columns, one record per row. The CLI exits `0` on success, `1` on a runtime
   error such as data that fails to load, and `2` on misuse.
 - The library, `github.com/larvit/fejkdata`, for Go 1.22 or later on a 64-bit target.
   `New` loads the modules `WithDataFS` names and the folders `WithDataPath` names, and
-  fails, naming `WithDataFS`, where neither is given. `WithSeed` makes its draws
-  repeat while the version and data stay the same. `Fake` renders a path, and
-  `FakeTemplate` and `NewTemplate` render a template. `FakeRecord`, `FakeRecordTemplate`
+  fails, naming `WithDataFS`, where neither is given. `WithSeed` is required, and `New`
+  fails naming it where none is given; its draws repeat while the version and data stay
+  the same. `Fake` renders a path, and `FakeTemplate` and `NewTemplate` render a
+  template. `FakeRecord`, `FakeRecordTemplate`
   and `NewRecordTemplate` render a record, whose `JSON`, `CSVHeader`, `CSVLine` and
   `SQLInsert` methods write its columns as the CLI does. `FakeStruct` fills a struct's
   `fake:"…"` tagged fields. `List` gives the paths `Fake` renders, direct descents only,
