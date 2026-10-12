@@ -563,3 +563,70 @@ Inherited architect, decided by:
 - Locality: `internal/datafiles/datafiles.go:34` `Mounted`: a second call is a silent no-op and at lives twice; where it rots first
 - Shape: `cmd/fejkdata/main.go:12` `main`: the binary is one line over a library package, where the base bound the CLI to data.Modules() inside the flag handling
 - Locality: `cli/cli.go:667` `report`: rewrites the library's prefix inside the joined error text, a string-level contract with another package
+
+## 2026-10-12T16:29:54Z, PR #216 at 52e0304, against 90ffcff
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | better | better | better | better |
+| Inherited architect | same | better | same | same | better |
+
+Mid A, decided by:
+
+- Locality, Overall: `fejkdata.go:101` `New`: the seed is plain input, where the base drew it from crypto/rand through the swappable package-level randomBytes and drawSeed
+- Self-sufficiency, Shape: `fejkdata.go:129` `config.misuse`: one named unit collects every option mistake, and errNoSeed tells the caller what to write
+- Shape: `fejkdata.go:40` `config.dataGiven`: the name says what it tracks now that seeded sits beside it
+- Self-sufficiency: `cli/cli.go:26` `usage`: --help states the --seed default and stays true for a custom CLI
+- Self-sufficiency: `internal/jsonvalue/jsonvalue.go:29` `located`: a JSON syntax error names its line and column
+- Shape: `record.go:216` `errChoiceRecord`: an inline errors.New became a named sentinel FakeRecord treats alike
+- Locality: `Dockerfile:14` `release-tooling`: a /tested sentinel copy is an indirection, though its comment explains it
+
+Inherited architect, decided by:
+
+- Locality, Overall: `fejkdata.go:101` `New`: the seed is a required input and the package-level randomBytes global is gone; New reads straight through options, misuse, load, build
+- Locality: `fejkdata.go:129` `misuse`: the base's two early returns become one unit joining every option mistake before any data loads
+- Locality: `cli/cli.go:593` `run`: the CLI's fallback seed is a systemSeed parameter drawn once in Main, so everything that changes the output arrives through run's signature
+
+## 2026-10-12T16:30:06Z, PR #216 at 52e0304
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 6 | 6.5 | 6.5 | 6.5 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6.5 | 6 |
+| Inherited architect | 7 | 6 | 6 | 7 | 6.5 |
+| Mean | 7.00 | 5.75 | 6.38 | 6.50 | 6.25 |
+
+Junior A, hardest first:
+
+- `pick.go:179` `readName`: six pieces of state, with keptInPick's decision made at load through addressedKeys
+- `path.go:190` `drawSteps`: climbed carries state between steps and pins swap mid-loop
+- `table.go:253` `table.route`: six-field tableRoute plus fromRow and pinnedBelow held at once
+- `node.go:65` `template`: filled in four phases by different files, with a change-together set
+- `AGENTS.md:109` `misc.loglevel`: the decision title says keyed by keyword, the JSON keys by code
+
+Mid A, hardest first:
+
+- `pick.go:9` `pickKey`: keys built at load must match keys built at render, with heap-escape rules mixed in
+- `render.go:146` `readField`: four read paths, and the name undersells it
+- `path.go:190` `drawSteps`: order-dependent climbed and stepDownPins
+- `datatype.go:230` `columnReadOf`: three spellings of a column read, with a four-function change-together contract
+- `AGENTS.md:109` `misc.loglevel`: the decision title contradicts the JSON
+
+Maintainability senior, hardest first:
+
+- `render.go:146` `readField`: choosing named, kept or fresh needs env.pick, pickAt, under, levels and addressed at once
+- `env.go:71` `enter`: frames pushed here must be found by frameOf later, order dependence across three files
+- `path.go:190` `drawSteps`: climbed carries state from stepParent to the next stepChild
+- `path.go:145` `compiledPath.walkEvery`: a capacity-clipping alias with no comment on why it is safe
+- `index.go:109` `loadReached`: lazy loading mutates the shared tree and rolls back with putBack
+
+Inherited architect, would restructure first:
+
+- `pick.go:371` `keptInPick`: string pickKeys rebuilt at render must match addressedKeys built at load, and a miss silently draws afresh
+- `node.go:253` `template`: one struct for six concepts, filled in four stages by four files
+- `calc.go:219` `checkCalcFields`: calc lives in five places, and the root calc.go holds only load fences
+- `datatype.go:222` `columnRead`: column-read resolution sits in datatype.go
+- `cli/cli.go:505` `isPath`: copies the path grammar, the CLI's first rot point

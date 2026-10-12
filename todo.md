@@ -6,7 +6,7 @@
 
 `Bar = 9`
 
-`Next ID = 251`
+`Next ID = 252`
 
 | Goal | W |
 |---|---|
@@ -154,6 +154,7 @@
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
 | 127 | 0.2.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
+| 251 | 0.2.0 |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 2 | 3 | 6 | 3.2 | 14.3 |
 | 242 | 0.2.0 |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 4 | 4 | 2 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
@@ -585,6 +586,10 @@ Require the path step to reach a sibling category.
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
 `docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
+
+### 251. Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.
+
+The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli/cli.go`) the CLI's first rot point when the path grammar changes: it copies the grammar because the CLI reads only the library's public API.
 
 ### 242. Add `sv_SE.bloodtype`, weighted by Sweden's distribution.
 

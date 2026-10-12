@@ -901,6 +901,8 @@ Valid while names are read only inside the category binding them.
 
 By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the floor, including the chunk that holds the release's scoring run, so that 0.1.0 can ship features. Items 170 to 175 and 177 move to 0.2.0. Item 178 plans first how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
 
+Shipped under that decision: item 89, the last of 0.1.0, at 52e0304. Its paired ruling against 90ffcff was better. The release's scoring run read Navigation 7.00, Locality 5.75, Shape 6.38, Self-sufficiency 6.50 and overall 6.25; its seats named places items 170 to 172 and 178 hold, and `isPath`, filed as item 251.
+
 Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item 182, the shipped data as Go packages, at a632a92. Its last paired ruling against bf1becb was same overall, Mid A better and Junior A worse, with Shape fallen, three seats against the namespace mount in `internal/datafiles/mount.go` and the `at` field of `datafiles.Source`; the scoring run that would rule it worse under the floor was not run. `todo.md` item 197 replaces that mount.
 
 Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
