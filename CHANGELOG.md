@@ -27,11 +27,11 @@ and any release may change what a seed draws, so pin one exact version
   error such as data that fails to load, and `2` on misuse.
 - The library, `github.com/larvit/fejkdata`, for Go 1.22 or later on a 64-bit target.
   `New` loads the modules `WithDataFS` names and the folders `WithDataPath` names, drawing
-  from the seed `WithSeed` gives, and fails naming each of `WithSeed` and `WithDataFS`
-  that is missing. The same seed repeats the draws while the version and data stay the
-  same. `Fake` renders a path, and `FakeTemplate` and `NewTemplate` render a
-  template. `FakeRecord`, `FakeRecordTemplate`
-  and `NewRecordTemplate` render a record, whose `JSON`, `CSVHeader`, `CSVLine` and
+  from the seed `WithSeed` gives. It fails naming `WithSeed` where no seed is given, and
+  `WithDataFS` where neither option names the data. The same seed repeats the draws
+  while the version and data stay the same. `Fake` renders a path, and `FakeTemplate`
+  and `NewTemplate` render a template. `FakeRecord`, `FakeRecordTemplate` and
+  `NewRecordTemplate` render a record, whose `JSON`, `CSVHeader`, `CSVLine` and
   `SQLInsert` methods write its columns as the CLI does. `FakeStruct` fills a struct's
   `fake:"…"` tagged fields. `List` gives the paths `Fake` renders, direct descents only,
   and `IsTemplate` tells an inline template from a path. Data that fails to load gives

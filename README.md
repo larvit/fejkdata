@@ -360,7 +360,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 | Option | |
 |--------|--|
-| `WithSeed(n)` | required; same seed, version and data: identical sequence. `WithSeed(rand.Uint64())`, with `math/rand/v2`, draws afresh each run |
+| `WithSeed(n)` | required; same seed, version and data: identical sequence. `WithSeed(s)` with `s := rand.Uint64()`, from `math/rand/v2`, takes a new seed each run; log `s` to replay a run |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
