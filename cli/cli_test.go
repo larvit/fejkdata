@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -129,10 +128,14 @@ func TestRunDotPath(t *testing.T) {
 }
 
 func TestRunWithoutASeedTakesTheSystemSeed(t *testing.T) {
-	var drawn, seeded bytes.Buffer
-	run("fejkdata", shipped, nil, 42, strings.NewReader("{uuid()}"), &drawn, io.Discard)
-	run("fejkdata", shipped, []string{"--seed", "42"}, 7, strings.NewReader("{uuid()}"), &seeded, io.Discard)
-	if drawn.String() == "" || drawn.String() != seeded.String() {
+	var drawn, seeded, errb bytes.Buffer
+	if code := run("fejkdata", shipped, nil, 42, strings.NewReader("{uuid()}"), &drawn, &errb); code != 0 {
+		t.Fatalf("run with system seed 42 = %d, stderr=%q", code, errb.String())
+	}
+	if code := run("fejkdata", shipped, []string{"--seed", "42"}, 7, strings.NewReader("{uuid()}"), &seeded, &errb); code != 0 {
+		t.Fatalf("run --seed 42 = %d, stderr=%q", code, errb.String())
+	}
+	if drawn.String() != seeded.String() {
 		t.Fatalf("run with system seed 42 = %q, run --seed 42 = %q; want the same draw", drawn.String(), seeded.String())
 	}
 }

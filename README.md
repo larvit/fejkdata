@@ -431,7 +431,7 @@ error on every later call; a `datatype` in a tag other than the one its Go type 
 refused, naming that type.
 
 A `*Generator` is safe for concurrent use; a sequence is reproducible only
-when drawn from one goroutine. Changing how a value is composed shifts the seeded
+when drawn from one goroutine. Changing how a value is composed shifts the
 stream for that value and everything drawn after it.
 
 ### Your own CLI

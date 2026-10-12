@@ -96,8 +96,8 @@ func (loadError) Is(target error) bool { return target == ErrLoad }
 // It errors on a missing directory, invalid JSON or invalid data. Given only
 // WithDataFS() with no modules, New loads no data, and the generator renders templates
 // that read none. A source whose .fejkdata.json carries an index, as each shipped
-// module's does, loads each category on the first call reaching it. Data failing to load, in New or on that first call, gives an error matching
-// [ErrLoad].
+// module's does, loads each category on the first call reaching it. Data failing to
+// load, in New or on that first call, gives an error matching [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	var c config
 	for _, opt := range opts {
