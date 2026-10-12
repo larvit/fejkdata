@@ -6,145 +6,75 @@ replacement, and each removed path, column or flag.
 
 ## [Unreleased]
 
+The first release: a Go library and a CLI that render locale-aware fake data from JSON
+templates, and the data they ship with. The [README](README.md) documents each part.
+
 ### Added
 
-- Step up: `..` after a row steps up to the row its link column names, so
-  `{/city[Oslo]..country.name}` renders `Norway`, and `.` after it steps down again,
-  drawing afresh. `New` refuses a `..` naming anything but the parent table, and a
-  selector after a `..`.
-- A path, given to `Fake` or referenced in a template, may not read into a
-  level carrying a `repeat`, and `List` advertises no such path: where `x` carries
-  `"repeat": 3`, `Fake("x.a")` fails naming the level `x`, and `Fake("x")` renders it
-  whole.
-- Every `{…}` draws afresh, and a name is the one way to keep a pick: `{p.a} {p.b}`,
-  `{w} {uppercase(w)}` and `{/person.first} {/person.last}` are two draws each, which
-  `{p as q}{q.a} {q.b}` and `{/person as n}{n.first} {n.last}` make one.
-  `{/misc.territory as t}` binds one row of `misc.territory` to `t` and prints nothing;
-  `{t}`, `{t.capital}` and `{lowercase(t.name)}` read that one row. `{x as n}` binds a
-  reference, a sibling field or a path into one; a name lives in the category binding it,
-  and picks again on every iteration of a `repeat`, or every draw of a choice item,
-  binding it. A struct's tags share its
-  names, `{/sv_SE.person as p}{p.first}` beside `{p.sex}`. A name is a `{calc()}`
-  operand: `{/misc.coordinate.lat as lat}{calc(lat * 60)}`. What `New` refuses is listed
-  under [Names](README.md#names).
-- First release: the CLI, the library and the shipped data set.
-- The CLI renders exactly the template on its stdin, `echo '{/sv_SE.person} hihi' |
-  fejkdata`, and adds nothing under `--format text`: `echo`'s newline ends the render, and `--separator`
-  defaults to empty. Whitespace around a JSON object, array or string template is
-  dropped, and a bare number or boolean is a format string, printed as written. A lone reference,
-  `{/users}`, is the record `users` under `--format`. An argument other than a flag, or
-  nothing piped in, exits 2; an empty or blank stdin is a format string, and renders as
-  sent.
-- A template or data file loads whatever is well-formed and means one thing, even where
-  part of it does nothing: a default written out; a one-item choice; an object holding only
-  a format; a constant sample such as `{int(5,5)}`; a `weight`, `separator` or `datatype`
-  where it does nothing; a name nothing reads; a repeated item, which counts as written; a
-  weight of `0`, which is never drawn; a `repeat` or count of `0`, which renders nothing;
-  `+5`, `05` and `-0`; and a reference into the category it sits in. A rows file no
-  category names is ignored. `New(WithDataFS())` loads no data, and renders templates that
-  read none. The CLI's `-n` takes `0`; `--list` ignores `--repeat`, `--separator`, `--format`
-  and `--table`, and `--table` is ignored without `--format sql`.
-- Table categories: a category JSON naming a `rows` TSV beside it, with the options
-  `key`, `name`, `weight` and `parent`; a path selects a row by key or name,
-  `misc.territory[SE]`, and descends to a linked table by name, one path drawing each
-  row inside the row above it. `rows` is an option, so no template may carry a field
-  of that name. A `name` without a `key` resolves inside the table's `parent`. Refused
-  at `New`: a `name` without a `key` or a `parent`, a name repeating inside one parent
-  row, a name spelling another row's key, and a table named like a column of any table
-  above it.
-- `misc.territory`, `misc.currency`, `misc.language`, `misc.httpstatus` and
-  `misc.mimetype` are tables. `misc.territory` is every ISO 3166-1 territory that has
-  a capital, a currency and a TLD, with the columns `calling-code`, `capital`,
-  `country`, `currency`, `flag`, `languages`, `numeric` and `tld` added, `country`
-  holding the alpha-2 code of the sovereign state it belongs to and its own where it
-  is one; `misc.currency` the
-  current ISO 4217 currencies with a minor unit, with `decimals` and `numeric`
-  added, and its symbols from CLDR; `misc.language` every ISO 639-2 entry carrying a
-  639-1 code, with a `code3` column holding its 639-2/T code; `misc.httpstatus` each
-  code the IANA registry lists with a plain reason phrase; and `misc.mimetype` each
-  type mime-db records as IANA-registered and gives a filename extension.
-  `DATA-LICENSES.md` lists each source.
-- `misc.timezone`, `misc.car` and `misc.useragent` are tables too. `misc.timezone`
-  is every zone tzdb `zone.tab` gives a shipped territory, with `offset` holding the
-  zone's standard UTC offset and `territory` linking to `misc.territory`, so
-  `misc.territory[SE].timezone` draws `Europe/Stockholm`; zones of a territory
-  `misc.territory` does not ship, Antarctica's among them, and the constant `UTC`
-  are gone; spell that one as the text `"UTC"`. A `weight` column carries the
-  population GeoNames records in each zone, so a draw favours the zones people live
-  in. `misc.useragent` is the top-user-agents desktop and mobile lists with `browser`,
-  `device` and `os` columns. `misc.car` keeps its makes and models in a `make` and a
-  `model` column.
-- `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries as tables.
-  `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH, carrying
-  `safe` and `idempotent` as `true` or `false`; `misc.protocol` the keyword, its
-  `number` and its `name`, selectable by either; `misc.port` renders a TCP port number,
-  with the IANA `service` name beside it, keeping the first service the registry
-  describes for a port so a number selects one row.
-- `misc.tld` is the IANA root zone as a table: every delegated TLD keyed with its
-  leading dot, `.se` and `.xn--p1ai`, the register's `type` beside it, and a `unicode`
-  column holding the form the register displays, so `misc.tld[.рф]` selects the row
-  `.xn--p1ai` renders. A delegation the register marks "Not assigned" does not ship.
-- `misc.loglevel` is the eight syslog severities: the `keyword` a configuration writes,
-  `err` and `info`, keyed by the numerical `code` a PRI encodes and selectable by
-  either, with the `severity` RFC 5424 spells beside it.
-- `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
-  `locality`, `postal-code` and `street`, weighted by population and address counts
-  and built from SCB, GeoNames, Trafikverket NVDB, the US Census Bureau and Wikidata, and an
-  `address` record binding one locality and drawing its street and postal code inside
-  it. `sv_SE.address` and `en_US.address` bind those records once, so
-  `en_US.address.street` no longer carries `name` and `suffix`, and a locale's `address`
-  reads its country's `geo` module. Every Swedish postort the import can place and give
-  a street ships with all its streets. Of the US incorporated places that hold most of
-  some postal code's land, a tenth ships, drawn by population down to villages of a
-  hundred people, and so do every state capital but Honolulu and every place of 100,000
-  or more. A smaller city may be missing. Each place carries a quarter of its streets, at
-  least ten.
-- `{date(from,to,'layout')}` and `{time('layout')}`: a second between two days, or
-  within one, in a single-quoted Go layout, drawn in UTC; `from` may equal `to`.
-  `sv_SE.date`, `en_US.date`, `sv_SE.time` and `en_US.time` render through them, so
-  `date.year`, `date.month`, `date.day`, `time.hour`, `time.minute`, `time.minute.t`,
-  `time.sec` and `time.ampm` are no longer paths — a part of a date is now its own
-  `{date(…,'2006')}`. `misc.datetime` is an RFC 3339 instant.
-- `sex`, `first-name` and `last-name` tables in `sv_SE` and `en_US`, weighted by
-  bearers from SCB, the SSA and the Census Bureau; `first-name` links to `sex`, and a
-  name both sexes carry is a row under each. `person` binds one first name and reads
-  its sex through it, and its columns are `first`, `last`, `prefix` and `sex`;
-  `person.femalefirst` and `person.malefirst` are no longer paths — draw
-  `sex[f].first-name` and `sex[m].first-name` instead. `en_US.title` links to `sex` as
-  well, so `en_US.person.prefix` draws `Mr` or `Ms` without contradicting the record's
-  `sex`; `sv_SE.title` is an unsexed table of the same shape.
-- `sv_SE.personnummer` and `sv_SE.samordningsnummer`, Skatteverket's test series
-  from a `sv_SE.birth-number` table under `sex`, in place of `sv_SE.ssn`, whose
-  `ssn.mmdd`, `ssn.mmdd.m` and `ssn.mmdd.d` go with it. `en_US.ssn` now draws the
-  ranges the SSA assigns and carries the columns `area`, `group` and `serial`, so
-  `echo '{/en_US.ssn}' | fejkdata --format csv` writes a header where it used to fail; `en_US.itin` is new
-  and carries the same three. `person.prefix` is null where a person has no title,
-  where it used to be an empty string, so `--format sql` writes `NULL` and a `string`
-  struct field reading it becomes `*string`.
-- `en_US.phone-exchange` draws the three digits after a US area code evenly from the codes
-  NANPA may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`,
-  `959` and `976`. `en_US.phone` draws its `exchange` from it.
-- `ErrNoColumns` is exported, so a caller can tell the one record fence a path can
-  answer from the rest.
-- An error names a spelling that runs: a layout is named single-quoted and free of
-  its own quotes, a row of a table with no key is named as the path that selects it,
-  `sv_SE.sex[f].first-name[Kim]`, and a category with no columns names the record
-  that gives it one.
-- The shipped data comes in Go packages, one per module, each exporting `FS`:
-  `github.com/larvit/fejkdata/data/en_US` (package `enus`), `…/sv_SE` (`svse`), `…/misc`,
-  `…/geo/SE` (`geose`) and `…/geo/US` (`geous`). `data.Modules()`, from `github.com/larvit/fejkdata/data`, lists every one,
-  and the CLI carries them all. Each package's `Modules()` returns its `FS` and every module
-  it reads: `svse.Modules()` holds the Swedish places too. `New` loads the modules `WithDataFS(modules...)` names and
-  the folders `WithDataPath` names, and fails, naming `WithDataFS`, where no such option
-  is given. A manifest's `namespace` mounts its source under a dot path.
+- The CLI, `fejkdata`, renders exactly the template on its stdin and adds nothing:
+  `echo '{/sv_SE.person} hihi' | fejkdata` prints `Sara Eriksson hihi`. `--seed` makes a
+  run reproducible, `-n` repeats it, `--list` prints every path, and `--data-path` layers
+  a directory of your own data over the shipped set, or alone with `--no-shipped-data`.
+  `--format json|ndjson|csv|sql` writes a record's columns, one record per row. It exits
+  `0` on success, `1` on a runtime error such as data that fails to load, and `2` on
+  misuse.
+- The library, `github.com/larvit/fejkdata`, for Go 1.22 or later. `New` loads the
+  modules `WithDataFS` names and the folders `WithDataPath` names, and fails, naming
+  `WithDataFS`, where neither is given; `WithSeed` makes its draws reproducible. `Fake`
+  renders a path, `FakeTemplate` and `NewTemplate` a template, `FakeRecord`,
+  `FakeRecordTemplate` and `NewRecordTemplate` a record, whose columns `JSON`,
+  `CSVHeader`, `CSVLine` and `SQLInsert` write as the CLI does, and `FakeStruct` fills a
+  struct's `fake:"…"` tagged fields. Data that fails to load gives an error matching
+  `ErrLoad`, and a record with no fields one matching `ErrNoColumns`.
 - Package `github.com/larvit/fejkdata/cli` is the `fejkdata` command: `cli.Main(modules...)`
-  runs it over the modules given, and returns its exit code, so a `main` package calling
-  `cli.Main(append(data.Modules(), mydata)...)` builds a CLI carrying your own data. That
-  CLI names itself in its help and errors by the file it runs from, and its `--version`
-  prints its own module's version before fejkdata's.
-- A data source whose root holds a `.fejkdata.json` manifest with an `index` loads each
-  category on the first call reaching it, as each shipped module does. Data failing to load,
-  in `New` or on that first call, gives an error matching `ErrLoad`, and the CLI exits 1.
-  A source without an index loads in `New`, with the indexed categories it reads. Every
-  other shipped category loads on the first call reaching it, so one your replacement
-  breaks fails there.
+  runs it over the modules given, so `cli.Main(append(data.Modules(), mydata)...)` builds a
+  CLI carrying your own data. That CLI names itself by the file it runs from, and its
+  `--version` prints its own module's version before fejkdata's.
+- The template language ([Data format](README.md#data-format)). A node is a string, a
+  choice, a template, a table, a number or a boolean. A format string's `{…}` tokens read
+  sibling fields, references from the data root or the file's folder
+  (`{/sv_SE.person.last}`, `{.x}`, `{..x}`), builtins and names. Every `{…}` draws
+  afresh, and a name is the one way to keep a pick: `{/sv_SE.person as p}{p.first}
+  {p.last}` is one person. The builtins draw check digits (`luhn`, `mod11`, `ean`),
+  samples (`digits`, `int`, `float`, `uuid`, `ulid`, `iban`, `date`, `time` and more), a
+  counter (`seq`), arithmetic (`calc`) and transforms (`lowercase`, `uppercase`,
+  `ascii`). `New` refuses data that breaks the grammar, could mean two things or cannot
+  render a valid value.
+- Records ([Records](README.md#records)): a template seen as columns. A column is a
+  string unless it declares a `datatype`, `integer`, `number` or `boolean`, and a `null`
+  item draws it as null.
+- Tables ([Table](README.md#table)): a category naming a `rows` TSV beside it, with the
+  options `key`, `name`, `weight` and `parent`. A path selects a row by key or name,
+  `misc.territory[SE]`, descends to a linked table, `geo.SE.locality[Lund].street`, and
+  steps up to the parent row, `{/misc.timezone[Europe/Oslo]..territory.name}`.
+- Data sources ([Data](README.md#data)): a directory is a namespace, and each JSON file
+  in it a category. A `.fejkdata.json` manifest at a source's root may carry a
+  `namespace`, the dot path the source mounts under, and an `index`, with which each
+  category loads on the first call reaching it.
+- The shipped data, in Go packages that each export `FS` and `Modules()`:
+  `github.com/larvit/fejkdata/data/en_US` (package `enus`), `…/sv_SE` (`svse`),
+  `…/misc`, `…/geo/SE` (`geose`) and `…/geo/US` (`geous`). `data.Modules()`, from
+  `github.com/larvit/fejkdata/data`, lists every one, and the CLI carries them all.
+  [`DATA-LICENSES.md`](DATA-LICENSES.md) names each source.
+  - `sv_SE` and `en_US`: an `address`, a `person` and more per locale. `sex`,
+    `first-name` and `last-name` are tables weighted by bearers, from SCB, the SSA and
+    the Census Bureau. A person's first name and sex agree, and so does an `en_US`
+    person's title; `person.prefix` is null where a person has no title. `sv_SE.personnummer` and
+    `sv_SE.samordningsnummer` draw Skatteverket's test series. `en_US.ssn` and
+    `en_US.itin` draw the ranges the SSA and the IRS assign, with the columns `area`,
+    `group` and `serial`, and `en_US.phone` draws an exchange NANPA may assign.
+  - `misc`: IANA's registries of HTTP methods, protocols, ports and root-zone TLDs, the
+    HTTP status codes, ISO 3166-1 territories, ISO 4217 currencies with their CLDR
+    symbols, ISO 639 languages, the syslog severities, mime-db's media types, tzdb's
+    zones weighted by the people living in each, user agents and cars, all as tables;
+    and coordinates, credit card numbers, RFC 3339 instants, emoji, MAC addresses,
+    ObjectIds and UUIDs.
+  - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
+    `locality`, `postal-code` and `street`, weighted by population and address counts
+    and built from SCB, GeoNames, Trafikverket NVDB, the US Census Bureau and Wikidata,
+    and an `address` record drawing a street and postal code inside one locality, which
+    `sv_SE.address` and `en_US.address` print. Every Swedish postort the import can place
+    ships with all its streets. Of the US incorporated places that hold most of some
+    postal code's land, every state capital but Honolulu, every place of 100,000 or more
+    and a population-weighted tenth of the rest ship, each with a quarter of its streets,
+    at least ten.
