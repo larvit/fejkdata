@@ -47,9 +47,11 @@ def main() -> int:
 			raise
 	sha = os.environ["SHA"]
 	try:
-		at = request(f"tags/{tag}")["commit"]["sha"]
-		if at != sha:
-			print(f"{tag} exists at {at}, not {sha}; the version is burnt, bump the heading", file=sys.stderr)
+		at = request(f"git/ref/tags/{tag}")["object"]
+		if at["type"] == "tag":
+			at = request(f"git/tags/{at['sha']}")["object"]
+		if at["sha"] != sha:
+			print(f"{tag} exists at {at['sha']}, not {sha}; the version is burnt, bump the heading", file=sys.stderr)
 			return 1
 	except urllib.error.HTTPError as e:
 		if e.code != 404:

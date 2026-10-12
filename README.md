@@ -1148,7 +1148,7 @@ the files the build and its tests read, nor the workflow itself, in which case
 it's skipped. That build is the whole gate but the
 changelog check, which CI runs against the PR base — vet, complexity, format check
 and tests — so run it locally before pushing. The lowest Go builds the `portable`
-stage, all of that bar the format check:
+stage, all of that bar the format check and the release tooling's tests:
 
 ```sh
 docker build .                                                  # latest
