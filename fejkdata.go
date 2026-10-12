@@ -20,7 +20,7 @@ const MaxRepeat = 1 << 20
 var _ [^uint(0)>>63 - 1]struct{}
 
 // Generator generates fake data from a namespace tree. Create one with [New].
-// It is safe for concurrent use; a seeded sequence is reproducible only when drawn
+// It is safe for concurrent use; a sequence is reproducible only when drawn
 // from one goroutine.
 type Generator struct {
 	// mu guards drawState, structs and root, which gains an indexed category on the
@@ -36,8 +36,8 @@ type config struct {
 	seeded     bool
 	sources    []datafiles.Source
 	nilModules error
-	// given is whether an option named the data to load, though it may name none.
-	given bool
+	// dataGiven is whether an option named the data to load, though it may name none.
+	dataGiven bool
 }
 
 // Option configures a [Generator].
@@ -54,7 +54,7 @@ func WithSeed(seed uint64) Option {
 // layer several; the last wins a name clash.
 func WithDataPath(dir string) Option {
 	return func(c *config) {
-		c.sources, c.given = append(c.sources, datafiles.Dir(dir)), true
+		c.sources, c.dataGiven = append(c.sources, datafiles.Dir(dir)), true
 	}
 }
 
@@ -71,7 +71,7 @@ func WithDataFS(modules ...fs.FS) Option {
 			}
 			c.sources = append(c.sources, datafiles.FS(fsys))
 		}
-		c.given = true
+		c.dataGiven = true
 	}
 }
 
@@ -91,23 +91,20 @@ func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // New builds a generator from the options' sources, merged in order with the last
 // winning a name clash; it fails where no [WithSeed] gives the seed, or no [WithDataFS]
-// or [WithDataPath] names the data to load. Each JSON file becomes a category named after the file (address.json ->
-// "address") and each subdirectory a namespace segment. It errors on a missing
-// directory, invalid JSON or invalid data. Given only WithDataFS() with no modules, New
-// loads no data, and the generator renders templates that read none. A source whose .fejkdata.json carries an
-// index, as each shipped module's does, loads each category on the first call reaching
-// it. Data failing to load, in New or on that first call, gives an error matching
+// or [WithDataPath] names the data to load. Each JSON file becomes a category named
+// after the file (address.json -> "address") and each subdirectory a namespace segment.
+// It errors on a missing directory, invalid JSON or invalid data. Given only
+// WithDataFS() with no modules, New loads no data, and the generator renders templates
+// that read none. A source whose .fejkdata.json carries an index, as each shipped
+// module's does, loads each category on the first call reaching it. Data failing to load, in New or on that first call, gives an error matching
 // [ErrLoad].
 func New(opts ...Option) (*Generator, error) {
 	var c config
 	for _, opt := range opts {
 		opt(&c)
 	}
-	if err := c.missing(); err != nil {
+	if err := c.misuse(); err != nil {
 		return nil, err
-	}
-	if c.nilModules != nil {
-		return nil, c.nilModules
 	}
 	root, err := loadSources(c.sources)
 	if err != nil {
@@ -128,14 +125,14 @@ func (f *Generator) List() []string {
 	return out
 }
 
-// missing names each option New requires that no option gave.
-func (c config) missing() error {
+// misuse names every mistake in the options, before any data loads.
+func (c config) misuse() error {
 	var err error
-	if !c.given {
+	if !c.dataGiven {
 		err = errNoData
 	}
 	if !c.seeded {
 		err = errors.Join(err, errNoSeed)
 	}
-	return err
+	return errors.Join(err, c.nilModules)
 }

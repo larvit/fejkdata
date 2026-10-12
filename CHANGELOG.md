@@ -26,10 +26,10 @@ and any release may change what a seed draws, so pin one exact version
   a record's columns, one record per row. The CLI exits `0` on success, `1` on a runtime
   error such as data that fails to load, and `2` on misuse.
 - The library, `github.com/larvit/fejkdata`, for Go 1.22 or later on a 64-bit target.
-  `New` loads the modules `WithDataFS` names and the folders `WithDataPath` names, and
-  fails, naming `WithDataFS`, where neither is given. `WithSeed` is required, and `New`
-  fails naming it where none is given; its draws repeat while the version and data stay
-  the same. `Fake` renders a path, and `FakeTemplate` and `NewTemplate` render a
+  `New` loads the modules `WithDataFS` names and the folders `WithDataPath` names, drawing
+  from the seed `WithSeed` gives, and fails naming each of `WithSeed` and `WithDataFS`
+  that is missing. The same seed repeats the draws while the version and data stay the
+  same. `Fake` renders a path, and `FakeTemplate` and `NewTemplate` render a
   template. `FakeRecord`, `FakeRecordTemplate`
   and `NewRecordTemplate` render a record, whose `JSON`, `CSVHeader`, `CSVLine` and
   `SQLInsert` methods write its columns as the CLI does. `FakeStruct` fills a struct's
