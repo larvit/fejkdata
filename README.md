@@ -331,7 +331,7 @@ Swedish region but `abbr` on a US one.
 ## Library
 
 ```sh
-go get github.com/larvit/fejkdata   # Go 1.22+
+go get github.com/larvit/fejkdata   # Go 1.22+, 64-bit targets
 ```
 
 ```go
@@ -416,7 +416,7 @@ type Address struct {
 a column of one record, its tag a path or an inline template — told apart by
 `IsTemplate` — and its Go type the column's
 [datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
-which a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
+which a column that can be null requires and a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
 kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
 naming a kind that holds it. The tags are a record's columns, so they share its
 [names](#names): `First` tagged `{/sv_SE.person as p}{p.first}` and `Sex` tagged `{p.sex}`
