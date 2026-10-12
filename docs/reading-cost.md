@@ -619,3 +619,19 @@ Read most (opens and searches):
 - `docs/decisions.md` 1
 - `release-tooling/publish_release.py` 1
 - `shipped_test.go` 1
+
+## Reading cost, chunk f26a17e98714, finished 2026-10-12T16:07:59Z
+
+78241 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `todo.md` 7
+- `CHANGELOG.md` 3
+- `docs/decisions.md` 3
+- `compose.yaml` 1
+- `data/en_US/itin.json` 1
+- `data/misc/timezone.json` 1
+- `data/misc/timezone.tsv` 1
+- `go.mod` 1
