@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -77,25 +78,25 @@ func bareCopy(tmp, module string) string {
 
 func runOut(stdin string, args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
-	code := run("fejkdata", shipped, args, strings.NewReader(stdin), &out, &errb)
+	code := run("fejkdata", shipped, args, 1, strings.NewReader(stdin), &out, &errb)
 	return code, out.String(), errb.String()
 }
 
 // runTerminal runs as from a shell with nothing piped in.
 func runTerminal(args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
-	code := run("fejkdata", shipped, args, nil, &out, &errb)
+	code := run("fejkdata", shipped, args, 1, nil, &out, &errb)
 	return code, out.String(), errb.String()
 }
 
 func TestRunLoadsTheModulesItIsGiven(t *testing.T) {
 	module := fstest.MapFS{"pet.json": {Data: []byte(`{"format":"{name}","name":["Fido"]}`)}}
 	var out, errb bytes.Buffer
-	if code := run("fejkdata", []fs.FS{module}, nil, strings.NewReader("{/pet}"), &out, &errb); code != 0 || out.String() != "Fido" {
+	if code := run("fejkdata", []fs.FS{module}, nil, 1, strings.NewReader("{/pet}"), &out, &errb); code != 0 || out.String() != "Fido" {
 		t.Errorf("run over a module holding pet = %d, %q, %q, want Fido", code, out.String(), errb.String())
 	}
 	out.Reset()
-	if code := run("fejkdata", []fs.FS{module}, []string{"--list"}, nil, &out, &errb); code != 0 || out.String() != "pet\npet.name\n" {
+	if code := run("fejkdata", []fs.FS{module}, []string{"--list"}, 1, nil, &out, &errb); code != 0 || out.String() != "pet\npet.name\n" {
 		t.Errorf("--list over a module holding pet = %d, %q, want pet and pet.name only", code, out.String())
 	}
 }
@@ -127,10 +128,12 @@ func TestRunDotPath(t *testing.T) {
 	}
 }
 
-func TestRunWithoutASeedSeedsFromTheSystem(t *testing.T) {
-	_, a, errb := runOut("{uuid()}")
-	if code, b, _ := runOut("{uuid()}"); code != 0 || a == "" || a == b {
-		t.Fatalf("two runs without --seed = %q and %q, exit %d, stderr=%q; want each its own draw", a, b, code, errb)
+func TestRunWithoutASeedTakesTheSystemSeed(t *testing.T) {
+	var drawn, seeded bytes.Buffer
+	run("fejkdata", shipped, nil, 42, strings.NewReader("{uuid()}"), &drawn, io.Discard)
+	run("fejkdata", shipped, []string{"--seed", "42"}, 7, strings.NewReader("{uuid()}"), &seeded, io.Discard)
+	if drawn.String() == "" || drawn.String() != seeded.String() {
+		t.Fatalf("run with system seed 42 = %q, run --seed 42 = %q; want the same draw", drawn.String(), seeded.String())
 	}
 }
 
@@ -345,7 +348,7 @@ func (failingReader) Read([]byte) (int, error) { return 0, errors.New("bad file 
 
 func TestRunUnreadableStdinIsMisuse(t *testing.T) {
 	var out, errb bytes.Buffer
-	if code := run("fejkdata", shipped, nil, failingReader{}, &out, &errb); code != 2 || !strings.Contains(errb.String(), "cannot be read") {
+	if code := run("fejkdata", shipped, nil, 1, failingReader{}, &out, &errb); code != 2 || !strings.Contains(errb.String(), "cannot be read") {
 		t.Errorf("run with an unreadable stdin = %d, %q; want misuse naming it", code, errb.String())
 	}
 }
@@ -487,22 +490,22 @@ func TestCommandNameIsTheFileItRunsFrom(t *testing.T) {
 
 func TestRunNamesItselfByTheCommandName(t *testing.T) {
 	var out, errb bytes.Buffer
-	if code := run("mycli", shipped, []string{"--nope"}, nil, &out, &errb); code != 2 || errb.String() != "mycli: unknown flag --nope\ntry 'mycli --help'\n" {
+	if code := run("mycli", shipped, []string{"--nope"}, 1, nil, &out, &errb); code != 2 || errb.String() != "mycli: unknown flag --nope\ntry 'mycli --help'\n" {
 		t.Errorf("mycli --nope = %d, %q", code, errb.String())
 	}
 	errb.Reset()
-	if code := run("mycli", shipped, nil, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli; mycli --list prints") {
+	if code := run("mycli", shipped, nil, 1, nil, &out, &errb); code != 2 || !strings.Contains(errb.String(), "| mycli; mycli --list prints") {
 		t.Errorf("mycli with nothing piped = %d, %q, want a pipe into mycli", code, errb.String())
 	}
 	errb.Reset()
-	if code := run("mycli", []fs.FS{nil, nil}, nil, strings.NewReader("x"), &out, &errb); code != 1 || strings.Count(errb.String(), "mycli: ") != 2 || strings.Contains(errb.String(), "fejkdata") {
+	if code := run("mycli", []fs.FS{nil, nil}, nil, 1, strings.NewReader("x"), &out, &errb); code != 1 || strings.Count(errb.String(), "mycli: ") != 2 || strings.Contains(errb.String(), "fejkdata") {
 		t.Errorf("mycli over two nil modules = %d, %q, want each line under mycli", code, errb.String())
 	}
 	errb.Reset()
-	if code := run("mycli", shipped, []string{"-d", "/nope"}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") || strings.Contains(errb.String(), "fejkdata") {
+	if code := run("mycli", shipped, []string{"-d", "/nope"}, 1, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") || strings.Contains(errb.String(), "fejkdata") {
 		t.Errorf("mycli -d /nope = %d, %q, want a load error under mycli", code, errb.String())
 	}
-	if code := run("mycli", shipped, []string{"--help"}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
+	if code := run("mycli", shipped, []string{"--help"}, 1, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
 		t.Errorf("mycli --help = %d, %q, want mycli named throughout", code, out.String())
 	}
 }

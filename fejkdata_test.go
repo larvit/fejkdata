@@ -77,6 +77,9 @@ func TestNewWithoutASeedFailsNamingWithSeed(t *testing.T) {
 			t.Errorf("New(%s) = %v, want it refused, naming WithSeed", name, err)
 		}
 	}
+	if _, err := New(WithDataFS(nil)); err == nil || !strings.Contains(err.Error(), "WithSeed(") || !strings.Contains(err.Error(), "module 1 is nil") {
+		t.Errorf("New(WithDataFS(nil)) = %v, want both the missing seed and the nil module named", err)
+	}
 }
 
 func TestWithSeedIsDeterministic(t *testing.T) {
