@@ -372,8 +372,8 @@ links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/dat
 are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
-`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithDataFS` or `WithDataPath` names the
-data to load.
+`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithSeed` gives the seed, or no
+`WithDataFS` or `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. A category of an indexed source is
@@ -430,7 +430,7 @@ first call for a type compiles its tags and reports what they get wrong, with th
 error on every later call; a `datatype` in a tag other than the one its Go type sets is
 refused, naming that type.
 
-A `*Generator` is safe for concurrent use; a seeded sequence is reproducible only
+A `*Generator` is safe for concurrent use; a sequence is reproducible only
 when drawn from one goroutine. Changing how a value is composed shifts the seeded
 stream for that value and everything drawn after it.
 

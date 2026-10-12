@@ -320,7 +320,7 @@ func (in invocation) check(name string) error {
 	return nil
 }
 
-func (in invocation) options(modules []fs.FS) []fejkdata.Option {
+func (in invocation) options(modules []fs.FS, systemSeed uint64) []fejkdata.Option {
 	if in.noShipped {
 		modules = nil
 	}
@@ -330,7 +330,7 @@ func (in invocation) options(modules []fs.FS) []fejkdata.Option {
 	}
 	seed := in.seed
 	if !in.seeded {
-		seed = rand.Uint64()
+		seed = systemSeed
 	}
 	return append(opts, fejkdata.WithSeed(seed))
 }
@@ -572,7 +572,7 @@ func Main(modules ...fs.FS) int {
 	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
 		stdin = nil
 	}
-	return run(commandName(os.Args[0]), modules, os.Args[1:], stdin, os.Stdout, os.Stderr)
+	return run(commandName(os.Args[0]), modules, os.Args[1:], rand.Uint64(), stdin, os.Stdout, os.Stderr)
 }
 
 // commandName is the name the command runs under: the file arg0 names, less a Windows
@@ -588,9 +588,9 @@ func commandName(arg0 string) string {
 	return name
 }
 
-// run is Main over the given streams, run as the command name. A nil stdin is a terminal,
-// which holds no template.
-func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
+// run is Main over the given streams, run as the command name, seeded by systemSeed where
+// no --seed is given. A nil stdin is a terminal, which holds no template.
+func run(name string, modules []fs.FS, args []string, systemSeed uint64, stdin io.Reader, stdout, stderr io.Writer) int {
 	in, err := parseArgs(args)
 	if err != nil {
 		return misuse(stderr, name, err)
@@ -613,7 +613,7 @@ func run(name string, modules []fs.FS, args []string, stdin io.Reader, stdout, s
 			return fail(stderr, name, err)
 		}
 	}
-	f, err := fejkdata.New(in.options(modules)...)
+	f, err := fejkdata.New(in.options(modules, systemSeed)...)
 	if err != nil {
 		return fail(stderr, name, err)
 	}
