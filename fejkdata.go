@@ -45,7 +45,7 @@ type Option func(*config)
 
 // WithSeed seeds the generator, as [New] requires: two generators with the same seed,
 // version and data emit identical sequences. WithSeed(rand.Uint64()), with math/rand/v2,
-// draws afresh each run.
+// takes a new seed each run.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
@@ -75,7 +75,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	}
 }
 
-var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n) to repeat a run's output, or WithSeed(rand.Uint64()) (import "math/rand/v2") to draw afresh each run`)
+var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n) to repeat a run's output, or WithSeed(rand.Uint64()) (import "math/rand/v2") for a new seed each run`)
 
 var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 
