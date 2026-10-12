@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"io/fs"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -15,6 +16,27 @@ func TestABareNewFailsNamingWithDataFS(t *testing.T) {
 		if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithDataFS(data.Modules()...)") {
 			t.Errorf("New(%s) = %v, want it refused, naming WithDataFS(data.Modules()...)", name, err)
 		}
+	}
+}
+
+func TestShippedDataStaysUnder100MiB(t *testing.T) {
+	var size int64
+	err := fs.WalkDir(os.DirFS("data"), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+		size += info.Size()
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if size > 100<<20 {
+		t.Errorf("data/ holds %d bytes, over 100 MiB: carry out todo.md item 193, moving the largest packages into nested Go modules", size)
 	}
 }
 

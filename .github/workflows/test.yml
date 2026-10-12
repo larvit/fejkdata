@@ -27,7 +27,7 @@ jobs:
           else
             base='${{ github.event.before }}'
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data testdata README.md; then
+          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata README.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
