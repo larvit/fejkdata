@@ -220,7 +220,7 @@
 
 ### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217, a locale each, grow them in 0.2.0.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217 each add a locale in 0.2.0, so the gate is in place before the data grows.
 
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
@@ -548,7 +548,7 @@ NHTSA vPIC is public domain. The decision "`misc` is what every locale shares" p
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. `New` already starts refusing a call naming no data in 0.1.0, so this breaks `New` a second time, which a minor before 1.0 allows. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. `New` first refuses a call naming no data in 0.1.0, so this breaks `New` again in 0.2.0, which a minor before 1.0 allows. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
 ### 44. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 
