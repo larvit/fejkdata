@@ -1,13 +1,33 @@
 # fejkdata
 
-Locale-aware fake data for tests and fixtures, generated from JSON templates. Use
-it as a Go library or the CLI — no data on disk, no dependencies, and a seed makes output
-reproducible.
+[![Go Reference](https://pkg.go.dev/badge/github.com/larvit/fejkdata.svg)](https://pkg.go.dev/github.com/larvit/fejkdata)
+[![Tests](https://github.com/larvit/fejkdata/actions/workflows/test.yml/badge.svg)](https://github.com/larvit/fejkdata/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
+
+Locale-aware fake data for tests and fixtures, from JSON templates: a Go library and a CLI
+with the data built in, no dependencies, and output a seed reproduces.
 
 ```sh
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
+
+- **Data built in:** the `sv_SE` and `en_US` locales, with names weighted by how common
+  they are, and Swedish and US places down to the street, so an address's street and
+  postal code come from its town.
+- **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, SSNs
+  and ITINs in the ranges the SSA and the IRS assign, Luhn-valid card numbers, IBANs.
+- **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
+  time zones, TLDs, ports and HTTP status codes, media types and more, as tables you
+  select a row from.
+- **Bulk output:** records as JSON, NDJSON, CSV or SQL `INSERT`s, streamed.
+- **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
+- **Your own data:** a JSON file is a category, and a mistake in it fails at load, never
+  mid-render.
+- **Reproducible:** the same seed, version and data give the same output.
+
+[CLI](#cli) · [Library](#library) · [Data](#data) · [Data format](#data-format) ·
+[Versioning](#versioning) · [Goals](#goals) · [Development](#development)
 
 ## CLI
 
@@ -23,7 +43,7 @@ echo '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table
 echo '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
 echo '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list            # only your data
-echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina
+echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina, with no newline after it
 fejkdata < template.txt                                  # a template kept in a file
 fejkdata <<'EOF'                                         # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
@@ -36,18 +56,6 @@ and everything outside them prints as written. A reference names a category, or 
 inside one: each dot segment descends one level — folders, then the category (a JSON
 file), then fields — and `[SE]` after a [table](#table) selects its row. `--list` prints
 these paths; a template reads one as `{/path}`.
-
-Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
-byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
-sends none; `-n` joins renders with `--separator`, empty by default. A JSON object, array
-or string drops the whitespace around it, and `null` alone renders nothing; `42` or `true`
-alone is a format string, so it prints as written, newline included. An empty or blank stdin is a format string like
-any other, and renders as sent. A JSON template that should end
-each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
-lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
-newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
-template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
-[Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
 | Flag | |
 |------|--|
@@ -68,6 +76,20 @@ that fails to load, a missing `-d` folder included, a lone reference to nothing 
 other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
+
+### Newlines and whitespace
+
+Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
+byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
+sends none; `-n` joins renders with `--separator`, empty by default. A JSON object, array
+or string drops the whitespace around it, and `null` alone renders nothing; `42` or `true`
+alone is a format string, so it prints as written, newline included. An empty or blank stdin is a format string like
+any other, and renders as sent. A JSON template that should end
+each render in a newline writes `\n` in its format, from a quoted heredoc or a file. A
+lone reference, one `{/…}` and nothing else, is the record it names under `--format`, one
+newline after it allowed. Some shells' `echo` reads a backslash as an escape, so pipe a
+template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
+[Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
 ### Your own data
 
@@ -157,6 +179,143 @@ A reference into a category's own fields, `{/users.first}` inside `users`, is a 
 own, apart from the fields beside it; to share one draw, read the sibling as a field, or bind
 it to a name and read the name
 ([Decisions](docs/decisions.md#a-category-may-reference-itself-and-a-records-fences-run-at-load)).
+
+## Library
+
+```sh
+go get github.com/larvit/fejkdata   # Go 1.22+, 64-bit targets
+```
+
+```go
+import (
+	"github.com/larvit/fejkdata"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
+)
+
+f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(42))
+if err != nil {
+	log.Fatal(err)
+}
+v, err := f.Fake("sv_SE.address") // "Trekungagatan 43\n442 42 Kungälv"
+paths := f.List()                  // the paths Fake renders, sorted; direct descents only
+v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
+t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
+v = t.Fake()                                              // render many times, no re-parse
+r, err := f.FakeRecord("users")           // one record: each field a column
+s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
+r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
+rt, err := f.NewRecordTemplate(`{"format":"","id":{"format":"{seq(users)}","datatype":"integer"}}`) // compile once
+r = rt.Fake()                             // render a row; loop this for bulk output
+err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
+ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
+```
+
+| Option | |
+|--------|--|
+| `WithSeed(n)` | required; the same seed, version and data give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
+| `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
+| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
+
+A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
+locale's country's places; `misc.*` comes from `misc.Modules()`, in
+`github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
+`data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
+links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
+are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
+own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
+with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
+`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
+`WithDataFS` or `WithDataPath` names the data to load.
+
+`New` refuses data that breaks the grammar, could mean two things or cannot render a valid
+value, and `NewTemplate` refuses such a template. A category of an indexed source is
+checked on the first call reaching it instead. Data that fails to load, in `New` or on
+that first call, gives an error matching `ErrLoad`. On a loaded generator:
+
+- `Fake` fails only for a path that names nothing, could name two things or reads one
+  draw of a level carrying a `repeat`, or for data that fails to load (`ErrLoad`), with
+  the same error every call.
+- `FakeStruct` fails only for a non-struct argument, a type its tags do not describe, or
+  data that fails to load (`ErrLoad`), with the same error every call.
+- `Template.Fake` cannot fail.
+
+A path, wherever a call takes one, may start with one `/`, as a reference does.
+
+A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
+`DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
+(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
+CLI's `--format` writes, each without a trailing newline. `FakeRecord` and
+`FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
+choice of more than one item, or a folder — errors.
+
+```go
+type User struct {
+	ID   int64   `fake:"{seq()}"`
+	Last string  `fake:"sv_SE.person.last"`
+	Age  uint8   `fake:"{int(18,99)}"`
+	Nick *string `fake:"[null, \"{/sv_SE.username}\"]"`
+	Home Address // filled from Address's own tags
+}
+
+type Address struct {
+	Street     string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
+	PostalCode string `fake:"{a.postal-code}"` // the same address's code
+	Locality   string `fake:"{a.locality}"`
+}
+```
+
+`FakeStruct` fills a struct through a pointer: each exported field tagged `fake:"…"` is
+a column of one record, its tag a path or an inline template — told apart by
+`IsTemplate` — and its Go type the column's
+[datatype](#datatype): a string, bool, integer or float kind, or a pointer to one. A
+column that can be null needs a pointer, which a [`null`](#null) item leaves nil. An
+integer stays within int64 whatever its kind, and a value the kind cannot hold, such as
+`{int(0,300)}` in a `uint8`, is refused naming a kind that holds it. The tags are a record's columns, so they share its
+[names](#names): `First` tagged `{/sv_SE.person as p}{p.first}` and `Sex` tagged `{p.sex}`
+describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
+embedded struct promotes are columns of the same record; a named struct field, or a
+pointer to one, fills from its own tags as a record of its own, so its names and picks are
+its own. `fake:"-"` leaves a field unfilled.
+Untagged fields keep their values, and so does a pointer back to a struct already being filled; a type
+whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
+first call for a type compiles its tags and reports what they get wrong, with the same
+error on every later call; a `datatype` in a tag other than the one its Go type sets is
+refused, naming that type.
+
+A `*Generator` is safe for concurrent use; a sequence is reproducible only
+when drawn from one goroutine. Editing a template shifts what it draws, and
+everything drawn after it.
+
+### Your own CLI
+
+Package `cli` is the `fejkdata` command, and its `Main` takes the modules the command
+loads, so a CLI carrying your own data is a `main` package of your own:
+
+```go
+package main
+
+import (
+	"embed"
+	"os"
+
+	"github.com/larvit/fejkdata/cli"
+	"github.com/larvit/fejkdata/data"
+)
+
+//go:embed *.json
+var mydata embed.FS
+
+func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
+```
+
+The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
+`{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
+its data only when it runs. To catch broken data at `go test`, call
+`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and
+render each path once: a module with an index checks a category only when a call first
+reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
+it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
+`Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
 
 ## Data
 
@@ -327,143 +486,6 @@ carries its `timezone`, the state's predominant zone, and a locality its `lat` a
 selection by name, and the `address` record's columns `street`, `street-number`,
 `postal-code` and `locality`; every other column is the country's own, `code` on a
 Swedish region but `abbr` on a US one.
-
-## Library
-
-```sh
-go get github.com/larvit/fejkdata   # Go 1.22+, 64-bit targets
-```
-
-```go
-import (
-	"github.com/larvit/fejkdata"
-	svse "github.com/larvit/fejkdata/data/sv_SE"
-)
-
-f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(42))
-if err != nil {
-	log.Fatal(err)
-}
-v, err := f.Fake("sv_SE.address") // "Trekungagatan 43\n442 42 Kungälv"
-paths := f.List()                  // the paths Fake renders, sorted; direct descents only
-v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
-t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
-v = t.Fake()                                              // render many times, no re-parse
-r, err := f.FakeRecord("users")           // one record: each field a column
-s := r.JSON()                             // {"first":"Ada","last":"Lovelace"}
-r, err = f.FakeRecordTemplate(`{"format":"{x}","x":["a","b"]}`) // compile + render inline
-rt, err := f.NewRecordTemplate(`{"format":"","id":{"format":"{seq(users)}","datatype":"integer"}}`) // compile once
-r = rt.Fake()                             // render a row; loop this for bulk output
-err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
-ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
-```
-
-| Option | |
-|--------|--|
-| `WithSeed(n)` | required; the same seed, version and data give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
-| `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
-| `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
-
-A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
-locale's country's places; `misc.*` comes from `misc.Modules()`, in
-`github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
-`data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
-links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
-are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
-own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
-with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
-`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
-`WithDataFS` or `WithDataPath` names the data to load.
-
-`New` refuses data that breaks the grammar, could mean two things or cannot render a valid
-value, and `NewTemplate` refuses such a template. A category of an indexed source is
-checked on the first call reaching it instead. Data that fails to load, in `New` or on
-that first call, gives an error matching `ErrLoad`. On a loaded generator:
-
-- `Fake` fails only for a path that names nothing, could name two things or reads one
-  draw of a level carrying a `repeat`, or for data that fails to load (`ErrLoad`), with
-  the same error every call.
-- `FakeStruct` fails only for a non-struct argument, a type its tags do not describe, or
-  data that fails to load (`ErrLoad`), with the same error every call.
-- `Template.Fake` cannot fail.
-
-A path, wherever a call takes one, may start with one `/`, as a reference does.
-
-A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
-`DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
-(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
-CLI's `--format` writes, each without a trailing newline. `FakeRecord` and
-`FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
-choice of more than one item, or a folder — errors.
-
-```go
-type User struct {
-	ID   int64   `fake:"{seq()}"`
-	Last string  `fake:"sv_SE.person.last"`
-	Age  uint8   `fake:"{int(18,99)}"`
-	Nick *string `fake:"[null, \"{/sv_SE.username}\"]"`
-	Home Address // filled from Address's own tags
-}
-
-type Address struct {
-	Street     string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
-	PostalCode string `fake:"{a.postal-code}"` // the same address's code
-	Locality   string `fake:"{a.locality}"`
-}
-```
-
-`FakeStruct` fills a struct through a pointer: each exported field tagged `fake:"…"` is
-a column of one record, its tag a path or an inline template — told apart by
-`IsTemplate` — and its Go type the column's
-[datatype](#datatype): a string, bool, integer or float kind, or a pointer to one. A
-column that can be null needs a pointer, which a [`null`](#null) item leaves nil. An
-integer stays within int64 whatever its kind, and a value the kind cannot hold, such as
-`{int(0,300)}` in a `uint8`, is refused naming a kind that holds it. The tags are a record's columns, so they share its
-[names](#names): `First` tagged `{/sv_SE.person as p}{p.first}` and `Sex` tagged `{p.sex}`
-describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
-embedded struct promotes are columns of the same record; a named struct field, or a
-pointer to one, fills from its own tags as a record of its own, so its names and picks are
-its own. `fake:"-"` leaves a field unfilled.
-Untagged fields keep their values, and so does a pointer back to a struct already being filled; a type
-whose fields reach more than 1024 structs is refused, naming `fake:"-"` to cut it. The
-first call for a type compiles its tags and reports what they get wrong, with the same
-error on every later call; a `datatype` in a tag other than the one its Go type sets is
-refused, naming that type.
-
-A `*Generator` is safe for concurrent use; a sequence is reproducible only
-when drawn from one goroutine. Editing a template shifts what it draws, and
-everything drawn after it.
-
-### Your own CLI
-
-Package `cli` is the `fejkdata` command, and its `Main` takes the modules the command
-loads, so a CLI carrying your own data is a `main` package of your own:
-
-```go
-package main
-
-import (
-	"embed"
-	"os"
-
-	"github.com/larvit/fejkdata/cli"
-	"github.com/larvit/fejkdata/data"
-)
-
-//go:embed *.json
-var mydata embed.FS
-
-func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
-```
-
-The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
-`{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
-its data only when it runs. To catch broken data at `go test`, call
-`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and
-render each path once: a module with an index checks a category only when a call first
-reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
-it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
-`Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
 
 ## Data format
 
