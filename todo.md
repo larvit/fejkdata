@@ -217,7 +217,7 @@
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, which already makes `New` refuse a call that names no data, so `New` breaks once, before anyone depends on it. Mark `WithSeed` required in the Library section's options table. `New`'s tests then stop swapping `randomBytes`. `fejkdata_test.go` swaps it today, and while that test runs, every `New` in the package fails.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, which already makes `New` refuse a call that names no data, so `New` breaks once, before anyone depends on it. Mark `WithSeed` required in the Library section's options table. `New`'s tests then stop swapping `randomBytes`. `fejkdata_test.go` swaps it today, and while that test runs, every `New` in the package fails. Rewrite the changelog's library line to say `New` fails naming `WithSeed` where none is given, and its CLI line to say the CLI seeds from the system without `--seed`.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
