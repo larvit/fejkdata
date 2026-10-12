@@ -11,8 +11,8 @@ import (
 // Template is an inline template compiled, referenced and validated against a
 // generator's loaded data once, ready to render many times with [Template.Fake].
 // It is safe for concurrent use: Fake serializes on its generator's lock, so a
-// sequence is reproducible only when a generator — and its templates — are
-// drawn from one goroutine.
+// sequence is reproducible only when one goroutine makes every draw from a generator
+// and its templates.
 type Template struct {
 	g *Generator
 	n node

@@ -36,7 +36,7 @@ type config struct {
 	seeded     bool
 	sources    []datafiles.Source
 	nilModules error
-	// dataGiven is whether an option named the data to load, though it may name none.
+	// dataGiven is whether a data option was passed, even WithDataFS(), which loads none.
 	dataGiven bool
 }
 
@@ -44,8 +44,8 @@ type config struct {
 type Option func(*config)
 
 // WithSeed seeds the generator, as [New] requires: two generators with the same seed,
-// version and data emit identical sequences. WithSeed(rand.Uint64()), with math/rand/v2,
-// takes a new seed each run.
+// version and data emit identical sequences. For a new seed each run, set
+// seed := rand.Uint64() (math/rand/v2), and log it to replay the run.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
@@ -75,7 +75,7 @@ func WithDataFS(modules ...fs.FS) Option {
 	}
 }
 
-var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n) to repeat a run's output, or WithSeed(rand.Uint64()) (import "math/rand/v2") for a new seed each run`)
+var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n), where the same n repeats a run's output; for a new seed each run, set n := rand.Uint64() (import "math/rand/v2") and log n to replay the run`)
 
 var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 
