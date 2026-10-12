@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
 Locale-aware fake data for tests and fixtures, from JSON templates: a Go library and a CLI
-with the data built in, no dependencies, and output a seed reproduces.
+with the data built in, no dependencies, and a seed makes output reproducible.
 
 ```sh
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest
@@ -13,10 +13,11 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, with names weighted by how common
-  they are, and Swedish and US places down to the street, so an address's street and
-  postal code come from its town.
+  they are, and their countries' places: Swedish postal towns and the larger US places,
+  each address drawn from one town's streets and postal codes ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, SSNs
-  and ITINs in the ranges the SSA and the IRS assign, Luhn-valid card numbers, IBANs.
+  and ITINs in the ranges the SSA and the IRS assign, so one may be a real person's,
+  Luhn-valid card numbers, and IBANs for seven European countries.
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
   time zones, TLDs, ports and HTTP status codes, media types and more, as tables you
   select a row from.
@@ -24,10 +25,12 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
 - **Your own data:** a JSON file is a category, and a mistake in it fails at load, never
   mid-render.
-- **Reproducible:** the same seed, version and data give the same output.
+- **Reproducible:** the same seed, version and data give the same output, drawn from one
+  goroutine.
 
-[CLI](#cli) · [Library](#library) · [Data](#data) · [Data format](#data-format) ·
-[Versioning](#versioning) · [Goals](#goals) · [Development](#development)
+[CLI](#cli) · [Library](#library) · [Data](#data) · [Templates](#data-format) ·
+[Functions](#functions) · [Versioning](#versioning) · [Audience](#audience) ·
+[Goals](#goals) · [Development](#development) · [License](#license)
 
 ## CLI
 
@@ -43,7 +46,7 @@ echo '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table
 echo '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
 echo '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list            # only your data
-echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina, with no newline after it
+echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina, no newline after it (Newlines and whitespace)
 fejkdata < template.txt                                  # a template kept in a file
 fejkdata <<'EOF'                                         # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
@@ -216,7 +219,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
-A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
+A shipped package's `Modules()` ([Data](#data)) returns its own `FS` and every module it reads, such as a
 locale's country's places; `misc.*` comes from `misc.Modules()`, in
 `github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
 `data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
@@ -228,7 +231,7 @@ with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`
 `WithDataFS` or `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
-value, and `NewTemplate` refuses such a template. A category of an indexed source is
+value, and `NewTemplate` refuses such a template. A category of an [indexed](#data) source is
 checked on the first call reaching it instead. Data that fails to load, in `New` or on
 that first call, gives an error matching `ErrLoad`. On a loaded generator:
 
@@ -312,7 +315,7 @@ The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json`
 `{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
 its data only when it runs. To catch broken data at `go test`, call
 `fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and
-render each path once: a module with an index checks a category only when a call first
+render each path once: a module with an [index](#data) checks a category only when a call first
 reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
 it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
 `Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
