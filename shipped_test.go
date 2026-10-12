@@ -97,7 +97,7 @@ func newShippedWhole(t testing.TB, opts ...Option) *Generator {
 	for _, m := range shippedModules(t) {
 		modules = append(modules, m.whole(t))
 	}
-	f, err := New(append([]Option{WithDataFS(modules...)}, opts...)...)
+	f, err := New(append([]Option{WithDataFS(modules...), WithSeed(1)}, opts...)...)
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -223,7 +223,7 @@ func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		f, err := New(WithDataFS(set...))
+		f, err := New(WithSeed(1), WithDataFS(set...))
 		if err != nil {
 			t.Fatalf("New(%s's Modules) = %v", m.namespace, err)
 		}
@@ -236,7 +236,7 @@ func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
 }
 
 func TestALocaleAloneFailsAtItsAddressNamingTheMissingGeo(t *testing.T) {
-	f, err := New(WithDataFS(svse.FS))
+	f, err := New(WithSeed(1), WithDataFS(svse.FS))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(svse.FS)) = %v", err)
 	}
@@ -249,7 +249,7 @@ func TestALocaleAloneFailsAtItsAddressNamingTheMissingGeo(t *testing.T) {
 }
 
 func TestAMountedModuleNamesItsRootFolderByItsNamespace(t *testing.T) {
-	_, err := New(WithDataFS(fstest.MapFS{
+	_, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"namespace": "my.data"}`)},
 		"t.json":         {Data: []byte(`{"format":"{name}","rows":"t.tsv","key":"name"}`)},
 	}))
@@ -259,7 +259,7 @@ func TestAMountedModuleNamesItsRootFolderByItsNamespace(t *testing.T) {
 }
 
 func TestAMountedModuleNamesItsFilesByItsNamespace(t *testing.T) {
-	_, err := New(WithDataFS(fstest.MapFS{
+	_, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"namespace": "my.data"}`)},
 		"word.json":      {Data: []byte(`{`)},
 	}))
@@ -281,7 +281,7 @@ func TestANamespaceMountsAModuleUnderIt(t *testing.T) {
 			"sub/word.json":  {Data: []byte(`"hej"`)},
 		}),
 	} {
-		f, err := New(opt)
+		f, err := New(opt, WithSeed(1))
 		if err != nil {
 			t.Fatalf("New(%s) = %v", name, err)
 		}
@@ -294,7 +294,7 @@ func TestANamespaceMountsAModuleUnderIt(t *testing.T) {
 }
 
 func TestNewLoadsNoShippedCategory(t *testing.T) {
-	f, err := New(withShipped())
+	f, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -338,7 +338,7 @@ func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 			absent: []string{"sv_SE.person"},
 		},
 	} {
-		f, err := New(withShipped())
+		f, err := New(withShipped(), WithSeed(1))
 		if err != nil {
 			t.Fatalf("New() = %v", err)
 		}
@@ -360,7 +360,7 @@ func TestReachingACategoryLoadsWhatItReads(t *testing.T) {
 }
 
 func TestADataPathLoadsWhatItReads(t *testing.T) {
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})))
+	f, err := New(withShipped(), WithSeed(1), WithDataPath(writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -385,7 +385,7 @@ func TestAReplacementBreakingAShippedReaderFailsItsFirstReach(t *testing.T) {
 			"sv_SE/last-name.json": {Data: []byte(`"x"`)},
 		}),
 	} {
-		f, err := New(withShipped(), opt)
+		f, err := New(withShipped(), WithSeed(1), opt)
 		if err != nil {
 			t.Fatalf("New(%s) = %v", name, err)
 		}
@@ -424,7 +424,7 @@ func TestAnIndexedSourceLoadsOnFirstReachLikeTheShippedOne(t *testing.T) {
 }
 
 func TestAnIndexedCategoryFailsAtFirstReachAndEveryReachAfter(t *testing.T) {
-	f, err := New(WithDataFS(fstest.MapFS{
+	f, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"bad": {"paths": [""]}, "good": {"paths": [""]}}}`)},
 		"bad.json":       {Data: []byte(`"{/nope}"`)},
 		"good.json":      {Data: []byte(`"fine"`)},
@@ -467,7 +467,7 @@ func TestABrokenManifestFailsNewNamingEveryMistake(t *testing.T) {
 		`{"namespace": "a..b"}`: {`namespace "a..b"`},
 		`{"index": {"b.x": {"paths": [""]}}, "namespace": "a"}`: {`index entry "b.x" lies outside the namespace "a"`},
 	} {
-		_, err := New(WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
+		_, err := New(WithSeed(1), WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(manifest)}}))
 		for _, w := range want {
 			if err == nil || !strings.Contains(err.Error(), w) {
 				t.Errorf("New(manifest %s) = %v, want an error naming %s", manifest, err, w)
@@ -485,7 +485,7 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 		"a broken category":   WithDataPath(writeData(t, map[string]string{"x": `{ not json`})),
 		"a broken manifest":   WithDataFS(fstest.MapFS{".fejkdata.json": {Data: []byte(`{`)}}),
 	} {
-		if _, err := New(withShipped(), opt); !errors.Is(err, ErrLoad) {
+		if _, err := New(withShipped(), WithSeed(1), opt); !errors.Is(err, ErrLoad) {
 			t.Errorf("New(%s) = %v, want it to match ErrLoad", name, err)
 		}
 	}
@@ -494,7 +494,7 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 	whole := newShippedWhole(t)
 	paths := whole.List()
-	lazy, err := New(withShipped())
+	lazy, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -519,7 +519,7 @@ func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 
 func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 	for _, p := range sortedNames(shippedIndex(t)) {
-		f, err := New(withShipped())
+		f, err := New(withShipped(), WithSeed(1))
 		if err != nil {
 			t.Fatalf("New() = %v", err)
 		}
@@ -530,7 +530,7 @@ func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
 }
 
 func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
-	f, err := New(withShipped())
+	f, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -552,7 +552,7 @@ func TestListRunsBesideAnOnDemandLoad(t *testing.T) {
 }
 
 func TestATableWhoseEntryOmitsItsParentFailsAtFirstReach(t *testing.T) {
-	f, err := New(WithDataFS(fstest.MapFS{
+	f, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"city": {"paths": ["", "country", "name"]}, "country": {"paths": ["", "code", "name"]}}}`)},
 		"country.json":   {Data: []byte(`{"format":"{name}","rows":"country.tsv","key":"code"}`)},
 		"country.tsv":    {Data: []byte("code\tname\nSE\tSweden\n")},
@@ -598,7 +598,7 @@ func indexEntry(s categorySite) datafiles.IndexEntry {
 }
 
 func TestAMountedIndexedCategoryWithNoFileNamesTheManifestBesideItsFiles(t *testing.T) {
-	f, err := New(WithDataFS(fstest.MapFS{
+	f, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"my.gone": {"paths": [""]}}, "namespace": "my"}`)},
 	}))
 	if err != nil {
@@ -610,7 +610,7 @@ func TestAMountedIndexedCategoryWithNoFileNamesTheManifestBesideItsFiles(t *test
 }
 
 func TestAnIndexedCategoryWithNoFileNamesTheManifest(t *testing.T) {
-	f, err := New(WithDataFS(fstest.MapFS{
+	f, err := New(WithSeed(1), WithDataFS(fstest.MapFS{
 		".fejkdata.json": {Data: []byte(`{"index": {"gone": {"paths": [""]}}}`)},
 	}))
 	if err != nil {

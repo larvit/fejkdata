@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -30,7 +29,7 @@ func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 	for _, dir := range dirs {
 		all = append(all, WithDataPath(dir))
 	}
-	f, err := New(append(all, opts...)...)
+	f, err := New(append(append(all, WithSeed(1)), opts...)...)
 	if err != nil {
 		t.Fatalf("New(%q): %v", dirs, err)
 	}
@@ -41,7 +40,7 @@ func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 // categories sit at the root, failing on error.
 func newBareModule(t *testing.T, module string, opts ...Option) *Generator {
 	t.Helper()
-	f, err := New(append([]Option{WithDataFS(withoutManifest{os.DirFS(filepath.Join("data", module))})}, opts...)...)
+	f, err := New(append([]Option{WithDataFS(withoutManifest{os.DirFS(filepath.Join("data", module))}), WithSeed(1)}, opts...)...)
 	if err != nil {
 		t.Fatalf("New(%s without its manifest): %v", module, err)
 	}
@@ -59,26 +58,24 @@ func fake(t *testing.T, f *Generator, path string) string {
 }
 
 func TestNewMissingDirectory(t *testing.T) {
-	_, err := New(WithDataPath("data/de_DE"))
+	_, err := New(WithSeed(1), WithDataPath("data/de_DE"))
 	if err == nil || !strings.Contains(err.Error(), "de_DE") || !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("New(missing) error = %v, want the real error, naming the path", err)
 	}
 }
 
 func TestNewRejectsAnEmptyDataPath(t *testing.T) {
-	_, err := New(WithDataPath(""))
+	_, err := New(WithSeed(1), WithDataPath(""))
 	if err == nil || !strings.Contains(err.Error(), "empty") {
 		t.Fatalf("New(WithDataPath(\"\")) = %v, want the empty path named", err)
 	}
 }
 
-func TestNewReportsAnEntropyFailure(t *testing.T) {
-	saved := randomBytes
-	randomBytes = func([]byte) (int, error) { return 0, errors.New("no entropy") }
-	defer func() { randomBytes = saved }()
-	_, err := New(WithDataFS(fstest.MapFS{"w.json": {Data: []byte(`"x"`)}}))
-	if err == nil || !strings.Contains(err.Error(), "no entropy") {
-		t.Fatalf("New() without entropy = %v, want the failure reported", err)
+func TestNewWithoutASeedFailsNamingWithSeed(t *testing.T) {
+	for name, opts := range map[string][]Option{"no option": nil, "only data": {WithDataFS()}} {
+		if _, err := New(opts...); err == nil || !strings.Contains(err.Error(), "WithSeed(") {
+			t.Errorf("New(%s) = %v, want it refused, naming WithSeed", name, err)
+		}
 	}
 }
 
