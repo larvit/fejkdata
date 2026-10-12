@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/larvit/fejkdata)](CHANGELOG.md)
 
 Locale-aware fake data for tests and fixtures, from JSON templates: a Go library and a CLI
-with the data built in, no dependencies, and a seed makes output reproducible.
+with the data built in and no dependencies.
 
 ```sh
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest
@@ -13,20 +13,21 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales, with names weighted by how common
-  they are, and their countries' places: Swedish postal towns and the larger US places,
-  each address drawn from one town's streets and postal codes ([Data](#data)).
-- **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, SSNs
-  and ITINs in the ranges the SSA and the IRS assign, so one may be a real person's,
-  Luhn-valid card numbers, and IBANs for seven European countries.
+  they are. Every Swedish postal town and a sample of US places ship, and each address
+  takes its street and postal code from one town ([Data](#data)).
+- **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, which
+  no real person holds; SSNs and ITINs in the ranges the SSA and the IRS assign, so a
+  drawn one may be a real person's; Luhn-valid card numbers; and IBANs for seven
+  European countries.
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
-  time zones, TLDs, ports and HTTP status codes, media types and more, as tables you
+  time zones, TLDs, ports, HTTP status codes, media types and more, as tables you
   select a row from.
 - **Bulk output:** records as JSON, NDJSON, CSV or SQL `INSERT`s, streamed.
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
-- **Your own data:** a JSON file is a category, and a mistake in it fails at load, never
-  mid-render.
-- **Reproducible:** the same seed, version and data give the same output when drawn from one
-  goroutine.
+- **Your own data:** each JSON file in a folder you pass adds a path, such as
+  `{/acme.customer}`, and a mistake in it fails at load, never mid-render.
+- **Reproducible:** the same seed, version and data give the same output, when one goroutine
+  draws it.
 
 [CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
 [Functions](#functions) · [Versioning](#versioning) · [Audience](#audience) ·
@@ -46,7 +47,7 @@ echo '{/misc.territory[SE].capital}' | fejkdata          # Stockholm — a table
 echo '{/geo.SE.locality[Lund].street}' | fejkdata        # Fjelievägen — a linked table, drawn inside the row
 echo '{/sv_SE.word}' | fejkdata --data-path ./mydata     # layer a directory over the shipped data
 fejkdata --no-shipped-data -d ./mydata --list            # only your data
-echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina, no newline after it (Newlines and whitespace)
+echo '{"format":"name: {x}","x":["bosse","lina"]}' | fejkdata   # name: bosse or name: lina, with no trailing newline; see What stdin renders
 fejkdata < template.txt                                  # a template kept in a file
 fejkdata <<'EOF'                                         # born 2003-11-27 — a quoted heredoc passes ', $ and \ as written
 born {date(1990-01-01,2010-12-31,'2006-01-02')}
@@ -80,7 +81,7 @@ other than a flag, an unreadable stdin, nothing piped in, or a
 template that does not compile. From a checkout:
 `go run ./cmd/fejkdata …`.
 
-### Newlines and whitespace
+### What stdin renders
 
 Under `--format text`, the default, what you send is what renders, and fejkdata adds nothing. A format string keeps every
 byte, so `echo`, a file or a heredoc ends each render with its newline, and `printf '%s'`
@@ -219,8 +220,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
-A shipped package's `Modules()` ([Data](#data)) returns its own `FS` and every module it reads, such as a
-locale's country's places; `misc.*` comes from `misc.Modules()`, in
+A shipped package's `Modules()` returns its own `FS` and every module it reads, such as a
+locale's country's places ([Data](#data)); `misc.*` comes from `misc.Modules()`, in
 `github.com/larvit/fejkdata/data/misc`. Your program links only the packages it imports.
 `data.Modules()`, from `github.com/larvit/fejkdata/data`, is every shipped module, and
 links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/data/en_US`,
