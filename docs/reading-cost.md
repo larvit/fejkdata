@@ -587,3 +587,18 @@ Read most (opens and searches):
 - `internal/datafiles/datafiles.go` 2
 - `record.go` 2
 - `compose.yaml` 1
+
+## Reading cost, chunk aca06ea931a8, finished 2026-10-12T15:34:32Z
+
+78327 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 8
+- `README.md` 5
+- `CHANGELOG.md` 1
+- `DATA-LICENSES.md` 1
+- `data/misc/car.tsv` 1
+- `docs/decisions.md` 1
+- `docs/research/research-sources-se.md` 1
+- `docs/research/research-sources-world.md` 1
