@@ -602,3 +602,20 @@ Read most (opens and searches):
 - `docs/decisions.md` 1
 - `docs/research/research-sources-se.md` 1
 - `docs/research/research-sources-world.md` 1
+
+## Reading cost, chunk 2f1148286c4c, finished 2026-10-12T15:50:50Z
+
+60817 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 4
+- `todo.md` 3
+- `CHANGELOG.md` 2
+- `shipped_data_test.go` 2
+- `.dockerignore` 1
+- `.gitignore` 1
+- `data_test.go` 1
+- `docs/decisions.md` 1
+- `release-tooling/publish_release.py` 1
+- `shipped_test.go` 1
