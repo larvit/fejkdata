@@ -127,6 +127,13 @@ func TestRunDotPath(t *testing.T) {
 	}
 }
 
+func TestRunWithoutASeedSeedsFromTheSystem(t *testing.T) {
+	_, a, errb := runOut("{uuid()}")
+	if code, b, _ := runOut("{uuid()}"); code != 0 || a == "" || a == b {
+		t.Fatalf("two runs without --seed = %q and %q, exit %d, stderr=%q; want each its own draw", a, b, code, errb)
+	}
+}
+
 func TestRunSeedSpellings(t *testing.T) {
 	_, want, _ := runOut("{/address}", "--seed", "42", "--data-path", svSE)
 	for _, args := range [][]string{

@@ -310,7 +310,7 @@ func TestCalcRefusesABadOperand(t *testing.T) {
 }
 
 func TestATypedColumnRefusesACalcOverNoDigits(t *testing.T) {
-	_, err := New(WithDataPath(writeData(t, map[string]string{
+	_, err := New(WithSeed(1), WithDataPath(writeData(t, map[string]string{
 		"row": `{"format":"","x":{"format":"{calc(d + 1)}","d":"{digits(0)}","datatype":"integer"}}`,
 	})))
 	if err == nil || !strings.Contains(err.Error(), "{digits(0)} prints nothing, which is no number") {

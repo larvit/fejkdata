@@ -165,7 +165,7 @@ func TestTableCellsAreStringNodes(t *testing.T) {
 		"place.json": `{"format":"{name}","rows":"place.tsv"}`,
 		"place.tsv":  "name\tzip\nA\t{name}\nB\t2\n",
 	})
-	if _, err := New(WithDataPath(bad)); err == nil || !strings.Contains(err.Error(), "place.tsv") || !strings.Contains(err.Error(), `no field "name"`) {
+	if _, err := New(WithSeed(1), WithDataPath(bad)); err == nil || !strings.Contains(err.Error(), "place.tsv") || !strings.Contains(err.Error(), `no field "name"`) {
 		t.Fatalf("New = %v, want a cell reading a column refused, naming the file", err)
 	}
 }
@@ -327,7 +327,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 		if _, err := f.Fake(path); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("Fake(%q) = %v, want an error mentioning %s", path, err, want)
 		}
-		_, err := New(WithDataPath(writeFiles(t, with(geo(), map[string]string{
+		_, err := New(WithSeed(1), WithDataPath(writeFiles(t, with(geo(), map[string]string{
 			"x.json": `{"format":"{y}","y":"a"}`,
 			"t.json": strconv.Quote("{/" + path + "}"),
 		}))))
@@ -335,7 +335,7 @@ func TestTableStepUpRefusals(t *testing.T) {
 			t.Errorf("{/%s}: New = %v, want an error mentioning %s", path, err, want)
 		}
 	}
-	if _, err := New(WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
+	if _, err := New(WithSeed(1), WithDataPath(writeFiles(t, map[string]string{"s.json": `{"format":"{a..b}","a":{"format":"{b}","b":"x"}}`}))); err == nil || !strings.Contains(err.Error(), "only from a table's row") {
 		t.Errorf("{a..b} on a field: New = %v, want an error mentioning only from a table's row", err)
 	}
 }
@@ -464,7 +464,7 @@ func TestTableSelectorInAReference(t *testing.T) {
 		"selector on template":           {`"{/x[1].a}"`, "not a table"},
 		"selector on repeating template": {`"{/rep[1]}"`, "not a table"},
 	} {
-		_, err := New(WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
+		_, err := New(WithSeed(1), WithDataPath(writeFiles(t, with(files, map[string]string{"bad.json": c.json, "rep.json": `{"format":"x","repeat":2}`}))))
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s: New = %v, want an error mentioning %q", name, err, c.want)
 		}
@@ -595,7 +595,7 @@ func TestTableFences(t *testing.T) {
 		"a category referencing itself":                {map[string]string{"t.json": `{"format":"{a}","rows":"t.tsv"}`, "t.tsv": "a\n{/t.a}\ny\n"}, "cycle"},
 	}
 	for name, c := range rejected {
-		_, err := New(WithDataPath(writeFiles(t, c.files)))
+		_, err := New(WithSeed(1), WithDataPath(writeFiles(t, c.files)))
 		if err == nil {
 			t.Errorf("%s: New = nil error, want it rejected at load", name)
 			continue
@@ -627,7 +627,7 @@ func TestTableFences(t *testing.T) {
 			}
 		}
 	}
-	if _, err := New(WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
+	if _, err := New(WithSeed(1), WithDataFS(os.DirFS(writeFiles(t, base)))); err != nil {
 		t.Fatalf("New(WithDataFS) = %v, want a table loaded from any fs.FS", err)
 	}
 	inline := newGenerator(t, writeFiles(t, base))
@@ -1136,7 +1136,7 @@ func TestDatatypeRefusesARowRead(t *testing.T) {
 	for _, format := range []string{"{/region}", "{/region[01]}"} {
 		files := with(geo(), map[string]string{"row.json": `{"format":"","col":{"format":"` + format + `","datatype":"integer"}}`})
 		want := `"{name}" renders a row of region, which is composed text`
-		if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := New(WithSeed(1), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s: New = %v, want an error containing %q", format, err, want)
 		}
 	}
@@ -1148,12 +1148,12 @@ func TestATableErrorNamesItsPathAndACellItsLine(t *testing.T) {
 		"g/t.tsv":  "a\tb\nx\t-\ny\t{/nope}\n",
 	}
 	want := "g.t.b, line 3: reference {/nope}"
-	if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+	if _, err := New(WithSeed(1), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a cell's bad reference: New = %v, want it to contain %q", err, want)
 	}
 	files["g/t.json"], files["g/t.tsv"] = `{"format":"{a} {/nope}","rows":"t.tsv","key":"a"}`, "a\tb\nx\t-\ny\t-\n"
 	want = "g.t: reference {/nope}"
-	if _, err := New(WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+	if _, err := New(WithSeed(1), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("a format's bad reference: New = %v, want it to contain %q", err, want)
 	}
 	f := newGenerator(t, writeFiles(t, geo()), WithSeed(1))

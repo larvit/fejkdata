@@ -130,7 +130,7 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"cat": `[{"format":"{a.b}","a.b":"1"},{"format":"{a}","a":{"format":"{b}","b":"2"}}]`,
 	})
-	_, err := New(WithDataPath(dir))
+	_, err := New(WithSeed(1), WithDataPath(dir))
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}

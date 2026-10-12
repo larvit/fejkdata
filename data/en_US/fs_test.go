@@ -12,7 +12,7 @@ func TestFSLoadsByItsManifest(t *testing.T) {
 	if _, err := fs.Stat(enus.FS, ".fejkdata.json"); err != nil {
 		t.Fatalf("FS holds no manifest: %v", err)
 	}
-	f, err := fejkdata.New(fejkdata.WithDataFS(enus.Modules()...))
+	f, err := fejkdata.New(fejkdata.WithDataFS(enus.Modules()...), fejkdata.WithSeed(1))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(Modules()...)) = %v", err)
 	}
