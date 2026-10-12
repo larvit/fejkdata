@@ -11,6 +11,12 @@ RUN go vet ./... && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
 	go test -race ./...
 
+FROM python:3.14.8-slim AS release-tooling
+COPY release-tooling/ /release-tooling/
+RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
+
 FROM portable
+# BuildKit skips a stage nothing copies from.
+COPY --from=release-tooling /tested /tmp/release-tooling-tested
 RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
 	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }
