@@ -19,9 +19,9 @@ def not_found(path):
 class TagGuard(unittest.TestCase):
 	def setUp(self):
 		cwd = os.getcwd()
-		dir = tempfile.TemporaryDirectory()
-		self.addCleanup(dir.cleanup)
-		os.chdir(dir.name)
+		tmp = tempfile.TemporaryDirectory()
+		self.addCleanup(tmp.cleanup)
+		os.chdir(tmp.name)
 		self.addCleanup(os.chdir, cwd)
 		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
 			f.write("# Changelog\n\n## [1.2.3]\n\n- A change.\n")
