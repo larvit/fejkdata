@@ -65,10 +65,8 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
 | 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 2 | 3 | 6 | 10 | 11.1 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 243 | 0.2.0 |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 2 | 7 | 8 | 2.1, 4 | 26.7 |
 | 230 | 0.2.0 |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
@@ -124,7 +122,7 @@
 | 250 | 0.2.0 |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
 | 246 | 0.2.0 |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 5 | 5 | 2.1 | 18.0 |
-| 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.2, 2 | 17.8 |
+| 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 6 | 6 | 6 | 7 | 2.2, 2 | 17.8 |
 | 228 | 0.2.0 |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 2 | 5 | 6 | 6, 4.1 | 17.7 |
 | 198 | 0.2.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
@@ -218,10 +216,6 @@
 
 ## Details
 
-### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217 each add a locale in 0.2.0, so the gate is in place before the data grows.
-
 ### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
 
 Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
@@ -229,10 +223,6 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
 Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, which already makes `New` refuse a call that names no data, so `New` breaks once, before anyone depends on it. Mark `WithSeed` required in the Library section's options table. `New`'s tests then stop swapping `randomBytes`. `fejkdata_test.go` swaps it today, and while that test runs, every `New` in the package fails.
-
-### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
-
-GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing. A test over a stub of `request` runs in the merge gate and pins the guard, which no test covers today.
 
 ### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
 
@@ -498,7 +488,7 @@ The decision "The template engine stays the root package until item 107; what re
 
 No national register defines the account number, and no research file covers Nacha yet. Item 154 adds the routing number beside it.
 
-### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.
+### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
 
