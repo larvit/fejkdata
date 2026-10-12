@@ -1,8 +1,6 @@
 package fejkdata
 
 import (
-	crand "crypto/rand"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -45,8 +43,9 @@ type config struct {
 // Option configures a [Generator].
 type Option func(*config)
 
-// WithSeed makes output reproducible: two generators with the same seed, version and
-// data emit identical sequences.
+// WithSeed seeds the generator, as [New] requires: two generators with the same seed,
+// version and data emit identical sequences. WithSeed(rand.Uint64()), with math/rand/v2,
+// draws afresh each run.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
@@ -76,6 +75,8 @@ func WithDataFS(modules ...fs.FS) Option {
 	}
 }
 
+var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n) to repeat a run's output, or WithSeed(rand.Uint64()) (import "math/rand/v2") to draw afresh each run`)
+
 var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
@@ -89,8 +90,8 @@ func (e loadError) Unwrap() error      { return e.error }
 func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // New builds a generator from the options' sources, merged in order with the last
-// winning a name clash; it fails where no [WithDataFS] or [WithDataPath] names the data
-// to load. Each JSON file becomes a category named after the file (address.json ->
+// winning a name clash; it fails where no [WithSeed] gives the seed, or no [WithDataFS]
+// or [WithDataPath] names the data to load. Each JSON file becomes a category named after the file (address.json ->
 // "address") and each subdirectory a namespace segment. It errors on a missing
 // directory, invalid JSON or invalid data. Given only WithDataFS() with no modules, New
 // loads no data, and the generator renders templates that read none. A source whose .fejkdata.json carries an
@@ -102,8 +103,8 @@ func New(opts ...Option) (*Generator, error) {
 	for _, opt := range opts {
 		opt(&c)
 	}
-	if !c.given {
-		return nil, errNoData
+	if err := c.missing(); err != nil {
+		return nil, err
 	}
 	if c.nilModules != nil {
 		return nil, c.nilModules
@@ -112,11 +113,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
 	}
-	seed, err := c.drawSeed()
-	if err != nil {
-		return nil, fmt.Errorf("fejkdata: %w", err)
-	}
-	return &Generator{drawState: drawstate.New(seed), root: root}, nil
+	return &Generator{drawState: drawstate.New(c.seed), root: root}, nil
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
@@ -131,16 +128,14 @@ func (f *Generator) List() []string {
 	return out
 }
 
-var randomBytes = crand.Read
-
-// drawSeed is the seed WithSeed gave, or one read from the system's entropy.
-func (c config) drawSeed() (uint64, error) {
-	if c.seeded {
-		return c.seed, nil
+// missing names each option New requires that no option gave.
+func (c config) missing() error {
+	var err error
+	if !c.given {
+		err = errNoData
 	}
-	var b [8]byte
-	if _, err := randomBytes(b[:]); err != nil {
-		return 0, fmt.Errorf("seeding from crypto/rand: %w", err)
+	if !c.seeded {
+		err = errors.Join(err, errNoSeed)
 	}
-	return binary.LittleEndian.Uint64(b[:]), nil
+	return err
 }
