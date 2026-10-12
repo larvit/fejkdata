@@ -228,7 +228,7 @@ Nothing has shipped, so "no longer paths", "where it used to fail" and "where it
 
 ### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
 
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, where `New` already starts refusing a call naming no data, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, which already makes `New` refuse a call that names no data, so `New` breaks once, before anyone depends on it. Mark `WithSeed` required in the Library section's options table. `New`'s tests then stop swapping `randomBytes`. `fejkdata_test.go` swaps it today, and while that test runs, every `New` in the package fails.
 
 ### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
 
@@ -387,7 +387,7 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 - Draw birthdates back past 100 years before the given date, so a `+` can appear. Read in 2026, the oldest shipped birthdate is 96 years old, so no draw carries a `+` until 2030. Skatteverket's test series reaches back to 1890, with birth numbers 980/981 before 1900. Draw no birthdate after the given date.
 - Weight the ages by the territory's population, so the share of `+` numbers follows its demography: [research-age-bands.md](docs/research/research-age-bands.md).
 - Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 186), and update the README's personnummer recipe and its "a day in 1930–2025" count.
-- Rewrite the README's `--seed` and `WithSeed` rows to goal 10's wording, and name the new required option in the changelog: `New` breaks a second time here, after item 89, as the maintainer accepted.
+- Rewrite the README's `--seed` and `WithSeed` rows to goal 10's wording, and name the new required option in the changelog: `New` breaks again here, the first time after 0.1.0, as the maintainer accepted.
 - Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
 
 ### 34. Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.
