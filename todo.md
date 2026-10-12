@@ -65,59 +65,27 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 243 | 0.1.0 |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 2 | 7 | 8 | 2.1, 4 | 26.7 |
 | 192 | 0.1.0 | decision | **Fail the gate when the shipped data passes 100 MiB, naming item 193.** | 1 | 2 | 6 | 8 | 2, 1.1 | 26.5 |
-| 230 | 0.1.0 |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
-| 210 | 0.1.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2 | 26.2 |
-| 15 | 0.1.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
-| 201 | 0.1.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
-| 129 | 0.1.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
-| 235 | 0.1.0 |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 3 | 5 | 7 | 8 | 4, 2 | 24.9 |
-| 163 | 0.1.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
-| 234 | 0.1.0 |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 3 | 7 | 7 | 2.1, 4 | 24.5 |
-| 227 | 0.1.0 |  | **Add a README quick start per task, for the bulk fixture author and the Go test author, each rendering one person whose name, sex, id, email and address agree.** | 1 | 2 | 7 | 6 | 1, 7 | 24.5 |
-| 202 | 0.1.0 |  | **Add `nb_NO` with its `geo/NO` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
-| 203 | 0.1.0 |  | **Add `da_DK` with its `geo/DK` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
-| 204 | 0.1.0 |  | **Add `fi_FI` with its `geo/FI` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
-| 236 | 0.1.0 |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 6 | 7 | 2, 4 | 22.8 |
-| 245 | 0.1.0 |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 2 | 2 | 6 | 7 | 2.1, 4 | 22.8 |
-| 205 | 0.1.0 |  | **Add `is_IS` with its `geo/IS` tree.** | 3 | 6 | 6 | 8 | 2 | 22.7 |
 | 57 | 0.1.0 |  | **Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.** | 1 | 2 | 6 | 6 | 1.1 | 22.5 |
-| 241 | 0.1.0 |  | **Give `sv_SE.person` a `birthdate`.** | 2 | 2 | 6 | 6 | 2.1 | 20.9 |
-| 217 | 0.1.0 |  | **Add `de_DE` with its `geo/DE` tree.** | 3 | 7 | 7 | 6 | 2 | 20.6 |
-| 231 | 0.1.0 |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 3 | 6 | 6 | 2.1 | 20.6 |
-| 244 | 0.1.0 |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 4 | 6 | 6 | 2.1 | 20.4 |
-| 247 | 0.1.0 |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 4 | 6 | 6 | 2, 4 | 20.4 |
-| 196 | 0.1.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
-| 164 | 0.1.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
-| 239 | 0.1.0 |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
-| 250 | 0.1.0 |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
-| 246 | 0.1.0 |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 5 | 5 | 2.1 | 18.0 |
-| 198 | 0.1.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
-| 157 | 0.1.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
-| 181 | 0.1.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
-| 232 | 0.1.0 |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
-| 233 | 0.1.0 |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
-| 237 | 0.1.0 |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
-| 248 | 0.1.0 |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
-| 167 | 0.1.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
-| 89 | 0.1.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
-| 238 | 0.1.0 |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
-| 249 | 0.1.0 |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
-| 165 | 0.1.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
-| 240 | 0.1.0 |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 2 | 2 | 4 | 5 | 2 | 15.0 |
-| 197 | 0.1.0 | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 3 | 2 | 8 | 3.2, 3 | 14.7 |
-| 127 | 0.1.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
-| 242 | 0.1.0 |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 4 | 4 | 2 | 14.1 |
-| 110 | 0.1.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
-| 166 | 0.1.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
-| 216 | 0.1.0 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 2 | 6 | 3.2 | 12.3 |
 | 191 | 0.1.0 | defect | **Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.** | 1 | 2 | 3 | 6 | 10 | 11.1 |
 | 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
+| 243 | 0.2.0 |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 2 | 7 | 8 | 2.1, 4 | 26.7 |
+| 230 | 0.2.0 |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
+| 210 | 0.2.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2 | 26.2 |
+| 15 | 0.2.0 |  | **Add `misc` tables and templates, one row of its detail's table per chunk.** | 3 | 9 | 8 | 8 | 2, 15, 14 | 25.9 |
+| 201 | 0.2.0 |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 4 | 6 | 8 | 8 | 2, 16 | 25.7 |
 | 206 | 0.2.0 |  | **Add `zh_CN` with its `geo/CN` tree.** | 4 | 8 | 8 | 8 | 2 | 25.2 |
 | 208 | 0.2.0 |  | **Add `es_MX` with its `geo/MX` tree.** | 4 | 8 | 8 | 8 | 2 | 25.2 |
 | 212 | 0.2.0 |  | **Add `pt_BR` with its `geo/BR` tree.** | 4 | 8 | 8 | 8 | 2 | 25.2 |
 | 113 | 0.2.0 | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 3 | 5 | 7 | 9 | 4 | 25.0 |
+| 129 | 0.2.0 | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 5 | 8 | 8 | 10 | 5.9, 7 | 25.0 |
+| 235 | 0.2.0 |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 3 | 5 | 7 | 8 | 4, 2 | 24.9 |
+| 163 | 0.2.0 |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 2 | 7 | 7 | 2, 5.7 | 24.8 |
+| 234 | 0.2.0 |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 3 | 7 | 7 | 2.1, 4 | 24.5 |
+| 227 | 0.2.0 |  | **Add a README quick start per task, for the bulk fixture author and the Go test author, each rendering one person whose name, sex, id, email and address agree.** | 1 | 2 | 7 | 6 | 1, 7 | 24.5 |
+| 202 | 0.2.0 |  | **Add `nb_NO` with its `geo/NO` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
+| 203 | 0.2.0 |  | **Add `da_DK` with its `geo/DK` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
+| 204 | 0.2.0 |  | **Add `fi_FI` with its `geo/FI` tree.** | 3 | 7 | 7 | 8 | 2 | 24.4 |
 | 207 | 0.2.0 |  | **Add `hi_IN` with its `geo/IN` tree.** | 4 | 8 | 7 | 8 | 2 | 23.2 |
 | 209 | 0.2.0 | decision | **Add `ar_EG` with its `geo/EG` tree.** | 4 | 8 | 7 | 8 | 2 | 23.2 |
 | 211 | 0.2.0 |  | **Add `bn_BD` with its `geo/BD` tree.** | 4 | 8 | 7 | 8 | 2 | 23.2 |
@@ -125,15 +93,25 @@
 | 214 | 0.2.0 | decision | **Add `ur_PK` with its `geo/PK` tree.** | 4 | 8 | 7 | 8 | 2 | 23.2 |
 | 154 | 0.2.0 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 2 | 2 | 6 | 7 | 2.1, 15 | 22.8 |
 | 155 | 0.2.0 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 2 | 2 | 6 | 7 | 2, 15 | 22.8 |
+| 236 | 0.2.0 |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 6 | 7 | 2, 4 | 22.8 |
+| 245 | 0.2.0 |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 2 | 2 | 6 | 7 | 2.1, 4 | 22.8 |
+| 205 | 0.2.0 |  | **Add `is_IS` with its `geo/IS` tree.** | 3 | 6 | 6 | 8 | 2 | 22.7 |
 | 26 | 0.2.0 | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 6 | 7 | 8 | 4 | 22.1 |
 | 34 | 0.2.0 |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 4 | 6 | 7 | 4 | 20.9 |
+| 241 | 0.2.0 |  | **Give `sv_SE.person` a `birthdate`.** | 2 | 2 | 6 | 6 | 2.1 | 20.9 |
 | 218 | 0.2.0 | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 6 | 6 | 7 | 2.1 | 20.8 |
+| 217 | 0.2.0 |  | **Add `de_DE` with its `geo/DE` tree.** | 3 | 7 | 7 | 6 | 2 | 20.6 |
+| 231 | 0.2.0 |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 3 | 6 | 6 | 2.1 | 20.6 |
 | 81 | 0.2.0 | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 4 | 4 | 6 | 8 | 6.1, 4 | 20.6 |
 | 177 | 0.2.0 | decision | **Run the nine-seat comprehension panel and the scoring run again once item 107 has moved the engine, and file what the panel names.** | 1 | 3 | 3 | 9 | 3 | 20.4 |
+| 244 | 0.2.0 |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 4 | 6 | 6 | 2.1 | 20.4 |
+| 247 | 0.2.0 |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 4 | 6 | 6 | 2, 4 | 20.4 |
+| 196 | 0.2.0 | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 4 | 6 | 8 | 6.2, 9.2 | 20.0 |
 | 91 | 0.2.0 |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 4 | 6 | 7 | 4.1, 5.3 | 19.9 |
 | 223 | 0.2.0 |  | **Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.** | 4 | 6 | 7 | 6 | 2, 4.1 | 19.9 |
 | 36 | 0.2.0 |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 5 | 6 | 7 | 8 | 6 | 19.5 |
 | 88 | 0.2.0 |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 2 | 3 | 6 | 6 | 4 | 19.4 |
+| 164 | 0.2.0 |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 2 | 5 | 7 | 4.1, 5.3 | 19.4 |
 | 220 | 0.2.0 |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 3 | 6 | 6 | 6 | 19.2 |
 | 222 | 0.2.0 |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 3 | 6 | 5 | 1 | 19.2 |
 | 41 | 0.2.0 | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 6 | 7 | 7 | 8 | 5.5 | 19.1 |
@@ -141,33 +119,55 @@
 | 117 | 0.2.0 |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 2 | 5 | 7 | 6 | 19.0 |
 | 28 | 0.2.0 | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 4 | 4 | 6 | 7 | 4.1 | 18.9 |
 | 24 | 0.2.0 | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 4 | 7 | 4 | 18.6 |
+| 239 | 0.2.0 |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
+| 250 | 0.2.0 |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 2 | 3 | 5 | 6 | 2.1 | 18.6 |
 | 178 | 0.2.0 |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 3 | 2 | 9 | 3, 3.2 | 18.4 |
+| 246 | 0.2.0 |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 5 | 5 | 2.1 | 18.0 |
 | 193 | 0.2.0 | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.** | 6 | 6 | 6 | 7 | 2.2, 2 | 17.8 |
 | 228 | 0.2.0 |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 2 | 5 | 6 | 6, 4.1 | 17.7 |
+| 198 | 0.2.0 |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 3 | 3 | 5 | 6 | 2 | 17.6 |
 | 92 | 0.2.0 |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 194 | 0.2.0 | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 4 | 5 | 7 | 6.3, 9.1 | 17.5 |
 | 219 | 0.2.0 |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
 | 221 | 0.2.0 |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 2 | 5 | 6 | 6 | 17.5 |
+| 157 | 0.2.0 |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 1 | 5 | 6 | 7.2 | 17.1 |
 | 229 | 0.2.0 |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 2 | 2 | 5 | 6 | 6, 5.1 | 17.1 |
 | 53 | 0.2.0 |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 4 | 5 | 6 | 6 | 4 | 16.9 |
 | 55 | 0.2.0 |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 6 | 7 | 12 | 16.8 |
+| 181 | 0.2.0 | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 5 | 4 | 6 | 9 | 9.3 | 16.8 |
+| 232 | 0.2.0 |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
+| 233 | 0.2.0 |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
+| 237 | 0.2.0 |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
+| 248 | 0.2.0 |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 2 | 3 | 5 | 5 | 2 | 16.8 |
+| 167 | 0.2.0 |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 3 | 2 | 8 | 3, 3.4 | 16.6 |
 | 18 | 0.2.0 |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 4 | 4 | 6 | 6 | 5 | 16.6 |
+| 89 | 0.2.0 |  | **Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.** | 3 | 3 | 6 | 7 | 10.1 | 16.0 |
 | 44 | 0.2.0 | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 4 | 6 | 6 | 15.8 |
 | 31 | 0.2.0 |  | **Rename `misc.territory.country` to `sovereign`.** | 3 | 2 | 4 | 7 | 5.8 | 15.7 |
 | 20 | 0.2.0 | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 2 | 2 | 4 | 6 | 4 | 15.7 |
 | 50 | 0.2.0 |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
 | 224 | 0.2.0 |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 2 | 4 | 6 | 6 | 15.5 |
+| 238 | 0.2.0 |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
+| 249 | 0.2.0 |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 3 | 5 | 5 | 5 | 2, 14 | 15.2 |
 | 17 | 0.2.0 |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 5 | 6 | 6 | 6 | 5 | 15.1 |
+| 165 | 0.2.0 |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 2 | 2 | 4 | 6 | 5.7 | 15.1 |
+| 240 | 0.2.0 |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 2 | 2 | 4 | 5 | 2 | 15.0 |
 | 170 | 0.2.0 |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 3 | 2 | 8 | 3, 3.2 | 14.7 |
+| 197 | 0.2.0 | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 3 | 2 | 8 | 3.2, 3 | 14.7 |
 | 29 | 0.2.0 |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 4 | 4 | 5 | 6 | 5 | 14.6 |
 | 42 | 0.2.0 |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 2 | 2 | 4 | 6 | 6 | 14.5 |
 | 32 | 0.2.0 |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 3 | 3 | 4 | 6 | 4.1 | 14.4 |
+| 127 | 0.2.0 |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 3 | 3 | 4 | 6 | 4 | 14.4 |
+| 242 | 0.2.0 |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 4 | 4 | 2 | 14.1 |
 | 22 | 0.2.0 |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 3 | 4 | 7 | 8 | 16 | 14.0 |
 | 46 | 0.2.0 |  | **Report the same error every load for a table with two bad options.** | 2 | 2 | 3 | 7 | 6, 10 | 14.0 |
+| 110 | 0.2.0 |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 3 | 6 | 6 | 13.8 |
 | 158 | 0.2.0 |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 2 | 2 | 4 | 5 | 7.2, 5.1 | 13.5 |
 | 226 | 0.2.0 |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 4 | 4 | 4 | 13.3 |
+| 166 | 0.2.0 |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 2 | 2 | 3 | 6 | 5.7 | 13.1 |
 | 171 | 0.2.0 |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 3 | 2 | 7 | 3, 3.2 | 12.8 |
 | 27 | 0.2.0 |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 3 | 2 | 4 | 6 | 8 | 12.3 |
+| 216 | 0.2.0 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 2 | 6 | 3.2 | 12.3 |
 | 225 | 0.2.0 |  | **Drop "a field cannot be named weight" from the refusal of a `weight` that is no number, and name the column a table's `weight` reads.** | 1 | 1 | 3 | 5 | 6 | 12.2 |
 | 107 | 0.2.0 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 6 | 9 | 3 | 8 | 3.2, 3.4 | 12.2 |
 | 186 | 0.2.0 | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 6 | 7 | 5 | 8 | 9.5, 9.1 | 11.8 |
@@ -218,13 +218,25 @@
 
 ## Details
 
+### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
+
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217, a locale each, grow them in 0.2.0.
+
+### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
+
+Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
+
+### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
+
+GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing. A test over a stub of `request` runs in the merge gate and pins the guard, which no test covers today.
+
+### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
+
+GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. The binaries carry the stamped tag, which `--version` prints. v0.1.0 ships first, so it can be tested before it is packaged.
+
 ### 243. Add `en_US.ein`, drawing only the prefixes the IRS assigns.
 
 The IRS's prefix list is facts. [Source research](docs/research/research-sources-world.md).
-
-### 192. Fail the gate when the shipped data passes 100 MiB, naming item 193.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", whose premise the maintainer set at 100 MiB on 2026-10-09: a fifth of the 500 MiB a Go module zip may hold. A test sums the bytes of the tracked files under `data/`. Items 202 to 205, 210 and 217, a locale each, grow them inside 0.1.0.
 
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
@@ -260,6 +272,22 @@ Shape: T = table, t = template, c = choice.
 ### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
 
 GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
+
+### 206. Add `zh_CN` with its `geo/CN` tree.
+
+Written in simplified characters. `rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. It ships without streets (decision: no open address register covering it whole).
+
+### 208. Add `es_MX` with its `geo/MX` tree.
+
+Mexico holds the most Spanish speakers. SEPOMEX publishes every código postal with its asentamiento, and INEGI's Marco Geoestadístico names the streets.
+
+### 212. Add `pt_BR` with its `geo/BR` tree.
+
+Brazil holds the most Portuguese speakers. IBGE's CNEFE lists every address with its CEP.
+
+### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
+
+`iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 4 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
 
 ### 129. Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.
 
@@ -308,162 +336,6 @@ Danmarks Adresseregister through Datafordeler (free) holds every street with its
 
 Posti's free postal code file names each postinumeroalue, and Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
 
-### 236. Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.
-
-Transportstyrelsen's 99 blocked combinations are facts, with no licence stated; the `ABC 123` and `ABC 12A` formats come from sv.wikipedia, unconfirmed by Transportstyrelsen. [Source research](docs/research/research-sources-se.md).
-
-### 245. Draw `en_US.phone` from every area code NANPA has in service.
-
-Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. No research file covers NANPA yet: find its list of area codes in service and that list's licence first.
-
-### 205. Add `is_IS` with its `geo/IS` tree.
-
-Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
-
-### 57. Rewrite `CHANGELOG.md`'s `[Unreleased]` as what v0.1.0 holds.
-
-Nothing has shipped, so "no longer paths", "where it used to fail" and "where it used to be an empty string" describe versions no reader can have installed.
-
-### 241. Give `sv_SE.person` a `birthdate`.
-
-The decision "No builtin reads the clock, so a date is bounded by days, never by an age" rules out an age; draw the date between two fixed dates.
-
-### 217. Add `de_DE` with its `geo/DE` tree.
-
-GeoNames publishes Germany's postal codes. Its address data is published by each Land; where open registers cover every Land, they are its street source, else it ships without streets (decision: no open address register covering it whole).
-
-### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
-
-Bolagsverket's registration statistics are CC BY 2.5 SE; derive name-token frequencies from its bulk file offline and embed no row of it. [Source research](docs/research/research-sources-se.md).
-
-### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
-
-NAICS 2022 is public domain; SEC's `company_tickers.json` is free to reuse. [Source research](docs/research/research-sources-world.md).
-
-### 247. Add `en_US.licenseplate`, drawn per state from that state's pattern.
-
-No open list of state patterns exists: write each state's pattern by hand and check it against that state's DMV. Wikipedia's list (CC BY-SA) and openalpr's (AGPL) may be read, never copied. [Source research](docs/research/research-sources-world.md).
-
-### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", and ends the locale-address decision's conflict with goal 6.2. Carved out of item 182 on 2026-10-11, after six rounds of the comprehension panel ruled each attempt worse. Tried and ruled worse: a module list carried per category from each source's manifest (two routes, `walked` and `indexed`); the union of every manifest's list on the `Generator`, noted at four entry points; and the same noted inside `loadReached`, its list threaded through `loadInline` and `structCompile`. Each named every module read, even loaded ones, until the list held namespaces and the note named only those nothing in the tree provides, which the product-owner and goals reviewers accepted. A shipped locale's `Modules()` already carries its places, so this serves a bare `FS` beside a stand-in, a `--data-path` folder and anyone else's module; the error names the module and points to `Modules()`, as the 2026-10-11 bench asked. Bench the manifest key and the note's wording with the data author, since entries changed from import paths to namespaces after the 2026-10-11 bench.
-
-### 164. Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.
-
-The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. A cell reads no name its table's format binds. Revise that decision's title and the README's Names list with it.
-
-### 239. Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.
-
-CLDR is under the Unicode licence; the law is facts. [Source research](docs/research/research-sources-se.md).
-
-### 250. Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.
-
-CLDR is under the Unicode licence. [Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
-
-### 246. Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.
-
-No national register defines the account number, and no research file covers Nacha yet. Item 154 adds the routing number beside it.
-
-### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
-
-`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
-
-### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
-
-Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
-
-### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
-
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal. The same `embed.FS` passed twice, as `svse.Modules()` beside `data.Modules()` passes `geose.FS`, loads once and is no clash. Until then, a `-d` file replacing `sv_SE/first-name.json` breaks `{/sv_SE.person}` with `token {n.name}: no variant of this 2-way choice carries "name"`, naming no replacement; the clash error ends that.
-
-### 232. Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.
-
-SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
-
-### 233. Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.
-
-SCB's SSYK pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
-
-### 237. Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.
-
-The decision "`misc` is what every locale shares" puts a national register's cars in its locale. Mobility Sweden asks for attribution and grants no open licence, so ship the top models as facts. [Source research](docs/research/research-sources-se.md).
-
-### 248. Add `en_US.car`, a make and model from NHTSA vPIC.
-
-NHTSA vPIC is public domain. The decision "`misc` is what every locale shares" puts a national register's cars in its locale. [Source research](docs/research/part2-internet-vehicle-airline.md).
-
-### 167. Lower the reading cost of the files a chunk reads most before its first commit.
-
-`reading-cost` on 2026-10-11: the last 5 chunks' median is 91452 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 37, `todo.md` 29, `docs/decisions.md` 15, `CHANGELOG.md` 12, `data_test.go` 11, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `data-import/geo-us.py` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5. The chunk shipping this item runs `reading-cost --reset`.
-
-### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
-
-Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. It ships in 0.1.0, where `New` already starts refusing a call naming no data, so `New` breaks once before anyone depends on it. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
-
-### 238. Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.
-
-SALDO's morphology is CC BY 4.0; cite Språkbanken (2017), DOI 10.23695/agcm-ny22. [Source research](docs/research/research-sources-se.md).
-
-### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
-
-Moby is public domain; WordNet's licence requires its notice and disclaimer on every copy. [Source research](docs/research/part3-science-text-dates.md).
-
-### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
-
-The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, since `ambiguous`, which reports a name matching several rows, lists those rows by key. Afterwards `ambiguous` lists them by line, the header being line 1, and ends with "make the names unique, or add a key column".
-
-### 240. Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.
-
-From CLDR's `sv` territory names, under the Unicode licence. [Source research](docs/research/research-sources-se.md).
-
-### 197. Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.
-
-Item 182 shipped on 2026-10-11 over a paired ruling with Shape fallen, by the maintainer's decision recorded in the comprehension-floor entry. Three seats named the same two costs: `mounted` in `internal/datafiles/mount.go`, a partial `fs.FS` that fakes the folders above a module's namespace and serves only `ReadDir` and `ReadFile`; and `Source.at`, which is at once the mounted flag, the prefix `labelled` strips from error labels and the folder `Manifest` reads from. Tried and ruled down within item 182: doubled folders (`data/sv_SE/sv_SE/`), the mount as a prefix on `Category.Folders` that `Load` strips (two coordinate systems), and a complete `fs.FS` wrapper. Whatever replaces it keeps errors naming files where they are on disk for a data path, and keeps `index.go` unaware of namespaces.
-
-### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
-
-`docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
-
-### 242. Add `sv_SE.bloodtype`, weighted by Sweden's distribution.
-
-geblod.nu's 2007 figures, via sv.wikipedia: A+ 37, O+ 32, B+ 10, A− 7, O− 6, AB+ 5, B− 2, AB− 1 (%). Item 15 plans a global `misc.bloodtype` from AABB. [Source research](docs/research/research-sources-se.md).
-
-### 110. Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
-
-Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
-
-### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
-
-The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
-
-### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
-
-A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
-
-### 191. Read an existing tag through `git/ref/tags/{tag}` in `publish_release.py`, so its guard against a tag at another commit fires.
-
-GitHub has no `tags/{tag}` endpoint and answers 404 whether or not the tag exists. So when the tag already sits at another commit, the release job publishes on that old tag, and the guard never stops it. The guard follows an annotated tag to its commit before comparing. A test over a stub of `request` runs in the merge gate and pins the guard, which no test covers today.
-
-### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
-
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. The binaries carry the stamped tag, which `--version` prints. v0.1.0 ships first, so it can be tested before it is packaged.
-
-### 206. Add `zh_CN` with its `geo/CN` tree.
-
-Written in simplified characters. `rows.Pins` holds eight pins inline, enough for a five-deep geo tree. If CN's tree runs deeper, raise that number to keep a render off the heap. It ships without streets (decision: no open address register covering it whole).
-
-### 208. Add `es_MX` with its `geo/MX` tree.
-
-Mexico holds the most Spanish speakers. SEPOMEX publishes every código postal with its asentamiento, and INEGI's Marco Geoestadístico names the streets.
-
-### 212. Add `pt_BR` with its `geo/BR` tree.
-
-Brazil holds the most Portuguese speakers. IBGE's CNEFE lists every address with its CEP.
-
-### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
-
-`iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 4 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
-
 ### 207. Add `hi_IN` with its `geo/IN` tree.
 
 Hindi is written in Devanagari. India's PIN code directory is open data on data.gov.in. It ships without streets (decision: no open address register covering it whole).
@@ -492,6 +364,18 @@ Needs item 34.
 
 Needs item 34: `{luhn()}` skips letters, so it draws a wrong ISIN check digit, and CUSIP's check digit is not Luhn.
 
+### 236. Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.
+
+Transportstyrelsen's 99 blocked combinations are facts, with no licence stated; the `ABC 123` and `ABC 12A` formats come from sv.wikipedia, unconfirmed by Transportstyrelsen. [Source research](docs/research/research-sources-se.md).
+
+### 245. Draw `en_US.phone` from every area code NANPA has in service.
+
+Today it draws 21 area codes; the exchange already ships as `en_US.phone-exchange`. No research file covers NANPA yet: find its list of area codes in service and that list's licence first.
+
+### 205. Add `is_IS` with its `geo/IS` tree.
+
+Staðfangaskrá, Iceland's address register, holds every street with its póstnúmer.
+
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
 The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. This item revises it: once the caller gives the date, an age is a bound, and the CLI's default date makes output change with the day it runs unless the flag is given. Do the first step before the rest:
@@ -506,9 +390,21 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 
 `isin`: Luhn over letters expanded to digits. `aba`: 3-7-1 weights. `vin`: position 9 over the whole; a sample taking the WMI, since the check sits mid-string.
 
+### 241. Give `sv_SE.person` a `birthdate`.
+
+The decision "No builtin reads the clock, so a date is bounded by days, never by an age" rules out an age; draw the date between two fixed dates.
+
 ### 218. Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.
 
 Ends the decision "A country with no open address register covering it whole ships its places and postal codes without streets".
+
+### 217. Add `de_DE` with its `geo/DE` tree.
+
+GeoNames publishes Germany's postal codes. Its address data is published by each Land; where open registers cover every Land, they are its street source, else it ships without streets (decision: no open address register covering it whole).
+
+### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
+
+Bolagsverket's registration statistics are CC BY 2.5 SE; derive name-token frequencies from its bulk file offline and embed no row of it. [Source research](docs/research/research-sources-se.md).
 
 ### 81. Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.
 
@@ -517,6 +413,18 @@ The decision "A constant zero divisor is a load error; in a string column a divi
 ### 177. Run the nine-seat comprehension panel and the scoring run again once item 107 has moved the engine, and file what the panel names.
 
 Needs item 107. The decision "comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0" holds the scores this run is measured against.
+
+### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
+
+NAICS 2022 is public domain; SEC's `company_tickers.json` is free to reuse. [Source research](docs/research/research-sources-world.md).
+
+### 247. Add `en_US.licenseplate`, drawn per state from that state's pattern.
+
+No open list of state patterns exists: write each state's pattern by hand and check it against that state's DMV. Wikipedia's list (CC BY-SA) and openalpr's (AGPL) may be read, never copied. [Source research](docs/research/research-sources-world.md).
+
+### 196. Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.
+
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0", and ends the locale-address decision's conflict with goal 6.2. Carved out of item 182 on 2026-10-11, after six rounds of the comprehension panel ruled each attempt worse. Tried and ruled worse: a module list carried per category from each source's manifest (two routes, `walked` and `indexed`); the union of every manifest's list on the `Generator`, noted at four entry points; and the same noted inside `loadReached`, its list threaded through `loadInline` and `structCompile`. Each named every module read, even loaded ones, until the list held namespaces and the note named only those nothing in the tree provides, which the product-owner and goals reviewers accepted. A shipped locale's `Modules()` already carries its places, so this serves a bare `FS` beside a stand-in, a `--data-path` folder and anyone else's module; the error names the module and points to `Modules()`, as the 2026-10-11 bench asked. Bench the manifest key and the note's wording with the data author, since entries changed from import paths to namespaces after the 2026-10-11 bench.
 
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
@@ -533,6 +441,10 @@ From the 2026-10-11 audience bench: `"user_id": "{/users.id}"` draws a fresh use
 ### 88. Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.
 
 A system that stores the 12-digit form never meets the `+`, so it needs a fixture in that form.
+
+### 164. Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.
+
+The maintainer ruled so on 2026-10-09: a name is a lexical closure, as the decision "A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read" now states. Today `table.go` refuses `{/sv_SE.person as p}{p.first} {p.last}` in a cell with `a table binds no name`. A cell reads no name its table's format binds. Revise that decision's title and the README's Names list with it.
 
 ### 41. Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.
 
@@ -559,6 +471,14 @@ Today `personnummer` draws its own sex, so a name and a number agree only throug
 
 ISO 3166 reserves it for Western Sahara and the root zone has never been delegated it, so no resolver answers for it.
 
+### 239. Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.
+
+CLDR is under the Unicode licence; the law is facts. [Source research](docs/research/research-sources-se.md).
+
+### 250. Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.
+
+CLDR is under the Unicode licence. [Source research](docs/research/research-sources-world.md). The federal holidays are listed in 5 U.S.C. 6103, which no research file covers yet.
+
 ### 178. Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.
 
 The maintainer chose on 2026-10-09 to regroup the engine into packages in 0.2.0, untangled first, over naming the root files by area. What the panels of 2026-10-09 on b9d1af6 found:
@@ -570,6 +490,10 @@ The maintainer chose on 2026-10-09 to regroup the engine into packages in 0.2.0,
 
 The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several load stages each write part of the same structs. The plan answers four questions. How does load finish each value before render reads it? Which packages does that give, and what is each one's fan-out? How does the allocation gate hold? Which of items 170 to 175 does it answer or close? It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.
 
+### 246. Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.
+
+No national register defines the account number, and no research file covers Nacha yet. Item 154 adds the routing number beside it.
+
 ### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once item 192's gate fails.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
@@ -577,6 +501,10 @@ Carries out the decision "The shipped data is Go packages a library imports by c
 ### 228. Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.
 
 From the 2026-10-11 audience bench, a Go test author tagging `{p.first}` before binding `p`. The hint is built in `checkArm` before the root is known, and only where the template has no fields; offering the binding there also told `{sv_SE.person.last}` to bind a name `sv_SE`. Decide between the reference and the binding once the root is loaded.
+
+### 198. Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.
+
+`streets()` in `geo-us.py` fetches only each drawn place's main county, the one holding most of its people. A ZCTA in a place's other counties then has no address range and is dropped: New York, under Kings County, ships Brooklyn's codes, one Manhattan code and none on Staten Island, and its streets are mostly Brooklyn's. Whether a neighbouring county is fetched depends on which other places the draw picks. The fix reads every county in `localities`' `county_part`.
 
 ### 92. Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.
 
@@ -586,9 +514,41 @@ A hyphen is always subtraction in a calc, and the shipped data has hyphenated fi
 
 Goal 6.3 has an author prove their module, and goal 9.1 has fejkdata's data load as anyone's; today only fejkdata's own test, `TestShippedManifestsAreCurrent` over `indexEntry`, writes and checks an index. A category file the index leaves out never loads, silently.
 
+### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
+
+Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
+
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
+
+### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
+
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Proposed spellings: `WithReplace()` and a boolean `--replace` covering every `-d`, so it goes anywhere on the line. Bench the option, the flag and the clash error with the data and hand fixture authors before merging; the error names the option or the flag. A clash is found from the categories each source's index names and the files each source without a manifest holds, without parsing them. Revises the decision "A `--data-path` override rebinds every reference to the category it replaces", ending its conflict with goal 9.3. The changelog names the flag, the option and the new refusal. The same `embed.FS` passed twice, as `svse.Modules()` beside `data.Modules()` passes `geose.FS`, loads once and is no clash. Until then, a `-d` file replacing `sv_SE/first-name.json` breaks `{/sv_SE.person}` with `token {n.name}: no variant of this 2-way choice carries "name"`, naming no replacement; the clash error ends that.
+
+### 232. Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.
+
+SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
+
+### 233. Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.
+
+SCB's SSYK pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
+
+### 237. Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.
+
+The decision "`misc` is what every locale shares" puts a national register's cars in its locale. Mobility Sweden asks for attribution and grants no open licence, so ship the top models as facts. [Source research](docs/research/research-sources-se.md).
+
+### 248. Add `en_US.car`, a make and model from NHTSA vPIC.
+
+NHTSA vPIC is public domain. The decision "`misc` is what every locale shares" puts a national register's cars in its locale. [Source research](docs/research/part2-internet-vehicle-airline.md).
+
+### 167. Lower the reading cost of the files a chunk reads most before its first commit.
+
+`reading-cost` on 2026-10-11: the last 5 chunks' median is 91452 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 37, `todo.md` 29, `docs/decisions.md` 15, `CHANGELOG.md` 12, `data_test.go` 11, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `data-import/geo-us.py` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5. The chunk shipping this item runs `reading-cost --reset`.
+
+### 89. Fail `New` without `WithSeed`, naming the option, and seed the CLI from the system.
+
+Goal 10.1 has the caller supply the seed, and today `New` without `WithSeed` seeds itself. `New` already starts refusing a call naming no data in 0.1.0, so this breaks `New` a second time, which a minor before 1.0 allows. Mark `WithSeed` required in the Library section's options table. Its tests then stop swapping `randomBytes`, as `fejkdata_test.go` does today, which fails every `New` in the package while that test runs.
 
 ### 44. Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.
 
@@ -606,13 +566,33 @@ Neither names a `weight`, so a bare `sex` draws evenly.
 
 Say the format is the table's own (`region's format "{name}"`), name the read to write, `{/region.<column>}` with its columns, and stop calling a one-column format, `{code}`, composed text.
 
+### 238. Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.
+
+SALDO's morphology is CC BY 4.0; cite Språkbanken (2017), DOI 10.23695/agcm-ny22. [Source research](docs/research/research-sources-se.md).
+
+### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
+
+Moby is public domain; WordNet's licence requires its notice and disclaimer on every copy. [Source research](docs/research/part3-science-text-dates.md).
+
 ### 17. Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.
 
 `misc.uuid` gains `variant`, for one.
 
+### 165. Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.
+
+The maintainer ruled so on 2026-10-09. Today `bindOptions` in `internal/rows` refuses such a table, since `ambiguous`, which reports a name matching several rows, lists those rows by key. Afterwards `ambiguous` lists them by line, the header being line 1, and ends with "make the names unique, or add a key column".
+
+### 240. Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.
+
+From CLDR's `sv` territory names, under the Unicode licence. [Source research](docs/research/research-sources-se.md).
+
 ### 170. Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.
 
 All 13 seats of the 2026-10-09 panel on b9d1af6 named `keptInPick` and `readUnder` hardest, and 12 named the rule both apply as the code they would least want to change. A key `addressedKeys` builds at load must equal the one `pickKey.under` builds at render, and a mismatch splits a correlated draw without an error. `refuseTwiceDrawnIn` applies the same rule at load in code of its own. In the new function's comment, say why a fresh read's levels start at its head, `levelKeys(…, 1)` in `pathArm`, and a named read's at its target, `levelKeys(full, 0)` in `compileArm`, which three seats rebuilt by hand.
+
+### 197. Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.
+
+Item 182 shipped on 2026-10-11 over a paired ruling with Shape fallen, by the maintainer's decision recorded in the comprehension-floor entry. Three seats named the same two costs: `mounted` in `internal/datafiles/mount.go`, a partial `fs.FS` that fakes the folders above a module's namespace and serves only `ReadDir` and `ReadFile`; and `Source.at`, which is at once the mounted flag, the prefix `labelled` strips from error labels and the folder `Manifest` reads from. Tried and ruled down within item 182: doubled folders (`data/sv_SE/sv_SE/`), the mount as a prefix on `Category.Folders` that `Load` strips (two coordinate systems), and a complete `fs.FS` wrapper. Whatever replaces it keeps errors naming files where they are on disk for a data path, and keeps `index.go` unaware of namespaces.
 
 ### 29. Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.
 
@@ -622,6 +602,14 @@ Require the path step to reach a sibling category.
 
 `datatype: boolean` over `{int(1,2)}` on an `int` field answers `prints an integer, not a boolean`.
 
+### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
+
+`docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
+
+### 242. Add `sv_SE.bloodtype`, weighted by Sweden's distribution.
+
+geblod.nu's 2007 figures, via sv.wikipedia: A+ 37, O+ 32, B+ 10, A− 7, O− 6, AB+ 5, B− 2, AB− 1 (%). Item 15 plans a global `misc.bloodtype` from AABB. [Source research](docs/research/research-sources-se.md).
+
 ### 22. Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
@@ -630,13 +618,25 @@ Require the path step to reach a sibling category.
 
 `readTableOptions` in `table.go` returns on the first in Go's map order.
 
+### 110. Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.
+
+Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` reports `path has an empty segment`. `grammar.CheckSegments` is the check a reference, a sibling path and a step up `..` run.
+
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
 A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. The maintainer chose 0.2.0 on 2026-10-07.
 
+### 166. Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.
+
+The maintainer ruled so on 2026-10-09. Today `checkSelectorCells` in `internal/rows` refuses the whole table. Afterwards a path naming such a key fails with an error naming the character a selector cannot spell, and the README says a row whose name holds such a character is still selected by its key.
+
 ### 171. Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.
 
 Eleven seats of the 2026-10-09 panel named the "change them together" in `readsColumn`'s comment (`node.go`) as action at a distance across `datatype.go`, `valueproof.go` and `render.go`.
+
+### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
+
+A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
 
 ### 107. Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.
 
