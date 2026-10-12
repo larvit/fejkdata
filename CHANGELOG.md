@@ -16,39 +16,41 @@ and any release may change what a seed draws, so pin one exact version
 
 ### Added
 
-- The CLI, `fejkdata`, renders exactly the template on its stdin and adds nothing: `echo
-  '{/sv_SE.person} hihi' | fejkdata` prints e.g. `Sara Eriksson hihi`. `--seed` makes a
-  run reproducible for one version and data, `-n` repeats it, `--list` prints every
-  path, and `--data-path` layers a directory of your own data over the shipped set, or
-  alone with `--no-shipped-data`. `--format json|ndjson|csv|sql` writes a record's
-  columns, one record per row. It exits `0` on success, `1` on a runtime error such as
-  data that fails to load, and `2` on misuse.
+- The CLI, `fejkdata`, renders exactly the template on its stdin and adds nothing:
+  `echo '{/sv_SE.person} hihi' | fejkdata` prints e.g. `Sara Eriksson hihi`. `--seed`
+  repeats a run's output while the version and data stay the same, `-n` renders the
+  template that many times, and `--list` prints the paths the data offers.
+  `--data-path` layers a directory of your own data over the shipped set, and
+  `--no-shipped-data` loads that directory alone. `--format json|ndjson|csv|sql` writes
+  a record's columns, one record per row. The CLI exits `0` on success, `1` on a runtime
+  error such as data that fails to load, and `2` on misuse.
 - The library, `github.com/larvit/fejkdata`, for Go 1.22 or later on a 64-bit target.
   `New` loads the modules `WithDataFS` names and the folders `WithDataPath` names, and
-  fails, naming `WithDataFS`, where neither is given; `WithSeed` makes its draws
-  reproducible for one version and data. `Fake` renders a path, `FakeTemplate` and
-  `NewTemplate` a template, `FakeRecord`, `FakeRecordTemplate` and `NewRecordTemplate` a
-  record, whose columns `JSON`, `CSVHeader`, `CSVLine` and `SQLInsert` write as the CLI
-  does, and `FakeStruct` fills a struct's `fake:"…"` tagged fields. `List` gives every
-  path `Fake` renders, and `IsTemplate` tells an inline template from a path. Data that
-  fails to load gives an error matching `ErrLoad`, and a record with no fields one
-  matching `ErrNoColumns`.
+  fails, naming `WithDataFS`, where neither is given. `WithSeed` makes its draws
+  repeat while the version and data stay the same. `Fake` renders a path, and
+  `FakeTemplate` and `NewTemplate` render a template. `FakeRecord`, `FakeRecordTemplate`
+  and `NewRecordTemplate` render a record, whose `JSON`, `CSVHeader`, `CSVLine` and
+  `SQLInsert` methods write its columns as the CLI does. `FakeStruct` fills a struct's
+  `fake:"…"` tagged fields. `List` gives the paths `Fake` renders, direct descents only,
+  and `IsTemplate` tells an inline template from a path. Data that fails to load gives
+  an error matching `ErrLoad`, and a record with no fields gives one matching
+  `ErrNoColumns`.
 - Package `github.com/larvit/fejkdata/cli` is the `fejkdata` command:
   `cli.Main(modules...)` runs it over the modules given, so
   `cli.Main(append(data.Modules(), mydata)...)` builds a CLI carrying your own data.
   That CLI names itself by the file it runs from, and its `--version` prints its own
   module's version before fejkdata's.
-- The template language ([Data
-  format](https://github.com/larvit/fejkdata/blob/v0.1.0/README.md#data-format)). A node
-  is a string, a choice, a template, a table, a number or a boolean. A format string's
-  `{…}` tokens read sibling fields, references from the data root, the file's folder or
-  the folder above (`{/sv_SE.person.last}`, `{.x}`, `{..x}`), builtins and names. Every
-  `{…}` draws afresh, and a name is the one way to keep a pick: `{/sv_SE.person as
-  p}{p.first} {p.last}` is one person. The builtins draw check digits (`luhn`, `mod11`,
-  `ean`), samples (`digits`, `int`, `float`, `uuid`, `ulid`, `iban`, `date`, `time` and
-  more), a counter (`seq`), arithmetic (`calc`) and transforms (`lowercase`,
-  `uppercase`, `ascii`). `New` refuses data that breaks the grammar, could mean two
-  things or cannot render a valid value.
+- The template language
+  ([Data format](https://github.com/larvit/fejkdata/blob/v0.1.0/README.md#data-format)).
+  Every value in a data file is a string, a choice, a template, a table, a number or a
+  boolean. A `{…}` token reads a sibling field, a name, or a reference from the data
+  root, the file's folder or the folder above (`{/sv_SE.person.last}`, `{.x}`, `{..x}`),
+  or it calls a builtin. Every `{…}` draws afresh, and a name is the one way to keep a
+  pick: `{/sv_SE.person as p}{p.first} {p.last}` is one person. The builtins draw check
+  digits (`luhn`, `mod11`, `ean`), samples (`digits`, `int`, `float`, `uuid`, `ulid`,
+  `iban`, `date`, `time` and more), a counter (`seq`), arithmetic (`calc`) and
+  transforms (`lowercase`, `uppercase`, `ascii`). `New` refuses data that breaks the
+  grammar, could mean two things or cannot render a valid value.
 - Records ([Records](https://github.com/larvit/fejkdata/blob/v0.1.0/README.md#records)):
   a template seen as columns. A column is a string unless it declares a `datatype`,
   `integer`, `number` or `boolean`, and a `null` item draws it as null.
@@ -84,9 +86,10 @@ and any release may change what a seed draws, so pin one exact version
   - `geo.SE` and `geo.US`: five linked tables per country, `region`, `municipality`,
     `locality`, `postal-code` and `street`, weighted by population and address counts
     and built from SCB, GeoNames, Trafikverket NVDB, the US Census Bureau and Wikidata,
-    and an `address` record drawing a street and postal code inside one locality, which
-    `sv_SE.address` and `en_US.address` print. Every Swedish postort the import can
-    place ships with all its streets. Of the US incorporated places that hold most of
-    some postal code's land, every state capital but Honolulu, every place of 100,000 or
-    more and a population-weighted tenth of them ship, each with a quarter of its
-    streets, at least ten.
+    and an `address` record that draws a street and a postal code inside one
+    locality; `sv_SE.address` and `en_US.address` print it. Every Swedish postort
+    (postal town) the import can place ships with all its streets. A US place ships
+    only if it is incorporated and holds most of some postal code's land. Of those
+    places, every state capital but Honolulu ships, as does every place of 100,000
+    people or more and a tenth of all of them drawn by population. Each US place
+    carries a quarter of its streets, at least ten.

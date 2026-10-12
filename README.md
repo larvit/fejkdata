@@ -415,10 +415,10 @@ type Address struct {
 `FakeStruct` fills a struct through a pointer: each exported field tagged `fake:"…"` is
 a column of one record, its tag a path or an inline template — told apart by
 `IsTemplate` — and its Go type the column's
-[datatype](#datatype): a string, bool, integer or float kind, or a pointer to one,
-which a column that can be null requires and a [`null`](#null) item leaves nil. An integer stays within int64 whatever its
-kind, and a value the kind cannot hold, such as `{int(0,300)}` in a `uint8`, is refused
-naming a kind that holds it. The tags are a record's columns, so they share its
+[datatype](#datatype): a string, bool, integer or float kind, or a pointer to one. A
+column that can be null needs a pointer, which a [`null`](#null) item leaves nil. An
+integer stays within int64 whatever its kind, and a value the kind cannot hold, such as
+`{int(0,300)}` in a `uint8`, is refused naming a kind that holds it. The tags are a record's columns, so they share its
 [names](#names): `First` tagged `{/sv_SE.person as p}{p.first}` and `Sex` tagged `{p.sex}`
 describe one person, while two path tags into `sv_SE.person` are two draws. The fields an
 embedded struct promotes are columns of the same record; a named struct field, or a
