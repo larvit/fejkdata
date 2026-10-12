@@ -25,10 +25,10 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
 - **Your own data:** a JSON file is a category, and a mistake in it fails at load, never
   mid-render.
-- **Reproducible:** the same seed, version and data give the same output, drawn from one
+- **Reproducible:** the same seed, version and data give the same output when drawn from one
   goroutine.
 
-[CLI](#cli) · [Library](#library) · [Data](#data) · [Templates](#data-format) ·
+[CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
 [Functions](#functions) · [Versioning](#versioning) · [Audience](#audience) ·
 [Goals](#goals) · [Development](#development) · [License](#license)
 
