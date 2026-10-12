@@ -360,7 +360,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 | Option | |
 |--------|--|
-| `WithSeed(n)` | required; same seed, version and data: identical sequence. `WithSeed(s)` with `s := rand.Uint64()`, from `math/rand/v2`, takes a new seed each run; log `s` to replay a run |
+| `WithSeed(n)` | required; the same seed, version and data give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -372,7 +372,7 @@ links all of them. Two locales, with `enus` from `github.com/larvit/fejkdata/dat
 are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
-`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no `WithSeed` gives the seed, or no
+`postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
 `WithDataFS` or `WithDataPath` names the data to load.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
@@ -431,8 +431,8 @@ error on every later call; a `datatype` in a tag other than the one its Go type 
 refused, naming that type.
 
 A `*Generator` is safe for concurrent use; a sequence is reproducible only
-when drawn from one goroutine. Changing how a value is composed shifts the
-stream for that value and everything drawn after it.
+when drawn from one goroutine. Editing a template shifts what it draws, and
+everything drawn after it.
 
 ### Your own CLI
 
@@ -459,10 +459,11 @@ func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
 `{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
 its data only when it runs. To catch broken data at `go test`, call
-`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and render each path once:
-a module with an index checks a category only when a call first reaches it. The CLI takes `fejkdata`'s flags
-and exit codes, and names itself by the file it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to `Main`, and
-`--version` prints your module's version beside the fejkdata version it is built with.
+`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and
+render each path once: a module with an index checks a category only when a call first
+reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
+it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
+`Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
 
 ## Data format
 
