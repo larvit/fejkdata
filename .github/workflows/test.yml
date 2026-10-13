@@ -58,13 +58,27 @@ jobs:
     runs-on: ubuntu-26.04
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.publish.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - run: python3 release-tooling/publish_release.py
+      - id: publish
+        run: python3 release-tooling/publish_release.py
         env:
           FORGE_API_URL: ${{ github.api_url }}
           FORGE_REPOSITORY: ${{ github.repository }}
           FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
+
+  packages:
+    needs: release
+    if: needs.release.outputs.tag != ''
+    permissions:
+      contents: write
+      packages: write
+    uses: ./.github/workflows/packages.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    secrets: inherit

@@ -1,0 +1,109 @@
+# The packages workflow runs this from a checkout of the release's tag, in src/, beside
+# this repository's tooling/ checkout: the paths below are relative to src/. A dist/
+# inside src/ would make Go stamp the binaries' version +dirty.
+version: 2
+
+project_name: fejkdata
+dist: ../dist
+
+builds:
+  - main: ./cmd/fejkdata
+    binary: fejkdata
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - DATA-LICENSES.md
+      - README.md
+      - CHANGELOG.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  disable: true
+
+release:
+  github:
+    owner: larvit
+    name: fejkdata
+  mode: keep-existing
+  replace_existing_artifacts: true
+
+nfpms:
+  - package_name: fejkdata
+    vendor: Larvit
+    homepage: https://github.com/larvit/fejkdata
+    maintainer: Lilleman auf Larv <lilleman@larvit.se>
+    description: Render locale-aware fake data from JSON templates.
+    license: MIT
+    formats: [deb, rpm, apk]
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/fejkdata/LICENSE
+      - src: DATA-LICENSES.md
+        dst: /usr/share/doc/fejkdata/DATA-LICENSES.md
+
+dockers_v2:
+  - images:
+      - ghcr.io/larvit/fejkdata
+    tags:
+      - "{{ .Version }}"
+      - latest
+    dockerfile: ../tooling/release-tooling/image.Dockerfile
+    labels:
+      org.opencontainers.image.source: https://github.com/larvit/fejkdata
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.licenses: MIT
+
+homebrew_casks:
+  - name: fejkdata
+    binaries: [fejkdata]
+    homepage: https://github.com/larvit/fejkdata
+    description: Render locale-aware fake data from JSON templates
+    license: MIT
+    repository:
+      owner: larvit
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/fejkdata"]
+          end
+
+scoops:
+  - name: fejkdata
+    homepage: https://github.com/larvit/fejkdata
+    description: Render locale-aware fake data from JSON templates.
+    license: MIT
+    repository:
+      owner: larvit
+      name: scoop-bucket
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+
+aurs:
+  - name: fejkdata-bin
+    homepage: https://github.com/larvit/fejkdata
+    description: Render locale-aware fake data from JSON templates
+    license: MIT
+    maintainers:
+      - Lilleman auf Larv <lilleman@larvit.se>
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: ssh://aur@aur.archlinux.org/fejkdata-bin.git
+    commit_author:
+      name: Lilleman auf Larv
+      email: lilleman@larvit.se

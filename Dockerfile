@@ -16,8 +16,9 @@ COPY release-tooling/ /release-tooling/
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
 FROM goreleaser/goreleaser:v2.18.3 AS packaging
-COPY release-tooling/goreleaser.yaml /goreleaser.yaml
-RUN goreleaser check --config /goreleaser.yaml && touch /tested
+WORKDIR /check
+COPY release-tooling/goreleaser.yaml ./
+RUN git init -q && goreleaser check --config goreleaser.yaml && touch /tested
 
 FROM portable
 # BuildKit skips a stage nothing copies from.

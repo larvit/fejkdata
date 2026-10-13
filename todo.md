@@ -65,7 +65,6 @@
 
 | ID | Release | Exempt | Item | R | S | A | G | Goals | Score |
 |---|---|---|---|---|---|---|---|---|---|
-| 58 | 0.2.0 |  | **Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.** | 3 | 7 | 8 | 9 | 1.1, 7 | 29.2 |
 | 243 | 0.2.0 |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 2 | 7 | 8 | 2.1, 4 | 26.7 |
 | 230 | 0.2.0 |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 3 | 7 | 8 | 2.1, 4 | 26.4 |
 | 210 | 0.2.0 |  | **Add `fr_FR` with its `geo/FR` tree.** | 3 | 8 | 8 | 8 | 2 | 26.2 |
@@ -214,10 +213,6 @@
 | 190 | 1.1.0 | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 6 | 9 | 7 | 8 | 1, 4 | 21.8 |
 
 ## Details
-
-### 58. Ship prebuilt binaries, a container image, and packages for Homebrew, Scoop and the biggest Linux package managers, so the CLI needs no Go.
-
-GoReleaser attaches the binaries to the release the tag workflow publishes, and builds deb and rpm packages, an Alpine APK and an AUR package beside Homebrew and Scoop. The binaries carry the stamped tag, which `--version` prints. v0.1.0 ships first, so it can be tested before it is packaged.
 
 ### 243. Add `en_US.ein`, drawing only the prefixes the IRS assigns.
 
