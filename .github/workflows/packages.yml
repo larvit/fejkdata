@@ -120,11 +120,12 @@ jobs:
         env:
           PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
           PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
+          TAG: ${{ inputs.tag }}
         run: |
           build() {
             docker buildx build -f release-tooling/package-repos.Dockerfile \
               --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY \
-              --build-context packages=packages "$@" .
+              --build-context packages=packages --build-arg "EXPECTED_VERSION=$TAG" "$@" .
           }
           build --target checks --output type=local,dest=checks
           build --target site --output type=local,dest=site

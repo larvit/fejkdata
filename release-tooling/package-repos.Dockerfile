@@ -1,8 +1,10 @@
 # The apt, dnf and apk repositories GitHub Pages serves, signed, from the .deb, .rpm and
 # .apk files of the `packages` stage: a snapshot built from the source here, or a release's
 # when `--build-context packages=<dir>` replaces it. The checks target installs fejkdata
-# from each repository; the README's Development section shows the commands.
+# from each repository, and where EXPECTED_VERSION is set, checks it prints that tag; the
+# README's Development section shows the commands.
 ARG BASE_URL=https://larvit.github.io/fejkdata
+ARG EXPECTED_VERSION
 
 FROM goreleaser/goreleaser:v2.18.3 AS snapshot
 WORKDIR /w/src
@@ -73,24 +75,30 @@ COPY --from=deb-rpm /site /
 COPY --from=apk /site /
 
 FROM debian:trixie-20260918-slim AS check-deb
+ARG EXPECTED_VERSION
 COPY --from=site / /site
 RUN echo 'deb [signed-by=/site/fejkdata.asc] file:/site/deb stable main' > /etc/apt/sources.list.d/fejkdata.list \
 	&& apt-get update -o Dir::Etc::SourceList=/etc/apt/sources.list.d/fejkdata.list -o Dir::Etc::SourceParts=- \
 	&& apt-get install -y fejkdata \
-	&& fejkdata --version > /checked
+	&& fejkdata --version > /checked \
+	&& { [ -z "$EXPECTED_VERSION" ] || [ "$(cat /checked)" = "fejkdata $EXPECTED_VERSION" ]; }
 
 FROM fedora:43@sha256:a651ddf48ea28a06ed4e1e6519f51c9f47e7a5a138722ade87369b8fbb7e5b42 AS check-rpm
+ARG EXPECTED_VERSION
 COPY --from=site / /site
 RUN sed -e 's#^baseurl=.*#baseurl=file:///site/rpm#' -e 's#^gpgkey=.*#gpgkey=file:///site/fejkdata.asc#' \
 		/site/rpm/fejkdata.repo > /etc/yum.repos.d/fejkdata.repo \
 	&& dnf install -y --repo fejkdata fejkdata \
-	&& fejkdata --version > /checked
+	&& fejkdata --version > /checked \
+	&& { [ -z "$EXPECTED_VERSION" ] || [ "$(cat /checked)" = "fejkdata $EXPECTED_VERSION" ]; }
 
 FROM alpine:3.22.2 AS check-apk
+ARG EXPECTED_VERSION
 COPY --from=site / /site
 RUN cp /site/apk/fejkdata.rsa.pub /etc/apk/keys/ \
 	&& apk add --no-cache --repositories-file /dev/null -X /site/apk fejkdata \
-	&& fejkdata --version > /checked
+	&& fejkdata --version > /checked \
+	&& { [ -z "$EXPECTED_VERSION" ] || [ "$(cat /checked)" = "fejkdata $EXPECTED_VERSION" ]; }
 
 FROM scratch AS checks
 COPY --from=check-deb /checked /deb
