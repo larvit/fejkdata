@@ -29,9 +29,31 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Reproducible:** the same seed, version and data give the same output, when one goroutine
   draws it.
 
-[CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
+[Install](#install) · [CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
 [Functions](#functions) · [Versioning](#versioning) · [Audience](#audience) ·
 [Goals](#goals) · [Development](#development) · [License](#license)
+
+## Install
+
+```sh
+brew install larvit/tap/fejkdata                                  # macOS, Linux
+scoop bucket add larvit https://github.com/larvit/scoop-bucket && scoop install fejkdata  # Windows
+yay -S fejkdata-bin                                               # Arch, from the AUR
+docker run --rm -i ghcr.io/larvit/fejkdata < template.json        # any OS with Docker
+go install github.com/larvit/fejkdata/cmd/fejkdata@latest         # any OS with Go
+```
+
+Debian, Ubuntu, Fedora, RHEL and Alpine install from fejkdata's Cloudsmith repository,
+after one setup script adds it and its signing key:
+
+```sh
+curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.deb.sh | sudo -E bash && sudo apt install fejkdata
+curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.rpm.sh | sudo -E bash && sudo dnf install fejkdata
+curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.alpine.sh | sudo -E bash && sudo apk add fejkdata
+```
+
+Each [release](https://github.com/larvit/fejkdata/releases) also carries the binaries for
+Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` packages.
 
 ## CLI
 
@@ -1133,7 +1155,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading
+release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages and image built for it
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1229,7 +1251,12 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the GitHub release with the section as its body. A top heading of `[Unreleased]`
-publishes nothing.
+publishes nothing. The new release then runs the Packages workflow, which attaches the
+binaries and packages, pushes the image, uploads to Cloudsmith and updates the Homebrew
+tap, the Scoop bucket and the AUR. It reads the repository secrets `TAP_GITHUB_TOKEN`,
+a token that can push to `larvit/homebrew-tap` and `larvit/scoop-bucket`, `AUR_KEY`,
+the AUR account's SSH key, and `CLOUDSMITH_API_KEY`. To package a release again, run
+the workflow by hand with its tag; it replaces what it uploaded before.
 
 ## License
 

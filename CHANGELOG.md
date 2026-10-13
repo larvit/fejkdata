@@ -4,6 +4,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
+## [Unreleased]
+
+### Added
+
+- Prebuilt binaries for Linux, macOS and Windows on amd64 and arm64, packages for apt,
+  dnf, apk, Homebrew, Scoop and the AUR, and the image `ghcr.io/larvit/fejkdata`, so
+  the CLI installs without Go. 0.1.0 ships them too; the README's
+  [Install](https://github.com/larvit/fejkdata#install) lists each command.
+
 ## [0.1.0] - 2026-10-13
 
 The first release: a Go library and a CLI that render locale-aware fake data from JSON

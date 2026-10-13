@@ -2,7 +2,8 @@
 """Publish the release that CHANGELOG.md's top heading names, tagging SHA.
 
 A top heading of `[Unreleased]`, or a version already released, publishes nothing.
-Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA.
+Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA, and GITHUB_OUTPUT,
+where a published release writes `tag=vX.Y.Z`.
 """
 
 import json
@@ -58,6 +59,8 @@ def main() -> int:
 			raise
 	release = request("releases", {"body": body, "name": tag, "tag_name": tag, "target_commitish": sha})
 	print(release["html_url"])
+	with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+		f.write(f"tag={tag}\n")
 	return 0
 
 
