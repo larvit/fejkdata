@@ -123,7 +123,8 @@ jobs:
         run: |
           build() {
             docker buildx build -f release-tooling/package-repos.Dockerfile \
-              --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY "$@" packages
+              --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY \
+              --build-context packages=packages "$@" .
           }
           build --target checks --output type=local,dest=checks
           build --target site --output type=local,dest=site

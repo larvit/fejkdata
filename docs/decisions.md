@@ -973,5 +973,6 @@ dnf) and an RSA key (apk), and any static host can serve the result. GitHub alre
 code (see "GitHub is canonical"), so Pages adds no new vendor; the image sits on GHCR for the
 same reason, and as OCI it moves by changing its path. A Pages site holds at most 1 GB and a
 release's packages take about 35 MB, so the repositories hold the latest release only; every
-release keeps its own packages, and the image keeps a tag per version. Valid while GitHub
-hosts the code.
+release keeps its own packages, and the image keeps a tag per version. Leaving Pages costs
+each Linux user an edit: their apt list, `.repo` file or apk line names `larvit.github.io`.
+Valid while GitHub hosts the code.

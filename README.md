@@ -1206,7 +1206,7 @@ Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged — unless it changes none of
 the files the build and its tests read, nor the workflow itself, in which case
 it's skipped. That build is the whole gate except the changelog check, which CI
-runs against the PR base: vet, complexity, the format check, the Go tests and the
+runs against the PR base, and the package-repository checks below: vet, complexity, the format check, the Go tests and the
 release tooling's tests. Run it locally before pushing. The lowest Go builds the
 `portable` stage, which skips the format check and the release tooling's tests:
 
@@ -1214,6 +1214,17 @@ release tooling's tests. Run it locally before pushing. The lowest Go builds the
 docker build .                                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
+```
+
+A change to `release-tooling/`, the `Dockerfile` or the Packages workflow also builds the
+apt, dnf and apk repositories from snapshot packages, signed with throwaway keys, and
+installs fejkdata from each:
+
+```sh
+docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
+PACKAGES_GPG_KEY="$(cat /tmp/fejkdata-keys/gpg.asc)" PACKAGES_RSA_KEY="$(cat /tmp/fejkdata-keys/rsa.pem)" \
+  docker build -f release-tooling/package-repos.Dockerfile --target checks \
+  --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 ```
 
 Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
@@ -1268,10 +1279,10 @@ the AUR, and deploys the apt, dnf and apk repositories to GitHub Pages. It reads
 repository secrets `TAP_GITHUB_TOKEN`, a token that can push to `larvit/homebrew-tap` and
 `larvit/scoop-bucket`; `AUR_KEY`, the AUR account's SSH key; and `PACKAGES_GPG_KEY` and
 `PACKAGES_RSA_KEY`, the private keys that sign the repositories. The image's GHCR package
-must be public, and Pages must deploy from GitHub Actions. To package a release again, run the workflow by hand with its tag; it replaces
-what it uploaded before. For a tag older than the latest release it leaves the tap, the
-bucket, the AUR, the image's `latest` and the repositories alone, since each holds one
-version.
+must be public, and Pages must deploy from GitHub Actions. To package a release again,
+run the workflow by hand with its tag; it replaces what it uploaded before. For a tag older
+than the latest release it leaves the tap, the bucket, the AUR, the image's `latest` and
+the repositories alone, since each holds one version.
 
 ## License
 
