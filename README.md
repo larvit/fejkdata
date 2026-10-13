@@ -64,6 +64,8 @@ apk add fejkdata
 
 Each [release](https://github.com/larvit/fejkdata/releases) also carries the binaries for
 Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` packages.
+The binaries are not signed, so macOS refuses one a browser downloaded until
+`xattr -d com.apple.quarantine fejkdata` clears its quarantine flag.
 
 ## CLI
 

@@ -55,7 +55,7 @@ RUN --mount=type=secret,id=gpg,required=true --mount=type=tmpfs,target=/root/.gn
 	&& printf '[fejkdata]\nname=fejkdata\nbaseurl=%s/rpm\nrepo_gpgcheck=1\ngpgcheck=0\ngpgkey=%s/fejkdata.asc\n' \
 		"$BASE_URL" "$BASE_URL" > fejkdata.repo
 
-FROM alpine:3.22.2 AS apk
+FROM alpine:3.24.2 AS apk
 RUN apk add --no-cache abuild openssl
 COPY --from=packages *.apk /packages/
 RUN --mount=type=secret,id=rsa,required=true,target=/keys/fejkdata.rsa \
@@ -92,7 +92,7 @@ RUN sed -e 's#^baseurl=.*#baseurl=file:///site/rpm#' -e 's#^gpgkey=.*#gpgkey=fil
 	&& fejkdata --version > /checked \
 	&& { [ -z "$EXPECTED_VERSION" ] || [ "$(cat /checked)" = "fejkdata $EXPECTED_VERSION" ]; }
 
-FROM alpine:3.22.2 AS check-apk
+FROM alpine:3.24.2 AS check-apk
 ARG EXPECTED_VERSION
 COPY --from=site / /site
 RUN cp /site/apk/fejkdata.rsa.pub /etc/apk/keys/ \
