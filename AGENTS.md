@@ -122,6 +122,7 @@ In [docs/decisions.md](docs/decisions.md):
 - Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
 - A country with no open address register covering it whole ships its places and postal codes without streets
+- The deb, rpm and apk repositories live on Cloudsmith, and the image on GHCR
 
 # Scoring run
 

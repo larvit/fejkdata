@@ -962,3 +962,16 @@ inherit both terms. So that country's `address` prints no street, and the README
 section says why beside each such country. This works against goal 2.1 until
 `todo.md` item 218 gives those countries streets. Valid until the maintainer accepts ODbL
 data, or the country opens a register.
+
+## The deb, rpm and apk repositories live on Cloudsmith, and the image on GHCR
+
+2026-10-13, decided by the maintainer. Serves goal 1.1; technical principle: prefer the
+vendor-neutral option, sidestepped deliberately (`~/.claude/principles/technical-principles.md`).
+A repository apt, dnf or apk can upgrade from needs signed indexes for three formats.
+Self-hosting them on GitHub Pages would put two signing keys and the tooling that rebuilds
+every index into this repository. Cloudsmith signs and indexes all three, for free to open
+source, so the tie buys that tooling, not a capability only Cloudsmith has. Leaving it costs
+each Linux user one new setup line. Every release's assets carry the same packages, so
+nothing is lost in a move. GHCR sits beside the code and takes CI's own token; the image is
+OCI, so leaving it changes only the image path. Valid while Cloudsmith's open-source plan
+stays free.

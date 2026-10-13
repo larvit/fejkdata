@@ -11,9 +11,41 @@
       "matchStrings": [
         "image: (?<depName>golang):\\$\\{GO_VERSION:-(?<currentValue>[^}]+)\\}"
       ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "goreleaser/goreleaser",
+      "description": "the GoReleaser the Packages workflow runs, which must match the image the gate checks its config with",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/packages\\.yml$/"
+      ],
+      "matchStrings": [
+        "goreleaser/goreleaser-action@\\S+\\s+with:\\s+version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "pypi",
+      "depNameTemplate": "cloudsmith-cli",
+      "description": "the Cloudsmith CLI the Packages workflow installs",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/packages\\.yml$/"
+      ],
+      "matchStrings": [
+        "cloudsmith-cli==(?<currentValue>\\S+)"
+      ]
     }
   ],
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "groupName": "GoReleaser",
+      "matchPackageNames": [
+        "goreleaser/goreleaser"
+      ]
+    }
   ]
 }

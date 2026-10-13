@@ -18,7 +18,7 @@ RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /te
 FROM goreleaser/goreleaser:v2.18.3 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
-RUN git init -q && goreleaser check --config goreleaser.yaml && touch /tested
+RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git && goreleaser check --config goreleaser.yaml && touch /tested
 
 FROM portable
 # BuildKit skips a stage nothing copies from.
