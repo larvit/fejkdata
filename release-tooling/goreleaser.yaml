@@ -1,6 +1,5 @@
-# The packages workflow runs this from a checkout of the release's tag, in src/, beside
-# this repository's tooling/ checkout: the paths below are relative to src/. A dist/
-# inside src/ would make Go stamp the binaries' version +dirty.
+# Paths are relative to the release's source checkout; dist/ sits outside it because a
+# dist/ inside would make Go stamp the version +dirty.
 version: 2
 
 project_name: fejkdata

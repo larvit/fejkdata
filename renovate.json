@@ -16,7 +16,7 @@
       "customType": "regex",
       "datasourceTemplate": "docker",
       "depNameTemplate": "goreleaser/goreleaser",
-      "description": "the GoReleaser the Packages workflow runs, which must match the image the gate checks its config with",
+      "description": "GoReleaser in the Packages workflow; keep it equal to the goreleaser image the gate checks the config with",
       "managerFilePatterns": [
         "/^\\.github/workflows/packages\\.yml$/"
       ],
