@@ -43,13 +43,23 @@ docker run --rm -i ghcr.io/larvit/fejkdata < template.json        # any OS with 
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest         # any OS with Go
 ```
 
-Debian, Ubuntu, Fedora, RHEL and Alpine install from fejkdata's Cloudsmith repository,
-after one setup script adds it and its signing key:
+Debian, Ubuntu, Fedora, RHEL and Alpine install from fejkdata's signed repositories, which
+hold the latest release:
 
 ```sh
-curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.deb.sh | sudo -E bash && sudo apt install fejkdata
-curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.rpm.sh | sudo -E bash && sudo dnf install fejkdata
-curl -1sLf https://dl.cloudsmith.io/public/larvit/fejkdata/cfg/setup/bash.alpine.sh | sudo -E bash && sudo apk add fejkdata
+# Debian, Ubuntu
+sudo curl -fsSLo /etc/apt/keyrings/fejkdata.asc https://larvit.github.io/fejkdata/fejkdata.asc
+echo 'deb [signed-by=/etc/apt/keyrings/fejkdata.asc] https://larvit.github.io/fejkdata/deb stable main' | sudo tee /etc/apt/sources.list.d/fejkdata.list
+sudo apt update && sudo apt install fejkdata
+
+# Fedora, RHEL
+sudo curl -fsSLo /etc/yum.repos.d/fejkdata.repo https://larvit.github.io/fejkdata/rpm/fejkdata.repo
+sudo dnf install fejkdata
+
+# Alpine, as root
+wget -qO /etc/apk/keys/fejkdata.rsa.pub https://larvit.github.io/fejkdata/apk/fejkdata.rsa.pub
+echo https://larvit.github.io/fejkdata/apk >> /etc/apk/repositories
+apk add fejkdata
 ```
 
 Each [release](https://github.com/larvit/fejkdata/releases) also carries the binaries for
@@ -1156,7 +1166,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages and image built for it
+release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1253,14 +1263,15 @@ To release, head `CHANGELOG.md` with the version's section in place of `Unreleas
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the GitHub release with the section as its body. A top heading of `[Unreleased]`
 publishes nothing. The new release then runs the Packages workflow, which attaches the
-binaries and packages, pushes the image, uploads to Cloudsmith and updates the Homebrew
-tap, the Scoop bucket and the AUR. It reads the repository secrets `TAP_GITHUB_TOKEN`,
-a token that can push to `larvit/homebrew-tap` and `larvit/scoop-bucket`, `AUR_KEY`,
-the AUR account's SSH key, and `CLOUDSMITH_API_KEY`; the image's GHCR package must be
-public. To package a release again, run the workflow by hand with its tag; it replaces
-what it uploaded before. For a tag older than the latest release it updates only that
-release's assets and Cloudsmith, since the tap, the bucket, the AUR and the image's
-`latest` each hold one version.
+binaries and packages, pushes the image, updates the Homebrew tap, the Scoop bucket and
+the AUR, and deploys the apt, dnf and apk repositories to GitHub Pages. It reads the
+repository secrets `TAP_GITHUB_TOKEN`, a token that can push to `larvit/homebrew-tap` and
+`larvit/scoop-bucket`; `AUR_KEY`, the AUR account's SSH key; and `PACKAGES_GPG_KEY` and
+`PACKAGES_RSA_KEY`, the private keys that sign the repositories. The image's GHCR package
+must be public, and Pages must deploy from GitHub Actions. To package a release again, run the workflow by hand with its tag; it replaces
+what it uploaded before. For a tag older than the latest release it leaves the tap, the
+bucket, the AUR, the image's `latest` and the repositories alone, since each holds one
+version.
 
 ## License
 

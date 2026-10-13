@@ -23,18 +23,6 @@
       "matchStrings": [
         "goreleaser/goreleaser-action@\\S+\\s+with:\\s+version: (?<currentValue>\\S+)"
       ]
-    },
-    {
-      "customType": "regex",
-      "datasourceTemplate": "pypi",
-      "depNameTemplate": "cloudsmith-cli",
-      "description": "the Cloudsmith CLI the Packages workflow installs",
-      "managerFilePatterns": [
-        "/^\\.github/workflows/packages\\.yml$/"
-      ],
-      "matchStrings": [
-        "cloudsmith-cli==(?<currentValue>\\S+)"
-      ]
     }
   ],
   "extends": [
