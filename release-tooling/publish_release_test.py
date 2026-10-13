@@ -25,7 +25,8 @@ class TagGuard(unittest.TestCase):
 		self.addCleanup(os.chdir, cwd)
 		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
 			f.write("# Changelog\n\n## [1.2.3]\n\n- A change.\n")
-		env = mock.patch.dict(os.environ, {"SHA": SHA})
+		open("output", "w").close()
+		env = mock.patch.dict(os.environ, {"SHA": SHA, "GITHUB_OUTPUT": os.path.abspath("output")})
 		env.start()
 		self.addCleanup(env.stop)
 
@@ -45,6 +46,10 @@ class TagGuard(unittest.TestCase):
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 			code = publish_release.main()
 		return code, created
+
+	def output(self):
+		with open("output", encoding="utf-8") as f:
+			return f.read()
 
 	def test_a_tag_at_another_commit_publishes_nothing(self):
 		code, created = self.publish({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}})
@@ -68,10 +73,11 @@ class TagGuard(unittest.TestCase):
 		code, created = self.publish({})
 		self.assertEqual(code, 0)
 		self.assertEqual(created, [{"body": "- A change.", "name": "v1.2.3", "tag_name": "v1.2.3", "target_commitish": SHA}])
+		self.assertEqual(self.output(), "tag=v1.2.3\n")
 
 	def test_a_published_release_publishes_nothing(self):
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})
-		self.assertEqual((code, created), (0, []))
+		self.assertEqual((code, created, self.output()), (0, [], ""))
 
 
 if __name__ == "__main__":
