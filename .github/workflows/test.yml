@@ -78,10 +78,13 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pages: write
+      id-token: write
     uses: ./.github/workflows/packages.yml
     with:
       tag: ${{ needs.release.outputs.tag }}
     secrets:
       TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
       AUR_KEY: ${{ secrets.AUR_KEY }}
-      CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+      PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
+      PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}

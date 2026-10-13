@@ -963,15 +963,15 @@ section says why beside each such country. This works against goal 2.1 until
 `todo.md` item 218 gives those countries streets. Valid until the maintainer accepts ODbL
 data, or the country opens a register.
 
-## The deb, rpm and apk repositories live on Cloudsmith, and the image on GHCR
+## The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 
 2026-10-13, decided by the maintainer. Serves goal 1.1; technical principle: prefer the
-vendor-neutral option, sidestepped deliberately (`~/.claude/principles/technical-principles.md`).
-A repository apt, dnf or apk can upgrade from needs signed indexes for three formats.
-Self-hosting them on GitHub Pages would put two signing keys and the tooling that rebuilds
-every index into this repository. Cloudsmith signs and indexes all three, for free to open
-source, so the tie buys that tooling, not a capability only Cloudsmith has. Leaving it costs
-each Linux user one new setup line. Every release's assets carry the same packages, so
-nothing is lost in a move. GHCR sits beside the code and takes CI's own token; the image is
-OCI, so leaving it changes only the image path. Valid while Cloudsmith's open-source plan
-stays free.
+vendor-neutral option (`~/.claude/principles/technical-principles.md`). A hosted package
+service would sign and index the packages for us, but only saves tooling, so the repositories
+are built here: `release-tooling/package-repos.Dockerfile` signs them with a GPG key (apt,
+dnf) and an RSA key (apk), and any static host can serve the result. GitHub already hosts the
+code (see "GitHub is canonical"), so Pages adds no new vendor; the image sits on GHCR for the
+same reason, and as OCI it moves by changing its path. A Pages site holds at most 1 GB and a
+release's packages take about 35 MB, so the repositories hold the latest release only; every
+release keeps its own packages, and the image keeps a tag per version. Valid while GitHub
+hosts the code.

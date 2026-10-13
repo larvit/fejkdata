@@ -58,7 +58,7 @@ dockers_v2:
       - ghcr.io/larvit/fejkdata
     tags:
       - "{{ .Version }}"
-      - latest
+      - '{{ if not (isEnvSet "OLDER_TAG") }}latest{{ end }}'
     dockerfile: ../tooling/release-tooling/image.Dockerfile
     labels:
       org.opencontainers.image.source: *homepage
