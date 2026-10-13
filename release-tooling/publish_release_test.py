@@ -80,12 +80,16 @@ class TagGuard(unittest.TestCase):
 		self.assertEqual((code, created, self.tag), (0, [], None))
 
 	def test_main_names_only_a_published_tag_to_ci(self):
-		for responses, output in (({}, "tag=v1.2.3\n"), ({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}}, "")):
+		for responses, code, output in (
+			({}, 0, "tag=v1.2.3\n"),
+			({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}}, 0, ""),
+			({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, 1, ""),
+		):
 			open("output", "w").close()
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
 				mock.patch.object(publish_release, "request", forge(responses, [])), \
-				redirect_stdout(io.StringIO()):
-				self.assertEqual(publish_release.main(), 0)
+				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+				self.assertEqual(publish_release.main(), code)
 			with open("output", encoding="utf-8") as f:
 				self.assertEqual(f.read(), output)
 
