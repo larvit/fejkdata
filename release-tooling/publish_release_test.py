@@ -16,6 +16,19 @@ def not_found(path):
 	return urllib.error.HTTPError(path, 404, "Not Found", None, None)
 
 
+def forge(responses, created):
+	def request(path, data=None):
+		if data is not None:
+			created.append(data)
+			return {"html_url": "https://forge.example/release"}
+		response = responses.get(path)
+		if response is None:
+			raise not_found(path)
+		return response
+
+	return request
+
+
 class TagGuard(unittest.TestCase):
 	def setUp(self):
 		cwd = os.getcwd()
@@ -31,17 +44,7 @@ class TagGuard(unittest.TestCase):
 
 	def publish(self, responses):
 		created = []
-
-		def request(path, data=None):
-			if data is not None:
-				created.append(data)
-				return {"html_url": "https://forge.example/release"}
-			response = responses.get(path)
-			if response is None:
-				raise not_found(path)
-			return response
-
-		with mock.patch.object(publish_release, "request", request), \
+		with mock.patch.object(publish_release, "request", forge(responses, created)), \
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 			code, self.tag = publish_release.publish()
 		return code, created
@@ -69,6 +72,22 @@ class TagGuard(unittest.TestCase):
 		self.assertEqual(code, 0)
 		self.assertEqual(created, [{"body": "- A change.", "name": "v1.2.3", "tag_name": "v1.2.3", "target_commitish": SHA}])
 		self.assertEqual(self.tag, "v1.2.3")
+
+	def test_an_unreleased_heading_publishes_nothing(self):
+		with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+			f.write("# Changelog\n\n## [Unreleased]\n\n- A change.\n")
+		code, created = self.publish({})
+		self.assertEqual((code, created, self.tag), (0, [], None))
+
+	def test_main_names_only_a_published_tag_to_ci(self):
+		for responses, output in (({}, "tag=v1.2.3\n"), ({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}}, "")):
+			open("output", "w").close()
+			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
+				mock.patch.object(publish_release, "request", forge(responses, [])), \
+				redirect_stdout(io.StringIO()):
+				self.assertEqual(publish_release.main(), 0)
+			with open("output", encoding="utf-8") as f:
+				self.assertEqual(f.read(), output)
 
 	def test_a_published_release_publishes_nothing(self):
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})

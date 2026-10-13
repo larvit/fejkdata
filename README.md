@@ -1219,9 +1219,10 @@ docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest support
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
-A change to `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence files or
-either workflow also builds the apt, dnf and apk repositories from snapshot packages,
-signs them with throwaway keys, and installs fejkdata from each:
+A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
+files or either workflow also builds the release binaries for every platform, the apt, dnf
+and apk repositories from their packages, signed with throwaway keys, and installs
+fejkdata from each:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
