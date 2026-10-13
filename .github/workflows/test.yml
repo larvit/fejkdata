@@ -32,6 +32,11 @@ jobs:
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
+          if git diff --quiet "$base"...HEAD -- release-tooling Dockerfile .github/workflows/packages.yml; then
+            echo "packaging=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "packaging=true" >> "$GITHUB_OUTPUT"
+          fi
           echo "base=$base" >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
         run: |
@@ -50,6 +55,13 @@ jobs:
       - name: Lowest supported Go
         if: ${{ !cancelled() && steps.changes.outputs.code == 'true' }}
         run: docker build --build-arg GO_VERSION=1.22.12 --target portable .
+      - name: Package repositories, signed with throwaway keys
+        if: ${{ !cancelled() && steps.changes.outputs.packaging == 'true' }}
+        run: |
+          docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output "$RUNNER_TEMP/keys" .
+          PACKAGES_GPG_KEY="$(cat "$RUNNER_TEMP/keys/gpg.asc")" PACKAGES_RSA_KEY="$(cat "$RUNNER_TEMP/keys/rsa.pem")" \
+            docker build -f release-tooling/package-repos.Dockerfile --target checks \
+            --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 
   release:
     name: Release from CHANGELOG.md
