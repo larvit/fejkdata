@@ -64,8 +64,8 @@ apk add fejkdata
 
 Each [release](https://github.com/larvit/fejkdata/releases) also carries the binaries for
 Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` packages.
-The binaries are not signed, so macOS refuses one a browser downloaded until
-`xattr -d com.apple.quarantine fejkdata` clears its quarantine flag.
+The binaries are unsigned. macOS refuses to run one a browser downloaded until you run
+`xattr -d com.apple.quarantine fejkdata`.
 
 ## CLI
 
@@ -1209,9 +1209,9 @@ supported Go, and must pass before it can be merged — unless it changes none o
 the files the build and its tests read, nor the workflow itself, in which case
 it's skipped. That build runs vet, complexity, the format check, the Go tests and the
 release tooling's tests; the rest of the gate is the changelog check, which CI runs
-against the PR base, and the package-repository checks below. Run it locally before
-pushing. The lowest Go builds the `portable` stage, which skips the format check and the
-release tooling's tests:
+against the PR base, and the package-repository checks below. Run `docker build .`
+locally before pushing. The lowest Go builds the `portable` stage, which skips the format
+check and the release tooling's tests:
 
 ```sh
 docker build .                                                  # latest
@@ -1220,9 +1220,9 @@ GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests
 ```
 
 A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
-files or either workflow also builds the release binaries for every platform, the apt, dnf
-and apk repositories from their packages, signed with throwaway keys, and installs
-fejkdata from each:
+files or either workflow also runs the package-repository checks. They build the release
+binaries for every platform and the apt, dnf and apk repositories, sign the repositories
+with throwaway keys, and install fejkdata from each repository:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
@@ -1277,13 +1277,18 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/usera
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the GitHub release with the section as its body. A top heading of `[Unreleased]`
-publishes nothing. The new release then runs the Packages workflow, which attaches the
+publishes nothing. CI then runs the Packages workflow on the new tag, which attaches the
 binaries and packages, pushes the image, updates the Homebrew tap, the Scoop bucket and
-the AUR, and deploys the apt, dnf and apk repositories to GitHub Pages. It reads the
-repository secrets `TAP_GITHUB_TOKEN`, a token that can push to `larvit/homebrew-tap` and
-`larvit/scoop-bucket`; `AUR_KEY`, the AUR account's SSH key; and `PACKAGES_GPG_KEY` and
-`PACKAGES_RSA_KEY`, the private keys that sign the repositories. The image's GHCR package
-must be public, and Pages must deploy from GitHub Actions. To package a release again,
+the AUR, and deploys the apt, dnf and apk repositories to GitHub Pages. The workflow reads
+these repository secrets:
+
+- `AUR_KEY`: the AUR account's SSH key.
+- `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
+- `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
+  `larvit/scoop-bucket`.
+
+The image's GHCR package must be public, and Pages must deploy from GitHub Actions. To
+package a release again,
 run the workflow by hand with its tag; it replaces what it uploaded before. For a tag older
 than the latest release it leaves the tap, the bucket, the AUR, the image's `latest` and
 the repositories alone, since each holds one version.

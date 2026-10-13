@@ -3,7 +3,7 @@
 
 A top heading of `[Unreleased]`, or a version already released, publishes nothing.
 Env: FORGE_API_URL, FORGE_REPOSITORY (owner/repo), FORGE_TOKEN, SHA, and GITHUB_OUTPUT,
-where a published release writes `tag=vX.Y.Z`.
+to which it appends `tag=vX.Y.Z` when it publishes a release.
 """
 
 import json

@@ -45,21 +45,19 @@ jobs:
           path: src
           fetch-depth: 0
           persist-credentials: false
-      # The packaging config comes from the workflow's commit, so a tag cut before it
-      # existed can still be packaged.
+      # Check out the packaging config at the workflow's commit, so a tag cut before the
+      # config existed can still be packaged.
       - uses: actions/checkout@v7
         with:
           path: tooling
           persist-credentials: false
-      - name: The Go the gate tests
+      - name: The Go version the gate tests
         id: go
         run: sed -n 's/^ARG GO_VERSION=/version=/p' tooling/Dockerfile >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.go.outputs.version }}
           cache: false
-      # The tap, the bucket, the AUR, the image's latest tag and the Linux repositories each
-      # hold one version, so only the latest release updates them.
       - name: Channels holding one version
         id: latest
         env:
