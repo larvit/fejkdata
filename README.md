@@ -985,7 +985,8 @@ changed. A consumer's data, code and scripts keep working across a minor or a pa
 minor only adds, and a major is the only release that changes what exists. Seeded output
 is the exception: any release, a patch too, may change what a seed draws. Where you
 compare seeded output, install one exact version
-(`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`; `go.mod` already pins one),
+(`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`, the image
+`ghcr.io/larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
 and regenerate seeded fixtures and expected values when you raise that version.
 
 | Surface | Major | Minor |
@@ -1255,8 +1256,11 @@ publishes nothing. The new release then runs the Packages workflow, which attach
 binaries and packages, pushes the image, uploads to Cloudsmith and updates the Homebrew
 tap, the Scoop bucket and the AUR. It reads the repository secrets `TAP_GITHUB_TOKEN`,
 a token that can push to `larvit/homebrew-tap` and `larvit/scoop-bucket`, `AUR_KEY`,
-the AUR account's SSH key, and `CLOUDSMITH_API_KEY`. To package a release again, run
-the workflow by hand with its tag; it replaces what it uploaded before.
+the AUR account's SSH key, and `CLOUDSMITH_API_KEY`; the image's GHCR package must be
+public. To package a release again, run the workflow by hand with its tag; it replaces
+what it uploaded before. For a tag older than the latest release it updates only that
+release's assets and Cloudsmith, since the tap, the bucket, the AUR and the image's
+`latest` each hold one version.
 
 ## License
 

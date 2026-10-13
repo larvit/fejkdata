@@ -36,19 +36,16 @@ changelog:
   disable: true
 
 release:
-  github:
-    owner: larvit
-    name: fejkdata
   mode: keep-existing
   replace_existing_artifacts: true
 
 nfpms:
   - package_name: fejkdata
     vendor: Larvit
-    homepage: https://github.com/larvit/fejkdata
-    maintainer: Lilleman auf Larv <lilleman@larvit.se>
-    description: Render locale-aware fake data from JSON templates.
-    license: MIT
+    homepage: &homepage https://github.com/larvit/fejkdata
+    maintainer: &maintainer Lilleman auf Larv <lilleman@larvit.se>
+    description: &description Render locale-aware fake data from JSON templates
+    license: &license MIT
     formats: [deb, rpm, apk]
     contents:
       - src: LICENSE
@@ -64,16 +61,16 @@ dockers_v2:
       - latest
     dockerfile: ../tooling/release-tooling/image.Dockerfile
     labels:
-      org.opencontainers.image.source: https://github.com/larvit/fejkdata
+      org.opencontainers.image.source: *homepage
       org.opencontainers.image.version: "{{ .Version }}"
-      org.opencontainers.image.licenses: MIT
+      org.opencontainers.image.licenses: *license
 
 homebrew_casks:
   - name: fejkdata
     binaries: [fejkdata]
-    homepage: https://github.com/larvit/fejkdata
-    description: Render locale-aware fake data from JSON templates
-    license: MIT
+    homepage: *homepage
+    description: *description
+    license: *license
     repository:
       owner: larvit
       name: homebrew-tap
@@ -87,9 +84,9 @@ homebrew_casks:
 
 scoops:
   - name: fejkdata
-    homepage: https://github.com/larvit/fejkdata
-    description: Render locale-aware fake data from JSON templates.
-    license: MIT
+    homepage: *homepage
+    description: *description
+    license: *license
     repository:
       owner: larvit
       name: scoop-bucket
@@ -97,11 +94,11 @@ scoops:
 
 aurs:
   - name: fejkdata-bin
-    homepage: https://github.com/larvit/fejkdata
-    description: Render locale-aware fake data from JSON templates
-    license: MIT
+    homepage: *homepage
+    description: *description
+    license: *license
     maintainers:
-      - Lilleman auf Larv <lilleman@larvit.se>
+      - *maintainer
     private_key: "{{ .Env.AUR_KEY }}"
     git_url: ssh://aur@aur.archlinux.org/fejkdata-bin.git
     commit_author:
