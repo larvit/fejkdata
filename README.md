@@ -1205,10 +1205,11 @@ docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g
 Every pull request runs `docker build .` against both the latest and the lowest
 supported Go, and must pass before it can be merged — unless it changes none of
 the files the build and its tests read, nor the workflow itself, in which case
-it's skipped. That build is the whole gate except the changelog check, which CI
-runs against the PR base, and the package-repository checks below: vet, complexity, the format check, the Go tests and the
-release tooling's tests. Run it locally before pushing. The lowest Go builds the
-`portable` stage, which skips the format check and the release tooling's tests:
+it's skipped. That build runs vet, complexity, the format check, the Go tests and the
+release tooling's tests; the rest of the gate is the changelog check, which CI runs
+against the PR base, and the package-repository checks below. Run it locally before
+pushing. The lowest Go builds the `portable` stage, which skips the format check and the
+release tooling's tests:
 
 ```sh
 docker build .                                                  # latest
@@ -1216,9 +1217,9 @@ docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest support
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
 ```
 
-A change to `release-tooling/`, the `Dockerfile` or the Packages workflow also builds the
-apt, dnf and apk repositories from snapshot packages, signed with throwaway keys, and
-installs fejkdata from each:
+A change to `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence files or
+either workflow also builds the apt, dnf and apk repositories from snapshot packages,
+signs them with throwaway keys, and installs fejkdata from each:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
