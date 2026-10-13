@@ -1,8 +1,4 @@
-# The apt, dnf and apk repositories GitHub Pages serves, signed, from the .deb, .rpm and
-# .apk files of the `packages` stage: a snapshot built from the source here, or a release's
-# when `--build-context packages=<dir>` replaces it. The checks target installs fejkdata
-# from each repository, and where EXPECTED_VERSION is set, checks it prints that tag; the
-# README's Development section shows the commands.
+# A release's packages replace the snapshot ones through `--build-context packages=<dir>`.
 ARG BASE_URL=https://larvit.github.io/fejkdata
 ARG EXPECTED_VERSION
 
