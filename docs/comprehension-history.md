@@ -630,3 +630,46 @@ Inherited architect, would restructure first:
 - `calc.go:219` `checkCalcFields`: calc lives in five places, and the root calc.go holds only load fences
 - `datatype.go:222` `columnRead`: column-read resolution sits in datatype.go
 - `cli/cli.go:505` `isPath`: copies the path grammar, the CLI's first rot point
+
+## 2026-10-13T22:09:02Z, PR #220 at 909ddc5, against 891323d
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | worse | same | same | better |
+| Inherited architect | better | worse | same | same | same |
+| Maintainability senior | better | worse | same | same | same |
+| Junior A | better | worse | same | better | better |
+
+Mid A, decided by:
+
+- Navigation: `README.md:32` `table of contents` and `README.md:118` `### What stdin renders`: a link row reaches every top-level section, and stdin's byte rules sit under a heading of their own instead of an unheaded block between the CLI examples and the flag table.
+- Navigation: `README.md:1171` `Layout` row for `release-tooling/` and `README.md:1277` `Development`: a packaging failure leads straight to `packages.yml` or `package-repos.Dockerfile`.
+- Locality: `release-tooling/goreleaser.yaml:60` `isEnvSet "OLDER_TAG"` and `release-tooling/goreleaser.yaml:61` `dockerfile: ../tooling/release-tooling/image.Dockerfile`: the config assumes the workflow's src/ and tooling/ checkouts, and OLDER_TAG is set by a shell step in `packages.yml:72` with no note where it is read.
+
+Inherited architect, decided by:
+
+- Locality: `release-tooling/goreleaser.yaml:60` `dockers_v2` tags: whether the image gets `latest` hangs on an env var only `.github/workflows/packages.yml:72` `Channels holding one version` sets, and that step's `--skip` keeps the one-version rule in a second file by a second mechanism.
+- Locality: `release-tooling/goreleaser.yaml:6` `dist: ../dist`: the config holds only under the two-checkout layout of `packages.yml:42`, and the `snapshot` stage of `package-repos.Dockerfile:5` works only because it skips docker.
+- Locality: `.github/workflows/test.yml:35` `Relevant changes`: the packaging path list is restated in README.md:1222 and deferred to by AGENTS.md:3, and the copies already differ ("Go code" against `'*.go' go.mod go.sum`).
+- Navigation: `README.md:32` table of contents, `README.md:36` `## Install` and `README.md:118` `### What stdin renders`: a symptom such as a missing trailing newline now leads to a heading.
+- Navigation: `README.md:1277` release paragraph: one paragraph traces the changelog heading, `publish_release.py`, the tag output and `packages.yml`, with the secrets and re-packaging.
+
+Maintainability senior, decided by:
+
+- Locality: `release-tooling/goreleaser.yaml:6` `dist` and `release-tooling/goreleaser.yaml:61` `dockers_v2.dockerfile`: `../dist` and `../tooling/...` resolve only under the two sibling checkouts `packages.yml:42` sets up, and the header explains `dist` but not `../tooling/`.
+- Locality: `.github/workflows/packages.yml:72` `Channels holding one version` and `release-tooling/goreleaser.yaml:60` `latest` tag template: OLDER_TAG is set in one file and read through `isEnvSet` in another, and the same step handles an older tag a second way through `--skip`.
+- Locality: `Dockerfile:18` `packaging`, `release-tooling/package-repos.Dockerfile:5` `snapshot` and `.github/workflows/packages.yml:82` `goreleaser-action`: one GoReleaser version pinned in three files, and `packages.yml:56` reads the Go version by `sed` over the Dockerfile's ARG line.
+- Locality: `.github/workflows/test.yml:35` `Relevant changes`: the packaging path list is written here and again as prose in README.md:1222, which AGENTS.md:3 points the gate at.
+- Navigation: `README.md:32` table of contents and `README.md:118` `### What stdin renders`: the stdin byte rules have a heading to jump to.
+- Navigation: `README.md:1171` `## Layout` and `README.md:1277` `## Development`: a cold reader goes from a wrong apt version to `packages.yml`, `package-repos.Dockerfile` and `check-deb`.
+
+Junior A, decided by:
+
+- Navigation: `README.md:32` table of contents and `README.md:36` `## Install`: a reader with a symptom jumps to a named section, and the stdin byte rules sit under `README.md:118` `### What stdin renders`.
+- Navigation, Self-sufficiency: `README.md:1171` `release-tooling/` in Layout and `README.md:1222` `## Development`: a failed install or Packages run leads to `release-tooling/package-repos.Dockerfile`, and each secret is named.
+- Locality: `.github/workflows/packages.yml:72` `Channels holding one version` and `release-tooling/goreleaser.yaml:60` `isEnvSet "OLDER_TAG"`: whether the image gets `latest` is decided by a variable set in another file, with no note where it is read.
+- Locality: `Dockerfile:18` `packaging`, `release-tooling/package-repos.Dockerfile:5` `snapshot` and `.github/workflows/packages.yml:82` `version`: one GoReleaser version pinned in three places, tied only by renovate.json.
+- Self-sufficiency: `release-tooling/goreleaser.yaml:1`, `.github/workflows/packages.yml:48` and `release-tooling/package-repos.Dockerfile:1`: each non-obvious choice is explained where it is made.
+- Self-sufficiency: `doc.go:5` package doc: the namespace sentence now has its subject.
