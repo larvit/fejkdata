@@ -15,8 +15,13 @@ FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
+FROM goreleaser/goreleaser:v2.18.3 AS packaging
+COPY release-tooling/goreleaser.yaml /goreleaser.yaml
+RUN goreleaser check --config /goreleaser.yaml && touch /tested
+
 FROM portable
 # BuildKit skips a stage nothing copies from.
 COPY --from=release-tooling /tested /tmp/release-tooling-tested
+COPY --from=packaging /tested /tmp/packaging-tested
 RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
 	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }
