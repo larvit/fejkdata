@@ -59,6 +59,15 @@ class Due(unittest.TestCase):
 			patch_release.due("latest", DOCKERFILE.format("1.27.1"), DOCKERFILE.format("1.27.2"))
 
 
+class NextPatch(unittest.TestCase):
+	def test_the_patch_after_a_tag(self):
+		self.assertEqual(patch_release.next_patch("v0.1.9"), "0.1.10")
+
+	def test_a_tag_not_of_the_form_vxyz_is_refused(self):
+		with self.assertRaises(ValueError):
+			patch_release.next_patch("0.1.0")
+
+
 class Apply(unittest.TestCase):
 	def test_sets_go_in_the_dockerfile_and_compose(self):
 		self.assertEqual(patch_release.set_go(DOCKERFILE.format("1.27.1"), "1.27.2"), DOCKERFILE.format("1.27.2"))
@@ -68,9 +77,33 @@ class Apply(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			patch_release.set_go("FROM scratch\n", "1.27.2")
 
-	def test_a_section_names_the_go_version_and_each_fixed_line(self):
-		lines = ["The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001."]
-		self.assertEqual(patch_release.section("0.1.1", "2026-10-14", "1.27.2", lines), SECTION)
+	def test_a_section_names_the_go_version_and_what_it_fixes(self):
+		self.assertEqual(patch_release.section("0.1.1", "2026-10-14", "1.27.2", "1.27.1", "GO-2026-0001"), SECTION)
+
+	def test_a_section_fixing_nothing_names_only_the_go_version(self):
+		self.assertEqual(
+			patch_release.section("0.1.1", "2026-10-14", "1.27.2", "1.27.1", ""),
+			"## [0.1.1] - 2026-10-14\n\n### Security\n\n- The binaries and image are built with Go 1.27.2.\n\n",
+		)
+
+	def test_prepare_writes_the_go_version_and_the_section_into_the_release_tree(self):
+		tmp = tempfile.TemporaryDirectory()
+		self.addCleanup(tmp.cleanup)
+		for name, text in (
+			("Dockerfile", DOCKERFILE.format("1.27.1")),
+			("compose.yaml", COMPOSE.format("1.27.1")),
+			("CHANGELOG.md", RELEASED),
+		):
+			with open(os.path.join(tmp.name, name), "w", encoding="utf-8") as f:
+				f.write(text)
+		patch_release.prepare(tmp.name, "1.27.2", SECTION)
+		for name, text in (
+			("Dockerfile", DOCKERFILE.format("1.27.2")),
+			("compose.yaml", COMPOSE.format("1.27.2")),
+			("CHANGELOG.md", patch_release.insert_section(RELEASED, SECTION)),
+		):
+			with open(os.path.join(tmp.name, name), encoding="utf-8") as f:
+				self.assertEqual(f.read(), text)
 
 	def test_a_section_goes_below_unreleased(self):
 		self.assertEqual(patch_release.insert_section(MAIN, SECTION), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
@@ -109,24 +142,50 @@ class Reconcile(unittest.TestCase):
 		self.assertEqual(patch_release.reconcile(main, RELEASED), main)
 
 
+class Record(unittest.TestCase):
+	def test_a_fix_goes_under_unreleased_security(self):
+		self.assertIn(
+			"### Added\n\n- A thing.\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0]",
+			patch_release.record(MAIN, ["Fix GO-2026-0009."]),
+		)
+
+	def test_a_second_fix_joins_the_security_section(self):
+		once = patch_release.record(MAIN, ["Fix GO-2026-0009."])
+		self.assertIn(
+			"### Security\n\n- Fix GO-2026-0009.\n- Fix GO-2026-0010.\n\n## [0.1.0]",
+			patch_release.record(once, ["Fix GO-2026-0010."]),
+		)
+
+	def test_a_fix_whose_vulnerabilities_a_release_names_is_left(self):
+		main = MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]")
+		self.assertEqual(patch_release.record(main, ["Worded otherwise: GO-2026-0001."]), main)
+
+	def test_a_changelog_topped_by_a_release_gets_unreleased_above_it(self):
+		self.assertEqual(
+			patch_release.record(RELEASED, ["Fix GO-2026-0009."]),
+			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
+		)
+
+	def test_a_changelog_with_only_unreleased_ends_in_one_newline(self):
+		self.assertEqual(
+			patch_release.record("# Changelog\n\n## [Unreleased]\n", ["Fix GO-2026-0009."]),
+			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n",
+		)
+
+	def test_nothing_fixed_leaves_the_changelog(self):
+		self.assertEqual(patch_release.record(MAIN, []), MAIN)
+
+
 class Main(unittest.TestCase):
-	def test_reconcile_writes_main_s_changelog(self):
-		cwd = os.getcwd()
-		tmp = tempfile.TemporaryDirectory()
-		self.addCleanup(tmp.cleanup)
-		os.chdir(tmp.name)
-		self.addCleanup(os.chdir, cwd)
-		for name, text in (("main.md", MAIN), ("released.md", patch_release.insert_section(RELEASED, SECTION))):
-			with open(name, "w", encoding="utf-8") as f:
-				f.write(text)
-		self.assertEqual(patch_release.main(["reconcile", "main.md", "released.md"]), 0)
-		with open("main.md", encoding="utf-8") as f:
-			self.assertEqual(f.read(), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
+	def test_a_file_it_cannot_read_exits_2_with_a_message(self):
+		with redirect_stderr(io.StringIO()) as err:
+			self.assertEqual(patch_release.main(["plan", "/nonexistent/report.json", "todo.md", "CHANGELOG.md"]), 2)
+		self.assertEqual(err.getvalue(), "cannot read /nonexistent/report.json: No such file or directory\n")
 
 	def test_an_unknown_command_exits_2_with_the_usage(self):
 		with redirect_stderr(io.StringIO()) as err:
 			self.assertEqual(patch_release.main(["publish"]), 2)
-		self.assertIn("patch_release.py cut", err.getvalue())
+		self.assertIn("patch_release.py plan", err.getvalue())
 
 
 if __name__ == "__main__":
