@@ -1,9 +1,11 @@
+import datetime
 import io
 import json
 import os
 import subprocess
 import tempfile
 import unittest
+import urllib.error
 from contextlib import redirect_stderr, redirect_stdout
 from unittest import mock
 
@@ -140,6 +142,12 @@ class Reconcile(unittest.TestCase):
 		self.assertEqual(
 			patch_release.reconcile(MAIN, released), MAIN.replace("## [0.1.0]", older + SECTION + "## [0.1.0]")
 		)
+
+	def test_a_heading_not_of_the_form_x_y_z_is_no_release(self):
+		for name in ("1.2.3-rc.1", "1.2."):
+			with self.subTest(name=name):
+				candidate = RELEASED.replace("## [0.1.0]", f"## [{name}] - 2026-10-14\n\nA candidate.\n\n## [0.1.0]")
+				self.assertEqual([m["name"] for m in patch_release.releases(candidate)], ["0.1.0"])
 
 	def test_main_ahead_of_the_release_is_left(self):
 		main = MAIN.replace("## [Unreleased]\n\n### Added\n\n- A thing.\n\n", "## [0.2.0] - 2026-11-01\n\n- A thing.\n\n")
@@ -298,17 +306,34 @@ class Cut(Repository):
 		self.assertEqual(self.scanned, [self.shipped_from, self.shipped_from])
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
-	def test_main_hands_the_cut_tag_to_the_workflow(self):
+	def main_cut(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("output", ""))
 		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
 			mock.patch.object(patch_release, "scan", self.scan), \
 			mock.patch.object(patch_release, "ship", self.ship), \
 			mock.patch.object(publish_release, "publish", self.published), \
-			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()):
-			self.assertEqual(patch_release.main(["cut"]), 0)
-		self.assertEqual(self.read("output"), "tag=v0.1.1\n")
+			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as err:
+			code = patch_release.main(["cut"])
+		return code, err.getvalue(), self.read("output")
+
+	def test_main_hands_the_cut_tag_to_the_workflow(self):
+		self.assertEqual(self.main_cut(), (0, "", "tag=v0.1.1\n"))
+		today = datetime.datetime.now(datetime.UTC).date().isoformat()
+		self.assertTrue(self.shipped["CHANGELOG.md"].startswith(f"# Changelog\n\n## [0.1.1] - {today}\n\n"))
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+
+	def test_main_names_a_forge_error_while_publishing_and_exits_2(self):
+		self.published.side_effect = urllib.error.URLError("forge down")
+		code, err, output = self.main_cut()
+		self.assertEqual((code, output), (2, ""))
+		self.assertRegex(err, "^cannot publish the release: .*forge down.*\n$")
+
+	def test_a_release_already_published_hands_no_tag_on(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
+		self.published.return_value = (0, None)
+		self.assertEqual(self.cut()[0], 0)
+		self.assertEqual(self.outputs, [])
 
 	def test_no_patch_is_due_on_the_last_release_s_go(self):
 		self.assertEqual(self.cut(), (0, "No patch due: main's Go is no patch above v0.1.0's.\n"))
@@ -393,12 +418,6 @@ class Main(unittest.TestCase):
 			redirect_stdout(io.StringIO()) as out:
 			self.assertEqual(patch_release.main(["last"]), 0)
 		self.assertEqual(out.getvalue(), "v0.1.0\n")
-
-	def test_a_forge_error_while_publishing_is_a_named_failure(self):
-		failing = mock.Mock(side_effect=__import__("urllib.error").error.URLError("forge down"))
-		with mock.patch.object(publish_release, "publish", failing):
-			with self.assertRaisesRegex(ValueError, "cannot publish the release: .*forge down"):
-				patch_release.publish("# Changelog\n", "abc123")
 
 	def test_a_failing_step_exits_2_with_its_message(self):
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
