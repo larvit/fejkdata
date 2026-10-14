@@ -9,8 +9,6 @@ on:
     secrets:
       TAP_GITHUB_TOKEN:
         required: true
-      AUR_KEY:
-        required: true
       PACKAGES_GPG_KEY:
         required: true
       PACKAGES_RSA_KEY:
@@ -68,7 +66,7 @@ jobs:
           if [ "$latest" = "$TAG" ]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=--skip=homebrew,scoop,aur" >> "$GITHUB_OUTPUT"
+            echo "skip=--skip=homebrew,scoop" >> "$GITHUB_OUTPUT"
             echo "OLDER_TAG=1" >> "$GITHUB_ENV"
           fi
       - uses: docker/setup-buildx-action@v4
@@ -85,7 +83,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-          AUR_KEY: ${{ secrets.AUR_KEY }}
       - name: The built binary and the published image print the tag
         env:
           TAG: ${{ inputs.tag }}

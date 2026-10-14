@@ -97,6 +97,5 @@ jobs:
       tag: ${{ needs.release.outputs.tag }}
     secrets:
       TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-      AUR_KEY: ${{ secrets.AUR_KEY }}
       PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
       PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
