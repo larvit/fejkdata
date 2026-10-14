@@ -982,8 +982,10 @@ Valid while GitHub hosts the code.
 2026-10-14, decided by the maintainer. Serves goal 1.1; technical principle: prefer the
 vendor-neutral option (`~/.claude/principles/technical-principles.md`). Docker Hub is
 Docker's default registry, so `docker run larvit/fejkdata` works with no host in the name;
-that is a capability only Docker Hub has. GHCR stays the image's source: GoReleaser pushes
-there, and a job of its own copies the image to Docker Hub, so a Docker Hub failure holds up
-no other channel. GHCR also serves CI on shared runners, which Docker Hub's per-IP limit on
-anonymous pulls blocks. Leaving Docker Hub costs each user an edit of every `docker run` line
-and pinned script that names the bare `larvit/fejkdata`.
+that is a capability only Docker Hub has. GHCR stays the image's source, and adds no
+vendor while GitHub hosts the code; being OCI, the image moves to another registry by a
+change of path. GoReleaser pushes there, and a job of its own copies the image to Docker
+Hub, so a Docker Hub failure holds up no other channel. GHCR also serves CI on shared
+runners, which Docker Hub's per-IP limit on anonymous pulls blocks. Leaving Docker Hub
+costs each user an edit of every `docker run` line and pinned script that names the bare
+`larvit/fejkdata`.
