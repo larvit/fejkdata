@@ -682,3 +682,41 @@ Ruling: same
 |---|---|---|---|---|---|
 | Mid A | same | same | same | same | same |
 | Inherited architect | same | same | same | same | same |
+
+## 2026-10-14T11:34:34Z, PR #225 at f734c9e, against f90b4d6
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | same | same | same |
+| Inherited architect | same | worse | same | same | worse |
+| Maintainability senior | same | worse | same | worse | worse |
+| Junior A | same | worse | same | worse | worse |
+
+Mid A, decided by:
+
+- Locality: `Dockerfile:26` `vulnerability-filing`: the filer's test reads the real todo.md inside docker build ., so a plan edit can turn the Go gate red
+- Locality: `vulnerability-filing/file_vulnerabilities.py:24` `ROW`: the filer splices todo.md as text, assuming its row shape, the Next ID marker and the Details heading
+- Locality: `.github/workflows/test.yml:106` `release`: a release now also waits on vuln.go.dev's answer, visible only in a needs list
+
+Inherited architect, decided by:
+
+- Locality, Overall: `Dockerfile:26` `vulnerability-filing`: the plan is copied into the merge-gate build, so a planning edit that changes the table's shape fails docker build .
+- Locality: `vulnerability-filing/file_vulnerabilities.py:101` `file_items`: edits todo.md as text; a missing Next ID crashes with exit 1, which reads like a vulnerability already planned
+- Locality: `.github/workflows/test.yml:69` `vulnerabilities`: whether a release happens depends on vuln.go.dev that day, and every PR shows a red job while one is known
+
+Maintainability senior, decided by:
+
+- Locality: `vulnerability-filing/file_vulnerabilities.py:101` `file_items`: finds the release by an unnamed regex group, never checks the Next ID match, and splices Details by a replace that does nothing when the heading is missing
+- Locality, Self-sufficiency: `.github/workflows/test.yml:83` `File each one in todo.md`: one exit code holds the release and triggers the proposal, which must tell filed, planned and crashed apart by a git diff
+- Locality: `Dockerfile:26` `vulnerability-filing`: copies todo.md into the gate build, and the path filter lists todo.md
+- Self-sufficiency: `README.md:1213` "Development": says the build runs the release tooling's tests and leaves out the filer's
+- Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:2` module docstring: builds on rank_todo.py, which the repository does not hold
+
+Junior A, decided by:
+
+- Locality, Overall: `Dockerfile:26` `vulnerability-filing`: the Go merge gate copies todo.md and files an item into it, so editing the plan can turn the build red
+- Locality: `.github/workflows/test.yml:106` `release`: whether a push to main releases also depends on vuln.go.dev's answer that day
+- Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:24` `ROW`: the regex and the Details splice encode todo.md's layout, which the script never shows
+- Self-sufficiency: `README.md:1213` "Development": the gate paragraph leaves out the filer's tests while AGENTS.md now defers to it
