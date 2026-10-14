@@ -1169,6 +1169,7 @@ internal/proven/ what a proof knows of a value, and the bounds a calc takes from
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
+dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
@@ -1284,10 +1285,8 @@ binaries and packages, pushes the image to GHCR and copies it to Docker Hub, upd
 Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
 Pages. The workflow reads these repository secrets:
 
-- `DOCKERHUB_TOKEN`: where `larvit` is a Docker Hub organization, an organization token
-  that can push only to `larvit/fejkdata`; otherwise a personal token with Read & Write and
-  no Delete, which reaches every repository the account can write. The repository variable
-  `DOCKERHUB_USERNAME` names its account.
+- `DOCKERHUB_TOKEN`: a personal access token of the Docker Hub account `larvit`, with Read &
+  Write and no Delete. The repository variable `DOCKERHUB_USERNAME` names the account.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
   `larvit/scoop-bucket`.
@@ -1297,6 +1296,13 @@ from GitHub Actions. To package a release again, run the workflow by hand with i
 replaces what it uploaded before. For a tag older than the latest release it leaves the
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
+
+The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
+to `main` that changes one syncs both to Docker Hub. The sync reads the secret
+`DOCKERHUB_DESCRIPTION_TOKEN`: a personal access token of `larvit` with Read, Write &
+Delete, the scope Docker Hub's API requires to edit a description. It lives in the
+environment `dockerhub-description`, which only `main` may use, so the Packages workflow
+cannot read it and the release holds no Delete scope.
 
 ## License
 
