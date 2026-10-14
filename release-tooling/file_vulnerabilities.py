@@ -20,15 +20,21 @@ GOAL = "1.1"
 
 @dataclass
 class Module:
+	path: str
 	found_in: str
 	fixed: list[str] = field(default_factory=list)
 	osvs: dict[str, dict] = field(default_factory=dict)
 
-	def name(self, path: str) -> str:
-		return "Go" if path == "stdlib" else f"`{path}`"
+	@property
+	def name(self) -> str:
+		return "Go" if self.path == "stdlib" else f"`{self.path}`"
 
-	def version(self, path: str, version: str) -> str:
-		return version.removeprefix("v") if path == "stdlib" else version
+	def version(self, version: str) -> str:
+		return version.removeprefix("v") if self.path == "stdlib" else version
+
+	@property
+	def carried(self) -> str:
+		return f"{self.name} {self.version(self.found_in)}"
 
 
 def messages(report: str):
@@ -41,19 +47,20 @@ def messages(report: str):
 		yield message
 
 
-def vulnerable_modules(report: str) -> dict[str, Module]:
-	"""Each module govulncheck found a vulnerability in, by module path, stdlib being Go."""
+def vulnerable_modules(report: str) -> list[Module]:
+	"""Each module govulncheck found a vulnerability in, Go (stdlib) first, then by path."""
 	osvs, modules = {}, {}
 	for message in messages(report):
 		if "osv" in message:
-			osvs[message["osv"]["id"]] = message["osv"]
+			osv = message["osv"]
+			osvs[osv["id"]] = {"id": osv["id"], "aliases": osv.get("aliases", []), "summary": osv.get("summary", "")}
 		elif "finding" in message:
 			finding = message["finding"]
 			frame = finding["trace"][0]
-			module = modules.setdefault(frame["module"], Module(frame["version"]))
+			module = modules.setdefault(frame["module"], Module(frame["module"], frame["version"]))
 			module.osvs[finding["osv"]] = osvs[finding["osv"]]
 			module.fixed.append(finding.get("fixed_version", ""))
-	return modules
+	return sorted(modules.values(), key=lambda m: (m.path != "stdlib", m.path))
 
 
 def version_key(version: str):
@@ -85,42 +92,39 @@ def score(todo: str) -> str:
 	return f"{evaluate(ast.parse(formula, mode='eval').body, values):.1f}"
 
 
-def tagline(path: str, module: Module) -> str:
-	carried = f"{module.name(path)} {module.version(path, module.found_in)}"
+def tagline(module: Module) -> str:
 	if "" in module.fixed:
-		return f"Ship no release while fejkdata carries {carried}, some of whose known vulnerabilities no version fixes yet."
-	fixed = module.version(path, max(module.fixed, key=version_key))
-	if path == "stdlib":
-		return f"Raise Go to {fixed}, so the release binaries carry none of {carried}'s known vulnerabilities."
-	return f"Raise {module.name(path)} to {fixed}, so fejkdata requires no version of it with a known vulnerability."
+		return f"Ship no release while fejkdata carries {module.carried}, some of whose known vulnerabilities no version fixes yet."
+	fixed = module.version(max(module.fixed, key=version_key))
+	if module.path == "stdlib":
+		return f"Raise Go to {fixed}, so the release binaries carry none of {module.carried}'s known vulnerabilities."
+	return f"Raise {module.name} to {fixed}, so fejkdata requires no version of it with a known vulnerability."
 
 
-def detail(path: str, module: Module) -> str:
+def detail(module: Module) -> str:
 	lines = []
 	for osv in sorted(module.osvs.values(), key=lambda o: o["id"]):
 		aliases = f" ({', '.join(osv['aliases'])})" if osv["aliases"] else ""
 		lines.append(f"- {osv['id']}{aliases}: {osv['summary']}")
-	carried = f"{module.name(path)} {module.version(path, module.found_in)}"
-	return f"govulncheck found these in {carried}:\n\n" + "\n".join(lines) + "\n"
+	return f"govulncheck found these in {module.carried}:\n\n" + "\n".join(lines) + "\n"
 
 
-def file_items(modules: dict[str, Module], todo: str) -> tuple[str, list[int]]:
+def file_items(modules: list[Module], todo: str) -> tuple[str, list[int]]:
 	"""Return todo.md with an item for each module whose vulnerabilities it does not yet name, and the items' IDs."""
 	filed = []
-	for path in sorted(modules, key=lambda m: (m != "stdlib", m)):
-		module = modules[path]
+	for module in modules:
 		if all(osv in todo for osv in module.osvs):
 			continue
 		first = ROW.search(todo)
 		if first is None:
 			raise ValueError("todo.md has no item to take the next release from")
 		next_id = int(NEXT_ID.search(todo).group(1))
-		line = tagline(path, module)
+		line = tagline(module)
 		scores = " | ".join(str(SCORES[k]) for k in "RSCAG")
 		row = f"| {next_id} | {first.group(2)} | security | **{line}** | {scores} | {GOAL} | {score(todo)} |\n"
 		todo = todo[: first.start()] + row + todo[first.start() :]
 		todo = todo.replace(f"`Next ID = {next_id}`", f"`Next ID = {next_id + 1}`", 1)
-		todo = todo.replace("## Details\n\n", f"## Details\n\n### {next_id}. {line}\n\n{detail(path, module)}\n", 1)
+		todo = todo.replace("## Details\n\n", f"## Details\n\n### {next_id}. {line}\n\n{detail(module)}\n", 1)
 		filed.append(next_id)
 	return todo, filed
 
@@ -132,7 +136,7 @@ def main(argv: list[str]) -> int:
 	if not modules:
 		print("No known vulnerabilities.")
 		return 0
-	count = sum(len(m.osvs) for m in modules.values())
+	count = sum(len(m.osvs) for m in modules)
 	known = f"{count} known {'vulnerability' if count == 1 else 'vulnerabilities'}"
 	with open(todo_path, encoding="utf-8") as f:
 		todo, filed = file_items(modules, f.read())

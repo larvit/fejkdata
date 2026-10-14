@@ -36,9 +36,9 @@ Why.
 """
 
 OSVS = (
-	{"id": "GO-2026-0002", "summary": "Denial of service in net/http", "aliases": ["CVE-2026-2"]},
+	{"id": "GO-2026-0002", "summary": "Denial of service in net/http", "aliases": ["GHSA-2222", "CVE-2026-2"]},
 	{"id": "GO-2026-0001", "summary": "Cross-site scripting in html/template", "aliases": ["CVE-2026-1"]},
-	{"id": "GO-2026-0003", "summary": "Panic in x/text", "aliases": []},
+	{"id": "GO-2026-0003", "summary": "Panic in x/text"},
 )
 STDLIB = (
 	("GO-2026-0002", "stdlib", "v1.27.1", "v1.27.2"),
@@ -83,7 +83,7 @@ class FileItems(unittest.TestCase):
 				f"### 7. {GO_TAGLINE}\n\n"
 				"govulncheck found these in Go 1.27.1:\n\n"
 				"- GO-2026-0001 (CVE-2026-1): Cross-site scripting in html/template\n"
-				"- GO-2026-0002 (CVE-2026-2): Denial of service in net/http\n\n"
+				"- GO-2026-0002 (GHSA-2222, CVE-2026-2): Denial of service in net/http\n\n"
 				"### 5. Add a thing."
 			)
 		)
