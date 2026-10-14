@@ -673,3 +673,12 @@ Junior A, decided by:
 - Locality: `Dockerfile:18` `packaging`, `release-tooling/package-repos.Dockerfile:5` `snapshot` and `.github/workflows/packages.yml:82` `version`: one GoReleaser version pinned in three places, tied only by renovate.json.
 - Self-sufficiency: `release-tooling/goreleaser.yaml:1`, `.github/workflows/packages.yml:48` and `release-tooling/package-repos.Dockerfile:1`: each non-obvious choice is explained where it is made.
 - Self-sufficiency: `doc.go:5` package doc: the namespace sentence now has its subject.
+
+## 2026-10-14T09:22:16Z, PR #222 at e492511, against c3cc251
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | same | same | same |
