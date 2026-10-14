@@ -42,8 +42,8 @@ docker run --rm -i larvit/fejkdata < template.json                # any OS with 
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest         # any OS with Go
 ```
 
-The image is also `ghcr.io/larvit/fejkdata`, which CI on shared runners may prefer:
-Docker Hub limits anonymous pulls per IP address.
+On shared CI runners, pull `ghcr.io/larvit/fejkdata` instead: Docker Hub limits anonymous
+pulls per IP address.
 
 Debian, Ubuntu, Fedora, RHEL and Alpine install from fejkdata's signed repositories, which
 hold the latest release:
@@ -1280,21 +1280,22 @@ To release, head `CHANGELOG.md` with the version's section in place of `Unreleas
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the GitHub release with the section as its body. A top heading of `[Unreleased]`
 publishes nothing. CI then runs the Packages workflow on the new tag, which attaches the
-binaries and packages, pushes the image to Docker Hub and GHCR, updates the Homebrew tap and the Scoop bucket,
-and deploys the apt, dnf and apk repositories to GitHub Pages. The workflow reads
-these repository secrets:
+binaries and packages, pushes the image to GHCR and copies it to Docker Hub, updates the
+Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
+Pages. The workflow reads these repository secrets:
 
-- `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`: a Docker Hub account and access token that can
-  push to `larvit/fejkdata`.
+- `DOCKERHUB_TOKEN`: a Docker Hub access token with Read & Write and no Delete, or an
+  organization token that can push only to `larvit/fejkdata`. The repository variable
+  `DOCKERHUB_USERNAME` names its account.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
   `larvit/scoop-bucket`.
 
-The image's Docker Hub repository and GHCR package must be public, and Pages must deploy from GitHub Actions. To
-package a release again,
-run the workflow by hand with its tag; it replaces what it uploaded before. For a tag older
-than the latest release it leaves the tap, the bucket, the images' `latest` and
-the repositories alone, since each holds one version.
+The image's Docker Hub repository and GHCR package must be public, and Pages must deploy
+from GitHub Actions. To package a release again, run the workflow by hand with its tag; it
+replaces what it uploaded before. For a tag older than the latest release it leaves the
+tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
+version.
 
 ## License
 

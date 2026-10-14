@@ -13,8 +13,6 @@ on:
         required: true
       PACKAGES_RSA_KEY:
         required: true
-      DOCKERHUB_USERNAME:
-        required: true
       DOCKERHUB_TOKEN:
         required: true
   workflow_dispatch:
@@ -79,10 +77,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: goreleaser/goreleaser-action@v7
         with:
           version: v2.18.3
@@ -91,14 +85,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-      - name: The built binary and the published images print the tag
+      - name: The built binary and the published image print the tag
         env:
           TAG: ${{ inputs.tag }}
         run: |
           test "$(dist/fejkdata_linux_amd64_v1/fejkdata --version)" = "fejkdata $TAG"
-          for image in docker.io/larvit/fejkdata ghcr.io/larvit/fejkdata; do
-            test "$(docker run --rm "$image:${TAG#v}" --version)" = "fejkdata $TAG"
-          done
+          test "$(docker run --rm "ghcr.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
+
+  dockerhub:
+    name: Docker Hub image for ${{ inputs.tag }}
+    needs: packages
+    runs-on: ubuntu-26.04
+    permissions:
+      packages: read
+    steps:
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Copy the GHCR image to Docker Hub, and check it prints the tag
+        env:
+          LATEST: ${{ needs.packages.outputs.latest }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          tags=(-t "docker.io/larvit/fejkdata:${TAG#v}")
+          if [ "$LATEST" = true ]; then
+            tags+=(-t docker.io/larvit/fejkdata:latest)
+          fi
+          docker buildx imagetools create "${tags[@]}" "ghcr.io/larvit/fejkdata:${TAG#v}"
+          test "$(docker run --rm "docker.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
 
   repos:
     name: apt, dnf and apk repositories for ${{ inputs.tag }}
