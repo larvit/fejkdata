@@ -384,7 +384,8 @@ class Main(unittest.TestCase):
 		self.assertEqual(out.getvalue(), "v0.1.0\n")
 
 	def test_a_failing_step_exits_2_with_its_message(self):
-		with mock.patch.object(patch_release, "cut", side_effect=ValueError("a step failed")), \
+		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
+			mock.patch.object(patch_release, "cut", side_effect=ValueError("a step failed")), \
 			redirect_stderr(io.StringIO()) as err:
 			self.assertEqual(patch_release.main(["cut"]), 2)
 		self.assertEqual(err.getvalue(), "a step failed\n")

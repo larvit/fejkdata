@@ -7,13 +7,15 @@
       When main's Go is a patch above the last release's, and govulncheck finds nothing in the
       last release's tree on that Go: commits the Go version and a changelog section to a
       branch release/X.Y.Z cut from the last release's tag, builds it through `docker build .`,
-      and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to GITHUB_OUTPUT.
+      and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to GITHUB_OUTPUT. While the
+      tree on that Go still carries a vulnerability, it warns and cuts nothing.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
       Adds to CHANGELOG.md each release section the last release has and main lacks, plans
       the report in todo.md through file_vulnerabilities.py, and records each fixed item's
       line under Unreleased unless a release section already names its vulnerabilities.
 
-Run in a checkout of main, with the forge's env set as for publish_release.py. Exits 2 on
+Run in a checkout of main, with the forge's env set as for publish_release.py and
+FORGE_SERVER_URL naming the forge's web host, which a push goes to. Exits 2 on
 input or a step it cannot complete, naming it.
 """
 
@@ -24,13 +26,13 @@ import subprocess
 import sys
 import tempfile
 import urllib.error
+import urllib.parse
 
 import publish_release
 
 GO_VERSION = re.compile(r"^ARG GO_VERSION=(\d+)\.(\d+)\.(\d+)$", re.M)
 TAG = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
-SECTION = re.compile(r"^## \[(?P<version>\d+\.\d+\.\d+)\][^\n]*\n.*?(?=^## \[|\Z)", re.M | re.S)
-UNRELEASED = "## [Unreleased]\n"
+VERSION = re.compile(r"\d+\.\d+\.\d+")
 VULNERABILITY = re.compile(r"GO-\d+-\d+")
 FILER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vulnerability-filing", "file_vulnerabilities.py")
 
@@ -74,40 +76,44 @@ def section(version: str, date: str, go: str, old_go: str, fixed: str) -> str:
 	return f"## [{version}] - {date}\n\n### Security\n\n" + "".join(f"- {line}\n" for line in lines) + "\n"
 
 
+def releases(changelog: str) -> list[re.Match]:
+	"""The changelog's release sections, newest first."""
+	return [m for m in publish_release.SECTION.finditer(changelog) if VERSION.fullmatch(m["name"])]
+
+
 def insert_section(changelog: str, text: str) -> str:
 	"""The changelog with the section above its newest release's, so below any Unreleased section."""
-	first = SECTION.search(changelog)
-	at = first.start() if first else len(changelog)
+	newest = releases(changelog)
+	at = newest[0].start() if newest else len(changelog)
 	return changelog[:at] + text + changelog[at:]
 
 
 def reconcile(main: str, released: str) -> str:
 	"""Main's changelog with each release section the released changelog has and main lacks."""
-	have = {m["version"] for m in SECTION.finditer(main)}
-	for missing in reversed([m for m in SECTION.finditer(released) if m["version"] not in have]):
+	have = {m["name"] for m in releases(main)}
+	for missing in reversed([m for m in releases(released) if m["name"] not in have]):
 		main = insert_section(main, missing[0])
 	return main
 
 
 def record(changelog: str, fixed: list[str]) -> str:
 	"""The changelog with each line under Unreleased's Security, save one whose vulnerabilities a release section names."""
-	released = set(VULNERABILITY.findall("".join(m[0] for m in SECTION.finditer(changelog))))
+	released = set(VULNERABILITY.findall("".join(m[0] for m in releases(changelog))))
 	new = [line for line in fixed if not set(VULNERABILITY.findall(line)) <= released]
 	if not new:
 		return changelog
 	bullets = "".join(f"- {line}\n" for line in new)
-	if UNRELEASED not in changelog:
-		return insert_section(changelog, f"{UNRELEASED}\n### Security\n\n{bullets}\n")
-	start = changelog.index(UNRELEASED) + len(UNRELEASED)
-	following = re.compile(r"^## \[", re.M).search(changelog, start)
-	end = following.start() if following else len(changelog)
-	body = changelog[start:end].strip("\n")
+	unreleased = next((m for m in publish_release.SECTION.finditer(changelog) if m["name"] == "Unreleased"), None)
+	if unreleased is None:
+		return insert_section(changelog, f"## [Unreleased]\n\n### Security\n\n{bullets}\n")
+	body = unreleased["body"].strip("\n")
 	if "### Security" in body:
 		body += "\n" + bullets
 	else:
 		body += ("\n\n" if body else "") + "### Security\n\n" + bullets
-	tail = "\n\n" + changelog[end:] if following else "\n"
-	return changelog[:start] + "\n" + body.rstrip("\n") + tail
+	end = unreleased.end()
+	tail = "\n\n" + changelog[end:] if end < len(changelog) else "\n"
+	return changelog[: unreleased.start("body")] + "\n" + body.rstrip("\n") + tail
 
 
 def read(path: str) -> str:
@@ -163,13 +169,24 @@ def ship(checkout: str, version: str, go: str) -> str:
 	"""Builds the release tree through the gate, commits and pushes it, and returns its commit."""
 	out("docker", "build", ".", cwd=checkout)
 	out("git", "commit", "-qam", f"Release {version}, built with Go {go}", cwd=checkout)
-	remote = f"https://x-access-token:{os.environ['FORGE_TOKEN']}@github.com/{os.environ['FORGE_REPOSITORY']}.git"
+	server = urllib.parse.urlsplit(os.environ["FORGE_SERVER_URL"])
+	remote = f"{server.scheme}://x-access-token:{os.environ['FORGE_TOKEN']}@{server.netloc}/{os.environ['FORGE_REPOSITORY']}.git"
 	out("git", "push", "-qf", remote, f"HEAD:refs/heads/release/{version}", cwd=checkout)
 	return out("git", "rev-parse", "HEAD", cwd=checkout)
 
 
-def cut() -> int:
-	last = last_release()
+def fixes(checkout: str, old_go: str, go: str, scan) -> str | None:
+	"""The Go vulnerabilities the release tree loses on the new Go, or None while it still carries one."""
+	scans = tempfile.mkdtemp()
+	before = scan(checkout, old_go, os.path.join(scans, "before"))
+	after = scan(checkout, go, os.path.join(scans, "after"))
+	if run(sys.executable, FILER, "check", after, ok=(0, 1)).returncode != 0:
+		return None
+	return out(sys.executable, FILER, "fixed-between", before, after)
+
+
+def cut(last: str, scan, ship, publish, output) -> int:
+	"""Cuts the patch main's Go calls for, if any, through the given effects."""
 	released = out("git", "show", f"{last}:Dockerfile")
 	plan = due(last, released, read("Dockerfile"))
 	if plan is None:
@@ -177,32 +194,38 @@ def cut() -> int:
 		return 0
 	version, go = plan
 	old_go = ".".join(map(str, go_of(released)))
-	checkout, scans = tempfile.mkdtemp(), tempfile.mkdtemp()
+	checkout = tempfile.mkdtemp()
 	out("git", "worktree", "add", "-q", "--detach", checkout, last)
-	before = scan(checkout, old_go, os.path.join(scans, "before"))
-	after = scan(checkout, go, os.path.join(scans, "after"))
-	if run(sys.executable, FILER, "check", after, ok=(0, 1)).returncode != 0:
-		raise ValueError(f"{last}'s tree on Go {go} still carries a known vulnerability; no patch is cut")
-	fixed = out(sys.executable, FILER, "fixed-between", before, after)
+	fixed = fixes(checkout, old_go, go, scan)
+	if fixed is None:
+		print(f"::warning::{last}'s tree on Go {go} still carries a known vulnerability; no patch is cut")
+		return 0
 	date = datetime.datetime.now(datetime.UTC).date().isoformat()
 	prepare(checkout, go, section(version, date, go, old_go, fixed))
-	sha = ship(checkout, version, go)
-	code, tag = publish_release.publish(read(os.path.join(checkout, "CHANGELOG.md")), sha)
+	code, tag = publish(read(os.path.join(checkout, "CHANGELOG.md")), ship(checkout, version, go))
 	if tag:
-		with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-			f.write(f"tag={tag}\n")
+		output(f"tag={tag}")
 	return code
 
 
-def plan(report: str, todo: str, changelog: str) -> int:
-	read(report)
-	text = read(changelog)
-	last = last_release()
-	text = reconcile(text, out("git", "show", f"{last}:CHANGELOG.md"))
+def plan(report: str, todo: str, changelog: str, last: str) -> int:
+	text = reconcile(read(changelog), out("git", "show", f"{last}:CHANGELOG.md"))
 	planned = run(sys.executable, FILER, "plan", report, todo, "--patch", next_patch(last))
 	sys.stderr.write(planned.stderr)
 	write(changelog, record(text, planned.stdout.splitlines()))
 	return 0
+
+
+def publish(changelog: str, sha: str) -> tuple[int, str | None]:
+	try:
+		return publish_release.publish(changelog, sha)
+	except urllib.error.URLError as err:
+		raise ValueError(f"cannot publish the release: {err}") from err
+
+
+def github_output(line: str) -> None:
+	with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+		f.write(line + "\n")
 
 
 def main(argv: list[str]) -> int:
@@ -212,9 +235,10 @@ def main(argv: list[str]) -> int:
 				print(last_release())
 				return 0
 			case ["cut"]:
-				return cut()
+				return cut(last_release(), scan, ship, publish, github_output)
 			case ["plan", report, todo, changelog]:
-				return plan(report, todo, changelog)
+				read(report)
+				return plan(report, todo, changelog, last_release())
 	except ValueError as err:
 		print(err, file=sys.stderr)
 		return 2

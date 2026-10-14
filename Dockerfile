@@ -19,10 +19,10 @@ RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module -format json > 
 FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
 
-FROM python:3.14.8-slim AS release-tooling
+FROM python:3.14.8 AS release-tooling
 COPY release-tooling/ /release-tooling/
 COPY vulnerability-filing/ /vulnerability-filing/
-RUN apt-get update -qq && apt-get install -qq -y git >/dev/null && python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
+RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
 FROM python:3.14.8-slim AS vulnerability-filing
 COPY vulnerability-filing/ /vulnerability-filing/

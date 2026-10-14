@@ -1023,19 +1023,19 @@ while the binaries are built from the gate's Go version.
 maintainer to cut a release. Serves goal 1.1. Renovate merges a Go patch to `main` once
 every check passes. When `main`'s Go is then a patch above the last release's, the release
 job cuts a patch through `release-tooling/patch_release.py cut`: it scans the last
-release's tree on its own Go and on `main`'s with govulncheck, refuses to cut while the
-second scan names a vulnerability, and otherwise commits that Go version and a changelog
-section naming the vulnerabilities the second scan no longer finds to a branch named for
-the new version, cut from the last release's tag. It builds that commit through `docker
-build .` and publishes it with `release-tooling/publish_release.py`, whose burnt-tag check
-refuses a version already tagged elsewhere, such as a planned patch number CI has taken.
-So a patch ships only the Go bump, never the work merged since, and its notes name only
-what its own tree fixed. The job compares with the last release's Go, not with the push,
-and runs one at a time, so a rerun cuts nothing twice and a missed run is caught up daily;
-publishing `main`'s heading stays on a push, which the gate passed. `patch_release.py`
-names the last release for every job, as the forge's latest release, and owns
-`CHANGELOG.md`: each run copies into `main`'s changelog any section the last release has
-and `main` lacks, so a lost run loses no section, and moves rows planned under a patch CI
-took to the next patch. The Packages workflow builds a tag with the Go its own Dockerfile
-names. A newer Go minor waits for a release the maintainer cuts. Valid while Go is the one
-dependency the binaries carry.
+release's tree on its own Go and on `main`'s with govulncheck, cuts nothing, with a
+warning, while the second scan names a vulnerability, and otherwise commits that Go
+version and a changelog section naming the vulnerabilities the second scan no longer finds
+to a branch named for the new version, cut from the last release's tag. It builds that
+commit through `docker build .` and publishes it with
+`release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
+tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
+Go bump, never the work merged since, and its notes name only what its own tree fixed. The
+job compares with the last release's Go, not with the push, and runs one at a time, so a
+rerun cuts nothing twice and a missed run is caught up daily; publishing `main`'s heading
+stays on a push, which the gate passed. `patch_release.py` names the last release for
+every job, as the forge's latest release, and owns `CHANGELOG.md`: each run copies into
+`main`'s changelog any section the last release has and `main` lacks, so a lost run loses
+no section, and moves rows planned under a patch CI took to the next patch. The Packages
+workflow builds a tag with the Go its own Dockerfile names. A newer Go minor waits for a
+release the maintainer cuts. Valid while Go is the one dependency the binaries carry.
