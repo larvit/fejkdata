@@ -87,12 +87,14 @@ class TagGuard(unittest.TestCase):
 			({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, 1, ""),
 		):
 			open("output", "w").close()
+			created = []
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
-				mock.patch.object(publish_release, "request", forge(responses, [])), \
+				mock.patch.object(publish_release, "request", forge(responses, created)), \
 				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 				self.assertEqual(publish_release.main(), code)
 			with open("output", encoding="utf-8") as f:
 				self.assertEqual(f.read(), output)
+			self.assertEqual([c["target_commitish"] for c in created], [SHA] if output else [])
 
 	def test_a_version_cut_from_another_commit_fails_though_published(self):
 		code, created = self.publish({
