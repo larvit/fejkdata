@@ -79,7 +79,7 @@ RUN echo 'deb [signed-by=/site/fejkdata.asc] file:/site/deb stable main' > /etc/
 	&& fejkdata --version > /checked \
 	&& { [ -z "$EXPECTED_VERSION" ] || [ "$(cat /checked)" = "fejkdata $EXPECTED_VERSION" ]; }
 
-FROM fedora:43@sha256:a651ddf48ea28a06ed4e1e6519f51c9f47e7a5a138722ade87369b8fbb7e5b42 AS check-rpm
+FROM fedora:46@sha256:a9bab18d01cf2c2cf62f3e79c72623405bce14ac062995cc6651a3073c802e41 AS check-rpm
 ARG EXPECTED_VERSION
 COPY --from=site / /site
 RUN sed -e 's#^baseurl=.*#baseurl=file:///site/rpm#' -e 's#^gpgkey=.*#gpgkey=file:///site/fejkdata.asc#' \
