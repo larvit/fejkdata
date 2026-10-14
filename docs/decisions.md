@@ -903,7 +903,7 @@ By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the fl
 
 Shipped under that decision: item 89, the last of 0.1.0, at 52e0304. Its paired ruling against 90ffcff was better. The release's scoring run read Navigation 7.00, Locality 5.75, Shape 6.38, Self-sufficiency 6.50 and overall 6.25; its seats named places items 170 to 172 and 178 hold, and `isPath`, filed as item 251.
 
-Shipped under the floor by the maintainer's decision of 2026-10-13: item 58, prebuilt binaries and packages, which the plan had under 0.2.0, ships as 0.1.0's distribution. It changes no Go code.
+Shipped under the floor by the maintainer's decision of 2026-10-13: item 58, prebuilt binaries and packages, which the plan had under 0.2.0, ships as 0.1.0's distribution, and so does the image on Docker Hub, decided 2026-10-14. Neither changes Go code.
 
 Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item 182, the shipped data as Go packages, at a632a92. Its last paired ruling against bf1becb was same overall, Mid A better and Junior A worse, with Shape fallen, three seats against the namespace mount in `internal/datafiles/mount.go` and the `at` field of `datafiles.Source`; the scoring run that would rule it worse under the floor was not run. `todo.md` item 197 replaces that mount.
 
@@ -971,7 +971,10 @@ are built here, as static files any host can serve: `release-tooling/package-rep
 signs them with a GPG key (apt, dnf) and an RSA key (apk). A hosted package service would
 only save that tooling. GitHub already hosts the code (see "GitHub is canonical, and the
 module path names it"), so Pages adds no new vendor. The image sits on GHCR for the same
-reason; being OCI, it moves to another registry by changing its path. A Pages site holds at
+reason; being OCI, it moves to another registry by changing its path. Docker Hub carries
+the same image too, by the maintainer's decision of 2026-10-14: it is Docker's default
+registry, so `docker run larvit/fejkdata` works with no host in the name. Docker Hub limits
+anonymous pulls by IP, so CI on shared runners may pull from `ghcr.io` instead. A Pages site holds at
 most 1 GB and a release's packages take about 35 MB, so the repositories hold the latest
 release only; each GitHub release still carries its own packages, and the image keeps a tag
 per version. Leaving Pages costs
