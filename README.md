@@ -1284,8 +1284,9 @@ binaries and packages, pushes the image to GHCR and copies it to Docker Hub, upd
 Homebrew tap and the Scoop bucket, and deploys the apt, dnf and apk repositories to GitHub
 Pages. The workflow reads these repository secrets:
 
-- `DOCKERHUB_TOKEN`: a Docker Hub access token with Read & Write and no Delete, or an
-  organization token that can push only to `larvit/fejkdata`. The repository variable
+- `DOCKERHUB_TOKEN`: where `larvit` is a Docker Hub organization, an organization token
+  that can push only to `larvit/fejkdata`; otherwise a personal token with Read & Write and
+  no Delete, which reaches every repository the account can write. The repository variable
   `DOCKERHUB_USERNAME` names its account.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
