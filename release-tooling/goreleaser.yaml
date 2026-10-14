@@ -42,7 +42,7 @@ nfpms:
   - package_name: fejkdata
     vendor: Larvit
     homepage: &homepage https://github.com/larvit/fejkdata
-    maintainer: &maintainer Lilleman auf Larv <lilleman@larvit.se>
+    maintainer: Lilleman auf Larv <lilleman@larvit.se>
     description: &description Render locale-aware fake data from JSON templates
     license: &license MIT
     formats: [deb, rpm, apk]
@@ -90,16 +90,3 @@ scoops:
       owner: larvit
       name: scoop-bucket
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
-
-aurs:
-  - name: fejkdata-bin
-    homepage: *homepage
-    description: *description
-    license: *license
-    maintainers:
-      - *maintainer
-    private_key: "{{ .Env.AUR_KEY }}"
-    git_url: ssh://aur@aur.archlinux.org/fejkdata-bin.git
-    commit_author:
-      name: Lilleman auf Larv
-      email: lilleman@larvit.se
