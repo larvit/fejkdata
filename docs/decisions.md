@@ -280,8 +280,10 @@ Valid while the lowest supported Go is not the latest.
 
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
-instead: the tag can land only there, and the GitHub release the same job publishes
-keeps one text as its body and is where prebuilt binaries will attach.
+instead: the tag can land only there, save a Go patch release (see "CI releases each Go
+patch at once, as a fejkdata patch cut from the last release's tag"), whose tag lands on a
+commit the same gate builds. The GitHub release the same job publishes keeps one text as
+its body and is where prebuilt binaries attach.
 
 ## A `--data-path` override rebinds every reference to the category it replaces
 
@@ -999,28 +1001,35 @@ release binaries carry that Go version, and image scanners flag it whatever the 
 reaches. It runs on every pull request and push and daily, as a job the release job needs
 but branch protection does not require. So a vulnerability published in Go, or an outage
 of vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. On `main`,
-each new vulnerability is filed as a `security` item in `todo.md`, under the next release
-when that is a patch and else under the patch after the last release, by the maintainer's
-decision of 2026-10-14, so the fix ships without waiting for a minor; an item whose
-vulnerabilities are gone moves to `CHANGELOG.md`, so the changelog says what was fixed.
+each module's new vulnerabilities are filed as one `security` item in `todo.md`, under the
+patch after the last release, or under the next planned release when only a newer Go minor
+fixes them, so the fix ships without waiting for a minor. An item whose vulnerabilities
+are gone moves to `CHANGELOG.md`, so the changelog says what was fixed.
 `vulnerability-filing/file_vulnerabilities.py` writes both in their files' shape, the item
 with a Score of 0.0, since CI cannot reach `rank_todo.py`, which scores it on the next
 commit to the plan; a test files one into the repository's own `todo.md`. A pull request
-from `security-plan` carries both to `main` and merges itself once the tests pass. Where
-no Go version fixes a vulnerability yet, govulncheck has no ignore list: the maintainer
-drops the job from the release's `needs` until one does, and records why here. The paired
-ruling against f90b4d6 found the project reads worse for it: the gate now reads `todo.md`,
-and a release waits on vuln.go.dev. The maintainer merged it anyway, as the cost of filing
-into the plan. Valid while the binaries are built from the gate's Go version.
+from `security-plan`, rebuilt from `main` on every run, carries both to `main` and merges
+itself once the tests pass. Where no Go version fixes a vulnerability yet, govulncheck has
+no ignore list: the maintainer drops the job from the release's `needs` until one does,
+and records why here. The paired ruling against f90b4d6 found the project reads worse for
+it: the gate now reads `todo.md`, and a release waits on vuln.go.dev. The maintainer
+merged it anyway, as the cost of filing into the plan. Valid while the binaries are built
+from the gate's Go version.
 
-## A Go patch is released at once, as a patch cut from the last release's tag
+## CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag
 
-2026-10-14, decided by the maintainer: Renovate may release a patch when a dependency, such
-as Go, ships one, in place of the rule that releases are the maintainer's. Serves goal 1.1.
-Renovate merges a Go patch to `main` once every check passes. When `main`'s Go is a patch
-above the last release's, CI commits that Go version and the changelog section to a branch
-`release/X.Y.Z` cut from the last release's tag, tags and publishes `vX.Y.Z+1`, packages it,
-and records the same section on `main` below Unreleased. So a patch ships only the Go bump,
-never the work merged since; comparing with the last release's Go, not with the push, means
-a rerun cuts nothing twice and a missed run is caught up daily. A minor or major Go waits for
-a release the maintainer cuts. Valid while Go is the one dependency the binaries carry.
+2026-10-14, decided by the maintainer: CI releases a Go patch without waiting for the
+maintainer to cut a release. Serves goal 1.1. Renovate merges a Go patch to `main` once
+every check passes. When `main`'s Go is then a patch above the last release's, the release
+job, which first publishes any version `main`'s changelog heading names, cuts the patch:
+it commits that Go version and the patch's changelog section to a branch named for the new
+version, cut from the last release's tag, builds that commit through `docker build .`, and
+publishes it with `release-tooling/publish_release.py`, whose burnt-tag check applies. So
+a patch ships only the Go bump, never the work merged since. The job compares with the
+last release's Go, not with the push, and runs one at a time, so a rerun cuts nothing
+twice and a missed run is caught up daily. `release-tooling/patch_release.py` names the
+last release for every job, as the forge's latest release. Each run copies into `main`'s
+`CHANGELOG.md` any section the last release has and `main` lacks, so a lost run loses no
+section. The binaries are built with the Go of the workflow's own commit, so packaging
+such a release again later builds it with `main`'s Go then. A newer Go minor waits for a
+release the maintainer cuts. Valid while Go is the one dependency the binaries carry.
