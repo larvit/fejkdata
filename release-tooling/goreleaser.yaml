@@ -54,6 +54,7 @@ nfpms:
 
 dockers_v2:
   - images:
+      - docker.io/larvit/fejkdata
       - ghcr.io/larvit/fejkdata
     tags:
       - "{{ .Version }}"

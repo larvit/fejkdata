@@ -38,9 +38,12 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```sh
 brew install larvit/tap/fejkdata                                  # macOS, Linux
 scoop bucket add larvit https://github.com/larvit/scoop-bucket && scoop install fejkdata  # Windows
-docker run --rm -i ghcr.io/larvit/fejkdata < template.json        # any OS with Docker
+docker run --rm -i larvit/fejkdata < template.json                # any OS with Docker
 go install github.com/larvit/fejkdata/cmd/fejkdata@latest         # any OS with Go
 ```
+
+The image is also `ghcr.io/larvit/fejkdata`, which CI on shared runners may prefer:
+Docker Hub limits anonymous pulls per IP address.
 
 Debian, Ubuntu, Fedora, RHEL and Alpine install from fejkdata's signed repositories, which
 hold the latest release:
@@ -997,7 +1000,7 @@ minor only adds, and a major is the only release that changes what exists. Seede
 is the exception: any release, a patch too, may change what a seed draws. Where you
 compare seeded output, install one exact version
 (`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`, the image
-`ghcr.io/larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
+`larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
 and regenerate seeded fixtures and expected values when you raise that version.
 
 | Surface | Major | Minor |
@@ -1277,18 +1280,20 @@ To release, head `CHANGELOG.md` with the version's section in place of `Unreleas
 and merge: once `main` passes the gate, CI tags that commit `vX.Y.Z` and publishes
 the GitHub release with the section as its body. A top heading of `[Unreleased]`
 publishes nothing. CI then runs the Packages workflow on the new tag, which attaches the
-binaries and packages, pushes the image, updates the Homebrew tap and the Scoop bucket,
+binaries and packages, pushes the image to Docker Hub and GHCR, updates the Homebrew tap and the Scoop bucket,
 and deploys the apt, dnf and apk repositories to GitHub Pages. The workflow reads
 these repository secrets:
 
+- `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`: a Docker Hub account and access token that can
+  push to `larvit/fejkdata`.
 - `PACKAGES_GPG_KEY`, `PACKAGES_RSA_KEY`: the private keys that sign the repositories.
 - `TAP_GITHUB_TOKEN`: a token that can push to `larvit/homebrew-tap` and
   `larvit/scoop-bucket`.
 
-The image's GHCR package must be public, and Pages must deploy from GitHub Actions. To
+The image's Docker Hub repository and GHCR package must be public, and Pages must deploy from GitHub Actions. To
 package a release again,
 run the workflow by hand with its tag; it replaces what it uploaded before. For a tag older
-than the latest release it leaves the tap, the bucket, the image's `latest` and
+than the latest release it leaves the tap, the bucket, the images' `latest` and
 the repositories alone, since each holds one version.
 
 ## License
