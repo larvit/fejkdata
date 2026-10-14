@@ -198,78 +198,182 @@ def report(*ids):
 	return "\n".join(json.dumps(m) for m in messages)
 
 
-class Cut(unittest.TestCase):
+TODAY = __import__("datetime").datetime.now(__import__("datetime").UTC).date().isoformat()
+TODO = """# todo
+
+## Scoring
+
+`Score = -R - S/4 + 2*A + 2*G*W`
+
+`Bar = 9`
+
+`Next ID = 7`
+
+| Goal | W |
+|---|---|
+| 1.1 | 1.00 |
+
+## Items
+
+| ID | Release | Exempt | Item | R | S | C | A | G | Goals | Score |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 5 | 0.2.0 |  | **Add a thing.** | 2 | 2 | 2 | 7 | 8 | 1.1 | 26.5 |
+
+## Details
+
+### 5. Add a thing.
+
+Why.
+"""
+
+
+def git(*argv):
+	return subprocess.run(["git", *argv], check=True, capture_output=True, text=True).stdout.strip()
+
+
+class Repository(unittest.TestCase):
+	"""A git repository whose v0.1.0 holds Go 1.27.1, and whose main has moved on since."""
+
 	def setUp(self):
 		cwd = os.getcwd()
 		tmp = tempfile.TemporaryDirectory()
 		self.addCleanup(tmp.cleanup)
 		os.chdir(tmp.name)
 		self.addCleanup(os.chdir, cwd)
-		git = lambda *argv: subprocess.run(["git", *argv], check=True, capture_output=True)
 		git("init", "-q")
 		git("config", "user.email", "test@example.com")
 		git("config", "user.name", "Test")
-		for name, text in (("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED)):
-			with open(name, "w", encoding="utf-8") as f:
-				f.write(text)
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED))
 		git("add", ".")
 		git("commit", "-qm", "Release 0.1.0")
 		git("tag", "v0.1.0")
-		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report()}
-		open("output", "w").close()
+		self.write(("CHANGELOG.md", MAIN))
+		git("commit", "-qam", "Add a thing")
 
-	def bump(self, go):
-		with open("Dockerfile", "w", encoding="utf-8") as f:
-			f.write(DOCKERFILE.format(go))
+	def write(self, *files):
+		for name, text in files:
+			with open(name, "w", encoding="utf-8") as f:
+				f.write(text)
+
+	def read(self, name):
+		with open(name, encoding="utf-8") as f:
+			return f.read()
+
+
+class Cut(Repository):
+	def setUp(self):
+		super().setUp()
+		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report()}
+		self.scanned, self.outputs = [], []
+		self.published = mock.Mock(return_value=(0, "v0.1.1"))
 
 	def scan(self, tree, go, into):
+		self.scanned.append(tree)
 		os.makedirs(into)
 		with open(os.path.join(into, "report.json"), "w", encoding="utf-8") as f:
 			f.write(self.reports[go])
 		return os.path.join(into, "report.json")
 
 	def ship(self, checkout, version, go):
-		self.shipped = {}
-		for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md"):
-			with open(os.path.join(checkout, name), encoding="utf-8") as f:
-				self.shipped[name] = f.read()
+		self.shipped = {name: self.read(os.path.join(checkout, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md")}
+		self.shipped_from = checkout
 		return "abc123"
 
 	def cut(self):
-		published = mock.Mock(return_value=(0, "v0.1.1"))
-		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
-			mock.patch.object(patch_release, "scan", self.scan), \
-			mock.patch.object(patch_release, "ship", self.ship), \
-			mock.patch.object(publish_release, "publish", published), \
-			mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
-			redirect_stdout(io.StringIO()):
-			code = patch_release.cut()
-		with open("output", encoding="utf-8") as f:
-			return code, published, f.read()
+		with redirect_stdout(io.StringIO()) as out:
+			code = patch_release.cut("v0.1.0", self.scan, self.ship, self.published, self.outputs.append)
+		return code, out.getvalue()
 
 	def test_cuts_a_patch_of_the_last_release_on_main_s_go(self):
-		self.bump("1.27.2")
-		code, published, output = self.cut()
-		self.assertEqual((code, output), (0, "tag=v0.1.1\n"))
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
+		code, _ = self.cut()
+		self.assertEqual((code, self.outputs), (0, ["tag=v0.1.1"]))
 		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.2"))
 		self.assertEqual(self.shipped["compose.yaml"], COMPOSE.format("1.27.2"))
-		self.assertIn(
-			"- The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
-			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0]",
+		self.assertEqual(
 			self.shipped["CHANGELOG.md"],
+			f"# Changelog\n\n## [0.1.1] - {TODAY}\n\n### Security\n\n- The binaries and image are built with Go 1.27.2.\n"
+			"- The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
+			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
-		published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+		self.assertEqual(self.scanned, [self.shipped_from, self.shipped_from])
+		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
 	def test_no_patch_is_due_on_the_last_release_s_go(self):
-		code, published, output = self.cut()
-		self.assertEqual((code, output), (0, ""))
-		published.assert_not_called()
+		self.assertEqual(self.cut(), (0, "No patch due: main's Go is no patch above v0.1.0's.\n"))
+		self.published.assert_not_called()
 
-	def test_a_release_tree_still_vulnerable_on_main_s_go_is_not_cut(self):
-		self.bump("1.27.2")
+	def test_a_release_tree_still_vulnerable_on_main_s_go_is_refused_with_a_warning(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
 		self.reports["1.27.2"] = report("GO-2026-0002")
-		with self.assertRaisesRegex(ValueError, "still carries a known vulnerability"):
-			self.cut()
+		code, out = self.cut()
+		self.assertEqual(code, 0)
+		self.assertEqual(out, "::warning::v0.1.0's tree on Go 1.27.2 still carries a known vulnerability; no patch is cut\n")
+		self.published.assert_not_called()
+
+
+class Plan(Repository):
+	def setUp(self):
+		super().setUp()
+		git("checkout", "-q", "v0.1.0")
+		self.write(("CHANGELOG.md", patch_release.insert_section(RELEASED, SECTION)))
+		git("commit", "-qam", "Release 0.1.1")
+		git("tag", "v0.1.1")
+		git("checkout", "-q", "-")
+		self.write(("todo.md", TODO))
+
+	def plan(self, *ids):
+		self.write(("report.json", report(*ids).replace("v1.27.1", "v1.27.2")))
+		with redirect_stderr(io.StringIO()):
+			return patch_release.plan("report.json", "todo.md", "CHANGELOG.md", "v0.1.1")
+
+	def test_files_under_the_next_patch_and_reconciles_the_last_release(self):
+		self.assertEqual(self.plan("GO-2026-0009"), 0)
+		self.assertIn("\n| 7 | 0.1.2 | security |", self.read("todo.md"))
+		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
+
+	def test_records_a_fixed_item_under_unreleased(self):
+		self.plan("GO-2026-0009")
+		self.plan()
+		self.assertNotIn("\n| 7 |", self.read("todo.md"))
+		self.assertIn(
+			"### Security\n\n- The binaries no longer carry Go 1.27.2's known vulnerabilities: GO-2026-0009 (CVE-2026-0009).\n\n## [0.1.1]",
+			self.read("CHANGELOG.md"),
+		)
+
+
+class Commands(unittest.TestCase):
+	def setUp(self):
+		self.calls = []
+
+	def run_stub(self, *argv, cwd=None, ok=(0,)):
+		self.calls.append((argv, cwd))
+		return subprocess.CompletedProcess(argv, 0, stdout="abc123\n", stderr="")
+
+	def test_scan_builds_the_tree_s_report_through_main_s_dockerfile(self):
+		with mock.patch.object(patch_release, "run", self.run_stub):
+			self.assertEqual(patch_release.scan("/tree", "1.27.2", "/into"), "/into/report.json")
+		self.assertEqual(
+			self.calls,
+			[((
+				"docker", "build", "-f", os.path.abspath("Dockerfile"), "--no-cache-filter", "vulnerabilities",
+				"--build-arg", "GO_VERSION=1.27.2", "--target", "vulnerability-report", "--output", "/into", "/tree",
+			), None)],
+		)
+
+	def test_ship_builds_commits_and_pushes_the_tree_to_its_release_branch(self):
+		env = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner/repo", "FORGE_TOKEN": "t0ken"}
+		with mock.patch.object(patch_release, "run", self.run_stub), mock.patch.dict(os.environ, env):
+			self.assertEqual(patch_release.ship("/tree", "0.1.1", "1.27.2"), "abc123")
+		self.assertEqual(
+			self.calls,
+			[
+				(("docker", "build", "."), "/tree"),
+				(("git", "commit", "-qam", "Release 0.1.1, built with Go 1.27.2"), "/tree"),
+				(("git", "push", "-qf", "https://x-access-token:t0ken@forge.example/owner/repo.git", "HEAD:refs/heads/release/0.1.1"), "/tree"),
+				(("git", "rev-parse", "HEAD"), "/tree"),
+			],
+		)
 
 
 class Main(unittest.TestCase):
