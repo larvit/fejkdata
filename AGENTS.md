@@ -125,6 +125,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 - The image is pushed to GHCR and copied to Docker Hub, whose name the README shows
 - A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge
+- A Go patch is released at once, as a patch cut from the last release's tag
 
 # Scoring run
 
