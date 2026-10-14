@@ -14,7 +14,10 @@ RUN go vet ./... && \
 FROM golang:${GO_VERSION} AS vulnerabilities
 WORKDIR /app
 COPY . .
-RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module
+RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module -format json > /report.json
+
+FROM scratch AS vulnerability-report
+COPY --from=vulnerabilities /report.json /
 
 FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/

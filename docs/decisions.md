@@ -989,3 +989,18 @@ Hub, so a Docker Hub failure holds up no other channel. GHCR also serves CI on s
 runners, which Docker Hub's per-IP limit on anonymous pulls blocks. Leaving Docker Hub
 costs each user an edit of every `docker run` line and pinned script that names the bare
 `larvit/fejkdata`.
+
+## A known vulnerability in the Go release or the module blocks a release, called or not, and no merge
+
+2026-10-14, decided by the maintainer after Docker Hub flagged v0.1.0's image. Serves goal
+1.1. `govulncheck -scan module` fails on any known vulnerability in the Go release the gate
+builds with or in the module's requirements, even one fejkdata never calls: the release
+binaries carry that Go release, and image scanners flag it whatever the code reaches. It
+runs on every pull request and push and daily, as a job the release job needs but branch
+protection does not require. A vulnerability published in Go, or an outage of vuln.go.dev,
+so holds the release and leaves unrelated pull requests mergeable. Each vulnerability is
+filed as a `security` item atop the next release in `todo.md`, by a pull request CI opens,
+so the plan names it before anyone reads a red run. Where no Go release
+fixes a vulnerability yet, govulncheck has no ignore list: the maintainer drops the job
+from the release's `needs` until one does, and records why here. Valid while the binaries
+are built from the gate's Go release.
