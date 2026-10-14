@@ -1,0 +1,28 @@
+name: Docker Hub description
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - release-tooling/dockerhub-overview.md
+      - .github/workflows/dockerhub-description.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  description:
+    name: Docker Hub description and overview
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: peter-evans/dockerhub-description@v5.0.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_DESCRIPTION_TOKEN }}
+          repository: larvit/fejkdata
+          short-description: Locale-aware fake data for tests and fixtures, rendered from JSON templates.
+          readme-filepath: release-tooling/dockerhub-overview.md
