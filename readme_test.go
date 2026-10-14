@@ -227,29 +227,40 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 	}
 }
 
+func shCommands(src string) []string {
+	var commands []string
+	for _, block := range regexp.MustCompile("(?s)```sh\n(.*?)```").FindAllStringSubmatch(src, -1) {
+		for _, line := range strings.Split(strings.TrimSpace(block[1]), "\n") {
+			command, _, _ := strings.Cut(line, "#")
+			commands = append(commands, strings.TrimSpace(command))
+		}
+	}
+	return commands
+}
+
 func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
-	src, err := os.ReadFile("dockerhub/overview.md")
-	if err != nil {
-		t.Fatal(err)
-	}
-	block := regexp.MustCompile("(?s)```sh\n(.*?)```").FindStringSubmatch(string(src))
-	if block == nil {
-		t.Fatal("dockerhub/overview.md has no sh block")
-	}
+	doc := readme(t)
 	description, err := os.ReadFile("dockerhub/description.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(readme(t), strings.TrimSpace(string(description))) {
-		t.Errorf("dockerhub/description.txt says %q, which README.md never does", strings.TrimSpace(string(description)))
+	tagline := strings.TrimSpace(string(description))
+	if !strings.Contains(doc, tagline+":") && !strings.Contains(doc, tagline+".") {
+		t.Errorf("dockerhub/description.txt says %q, which no README.md sentence opens with", tagline)
 	}
+	overview, err := os.ReadFile("dockerhub/overview.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	commands := shCommands(string(overview))
+	if len(commands) == 0 {
+		t.Fatal("dockerhub/overview.md has no sh block")
+	}
+	shown := shCommands(doc)
 	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
-	doc := readme(t)
-	for _, line := range strings.Split(strings.TrimSpace(block[1]), "\n") {
-		command, _, _ := strings.Cut(line, "#")
-		command = strings.TrimSpace(docker.ReplaceAllString(command, "fejkdata"))
-		if !strings.Contains(doc, command) {
-			t.Errorf("dockerhub/overview.md runs %q, which README.md never shows", command)
+	for _, command := range commands {
+		if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
+			t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
 		}
 	}
 }
