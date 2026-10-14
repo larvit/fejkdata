@@ -103,6 +103,14 @@ class TagGuard(unittest.TestCase):
 		})
 		self.assertEqual((code, created, self.tag), (1, [], None))
 
+	def test_a_heading_not_of_the_form_x_y_z_publishes_nothing(self):
+		for name in ("1.2.3-rc.1", "1.2."):
+			with self.subTest(name=name):
+				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+					f.write(f"# Changelog\n\n## [{name}]\n\n- A change.\n")
+				code, created = self.publish({})
+				self.assertEqual((code, created, self.tag), (1, [], None))
+
 	def test_a_published_release_publishes_nothing(self):
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})
 		self.assertEqual((code, created, self.tag), (0, [], None))
