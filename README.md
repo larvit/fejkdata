@@ -1170,7 +1170,7 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it, and the filing of known vulnerabilities
+release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it; and the filing of known vulnerabilities
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1219,20 +1219,19 @@ check and the release tooling's tests:
 docker build .                                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
-docker build --no-cache-filter vulnerabilities --target vulnerability-report --output /tmp/fejkdata-vulnerabilities .
-python3 release-tooling/file_vulnerabilities.py /tmp/fejkdata-vulnerabilities/report.json todo.md
 ```
 
-The last two lines run `govulncheck` over the Go release the gate builds with and the module's
-requirements, and fails on any known vulnerability, whether or not fejkdata calls it: the
-release binaries carry that Go release, and image scanners flag it. CI runs it on every pull
-request and push, and daily; GitHub pauses the daily run after 60 days with no activity in
-the repository. It is not part of the gate: a pull request merges while it fails, but no
-release is cut. Each vulnerability it finds is filed as a `security` item atop the next
-release in `todo.md`; on `main` and in the daily run CI opens a pull request from the branch
-`vulnerabilities` with that item, unless the branch exists. The fix is raising
-`GO_VERSION`, which Renovate opens a pull request for; a failure that names no
-vulnerability is vuln.go.dev failing to answer.
+A known vulnerability in the Go version the gate builds with, or in a module fejkdata
+requires, holds the release and no merge. CI checks on every pull request, every push to
+`main`, and daily. On `main` and in the daily run, CI files each vulnerability as a
+`security` item atop the next release in `todo.md`, through a pull request from the branch
+`vulnerabilities` unless one is open; each item names the version to raise to. A failed run
+that names no vulnerability means vuln.go.dev did not answer: rerun it. When GitHub pauses
+the daily run after 60 days with no activity, re-enable it under Actions. The same check:
+
+```sh
+docker compose run --rm vulncheck
+```
 
 A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
 files or either workflow also runs the package-repository checks. They build the release

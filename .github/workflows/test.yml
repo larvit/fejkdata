@@ -66,10 +66,8 @@ jobs:
             docker build -f release-tooling/package-repos.Dockerfile --target checks \
             --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 
-  # Not a required check: a vulnerability published in Go, or an outage of vuln.go.dev,
-  # holds the release but no merge.
   vulnerabilities:
-    name: Known vulnerabilities in this Go release and the module
+    name: Known vulnerabilities in this Go version and the required modules
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
@@ -84,22 +82,22 @@ jobs:
       - name: File each one in todo.md
         id: file
         run: python3 release-tooling/file_vulnerabilities.py "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
-      # A pull request the workflow's token opens starts no workflow, so this starts the tests.
       - name: Propose the filed items
-        if: failure() && steps.file.outcome == 'failure' && github.event_name != 'pull_request'
+        if: failure() && steps.file.outcome == 'failure' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet todo.md || git ls-remote --exit-code --heads origin vulnerabilities; then
+          if git diff --quiet todo.md || [ "$(gh pr list --head vulnerabilities --state open --json number --jq length)" != 0 ]; then
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -c vulnerabilities
+          git switch -C vulnerabilities
           git commit -qam "File the known vulnerabilities govulncheck reports"
-          git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" vulnerabilities
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" vulnerabilities
           gh pr create --head vulnerabilities --title "File the known vulnerabilities govulncheck reports" \
-            --body "govulncheck reports known vulnerabilities in the Go release or the module, and no release is cut until they are gone. This files them atop the next release in todo.md; the fix is the bump its item names."
+            --body "govulncheck reports known vulnerabilities in the Go version or a required module, and no release is cut until they are gone. This files them atop the next release in todo.md; each item names the bump that fixes it."
+          # A pull request the workflow's token opens starts no workflow.
           gh workflow run test.yml --ref vulnerabilities
 
   release:

@@ -27,7 +27,7 @@
     {
       "customType": "regex",
       "datasourceTemplate": "go",
-      "description": "Go tools the gate runs with go run, by their module path",
+      "description": "Go tools the Dockerfile and compose.yaml run with go run, by their module path",
       "managerFilePatterns": [
         "/^Dockerfile$/",
         "/^compose\\.yaml$/"
