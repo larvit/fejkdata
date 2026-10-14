@@ -1170,8 +1170,9 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it; and the filing of known vulnerabilities
+release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
+vulnerability-filing/ the script CI runs to file each known vulnerability govulncheck reports as a `todo.md` item
 ```
 
 ## Development

@@ -21,9 +21,13 @@ COPY --from=vulnerabilities /report.json /
 
 FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
+RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
+
+FROM python:3.14.8-slim AS vulnerability-filing
+COPY vulnerability-filing/ /vulnerability-filing/
 # The filer's test files an item into the plan itself.
 COPY todo.md /todo.md
-RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
+RUN python3 -m unittest discover -s /vulnerability-filing -p '*_test.py' && touch /tested
 
 FROM goreleaser/goreleaser:v2.18.3 AS packaging
 WORKDIR /check
@@ -33,6 +37,7 @@ RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git 
 FROM portable
 # BuildKit skips a stage nothing copies from.
 COPY --from=release-tooling /tested /tmp/release-tooling-tested
+COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
 	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }

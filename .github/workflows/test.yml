@@ -30,7 +30,7 @@ jobs:
           else
             base='${{ github.event.before }}'
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata README.md todo.md; then
+          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata vulnerability-filing README.md todo.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
@@ -82,7 +82,7 @@ jobs:
         run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
       - name: File each one in todo.md
         id: file
-        run: python3 release-tooling/file_vulnerabilities.py "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
+        run: python3 vulnerability-filing/file_vulnerabilities.py "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
       - name: Propose the filed items
         if: failure() && steps.file.outcome == 'failure' && github.ref == 'refs/heads/main'
         env:
@@ -97,7 +97,7 @@ jobs:
           git commit -qam "File the known vulnerabilities govulncheck reports"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" vulnerabilities
           gh pr create --head vulnerabilities --title "File the known vulnerabilities govulncheck reports" \
-            --body "govulncheck reports known vulnerabilities in the Go version or a required module, and no release is cut until they are gone. This files them atop the next release in todo.md; each item names the bump that fixes it."
+            --body "govulncheck reports known vulnerabilities in the Go version or a required module, and no release is cut until they are gone. This files them atop the next release in todo.md, scored 0.0 until rank_todo.py scores them; each item names the bump that fixes it."
           # A pull request the workflow's token opens starts no workflow.
           gh workflow run test.yml --ref vulnerabilities
 
