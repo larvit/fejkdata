@@ -21,7 +21,8 @@ COPY --from=vulnerabilities /report.json /
 
 FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
-RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
+COPY vulnerability-filing/ /vulnerability-filing/
+RUN apt-get update -qq && apt-get install -qq -y git >/dev/null && python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
 FROM python:3.14.8-slim AS vulnerability-filing
 COPY vulnerability-filing/ /vulnerability-filing/

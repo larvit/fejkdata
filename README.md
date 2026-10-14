@@ -1230,9 +1230,10 @@ requires, holds the release and no merge. CI checks on every pull request, every
 vulnerabilities as one `security` item in `todo.md`, under the patch after the last
 release unless only a newer Go minor fixes them; it moves an item whose vulnerabilities
 are gone into `CHANGELOG.md`. A pull request from the branch `security-plan` carries both
-to `main` and merges itself once the tests pass. When the step "Fetch govulncheck's report
-from vuln.go.dev" fails, vuln.go.dev did not answer: rerun it. When GitHub pauses the
-daily run after 60 days with no activity, re-enable it under Actions. The same check:
+to `main` and merges itself once the tests pass, which needs "Allow auto-merge" on in the
+repository's settings. When the step "Fetch govulncheck's report from vuln.go.dev" fails,
+vuln.go.dev did not answer: rerun it. When GitHub pauses the daily run after 60 days with
+no activity, re-enable it under Actions. The same check:
 
 ```sh
 docker compose run --rm vulncheck
