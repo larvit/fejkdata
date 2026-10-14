@@ -24,11 +24,11 @@ jobs:
       - name: Relevant changes
         id: changes
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git fetch --no-tags origin "$GITHUB_BASE_REF"
-            base="origin/$GITHUB_BASE_REF"
-          else
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             base='${{ github.event.before }}'
+          else
+            git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
+            base="origin/${GITHUB_BASE_REF:-main}"
           fi
           if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata vulnerability-filing README.md todo.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
@@ -87,20 +87,23 @@ jobs:
           path: ${{ runner.temp }}/vulnerabilities/report.json
       - run: python3 vulnerability-filing/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
 
-  security:
-    name: Plan known vulnerabilities, and release a Go patch
+  release:
+    name: Release from CHANGELOG.md, or a patch of the last release for main's Go
     needs: [test, vulnerabilities]
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.vulnerabilities.outputs.reported == 'true' }}
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 30
+    concurrency:
+      group: release
+      cancel-in-progress: false
     permissions:
-      actions: write
       contents: write
-      pull-requests: write
     outputs:
-      tag: ${{ steps.cut.outputs.tag }}
+      tag: ${{ steps.publish.outputs.tag || steps.patch.outputs.tag }}
     env:
-      GH_TOKEN: ${{ github.token }}
+      FORGE_API_URL: ${{ github.api_url }}
+      FORGE_REPOSITORY: ${{ github.repository }}
+      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -110,80 +113,70 @@ jobs:
         with:
           name: vulnerabilities
           path: ${{ runner.temp }}/vulnerabilities
-      - name: The patch release main's Go calls for
+      - id: publish
+        run: python3 release-tooling/publish_release.py
+        env:
+          SHA: ${{ github.sha }}
+      - name: Patch the last release when main's Go is a patch above it
         id: patch
-        if: needs.vulnerabilities.result == 'success' && needs.test.result != 'failure'
-        run: |
-          base="$(gh release view --json tagName --jq .tagName)"
-          git show "$base:Dockerfile" > "$RUNNER_TEMP/Dockerfile.released"
-          go="$(python3 release-tooling/patch_release.py go "$RUNNER_TEMP/Dockerfile.released" Dockerfile)"
-          if [ -n "$go" ]; then
-            {
-              echo "base=$base"
-              echo "go=$go"
-              echo "version=$(python3 release-tooling/patch_release.py version "$base")"
-            } >> "$GITHUB_OUTPUT"
-          fi
-      - name: Plan new vulnerabilities, and record fixed ones
-        env:
-          RELEASE: ${{ steps.patch.outputs.version }}
-        run: python3 vulnerability-filing/file_vulnerabilities.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md ${RELEASE:+--release "$RELEASE"}
-      - name: Cut the patch release from the last release
-        id: cut
-        if: steps.patch.outputs.version != ''
-        env:
-          BASE: ${{ steps.patch.outputs.base }}
-          GO: ${{ steps.patch.outputs.go }}
-          VERSION: ${{ steps.patch.outputs.version }}
+        if: steps.publish.outputs.tag == ''
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git worktree add -q "$RUNNER_TEMP/release" "$BASE"
-          python3 release-tooling/patch_release.py apply "$RUNNER_TEMP/release" CHANGELOG.md "$VERSION" "$GO" > "$RUNNER_TEMP/notes.md"
-          git -C "$RUNNER_TEMP/release" commit -qam "Release $VERSION, built with Go $GO"
-          git -C "$RUNNER_TEMP/release" push -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/release/$VERSION"
-          gh release create "v$VERSION" --target "release/$VERSION" --title "v$VERSION" --notes-file "$RUNNER_TEMP/notes.md"
-          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          python3 release-tooling/patch_release.py cut "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
+
+  plan:
+    name: Plan known vulnerabilities, and record fixed ones
+    needs: [vulnerabilities, release]
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.vulnerabilities.result == 'failure') }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FORGE_API_URL: ${{ github.api_url }}
+      FORGE_REPOSITORY: ${{ github.repository }}
+      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: vulnerabilities
+          path: ${{ runner.temp }}/vulnerabilities
+      - name: Plan known vulnerabilities, and record fixed ones and the last release
+        run: |
+          git fetch -q --tags origin
+          last="$(python3 release-tooling/patch_release.py last)"
+          git show "$last:CHANGELOG.md" > "$RUNNER_TEMP/released.md"
+          python3 release-tooling/patch_release.py reconcile CHANGELOG.md "$RUNNER_TEMP/released.md"
+          python3 vulnerability-filing/file_vulnerabilities.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md --last "$last"
       - name: Propose the plan and the changelog to main
         run: |
-          if git diff --quiet todo.md CHANGELOG.md || [ "$(gh pr list --head security-plan --state open --json number --jq length)" != 0 ]; then
+          if git diff --quiet todo.md CHANGELOG.md; then
             exit 0
           fi
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -qC security-plan
-          git commit -qam "Plan known vulnerabilities, and record fixed ones"
+          git commit -qam "Plan known vulnerabilities, and record fixed ones and the last release"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" security-plan
-          gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones" \
-            --body "govulncheck's report changed what todo.md plans: new known vulnerabilities are filed atop the next patch release, scored 0.0 until rank_todo.py scores them, and fixed ones move to CHANGELOG.md. It merges itself once the tests pass."
-          gh pr merge security-plan --auto --rebase
-          # A pull request the workflow's token opens starts no workflow.
+          if [ "$(gh pr list --head security-plan --state open --json number --jq length)" = 0 ]; then
+            gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones and the last release" \
+              --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, and any release section main lacks, into CHANGELOG.md. Merges itself once the tests pass."
+          fi
+          # A push the workflow's token makes starts no workflow.
           gh workflow run test.yml --ref security-plan
-
-  release:
-    name: Release from CHANGELOG.md
-    needs: [test, vulnerabilities]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-26.04
-    permissions:
-      contents: write
-    outputs:
-      tag: ${{ steps.publish.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - id: publish
-        run: python3 release-tooling/publish_release.py
-        env:
-          FORGE_API_URL: ${{ github.api_url }}
-          FORGE_REPOSITORY: ${{ github.repository }}
-          FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHA: ${{ github.sha }}
+          gh pr merge security-plan --auto --rebase
 
   packages:
-    needs: [release, security]
-    if: ${{ !cancelled() && (needs.release.outputs.tag != '' || needs.security.outputs.tag != '') }}
+    needs: release
+    if: needs.release.outputs.tag != ''
     permissions:
       contents: write
       packages: write
@@ -191,7 +184,7 @@ jobs:
       id-token: write
     uses: ./.github/workflows/packages.yml
     with:
-      tag: ${{ needs.release.outputs.tag || needs.security.outputs.tag }}
+      tag: ${{ needs.release.outputs.tag }}
     secrets:
       TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
       PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
