@@ -21,6 +21,7 @@ COPY --from=vulnerabilities /report.json /
 
 FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
+COPY todo.md /todo.md
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
 FROM goreleaser/goreleaser:v2.18.3 AS packaging
