@@ -1169,8 +1169,9 @@ internal/proven/ what a proof knows of a value, and the bounds a calc takes from
 internal/rows/  a table's rows: the TSV, the options proved over it, the links between tables, row selection and draws, and the pin set one path or one named pick fixes
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
+dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it, and the Docker Hub overview
+release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
 ```
 
@@ -1296,11 +1297,12 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-The Docker Hub page's overview is `release-tooling/dockerhub-overview.md`, and its short
-description sits in `.github/workflows/dockerhub-description.yml`. A push to `main` that
-changes either syncs both to Docker Hub with the secret `DOCKERHUB_DESCRIPTION_TOKEN`, a
-token of the same account with Read, Write & Delete, the scope Docker Hub's API asks for
-to edit a description. The release jobs never read it.
+The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
+to `main` that changes one syncs both to Docker Hub. The sync reads the secret
+`DOCKERHUB_DESCRIPTION_TOKEN`: a personal access token of `larvit` with Read, Write &
+Delete, the scope Docker Hub's API requires to edit a description. It lives in the
+environment `dockerhub-description`, which only `main` may use, so the Packages workflow
+cannot read it and the release holds no Delete scope.
 
 ## License
 
