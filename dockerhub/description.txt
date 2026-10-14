@@ -1,1 +1,1 @@
-Locale-aware fake data for tests and fixtures, from JSON templates.
+Locale-aware fake data for tests and fixtures, from JSON templates
