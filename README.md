@@ -1225,9 +1225,10 @@ A known vulnerability in the Go version the gate builds with, or in a module fej
 requires, holds the release and no merge. CI checks on every pull request, every push to
 `main`, and daily. On `main` and in the daily run, CI files each vulnerability as a
 `security` item atop the next release in `todo.md`, through a pull request from the branch
-`vulnerabilities` unless one is open; each item names the version to raise to. A failed run
-that names no vulnerability means vuln.go.dev did not answer: rerun it. When GitHub pauses
-the daily run after 60 days with no activity, re-enable it under Actions. The same check:
+`vulnerabilities` unless one is open; each item names the version to raise to. When the
+step "Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer:
+rerun it. When GitHub pauses the daily run after 60 days with no activity, re-enable it
+under Actions. The same check:
 
 ```sh
 docker compose run --rm vulncheck

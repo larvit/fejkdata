@@ -78,7 +78,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
+      - name: Fetch govulncheck's report from vuln.go.dev
+        run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
       - name: File each one in todo.md
         id: file
         run: python3 release-tooling/file_vulnerabilities.py "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
