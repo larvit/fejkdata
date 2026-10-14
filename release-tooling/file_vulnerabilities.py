@@ -105,7 +105,8 @@ def detail(module: Module) -> str:
 	lines = []
 	for osv in sorted(module.osvs.values(), key=lambda o: o["id"]):
 		aliases = f" ({', '.join(osv['aliases'])})" if osv["aliases"] else ""
-		lines.append(f"- {osv['id']}{aliases}: {osv['summary']}")
+		summary = f": {osv['summary']}" if osv["summary"] else ""
+		lines.append(f"- {osv['id']}{aliases}{summary}")
 	return f"govulncheck found these in {module.carried}:\n\n" + "\n".join(lines) + "\n"
 
 
