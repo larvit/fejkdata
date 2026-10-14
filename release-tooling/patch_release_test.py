@@ -1,10 +1,14 @@
 import io
+import json
 import os
+import subprocess
 import tempfile
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
+from unittest import mock
 
 import patch_release
+import publish_release
 
 DOCKERFILE = "ARG GO_VERSION={}\nFROM golang:${{GO_VERSION}} AS portable\n"
 COMPOSE = "x-go: &go\n  image: golang:${{GO_VERSION:-{}}}\n"
@@ -166,6 +170,18 @@ class Record(unittest.TestCase):
 			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
 
+	def test_two_fixes_are_two_bullets(self):
+		self.assertIn(
+			"### Security\n\n- Fix GO-2026-0009.\n- Fix GO-2026-0010.\n\n## [0.1.0]",
+			patch_release.record(MAIN, ["Fix GO-2026-0009.", "Fix GO-2026-0010."]),
+		)
+
+	def test_a_changelog_with_no_section_gets_unreleased_at_its_end(self):
+		self.assertEqual(
+			patch_release.record("# Changelog\n", ["Fix GO-2026-0009."]),
+			"# Changelog\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n",
+		)
+
 	def test_a_changelog_with_only_unreleased_ends_in_one_newline(self):
 		self.assertEqual(
 			patch_release.record("# Changelog\n\n## [Unreleased]\n", ["Fix GO-2026-0009."]),
@@ -176,7 +192,99 @@ class Record(unittest.TestCase):
 		self.assertEqual(patch_release.record(MAIN, []), MAIN)
 
 
+def report(*ids):
+	messages = [{"osv": {"id": i, "aliases": [f"CVE-{i[3:]}"], "summary": "A flaw"}} for i in ids]
+	messages += [{"finding": {"osv": i, "trace": [{"module": "stdlib", "version": "v1.27.1"}]}} for i in ids]
+	return "\n".join(json.dumps(m) for m in messages)
+
+
+class Cut(unittest.TestCase):
+	def setUp(self):
+		cwd = os.getcwd()
+		tmp = tempfile.TemporaryDirectory()
+		self.addCleanup(tmp.cleanup)
+		os.chdir(tmp.name)
+		self.addCleanup(os.chdir, cwd)
+		git = lambda *argv: subprocess.run(["git", *argv], check=True, capture_output=True)
+		git("init", "-q")
+		git("config", "user.email", "test@example.com")
+		git("config", "user.name", "Test")
+		for name, text in (("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED)):
+			with open(name, "w", encoding="utf-8") as f:
+				f.write(text)
+		git("add", ".")
+		git("commit", "-qm", "Release 0.1.0")
+		git("tag", "v0.1.0")
+		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report()}
+		open("output", "w").close()
+
+	def bump(self, go):
+		with open("Dockerfile", "w", encoding="utf-8") as f:
+			f.write(DOCKERFILE.format(go))
+
+	def scan(self, tree, go, into):
+		os.makedirs(into)
+		with open(os.path.join(into, "report.json"), "w", encoding="utf-8") as f:
+			f.write(self.reports[go])
+		return os.path.join(into, "report.json")
+
+	def ship(self, checkout, version, go):
+		self.shipped = {}
+		for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md"):
+			with open(os.path.join(checkout, name), encoding="utf-8") as f:
+				self.shipped[name] = f.read()
+		return "abc123"
+
+	def cut(self):
+		published = mock.Mock(return_value=(0, "v0.1.1"))
+		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
+			mock.patch.object(patch_release, "scan", self.scan), \
+			mock.patch.object(patch_release, "ship", self.ship), \
+			mock.patch.object(publish_release, "publish", published), \
+			mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
+			redirect_stdout(io.StringIO()):
+			code = patch_release.cut()
+		with open("output", encoding="utf-8") as f:
+			return code, published, f.read()
+
+	def test_cuts_a_patch_of_the_last_release_on_main_s_go(self):
+		self.bump("1.27.2")
+		code, published, output = self.cut()
+		self.assertEqual((code, output), (0, "tag=v0.1.1\n"))
+		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.2"))
+		self.assertEqual(self.shipped["compose.yaml"], COMPOSE.format("1.27.2"))
+		self.assertIn(
+			"- The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
+			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0]",
+			self.shipped["CHANGELOG.md"],
+		)
+		published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+
+	def test_no_patch_is_due_on_the_last_release_s_go(self):
+		code, published, output = self.cut()
+		self.assertEqual((code, output), (0, ""))
+		published.assert_not_called()
+
+	def test_a_release_tree_still_vulnerable_on_main_s_go_is_not_cut(self):
+		self.bump("1.27.2")
+		self.reports["1.27.2"] = report("GO-2026-0002")
+		with self.assertRaisesRegex(ValueError, "still carries a known vulnerability"):
+			self.cut()
+
+
 class Main(unittest.TestCase):
+	def test_last_prints_the_forge_s_latest_release(self):
+		with mock.patch.object(publish_release, "request", return_value={"tag_name": "v0.1.0"}), \
+			redirect_stdout(io.StringIO()) as out:
+			self.assertEqual(patch_release.main(["last"]), 0)
+		self.assertEqual(out.getvalue(), "v0.1.0\n")
+
+	def test_a_failing_step_exits_2_with_its_message(self):
+		with mock.patch.object(patch_release, "cut", side_effect=ValueError("a step failed")), \
+			redirect_stderr(io.StringIO()) as err:
+			self.assertEqual(patch_release.main(["cut"]), 2)
+		self.assertEqual(err.getvalue(), "a step failed\n")
+
 	def test_a_file_it_cannot_read_exits_2_with_a_message(self):
 		with redirect_stderr(io.StringIO()) as err:
 			self.assertEqual(patch_release.main(["plan", "/nonexistent/report.json", "todo.md", "CHANGELOG.md"]), 2)

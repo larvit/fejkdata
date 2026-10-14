@@ -26,10 +26,9 @@ def request(path: str, data: dict | None = None):
 		return json.load(resp)
 
 
-def publish() -> tuple[int, str | None]:
-	"""Publish the release, returning the exit code and the tag it published, if any."""
-	with open("CHANGELOG.md", encoding="utf-8") as f:
-		top = HEADING.search(f.read())
+def publish(changelog: str, sha: str) -> tuple[int, str | None]:
+	"""Publish the release the changelog's top heading names at the commit, returning the exit code and the tag it published, if any."""
+	top = HEADING.search(changelog)
 	if top is None:
 		print("CHANGELOG.md has no `## [...]` heading", file=sys.stderr)
 		return 1, None
@@ -42,13 +41,6 @@ def publish() -> tuple[int, str | None]:
 		return 1, None
 	tag = f"v{version}"
 	try:
-		print(f"{tag} already published: {request(f'releases/tags/{tag}')['html_url']}")
-		return 0, None
-	except urllib.error.HTTPError as e:
-		if e.code != 404:
-			raise
-	sha = os.environ["SHA"]
-	try:
 		at = request(f"git/ref/tags/{tag}")["object"]
 		if at["type"] == "tag":
 			at = request(f"git/tags/{at['sha']}")["object"]
@@ -58,13 +50,20 @@ def publish() -> tuple[int, str | None]:
 	except urllib.error.HTTPError as e:
 		if e.code != 404:
 			raise
+	try:
+		print(f"{tag} already published: {request(f'releases/tags/{tag}')['html_url']}")
+		return 0, None
+	except urllib.error.HTTPError as e:
+		if e.code != 404:
+			raise
 	release = request("releases", {"body": body, "name": tag, "tag_name": tag, "target_commitish": sha})
 	print(release["html_url"])
 	return 0, tag
 
 
 def main() -> int:
-	code, tag = publish()
+	with open("CHANGELOG.md", encoding="utf-8") as f:
+		code, tag = publish(f.read(), os.environ["SHA"])
 	if tag:
 		with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
 			f.write(f"tag={tag}\n")

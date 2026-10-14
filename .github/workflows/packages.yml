@@ -51,9 +51,9 @@ jobs:
         with:
           path: tooling
           persist-credentials: false
-      - name: The Go version the gate tests
+      - name: The Go version the tag names
         id: go
-        run: sed -n 's/^ARG GO_VERSION=/version=/p' tooling/Dockerfile >> "$GITHUB_OUTPUT"
+        run: sed -n 's/^ARG GO_VERSION=/version=/p' src/Dockerfile >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.go.outputs.version }}
@@ -61,10 +61,12 @@ jobs:
       - name: Channels holding one version
         id: latest
         env:
-          GH_TOKEN: ${{ github.token }}
+          FORGE_API_URL: ${{ github.api_url }}
+          FORGE_REPOSITORY: ${{ github.repository }}
+          FORGE_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          latest="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)"
+          latest="$(python3 tooling/release-tooling/patch_release.py last)"
           if [ "$latest" = "$TAG" ]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           else

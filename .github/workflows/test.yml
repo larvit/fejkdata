@@ -109,11 +109,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/download-artifact@v8
-        with:
-          name: vulnerabilities
-          path: ${{ runner.temp }}/vulnerabilities
       - id: publish
+        if: github.event_name == 'push'
         run: python3 release-tooling/publish_release.py
         env:
           SHA: ${{ github.sha }}
@@ -123,7 +120,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          python3 release-tooling/patch_release.py cut "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
+          python3 release-tooling/patch_release.py cut
 
   plan:
     name: Plan known vulnerabilities, and record fixed ones
@@ -131,6 +128,9 @@ jobs:
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.vulnerabilities.result == 'failure') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
+    concurrency:
+      group: security-plan
+      cancel-in-progress: false
     permissions:
       actions: write
       contents: write
@@ -150,15 +150,13 @@ jobs:
           name: vulnerabilities
           path: ${{ runner.temp }}/vulnerabilities
       - name: Plan known vulnerabilities, and record fixed ones and the last release
-        run: |
-          git fetch -q --tags origin
-          last="$(python3 release-tooling/patch_release.py last)"
-          git show "$last:CHANGELOG.md" > "$RUNNER_TEMP/released.md"
-          python3 release-tooling/patch_release.py reconcile CHANGELOG.md "$RUNNER_TEMP/released.md"
-          python3 vulnerability-filing/file_vulnerabilities.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md --last "$last"
+        run: python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
       - name: Propose the plan and the changelog to main
         run: |
           if git diff --quiet todo.md CHANGELOG.md; then
+            if [ "$(gh pr list --head security-plan --state open --json number --jq length)" != 0 ]; then
+              gh pr close security-plan --delete-branch --comment "main already holds what this proposed."
+            fi
             exit 0
           fi
           git config --global user.name 'github-actions[bot]'
