@@ -46,7 +46,8 @@ class TagGuard(unittest.TestCase):
 		created = []
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-			code, self.tag = publish_release.publish()
+			with open("CHANGELOG.md", encoding="utf-8") as f:
+				code, self.tag = publish_release.publish(f.read(), SHA)
 		return code, created
 
 	def test_a_tag_at_another_commit_publishes_nothing(self):
@@ -92,6 +93,13 @@ class TagGuard(unittest.TestCase):
 				self.assertEqual(publish_release.main(), code)
 			with open("output", encoding="utf-8") as f:
 				self.assertEqual(f.read(), output)
+
+	def test_a_version_cut_from_another_commit_fails_though_published(self):
+		code, created = self.publish({
+			"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"},
+			"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}},
+		})
+		self.assertEqual((code, created, self.tag), (1, [], None))
 
 	def test_a_published_release_publishes_nothing(self):
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})
