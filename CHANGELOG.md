@@ -9,7 +9,7 @@ replacement, and each removed path, column or flag.
 ### Added
 
 - Prebuilt binaries for Linux, macOS and Windows on amd64 and arm64, packages for apt,
-  dnf, apk, Homebrew and Scoop, and the image `larvit/fejkdata` on Docker Hub and GHCR, so
+  dnf, apk, Homebrew and Scoop, and the image `larvit/fejkdata` on Docker Hub, also at `ghcr.io/larvit/fejkdata`, so
   the CLI installs without Go. 0.1.0 ships them too; the README's
   [Install](https://github.com/larvit/fejkdata#install) lists each command.
 

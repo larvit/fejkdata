@@ -123,6 +123,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
 - A country with no open address register covering it whole ships its places and postal codes without streets
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
+- The image is pushed to GHCR and copied to Docker Hub, whose name the README shows
 
 # Scoring run
 

@@ -99,5 +99,4 @@ jobs:
       TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
       PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
       PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
