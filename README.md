@@ -1225,12 +1225,16 @@ GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests
 
 A known vulnerability in the Go version the gate builds with, or in a module fejkdata
 requires, holds the release and no merge. CI checks on every pull request, every push to
-`main`, and daily. On `main` and in the daily run, CI files each vulnerability as a
-`security` item atop the next release in `todo.md`, through a pull request from the branch
-`vulnerabilities` unless one is open; each item names the version to raise to. When the
-step "Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer:
-rerun it. When GitHub pauses the daily run after 60 days with no activity, re-enable it
-under Actions. The same check:
+`main`, and daily. On `main`, CI files each new vulnerability as a `security` item in
+`todo.md`, under the next release when that is a patch and else under the patch after the
+last release, and moves an item whose vulnerabilities are gone into `CHANGELOG.md`. It
+proposes both through a pull request from the branch `security-plan`, which merges itself
+once the tests pass. Renovate merges a Go patch itself once every check passes; CI then
+cuts a patch of the last release from its tag, changing only the Go version and the
+changelog, publishes it and its packages at once, and records the same section on `main`.
+A minor or major Go waits for the next release you cut. When the step "Fetch govulncheck's
+report from vuln.go.dev" fails, vuln.go.dev did not answer: rerun it. When GitHub pauses
+the daily run after 60 days with no activity, re-enable it under Actions. The same check:
 
 ```sh
 docker compose run --rm vulncheck
