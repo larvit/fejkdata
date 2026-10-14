@@ -226,3 +226,23 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 		t.Errorf("the README Layout names %s, which the package does not hold", name)
 	}
 }
+
+func TestDockerhubOverviewRunsOnlyReadmeCommands(t *testing.T) {
+	src, err := os.ReadFile("dockerhub/overview.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	block := regexp.MustCompile("(?s)```sh\n(.*?)```").FindStringSubmatch(string(src))
+	if block == nil {
+		t.Fatal("dockerhub/overview.md has no sh block")
+	}
+	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
+	doc := readme(t)
+	for _, line := range strings.Split(strings.TrimSpace(block[1]), "\n") {
+		command, _, _ := strings.Cut(line, "#")
+		command = strings.TrimSpace(docker.ReplaceAllString(command, "fejkdata"))
+		if !strings.Contains(doc, command) {
+			t.Errorf("dockerhub/overview.md runs %q, which README.md never shows", command)
+		}
+	}
+}
