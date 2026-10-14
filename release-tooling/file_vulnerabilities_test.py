@@ -39,6 +39,7 @@ OSVS = (
 	{"id": "GO-2026-0002", "summary": "Denial of service in net/http", "aliases": ["GHSA-2222", "CVE-2026-2"]},
 	{"id": "GO-2026-0001", "summary": "Cross-site scripting in html/template", "aliases": ["CVE-2026-1"]},
 	{"id": "GO-2026-0003", "summary": "Panic in x/text"},
+	{"id": "GO-2026-0004"},
 )
 STDLIB = (
 	("GO-2026-0002", "stdlib", "v1.27.1", "v1.27.2"),
@@ -110,7 +111,8 @@ class FileItems(unittest.TestCase):
 		self.assertIn("| 8 | 0.2.0 | security | **Raise `golang.org/x/text`", todo)
 
 	def test_a_vulnerability_no_version_fixes_names_no_target(self):
-		todo, _ = file(TODO, *STDLIB, ("GO-2026-0003", "stdlib", "v1.27.1", ""))
+		todo, _ = file(TODO, *STDLIB, ("GO-2026-0004", "stdlib", "v1.27.1", ""))
+		self.assertIn("- GO-2026-0004\n", todo)
 		self.assertIn(
 			"| 7 | 0.2.0 | security | **Ship no release while fejkdata carries Go 1.27.1, some of whose known"
 			" vulnerabilities no version fixes yet.** |",
