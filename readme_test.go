@@ -227,7 +227,7 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 	}
 }
 
-func TestDockerhubOverviewRunsOnlyReadmeCommands(t *testing.T) {
+func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 	src, err := os.ReadFile("dockerhub/overview.md")
 	if err != nil {
 		t.Fatal(err)
@@ -235,6 +235,13 @@ func TestDockerhubOverviewRunsOnlyReadmeCommands(t *testing.T) {
 	block := regexp.MustCompile("(?s)```sh\n(.*?)```").FindStringSubmatch(string(src))
 	if block == nil {
 		t.Fatal("dockerhub/overview.md has no sh block")
+	}
+	description, err := os.ReadFile("dockerhub/description.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(readme(t), strings.TrimSpace(string(description))) {
+		t.Errorf("dockerhub/description.txt says %q, which README.md never does", strings.TrimSpace(string(description)))
 	}
 	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
 	doc := readme(t)
