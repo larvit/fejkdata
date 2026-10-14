@@ -19,11 +19,11 @@ RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module -format json > 
 FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
 
-FROM python:3.14.8-slim AS release-tooling
+FROM python:3.15.0-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
-FROM python:3.14.8-slim AS vulnerability-filing
+FROM python:3.15.0-slim AS vulnerability-filing
 COPY vulnerability-filing/ /vulnerability-filing/
 # The filer's test files an item into the plan itself.
 COPY todo.md /todo.md
