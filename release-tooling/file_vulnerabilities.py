@@ -3,6 +3,16 @@
 
 Usage: file_vulnerabilities.py <govulncheck -format json report> <todo.md>
 Exits 1 while any vulnerability is known, filed now or before, and 0 on a clean report.
+
+The item is written the way ~/.claude/bin/rank_todo.py writes one, which CI cannot run:
+todo.md's `Next ID = N` gives its ID, the release of the plan's top row (the next release)
+gives its release, and its Score is todo.md's `Score = …` formula over the scores below and
+the weight todo.md's goal table gives goal 1.1. The test that files into the repository's
+own todo.md fails the gate when the plan's shape drifts from what this script reads.
+
+A security item scores R, S and C 1, since the fix is a version bump, and A and G 8, since a
+known vulnerability in the binaries works against README goal 1.1: installing fejkdata the
+way one installs other tools, which image scanners then flag.
 """
 
 import ast
@@ -23,6 +33,7 @@ class Module:
 	path: str
 	found_in: str
 	fixed: list[str] = field(default_factory=list)
+	unfixed: bool = False
 	osvs: dict[str, dict] = field(default_factory=dict)
 
 	@property
@@ -59,7 +70,10 @@ def vulnerable_modules(report: str) -> list[Module]:
 			frame = finding["trace"][0]
 			module = modules.setdefault(frame["module"], Module(frame["module"], frame["version"]))
 			module.osvs[finding["osv"]] = osvs[finding["osv"]]
-			module.fixed.append(finding.get("fixed_version", ""))
+			if "fixed_version" in finding:
+				module.fixed.append(finding["fixed_version"])
+			else:
+				module.unfixed = True
 	return sorted(modules.values(), key=lambda m: (m.path != "stdlib", m.path))
 
 
@@ -68,6 +82,7 @@ def version_key(version: str):
 
 
 def evaluate(node, values):
+	"""The value of todo.md's score formula: numbers, letters, unary minus and + - * /."""
 	match node:
 		case ast.Constant(value=value):
 			return value
@@ -93,7 +108,7 @@ def score(todo: str) -> str:
 
 
 def tagline(module: Module) -> str:
-	if "" in module.fixed:
+	if module.unfixed:
 		return f"Ship no release while fejkdata carries {module.carried}, some of whose known vulnerabilities no version fixes yet."
 	fixed = module.version(max(module.fixed, key=version_key))
 	if module.path == "stdlib":
