@@ -23,6 +23,18 @@
       "matchStrings": [
         "goreleaser/goreleaser-action@\\S+\\s+with:\\s+version: (?<currentValue>\\S+)"
       ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "go",
+      "description": "Go tools the gate runs with go run, by their module path",
+      "managerFilePatterns": [
+        "/^Dockerfile$/",
+        "/^compose\\.yaml$/"
+      ],
+      "matchStrings": [
+        "go run (?<depName>[^@\\s]+?)(/cmd/[^@\\s]+)?@(?<currentValue>v\\S+)"
+      ]
     }
   ],
   "extends": [

@@ -66,7 +66,7 @@ class FileItems(unittest.TestCase):
 		todo, found = file_vulnerabilities.file_items(report(*STDLIB, osvs=OSVS), TODO)
 		self.assertEqual(found, 2)
 		self.assertIn("`Next ID = 8`", todo)
-		rows = [line for line in todo.splitlines() if line.startswith("| ") and line[2].isdigit()]
+		rows = [line for line in todo.splitlines() if "| **" in line]
 		self.assertEqual(
 			rows[0],
 			"| 7 | 0.2.0 | security | **Raise Go to 1.27.10, so the release binaries carry none of"

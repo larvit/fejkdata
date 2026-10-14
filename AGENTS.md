@@ -1,6 +1,6 @@
 # Rules
 
-- Go runs only through `docker compose run --rm <test|vet|fmt|build|cyclo|generate>`; the merge gate is `docker build .`, CI's changelog check, its known-vulnerabilities check and, for a change the README's Development section lists, its package-repository checks.
+- Go runs only through `docker compose run --rm <test|vet|fmt|build|cyclo|generate>`; the merge gate is what the README's Development section lists.
 - Tests first, in their own commit; the implementation follows in the next. A re-pin of seeded output or of `testdata/shipped_shape.txt` is its own commit.
 - A change under `data/` or to the shape pin adds its `CHANGELOG.md` entry under `Unreleased` in the same PR, and so does a change to a flag, an exit code, an exported name, a fence, a builtin or the lowest Go; what is major is the README's Versioning table.
 - One-line commit messages: no ticket prefix, no repo name, no authorship trailers.
@@ -124,6 +124,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A country with no open address register covering it whole ships its places and postal codes without streets
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only
 - The image is pushed to GHCR and copied to Docker Hub, whose name the README shows
+- A known vulnerability in the Go release or the module blocks a release, called or not, and no merge
 
 # Scoring run
 
