@@ -1001,9 +1001,9 @@ protection does not require. So a vulnerability published in Go, or an outage of
 vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. Each
 vulnerability is filed as a `security` item atop the next release in `todo.md`, by a pull
 request CI opens, so the plan names it before anyone reads a red run.
-`release-tooling/file_vulnerabilities.py` writes that item in `todo.md`'s shape and scores it
-by `todo.md`'s formula, because CI cannot reach `rank_todo.py`; a test files one into the
-repository's own `todo.md`. When the next release has no item left and waits to be cut,
+`vulnerability-filing/file_vulnerabilities.py` writes that item in `todo.md`'s shape with a
+Score of 0.0, since CI cannot reach `rank_todo.py`, which scores it on the next commit to the
+plan; a test files one into the repository's own `todo.md`. When the next release has no item left and waits to be cut,
 `todo.md` names no version for it, so the item lands in the release after; the maintainer
 moves it. Where no Go version fixes a vulnerability yet, govulncheck has no ignore list: the
 maintainer drops the job from the release's `needs` until one does, and records why here.
