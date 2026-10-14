@@ -245,7 +245,7 @@ func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 		t.Fatal(err)
 	}
 	tagline := strings.TrimSpace(string(description))
-	if !strings.Contains(doc, tagline+":") && !strings.Contains(doc, tagline+".") {
+	if !regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(tagline) + `[:.]`).MatchString(doc) {
 		t.Errorf("dockerhub/description.txt says %q, which no README.md sentence opens with", tagline)
 	}
 	overview, err := os.ReadFile("dockerhub/overview.md")
@@ -259,6 +259,9 @@ func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 	shown := shCommands(doc)
 	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
 	for _, command := range commands {
+		if strings.Contains(command, "|") != strings.Contains(command, "docker run --rm -i ") {
+			t.Errorf("dockerhub/overview.md runs %q, which needs -i exactly when it reads stdin", command)
+		}
 		if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
 			t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
 		}
