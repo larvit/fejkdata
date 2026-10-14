@@ -1208,13 +1208,14 @@ docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g
 ```
 
 Every pull request runs `docker build .` against both the latest and the lowest
-supported Go, and must pass before it can be merged — unless it changes none of
-the files the build and its tests read, nor the workflow itself, in which case
-it's skipped. That build runs vet, complexity, the format check, the Go tests and the
-release tooling's tests; the rest of the gate is the changelog check, which CI runs
-against the PR base, and the package-repository checks below. Run `docker build .`
-locally before pushing. The lowest Go builds the `portable` stage, which skips the format
-check and the release tooling's tests:
+supported Go, and must pass before it can be merged — unless it changes none of the
+files the build and its tests read, nor the workflow itself, in which case it's skipped.
+That build runs vet, complexity, the format check, the Go tests, the release tooling's
+tests and the vulnerability filer's tests, which file an item into `todo.md` itself, so
+a change to the plan's shape can fail it; the rest of the gate is the changelog check,
+which CI runs against the PR base, and the package-repository checks below. Run `docker
+build .` locally before pushing. The lowest Go builds the `portable` stage, which skips
+the format check and both Python test suites:
 
 ```sh
 docker build .                                                  # latest

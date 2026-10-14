@@ -1007,4 +1007,6 @@ plan; a test files one into the repository's own `todo.md`. When the next releas
 `todo.md` names no version for it, so the item lands in the release after; the maintainer
 moves it. Where no Go version fixes a vulnerability yet, govulncheck has no ignore list: the
 maintainer drops the job from the release's `needs` until one does, and records why here.
-Valid while the binaries are built from the gate's Go version.
+The paired ruling against f90b4d6 found the project reads worse for it: the gate now reads
+`todo.md`, and a release waits on vuln.go.dev. The maintainer merged it anyway, as the cost
+of filing into the plan. Valid while the binaries are built from the gate's Go version.
