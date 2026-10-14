@@ -15,6 +15,7 @@ import urllib.request
 
 SECTION = re.compile(r"^## \[(?P<name>[^\]]+)\][^\n]*\n?(?P<body>.*?)(?=^## \[|\Z)", re.M | re.S)
 """A changelog section: its heading's name, Unreleased or a version, and its body."""
+VERSION = re.compile(r"\d+\.\d+\.\d+")
 
 
 def request(path: str, data: dict | None = None):
@@ -37,7 +38,7 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 	if version == "Unreleased":
 		print("top heading is Unreleased; nothing to publish")
 		return 0, None
-	if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+	if not VERSION.fullmatch(version):
 		print(f"top heading `[{version}]` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1, None
 	tag = f"v{version}"

@@ -198,7 +198,6 @@ def report(*ids):
 	return "\n".join(json.dumps(m) for m in messages)
 
 
-TODAY = __import__("datetime").datetime.now(__import__("datetime").UTC).date().isoformat()
 TODO = """# todo
 
 ## Scoring
@@ -281,7 +280,7 @@ class Cut(Repository):
 
 	def cut(self):
 		with redirect_stdout(io.StringIO()) as out:
-			code = patch_release.cut("v0.1.0", self.scan, self.ship, self.published, self.outputs.append)
+			code = patch_release.cut("v0.1.0", "2026-10-14", self.scan, self.ship, self.published, self.outputs.append)
 		return code, out.getvalue()
 
 	def test_cuts_a_patch_of_the_last_release_on_main_s_go(self):
@@ -292,11 +291,23 @@ class Cut(Repository):
 		self.assertEqual(self.shipped["compose.yaml"], COMPOSE.format("1.27.2"))
 		self.assertEqual(
 			self.shipped["CHANGELOG.md"],
-			f"# Changelog\n\n## [0.1.1] - {TODAY}\n\n### Security\n\n- The binaries and image are built with Go 1.27.2.\n"
+			"# Changelog\n\n## [0.1.1] - 2026-10-14\n\n### Security\n\n- The binaries and image are built with Go 1.27.2.\n"
 			"- The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
 			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
 		self.assertEqual(self.scanned, [self.shipped_from, self.shipped_from])
+		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+
+	def test_main_hands_the_cut_tag_to_the_workflow(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("output", ""))
+		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
+		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
+			mock.patch.object(patch_release, "scan", self.scan), \
+			mock.patch.object(patch_release, "ship", self.ship), \
+			mock.patch.object(publish_release, "publish", self.published), \
+			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()):
+			self.assertEqual(patch_release.main(["cut"]), 0)
+		self.assertEqual(self.read("output"), "tag=v0.1.1\n")
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
 	def test_no_patch_is_due_on_the_last_release_s_go(self):
@@ -382,6 +393,12 @@ class Main(unittest.TestCase):
 			redirect_stdout(io.StringIO()) as out:
 			self.assertEqual(patch_release.main(["last"]), 0)
 		self.assertEqual(out.getvalue(), "v0.1.0\n")
+
+	def test_a_forge_error_while_publishing_is_a_named_failure(self):
+		failing = mock.Mock(side_effect=__import__("urllib.error").error.URLError("forge down"))
+		with mock.patch.object(publish_release, "publish", failing):
+			with self.assertRaisesRegex(ValueError, "cannot publish the release: .*forge down"):
+				patch_release.publish("# Changelog\n", "abc123")
 
 	def test_a_failing_step_exits_2_with_its_message(self):
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \

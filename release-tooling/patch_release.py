@@ -32,7 +32,6 @@ import publish_release
 
 GO_VERSION = re.compile(r"^ARG GO_VERSION=(\d+)\.(\d+)\.(\d+)$", re.M)
 TAG = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
-VERSION = re.compile(r"\d+\.\d+\.\d+")
 VULNERABILITY = re.compile(r"GO-\d+-\d+")
 FILER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vulnerability-filing", "file_vulnerabilities.py")
 
@@ -78,7 +77,7 @@ def section(version: str, date: str, go: str, old_go: str, fixed: str) -> str:
 
 def releases(changelog: str) -> list[re.Match]:
 	"""The changelog's release sections, newest first."""
-	return [m for m in publish_release.SECTION.finditer(changelog) if VERSION.fullmatch(m["name"])]
+	return [m for m in publish_release.SECTION.finditer(changelog) if publish_release.VERSION.fullmatch(m["name"])]
 
 
 def insert_section(changelog: str, text: str) -> str:
@@ -185,7 +184,7 @@ def fixes(checkout: str, old_go: str, go: str, scan) -> str | None:
 	return out(sys.executable, FILER, "fixed-between", before, after)
 
 
-def cut(last: str, scan, ship, publish, output) -> int:
+def cut(last: str, date: str, scan, ship, publish, output) -> int:
 	"""Cuts the patch main's Go calls for, if any, through the given effects."""
 	released = out("git", "show", f"{last}:Dockerfile")
 	plan = due(last, released, read("Dockerfile"))
@@ -200,7 +199,6 @@ def cut(last: str, scan, ship, publish, output) -> int:
 	if fixed is None:
 		print(f"::warning::{last}'s tree on Go {go} still carries a known vulnerability; no patch is cut")
 		return 0
-	date = datetime.datetime.now(datetime.UTC).date().isoformat()
 	prepare(checkout, go, section(version, date, go, old_go, fixed))
 	code, tag = publish(read(os.path.join(checkout, "CHANGELOG.md")), ship(checkout, version, go))
 	if tag:
@@ -235,7 +233,7 @@ def main(argv: list[str]) -> int:
 				print(last_release())
 				return 0
 			case ["cut"]:
-				return cut(last_release(), scan, ship, publish, github_output)
+				return cut(last_release(), datetime.datetime.now(datetime.UTC).date().isoformat(), scan, ship, publish, github_output)
 			case ["plan", report, todo, changelog]:
 				read(report)
 				return plan(report, todo, changelog, last_release())
