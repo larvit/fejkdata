@@ -5,6 +5,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * *'
 
 permissions:
   contents: read
@@ -20,6 +22,7 @@ jobs:
           fetch-depth: 0
       - name: Relevant changes
         id: changes
+        if: github.event_name != 'schedule'
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             git fetch --no-tags origin "$GITHUB_BASE_REF"
@@ -39,6 +42,7 @@ jobs:
           fi
           echo "base=$base" >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
+        if: github.event_name != 'schedule'
         run: |
           base='${{ steps.changes.outputs.base }}'
           if ! git diff --quiet "$base"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
@@ -55,6 +59,11 @@ jobs:
       - name: Lowest supported Go
         if: ${{ !cancelled() && steps.changes.outputs.code == 'true' }}
         run: docker build --build-arg GO_VERSION=1.22.12 --target portable .
+      # Runs on every event, and daily, since a vulnerability is published without a change
+      # here; `--no-cache-filter` keeps a cached pass from hiding one.
+      - name: Known vulnerabilities in this Go release and the module
+        if: ${{ !cancelled() }}
+        run: docker build --no-cache-filter vulnerabilities --target vulnerabilities .
       - name: Package repositories, signed with throwaway keys
         if: ${{ !cancelled() && steps.changes.outputs.packaging == 'true' }}
         run: |

@@ -11,6 +11,11 @@ RUN go vet ./... && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
 	go test -race ./...
 
+FROM golang:${GO_VERSION} AS vulnerabilities
+WORKDIR /app
+COPY . .
+RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module
+
 FROM python:3.14.8-slim AS release-tooling
 COPY release-tooling/ /release-tooling/
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested

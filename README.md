@@ -1219,7 +1219,14 @@ check and the release tooling's tests:
 docker build .                                                  # latest
 docker build --build-arg GO_VERSION=1.22.12 --target portable . # lowest supported
 GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests, without the image build
+docker build --no-cache-filter vulnerabilities --target vulnerabilities .  # known vulnerabilities
 ```
+
+The last line runs `govulncheck` over the Go release the gate builds with and the module's
+requirements, and fails on any known vulnerability, whether or not fejkdata calls it: the
+release binaries carry that Go release, and image scanners flag it. CI runs it on every pull
+request and push, and daily, and a release waits for it. A failure is fixed by raising
+`GO_VERSION`, which Renovate opens a pull request for.
 
 A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
 files or either workflow also runs the package-repository checks. They build the release
