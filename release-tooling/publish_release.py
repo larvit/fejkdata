@@ -13,7 +13,8 @@ import sys
 import urllib.error
 import urllib.request
 
-HEADING = re.compile(r"^## \[([^\]]+)\].*?$\n?(.*?)(?=^## \[|\Z)", re.M | re.S)
+SECTION = re.compile(r"^## \[(?P<name>[^\]]+)\][^\n]*\n?(?P<body>.*?)(?=^## \[|\Z)", re.M | re.S)
+"""A changelog section: its heading's name, Unreleased or a version, and its body."""
 
 
 def request(path: str, data: dict | None = None):
@@ -28,11 +29,11 @@ def request(path: str, data: dict | None = None):
 
 def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 	"""Publish the release the changelog's top heading names at the commit, returning the exit code and the tag it published, if any."""
-	top = HEADING.search(changelog)
+	top = SECTION.search(changelog)
 	if top is None:
 		print("CHANGELOG.md has no `## [...]` heading", file=sys.stderr)
 		return 1, None
-	version, body = top.group(1), top.group(2).strip()
+	version, body = top["name"], top["body"].strip()
 	if version == "Unreleased":
 		print("top heading is Unreleased; nothing to publish")
 		return 0, None
