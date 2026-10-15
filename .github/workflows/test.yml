@@ -24,11 +24,11 @@ jobs:
       - name: Relevant changes
         id: changes
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git fetch --no-tags origin "$GITHUB_BASE_REF"
-            base="origin/$GITHUB_BASE_REF"
-          else
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             base='${{ github.event.before }}'
+          else
+            git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
+            base="origin/${GITHUB_BASE_REF:-main}"
           fi
           if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata vulnerability-filing README.md todo.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
@@ -70,57 +70,108 @@ jobs:
     name: Known vulnerabilities in this Go version and the required modules
     runs-on: ubuntu-26.04
     timeout-minutes: 10
-    permissions:
-      actions: write
-      contents: write
-      pull-requests: write
+    outputs:
+      reported: ${{ steps.report.outputs.reported }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Fetch govulncheck's report from vuln.go.dev
-        run: docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
-      - name: File each one in todo.md
-        id: file
-        run: python3 vulnerability-filing/file_vulnerabilities.py "$RUNNER_TEMP/vulnerabilities/report.json" todo.md
-      - name: Propose the filed items
-        if: failure() && steps.file.outcome == 'failure' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
+        id: report
         run: |
-          if git diff --quiet todo.md || [ "$(gh pr list --head vulnerabilities --state open --json number --jq length)" != 0 ]; then
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -C vulnerabilities
-          git commit -qam "File the known vulnerabilities govulncheck reports"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" vulnerabilities
-          gh pr create --head vulnerabilities --title "File the known vulnerabilities govulncheck reports" \
-            --body "govulncheck reports known vulnerabilities in the Go version or a required module, and no release is cut until they are gone. This files them atop the next release in todo.md, scored 0.0 until rank_todo.py scores them; each item names the bump that fixes it."
-          # A pull request the workflow's token opens starts no workflow.
-          gh workflow run test.yml --ref vulnerabilities
+          docker build --no-cache-filter vulnerabilities --target vulnerability-report --output "$RUNNER_TEMP/vulnerabilities" .
+          echo "reported=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vulnerabilities
+          path: ${{ runner.temp }}/vulnerabilities/report.json
+      - run: python3 vulnerability-filing/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
 
   release:
-    name: Release from CHANGELOG.md
+    name: Release from CHANGELOG.md, or a patch of the last release for main's Go
     needs: [test, vulnerabilities]
-    if: github.event_name == 'push'
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    concurrency:
+      group: release
+      cancel-in-progress: false
     permissions:
       contents: write
     outputs:
-      tag: ${{ steps.publish.outputs.tag }}
+      tag: ${{ steps.publish.outputs.tag || steps.patch.outputs.tag }}
+    env:
+      FORGE_API_URL: ${{ github.api_url }}
+      FORGE_REPOSITORY: ${{ github.repository }}
+      FORGE_SERVER_URL: ${{ github.server_url }}
+      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
+          fetch-depth: 0
           persist-credentials: false
       - id: publish
+        if: github.event_name == 'push'
         run: python3 release-tooling/publish_release.py
         env:
-          FORGE_API_URL: ${{ github.api_url }}
-          FORGE_REPOSITORY: ${{ github.repository }}
-          FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ github.sha }}
+      - name: Patch the last release when main's Go is a patch above it
+        id: patch
+        if: steps.publish.outputs.tag == ''
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 release-tooling/patch_release.py cut
+
+  plan:
+    name: Plan known vulnerabilities, and record fixed ones
+    needs: [vulnerabilities, release]
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.vulnerabilities.result == 'failure') }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    concurrency:
+      group: security-plan
+      cancel-in-progress: false
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FORGE_API_URL: ${{ github.api_url }}
+      FORGE_REPOSITORY: ${{ github.repository }}
+      FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: vulnerabilities
+          path: ${{ runner.temp }}/vulnerabilities
+      - name: Plan known vulnerabilities, and record fixed ones and the last release
+        run: python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
+      - name: Propose the plan and the changelog to main
+        run: |
+          if git diff --quiet todo.md CHANGELOG.md; then
+            if [ "$(gh pr list --head security-plan --state open --json number --jq length)" != 0 ]; then
+              gh pr close security-plan --delete-branch --comment "main already holds what this proposed."
+            fi
+            exit 0
+          fi
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -qC security-plan
+          git commit -qam "Plan known vulnerabilities, and record fixed ones and the last release"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" security-plan
+          if [ "$(gh pr list --head security-plan --state open --json number --jq length)" = 0 ]; then
+            gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones and the last release" \
+              --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, and any release section main lacks, into CHANGELOG.md. Merges itself once the tests pass."
+          fi
+          # A push the workflow's token makes starts no workflow.
+          gh workflow run test.yml --ref security-plan
+          gh pr merge security-plan --auto --rebase
 
   packages:
     needs: release

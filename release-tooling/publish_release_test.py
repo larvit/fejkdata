@@ -46,7 +46,8 @@ class TagGuard(unittest.TestCase):
 		created = []
 		with mock.patch.object(publish_release, "request", forge(responses, created)), \
 			redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-			code, self.tag = publish_release.publish()
+			with open("CHANGELOG.md", encoding="utf-8") as f:
+				code, self.tag = publish_release.publish(f.read(), SHA)
 		return code, created
 
 	def test_a_tag_at_another_commit_publishes_nothing(self):
@@ -86,12 +87,29 @@ class TagGuard(unittest.TestCase):
 			({"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}}}, 1, ""),
 		):
 			open("output", "w").close()
+			created = []
 			with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": os.path.abspath("output")}), \
-				mock.patch.object(publish_release, "request", forge(responses, [])), \
+				mock.patch.object(publish_release, "request", forge(responses, created)), \
 				redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
 				self.assertEqual(publish_release.main(), code)
 			with open("output", encoding="utf-8") as f:
 				self.assertEqual(f.read(), output)
+			self.assertEqual([c["target_commitish"] for c in created], [SHA] if output else [])
+
+	def test_a_version_cut_from_another_commit_fails_though_published(self):
+		code, created = self.publish({
+			"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"},
+			"git/ref/tags/v1.2.3": {"object": {"sha": OTHER, "type": "commit"}},
+		})
+		self.assertEqual((code, created, self.tag), (1, [], None))
+
+	def test_a_heading_not_of_the_form_x_y_z_publishes_nothing(self):
+		for name in ("1.2.3-rc.1", "1.2."):
+			with self.subTest(name=name):
+				with open("CHANGELOG.md", "w", encoding="utf-8") as f:
+					f.write(f"# Changelog\n\n## [{name}]\n\n- A change.\n")
+				code, created = self.publish({})
+				self.assertEqual((code, created, self.tag), (1, [], None))
 
 	def test_a_published_release_publishes_nothing(self):
 		code, created = self.publish({"releases/tags/v1.2.3": {"html_url": "https://forge.example/release"}})

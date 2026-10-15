@@ -46,6 +46,16 @@
       "matchPackageNames": [
         "goreleaser/goreleaser"
       ]
+    },
+    {
+      "description": "A Go patch merges itself once every check passes; CI then releases it as a patch of the last release",
+      "matchPackageNames": [
+        "golang"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true
     }
   ]
 }

@@ -993,7 +993,8 @@ proportion to the output.
 
 ## Versioning
 
-Semver tags on `main`, `v0.1.0` first; one version covers the shipped data, the
+Semver tags, `v0.1.0` first, on `main` save a Go patch release, which sits on a branch cut
+from the release before it; one version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
@@ -1170,9 +1171,9 @@ internal/rows/  a table's rows: the TSV, the options proved over it, the links b
 data/           the shipped modules, each a Go package embedding its categories (JSON, and a TSV per table) and its manifest; and Modules, which lists them
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading, and the binaries, packages, image and package repositories built for it
+release-tooling/ the release CI publishes from the changelog heading or as a Go patch of the last release, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
-vulnerability-filing/ the script CI runs to file each known vulnerability govulncheck reports as a `todo.md` item
+vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items and to drop fixed ones, naming them for `release-tooling/`, which writes `CHANGELOG.md`
 ```
 
 ## Development
@@ -1225,12 +1226,14 @@ GO_VERSION=1.22.12 docker compose run --rm test                 # the same tests
 
 A known vulnerability in the Go version the gate builds with, or in a module fejkdata
 requires, holds the release and no merge. CI checks on every pull request, every push to
-`main`, and daily. On `main` and in the daily run, CI files each vulnerability as a
-`security` item atop the next release in `todo.md`, through a pull request from the branch
-`vulnerabilities` unless one is open; each item names the version to raise to. When the
-step "Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer:
-rerun it. When GitHub pauses the daily run after 60 days with no activity, re-enable it
-under Actions. The same check:
+`main`, and daily. On `main` and in the daily run, CI files each module's new
+vulnerabilities as one `security` item in `todo.md`, under the patch after the last
+release unless only a newer Go minor fixes them; it moves an item whose vulnerabilities
+are gone into `CHANGELOG.md`. A pull request from the branch `security-plan` carries both
+to `main` and merges itself once the tests pass, which needs "Allow auto-merge" on in the
+repository's settings. When the step "Fetch govulncheck's report from vuln.go.dev" fails,
+vuln.go.dev did not answer: rerun it. When GitHub pauses the daily run after 60 days with
+no activity, re-enable it under Actions. The same check:
 
 ```sh
 docker compose run --rm vulncheck
@@ -1312,6 +1315,13 @@ from GitHub Actions. To package a release again, run the workflow by hand with i
 replaces what it uploaded before. For a tag older than the latest release it leaves the
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
+
+Renovate merges a Go patch itself once every check passes. When `main`'s Go is then a patch
+above the last release's, CI cuts a patch of that release: it commits the new Go version and
+the patch's `CHANGELOG.md` section to a branch `release/X.Y.Z` cut from the last release's
+tag, builds it through `docker build .`, publishes it and its packages, and adds the section
+to `main` through `security-plan`. A newer Go minor, such as 1.28, waits for a release you
+cut.
 
 ## License
 

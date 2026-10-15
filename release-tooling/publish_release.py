@@ -13,7 +13,9 @@ import sys
 import urllib.error
 import urllib.request
 
-HEADING = re.compile(r"^## \[([^\]]+)\].*?$\n?(.*?)(?=^## \[|\Z)", re.M | re.S)
+SECTION = re.compile(r"^## \[(?P<name>[^\]]+)\][^\n]*\n?(?P<body>.*?)(?=^## \[|\Z)", re.M | re.S)
+"""A changelog section: its heading's name, Unreleased or a version, and its body."""
+VERSION = re.compile(r"\d+\.\d+\.\d+")
 
 
 def request(path: str, data: dict | None = None):
@@ -26,28 +28,21 @@ def request(path: str, data: dict | None = None):
 		return json.load(resp)
 
 
-def publish() -> tuple[int, str | None]:
-	"""Publish the release, returning the exit code and the tag it published, if any."""
-	with open("CHANGELOG.md", encoding="utf-8") as f:
-		top = HEADING.search(f.read())
+def publish(changelog: str, sha: str) -> tuple[int, str | None]:
+	"""Publish the release the changelog's top heading names at the commit, returning the exit code and the tag it published, if any."""
+	top = SECTION.search(changelog)
 	if top is None:
 		print("CHANGELOG.md has no `## [...]` heading", file=sys.stderr)
 		return 1, None
-	version, body = top.group(1), top.group(2).strip()
+	version, body = top["name"], top["body"].strip()
 	if version == "Unreleased":
 		print("top heading is Unreleased; nothing to publish")
 		return 0, None
-	if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+	if not VERSION.fullmatch(version):
 		print(f"top heading `[{version}]` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1, None
 	tag = f"v{version}"
-	try:
-		print(f"{tag} already published: {request(f'releases/tags/{tag}')['html_url']}")
-		return 0, None
-	except urllib.error.HTTPError as e:
-		if e.code != 404:
-			raise
-	sha = os.environ["SHA"]
+	# A tag at another commit means the version is taken, even when its release is published.
 	try:
 		at = request(f"git/ref/tags/{tag}")["object"]
 		if at["type"] == "tag":
@@ -58,13 +53,20 @@ def publish() -> tuple[int, str | None]:
 	except urllib.error.HTTPError as e:
 		if e.code != 404:
 			raise
+	try:
+		print(f"{tag} already published: {request(f'releases/tags/{tag}')['html_url']}")
+		return 0, None
+	except urllib.error.HTTPError as e:
+		if e.code != 404:
+			raise
 	release = request("releases", {"body": body, "name": tag, "tag_name": tag, "target_commitish": sha})
 	print(release["html_url"])
 	return 0, tag
 
 
 def main() -> int:
-	code, tag = publish()
+	with open("CHANGELOG.md", encoding="utf-8") as f:
+		code, tag = publish(f.read(), os.environ["SHA"])
 	if tag:
 		with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
 			f.write(f"tag={tag}\n")

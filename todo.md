@@ -199,7 +199,7 @@
 | 95 | 0.3.0 | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 2 | 3 | 1 | 5 | 3.2 | 9.5 |
 | 116 | 0.3.0 |  | **Turn a row index into its rows file's line in one function.** | 1 | 2 | 2 | 1 | 5 | 3.2 | 9.5 |
 | 19 | 0.3.0 |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 4 | 4 | 4 | 6 | 14 | 9.2 |
-| 56 | 0.3.0 | defect | **Build on a manual run of `test.yml`.** | 1 | 1 | 2 | 1 | 4 | 1 | 8.8 |
+| 56 | 0.3.0 | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 1 | 2 | 1 | 4 | 1 | 8.8 |
 | 109 | 0.3.0 | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 2 | 4 | 1 | 1 | 4 | 3 | 6.2 |
 | 63 | 0.4.0 |  | **Pair a street with its exact postnummer.** | 3 | 6 | 5 | 5 | 8 | 4.1 | 19.1 |
 | 62 | 0.4.0 |  | **Add `{btc()}` and `{eth()}`.** | 2 | 4 | 5 | 4 | 6 | 4 | 15.2 |
@@ -735,9 +735,9 @@ Both phone formats carry the same 21-code `area` list, so an edit to one copy ca
 
 Today `containedNode`'s cell line in `graph.go`, `table.compileCells` and each site in `internal/rows` add the header line and the one-based count.
 
-### 56. Build on a manual run of `test.yml`.
+### 56. Build on a manual run of `test.yml` on `main`.
 
-`workflow_dispatch` leaves `github.event.before` empty, so the diff compares `HEAD` with itself and skips `docker build`.
+A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD` with itself and skips `docker build`.
 
 ### 109. Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.
 
