@@ -174,33 +174,37 @@ def ship(checkout: str, version: str, go: str) -> str:
 	return out("git", "rev-parse", "HEAD", cwd=checkout)
 
 
-def fixes(checkout: str, old_go: str, go: str, scan) -> str | None:
-	"""The Go vulnerabilities the release tree loses on the new Go, or None while it still carries one."""
+STILL_VULNERABLE = None
+"""What `fixed_by_new_go` returns while the release tree still carries a vulnerability on the new Go."""
+
+
+def fixed_by_new_go(checkout: str, old_go: str, go: str, scanner) -> str | None:
+	"""The Go vulnerabilities the release tree loses on the new Go, as one line, or STILL_VULNERABLE."""
 	scans = tempfile.mkdtemp()
-	before = scan(checkout, old_go, os.path.join(scans, "before"))
-	after = scan(checkout, go, os.path.join(scans, "after"))
+	before = scanner(checkout, old_go, os.path.join(scans, "before"))
+	after = scanner(checkout, go, os.path.join(scans, "after"))
 	if run(sys.executable, FILER, "check", after, ok=(0, 1)).returncode != 0:
-		return None
+		return STILL_VULNERABLE
 	return out(sys.executable, FILER, "fixed-between", before, after)
 
 
-def cut(last: str, date: str, scan, ship, publish, output) -> int:
-	"""Cuts the patch main's Go calls for, if any, through the given effects."""
+def cut(last: str, date: str, scanner, shipper, publisher, output) -> int:
+	"""Cuts the patch main's Go calls for, if any, through the given effects; run in main's checkout."""
 	released = out("git", "show", f"{last}:Dockerfile")
-	plan = due(last, released, read("Dockerfile"))
-	if plan is None:
+	patch = due(last, released, read("Dockerfile"))
+	if patch is None:
 		print(f"No patch due: main's Go is no patch above {last}'s.")
 		return 0
-	version, go = plan
+	version, go = patch
 	old_go = ".".join(map(str, go_of(released)))
 	checkout = tempfile.mkdtemp()
 	out("git", "worktree", "add", "-q", "--detach", checkout, last)
-	fixed = fixes(checkout, old_go, go, scan)
-	if fixed is None:
+	fixed = fixed_by_new_go(checkout, old_go, go, scanner)
+	if fixed is STILL_VULNERABLE:
 		print(f"::warning::{last}'s tree on Go {go} still carries a known vulnerability; no patch is cut")
 		return 0
 	prepare(checkout, go, section(version, date, go, old_go, fixed))
-	code, tag = publish(read(os.path.join(checkout, "CHANGELOG.md")), ship(checkout, version, go))
+	code, tag = publisher(read(os.path.join(checkout, "CHANGELOG.md")), shipper(checkout, version, go))
 	if tag:
 		output(f"tag={tag}")
 	return code

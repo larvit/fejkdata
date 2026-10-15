@@ -42,6 +42,7 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 		print(f"top heading `[{version}]` is neither Unreleased nor X.Y.Z", file=sys.stderr)
 		return 1, None
 	tag = f"v{version}"
+	# A tag at another commit means the version is taken, even when its release is published.
 	try:
 		at = request(f"git/ref/tags/{tag}")["object"]
 		if at["type"] == "tag":

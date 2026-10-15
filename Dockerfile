@@ -19,6 +19,7 @@ RUN go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -scan module -format json > 
 FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
 
+# The full image ships git, which patch_release's tests drive; patch_release runs the filer.
 FROM python:3.14.8 AS release-tooling
 COPY release-tooling/ /release-tooling/
 COPY vulnerability-filing/ /vulnerability-filing/
