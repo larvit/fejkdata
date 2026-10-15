@@ -1173,7 +1173,7 @@ data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.m
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
 release-tooling/ the release CI publishes from the changelog heading or as a Go patch of the last release, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
-vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items, and to move fixed ones into `CHANGELOG.md`
+vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items and to drop fixed ones, naming them for `release-tooling/`, which writes `CHANGELOG.md`
 ```
 
 ## Development
