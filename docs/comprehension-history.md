@@ -720,3 +720,33 @@ Junior A, decided by:
 - Locality: `.github/workflows/test.yml:106` `release`: whether a push to main releases also depends on vuln.go.dev's answer that day
 - Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:24` `ROW`: the regex and the Details splice encode todo.md's layout, which the script never shows
 - Self-sufficiency: `README.md:1213` "Development": the gate paragraph leaves out the filer's tests while AGENTS.md now defers to it
+
+## 2026-10-15T13:25:45Z, PR #227 at ee4ce67, against 5aca8a1
+
+Ruling: worse
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | worse | worse | worse | same | worse |
+| Inherited architect | worse | worse | worse | worse | worse |
+
+Mid A, decided by:
+
+- Navigation, Locality: `release-tooling/patch_release.py:36` `FILER`: the release script calls the filer by a relative path, and the release-tooling test stage copies that folder and moved to the full image with no word why
+- Navigation: `README.md:1176` "Layout": says vulnerability-filing moves fixed items into CHANGELOG.md, while its docstring says patch_release.py owns it
+- Navigation, Shape: `.github/workflows/packages.yml:69` "Channels holding one version": the latest release now comes from a script named for cutting patches
+- Locality: `release-tooling/patch_release.py:187` `cut`: assumes main's checkout as working directory while building another tree
+- Locality: `.github/workflows/test.yml:129` `plan`: release and planning are four jobs tied by outputs, an artifact and compound conditions
+- Shape: `release-tooling/patch_release.py:177` `fixes`: None means still vulnerable, an empty string fixed nothing
+- Shape, Locality: `vulnerability-filing/file_vulnerabilities.py:119` `release_for`: a three-way release rule, and resolve runs only on a clean report
+
+Inherited architect, decided by:
+
+- Locality, Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:228` `plan`: resolve runs only on a clean report, correct only because test.yml runs plan after release
+- Locality, Shape: `release-tooling/patch_release.py:187` `cut`: parameters shadow module functions, a local plan shadows the module's, and it leans on main's checkout and leaves worktrees
+- Navigation: `README.md:1176` "Layout": misattributes CHANGELOG.md writing; CHANGELOG.md now has three writers
+- Navigation, Shape: `.github/workflows/packages.yml:69` "Channels holding one version": a latest-release query in a script named for patches
+- Locality: `Dockerfile:22` `release-tooling`: the test stage copies vulnerability-filing for a relative-path subprocess
+- Shape, Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:119` `release_for`: the release rule lives in one long module docstring sentence
+- Locality: `.github/workflows/test.yml:93` `release`: job conditions combine five states
+- Locality: `release-tooling/publish_release.py:44` `publish`: the tag check now precedes the published check, unexplained
