@@ -1025,9 +1025,10 @@ every check passes. When `main`'s Go is then a patch above the last release's, t
 job cuts a patch through `release-tooling/patch_release.py cut`: it scans the last
 release's tree on its own Go and on `main`'s with govulncheck, cuts nothing, with a
 warning, while the second scan names a vulnerability, and otherwise commits that Go
-version and a changelog section naming the vulnerabilities the second scan no longer finds
-to a branch named for the new version, cut from the last release's tag. It builds that
-commit through `docker build .` and publishes it with
+version, `main`'s `.github/` (the forge refuses the workflow token a branch whose
+workflows differ from `main`'s) and a changelog section naming the vulnerabilities the
+second scan no longer finds to a branch named for the new version, cut from the last
+release's tag. It builds that commit through `docker build .` and publishes it with
 `release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
 tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
 Go bump, never the work merged since, and its notes name only what its own tree fixed. The

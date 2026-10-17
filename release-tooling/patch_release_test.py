@@ -418,7 +418,8 @@ class Commands(unittest.TestCase):
 			self.calls,
 			[
 				(("docker", "build", "."), "/tree"),
-				(("git", "commit", "-qam", "Release 0.1.1, built with Go 1.27.2"), "/tree"),
+				(("git", "add", "-A"), "/tree"),
+				(("git", "commit", "-qm", "Release 0.1.1, built with Go 1.27.2"), "/tree"),
 				(("git", "push", "-qf", "https://x-access-token:t0ken@forge.example/owner/repo.git", "HEAD:refs/heads/release/0.1.1"), "/tree"),
 				(("git", "rev-parse", "HEAD"), "/tree"),
 			],

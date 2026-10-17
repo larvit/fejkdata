@@ -22,6 +22,7 @@ input or a step it cannot complete, naming it.
 import datetime
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -155,6 +156,12 @@ def scan(tree: str, go: str, into: str) -> str:
 	return os.path.join(into, "report.json")
 
 
+def carry_workflows(checkout: str) -> None:
+	"""Gives the release tree main's .github/, since the forge refuses the workflow token a push whose workflows differ from main's."""
+	shutil.rmtree(os.path.join(checkout, ".github"), ignore_errors=True)
+	shutil.copytree(".github", os.path.join(checkout, ".github"))
+
+
 def prepare(checkout: str, go: str, text: str) -> None:
 	"""Sets the release tree's Go and puts the section atop its changelog."""
 	for name in ("Dockerfile", "compose.yaml"):
@@ -167,7 +174,8 @@ def prepare(checkout: str, go: str, text: str) -> None:
 def ship(checkout: str, version: str, go: str) -> str:
 	"""Builds the release tree through the gate, commits and pushes it, and returns its commit."""
 	out("docker", "build", ".", cwd=checkout)
-	out("git", "commit", "-qam", f"Release {version}, built with Go {go}", cwd=checkout)
+	out("git", "add", "-A", cwd=checkout)
+	out("git", "commit", "-qm", f"Release {version}, built with Go {go}", cwd=checkout)
 	server = urllib.parse.urlsplit(os.environ["FORGE_SERVER_URL"])
 	remote = f"{server.scheme}://x-access-token:{os.environ['FORGE_TOKEN']}@{server.netloc}/{os.environ['FORGE_REPOSITORY']}.git"
 	out("git", "push", "-qf", remote, f"HEAD:refs/heads/release/{version}", cwd=checkout)
@@ -204,6 +212,7 @@ def cut(last: str, date: str, scanner, shipper, publisher, output) -> int:
 		print(f"::warning::{last}'s tree on Go {go} still carries a known vulnerability; no patch is cut")
 		return 0
 	prepare(checkout, go, section(version, date, go, old_go, fixed))
+	carry_workflows(checkout)
 	code, tag = publisher(read(os.path.join(checkout, "CHANGELOG.md")), shipper(checkout, version, go))
 	if tag:
 		output(f"tag={tag}")
