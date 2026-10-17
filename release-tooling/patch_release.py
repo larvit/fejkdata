@@ -5,8 +5,8 @@
       Prints the last release's tag, as the forge names its latest release.
   patch_release.py cut
       When main's Go is a patch above the last release's, and govulncheck finds nothing in the
-      last release's tree on that Go: commits the Go version and a changelog section to a
-      branch release/X.Y.Z cut from the last release's tag, builds it through `docker build .`,
+      last release's tree on that Go: commits the Go version, main's .github/ and a changelog
+      section to a branch release/X.Y.Z cut from the last release's tag, builds it through `docker build .`,
       and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to GITHUB_OUTPUT. While the
       tree on that Go still carries a vulnerability, it warns and cuts nothing.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
@@ -158,8 +158,11 @@ def scan(tree: str, go: str, into: str) -> str:
 
 def carry_workflows(checkout: str) -> None:
 	"""Gives the release tree main's .github/, since the forge refuses the workflow token a push whose workflows differ from main's."""
-	shutil.rmtree(os.path.join(checkout, ".github"), ignore_errors=True)
-	shutil.copytree(".github", os.path.join(checkout, ".github"))
+	try:
+		shutil.rmtree(os.path.join(checkout, ".github"))
+		shutil.copytree(".github", os.path.join(checkout, ".github"))
+	except OSError as err:
+		raise ValueError(f"cannot carry main's .github/ into the release tree: {err}") from err
 
 
 def prepare(checkout: str, go: str, text: str) -> None:
@@ -178,7 +181,9 @@ def ship(checkout: str, version: str, go: str) -> str:
 	out("git", "commit", "-qm", f"Release {version}, built with Go {go}", cwd=checkout)
 	server = urllib.parse.urlsplit(os.environ["FORGE_SERVER_URL"])
 	remote = f"{server.scheme}://x-access-token:{os.environ['FORGE_TOKEN']}@{server.netloc}/{os.environ['FORGE_REPOSITORY']}.git"
-	out("git", "push", "-qf", remote, f"HEAD:refs/heads/release/{version}", cwd=checkout)
+	# Delete a branch a failed run left, so the push creates it and the forge checks it against main.
+	run("git", "push", "-q", remote, f":refs/heads/release/{version}", cwd=checkout, ok=(0, 1))
+	out("git", "push", "-q", remote, f"HEAD:refs/heads/release/{version}", cwd=checkout)
 	return out("git", "rev-parse", "HEAD", cwd=checkout)
 
 
