@@ -250,12 +250,18 @@ class Repository(unittest.TestCase):
 		git("init", "-q")
 		git("config", "user.email", "test@example.com")
 		git("config", "user.name", "Test")
-		self.write(("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED))
+		os.makedirs(".github/workflows")
+		self.write(
+			("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED),
+			(".github/workflows/test.yml", "on: push\n"), (".github/workflows/gone.yml", "on: push\n"),
+		)
 		git("add", ".")
 		git("commit", "-qm", "Release 0.1.0")
 		git("tag", "v0.1.0")
-		self.write(("CHANGELOG.md", MAIN))
-		git("commit", "-qam", "Add a thing")
+		os.remove(".github/workflows/gone.yml")
+		self.write(("CHANGELOG.md", MAIN), (".github/workflows/test.yml", "on: [push, schedule]\n"), (".github/workflows/packages.yml", "on: workflow_call\n"))
+		git("add", "-A")
+		git("commit", "-qm", "Add a thing")
 
 	def write(self, *files):
 		for name, text in files:
@@ -283,6 +289,10 @@ class Cut(Repository):
 
 	def ship(self, checkout, version, go):
 		self.shipped = {name: self.read(os.path.join(checkout, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md")}
+		self.shipped_workflows = {
+			name: self.read(os.path.join(checkout, ".github/workflows", name))
+			for name in sorted(os.listdir(os.path.join(checkout, ".github/workflows")))
+		}
 		self.shipped_from = checkout
 		return "abc123"
 
@@ -304,6 +314,9 @@ class Cut(Repository):
 			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
 		self.assertEqual(self.scanned, [self.shipped_from, self.shipped_from])
+		self.assertEqual(
+			self.shipped_workflows, {"packages.yml": "on: workflow_call\n", "test.yml": "on: [push, schedule]\n"}
+		)
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
 
 	def main_cut(self):
