@@ -30,7 +30,7 @@ jobs:
             git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
             base="origin/${GITHUB_BASE_REF:-main}"
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata vulnerability-filing README.md todo.md; then
+          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling testdata vulnerability-filing README.md todo.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"

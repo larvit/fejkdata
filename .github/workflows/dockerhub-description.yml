@@ -1,0 +1,37 @@
+name: Docker Hub description
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - dockerhub/**
+      - .github/workflows/dockerhub-description.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dockerhub-description
+  cancel-in-progress: true
+
+jobs:
+  description:
+    name: Docker Hub description and overview
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-26.04
+    environment: dockerhub-description
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: The short description
+        id: description
+        run: echo "text=$(cat dockerhub/description.txt)" >> "$GITHUB_OUTPUT"
+      - uses: peter-evans/dockerhub-description@v5.0.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_DESCRIPTION_TOKEN }}
+          repository: larvit/fejkdata
+          short-description: ${{ steps.description.outputs.text }}
+          readme-filepath: dockerhub/overview.md
