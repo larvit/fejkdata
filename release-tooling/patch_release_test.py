@@ -420,7 +420,8 @@ class Commands(unittest.TestCase):
 				(("docker", "build", "."), "/tree"),
 				(("git", "add", "-A"), "/tree"),
 				(("git", "commit", "-qm", "Release 0.1.1, built with Go 1.27.2"), "/tree"),
-				(("git", "push", "-qf", "https://x-access-token:t0ken@forge.example/owner/repo.git", "HEAD:refs/heads/release/0.1.1"), "/tree"),
+				(("git", "push", "-q", "https://x-access-token:t0ken@forge.example/owner/repo.git", ":refs/heads/release/0.1.1"), "/tree"),
+				(("git", "push", "-q", "https://x-access-token:t0ken@forge.example/owner/repo.git", "HEAD:refs/heads/release/0.1.1"), "/tree"),
 				(("git", "rev-parse", "HEAD"), "/tree"),
 			],
 		)
