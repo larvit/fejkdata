@@ -226,3 +226,46 @@ func TestLayoutNamesEverySourceFile(t *testing.T) {
 		t.Errorf("the README Layout names %s, which the package does not hold", name)
 	}
 }
+
+func shCommands(src string) []string {
+	var commands []string
+	for _, block := range regexp.MustCompile("(?s)```sh\n(.*?)```").FindAllStringSubmatch(src, -1) {
+		for _, line := range strings.Split(strings.TrimSpace(block[1]), "\n") {
+			command, _, _ := strings.Cut(line, "#")
+			commands = append(commands, strings.TrimSpace(command))
+		}
+	}
+	return commands
+}
+
+func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
+	doc := readme(t)
+	description, err := os.ReadFile("dockerhub/description.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tagline := strings.TrimSpace(string(description))
+	if !regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(tagline) + `[:.]`).MatchString(doc) {
+		t.Errorf("dockerhub/description.txt says %q, which no README.md sentence opens with", tagline)
+	}
+	overview, err := os.ReadFile("dockerhub/overview.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	commands := shCommands(string(overview))
+	if len(commands) == 0 {
+		t.Fatal("dockerhub/overview.md has no sh block")
+	}
+	shown := shCommands(doc)
+	docker := regexp.MustCompile(`docker run --rm (-i )?larvit/fejkdata`)
+	for _, command := range commands {
+		before, after, _ := strings.Cut(command, "docker run")
+		reads := strings.Contains(before, "|") || strings.Contains(after, "<")
+		if reads != strings.Contains(command, "docker run --rm -i ") {
+			t.Errorf("dockerhub/overview.md runs %q, which needs -i exactly when it reads stdin", command)
+		}
+		if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
+			t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
+		}
+	}
+}
