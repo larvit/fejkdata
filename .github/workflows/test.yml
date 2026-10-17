@@ -172,7 +172,7 @@ jobs:
           # GitHub holds the pull_request run of a pull request this token opens until it is approved.
           sha="$(git rev-parse HEAD)"
           for _ in $(seq 24); do
-            run="$(gh run list --branch security-plan --event pull_request --commit "$sha" --json databaseId,conclusion --jq '.[0] | select(.conclusion == "action_required") | .databaseId')"
+            run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&head_sha=${sha}" --jq '[.workflow_runs[] | select(.conclusion == "action_required" and .head_repository.full_name == env.GITHUB_REPOSITORY)][0].id // empty')"
             [ -n "$run" ] && break
             sleep 5
           done
