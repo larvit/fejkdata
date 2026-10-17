@@ -1038,4 +1038,7 @@ every job, as the forge's latest release, and owns `CHANGELOG.md`: each run copi
 `main`'s changelog any section the last release has and `main` lacks, so a lost run loses
 no section, and moves rows planned under a patch CI took to the next patch. The Packages
 workflow builds a tag with the Go its own Dockerfile names. A newer Go minor waits for a
-release the maintainer cuts. Valid while Go is the one dependency the binaries carry.
+release the maintainer cuts. The paired ruling against 5aca8a1 found the project reads
+worse for it: two linked scripts, four linked jobs and several writers of `CHANGELOG.md`.
+The maintainer merged it anyway, as the cost of releasing Go patches without waiting.
+Valid while Go is the one dependency the binaries carry.
