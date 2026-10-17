@@ -1,0 +1,164 @@
+name: Packages
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+    secrets:
+      TAP_GITHUB_TOKEN:
+        required: true
+      PACKAGES_GPG_KEY:
+        required: true
+      PACKAGES_RSA_KEY:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The released tag to package, such as v0.1.0
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: packages
+  cancel-in-progress: false
+
+jobs:
+  packages:
+    name: Binaries, packages and image for ${{ inputs.tag }}
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+      packages: write
+    outputs:
+      latest: ${{ steps.latest.outputs.latest }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+          path: src
+          fetch-depth: 0
+          persist-credentials: false
+      # Check out the packaging config at the workflow's commit, so a tag cut before the
+      # config existed can still be packaged.
+      - uses: actions/checkout@v7
+        with:
+          path: tooling
+          persist-credentials: false
+      - name: The Go version the tag names
+        id: go
+        run: sed -n 's/^ARG GO_VERSION=/version=/p' src/Dockerfile >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ steps.go.outputs.version }}
+          cache: false
+      - name: Channels holding one version
+        id: latest
+        env:
+          FORGE_API_URL: ${{ github.api_url }}
+          FORGE_REPOSITORY: ${{ github.repository }}
+          FORGE_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          latest="$(python3 tooling/release-tooling/patch_release.py last)"
+          if [ "$latest" = "$TAG" ]; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=--skip=homebrew,scoop" >> "$GITHUB_OUTPUT"
+            echo "OLDER_TAG=1" >> "$GITHUB_ENV"
+          fi
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          version: v2.18.3
+          workdir: src
+          args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ steps.latest.outputs.skip }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+      - name: The built binary and the published image print the tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          test "$(dist/fejkdata_linux_amd64_v1/fejkdata --version)" = "fejkdata $TAG"
+          test "$(docker run --rm "ghcr.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
+
+  dockerhub:
+    name: Docker Hub image for ${{ inputs.tag }}
+    needs: packages
+    runs-on: ubuntu-26.04
+    permissions:
+      packages: read
+    steps:
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Copy the GHCR image to Docker Hub, and check it prints the tag
+        env:
+          LATEST: ${{ needs.packages.outputs.latest }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          tags=(-t "docker.io/larvit/fejkdata:${TAG#v}")
+          if [ "$LATEST" = true ]; then
+            tags+=(-t docker.io/larvit/fejkdata:latest)
+          fi
+          docker buildx imagetools create "${tags[@]}" "ghcr.io/larvit/fejkdata:${TAG#v}"
+          test "$(docker run --rm "docker.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
+
+  repos:
+    name: apt, dnf and apk repositories for ${{ inputs.tag }}
+    needs: packages
+    if: needs.packages.outputs.latest == 'true'
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: The release's Linux packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir packages --pattern '*.deb' --pattern '*.rpm' --pattern '*.apk'
+      - uses: docker/setup-buildx-action@v4
+      - name: Install fejkdata from each repository, then export them
+        env:
+          PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
+          PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          build() {
+            docker buildx build -f release-tooling/package-repos.Dockerfile \
+              --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY \
+              --build-context packages=packages --build-arg "EXPECTED_VERSION=$TAG" "$@" .
+          }
+          build --target checks --output type=local,dest=checks
+          build --target site --output type=local,dest=site
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v5

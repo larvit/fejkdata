@@ -1,5 +1,5 @@
 x-go: &go
-  image: golang:${GO_VERSION:-1.27.1}
+  image: golang:${GO_VERSION:-1.27.2}
   working_dir: /app
   volumes:
     - .:/app
