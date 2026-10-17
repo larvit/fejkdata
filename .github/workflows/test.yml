@@ -171,15 +171,18 @@ jobs:
           fi
           # GitHub holds the pull_request run of a pull request this token opens until it is approved.
           sha="$(git rev-parse HEAD)"
+          run=""
           for _ in $(seq 24); do
-            run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&head_sha=${sha}" --jq '[.workflow_runs[] | select(.conclusion == "action_required" and .head_repository.full_name == env.GITHUB_REPOSITORY)][0].id // empty')"
+            run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&head_sha=${sha}" --jq '[.workflow_runs[] | select(.head_repository.full_name == env.GITHUB_REPOSITORY)][0] // empty | "\(.id) \(.conclusion)"')"
             [ -n "$run" ] && break
             sleep 5
           done
-          if [ -n "$run" ]; then
-            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/approve"
-          else
-            echo "::warning::no held pull_request run for ${sha} to approve"
+          if [ -z "$run" ]; then
+            echo "::error::no pull_request run for ${sha}; its required check will never report"
+            exit 1
+          fi
+          if [ "${run#* }" = action_required ]; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${run%% *}/approve"
           fi
           gh pr merge security-plan --auto --rebase
 
