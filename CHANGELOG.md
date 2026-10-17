@@ -13,6 +13,13 @@ replacement, and each removed path, column or flag.
   the CLI installs without Go. 0.1.0 ships them too; the README's
   [Install](https://github.com/larvit/fejkdata#install) lists each command.
 
+## [0.1.1] - 2026-10-17
+
+### Security
+
+- The binaries and image are built with Go 1.27.2.
+- The binaries no longer carry Go 1.27.1's known vulnerabilities: GO-2026-6599 (CVE-2026-94448), GO-2026-6600 (CVE-2026-97030), GO-2026-6603 (CVE-2026-78659), GO-2026-6604 (CVE-2026-56857), GO-2026-6605 (CVE-2026-56866), GO-2026-6607 (CVE-2026-97031), GO-2026-6608 (CVE-2026-94440), GO-2026-6609 (CVE-2026-78667), GO-2026-6610 (CVE-2026-78660), GO-2026-6611 (CVE-2026-78669), GO-2026-6612 (CVE-2026-78663), GO-2026-6613 (CVE-2026-94439), GO-2026-6617 (CVE-2026-97032).
+
 ## [0.1.0] - 2026-10-13
 
 The first release: a Go library and a CLI that render locale-aware fake data from JSON
