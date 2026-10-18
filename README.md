@@ -73,7 +73,7 @@ The binaries are unsigned. macOS refuses to run one a browser downloaded until y
 
 ### Bulk fixtures
 
-Save this record as `person.json`. Its format binds one sex, one last name and one address, and each column reads those picks, so a row's name, sex, personnummer, email and address agree. [Records](#records) explains the format.
+Save this record as `person.json`. Its `format` draws one sex, one last name and one address, and each column reads those same draws, so a row's name, sex, personnummer, email and address agree. [Records](#records) explains the record.
 
 ```json
 {
@@ -95,16 +95,18 @@ fejkdata --format csv --repeat 1000000 < person.json > people.csv  # a million r
 fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
 ```
 
+The first command prints:
+
 ```text
 email,first,last,locality,personnummer,postal-code,sex,street
 vilgot.larsson@example.com,Vilgot,Larsson,Östersund,740514-2394,831 34,man,Stapelmohrs Väg 9
 ```
 
-A compound name, such as `Anna Lena` or `von Walden`, keeps its space in the email. A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
+A compound name, such as `Anna Lena` or `von Walden`, keeps its space in the email, so that address is not valid. A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
 
 ### Go tests
 
-Declare the struct, and `FakeStruct` fills it from its tags. The tags share names as a record's columns do, in any field order, so the fields agree. [Library](#library) covers the rest of the API.
+Declare the struct, and `FakeStruct` fills it from its tags. A tag binds a draw with `as`, such as `{/sv_SE.sex as s}`, and the other tags read that draw in any field order, so the fields agree. [Names](#names) explains `as`; [Library](#library) covers the rest of the API.
 
 ```go
 package signup
@@ -136,7 +138,7 @@ func TestSignup(t *testing.T) {
 	if err := f.FakeStruct(&p); err != nil {
 		t.Fatal(err)
 	}
-	// Sex is kvinna or man. p's name, sex, personnummer, email and address agree.
+	// Sex is kvinna or man.
 	// With seed 1, p is {Sex:man First:Vilgot Last:Larsson Personnummer:740514-2394 Email:vilgot.larsson@example.com Street:Stapelmohrs Väg 9 PostalCode:831 34 Locality:Östersund}
 }
 ```

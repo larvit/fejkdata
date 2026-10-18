@@ -20,12 +20,12 @@
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
 | 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
 | 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 157 | 0.2.0 |  |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, and what to write for a UTF-8 file on Windows PowerShell 5.1, one line per shell family.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.7 |
+| 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.7 |
 | 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.4 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.3 |
-| 337 | 0.2.0 |  |  | **Name in Names each read of a name inside its own bound field that the loader refuses, and say that a struct tag may bind and read one name.** | 1 | 2 | 1 | 2 | 2 | 5 by 2 | 1.0 |
+| 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 5 by 2 | 1.0 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.5 |
 | 34 | 0.3.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 4 by 4 | 1.5 |
 | 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.3 |
@@ -248,7 +248,7 @@
 
 ### 338. Make the email of a compound name hold no space, so an email the quick starts build is a valid address.
 
-The quick starts build each email from the first and last name. Compound names keep their space in the email: `Anna Lena` (58 of the 4,000 `sv_SE.first-name` rows) and `von Walden` (24 of the 5,000 `sv_SE.last-name` rows), so a draw such as `anna lena.larsson@example.com` is not a valid address. No builtin or transform drops a space. The choice is for the human: a transform that drops spaces, or name tables without compound names beside `sv_SE`'s `first-name.tsv` and `last-name.tsv`. Once it is chosen, drop the sentence the bulk quick start gives to this.
+The quick starts build each email from the first and last name. Compound names keep their space in the email: `Anna Lena` (58 of the 4,000 `sv_SE.first-name` rows) and `von Walden` (24 of the 5,000 `sv_SE.last-name` rows), so a draw such as `anna lena.larsson@example.com` is not a valid address. No builtin or transform drops a space. The choice is for the human: a transform that drops spaces, or name tables beside `sv_SE`'s `first-name.tsv` and `last-name.tsv` with no compound names. Once it is chosen, drop the sentence the bulk quick start gives to this.
 
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
@@ -274,9 +274,9 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
-### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, and what to write for a UTF-8 file on Windows PowerShell 5.1, one line per shell family.
+### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
-Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the quick starts' `> people.csv` lines garble `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
+Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the bulk quick start's `> people.csv` garbles `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
 
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
@@ -294,7 +294,7 @@ Kartverket's address register (CC BY 4.0) holds every street with its postnummer
 
 The maintainer, 2026-10-18: no patch should wait on a human. A dependency bump that passes the tests unchanged changes no row of the README's Versioning table, so it is a patch; a new Go minor leaves `go.mod`'s `go 1.22`, the lowest supported Go, where it is. `release-tooling/patch_release.py cut` already cuts a Go patch this way from the last release's tag; widen it to the rest, and revise the decision "CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag", which leaves a Go minor to the maintainer. Name in the changelog section each platform a new Go minor stops supporting, such as an older macOS, since a binary user loses it in a patch. Make the comprehension seats' places in `patch_release.py`, `packages.yml` and `goreleaser.yaml` easier to read where the change touches them.
 
-### 337. Name in Names each read of a name inside its own bound field that the loader refuses, and say that a struct tag may bind and read one name.
+### 337. Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.
 
 Two fresh readers of the README's Go quick start read Names' refusal, "a read of a name inside the field bound to it", as forbidding `{/sv_SE.sex as s}{s.name}` in one struct tag. The loader accepts that tag, as it accepts the `first` field of `sv_SE.person`, `{.first-name as n}{n.name}`. Find the case the loader refuses, state it in Names with a template that shows it, and drop the sentence if it names no case the loader refuses.
 
