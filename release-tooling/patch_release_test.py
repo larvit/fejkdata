@@ -210,21 +210,17 @@ TODO = """# todo
 
 ## Scoring
 
-`Score = -R - S/4 + 2*A + 2*G*W`
+`Score = 100 * V / (2**S + 8)`
 
-`Bar = 9`
+`Bar = 1`
 
 `Next ID = 7`
 
-| Goal | W |
-|---|---|
-| 1.1 | 1.00 |
-
 ## Items
 
-| ID | Release | Exempt | Item | R | S | C | A | G | Goals | Score |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 5 | 0.2.0 |  | **Add a thing.** | 2 | 2 | 2 | 7 | 8 | 1.1 | 26.5 |
+| ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 5 | 0.2.0 |  |  | **Add a thing.** | 2 | 2 | 2 | 4 | 2 | 1.1 by 7 | 17.9 |
 
 ## Details
 
@@ -378,7 +374,7 @@ class Plan(Repository):
 
 	def test_files_under_the_next_patch_and_reconciles_the_last_release(self):
 		self.assertEqual(self.plan("GO-2026-0009"), 0)
-		self.assertIn("\n| 7 | 0.1.2 | security |", self.read("todo.md"))
+		self.assertIn("\n| 7 | 0.1.2 |  | security |", self.read("todo.md"))
 		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
 
 	def test_records_a_fixed_item_under_unreleased(self):
