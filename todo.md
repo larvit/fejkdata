@@ -6,241 +6,242 @@
 
 `Bar = 0`
 
-`Next ID = 339`
+`Next ID = 340`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 338 | 0.2.0 |  | question | **Make the email of a compound name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 1.0 |
-| 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 5.2 |
-| 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 4.2 |
-| 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 4.2 |
-| 202 | 0.2.0 |  |  | **Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.7 |
-| 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.4 |
-| 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.3 |
-| 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 5 by 2 | 1.0 |
-| 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.5 |
-| 34 | 0.3.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 4 by 4 | 1.5 |
-| 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.3 |
-| 243 | 0.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.3 |
-| 210 | 0.3.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 273 | 0.3.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 206 | 0.3.0 |  |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 277 | 0.3.0 | 206 |  | **Add `zh_CN`'s national personal id, the 18-digit resident identity card number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 208 | 0.3.0 |  |  | **Add `es_MX` with its given names by sex, last names and titles, and `es_MX.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 282 | 0.3.0 | 208 |  | **Add `es_MX`'s national personal id, the CURP, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 212 | 0.3.0 |  |  | **Add `pt_BR` with its given names by sex, last names and titles, and `pt_BR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 287 | 0.3.0 | 212 |  | **Add `pt_BR`'s national personal id, the CPF, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 203 | 0.3.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 297 | 0.3.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 204 | 0.3.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 302 | 0.3.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 207 | 0.3.0 |  |  | **Add `hi_IN` with its given names by sex, last names and titles, and `hi_IN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 306 | 0.3.0 | 207 |  | **Add `hi_IN`'s national personal id, the Aadhaar number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 209 | 0.3.0 |  | decision | **Add `ar_EG` with its given names by sex, last names and titles, and `ar_EG.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 310 | 0.3.0 | 209 |  | **Add `ar_EG`'s national personal id, the national ID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 211 | 0.3.0 |  |  | **Add `bn_BD` with its given names by sex, last names and titles, and `bn_BD.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 314 | 0.3.0 | 211 |  | **Add `bn_BD`'s national personal id, the NID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 213 | 0.3.0 |  |  | **Add `id_ID` with its given names by sex, last names and titles, and `id_ID.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 318 | 0.3.0 | 213 |  | **Add `id_ID`'s national personal id, the NIK, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 214 | 0.3.0 |  | decision | **Add `ur_PK` with its given names by sex, last names and titles, and `ur_PK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 322 | 0.3.0 | 214 |  | **Add `ur_PK`'s national personal id, the CNIC number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 205 | 0.3.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 327 | 0.3.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 217 | 0.3.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.1 |
-| 332 | 0.3.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
-| 236 | 0.3.0 |  |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 2 | 4 | 2 | 1 by 1, 2.1 by 3, 4 by 2 | 3.8 |
-| 235 | 0.3.0 |  |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2.1 by 5, 4 by 5 | 3.7 |
-| 155 | 0.3.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 4 by 3 | 3.7 |
-| 245 | 0.3.0 |  |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2, 4.2 by 3 | 3.6 |
-| 27 | 0.3.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.7 |
-| 15 | 0.3.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4.3 by 4, 2 by 1 | 3.5 |
-| 22 | 0.3.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4.3 by 6 | 3.4 |
-| 252 | 0.3.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.4 |
-| 241 | 0.3.0 |  |  | **Give `sv_SE.person` a `birthdate`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 4 | 3.3 |
-| 239 | 0.3.0 |  |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 4.2 by 2 | 3.3 |
-| 250 | 0.3.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 4.2 by 2 | 3.3 |
-| 88 | 0.3.0 |  |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 1 | 1 | 2 | 2 | 3 | 1 by 1, 2.1 by 3, 4 by 3 | 3.3 |
-| 232 | 0.3.0 |  |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 4.2 by 3 | 3.2 |
-| 233 | 0.3.0 |  |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 4.2 by 3 | 3.2 |
-| 256 | 0.3.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 4 by 2 | 3.2 |
-| 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 3.3 by 4 | 3.0 |
-| 254 | 0.3.0 |  |  | **Say in the docs which of three kinds each category's values are: real, valid or invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 4 by 8 | 2.9 |
-| 220 | 0.3.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 6 by 5 | 2.9 |
-| 24 | 0.3.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 4 by 3 | 2.8 |
-| 244 | 0.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 4.2 by 3 | 2.8 |
-| 255 | 0.3.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 4 by 3, 2 by 2 | 2.8 |
-| 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | 3.2 by 6 | 2.7 |
-| 178 | 0.3.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | 3.2 by 6 | 2.7 |
-| 272 | 0.3.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 276 | 0.3.0 | 206 |  | **Add `zh_CN.phone`, drawn from China's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 281 | 0.3.0 | 208 |  | **Add `es_MX.phone`, drawn from Mexico's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 286 | 0.3.0 | 212 |  | **Add `pt_BR.phone`, drawn from Brazil's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 296 | 0.3.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 301 | 0.3.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 305 | 0.3.0 | 207 |  | **Add `hi_IN.phone`, drawn from India's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 309 | 0.3.0 | 209 |  | **Add `ar_EG.phone`, drawn from Egypt's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 313 | 0.3.0 | 211 |  | **Add `bn_BD.phone`, drawn from Bangladesh's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 317 | 0.3.0 | 213 |  | **Add `id_ID.phone`, drawn from Indonesia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 321 | 0.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 326 | 0.3.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 331 | 0.3.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
-| 198 | 0.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 4.3 by 3 | 2.7 |
-| 117 | 0.3.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 4 | 2.7 |
-| 257 | 0.3.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 4 by 3 | 2.6 |
-| 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 3 | 2.4 |
-| 113 | 0.3.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 4 by 6 | 2.4 |
-| 260 | 0.3.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 2 | 2.4 |
-| 261 | 0.3.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 2 | 2.4 |
-| 237 | 0.3.0 |  |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 4.2 by 2 | 2.3 |
-| 248 | 0.3.0 |  |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 4.2 by 2 | 2.3 |
-| 262 | 0.3.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 4.2 by 1 | 2.3 |
-| 175 | 0.3.0 |  |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 2 | 2 | 3.4 by 4 | 2.3 |
-| 171 | 0.3.0 |  |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 1 | 3 | 5 | 3 | 3.2 by 5 | 2.2 |
-| 197 | 0.3.0 |  | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 1 | 2 | 4 | 3 | 3.2 by 5 | 2.2 |
-| 164 | 0.3.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 5 by 3 | 2.2 |
-| 50 | 0.3.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 52 | 0.3.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 92 | 0.3.0 |  |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 219 | 0.3.0 |  |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 221 | 0.3.0 |  |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 224 | 0.3.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 228 | 0.3.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 229 | 0.3.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.2 |
-| 35 | 0.3.0 |  |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 2.1 |
-| 265 | 0.3.0 |  |  | **Add `misc.commit` messages, branch names and `sha`s.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 2.1 |
-| 258 | 0.3.0 |  |  | **Add `misc.product` names, adjectives, materials and departments, and `misc.garmentsize`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 3 | 2.1 |
-| 266 | 0.3.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 2.1 |
-| 240 | 0.3.0 |  |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 2.0 |
-| 242 | 0.3.0 |  |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 2.0 |
-| 246 | 0.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.0 |
-| 38 | 0.3.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 44 | 0.3.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 45 | 0.3.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 49 | 0.3.0 |  |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 110 | 0.3.0 |  |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 225 | 0.3.0 |  |  | **Drop "a field cannot be named weight" from the refusal of a `weight` that is no number, and name the column a table's `weight` reads.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 2.0 |
-| 274 | 0.3.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 278 | 0.3.0 | 206 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 283 | 0.3.0 | 208 |  | **Add `es_MX.company`, `es_MX.email` and `es_MX.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 288 | 0.3.0 | 212 |  | **Add `pt_BR.company`, `pt_BR.email` and `pt_BR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 298 | 0.3.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 303 | 0.3.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 307 | 0.3.0 | 207 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 311 | 0.3.0 | 209 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 315 | 0.3.0 | 211 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 319 | 0.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 323 | 0.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 328 | 0.3.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 333 | 0.3.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 263 | 0.3.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 1 | 2.0 |
-| 181 | 0.3.0 |  | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 4 | 1 | 3 | 6 | 4 | 1 by 2, 6 by 5 | 1.9 |
+| 338 | 0.2.0 |  | question | **Make the email of a compound name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 0.9 |
+| 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 4.8 |
+| 339 | 0.2.0 |  |  | **Drop goal 3 and its sub-goals, which restate code health, renumber the goals after it, and repoint every Moves cell and decision that cites them.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
+| 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
+| 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
+| 202 | 0.2.0 |  |  | **Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.6 |
+| 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.3 |
+| 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.2 |
+| 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 5 by 2 | 0.9 |
+| 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.4 |
+| 34 | 0.3.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 4 by 4 | 1.3 |
+| 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.0 |
+| 243 | 0.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.0 |
+| 210 | 0.3.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 273 | 0.3.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 206 | 0.3.0 |  |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 277 | 0.3.0 | 206 |  | **Add `zh_CN`'s national personal id, the 18-digit resident identity card number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 208 | 0.3.0 |  |  | **Add `es_MX` with its given names by sex, last names and titles, and `es_MX.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 282 | 0.3.0 | 208 |  | **Add `es_MX`'s national personal id, the CURP, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 212 | 0.3.0 |  |  | **Add `pt_BR` with its given names by sex, last names and titles, and `pt_BR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 287 | 0.3.0 | 212 |  | **Add `pt_BR`'s national personal id, the CPF, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 203 | 0.3.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 297 | 0.3.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 204 | 0.3.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 302 | 0.3.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 207 | 0.3.0 |  |  | **Add `hi_IN` with its given names by sex, last names and titles, and `hi_IN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 306 | 0.3.0 | 207 |  | **Add `hi_IN`'s national personal id, the Aadhaar number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 209 | 0.3.0 |  | decision | **Add `ar_EG` with its given names by sex, last names and titles, and `ar_EG.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 310 | 0.3.0 | 209 |  | **Add `ar_EG`'s national personal id, the national ID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 211 | 0.3.0 |  |  | **Add `bn_BD` with its given names by sex, last names and titles, and `bn_BD.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 314 | 0.3.0 | 211 |  | **Add `bn_BD`'s national personal id, the NID number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 213 | 0.3.0 |  |  | **Add `id_ID` with its given names by sex, last names and titles, and `id_ID.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 318 | 0.3.0 | 213 |  | **Add `id_ID`'s national personal id, the NIK, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 214 | 0.3.0 |  | decision | **Add `ur_PK` with its given names by sex, last names and titles, and `ur_PK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 322 | 0.3.0 | 214 |  | **Add `ur_PK`'s national personal id, the CNIC number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 205 | 0.3.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 327 | 0.3.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 217 | 0.3.0 |  |  | **Add `de_DE` with its given names by sex, last names and titles, and `de_DE.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
+| 332 | 0.3.0 | 217 |  | **Add `de_DE`'s national personal id, the Steuer-Identifikationsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
+| 236 | 0.3.0 |  |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 2 | 4 | 2 | 1 by 1, 2.1 by 3, 4 by 2 | 3.5 |
+| 235 | 0.3.0 |  |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2.1 by 5, 4 by 5 | 3.4 |
+| 155 | 0.3.0 | 34 |  | **Add `misc.isin` and `misc.cusip`, built by their structure rules with their check digits drawn by `{isin()}` and `{cusip()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2 by 2, 4 by 3 | 3.4 |
+| 245 | 0.3.0 |  |  | **Draw `en_US.phone` from every area code NANPA has in service.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2, 4.2 by 3 | 3.3 |
+| 27 | 0.3.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.6 |
+| 15 | 0.3.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4.3 by 4, 2 by 1 | 3.2 |
+| 22 | 0.3.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4.3 by 6 | 3.1 |
+| 252 | 0.3.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 3.1 |
+| 241 | 0.3.0 |  |  | **Give `sv_SE.person` a `birthdate`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 4 | 3.1 |
+| 239 | 0.3.0 |  |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 4.2 by 2 | 3.0 |
+| 250 | 0.3.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 4.2 by 2 | 3.0 |
+| 88 | 0.3.0 |  |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 1 | 1 | 2 | 2 | 3 | 1 by 1, 2.1 by 3, 4 by 3 | 3.0 |
+| 232 | 0.3.0 |  |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 4.2 by 3 | 3.0 |
+| 233 | 0.3.0 |  |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 4.2 by 3 | 3.0 |
+| 256 | 0.3.0 |  |  | **Add `misc.bic`, built by its structure rules.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2, 4 by 2 | 2.9 |
+| 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 3.3 by 4 | 2.8 |
+| 254 | 0.3.0 |  |  | **Say in the docs which of three kinds each category's values are: real, valid or invented.** | 2 | 2 | 1 | 3 | 4 | 1 by 2, 4 by 8 | 2.7 |
+| 220 | 0.3.0 |  |  | **Suggest the nearest name where a path segment names nothing: `no entry "adress"; did you mean "address"?`.** | 1 | 1 | 1 | 1 | 3 | 1 by 2, 6 by 5 | 2.7 |
+| 24 | 0.3.0 |  | defect | **Stop `misc.territory[EH].tld` rendering `.eh`, the one shipped TLD `misc.tld` does not hold.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 4 by 3 | 2.6 |
+| 244 | 0.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 4.2 by 3 | 2.6 |
+| 255 | 0.3.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 4 by 3, 2 by 2 | 2.6 |
+| 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | 3.2 by 6 | 2.5 |
+| 178 | 0.3.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | 3.2 by 6 | 2.5 |
+| 272 | 0.3.0 | 210 |  | **Add `fr_FR.phone`, drawn from France's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 276 | 0.3.0 | 206 |  | **Add `zh_CN.phone`, drawn from China's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 281 | 0.3.0 | 208 |  | **Add `es_MX.phone`, drawn from Mexico's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 286 | 0.3.0 | 212 |  | **Add `pt_BR.phone`, drawn from Brazil's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 296 | 0.3.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 301 | 0.3.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 305 | 0.3.0 | 207 |  | **Add `hi_IN.phone`, drawn from India's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 309 | 0.3.0 | 209 |  | **Add `ar_EG.phone`, drawn from Egypt's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 313 | 0.3.0 | 211 |  | **Add `bn_BD.phone`, drawn from Bangladesh's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 317 | 0.3.0 | 213 |  | **Add `id_ID.phone`, drawn from Indonesia's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 321 | 0.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 326 | 0.3.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 331 | 0.3.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
+| 198 | 0.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 4.3 by 3 | 2.5 |
+| 117 | 0.3.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 4 | 2.4 |
+| 257 | 0.3.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 4 by 3 | 2.3 |
+| 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex` and `en_US.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 3 | 2.2 |
+| 113 | 0.3.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 4 by 6 | 2.2 |
+| 260 | 0.3.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 2 | 2.2 |
+| 261 | 0.3.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 2 | 2.2 |
+| 237 | 0.3.0 |  |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 4.2 by 2 | 2.1 |
+| 248 | 0.3.0 |  |  | **Add `en_US.car`, a make and model from NHTSA vPIC.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 4.2 by 2 | 2.1 |
+| 262 | 0.3.0 |  |  | **Add `misc.bloodtype`, weighted by its global distribution.** | 1 | 2 | 1 | 2 | 1 | 1 by 1, 2 by 1, 4.2 by 1 | 2.1 |
+| 175 | 0.3.0 |  |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 2 | 2 | 3.4 by 4 | 2.1 |
+| 171 | 0.3.0 |  |  | **Handle a template that only reads one record column in one place, so `checkColumns`, `itemDatatype`, `proveColumnItem` and `renderLeaf` no longer each special-case `readsColumn`.** | 3 | 1 | 3 | 5 | 3 | 3.2 by 5 | 2.1 |
+| 197 | 0.3.0 |  | decision | **Replace the namespace mount with one the loader states in one place, and give `datafiles.Source.at` one job.** | 3 | 1 | 2 | 4 | 3 | 3.2 by 5 | 2.1 |
+| 164 | 0.3.0 |  |  | **Let a table's format or a cell bind a name, which lives in that format or cell and keeps one pick through the draw.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 5 by 3 | 2.0 |
+| 50 | 0.3.0 |  |  | **Reword `prove`'s refusal of a typed column reading a row, `{/region}`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 52 | 0.3.0 |  |  | **Name the file a link error comes from beside its category path, `sub.x (/d/a/sub/x.json): …`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 92 | 0.3.0 |  |  | **Name the hyphenated field in a `calc`'s refusal, and say to rename it: today `{calc(postal-code * 2)}` reports `no field "postal"`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 219 | 0.3.0 |  |  | **Name the path and the Go type where a struct field's type cannot hold what its tag renders: `sv_SE.person renders text, which int cannot hold`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 221 | 0.3.0 |  |  | **Refuse two references under a record `--format` by saying a run renders one record: today `{/users}{/orders}` reports that an inline record has no fields.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 224 | 0.3.0 |  |  | **Name the module in every error about its manifest or its files: today an `fs.FS` module's errors name only the file inside it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 228 | 0.3.0 |  |  | **Offer `{/path as p}` where a token starts with a name nothing binds and no loaded path starts with, in a record's format too: today `{p.first}` with `p` unbound suggests `{/p.first}`.** | 2 | 1 | 1 | 2 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 229 | 0.3.0 |  |  | **Name the line and column where JSON parsing stopped, when a template that opens like a JSON object then fails as a format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 3 | 2.0 |
+| 35 | 0.3.0 |  |  | **Add `{base64url(n)}` for JWT shapes.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
+| 265 | 0.3.0 |  |  | **Add `misc.commit` messages, branch names and `sha`s.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 2 | 1.9 |
+| 258 | 0.3.0 |  |  | **Add `misc.product` names, adjectives, materials and departments, and `misc.garmentsize`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 3 | 1.9 |
+| 266 | 0.3.0 |  |  | **Add `misc.password`, `hash`, `jwt`, `slug`, `hostname`, `avatar` and `placeholderimage`.** | 1 | 1 | 1 | 1 | 3 | 1 by 1, 2 by 3 | 1.9 |
+| 240 | 0.3.0 |  |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 1.9 |
+| 242 | 0.3.0 |  |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 1.9 |
+| 246 | 0.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 1.9 |
+| 38 | 0.3.0 |  | defect | **Compare `calcParser.binary`'s operator as a rune.** | 1 | 1 | 2 | 2 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 44 | 0.3.0 |  | decision | **Have `misc.tld[se]` select the row keyed `.se`, or have its miss name `[.se]`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 45 | 0.3.0 |  |  | **Name the node a selector follows in `childNamed`'s refusal.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 49 | 0.3.0 |  |  | **Report a CRLF rows file holding only its header as having no rows.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 110 | 0.3.0 |  |  | **Refuse an empty segment in a path `Fake` and `FakeRecord` take, as a reference does: `sv_SE.person.` reports `path has an empty segment`.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 225 | 0.3.0 |  |  | **Drop "a field cannot be named weight" from the refusal of a `weight` that is no number, and name the column a table's `weight` reads.** | 1 | 1 | 1 | 1 | 1 | 1 by 1, 6 by 2 | 1.9 |
+| 274 | 0.3.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 278 | 0.3.0 | 206 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 283 | 0.3.0 | 208 |  | **Add `es_MX.company`, `es_MX.email` and `es_MX.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 288 | 0.3.0 | 212 |  | **Add `pt_BR.company`, `pt_BR.email` and `pt_BR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 298 | 0.3.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 303 | 0.3.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 307 | 0.3.0 | 207 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 311 | 0.3.0 | 209 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 315 | 0.3.0 | 211 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 319 | 0.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 323 | 0.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 328 | 0.3.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 333 | 0.3.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 263 | 0.3.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 4.2 by 1 | 1.8 |
+| 181 | 0.3.0 |  | decision | **Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.** | 4 | 1 | 3 | 6 | 4 | 1 by 2, 6 by 5 | 1.8 |
 | 107 | 0.3.0 | 178 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 4 | 1 | 3 | 6 | 9 | 3.2 by 9, 3.1 by 4 | 0.2 |
-| 177 | 0.3.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | 3 by 4 | 1.9 |
-| 28 | 0.3.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 4 by 2 | 1.9 |
-| 247 | 0.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 4 by 2 | 1.9 |
-| 81 | 0.3.0 |  | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 3 | 1 | 3 | 5 | 4 | 1 by 1, 6 by 4, 4 by 2 | 1.9 |
-| 196 | 0.3.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 6 by 6 | 1.8 |
-| 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 4.2 by 3 | 1.8 |
-| 172 | 0.3.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | 3.2 by 3 | 1.8 |
-| 216 | 0.3.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | 3.2 by 3 | 1.8 |
-| 251 | 0.3.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | 3.2 by 3 | 1.8 |
-| 13 | 0.3.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 4.2 by 2 | 1.8 |
-| 173 | 0.3.0 |  |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 1 | 1 | 1 | 1 | 3 | 3.3 by 4 | 1.7 |
-| 259 | 0.3.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 4.2 by 3 | 1.7 |
-| 165 | 0.3.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 166 | 0.3.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 226 | 0.3.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 5 by 2 | 1.7 |
-| 39 | 0.3.0 |  |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.7 |
-| 42 | 0.3.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.7 |
-| 46 | 0.3.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.7 |
-| 51 | 0.3.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.7 |
-| 115 | 0.3.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.7 |
-| 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.6 |
-| 267 | 0.3.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 4.2 by 2 | 1.6 |
-| 32 | 0.3.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.6 |
-| 264 | 0.3.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.6 |
-| 268 | 0.3.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.6 |
-| 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 4.2 by 3 | 1.5 |
-| 249 | 0.3.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 4.2 by 3 | 1.5 |
-| 108 | 0.3.0 |  | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.5 |
-| 158 | 0.3.0 |  |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.4 |
-| 163 | 0.3.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.4 |
-| 174 | 0.3.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | 3.2 by 2 | 1.4 |
-| 167 | 0.3.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | 3 by 3 | 1.4 |
-| 270 | 0.3.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 275 | 0.3.0 | 206 |  | **Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 279 | 0.3.0 | 208 |  | **Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 284 | 0.3.0 | 212 |  | **Add `geo/BR` with Brazil's places and postal codes, and `pt_BR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 294 | 0.3.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 299 | 0.3.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 304 | 0.3.0 | 207 |  | **Add `geo/IN` with India's places and postal codes, and `hi_IN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 308 | 0.3.0 | 209 |  | **Add `geo/EG` with Egypt's places and postal codes, and `ar_EG.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 312 | 0.3.0 | 211 |  | **Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 316 | 0.3.0 | 213 |  | **Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 320 | 0.3.0 | 214 |  | **Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 324 | 0.3.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 329 | 0.3.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
-| 269 | 0.3.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.4 |
-| 91 | 0.3.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 4 | 1.4 |
-| 23 | 0.3.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 4.3 by 6 | 1.4 |
-| 195 | 0.3.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | 3.2 by 3 | 1.3 |
-| 194 | 0.3.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 6 by 4 | 1.3 |
-| 271 | 0.3.0 | 270 |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 280 | 0.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 285 | 0.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 295 | 0.3.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 300 | 0.3.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 325 | 0.3.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 330 | 0.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
-| 127 | 0.3.0 |  |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 2 | 1.3 |
-| 161 | 0.3.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 1 | 1.2 |
-| 11 | 0.3.0 |  |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.2 |
-| 40 | 0.3.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | 3.2 by 2 | 1.2 |
-| 86 | 0.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.2 |
-| 95 | 0.3.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | 3.2 by 2 | 1.2 |
-| 36 | 0.3.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 6 by 7 | 0.9 |
-| 112 | 0.3.0 | 36 |  | **Check a calc's field operands where its template resolves, beside its name operands.** | 2 | 1 | 1 | 2 | 2 | 3.2 by 2 | 1.2 |
-| 116 | 0.3.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.2 |
-| 18 | 0.3.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 3 | 1.1 |
-| 29 | 0.3.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 3 | 1.1 |
-| 72 | 0.3.0 |  | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 2 | 1 | 3 | 3 | 3 by 2 | 1.0 |
-| 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.9 |
+| 177 | 0.3.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | 3 by 4 | 1.8 |
+| 28 | 0.3.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 4 by 2 | 1.7 |
+| 247 | 0.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 4 by 2 | 1.7 |
+| 81 | 0.3.0 |  | decision | **Refuse at load every `calc` operand not proven numeric and every divisor not proven nonzero, in a string column too.** | 3 | 1 | 3 | 5 | 4 | 1 by 1, 6 by 4, 4 by 2 | 1.7 |
+| 196 | 0.3.0 |  | decision | **Name, in the error for a reference nothing loaded provides, the module the reader's manifest reads by default that would provide it, or say none does.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 6 by 6 | 1.7 |
+| 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 4.2 by 3 | 1.7 |
+| 172 | 0.3.0 |  |  | **Pass `drawSteps` the kind of read it draws as an argument of its own, so no caller signals a sibling path by a nil `pins` or a fresh read by a nil `memo`.** | 2 | 1 | 2 | 3 | 2 | 3.2 by 3 | 1.7 |
+| 216 | 0.3.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | 3.2 by 3 | 1.7 |
+| 251 | 0.3.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | 3.2 by 3 | 1.7 |
+| 13 | 0.3.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 4.2 by 2 | 1.6 |
+| 173 | 0.3.0 |  |  | **Call what a token reads its spelling, never a name, in `format.go`, `arm.go` and `reference.go`, so a name in the engine is only a bound name.** | 1 | 1 | 1 | 1 | 3 | 3.3 by 4 | 1.6 |
+| 259 | 0.3.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 4.2 by 3 | 1.6 |
+| 165 | 0.3.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.6 |
+| 166 | 0.3.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 1.6 |
+| 226 | 0.3.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 5 by 2 | 1.6 |
+| 39 | 0.3.0 |  |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.6 |
+| 42 | 0.3.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.6 |
+| 46 | 0.3.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.6 |
+| 51 | 0.3.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.6 |
+| 115 | 0.3.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 6 by 2 | 1.6 |
+| 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.5 |
+| 267 | 0.3.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 4.2 by 2 | 1.4 |
+| 32 | 0.3.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 264 | 0.3.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 268 | 0.3.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.4 |
+| 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 4.2 by 3 | 1.4 |
+| 249 | 0.3.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 4.2 by 3 | 1.4 |
+| 108 | 0.3.0 |  | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 4.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.4 |
+| 158 | 0.3.0 |  |  | **Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.** | 1 | 1 | 1 | 1 | 2 | 1 by 2 | 1.3 |
+| 163 | 0.3.0 |  |  | **Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.** | 2 | 1 | 2 | 3 | 2 | 1 by 2 | 1.3 |
+| 174 | 0.3.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | 3.2 by 2 | 1.3 |
+| 167 | 0.3.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | 3 by 3 | 1.3 |
+| 270 | 0.3.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 275 | 0.3.0 | 206 |  | **Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 279 | 0.3.0 | 208 |  | **Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 284 | 0.3.0 | 212 |  | **Add `geo/BR` with Brazil's places and postal codes, and `pt_BR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 294 | 0.3.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 299 | 0.3.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 304 | 0.3.0 | 207 |  | **Add `geo/IN` with India's places and postal codes, and `hi_IN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 308 | 0.3.0 | 209 |  | **Add `geo/EG` with Egypt's places and postal codes, and `ar_EG.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 312 | 0.3.0 | 211 |  | **Add `geo/BD` with Bangladesh's places and postal codes, and `bn_BD.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 316 | 0.3.0 | 213 |  | **Add `geo/ID` with Indonesia's places and postal codes, and `id_ID.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 320 | 0.3.0 | 214 |  | **Add `geo/PK` with Pakistan's places and postal codes, and `ur_PK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 324 | 0.3.0 | 205 |  | **Add `geo/IS` with Iceland's places and postal codes, and `is_IS.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 329 | 0.3.0 | 217 |  | **Add `geo/DE` with Germany's places and postal codes, and `de_DE.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
+| 269 | 0.3.0 |  |  | **Add `misc.direction`, `misc.continent` and `misc.ulid`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 2 by 1 | 1.3 |
+| 91 | 0.3.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 4 | 1.2 |
+| 23 | 0.3.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 4.3 by 6 | 1.2 |
+| 195 | 0.3.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | 3.2 by 3 | 1.2 |
+| 194 | 0.3.0 |  | decision | **Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 6 by 4 | 1.2 |
+| 271 | 0.3.0 | 270 |  | **Give `geo/FR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 280 | 0.3.0 | 279 |  | **Give `geo/MX`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 285 | 0.3.0 | 284 |  | **Give `geo/BR`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 295 | 0.3.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 300 | 0.3.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 325 | 0.3.0 | 324 |  | **Give `geo/IS`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 330 | 0.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
+| 127 | 0.3.0 |  |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 2 | 1.2 |
+| 161 | 0.3.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 1 | 1.1 |
+| 11 | 0.3.0 |  |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.1 |
+| 40 | 0.3.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | 3.2 by 2 | 1.1 |
+| 86 | 0.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.1 |
+| 95 | 0.3.0 |  | principle | **Hold a struct's columns and the field each fills in one slice.** | 1 | 1 | 2 | 2 | 2 | 3.2 by 2 | 1.1 |
+| 36 | 0.3.0 |  |  | **Report every mistake a load finds in one error, as the decision "A load reports every mistake at once" states.** | 3 | 1 | 2 | 4 | 6 | 1 by 3, 6 by 7 | 0.8 |
+| 112 | 0.3.0 | 36 |  | **Check a calc's field operands where its template resolves, beside its name operands.** | 2 | 1 | 1 | 2 | 2 | 3.2 by 2 | 1.1 |
+| 116 | 0.3.0 |  |  | **Turn a row index into its rows file's line in one function.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 2 | 1.1 |
+| 18 | 0.3.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 3 | 1.0 |
+| 29 | 0.3.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 5 by 3 | 1.0 |
+| 72 | 0.3.0 |  | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 2 | 1 | 3 | 3 | 3 by 2 | 0.9 |
+| 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.8 |
 | 56 | 0.3.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 0.8 |
-| 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 4 by 6 | 0.8 |
+| 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 4 by 6 | 0.7 |
 | 53 | 0.3.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 5 by 2 | 0.7 |
 | 223 | 0.3.0 |  |  | **Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.** | 3 | 1 | 2 | 4 | 6 | 1 by 4, 5 by 3 | 0.7 |
 | 55 | 0.3.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.7 |
 | 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 4.3 by 3 | 0.7 |
-| 75 | 0.3.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 5 by 3 | 0.7 |
+| 75 | 0.3.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 5 by 3 | 0.6 |
 | 168 | 0.3.0 |  | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 1 | 1 | 2 | 4 | 3 by 2 | 0.6 |
 | 30 | 0.3.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | 3.2 by 1 | 0.6 |
-| 17 | 0.3.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 5 by 3, 2 by 2 | 0.6 |
+| 17 | 0.3.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 5 by 3, 2 by 2 | 0.5 |
 | 33 | 0.3.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 5 by 2 | 0.5 |
 | 14 | 0.3.0 |  |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 1 | 1 | 1 | 1 | 2 | 5 by 1 | 0.5 |
-| 193 | 0.3.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.5 |
+| 193 | 0.3.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.4 |
 | 109 | 0.3.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | 3 by 1 | 0.3 |
 | 218 | 0.3.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
-| 129 | 0.3.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 5 by 7 | 0.3 |
+| 129 | 0.3.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 5 by 7 | 0.2 |
 | 41 | 0.3.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 5 by 4 | 0.2 |
 | 186 | 0.3.0 | 26 | decision | **Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.** | 4 | 1 | 3 | 6 | 7 | 1 by 3 | 0.2 |
-| 62 | 0.4.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 4 by 2 | 1.6 |
-| 66 | 0.4.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.5 |
-| 67 | 0.4.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | 3.4 by 2 | 1.1 |
-| 59 | 0.4.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.9 |
+| 62 | 0.4.0 |  |  | **Add `{btc()}` and `{eth()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 2 by 2, 4 by 2 | 1.5 |
+| 66 | 0.4.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.4 |
+| 67 | 0.4.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | 3.4 by 2 | 1.0 |
+| 59 | 0.4.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 0.8 |
 | 68 | 0.4.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 0.8 |
-| 63 | 0.4.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 4 by 6 | 0.8 |
-| 64 | 0.4.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | 3.4 by 2 | 0.6 |
+| 63 | 0.4.0 |  |  | **Pair a street with its exact postnummer.** | 3 | 2 | 3 | 6 | 6 | 1 by 2, 4 by 6 | 0.7 |
+| 64 | 0.4.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | 3.4 by 2 | 0.5 |
 | 65 | 0.4.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.5 |
-| 334 | 0.5.0 | 202, 289 |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.0 |
-| 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.3 |
+| 334 | 0.5.0 | 202, 289 |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 1.9 |
+| 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 4.0 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.7 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 4 by 3 | 0.1 |
 
@@ -253,6 +254,14 @@ The quick starts build each email from the first and last name. Compound names k
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
 Bolagsverket's group digits and the Luhn rule are facts. [Source research](docs/research/research-sources-se.md).
+
+### 339. Drop goal 3 and its sub-goals, which restate code health, renumber the goals after it, and repoint every Moves cell and decision that cites them.
+
+`~/.claude/CLAUDE.md` → "Shared goal" now states code health for every project, and `rank_todo.py` weighs it, so goal 3 ("The code is easy to understand", with 3.1 to 3.4) counts the same moves twice. In lilleman's words (2026-10-18): "every project shares the goal, so it lives in `~/.claude` once ... It replaces each project's own readability goal, such as fejkdata's goal 3".
+
+Dropping goal 3 makes goals 4 to 13 into 3 to 12. In every Moves cell, turn each `3 by N` or `3.x by N` into `code health by N`; where a cell then names code health twice, keep the larger move. Lower every cited goal from 4 to 13 by one, in the cells and in `docs/decisions.md`. `rank_todo.py` can't tell when a cell points at the wrong goal, so check by hand every cell (143 cite goals 3 to 13 today) and every decision citation.
+
+Changing the README's goals is a premises change: its whole review is lilleman's approval.
 
 ### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
 
