@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 337`
+`Next ID = 338`
 
 ## Items
 
@@ -24,6 +24,7 @@
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.4 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.3 |
+| 337 | 0.2.0 |  |  | **Name in Names each read of a name inside its own bound field that the loader refuses, and say that a struct tag may bind and read one name.** | 1 | 2 | 1 | 2 | 2 | 5 by 2 | 1.0 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.5 |
 | 34 | 0.3.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 4 by 4 | 1.5 |
 | 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 4 by 3 | 4.3 |
@@ -287,6 +288,10 @@ Kartverket's address register (CC BY 4.0) holds every street with its postnummer
 ### 336. Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.
 
 The maintainer, 2026-10-18: no patch should wait on a human. A dependency bump that passes the tests unchanged changes no row of the README's Versioning table, so it is a patch; a new Go minor leaves `go.mod`'s `go 1.22`, the lowest supported Go, where it is. `release-tooling/patch_release.py cut` already cuts a Go patch this way from the last release's tag; widen it to the rest, and revise the decision "CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag", which leaves a Go minor to the maintainer. Name in the changelog section each platform a new Go minor stops supporting, such as an older macOS, since a binary user loses it in a patch. Make the comprehension seats' places in `patch_release.py`, `packages.yml` and `goreleaser.yaml` easier to read where the change touches them.
+
+### 337. Name in Names each read of a name inside its own bound field that the loader refuses, and say that a struct tag may bind and read one name.
+
+Two fresh readers of the README's Go quick start read Names' refusal, "a read of a name inside the field bound to it", as forbidding `{/sv_SE.sex as s}{s.name}` in one struct tag. The loader accepts that tag, as it accepts the `first` field of `sv_SE.person`, `{.first-name as n}{n.name}`. Find the case the loader refuses, state it in Names with a template that shows it, and drop the sentence if it names no case the loader refuses.
 
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
