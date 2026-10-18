@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 338 | 0.2.0 |  | question | **Make the email of a compound first name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 1.0 |
+| 338 | 0.2.0 |  | question | **Make the email of a compound name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 1.0 |
 | 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 5.2 |
 | 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 4.2 |
 | 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 4.2 |
@@ -246,9 +246,9 @@
 
 ## Details
 
-### 338. Make the email of a compound first name hold no space, so an email the quick starts build is a valid address.
+### 338. Make the email of a compound name hold no space, so an email the quick starts build is a valid address.
 
-The quick starts build each email from `s.first-name`. `sv_SE.first-name` holds 58 compound names among its 4,000 rows, such as `Anna Lena`, and their space stays in the email, so about 0.4% of draws, such as `anna lena.larsson@example.com`, are not valid addresses. No builtin or transform drops a space. The choice is for the human: a transform that drops spaces, or a first-name table without compound names beside `sv_SE`'s `first-name.tsv`. Once it is chosen, drop the sentence the bulk quick start gives to this.
+The quick starts build each email from the first and last name. Compound names keep their space in the email: `Anna Lena` (58 of the 4,000 `sv_SE.first-name` rows) and `von Walden` (24 of the 5,000 `sv_SE.last-name` rows), so a draw such as `anna lena.larsson@example.com` is not a valid address. No builtin or transform drops a space. The choice is for the human: a transform that drops spaces, or name tables without compound names beside `sv_SE`'s `first-name.tsv` and `last-name.tsv`. Once it is chosen, drop the sentence the bulk quick start gives to this.
 
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
