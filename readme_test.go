@@ -371,7 +371,11 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if pnr[2] != sex.birthNumber {
 		return fmt.Errorf("personnummer %q has birth number %s, sex %q takes %s", p.personnummer, pnr[2], p.sex, sex.birthNumber)
 	}
-	day, err := time.Parse("060102", pnr[1])
+	century := "20"
+	if pnr[1][:2] >= "40" {
+		century = "19"
+	}
+	day, err := time.Parse("20060102", century+pnr[1])
 	if err != nil || day.Before(time.Date(1940, 1, 1, 0, 0, 0, 0, time.UTC)) || day.After(time.Date(2006, 12, 31, 0, 0, 0, 0, time.UTC)) {
 		return fmt.Errorf("personnummer %q has a birth date outside 1940-01-01 to 2006-12-31", p.personnummer)
 	}
