@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 334`
+`Next ID = 335`
 
 ## Items
 
@@ -236,6 +236,7 @@
 | 66 | 0.4.0 |  |  | **Cut the README's Layout block to the lines that say what a file name cannot.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.0 |
 | 67 | 0.4.0 |  |  | **Cut `AGENTS.md` to the rules only it states, and explain every term its comprehension rule uses.** | 1 | 2 | 1 | 2 | 2 | 3.4 by 2 | 0.6 |
 | 64 | 0.4.0 |  |  | **Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.** | 1 | 2 | 1 | 2 | 4 | 3.4 by 2 | 0.3 |
+| 334 | 0.5.0 | 202, 289 |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 3.8 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 15.4 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 2.6 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 4 by 3 | 0.3 |
@@ -1026,6 +1027,10 @@ The `gh` rule opens by restating the decision "GitHub is canonical, and the modu
 ### 64. Give every entry in `docs/decisions.md` the goal it serves, its date, who made it and the premise it rests on.
 
 Propose a goal for an entry that serves none.
+
+### 334. Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.
+
+Nynorsk is Norway's second written standard, the official form in some municipalities. Names, places, streets, ids and phone numbers read the same in both standards, so only the words that differ need a source of their own.
 
 ### 69. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
