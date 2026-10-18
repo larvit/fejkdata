@@ -897,9 +897,11 @@ category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
-## comprehension floor: every dimension and the overall at 7.0 or above, from 0.2.0
+## comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge
 
 2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
+
+2026-10-18, Lilleman auf Larv: the floor blocks no merge, matching `~/.claude`'s decision of 2026-10-13. Goal 3 weighs the work towards it, most while the overall is under 7.0, against the other goals in `todo.md`. The paragraphs below record how 0.1.0 shipped under the gate this replaces.
 
 By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the floor, including the chunk that holds the release's scoring run, so that 0.1.0 can ship features. Items 170 to 175 and 177 move to 0.2.0. Item 178 plans first how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
 
