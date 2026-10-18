@@ -463,6 +463,9 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	if block == nil || out == nil {
 		t.Fatal("README's bulk quick start lost its record or its printed output")
 	}
+	if !strings.Contains(section, "fejkdata --seed 1 --format csv < person.json") {
+		t.Fatal("README's bulk quick start no longer runs the command its output shows")
+	}
 	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"person": block[1]})), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
@@ -482,6 +485,15 @@ func TestReadmeGoQuickStart(t *testing.T) {
 	printed := regexp.MustCompile(`(?m)^\s*// With seed 1, p is (\{.*\})$`).FindStringSubmatch(section)
 	if block == nil || printed == nil {
 		t.Fatal("README's Go quick start lost its go block or its printed person")
+	}
+	for _, call := range []string{
+		"fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))",
+		"f.FakeStruct(&p)",
+		`"github.com/larvit/fejkdata/data/sv_SE"`,
+	} {
+		if !strings.Contains(block[1], call) {
+			t.Fatalf("README's Go quick start no longer has %s, which this test runs", call)
+		}
 	}
 	typ := readmeStruct(t, block[1])
 	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1))
