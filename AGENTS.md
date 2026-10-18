@@ -113,6 +113,7 @@ In [docs/decisions.md](docs/decisions.md):
 - The image is pushed to GHCR and copied to Docker Hub, whose name the README shows
 - A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge
 - CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag
+- A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 
 # Scoring run
 

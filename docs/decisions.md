@@ -1045,3 +1045,16 @@ release the maintainer cuts. The paired ruling against 5aca8a1 found the project
 worse for it: two linked scripts, four linked jobs and several writers of `CHANGELOG.md`.
 The maintainer merged it anyway, as the cost of releasing Go patches without waiting.
 Valid while Go is the one dependency the binaries carry.
+
+## A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
+
+2026-10-18, Lilleman auf Larv. Serves goal 1.
+
+Goal 1 asks for the best fake-data tool there is, and the one developers reach for. Before
+this, only items about adoption named it, such as the quick starts and the install
+channels. Goal 1 weighs the most, so the data, the errors, the template features and the
+docs ranked as if they did nothing for it. Now an item names goal 1 by 1 to 3, beside its
+more specific goals, when its user sees the change: a category or a locale, a clearer
+error, a template feature or a doc. A refactor, a test or a process change moves goal 3 or
+another goal, and names goal 1 only if its user sees a change. The maintainer noted that
+goal 1 may then be too broad. Valid while goal 1 asks for the best fake-data tool there is.
