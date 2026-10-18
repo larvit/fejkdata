@@ -100,7 +100,7 @@ email,first,last,locality,personnummer,postal-code,sex,street
 vilgot.larsson@example.com,Vilgot,Larsson,Östersund,740514-2394,831 34,man,Stapelmohrs Väg 9
 ```
 
-A compound name, such as `Anna Lena` or `von Walden`, keeps its space in the email. A fixture this size repeats personnummer and email values; [Data](#data) explains the test series.
+A compound name, such as `Anna Lena` or `von Walden`, keeps its space in the email. A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
 
 ### Go tests
 

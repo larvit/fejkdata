@@ -20,7 +20,7 @@
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.8 |
 | 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.7 |
 | 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.0 |
-| 157 | 0.2.0 |  |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.7 |
+| 157 | 0.2.0 |  |  | **Show in the README's CLI section how PowerShell and cmd.exe pipe a template, and what to write for a UTF-8 file on Windows PowerShell 5.1, one line per shell family.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.7 |
 | 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.4 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.4 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.3 |
@@ -274,9 +274,9 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
-### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, one line per shell family.
+### 157. Show in the README's CLI section how PowerShell and cmd.exe pipe a template, and what to write for a UTF-8 file on Windows PowerShell 5.1, one line per shell family.
 
-Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record.
+Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the quick starts' `> people.csv` lines garble `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
 
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
