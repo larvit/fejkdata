@@ -609,7 +609,7 @@ them; a data package imports only the packages it reads.
 ## The default embed holds every Swedish postort the import can place, with all its streets, and, of the US places that hold most of a postal code's land, every state capital, every place of 100,000 or more and a population-weighted tenth, each with a quarter of its streets, at least ten
 
 2026-10-11, Lilleman auf Larv; revised the same day, after a tenth of the streets gave
-Göteborg 163 and Stockholm 37. Goals 2 and 14: ten streets per place put 500 Stockholm
+Göteborg 163 and Stockholm 37. Goals 2 and 4.2: ten streets per place put 500 Stockholm
 customers on ten streets, and US places of 25,000 or more left out every town and
 village. `geo-us.py` draws with Efraimidis and Spirakis's weighted sampling. It draws
 only among places holding most of some ZCTA's land, since no other place can carry a
@@ -750,7 +750,7 @@ frequency it is read, as `misc.timezone` reads GeoNames populations and
 2026-09-24, Lilleman auf Larv.
 
 The weight is the population GeoNames records in the zone's cities of 15,000 or more,
-floored at 15,000, which goal 16 asks for: over 300 seeded draws of
+floored at 15,000, which goal 4.3 asks for: over 300 seeded draws of
 `misc.territory[US].timezone`, the four zones most Americans live in took 278 where an
 even weight gave them 44, and `America/Indiana/Petersburg`, a town of 2,400, fell from 17
 to 0. Valid while a draw weighted this way lands where people live.
