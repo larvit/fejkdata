@@ -417,9 +417,9 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
-set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 14). Copy
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 4.2). Copy
 that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
-has no path that draws only values reaching nothing real (goal 16), write a fixed value such
+has no path that draws only values reaching nothing real (goal 4.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
@@ -1049,86 +1049,138 @@ the Development section below, and who ships a register the six above then draw 
 
 ## Goals
 
-Where the project is heading; the sections before Audience document what ships today.
+Where the project is heading; the sections before Audience document what ships today. A
+change that breaks a maintain goal is redesigned or dropped; the achieve goals are weighed
+against each other in the order listed.
 
-1. **The best fake-data tool there is, and the one developers reach for.**
-   1. You can install it the way you install your other tools, and people hear about
-      it where developers read.
-2. **Enough data ships built in to fill a real test database: the CLI carries all of it, a
-   library imports what it needs, and nothing is fetched at run time.**
-   1. Each locale covers the common categories: names, addresses, phone numbers, ids,
-      companies and dates.
-   2. The shipped data comes in Go packages, and a program links only the packages it
-      imports.
-3. **The code is easy to understand.**
-   1. You can go from a bug to the code behind it without asking anyone.
-   2. You can change one part without keeping the rest in your head.
-   3. Every name says what the thing really is.
-   4. Each file makes sense on its own, without another document open beside it.
-4. **Every value is valid.** It passes the same check the real system would apply,
-   such as the checksum in a Swedish personal number.
-   1. Values that belong together come from the same random pick. You choose which
-      ones by giving that pick a name.
-5. **Templates are easy to write and read.** A template is the text you write to
-   describe a value, such as `{first} {last}`.
-   1. Everything outside `{…}` prints exactly as written.
-   2. Each `{…}` makes a new random pick.
-   3. A name keeps one pick. `{/person as p}` picks a person and prints nothing.
-      `{p}` then prints that person, and `{p.last}` their last name.
-   4. A path works like a folder path: `.` goes down a level, and `..` goes up one.
-   5. `[SE]` selects one row of a table, and means that row wherever you write it.
-   6. If two people could read a template differently, loading it fails, and the
-      error shows how to write each meaning.
-   7. Whatever is well-formed and means one thing loads, even where part of it does
-      nothing. fejkdata does not guess at mistakes.
-   8. When a clearer name turns up, it replaces the old one, even if that needs a new
-      major version.
-   9. Everything fejkdata renders is written as a template: on the command line, in a
-      struct tag and in the library.
-6. **Errors surface when the data loads, never mid-render, and say plainly what is
-   wrong.**
-   1. A template that could render a value its own rules forbid, such as `NaN` or `Inf`,
-      fails to load instead.
-   2. Data that reads something nobody provided fails to load, and the error names the
-      module that provides it by default, or says that none does.
-   3. A module from fejkdata is proven whole before it ships; a module from anyone else
-      may load on first reach, and its author proves it.
-7. **One command line gets you a value.**
-   1. Flags work like in other command-line tools, and can go anywhere on the line.
-   2. Your first template of your own needs no escaping and no options.
-   3. The CLI fills in what you leave out with a sane default: all the shipped data, the
-      system's randomness and today's date.
-8. **Human readable and editable data formats** — source data is saved in JSON or
-   TSV formats when possible.
-9. **Flexible and extensible.**
-   1. Data and functions come in modules, a Go package or a data folder, from fejkdata
-      or anyone else, and fejkdata's load as anyone else's do.
-   2. A module names the modules it reads by default, and anything providing the same
-      paths can stand in for one.
-   3. Loading two things under one name fails, in the library and the CLI alike, unless
-      you say the second replaces the first, and then every read of that name reads
-      the second.
-   4. The builtins ship with fejkdata itself, so a template means the same in every
-      program.
-   5. A function loaded from a module can ask for the input it needs, and gets the
-      randomness and the date the generator uses.
-   6. A CLI carrying your own modules is a few lines of Go, and works just like
-      `fejkdata`.
-10. **The same seed, date, data and versions always give the same output.**
-    1. In the library, the caller supplies everything that can change the output: data,
-       seed and date.
-11. **No unnecessary runtime dependencies** — use standard library by default.
-12. **The docs are a map of the template language.**
-    1. Every feature has its own heading.
-    2. Every example runs as a test and shows its output.
-    3. Each rule is stated in one place.
-13. **It is fast enough that you never notice it with the shipped data.**
-    1. A render's cost grows only with the data it reaches.
-14. **Strongly prioritize data sourced from good online sources**
-15. **The most common data comes first,** such as names, addresses, phone numbers and
-    dates.
-16. **Values look real by default. You can also ask for values that can never reach
-    anything real,** such as a domain nobody can register.
+1. **Achieve:** **The best fake-data tool there is, and the one developers reach for.**
+   - Signal: stars, image pulls and package installs rise.
+   - Counter-signal: issues reporting a broken or wrong value rise.
+   - Why: users won by breadth leave when the values let them down.
+   1. **Achieve:** You can install it the way you install your other tools, and people
+      hear about it where developers read.
+      - Signal: the channels carrying the current release rise.
+      - Counter-signal: a channel serves an old release.
+      - Why: a channel that lags the release is worse than none.
+2. **Achieve:** **Enough data ships built in to fill a real test database: the CLI carries
+   all of it, a library imports what it needs, and nothing is fetched at run time.**
+   - Signal: the locales covering every common category rise.
+   - Counter-signal: categories ship as stubs.
+   - Why: a thin category is a gap the user hits later.
+   1. **Achieve:** Each locale covers the common categories: names, addresses, phone
+      numbers, ids, companies and dates.
+      - Signal: the filled cells of the locale-by-category grid rise.
+      - Counter-signal: a cell ships with a handful of values.
+      - Why: coverage counts only where it fills a database.
+   2. **Maintain:** A program carries only the data it imports.
+3. **Achieve:** **The code is easy to understand.**
+   - Signal: the comprehension panel's overall score rises, always, and below 7.0 it is
+     very important.
+   - Counter-signal: defects keep reappearing in functionality that already shipped, or
+     reviewers raise blockers because the implementer misunderstood the current code.
+   - Why: code that is easy to understand is code a change does not misread.
+   1. **Achieve:** You can go from a bug to the code behind it without asking anyone.
+      - Signal: the panel's Navigation score rises.
+      - Counter-signal: indexes and pointer comments grow faster than the code.
+      - Why: a map kept beside the code is one more document to keep true.
+   2. **Achieve:** You can change one part without keeping the rest in your head.
+      - Signal: the panel's Locality score rises.
+      - Counter-signal: files grow past what a reader holds at once.
+      - Why: locality bought by merging everything makes each file too big.
+   3. **Achieve:** Every name says what the thing really is.
+      - Signal: the panel's seats name fewer misleading names.
+      - Counter-signal: renames break consumers more often than readers misread the old
+        names.
+      - Why: a better name is worth a major only where the old one misleads.
+   4. **Achieve:** Each file makes sense on its own, without another document open beside
+      it.
+      - Signal: the panel's Self-sufficiency score rises.
+      - Counter-signal: comments that restate the code rise.
+      - Why: a file made self-sufficient by narration is longer, not clearer.
+4. **Achieve:** **Every value is one of three kinds, and the docs say which: real, a thing
+   that exists, such as the territory `SE`; valid, made up but passing the check the real
+   system applies, such as a Swedish personal number; or invented, such as a town that
+   does not exist.** Real and valid values come first, and the best category offers more
+   than one kind, so you choose.
+   - Signal: the categories offering a real or a valid value rise.
+   - Counter-signal: a value the docs call real or valid fails its real check.
+   - Why: a kind promised but not delivered is worse than one plainly invented.
+   1. **Maintain:** Values that belong together come from the same random pick. You
+      choose which ones by giving that pick a name.
+   2. **Achieve:** Shipped data comes from good published sources where one exists.
+      - Signal: the tables naming the register they come from rise.
+      - Counter-signal: categories users ask for stay unshipped for want of a source.
+      - Why: a good source is preferred, not required.
+   3. **Achieve:** Values look real by default. You can also ask for values that can
+      never reach anything real, such as a domain nobody can register.
+      - Signal: the categories offering a form that reaches nothing real rise.
+      - Counter-signal: a default value reaches a real person or system.
+      - Why: realism helps only while it stays harmless.
+5. **Achieve:** **Templates are easy to write and read.** A template is the text you
+   write to describe a value, such as `{first} {last}`.
+   - Signal: readers seated as the audience predict what the README's examples print
+     more often.
+   - Counter-signal: the Data format section grows faster than the categories using it.
+   - Why: ease bought with more syntax is harder to read.
+   1. **Maintain:** Everything outside `{…}` prints exactly as written.
+   2. **Maintain:** Each `{…}` makes a new random pick.
+   3. **Maintain:** A name keeps one pick. `{/person as p}` picks a person and prints
+      nothing. `{p}` then prints that person, and `{p.last}` their last name.
+   4. **Maintain:** A path works like a folder path: `.` goes down a level, and `..` goes
+      up one.
+   5. **Maintain:** `[SE]` selects one row of a table, and means that row wherever you
+      write it.
+   6. **Maintain:** If two people could read a template differently, loading it fails,
+      and the error shows how to write each meaning.
+   7. **Maintain:** Whatever is well-formed and means one thing loads, even where part of
+      it does nothing. fejkdata does not guess at mistakes.
+   8. **Maintain:** When a clearer name turns up, it replaces the old one, even if that
+      needs a new major version.
+   9. **Maintain:** Everything fejkdata renders is written as a template: on the command
+      line, in a struct tag and in the library.
+6. **Achieve:** **Errors say plainly what is wrong and how to fix it.**
+   - Signal: the errors that name the fix rise.
+   - Counter-signal: an error grows past the one thing that is wrong.
+   - Why: a long error hides its cause.
+   1. **Maintain:** A template that could render a value its own rules forbid, such as
+      `NaN` or `Inf`, fails to load instead.
+   2. **Maintain:** Data that reads something nobody provided fails to load, and the
+      error names the module that provides it by default, or says that none does.
+   3. **Maintain:** A module from fejkdata is proven whole before it ships; a module from
+      anyone else may load on first reach, and its author proves it.
+   4. **Maintain:** Errors surface when the data loads, never mid-render.
+7. **Maintain:** **One command line gets you a value.**
+   1. **Maintain:** Flags work like in other command-line tools, and can go anywhere on
+      the line.
+   2. **Maintain:** Your first template of your own needs no escaping and no options.
+   3. **Maintain:** The CLI fills in what you leave out with a sane default: all the
+      shipped data, the system's randomness and today's date.
+8. **Maintain:** **Source data is JSON or TSV, readable and editable by hand; only what
+   data can't express, such as a check digit, is Go code.**
+9. **Maintain:** **Flexible and extensible.**
+   1. **Maintain:** Data and functions come in modules, a Go package or a data folder,
+      from fejkdata or anyone else, and fejkdata's load as anyone else's do.
+   2. **Maintain:** A module names the modules it reads by default, and anything
+      providing the same paths can stand in for one.
+   3. **Maintain:** Loading two things under one name fails, in the library and the CLI
+      alike, unless you say the second replaces the first, and then every read of that
+      name reads the second.
+   4. **Maintain:** The builtins ship with fejkdata itself, so a template means the same
+      in every program.
+   5. **Maintain:** A function loaded from a module can ask for the input it needs, and
+      gets the randomness and the date the generator uses.
+   6. **Maintain:** A CLI carrying your own modules is a few lines of Go, and works just
+      like `fejkdata`.
+10. **Maintain:** **The same seed, date, data and versions always give the same output.**
+    1. **Maintain:** In the library, the caller supplies everything that can change the
+       output: data, seed and date.
+11. **Maintain:** **Every runtime dependency is one the standard library can't replace.**
+12. **Maintain:** **The docs are a map of the template language.**
+    1. **Maintain:** Every feature has its own heading.
+    2. **Maintain:** Every example runs as a test and shows its output.
+    3. **Maintain:** Each rule is stated in one place.
+13. **Maintain:** **It is fast enough that you never notice it with the shipped data.**
+    1. **Maintain:** A render's cost grows only with the data it reaches.
 
 ## Layout
 
