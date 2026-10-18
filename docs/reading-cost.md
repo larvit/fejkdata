@@ -635,3 +635,20 @@ Read most (opens and searches):
 - `data/misc/timezone.json` 1
 - `data/misc/timezone.tsv` 1
 - `go.mod` 1
+
+## Reading cost, chunk 07411ab0d724, finished 2026-10-18T08:14:40Z
+
+77345 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 6
+- `todo.md` 5
+- `cli/cli.go` 4
+- `cli/cli_test.go` 4
+- `CHANGELOG.md` 2
+- `fejkdata_test.go` 2
+- `shipped_data_test.go` 2
+- `shipped_test.go` 2
+- `doc.go` 1
+- `doc_test.go` 1
