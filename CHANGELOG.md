@@ -12,6 +12,8 @@ replacement, and each removed path, column or flag.
   dnf, apk, Homebrew and Scoop, and the image `larvit/fejkdata` on Docker Hub, also at `ghcr.io/larvit/fejkdata`, so
   the CLI installs without Go. 0.1.0 ships them too; the README's
   [Install](https://github.com/larvit/fejkdata#install) lists each command.
+- The README's [quick starts](https://github.com/larvit/fejkdata#quick-start) for bulk fixtures and Go tests each render one person whose name, sex,
+  personnummer, email and address agree.
 
 ## [0.1.1] - 2026-10-17
 

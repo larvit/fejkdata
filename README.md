@@ -69,6 +69,79 @@ Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` p
 The binaries are unsigned. macOS refuses to run one a browser downloaded until you run
 `xattr -d com.apple.quarantine fejkdata`.
 
+## Quick start
+
+### Bulk fixtures
+
+Save this record as `person.json`. Its format binds one sex, one last name and one address, and each column reads those picks, so a row's name, sex, personnummer, email and address agree. [Records](#records) explains the format.
+
+```json
+{
+  "format": "{/sv_SE.sex as s}{/sv_SE.last-name as l}{/sv_SE.address as a}",
+  "sex": "{s.name}",
+  "first": "{s.first-name}",
+  "last": "{l}",
+  "personnummer": "{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}",
+  "email": "{lowercase(ascii(s.first-name))}.{lowercase(ascii(l))}@example.com",
+  "street": "{a.street} {a.street-number}",
+  "postal-code": "{a.postal-code}",
+  "locality": "{a.locality}"
+}
+```
+
+```sh
+fejkdata --seed 1 --format csv < person.json                       # a header, then one person
+fejkdata --format csv --repeat 1000000 < person.json > people.csv  # a million rows
+fejkdata --format sql --table people --repeat 1000000 < person.json > people.sql
+```
+
+```text
+email,first,last,locality,personnummer,postal-code,sex,street
+vilgot.larsson@example.com,Vilgot,Larsson,Östersund,740514-2394,831 34,man,Stapelmohrs Väg 9
+```
+
+Personnummer and email repeat as rows pile up, so a `UNIQUE` column needs a category of its own: [Data](#data) explains the test series.
+
+### Go tests
+
+Declare the struct, and `FakeStruct` fills it from its tags. The tags share names as a record's columns do, in any field order, so the fields agree. [Library](#library) covers the rest of the API.
+
+```go
+package signup
+
+import (
+	"testing"
+
+	"github.com/larvit/fejkdata"
+	svse "github.com/larvit/fejkdata/data/sv_SE"
+)
+
+type Person struct {
+	Sex          string `fake:"{/sv_SE.sex as s}{s.name}"`
+	First        string `fake:"{s.first-name}"`
+	Last         string `fake:"{/sv_SE.last-name as l}{l}"`
+	Personnummer string `fake:"{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}"`
+	Email        string `fake:"{lowercase(ascii(s.first-name))}.{lowercase(ascii(l))}@example.com"`
+	Street       string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
+	PostalCode   string `fake:"{a.postal-code}"`
+	Locality     string `fake:"{a.locality}"`
+}
+
+func TestSignup(t *testing.T) {
+	f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var p Person
+	if err := f.FakeStruct(&p); err != nil {
+		t.Fatal(err)
+	}
+	// Sex is kvinna or man. p's name, sex, personnummer, email and address agree.
+}
+```
+
+`WithSeed(1)` gives the same person on every run; another seed gives another.
+
 ## CLI
 
 ```sh
