@@ -100,7 +100,7 @@ email,first,last,locality,personnummer,postal-code,sex,street
 vilgot.larsson@example.com,Vilgot,Larsson,Östersund,740514-2394,831 34,man,Stapelmohrs Väg 9
 ```
 
-Personnummer and email repeat as rows pile up, so a `UNIQUE` column needs a category of its own: [Data](#data) explains the test series.
+A fixture this size repeats personnummer and email values; [Data](#data) explains the test series.
 
 ### Go tests
 
@@ -137,10 +137,11 @@ func TestSignup(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Sex is kvinna or man. p's name, sex, personnummer, email and address agree.
+	// With seed 1, p is {Sex:man First:Vilgot Last:Larsson Personnummer:740514-2394 Email:vilgot.larsson@example.com Street:Stapelmohrs Väg 9 PostalCode:831 34 Locality:Östersund}
 }
 ```
 
-`WithSeed(1)` gives the same person on every run; another seed gives another.
+`WithSeed(1)` gives the same person on every run of one version; another seed gives another.
 
 ## CLI
 

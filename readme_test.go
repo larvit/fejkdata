@@ -14,6 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
 var (
@@ -316,7 +318,7 @@ func tsvRows(t *testing.T, path string) []map[string]string {
 
 // quickStartPerson is one person as a quick start's columns or fields name it.
 type quickStartPerson struct {
-	sex, first, last, personnummer, email, postalCode, locality string
+	sex, first, last, personnummer, email, street, postalCode, locality string
 }
 
 // quickStartSex holds each sex's code in first-name.tsv and the birth number Skatteverket's test series gives it.
@@ -330,23 +332,20 @@ var (
 	personnummerShape = regexp.MustCompile(`^(\d{6})-(\d{3})(\d)$`)
 )
 
-// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the postal codes with their localities.
+// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the street, postal code and locality sets geoPlaces reads.
 type quickStartShipped struct {
 	firstNames map[string]map[string]bool
-	postal     map[[2]string]bool
+	places     map[string]bool
 }
 
 func loadQuickStartShipped(t *testing.T) quickStartShipped {
 	t.Helper()
-	s := quickStartShipped{firstNames: map[string]map[string]bool{}, postal: map[[2]string]bool{}}
+	s := quickStartShipped{firstNames: map[string]map[string]bool{}, places: geoPlaces(t, "SE")}
 	for _, row := range tsvRows(t, "data/sv_SE/first-name.tsv") {
 		if s.firstNames[row["sex"]] == nil {
 			s.firstNames[row["sex"]] = map[string]bool{}
 		}
 		s.firstNames[row["sex"]][row["name"]] = true
-	}
-	for _, row := range tsvRows(t, "data/geo/SE/postal-code.tsv") {
-		s.postal[[2]string{row["code"], row["locality"]}] = true
 	}
 	return s
 }
@@ -379,29 +378,17 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if err != nil || day.Before(time.Date(1940, 1, 1, 0, 0, 0, 0, time.UTC)) || day.After(time.Date(2006, 12, 31, 0, 0, 0, 0, time.UTC)) {
 		return fmt.Errorf("personnummer %q has a birth date outside 1940-01-01 to 2006-12-31", p.personnummer)
 	}
-	if check := luhnDigit(pnr[1] + pnr[2]); pnr[3] != check {
-		return fmt.Errorf("personnummer %q has check digit %s, Luhn gives %s", p.personnummer, pnr[3], check)
+	if !luhnValid(pnr[1] + pnr[2] + pnr[3]) {
+		return fmt.Errorf("personnummer %q fails the Luhn check", p.personnummer)
 	}
-	if !s.postal[[2]string{p.postalCode, p.locality}] {
-		return fmt.Errorf("postal code %q is not one of %s's", p.postalCode, p.locality)
+	number := strings.LastIndex(p.street, " ")
+	if number < 0 {
+		return fmt.Errorf("street %q has no number", p.street)
+	}
+	if !s.places[p.street[:number]+"|"+p.postalCode+"|"+p.locality+"|"] {
+		return fmt.Errorf("street %q, postal code %q and locality %q do not belong together", p.street, p.postalCode, p.locality)
 	}
 	return nil
-}
-
-// luhnDigit is the check digit that makes digits, the nine before it, Luhn-valid.
-func luhnDigit(digits string) string {
-	sum := 0
-	for i := 0; i < len(digits); i++ {
-		d := int(digits[len(digits)-1-i] - '0')
-		if i%2 == 0 {
-			d *= 2
-			if d > 9 {
-				d -= 9
-			}
-		}
-		sum += d
-	}
-	return strconv.Itoa((10 - sum%10) % 10)
 }
 
 // readmeStruct returns the struct the README's Go block declares as Person, with the tags it writes.
@@ -462,20 +449,25 @@ func TestReadmeBulkQuickStart(t *testing.T) {
 		for _, c := range r.Columns() {
 			col[c.Name] = c.Value
 		}
-		p := quickStartPerson{col["sex"], col["first"], col["last"], col["personnummer"], col["email"], col["postal-code"], col["locality"]}
+		p := quickStartPerson{col["sex"], col["first"], col["last"], col["personnummer"], col["email"], col["street"], col["postal-code"], col["locality"]}
 		if err := shipped.checkPerson(p); err != nil {
 			t.Fatalf("%v: %v", col, err)
 		}
 	}
+}
+
+func TestReadmeBulkQuickStartOutput(t *testing.T) {
+	section := readmeSection(t, readme(t), "### Bulk fixtures")
+	block := jsonBlock.FindStringSubmatch(section)
 	out := textBlock.FindStringSubmatch(section)
-	if out == nil {
-		t.Fatal("README's bulk quick start prints no output")
+	if block == nil || out == nil {
+		t.Fatal("README's bulk quick start lost its record or its printed output")
 	}
-	first, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"person": block[1]})), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	r, err := first.FakeRecord("person")
+	r, err := f.FakeRecord("person")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -487,13 +479,21 @@ func TestReadmeBulkQuickStart(t *testing.T) {
 func TestReadmeGoQuickStart(t *testing.T) {
 	section := readmeSection(t, readme(t), "### Go tests")
 	block := goBlock.FindStringSubmatch(section)
-	if block == nil {
-		t.Fatal("README's Go quick start has no go block")
+	printed := regexp.MustCompile(`(?m)^\s*// With seed 1, p is (\{.*\})$`).FindStringSubmatch(section)
+	if block == nil || printed == nil {
+		t.Fatal("README's Go quick start lost its go block or its printed person")
 	}
 	typ := readmeStruct(t, block[1])
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
+	}
+	first := reflect.New(typ)
+	if err := f.FakeStruct(first.Interface()); err != nil {
+		t.Fatal(err)
+	}
+	if got := fmt.Sprintf("%+v", first.Elem().Interface()); got != printed[1] {
+		t.Errorf("README prints %s for seed 1, it renders %s", printed[1], got)
 	}
 	shipped := loadQuickStartShipped(t)
 	for i := 0; i < 300; i++ {
@@ -508,7 +508,7 @@ func TestReadmeGoQuickStart(t *testing.T) {
 			}
 			return v.String()
 		}
-		p := quickStartPerson{field("Sex"), field("First"), field("Last"), field("Personnummer"), field("Email"), field("PostalCode"), field("Locality")}
+		p := quickStartPerson{field("Sex"), field("First"), field("Last"), field("Personnummer"), field("Email"), field("Street"), field("PostalCode"), field("Locality")}
 		if err := shipped.checkPerson(p); err != nil {
 			t.Fatalf("%+v: %v", p, err)
 		}
