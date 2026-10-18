@@ -14,7 +14,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 338 | 0.2.0 |  | question | **Make the email of a compound name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 0.9 |
 | 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 4.8 |
-| 339 | 0.2.0 |  |  | **Drop goal 3 and its sub-goals, which restate code health, renumber the goals after it, and repoint every Moves cell and decision that cites them.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
+| 339 | 0.2.0 |  |  | **Drop goal 3, which restates code health, and repoint every citation of goals 3 to 13.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
 | 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
 | 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
 | 202 | 0.2.0 |  |  | **Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 2.8 |
@@ -255,13 +255,13 @@ The quick starts build each email from the first and last name. Compound names k
 
 Bolagsverket's group digits and the Luhn rule are facts. [Source research](docs/research/research-sources-se.md).
 
-### 339. Drop goal 3 and its sub-goals, which restate code health, renumber the goals after it, and repoint every Moves cell and decision that cites them.
+### 339. Drop goal 3, which restates code health, and repoint every citation of goals 3 to 13.
 
-`~/.claude/CLAUDE.md` → "Shared goal" now states code health for every project, and `rank_todo.py` weighs it, so goal 3 ("The code is easy to understand", with 3.1 to 3.4) counts the same moves twice. In lilleman's words (2026-10-18): "every project shares the goal, so it lives in `~/.claude` once ... It replaces each project's own readability goal, such as fejkdata's goal 3".
+`~/.claude/CLAUDE.md` → "Shared goal" makes code health a goal of every project, and `rank_todo.py` weighs it, so goal 3 ("The code is easy to understand", with 3.1 to 3.4) counts the same moves twice. The maintainer, 2026-10-18: "every project shares the goal, so it lives in `~/.claude` once ... It replaces each project's own readability goal, such as fejkdata's goal 3".
 
-Dropping goal 3 makes goals 4 to 13 into 3 to 12. In every Moves cell, turn each `3 by N` or `3.x by N` into `code health by N`; where a cell then names code health twice, keep the larger move. Lower every cited goal from 4 to 13 by one, in the cells and in `docs/decisions.md`. `rank_todo.py` can't tell when a cell points at the wrong goal, so check by hand every cell (143 cite goals 3 to 13 today) and every decision citation.
+Dropping goal 3 makes goals 4 to 13 into 3 to 12. First, in every Moves cell, turn each `3 by N` or `3.x by N` into `code health by N`; where a cell then names code health twice, keep the larger move. Only then lower every cited goal from 4 to 13 by one, or a lowered 4.x would turn into code health. Goals are cited in the Moves cells (143 cite goals 3 to 13 today), in `todo.md`'s details, in `README.md`, in `AGENTS.md` and in `docs/decisions.md`. The README's "Goal 3 is scored by a panel" sentence moves to code health. `rank_todo.py` can't tell when a citation points at the wrong goal, so check each one by hand.
 
-Changing the README's goals is a premises change: its whole review is lilleman's approval.
+A change to the README's goals is the maintainer's: ask for their approval before merging.
 
 ### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
 
