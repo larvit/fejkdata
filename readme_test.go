@@ -2,19 +2,29 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
+	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 var (
 	jsonBlock  = regexp.MustCompile("(?s)```json\n(.*?)```")
 	plainBlock = regexp.MustCompile("(?s)```\n(.*?)```")
 	tsvBlock   = regexp.MustCompile("(?s)```tsv\n(.*?)```")
+	goBlock    = regexp.MustCompile("(?s)```go\n(.*?)```")
+	textBlock  = regexp.MustCompile("(?s)```text\n(.*?)```")
 	rowsFile   = regexp.MustCompile(`"rows":\s*"([^"]+)"`)
 	parentName = regexp.MustCompile(`"parent":\s*"([^"]+)"`)
+	headingEnd = regexp.MustCompile(`\n##+ `)
 )
 
 // exampleFiles is a README json block as a data directory's files: the category, the
@@ -266,6 +276,237 @@ func TestDockerhubPageSaysOnlyWhatReadmeSays(t *testing.T) {
 		}
 		if !slices.Contains(shown, docker.ReplaceAllString(command, "fejkdata")) {
 			t.Errorf("dockerhub/overview.md runs %q, which no README.md sh line shows", command)
+		}
+	}
+}
+
+// readmeSection is the README from heading to the next heading.
+func readmeSection(t *testing.T, src, heading string) string {
+	t.Helper()
+	i := strings.Index(src, heading+"\n")
+	if i < 0 {
+		t.Fatalf("README lost the %q section", heading)
+	}
+	section := src[i+len(heading):]
+	if end := headingEnd.FindStringIndex(section); end != nil {
+		section = section[:end[0]]
+	}
+	return section
+}
+
+func tsvRows(t *testing.T, path string) []map[string]string {
+	t.Helper()
+	src, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(src)), "\n")
+	head := strings.Split(lines[0], "\t")
+	rows := make([]map[string]string, 0, len(lines)-1)
+	for _, line := range lines[1:] {
+		cells := strings.Split(line, "\t")
+		row := make(map[string]string, len(head))
+		for i, name := range head {
+			row[name] = cells[i]
+		}
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+// quickStartPerson is one person as a quick start's columns or fields name it.
+type quickStartPerson struct {
+	sex, first, last, personnummer, email, postalCode, locality string
+}
+
+// quickStartSex holds each sex's code in first-name.tsv and the birth number Skatteverket's test series gives it.
+var quickStartSex = map[string]struct{ code, birthNumber string }{
+	"kvinna": {"f", "238"},
+	"man":    {"m", "239"},
+}
+
+var (
+	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
+	personnummerShape = regexp.MustCompile(`^(\d{6})-(\d{3})(\d)$`)
+)
+
+// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the postal codes with their localities.
+type quickStartShipped struct {
+	firstNames map[string]map[string]bool
+	postal     map[[2]string]bool
+}
+
+func loadQuickStartShipped(t *testing.T) quickStartShipped {
+	t.Helper()
+	s := quickStartShipped{firstNames: map[string]map[string]bool{}, postal: map[[2]string]bool{}}
+	for _, row := range tsvRows(t, "data/sv_SE/first-name.tsv") {
+		if s.firstNames[row["sex"]] == nil {
+			s.firstNames[row["sex"]] = map[string]bool{}
+		}
+		s.firstNames[row["sex"]][row["name"]] = true
+	}
+	for _, row := range tsvRows(t, "data/geo/SE/postal-code.tsv") {
+		s.postal[[2]string{row["code"], row["locality"]}] = true
+	}
+	return s
+}
+
+// checkPerson says how p's columns fail to agree, or returns nil.
+func (s quickStartShipped) checkPerson(p quickStartPerson) error {
+	sex, ok := quickStartSex[p.sex]
+	if !ok {
+		return fmt.Errorf("sex %q is not one the shipped names carry", p.sex)
+	}
+	if !s.firstNames[sex.code][p.first] {
+		return fmt.Errorf("first name %q is not shipped for sex %q", p.first, p.sex)
+	}
+	want := asciiFold.Replace(strings.ToLower(p.first)) + "." + asciiFold.Replace(strings.ToLower(p.last)) + "@example.com"
+	if p.email != want {
+		return fmt.Errorf("email %q, want %q", p.email, want)
+	}
+	pnr := personnummerShape.FindStringSubmatch(p.personnummer)
+	if pnr == nil {
+		return fmt.Errorf("personnummer %q is not YYMMDD-NNNC", p.personnummer)
+	}
+	if pnr[2] != sex.birthNumber {
+		return fmt.Errorf("personnummer %q has birth number %s, sex %q takes %s", p.personnummer, pnr[2], p.sex, sex.birthNumber)
+	}
+	day, err := time.Parse("060102", pnr[1])
+	if err != nil || day.Before(time.Date(1940, 1, 1, 0, 0, 0, 0, time.UTC)) || day.After(time.Date(2006, 12, 31, 0, 0, 0, 0, time.UTC)) {
+		return fmt.Errorf("personnummer %q has a birth date outside 1940-01-01 to 2006-12-31", p.personnummer)
+	}
+	if check := luhnDigit(pnr[1] + pnr[2]); pnr[3] != check {
+		return fmt.Errorf("personnummer %q has check digit %s, Luhn gives %s", p.personnummer, pnr[3], check)
+	}
+	if !s.postal[[2]string{p.postalCode, p.locality}] {
+		return fmt.Errorf("postal code %q is not one of %s's", p.postalCode, p.locality)
+	}
+	return nil
+}
+
+// luhnDigit is the check digit that makes digits, the nine before it, Luhn-valid.
+func luhnDigit(digits string) string {
+	sum := 0
+	for i := 0; i < len(digits); i++ {
+		d := int(digits[len(digits)-1-i] - '0')
+		if i%2 == 0 {
+			d *= 2
+			if d > 9 {
+				d -= 9
+			}
+		}
+		sum += d
+	}
+	return strconv.Itoa((10 - sum%10) % 10)
+}
+
+// readmeStruct returns the struct the README's Go block declares as Person, with the tags it writes.
+func readmeStruct(t *testing.T, block string) reflect.Type {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), "README.md", block, 0)
+	if err != nil {
+		t.Fatalf("README's Go quick start does not parse: %v", err)
+	}
+	var fields []reflect.StructField
+	ast.Inspect(file, func(n ast.Node) bool {
+		spec, ok := n.(*ast.TypeSpec)
+		if !ok || spec.Name.Name != "Person" {
+			return true
+		}
+		st, ok := spec.Type.(*ast.StructType)
+		if !ok {
+			t.Fatal("README's Person is not a struct")
+		}
+		for _, field := range st.Fields.List {
+			if id, ok := field.Type.(*ast.Ident); !ok || id.Name != "string" {
+				t.Fatal("README's Person has a field that is not a string")
+			}
+			tag := ""
+			if field.Tag != nil {
+				tag, _ = strconv.Unquote(field.Tag.Value)
+			}
+			for _, name := range field.Names {
+				fields = append(fields, reflect.StructField{Name: name.Name, Type: reflect.TypeOf(""), Tag: reflect.StructTag(tag)})
+			}
+		}
+		return false
+	})
+	if fields == nil {
+		t.Fatal("README's Go quick start declares no Person struct")
+	}
+	return reflect.StructOf(fields)
+}
+
+func TestReadmeBulkQuickStart(t *testing.T) {
+	section := readmeSection(t, readme(t), "### Bulk fixtures")
+	block := jsonBlock.FindStringSubmatch(section)
+	if block == nil {
+		t.Fatal("README's bulk quick start has no json record")
+	}
+	dir := writeData(t, map[string]string{"person": block[1]})
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shipped := loadQuickStartShipped(t)
+	for i := 0; i < 300; i++ {
+		r, err := f.FakeRecord("person")
+		if err != nil {
+			t.Fatal(err)
+		}
+		col := map[string]string{}
+		for _, c := range r.Columns() {
+			col[c.Name] = c.Value
+		}
+		p := quickStartPerson{col["sex"], col["first"], col["last"], col["personnummer"], col["email"], col["postal-code"], col["locality"]}
+		if err := shipped.checkPerson(p); err != nil {
+			t.Fatalf("%v: %v", col, err)
+		}
+	}
+	out := textBlock.FindStringSubmatch(section)
+	if out == nil {
+		t.Fatal("README's bulk quick start prints no output")
+	}
+	first, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := first.FakeRecord("person")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := r.CSVHeader()+"\n"+r.CSVLine(), strings.TrimSpace(out[1]); got != want {
+		t.Errorf("README prints %q for --seed 1 --format csv, it renders %q", want, got)
+	}
+}
+
+func TestReadmeGoQuickStart(t *testing.T) {
+	section := readmeSection(t, readme(t), "### Go tests")
+	block := goBlock.FindStringSubmatch(section)
+	if block == nil {
+		t.Fatal("README's Go quick start has no go block")
+	}
+	typ := readmeStruct(t, block[1])
+	f, err := New(withShipped(), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shipped := loadQuickStartShipped(t)
+	for i := 0; i < 300; i++ {
+		ptr := reflect.New(typ)
+		if err := f.FakeStruct(ptr.Interface()); err != nil {
+			t.Fatal(err)
+		}
+		field := func(name string) string {
+			v := ptr.Elem().FieldByName(name)
+			if !v.IsValid() {
+				t.Fatalf("README's Go quick start has no %s field", name)
+			}
+			return v.String()
+		}
+		p := quickStartPerson{field("Sex"), field("First"), field("Last"), field("Personnummer"), field("Email"), field("PostalCode"), field("Locality")}
+		if err := shipped.checkPerson(p); err != nil {
+			t.Fatalf("%+v: %v", p, err)
 		}
 	}
 }
