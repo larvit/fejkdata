@@ -486,14 +486,14 @@ func TestReadmeGoQuickStart(t *testing.T) {
 	if block == nil || printed == nil {
 		t.Fatal("README's Go quick start lost its go block or its printed person")
 	}
-	for _, call := range []string{
-		"fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))",
-		"f.FakeStruct(&p)",
-		`"github.com/larvit/fejkdata/data/sv_SE"`,
-	} {
-		if !strings.Contains(block[1], call) {
-			t.Fatalf("README's Go quick start no longer has %s, which this test runs", call)
-		}
+	if !strings.Contains(block[1], "fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))") {
+		t.Error("README's Go quick start no longer has the New call this test runs")
+	}
+	if !strings.Contains(block[1], "f.FakeStruct(&p)") {
+		t.Error("README's Go quick start no longer has the FakeStruct call this test runs")
+	}
+	if !strings.Contains(block[1], `"github.com/larvit/fejkdata/data/sv_SE"`) {
+		t.Error("README's Go quick start no longer imports the data this test loads")
 	}
 	typ := readmeStruct(t, block[1])
 	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1))
