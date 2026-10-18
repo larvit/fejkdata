@@ -652,3 +652,7 @@ Read most (opens and searches):
 - `shipped_test.go` 2
 - `doc.go` 1
 - `doc_test.go` 1
+
+## Reading cost, chunk ccee6a095568, finished 2026-10-18T11:01:33Z
+
+163900 new input tokens before the first commit.
