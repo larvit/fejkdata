@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 335`
+`Next ID = 337`
 
 ## Items
 
@@ -21,7 +21,9 @@
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 5.9 |
 | 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 4.5 |
 | 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 3.4 |
+| 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 2.6 |
 | 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 2.5 |
+| 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 2.3 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.7 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | 3.1 by 2 | 1.0 |
 | 252 | 0.3.0 |  |  | **Publish `fejkdata-bin` to the AUR from the Packages workflow, so Arch installs with `yay -S fejkdata-bin`.** | 1 | 3 | 1 | 3 | 1 | 1.1 by 4 | 6.2 |
@@ -275,9 +277,17 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
+### 335. Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.
+
+On 2026-10-18 Python 3.15.0 (#219), Fedora 46 (#221) and `golang.org/x/vuln` v1.9.0 (#226) waited four to five days for a hand merge, since `renovate.json` merges only a Go patch itself. None of them reaches the binaries or the image, which is built `FROM scratch`, so no release follows. An update that needs a code or test change still waits for a human.
+
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
 Bring's postal register spells every poststed in capitals, so the import recases each poststed before `well_cased` sees it.
+
+### 336. Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.
+
+The maintainer, 2026-10-18: no patch should wait on a human. A dependency bump that passes the tests unchanged changes no row of the README's Versioning table, so it is a patch; a new Go minor leaves `go.mod`'s `go 1.22`, the lowest supported Go, where it is. `release-tooling/patch_release.py cut` already cuts a Go patch this way from the last release's tag; widen it to the rest, and revise the decision "CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag", which leaves a Go minor to the maintainer. Name in the changelog section each platform a new Go minor stops supporting, such as an older macOS, since a binary user loses it in a patch. Make the comprehension seats' places in `patch_release.py`, `packages.yml` and `goreleaser.yaml` easier to read where the change touches them.
 
 ### 290. Give `geo/NO`'s places their streets.
 
