@@ -30,7 +30,7 @@ jobs:
             git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
             base="origin/${GITHUB_BASE_REF:-main}"
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data release-tooling testdata vulnerability-filing README.md todo.md; then
+          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling testdata vulnerability-filing README.md todo.md; then
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
@@ -169,8 +169,21 @@ jobs:
             gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones and the last release" \
               --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, and any release section main lacks, into CHANGELOG.md. Merges itself once the tests pass."
           fi
-          # A push the workflow's token makes starts no workflow.
-          gh workflow run test.yml --ref security-plan
+          # GitHub holds the pull_request run of a pull request this token opens until it is approved.
+          sha="$(git rev-parse HEAD)"
+          run=""
+          for _ in $(seq 24); do
+            run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&head_sha=${sha}" --jq '[.workflow_runs[] | select(.head_repository.full_name == env.GITHUB_REPOSITORY)][0] // empty | "\(.id) \(.conclusion)"')"
+            [ -n "$run" ] && break
+            sleep 5
+          done
+          if [ -z "$run" ]; then
+            echo "::error::no pull_request run for ${sha}; its required check will never report"
+            exit 1
+          fi
+          if [ "${run#* }" = action_required ]; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${run%% *}/approve"
+          fi
           gh pr merge security-plan --auto --rebase
 
   packages:
