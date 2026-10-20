@@ -15,6 +15,12 @@ replacement, and each removed path, column or flag.
 - The README's [quick starts](https://github.com/larvit/fejkdata#quick-start) for bulk fixtures and Go tests each render one person whose name, sex,
   personnummer, email and address agree.
 
+## [0.1.2] - 2026-10-20
+
+### Security
+
+- The binaries and image are built with Go 1.27.3.
+
 ## [0.1.1] - 2026-10-17
 
 ### Security
