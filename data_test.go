@@ -173,9 +173,8 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 	}
 }
 
-// TestSwedishOrganisationsnummer checks Bolagsverket's group digits (5 aktiebolag, 9 handelsbolag
-// and kommanditbolag, 7 and 8 föreningar) weighted by its 2025 registrations, that digits three and
-// four are 20 or more, which tells it from a personnummer, and the Luhn check digit.
+// Bolagsverket's group digits are 5 for aktiebolag, 9 for handelsbolag and kommanditbolag and 7 and 8
+// for föreningar; digits three and four of 20 or more tell an organisationsnummer from a personnummer.
 func TestSwedishOrganisationsnummer(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^[5789]\d[2-9]\d{3}-\d{4}$`)
@@ -183,7 +182,7 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 	for i := 0; i < 5000; i++ {
 		v := fake(t, sv, "sv_SE.organisationsnummer")
 		if !re.MatchString(v) || !luhnValid(digitsOnly(v)) {
-			t.Fatalf("organisationsnummer %q, want G?[2-9]???-????, group digit 5, 7, 8 or 9, Luhn-valid", v)
+			t.Fatalf("organisationsnummer %q, want a group digit 5, 7, 8 or 9, a digit 2 to 9 third, and a Luhn check digit", v)
 		}
 		group[v[0]]++
 	}
@@ -192,8 +191,6 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 	}
 }
 
-// TestSwedishVat checks that sv_SE.vat is SE, a Luhn-valid organisationsnummer's ten digits and 01,
-// and that the VAT number of a bound organisationsnummer is that number's own.
 func TestSwedishVat(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
