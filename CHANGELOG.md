@@ -9,15 +9,20 @@ replacement, and each removed path, column or flag.
 ### Breaking
 
 - `sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025 and
-  builds the name from the shapes of the names of the register's active companies. A
-  handelsbolag or kommanditbolag ends `Handelsbolag` or `Kommanditbolag`, or starts
-  `Handelsbolaget` or `Kommanditbolaget`, never `HB` or `KB`. An aktiebolag ends `AB` or
-  `Aktiebolag`, an ekonomisk förening `ekonomisk förening` or `ek. för.`, and a
-  bostadsrättsförening starts `Bostadsrättsföreningen`. An enskild näringsidkare has no
-  legal-form word. The fields `base` and `suffix` are gone: `registered` draws among the
-  forms, and each form (`ab`, `e`, `hb`, `brf`, `ek`, `kb`) holds its `name` and, but for
-  `e`, its `written` company. What a seed draws changes. The category reads
-  `sv_SE.first-name`, `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
+  builds the name from the shapes of the names of the register's active companies. It
+  writes a legal form as those companies do, in the spellings that 1% or more of a form's
+  names use: an aktiebolag ends `AB` or `Aktiebolag`; a handelsbolag ends `Handelsbolag` or
+  `handelsbolag`, or starts `Handelsbolaget`; a kommanditbolag ends `Kommanditbolag` or
+  `kommanditbolag`, or starts `Kommanditbolaget`; an ekonomisk förening ends
+  `Ekonomisk förening`, `ekonomisk förening`, `ek. för.` or `Ek. för.`; a
+  bostadsrättsförening starts `Bostadsrättsföreningen`. The register spells `HB`, `KB` and
+  `Brf` in under 1% of the names, so they don't ship. An enskild näringsidkare has no
+  legal-form word. The fields `base` and `suffix` are gone, and no field in this release
+  gives a bound company its name or its legal form. `registered` draws among the forms,
+  and each form (`ab`, `e`, `hb`, `brf`, `ek`, `kb`) holds a `name` and, but for `e`, a
+  `written` company; a form's `name` draws a fresh name, it doesn't read the one inside a
+  company already drawn. What a seed draws changes. The category reads `sv_SE.first-name`,
+  `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
 
 ### Added
 

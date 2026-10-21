@@ -221,57 +221,55 @@ func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) 
 	}
 }
 
-// The register's active aktiebolag write AB 718,311 times and Aktiebolag 60,401; its handelsbolag write
-// Handelsbolag after the name 20,268 times, Handelsbolaget before it 1,526 and handelsbolag after it
-// 1,232; its kommanditbolag write Kommanditbolag after the name 7,885 times, Kommanditbolaget before it
-// 1,160 and kommanditbolag after it 387; its ekonomiska föreningar write Ekonomisk förening 3,730 times,
-// ekonomisk förening 3,166, ek. för. 1,022 and Ek. för. 587. A bostadsrättsförening is
-// Bostadsrättsföreningen and its name. 144,879 of the 552,375 aktiebolag names counted are one word.
+// The register's active companies write their legal form in these ways, counted over the names not in
+// capitals, and a name's shape is one coined word in the share of names oneWord of all. The counts are
+// what data-import/company-se.py prints for them.
 func TestSwedishCompanyWordingsAndShapesFollowTheRegister(t *testing.T) {
+	type wording struct {
+		form, text string
+		before     bool
+		count      int
+	}
+	wordings := []wording{
+		{"AB", " AB", false, 718311}, {"AB", " Aktiebolag", false, 60401},
+		{"HB", " Handelsbolag", false, 20268}, {"HB", "Handelsbolaget ", true, 1526}, {"HB", " handelsbolag", false, 1232},
+		{"KB", " Kommanditbolag", false, 7885}, {"KB", "Kommanditbolaget ", true, 1160}, {"KB", " kommanditbolag", false, 387},
+		{"EK", " Ekonomisk förening", false, 3730}, {"EK", " ekonomisk förening", false, 3166}, {"EK", " ek. för.", false, 1022}, {"EK", " Ek. för.", false, 587},
+		{"BRF", "Bostadsrättsföreningen ", true, 26480},
+	}
+	oneWord := map[string][2]int{"AB": {144879, 552375}, "E": {34479, 134451}, "HB": {5046, 15696}, "BRF": {8409, 22408}, "EK": {1251, 6563}, "KB": {1754, 6611}}
 	sv := shipped(t, WithSeed(2))
-	count := map[string]int{}
-	total := map[string]int{}
-	for i := 0; i < 400000; i++ {
+	const draws = 400000
+	written, form, single := map[string]int{}, map[string]int{}, map[string]int{}
+	for i := 0; i < draws; i++ {
 		v := fake(t, sv, "sv_SE.company")
-		switch {
-		case strings.HasSuffix(v, " AB"), strings.HasSuffix(v, " Aktiebolag"):
-			total["AB"]++
-			if strings.HasSuffix(v, " Aktiebolag") {
-				count["Aktiebolag"]++
-			}
-			if strings.Count(v, " ") == 1 {
-				count["one-word AB"]++
-			}
-		case strings.HasSuffix(v, " Handelsbolag"), strings.HasPrefix(v, "Handelsbolaget "), strings.HasSuffix(v, " handelsbolag"):
-			total["HB"]++
-			if strings.HasPrefix(v, "Handelsbolaget ") {
-				count["Handelsbolaget"]++
-			}
-			if strings.HasSuffix(v, " handelsbolag") {
-				count["handelsbolag"]++
-			}
-		case strings.HasSuffix(v, " Kommanditbolag"), strings.HasPrefix(v, "Kommanditbolaget "), strings.HasSuffix(v, " kommanditbolag"):
-			total["KB"]++
-			if strings.HasPrefix(v, "Kommanditbolaget ") {
-				count["Kommanditbolaget"]++
-			}
-		case strings.HasSuffix(v, " Ekonomisk förening"), strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."), strings.HasSuffix(v, " Ek. för."):
-			total["EK"]++
-			if strings.HasSuffix(v, " Ekonomisk förening") {
-				count["Ekonomisk förening"]++
-			}
-			if strings.HasSuffix(v, "ek. för.") || strings.HasSuffix(v, "Ek. för.") {
-				count["ek. för."]++
+		f, name := "E", v
+		for _, w := range wordings {
+			if w.before && strings.HasPrefix(v, w.text) {
+				f, name = w.form, strings.TrimPrefix(v, w.text)
+				written[w.text]++
+			} else if !w.before && strings.HasSuffix(v, w.text) {
+				f, name = w.form, strings.TrimSuffix(v, w.text)
+				written[w.text]++
 			}
 		}
+		form[f]++
+		if !strings.Contains(name, " ") {
+			single[f]++
+		}
 	}
-	assertShare(t, "aktiebolag written Aktiebolag", count["Aktiebolag"], total["AB"], 60401.0/(718311+60401))
-	assertShare(t, "aktiebolag of one word", count["one-word AB"], total["AB"], 144879.0/552375)
-	assertShare(t, "handelsbolag written Handelsbolaget first", count["Handelsbolaget"], total["HB"], 1526.0/23026)
-	assertShare(t, "handelsbolag written in lower case", count["handelsbolag"], total["HB"], 1232.0/23026)
-	assertShare(t, "kommanditbolag written Kommanditbolaget first", count["Kommanditbolaget"], total["KB"], 1160.0/9432)
-	assertShare(t, "ekonomiska föreningar written Ekonomisk förening", count["Ekonomisk förening"], total["EK"], 3730.0/8505)
-	assertShare(t, "ekonomiska föreningar written ek. för.", count["ek. för."], total["EK"], 1609.0/8505)
+	for _, w := range wordings {
+		var all int
+		for _, o := range wordings {
+			if o.form == w.form {
+				all += o.count
+			}
+		}
+		assertShare(t, strings.TrimSpace(w.text)+" among the "+w.form, written[w.text], form[w.form], float64(w.count)/float64(all))
+	}
+	for f, c := range oneWord {
+		assertShare(t, f+" names of one word", single[f], form[f], float64(c[0])/float64(c[1]))
+	}
 }
 
 func assertShare(t *testing.T, what string, got, of int, want float64) {
