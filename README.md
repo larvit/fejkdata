@@ -16,7 +16,8 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   they are. Every Swedish postal town and a sample of US places ship, and each address
   takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, which
-  no real person holds; SSNs and ITINs in the ranges the SSA and the IRS assign, so a
+  no real person holds; Swedish organisationsnummer and VAT numbers, valid but possibly a
+  real organisation's; SSNs and ITINs in the ranges the SSA and the IRS assign, so a
   drawn one may be a real person's; Luhn-valid card numbers; and IBANs for seven
   European countries.
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
@@ -474,8 +475,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
-`username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`
-and `samordningsnummer`, `en_US` adds `ssn`, `itin` and `phone-exchange` (the three
+`username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
+`samordningsnummer`, `organisationsnummer` and `vat`, `en_US` adds `ssn`, `itin` and `phone-exchange` (the three
 digits after the area code). `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
