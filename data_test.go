@@ -451,18 +451,41 @@ func TestShippedPersonIsOneNamedPick(t *testing.T) {
 
 // PTS's numbering plan of 2024-01-08 gives each area code its N(S)N, the digits after the
 // trunk 0, between 7 and 9 long for a one- or two-digit code and 8 and 9 for a
-// three-digit one, bar 18, 19, 31 and 54, whose shortest is 8. Språkrådet groups the
-// subscriber digits, the ones after the code, in twos and threes from the left.
-func TestShippedSwedishPhone(t *testing.T) {
-	f := shipped(t, WithSeed(11))
-	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
-	fixed := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`)
-	grouped := map[int]*regexp.Regexp{
-		5: regexp.MustCompile(`^\d{3} \d{2}$`),
-		6: regexp.MustCompile(`^\d{2} \d{2} \d{2}$`),
-		7: regexp.MustCompile(`^\d{3} \d{2} \d{2}$`),
-		8: regexp.MustCompile(`^(\d{3} \d{3} \d{2}|\d{2} \d{2} \d{2} \d{2})$`),
+// three-digit one, bar 18, 19, 31 and 54, whose shortest is 8.
+func swedishPhoneShortest(ndc string) int {
+	if len(ndc) == 3 || slices.Contains([]string{"18", "19", "31", "54"}, ndc) {
+		return 8
 	}
+	return 7
+}
+
+// Språkrådet groups the subscriber digits, the ones after the area code, in twos and
+// threes from the left; "08-575 686 43" and "08-57 56 86 43" both stand for eight.
+var swedishPhoneGrouped = map[int]*regexp.Regexp{
+	5: regexp.MustCompile(`^[1-9]\d{2} \d{2}$`),
+	6: regexp.MustCompile(`^[1-9]\d \d{2} \d{2}$`),
+	7: regexp.MustCompile(`^[1-9]\d{2} \d{2} \d{2}$`),
+	8: regexp.MustCompile(`^([1-9]\d{2} \d{3} \d{2}|[1-9]\d \d{2} \d{2} \d{2})$`),
+}
+
+func TestShippedSwedishPhoneMobile(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	re := regexp.MustCompile(`^0(70|72|73|76|79)-\d{3} \d{2} \d{2}$`)
+	seen := map[string]bool{}
+	for i := 0; i < 3000; i++ {
+		if m := re.FindStringSubmatch(fake(t, f, "sv_SE.phone")); m != nil {
+			seen[m[1]] = true
+		}
+	}
+	if len(seen) != 5 {
+		t.Fatalf("3000 phones drew the mobile codes %v, want 70, 72, 73, 76 and 79", seen)
+	}
+}
+
+func TestShippedSwedishPhoneFixedIsGroupedAndLongEnough(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	mobile := regexp.MustCompile(`^0(70|72|73|76|79)-`)
+	fixed := regexp.MustCompile(`^0(\d{1,3})-(\d[\d ]+)$`)
 	for i := 0; i < 6000; i++ {
 		n := fake(t, f, "sv_SE.phone")
 		if mobile.MatchString(n) {
@@ -472,37 +495,46 @@ func TestShippedSwedishPhone(t *testing.T) {
 		if m == nil {
 			t.Fatalf("phone %q is neither a mobile nor a fixed number", n)
 		}
-		code, subscriber := m[1], m[2]
+		ndc, subscriber := m[1], m[2]
 		digits := len(strings.ReplaceAll(subscriber, " ", ""))
-		if re := grouped[digits]; re == nil || !re.MatchString(subscriber) {
-			t.Fatalf("phone %q: subscriber %q is not grouped as Språkrådet writes it", n, subscriber)
+		if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
+			t.Fatalf("phone %q: subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", n, subscriber)
 		}
-		shortest := 7
-		switch {
-		case len(code) == 3:
-			shortest = 8
-		case slices.Contains([]string{"18", "19", "31", "54"}, code):
-			shortest = 8
-		}
-		if total := len(code) + digits; total < shortest || total > 9 {
-			t.Fatalf("phone %q has %d digits after the 0, PTS gives area code %s %d to 9", n, total, code, shortest)
+		if total := len(ndc) + digits; total < swedishPhoneShortest(ndc) || total > 9 {
+			t.Fatalf("phone %q has %d digits after the 0, PTS gives area code %s %d to 9", n, total, ndc, swedishPhoneShortest(ndc))
 		}
 	}
-	for code, want := range map[string][]int{"8": {6, 7, 8}, "40": {5, 6, 7}, "31": {6, 7}, "480": {5, 6}} {
-		got := map[int]bool{}
-		for i := 0; i < 300; i++ {
-			subscriber := fake(t, f, "sv_SE.phone-area["+code+"].subscriber")
-			digits := len(strings.ReplaceAll(subscriber, " ", ""))
-			if re := grouped[digits]; re == nil || !re.MatchString(subscriber) {
-				t.Fatalf("area code 0%s: subscriber %q is not grouped as Språkrådet writes it", code, subscriber)
+}
+
+func TestShippedSwedishPhoneAreaDrawsEachLengthItAllows(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	for _, c := range []struct {
+		area    string
+		lengths []int
+	}{{"08", []int{6, 7, 8}}, {"040", []int{5, 6, 7}}, {"031", []int{6, 7}}, {"0480", []int{5, 6}}} {
+		t.Run(c.area, func(t *testing.T) {
+			got := map[int]bool{}
+			eight := map[bool]bool{}
+			for i := 0; i < 400; i++ {
+				subscriber := fake(t, f, "sv_SE.phone-area["+c.area+"].subscriber")
+				digits := len(strings.ReplaceAll(subscriber, " ", ""))
+				if re := swedishPhoneGrouped[digits]; re == nil || !re.MatchString(subscriber) {
+					t.Fatalf("subscriber %q is not grouped as Språkrådet writes it, or starts with the trunk 0", subscriber)
+				}
+				got[digits] = true
+				if digits == 8 {
+					eight[len(strings.Fields(subscriber)) == 3] = true
+				}
 			}
-			got[digits] = true
-		}
-		for digits := 5; digits <= 8; digits++ {
-			if got[digits] != slices.Contains(want, digits) {
-				t.Errorf("area code 0%s: subscribers of %d digits drawn is %v, want %v", code, digits, got[digits], slices.Contains(want, digits))
+			for digits := 5; digits <= 8; digits++ {
+				if want := slices.Contains(c.lengths, digits); got[digits] != want {
+					t.Errorf("subscribers of %d digits drawn is %v, want %v", digits, got[digits], want)
+				}
 			}
-		}
+			if got[8] && len(eight) != 2 {
+				t.Errorf("eight digits were written one way only, want both of Språkrådet's")
+			}
+		})
 	}
 }
 
@@ -516,8 +548,10 @@ func TestShippedSwedishPhoneInternational(t *testing.T) {
 			t.Fatalf("%q: international form %q, want %q", national, international, want)
 		}
 	}
-	if got := fake(t, f, "sv_SE.phone.international"); !regexp.MustCompile(`^\+46 [1-9]\d{1,2} \d`).MatchString(got) {
-		t.Fatalf("sv_SE.phone.international = %q", got)
+	for i := 0; i < 20; i++ {
+		if got := fake(t, f, "sv_SE.phone.international"); !regexp.MustCompile(`^\+46 \d{1,3} \d`).MatchString(got) {
+			t.Fatalf("sv_SE.phone.international = %q", got)
+		}
 	}
 }
 
@@ -528,7 +562,24 @@ func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for _, line := range strings.Split(strings.TrimSuffix(string(b), "\n"), "\n")[1:] {
-		seen[strings.Split(line, "\t")[0]] = true
+		cells := strings.Split(line, "\t")
+		area, ndc, subscriber := cells[0], cells[1], cells[3]
+		seen[area] = true
+		if area != "0"+ndc {
+			t.Errorf("area %s is not the trunk 0 and %s", area, ndc)
+		}
+		want := "digits-5-7"
+		switch {
+		case ndc == "8":
+			want = "digits-6-8"
+		case swedishPhoneShortest(ndc) == 8 && len(ndc) == 2:
+			want = "digits-6-7"
+		case len(ndc) == 3:
+			want = "digits-5-6"
+		}
+		if subscriber != "{.phone-subscriber."+want+"}" {
+			t.Errorf("area %s draws %s, PTS allows %s", area, subscriber, want)
+		}
 	}
 	if len(seen) != 264 {
 		t.Fatalf("phone-area.tsv has %d area codes, PTS's plan gives 264", len(seen))
@@ -536,14 +587,14 @@ func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
 	f := shipped(t, WithSeed(2))
 	drawn := map[string]bool{}
 	for i := 0; i < 6000; i++ {
-		drawn[fake(t, f, "sv_SE.phone-area.ndc")] = true
+		drawn[fake(t, f, "sv_SE.phone-area")] = true
 	}
 	if len(drawn) != 264 {
 		t.Fatalf("6000 draws reached %d of the 264 area codes", len(drawn))
 	}
-	for _, ndc := range []string{"8", "480", "980"} {
-		if !seen[ndc] {
-			t.Errorf("area code 0%s is missing", ndc)
+	for area, name := range map[string]string{"08": "Stockholm", "0480": "Kalmar"} {
+		if got := fake(t, f, "sv_SE.phone-area["+area+"].name"); got != name {
+			t.Errorf("area code %s is %q, want %q", area, got, name)
 		}
 	}
 }
