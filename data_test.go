@@ -42,7 +42,7 @@ func TestShippedDataCategories(t *testing.T) {
 		{"ip", ip, ip},
 		{"company",
 			regexp.MustCompile(`^.+ (Inc\.|LLC|Corp\.|Co\.|Group|Ltd\.)$`),
-			regexp.MustCompile(`^.+ (AB|HB|KB)$`)},
+			regexp.MustCompile(`^\pL.*[\pL\d.]$`)},
 		{"color", color, color},
 		{"url", url, url},
 		{"username", uname, uname},
@@ -188,6 +188,72 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 	}
 	if group['5'] < 4690 || group['5'] > 4840 || group['9'] <= group['7'] || group['9'] <= group['8'] || group['7'] == 0 || group['8'] == 0 {
 		t.Fatalf("group digits drawn %v, want 5 for 95.3%%, 9 for 3.2%% and 7 and 8 for 0.7%% each", group)
+	}
+}
+
+// Bolagsverket's 2025 registrations: 50,859 aktiebolag, 8,468 enskilda näringsidkare, 1,557 handelsbolag, 398
+// bostadsrättsföreningar, 319 ekonomiska föreningar and 176 kommanditbolag. Of the active aktiebolag, 61,128
+// of 810,797 write "Aktiebolag" and the rest "AB".
+func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	const draws = 40000
+	form := map[string]int{}
+	spelledOut := 0
+	for i := 0; i < draws; i++ {
+		v := fake(t, sv, "sv_SE.company")
+		switch {
+		case strings.HasSuffix(v, " AB"):
+			form["AB"]++
+		case strings.HasSuffix(v, " Aktiebolag"):
+			form["AB"]++
+			spelledOut++
+		case strings.HasPrefix(v, "Bostadsrättsföreningen "):
+			form["BRF"]++
+		case strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."):
+			form["EK"]++
+		case strings.HasSuffix(v, " Handelsbolag"), strings.HasPrefix(v, "Handelsbolaget "):
+			form["HB"]++
+		case strings.HasSuffix(v, " Kommanditbolag"), strings.HasPrefix(v, "Kommanditbolaget "):
+			form["KB"]++
+		default:
+			form["E"]++
+		}
+	}
+	for _, c := range []struct {
+		form     string
+		lo, hi   float64
+		register int
+	}{{"AB", 81.0, 83.6, 50859}, {"E", 12.5, 15.0, 8468}, {"HB", 1.9, 3.2, 1557}, {"BRF", 0.3, 1.0, 398}, {"EK", 0.2, 0.9, 319}, {"KB", 0.05, 0.6, 176}} {
+		if got := float64(form[c.form]) * 100 / draws; got < c.lo || got > c.hi {
+			t.Errorf("%s drew %.2f%% of %d companies (%d), want %.1f%% to %.1f%%, the register's %d of 61,777", c.form, got, draws, form[c.form], c.lo, c.hi, c.register)
+		}
+	}
+	if got := float64(spelledOut) * 100 / float64(form["AB"]); got < 6.5 || got > 8.6 {
+		t.Errorf("%.2f%% of the aktiebolag write Aktiebolag, want 6.5%% to 8.6%%, the register's 7.5%%", got)
+	}
+}
+
+// company-word.tsv holds a word only where the register repeats it, so no row names one company.
+func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
+	b, err := os.ReadFile("data/sv_SE/company-word.tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := strings.Split(strings.TrimSpace(string(b)), "\n")
+	if rows[0] != "word\tcount" {
+		t.Fatalf("header %q, want word and count", rows[0])
+	}
+	word := regexp.MustCompile(`^\p{Lu}\p{Ll}{2,}$`)
+	for _, row := range rows[1:] {
+		w, c, _ := strings.Cut(row, "\t")
+		if n, err := strconv.Atoi(c); err != nil || n < 100 || !word.MatchString(w) {
+			t.Errorf("row %q, want a capitalised word of three or more letters that 100 or more register names hold", row)
+		}
+	}
+	for _, w := range []string{"Bygg", "Konsult", "Fastigheter"} {
+		if !slices.ContainsFunc(rows, func(r string) bool { return strings.HasPrefix(r, w+"\t") }) {
+			t.Errorf("company-word.tsv omits %q, a word most of the register's aktiebolag names repeat", w)
+		}
 	}
 }
 
