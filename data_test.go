@@ -221,9 +221,9 @@ func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) 
 	}
 }
 
-// The register's active companies write their legal form in these ways, counted over the names not in
-// capitals, and a name's shape is one coined word in the share of names oneWord of all. The counts are
-// what data-import/company-se.py prints for them.
+// The wordings of a legal form and the one-word names are drawn as often as the register's active companies
+// carry them. The counts are those data-import/company-se.py wrote into company.json from the register: a
+// wording's over the names not in capitals, and oneWord's the names of one coined word against all of a form's.
 func TestSwedishCompanyWordingsAndShapesFollowTheRegister(t *testing.T) {
 	type wording struct {
 		form, text string
@@ -299,7 +299,7 @@ func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
 	}
 	for _, w := range []string{"Bygg", "Konsult", "Fastigheter", "VVS"} {
 		if !slices.ContainsFunc(rows, func(r string) bool { return strings.HasPrefix(r, w+"\t") }) {
-			t.Errorf("company-word.tsv omits %q, a word the register's names repeat in 100 or more of them", w)
+			t.Errorf("company-word.tsv omits %q, a word that 100 or more register names carry", w)
 		}
 	}
 }

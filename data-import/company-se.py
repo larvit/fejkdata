@@ -3,14 +3,17 @@
 
     data-import/company-se.py [--register URL_OR_FILE] [--statistics URL_OR_FILE] [--cache DIR] [--out DIR]
 
-The register (bolagsverket_bulkfil.zip, 250 MB) names no licence; the script reads it for counts and
-writes no row of it. The statistics are CC BY 2.5 SE. company.json weighs a legal form by its new
-registrations in STATISTICS_YEAR. For each form it writes the wordings its active companies' names carry
-and the shapes of those names, a shape being the kind of each word: a surname, a given name, a place, a
-number, a trade word or a coined one. A wording or shape ships when it is at least SHARE_MIN of the form's
-names. company-word.tsv holds the trade words: a word that is neither a name nor a place, that WORDS_MIN or
-more names carry, that ends a name in a third of its uses, and that FORM_MIN names carry in each of at
-least three of the forms AB, HB, KB and E, so a word one company family repeats stays out.
+The script reads the register (bolagsverket_bulkfil.zip, 250 MB) for counts and writes no row of it.
+company.json weighs a legal form by its new registrations in STATISTICS_YEAR. For each form it writes the
+wordings that the names of the form's active companies carry, and the shapes of those names. A shape is the
+kind of each word: a surname, its genitive, a given name, a place, a number, `och`, `&` or `i`, a trade word,
+or any other, which draws a coined word. A wording or shape ships when it is at least SHARE_MIN of the
+form's names.
+
+company-word.tsv holds the trade words, each with its count and its most common spelling. A trade word is
+neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a third of its
+uses, and is carried by FORM_MIN names in each of at least three of the forms AB, HB, KB and E, so a word
+one company family repeats stays out.
 """
 import argparse
 import csv
