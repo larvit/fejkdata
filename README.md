@@ -480,13 +480,13 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code). A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
-`sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025: aktiebolag,
-enskild näringsidkare (no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk förening and
-kommanditbolag. It writes the form as the register's active companies do, `Handelsbolag` in full, and
-builds the name from a shape their names take, such as a coined word and a trade word, or a surname and
-a trade word. Branches of foreign companies and ideella föreningar don't ship. `company-word` holds the
-trade words that 100 or more of the register's names carry, and `company-coined` the made-up names, so
-a name is invented and may be a real company's.
+`sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
+enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
+förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
+ends `Handelsbolag`, never `HB`. The name has a shape those companies' names have, such as a made-up
+word and a trade word like `Bygg` or `Holding`, or a surname and a trade word. `company-word` holds the
+trade words that 100 or more of the register's names carry, and `company-coined` the made-up words.
+A name is invented, and may also be a real company's.
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and

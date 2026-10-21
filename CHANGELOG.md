@@ -8,21 +8,23 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- `sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025 and
-  builds the name from the shapes of the names of the register's active companies. It
-  writes a legal form as those companies do, in the spellings that 1% or more of a form's
-  names use: an aktiebolag ends `AB` or `Aktiebolag`; a handelsbolag ends `Handelsbolag` or
-  `handelsbolag`, or starts `Handelsbolaget`; a kommanditbolag ends `Kommanditbolag` or
-  `kommanditbolag`, or starts `Kommanditbolaget`; an ekonomisk förening ends
-  `Ekonomisk förening`, `ekonomisk förening`, `ek. för.` or `Ek. för.`; a
-  bostadsrättsförening starts `Bostadsrättsföreningen`. The register spells `HB`, `KB` and
-  `Brf` in under 1% of the names, so they don't ship. An enskild näringsidkare has no
-  legal-form word. The fields `base` and `suffix` are gone, and no field in this release
-  gives a bound company its name or its legal form. `registered` draws among the forms,
+- `sv_SE.company` loses its fields `base` and `suffix`. No field in this release gives a
+  bound company its name or its legal form. `registered` draws among the legal forms,
   and each form (`ab`, `e`, `hb`, `brf`, `ek`, `kb`) holds a `name` and, but for `e`, a
-  `written` company; a form's `name` draws a fresh name, it doesn't read the one inside a
-  company already drawn. What a seed draws changes. The category reads `sv_SE.first-name`,
-  `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
+  `written` company. A form's `name` draws a fresh name; it doesn't read the one inside
+  a company already drawn. The category reads `sv_SE.first-name`, `sv_SE.last-name` and
+  `geo.SE.locality`, which `sv_SE` already carried.
+- `sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025, and
+  builds its name in a shape, a pattern of words, that the register's active companies'
+  names have. What a seed draws changes.
+- `sv_SE.company` spells a legal form as the register's active companies do, in the
+  spellings that 1% or more of a form's names use. An aktiebolag ends `AB` or
+  `Aktiebolag`. A handelsbolag ends `Handelsbolag` or `handelsbolag`, or starts
+  `Handelsbolaget`. A kommanditbolag ends `Kommanditbolag` or `kommanditbolag`, or starts
+  `Kommanditbolaget`. An ekonomisk förening ends `Ekonomisk förening`,
+  `ekonomisk förening`, `ek. för.` or `Ek. för.`. A bostadsrättsförening starts
+  `Bostadsrättsföreningen`. An enskild näringsidkare has no legal-form word. `HB`, `KB`
+  and `Brf` are under 1% of the names, so they don't ship.
 
 ### Added
 
