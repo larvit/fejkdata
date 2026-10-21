@@ -16,8 +16,9 @@ replacement, and each removed path, column or flag.
   personnummer, email and address agree.
 - `sv_SE.organisationsnummer`, a Luhn-valid organisation number whose first digit is the
   group digit Bolagsverket gives aktiebolag (5), handelsbolag and kommanditbolag (9) and
-  föreningar (7, 8), and `sv_SE.vat`, `SE` + that number + `01`. A drawn number may belong
-  to a real organisation.
+  föreningar (7, 8), and `sv_SE.vat`, `SE` + that number + `01`. A bound
+  organisationsnummer's `vat` is its own number's. A drawn number may belong to a real
+  organisation, and a VAT number passes the format and checksum, not a VIES lookup.
 
 ## [0.1.2] - 2026-10-20
 
