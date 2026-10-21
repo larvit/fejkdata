@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 3.2 by 4 | 5.7 |
 | 202 | 0.2.0 |  |  | **Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.9 |
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 5.1 |
 | 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
@@ -245,10 +244,6 @@
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
-
-### 234. Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.
-
-PTS's 2024 numbering plan is facts, no licence stated; cite PTS. Today the fixed numbers draw from 20 area codes. [Source research](docs/research/research-sources-se.md).
 
 ### 202. Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.
 
