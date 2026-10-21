@@ -1,21 +1,21 @@
 {
-  "format": "",
-  "five-to-six": [
-    "{digits(3)} {digits(2)}",
-    "{digits(2)} {digits(2)} {digits(2)}"
+  "format": "{digits-5-6}",
+  "digits-5-6": [
+    "{int(1,9)}{digits(2)} {digits(2)}",
+    "{int(1,9)}{digits(1)} {digits(2)} {digits(2)}"
   ],
-  "five-to-seven": [
-    "{digits(3)} {digits(2)}",
-    "{digits(2)} {digits(2)} {digits(2)}",
-    "{digits(3)} {digits(2)} {digits(2)}"
+  "digits-5-7": [
+    "{int(1,9)}{digits(2)} {digits(2)}",
+    "{int(1,9)}{digits(1)} {digits(2)} {digits(2)}",
+    "{int(1,9)}{digits(2)} {digits(2)} {digits(2)}"
   ],
-  "six-to-seven": [
-    "{digits(2)} {digits(2)} {digits(2)}",
-    "{digits(3)} {digits(2)} {digits(2)}"
+  "digits-6-7": [
+    "{int(1,9)}{digits(1)} {digits(2)} {digits(2)}",
+    "{int(1,9)}{digits(2)} {digits(2)} {digits(2)}"
   ],
-  "six-to-eight": [
-    "{digits(2)} {digits(2)} {digits(2)}",
-    "{digits(3)} {digits(2)} {digits(2)}",
-    ["{digits(3)} {digits(3)} {digits(2)}", "{digits(2)} {digits(2)} {digits(2)} {digits(2)}"]
+  "digits-6-8": [
+    "{int(1,9)}{digits(1)} {digits(2)} {digits(2)}",
+    "{int(1,9)}{digits(2)} {digits(2)} {digits(2)}",
+    ["{int(1,9)}{digits(2)} {digits(3)} {digits(2)}", "{int(1,9)}{digits(1)} {digits(2)} {digits(2)} {digits(2)}"]
   ]
 }
