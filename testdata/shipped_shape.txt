@@ -299,9 +299,29 @@ sv_SE.birth-number	format "{number}"	parent sex
 sv_SE.birth-number.number	string
 sv_SE.birth-number.sex	string
 sv_SE.color
-sv_SE.company	format "{base} {suffix}"
-sv_SE.company.base	string
-sv_SE.company.suffix	string
+sv_SE.company	format "{form}"	reads geo.SE.locality sv_SE.company sv_SE.company-invented sv_SE.company-word sv_SE.first-name sv_SE.last-name
+sv_SE.company-invented	format "{a}{b}"
+sv_SE.company-invented.a	string
+sv_SE.company-invented.b	string
+sv_SE.company-word	format "{word}"	weight count
+sv_SE.company-word.count	string
+sv_SE.company-word.word	string
+sv_SE.company.ab	string
+sv_SE.company.ab.legal
+sv_SE.company.ab.name
+sv_SE.company.brf	string
+sv_SE.company.brf.name
+sv_SE.company.e	string
+sv_SE.company.ek	string
+sv_SE.company.ek.legal
+sv_SE.company.ek.name
+sv_SE.company.form	string
+sv_SE.company.hb	string
+sv_SE.company.hb.name
+sv_SE.company.hb.wording
+sv_SE.company.kb	string
+sv_SE.company.kb.name
+sv_SE.company.kb.wording
 sv_SE.date	format "{date(1970-01-01,2029-12-31,'2006-01-02')}"
 sv_SE.email	format "{local}@{domain}"
 sv_SE.email.domain	string
