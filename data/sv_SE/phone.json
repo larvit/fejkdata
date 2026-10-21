@@ -9,7 +9,7 @@
   },
   {
     "format": "{.phone-area as a}{national}",
-    "national": "0{a.ndc}-{a.subscriber}",
+    "national": "{a.area}-{a.subscriber}",
     "international": "+46 {a.ndc} {a.subscriber}"
   }
 ]

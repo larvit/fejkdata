@@ -1,1 +1,1 @@
-{ "format": "0{ndc}", "rows": "phone-area.tsv", "key": "ndc" }
+{ "format": "{area}", "rows": "phone-area.tsv", "key": "area" }
