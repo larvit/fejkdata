@@ -1116,13 +1116,13 @@ table, which a test that ships with item 338 checks, and RFC 5322 keeps letters,
 
 `ascii` drops a letter it has no entry for: `Wałęsa` becomes `Wasa`. A name that loses letters
 does not look real, and goal 4.3 asks that values look real. The table takes 129 more entries,
-so `ascii` and `slugify` keep those letters: the letters beyond Latin-1 that ruby-i18n's default
-transliteration table has, from Latin Extended-A, part of Latin Extended-B, and `ẞ`, the capital
-sharp s. `ŉ` stays out, since its approximation `'n` carries an apostrophe: an entry maps a
-letter to letters only.
+so `ascii` and `slugify` keep the letters they now drop. The entries are the letters beyond
+Latin-1 in ruby-i18n's default transliteration table
+([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)),
+from Latin Extended-A, part of Latin Extended-B, and `ẞ`, the capital sharp s.
 
-The 129 entries are read from ruby-i18n's default transliteration table
-([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
+An entry maps a letter to letters only, so `ŉ` stays out: the table maps it to `'n`, which
+carries an apostrophe.
 
 The change alters what `ascii` returns for those letters, so it changes what exists. Before
 `v1.0.0` a minor carries that, as
@@ -1132,5 +1132,5 @@ says. It ships in `0.2.0` and is named in the changelog
 
 The work is `todo.md` item 340.
 
-Valid while every entry of `ascii`'s table maps letters to letters and comes from ruby-i18n's
+Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
 default table.
