@@ -496,9 +496,9 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
-set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 4.2). Copy
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2). Copy
 that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
-has no path that draws only values reaching nothing real (goal 4.3), write a fixed value such
+has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
@@ -1059,7 +1059,7 @@ advertises no such path; read that level whole.
 
 ### Performance
 
-The target is about a microsecond per value (goal 13).
+The target is about a microsecond per value (goal 12).
 
 A source with an [index](#data), as the shipped set has, loads nothing in `New`: a
 category loads on the first `Fake`, `FakeRecord`, `FakeStruct` or template that reads
@@ -1130,7 +1130,8 @@ the Development section below, and who ships a register the six above then draw 
 
 Where the project is heading; the sections before Audience document what ships today. A
 change that breaks a maintain goal is redesigned or dropped; the achieve goals are weighed
-against each other in the order listed.
+against each other in the order listed. Code health, the goal every project shares,
+ranks above them all: the code is easy to understand and change safely.
 
 1. **Achieve:** **The best fake-data tool there is, and the one developers reach for.**
    - Signal: stars, image pulls and package installs rise.
@@ -1152,31 +1153,7 @@ against each other in the order listed.
       - Counter-signal: a cell ships with a handful of values.
       - Why: coverage counts only where it fills a database.
    2. **Maintain:** A program carries only the data it imports.
-3. **Achieve:** **The code is easy to understand.**
-   - Signal: the comprehension panel's overall score rises, always, and below 7.0 it is
-     very important.
-   - Counter-signal: defects keep reappearing in functionality that already shipped, or
-     reviewers raise blockers because the implementer misunderstood the current code.
-   - Why: code that is easy to understand is code a change does not misread.
-   1. **Achieve:** You can go from a bug to the code behind it without asking anyone.
-      - Signal: the panel's Navigation score rises.
-      - Counter-signal: indexes and pointer comments grow faster than the code.
-      - Why: a map kept beside the code is one more document to keep true.
-   2. **Achieve:** You can change one part without keeping the rest in your head.
-      - Signal: the panel's Locality score rises.
-      - Counter-signal: files grow past what a reader holds at once.
-      - Why: locality bought by merging everything makes each file too big.
-   3. **Achieve:** Every name says what the thing really is.
-      - Signal: the panel's seats name fewer misleading names.
-      - Counter-signal: renames break consumers more often than readers misread the old
-        names.
-      - Why: a better name is worth a major only where the old one misleads.
-   4. **Achieve:** Each file makes sense on its own, without another document open beside
-      it.
-      - Signal: the panel's Self-sufficiency score rises.
-      - Counter-signal: comments that restate the code rise.
-      - Why: a file made self-sufficient by narration is longer, not clearer.
-4. **Achieve:** **Every value is one of three kinds, and the docs say which: real, a thing
+3. **Achieve:** **Every value is one of three kinds, and the docs say which: real, a thing
    that exists, such as the territory `SE`; valid, made up but passing the check the real
    system applies, such as a Swedish personal number; or invented, such as a town that
    does not exist.** Real and valid values come first, and the best category offers more
@@ -1195,7 +1172,7 @@ against each other in the order listed.
       - Signal: the categories offering a form that reaches nothing real rise.
       - Counter-signal: a default value reaches a real person or system.
       - Why: realism helps only while it stays harmless.
-5. **Achieve:** **Templates are easy to write and read.** A template is the text you
+4. **Achieve:** **Templates are easy to write and read.** A template is the text you
    write to describe a value, such as `{first} {last}`.
    - Signal: readers seated as the audience predict what the README's examples print
      more often.
@@ -1217,7 +1194,7 @@ against each other in the order listed.
       needs a new major version.
    9. **Maintain:** Everything fejkdata renders is written as a template: on the command
       line, in a struct tag and in the library.
-6. **Achieve:** **Errors say plainly what is wrong and how to fix it.**
+5. **Achieve:** **Errors say plainly what is wrong and how to fix it.**
    - Signal: the errors that name the fix rise.
    - Counter-signal: an error grows past the one thing that is wrong.
    - Why: a long error hides its cause.
@@ -1228,15 +1205,15 @@ against each other in the order listed.
    3. **Maintain:** A module from fejkdata is proven whole before it ships; a module from
       anyone else may load on first reach, and its author proves it.
    4. **Maintain:** Errors surface when the data loads, never mid-render.
-7. **Maintain:** **One command line gets you a value.**
+6. **Maintain:** **One command line gets you a value.**
    1. **Maintain:** Flags work like in other command-line tools, and can go anywhere on
       the line.
    2. **Maintain:** Your first template of your own needs no escaping and no options.
    3. **Maintain:** The CLI fills in what you leave out with a sane default: all the
       shipped data, the system's randomness and today's date.
-8. **Maintain:** **Source data is JSON or TSV, readable and editable by hand; only what
+7. **Maintain:** **Source data is JSON or TSV, readable and editable by hand; only what
    data can't express, such as a check digit, is Go code.**
-9. **Maintain:** **Flexible and extensible.**
+8. **Maintain:** **Flexible and extensible.**
    1. **Maintain:** Data and functions come in modules, a Go package or a data folder,
       from fejkdata or anyone else, and fejkdata's load as anyone else's do.
    2. **Maintain:** A module names the modules it reads by default, and anything
@@ -1250,15 +1227,15 @@ against each other in the order listed.
       gets the randomness and the date the generator uses.
    6. **Maintain:** A CLI carrying your own modules is a few lines of Go, and works just
       like `fejkdata`.
-10. **Maintain:** **The same seed, date, data and versions always give the same output.**
-    1. **Maintain:** In the library, the caller supplies everything that can change the
-       output: data, seed and date.
-11. **Maintain:** **Every runtime dependency is one the standard library can't replace.**
-12. **Maintain:** **The docs are a map of the template language.**
+9. **Maintain:** **The same seed, date, data and versions always give the same output.**
+   1. **Maintain:** In the library, the caller supplies everything that can change the
+      output: data, seed and date.
+10. **Maintain:** **Every runtime dependency is one the standard library can't replace.**
+11. **Maintain:** **The docs are a map of the template language.**
     1. **Maintain:** Every feature has its own heading.
     2. **Maintain:** Every example runs as a test and shows its output.
     3. **Maintain:** Each rule is stated in one place.
-13. **Maintain:** **It is fast enough that you never notice it with the shipped data.**
+12. **Maintain:** **It is fast enough that you never notice it with the shipped data.**
     1. **Maintain:** A render's cost grows only with the data it reaches.
 
 ## Layout
@@ -1383,8 +1360,8 @@ PACKAGES_GPG_KEY="$(cat /tmp/fejkdata-keys/gpg.asc)" PACKAGES_RSA_KEY="$(cat /tm
   --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 ```
 
-Goal 3 is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
-what the score asks of a pull request. Goal 5 is checked against simulated template
+Code health is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
+what the score asks of a pull request. Goal 4 is checked against simulated template
 writers from the Audience.
 
 A change to the shipped data runs `generate` above first and commits each module's
