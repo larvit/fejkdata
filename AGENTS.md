@@ -115,7 +115,7 @@ In [docs/decisions.md](docs/decisions.md):
 - CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag
 - A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 - A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds
-- `ascii` folds every Latin letter of ruby-i18n's default table, so names such as `Wałęsa` keep their letters
+- `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 
 # Scoring run
 
