@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 340 | 0.2.0 |  | question | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 3 | 1.6 |
 | 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 4.8 |
 | 339 | 0.2.0 |  |  | **Drop goal 3, which restates code health, and repoint every citation of goals 3 to 13.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
 | 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
@@ -23,6 +22,7 @@
 | 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
 | 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 4 by 3 | 1.6 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.6 |
+| 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 3 | 1.6 |
 | 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.3 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 4.3 by 2 | 1.2 |
@@ -248,10 +248,6 @@
 
 ## Details
 
-### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
-
-A question for the human: should `ascii` take the rest of ruby-i18n's default table, which its 64 entries already match? Today `ascii` drops letters such as `ł`, `ę`, `š`, `ž`, `ř`, `ő`, `ş`, `ğ` and `ı`, and `slugify` would change them to `-`, so `Wałęsa` slugs to `wa-sa`. Extending the table changes what `ascii` returns for those letters. The answer also settles whether that is a major or a minor under the README's Versioning table, and the `CHANGELOG.md` line it needs. Until it is answered, item 338's test keeps a locale with such names from shipping.
-
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
 Bolagsverket's group digits and the Luhn rule are facts. [Source research](docs/research/research-sources-se.md).
@@ -291,6 +287,10 @@ Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry sta
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the bulk quick start's `> people.csv` garbles `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
+
+### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
+
+Decided on 2026-10-21 in `docs/decisions.md`: `ascii` takes the 130 letters that ruby-i18n's default transliteration table has and `ascii` lacks, as a minor before `v1.0.0` (0.2.0). The work: add those entries to `asciiFolds`, read from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`, leaving out `×`; write the test first, with its expected values taken from that file, so that it fails before the change; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The README's Transforms section needs no change, since it already says `ascii` folds Latin letters.
 
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
