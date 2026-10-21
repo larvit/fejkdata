@@ -1059,7 +1059,7 @@ error, a template feature or a doc. A refactor, a test or a process change moves
 another goal, and names goal 1 only if its user sees a change. The maintainer noted that
 goal 1 may then be too broad. Valid while goal 1 asks for the best fake-data tool there is.
 
-## A `slugify` transform makes compound names URL-safe in emails, and the shipped data keeps them
+## A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds
 
 2026-10-21, Lilleman auf Larv. Serves goal 4.
 
@@ -1071,39 +1071,41 @@ built.
 
 1. Fold each letter by the table `ascii` uses: a letter with a diacritic becomes its base
    letter (`ö` to `o`, `å` to `a`, `à` to `a`), and a ligature its letters (`ß` to `ss`, `æ`
-   to `ae`). Where `ascii` drops a rune with no entry, this step changes it to `-`.
+   to `ae`). Where `ascii` drops a non-ASCII rune with no entry, this step changes it to `-`.
 2. Lowercase what is left.
 3. Keep `a` to `z` and `0` to `9`; change every other character to `-`.
 4. Collapse each run of `-` into one, and trim `-` from both ends.
 
 So `Anna Lena` slugs to `anna-lena`, `Åsa Öberg` to `asa-oberg`, `O'Brien` to `o-brien`,
-`Jean–Luc` (with an en dash) to `jean-luc`, and `日本` to the empty string. A slug keeps no `.`, so the only `.` in an address is the one
-joining two slugs.
+`Jean–Luc` (with an en dash) to `jean-luc`, and `日本` to the empty string. A slug keeps no
+`.`, so the only `.` in an address is the one joining two slugs.
 
-The steps follow python-slugify, which replaces each run it does not keep with a hyphen,
-lowercases, and strips hyphens from both ends
-([python-slugify](https://github.com/un33k/python-slugify/blob/master/slugify/slugify.py)),
-and Rails' `parameterize`, which replaces with its separator and downcases
-([Rails](https://api.rubyonrails.org/classes/ActiveSupport/Inflector.html)). Django's
-`slugify` removes punctuation instead and turns whitespace into a dash
-([Django](https://docs.djangoproject.com/en/stable/ref/utils/#django.utils.text.slugify)), and
-this decision does not take that rule. cocur/slugify spells `ä` as `ae` by default
+python-slugify replaces each run of characters outside `a` to `z`, `0` to `9` and `-` with a
+hyphen, lowercases the text, and strips hyphens from both ends
+([python-slugify](https://github.com/un33k/python-slugify/blob/master/slugify/slugify.py)).
+Rails' `parameterize` replaces each character outside those with its separator and downcases
+([Rails](https://api.rubyonrails.org/classes/ActiveSupport/Inflector.html)). Django's `slugify`
+removes punctuation instead and turns whitespace into a dash
+([Django](https://docs.djangoproject.com/en/stable/ref/utils/#django.utils.text.slugify)).
+cocur/slugify spells `ä` as `ae` by default
 ([cocur/slugify](https://github.com/cocur/slugify)); this decision takes the base letter, as
-`ascii` does. The entries of `ascii`'s table match the approximations of Rails' I18n default
-table: all 64 entries checked agree
+`ascii` does. All 64 entries of `ascii`'s table match the default transliteration table of
+Rails' I18n gem
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
 Every character a slug holds is unreserved under
 [RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3), so it is safe in a URL,
 and atext under [RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3), so it
 is allowed in an email's local part. A local part may be a dot-atom
-([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)), and then two
-non-empty slugs joined by `.` form a valid one.
+([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)). Then two non-empty
+slugs joined by `.` form a valid local part.
 
-A name with no Latin letter slugs to the empty string. A locale with such names romanizes them
-in its data, since `slugify` adds no table of its own.
+A letter outside the table splits the name, so `Wałęsa` slugs to `wa-sa`; a name with no
+letter in the table slugs to the empty string. A locale whose names need such letters
+romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own.
 
 The work is `todo.md` item 338.
 
-Valid while every non-ASCII letter of a shipped name has an entry in `ascii`'s table, which a
-test that ships with item 338 checks, and RFC 5322 keeps letters, digits and `-` in atext.
+Valid while every non-ASCII letter of a shipped first or last name has an entry in `ascii`'s
+table, which a test that ships with item 338 checks, and RFC 5322 keeps letters, digits and
+`-` in atext.
