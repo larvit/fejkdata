@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 340 | 0.2.0 |  | question | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, so `ascii` and `slugify` keep them.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 3 | 1.6 |
+| 340 | 0.2.0 |  | question | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 4.3 by 3 | 1.6 |
 | 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 4.8 |
 | 339 | 0.2.0 |  |  | **Drop goal 3, which restates code health, and repoint every citation of goals 3 to 13.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
 | 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
@@ -248,9 +248,9 @@
 
 ## Details
 
-### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, so `ascii` and `slugify` keep them.
+### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
-A question for the human, not yet decided: should `ascii` take the rest of ruby-i18n's default table, the one its 64 entries already match and that `docs/decisions.md`'s slugify entry cites? Today `ascii` drops `ł`, `š`, `ž`, `ř`, `ő`, `ş`, `ğ` and `ı`, and `slugify` would change them to `-`, so `Wałęsa` slugs to `wa-sa`. Extending the table changes what `ascii` returns for those letters, so the answer also settles the bump under the README's Versioning table and a line under `## [Unreleased]` in `CHANGELOG.md`. Until it is answered, item 338's test keeps a locale with such names from shipping.
+A question for the human: should `ascii` take the rest of ruby-i18n's default table, which its 64 entries already match? Today `ascii` drops letters such as `ł`, `ę`, `š`, `ž`, `ř`, `ő`, `ş`, `ğ` and `ı`, and `slugify` would change them to `-`, so `Wałęsa` slugs to `wa-sa`. Extending the table changes what `ascii` returns for those letters. The answer also settles whether that is a major or a minor under the README's Versioning table, and the `CHANGELOG.md` line it needs. Until it is answered, item 338's test keeps a locale with such names from shipping.
 
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
@@ -286,7 +286,7 @@ Find the numbering plan and its licence first.
 
 ### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
 
-Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`, which folds with `ascii`'s table and changes a rune that table has no entry for to `-`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`. `readme_test.go`'s expected emails follow the decision's slug rules. A test asserts that every non-ASCII letter of the shipped first and last names has an entry in `ascii`'s table.
+Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`, which folds with `ascii`'s table and changes a non-ASCII rune that table has no entry for to `-`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`. `readme_test.go`'s expected emails follow the decision's slug rules. A test asserts that every non-ASCII letter of the shipped first and last names has an entry in `ascii`'s table.
 
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
