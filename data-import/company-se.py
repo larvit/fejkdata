@@ -38,10 +38,15 @@ WORD = re.compile(r"^[a-zåäöéü]{3,}$")
 FUNCTION_WORDS = {"och", "the", "and", "of", "for", "för", "med", "på", "till", "av", "ett", "den", "det", "mot", "from", "with"}
 LEGAL_WORDS = {
     "ab", "aktiebolag", "aktiebolaget", "hb", "handelsbolag", "handelsbolaget", "kb", "kommanditbolag", "kommanditbolaget",
-    "bostadsrättsförening", "bostadsrättsföreningen", "ekonomisk", "ekonomiska", "förening", "föreningen", "publ",
+    "bostadsrättsförening", "bostadsrättsföreningen", "brf", "ekonomisk", "ekonomiska", "förening", "föreningen", "publ",
 }
-ENDINGS = {"AB": [["ab"], ["aktiebolag"]], "HB": [["handelsbolag"]], "KB": [["kommanditbolag"]], "EK": [["ekonomisk", "förening"], ["ek.", "för."]]}
-BEGINNINGS = {"HB": "handelsbolaget", "KB": "kommanditbolaget", "BRF": "bostadsrättsföreningen"}
+ENDINGS = {
+    "AB": [["ab"], ["aktiebolag"]],
+    "HB": [["hb"], ["handelsbolag"]],
+    "KB": [["kb"], ["kommanditbolag"]],
+    "EK": [["ekonomisk", "förening"], ["ek.", "för."]],
+}
+BEGINNINGS = {"HB": ["handelsbolaget"], "KB": ["kommanditbolaget"], "BRF": ["bostadsrättsföreningen", "brf"]}
 SLOTS = {
     "X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "Ss": "{.last-name}s", "F": "{.first-name}",
     "P": "{/geo.SE.locality}", "N": "{int(1,30)}", "i": "i", "&": "&", "och": "och",
@@ -122,7 +127,7 @@ def legal_wording(form, words):
     for end in ENDINGS.get(form, []):
         if low[-len(end):] == end:
             return "after", " ".join(words[-len(end):]), words[:-len(end)]
-    if form in BEGINNINGS and low[0] == BEGINNINGS[form]:
+    if low[0] in BEGINNINGS.get(form, []):
         return "before", words[0], words[1:]
     return None
 

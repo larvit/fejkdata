@@ -54,7 +54,7 @@
       { "format": "{.company-coined} {.company-word}", "weight": 3991 },
       { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 687 },
       { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 619 },
-      { "format": "{.company-coined} i {/geo.SE.locality}", "weight": 400 },
+      { "format": "{.company-coined} i {/geo.SE.locality}", "weight": 401 },
       { "format": "{.company-coined} {.last-name}", "weight": 361 },
       { "format": "{/geo.SE.locality} {.company-coined}", "weight": 255 }
     ],
