@@ -25,21 +25,23 @@ replacement, and each removed path, column or flag.
   `ekonomisk förening`, `ek. för.` or `Ek. för.`. A bostadsrättsförening starts
   `Bostadsrättsföreningen`. An enskild näringsidkare has no legal-form word. `HB`, `KB`
   and `Brf` are under 1% of the names, so they don't ship.
-- `sv_SE.phone` loses its fields `a`, `b`, `c` and `prefix`, and draws each fixed number
-  from one of the 264 geographic area codes in PTS's numbering plan of 2024-01-08, not
-  from 20. A fixed number's subscriber digits are as many as the plan allows for its
-  code, five to eight, and are grouped as Språkrådet writes them, `08-16 01 01` or
-  `031-668 01 50`. What a seed draws changes.
+- `sv_SE.phone` loses its fields `a`, `b`, `c` and `prefix`, and no field replaces them. It
+  reads `sv_SE.phone-area` and `sv_SE.phone-subscriber`, which draw an area code and
+  subscriber digits apart. It draws each fixed number from one of the 264 geographic area
+  codes in PTS's numbering plan of 2024-01-08, not from 20. A fixed number's subscriber
+  digits are as many as the plan allows for its code, five to eight, grouped as Språkrådet
+  writes them, `08-16 01 01` or `031-668 01 50`, and none starts with `0`. What a seed
+  draws changes.
 
 ### Added
 
 - `sv_SE.phone.national` and `sv_SE.phone.international`, the two spellings of one
   number: `070-123 45 67` and `+46 70 123 45 67`. Bind a number to read both,
   `{/sv_SE.phone as p}{p.national} {p.international}`.
-- `sv_SE.phone-area`, a table of PTS's 264 geographic area codes, keyed by the code
-  without its trunk `0`, such as `8` or `480`, with the `name` of its place and a
-  `subscriber` number that fits it. `sv_SE.phone-subscriber` holds the subscriber
-  numbers by their possible lengths.
+- `sv_SE.phone-area`, a table of PTS's 264 geographic area codes, keyed by the code as
+  Swedes write it, such as `08` or `0480`, with its `ndc` without the `0`, the `name` of its
+  place and a `subscriber` number that fits it. `sv_SE.phone-subscriber` holds the
+  subscriber numbers by their possible lengths.
 - Prebuilt binaries for Linux, macOS and Windows on amd64 and arm64, packages for apt,
   dnf, apk, Homebrew and Scoop, and the image `larvit/fejkdata` on Docker Hub, also at `ghcr.io/larvit/fejkdata`, so
   the CLI installs without Go. 0.1.0 ships them too; the README's
