@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 3.2 by 4 | 5.7 |
 | 234 | 0.2.0 |  |  | **Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 3.2 by 4 | 5.7 |
 | 202 | 0.2.0 |  |  | **Add `nb_NO` with its given names by sex, last names and titles, and `nb_NO.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.9 |
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 5.1 |
@@ -246,10 +245,6 @@
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
-
-### 231. Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.
-
-Bolagsverket's registration statistics are CC BY 2.5 SE; derive name-token frequencies from its bulk file offline and embed no row of it. [Source research](docs/research/research-sources-se.md).
 
 ### 234. Draw `sv_SE.phone` from every area code in PTS's numbering plan, grouped as Språkrådet writes it, and add its international form, `+46 70 123 45 67`.
 
