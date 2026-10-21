@@ -774,3 +774,12 @@ Inherited architect, decided by:
 - Navigation, Shape: `README.md:1305` "Layout" (`vulnerability-filing/`): the line points at `release-tooling/` for `CHANGELOG.md`, where e134ac5 sent a reader to the wrong file.
 - Self-sufficiency: `release-tooling/patch_release.py:159` `carry_workflows`: its docstring says why it copies main's workflows, which e134ac5 did not show.
 - Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:33` `ROW`: reads harder, since the regex skips two unnamed cells that point at `todo.md`'s layout; outweighed by the places above.
+
+## 2026-10-21T09:18:03Z, PR #239 at 5b98b19, against 798acf8
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | same | same | same |
