@@ -1058,3 +1058,26 @@ more specific goals, when its user sees the change: a category or a locale, a cl
 error, a template feature or a doc. A refactor, a test or a process change moves goal 3 or
 another goal, and names goal 1 only if its user sees a change. The maintainer noted that
 goal 1 may then be too broad. Valid while goal 1 asks for the best fake-data tool there is.
+
+## A `slugify` transform makes compound names valid in emails, rather than a name table without compound names
+
+2026-10-21, Lilleman auf Larv. Serves goal 4.
+
+A compound name such as `Anna Lena` or `von Walden` keeps its space in the email that the
+quick starts build, which makes the address invalid. The shipped names keep their compound
+names, and a transform fixes the address where it is built.
+
+`{slugify(x)}` changes each character outside RFC 3986's unreserved set to a URL-safe one.
+That set is the letters, digits, `-`, `.`, `_` and `~`
+([RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3)). The transform folds a
+letter with a diacritic to its ASCII letter, as `ascii` does, lowercases, changes every
+other character to `-`, collapses runs of `-` and trims them from both ends.
+
+The characters a slug keeps are the ones RFC 5322 allows in an email's local part, with `.`
+only between atoms
+([RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3)).
+
+The work is `todo.md` item 338.
+
+Valid while the quick starts build each local part from the shipped names, and RFC 5322 keeps
+those rules.
