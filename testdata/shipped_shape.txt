@@ -349,15 +349,16 @@ sv_SE.person.prefix	string null
 sv_SE.person.sex	string
 sv_SE.personnummer	format "{date(1930-01-01,2025-12-31,'060102')}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.phone	reads sv_SE.phone-area
-sv_SE.phone-area	format "0{ndc}"	key ndc	reads sv_SE.phone-subscriber
+sv_SE.phone-area	format "{area}"	key area	reads sv_SE.phone-subscriber
+sv_SE.phone-area.area	string
 sv_SE.phone-area.name	string
 sv_SE.phone-area.ndc	string
 sv_SE.phone-area.subscriber	string
-sv_SE.phone-subscriber	format ""
-sv_SE.phone-subscriber.five-to-seven	string
-sv_SE.phone-subscriber.five-to-six	string
-sv_SE.phone-subscriber.six-to-eight	string
-sv_SE.phone-subscriber.six-to-seven	string
+sv_SE.phone-subscriber	format "{digits-5-6}"
+sv_SE.phone-subscriber.digits-5-6	string
+sv_SE.phone-subscriber.digits-5-7	string
+sv_SE.phone-subscriber.digits-6-7	string
+sv_SE.phone-subscriber.digits-6-8	string
 sv_SE.phone.international
 sv_SE.phone.national
 sv_SE.price	format "{amt}{ore} kr"
