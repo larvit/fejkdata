@@ -1067,17 +1067,27 @@ A compound name such as `Anna Lena` or `von Walden` keeps its space in the email
 quick starts build, which makes the address invalid. The shipped names keep their compound
 names, and a transform fixes the address where it is built.
 
-`{slugify(x)}` changes each character outside RFC 3986's unreserved set to a URL-safe one.
-That set is the letters, digits, `-`, `.`, `_` and `~`
-([RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3)). The transform folds a
-letter with a diacritic to its ASCII letter, as `ascii` does, lowercases, changes every
-other character to `-`, collapses runs of `-` and trims them from both ends.
+`{slugify(x)}` applies four steps, in order:
 
-The characters a slug keeps are the ones RFC 5322 allows in an email's local part, with `.`
-only between atoms
-([RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3)).
+1. `ascii`: a letter with a diacritic folds to its ASCII letters, as `ascii` does, and a rune
+   `ascii` drops is dropped.
+2. Lowercase what is left.
+3. Keep `a` to `z` and `0` to `9`; change every other character to `-`.
+4. Collapse each run of `-` into one, and trim `-` from both ends.
+
+So `Anna Lena` slugs to `anna-lena`, `Åsa Öberg` to `asa-oberg`, `O'Brien` to `o-brien`, and
+`日本` to the empty string. A slug keeps no `.`, so the quick starts join two slugs with a `.`.
+
+Every character a slug holds is unreserved under
+[RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3) and atext under
+[RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3). A local part is a
+dot-atom ([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)), so two
+slugs joined by `.` form a valid one.
+
+A name with no Latin letter slugs to the empty string. A locale with such names romanizes
+them in its data, which goal 8 keeps as JSON or TSV.
 
 The work is `todo.md` item 338.
 
-Valid while the quick starts build each local part from the shipped names, and RFC 5322 keeps
-those rules.
+Valid while every shipped name has a Latin letter, and RFC 5322 keeps letters, digits and `-`
+in atext.
