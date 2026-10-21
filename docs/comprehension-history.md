@@ -750,3 +750,27 @@ Inherited architect, decided by:
 - Shape, Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:119` `release_for`: the release rule lives in one long module docstring sentence
 - Locality: `.github/workflows/test.yml:93` `release`: job conditions combine five states
 - Locality: `release-tooling/publish_release.py:44` `publish`: the tag check now precedes the published check, unexplained
+
+## 2026-10-21T08:20:58Z, PR #238 at f743f3d, against e134ac5
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | same | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Shape: `release-tooling/patch_release.py:204` `cut`: its injected effects are `scanner`, `shipper` and `publisher`, so they no longer shadow the module's `scan`, `ship` and `publish`; the local `patch` no longer shadows `plan`.
+- Shape, Self-sufficiency: `release-tooling/patch_release.py:190` `fixed_by_new_go`: returns the named sentinel `STILL_VULNERABLE` where e134ac5 returned a bare `None` that only the docstring explained.
+- Navigation: `README.md:1305` "Layout" (`vulnerability-filing/`): says the filer names the fixed items and `release-tooling/` writes `CHANGELOG.md`, where e134ac5 said the filer moved them into it.
+- Self-sufficiency: `release-tooling/patch_release.py:159` `carry_workflows`: its docstring says why `.github/` is copied from main, which the code alone did not show.
+
+Inherited architect, decided by:
+
+- Locality, Shape: `release-tooling/patch_release.py:204` `cut`: the parameters and locals that shadowed module functions now have their own names, so each name means one thing.
+- Shape, Self-sufficiency: `release-tooling/patch_release.py:190` `fixed_by_new_go`: the sentinel `STILL_VULNERABLE` names what a bare `None` used to mean.
+- Navigation, Shape: `README.md:1305` "Layout" (`vulnerability-filing/`): the line points at `release-tooling/` for `CHANGELOG.md`, where e134ac5 sent a reader to the wrong file.
+- Self-sufficiency: `release-tooling/patch_release.py:159` `carry_workflows`: its docstring says why it copies main's workflows, which e134ac5 did not show.
+- Self-sufficiency: `vulnerability-filing/file_vulnerabilities.py:33` `ROW`: reads harder, since the regex skips two unnamed cells that point at `todo.md`'s layout; outweighed by the places above.
