@@ -1130,8 +1130,7 @@ the Development section below, and who ships a register the six above then draw 
 
 Where the project is heading; the sections before Audience document what ships today. A
 change that breaks a maintain goal is redesigned or dropped; the achieve goals are weighed
-against each other in the order listed. Code health, the goal every project shares,
-ranks above them all: the code is easy to understand and change safely.
+against each other in the order listed.
 
 1. **Achieve:** **The best fake-data tool there is, and the one developers reach for.**
    - Signal: stars, image pulls and package installs rise.
@@ -1360,9 +1359,9 @@ PACKAGES_GPG_KEY="$(cat /tmp/fejkdata-keys/gpg.asc)" PACKAGES_RSA_KEY="$(cat /tm
   --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 ```
 
-Code health is scored by a panel of simulated readers, and [`AGENTS.md`](AGENTS.md) says
-what the score asks of a pull request. Goal 4 is checked against simulated template
-writers from the Audience.
+A panel of simulated readers scores how easy the code is to understand, and
+[`AGENTS.md`](AGENTS.md) states the 7.0 target, which blocks no merge. Goal 4 is checked
+against simulated template writers from the Audience.
 
 A change to the shipped data runs `generate` above first and commits each module's
 `.fejkdata.json` with the change, then re-pins

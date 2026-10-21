@@ -4,7 +4,7 @@
 
 2026-09-20, Lilleman auf Larv.
 
-Goal 1 wants the usage the tool earns and code health expects extenders who did not write it;
+Goal 1 wants the usage the tool earns, and code health expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
 a fork on a personal instance. Valid while the project wants contribution from outside.
@@ -249,7 +249,7 @@ to fix. Valid while a load checks the whole set before its first render.
 
 ## Formats are checked after all data is loaded, so their errors name the category
 
-2026-09-28, larv-review; approved 2026-09-28 by lilleman. Code health. Loading reads every
+2026-09-28, larv-review; approved 2026-09-28 by lilleman. Serves code health. Loading reads every
 file first, then connects references across them. A format holding a reference can only
 be checked once it is connected, so every format is checked then, and all checks run at
 one moment. An error from those checks names the category path you would type (`sub.x`),
@@ -271,7 +271,7 @@ convention of a minor is not followed.
 literal's values out to a lone long key, so no source satisfies both it and 1.22's. A
 consumer on the lowest supported Go depends on the code compiling and its tests passing
 there, which is the `portable` stage, and never runs `gofmt` over this source, so the
-latest toolchain alone defines the one canonical form code health asks a reader to meet.
+latest toolchain alone defines the one canonical form a reader meets.
 Valid while the lowest supported Go is not the latest.
 
 ## The changelog heading is the one spelling of a release; CI cuts the tag
@@ -901,7 +901,7 @@ Valid while names are read only inside the category binding them.
 
 2026-10-04, Lilleman auf Larv. Serves code health and applies KISS.
 
-2026-10-18, Lilleman auf Larv: the floor blocks no merge, matching `~/.claude`'s decision of 2026-10-13. Code health weighs the work towards it, most while the overall is under 7.0, against the other goals in `todo.md`. The paragraphs below record how 0.1.0 shipped under the gate this replaces.
+2026-10-18, Lilleman auf Larv: the floor blocks no merge, matching `~/.claude`'s decision of 2026-10-13. In `todo.md`, code health weighs the work towards the floor against the other goals, most while the panel's overall score is under 7.0. The paragraphs below record how 0.1.0 shipped under the gate this replaces.
 
 By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the floor, including the chunk that holds the release's scoring run, so that 0.1.0 can ship features. Items 170 to 175 and 177 move to 0.2.0. Item 178 plans first how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
 
@@ -913,7 +913,7 @@ Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item
 
 Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 4.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 
-The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while `AGENTS.md` gates code health at 7.0.
+The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while the comprehension floor's target is 7.0.
 
 ## The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 
