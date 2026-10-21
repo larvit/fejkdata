@@ -1,1 +1,1 @@
-"SE{.organisationsnummer.group}{digits(1)}{int(2,9)}{digits(3)}{digits(3)}{luhn()}01"
+"{.organisationsnummer.vat}"
