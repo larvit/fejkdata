@@ -1,0 +1,21 @@
+{
+  "format": "",
+  "five-to-six": [
+    "{digits(3)} {digits(2)}",
+    "{digits(2)} {digits(2)} {digits(2)}"
+  ],
+  "five-to-seven": [
+    "{digits(3)} {digits(2)}",
+    "{digits(2)} {digits(2)} {digits(2)}",
+    "{digits(3)} {digits(2)} {digits(2)}"
+  ],
+  "six-to-seven": [
+    "{digits(2)} {digits(2)} {digits(2)}",
+    "{digits(3)} {digits(2)} {digits(2)}"
+  ],
+  "six-to-eight": [
+    "{digits(2)} {digits(2)} {digits(2)}",
+    "{digits(3)} {digits(2)} {digits(2)}",
+    ["{digits(3)} {digits(3)} {digits(2)}", "{digits(2)} {digits(2)} {digits(2)} {digits(2)}"]
+  ]
+}

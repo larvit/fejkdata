@@ -1,17 +1,15 @@
 [
   {
-    "format": "{prefix}-{a} {b} {c}",
+    "format": "{ndc as d}{subscriber as s}{national}",
     "weight": 10,
-    "prefix": ["070", "072", "073", "076", "079"],
-    "a": "{digits(3)}",
-    "b": "{digits(2)}",
-    "c": "{digits(2)}"
+    "ndc": ["70", "72", "73", "76", "79"],
+    "subscriber": "{digits(3)} {digits(2)} {digits(2)}",
+    "national": "0{d}-{s}",
+    "international": "+46 {d} {s}"
   },
   {
-    "format": "{prefix}-{a} {b} {c}",
-    "prefix": ["08", "011", "013", "018", "019", "021", "023", "026", "031", "033", "035", "036", "040", "042", "044", "046", "054", "060", "063", "090"],
-    "a": "{digits(3)}",
-    "b": "{digits(2)}",
-    "c": "{digits(2)}"
+    "format": "{.phone-area as a}{national}",
+    "national": "0{a.ndc}-{a.subscriber}",
+    "international": "+46 {a.ndc} {a.subscriber}"
   }
 ]
