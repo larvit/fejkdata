@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 338 | 0.2.0 |  | question | **Make the email of a compound name hold no space, so an email the quick starts build is a valid address.** | 2 | 1 | 2 | 3 | 2 | 4.3 by 2 | 0.9 |
 | 230 | 0.2.0 |  |  | **Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 5, 4 by 4 | 4.8 |
 | 339 | 0.2.0 |  |  | **Drop goal 3, which restates code health, and repoint every citation of goals 3 to 13.** | 2 | 2 | 1 | 3 | 4 | code health by 3 | 4.1 |
 | 231 | 0.2.0 |  |  | **Draw `sv_SE.company`'s legal form weighted by Bolagsverket's 2025 registrations, and its names from patterns derived from Bolagsverket's company register.** | 2 | 2 | 2 | 4 | 3 | 1 by 2, 2.1 by 3, 4.2 by 4 | 3.8 |
@@ -21,6 +20,7 @@
 | 292 | 0.2.0 | 202 |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 4 by 3 | 3.5 |
 | 291 | 0.2.0 | 202 |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 2.5 |
 | 293 | 0.2.0 | 202 |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 1.9 |
+| 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 4 by 3 | 1.6 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 1.6 |
 | 289 | 0.2.0 | 202 |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.3 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.3 |
@@ -247,10 +247,6 @@
 
 ## Details
 
-### 338. Make the email of a compound name hold no space, so an email the quick starts build is a valid address.
-
-The quick starts build each email from the first and last name. Compound names keep their space in the email: `Anna Lena` (58 of the 4,000 `sv_SE.first-name` rows) and `von Walden` (24 of the 5,000 `sv_SE.last-name` rows), so a draw such as `anna lena.larsson@example.com` is not a valid address. No builtin or transform drops a space. The choice is for the human: a transform that drops spaces, or name tables beside `sv_SE`'s `first-name.tsv` and `last-name.tsv` with no compound names. Once it is chosen, drop the sentence the bulk quick start gives to this.
-
 ### 230. Add `sv_SE.organisationsnummer`, whose first digit is its legal form's group digit and whose last is a Luhn check digit, and `sv_SE.vat`, `SE` + the number + `01`.
 
 Bolagsverket's group digits and the Luhn rule are facts. [Source research](docs/research/research-sources-se.md).
@@ -282,6 +278,10 @@ Find the issuer's rules, and a test series if it publishes one, first.
 ### 291. Add `nb_NO.phone`, drawn from Norway's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
+
+Decided on 2026-10-21 in `docs/decisions.md`: a transform, not a name table, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`, since a builtin changes the template language. The agreement tests' expected emails follow the decision's rules, not the code's output.
 
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
