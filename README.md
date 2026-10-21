@@ -479,15 +479,21 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `samordningsnummer`, `organisationsnummer`, `vat`, `company-coined`, `company-word`,
 `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
-`phone-exchange` (the three digits after the area code). `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number's area code is
-drawn evenly from `sv_SE.phone-area`, the 264 geographic area codes in the Swedish Post and Telecom
-Authority's (PTS) numbering plan of 2024-01-08, each selected by the code as Swedes write it,
-`phone-area[08]`, and carrying the `ndc` international dialling uses, `8`, and the `name` of its
-place. Its subscriber number comes from `sv_SE.phone-subscriber`, with as many digits as the plan
-allows that code, five to eight, grouped as Språkrådet writes it, so `08-16 01 01` and
-`031-668 01 50` are both shapes; none starts with the trunk `0`. A number is valid, not real: it
+`phone-exchange` (the three digits after the area code).
+
+`sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
+area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
+Swedish Post and Telecom Authority's (PTS) numbering plan of 2024-01-08. A row is selected by the
+code as Swedes write it, `phone-area[08]`, and carries its `ndc`, the code without the trunk `0`
+that international dialling uses (`8`), and the `name` of its place.
+
+The rest of a fixed number comes from `sv_SE.phone-subscriber`. It has any length the plan allows
+that area code, five to eight digits, and is grouped as Språkrådet writes it, such as `08-16 01 01`
+and `031-668 01 50`. No subscriber number starts with the trunk `0`. A number is valid, not real: it
 follows the plan, and a real subscriber may hold it. A bound number reads `national`,
-`070-123 45 67`, and `international`, `+46 70 123 45 67`. A bound `organisationsnummer`
+`070-123 45 67`, and `international`, `+46 70 123 45 67`.
+
+A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk

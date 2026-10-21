@@ -450,9 +450,9 @@ func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	}
 }
 
-// PTS's numbering plan of 2024-01-08 gives each area code its N(S)N, the digits after the
-// trunk 0, between 7 and 9 long for a one- or two-digit code and 8 and 9 for a
-// three-digit one, bar 18, 19, 31 and 54, whose shortest is 8.
+// PTS's numbering plan of 2024-01-08 gives each area code an N(S)N, the digits after the
+// trunk 0, of at most 9. The shortest is 8 for a three-digit code and for 18, 19, 31 and
+// 54, and 7 for every other one- or two-digit code.
 func swedishPhoneShortest(ndc string) int {
 	if len(ndc) == 3 || slices.Contains([]string{"18", "19", "31", "54"}, ndc) {
 		return 8
@@ -461,7 +461,7 @@ func swedishPhoneShortest(ndc string) int {
 }
 
 // Språkrådet groups the subscriber digits, the ones after the area code, in twos and
-// threes from the left; "08-575 686 43" and "08-57 56 86 43" both stand for eight.
+// threes from the left; "08-575 686 43" and "08-57 56 86 43" both group eight digits.
 var swedishPhoneGrouped = map[int]*regexp.Regexp{
 	5: regexp.MustCompile(`^[1-9]\d{2} \d{2}$`),
 	6: regexp.MustCompile(`^[1-9]\d \d{2} \d{2}$`),
