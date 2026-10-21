@@ -9,6 +9,7 @@
 		"sv_SE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"sv_SE.ip": {"paths":[""]},
 		"sv_SE.last-name": {"paths":["","count","name"]},
+		"sv_SE.organisationsnummer": {"paths":["","group"]},
 		"sv_SE.person": {"paths":["","first","last","prefix","sex"]},
 		"sv_SE.personnummer": {"paths":[""]},
 		"sv_SE.phone": {"paths":["","a","b","c","prefix"]},
@@ -20,6 +21,7 @@
 		"sv_SE.title": {"paths":["","name","share"]},
 		"sv_SE.url": {"paths":["","host","path"]},
 		"sv_SE.username": {"paths":["","n"]},
+		"sv_SE.vat": {"paths":[""]},
 		"sv_SE.version": {"paths":["","n","pre","suffix"]},
 		"sv_SE.word": {"paths":[""]}
 	},

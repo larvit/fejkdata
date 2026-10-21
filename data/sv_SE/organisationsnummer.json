@@ -1,0 +1,9 @@
+{
+	"format": "{group}{digits(1)}{int(2,9)}{digits(3)}-{digits(3)}{luhn()}",
+	"group": [
+		{ "format": "5", "weight": 51128 },
+		{ "format": "9", "weight": 1733 },
+		{ "format": "7", "weight": 388 },
+		{ "format": "8", "weight": 388 }
+	]
+}
