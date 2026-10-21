@@ -478,7 +478,12 @@ Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `company-coined` and `company-word`;
 `en_US` adds `ssn`, `itin` and
-`phone-exchange` (the three digits after the area code). A bound `organisationsnummer`
+`phone-exchange` (the three digits after the area code). `sv_SE.phone` is a mobile number or a
+fixed one, drawn from `sv_SE.phone-area`, the 264 geographic area codes in the Swedish Post and
+Telecom Authority's (PTS) numbering plan of 2024-01-08, evenly. A fixed number has as many
+subscriber digits as the plan allows its code and is grouped as Språkrådet writes it, so
+`08-16 01 01` and `031-668 01 50` are both valid shapes. Its `national` is
+`070-123 45 67` and its `international` `+46 70 123 45 67`; bind the number to read both. A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
