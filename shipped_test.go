@@ -21,6 +21,7 @@ import (
 	geose "github.com/larvit/fejkdata/data/geo/SE"
 	geous "github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
+	nbno "github.com/larvit/fejkdata/data/nb_NO"
 	svse "github.com/larvit/fejkdata/data/sv_SE"
 	"github.com/larvit/fejkdata/internal/datafiles"
 )
@@ -74,6 +75,7 @@ func shippedModules(t testing.TB) []shippedModule {
 		{fsys: geose.FS, modules: geose.Modules, namespace: "geo.SE"},
 		{fsys: geous.FS, modules: geous.Modules, namespace: "geo.US"},
 		{fsys: misc.FS, modules: misc.Modules, namespace: "misc"},
+		{fsys: nbno.FS, modules: nbno.Modules, namespace: "nb_NO"},
 		{fsys: svse.FS, modules: svse.Modules, namespace: "sv_SE"},
 	}
 	for i := range out {
