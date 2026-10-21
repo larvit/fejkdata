@@ -1089,5 +1089,5 @@ them in its data, which goal 8 keeps as JSON or TSV.
 
 The work is `todo.md` item 338.
 
-Valid while every shipped name has a Latin letter, and RFC 5322 keeps letters, digits and `-`
-in atext.
+Valid while every name a template slugifies has a Latin letter, and RFC 5322 keeps letters,
+digits and `-` in atext.
