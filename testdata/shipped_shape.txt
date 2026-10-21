@@ -290,6 +290,28 @@ misc.useragent.os	string
 misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
+nb_NO.first-name	format "{name}"	name name	weight count	parent sex
+nb_NO.first-name.count	string
+nb_NO.first-name.name	string
+nb_NO.first-name.sex	string
+nb_NO.last-name	format "{name}"	key name	weight count
+nb_NO.last-name.count	string
+nb_NO.last-name.name	string
+nb_NO.person	format "{prefix}{first} {last}"	reads nb_NO.first-name nb_NO.last-name nb_NO.title
+nb_NO.person.first	string
+nb_NO.person.last	string
+nb_NO.person.prefix	string null
+nb_NO.person.sex	string
+nb_NO.sex	format "{name}"	key code	name name
+nb_NO.sex.code	string
+nb_NO.sex.first-name
+nb_NO.sex.first-name.count
+nb_NO.sex.first-name.name
+nb_NO.sex.first-name.sex
+nb_NO.sex.name	string
+nb_NO.title	format "{name}"	key name	weight share
+nb_NO.title.name	string
+nb_NO.title.share	string
 sv_SE.address	format "{/geo.SE.address as a}{a}"	reads geo.SE.address
 sv_SE.address.locality	string
 sv_SE.address.postal-code	string
