@@ -783,3 +783,12 @@ Ruling: same
 |---|---|---|---|---|---|
 | Mid A | same | same | same | same | same |
 | Inherited architect | same | same | same | same | same |
+
+## 2026-10-21T09:37:39Z, PR #240 at 1fe0c57, against b1537e7
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | same | same | same |
