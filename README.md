@@ -476,9 +476,17 @@ segments below that. It needs no index. Each shipped module carries one, so
 Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
 `username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
-`samordningsnummer`, `organisationsnummer` and `vat`; `en_US` adds `ssn`, `itin` and
+`samordningsnummer`, `organisationsnummer`, `vat`, `company-invented` and `company-word`;
+`en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code). A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
+`sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025: aktiebolag,
+enskild näringsidkare (no suffix), handelsbolag, bostadsrättsförening, ekonomisk förening and
+kommanditbolag, written as the register's active companies write theirs, such as `Handelsbolag`
+in full. Branches of foreign companies and ideella föreningar don't ship. The name takes a shape
+the register's names take, such as an invented word and a trade word, or a surname and a trade word.
+`company-word` holds the words that 100 or more of the register's names repeat, and
+`company-invented` the made-up ones, so a name is invented and may be a real company's.
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
@@ -1384,6 +1392,7 @@ and `names-us.py` rejects a client for a while after a burst, so `--surnames` ta
 a copy of the surname file:
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py

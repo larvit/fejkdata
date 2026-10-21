@@ -1,12 +1,94 @@
 {
-  "format": "{base} {suffix}",
-  "base": [
-    {
-      "format": "{a}{b}",
-      "a": ["Berg", "Blå", "Eko", "Fjäll", "Grön", "Järn", "Nord", "Ny", "Sjö", "Skog", "Sol", "Sten", "Stor", "Syd", "Söder", "Trä", "Vind", "Väst", "Ås", "Öst"],
-      "b": ["bygg", "data", "design", "energi", "frakt", "gruppen", "handel", "konsult", "kraft", "logistik", "media", "produkter", "system", "teknik", "verkstad", "vård"]
-    },
-    ["Aktiebolaget Vega", "Bröderna Lund", "Ekonomihuset", "Hantverkargruppen", "Lindberg", "Mälardalens Bygg", "Nordström", "Skandinaviska Handelshuset", "Sundbergs Verkstad", "Svensson & Co", "Vasa Logistik"]
+  "format": "{form}",
+  "form": [
+    { "format": "{.company.ab}", "weight": 50859 },
+    { "format": "{.company.e}", "weight": 8468 },
+    { "format": "{.company.hb}", "weight": 1557 },
+    { "format": "{.company.brf}", "weight": 398 },
+    { "format": "{.company.ek}", "weight": 319 },
+    { "format": "{.company.kb}", "weight": 176 }
   ],
-  "suffix": [{ "format": "AB", "weight": 4 }, "HB", "KB"]
+  "ab": {
+    "format": "{name} {legal}",
+    "name": [
+      { "format": "{.company-invented} {.company-word}", "weight": 177391 },
+      { "format": "{.company-invented}", "weight": 144872 },
+      { "format": "{.company-invented} {.company-invented}", "weight": 101170 },
+      { "format": "{.company-invented} {.company-invented} {.company-word}", "weight": 21382 },
+      { "format": "{.company-invented} i {/geo.SE.locality}", "weight": 14756 },
+      { "format": "{.company-invented} {.company-invented} {.company-invented}", "weight": 13617 },
+      { "format": "{.company-invented} {.company-word} {.company-word}", "weight": 11988 },
+      { "format": "{.first-name} {.last-name} {.company-word}", "weight": 10234 },
+      { "format": "{.last-name} {.company-word}", "weight": 10220 }
+    ],
+    "legal": [{ "format": "AB", "weight": 749669 }, { "format": "Aktiebolag", "weight": 61128 }]
+  },
+  "e": [
+    { "format": "{.company-invented} {.company-word}", "weight": 35836 },
+    { "format": "{.company-invented}", "weight": 34478 },
+    { "format": "{.company-invented} {.company-invented}", "weight": 32965 },
+    { "format": "{.company-invented} {.company-invented} {.company-invented}", "weight": 5310 },
+    { "format": "{.company-invented} {.company-invented} {.company-word}", "weight": 5075 },
+    { "format": "{.company-invented} {.company-word} & {.company-word}", "weight": 3724 },
+    { "format": "{.company-word} {.company-invented}", "weight": 3482 },
+    { "format": "{.company-invented} {.first-name} {.last-name}", "weight": 3083 },
+    { "format": "{.first-name} {.company-invented}", "weight": 3061 },
+    { "format": "{.first-name} {.last-name} {.company-word}", "weight": 2559 },
+    { "format": "{.last-name} {.company-word}", "weight": 2490 }
+  ],
+  "hb": {
+    "format": "{wording}",
+    "name": [
+      { "format": "{.company-invented}", "weight": 5046 },
+      { "format": "{.company-invented} {.company-word}", "weight": 4091 },
+      { "format": "{.company-invented} {.company-invented}", "weight": 3620 },
+      { "format": "{.company-word} {.company-invented}", "weight": 833 },
+      { "format": "{.company-invented} {.company-invented} {.company-word}", "weight": 514 },
+      { "format": "{.company-invented} {.company-invented} {.company-invented}", "weight": 503 },
+      { "format": "{.company-invented} i {/geo.SE.locality}", "weight": 400 }
+    ],
+    "wording": [{ "format": "{.company.hb.name} Handelsbolag", "weight": 23301 }, { "format": "Handelsbolaget {.company.hb.name}", "weight": 1945 }]
+  },
+  "kb": {
+    "format": "{wording}",
+    "name": [
+      { "format": "{.company-invented}", "weight": 1754 },
+      { "format": "{.company-invented} {.company-word}", "weight": 1515 },
+      { "format": "{.company-invented} {.company-invented}", "weight": 1424 },
+      { "format": "{.company-invented} {int(1,30)}", "weight": 562 },
+      { "format": "{.company-invented} {.company-invented} {int(1,30)}", "weight": 280 },
+      { "format": "{.company-invented} {.company-invented} {.company-invented}", "weight": 250 },
+      { "format": "{.company-word} {.company-invented}", "weight": 231 },
+      { "format": "{.company-invented} i {/geo.SE.locality}", "weight": 199 },
+      { "format": "{.company-invented} {.company-invented} {.company-word}", "weight": 178 }
+    ],
+    "wording": [{ "format": "{.company.kb.name} Kommanditbolag", "weight": 8793 }, { "format": "Kommanditbolaget {.company.kb.name}", "weight": 1699 }]
+  },
+  "brf": {
+    "format": "Bostadsrättsföreningen {name}",
+    "name": [
+      { "format": "{.company-invented}", "weight": 8405 },
+      { "format": "{.company-invented} {int(1,30)}", "weight": 6820 },
+      { "format": "{.company-invented} i {/geo.SE.locality}", "weight": 1925 },
+      { "format": "{.company-invented} {.company-invented}", "weight": 1900 },
+      { "format": "{.company-invented} {.company-invented} {int(1,30)}", "weight": 1527 },
+      { "format": "{.company-invented} {int(1,30)} i {/geo.SE.locality}", "weight": 610 },
+      { "format": "{.company-invented}, {/geo.SE.locality}", "weight": 419 }
+    ]
+  },
+  "ek": {
+    "format": "{name} {legal}",
+    "name": [
+      { "format": "{.company-invented} {.company-invented}", "weight": 2809 },
+      { "format": "{.company-invented}", "weight": 1251 },
+      { "format": "{.company-invented} {.company-invented} {.company-invented}", "weight": 537 },
+      { "format": "{.company-invented} {.company-word}", "weight": 527 },
+      { "format": "{/geo.SE.locality} {.company-invented}", "weight": 266 },
+      { "format": "{.company-invented} {/geo.SE.locality}", "weight": 179 },
+      { "format": "{.company-invented} i {/geo.SE.locality}", "weight": 167 },
+      { "format": "{.company-word} {.company-invented}", "weight": 135 },
+      { "format": "{.company-invented} {int(1,30)}", "weight": 132 }
+    ],
+    "legal": [{ "format": "ekonomisk förening", "weight": 6968 }, { "format": "ek. för.", "weight": 1682 }]
+  }
 }
