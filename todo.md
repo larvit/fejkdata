@@ -290,7 +290,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
-The decision in `docs/decisions.md` (2026-10-21) gives the scope and the release. The work: write the test first, with its expected values taken from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`; add the 129 entries to `asciiFolds`; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The change also adds "change what a builtin returns for an input" to the Major column of the Data format row in README.md's Versioning table, since after `v1.0.0` that change is major.
+The decision in `docs/decisions.md` (2026-10-21) gives the scope and the release. The work: write the test first, with its expected values taken from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`, less `ŉ` and `×`; add the 129 entries to `asciiFolds`; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The change also adds "change what a builtin returns for an input" to the Major column of the Data format row in README.md's Versioning table, since after `v1.0.0` that change is major.
 
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
