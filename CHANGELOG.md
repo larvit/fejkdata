@@ -14,11 +14,12 @@ replacement, and each removed path, column or flag.
   [Install](https://github.com/larvit/fejkdata#install) lists each command.
 - The README's [quick starts](https://github.com/larvit/fejkdata#quick-start) for bulk fixtures and Go tests each render one person whose name, sex,
   personnummer, email and address agree.
-- `sv_SE.organisationsnummer`, a Luhn-valid organisation number whose first digit is the
-  group digit Bolagsverket gives aktiebolag (5), handelsbolag and kommanditbolag (9) and
-  föreningar (7, 8), and `sv_SE.vat`, `SE` + that number + `01`. A bound
-  organisationsnummer's `vat` is its own number's. A drawn number may belong to a real
-  organisation, and a VAT number passes the format and checksum, not a VIES lookup.
+- `sv_SE.organisationsnummer`, a Luhn-valid Swedish organisation number such as
+  `556047-3521`. Its first digit is the group digit Bolagsverket gives aktiebolag (5),
+  handelsbolag and kommanditbolag (9) or föreningar (7, 8). A drawn number may belong to
+  a real organisation. Its `vat` field is that organisation's VAT number.
+- `sv_SE.vat`, `SE`, an organisation number's ten digits and `01`. It passes the format
+  and the checksum, not a VIES lookup.
 
 ## [0.1.2] - 2026-10-20
 
