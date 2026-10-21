@@ -114,6 +114,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge
 - CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag
 - A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
+- A `slugify` transform makes compound names valid in emails, rather than a name table without compound names
 
 # Scoring run
 
