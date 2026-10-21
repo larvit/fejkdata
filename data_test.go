@@ -174,12 +174,11 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 }
 
 // TestSwedishOrganisationsnummer checks Bolagsverket's group digits (5 aktiebolag, 9 handelsbolag
-// and kommanditbolag, 7 and 8 föreningar), that digits three and four are 20 or more, which tells it
-// from a personnummer, the Luhn check digit, and that sv_SE.vat is SE, the ten digits and 01.
+// and kommanditbolag, 7 and 8 föreningar) weighted by its 2025 registrations, that digits three and
+// four are 20 or more, which tells it from a personnummer, and the Luhn check digit.
 func TestSwedishOrganisationsnummer(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^[5789]\d[2-9]\d{3}-\d{4}$`)
-	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
 	group := map[byte]int{}
 	for i := 0; i < 5000; i++ {
 		v := fake(t, sv, "sv_SE.organisationsnummer")
@@ -187,13 +186,27 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 			t.Fatalf("organisationsnummer %q, want G?[2-9]???-????, group digit 5, 7, 8 or 9, Luhn-valid", v)
 		}
 		group[v[0]]++
+	}
+	if group['5'] < 4690 || group['5'] > 4840 || group['9'] <= group['7'] || group['9'] <= group['8'] || group['7'] == 0 || group['8'] == 0 {
+		t.Fatalf("group digits drawn %v, want 5 for 95.3%%, 9 for 3.2%% and 7 and 8 for 0.7%% each", group)
+	}
+}
+
+// TestSwedishVat checks that sv_SE.vat is SE, a Luhn-valid organisationsnummer's ten digits and 01,
+// and that the VAT number of a bound organisationsnummer is that number's own.
+func TestSwedishVat(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
+	for i := 0; i < 2000; i++ {
 		n := fake(t, sv, "sv_SE.vat")
 		if m := vat.FindStringSubmatch(n); m == nil || !luhnValid(m[1]) {
 			t.Fatalf("sv_SE.vat %q, want SE + a Luhn-valid organisationsnummer + 01", n)
 		}
-	}
-	if group['5'] < 4500 || group['9'] == 0 || group['7'] == 0 || group['8'] == 0 {
-		t.Fatalf("group digits drawn %v, want 5 for almost all and every other digit now and then", group)
+		pair := fakeTemplate(t, sv, "{/sv_SE.organisationsnummer as o}{o}|{o.vat}")
+		nr, v, _ := strings.Cut(pair, "|")
+		if v != "SE"+strings.ReplaceAll(nr, "-", "")+"01" {
+			t.Fatalf("a bound organisationsnummer %q has the VAT number %q, want SE + its digits + 01", nr, v)
+		}
 	}
 }
 
