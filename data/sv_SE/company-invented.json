@@ -1,0 +1,5 @@
+{
+  "format": "{a}{b}",
+  "a": ["Berg", "Blå", "Eko", "Fjäll", "Grön", "Järn", "Nord", "Ny", "Sjö", "Skog", "Sol", "Sten", "Stor", "Syd", "Söder", "Trä", "Vind", "Väst", "Ås", "Öst"],
+  "b": ["berg", "dal", "fors", "holm", "hus", "lund", "näs", "ström", "sund", "vik", "äng", "ö"]
+}

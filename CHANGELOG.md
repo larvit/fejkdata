@@ -6,6 +6,14 @@ replacement, and each removed path, column or flag.
 
 ## [Unreleased]
 
+### Breaking
+
+- `sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025 and
+  builds its name from the shapes the register's names take. Its fields `base` and `suffix`
+  are gone, and its weights, its values and what a seed draws change: a handelsbolag now
+  ends `Handelsbolag`, not `HB`, as the register writes it. It reads `sv_SE.first-name`,
+  `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
+
 ### Added
 
 - Prebuilt binaries for Linux, macOS and Windows on amd64 and arm64, packages for apt,
@@ -20,6 +28,8 @@ replacement, and each removed path, column or flag.
   a real organisation. Its `vat` field is that organisation's VAT number.
 - `sv_SE.vat`, `SE`, an organisation number's ten digits and `01`. It passes the format
   and the checksum, not a VIES lookup.
+- `sv_SE.company-word`, the words that 100 or more of Bolagsverket's active companies' names
+  repeat, and `sv_SE.company-invented`, made-up name words.
 
 ## [0.1.2] - 2026-10-20
 
