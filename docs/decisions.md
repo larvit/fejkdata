@@ -1110,17 +1110,18 @@ Valid while every non-ASCII letter of a shipped first or last name has an entry 
 table, which a test that ships with item 338 checks, and RFC 5322 keeps letters, digits and
 `-` in atext.
 
-## `ascii` folds every Latin letter of ruby-i18n's default table, so names such as `Wałęsa` keep their letters
+## `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 
 2026-10-21, Lilleman auf Larv. Serves goal 4.3.
 
 `ascii` drops a letter it has no entry for: `Wałęsa` becomes `Wasa`. A name that loses letters
-does not look real, and goal 4.3 asks that values look real. The table takes 130 more entries,
+does not look real, and goal 4.3 asks that values look real. The table takes 129 more entries,
 so `ascii` and `slugify` keep those letters: the letters beyond Latin-1 that ruby-i18n's default
 transliteration table has, from Latin Extended-A, part of Latin Extended-B, and `ẞ`, the capital
-sharp s. `ŉ` maps to `'n`, as the table gives it.
+sharp s. `ŉ` stays out, since its approximation `'n` carries an apostrophe: an entry maps a
+letter to letters only.
 
-The 130 entries are read from ruby-i18n's default transliteration table
+The 129 entries are read from ruby-i18n's default transliteration table
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
 The change alters what `ascii` returns for those letters, so it changes what exists. Before
@@ -1131,4 +1132,5 @@ says. It ships in `0.2.0` and is named in the changelog
 
 The work is `todo.md` item 340.
 
-Valid while `ascii`'s table holds only letters from ruby-i18n's default table.
+Valid while every entry of `ascii`'s table maps letters to letters and comes from ruby-i18n's
+default table.
