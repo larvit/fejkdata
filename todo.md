@@ -214,7 +214,7 @@
 | 161 | 0.3.0 |  |  | **Let a field whose name starts or ends with whitespace be bound to a name, or refuse such an identifier, so `{ x as p}` means one thing.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 1 | 1.7 |
 | 18 | 0.3.0 |  |  | **Give the address records one column set across countries: `region` and `municipality` as columns on `geo.SE.address` too.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.6 |
 | 29 | 0.3.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.6 |
-| 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names a script as it does for every sourced table.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.2 |
+| 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.2 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.1 |
 | 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 1.1 |
 | 56 | 0.3.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 1.1 |
@@ -929,9 +929,9 @@ Each Land publishes its own address data. Where open registers cover every Land,
 
 Require the path step to reach a sibling category.
 
-### 342. Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names a script as it does for every sourced table.
+### 342. Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.
 
-README.md's Data section sets this: where a script under `data-import/` reads a source, it rebuilds the table, and elsewhere a hand-written set ships until the plan replaces it (goal 3.2). The 264-row table, with the columns `area`, `ndc`, `name` and `subscriber`, was extracted once from PTS's PDF "The Swedish numbering plan for telephony according to ITU-T E.164", 2024-01-08 (https://pts.se/globalassets/globala-block/nummertillstand/the-swedish-numbering-plan-for-telephony-according-to-itu---2024-01-08.pdf). Each of its rows reads `<ndc> (NDC) <max> <min> Geographic number - Area code for <name>`, and the subscriber range is min and max minus the NDC's length.
+The README's Data section says a script under `data-import/` rebuilds a sourced table, and that elsewhere a hand-written set ships until the plan replaces it (goal 3.2). The 264-row table, with the columns `area`, `ndc`, `name` and `subscriber`, was extracted once from PTS's PDF "The Swedish numbering plan for telephony according to ITU-T E.164", 2024-01-08 (https://pts.se/globalassets/globala-block/nummertillstand/the-swedish-numbering-plan-for-telephony-according-to-itu---2024-01-08.pdf). Each of its rows reads `<ndc> (NDC) <max> <min> Geographic number - Area code for <name>`, and the subscriber range is min and max minus the NDC's length.
 
 That extraction used pypdf, but the `data-import/` scripts use the standard library only. So the item first settles how the script reads the PDF, or a text export of it. Take PTS's newer plan, `nrplansammanstallning-2026-02-04`, if it can be fetched past its Radware check. [Source research](docs/research/research-sources-se.md) §3 has the source notes.
 
