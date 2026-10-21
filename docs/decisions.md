@@ -1069,15 +1069,15 @@ built.
 
 `{slugify(x)}` applies four steps, in order:
 
-1. Apply `ascii`. It gives a letter with a diacritic its base letter (`ö` to `o`, `å` to `a`,
-   `à` to `a`) and a ligature its letters (`ß` to `ss`, `æ` to `ae`), and it drops a rune it
-   has no entry for.
+1. Fold each letter by the table `ascii` uses: a letter with a diacritic becomes its base
+   letter (`ö` to `o`, `å` to `a`, `à` to `a`), and a ligature its letters (`ß` to `ss`, `æ`
+   to `ae`). Where `ascii` drops a rune with no entry, this step changes it to `-`.
 2. Lowercase what is left.
 3. Keep `a` to `z` and `0` to `9`; change every other character to `-`.
 4. Collapse each run of `-` into one, and trim `-` from both ends.
 
-So `Anna Lena` slugs to `anna-lena`, `Åsa Öberg` to `asa-oberg`, `O'Brien` to `o-brien`, and
-`日本` to the empty string. A slug keeps no `.`, so the only `.` in an address is the one
+So `Anna Lena` slugs to `anna-lena`, `Åsa Öberg` to `asa-oberg`, `O'Brien` to `o-brien`,
+`Jean–Luc` (with an en dash) to `jean-luc`, and `日本` to the empty string. A slug keeps no `.`, so the only `.` in an address is the one
 joining two slugs.
 
 The steps follow python-slugify, which replaces each run it does not keep with a hyphen,
@@ -1085,12 +1085,12 @@ lowercases, and strips hyphens from both ends
 ([python-slugify](https://github.com/un33k/python-slugify/blob/master/slugify/slugify.py)),
 and Rails' `parameterize`, which replaces with its separator and downcases
 ([Rails](https://api.rubyonrails.org/classes/ActiveSupport/Inflector.html)). Django's
-`slugify` removes such characters instead
+`slugify` removes punctuation instead and turns whitespace into a dash
 ([Django](https://docs.djangoproject.com/en/stable/ref/utils/#django.utils.text.slugify)), and
 this decision does not take that rule. cocur/slugify spells `ä` as `ae` by default
 ([cocur/slugify](https://github.com/cocur/slugify)); this decision takes the base letter, as
-`ascii` does. The approximations `ascii` gives 36 letters and ligatures match those of Rails'
-I18n default table, checked for each of the 36
+`ascii` does. The entries of `ascii`'s table match the approximations of Rails' I18n default
+table: all 64 entries checked agree
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
 Every character a slug holds is unreserved under
@@ -1105,5 +1105,5 @@ in its data, since `slugify` adds no table of its own.
 
 The work is `todo.md` item 338.
 
-Valid while every name a template slugifies uses only letters `ascii` has an entry for, and
-RFC 5322 keeps letters, digits and `-` in atext.
+Valid while every non-ASCII letter of a shipped name has an entry in `ascii`'s table, which a
+test that ships with item 338 checks, and RFC 5322 keeps letters, digits and `-` in atext.
