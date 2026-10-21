@@ -8,6 +8,7 @@ import (
 	geose "github.com/larvit/fejkdata/data/geo/SE"
 	geous "github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
+	nbno "github.com/larvit/fejkdata/data/nb_NO"
 	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
@@ -15,5 +16,5 @@ import (
 
 // Modules returns every module fejkdata ships, to pass to fejkdata.WithDataFS.
 func Modules() []fs.FS {
-	return []fs.FS{enus.FS, geose.FS, geous.FS, misc.FS, svse.FS}
+	return []fs.FS{enus.FS, geose.FS, geous.FS, misc.FS, nbno.FS, svse.FS}
 }
