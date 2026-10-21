@@ -32,11 +32,12 @@ func TestPackageImports(t *testing.T) {
 		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 		"cli":                  {"."},
 		"cmd/fejkdata":         {"cli", "data"},
-		"data":                 {"data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/sv_SE"},
+		"data":                 {"data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/nb_NO", "data/sv_SE"},
 		"data/en_US":           {"data/geo/US"},
 		"data/geo/SE":          nil,
 		"data/geo/US":          nil,
 		"data/misc":            nil,
+		"data/nb_NO":           nil,
 		"data/sv_SE":           {"data/geo/SE"},
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/datafiles":   {"internal/grammar", "internal/jsonvalue"},
@@ -49,12 +50,13 @@ func TestPackageImports(t *testing.T) {
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	testsAlso := map[string][]string{
-		".":           {"data", "data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/sv_SE"},
+		".":           {"data", "data/en_US", "data/geo/SE", "data/geo/US", "data/misc", "data/nb_NO", "data/sv_SE"},
 		"cli":         {"internal/grammar"},
 		"data/en_US":  {"."},
 		"data/geo/SE": {"."},
 		"data/geo/US": {"."},
 		"data/misc":   {"."},
+		"data/nb_NO":  {"."},
 		"data/sv_SE":  {"."},
 	}
 	seen := map[string]bool{}
