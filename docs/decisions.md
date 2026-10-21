@@ -1131,4 +1131,4 @@ says, so it ships in `0.2.0`, named in the changelog
 
 The work is `todo.md` item 340.
 
-Valid while, before `v1.0.0`, a minor may change what a builtin returns.
+Valid while `asciiFolds` holds the letters of ruby-i18n's default table and no others, with `×` left out.
