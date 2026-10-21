@@ -315,6 +315,8 @@ sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
+sv_SE.organisationsnummer	format "{group}{digits(1)}{int(2,9)}{digits(3)}-{digits(3)}{luhn()}"
+sv_SE.organisationsnummer.group	string
 sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
 sv_SE.person.first	string
 sv_SE.person.last	string
@@ -354,6 +356,7 @@ sv_SE.url.host	string
 sv_SE.url.path	string
 sv_SE.username
 sv_SE.username.n
+sv_SE.vat	format "SE{.organisationsnummer.group}{digits(1)}{int(2,9)}{digits(3)}{digits(3)}{luhn()}01"	reads sv_SE.organisationsnummer
 sv_SE.version	format "{pre}{n}.{n}.{n}{suffix}"
 sv_SE.version.n	string
 sv_SE.version.pre	string
