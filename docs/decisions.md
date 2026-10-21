@@ -1124,7 +1124,9 @@ All 64 entries `ascii` has already agree with that table, and the 130 are read f
 file ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
 The change alters what `ascii` returns for those letters, so it changes what exists. Before
-`v1.0.0` a minor is the breaking unit, so it ships in `0.2.0`, named in the changelog
+`v1.0.0` a minor carries that, as
+[A change to what exists is a major; a minor only adds](#a-change-to-what-exists-is-a-major-a-minor-only-adds)
+says, so it ships in `0.2.0`, named in the changelog
 ([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
 
 The work is `todo.md` item 340.
