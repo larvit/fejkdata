@@ -105,8 +105,8 @@ In [docs/decisions.md](docs/decisions.md):
 - A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 - comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge
 - The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
-- Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
-- Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
+- Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
+- Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 - The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
 - A country with no open address register covering it whole ships its places and postal codes without streets
 - The apt, dnf and apk repositories are static files on GitHub Pages, holding the latest release only

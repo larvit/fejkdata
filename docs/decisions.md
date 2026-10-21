@@ -4,7 +4,7 @@
 
 2026-09-20, Lilleman auf Larv.
 
-Goal 1 wants the usage the tool earns and goal 3 expects extenders who did not write it;
+Goal 1 wants the usage the tool earns and code health expects extenders who did not write it;
 both need a stranger to file an issue and open a pull request. Gitea has no anonymous
 issue, and no cross-host pull request at all, so a contributor would need an account and
 a fork on a personal instance. Valid while the project wants contribution from outside.
@@ -24,7 +24,7 @@ while the maintainer keeps a Gitea copy.
 Goal 1 is what a developer choosing a library reads first, and the package doc is that
 page: the glossary would fill two thirds of it with the render path's units, mostly
 unexported, and Go doc comments have no code markup, so every name would render its
-backticks literally. Below the clause it reaches goal 3's reader — who opens the file —
+backticks literally. Below the clause it reaches code health's reader — who opens the file —
 and nothing else. Valid while the glossary's subject is the render path; one written to
 teach the exported API belongs above the clause.
 
@@ -71,7 +71,7 @@ struct tags and any other caller read one.
 
 ## The CLI renders exactly the template on its stdin, and adds nothing
 
-2026-10-07, Lilleman auf Larv. Serves goals 7, 7.1 and 7.2.
+2026-10-07, Lilleman auf Larv. Serves goals 6, 6.1 and 6.2.
 
 The template comes from stdin, from `echo`, a file or a heredoc, so one command line gets
 a value and a quoted heredoc needs no escape. A format string is stdin's every byte, and
@@ -86,7 +86,7 @@ Stdin holding only whitespace is a format string, and renders as sent.
 A lone reference, `{/users}` or `"{/users}"`, names the record `users` under `--format`,
 one newline after it allowed, with `users` the default `--table`; one to nothing there
 exits 1. `todo.md` item 129 moves that reading into the library; until then it works
-against goal 3.2.
+against code health.
 
 The CLI takes no argument but its flags: one is misuse naming the spelling that reads what
 it likely means, `fejkdata < FILE` for a file's name, dropping it for `-`, and the template
@@ -96,7 +96,7 @@ template per run.
 
 ## The CLI reads only the library's public API
 
-2026-10-07, Lilleman auf Larv; revised 2026-10-11 to name package `cli`. Serves goal 9.6: a
+2026-10-07, Lilleman auf Larv; revised 2026-10-11 to name package `cli`. Serves goal 8.6: a
 CLI carrying your own modules is a few lines of Go over `cli.Main` and works just like
 `fejkdata`. `cli`'s non-test code imports nothing under `internal/`, so whatever the CLI
 does, a program of your own can do through the public API. Until `todo.md` item 129 moves
@@ -119,7 +119,7 @@ Padding is where the two readings disagree: a format string renders it, JSON dro
 template that parses as a JSON object, array, string or `null` is its JSON, so its padding
 is dropped, as `encoding/json` drops it. `null` stays JSON, since it is how a template
 renders nothing. A bare number or boolean gains nothing from the JSON reading, so it is a
-format string, and `echo 42` prints its newline as `echo x` does (goal 5.1).
+format string, and `echo 42` prints its newline as `echo x` does (goal 4.1).
 
 ## `FakeTemplate` and `NewTemplate` both stay
 
@@ -139,7 +139,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 6.2, 7.3, 9 and 10.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.3.0. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 5.2, 6.3, 8 and 9.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.3.0. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -156,7 +156,7 @@ Valid while the shipped data stays under 100 MiB, which `TestShippedDataStaysUnd
 ## A shipped package's folder spells its namespace, its Go name is that namespace in lower case without separators, and its manifest mounts it with `namespace`
 
 2026-10-11, Lilleman auf Larv, from two benches of a Go test author, a data author and a
-custom-CLI builder. Serves goals 1 and 3.3. `sv_SE` ships in `data/sv_SE` as package
+custom-CLI builder. Serves goal 1 and code health. `sv_SE` ships in `data/sv_SE` as package
 `svse`, `en_US` in `data/en_US` as `enus`, `geo.SE` in `data/geo/SE` as `geose`, `geo.US` in
 `data/geo/US` as `geous`, and `misc` in `data/misc`: Go linters flag a capital or an
 underscore in a package name, and `SE.FS` read as a type, while a folder spelling its
@@ -171,7 +171,7 @@ so no path repeats it. Valid until a locale's lowered name clashes with another'
 
 2026-10-03, a restructure the maintainer approved; widened to any source on 2026-10-09.
 
-Goal 13: `New` pays nothing for a category a run never reaches. A manifest,
+Goal 12: `New` pays nothing for a category a run never reaches. A manifest,
 `.fejkdata.json` at a source's root, may carry an index: each category's parent table and
 the paths `List` advertises below it. A category of an indexed source loads with every
 category it references and its whole table family, and binds as a whole load does, so
@@ -180,14 +180,14 @@ module's manifest; `TestShippedManifestsAreCurrent` fails while one is stale. CI
 the whole shipped set, and each shipped category alone into a fresh `New`, so none fails
 at first reach.
 
-Goal 6: a source without an index loads whole in `New`, with every indexed category it
-reads, so each mistake in it is `New`'s error. Goal 6.3: an indexed source from anyone
+Goal 5: a source without an index loads whole in `New`, with every indexed category it
+reads, so each mistake in it is `New`'s error. Goal 5.3: an indexed source from anyone
 else may fail at first reach; the call then returns the load's error, matching
 `ErrLoad`, the same every call. An indexed category reading one that another source
 replaced fails the same way, at its first reach, when the replacement breaks it. The
 maintainer chose that on 2026-10-10 over loading in `New` every indexed category
 depending on a replaced one: three rounds of the comprehension panel ruled that rule
-harder to follow (goal 3), and it needed every entry to list what its templates read.
+harder to follow (code health), and it needed every entry to list what its templates read.
 
 A first reach checks only a table's `parent` against its entry, so a table loads with its
 parent and a failed load puts back whole. Proving the rest of an index is its author's,
@@ -198,7 +198,7 @@ Valid while CI proves the shipped set whole and each category alone.
 ## Every `{…}` draws afresh, and only a name keeps a pick
 
 2026-10-05, larv-review on the change the maintainer planned on 2026-10-03.
-Serves goals 5.2 and 4.1: each `{…}` makes a new pick, and values that belong together come
+Serves goals 4.2 and 3.1: each `{…}` makes a new pick, and values that belong together come
 from the one pick a name keeps.
 
 - `{p.a} {p.b}`, `{w} {uppercase(w)}`, `{/p.first} {/p.last}` and `{/p} {/p}` are two draws
@@ -206,9 +206,9 @@ from the one pick a name keeps.
   only load checks on draws are names, paths through names, cycles and the repeat cap.
 - `{x as n}` binds a reference, or a field of the template binding it or a path into one,
   `{place as p}`: an inline template, and a choice of rows inside one category, have no reference to
-  bind, and goal 4.1 holds there too.
+  bind, and goal 3.1 holds there too.
 
-Valid while goal 5.2 has each `{…}` make a new pick.
+Valid while goal 4.2 has each `{…}` make a new pick.
 
 ## Reference sigils follow the filesystem
 
@@ -236,12 +236,12 @@ release instead. Before `v1.0.0` a minor carries what a major would.
 
 2026-09-16, Lilleman auf Larv.
 
-Goal 6. A script branches on the exit code and reads the named path or spelling, so
+Goal 5. A script branches on the exit code and reads the named path or spelling, so
 those hold; wording improves in a minor.
 
 ## A load reports every mistake at once
 
-2026-09-30, Lilleman auf Larv. Goal 6. An author learns everything wrong with the data
+2026-09-30, Lilleman auf Larv. Goal 5. An author learns everything wrong with the data
 in one load, not one mistake per run: `New` and `NewTemplate` report every mistake in one
 error, ordered by the path each names. A mistake following only from another, such as a
 reference into a category that did not compile, is left out, so each one names something
@@ -249,7 +249,7 @@ to fix. Valid while a load checks the whole set before its first render.
 
 ## Formats are checked after all data is loaded, so their errors name the category
 
-2026-09-28, larv-review; approved 2026-09-28 by lilleman. Goal 3. Loading reads every
+2026-09-28, larv-review; approved 2026-09-28 by lilleman. Code health. Loading reads every
 file first, then connects references across them. A format holding a reference can only
 be checked once it is connected, so every format is checked then, and all checks run at
 one moment. An error from those checks names the category path you would type (`sub.x`),
@@ -271,7 +271,7 @@ convention of a minor is not followed.
 literal's values out to a lone long key, so no source satisfies both it and 1.22's. A
 consumer on the lowest supported Go depends on the code compiling and its tests passing
 there, which is the `portable` stage, and never runs `gofmt` over this source, so the
-latest toolchain alone defines the one canonical form goal 3 asks a reader to meet.
+latest toolchain alone defines the one canonical form code health asks a reader to meet.
 Valid while the lowest supported Go is not the latest.
 
 ## The changelog heading is the one spelling of a release; CI cuts the tag
@@ -296,7 +296,7 @@ references read. Accepted: overriding is the point of layering, the error names 
 reference and the field, and the fix is the consumer's file carrying the fields the
 shipped tree reads.
 
-A `--data-path` category replaces a shipped one without saying so, against goal 9.3, until `todo.md` item 181 ends it.
+A `--data-path` category replaces a shipped one without saying so, against goal 8.3, until `todo.md` item 181 ends it.
 
 ## The repeat cap bounds renders, not bytes
 
@@ -316,7 +316,7 @@ assumes a 64-bit int; on a 32-bit target it could overflow and panic.
 
 ## A constant zero divisor is a load error; in a string column a divisor that is not constant prints `Inf`
 
-2026-09-24, Lilleman auf Larv. Serves goal 6.1: a value that is always `NaN` or `Inf` is
+2026-09-24, Lilleman auf Larv. Serves goal 5.1: a value that is always `NaN` or `Inf` is
 no valid value.
 
 `1/0` and a fixed `"0"` field are decidable, so they join the never-numeric operand as a
@@ -325,7 +325,7 @@ and `c` varying loads and prints `Inf` every draw — catching it needs zero-abs
 algebra for a shape nobody writes. A [typed column](../README.md#datatype) bounds its operands
 instead and refuses a divisor it cannot keep from zero. In a string column, an operand that
 is sometimes not a number loads, and prints `NaN` on each draw where it is not one. `Inf`
-and `NaN` in a string column work against goals 6.1 and 4 until `todo.md` item 81
+and `NaN` in a string column work against goals 5.1 and 3 until `todo.md` item 81
 refuses them there too.
 
 ## Samples say what they emit, transforms what they do
@@ -356,8 +356,8 @@ not agree on one among themselves; each must only hold that type.
 
 The fields an embedded struct promotes are the struct's own — `e.First`, as
 `encoding/json` and SQL mappers read them — so they are columns of its record and share
-its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}` (goal 4.1),
-while a path tag draws afresh as `{/path}` does (goal 5.2).
+its names: one tag may bind `{/person as p}{p.first}` and another read `{p.sex}` (goal 3.1),
+while a path tag draws afresh as `{/path}` does (goal 4.2).
 
 A tagged field that
 another field hides is refused, not dropped. A named
@@ -370,7 +370,7 @@ handle is needed, as the cache already compiles once.
 
 ## A category may reference itself, and a record's fences run at load
 
-2026-09-16, Lilleman auf Larv; revised 2026-10-07. Serves goals 5.2 and 5.7.
+2026-09-16, Lilleman auf Larv; revised 2026-10-07. Serves goals 4.2 and 4.7.
 
 A reference back into a category, `{/users.first}` inside `users`, is a fresh draw, as
 every `{…}` is; only a cycle is refused. A record's column fences run at `New` too, so a category that loads renders as a value and as a record alike.
@@ -396,7 +396,7 @@ null renders `""`.
 
 ## A typed column holds one value, not composed text
 
-2026-09-15, Lilleman auf Larv. Serves goal 6.1: a typed column's values are proven valid at
+2026-09-15, Lilleman auf Larv. Serves goal 5.1: a typed column's values are proven valid at
 load, and composed text is not proven.
 
 Its bounds come from a literal or a call's arguments, so a load error names a real
@@ -414,7 +414,7 @@ over the one it reads: the one way to type a column someone else wrote.
 
 ## A typed column's calc is refused unless proven
 
-2026-09-15, Lilleman auf Larv. Serves goal 6.1, read as: a template fails to load where
+2026-09-15, Lilleman auf Larv. Serves goal 5.1, read as: a template fails to load where
 the loader cannot prove it renders no forbidden value.
 
 Operand bounds must keep each divisor from zero and the result finite; what they cannot
@@ -432,7 +432,7 @@ writes as the load check proved it; a `Value any` would hand every caller a type
 
 2026-09-29, Lilleman auf Larv.
 
-Goal 3 wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
+Code health wants a name to reach one unit: `drawMemo` is what a draw is kept in, `readValue` what
 a read drew.
 
 ## One name, one meaning
@@ -442,13 +442,13 @@ definition covers both: the same kind of value, counted or addressed the same wa
 reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
 `Generator`, `Template` and `RecordTemplate`. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
 name, since a search returns both and a call site shows no receiver; review judges the
-rest. Serves goal 3: names that tell the truth, and reaching the unit behind a symptom
-without asking a person. Decided 2026-09-25 by Lilleman; valid while goal 3 counts reading
+rest. Serves code health: names that tell the truth, and reaching the unit behind a symptom
+without asking a person. Decided 2026-09-25 by Lilleman; valid while code health counts reading
 cost.
 
 ## The performance gate asserts allocations, not wall-clock time
 
-2026-09-03, Lilleman auf Larv. Goal 13.
+2026-09-03, Lilleman auf Larv. Goal 12.
 
 `AllocsPerRun` is deterministic across machines, so a 10% ceiling does not flake under
 CI load, while time varies with the machine and its neighbours. A rendering slowdown
@@ -461,7 +461,7 @@ heap through `pickKey.under`, holds at its baseline with no margin: from a basel
 
 ## Rows live in a TSV, the shape in JSON
 
-2026-09-17, Lilleman auf Larv. Goals 8 and 13.
+2026-09-17, Lilleman auf Larv. Goals 7 and 12.
 
 `New` allocates once per node, so a register of thirty thousand rows written as JSON
 objects would cost it a second; a TSV is one allocation whose cells are substrings, and
@@ -495,7 +495,7 @@ accepted one changes, so the door stays open for the address records the plan de
 
 ## A selected row is fixed, not drawn
 
-Decided 2026-09-27 by the maintainer, for goals 4 and 5; valid while a selector names
+Decided 2026-09-27 by the maintainer, for goals 3 and 4; valid while a selector names
 exactly one row.
 
 Each selector reads the row it names: `{/misc.territory[SE].capital} / {/misc.territory[FI].capital}`
@@ -503,8 +503,8 @@ renders `Stockholm / Helsinki`, and two items of one choice may select different
 
 ## `..` steps up to the parent row, and a step down after it draws afresh, or once per name's pick
 
-2026-10-05, larv-review in PR #158. Serves goal 5.4, which has `..` go up one level, and goal
-5.2, which has each `{…}` make a new pick.
+2026-10-05, larv-review in PR #158. Serves goal 4.4, which has `..` go up one level, and goal
+4.2, which has each `{…}` make a new pick.
 
 - `..` names the parent table next, `city..country`, as a folder path names the folder it
   enters. `.country` after a row stays the link column's cell.
@@ -517,7 +517,7 @@ renders `Stockholm / Helsinki`, and two items of one choice may select different
 
 ## A table selects by one key column, a code, never a free-form name
 
-Decided 2026-09-27 by the maintainer, for goal 5.5: a name may repeat across rows or change
+Decided 2026-09-27 by the maintainer, for goal 4.5: a name may repeat across rows or change
 with its register, while a code selects one row for good. Valid while
 the key is the code a user writes, as a database keys a table. `country[NO]` loads, and
 `country[Norway]` is refused naming `[NO]`, found by the row whose cell spells the
@@ -572,7 +572,7 @@ rows twice, which is what a category over a register with two natural formats as
 
 2026-09-29, Lilleman auf Larv.
 
-Goal 4: facts that belong together come from one draw, so a shop row's `phone` cell reads
+Goal 3: facts that belong together come from one draw, so a shop row's `phone` cell reads
 `{/sv_SE.phone}` on a Swedish shop and `{/en_US.phone}` on a US one, and the table's
 format, the same for every row, cannot say that. Valid while a table's rows need
 generators of their own.
@@ -581,7 +581,7 @@ generators of their own.
 
 2026-09-17, Lilleman auf Larv.
 
-Goals 10 and 13: a path that fails moves no seeded stream, at the cost of one draw-free
+Goals 9 and 12: a path that fails moves no seeded stream, at the cost of one draw-free
 walk per call, compiling its steps into a stack buffer of 16. Valid while that walk
 costs little against the draw it guards.
 
@@ -598,18 +598,18 @@ when a source carries it.
 
 2026-09-24, Lilleman auf Larv; revised 2026-10-11, when the shipped data became Go packages,
 from a bench of a Go test author, a data author and a custom-CLI builder, 3 to 0. Serves
-goals 6.2 and 9.2. A locale's `address` reads its country's `geo` tree, so `svse` imports
+goals 5.2 and 8.2. A locale's `address` reads its country's `geo` tree, so `svse` imports
 `geose` and `svse.Modules()` returns both: the Go import graph states the dependency, and a
 program passing `Modules()` cannot leave the places out. `svse.FS` alone loads for a stand-in
 providing `geo.SE`'s paths, and without one `sv_SE.address` fails at first reach with
 `no entry "geo"`; until `todo.md` item 196 names the missing module in that error, the bare
-`FS` works against goal 6.2. Every package exports `Modules()`, so one spelling loads any of
+`FS` works against goal 5.2. Every package exports `Modules()`, so one spelling loads any of
 them; a data package imports only the packages it reads.
 
 ## The default embed holds every Swedish postort the import can place, with all its streets, and, of the US places that hold most of a postal code's land, every state capital, every place of 100,000 or more and a population-weighted tenth, each with a quarter of its streets, at least ten
 
 2026-10-11, Lilleman auf Larv; revised the same day, after a tenth of the streets gave
-Göteborg 163 and Stockholm 37. Goals 2 and 4.2: ten streets per place put 500 Stockholm
+Göteborg 163 and Stockholm 37. Goals 2 and 3.2: ten streets per place put 500 Stockholm
 customers on ten streets, and US places of 25,000 or more left out every town and
 village. `geo-us.py` draws with Efraimidis and Spirakis's weighted sampling. It draws
 only among places holding most of some ZCTA's land, since no other place can carry a
@@ -622,13 +622,13 @@ else by a name no other place in its state carries. No census-designated place s
 so Honolulu is the one capital missing. Every Swedish street is 174k rows; a quarter
 of the US streets 475k. On 2026-10-11 the embed grew from 5.2 MB to 16 MB, and a CLI
 run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
-`misc.territory` 3 ms, within goal 13. `--place-share`, `--street-share` and
+`misc.territory` 3 ms, within goal 12. `--place-share`, `--street-share` and
 `--min-streets` on the import scripts build another set. Valid while the first reach of
 a country stays unnoticed beside a test run.
 
 ## A locale's `address` binds its country's record once and prints it whole
 
-2026-09-18, Lilleman auf Larv; revised 2026-10-05. Goal 4.1.
+2026-09-18, Lilleman auf Larv; revised 2026-10-05. Goal 3.1.
 
 A record cannot read another whole and keep its columns, so `sv_SE.address` names the
 same four columns as `geo.SE.address`. Its format binds one name,
@@ -667,7 +667,7 @@ Table section teaches it.
 
 ## A layout is always quoted
 
-2026-09-18, Lilleman auf Larv. Serves goal 5.6.
+2026-09-18, Lilleman auf Larv. Serves goal 4.6.
 
 A layout may carry the comma that separates arguments,
 `'January 2, 2006'`. A bare `2006-01-02` reads like a third date, and a double-quoted
@@ -731,7 +731,7 @@ which says "Chinese, Mandarin" for `zh`.
 Where every territory row has a child the column is a `parent`, and the import drops the
 child rows whose territory the set does not ship — 17 of `misc.timezone`'s, Antarctica's
 ten among them. Agreement across a record is worth more than the last rows of a table
-(goal 4.1), as the maintainer confirmed on 2026-10-03.
+(goal 3.1), as the maintainer confirmed on 2026-10-03.
 Where no such link can hold the fact stays a column. Layer your own `misc.territory`
 over the shipped one and you must layer `misc.timezone` too, or the link fails at load
 naming the row.
@@ -750,7 +750,7 @@ frequency it is read, as `misc.timezone` reads GeoNames populations and
 2026-09-24, Lilleman auf Larv.
 
 The weight is the population GeoNames records in the zone's cities of 15,000 or more,
-floored at 15,000, which goal 4.3 asks for: over 300 seeded draws of
+floored at 15,000, which goal 3.3 asks for: over 300 seeded draws of
 `misc.territory[US].timezone`, the four zones most Americans live in took 278 where an
 even weight gave them 44, and `America/Indiana/Petersburg`, a town of 2,400, fell from 17
 to 0. Valid while a draw weighted this way lands where people live.
@@ -782,7 +782,7 @@ claim fejkdata has no business making.
 2026-09-27, Lilleman auf Larv.
 
 A flat list of names carries neither the code a PRI encodes nor a selector reaching it,
-and goal 4 draws the two as one fact. The canonical spelling losing to the one its
+and goal 3 draws the two as one fact. The canonical spelling losing to the one its
 domain writes, above, settles the rest: a configuration writes `info`, so RFC 5424's
 `Informational` stays the `severity` column.
 
@@ -857,7 +857,7 @@ the direct chain is the one a reader can predict from the tables' parents.
 
 2026-09-30, larv-review on the comprehension round the maintainer approved on 2026-09-29;
 replaces "The path walks are separate loops".
-Goals 3 and 13: `drawSteps` draws every path from its steps, compiled when templates resolve, by
+Code health and goal 12: `drawSteps` draws every path from its steps, compiled when templates resolve, by
 `compiledPath` or, for a caller's path, by `callerPathSteps` into a stack buffer. Both take each
 step through `compileStep`, and differ only at a choice: `compiledPath` walks every variant,
 `callerPathSteps` the first. On 2026-09-29 one loop over all three walks, switching on a mode field,
@@ -869,7 +869,7 @@ as one.
 
 ## A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
 
-2026-10-03, larv-review in PR #145; approved by Lilleman auf Larv. Goals 5.3 and 5.6.
+2026-10-03, larv-review in PR #145; approved by Lilleman auf Larv. Goals 4.3 and 4.6.
 `bindNames` scopes a name at compile, and a render keeps one `pickFrame` per scope. One
 field binds a name where another reads it, `"first": "{/person as p}{p.first}"` beside
 `"last": "{p.last}"`, so the scope cannot be the template holding the binding; the category
@@ -892,16 +892,16 @@ shadows another.
 The maintainer ruled so on 2026-10-09.
 
 A pick keeps only the levels a read of the name addresses, so a template draws the same way
-under a name as anywhere else (goal 5.2). A read of a name bound to a field stays in the
+under a name as anywhere else (goal 4.2). A read of a name bound to a field stays in the
 category's frames, since the field sits inside it.
 
 Valid while names are read only inside the category binding them.
 
 ## comprehension floor: every dimension and the overall at 7.0 or above is the target, and blocks no merge
 
-2026-10-04, Lilleman auf Larv. Serves goal 3 and applies KISS.
+2026-10-04, Lilleman auf Larv. Serves code health and applies KISS.
 
-2026-10-18, Lilleman auf Larv: the floor blocks no merge, matching `~/.claude`'s decision of 2026-10-13. Goal 3 weighs the work towards it, most while the overall is under 7.0, against the other goals in `todo.md`. The paragraphs below record how 0.1.0 shipped under the gate this replaces.
+2026-10-18, Lilleman auf Larv: the floor blocks no merge, matching `~/.claude`'s decision of 2026-10-13. Code health weighs the work towards it, most while the overall is under 7.0, against the other goals in `todo.md`. The paragraphs below record how 0.1.0 shipped under the gate this replaces.
 
 By the maintainer's decision of 2026-10-09, every 0.1.0 chunk ships under the floor, including the chunk that holds the release's scoring run, so that 0.1.0 can ship features. Items 170 to 175 and 177 move to 0.2.0. Item 178 plans first how item 107 regroups the engine. A paired ruling that rules worse still blocks a merge. Valid until 0.1.0 is cut.
 
@@ -911,13 +911,13 @@ Shipped under the floor as 0.1.0's distribution, each by the maintainer's decisi
 
 Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item 182, the shipped data as Go packages, at a632a92. Its last paired ruling against bf1becb was same overall, Mid A better and Junior A worse, with Shape fallen, three seats against the namespace mount in `internal/datafiles/mount.go` and the `at` field of `datafiles.Source`; the scoring run that would rule it worse under the floor was not run. `todo.md` item 197 replaces that mount.
 
-Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 5.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
+Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 4.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 
-The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while `AGENTS.md` gates goal 3 at 7.0.
+The scoring runs are in [the comprehension history](comprehension-history.md). The nine-seat panel at depth 1, run beside the scoring run of 2026-10-09 on commit b9d1af6: Navigation 7.33, Locality 6.17, Shape 6.67, Self-sufficiency 6.83, overall 6.67. Against the panel on ad59967, its overall rose from 6.56, its Navigation from 7.17, its Locality from 6.06 and its Self-sufficiency from 6.56, and its Shape held at 6.67. Locality is lowest again, as at every panel since 2026-09-22. All 13 seats of the two runs found the named-pick keep rule hardest to follow: `keptInPick` and `readUnder`, where a key `pickKey.under` builds at render must equal one `addressedKeys` built at load, with `readField` and `readName` around them. What the two runs found is filed in `todo.md`, and `todo.md` item 177 runs both again. Valid while `AGENTS.md` gates code health at 7.0.
 
 ## The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`
 
-2026-10-05, Lilleman auf Larv. Serves goals 3.2 and 3.4. Two architect reviews found the
+2026-10-05, Lilleman auf Larv. Serves code health. Two architect reviews found the
 engine's types, `template`, `table`, `arm`, `op` and `nameBinding`, bound in one cycle
 because several passes each write part of the same structs; the template language's
 recursion reads few of those types. Moving the engine while several resolve passes still
@@ -928,17 +928,17 @@ each sits in a package under `internal/`, behind the import list `imports_test.g
 A rows table holds the engine table owning it as a value of a type parameter, so
 `internal/rows` imports no engine type. Valid until `todo.md` item 107 moves the engine.
 
-## Goal 5.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
+## Goal 4.1's `{…}` covers `{{`, `}}` and a lone `}`, so the goal names no escape
 
-2026-10-05, Lilleman auf Larv. Serves goal 5.1: everything outside `{…}` prints exactly as
+2026-10-05, Lilleman auf Larv. Serves goal 4.1: everything outside `{…}` prints exactly as
 written. Yet `{{` prints `{`, `}}` prints `}`, and a lone `}` is a load error naming `}}`, as
 the README's Format string section states. The maintainer ruled the escape implicit in the
 goal: doubled braces and a lone `}` belong to the `{…}` syntax, so the goal names no escape and
 a lone `}` stays an error. Valid while a template escapes a brace by doubling it.
 
-## Goal 7.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
+## Goal 6.2 holds while a first template can be written with no escape; a literal brace still takes `{{` or `}}`
 
-2026-10-05, Lilleman auf Larv. Serves goal 7.2. Goals are aims: it is enough that a first
+2026-10-05, Lilleman auf Larv. Serves goal 6.2. Goals are aims: it is enough that a first
 template can be written with no escape and no options, as `echo 'name: {/sv_SE.person.last}' | fejkdata`
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
@@ -1055,13 +1055,13 @@ this, only items about adoption named it, such as the quick starts and the insta
 channels. Goal 1 weighs the most, so the data, the errors, the template features and the
 docs ranked as if they did nothing for it. Now an item names goal 1 by 1 to 3, beside its
 more specific goals, when its user sees the change: a category or a locale, a clearer
-error, a template feature or a doc. A refactor, a test or a process change moves goal 3 or
+error, a template feature or a doc. A refactor, a test or a process change moves code health or
 another goal, and names goal 1 only if its user sees a change. The maintainer noted that
 goal 1 may then be too broad. Valid while goal 1 asks for the best fake-data tool there is.
 
 ## A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds
 
-2026-10-21, Lilleman auf Larv. Serves goal 4.
+2026-10-21, Lilleman auf Larv. Serves goal 3.
 
 A compound name such as `Anna Lena` or `von Walden` keeps its space in the email that the
 quick starts build, which makes the address invalid. A transform fixes the address where it is
@@ -1112,10 +1112,10 @@ table, which a test that ships with item 338 checks, and RFC 5322 keeps letters,
 
 ## `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 
-2026-10-21, Lilleman auf Larv. Serves goal 4.3.
+2026-10-21, Lilleman auf Larv. Serves goal 3.3.
 
 `ascii` drops a letter it has no entry for: `Wałęsa` becomes `Wasa`. A name that loses letters
-does not look real, and goal 4.3 asks that values look real. The table takes 129 more entries,
+does not look real, and goal 3.3 asks that values look real. The table takes 129 more entries,
 so `ascii` and `slugify` keep the letters they now drop. The entries are the letters beyond
 Latin-1 in ruby-i18n's default transliteration table
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)),
