@@ -12,9 +12,9 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, with names weighted by how common
-  they are. Every Swedish postal town and a sample of US places ship, and each address
-  takes its street and postal code from one town ([Data](#data)).
+- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s people, with names
+  weighted by how common they are. Every Swedish postal town and a sample of US places
+  ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, which
   no real person holds; Swedish organisationsnummer and VAT numbers that pass the format
   and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
@@ -437,11 +437,11 @@ it runs from in its help and errors. `--no-shipped-data` leaves out the modules 
 ## Data
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/sv_SE`), one per
-country's tree of places (`data/geo/SE`, `data/geo/US`), and the locale-neutral
+its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/nb_NO`,
+`data/sv_SE`), one per country's tree of places (`data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`svse`, `enus`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is read from
-disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
+`svse`, `enus`, `nbno`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
 `sv_SE.person` and replaces the shipped one.
@@ -473,9 +473,11 @@ A manifest's `namespace` is the dot path its source's root sits under: a folder 
 segments below that. It needs no index. Each shipped module carries one, so
 `data/sv_SE/person.json` is `sv_SE.person`.
 
-Each locale carries `address`, `color`, `company`, `date`, `email`, `first-name`,
-`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`,
-`username`, `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
+`nb_NO`, Norwegian in the Bokmål standard, carries `first-name`, `last-name`, `person`,
+`sex` and `title` so far, and its `title` has no `parent`, like `sv_SE.title`. The other
+locales each carry `address`, `color`, `company`, `date`, `email`, `first-name`, `ip`,
+`last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
+`version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `company-coined`, `company-word`,
 `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
@@ -569,8 +571,8 @@ called: Greenland and Åland have codes of their own, and `misc.territory.countr
 names the state each belongs to — `DK` for Greenland, `FI` for Åland, and its own
 code for a sovereign one, or for one the register names no state for.
 
-`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, the
-SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, Statistics
+Norway, the SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` binds one first name and reads its sex through it, `{.first-name as n}` and
