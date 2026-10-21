@@ -1109,3 +1109,24 @@ The work is `todo.md` item 338.
 Valid while every non-ASCII letter of a shipped first or last name has an entry in `ascii`'s
 table, which a test that ships with item 338 checks, and RFC 5322 keeps letters, digits and
 `-` in atext.
+
+## `ascii` folds every Latin letter of ruby-i18n's default table, so names such as `Wałęsa` keep their letters
+
+2026-10-21, Lilleman auf Larv. Serves goal 4.
+
+`ascii` drops a letter it has no entry for, so `Wałęsa` loses its `ł` and `ę`, and `slugify`
+turns them into hyphens (`wa-sa`). The table takes 130 more entries: the letters beyond
+Latin-1 that ruby-i18n's default transliteration table has, from Latin Extended-A, part of
+Latin Extended-B, and `ẞ`, the capital sharp s. The symbol `×` stays out, since `ascii` folds
+letters. `ŉ` maps to `'n`, as the table gives it.
+
+All 64 entries `ascii` has already agree with that table, and the 130 are read from the same
+file ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
+
+The change alters what `ascii` returns for those letters, so it changes what exists. Before
+`v1.0.0` a minor is the breaking unit, so it ships in `0.2.0`, named in the changelog
+([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
+
+The work is `todo.md` item 340.
+
+Valid while, before `v1.0.0`, a minor may change what a builtin returns.
