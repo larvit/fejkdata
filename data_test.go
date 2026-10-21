@@ -173,6 +173,30 @@ func TestSwedishPersonNamesHaveNoTripleLetter(t *testing.T) {
 	}
 }
 
+// TestSwedishOrganisationsnummer checks Bolagsverket's group digits (5 aktiebolag, 9 handelsbolag
+// and kommanditbolag, 7 and 8 föreningar), that digits three and four are 20 or more, which tells it
+// from a personnummer, the Luhn check digit, and that sv_SE.vat is SE, the ten digits and 01.
+func TestSwedishOrganisationsnummer(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	re := regexp.MustCompile(`^[5789]\d[2-9]\d{3}-\d{4}$`)
+	vat := regexp.MustCompile(`^SE([5789]\d[2-9]\d{7})01$`)
+	group := map[byte]int{}
+	for i := 0; i < 5000; i++ {
+		v := fake(t, sv, "sv_SE.organisationsnummer")
+		if !re.MatchString(v) || !luhnValid(digitsOnly(v)) {
+			t.Fatalf("organisationsnummer %q, want G?[2-9]???-????, group digit 5, 7, 8 or 9, Luhn-valid", v)
+		}
+		group[v[0]]++
+		n := fake(t, sv, "sv_SE.vat")
+		if m := vat.FindStringSubmatch(n); m == nil || !luhnValid(m[1]) {
+			t.Fatalf("sv_SE.vat %q, want SE + a Luhn-valid organisationsnummer + 01", n)
+		}
+	}
+	if group['5'] < 4500 || group['9'] == 0 || group['7'] == 0 || group['8'] == 0 {
+		t.Fatalf("group digits drawn %v, want 5 for almost all and every other digit now and then", group)
+	}
+}
+
 // TestSwedishPersonnummer checks what the shape regex can't: the date is a real
 // calendar date, the birth number is Skatteverket's test series (238 female, 239
 // male), the trailing digit is a Luhn checksum over the other nine, and a
