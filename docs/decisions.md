@@ -1100,8 +1100,8 @@ is allowed in an email's local part. A local part may be a dot-atom
 ([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)). Then two non-empty
 slugs joined by `.` form a valid local part.
 
-A letter outside the table splits the name, so `Wałęsa` slugs to `wa-sa`; a name with no
-letter in the table slugs to the empty string. A locale whose names need such letters
+A letter outside the table splits the name at that letter; a name with no letter in the table
+slugs to the empty string. A locale whose names need such letters
 romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own.
 
 The work is `todo.md` item 338.
@@ -1112,23 +1112,23 @@ table, which a test that ships with item 338 checks, and RFC 5322 keeps letters,
 
 ## `ascii` folds every Latin letter of ruby-i18n's default table, so names such as `Wałęsa` keep their letters
 
-2026-10-21, Lilleman auf Larv. Serves goal 4.
+2026-10-21, Lilleman auf Larv. Serves goal 4.3.
 
-`ascii` drops a letter it has no entry for, so `Wałęsa` loses its `ł` and `ę`, and `slugify`
-turns them into hyphens (`wa-sa`). The table takes 130 more entries: the letters beyond
-Latin-1 that ruby-i18n's default transliteration table has, from Latin Extended-A, part of
-Latin Extended-B, and `ẞ`, the capital sharp s. The symbol `×` stays out, since `ascii` folds
-letters. `ŉ` maps to `'n`, as the table gives it.
+`ascii` drops a letter it has no entry for: `Wałęsa` becomes `Wasa`. A name that loses letters
+does not look real, and goal 4.3 asks that values look real. The table takes 130 more entries,
+so `ascii` and `slugify` keep those letters: the letters beyond Latin-1 that ruby-i18n's default
+transliteration table has, from Latin Extended-A, part of Latin Extended-B, and `ẞ`, the capital
+sharp s. `ŉ` maps to `'n`, as the table gives it.
 
-All 64 entries `ascii` has already agree with that table, and the 130 are read from the same
-file ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
+The 130 entries are read from ruby-i18n's default transliteration table
+([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
 The change alters what `ascii` returns for those letters, so it changes what exists. Before
 `v1.0.0` a minor carries that, as
 [A change to what exists is a major; a minor only adds](#a-change-to-what-exists-is-a-major-a-minor-only-adds)
-says, so it ships in `0.2.0`, named in the changelog
+says. It ships in `0.2.0` and is named in the changelog
 ([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
 
 The work is `todo.md` item 340.
 
-Valid while `asciiFolds` holds the letters of ruby-i18n's default table and no others, with `×` left out.
+Valid while `ascii`'s table holds only letters from ruby-i18n's default table.

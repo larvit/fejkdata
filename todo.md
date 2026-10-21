@@ -290,7 +290,7 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
-Decided on 2026-10-21 in `docs/decisions.md`: `ascii` takes the 130 letters that ruby-i18n's default transliteration table has and `ascii` lacks, as a minor before `v1.0.0` (0.2.0). The work: add those entries to `asciiFolds`, read from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`, leaving out `×`; write the test first, with its expected values taken from that file, so that it fails before the change; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The README's Transforms section needs no change, since it already says `ascii` folds Latin letters. The change also adds "change what a builtin returns for an input" to the Major column of the Data format row in README.md's Versioning table, since after `v1.0.0` that change is major.
+The decision in `docs/decisions.md` (2026-10-21) gives the scope and the release. The work: write the test first, with its expected values taken from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`; add the 130 entries to `asciiFolds`; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The change also adds "change what a builtin returns for an input" to the Major column of the Data format row in README.md's Versioning table, since after `v1.0.0` that change is major.
 
 ### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
