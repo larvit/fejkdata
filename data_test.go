@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"fmt"
 	"io/fs"
 	"math"
 	"os"
@@ -568,15 +569,7 @@ func TestShippedSwedishPhoneAreaIsPTSsWholePlan(t *testing.T) {
 		if area != "0"+ndc {
 			t.Errorf("area %s is not the trunk 0 and %s", area, ndc)
 		}
-		want := "digits-5-7"
-		switch {
-		case ndc == "8":
-			want = "digits-6-8"
-		case swedishPhoneShortest(ndc) == 8 && len(ndc) == 2:
-			want = "digits-6-7"
-		case len(ndc) == 3:
-			want = "digits-5-6"
-		}
+		want := fmt.Sprintf("digits-%d-%d", swedishPhoneShortest(ndc)-len(ndc), 9-len(ndc))
 		if subscriber != "{.phone-subscriber."+want+"}" {
 			t.Errorf("area %s draws %s, PTS allows %s", area, subscriber, want)
 		}
