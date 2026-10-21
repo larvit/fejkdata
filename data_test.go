@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"io/fs"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -191,45 +192,93 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 	}
 }
 
-// Bolagsverket's 2025 registrations: 50,859 aktiebolag, 8,468 enskilda näringsidkare, 1,557 handelsbolag, 398
-// bostadsrättsföreningar, 319 ekonomiska föreningar and 176 kommanditbolag. Of the active aktiebolag, 61,128
-// of 810,797 write "Aktiebolag" and the rest "AB".
+// Bolagsverket's new registrations of 2025: 50,859 aktiebolag, 8,468 enskilda näringsidkare, 1,557
+// handelsbolag, 398 bostadsrättsföreningar, 319 ekonomiska föreningar and 176 kommanditbolag. Each
+// expected share comes from those counts, and each bound is five standard deviations of a draw.
 func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
-	const draws = 40000
+	const draws = 400000
 	form := map[string]int{}
-	spelledOut := 0
 	for i := 0; i < draws; i++ {
-		v := fake(t, sv, "sv_SE.company")
+		v := strings.ToLower(fake(t, sv, "sv_SE.company"))
 		switch {
-		case strings.HasSuffix(v, " AB"):
+		case strings.HasSuffix(v, " ab"), strings.HasSuffix(v, " aktiebolag"):
 			form["AB"]++
-		case strings.HasSuffix(v, " Aktiebolag"):
-			form["AB"]++
-			spelledOut++
-		case strings.HasPrefix(v, "Bostadsrättsföreningen "):
+		case strings.HasPrefix(v, "bostadsrättsföreningen "):
 			form["BRF"]++
 		case strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."):
 			form["EK"]++
-		case strings.HasSuffix(v, " Handelsbolag"), strings.HasPrefix(v, "Handelsbolaget "):
+		case strings.HasSuffix(v, " handelsbolag"), strings.HasPrefix(v, "handelsbolaget "):
 			form["HB"]++
-		case strings.HasSuffix(v, " Kommanditbolag"), strings.HasPrefix(v, "Kommanditbolaget "):
+		case strings.HasSuffix(v, " kommanditbolag"), strings.HasPrefix(v, "kommanditbolaget "):
 			form["KB"]++
 		default:
 			form["E"]++
 		}
 	}
-	for _, c := range []struct {
-		form     string
-		lo, hi   float64
-		register int
-	}{{"AB", 81.0, 83.6, 50859}, {"E", 12.5, 15.0, 8468}, {"HB", 1.9, 3.2, 1557}, {"BRF", 0.3, 1.0, 398}, {"EK", 0.2, 0.9, 319}, {"KB", 0.05, 0.6, 176}} {
-		if got := float64(form[c.form]) * 100 / draws; got < c.lo || got > c.hi {
-			t.Errorf("%s drew %.2f%% of %d companies (%d), want %.1f%% to %.1f%%, the register's %d of 61,777", c.form, got, draws, form[c.form], c.lo, c.hi, c.register)
+	for f, registered := range map[string]int{"AB": 50859, "E": 8468, "HB": 1557, "BRF": 398, "EK": 319, "KB": 176} {
+		assertShare(t, f+" of the companies", form[f], draws, float64(registered)/61777)
+	}
+}
+
+// The register's active aktiebolag write AB 718,311 times and Aktiebolag 60,401; its handelsbolag write
+// Handelsbolag after the name 20,268 times, Handelsbolaget before it 1,526 and handelsbolag after it
+// 1,232; its kommanditbolag write Kommanditbolag after the name 7,885 times, Kommanditbolaget before it
+// 1,160 and kommanditbolag after it 387; its ekonomiska föreningar write Ekonomisk förening 3,730 times,
+// ekonomisk förening 3,166, ek. för. 1,022 and Ek. för. 587. A bostadsrättsförening is
+// Bostadsrättsföreningen and its name. 144,879 of the 552,375 aktiebolag names counted are one word.
+func TestSwedishCompanyWordingsAndShapesFollowTheRegister(t *testing.T) {
+	sv := shipped(t, WithSeed(2))
+	count := map[string]int{}
+	total := map[string]int{}
+	for i := 0; i < 400000; i++ {
+		v := fake(t, sv, "sv_SE.company")
+		switch {
+		case strings.HasSuffix(v, " AB"), strings.HasSuffix(v, " Aktiebolag"):
+			total["AB"]++
+			if strings.HasSuffix(v, " Aktiebolag") {
+				count["Aktiebolag"]++
+			}
+			if strings.Count(v, " ") == 1 {
+				count["one-word AB"]++
+			}
+		case strings.HasSuffix(v, " Handelsbolag"), strings.HasPrefix(v, "Handelsbolaget "), strings.HasSuffix(v, " handelsbolag"):
+			total["HB"]++
+			if strings.HasPrefix(v, "Handelsbolaget ") {
+				count["Handelsbolaget"]++
+			}
+			if strings.HasSuffix(v, " handelsbolag") {
+				count["handelsbolag"]++
+			}
+		case strings.HasSuffix(v, " Kommanditbolag"), strings.HasPrefix(v, "Kommanditbolaget "), strings.HasSuffix(v, " kommanditbolag"):
+			total["KB"]++
+			if strings.HasPrefix(v, "Kommanditbolaget ") {
+				count["Kommanditbolaget"]++
+			}
+		case strings.HasSuffix(v, " Ekonomisk förening"), strings.HasSuffix(v, " ekonomisk förening"), strings.HasSuffix(v, " ek. för."), strings.HasSuffix(v, " Ek. för."):
+			total["EK"]++
+			if strings.HasSuffix(v, " Ekonomisk förening") {
+				count["Ekonomisk förening"]++
+			}
+			if strings.HasSuffix(v, "ek. för.") || strings.HasSuffix(v, "Ek. för.") {
+				count["ek. för."]++
+			}
 		}
 	}
-	if got := float64(spelledOut) * 100 / float64(form["AB"]); got < 6.5 || got > 8.6 {
-		t.Errorf("%.2f%% of the aktiebolag write Aktiebolag, want 6.5%% to 8.6%%, the register's 7.5%%", got)
+	assertShare(t, "aktiebolag written Aktiebolag", count["Aktiebolag"], total["AB"], 60401.0/(718311+60401))
+	assertShare(t, "aktiebolag of one word", count["one-word AB"], total["AB"], 144879.0/552375)
+	assertShare(t, "handelsbolag written Handelsbolaget first", count["Handelsbolaget"], total["HB"], 1526.0/23026)
+	assertShare(t, "handelsbolag written in lower case", count["handelsbolag"], total["HB"], 1232.0/23026)
+	assertShare(t, "kommanditbolag written Kommanditbolaget first", count["Kommanditbolaget"], total["KB"], 1160.0/9432)
+	assertShare(t, "ekonomiska föreningar written Ekonomisk förening", count["Ekonomisk förening"], total["EK"], 3730.0/8505)
+	assertShare(t, "ekonomiska föreningar written ek. för.", count["ek. för."], total["EK"], 1609.0/8505)
+}
+
+func assertShare(t *testing.T, what string, got, of int, want float64) {
+	t.Helper()
+	sd := math.Sqrt(want * (1 - want) / float64(of))
+	if g := float64(got) / float64(of); math.Abs(g-want) > 5*sd {
+		t.Errorf("%s: %d of %d (%.3f%%), want %.3f%% within %.3f%%", what, got, of, g*100, want*100, 5*sd*100)
 	}
 }
 
@@ -243,16 +292,16 @@ func TestSwedishCompanyWordsAreRepeatedInTheRegister(t *testing.T) {
 	if rows[0] != "word\tcount" {
 		t.Fatalf("header %q, want word and count", rows[0])
 	}
-	word := regexp.MustCompile(`^\p{Lu}\p{Ll}{2,}$`)
+	word := regexp.MustCompile(`^\p{Lu}\p{L}{2,}$`)
 	for _, row := range rows[1:] {
 		w, c, _ := strings.Cut(row, "\t")
 		if n, err := strconv.Atoi(c); err != nil || n < 100 || !word.MatchString(w) {
-			t.Errorf("row %q, want a capitalised word of three or more letters that 100 or more register names hold", row)
+			t.Errorf("row %q, want a word of three or more letters, capitalised, that 100 or more register names carry", row)
 		}
 	}
-	for _, w := range []string{"Bygg", "Konsult", "Fastigheter"} {
+	for _, w := range []string{"Bygg", "Konsult", "Fastigheter", "VVS"} {
 		if !slices.ContainsFunc(rows, func(r string) bool { return strings.HasPrefix(r, w+"\t") }) {
-			t.Errorf("company-word.tsv omits %q, a word most of the register's aktiebolag names repeat", w)
+			t.Errorf("company-word.tsv omits %q, a word the register's names repeat in 100 or more of them", w)
 		}
 	}
 }

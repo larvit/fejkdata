@@ -9,10 +9,15 @@ replacement, and each removed path, column or flag.
 ### Breaking
 
 - `sv_SE.company` draws its legal form by Bolagsverket's new registrations of 2025 and
-  builds its name from the shapes the register's names take. Its fields `base` and `suffix`
-  are gone, and its weights, its values and what a seed draws change: a handelsbolag now
-  ends `Handelsbolag`, not `HB`, as the register writes it. It reads `sv_SE.first-name`,
-  `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
+  builds the name from the shapes of the names of the register's active companies. A
+  handelsbolag or kommanditbolag ends `Handelsbolag` or `Kommanditbolag`, or starts
+  `Handelsbolaget` or `Kommanditbolaget`, never `HB` or `KB`. An aktiebolag ends `AB` or
+  `Aktiebolag`, an ekonomisk förening `ekonomisk förening` or `ek. för.`, and a
+  bostadsrättsförening starts `Bostadsrättsföreningen`. An enskild näringsidkare has no
+  legal-form word. The fields `base` and `suffix` are gone: `registered` draws among the
+  forms, and each form (`ab`, `e`, `hb`, `brf`, `ek`, `kb`) holds its `name` and, but for
+  `e`, its `written` company. What a seed draws changes. The category reads
+  `sv_SE.first-name`, `sv_SE.last-name` and `geo.SE.locality`, which `sv_SE` already carried.
 
 ### Added
 
@@ -28,8 +33,8 @@ replacement, and each removed path, column or flag.
   a real organisation. Its `vat` field is that organisation's VAT number.
 - `sv_SE.vat`, `SE`, an organisation number's ten digits and `01`. It passes the format
   and the checksum, not a VIES lookup.
-- `sv_SE.company-word`, the words that 100 or more of Bolagsverket's active companies' names
-  repeat, and `sv_SE.company-invented`, made-up name words.
+- `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
+  names carry, and `sv_SE.company-coined`, made-up one-word names.
 
 ## [0.1.2] - 2026-10-20
 
