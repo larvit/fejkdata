@@ -281,7 +281,7 @@ Find the numbering plan and its licence first.
 
 ### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
 
-Decided on 2026-10-21 in `docs/decisions.md`: a transform, not a name table, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`, since a builtin changes the template language. The agreement tests' expected emails follow the decision's rules, not the code's output.
+Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`. `readme_test.go`'s expected emails follow the decision's slug rules.
 
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
