@@ -1059,33 +1059,34 @@ error, a template feature or a doc. A refactor, a test or a process change moves
 another goal, and names goal 1 only if its user sees a change. The maintainer noted that
 goal 1 may then be too broad. Valid while goal 1 asks for the best fake-data tool there is.
 
-## A `slugify` transform makes compound names valid in emails, rather than a name table without compound names
+## A `slugify` transform makes compound names URL-safe in emails, and the shipped data keeps them
 
 2026-10-21, Lilleman auf Larv. Serves goal 4.
 
 A compound name such as `Anna Lena` or `von Walden` keeps its space in the email that the
-quick starts build, which makes the address invalid. The shipped names keep their compound
-names, and a transform fixes the address where it is built.
+quick starts build, which makes the address invalid. A transform fixes the address where it is
+built.
 
 `{slugify(x)}` applies four steps, in order:
 
-1. `ascii`: a letter with a diacritic folds to its ASCII letters, as `ascii` does, and a rune
-   `ascii` drops is dropped.
+1. Apply `ascii`.
 2. Lowercase what is left.
 3. Keep `a` to `z` and `0` to `9`; change every other character to `-`.
 4. Collapse each run of `-` into one, and trim `-` from both ends.
 
 So `Anna Lena` slugs to `anna-lena`, `Åsa Öberg` to `asa-oberg`, `O'Brien` to `o-brien`, and
-`日本` to the empty string. A slug keeps no `.`, so the quick starts join two slugs with a `.`.
+`日本` to the empty string. A slug keeps no `.`, so the only `.` in an address is the one
+joining two slugs.
 
 Every character a slug holds is unreserved under
-[RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3) and atext under
-[RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3). A local part is a
-dot-atom ([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)), so two
+[RFC 3986 §2.3](https://www.rfc-editor.org/rfc/rfc3986#section-2.3), so it is safe in a URL,
+and atext under [RFC 5322 §3.2.3](https://www.rfc-editor.org/rfc/rfc5322#section-3.2.3), so it
+is allowed in an email's local part. A local part is a dot-atom
+([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)), so two non-empty
 slugs joined by `.` form a valid one.
 
-A name with no Latin letter slugs to the empty string. A locale with such names romanizes
-them in its data, which goal 8 keeps as JSON or TSV.
+A name with no Latin letter slugs to the empty string. A locale with such names romanizes them
+in its data, since `slugify` carries no transliteration table.
 
 The work is `todo.md` item 338.
 
