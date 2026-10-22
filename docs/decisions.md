@@ -836,6 +836,23 @@ locales. `todo.md` item 28 has `personnummer` read it that way, so the number ag
 with the person's sex. A samordningsnummer's day, the birthday plus 60, is
 drawn from 61 to 88, valid in every month, rather than computed from the date drawn.
 
+## The Norwegian id draws Skatteetaten's synthetic series
+
+2026-10-22, Lilleman auf Larv.
+
+A valid fødselsnummer over a random birth date may be a living person's, and Skatteetaten
+publishes no unassigned range of the real series. It does keep a synthetic register, whose
+numbers add 80 to the month (folkeregisteret-api-dokumentasjon, "Ny versjon av syntetisk
+folkeregister"), so `nb_NO.fødselsnummer` draws those, and a checker that requires the month
+to be 1 to 12 refuses it. The two check digits, the individ ranges per century and the
+parity of the third individ digit are Skatteetaten's, from its validation page, the Folkeregisterhandboken § 2-2 and the
+folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
+number, which a template cannot redraw, so `{fnr(x)}` chooses the pair itself, from the
+digits `x` allows; `nb_NO.individ` holds those digits by sex, so a bound sex decides the
+parity. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
+since no layout adds 80 to a month, and 29 February is left out, since the year is drawn
+apart. A D-number, whose day is the birthday plus 40, is not shipped.
+
 ## The US given names come from a mirror of the SSA file
 
 2026-09-18, Lilleman auf Larv.

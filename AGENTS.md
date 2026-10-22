@@ -99,6 +99,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `misc.territory` carries a currency code, it does not link to `misc.currency`
 - An extension may name two media types
 - The Swedish ids draw Skatteverket's test series
+- The Norwegian id draws Skatteetaten's synthetic series
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps
