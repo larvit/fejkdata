@@ -160,7 +160,6 @@
 | 323 | 0.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 328 | 0.3.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 333 | 0.3.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
-| 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 28 | 0.3.0 |  | decision | **Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.5 |
 | 247 | 0.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.5 |
 | 13 | 0.3.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 2.5 |
@@ -174,6 +173,7 @@
 | 51 | 0.3.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.4 |
 | 115 | 0.3.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.4 |
 | 259 | 0.3.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 2.3 |
+| 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 2.1 |
 | 267 | 0.3.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 2.1 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 2.1 |
 | 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 2.0 |
@@ -250,7 +250,7 @@ Bring's postal register spells every poststed in capitals, so the import recases
 
 ### 346. Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.
 
-Today `data-import/company-no.py` spots a place in a company name by the poststed and kommune of Enhetsregisteret's own units, and leaves out every shape holding one, since there is no `geo/NO` to draw from: 5.8% of AS names, 16.6% of SA, 7.1% of DA, 8.2% of ANS and 1.8% of ENK. Once item 289 ships `geo/NO`, take the places from it instead of the register's addresses, and add a `P` slot, `{/geo.NO.locality}` or whatever path and column the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its module docstring, the README's `nb_NO.company` paragraph ("A name with a place in it is not a shape, until `geo/NO` ships"), and the `CHANGELOG.md` entry for `nb_NO.company` where it needs it.
+Today `data-import/company-no.py` leaves out every name holding a place word, a word of the poststed or kommune a unit's business address spells, since there is no `geo/NO` to draw from: 9.9% of ANS names, 7.1% of AS, 3.4% of ASA, 9.4% of DA, 3.0% of ENK, 13.3% of KS and 21.4% of SA, as the script prints on stderr. Once item 289 ships `geo/NO`, take the places from it instead, and add a `P` slot, `{/geo.NO.locality}` or whatever path the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its docstring, the README's `nb_NO.company` paragraph ("A name with a poststed or kommune in it is not a shape, until `geo/NO` ships") and the `CHANGELOG.md` entry where they need it.
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
@@ -745,10 +745,6 @@ No national register defines the account number, and no research file covers Nac
 
 A table and its templates, from CSS Color 4 (W3C) and the XKCD colour survey (CC0).
 
-### 341. Add a `legal` field to `sv_SE.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
-
-Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script.
-
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
 Today `personnummer` draws its own sex, so a name and a number agree only through the README Data section's template, which reads both through one bound `sex`.
@@ -792,6 +788,10 @@ Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.ts
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
+
+### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
+
+Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json` with one object per legal form, so `{/nb_NO.company as c}` lacks it too; an ENK has no abbreviation, so `legal` is empty there.
 
 ### 267. Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.
 

@@ -21,7 +21,8 @@ company-word.tsv holds the trade words, each with its count and its most common 
 company_names.py over the names of the forms AS, ENK, DA and ANS.
 
 company-coined.json draws `{a}{b}`. `a` holds the words of ROOT_LETTERS letters that begin ROOT_MIN or more
-names and end under a third of the names they are in, none of them a name, a place or a trade word. `b` holds
+names and end under a third of the names they are in, none of them a name, a place or a trade word, and each carried
+by FORM_MIN names in at least two of the forms AS, ENK, DA and ANS, so a brand one group repeats stays out. `b` holds
 the endings of ENDING_LETTERS letters, starting with a consonant, that ENDING_MIN or more of the register's
 places share, less one that a longer ending covers with four fifths of its places.
 """
@@ -31,12 +32,13 @@ import gzip
 import io
 import json
 import re
+import sys
 from collections import Counter, namedtuple
 from pathlib import Path
 
 import source
 import tsv
-from company_names import Vocabulary, column, common, quoted, split, trade_words, weighted, word_usage
+from company_names import FORM_MIN, Vocabulary, column, common, quoted, split, trade_words, weighted, word_usage
 
 REGISTER = "https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv"
 ROOT = Path(__file__).resolve().parent.parent / "data"
@@ -95,6 +97,7 @@ def roots(usage, trade):
         w.capitalize()
         for w, u in usage.items()
         if w not in trade and len(w) in ROOT_LETTERS and u.begins >= ROOT_MIN and 3 * u.ends < u.names
+        and sum(u.forms[f] >= FORM_MIN for f in VOCABULARY.word_forms) >= 2
     )
 
 
@@ -105,8 +108,8 @@ def endings(places):
     return sorted(e for e in kept if not any(longer != e and longer.endswith(e) and 5 * count[longer] >= 4 * count[e] for longer in kept))
 
 
-def shape_of(words, sets, trade):
-    """The kinds of the words, as SLOTS keys, or None where a word is a place."""
+def shape_of(form, words, sets, trade):
+    """The kinds of the words, as SLOTS keys, or None where a word is a place. A sole proprietor's name ends in a last name: an unlisted word after a first name is one."""
     shape = []
     for i, w in enumerate(words):
         low = w.lower()
@@ -119,17 +122,23 @@ def shape_of(words, sets, trade):
             if found == "P":
                 return None
             shape.append(found)
+    if form in NO_WORDING and shape[-2:] == ["F", "X"]:
+        shape[-1] = "S"
     return tuple(shape)
 
 
 def count_shapes(names, sets, trade):
     """Per form: the shapes counted over the names that carry the form's abbreviation, less those holding a place."""
-    shapes = {f: Counter() for f in FORMS}
+    shapes, carrying = {f: Counter() for f in FORMS}, Counter()
     for form, name in names:
         left = without_wording(form, split(name))
-        shape = shape_of(left, sets, trade) if left else None
-        if shape:
-            shapes[form][shape] += 1
+        if left:
+            carrying[form] += 1
+            shape = shape_of(form, left, sets, trade)
+            if shape:
+                shapes[form][shape] += 1
+    for f in FORMS:
+        print(f"{f}: {1 - sum(shapes[f].values()) / carrying[f]:.1%} of {carrying[f]} names hold a place", file=sys.stderr)
     return shapes
 
 
