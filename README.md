@@ -482,17 +482,20 @@ segments below that. It needs no index. Each shipped module carries one, so
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
-`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `company`, `date`, `email`,
-`first-name`, `fodselsnummer`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`,
-`phone-mobile`, `sex` and `title`.
+`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `company`, `company-coined`,
+`company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
+`phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
 `nb_NO.date` is written as Språkrådet writes it, `02.04.2019`. `nb_NO.email` is lower-case ASCII at
-`example.com`, `example.org` or `example.net`, which IANA reserves, so no address reaches a real mailbox.
-`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. It draws the form
-as often as Enhetsregisteret at the Brønnøysund Register Centre counts units of it on 2026-10-22: AS,
-DA, ANS, ASA and KS, the forms whose names end in their abbreviation. A name may also be a real company's.
+`example.com`, `example.org` or `example.net`, or a subdomain of one, which IANA reserves, so no
+address reaches a real mailbox.
+`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. The name is a
+made-up word from `company-coined`, a surname or a first name and a surname, and a trade word from
+`company-word`. The form is one of AS, DA, ANS, ASA and KS, drawn as often as Enhetsregisteret at the
+Brønnøysund Register Centre counts units of it on 2026-10-22. The register's other forms, such as ENK,
+NUF and SA, don't ship. A name may also be a real company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
@@ -621,7 +624,7 @@ Renders e.g. `Anne Grönberg, 011012-2389`.
 
 Skatteverket's test series is small: a personnummer is one of about 70,000 values, a day
 in 1930–2025 against the two birth numbers, so a fixture past a few hundred rows repeats
-one and a `UNIQUE` column needs a category of your own. `sv_SE.date` and `en_US.date`
+one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date` and `nb_NO.date`
 are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
