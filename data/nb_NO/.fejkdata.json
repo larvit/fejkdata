@@ -1,9 +1,12 @@
 {
 	"index": {
+		"nb_NO.birth-day": {"paths":["","ddmm"]},
 		"nb_NO.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"nb_NO.fødselsnummer": {"paths":["","birth"]},
+		"nb_NO.individ": {"parent":"sex","paths":["","digits","sex"]},
 		"nb_NO.last-name": {"paths":["","count","name"]},
 		"nb_NO.person": {"paths":["","first","last","prefix","sex"]},
-		"nb_NO.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"nb_NO.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digits","individ.sex","name"]},
 		"nb_NO.title": {"paths":["","name","share"]}
 	},
 	"namespace": "nb_NO"
