@@ -161,7 +161,7 @@ func TestNorwegianFodselsnummerIsSkatteetatensSyntheticSeries(t *testing.T) {
 		case yy < 40:
 			year = 2000 + yy
 		default:
-			t.Fatalf("%q has individ %d with year %d, a pair no series assigns", got, individ, yy)
+			t.Fatalf("%q has individ %d with year %d, a pair fejkdata does not draw", got, individ, yy)
 		}
 		if year < 1940 || year > 2025 {
 			t.Fatalf("%q is born in %d, want 1940 to 2025", got, year)
@@ -183,6 +183,7 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 		t.Fatal(err)
 	}
 	seen := map[string]bool{}
+	thirds := map[string]map[byte]bool{"kvinne": {}, "mann": {}}
 	for i := 0; i < 500; i++ {
 		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}")
 		if err != nil {
@@ -193,8 +194,14 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 			t.Fatalf("%q: want a valid number, odd for a mann and even for a kvinne", got)
 		}
 		seen[sex] = true
+		thirds[sex][number[8]] = true
 	}
 	if len(seen) != 2 {
 		t.Errorf("500 draws gave the sexes %v, want both", seen)
+	}
+	for sex, digits := range thirds {
+		if len(digits) != 5 {
+			t.Errorf("500 draws gave a %s the third individ digits %v, want all five of its parity", sex, digits)
+		}
 	}
 }

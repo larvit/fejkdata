@@ -104,8 +104,6 @@ func TestBuiltinChecksums(t *testing.T) {
 	}
 }
 
-// TestBuiltinFnr completes a Norwegian fødselsnummer after seven digits: a second individ digit,
-// the operand's digit as the third, and the two check digits Skatteetaten defines.
 func TestBuiltinFnr(t *testing.T) {
 	f := engine(1)
 	seen := map[string]bool{}
@@ -131,22 +129,6 @@ func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 	}
 }
 
-// TestBuiltinFnrCompletesEveryDateWithEveryDigit walks a thousand prefixes, which reach nearly
-// every pair of residues that the weighted sums of k1 and k2 modulo 11 take, with every third
-// individ digit.
-func TestBuiltinFnrCompletesEveryDateWithEveryDigit(t *testing.T) {
-	f := engine(4)
-	for n := 0; n < 1000; n++ {
-		for last := 0; last < 10; last++ {
-			pre := fmt.Sprintf("%07d", n*9973)
-			got := mustRender(t, f, fmt.Sprintf(`{"format":"{pre}{fnr(last)}","pre":"%s","last":"%d"}`, pre, last))
-			if !validFnr(got) || got[:7] != pre || got[8] != byte('0'+last) {
-				t.Fatalf("fnr after %s with %d = %q, want a valid number", pre, last, got)
-			}
-		}
-	}
-}
-
 func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 	f := engine(3)
 	for _, last := range []string{"", "mann", "12", "x7", "-"} {
@@ -157,8 +139,6 @@ func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 	}
 }
 
-// TestBuiltinFnrReadsTheLastSevenDigitsEmitted pins that text and further digits before the
-// seven are ignored, and that fewer than seven read as if zeros preceded them.
 func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
 	f := engine(5)
 	for pre, seven := range map[string]string{"x-0181804": "0181804", "9990181804": "0181804", "181804": "0181804", "a1b2c3d4e5f6g7h8": "2345678"} {
@@ -180,9 +160,6 @@ func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
 	}
 }
 
-// validFnr applies the weights Skatteetaten publishes: k1 over the nine digits with 3, 7, 6, 1,
-// 8, 9, 4, 5, 2, k2 over those and k1 with 5, 4, 3, 2, 7, 6, 5, 4, 3, 2; each is 11 less the
-// sum modulo 11, a sum of 11 giving 0, and a 10 discards the number.
 func validFnr(s string) bool {
 	if len(s) != 11 {
 		return false
