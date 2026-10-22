@@ -250,7 +250,7 @@ Bring's postal register spells every poststed in capitals, so the import recases
 
 ### 346. Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.
 
-Today `data-import/company-no.py` leaves out every name holding a place word, a word of the poststed or kommune a unit's business address spells, since there is no `geo/NO` to draw from: 9.9% of ANS names, 7.1% of AS, 3.4% of ASA, 9.4% of DA, 3.0% of ENK, 13.3% of KS and 21.4% of SA, as the script prints on stderr. Once item 289 ships `geo/NO`, take the places from it instead, and add a `P` slot, `{/geo.NO.locality}` or whatever path the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its docstring, the README's `nb_NO.company` paragraph ("A name with a poststed or kommune in it is not a shape, until `geo/NO` ships") and the `CHANGELOG.md` entry where they need it.
+Today `data-import/company-no.py` leaves out every name holding a place word, a word of the poststed or kommune a unit's business address spells, since there is no `geo/NO` to draw from: 9.9% of ANS names, 7.1% of AS, 3.4% of ASA, 9.4% of DA, 3.0% of ENK, 13.3% of KS and 21.4% of SA, as the script prints on stderr. Once item 289 ships `geo/NO`, take the places from it instead, and add a `P` slot, `{/geo.NO.locality}` or whatever path the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its docstring, the README's `nb_NO.company` paragraph ("A name holding a postal town (poststed) or municipality (kommune) is left out of the shapes until `geo/NO` ships") and the `CHANGELOG.md` entry where they need it.
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
@@ -637,7 +637,7 @@ Find the numbering plan and its licence first.
 
 Against "Most, if not all, code should have automated tests" in `technical-principles.md`: no Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Today `geo.fence` is checked only by regenerating both countries' TSVs from the full downloads and diffing them. Each locale's places item adds a geo script for its country, each calling `fence`.
 
-The tests also cover the functions only `company-no.py` uses: `register`, `without_wording`, `kind`, `shape_of` with its rule that an ENK name without a listed last name takes the word after a first name, else its first unlisted word, as the owner's last name, `count_shapes`, `roots` with its rule that a root is carried in at least two forms, and `endings`. They cover `word_usage` and `trade_words` in `company_names.py`, which `company-se.py` and `company-no.py` share, with `Vocabulary.acronym_max`'s rule that a word in capitals is an acronym only up to that many letters or where it holds no vowel.
+The tests also cover the rules of `company-no.py`: `shape_of` reads an unlisted word in an ENK name as the owner's last name, `roots` takes a word carried in at least two forms, and `register`, `without_wording`, `kind`, `count_shapes` and `endings` hold the rest. They cover `word_usage` and `trade_words` in `company_names.py`, which `company-se.py` and `company-no.py` share; its `Vocabulary.acronym_max` makes a word in capitals an acronym only up to that many letters or where it has no vowel.
 
 ### 20. Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.
 
@@ -793,7 +793,7 @@ Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
 
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
-Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json` with one object per legal form, so `{/nb_NO.company as c}` lacks it too; an ENK has no abbreviation, so `legal` is empty there.
+Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json`, which has the same gap: `{/nb_NO.company as c}` reads no legal form either. An ENK has no abbreviation, so `legal` is empty there.
 
 ### 267. Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.
 

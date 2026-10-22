@@ -3,7 +3,8 @@
 A trade word is neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a
 third of its uses, and is carried by FORM_MIN names in each of at least three of the forms a Vocabulary names,
 so a word one company family repeats stays out. A word's spelling is the one most names that are not in
-capitals use; a word in capitals there is an acronym, such as VVS, only up to the vocabulary's acronym_max letters or where it holds no vowel.
+capitals use. A word in capitals in such a name counts as written only if it is an acronym, such as VVS: it has
+at most the vocabulary's acronym_max letters, or no vowel.
 """
 import re
 from collections import Counter, defaultdict
