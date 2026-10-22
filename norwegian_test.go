@@ -282,19 +282,23 @@ func TestShippedNorwegianPhonePrefixIsARowOnlyWhereNkomHasAssignedItWhole(t *tes
 
 func TestShippedNorwegianDateIsDayMonthYearWithDotsFrom1970To2029(t *testing.T) {
 	f := shipped(t, WithSeed(3))
+	first, last := 9999, 0
 	for i := 0; i < 500; i++ {
 		got := fake(t, f, "nb_NO.date")
 		d, err := time.Parse("02.01.2006", got)
 		if err != nil || d.Year() < 1970 || d.Year() > 2029 {
 			t.Fatalf("date %q is not dd.mm.yyyy in 1970 to 2029: %v", got, err)
 		}
+		first, last = min(first, d.Year()), max(last, d.Year())
+	}
+	if first > 1971 || last < 2028 {
+		t.Errorf("500 dates span %d to %d, want 1970 to 2029", first, last)
 	}
 }
 
-// Only example.com, example.org and example.net, which IANA reserves, are domains nobody can register.
 func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	f := shipped(t, WithSeed(4))
-	email := regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
+	email := regexp.MustCompile(`^[a-z0-9]+([._-][a-z0-9]+)*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
 		got := fake(t, f, "nb_NO.email")
@@ -311,11 +315,15 @@ func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 // The Brønnøysund Register Centre's Enhetsregisteret on 2026-10-22, units not bankrupt, being wound
 // up or forcibly dissolved: 423,482 aksjeselskap (AS), 9,104 ansvarlig selskap med delt ansvar (DA),
 // 6,198 ansvarlig selskap med solidarisk ansvar (ANS), 205 allmennaksjeselskap (ASA) and 105
-// kommandittselskap (KS), the forms whose name ends in its abbreviation.
-func TestNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
+// kommandittselskap (KS).
+func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
 	f := shipped(t, WithSeed(6))
 	registered := map[string]int{"AS": 423482, "DA": 9104, "ANS": 6198, "ASA": 205, "KS": 105}
-	const draws, total = 400000, 439094
+	const draws = 400000
+	var total int
+	for _, units := range registered {
+		total += units
+	}
 	name := regexp.MustCompile(`^\p{Lu}[\p{L} '-]*\p{L} (AS|DA|ANS|ASA|KS)$`)
 	form := map[string]int{}
 	for i := 0; i < draws; i++ {
@@ -326,11 +334,11 @@ func TestNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
 		form[got[strings.LastIndex(got, " ")+1:]]++
 	}
 	for abbreviation, units := range registered {
-		assertShare(t, abbreviation+" of the companies", form[abbreviation], draws, float64(units)/total)
+		assertShare(t, abbreviation+" of the companies", form[abbreviation], draws, float64(units)/float64(total))
 	}
 }
 
-func TestNorwegianCompanyNamesVary(t *testing.T) {
+func TestShippedNorwegianCompanyNamesVary(t *testing.T) {
 	f := shipped(t, WithSeed(7))
 	seen := map[string]bool{}
 	for i := 0; i < 1000; i++ {
