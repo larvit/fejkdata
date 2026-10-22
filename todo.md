@@ -807,7 +807,7 @@ A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `
 
 ### 23. Give every other shipped category that could reach something real a path that never does.
 
-`phone` draws live PTS and NANP ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP one still wants a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
+`phone` draws live PTS, NANP and Nkom ranges — PTS's five fiction series are the Swedish inert set, sourced in [research-sources-se.md](docs/research/research-sources-se.md), and the NANP and Norwegian ones still want a source — and `bankgiro`, `plusgiro` and `routing` draw live prefixes.
 
 ### 194. Let a data author write and check their own `.fejkdata.json` index with the library or the CLI, and fail a load whose index leaves out a category file.
 
