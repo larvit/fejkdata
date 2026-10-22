@@ -1,7 +1,6 @@
 package fejkdata
 
 import (
-	"maps"
 	"slices"
 	"sort"
 	"strconv"
@@ -133,16 +132,6 @@ func TestNorwegianBirthDaysAreEveryDayOfAYearInSkatteetatensSyntheticMonths(t *t
 	}
 }
 
-func TestNorwegianIndividPairsEachSexWithTheLastDigitsItsParityTakes(t *testing.T) {
-	got := map[string]string{}
-	for _, row := range tsvRows(t, "data/nb_NO/individ.tsv") {
-		got[row["sex"]] = row["digits"]
-	}
-	if want := map[string]string{"f": "02468", "m": "13579"}; !maps.Equal(got, want) {
-		t.Errorf("individ.tsv holds %v, want %v: even for a woman, odd for a man", got, want)
-	}
-}
-
 // TestNorwegianFodselsnummerIsSkatteetatensSyntheticSeries reads each number as Skatteetaten
 // defines it: six digits of date with 80 added to the month, three individ digits whose
 // range gives the century, and two check digits.
@@ -195,7 +184,7 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
-		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digits)}")
+		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}")
 		if err != nil {
 			t.Fatal(err)
 		}

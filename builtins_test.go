@@ -104,39 +104,78 @@ func TestBuiltinChecksums(t *testing.T) {
 	}
 }
 
-// TestBuiltinFnr completes a Norwegian fødselsnummer after seven digits: two individ digits, the
-// last from the digits its operand holds, and the two check digits Skatteetaten defines.
+// TestBuiltinFnr completes a Norwegian fødselsnummer after seven digits: a second individ digit,
+// the operand's digit as the third, and the two check digits Skatteetaten defines.
 func TestBuiltinFnr(t *testing.T) {
 	f := engine(1)
 	seen := map[string]bool{}
 	for i := 0; i < 300; i++ {
-		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"13579"}`)
-		if len(got) != 11 || got[:7] != "0181804" || !strings.Contains("13579", got[8:9]) || !validFnr(got) {
-			t.Fatalf("fnr = %q, want 0181804, an individ digit, one of 13579, and valid check digits", got)
+		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"7"}`)
+		if len(got) != 11 || got[:7] != "0181804" || got[8] != '7' || !validFnr(got) {
+			t.Fatalf("fnr = %q, want 0181804, an individ digit, 7, and valid check digits", got)
 		}
 		seen[got] = true
 	}
-	if len(seen) < 20 {
-		t.Errorf("fnr drew %d numbers in 300, want it varied", len(seen))
+	if len(seen) < 5 {
+		t.Errorf("fnr drew %d numbers in 300, want its second individ digit to vary", len(seen))
 	}
 }
 
 func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 	f := engine(2)
 	for i := 0; i < 50; i++ {
-		got := mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"02468"}}`)
-		if !validFnr(got) || !strings.Contains("02468", got[8:9]) {
-			t.Fatalf("fnr = %q, want a valid number whose individ ends in 0, 2, 4, 6 or 8", got)
+		got := mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"4"}}`)
+		if !validFnr(got) || got[8] != '4' {
+			t.Fatalf("fnr = %q, want a valid number whose individ ends in 4", got)
 		}
 	}
 }
 
-func TestBuiltinFnrRendersNothingForAnOperandWithNoDigit(t *testing.T) {
+// TestBuiltinFnrCompletesEveryDateWithEveryDigit walks a thousand prefixes, which reach nearly
+// every pair of residues that the weighted sums of k1 and k2 modulo 11 take, with every third
+// individ digit.
+func TestBuiltinFnrCompletesEveryDateWithEveryDigit(t *testing.T) {
+	f := engine(4)
+	for n := 0; n < 1000; n++ {
+		for last := 0; last < 10; last++ {
+			pre := fmt.Sprintf("%07d", n*9973)
+			got := mustRender(t, f, fmt.Sprintf(`{"format":"{pre}{fnr(last)}","pre":"%s","last":"%d"}`, pre, last))
+			if !validFnr(got) || got[:7] != pre || got[8] != byte('0'+last) {
+				t.Fatalf("fnr after %s with %d = %q, want a valid number", pre, last, got)
+			}
+		}
+	}
+}
+
+func TestBuiltinFnrRendersNothingForAnOperandThatIsNotOneDigit(t *testing.T) {
 	f := engine(3)
-	for _, last := range []string{"", "mann"} {
+	for _, last := range []string{"", "mann", "12", "x7", "-"} {
 		tmpl := `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"` + last + `"}`
 		if got := mustRender(t, f, tmpl); got != "0181804" {
 			t.Errorf("fnr with operand %q = %q, want 0181804 and nothing after it", last, got)
+		}
+	}
+}
+
+// TestBuiltinFnrReadsTheLastSevenDigitsEmitted pins that text and further digits before the
+// seven are ignored, and that fewer than seven read as if zeros preceded them.
+func TestBuiltinFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
+	f := engine(5)
+	for pre, seven := range map[string]string{"x-0181804": "0181804", "9990181804": "0181804", "181804": "0181804", "a1b2c3d4e5f6g7h8": "2345678"} {
+		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"`+pre+`","last":"3"}`)
+		if tail := got[len(pre):]; !validFnr(seven + tail) {
+			t.Errorf("fnr after %q = %q, want check digits valid for %s", pre, tail, seven)
+		}
+	}
+}
+
+func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
+	if !validFnr("10108000398") {
+		t.Error("10108000398 is a published test number, want it valid")
+	}
+	for _, bad := range []string{"10108000399", "10108000388", "1010800039", "10108000398x"} {
+		if validFnr(bad) {
+			t.Errorf("%s is no valid fødselsnummer", bad)
 		}
 	}
 }
