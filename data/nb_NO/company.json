@@ -1,16 +1,132 @@
 {
-  "format": "{name} {form}",
-  "name": [
-    { "format": "{.company-coined}", "weight": 3 },
-    { "format": "{.company-coined} {.company-word}", "weight": 3 },
-    { "format": "{.last-name.name} {.company-word}", "weight": 2 },
-    { "format": "{.first-name.name} {.last-name.name} {.company-word}", "weight": 1 }
+  "format": "{registered}",
+  "registered": [
+    { "format": "{.company.enk}", "weight": 465166 },
+    { "format": "{.company.as}", "weight": 423370 },
+    { "format": "{.company.da}", "weight": 9105 },
+    { "format": "{.company.sa}", "weight": 6761 },
+    { "format": "{.company.ans}", "weight": 6214 },
+    { "format": "{.company.asa}", "weight": 205 },
+    { "format": "{.company.ks}", "weight": 105 }
   ],
-  "form": [
-    { "format": "AS", "weight": 423482 },
-    { "format": "DA", "weight": 9104 },
-    { "format": "ANS", "weight": 6198 },
-    { "format": "ASA", "weight": 205 },
-    { "format": "KS", "weight": 105 }
-  ]
+  "as": {
+    "format": "{name} AS",
+    "name": [
+      { "format": "{.company-coined}", "weight": 101529 },
+      { "format": "{.company-coined} {.company-word}", "weight": 94089 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 71329 },
+      { "format": "{.last-name} {.company-coined}", "weight": 11700 },
+      { "format": "{.last-name} {.company-word}", "weight": 10659 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 10450 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 9786 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9777 },
+      { "format": "{.company-coined} {.last-name}", "weight": 5402 },
+      { "format": "{.first-name} {.company-coined}", "weight": 4661 }
+    ]
+  },
+  "enk": {
+    "format": "{name}",
+    "name": [
+      { "format": "{.company-coined} {.company-coined}", "weight": 45180 },
+      { "format": "{.first-name} {.last-name}", "weight": 41467 },
+      { "format": "{.first-name} {.company-coined}", "weight": 39796 },
+      { "format": "{.last-name} {.company-coined}", "weight": 21012 },
+      { "format": "{.company-coined} {.last-name}", "weight": 16757 },
+      { "format": "{.first-name} {.first-name} {.last-name}", "weight": 15589 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 15100 },
+      { "format": "{.company-coined} {.company-word}", "weight": 14974 },
+      { "format": "{.first-name} {.first-name} {.company-coined}", "weight": 11446 },
+      { "format": "{.first-name} {.company-coined} {.company-coined}", "weight": 11189 },
+      { "format": "{.last-name} {.company-word}", "weight": 11116 },
+      { "format": "{.company-coined} {.first-name} {.company-coined}", "weight": 11089 },
+      { "format": "{.company-coined} {.first-name} {.last-name}", "weight": 11075 },
+      { "format": "{.first-name} {.company-coined} {.last-name}", "weight": 8701 },
+      { "format": "{.first-name} {.last-name} {.company-coined}", "weight": 8102 },
+      { "format": "{.company-coined}", "weight": 6654 },
+      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 6578 },
+      { "format": "{.last-name} {.first-name}", "weight": 5786 },
+      { "format": "{.first-name} {.last-name} {.last-name}", "weight": 5427 },
+      { "format": "{.company-coined} {.first-name}", "weight": 5216 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 4707 }
+    ]
+  },
+  "sa": {
+    "format": "{name} SA",
+    "name": [
+      { "format": "{.company-coined} {.company-coined}", "weight": 2412 },
+      { "format": "{.company-coined}", "weight": 874 },
+      { "format": "{.last-name} {.company-coined}", "weight": 477 },
+      { "format": "{.company-coined} {.company-word}", "weight": 398 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 307 },
+      { "format": "{.company-coined} {.company-coined} og {.company-coined}", "weight": 215 },
+      { "format": "{.company-coined} og {.company-coined} {.company-coined}", "weight": 75 },
+      { "format": "{.last-name} {.company-word}", "weight": 63 }
+    ]
+  },
+  "da": {
+    "format": "{name} DA",
+    "name": [
+      { "format": "{.company-coined}", "weight": 2067 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 1739 },
+      { "format": "{.company-coined} {.company-word}", "weight": 1404 },
+      { "format": "{.last-name} {.company-word}", "weight": 339 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 325 },
+      { "format": "{.last-name} {.company-coined}", "weight": 273 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 170 },
+      { "format": "{.company-coined} {.last-name}", "weight": 146 }
+    ]
+  },
+  "ans": {
+    "format": "{name} ANS",
+    "name": [
+      { "format": "{.company-coined}", "weight": 1165 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 1024 },
+      { "format": "{.company-coined} {.company-word}", "weight": 647 },
+      { "format": "{.last-name} {.company-coined}", "weight": 193 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 183 },
+      { "format": "{.last-name} {.company-word}", "weight": 162 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 137 },
+      { "format": "{.company-coined} {.last-name}", "weight": 109 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 101 }
+    ]
+  },
+  "asa": {
+    "format": "{name} ASA",
+    "name": [
+      { "format": "{.company-coined}", "weight": 85 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 55 },
+      { "format": "{.company-coined} {.company-word}", "weight": 17 },
+      { "format": "{.last-name} {.company-coined}", "weight": 9 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 6 },
+      { "format": "{.first-name} {.company-coined}", "weight": 3 },
+      { "format": "{.last-name}", "weight": 3 },
+      { "format": "{.company-coined} {.last-name} {.company-coined}", "weight": 3 },
+      { "format": "{.last-name} {.company-word}", "weight": 2 },
+      { "format": "{.company-coined} {.last-name}", "weight": 2 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 2 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-word}", "weight": 2 }
+    ]
+  },
+  "ks": {
+    "format": "{name} KS",
+    "name": [
+      { "format": "{.company-coined}", "weight": 16 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 16 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9 },
+      { "format": "{.company-coined} {int(1,30)}", "weight": 7 },
+      { "format": "{.last-name} {.company-coined}", "weight": 4 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 4 },
+      { "format": "{.company-coined} {.last-name}", "weight": 3 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 3 },
+      { "format": "{.last-name} {.company-coined} {.company-word}", "weight": 2 },
+      { "format": "{.last-name} {.company-coined} {.company-coined}", "weight": 2 },
+      { "format": "{.company-coined} {.company-word}", "weight": 2 },
+      { "format": "{.company-coined} {.company-coined} {int(1,30)}", "weight": 2 },
+      { "format": "{.first-name} {.last-name}", "weight": 1 },
+      { "format": "{.company-coined} {int(1,30)} {.company-coined} {.company-coined} {.company-coined}", "weight": 1 },
+      { "format": "{.company-coined} {.last-name} {.company-coined}", "weight": 1 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-word} {.company-coined}", "weight": 1 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 1 }
+    ]
+  }
 }

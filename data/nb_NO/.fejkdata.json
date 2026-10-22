@@ -1,9 +1,9 @@
 {
 	"index": {
 		"nb_NO.birth-day": {"paths":["","ddmm"]},
-		"nb_NO.company": {"paths":["","form","name"]},
+		"nb_NO.company": {"paths":["","ans","ans.name","as","as.name","asa","asa.name","da","da.name","enk","enk.name","ks","ks.name","registered","sa","sa.name"]},
 		"nb_NO.company-coined": {"paths":["","a","b"]},
-		"nb_NO.company-word": {"paths":[""]},
+		"nb_NO.company-word": {"paths":["","count","word"]},
 		"nb_NO.date": {"paths":[""]},
 		"nb_NO.email": {"paths":["","domain","local","local.n"]},
 		"nb_NO.first-name": {"parent":"sex","paths":["","count","name","sex"]},

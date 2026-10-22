@@ -1,1 +1,1 @@
-["Anlegg", "Bygg", "Consulting", "Data", "Design", "Eiendom", "Elektro", "Entreprenør", "Holding", "Invest", "Maskin", "Regnskap", "Rør", "Service", "Teknikk", "Transport", "Utvikling"]
+{ "format": "{word}", "rows": "company-word.tsv", "weight": "count" }

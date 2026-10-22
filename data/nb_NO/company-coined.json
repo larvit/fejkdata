@@ -1,5 +1,5 @@
 {
   "format": "{a}{b}",
-  "a": ["Berg", "Blå", "Elv", "Fjell", "Fjord", "Gran", "Hav", "Lys", "Nord", "Sjø", "Skog", "Sol", "Stein", "Sør", "Vest", "Vind", "Øst"],
-  "b": ["berg", "dal", "fjord", "gard", "heim", "hus", "nes", "stad", "sund", "vik", "øy", "ås"]
+  "a": ["Active", "Afas", "Agder", "Aktiv", "Alfa", "Alpha", "André", "Apex", "Aqua", "Arctic", "Bare", "Beauty", "Bedre", "Best", "Black", "Blue", "Cafe", "Casa", "City", "Clean", "Coach", "Coop", "Delta", "Ditt", "Doktor", "Easy", "Eiker", "Elite", "Espira", "Euro", "Fast", "Firma", "First", "Flow", "Fokus", "Follo", "Forus", "Fram", "Fresh", "Frisk", "Front", "Frøken", "Future", "Gamle", "Global", "Godt", "Golden", "Good", "Grand", "Hair", "Happy", "Helt", "High", "Human", "Indre", "Just", "Jæren", "Lege", "Lille", "Link", "Lister", "Lucky", "Made", "Maler", "Master", "Midt", "Mitt", "Mobile", "Multi", "Murer", "Møre", "Nails", "Namdal", "Nedre", "Next", "Njord", "Nordic", "Nordre", "Norges", "Norse", "Norsk", "Norske", "North", "Ocean", "Olsens", "Omega", "Orkla", "Peak", "Polar", "Prima", "Proff", "Pure", "Radio", "Real", "Rent", "Rett", "Royal", "Safe", "Salong", "Salten", "Scan", "Silver", "Skin", "Smart", "Solid", "Solør", "Sotra", "Stall", "Star", "Store", "Søndre", "Søre", "Team", "Thai", "Topp", "Toppen", "Torget", "Total", "Toten", "Trio", "Troll", "Trygg", "Tømrar", "Tømrer", "Unik", "Union", "Urban", "Viking", "Villa", "Visit", "Vital", "West", "World", "Ytre", "Åsane", "Østre", "Øvre"],
+  "b": ["dal", "fjord", "gen", "land", "len", "nes", "stad", "sund", "vik", "våg"]
 }
