@@ -296,8 +296,8 @@ nb_NO.first-name	format "{name}"	name name	weight count	parent sex
 nb_NO.first-name.count	string
 nb_NO.first-name.name	string
 nb_NO.first-name.sex	string
-nb_NO.fødselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}"	reads nb_NO.birth-day nb_NO.sex
-nb_NO.fødselsnummer.birth	string
+nb_NO.fodselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}"	reads nb_NO.birth-day nb_NO.sex
+nb_NO.fodselsnummer.birth	string
 nb_NO.individ	format "{digit}"	parent sex
 nb_NO.individ.digit	string
 nb_NO.individ.sex	string
