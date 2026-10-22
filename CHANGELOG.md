@@ -85,7 +85,7 @@ replacement, and each removed path, column or flag.
 - `nb_NO.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or
   a subdomain of one. Half of its local parts are a first and a last name that SSB publishes.
 - `nb_NO.company`, an invented name and a legal form, ENK (no abbreviation), AS, DA, SA, ANS, ASA or
-  KS, such as `Sørberg Data AS`. Each form is drawn as often as Enhetsregisteret held active units of it,
+  KS, such as `Nordicvik Holding AS`. Each form is drawn as often as Enhetsregisteret held active units of it,
   and `nb_NO.company.as` and its siblings draw one form. The name has a shape the register's names of
   the form have, and reads `nb_NO.company-coined`, `nb_NO.company-word` and `nb_NO`'s names.
   Enhetsregisteret's data is NLOD 2.0, so a program showing a company credits Brønnøysundregistrene as
