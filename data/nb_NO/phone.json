@@ -1,15 +1,7 @@
-[
-  {
-    "format": "{.phone-mobile as b}{subscriber as s}{national}",
-    "weight": 10,
-    "subscriber": "{digits(2)} {digits(2)}",
-    "national": "{b.prefix} {s}",
-    "international": "+47 {b.prefix} {s}"
-  },
-  {
-    "format": "{.phone-fixed as b}{subscriber as s}{national}",
-    "subscriber": "{digits(2)} {digits(2)}",
-    "national": "{b.prefix} {s}",
-    "international": "+47 {b.prefix} {s}"
-  }
-]
+{
+  "format": "{block as b}{subscriber as s}{national}",
+  "block": [{ "format": "{.phone-mobile}", "weight": 10 }, "{.phone-fixed}"],
+  "subscriber": "{digits(2)} {digits(2)}",
+  "national": "{b} {s}",
+  "international": "+47 {b} {s}"
+}

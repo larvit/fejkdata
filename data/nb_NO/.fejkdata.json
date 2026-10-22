@@ -6,7 +6,7 @@
 		"nb_NO.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"nb_NO.last-name": {"paths":["","count","name"]},
 		"nb_NO.person": {"paths":["","first","last","prefix","sex"]},
-		"nb_NO.phone": {"paths":["","international","national","subscriber"]},
+		"nb_NO.phone": {"paths":["","block","international","national","subscriber"]},
 		"nb_NO.phone-fixed": {"paths":["","prefix"]},
 		"nb_NO.phone-mobile": {"paths":["","prefix"]},
 		"nb_NO.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
