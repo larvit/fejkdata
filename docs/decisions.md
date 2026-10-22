@@ -1132,10 +1132,10 @@ is allowed in an email's local part. A local part may be a dot-atom
 ([RFC 5322 §3.4.1](https://www.rfc-editor.org/rfc/rfc5322#section-3.4.1)). Then two non-empty
 slugs joined by `.` form a valid local part.
 
-A letter outside the table splits the name at that letter; a name with no letter in the table
-slugs to the empty string. A locale whose names need such letters
-romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own;
-`todo.md` item 345 asks whether that holds for the scripts of the planned locales.
+A letter outside the table splits the name at that letter; a name whose letters are all
+outside the table slugs to the empty string. A locale whose names need such letters
+romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own.
+`todo.md` item 345 asks whether the scripts of the planned locales change that.
 
 Valid while every non-ASCII letter of a shipped first or last name has an entry in `ascii`'s
 table, which `TestAsciiFoldsEveryShippedNameLetter` checks, and RFC 5322 keeps letters, digits and
