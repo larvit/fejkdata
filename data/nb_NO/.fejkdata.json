@@ -1,6 +1,9 @@
 {
 	"index": {
 		"nb_NO.birth-day": {"paths":["","ddmm"]},
+		"nb_NO.company": {"paths":["","coined","coined.a","coined.b","form","name","trade"]},
+		"nb_NO.date": {"paths":[""]},
+		"nb_NO.email": {"paths":["","domain","local","local.n"]},
 		"nb_NO.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"nb_NO.fodselsnummer": {"paths":["","birth"]},
 		"nb_NO.individ": {"parent":"sex","paths":["","digit","sex"]},

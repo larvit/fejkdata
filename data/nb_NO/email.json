@@ -1,0 +1,26 @@
+{
+  "format": "{local}@{domain}",
+  "local": [
+    {
+      "format": "{first}{sep}{last}{n}",
+      "weight": 3,
+      "first": ["aksel", "alexander", "amalie", "andreas", "anders", "anna", "astrid", "benjamin", "bjorn", "camilla", "daniel", "ella", "emil", "emilie", "emma", "erik", "filip", "frida", "hanna", "henrik", "ida", "ingrid", "jakob", "johannes", "jonas", "julie", "kari", "kristian", "lars", "leah", "lena", "liam", "linnea", "lucas", "magnus", "maja", "markus", "mathias", "mia", "nora", "oliver", "ola", "olivia", "oskar", "sander", "sara", "silje", "sofie", "sondre", "thea", "tobias", "tone", "trond", "tuva", "vilde", "william"],
+      "last": ["amundsen", "andersen", "bakken", "berg", "bakke", "dahl", "eide", "eriksen", "gundersen", "hagen", "halvorsen", "hansen", "haugen", "henriksen", "iversen", "jacobsen", "jensen", "johannessen", "johansen", "johnsen", "jorgensen", "karlsen", "kristiansen", "larsen", "lie", "lund", "moen", "nilsen", "olsen", "paulsen", "pedersen", "pettersen", "rasmussen", "solberg", "strand", "svendsen", "sorensen", "tveit", "aas"],
+      "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
+      "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
+    },
+    {
+      "format": "{adj}{noun}{n}",
+      "weight": 2,
+      "adj": ["blid", "cool", "dristig", "fin", "flink", "frisk", "glad", "grei", "kjapp", "kjekk", "klok", "lun", "mega", "modig", "rolig", "sterk", "super", "turbo", "toff", "vill"],
+      "noun": ["bamse", "bjorn", "elg", "fjellrev", "gaupe", "hare", "hund", "jerv", "katt", "krake", "laks", "mus", "ninja", "panda", "pirat", "rev", "rein", "robot", "sel", "ulv", "ugle", "vaktel"],
+      "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
+    },
+    {
+      "format": "{w}{n}",
+      "w": ["blip", "blupp", "boop", "fizz", "floof", "glorp", "kapow", "kazoo", "nattugla", "pew", "pixelrev", "plonk", "pling", "snork", "splat", "superhund", "trollmann", "turbokatt", "vroom", "wahoo", "woot", "yeet", "zap", "zoom"],
+      "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
+    }
+  ],
+  "domain": ["example.com", "example.org", "example.net", "mail.example.com", "mail.example.org", "webmail.example.net", "post.example.com", "epost.example.org", "demo.example.net", "test.example.org", "dev.example.com"]
+}
