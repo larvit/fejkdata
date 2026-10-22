@@ -1,13 +1,11 @@
 {
   "format": "{name} {form}",
   "name": [
-    { "format": "{.company.coined}", "weight": 3 },
-    { "format": "{.company.coined} {.company.trade}", "weight": 3 },
-    { "format": "{.last-name.name} {.company.trade}", "weight": 2 },
-    { "format": "{.first-name.name} {.last-name.name} {.company.trade}", "weight": 1 }
+    { "format": "{.company-coined}", "weight": 3 },
+    { "format": "{.company-coined} {.company-word}", "weight": 3 },
+    { "format": "{.last-name.name} {.company-word}", "weight": 2 },
+    { "format": "{.first-name.name} {.last-name.name} {.company-word}", "weight": 1 }
   ],
-  "coined": { "format": "{a}{b}", "a": ["Berg", "Blå", "Elv", "Fjell", "Fjord", "Grønn", "Hav", "Lys", "Nord", "Sjø", "Skog", "Sol", "Stein", "Sør", "Vest", "Vind", "Øst"], "b": ["berg", "dal", "fjord", "heim", "hus", "lund", "nes", "stad", "sund", "vik", "øy", "ås"] },
-  "trade": ["Anlegg", "Bygg", "Consulting", "Data", "Design", "Eiendom", "Elektro", "Entreprenør", "Holding", "Invest", "Maskin", "Regnskap", "Rør", "Service", "Teknikk", "Transport", "Utvikling"],
   "form": [
     { "format": "AS", "weight": 423482 },
     { "format": "DA", "weight": 9104 },
