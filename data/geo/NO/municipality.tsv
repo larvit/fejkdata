@@ -1,0 +1,358 @@
+code	name	region	population
+0301	Oslo - Oslove	03	728714
+1101	Eigersund	11	15546
+1103	Stavanger	11	151669
+1106	Haugesund	11	38663
+1108	Sandnes	11	85785
+1111	Sokndal	11	3356
+1112	Lund	11	3229
+1114	Bjerkreim	11	2894
+1119	Hå	11	20087
+1120	Klepp	11	21444
+1121	Time	11	20461
+1122	Gjesdal	11	12715
+1124	Sola	11	29541
+1127	Randaberg	11	11841
+1130	Strand	11	13959
+1133	Hjelmeland	11	2612
+1134	Suldal	11	3891
+1135	Sauda	11	4603
+1144	Kvitsøy	11	579
+1145	Bokn	11	907
+1146	Tysvær	11	11750
+1149	Karmøy	11	43990
+1151	Utsira	11	219
+1160	Vindafjord	11	9181
+1505	Kristiansund	15	24479
+1506	Molde	15	33291
+1508	Ålesund	15	59663
+1511	Vanylven	15	3029
+1514	Sande	15	2437
+1515	Herøy (Møre og Romsdal)	15	9003
+1516	Ulstein	15	8958
+1517	Hareid	15	5411
+1520	Ørsta	15	11068
+1525	Stranda	15	4333
+1528	Sykkylven	15	7626
+1531	Sula	15	9798
+1532	Giske	15	8828
+1535	Vestnes	15	7315
+1539	Rauma	15	7195
+1547	Aukra	15	3780
+1554	Averøy	15	6007
+1557	Gjemnes	15	2740
+1560	Tingvoll	15	3066
+1563	Sunndal	15	7094
+1566	Surnadal	15	5982
+1573	Smøla	15	2141
+1576	Aure	15	3371
+1577	Volda	15	11009
+1578	Fjord	15	2547
+1579	Hustadvika	15	13538
+1580	Haram	15	9460
+1804	Bodø	18	53638
+1806	Narvik	18	21647
+1811	Bindal	18	1361
+1812	Sømna	18	2006
+1813	Brønnøy	18	7841
+1815	Vega	18	1202
+1816	Vevelstad	18	477
+1818	Herøy (Nordland)	18	1874
+1820	Alstahaug	18	7489
+1822	Leirfjord	18	2392
+1824	Vefsn	18	13481
+1825	Grane	18	1415
+1826	Aarborte - Hattfjelldal	18	1255
+1827	Dønna	18	1445
+1828	Nesna	18	1796
+1832	Hemnes	18	4486
+1833	Rana - Raane	18	25844
+1834	Lurøy	18	1953
+1835	Træna	18	443
+1836	Rødøy	18	1140
+1837	Meløy	18	6074
+1838	Gildeskål	18	2024
+1839	Beiarn	18	1032
+1840	Saltdal	18	4865
+1841	Fauske - Fuossko	18	9707
+1845	Sørfold - Fuolldá	18	1819
+1848	Steigen	18	2679
+1851	Lødingen	18	1964
+1853	Evenes - Evenášši	18	1397
+1856	Røst	18	471
+1857	Værøy	18	656
+1859	Flakstad	18	1235
+1860	Vestvågøy	18	11606
+1865	Vågan	18	9905
+1866	Hadsel	18	8374
+1867	Bø	18	2609
+1868	Øksnes	18	4613
+1870	Sortland - Suortá	18	10748
+1871	Andøy	18	4525
+1874	Moskenes	18	976
+1875	Hábmer - Hamarøy	18	2808
+3101	Halden	31	32082
+3103	Moss	31	53207
+3105	Sarpsborg	31	60614
+3107	Fredrikstad	31	86243
+3110	Hvaler	31	4714
+3112	Råde	31	7892
+3114	Våler (Østfold)	31	6229
+3116	Skiptvet	31	3940
+3118	Indre Østfold	31	47943
+3120	Rakkestad	31	8583
+3122	Marker	31	3647
+3124	Aremark	31	1354
+3201	Bærum	32	133228
+3203	Asker	32	101509
+3205	Lillestrøm	32	96771
+3207	Nordre Follo	32	65381
+3209	Ullensaker	32	45982
+3212	Nesodden	32	21005
+3214	Frogn	32	16429
+3216	Vestby	32	20167
+3218	Ås	32	22725
+3220	Enebakk	32	11697
+3222	Lørenskog	32	51511
+3224	Rælingen	32	20904
+3226	Aurskog-Høland	32	18458
+3228	Nes	32	24948
+3230	Gjerdrum	32	7478
+3232	Nittedal	32	26032
+3234	Lunner	32	9463
+3236	Jevnaker	32	7040
+3238	Nannestad	32	16662
+3240	Eidsvoll	32	28739
+3242	Hurdal	32	3078
+3301	Drammen	33	106013
+3303	Kongsberg	33	29169
+3305	Ringerike	33	31942
+3310	Hole	33	7205
+3312	Lier	33	28797
+3314	Øvre Eiker	33	20965
+3316	Modum	33	14776
+3318	Krødsherad	33	2276
+3320	Flå	33	1122
+3322	Nesbyen	33	3234
+3324	Gol	33	4902
+3326	Hemsedal	33	2707
+3328	Ål	33	5106
+3330	Hol	33	4552
+3332	Sigdal	33	3514
+3334	Flesberg	33	2790
+3336	Rollag	33	1452
+3338	Nore og Uvdal	33	2459
+3401	Kongsvinger	34	18191
+3403	Hamar	34	33817
+3405	Lillehammer	34	29669
+3407	Gjøvik	34	31350
+3411	Ringsaker	34	36199
+3412	Løten	34	7951
+3413	Stange	34	21839
+3414	Nord-Odal	34	4978
+3415	Sør-Odal	34	8165
+3416	Eidskog	34	6103
+3417	Grue	34	4463
+3418	Åsnes	34	7216
+3419	Våler (Innlandet)	34	3614
+3420	Elverum	34	21937
+3421	Trysil	34	6474
+3422	Åmot	34	4191
+3423	Stor-Elvdal	34	2239
+3424	Rendalen	34	1836
+3425	Engerdal	34	1287
+3426	Tolga	34	1609
+3427	Tynset	34	5762
+3428	Alvdal	34	2492
+3429	Folldal	34	1525
+3430	Os	34	1871
+3431	Dovre	34	2523
+3432	Lesja	34	1966
+3433	Skjåk	34	2185
+3434	Lom	34	2239
+3435	Vågå	34	3553
+3436	Nord-Fron	34	5493
+3437	Sel	34	5469
+3438	Sør-Fron	34	3108
+3439	Ringebu	34	4497
+3440	Øyer	34	5130
+3441	Gausdal	34	6147
+3442	Østre Toten	34	14925
+3443	Vestre Toten	34	13612
+3446	Gran	34	13689
+3447	Søndre Land	34	5603
+3448	Nordre Land	34	6510
+3449	Sør-Aurdal	34	2841
+3450	Etnedal	34	1593
+3451	Nord-Aurdal	34	6424
+3452	Vestre Slidre	34	2190
+3453	Øystre Slidre	34	3347
+3454	Vang	34	1666
+3901	Horten	39	28173
+3903	Holmestrand	39	27086
+3905	Tønsberg	39	60246
+3907	Sandefjord	39	67062
+3909	Larvik	39	49022
+3911	Færder	39	27743
+4001	Porsgrunn	40	37435
+4003	Skien	40	56906
+4005	Notodden	40	13389
+4010	Siljan	40	2377
+4012	Bamble	40	14267
+4014	Kragerø	40	10378
+4016	Drangedal	40	4056
+4018	Nome	40	6529
+4020	Midt-Telemark	40	11157
+4022	Seljord	40	2959
+4024	Hjartdal	40	1638
+4026	Tinn	40	5515
+4028	Kviteseid	40	2463
+4030	Nissedal	40	1509
+4032	Fyresdal	40	1274
+4034	Tokke	40	2242
+4036	Vinje	40	3829
+4201	Risør	42	6683
+4202	Grimstad	42	25569
+4203	Arendal	42	46603
+4204	Kristiansand	42	119287
+4205	Lindesnes	42	23702
+4206	Farsund	42	9949
+4207	Flekkefjord	42	9373
+4211	Gjerstad	42	2502
+4212	Vegårshei	42	2253
+4213	Tvedestrand	42	6430
+4214	Froland	42	6299
+4215	Lillesand	42	11822
+4216	Birkenes	42	5447
+4217	Åmli	42	1805
+4218	Iveland	42	1386
+4219	Evje og Hornnes	42	3842
+4220	Bygland	42	1167
+4221	Valle	42	1209
+4222	Bykle	42	1057
+4223	Vennesla	42	15772
+4224	Åseral	42	904
+4225	Lyngdal	42	10922
+4226	Hægebostad	42	1794
+4227	Kvinesdal	42	6242
+4228	Sirdal	42	1911
+4601	Bergen	46	294860
+4602	Kinn	46	17356
+4611	Etne	46	4115
+4612	Sveio	46	5766
+4613	Bømlo	46	12531
+4614	Stord	46	19276
+4615	Fitjar	46	3237
+4616	Tysnes	46	3053
+4617	Kvinnherad	46	13236
+4618	Ullensvang	46	10929
+4619	Eidfjord	46	985
+4620	Ulvik	46	1114
+4621	Voss	46	16438
+4622	Kvam	46	8490
+4623	Samnanger	46	2489
+4624	Bjørnafjorden	46	26753
+4625	Austevoll	46	5515
+4626	Øygarden	46	40641
+4627	Askøy	46	30600
+4628	Vaksdal	46	3899
+4629	Modalen	46	397
+4630	Osterøy	46	8231
+4631	Alver	46	30285
+4632	Austrheim	46	2947
+4633	Fedje	46	529
+4634	Masfjorden	46	1672
+4635	Gulen	46	2301
+4636	Solund	46	742
+4637	Hyllestad	46	1275
+4638	Høyanger	46	3883
+4639	Vik	46	2532
+4640	Sogndal	46	12552
+4641	Aurland	46	1866
+4642	Lærdal	46	2223
+4643	Årdal	46	5178
+4644	Luster	46	5478
+4645	Askvoll	46	2924
+4646	Fjaler	46	2948
+4647	Sunnfjord	46	22804
+4648	Bremanger	46	3381
+4649	Stad	46	9616
+4650	Gloppen	46	5976
+4651	Stryn	46	7319
+5001	Trondheim - Tråante	50	218460
+5006	Steinkjer - Stïentje	50	24007
+5007	Namsos - Nåavmesjenjaelmie	50	15112
+5014	Frøya	50	5794
+5020	Osen	50	911
+5021	Oppdal	50	7421
+5022	Rennebu	50	2514
+5025	Røros - Rosse	50	5638
+5026	Holtålen	50	2037
+5027	Midtre Gauldal	50	6088
+5028	Melhus	50	17828
+5029	Skaun	50	8574
+5031	Malvik	50	14961
+5032	Selbu	50	4258
+5033	Tydal	50	773
+5034	Meråker	50	2460
+5035	Stjørdal	50	25108
+5036	Frosta	50	2667
+5037	Levanger - Levangke	50	20807
+5038	Verdal	50	15435
+5041	Snåase - Snåsa	50	2141
+5042	Lierne	50	1302
+5043	Raarvihke - Røyrvik	50	439
+5044	Namsskogan	50	803
+5045	Grong	50	2292
+5046	Høylandet	50	1230
+5047	Overhalla	50	3944
+5049	Flatanger	50	1110
+5052	Leka	50	596
+5053	Inderøy	50	7066
+5054	Indre Fosen	50	10006
+5055	Heim	50	6075
+5056	Hitra	50	5568
+5057	Ørland	50	10706
+5058	Åfjord	50	4340
+5059	Orkland	50	18840
+5060	Nærøysund	50	9920
+5061	Rindal	50	1935
+5501	Tromsø	55	79943
+5503	Harstad - Hárstták	55	25204
+5510	Kvæfjord	55	2901
+5512	Dielddanuorri - Tjeldsund	55	4144
+5514	Ibestad	55	1287
+5516	Gratangen - Rivtták	55	1062
+5518	Loabák - Lavangen	55	1002
+5520	Bardu	55	4004
+5522	Salangen	55	2132
+5524	Målselv	55	6819
+5526	Sørreisa	55	3528
+5528	Dyrøy	55	1077
+5530	Senja	55	14946
+5532	Balsfjord	55	5625
+5534	Karlsøy	55	2235
+5536	Lyngen - Ivgu - Yykeä	55	2732
+5538	Storfjord - Omasvuotna - Omasvuono	55	1848
+5540	Gáivuotna - Kåfjord - Kaivuono	55	1939
+5542	Skjervøy	55	2802
+5544	Nordreisa - Ráisa - Raisi	55	4863
+5546	Kvænangen	55	1125
+5601	Alta	56	22074
+5603	Hammerfest - Hámmerfeasta	56	11391
+5605	Sør-Varanger	56	9947
+5607	Vadsø	56	5808
+5610	Kárášjohka - Karasjok	56	2524
+5612	Guovdageaidnu - Kautokeino	56	2886
+5614	Loppa	56	846
+5616	Hasvik	56	987
+5618	Måsøy	56	1089
+5620	Nordkapp	56	2945
+5622	Porsanger - Porsángu - Porsanki	56	3906
+5624	Lebesby	56	1249
+5626	Gamvik	56	1019
+5628	Deatnu - Tana	56	2806
+5630	Berlevåg	56	864
+5632	Båtsfjord	56	2104
+5634	Vardø	56	1969
+5636	Unjárga - Nesseby	56	874
