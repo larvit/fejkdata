@@ -684,7 +684,7 @@ A prefix drawn apart would put `Mr` on a record whose `sex` column says `female`
 is the disagreement the record exists to prevent; the tables this set already has are
 what a title needs, so `en_US.title` links to `sex` as `first-name` does. Swedish and Norwegian have no
 everyday sexed honorific, so `sv_SE.title` and `nb_NO.title` are tables as well but carry no `parent`.
-Its weight column is `share`, not the `count` a name table carries, because the values
+A title table's weight column is `share`, not the `count` a name table carries, because the values
 are a curated proportion rather than bearers anyone counted.
 
 ## A table owns the spelling of a selector on it

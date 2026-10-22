@@ -1001,7 +1001,7 @@ Split it into items for the CLI, struct tags and the library before starting.
 - Have a selector that misses name the key of every row whose cell spells it, matched without case, else say the table selects by its key: `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, and `misc.loglevel[Error]` `[err]`.
 - Delete the `name` option and the load checks it carries, and have `New` refuse a table still carrying `name`, naming `key`.
 - Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on the integer `data-import/geo-se.py` assigns as the decision states, linking `street` and `postal-code` by it.
-- Drop `key` from `last-name`, `nb_NO.last-name`, `sv_SE.title` and `nb_NO.title`, and re-pin `testdata/shipped_shape.txt`.
+- Drop `key` from each locale's `last-name`, from `sv_SE.title` and from `nb_NO.title`, and re-pin `testdata/shipped_shape.txt`.
 - Leave no selection by name in README.md, CHANGELOG.md, docs/ or `--help`.
 
 ### 186. Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.

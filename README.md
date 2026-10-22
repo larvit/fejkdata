@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s people, with names
+- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names and persons, with names
   weighted by how common they are. Every Swedish postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, which
@@ -440,7 +440,7 @@ The shipped data comes in modules, each a Go package in the folder under [`data/
 its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/nb_NO`,
 `data/sv_SE`), one per country's tree of places (`data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`svse`, `enus`, `nbno`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`enus`, `nbno`, `svse`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -473,15 +473,17 @@ A manifest's `namespace` is the dot path its source's root sits under: a folder 
 segments below that. It needs no index. Each shipped module carries one, so
 `data/sv_SE/person.json` is `sv_SE.person`.
 
-`nb_NO`, Norwegian in the Bokmål standard, carries `first-name`, `last-name`, `person`,
-`sex` and `title` so far; its `title` has no `parent` either, so it is selected as
-`nb_NO.title[dr.]`. The other locales each carry `address`, `color`, `company`,
-`date`, `email`, `first-name`, `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
+`sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
+`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `company-coined`, `company-word`,
 `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
+
+`nb_NO`, Norwegian in the Bokmål standard, carries only `first-name`, `last-name`,
+`person`, `sex` and `title`. Its `title` has no `parent`, like `sv_SE.title`, so it is
+selected as `nb_NO.title[dr.]`.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
