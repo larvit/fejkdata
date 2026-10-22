@@ -2,7 +2,7 @@
 	"index": {
 		"nb_NO.birth-day": {"paths":["","ddmm"]},
 		"nb_NO.first-name": {"parent":"sex","paths":["","count","name","sex"]},
-		"nb_NO.fødselsnummer": {"paths":["","birth"]},
+		"nb_NO.fodselsnummer": {"paths":["","birth"]},
 		"nb_NO.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"nb_NO.last-name": {"paths":["","count","name"]},
 		"nb_NO.person": {"paths":["","first","last","prefix","sex"]},
