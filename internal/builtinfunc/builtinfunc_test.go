@@ -2,8 +2,11 @@ package builtinfunc
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"unicode"
 
 	"github.com/larvit/fejkdata/internal/invariant"
 )
@@ -66,4 +69,24 @@ func mustPanic(t *testing.T, name string, call func()) {
 		}
 	}()
 	call()
+}
+
+// TestAsciiFoldsEveryShippedNameLetter keeps slugify from splitting a shipped name at a letter
+// ascii has no entry for.
+func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
+	files, err := filepath.Glob("../../data/*/[fl][ia]*-name.tsv")
+	if err != nil || len(files) != 6 {
+		t.Fatalf("found %d name files, want first-name.tsv and last-name.tsv of 3 locales: %v", len(files), err)
+	}
+	for _, file := range files {
+		src, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, r := range string(src) {
+			if r > unicode.MaxASCII && unicode.IsLetter(r) && asciiFolds[r] == "" {
+				t.Errorf("%s holds %q, which ascii has no entry for", file, r)
+			}
+		}
+	}
 }
