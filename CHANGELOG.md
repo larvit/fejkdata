@@ -68,7 +68,7 @@ replacement, and each removed path, column or flag.
   `nb_NO.individ`, the digits the last individ digit may be under each `nb_NO.sex`.
 - The builtin `{fnr(x)}`, which completes a fødselsnummer after its date and first individ
   digit with a second individ digit, a third drawn from the digits `x` reads, and the two
-  check digits, so `{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digits)}` agrees with a bound
+  check digits, or nothing where `x` reads no digit, so `{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digits)}` agrees with a bound
   sex `s`.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.

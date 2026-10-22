@@ -24,36 +24,31 @@ func fnrArg(a []string) error {
 
 func fnrPrep([]string) Call {
 	return func(s *drawstate.State, emitted string, operands []string) string {
-		return fnrTail(emitted, operands[0], s.IntN(10*len(fnrLast(operands[0]))))
+		digits := digitsOf(operands[0])
+		if digits == "" {
+			return ""
+		}
+		return fnrTail(emitted, digits[s.IntN(len(digits))], s.IntN(10))
 	}
 }
 
 // fnrTail completes a fødselsnummer after the last seven digits of emitted, its date and the
-// first individ digit: a second individ digit, a third from last, and the check digits. It tries
-// each pair from the one at start on, since a pair whose check digit would be 10 is no number.
-func fnrTail(emitted, last string, start int) string {
-	last = fnrLast(last)
-	n := 10 * len(last)
+// first individ digit: a second individ digit, last, and the check digits. It tries each second
+// digit from start on, since one whose check digit would be 10 is no number.
+func fnrTail(emitted string, last byte, start int) string {
 	prefix := digitsOf(emitted)
 	prefix = strings.Repeat("0", max(0, 7-len(prefix))) + prefix[max(0, len(prefix)-7):]
-	for i := range n {
-		pair := (start + i) % n
-		digits := prefix + string(rune('0'+pair/len(last))) + string(last[pair%len(last)])
+	for i := range 10 {
+		digits := prefix + string(rune('0'+(start+i)%10)) + string(last)
 		k1, ok1 := fnrCheck(digits, fnrWeights[0])
 		k2, ok2 := fnrCheck(digits+string(rune('0'+k1)), fnrWeights[1])
 		if ok1 && ok2 {
 			return digits[7:] + string(rune('0'+k1)) + string(rune('0'+k2))
 		}
 	}
-	panic(invariant.Broken("fnr found no valid completion of %q with %q", prefix, last))
-}
-
-// fnrLast is the digits s holds, or every digit where it holds none.
-func fnrLast(s string) string {
-	if last := digitsOf(s); last != "" {
-		return last
-	}
-	return "0123456789"
+	// Unreachable: k1's sum weighs the second digit by 5 and k2's, through k1, by -6 modulo 11,
+	// so each check fails for at most one of the ten.
+	panic(invariant.Broken("fnr found no valid completion of %q with %c", prefix, last))
 }
 
 // fnrCheck is 11 less the weighted sum of digits modulo 11, 0 for 11; ok is false for 10, which
