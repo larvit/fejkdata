@@ -97,7 +97,6 @@
 | 255 | 0.3.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 3.8 |
 | 117 | 0.3.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 3.8 |
 | 30 | 0.3.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 3.8 |
-| 168 | 0.3.0 |  | principle | **Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.** | 2 | 1 | 1 | 2 | 4 | code health by 2 | 3.8 |
 | 244 | 0.3.0 |  |  | **Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.** | 2 | 2 | 2 | 4 | 4 | 1 by 2, 2.1 by 4, 3.2 by 3 | 3.8 |
 | 198 | 0.3.0 |  |  | **Fetch the TIGER files of every county a drawn US place spans, so a place's streets and postal codes cover all of it.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.3 by 3 | 3.7 |
 | 257 | 0.3.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 3.5 |
@@ -114,6 +113,7 @@
 | 321 | 0.3.0 | 214 |  | **Add `ur_PK.phone`, drawn from Pakistan's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
 | 326 | 0.3.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
 | 331 | 0.3.0 | 217 |  | **Add `de_DE.phone`, drawn from Germany's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
+| 168 | 0.3.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 3.4 |
 | 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3 by 3 | 3.4 |
 | 113 | 0.3.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 3.4 |
 | 260 | 0.3.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 3.2 |
@@ -569,10 +569,6 @@ A table and its template, from each network's rules, which are facts.
 
 Today the refusal names only the missing field, so a data author fixing a typo opens the category to find the spelling. Item 92 covers the hyphenated `calc` operand only.
 
-### 168. Test the shared steps of `data-import/` in the merge gate, starting with `geo.fence`.
-
-Against "Most, if not all, code should have automated tests" in `technical-principles.md`: no Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Today `geo.fence` is checked only by regenerating both countries' TSVs from the full downloads and diffing them. Each locale's places item adds a geo script for its country, each calling `fence`.
-
 ### 244. Draw `en_US.company`'s suffixes and name patterns from SEC company names, and add `en_US.naics`, a table of NAICS 2022 codes.
 
 NAICS 2022 is public domain; SEC's `company_tickers.json` is free to reuse. [Source research](docs/research/research-sources-world.md).
@@ -636,6 +632,12 @@ Find the numbering plan and its licence first.
 ### 331. Add `de_DE.phone`, drawn from Germany's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 168. Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, and the name-shape rules of `company-no.py` and `company_names.py`.
+
+Against "Most, if not all, code should have automated tests" in `technical-principles.md`: no Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Today `geo.fence` is checked only by regenerating both countries' TSVs from the full downloads and diffing them. Each locale's places item adds a geo script for its country, each calling `fence`.
+
+The tests also cover the functions only `company-no.py` uses: `register`, `without_wording`, `kind`, `shape_of` with its rule that an ENK name without a listed last name takes the word after a first name, else its first unlisted word, as the owner's last name, `count_shapes`, `roots` with its rule that a root is carried in at least two forms, and `endings`. They cover `word_usage` and `trade_words` in `company_names.py`, which `company-se.py` and `company-no.py` share, with `Vocabulary.acronym_max`'s rule that a word in capitals is an acronym only up to that many letters or where it holds no vowel.
 
 ### 20. Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.
 

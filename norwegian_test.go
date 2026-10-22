@@ -344,10 +344,10 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 	}
 }
 
-// oneWord is, per form, the register's names that are one coined word, and the names of the shapes that
+// oneWord is, per form, the register's names that are one word, and the names of the shapes that
 // ship, as company-no.py counted them; the test holds a render to them.
 func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
-	oneWord := map[string][2]int{"AS": {101511, 326172}, "ENK": {6649, 323474}, "SA": {874, 4616}, "DA": {2067, 6336}, "ANS": {1165, 3655}, "ASA": {88, 189}, "KS": {16, 72}}
+	oneWord := map[string][2]int{"AS": {101511, 326172}, "ENK": {9114, 349102}, "SA": {874, 4616}, "DA": {2067, 6336}, "ANS": {1165, 3655}, "ASA": {88, 189}, "KS": {16, 72}}
 	const draws = 40000
 	for form, c := range oneWord {
 		t.Run(form, func(t *testing.T) {
