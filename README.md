@@ -483,8 +483,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `phone-exchange` (the three digits after the area code).
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `first-name`, `fodselsnummer`,
-`individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`. `fodselsnummer` reads `birth-day` and
-`individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
+`individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
+`fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
@@ -500,16 +500,18 @@ follows the plan, and a real subscriber may hold it. A bound number reads `natio
 `070-123 45 67`, and `international`, `+46 70 123 45 67`.
 
 `nb_NO.phone` is a mobile number ten times as often as a fixed one. Norway has no area codes, so
-both are eight digits, written in pairs as Språkrådet has since 22 May 2019: `46 12 34 56`.
-`nb_NO.phone-mobile` and `nb_NO.phone-fixed` hold the first four digits, such as `46 12`, of every
-ten thousand numbers that Nkom's E.164 register, downloaded on 2026-10-22, has assigned to
-providers whole as mobile or fixed numbers. A prefix only partly assigned is left out, and so are
-the series Nkom blocks, gives to machine-to-machine traffic or keeps for special numbers. A row is
-selected by its prefix, `phone-fixed[56 12]`. A number's `block` is one of those prefixes and its
-`subscriber` the last four digits, drawn: `34 56`. A number is valid, not
-real: it follows the plan, and a real subscriber may hold it. A bound number reads `national`,
-`46 12 34 56`, and `international`, `+47 46 12 34 56`; Språkrådet gives no country-code form, so
-fejkdata puts `+47` before the same pairs.
+both have eight digits. The Language Council of Norway (Språkrådet) has written both in pairs
+since 22 May 2019, on its page «Tall, tid og dato»: `46 12 34 56`.
+
+`nb_NO.phone-mobile` and `nb_NO.phone-fixed` hold the first four digits, such as `46 12`, of the
+numbers in Nkom's E.164 register, downloaded on 2026-10-22. A prefix is a row only when Nkom has
+assigned all ten thousand numbers behind it to providers, as mobile or as fixed numbers. A row is
+selected by its prefix, `phone-fixed[56 12]`.
+
+A number's `block` is one of those prefixes and its `subscriber` the last four digits, such as
+`34 56`. A number is valid, not real: it lies in a block Nkom has assigned, and a real subscriber
+may hold it. A bound number reads `national`, `46 12 34 56`, and `international`,
+`+47 46 12 34 56`. The page names no country-code form, so fejkdata puts `+47` before the same pairs.
 
 A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
