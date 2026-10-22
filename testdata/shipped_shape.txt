@@ -292,6 +292,18 @@ misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
 nb_NO.birth-day	format "{ddmm}"
 nb_NO.birth-day.ddmm	string
+nb_NO.company	format "{name} {form}"	reads nb_NO.company nb_NO.first-name nb_NO.last-name
+nb_NO.company.coined	string
+nb_NO.company.coined.a
+nb_NO.company.coined.b
+nb_NO.company.form	string
+nb_NO.company.name	string
+nb_NO.company.trade	string
+nb_NO.date	format "{date(1970-01-01,2029-12-31,'02.01.2006')}"
+nb_NO.email	format "{local}@{domain}"
+nb_NO.email.domain	string
+nb_NO.email.local	string
+nb_NO.email.local.n
 nb_NO.first-name	format "{name}"	name name	weight count	parent sex
 nb_NO.first-name.count	string
 nb_NO.first-name.name	string
