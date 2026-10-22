@@ -1472,7 +1472,8 @@ TIGER/Line files per county it ships, about a gigabyte, `geo-se.py` needs
 a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
 and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
-a copy of the surname file:
+a copy of the surname file. A company script reads the shipped names, so run `names-*.py` and
+`geo-*.py` before it:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
