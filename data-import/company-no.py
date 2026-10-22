@@ -3,30 +3,34 @@
 
     data-import/company-no.py [--register URL_OR_FILE] [--cache DIR] [--out DIR]
 
-The script reads the register's bulk file (155 MB gzip) for counts and writes no row of it, and the shipped
-nb_NO first and last names, so run names-no.py first. It leaves out the units that are bankrupt, being wound up
-or forcibly dissolved. company.json weighs a legal form by its units, and for each form writes the shapes of
-the names of the units that carry the form's abbreviation. A shape is the kind of each word: a last name, a
-first name, a number, `og`, `&`, a trade word, or any other, which draws a coined word. A last or first name
-is one that SSB lists, and one it doesn't is any other, except in a sole proprietor's name, which
-foretaksnavneloven § 2-2 (https://lovdata.no/dokument/NL/lov/1985-06-21-79) requires to hold the owner's last name:
-with none listed, the unlisted word after a first name is the last name, else the first unlisted word. A shape
-ships when it is at least company_names.SHARE_MIN of the form's names. The forms are AS, ASA, DA, ANS, KS, SA and ENK, which is
-named for a person and carries no abbreviation. NUF is left out: its names carry the foreign enterprise's own
-form, such as AB, LTD or GMBH, and no Norwegian one.
+The script reads the register's bulk file (155 MB gzip) for counts and writes no row of it. It also reads the
+shipped nb_NO first and last names, so run names-no.py first. It counts the active units, not the bankrupt,
+those being wound up or those forcibly dissolved. company.json weighs a legal form by its units, and for each
+form writes the shapes of its units' names. The forms are ANS, AS, ASA, DA, ENK, KS and SA. NUF is left out:
+its names carry the foreign enterprise's own form, such as AB, LTD or GMBH, and no Norwegian one.
 
-A place is a word of the poststed or kommune that a unit's business address spells; a region such as Agder
+A shape is the kind of each word of a name: a last name, a first name, a number, `og`, `&`, a trade word, or
+any other, which draws a coined word. A name counts for a form when it ends in the form's abbreviation, which
+the shape leaves out; an ENK name carries none, so all count. A last or first name is one in the shipped
+nb_NO tables, which hold the names that 200 or more people bear. A shape ships when it is at least
+company_names.SHARE_MIN of the form's names.
+
+foretaksnavneloven § 2-2 (https://lovdata.no/dokument/NL/lov/1985-06-21-79) requires an ENK name to hold the
+owner's last name. So where none is listed, the unlisted word after a first name is the last name, else the
+first unlisted word.
+
+A place is a word of the poststed or kommune that any unit's business address spells; a region such as Agder
 isn't one. A place is neither a trade word nor a coined one, and a shape holding one is left out until geo/NO
 provides the places to draw.
 
 company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
 company_names.py over the names of the forms AS, ENK, DA and ANS.
 
-company-coined.json draws `{a}{b}`. `a` holds the words of ROOT_LETTERS letters that begin ROOT_MIN or more
-names and end under a third of the names they are in, none of them a name, a place or a trade word, and each carried
-by FORM_MIN names in at least two of the forms AS, ENK, DA and ANS, so a brand one group repeats stays out. `b` holds
-the endings of ENDING_LETTERS letters, starting with a consonant, that ENDING_MIN or more of the register's
-places share, less one that a longer ending covers with four fifths of its places.
+company-coined.json draws `{a}{b}`. `a` holds the roots: the words of ROOT_LETTERS letters that begin ROOT_MIN
+or more names and end under a third of the names they are in, none of them a name, a place or a trade word, each
+carried by FORM_MIN names in at least two of the forms AS, ENK, DA and ANS, so a brand one group repeats stays
+out. `b` holds the endings of ENDING_LETTERS letters, starting with a consonant, that ENDING_MIN or more of the
+register's places share, less one that a longer ending covers with four fifths of its places.
 """
 import argparse
 import csv
@@ -94,7 +98,7 @@ def kind(word, sets, last):
 
 
 def roots(usage, trade):
-    """The words of ROOT_LETTERS letters that begin ROOT_MIN or more names and end under a third of the names they are in, none of them a trade word, carried by FORM_MIN names in at least two forms."""
+    """The roots of company-coined.json, capitalised, by the rule in the module docstring."""
     return sorted(
         w.capitalize()
         for w, u in usage.items()
@@ -104,14 +108,14 @@ def roots(usage, trade):
 
 
 def endings(places):
-    """The endings of ENDING_LETTERS letters that ENDING_MIN or more places share and that start with a consonant, less one that a longer ending covers with four fifths of its places."""
+    """The endings of company-coined.json, by the rule in the module docstring."""
     count = Counter(p[-n:] for p in places if re.fullmatch(r"[a-zæøå]+", p) for n in ENDING_LETTERS if len(p) > n + 2)
     kept = {e for e, c in count.items() if c >= ENDING_MIN and e[0] not in VOWELS}
     return sorted(e for e in kept if not any(longer != e and longer.endswith(e) and 5 * count[longer] >= 4 * count[e] for longer in kept))
 
 
 def shape_of(form, words, sets, trade):
-    """The kinds of the words, as SLOTS keys, or None where a word is a place. The law requires a sole proprietor's name to hold the owner's last name, so where none is listed the word after a first name is one, else the first unlisted word."""
+    """The kinds of the words, as SLOTS keys, or None where a word is a place; an ENK name gets its last name by the module docstring's rule."""
     shape = []
     for i, w in enumerate(words):
         low = w.lower()

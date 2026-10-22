@@ -495,16 +495,20 @@ or `example.net`, or a subdomain of one, and half of its local parts are a first
 mailbox.
 
 `nb_NO.company` draws a legal form as often as the Brønnøysund Register Centre's Enhetsregisteret held
-active units of it on 2026-10-22: sole proprietorship (ENK, a name with no abbreviation), AS, DA, SA, ANS,
-ASA and KS, which end their names in the abbreviation, such as `Nordicvik Holding AS`. Each form has its own
-shapes of names, such as a coined word and a trade word, or a last name and a trade word, in the
-proportions the register's names have, where a last or first name is one that SSB lists. A sole proprietor's name holds the owner's last name, as
-foretaksnavneloven § 2-2 requires, so the unlisted word after a first name, or else the first unlisted word, is one. `nb_NO.company.as` draws only a limited company, and `.enk`,
-`.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their form. `company-word` holds the trade words, like
-`Holding` or `Eiendom`, that 100 or more of the register's names carry, and `company-coined` the made-up
-words: a root that 60 or more names begin with, such as `Nordic`, and an ending that 40 or more of the
-register's places share, such as `vik`. A name with a poststed or kommune in it is not a shape, until `geo/NO` ships.
-A name is invented, and may also be a real company's.
+active units of it on 2026-10-22: sole proprietorship (ENK), limited company (AS), and DA, SA, ANS, ASA and
+KS. An ENK's name has no abbreviation after it, and the others end in theirs, such as `Nordicvik Holding AS`.
+`nb_NO.company.as` draws only a limited company, and `.enk`, `.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their
+form.
+
+A name has a shape that the register's names of its form have, such as a coined word and a trade word, or a
+last name and a trade word, in the proportions the register has them. A last or first name is drawn from
+`nb_NO.last-name` or `nb_NO.first-name`. A sole proprietor's name always holds a last name, as
+foretaksnavneloven § 2-2 requires. A trade word names a line of business, like `Holding` or `Eiendom`, and
+`company-word` holds those that 100 or more of the register's names carry. A coined word is made up:
+`company-coined` joins a root that 60 or more names begin with, such as `Nordic`, to an ending that 40 or more
+of the register's place names share, such as `vik`. A name holding a postal town (poststed) or municipality
+(kommune) is left out of the shapes until `geo/NO` ships. A name is invented, and may also be a real
+company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
@@ -1473,8 +1477,8 @@ TIGER/Line files per county it ships, about a gigabyte, `geo-se.py` needs
 a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
 and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
-a copy of the surname file. A company script reads the shipped names, so run `names-*.py` and
-`geo-*.py` before it:
+a copy of the surname file. `company-se.py` reads the shipped sv_SE names and `geo/SE`, and `company-no.py`
+the shipped nb_NO names, so run `names-*.py` and `geo-se.py` before them:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
