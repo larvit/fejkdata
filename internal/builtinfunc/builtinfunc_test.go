@@ -71,12 +71,17 @@ func mustPanic(t *testing.T, name string, call func()) {
 	call()
 }
 
-// TestAsciiFoldsEveryShippedNameLetter keeps slugify from splitting a shipped name at a letter
-// ascii has no entry for.
 func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
-	files, err := filepath.Glob("../../data/*/[fl][ia]*-name.tsv")
-	if err != nil || len(files) != 6 {
-		t.Fatalf("found %d name files, want first-name.tsv and last-name.tsv of 3 locales: %v", len(files), err)
+	var files []string
+	for _, name := range []string{"first-name.tsv", "last-name.tsv"} {
+		found, err := filepath.Glob("../../data/*/" + name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		files = append(files, found...)
+	}
+	if len(files) == 0 {
+		t.Fatal("found no first-name.tsv or last-name.tsv under data/")
 	}
 	for _, file := range files {
 		src, err := os.ReadFile(file)
@@ -84,7 +89,7 @@ func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
 			t.Fatal(err)
 		}
 		for _, r := range string(src) {
-			if r > unicode.MaxASCII && unicode.IsLetter(r) && asciiFolds[r] == "" {
+			if r > unicode.MaxASCII && (unicode.IsLetter(r) || unicode.IsMark(r)) && asciiFolds[r] == "" {
 				t.Errorf("%s holds %q, which ascii has no entry for", file, r)
 			}
 		}

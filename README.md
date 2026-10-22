@@ -1036,11 +1036,11 @@ field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin 
 changes a non-ASCII rune that `ascii` drops to `-`, lowercases, changes every run of
 characters outside `a` to `z` and `0` to `9` to one `-`, and trims `-` from both ends: `Anna Lena`
 → `anna-lena`, `Åsa Öberg` → `asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string.
-Two slugs joined by `.` make a valid email address, even from a compound name such as
+Two non-empty slugs joined by `.` make a valid email address, even from a compound name such as
 `von Walden`. An email matches the name beside it where both read one name:
 
 ```json
-{ "format": "{person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",
+{ "format": "{person as p}{p.first} {p.last} <{slugify(p.first)}.{slugify(p.last)}@example.com>",
   "person": [
     { "format": "{first} {last}", "first": "Åsa", "last": "Öberg" },
     { "format": "{first} {last}", "first": "Bo", "last": "Ek" }
