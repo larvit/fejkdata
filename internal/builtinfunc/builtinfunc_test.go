@@ -30,6 +30,7 @@ func TestCheckNamesWhatACallGetsWrong(t *testing.T) {
 		{"nope", nil, `unknown function "nope"`},
 		{"luhn", []string{"1"}, "luhn takes 0 arguments, got 1"},
 		{"hex", nil, "hex takes 1 argument, got 0"},
+		{"fnr", nil, "fnr takes 1 argument, got 0"},
 		{"calc", []string{"a +"}, `calc("a +"): `},
 		{"calc", []string{"a", "-1"}, "calc decimals "},
 		{"calc", nil, "calc takes an expression and an optional decimals count, got 0 args"},

@@ -104,6 +104,58 @@ func TestBuiltinChecksums(t *testing.T) {
 	}
 }
 
+// TestBuiltinFnr completes a Norwegian fødselsnummer after seven digits: two individ digits, the
+// last from the digits its operand holds, and the two check digits Skatteetaten defines.
+func TestBuiltinFnr(t *testing.T) {
+	f := engine(1)
+	seen := map[string]bool{}
+	for i := 0; i < 300; i++ {
+		got := mustRender(t, f, `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"13579"}`)
+		if len(got) != 11 || got[:7] != "0181804" || !strings.Contains("13579", got[8:9]) || !validFnr(got) {
+			t.Fatalf("fnr = %q, want 0181804, an individ digit, one of 13579, and valid check digits", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) < 20 {
+		t.Errorf("fnr drew %d numbers in 300, want it varied", len(seen))
+	}
+}
+
+func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
+	f := engine(2)
+	for i := 0; i < 50; i++ {
+		got := mustRender(t, f, `{"format":"{pre}{fnr(sex.last)}","pre":"3181804","sex":{"format":"{last}","last":"02468"}}`)
+		if !validFnr(got) || !strings.Contains("02468", got[8:9]) {
+			t.Fatalf("fnr = %q, want a valid number whose individ ends in 0, 2, 4, 6 or 8", got)
+		}
+	}
+}
+
+// validFnr applies the weights Skatteetaten publishes: k1 over the nine digits with 3, 7, 6, 1,
+// 8, 9, 4, 5, 2, k2 over those and k1 with 5, 4, 3, 2, 7, 6, 5, 4, 3, 2; each is 11 less the
+// sum modulo 11, a sum of 11 giving 0, and a 10 discards the number.
+func validFnr(s string) bool {
+	if len(s) != 11 {
+		return false
+	}
+	var d [11]int
+	for i := range d {
+		if s[i] < '0' || s[i] > '9' {
+			return false
+		}
+		d[i] = int(s[i] - '0')
+	}
+	check := func(weights []int, want int) bool {
+		sum := 0
+		for i, w := range weights {
+			sum += w * d[i]
+		}
+		k := 11 - sum%11
+		return k != 10 && k%11 == want
+	}
+	return check([]int{3, 7, 6, 1, 8, 9, 4, 5, 2}, d[9]) && check([]int{5, 4, 3, 2, 7, 6, 5, 4, 3, 2}, d[10])
+}
+
 // TestBuiltinSeqPerGenerator pins seq's contract: a counter from 1, advancing on
 // each call, named counters independent, and the whole thing scoped to one
 // draw state so a fresh Generator restarts at 1.
