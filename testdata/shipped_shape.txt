@@ -296,10 +296,10 @@ nb_NO.first-name	format "{name}"	name name	weight count	parent sex
 nb_NO.first-name.count	string
 nb_NO.first-name.name	string
 nb_NO.first-name.sex	string
-nb_NO.fødselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digits)}"	reads nb_NO.birth-day nb_NO.sex
+nb_NO.fødselsnummer	format "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}"	reads nb_NO.birth-day nb_NO.sex
 nb_NO.fødselsnummer.birth	string
-nb_NO.individ	format "{digits}"	parent sex
-nb_NO.individ.digits	string
+nb_NO.individ	format "{digit}"	parent sex
+nb_NO.individ.digit	string
 nb_NO.individ.sex	string
 nb_NO.last-name	format "{name}"	key name	weight count
 nb_NO.last-name.count	string
@@ -316,7 +316,7 @@ nb_NO.sex.first-name.count
 nb_NO.sex.first-name.name
 nb_NO.sex.first-name.sex
 nb_NO.sex.individ
-nb_NO.sex.individ.digits
+nb_NO.sex.individ.digit
 nb_NO.sex.individ.sex
 nb_NO.sex.name	string
 nb_NO.title	format "{name}"	key name	weight share
