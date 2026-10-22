@@ -843,7 +843,7 @@ drawn from 61 to 88, valid in every month, rather than computed from the date dr
 A valid fødselsnummer over a random birth date may be a living person's, and Skatteetaten
 publishes no unassigned range of the real series. It does keep a synthetic register, whose
 numbers add 80 to the month (folkeregisteret-api-dokumentasjon, "Ny versjon av syntetisk
-folkeregister"), so `nb_NO.fødselsnummer` draws those, and a checker that requires the month
+folkeregister"), so `nb_NO.fodselsnummer` draws those, and a checker that requires the month
 to be 1 to 12 refuses it. The two check digits, the individ ranges per century and the
 parity of the third individ digit are Skatteetaten's, from its validation page, the
 Folkeregisterhandboken § 2-2 and the folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
@@ -856,6 +856,13 @@ since goal 4.7 loads a template whose part does nothing, and a typo such as `{fn
 shows at the first render. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
 since no layout adds 80 to a month, and 29 February is left out, since the year is drawn
 apart. A D-number, whose day is the birthday plus 40, is not shipped.
+
+Fresh-context readers seated as the README's hand fixture, Go test, validator-facing and bulk
+fixture authors picked the spellings. Two of the three asked for the path chose the ASCII
+`fodselsnummer`, which python-stdnum spells too, and the ø stays in prose. `fnr` won three
+of four for the function, since Norwegians write it, and `birth` the field. The validator-facing
+author would have the synthetic series named in the path; Skatteverket's test series sets the
+precedent of a plain name with the series documented.
 
 ## The US given names come from a mirror of the SSA file
 
