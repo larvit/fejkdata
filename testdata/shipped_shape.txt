@@ -73,6 +73,76 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
+geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
+geo.NO.address.locality	string
+geo.NO.address.postal-code	string
+geo.NO.address.street	string
+geo.NO.address.street-number	string
+geo.NO.locality	format "{name}"	key name	weight population	parent municipality
+geo.NO.locality.lat	string
+geo.NO.locality.lon	string
+geo.NO.locality.municipality	string
+geo.NO.locality.name	string
+geo.NO.locality.population	string
+geo.NO.locality.postal-code
+geo.NO.locality.postal-code.addresses
+geo.NO.locality.postal-code.code
+geo.NO.locality.postal-code.locality
+geo.NO.locality.street
+geo.NO.locality.street.addresses
+geo.NO.locality.street.locality
+geo.NO.locality.street.name
+geo.NO.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.NO.municipality.code	string
+geo.NO.municipality.locality
+geo.NO.municipality.locality.lat
+geo.NO.municipality.locality.lon
+geo.NO.municipality.locality.municipality
+geo.NO.municipality.locality.name
+geo.NO.municipality.locality.population
+geo.NO.municipality.locality.postal-code
+geo.NO.municipality.locality.postal-code.addresses
+geo.NO.municipality.locality.postal-code.code
+geo.NO.municipality.locality.postal-code.locality
+geo.NO.municipality.locality.street
+geo.NO.municipality.locality.street.addresses
+geo.NO.municipality.locality.street.locality
+geo.NO.municipality.locality.street.name
+geo.NO.municipality.name	string
+geo.NO.municipality.population	string
+geo.NO.municipality.region	string
+geo.NO.postal-code	format "{code}"	key code	weight addresses	parent locality
+geo.NO.postal-code.addresses	string
+geo.NO.postal-code.code	string
+geo.NO.postal-code.locality	string
+geo.NO.region	format "{name}"	key code	name name	weight population
+geo.NO.region.code	string
+geo.NO.region.municipality
+geo.NO.region.municipality.code
+geo.NO.region.municipality.locality
+geo.NO.region.municipality.locality.lat
+geo.NO.region.municipality.locality.lon
+geo.NO.region.municipality.locality.municipality
+geo.NO.region.municipality.locality.name
+geo.NO.region.municipality.locality.population
+geo.NO.region.municipality.locality.postal-code
+geo.NO.region.municipality.locality.postal-code.addresses
+geo.NO.region.municipality.locality.postal-code.code
+geo.NO.region.municipality.locality.postal-code.locality
+geo.NO.region.municipality.locality.street
+geo.NO.region.municipality.locality.street.addresses
+geo.NO.region.municipality.locality.street.locality
+geo.NO.region.municipality.locality.street.name
+geo.NO.region.municipality.name
+geo.NO.region.municipality.population
+geo.NO.region.municipality.region
+geo.NO.region.name	string
+geo.NO.region.population	string
+geo.NO.region.timezone	string
+geo.NO.street	format "{name}"	weight addresses	parent locality
+geo.NO.street.addresses	string
+geo.NO.street.locality	string
+geo.NO.street.name	string
 geo.SE.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.SE.locality
 geo.SE.address.locality	string
 geo.SE.address.postal-code	string
@@ -290,6 +360,11 @@ misc.useragent.os	string
 misc.useragent.ua	string
 misc.uuid	format "{hex(8)}-{hex(4)}-4{hex(3)}-{variant}{hex(3)}-{hex(12)}"
 misc.uuid.variant	string
+nb_NO.address	format "{/geo.NO.address as a}{a}"	reads geo.NO.address
+nb_NO.address.locality	string
+nb_NO.address.postal-code	string
+nb_NO.address.street	string
+nb_NO.address.street-number	string
 nb_NO.birth-day	format "{ddmm}"
 nb_NO.birth-day.ddmm	string
 nb_NO.company	format "{registered}"	reads nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name
