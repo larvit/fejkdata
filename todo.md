@@ -6,13 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 343`
+`Next ID = 344`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 292 | 0.2.0 |  |  | **Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 5.1 |
 | 291 | 0.2.0 |  |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
 | 293 | 0.2.0 |  |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.5 |
@@ -40,6 +39,7 @@
 | 174 | 0.3.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 9.1 |
 | 167 | 0.3.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 8.6 |
 | 195 | 0.3.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 8.6 |
+| 343 | 0.3.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 8.6 |
 | 11 | 0.3.0 |  |  | **Test that every `geo` tree holds the five table names and the `address` columns that port across countries.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 7.6 |
 | 40 | 0.3.0 |  |  | **Parse `defaultTable`'s path with the library's grammar.** | 1 | 1 | 2 | 2 | 2 | code health by 2 | 7.6 |
 | 86 | 0.3.0 |  |  | **Read both `en_US.phone` formats' area codes from one category, as their exchange reads `en_US.phone-exchange`.** | 1 | 1 | 1 | 1 | 2 | code health by 2 | 7.6 |
@@ -245,10 +245,6 @@
 
 ## Details
 
-### 292. Add `nb_NO`'s national personal id, the fødselsnummer, with its check digits.
-
-Find the issuer's rules, and a test series if it publishes one, first.
-
 ### 291. Add `nb_NO.phone`, drawn from Norway's numbering plan.
 
 Find the numbering plan and its licence first.
@@ -356,9 +352,15 @@ Item 26 revises the decision, but the decision does not point back to it.
 
 `reading-cost` on 2026-10-11: the last 5 chunks' median is 91452 new input tokens before their first commit, the 5 before them 69756. Read most over the last 5 (opens and searches): `README.md` 37, `todo.md` 29, `docs/decisions.md` 15, `CHANGELOG.md` 12, `data_test.go` 11, `shipped_test.go` 8, `cmd/fejkdata/main.go` 7, `data-import/geo-us.py` 7, `DATA-LICENSES.md` 5, `bench_test.go` 5. The chunk shipping this item runs `reading-cost --reset`.
 
+`reading-cost` after the chunk of item 292, on 2026-10-22: "Rising: the last 5 chunks' median is 113334 new input tokens before their first commit, the 5 before them 78241". It listed no file read most over the last 5.
+
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
 Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
+
+### 343. Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).
+
+`## Data` in `README.md`, from its heading to the next `## ` heading, holds the locale categories, the linked tables, the `sv_SE` personnummer recipe, the `nb_NO` fodselsnummer paragraphs and the `geo` namespace with no sub-heading, and every `[Data](#data)` link, and each `[index](#data)` link, points at the whole section. The prose reviewer of PR #249 found that the `nb_NO` fodselsnummer text uses "bound sex" and "as a personnummer does", which lines further down explain. The split keeps every README example `readme_test.go` runs passing, and every in-README link resolving, each to the sub-heading it means.
 
 ### 11. Test that every `geo` tree holds the five table names and the `address` columns that port across countries.
 
