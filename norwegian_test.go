@@ -207,7 +207,7 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 	}
 }
 
-// Nkom's E.164 register (13 July 2026) and Nummerforskriften § 16 give 8-digit mobile numbers
+// Nkom's E.164 register and Nummerforskriften § 16 give 8-digit mobile numbers
 // the series 40 to 49 and 90 to 99, and 8-digit fixed numbers 20 to 39, 50 to 57 and 60 to 79.
 // Språkrådet writes both in groups of two since 22 May 2019. The register blocks 20, 30, 50
 // and 60 whole and gives 58 and 59 to machine-to-machine traffic.
@@ -250,7 +250,7 @@ func TestShippedNorwegianPhoneInternational(t *testing.T) {
 	}
 }
 
-func TestShippedNorwegianPhoneBlocksAreNkomsAssignedBlocks(t *testing.T) {
+func TestShippedNorwegianPhoneTablesHoldFourDigitPrefixesOfAssignedSeries(t *testing.T) {
 	for file, series := range map[string]*regexp.Regexp{
 		"phone-mobile": regexp.MustCompile(`^[49]\d \d{2}$`),
 		"phone-fixed":  regexp.MustCompile(`^[23567]\d \d{2}$`),
@@ -264,13 +264,20 @@ func TestShippedNorwegianPhoneBlocksAreNkomsAssignedBlocks(t *testing.T) {
 			seen[p] = true
 		}
 	}
+}
+
+// Nkom assigns 56 12 whole, 40 00 and 90 00 whole, 56 20 to 56 29 to nobody, and of 56 97 and
+// 56 98 only some thousands, so a prefix is a row only when all ten thousand numbers are assigned.
+func TestShippedNorwegianPhonePrefixIsARowOnlyWhereNkomHasAssignedItWhole(t *testing.T) {
 	f := shipped(t, WithSeed(2))
 	for path, want := range map[string]string{"nb_NO.phone-fixed[56 12]": "56 12", "nb_NO.phone-mobile[40 00]": "40 00", "nb_NO.phone-mobile[90 00]": "90 00"} {
 		if got := fake(t, f, path); got != want {
-			t.Errorf("%s = %q, want %q, which Nkom assigns whole", path, got, want)
+			t.Errorf("%s = %q, want %q", path, got, want)
 		}
 	}
-	if _, err := f.Fake("nb_NO.phone-fixed[56 20]"); err == nil {
-		t.Errorf("phone-fixed[56 20] drew, but Nkom leaves 56 20 to 56 29 unassigned")
+	for _, prefix := range []string{"56 20", "56 97", "56 98"} {
+		if got, err := f.Fake("nb_NO.phone-fixed[" + prefix + "]"); err == nil {
+			t.Errorf("phone-fixed[%s] = %q, but Nkom has not assigned all of it", prefix, got)
+		}
 	}
 }
