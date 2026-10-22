@@ -474,7 +474,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `data/sv_SE/person.json` is `sv_SE.person`.
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `first-name`, `last-name`, `person`,
-`sex` and `title` so far. The other locales each carry `address`, `color`, `company`,
+`sex` and `title` so far; its `title` has no `parent` either, so it is selected as
+`nb_NO.title[dr.]`. The other locales each carry `address`, `color`, `company`,
 `date`, `email`, `first-name`, `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `company-coined`, `company-word`,
@@ -598,8 +599,8 @@ in 1930–2025 against the two birth numbers, so a fixture past a few hundred ro
 one and a `UNIQUE` column needs a category of your own. `sv_SE.date` and `en_US.date`
 are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
-one has no use for, and `sv_SE.title`, like `nb_NO.title`, has no `parent`, so it is
-selected as `sv_SE.title[dr]` rather than inside a sex.
+one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
+`sv_SE.title[dr]` rather than inside a sex.
 
 The `geo` namespace holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
