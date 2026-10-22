@@ -442,3 +442,38 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 		}
 	}
 }
+
+// Enhetsregisteret's AS names hold a poststed or kommune in 7.1% of them. A poststed that is also a
+// name, such as Berg, counts as the name, so only the others are counted.
+func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
+	named := map[string]bool{}
+	for _, file := range []string{"first-name", "last-name"} {
+		for _, row := range tsvRows(t, "data/nb_NO/"+file+".tsv") {
+			named[strings.ToLower(row["name"])] = true
+		}
+	}
+	places := map[string]bool{}
+	for _, r := range geoRows(t, "NO", "locality") {
+		if !named[strings.ToLower(r[0])] {
+			places[r[0]] = true
+		}
+	}
+	f := shipped(t, WithSeed(10))
+	const draws = 20000
+	holding := 0
+	for i := 0; i < draws; i++ {
+		words := strings.Fields(strings.TrimSuffix(fake(t, f, "nb_NO.company.as"), " AS"))
+	found:
+		for start := range words {
+			for end := start + 1; end <= len(words); end++ {
+				if places[strings.Join(words[start:end], " ")] {
+					holding++
+					break found
+				}
+			}
+		}
+	}
+	if share := float64(holding) / draws; share < 0.02 {
+		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 2%% or more", 100*share)
+	}
+}
