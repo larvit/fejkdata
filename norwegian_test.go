@@ -56,26 +56,43 @@ func TestNorwegianLastNamesStartWithHansenJohansenOlsen(t *testing.T) {
 	}
 }
 
-func TestNorwegianPersonWearsDrOrProfessorNowAndThen(t *testing.T) {
+func TestNorwegianPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T) {
 	f, err := New(withShipped(), WithSeed(1))
 	if err != nil {
 		t.Fatal(err)
 	}
+	first := map[string]map[string]bool{"kvinne": {}, "mann": {}}
+	for _, row := range tsvRows(t, "data/nb_NO/first-name.tsv") {
+		first[map[string]string{"f": "kvinne", "m": "mann"}[row["sex"]]][row["name"]] = true
+	}
+	last := map[string]bool{}
+	for _, row := range tsvRows(t, "data/nb_NO/last-name.tsv") {
+		last[row["name"]] = true
+	}
 	titles := map[string]int{}
 	for i := 0; i < 2000; i++ {
-		got, err := f.FakeTemplate("{/nb_NO.person as p}{p.prefix}|{p.first} {p.last}|{p}")
+		got, err := f.FakeTemplate("{/nb_NO.person as p}{p.sex}|{p.prefix}|{p.first}|{p.last}|{p}")
 		if err != nil {
 			t.Fatal(err)
 		}
-		prefix, rest, _ := strings.Cut(got, "|")
-		name, whole, _ := strings.Cut(rest, "|")
-		if whole != prefix+name {
-			t.Fatalf("%q: the person is not its prefix and its names", got)
+		cells := strings.Split(got, "|")
+		if len(cells) != 5 {
+			t.Fatalf("%q does not hold five cells", got)
 		}
-		titles[strings.TrimSpace(prefix)]++
+		sex, prefix, name, surname, whole := cells[0], cells[1], cells[2], cells[3], cells[4]
+		if !first[sex][name] {
+			t.Fatalf("%q: %q is not a first name shipped for the sex %q, which is kvinne or mann", got, name, sex)
+		}
+		if !last[surname] {
+			t.Fatalf("%q: %q is not a shipped last name", got, surname)
+		}
+		if whole != prefix+name+" "+surname {
+			t.Fatalf("%q: the person is not its prefix, first name and last name", got)
+		}
+		titles[prefix]++
 	}
-	if titles["dr."] == 0 || titles["professor"] == 0 || titles[""] < 1800 || len(titles) != 3 {
-		t.Errorf("titles over 2000 persons = %v, want a few dr. and professor beside many with none", titles)
+	if titles["dr. "] == 0 || titles["professor "] == 0 || titles[""] < 1800 || len(titles) != 3 {
+		t.Errorf("prefixes over 2000 persons = %q, want a few %q and %q beside many with none", titles, "dr. ", "professor ")
 	}
 }
 
