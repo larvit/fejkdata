@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 const ssbCutoff = 200
@@ -276,5 +277,65 @@ func TestShippedNorwegianPhonePrefixIsARowOnlyWhereNkomHasAssignedItWhole(t *tes
 		if got, err := f.Fake(path); err == nil {
 			t.Errorf("%s = %q, but Nkom has not assigned all of it", path, got)
 		}
+	}
+}
+
+func TestShippedNorwegianDateIsDayMonthYearWithDotsFrom1970To2029(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	for i := 0; i < 500; i++ {
+		got := fake(t, f, "nb_NO.date")
+		d, err := time.Parse("02.01.2006", got)
+		if err != nil || d.Year() < 1970 || d.Year() > 2029 {
+			t.Fatalf("date %q is not dd.mm.yyyy in 1970 to 2029: %v", got, err)
+		}
+	}
+}
+
+// Only example.com, example.org and example.net, which IANA reserves, are domains nobody can register.
+func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
+	f := shipped(t, WithSeed(4))
+	email := regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
+	seen := map[string]bool{}
+	for i := 0; i < 500; i++ {
+		got := fake(t, f, "nb_NO.email")
+		if !email.MatchString(got) {
+			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) < 400 {
+		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
+	}
+}
+
+// The Brønnøysund Register Centre's Enhetsregisteret on 2026-10-22, units not bankrupt, being wound
+// up or forcibly dissolved: 423,482 aksjeselskap, 9,104 selskap med delt ansvar, 6,198 ansvarlig selskap, 205
+// allmennaksjeselskap and 105 kommandittselskap, the forms whose name ends in its abbreviation.
+func TestNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
+	f := shipped(t, WithSeed(6))
+	registered := map[string]int{"AS": 423482, "DA": 9104, "ANS": 6198, "ASA": 205, "KS": 105}
+	const draws, total = 400000, 439094
+	name := regexp.MustCompile(`^\p{Lu}[\p{L} '-]*\p{L} (AS|DA|ANS|ASA|KS)$`)
+	form := map[string]int{}
+	for i := 0; i < draws; i++ {
+		got := fake(t, f, "nb_NO.company")
+		if !name.MatchString(got) {
+			t.Fatalf("company %q is not a name and a legal form", got)
+		}
+		form[got[strings.LastIndex(got, " ")+1:]]++
+	}
+	for abbreviation, units := range registered {
+		assertShare(t, abbreviation+" of the companies", form[abbreviation], draws, float64(units)/total)
+	}
+}
+
+func TestNorwegianCompanyNamesVary(t *testing.T) {
+	f := shipped(t, WithSeed(7))
+	seen := map[string]bool{}
+	for i := 0; i < 1000; i++ {
+		seen[fake(t, f, "nb_NO.company")] = true
+	}
+	if len(seen) < 700 {
+		t.Errorf("1000 companies drew %d distinct, want 700 or more", len(seen))
 	}
 }
