@@ -148,14 +148,14 @@
 | 246 | 0.3.0 |  |  | **Add `en_US.bankaccount`, an account number of at most 17 characters, the width of a Nacha ACH entry's account field.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.6 |
 | 263 | 0.3.0 |  |  | **Add `misc.color` names with their hex, rgb, hsl and cmyk forms.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 1 | 2.6 |
 | 274 | 0.3.0 | 210 |  | **Add `fr_FR.company`, `fr_FR.email` and `fr_FR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
-| 278 | 0.3.0 | 206 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
+| 278 | 0.3.0 | 206, 345 |  | **Add `zh_CN.company`, `zh_CN.email` and `zh_CN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 283 | 0.3.0 | 208 |  | **Add `es_MX.company`, `es_MX.email` and `es_MX.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 288 | 0.3.0 | 212 |  | **Add `pt_BR.company`, `pt_BR.email` and `pt_BR.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 298 | 0.3.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 303 | 0.3.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
-| 307 | 0.3.0 | 207 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
-| 311 | 0.3.0 | 209 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
-| 315 | 0.3.0 | 211 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
+| 307 | 0.3.0 | 207, 345 |  | **Add `hi_IN.company`, `hi_IN.email` and `hi_IN.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
+| 311 | 0.3.0 | 209, 345 |  | **Add `ar_EG.company`, `ar_EG.email` and `ar_EG.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
+| 315 | 0.3.0 | 211, 345 |  | **Add `bn_BD.company`, `bn_BD.email` and `bn_BD.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 319 | 0.3.0 | 213 |  | **Add `id_ID.company`, `id_ID.email` and `id_ID.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 323 | 0.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 328 | 0.3.0 | 205 |  | **Add `is_IS.company`, `is_IS.email` and `is_IS.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
