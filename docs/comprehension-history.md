@@ -821,3 +821,17 @@ Inherited architect, decided by:
 
 - Locality: `data/sv_SE/company.json:28` `ab.written`: reads the absolute path `{.company.ab.name}`, so a bound company's form name is a fresh draw, and only the changelog's Breaking entry explains it
 - Locality: `data/sv_SE/organisationsnummer.json:5` `vat`: reads names bound only in the top-level `format`, reached from `data/sv_SE/vat.json:1` from outside
+
+## 2026-10-22T10:59:32Z, PR #249 at e21e6d6, against 67a8a92
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | worse | same | same |
+
+Inherited architect, decided by:
+
+- Shape: `internal/builtinfunc/builtins.go:27` `builtins`: `fnr` is filed as a derivation but also draws its second individ digit and reads an operand, so the registry comment's two shapes, derivation and sample, no longer cover every entry
+- Shape: `data/nb_NO/birth-day.json:1` `nb_NO.birth-day`: a public category named for a birthday that renders `0181`, the month plus 80, which only the README says
