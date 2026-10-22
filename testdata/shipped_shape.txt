@@ -309,6 +309,14 @@ nb_NO.person.first	string
 nb_NO.person.last	string
 nb_NO.person.prefix	string null
 nb_NO.person.sex	string
+nb_NO.phone	reads nb_NO.phone-fixed nb_NO.phone-mobile
+nb_NO.phone-fixed	format "{prefix}"	key prefix
+nb_NO.phone-fixed.prefix	string
+nb_NO.phone-mobile	format "{prefix}"	key prefix
+nb_NO.phone-mobile.prefix	string
+nb_NO.phone.international
+nb_NO.phone.national
+nb_NO.phone.subscriber
 nb_NO.sex	format "{name}"	key code	name name
 nb_NO.sex.code	string
 nb_NO.sex.first-name
