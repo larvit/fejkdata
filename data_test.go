@@ -618,6 +618,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	for _, c := range []struct{ locale, country, template, largest string }{
 		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}|", "Stockholm"},
 		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}", "New York"},
+		{"nb_NO", "NO", "{a.street}|{a.postal-code}|{a.locality}|", "Oslo"},
 	} {
 		places := geoPlaces(t, c.country)
 		apart, localities := false, map[string]int{}
@@ -661,7 +662,7 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	for country, city := range map[string]struct {
 		key   string
 		least int
-	}{"SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
+	}{"NO": {"Oslo", 2000}, "SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
 		streets := 0
 		for _, r := range geoRows(t, country, "street") {
 			if r[1] == city.key {
@@ -742,7 +743,7 @@ func geoRows(t *testing.T, country, table string) [][]string {
 }
 
 // geoPlaces reads a country's geo tables into every "street|postal-code|locality|region"
-// one locality holds, the region empty for SE, whose address carries none.
+// one locality holds, the region empty for NO and SE, whose addresses carry none.
 func geoPlaces(t *testing.T, country string) map[string]bool {
 	rows := func(table string) [][]string { return geoRows(t, country, table) }
 	name, region := map[string]string{}, map[string]string{}

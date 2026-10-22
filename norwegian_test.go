@@ -415,3 +415,30 @@ func TestShippedNorwegianCompanyNamesVary(t *testing.T) {
 		t.Errorf("1000 companies drew %d distinct, want 700 or more", len(seen))
 	}
 }
+
+func TestShippedNorwegianAddressIsAStreetANumberAPostnummerAndAPoststed(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	address := regexp.MustCompile(`^\pL.* [1-9]\d{0,3}[A-Z]?\n\d{4} \pL.*$`)
+	for i := 0; i < 300; i++ {
+		if a := fake(t, f, "nb_NO.address"); !address.MatchString(a) {
+			t.Fatalf("nb_NO.address = %q, want a street and a number, then a postnummer and a poststed", a)
+		}
+	}
+}
+
+// Bring and Kartverket spell a poststed in capitals, MO I RANA; a place name is written Mo i Rana.
+func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
+	names := map[string]bool{}
+	capitals := regexp.MustCompile(`\p{Lu}{2}`)
+	for _, r := range geoRows(t, "NO", "locality") {
+		names[r[0]] = true
+		if capitals.MatchString(r[0]) {
+			t.Errorf("geo.NO: poststed %q holds a word in capitals", r[0])
+		}
+	}
+	for _, name := range []string{"Oslo", "Bergen", "Mo i Rana", "Kristiansund N", "Ålesund"} {
+		if !names[name] {
+			t.Errorf("geo.NO: no poststed %q", name)
+		}
+	}
+}
