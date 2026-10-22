@@ -505,7 +505,8 @@ both are eight digits, written in pairs as Språkrådet has since 22 May 2019: `
 ten thousand numbers that Nkom's E.164 register, downloaded on 2026-10-22, has assigned to
 providers whole as mobile or fixed numbers. A prefix only partly assigned is left out, and so are
 the series Nkom blocks, gives to machine-to-machine traffic or keeps for special numbers. A row is
-selected by its prefix, `phone-fixed[56 12]`. The last four digits are drawn. A number is valid, not
+selected by its prefix, `phone-fixed[56 12]`. A number's `block` is one of those prefixes and its
+`subscriber` the last four digits, drawn: `34 56`. A number is valid, not
 real: it follows the plan, and a real subscriber may hold it. A bound number reads `national`,
 `46 12 34 56`, and `international`, `+47 46 12 34 56`; Språkrådet gives no country-code form, so
 fejkdata puts `+47` before the same pairs.
