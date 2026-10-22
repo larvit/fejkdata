@@ -312,27 +312,92 @@ func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	}
 }
 
-// The units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being wound
-// up and those forcibly dissolved.
+// The active units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being
+// wound up and those forcibly dissolved; a sole proprietorship, ENK, carries no abbreviation.
 func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
 	f := shipped(t, WithSeed(6))
-	registered := map[string]int{"AS": 423482, "DA": 9104, "ANS": 6198, "ASA": 205, "KS": 105}
+	registered := map[string]int{"ENK": 465166, "AS": 423370, "DA": 9105, "SA": 6761, "ANS": 6214, "ASA": 205, "KS": 105}
 	const draws = 400000
 	var total int
 	for _, units := range registered {
 		total += units
 	}
-	name := regexp.MustCompile(`^\p{Lu}[\p{L} '-]*\p{L} (AS|DA|ANS|ASA|KS)$`)
+	name := regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'-]*[\p{L}\p{N}]$`)
+	abbreviation := regexp.MustCompile(` (AS|DA|ANS|ASA|KS|SA)$`)
 	form := map[string]int{}
 	for i := 0; i < draws; i++ {
 		got := fake(t, f, "nb_NO.company")
 		if !name.MatchString(got) {
-			t.Fatalf("company %q is not a name and a legal form", got)
+			t.Fatalf("company %q is not a name that may end in a legal form", got)
 		}
-		form[got[strings.LastIndex(got, " ")+1:]]++
+		if m := abbreviation.FindStringSubmatch(got); m != nil {
+			form[m[1]]++
+		} else {
+			form["ENK"]++
+		}
 	}
-	for abbreviation, units := range registered {
-		assertShare(t, abbreviation+" of the companies", form[abbreviation], draws, float64(units)/float64(total))
+	for code, units := range registered {
+		assertShare(t, code+" of the companies", form[code], draws, float64(units)/float64(total))
+	}
+}
+
+// oneWord is, per form, the units whose name is one coined word, and the units of the shapes that ship.
+func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
+	oneWord := map[string][2]int{"AS": {101529, 329382}, "ENK": {6654, 316961}, "SA": {874, 4821}, "DA": {2067, 6463}, "ANS": {1165, 3721}}
+	f := shipped(t, WithSeed(8))
+	const draws = 100000
+	for form, c := range oneWord {
+		var single int
+		for i := 0; i < draws; i++ {
+			name := strings.TrimSuffix(fake(t, f, "nb_NO.company."+strings.ToLower(form)), " "+form)
+			if !strings.Contains(name, " ") {
+				single++
+			}
+		}
+		assertShare(t, form+" names of one word", single, draws, float64(c[0])/float64(c[1]))
+	}
+}
+
+// company-word.tsv holds a word only where the register repeats it, so no row names one company.
+func TestNorwegianCompanyWordsAreRepeatedInEnhetsregisteret(t *testing.T) {
+	rows := tsvRows(t, "data/nb_NO/company-word.tsv")
+	word := regexp.MustCompile(`^\p{Lu}\p{L}{2,}$`)
+	have := map[string]bool{}
+	for _, row := range rows {
+		have[row["word"]] = true
+		if n, err := strconv.Atoi(row["count"]); err != nil || n < 100 || !word.MatchString(row["word"]) {
+			t.Errorf("row %v, want a word of three or more letters, capitalised, that 100 or more register names carry", row)
+		}
+	}
+	for _, w := range []string{"Holding", "Invest", "Eiendom", "Consulting", "Bygg"} {
+		if !have[w] {
+			t.Errorf("company-word.tsv omits %q, a word that 100 or more register names carry", w)
+		}
+	}
+}
+
+// The hand-written lists held 39 last names; the email now draws the ones SSB publishes.
+func TestShippedNorwegianEmailDrawsItsNamesFromSSB(t *testing.T) {
+	var slugs []string
+	fold := strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
+	ascii := regexp.MustCompile(`^[a-z]{6,}$`)
+	for _, row := range tsvRows(t, "data/nb_NO/last-name.tsv") {
+		if slug := fold.Replace(strings.ToLower(row["name"])); ascii.MatchString(slug) {
+			slugs = append(slugs, slug)
+		}
+	}
+	f := shipped(t, WithSeed(9))
+	seen := map[string]bool{}
+	for i := 0; i < 5000; i++ {
+		email := fake(t, f, "nb_NO.email")
+		for _, slug := range slugs {
+			if strings.Contains(email, slug) {
+				seen[slug] = true
+			}
+		}
+	}
+	if len(seen) < 100 {
+		t.Errorf("5000 emails carry %d distinct last names of SSB's, want 100 or more", len(seen))
 	}
 }
 
