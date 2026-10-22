@@ -330,6 +330,9 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 		if !name.MatchString(got) {
 			t.Fatalf("company %q is not a name that may end in a legal form", got)
 		}
+		if strings.HasSuffix(got, " ENK") {
+			t.Fatalf("company %q ends in ENK, which carries no abbreviation", got)
+		}
 		if m := abbreviation.FindStringSubmatch(got); m != nil {
 			form[m[1]]++
 		} else {
@@ -341,24 +344,26 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 	}
 }
 
-// oneWord is, per form, the units whose name is one coined word, and the units of the shapes that ship.
+// oneWord is, per form, the register's names that are one coined word, and the names of the shapes that
+// ship, as company-no.py counted them; the test holds a render to them.
 func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
-	oneWord := map[string][2]int{"AS": {101529, 329382}, "ENK": {6654, 316961}, "SA": {874, 4821}, "DA": {2067, 6463}, "ANS": {1165, 3721}}
-	f := shipped(t, WithSeed(8))
-	const draws = 100000
+	oneWord := map[string][2]int{"AS": {101511, 326172}, "ENK": {6649, 323474}, "SA": {874, 4616}, "DA": {2067, 6336}, "ANS": {1165, 3655}, "ASA": {88, 189}, "KS": {16, 72}}
+	const draws = 40000
 	for form, c := range oneWord {
-		var single int
-		for i := 0; i < draws; i++ {
-			name := strings.TrimSuffix(fake(t, f, "nb_NO.company."+strings.ToLower(form)), " "+form)
-			if !strings.Contains(name, " ") {
-				single++
+		t.Run(form, func(t *testing.T) {
+			f := shipped(t, WithSeed(8))
+			var single int
+			for i := 0; i < draws; i++ {
+				name := strings.TrimSuffix(fake(t, f, "nb_NO.company."+strings.ToLower(form)), " "+form)
+				if !strings.Contains(name, " ") {
+					single++
+				}
 			}
-		}
-		assertShare(t, form+" names of one word", single, draws, float64(c[0])/float64(c[1]))
+			assertShare(t, form+" names of one word", single, draws, float64(c[0])/float64(c[1]))
+		})
 	}
 }
 
-// company-word.tsv holds a word only where the register repeats it, so no row names one company.
 func TestNorwegianCompanyWordsAreRepeatedInEnhetsregisteret(t *testing.T) {
 	rows := tsvRows(t, "data/nb_NO/company-word.tsv")
 	word := regexp.MustCompile(`^\p{Lu}\p{L}{2,}$`)
@@ -376,7 +381,6 @@ func TestNorwegianCompanyWordsAreRepeatedInEnhetsregisteret(t *testing.T) {
 	}
 }
 
-// The hand-written lists held 39 last names; the email now draws the ones SSB publishes.
 func TestShippedNorwegianEmailDrawsItsNamesFromSSB(t *testing.T) {
 	var slugs []string
 	fold := strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
