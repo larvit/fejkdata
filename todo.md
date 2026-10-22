@@ -6,14 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 344`
+`Next ID = 345`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 293 | 0.2.0 |  |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.5 |
+| 344 | 0.2.0 | 338 |  | **Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 4 | 2.9 |
 | 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 3 | 2.4 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 2.2 |
 | 289 | 0.2.0 |  |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.8 |
@@ -247,6 +247,16 @@
 ### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
 
 Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`, which folds with `ascii`'s table and changes a non-ASCII rune that table has no entry for to `-`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`. `readme_test.go`'s expected emails follow the decision's slug rules. A test asserts that every non-ASCII letter of the shipped first and last names has an entry in `ascii`'s table.
+
+### 344. Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.
+
+The README's Data section lets a small hand-written set ship only while `todo.md` carries the step that replaces it (goal 3.2); this is that step for nb_NO. Today `data/nb_NO/company.json` draws a coined name from hand-written parts (`coined`, `trade`), or a surname or first name from nb_NO's SSB tables, and a legal form among AS, DA, ANS, ASA and KS weighted by counts of Enhetsregisteret read by hand through its API on 2026-10-22 (`https://data.brreg.no/enhetsregisteret/api/enheter?organisasjonsform=AS&konkurs=false&underAvvikling=false&underTvangsavviklingEllerTvangsopplosning=false&size=1`, `page.totalElements`).
+
+Write `data-import/company-no.py` the way `data-import/company-se.py` reads Bolagsverket, from the register's bulk file `https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv` (155 MB gzip, NLOD 2.0): the trade words that many names end with and that are neither names nor places, the shapes of names per legal form, and the wording each form's names carry. The legal-form weights and the name shapes are then the script's output, and the hand count is gone. Consider the forms that don't ship today: ENK (sole proprietorship, named for a person), NUF and SA. Don't copy `sv_SE.company`'s absolute read `{.company.ab.name}`, which the comprehension seats found hard: a bound company's form name must not be a silent fresh draw.
+
+`data/nb_NO/email.json` keeps hand-written ASCII names in its `first` and `last` lists. Make them draw from, or be checked against, `nb_NO.first-name` and `nb_NO.last-name` (SSB), folded as Norwegian folds them (ø to o, å to a, æ to ae) through `slugify` (item 338); or leave email as it is, if that is simpler, and say so in the PR.
+
+Update `DATA-LICENSES.md`'s `nb_NO/company.json` row, whose last column becomes the script, and the test `TestNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret` in `norwegian_test.go`, whose counts then come from the script, as `TestSwedishCompanyWordingsAndShapesFollowTheRegister` in `data_test.go` does for Sweden.
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
