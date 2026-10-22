@@ -7,24 +7,23 @@ The script reads the register (bolagsverket_bulkfil.zip, 250 MB) for counts and 
 company.json weighs a legal form by its new registrations in STATISTICS_YEAR. For each form it writes the
 wordings that the names of the form's active companies carry, and the shapes of those names. A shape is the
 kind of each word: a surname, its genitive, a given name, a place, a number, `och`, `&` or `i`, a trade word,
-or any other, which draws a coined word. A wording or shape ships when it is at least SHARE_MIN of the
-form's names.
+or any other, which draws a coined word. A wording or shape ships when it is at least company_names.SHARE_MIN of
+the form's names.
 
-company-word.tsv holds the trade words, each with its count and its most common spelling. A trade word is
-neither a name nor a place, is carried by WORDS_MIN or more names, ends a name in at least a third of its
-uses, and is carried by FORM_MIN names in each of at least three of the forms AB, HB, KB and E, so a word
-one company family repeats stays out.
+company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
+company_names.py over the names of the forms AB, HB, KB and E.
 """
 import argparse
 import csv
 import io
 import re
 import zipfile
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 import source
 import tsv
+from company_names import Vocabulary, column, common, split, trade_words, weighted, word_usage
 
 REGISTER = "https://vardefulla-datamangder.bolagsverket.se/bolagsverket/bolagsverket_bulkfil.zip"
 STATISTICS = "https://www.bolagsverket.se/statistik/ftgstat_oppna.csv"
@@ -33,16 +32,12 @@ OUT = ROOT / "sv_SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 STATISTICS_YEAR = "2025"
 FORMS = ("AB", "E", "HB", "BRF", "EK", "KB")
-SHARE_MIN = 0.01
-WORDS_MIN = 100
-FORM_MIN = 10
-WORD_FORMS = {"AB", "HB", "KB", "E"}
-WORD = re.compile(r"^[a-zåäöéü]{3,}$")
 FUNCTION_WORDS = {"och", "the", "and", "of", "for", "för", "med", "på", "till", "av", "ett", "den", "det", "mot", "from", "with"}
 LEGAL_WORDS = {
     "ab", "aktiebolag", "aktiebolaget", "hb", "handelsbolag", "handelsbolaget", "kb", "kommanditbolag", "kommanditbolaget",
     "bostadsrättsförening", "bostadsrättsföreningen", "brf", "ekonomisk", "ekonomiska", "förening", "föreningen", "publ",
 }
+VOCABULARY = Vocabulary(re.compile(r"^[a-zåäöéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AB", "HB", "KB", "E"}), 3)
 ENDINGS = {
     "AB": [["ab"], ["aktiebolag"]],
     "HB": [["hb"], ["handelsbolag"]],
@@ -54,11 +49,6 @@ SLOTS = {
     "X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "Ss": "{.last-name}s", "F": "{.first-name}",
     "P": "{/geo.SE.locality}", "N": "{int(1,30)}", "i": "i", "&": "&", "och": "och",
 }
-
-
-def column(path):
-    """The first column of a shipped table, lower case."""
-    return {line.split("\t")[0].lower() for line in Path(path).read_text(encoding="utf-8").splitlines()[1:]}
 
 
 def registrations(data):
@@ -84,10 +74,6 @@ def register_names(data):
                 break
 
 
-def split(name):
-    return [w for w in re.split(r"[\s,]+", name) if w]
-
-
 def kind(word, surnames, firsts, places):
     """S, Ss, F or P for a surname, its genitive, a given name or a place; else None."""
     w = word.lower()
@@ -100,26 +86,6 @@ def kind(word, surnames, firsts, places):
     if w in places:
         return "P"
     return None
-
-
-def trade_words(names, named):
-    """The trade words, each with its spelling most names use and its count, by the rule in the docstring."""
-    counts, ending, forms, spellings = Counter(), Counter(), defaultdict(Counter), defaultdict(Counter)
-    for form, name in names:
-        words = [w for w in split(name) if w.lower() not in LEGAL_WORDS]
-        for i, w in enumerate(words):
-            low = w.lower()
-            if WORD.match(low) and low not in FUNCTION_WORDS and not named(low):
-                counts[low] += 1
-                forms[low][form] += 1
-                ending[low] += i == len(words) - 1
-                if not name.isupper():
-                    spellings[low][w[0].upper() + w[1:]] += 1
-    return {
-        w: (spellings[w].most_common(1)[0][0] if spellings[w] else w.capitalize(), c)
-        for w, c in counts.items()
-        if c >= WORDS_MIN and 3 * ending[w] >= c and sum(forms[w][f] >= FORM_MIN for f in WORD_FORMS) >= 3
-    }
 
 
 def legal_wording(form, words):
@@ -163,20 +129,6 @@ def count_names(names, surnames, firsts, places, trade):
     return wordings, shapes
 
 
-def common(counts):
-    """The keys with at least SHARE_MIN of the total, by count then key."""
-    total = sum(counts.values())
-    return [(k, c) for k, c in sorted(counts.items(), key=lambda kc: (-kc[1], kc[0])) if c >= SHARE_MIN * total]
-
-
-def quoted(s):
-    return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def weighted(fmt, weight):
-    return "{ " + f'"format": {quoted(fmt)}, "weight": {weight}' + " }"
-
-
 def lines(key, items):
     return [f'    "{key}": [', ",\n".join("      " + i for i in items), "    ]"]
 
@@ -209,7 +161,7 @@ def main():
     register = source.fetch(a.register, a.cache, "bolagsverket-bulkfil.zip", magic=b"PK")
     surnames, firsts, places = (column(ROOT / path) for path in ("sv_SE/last-name.tsv", "sv_SE/first-name.tsv", "geo/SE/locality.tsv"))
     names = list(register_names(register))
-    trade = trade_words(names, lambda w: kind(w, surnames, firsts, places))
+    trade = trade_words(word_usage(names, lambda w: kind(w, surnames, firsts, places), VOCABULARY), VOCABULARY)
     out = Path(a.out)
     tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
     wordings, shapes = count_names(names, surnames, firsts, places, trade)
