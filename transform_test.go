@@ -8,6 +8,8 @@ func TestTransforms(t *testing.T) {
 		`{"format":"{uppercase(x)}|{lowercase(x)}|{ascii(x)}","x":"Åsa Ödegård-Nuñez"}`: "ÅSA ÖDEGÅRD-NUÑEZ|åsa ödegård-nuñez|Asa Odegard-Nunez",
 		`{"format":"{lowercase(ascii(x))}","x":"Åsa"}`:                                  "asa",
 		`{"format":"{ascii(x)}","x":"Ærø ß 日本"}`:                                        "AEro ss ",
+		// The letters beyond Latin-1 in ruby-i18n's default transliteration table, less ŉ.
+		`{"format":"{ascii(x)}","x":"ẞĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŊŋŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžǪǫǬǭ"}`: "SSAaAaAaCcCcCcCcDdDdEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIJijJjKkkLlLlLlLlLlNnNnNnNGngOoOoOoRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuWwYyYZzZzZzOoOo",
 	} {
 		if got := mustRender(t, f, src); got != want {
 			t.Errorf("render(%s) = %q, want %q", src, got, want)
@@ -25,6 +27,7 @@ func TestSlugify(t *testing.T) {
 		"von Walden": "von-walden",
 		"Ærø ß":      "aero-ss",
 		"Ørsted":     "orsted",
+		"Wałęsa":     "walesa",
 		"  --Bo--  ": "bo",
 		"Bo1 2":      "bo1-2",
 		"R0 9":       "r0-9",
