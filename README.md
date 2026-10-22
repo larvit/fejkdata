@@ -12,8 +12,8 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons and
-  fødselsnummer, with names weighted by how common they are. Every Swedish postal town and a sample of US places
+- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
+  fødselsnummer and phone numbers, with names weighted by how common they are. Every Swedish postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
@@ -483,7 +483,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `phone-exchange` (the three digits after the area code).
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `first-name`, `fodselsnummer`,
-`individ`, `last-name`, `person`, `sex` and `title`. `fodselsnummer` reads `birth-day` and
+`individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`. `fodselsnummer` reads `birth-day` and
 `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
@@ -498,6 +498,17 @@ that area code, five to eight digits, and is grouped as Språkrådet writes it, 
 and `031-668 01 50`. No subscriber number starts with the trunk `0`. A number is valid, not real: it
 follows the plan, and a real subscriber may hold it. A bound number reads `national`,
 `070-123 45 67`, and `international`, `+46 70 123 45 67`.
+
+`nb_NO.phone` is a mobile number ten times as often as a fixed one. Norway has no area codes, so
+both are eight digits, written in pairs as Språkrådet has since 22 May 2019: `46 12 34 56`.
+`nb_NO.phone-mobile` and `nb_NO.phone-fixed` hold the first four digits, such as `46 12`, of every
+ten thousand numbers that Nkom's E.164 register, downloaded on 2026-10-22, has assigned to
+providers whole as mobile or fixed numbers. A prefix only partly assigned is left out, and so are
+the series Nkom blocks, gives to machine-to-machine traffic or keeps for special numbers. A row is
+selected by its prefix, `phone-fixed[56 12]`. The last four digits are drawn. A number is valid, not
+real: it follows the plan, and a real subscriber may hold it. A bound number reads `national`,
+`46 12 34 56`, and `international`, `+47 46 12 34 56`; Språkrådet gives no country-code form, so
+fejkdata puts `+47` before the same pairs.
 
 A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
@@ -1451,6 +1462,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimet
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
