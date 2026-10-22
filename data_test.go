@@ -413,7 +413,7 @@ func TestShippedPersonNames(t *testing.T) {
 	if _, err := f.Fake("en_US.first-name[Taylor]"); err == nil || !strings.Contains(err.Error(), "sex[f].first-name[Taylor]") {
 		t.Fatalf("Fake(en_US.first-name[Taylor]) = %v, want both sexes' rows listed", err)
 	}
-	for _, locale := range []string{"sv_SE", "en_US"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO"} {
 		seen := map[string]bool{}
 		for i := 0; i < 2000; i++ {
 			seen[fake(t, f, locale+".sex[f].first-name")] = true
@@ -421,7 +421,7 @@ func TestShippedPersonNames(t *testing.T) {
 			first, sex, _ := strings.Cut(got, "|")
 			fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
 		}
-		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" {
+		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" {
 			t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
 		}
 	}
@@ -431,7 +431,7 @@ func TestShippedPersonNames(t *testing.T) {
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for _, locale := range []string{"sv_SE", "en_US"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO"} {
 		apart := false
 		for i := 0; i < 300; i++ {
 			got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)

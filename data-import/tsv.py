@@ -3,6 +3,9 @@ import re
 import sys
 from pathlib import Path
 
+# A person's name: parts of two or more letters, joined by a space, an apostrophe or a hyphen.
+NAME = re.compile(r"^[^\W\d_]{2,}([ '-][^\W\d_]{2,})*$")
+
 
 def write(path, columns, rows):
     """Write the rows as a TSV of a header and at least one row, each cell stripped, non-empty and free of tabs, newlines and braces."""
