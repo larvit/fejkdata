@@ -498,7 +498,8 @@ mailbox.
 active units of it on 2026-10-22: sole proprietorship (ENK, a name with no abbreviation), AS, DA, SA, ANS,
 ASA and KS, which end their names in the abbreviation, such as `Nordicvik Holding AS`. Each form has its own
 shapes of names, such as a coined word and a trade word, or a last name and a trade word, in the
-proportions the register's names have, where a last or first name is one that SSB lists. `nb_NO.company.as` draws only a limited company, and `.enk`,
+proportions the register's names have, where a last or first name is one that SSB lists. A sole proprietor's name holds the owner's last name, as
+foretaksnavneloven § 2-2 requires, so the unlisted word after a first name, or else the first unlisted word, is one. `nb_NO.company.as` draws only a limited company, and `.enk`,
 `.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their form. `company-word` holds the trade words, like
 `Holding` or `Eiendom`, that 100 or more of the register's names carry, and `company-coined` the made-up
 words: a root that 60 or more names begin with, such as `Nordic`, and an ending that 40 or more of the

@@ -8,8 +8,10 @@ nb_NO first and last names, so run names-no.py first. It leaves out the units th
 or forcibly dissolved. company.json weighs a legal form by its units, and for each form writes the shapes of
 the names of the units that carry the form's abbreviation. A shape is the kind of each word: a last name, a
 first name, a number, `og`, `&`, a trade word, or any other, which draws a coined word. A last or first name
-is one that SSB lists, and one it doesn't, such as a rarer owner's, is any other. A shape ships when it is at
-least company_names.SHARE_MIN of the form's names. The forms are AS, ASA, DA, ANS, KS, SA and ENK, which is
+is one that SSB lists, and one it doesn't is any other, except in a sole proprietor's name, which
+foretaksnavneloven § 2-2 (https://lovdata.no/dokument/NL/lov/1985-06-21-79) requires to hold the owner's last name:
+with none listed, the unlisted word after a first name is the last name, else the first unlisted word. A shape
+ships when it is at least company_names.SHARE_MIN of the form's names. The forms are AS, ASA, DA, ANS, KS, SA and ENK, which is
 named for a person and carries no abbreviation. NUF is left out: its names carry the foreign enterprise's own
 form, such as AB, LTD or GMBH, and no Norwegian one.
 
@@ -92,7 +94,7 @@ def kind(word, sets, last):
 
 
 def roots(usage, trade):
-    """The words of ROOT_LETTERS letters that begin ROOT_MIN or more names and end under a third of the names they are in, none of them a trade word."""
+    """The words of ROOT_LETTERS letters that begin ROOT_MIN or more names and end under a third of the names they are in, none of them a trade word, carried by FORM_MIN names in at least two forms."""
     return sorted(
         w.capitalize()
         for w, u in usage.items()
@@ -109,7 +111,7 @@ def endings(places):
 
 
 def shape_of(form, words, sets, trade):
-    """The kinds of the words, as SLOTS keys, or None where a word is a place. A sole proprietor's name ends in a last name: an unlisted word after a first name is one."""
+    """The kinds of the words, as SLOTS keys, or None where a word is a place. The law requires a sole proprietor's name to hold the owner's last name, so where none is listed the word after a first name is one, else the first unlisted word."""
     shape = []
     for i, w in enumerate(words):
         low = w.lower()
@@ -122,8 +124,9 @@ def shape_of(form, words, sets, trade):
             if found == "P":
                 return None
             shape.append(found)
-    if form in NO_WORDING and shape[-2:] == ["F", "X"]:
-        shape[-1] = "S"
+    if form in NO_WORDING and "S" not in shape and "X" in shape:
+        after_first = [i for i in range(1, len(shape)) if shape[i] == "X" and shape[i - 1] == "F"]
+        shape[after_first[0] if after_first else shape.index("X")] = "S"
     return tuple(shape)
 
 
