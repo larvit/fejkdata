@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -203,5 +204,73 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 		if len(digits) != 5 {
 			t.Errorf("500 draws gave a %s the third individ digits %v, want all five of its parity", sex, digits)
 		}
+	}
+}
+
+// Nkom's E.164 register (13 July 2026) and Nummerforskriften § 16 give 8-digit mobile numbers
+// the series 40 to 49 and 90 to 99, and 8-digit fixed numbers 20 to 39, 50 to 57 and 60 to 79.
+// Språkrådet writes both in groups of two since 22 May 2019. The register blocks 20, 30, 50
+// and 60 whole and gives 58 and 59 to machine-to-machine traffic.
+var (
+	norwegianMobile = regexp.MustCompile(`^[49]\d( \d{2}){3}$`)
+	norwegianFixed  = regexp.MustCompile(`^[23567]\d( \d{2}){3}$`)
+	nkomUnassigned  = []string{"20", "30", "50", "58", "59", "60"}
+)
+
+func TestShippedNorwegianPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	var mobile, fixed int
+	for i := 0; i < 3000; i++ {
+		n := fake(t, f, "nb_NO.phone")
+		switch {
+		case norwegianMobile.MatchString(n):
+			mobile++
+		case norwegianFixed.MatchString(n):
+			fixed++
+		default:
+			t.Fatalf("phone %q is neither a mobile nor a fixed number grouped in twos", n)
+		}
+		if slices.Contains(nkomUnassigned, n[:2]) {
+			t.Fatalf("phone %q is in a series Nkom blocks or gives to machines", n)
+		}
+	}
+	if fixed == 0 || mobile < 7*fixed || mobile > 15*fixed {
+		t.Fatalf("3000 phones drew %d mobile and %d fixed, want about ten to one", mobile, fixed)
+	}
+}
+
+func TestShippedNorwegianPhoneInternational(t *testing.T) {
+	f := shipped(t, WithSeed(5))
+	for i := 0; i < 300; i++ {
+		got := fakeTemplate(t, f, "{/nb_NO.phone as p}{p}|{p.national}|{p.international}")
+		parts := strings.Split(got, "|")
+		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+47 "+parts[0] {
+			t.Fatalf("%q: want the national form twice, then +47 and the national form", got)
+		}
+	}
+}
+
+func TestShippedNorwegianPhoneBlocksAreNkomsAssignedBlocks(t *testing.T) {
+	for file, series := range map[string]*regexp.Regexp{
+		"phone-mobile": regexp.MustCompile(`^[49]\d \d{2}$`),
+		"phone-fixed":  regexp.MustCompile(`^[23567]\d \d{2}$`),
+	} {
+		seen := map[string]bool{}
+		for _, row := range tsvRows(t, "data/nb_NO/"+file+".tsv") {
+			p := row["prefix"]
+			if !series.MatchString(p) || slices.Contains(nkomUnassigned, p[:2]) || seen[p] {
+				t.Errorf("%s row %q is not four digits in an assigned series of its kind, once", file, p)
+			}
+			seen[p] = true
+		}
+	}
+	f := shipped(t, WithSeed(2))
+	for path, want := range map[string]string{"nb_NO.phone-fixed[56 12]": "56 12", "nb_NO.phone-mobile[40 00]": "40 00", "nb_NO.phone-mobile[90 00]": "90 00"} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s = %q, want %q, which Nkom assigns whole", path, got, want)
+		}
+	}
+	if _, err := f.Fake("nb_NO.phone-fixed[56 20]"); err == nil {
+		t.Errorf("phone-fixed[56 20] drew, but Nkom leaves 56 20 to 56 29 unassigned")
 	}
 }
