@@ -13,8 +13,6 @@ import (
 // before it, and for k2 over those and k1.
 var fnrWeights = [2][]int{{3, 7, 6, 1, 8, 9, 4, 5, 2}, {5, 4, 3, 2, 7, 6, 5, 4, 3, 2}}
 
-// fnrArg refuses what is not a field or a path: the operand's text, read at render, is the
-// third individ digit.
 func fnrArg(a []string) error {
 	if _, _, isCall := grammar.FuncCall(a[0]); isCall {
 		return errors.New("fnr takes the field or path that holds the third individ digit")
@@ -22,8 +20,6 @@ func fnrArg(a []string) error {
 	return nil
 }
 
-// fnrPrep renders nothing for an operand that is not one digit, rather than failing at load or
-// render: a template that loads and does nothing for part of it is well-formed (goal 4.7).
 func fnrPrep([]string) Call {
 	return func(s *drawstate.State, emitted string, operands []string) string {
 		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
@@ -54,8 +50,6 @@ func fnrTail(emitted string, last byte, start int) string {
 	panic(invariant.Broken("fnr found no valid completion of %q with %c", prefix, last))
 }
 
-// fnrCheck is 11 less the weighted sum of digits modulo 11, 0 for 11; ok is false for 10, which
-// no number may carry.
 func fnrCheck(digits string, weights []int) (k int, ok bool) {
 	sum := 0
 	for i, w := range weights {
@@ -65,7 +59,6 @@ func fnrCheck(digits string, weights []int) (k int, ok bool) {
 	return k % 11, k != 10
 }
 
-// digitsOf keeps the ASCII digits of s.
 func digitsOf(s string) string {
 	var b strings.Builder
 	for i := 0; i < len(s); i++ {
