@@ -6,14 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 345`
+`Next ID = 346`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.5 |
-| 344 | 0.2.0 | 338 |  | **Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 4 | 2.9 |
+| 344 | 0.2.0 |  |  | **Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 4 | 2.9 |
 | 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 3 | 2.4 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 2.2 |
 | 289 | 0.2.0 |  |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.8 |
@@ -22,6 +21,7 @@
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
 | 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 4 by 2 | 1.5 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
+| 345 | 0.3.0 |  | question | **Decide how a locale whose names are in a script `ascii` has no entries for, such as `zh_CN`, `hi_IN`, `ar_EG` and `bn_BD`, gets valid emails from `slugify`, and record it.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
 | 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | code health by 6 | 17.1 |
 | 178 | 0.3.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | code health by 6 | 17.1 |
 | 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, code health by 4 | 16.2 |
@@ -244,17 +244,13 @@
 
 ## Details
 
-### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
-
-Decided on 2026-10-21 in `docs/decisions.md`, with the slug rules that entry states. The work: add the builtin `{slugify(x)}`, which folds with `ascii`'s table and changes a non-ASCII rune that table has no entry for to `-`; document it in the README's Functions table and Transforms section beside `lowercase`, `uppercase` and `ascii`; slug the names in the bulk and Go quick starts' emails; drop the README sentence about compound names; add a line under `## [Unreleased]` in `CHANGELOG.md`. `readme_test.go`'s expected emails follow the decision's slug rules. A test asserts that every non-ASCII letter of the shipped first and last names has an entry in `ascii`'s table.
-
 ### 344. Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.
 
 The README's Data section lets a small hand-written set ship only while `todo.md` carries the step that replaces it (goal 3.2); this is that step for nb_NO. Today the `name` of `data/nb_NO/company.json` reads `nb_NO.company-coined` and `nb_NO.company-word`, whose files `data/nb_NO/company-coined.json` and `data/nb_NO/company-word.json` are invented and hand-written, together with `nb_NO.first-name` and `nb_NO.last-name` from SSB; it draws a legal form among AS, DA, ANS, ASA and KS weighted by counts of Enhetsregisteret read by hand through its API on 2026-10-22 (`https://data.brreg.no/enhetsregisteret/api/enheter?organisasjonsform=AS&konkurs=false&underAvvikling=false&underTvangsavviklingEllerTvangsopplosning=false&size=1`, `page.totalElements`).
 
 Write `data-import/company-no.py` the way `data-import/company-se.py` reads Bolagsverket, from the register's bulk file `https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv` (155 MB gzip, NLOD 2.0): the trade words that many names end with and that are neither names nor places, the shapes of names per legal form, and the wording each form's names carry. The legal-form weights, the name shapes and the content of `company-coined.json` and `company-word.json` are then the script's output, and the hand count and the invented parts are gone. Consider the forms that don't ship today: ENK (sole proprietorship, named for a person), NUF and SA. Don't copy `sv_SE.company`'s read by its full path `{.company.ab.name}`, which the comprehension seats found hard: a bound company's form name must not be a silent fresh draw.
 
-`data/nb_NO/email.json` keeps hand-written ASCII names in its `first` and `last` lists. Make them draw from, or be checked against, `nb_NO.first-name` and `nb_NO.last-name` (SSB), folded as Norwegian folds them (ø to o, å to a, æ to ae) through `slugify` (item 338); or leave email as it is, if that is simpler, and say so in the PR.
+`data/nb_NO/email.json` keeps hand-written ASCII names in its `first` and `last` lists. Make them draw from, or be checked against, `nb_NO.first-name` and `nb_NO.last-name` (SSB), folded as Norwegian folds them (ø to o, å to a, æ to ae) through `slugify`; or leave email as it is, if that is simpler, and say so in the PR.
 
 Update `DATA-LICENSES.md`'s `nb_NO/company.json` row, which also names the two invented files and whose last column becomes the script, and the test `TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret` in `norwegian_test.go`, whose counts then come from the script, as `TestSwedishCompanyWordingsAndShapesFollowTheRegister` in `data_test.go` does for Sweden.
 
@@ -289,6 +285,18 @@ Two fresh readers of the README's Go quick start read Names' refusal, "a read of
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
+
+### 345. Decide how a locale whose names are in a script `ascii` has no entries for, such as `zh_CN`, `hi_IN`, `ar_EG` and `bn_BD`, gets valid emails from `slugify`, and record it.
+
+The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." A principles reviewer found that this may conflict with goal 3.3, values look real, and with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`). Their names are in Han, Devanagari, Arabic and Bengali script, which slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
+
+The options to put to the maintainer:
+
+1. A locale ships a romanized column beside each name for its email, such as pinyin or ISO 15919.
+2. `slugify` gets a transliteration table beyond `ascii`'s.
+3. A locale's email draws from a username-like category that holds no names.
+
+The answer changes the decision, not the code, so it goes into `docs/decisions.md`.
 
 ### 170. Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.
 

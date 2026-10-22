@@ -1134,12 +1134,11 @@ slugs joined by `.` form a valid local part.
 
 A letter outside the table splits the name at that letter; a name with no letter in the table
 slugs to the empty string. A locale whose names need such letters
-romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own.
-
-The work is `todo.md` item 338.
+romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own;
+`todo.md` item 345 asks whether that holds for the scripts of the planned locales.
 
 Valid while every non-ASCII letter of a shipped first or last name has an entry in `ascii`'s
-table, which a test that ships with item 338 checks, and RFC 5322 keeps letters, digits and
+table, which `TestAsciiFoldsEveryShippedNameLetter` checks, and RFC 5322 keeps letters, digits and
 `-` in atext.
 
 ## `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
