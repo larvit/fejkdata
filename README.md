@@ -483,11 +483,11 @@ segments below that. It needs no index. Each shipped module carries one, so
 `phone-exchange` (the three digits after the area code).
 
 `nb_NO`, Norwegian in the Bokmål standard, carries only `first-name`, `last-name`,
-`person`, `sex`, `title` and `fødselsnummer`, with the tables `birth-day` and `individ`
+`person`, `sex`, `title` and `fodselsnummer`, with the tables `birth-day` and `individ`
 the last reads. Its `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`nb_NO.fødselsnummer` is Skatteetaten's synthetic series, the numbers of its test
+`nb_NO.fodselsnummer` is Skatteetaten's synthetic series, the numbers of its test
 register: the date of birth as day, month and year, with 80 added to the month, then three
 individ digits, the last even for a woman and odd for a man, then the two check digits
 Skatteetaten defines. The century follows from the individ number and the year: 000 to 499
@@ -507,7 +507,7 @@ sex, as a `personnummer` does ([Data](#data)):
 { "format": "{first} {last}, {fnr}",
   "first": "{/nb_NO.sex as s}{s.first-name}",
   "last": "{/nb_NO.last-name}",
-  "fnr": "{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}" }
+  "fnr": "{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}" }
 ```
 
 Renders e.g. `Kjersti Østrem, 07899027420`.

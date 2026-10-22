@@ -61,7 +61,7 @@ replacement, and each removed path, column or flag.
   bear has a row under each sex, and a person's first name and sex agree. Statistics
   Norway's tables are CC BY 4.0, so a program showing the names credits "Kilde:
   Statistisk sentralbyrå".
-- `nb_NO.fødselsnummer`, a Norwegian national identity number from Skatteetaten's synthetic
+- `nb_NO.fodselsnummer`, a Norwegian national identity number from Skatteetaten's synthetic
   series: a birth date from 1940 to 2025 with 80 added to the month, three individ digits and
   the two check digits Skatteetaten defines. A checker that requires the month to be 1 to 12
   refuses it. It reads `nb_NO.birth-day`, the 365 days of a year as `ddmm`, and
@@ -69,7 +69,7 @@ replacement, and each removed path, column or flag.
 - The builtin `{fnr(x)}`, which completes a fødselsnummer after its date and first individ
   digit with a second individ digit it picks, the third individ digit `x` reads, and the two
   check digits, or nothing where `x` is not one digit, so
-  `{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}` agrees with a bound sex `s`.
+  `{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}` agrees with a bound sex `s`.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 
