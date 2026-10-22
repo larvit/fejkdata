@@ -54,12 +54,13 @@ replacement, and each removed path, column or flag.
   a real organisation. Its `vat` field is that organisation's VAT number.
 - `sv_SE.vat`, `SE`, an organisation number's ten digits and `01`. It passes the format
   and the checksum, not a VIES lookup.
-- `nb_NO`, Norwegian in the Bokmål standard, with `nb_NO.first-name` and `nb_NO.last-name`,
-  the names that 200 or more persons bear in Statistics Norway's count of 2025, weighted by
-  those persons, `nb_NO.sex` with `kvinne` and `mann`, `nb_NO.title` with `dr.` and
-  `professor`, and `nb_NO.person`, whose first name and sex agree. A name that girls and
-  boys both bear has a row under each sex. Statistics Norway's tables are CC BY 4.0, so a
-  program showing the names credits "Kilde: Statistisk sentralbyrå".
+- `nb_NO`, Norwegian in the Bokmål standard, with `nb_NO.person` and the tables it reads:
+  `nb_NO.first-name` and `nb_NO.last-name`, holding the names that 200 or more persons bear
+  in Statistics Norway's count of 2025, weighted by those persons; `nb_NO.sex`, `kvinne` and
+  `mann`; and `nb_NO.title`, `dr.` and `professor`. A first name that women and men both
+  bear has a row under each sex, and a person's first name and sex agree. Statistics
+  Norway's tables are CC BY 4.0, so a program showing the names credits "Kilde:
+  Statistisk sentralbyrå".
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 

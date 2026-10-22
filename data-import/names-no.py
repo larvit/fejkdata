@@ -4,7 +4,7 @@
     data-import/names-no.py [--year YEAR] [--cache DIR] [--out DIR]
 
 The first names are StatBank table 10501, the persons bearing each girls' or boys' name at the end of
-the year, and the last names table 12891. Each table holds the names that 200 or more persons bear. A
+the year, and the last names are table 12891. Each table holds the names that 200 or more persons bear. A
 name that girls and boys both bear has two rows. A label that is not a name in letters, as
 `tsv.NAME` says, is dropped.
 """
@@ -36,7 +36,7 @@ def fetched(table, year, dimension, cache):
 
 
 def counted(cube, dimension):
-    """The (category code, label, persons) of a cube of one dimension by one contents and one period, where the cube gives a count and the label is a name."""
+    """The (code, label, persons) of each name that a cube counts, a cube of one count per name for one year."""
     if cube["id"] != [dimension, "ContentsCode", "Tid"] or cube["size"][1:] != [1, 1]:
         sys.exit(f"{dimension}: the table is not one count per name, its dimensions are {cube['id']} of sizes {cube['size']}")
     categories = cube["dimension"][dimension]["category"]
