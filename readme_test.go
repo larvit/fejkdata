@@ -328,9 +328,15 @@ var quickStartSex = map[string]struct{ code, birthNumber string }{
 }
 
 var (
-	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
+	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "æ", "ae", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
+	slugRun           = regexp.MustCompile(`[^a-z0-9]+`)
 	personnummerShape = regexp.MustCompile(`^(\d{6})-(\d{3})(\d)$`)
 )
+
+// emailSlug is a name as the quick starts' email slugs it: folded, lower case, every run of other characters one `-`, none at either end.
+func emailSlug(name string) string {
+	return strings.Trim(slugRun.ReplaceAllString(asciiFold.Replace(strings.ToLower(name)), "-"), "-")
+}
 
 // quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the street, postal code and locality sets geoPlaces reads.
 type quickStartShipped struct {
@@ -359,7 +365,7 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if !s.firstNames[sex.code][p.first] {
 		return fmt.Errorf("first name %q is not shipped for sex %q", p.first, p.sex)
 	}
-	want := asciiFold.Replace(strings.ToLower(p.first)) + "." + asciiFold.Replace(strings.ToLower(p.last)) + "@example.com"
+	want := emailSlug(p.first) + "." + emailSlug(p.last) + "@example.com"
 	if p.email != want {
 		return fmt.Errorf("email %q, want %q", p.email, want)
 	}

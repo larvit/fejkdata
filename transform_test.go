@@ -15,6 +15,40 @@ func TestTransforms(t *testing.T) {
 	}
 }
 
+func TestSlugify(t *testing.T) {
+	f := engine(1)
+	for name, want := range map[string]string{
+		"Anna Lena":  "anna-lena",
+		"Åsa Öberg":  "asa-oberg",
+		"O'Brien":    "o-brien",
+		"Jean–Luc":   "jean-luc",
+		"von Walden": "von-walden",
+		"Ærø ß":      "aero-ss",
+		"Ørsted":     "orsted",
+		"  --Bo--  ": "bo",
+		"Bo1 2":      "bo1-2",
+		"日本":         "",
+		"Anna日本Lena": "anna-lena",
+		"a\u007fb":   "a-b",
+		"ŉ":          "",
+	} {
+		src := `{"format":"{slugify(x)}","x":"` + name + `"}`
+		if got := mustRender(t, f, src); got != want {
+			t.Errorf("slugify(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestSlugifyNestsAndReadsTheNamedDraw(t *testing.T) {
+	f := engine(2)
+	src := `{"format":"{p as q}{q.first}={slugify(lowercase(q.first))}","p":[{"format":"{first}","first":"Anna Lena"},{"format":"{first}","first":"Bo"}]}`
+	for i := 0; i < 50; i++ {
+		if got := mustRender(t, f, src); got != "Anna Lena=anna-lena" && got != "Bo=bo" {
+			t.Fatalf("render = %q, want the slug over the same draw", got)
+		}
+	}
+}
+
 func TestTransformReadsTheNamedDraw(t *testing.T) {
 	f := engine(2)
 	src := `{"format":"{p as q}{q.first}={lowercase(q.first)}","p":[{"format":"{first}","first":"Anna"},{"format":"{first}","first":"Bo"}]}`
@@ -44,6 +78,8 @@ func TestTransformArgs(t *testing.T) {
 		`{"format":"{lowercase()}","x":"v"}`,
 		`{"format":"{lowercase(nope)}","x":"v"}`,
 		`{"format":"{ascii(x,y)}","x":"v","y":"w"}`,
+		`{"format":"{slugify()}","x":"v"}`,
+		`{"format":"{slugify(x,y)}","x":"v","y":"w"}`,
 		`{"format":"{lowercase(hex(2))}","x":"v"}`,
 	} {
 		if _, err := f.NewTemplate(bad); err == nil {
