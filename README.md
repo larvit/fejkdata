@@ -490,14 +490,20 @@ segments below that. It needs no index. Each shipped module carries one, so
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
-or `example.net`, or a subdomain of one. IANA reserves those domains, so no address reaches a real
+or `example.net`, or a subdomain of one, and half of its local parts are a first and a last name drawn from
+`nb_NO.first-name` and `nb_NO.last-name` and folded to ASCII, `ø` to `o`, `å` to `a` and `æ` to `ae`. IANA reserves those domains, so no address reaches a real
 mailbox.
 
-`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. A name has one of four
-shapes: a made-up word from `company-coined`; that word and a trade word from `company-word`; a last name
-and a trade word; or a first name, a last name and a trade word. The form is AS, DA, ANS, ASA or KS, drawn as
-often as the Brønnøysund Register Centre's Enhetsregisteret held units of it on 2026-10-22. A name may also
-be a real company's.
+`nb_NO.company` draws a legal form as often as the Brønnøysund Register Centre's Enhetsregisteret held
+active units of it on 2026-10-22: sole proprietorship (ENK, a name with no abbreviation), AS, DA, SA, ANS,
+ASA and KS, which end their names in the abbreviation, such as `Sørberg Data AS`. Each form has its own
+shapes of names, such as a coined word and a trade word, or a last name and a trade word, in the
+proportions the register's names have. `nb_NO.company.as` draws only a limited company, and `.enk`,
+`.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their form. `company-word` holds the trade words, like
+`Holding` or `Eiendom`, that 100 or more of the register's names carry, and `company-coined` the made-up
+words: a root that 60 or more names begin with, such as `Nordic`, and an ending that 40 or more of the
+register's places share, such as `vik`. A name with a place in it is not a shape, until `geo/NO` ships.
+A name is invented, and may also be a real company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
@@ -1469,6 +1475,7 @@ and `names-us.py` rejects a client for a while after a burst, so `--surnames` ta
 a copy of the surname file:
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py

@@ -2,10 +2,8 @@
   "format": "{local}@{domain}",
   "local": [
     {
-      "format": "{first}{sep}{last}{n}",
+      "format": "{/nb_NO.first-name as f}{/nb_NO.last-name as l}{slugify(f.name)}{sep}{slugify(l.name)}{n}",
       "weight": 3,
-      "first": ["aksel", "alexander", "amalie", "anders", "andreas", "anna", "astrid", "benjamin", "bjorn", "camilla", "daniel", "ella", "emil", "emilie", "emma", "erik", "filip", "frida", "hanna", "henrik", "ida", "ingrid", "jakob", "johannes", "jonas", "julie", "kari", "kristian", "lars", "leah", "lena", "liam", "linnea", "lucas", "magnus", "maja", "markus", "mathias", "mia", "nora", "ola", "oliver", "olivia", "oskar", "sander", "sara", "silje", "sofie", "sondre", "thea", "tobias", "tone", "trond", "tuva", "vilde", "william"],
-      "last": ["aas", "amundsen", "andersen", "bakke", "bakken", "berg", "dahl", "eide", "eriksen", "gundersen", "hagen", "halvorsen", "hansen", "haugen", "henriksen", "iversen", "jacobsen", "jensen", "johannessen", "johansen", "johnsen", "jorgensen", "karlsen", "kristiansen", "larsen", "lie", "lund", "moen", "nilsen", "olsen", "paulsen", "pedersen", "pettersen", "rasmussen", "solberg", "sorensen", "strand", "svendsen", "tveit"],
       "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
       "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
     },
