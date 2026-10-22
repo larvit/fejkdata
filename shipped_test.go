@@ -18,6 +18,7 @@ import (
 
 	"github.com/larvit/fejkdata/data"
 	enus "github.com/larvit/fejkdata/data/en_US"
+	geono "github.com/larvit/fejkdata/data/geo/NO"
 	geose "github.com/larvit/fejkdata/data/geo/SE"
 	geous "github.com/larvit/fejkdata/data/geo/US"
 	"github.com/larvit/fejkdata/data/misc"
@@ -72,6 +73,7 @@ func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{
 		{fsys: enus.FS, modules: enus.Modules, namespace: "en_US"},
+		{fsys: geono.FS, modules: geono.Modules, namespace: "geo.NO"},
 		{fsys: geose.FS, modules: geose.Modules, namespace: "geo.SE"},
 		{fsys: geous.FS, modules: geous.Modules, namespace: "geo.US"},
 		{fsys: misc.FS, modules: misc.Modules, namespace: "misc"},
