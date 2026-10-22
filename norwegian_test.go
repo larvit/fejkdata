@@ -143,7 +143,7 @@ func TestNorwegianFodselsnummerIsSkatteetatensSyntheticSeries(t *testing.T) {
 	days := [12]int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 	var before2000, from2000 int
 	for i := 0; i < 5000; i++ {
-		got := fake(t, f, "nb_NO.fødselsnummer")
+		got := fake(t, f, "nb_NO.fodselsnummer")
 		if !validFnr(got) {
 			t.Fatalf("%q is not a fødselsnummer with valid check digits", got)
 		}
@@ -184,7 +184,7 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
-		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}")
+		got, err := f.FakeTemplate("{/nb_NO.sex as s}{s.name}|{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}")
 		if err != nil {
 			t.Fatal(err)
 		}
