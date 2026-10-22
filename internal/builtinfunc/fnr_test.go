@@ -1,8 +1,7 @@
 package builtinfunc
 
 import (
-	"strconv"
-	"strings"
+	"fmt"
 	"testing"
 )
 
@@ -42,20 +41,35 @@ func TestValidFnrAcceptsAPublishedTestNumber(t *testing.T) {
 	}
 }
 
-// TestFnrCompletesEverySevenDigitPrefix proves fnr never meets a prefix it cannot complete:
-// every seven digits, with either parity of the last individ digit, take two individ digits
-// and two check digits that make a valid number.
-func TestFnrCompletesEverySevenDigitPrefix(t *testing.T) {
-	if testing.Short() {
-		t.Skip("walks ten million prefixes")
+// TestFnrCompletesEveryPrefixForEveryDigit proves fnr never meets a prefix it cannot complete:
+// the completions depend on the seven digits only through their weighted sums for k1 and k2
+// modulo 11, so a prefix for each of the 121 pairs of residues, with every third individ digit
+// and every start, covers every prefix and every operand.
+func TestFnrCompletesEveryPrefixForEveryDigit(t *testing.T) {
+	residue := func(prefix string, weights []int) int {
+		sum := 0
+		for i, w := range weights {
+			sum += w * int(prefix[i]-'0')
+		}
+		return sum % 11
 	}
-	for _, last := range []string{"02468", "13579"} {
-		for n := 0; n < 10_000_000; n++ {
-			prefix := strconv.Itoa(n)
-			prefix = strings.Repeat("0", 7-len(prefix)) + prefix
-			tail := fnrTail(prefix, last, n)
-			if full := prefix + tail; len(tail) != 4 || !validFnr(full) || !strings.Contains(last, tail[1:2]) {
-				t.Fatalf("fnrTail(%s, %s) = %q, want two individ digits, the second from %s, and valid check digits", prefix, last, tail, last)
+	seen := map[[2]int]bool{}
+	for n := 0; len(seen) < 121; n++ {
+		if n == 10_000_000 {
+			t.Fatalf("seven digits reach %d of the 121 pairs of residues", len(seen))
+		}
+		prefix := fmt.Sprintf("%07d", n)
+		r := [2]int{residue(prefix, []int{3, 7, 6, 1, 8, 9, 4}), residue(prefix, []int{5, 4, 3, 2, 7, 6, 5})}
+		if seen[r] {
+			continue
+		}
+		seen[r] = true
+		for last := byte('0'); last <= '9'; last++ {
+			for start := range 10 {
+				tail := fnrTail(prefix, last, start)
+				if len(tail) != 4 || tail[1] != last || !validFnr(prefix+tail) {
+					t.Fatalf("fnrTail(%s, %c, %d) = %q, want an individ digit, %c, and valid check digits", prefix, last, start, tail, last)
+				}
 			}
 		}
 	}
@@ -63,23 +77,18 @@ func TestFnrCompletesEverySevenDigitPrefix(t *testing.T) {
 
 func TestFnrTailStartsWhereTheDrawSays(t *testing.T) {
 	seen := map[string]bool{}
-	for start := 0; start < 50; start++ {
-		seen[fnrTail("0181804", "13579", start)] = true
+	for _, last := range []byte("13579") {
+		for start := range 10 {
+			seen[fnrTail("0181804", last, start)] = true
+		}
 	}
-	if len(seen) < 25 {
-		t.Errorf("50 starts gave %d tails, want at least 25", len(seen))
+	if len(seen) < 40 {
+		t.Errorf("50 draws gave %d tails, want at least 40, since at most two second individ digits fail for each third", len(seen))
 	}
 }
 
 func TestFnrReadsTheLastSevenDigitsEmitted(t *testing.T) {
-	if got, want := fnrTail("x-0181804", "13579", 7), fnrTail("0181804", "13579", 7); got != want {
+	if got, want := fnrTail("x-0181804", '7', 3), fnrTail("0181804", '7', 3); got != want {
 		t.Errorf("fnrTail with text before the digits = %q, want %q", got, want)
-	}
-}
-
-func TestFnrTakesAnyDigitWhenTheOperandHoldsNone(t *testing.T) {
-	tail := fnrTail("0181804", "", 3)
-	if !validFnr("0181804" + tail) {
-		t.Errorf("fnrTail with no digits to choose from = %q, want a valid completion", tail)
 	}
 }
