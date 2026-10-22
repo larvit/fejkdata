@@ -1,5 +1,6 @@
 {
 	"index": {
+		"nb_NO.address": {"paths":["","locality","postal-code","street","street-number"]},
 		"nb_NO.birth-day": {"paths":["","ddmm"]},
 		"nb_NO.company": {"paths":["","ans","ans.name","as","as.name","asa","asa.name","da","da.name","enk","enk.name","ks","ks.name","registered","sa","sa.name"]},
 		"nb_NO.company-coined": {"paths":["","a","b"]},

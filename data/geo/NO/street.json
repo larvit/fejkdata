@@ -1,0 +1,1 @@
+{ "format": "{name}", "rows": "street.tsv", "parent": "locality", "weight": "addresses" }
