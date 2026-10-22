@@ -6,16 +6,16 @@
 
 `Bar = 0`
 
-`Next ID = 346`
+`Next ID = 347`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 344 | 0.2.0 |  |  | **Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 4 | 2.9 |
+| 289 | 0.2.0 |  |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.8 |
+| 346 | 0.2.0 | 289 |  | **Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 3.1 |
 | 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 3 | 2.4 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 2.2 |
-| 289 | 0.2.0 |  |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.8 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.8 |
 | 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.8 |
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
@@ -244,15 +244,13 @@
 
 ## Details
 
-### 344. Replace the invented name pieces of `nb_NO.company` and the hand-written names of `nb_NO.email` with ones read from Enhetsregisteret and Statistics Norway by a `data-import/` script.
+### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
 
-The README's Data section lets a small hand-written set ship only while `todo.md` carries the step that replaces it (goal 3.2); this is that step for nb_NO. Today the `name` of `data/nb_NO/company.json` reads `nb_NO.company-coined` and `nb_NO.company-word`, whose files `data/nb_NO/company-coined.json` and `data/nb_NO/company-word.json` are invented and hand-written, together with `nb_NO.first-name` and `nb_NO.last-name` from SSB; it draws a legal form among AS, DA, ANS, ASA and KS weighted by counts of Enhetsregisteret read by hand through its API on 2026-10-22 (`https://data.brreg.no/enhetsregisteret/api/enheter?organisasjonsform=AS&konkurs=false&underAvvikling=false&underTvangsavviklingEllerTvangsopplosning=false&size=1`, `page.totalElements`).
+Bring's postal register spells every poststed in capitals, so the import recases each poststed before `well_cased` sees it.
 
-Write `data-import/company-no.py` the way `data-import/company-se.py` reads Bolagsverket, from the register's bulk file `https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv` (155 MB gzip, NLOD 2.0): the trade words that many names end with and that are neither names nor places, the shapes of names per legal form, and the wording each form's names carry. The legal-form weights, the name shapes and the content of `company-coined.json` and `company-word.json` are then the script's output, and the hand count and the invented parts are gone. Consider the forms that don't ship today: ENK (sole proprietorship, named for a person), NUF and SA. Don't copy `sv_SE.company`'s read by its full path `{.company.ab.name}`, which the comprehension seats found hard: a bound company's form name must not be a silent fresh draw.
+### 346. Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.
 
-`data/nb_NO/email.json` keeps hand-written ASCII names in its `first` and `last` lists. Make them draw from, or be checked against, `nb_NO.first-name` and `nb_NO.last-name` (SSB), folded as Norwegian folds them (ø to o, å to a, æ to ae) through `slugify`; or leave email as it is, if that is simpler, and say so in the PR.
-
-Update `DATA-LICENSES.md`'s `nb_NO/company.json` row, which also names the two invented files and whose last column becomes the script, and the test `TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret` in `norwegian_test.go`, whose counts then come from the script, as `TestSwedishCompanyWordingsAndShapesFollowTheRegister` in `data_test.go` does for Sweden.
+Today `data-import/company-no.py` spots a place in a company name by the poststed and kommune of Enhetsregisteret's own units, and leaves out every shape holding one, since there is no `geo/NO` to draw from: 5.8% of AS names, 16.6% of SA, 7.1% of DA, 8.2% of ANS and 1.8% of ENK. Once item 289 ships `geo/NO`, take the places from it instead of the register's addresses, and add a `P` slot, `{/geo.NO.locality}` or whatever path and column the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its module docstring, the README's `nb_NO.company` paragraph ("A name with a place in it is not a shape, until `geo/NO` ships"), and the `CHANGELOG.md` entry for `nb_NO.company` where it needs it.
 
 ### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
 
@@ -261,10 +259,6 @@ The decision in `docs/decisions.md` (2026-10-21) gives the scope and the release
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
 Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the bulk quick start's `> people.csv` garbles `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
-
-### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
-
-Bring's postal register spells every poststed in capitals, so the import recases each poststed before `well_cased` sees it.
 
 ### 335. Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.
 
