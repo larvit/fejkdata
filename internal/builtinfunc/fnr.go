@@ -13,22 +13,23 @@ import (
 // before it, and for k2 over those and k1.
 var fnrWeights = [2][]int{{3, 7, 6, 1, 8, 9, 4, 5, 2}, {5, 4, 3, 2, 7, 6, 5, 4, 3, 2}}
 
-// fnrArg refuses what is not a field or a path: the operand's text, read at render, holds the
-// digits the last individ digit may take.
+// fnrArg refuses what is not a field or a path: the operand's text, read at render, is the
+// third individ digit.
 func fnrArg(a []string) error {
-	if _, _, isCall := grammar.FuncCall(a[0]); isCall || strings.TrimSpace(a[0]) == "" {
-		return errors.New("fnr takes the field or path that holds the digits the last individ digit may be")
+	if _, _, isCall := grammar.FuncCall(a[0]); isCall {
+		return errors.New("fnr takes the field or path that holds the third individ digit")
 	}
 	return nil
 }
 
+// fnrPrep renders nothing for an operand that is not one digit, rather than failing at load or
+// render: a template that loads and does nothing for part of it is well-formed (goal 4.7).
 func fnrPrep([]string) Call {
 	return func(s *drawstate.State, emitted string, operands []string) string {
-		digits := digitsOf(operands[0])
-		if digits == "" {
+		if len(operands[0]) != 1 || operands[0][0] < '0' || operands[0][0] > '9' {
 			return ""
 		}
-		return fnrTail(emitted, digits[s.IntN(len(digits))], s.IntN(10))
+		return fnrTail(emitted, operands[0][0], s.IntN(10))
 	}
 }
 
@@ -41,8 +42,10 @@ func fnrTail(emitted string, last byte, start int) string {
 	for i := range 10 {
 		digits := prefix + string(rune('0'+(start+i)%10)) + string(last)
 		k1, ok1 := fnrCheck(digits, fnrWeights[0])
-		k2, ok2 := fnrCheck(digits+string(rune('0'+k1)), fnrWeights[1])
-		if ok1 && ok2 {
+		if !ok1 {
+			continue
+		}
+		if k2, ok2 := fnrCheck(digits+string(rune('0'+k1)), fnrWeights[1]); ok2 {
 			return digits[7:] + string(rune('0'+k1)) + string(rune('0'+k2))
 		}
 	}
