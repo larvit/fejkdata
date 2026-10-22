@@ -15,6 +15,7 @@ import (
 var transforms = map[string]func(string) string{
 	"ascii":     asciiFold,
 	"lowercase": strings.ToLower,
+	"slugify":   slugify,
 	"uppercase": strings.ToUpper,
 }
 
@@ -103,4 +104,30 @@ func asciiFold(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// slugify folds s by asciiFolds, where a non-ASCII rune with no entry becomes "-", lowercases
+// it, and keeps a to z and 0 to 9; each run of any other character becomes one "-", none at either end.
+func slugify(s string) string {
+	var b strings.Builder
+	dashed := true
+	for _, r := range s {
+		folded := string(r)
+		if r > unicode.MaxASCII {
+			folded = asciiFolds[r]
+			if folded == "" {
+				folded = "-"
+			}
+		}
+		for _, c := range strings.ToLower(folded) {
+			if c >= 'a' && c <= 'z' || c >= '0' && c <= '9' {
+				b.WriteRune(c)
+				dashed = false
+			} else if !dashed {
+				b.WriteByte('-')
+				dashed = true
+			}
+		}
+	}
+	return strings.TrimSuffix(b.String(), "-")
 }

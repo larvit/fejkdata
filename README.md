@@ -84,7 +84,7 @@ Save this record as `person.json`. Its `format` draws one sex, one last name and
   "first": "{s.first-name}",
   "last": "{l}",
   "personnummer": "{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}",
-  "email": "{lowercase(ascii(s.first-name))}.{lowercase(ascii(l))}@example.com",
+  "email": "{slugify(s.first-name)}.{slugify(l)}@example.com",
   "street": "{a.street} {a.street-number}",
   "postal-code": "{a.postal-code}",
   "locality": "{a.locality}"
@@ -104,7 +104,7 @@ email,first,last,locality,personnummer,postal-code,sex,street
 vilgot.larsson@example.com,Vilgot,Larsson,Östersund,740514-2394,831 34,man,Stapelmohrs Väg 9
 ```
 
-A compound name, such as `Anna Lena` or `von Walden`, keeps its space in the email, so that address is not valid. A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
+A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
 
 ### Go tests
 
@@ -125,7 +125,7 @@ type Person struct {
 	First        string `fake:"{s.first-name}"`
 	Last         string `fake:"{/sv_SE.last-name as l}{l}"`
 	Personnummer string `fake:"{date(1940-01-01,2006-12-31,'060102')}-{s.birth-number.number}{luhn()}"`
-	Email        string `fake:"{lowercase(ascii(s.first-name))}.{lowercase(ascii(l))}@example.com"`
+	Email        string `fake:"{slugify(s.first-name)}.{slugify(l)}@example.com"`
 	Street       string `fake:"{/sv_SE.address as a}{a.street} {a.street-number}"`
 	PostalCode   string `fake:"{a.postal-code}"`
 	Locality     string `fake:"{a.locality}"`
@@ -979,7 +979,7 @@ stays reproducible.
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
-| `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
+| `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}`, `{slugify(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
 
 A derivation reads what is to its left, so place it after its payload; the
 buffer is per expansion, so a nested template keeps fixed parts out of the sum. A
@@ -1030,10 +1030,14 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 
 ### Transforms
 
-`{lowercase(x)}`, `{uppercase(x)}` and `{ascii(x)}` rewrite the value of `x` — a
+`{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` and `{slugify(x)}` rewrite the value of `x` — a
 field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin letters (`Åsa Öberg`
-→ `Asa Oberg`) and drops any other non-ASCII rune. An email
-matches the name beside it where both read one name:
+→ `Asa Oberg`) and drops any other non-ASCII rune. `slugify` folds as `ascii` does,
+changes a non-ASCII rune that `ascii` drops to `-`, lowercases, changes every run of
+characters outside `a` to `z` and `0` to `9` to one `-`, and trims `-` from both ends: `Anna Lena`
+→ `anna-lena`, `Åsa Öberg` → `asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string.
+Two slugs joined by `.` make a valid email address, even from a compound name such as
+`von Walden`. An email matches the name beside it where both read one name:
 
 ```json
 { "format": "{person as p}{p.first} {p.last} <{lowercase(ascii(p.first))}.{lowercase(ascii(p.last))}@example.com>",

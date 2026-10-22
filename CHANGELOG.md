@@ -34,6 +34,11 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- `{slugify(x)}`, a transform that makes a name safe in an email or a URL: it folds as
+  `ascii` does, changes a non-ASCII rune `ascii` drops to `-`, lowercases, changes each
+  run of characters outside `a` to `z` and `0` to `9` to one `-`, and trims `-` from both
+  ends. `Anna Lena` becomes `anna-lena`. The README's quick starts build their emails
+  with it, so a compound first name gives a valid address.
 - `sv_SE.phone.national` and `sv_SE.phone.international`, the two spellings of one
   number: `070-123 45 67` and `+46 70 123 45 67`. Bind a number to read both,
   `{/sv_SE.phone as p}{p.national} {p.international}`.
