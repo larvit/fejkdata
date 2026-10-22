@@ -50,9 +50,9 @@ def main():
     parser.add_argument("--source", default=SOURCE)
     parser.add_argument("--out-mobile", default=str(DATA / KINDS[MOBILE]))
     parser.add_argument("--out-fixed", default=str(DATA / KINDS[FIXED]))
-    a = parser.parse_args()
-    prefixes = assigned(source.fetch(a.source, a.cache, "E164.csv", magic=b"\xef\xbb\xbf\"Fra\""))
-    for kind, out in ((MOBILE, a.out_mobile), (FIXED, a.out_fixed)):
+    args = parser.parse_args()
+    prefixes = assigned(source.fetch(args.source, args.cache, "E164.csv", magic=b"\xef\xbb\xbf\"Fra\""))
+    for kind, out in ((MOBILE, args.out_mobile), (FIXED, args.out_fixed)):
         tsv.write(out, ["prefix"], [{"prefix": f"{n // 100:02d} {n % 100:02d}"} for n in prefixes[kind]])
 
 
