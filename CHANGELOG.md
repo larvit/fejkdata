@@ -78,12 +78,13 @@ replacement, and each removed path, column or flag.
   assigned every number to providers, keyed by the prefix as written, `phone-fixed[56 12]`. A number's `block`
   is that prefix and its `subscriber` the last four digits. Nkom's data is NLOD 2.0, so a
   program showing a number credits Nkom as DATA-LICENSES.md asks.
-- `nb_NO.date`, a date from 1970 to 2029 as Språkrådet writes it, `02.04.2019`;
-  `nb_NO.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`,
-  or a subdomain of one; and `nb_NO.company`, an invented name from `nb_NO.company-coined`,
-  `nb_NO.company-word` and `nb_NO`'s names, ending in AS, DA, ANS, ASA or KS, each drawn as often
-  as Enhetsregisteret counts units of it. Enhetsregisteret's data is NLOD 2.0, so a program
-  showing a company credits Brønnøysundregistrene as DATA-LICENSES.md asks.
+- `nb_NO.date`, a date from 1970 to 2029 such as `02.04.2019`.
+- `nb_NO.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or
+  a subdomain of one.
+- `nb_NO.company`, an invented name and a legal form, AS, DA, ANS, ASA or KS, such as
+  `Sørberg Data AS`. Each form is drawn as often as Enhetsregisteret held units of it. The name
+  reads `nb_NO.company-coined`, `nb_NO.company-word` and `nb_NO`'s names. Enhetsregisteret's data is
+  NLOD 2.0, so a program showing a company credits Brønnøysundregistrene as DATA-LICENSES.md asks.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 
