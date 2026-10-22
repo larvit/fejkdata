@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 291 | 0.2.0 |  |  | **Add `nb_NO.phone`, drawn from Norway's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.5 |
 | 293 | 0.2.0 |  |  | **Add `nb_NO.company`, `nb_NO.email` and `nb_NO.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.6 |
 | 338 | 0.2.0 |  | decision | **Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3 | 2.5 |
 | 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 3 | 2.4 |
@@ -244,10 +243,6 @@
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
-
-### 291. Add `nb_NO.phone`, drawn from Norway's numbering plan.
-
-Find the numbering plan and its licence first.
 
 ### 338. Add a `slugify` transform, and slug the names in the quick starts' emails so each address is valid.
 
