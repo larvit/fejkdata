@@ -801,3 +801,23 @@ Ruling: same
 |---|---|---|---|---|---|
 | Mid A | same | same | same | same | same |
 | Inherited architect | same | same | same | same | same |
+
+## 2026-10-22T00:31:47Z, PR #247 at 4d4554b, against e6a787e
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | same | same | same |
+| Inherited architect | same | worse | same | same | same |
+
+Mid A, decided by:
+
+- Locality: `data/sv_SE/organisationsnummer.json:5` `vat`: reads `{h}` and `{t}`, bound only in the category's `format`, and `data/sv_SE/vat.json:1` reaches it from outside, so a rename in `format` silently changes what `vat` renders
+- Locality: `data/sv_SE/phone-area.tsv:2` `subscriber`: each row holds a reference into `phone-subscriber`, so that category's field names are load-bearing strings inside a 264-row table
+- Locality: `data/sv_SE/company.json:29` `ab.written`: reads its form's name by the full path `{.company.ab.name}`, and only the changelog says that this draws a fresh name
+
+Inherited architect, decided by:
+
+- Locality: `data/sv_SE/company.json:28` `ab.written`: reads the absolute path `{.company.ab.name}`, so a bound company's form name is a fresh draw, and only the changelog's Breaking entry explains it
+- Locality: `data/sv_SE/organisationsnummer.json:5` `vat`: reads names bound only in the top-level `format`, reached from `data/sv_SE/vat.json:1` from outside
