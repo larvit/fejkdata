@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
-  fødselsnummer and phone numbers, with names weighted by how common they are. Every Swedish postal town and a sample of US places
+  fødselsnummer, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
@@ -482,10 +482,17 @@ segments below that. It needs no index. Each shipped module carries one, so
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
-`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `first-name`, `fodselsnummer`,
-`individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
+`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `company`, `date`, `email`,
+`first-name`, `fodselsnummer`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`,
+`phone-mobile`, `sex` and `title`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
+
+`nb_NO.date` is written as Språkrådet writes it, `02.04.2019`. `nb_NO.email` is lower-case ASCII at
+`example.com`, `example.org` or `example.net`, which IANA reserves, so no address reaches a real mailbox.
+`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. It draws the form
+as often as Enhetsregisteret at the Brønnøysund Register Centre counts units of it on 2026-10-22: AS,
+DA, ANS, ASA and KS, the forms whose names end in their abbreviation. A name may also be a real company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
