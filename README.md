@@ -1032,11 +1032,11 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 
 `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` and `{slugify(x)}` rewrite the value of `x` — a
 field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin letters (`Åsa Öberg`
-→ `Asa Oberg`) and drops any other non-ASCII rune. `slugify` folds as `ascii` does,
-changes a non-ASCII rune that `ascii` drops to `-`, lowercases, changes every run of
-characters outside `a` to `z` and `0` to `9` to one `-`, and trims `-` from both ends: `Anna Lena`
-→ `anna-lena`, `Åsa Öberg` → `asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string.
-Two non-empty slugs joined by `.` make a valid email address, even from a compound name such as
+→ `Asa Oberg`) and drops any other non-ASCII rune. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
+to `-`. It then lowercases, changes each run of characters outside `a` to `z` and `0` to `9`
+to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öberg` →
+`asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string. Two non-empty slugs joined by
+`.` make a valid email local part, the part before the `@`, even from a compound name such as
 `von Walden`. An email matches the name beside it where both read one name:
 
 ```json

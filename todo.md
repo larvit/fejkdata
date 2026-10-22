@@ -21,7 +21,7 @@
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
 | 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 4 by 2 | 1.5 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
-| 345 | 0.3.0 |  | question | **Decide how a locale whose names are in a script `ascii` has no entries for, such as `zh_CN`, `hi_IN`, `ar_EG` and `bn_BD`, gets valid emails from `slugify`, and record it.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
+| 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
 | 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | code health by 6 | 17.1 |
 | 178 | 0.3.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | code health by 6 | 17.1 |
 | 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, code health by 4 | 16.2 |
@@ -286,9 +286,9 @@ Two fresh readers of the README's Go quick start read Names' refusal, "a read of
 
 Its entry says "The import script drops or fills such rows". There are two geo imports, and `geo-se.py` exits when `geo.fence` drops a kommun or a län, while `geo-us.py` drops counties and states. Rewording a decision is the maintainer's call.
 
-### 345. Decide how a locale whose names are in a script `ascii` has no entries for, such as `zh_CN`, `hi_IN`, `ar_EG` and `bn_BD`, gets valid emails from `slugify`, and record it.
+### 345. Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.
 
-The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." A principles reviewer found that this may conflict with goal 3.3, values look real, and with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`). Their names are in Han, Devanagari, Arabic and Bengali script, which slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
+The decision "A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds" says: "A locale whose names need such letters romanizes them in its data, since `slugify` uses `ascii`'s table and no table of its own." This may conflict with goal 3.3, values look real. It may also conflict with items 206 (`zh_CN`), 207 (`hi_IN`), 209 (`ar_EG`) and 211 (`bn_BD`), whose names are in Han, Devanagari, Arabic or Bengali script. Such names slug to the empty string, so `{slugify(first)}.{slugify(last)}@example.com` becomes `.@example.com`.
 
 The options to put to the maintainer:
 
@@ -296,7 +296,7 @@ The options to put to the maintainer:
 2. `slugify` gets a transliteration table beyond `ascii`'s.
 3. A locale's email draws from a username-like category that holds no names.
 
-The answer changes the decision, not the code, so it goes into `docs/decisions.md`.
+The answer goes into `docs/decisions.md`. Option 1 also changes the locales' data, and option 2 the code of `slugify`.
 
 ### 170. Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.
 
