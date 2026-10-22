@@ -5,7 +5,7 @@
 
 A row is the first four digits of an 8-digit number, written in two pairs, when Nkom has assigned
 every one of the ten thousand numbers behind them to a provider ("Tildelt") as mobile
-("Mobilnummer") or fixed ("Fastnettnummer"). A prefix only part assigned is dropped, so no
+("Mobilnummer") or fixed ("Fastnettnummer"). A prefix only partly assigned is dropped, so no
 number drawn from the tables lies in a block Nkom has left free or blocked. Every block of the
 register is a whole number of thousands.
 """

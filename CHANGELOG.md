@@ -72,12 +72,12 @@ replacement, and each removed path, column or flag.
   reads, and the two check digits. It adds nothing where `x` is not one digit.
   `{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}` agrees with a bound sex `s`.
 - `nb_NO.phone`, a Norwegian phone number such as `46 12 34 56`, mobile ten times as often as
-  fixed, grouped in pairs as Språkrådet writes it. Its `national` and `international`
+  fixed, grouped in pairs as the Language Council of Norway (Språkrådet) writes it. Its `national` and `international`
   (`+47 46 12 34 56`) fields are the two spellings of one number. It reads `nb_NO.phone-mobile`
-  and `nb_NO.phone-fixed`, tables of the four-digit prefixes Nkom's E.164 register has assigned
-  whole to providers, keyed by the prefix as written, `phone-fixed[56 12]`. A number's `block`
+  and `nb_NO.phone-fixed`, tables of the four-digit prefixes behind which Nkom's E.164 register has
+  assigned every number to providers, keyed by the prefix as written, `phone-fixed[56 12]`. A number's `block`
   is that prefix and its `subscriber` the last four digits. Nkom's data is NLOD 2.0, so a
-  program showing a number credits it as DATA-LICENSES.md words.
+  program showing a number credits Nkom as DATA-LICENSES.md asks.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 
