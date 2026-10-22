@@ -1,5 +1,5 @@
 {
-  "format": "{/nb_NO.sex as s}{birth}{fnr(s.individ.digits)}",
+  "format": "{/nb_NO.sex as s}{birth}{fnr(s.individ.digit)}",
   "birth": [
     { "format": "{.birth-day.ddmm}{int(4,9)}{digits(1)}{int(0,4)}", "weight": 60 },
     { "format": "{.birth-day.ddmm}{int(0,1)}{digits(1)}{int(5,9)}", "weight": 20 },

@@ -16,7 +16,8 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   weighted by how common they are. Every Swedish postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
-  fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds; Swedish organisationsnummer and VAT numbers that pass the format
+  fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
+  a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish organisationsnummer and VAT numbers that pass the format
   and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
@@ -487,23 +488,26 @@ the last reads. Its `title` has no `parent`, like `sv_SE.title`, so it is select
 `nb_NO.title[dr.]`.
 
 `nb_NO.fødselsnummer` is Skatteetaten's synthetic series, the numbers of its test
-register: the date of birth as day, month and year, with 80 added to the month, then two
-individ digits and a third that is even for a woman and odd for a man, then the two check
-digits Skatteetaten defines. The century follows from the individ number and the year:
-000 to 499 for 1900 to 1999, 500 to 749 for 1854 to 1899, 900 to 999 for 1940 to 1999 and
-500 to 999 for 2000 to 2039. A drawn number uses 000 to 499 and 500 to 999. A drawn number is born from 1940 to
-2025 on a day other than 29 February, and no real person holds it. A checker that requires the month to be 1 to
-12 refuses it, since the added 80 is how the series keeps clear of real numbers.
+register: the date of birth as day, month and year, with 80 added to the month, then three
+individ digits, the last even for a woman and odd for a man, then the two check digits
+Skatteetaten defines. The century follows from the individ number and the year: 000 to 499
+for 1900 to 1999, 500 to 749 for 1854 to 1899, 900 to 999 for 1940 to 1999 and 500 to 999
+for 2000 to 2039. A drawn number uses 000 to 499 and 500 to 999, is born from 1940 to 2025
+on a day other than 29 February, and no real person holds it. A checker that requires the
+month to be 1 to 12 refuses it, since the added 80 is how the series keeps clear of real
+numbers. The series holds about 13 million numbers, so a fixture of a few thousand rows
+starts to repeat one, and a `UNIQUE` column needs a category of your own.
 `nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with the month plus 80, and
-`nb_NO.individ` under `sex` the digits the last individ digit may be. Its `birth` field
-and [`{fnr(x)}`](#functions) give a number that agrees with a bound sex, as a
-`personnummer` does ([Data](#data)):
+`nb_NO.individ` under `sex` the five digits each sex's last individ digit may be. Its `birth`
+field, the date and the first individ digit, and [`{fnr(x)}`](#functions), which completes
+the number from the third individ digit `x` reads, give a number that agrees with a bound
+sex, as a `personnummer` does ([Data](#data)):
 
 ```json
 { "format": "{first} {last}, {fnr}",
   "first": "{/nb_NO.sex as s}{s.first-name}",
   "last": "{/nb_NO.last-name}",
-  "fnr": "{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digits)}" }
+  "fnr": "{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}" }
 ```
 
 Renders e.g. `Kjersti Østrem, 07899027420`.
@@ -934,7 +938,7 @@ stays reproducible.
 | `{luhn()}` | derivation | Luhn check digit over the digits emitted so far in this expansion |
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
-| `{fnr(x)}` | derivation | the rest of a Norwegian fødselsnummer after its date and first individ digit, the last seven digits emitted: a second individ digit, a third from the digits `x` reads, and Skatteetaten's two check digits; nothing where `x` reads no digit |
+| `{fnr(x)}` | derivation | the rest of a Norwegian fødselsnummer after its date and first individ digit, the last seven digits emitted, zeros read before fewer: a second individ digit it picks, the third individ digit `x` reads, and Skatteetaten's two check digits; nothing where `x` is not one digit |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
 | `{int(min,max)}` | sample | uniform integer in `[min, max]` |

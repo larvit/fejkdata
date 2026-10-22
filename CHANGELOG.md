@@ -65,11 +65,11 @@ replacement, and each removed path, column or flag.
   series: a birth date from 1940 to 2025 with 80 added to the month, three individ digits and
   the two check digits Skatteetaten defines. A checker that requires the month to be 1 to 12
   refuses it. It reads `nb_NO.birth-day`, the 365 days of a year as `ddmm`, and
-  `nb_NO.individ`, the digits the last individ digit may be under each `nb_NO.sex`.
+  `nb_NO.individ`, the five digits that the last individ digit may be under each `nb_NO.sex`.
 - The builtin `{fnr(x)}`, which completes a fødselsnummer after its date and first individ
-  digit with a second individ digit, a third drawn from the digits `x` reads, and the two
-  check digits, or nothing where `x` reads no digit, so `{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digits)}` agrees with a bound
-  sex `s`.
+  digit with a second individ digit it picks, the third individ digit `x` reads, and the two
+  check digits, or nothing where `x` is not one digit, so
+  `{/nb_NO.fødselsnummer.birth}{fnr(s.individ.digit)}` agrees with a bound sex `s`.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 

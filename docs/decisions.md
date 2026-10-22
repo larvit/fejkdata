@@ -845,15 +845,15 @@ publishes no unassigned range of the real series. It does keep a synthetic regis
 numbers add 80 to the month (folkeregisteret-api-dokumentasjon, "Ny versjon av syntetisk
 folkeregister"), so `nb_NO.fødselsnummer` draws those, and a checker that requires the month
 to be 1 to 12 refuses it. The two check digits, the individ ranges per century and the
-parity of the third individ digit are Skatteetaten's, from its validation page, the Folkeregisterhandboken § 2-2 and the
-folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
-number, which a template cannot redraw, so `{fnr(x)}` chooses the pair itself, from the
-digits `x` allows. It chooses the second individ digit too, so that every `x` with a digit, a
-single one included, completes every date: at most two of the ten second digits fail a check
-for any third, while a second digit drawn by data would leave an `x` of one or two digits with
-no number for some dates. An `x` with no digit renders nothing, a visibly short number, rather
-than a third digit that ignores the bound sex. `nb_NO.individ` holds those digits by sex, so a bound sex decides the
-parity. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
+parity of the third individ digit are Skatteetaten's, from its validation page, the
+Folkeregisterhandboken § 2-2 and the folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
+number, which a template cannot redraw, so `{fnr(x)}` picks the second individ digit itself,
+and data draws the third: `nb_NO.individ` holds each sex's five digits as rows under `sex`,
+so a bound sex decides the parity (goal 7). Each check fails for at most one of the ten
+second digits, so any third digit completes any date, which a second digit drawn by data
+could not promise. An `x` that is not one digit renders nothing, a visibly short number,
+since goal 4.7 loads a template whose part does nothing, and a typo such as `{fnr(s.name)}`
+shows at the first render. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
 since no layout adds 80 to a month, and 29 February is left out, since the year is drawn
 apart. A D-number, whose day is the birthday plus 40, is not shipped.
 
