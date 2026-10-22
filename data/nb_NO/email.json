@@ -22,5 +22,5 @@
       "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
     }
   ],
-  "domain": ["example.com", "example.org", "example.net", "mail.example.com", "mail.example.org", "webmail.example.net", "post.example.com", "epost.example.org", "demo.example.net", "test.example.org", "dev.example.com"]
+  "domain": ["demo.example.net", "dev.example.com", "epost.example.org", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
 }

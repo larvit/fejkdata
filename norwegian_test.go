@@ -291,7 +291,7 @@ func TestShippedNorwegianDateIsDayMonthYearWithDotsFrom1970To2029(t *testing.T) 
 		}
 		first, last = min(first, d.Year()), max(last, d.Year())
 	}
-	if first > 1971 || last < 2028 {
+	if first != 1970 || last != 2029 {
 		t.Errorf("500 dates span %d to %d, want 1970 to 2029", first, last)
 	}
 }
@@ -312,10 +312,8 @@ func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	}
 }
 
-// The Brønnøysund Register Centre's Enhetsregisteret on 2026-10-22, units not bankrupt, being wound
-// up or forcibly dissolved: 423,482 aksjeselskap (AS), 9,104 ansvarlig selskap med delt ansvar (DA),
-// 6,198 ansvarlig selskap med solidarisk ansvar (ANS), 205 allmennaksjeselskap (ASA) and 105
-// kommandittselskap (KS).
+// The units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being wound
+// up and those forcibly dissolved.
 func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
 	f := shipped(t, WithSeed(6))
 	registered := map[string]int{"AS": 423482, "DA": 9104, "ANS": 6198, "ASA": 205, "KS": 105}

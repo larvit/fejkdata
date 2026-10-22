@@ -488,14 +488,16 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`nb_NO.date` is written as Språkrådet writes it, `02.04.2019`. `nb_NO.email` is lower-case ASCII at
-`example.com`, `example.org` or `example.net`, or a subdomain of one, which IANA reserves, so no
-address reaches a real mailbox.
-`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. The name is a
-made-up word from `company-coined`, a surname or a first name and a surname, and a trade word from
-`company-word`. The form is one of AS, DA, ANS, ASA and KS, drawn as often as Enhetsregisteret at the
-Brønnøysund Register Centre counts units of it on 2026-10-22. The register's other forms, such as ENK,
-NUF and SA, don't ship. A name may also be a real company's.
+`nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
+Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
+or `example.net`, or a subdomain of one. IANA reserves those domains, so no address reaches a real
+mailbox.
+
+`nb_NO.company` is an invented name and a legal form, such as `Sørberg Data AS`. A name has one of four
+shapes: a made-up word from `company-coined`; that word and a trade word from `company-word`; a last name
+and a trade word; or a first name, a last name and a trade word. The form is AS, DA, ANS, ASA or KS, drawn as
+often as the Brønnøysund Register Centre's Enhetsregisteret held units of it on 2026-10-22. A name may also
+be a real company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
