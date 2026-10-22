@@ -207,14 +207,12 @@ func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
 	}
 }
 
-// Nkom's E.164 register and Nummerforskriften § 16 give 8-digit mobile numbers the series 40 to
-// 49 and 90 to 99, and 8-digit fixed numbers 20 to 39, 50 to 57 and 60 to 79. Språkrådet writes
-// both in groups of two since 22 May 2019. The register has assigned numbers to providers in
-// only these first two digits; every other series is blocked, free or given to machines.
+// The first two digits under which Nkom's E.164 register has assigned numbers to providers.
+// Every other series of 8-digit numbers is blocked, free or kept for machines or special numbers.
 var (
 	nkomAssigned = map[string][]string{
 		"mobile": strings.Fields("40 41 45 46 47 48 90 91 92 93 94 95 96 97 98 99"),
-		"fixed":  strings.Fields("21 22 23 24 31 32 33 34 35 37 38 51 52 53 55 56 57 61 62 63 64 66 67 68 69 70 71 72 73 74 75 76 77 78 79"),
+		"fixed":  strings.Fields("21 22 23 24 31 32 33 35 37 38 51 52 53 55 56 57 61 62 63 64 66 67 68 69 70 71 72 73 74 75 76 77 78 79"),
 	}
 	norwegianMobile = regexp.MustCompile(`^[49]\d( \d{2}){3}$`)
 	norwegianFixed  = regexp.MustCompile(`^[23567]\d( \d{2}){3}$`)
@@ -234,7 +232,7 @@ func TestShippedNorwegianPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
 		}
 	}
 	if fixed < 2580 || fixed > 2880 {
-		t.Fatalf("30000 phones drew %d fixed, want about a eleventh, 2727 give or take 150", fixed)
+		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", fixed)
 	}
 }
 
@@ -258,7 +256,7 @@ func TestShippedNorwegianPhoneTablesHoldFourDigitPrefixesOfSeriesNkomHasAssigned
 		for _, row := range tsvRows(t, "data/nb_NO/phone-"+kind+".tsv") {
 			p := row["prefix"]
 			if !series.MatchString(p) || !slices.Contains(nkomAssigned[kind], p[:2]) || seen[p] {
-				t.Errorf("phone-%s row %q is not four digits in a series Nkom has assigned to providers, once", kind, p)
+				t.Errorf("phone-%s row %q is not four digits in a series Nkom has assigned to providers, or repeats one", kind, p)
 			}
 			seen[p] = true
 		}
@@ -266,8 +264,7 @@ func TestShippedNorwegianPhoneTablesHoldFourDigitPrefixesOfSeriesNkomHasAssigned
 }
 
 // Nkom assigns 56 12, 40 00 and 90 00 whole. It leaves 56 20 to 56 29 and 47 55 free, blocks 45 36,
-// gives 99 90 to global titles, and assigns only some thousands of 56 97 and 56 98. A prefix is a
-// row only when all ten thousand numbers are assigned as mobile or fixed.
+// gives 99 90 to global title addresses, and assigns only some thousands of 56 97 and 56 98.
 func TestShippedNorwegianPhonePrefixIsARowOnlyWhereNkomHasAssignedItWhole(t *testing.T) {
 	f := shipped(t, WithSeed(2))
 	for path, want := range map[string]string{"nb_NO.phone-fixed[56 12]": "56 12", "nb_NO.phone-mobile[40 00]": "40 00", "nb_NO.phone-mobile[90 00]": "90 00"} {
