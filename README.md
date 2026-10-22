@@ -489,8 +489,9 @@ the last reads. Its `title` has no `parent`, like `sv_SE.title`, so it is select
 `nb_NO.fødselsnummer` is Skatteetaten's synthetic series, the numbers of its test
 register: the date of birth as day, month and year, with 80 added to the month, then two
 individ digits and a third that is even for a woman and odd for a man, then the two check
-digits Skatteetaten defines. The century follows from the individ number, 000 to 499
-for 1900 to 1999 and 500 to 999 for 2000 to 2039. A drawn number is born from 1940 to
+digits Skatteetaten defines. The century follows from the individ number and the year:
+000 to 499 for 1900 to 1999, 500 to 749 for 1854 to 1899, 900 to 999 for 1940 to 1999 and
+500 to 999 for 2000 to 2039. A drawn number uses 000 to 499 and 500 to 999. A drawn number is born from 1940 to
 2025 on a day other than 29 February, and no real person holds it. A checker that requires the month to be 1 to
 12 refuses it, since the added 80 is how the series keeps clear of real numbers.
 `nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with the month plus 80, and
@@ -933,7 +934,7 @@ stays reproducible.
 | `{luhn()}` | derivation | Luhn check digit over the digits emitted so far in this expansion |
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
-| `{fnr(x)}` | derivation | the rest of a Norwegian fødselsnummer after its date and first individ digit, the last seven digits emitted: a second individ digit, a third from the digits `x` reads, and Skatteetaten's two check digits |
+| `{fnr(x)}` | derivation | the rest of a Norwegian fødselsnummer after its date and first individ digit, the last seven digits emitted: a second individ digit, a third from the digits `x` reads, and Skatteetaten's two check digits; nothing where `x` reads no digit |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
 | `{int(min,max)}` | sample | uniform integer in `[min, max]` |

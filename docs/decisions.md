@@ -848,7 +848,11 @@ to be 1 to 12 refuses it. The two check digits, the individ ranges per century a
 parity of the third individ digit are Skatteetaten's, from its validation page, the Folkeregisterhandboken § 2-2 and the
 folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
 number, which a template cannot redraw, so `{fnr(x)}` chooses the pair itself, from the
-digits `x` allows; `nb_NO.individ` holds those digits by sex, so a bound sex decides the
+digits `x` allows. It chooses the second individ digit too, so that every `x` with a digit, a
+single one included, completes every date: at most two of the ten second digits fail a check
+for any third, while a second digit drawn by data would leave an `x` of one or two digits with
+no number for some dates. An `x` with no digit renders nothing, a visibly short number, rather
+than a third digit that ignores the bound sex. `nb_NO.individ` holds those digits by sex, so a bound sex decides the
 parity. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
 since no layout adds 80 to a month, and 29 February is left out, since the year is drawn
 apart. A D-number, whose day is the birthday plus 40, is not shipped.
