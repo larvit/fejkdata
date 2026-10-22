@@ -131,6 +131,16 @@ func TestBuiltinFnrReadsItsOperandFromAPath(t *testing.T) {
 	}
 }
 
+func TestBuiltinFnrRendersNothingForAnOperandWithNoDigit(t *testing.T) {
+	f := engine(3)
+	for _, last := range []string{"", "mann"} {
+		tmpl := `{"format":"{pre}{fnr(last)}","pre":"0181804","last":"` + last + `"}`
+		if got := mustRender(t, f, tmpl); got != "0181804" {
+			t.Errorf("fnr with operand %q = %q, want 0181804 and nothing after it", last, got)
+		}
+	}
+}
+
 // validFnr applies the weights Skatteetaten publishes: k1 over the nine digits with 3, 7, 6, 1,
 // 8, 9, 4, 5, 2, k2 over those and k1 with 5, 4, 3, 2, 7, 6, 5, 4, 3, 2; each is 11 less the
 // sum modulo 11, a sum of 11 giving 0, and a 10 discards the number.
