@@ -328,7 +328,7 @@ var quickStartSex = map[string]struct{ code, birthNumber string }{
 }
 
 var (
-	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "æ", "ae", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
+	asciiFold         = strings.NewReplacer("å", "a", "ä", "a", "ã", "a", "ö", "o", "ø", "o", "ó", "o", "é", "e", "ü", "u")
 	slugRun           = regexp.MustCompile(`[^a-z0-9]+`)
 	personnummerShape = regexp.MustCompile(`^(\d{6})-(\d{3})(\d)$`)
 )

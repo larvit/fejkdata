@@ -106,26 +106,28 @@ func asciiFold(s string) string {
 	return b.String()
 }
 
-// slugify folds s by asciiFolds, where a non-ASCII rune with no entry becomes "-", lowercases
-// it, and keeps a to z and 0 to 9; each run of any other character becomes one "-", none at either end.
 func slugify(s string) string {
 	var b strings.Builder
 	dashed := true
-	for _, r := range s {
-		folded := string(r)
-		if r > unicode.MaxASCII {
-			folded = asciiFolds[r]
-			if folded == "" {
-				folded = "-"
-			}
+	emit := func(c rune) {
+		switch {
+		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
+			b.WriteRune(c)
+			dashed = false
+		case !dashed:
+			b.WriteByte('-')
+			dashed = true
 		}
-		for _, c := range strings.ToLower(folded) {
-			if c >= 'a' && c <= 'z' || c >= '0' && c <= '9' {
-				b.WriteRune(c)
-				dashed = false
-			} else if !dashed {
-				b.WriteByte('-')
-				dashed = true
+	}
+	for _, r := range s {
+		switch fold := asciiFolds[r]; {
+		case r <= unicode.MaxASCII:
+			emit(unicode.ToLower(r))
+		case fold == "":
+			emit('-')
+		default:
+			for _, c := range fold {
+				emit(unicode.ToLower(c))
 			}
 		}
 	}

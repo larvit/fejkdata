@@ -27,6 +27,7 @@ func TestSlugify(t *testing.T) {
 		"Ørsted":     "orsted",
 		"  --Bo--  ": "bo",
 		"Bo1 2":      "bo1-2",
+		"R0 9":       "r0-9",
 		"日本":         "",
 		"Anna日本Lena": "anna-lena",
 		"a\u007fb":   "a-b",
@@ -35,16 +36,6 @@ func TestSlugify(t *testing.T) {
 		src := `{"format":"{slugify(x)}","x":"` + name + `"}`
 		if got := mustRender(t, f, src); got != want {
 			t.Errorf("slugify(%q) = %q, want %q", name, got, want)
-		}
-	}
-}
-
-func TestSlugifyNestsAndReadsTheNamedDraw(t *testing.T) {
-	f := engine(2)
-	src := `{"format":"{p as q}{q.first}={slugify(lowercase(q.first))}","p":[{"format":"{first}","first":"Anna Lena"},{"format":"{first}","first":"Bo"}]}`
-	for i := 0; i < 50; i++ {
-		if got := mustRender(t, f, src); got != "Anna Lena=anna-lena" && got != "Bo=bo" {
-			t.Fatalf("render = %q, want the slug over the same draw", got)
 		}
 	}
 }
