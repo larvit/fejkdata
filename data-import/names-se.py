@@ -6,7 +6,6 @@
 A tilltalsnamn goes under each sex that carries it, so a name both sexes carry has two rows.
 """
 import argparse
-import re
 from pathlib import Path
 
 import source
@@ -18,7 +17,6 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 SHEETS = {"f": "Tilltalsnamn kvinnor", "m": "Tilltalsnamn män"}
 SURNAMES = "Efternamn"
-NAME = re.compile(r"^[^\W\d_]{2,}([ '-][^\W\d_]{2,})*$")
 PARTICLES = {"af", "av", "da", "de", "del", "den", "der", "di", "dos", "du", "la", "le", "van", "von"}
 
 
@@ -30,7 +28,7 @@ def cased(name):
 
 def counted(rows, top):
     """The top names of a sheet by bearers, initials and single letters dropped."""
-    names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and NAME.match(cells[0])]
+    names = [(cells[0], int(cells[1])) for cells in rows if len(cells) >= 2 and cells[1].isdigit() and tsv.NAME.match(cells[0])]
     return sorted(names, key=lambda n: (-n[1], n[0]))[:top]
 
 
