@@ -63,12 +63,13 @@ replacement, and each removed path, column or flag.
   Statistisk sentralbyrå".
 - `nb_NO.fodselsnummer`, a Norwegian national identity number from Skatteetaten's synthetic
   series: a birth date from 1940 to 2025 with 80 added to the month, three individ digits and
-  the two check digits Skatteetaten defines. A checker that requires the month to be 1 to 12
-  refuses it. It reads `nb_NO.birth-day`, the 365 days of a year as `ddmm`, and
-  `nb_NO.individ`, the five digits that the last individ digit may be under each `nb_NO.sex`.
-- The builtin `{fnr(x)}`, which completes a fødselsnummer after its date and first individ
-  digit with a second individ digit it picks, the third individ digit `x` reads, and the two
-  check digits, or nothing where `x` is not one digit, so
+  the two check digits Skatteetaten defines. A checker that requires a month of 1 to 12
+  refuses it. Its `birth` field is the date and the first individ digit. It reads
+  `nb_NO.birth-day`, the 365 days of a year as `ddmm`, and `nb_NO.individ`, the five digits
+  that each `nb_NO.sex` allows its last individ digit.
+- The builtin `{fnr(x)}` completes a fødselsnummer. It reads the last seven digits emitted,
+  the date and the first individ digit, and adds a second individ digit, the third that `x`
+  reads, and the two check digits. It adds nothing where `x` is not one digit.
   `{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}` agrees with a bound sex `s`.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.

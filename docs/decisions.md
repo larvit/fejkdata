@@ -841,28 +841,32 @@ drawn from 61 to 88, valid in every month, rather than computed from the date dr
 2026-10-22, Lilleman auf Larv.
 
 A valid fødselsnummer over a random birth date may be a living person's, and Skatteetaten
-publishes no unassigned range of the real series. It does keep a synthetic register, whose
-numbers add 80 to the month (folkeregisteret-api-dokumentasjon, "Ny versjon av syntetisk
-folkeregister"), so `nb_NO.fodselsnummer` draws those, and a checker that requires the month
-to be 1 to 12 refuses it. The two check digits, the individ ranges per century and the
-parity of the third individ digit are Skatteetaten's, from its validation page, the
-Folkeregisterhandboken § 2-2 and the folkeregisterforskriften. A pair of individ digits whose check digit would be 10 is no
-number, which a template cannot redraw, so `{fnr(x)}` picks the second individ digit itself,
-and data draws the third: `nb_NO.individ` holds each sex's five digits as rows under `sex`,
-so a bound sex decides the parity (goal 7). Each check fails for at most one of the ten
-second digits, so any third digit completes any date, which a second digit drawn by data
-could not promise. An `x` that is not one digit renders nothing, a visibly short number,
-since goal 4.7 loads a template whose part does nothing, and a typo such as `{fnr(s.name)}`
-shows at the first render. The date is a row of `nb_NO.birth-day`, 365 days with the month already plus 80,
-since no layout adds 80 to a month, and 29 February is left out, since the year is drawn
-apart. A D-number, whose day is the birthday plus 40, is not shipped.
+publishes no unassigned range of the real series. Its synthetic register adds 80 to the month
+(folkeregisteret-api-dokumentasjon, "Ny versjon av syntetisk folkeregister"), so
+`nb_NO.fodselsnummer` draws those, and a checker that requires a month of 1 to 12 refuses it.
+The check digits, the individ ranges per century and the parity of the third individ digit are
+Skatteetaten's, from its validation page, Folkeregisterhandboken § 2-2 and
+folkeregisterforskriften.
+
+A pair of individ digits whose check digit would be 10 is no number, and a template can't redraw
+it. So `{fnr(x)}` picks the second individ digit, and data draws the third: `nb_NO.individ` holds
+each sex's five digits as rows under `sex`, so a bound sex decides the parity (goal 7). Each check
+fails for at most one of the ten second digits, so any third digit completes any date. A second
+digit drawn by data couldn't promise that.
+
+An `x` that is not one digit renders nothing, a visibly short number. Goal 4.7 loads a template
+whose part does nothing, and a typo such as `{fnr(s.name)}` shows at the first render.
+
+The date is a row of `nb_NO.birth-day`: 365 days with the month already plus 80, since no layout
+adds 80 to a month. 29 February is left out, since the year is drawn apart. A D-number, whose day
+is the birthday plus 40, isn't shipped.
 
 Fresh-context readers seated as the README's hand fixture, Go test, validator-facing and bulk
-fixture authors picked the spellings. Two of the three asked for the path chose the ASCII
-`fodselsnummer`, which python-stdnum spells too, and the ø stays in prose. `fnr` won three
-of four for the function, since Norwegians write it, and `birth` the field. The validator-facing
-author would have the synthetic series named in the path; Skatteverket's test series sets the
-precedent of a plain name with the series documented.
+fixture authors picked the spellings. The first three were asked for the path, and two chose the
+ASCII `fodselsnummer`, which python-stdnum spells too; the ø stays in prose. Three of the four
+chose `fnr` for the function, since Norwegians write it, and the bulk fixture author chose `birth`
+for the field. The validator-facing author would have named the synthetic series in the path;
+Skatteverket's test series sets the precedent of a plain name with the series documented.
 
 ## The US given names come from a mirror of the SSA file
 

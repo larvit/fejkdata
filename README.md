@@ -12,13 +12,13 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons and fødselsnummer, with names
-  weighted by how common they are. Every Swedish postal town and a sample of US places
+- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons and
+  fødselsnummer, with names weighted by how common they are. Every Swedish postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
-  a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish organisationsnummer and VAT numbers that pass the format
-  and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
+  a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish
+  organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
   and ITINs in the ranges the SSA and the IRS assign, so a drawn one may be a real
   person's; Luhn-valid card numbers; and IBANs for seven European countries.
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
@@ -482,35 +482,10 @@ segments below that. It needs no index. Each shipped module carries one, so
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
-`nb_NO`, Norwegian in the Bokmål standard, carries only `first-name`, `last-name`,
-`person`, `sex`, `title` and `fodselsnummer`, with the tables `birth-day` and `individ`
-the last reads. Its `title` has no `parent`, like `sv_SE.title`, so it is selected as
+`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `first-name`, `fodselsnummer`,
+`individ`, `last-name`, `person`, `sex` and `title`. `fodselsnummer` reads `birth-day` and
+`individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
-
-`nb_NO.fodselsnummer` is Skatteetaten's synthetic series, the numbers of its test
-register: the date of birth as day, month and year, with 80 added to the month, then three
-individ digits, the last even for a woman and odd for a man, then the two check digits
-Skatteetaten defines. The century follows from the individ number and the year: 000 to 499
-for 1900 to 1999, 500 to 749 for 1854 to 1899, 900 to 999 for 1940 to 1999 and 500 to 999
-for 2000 to 2039. A drawn number uses 000 to 499 and 500 to 999, is born from 1940 to 2025
-on a day other than 29 February, and no real person holds it. A checker that requires the
-month to be 1 to 12 refuses it, since the added 80 is how the series keeps clear of real
-numbers. The series holds about 13 million numbers, so a fixture of a few thousand rows
-starts to repeat one, and a `UNIQUE` column needs a category of your own.
-`nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with the month plus 80, and
-`nb_NO.individ` under `sex` the five digits each sex's last individ digit may be. Its `birth`
-field, the date and the first individ digit, and [`{fnr(x)}`](#functions), which completes
-the number from the third individ digit `x` reads, give a number that agrees with a bound
-sex, as a `personnummer` does ([Data](#data)):
-
-```json
-{ "format": "{first} {last}, {fnr}",
-  "first": "{/nb_NO.sex as s}{s.first-name}",
-  "last": "{/nb_NO.last-name}",
-  "fnr": "{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}" }
-```
-
-Renders e.g. `Kjersti Østrem, 07899027420`.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
 area code drawn evenly from `sv_SE.phone-area`, which holds the 264 geographic area codes in the
@@ -630,6 +605,31 @@ are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 20
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
 `sv_SE.title[dr]` rather than inside a sex.
+
+`nb_NO.fodselsnummer` is Skatteetaten's synthetic series, the numbers of its test register. A
+number is the day, the month plus 80 and the year of birth, three individ digits and two check
+digits. The individ digits give the century. Skatteetaten assigns 000 to 499 to 1900 to 1999,
+500 to 749 to 1854 to 1899, 900 to 999 to 1940 to 1999 and 500 to 999 to 2000 to 2039; fejkdata
+draws 000 to 499 for 1940 to 1999 and 500 to 999 for 2000 to 2025, never on 29 February. The
+last individ digit is even for a woman and odd for a man. No real person holds a number from
+this series, and a checker that requires a month of 1 to 12 refuses it. A number is one of
+about 13 million, so a fixture of a few thousand rows starts to repeat one, and a `UNIQUE`
+column needs a category of your own.
+
+`nb_NO.birth-day` holds the 365 days of a year as `ddmm`, with 80 added to the month.
+`nb_NO.individ`, under `sex`, holds the five digits each sex's last individ digit can be. To
+make a number agree with a bound sex, read the `birth` field of `nb_NO.fodselsnummer`, the
+date and the first individ digit, then `{fnr(x)}`, which completes the number from the third
+individ digit `x` reads:
+
+```json
+{ "format": "{first} {last}, {fnr}",
+  "first": "{/nb_NO.sex as s}{s.first-name}",
+  "last": "{/nb_NO.last-name}",
+  "fnr": "{/nb_NO.fodselsnummer.birth}{fnr(s.individ.digit)}" }
+```
+
+Renders e.g. `Kjersti Østrem, 07899027420`.
 
 The `geo` namespace holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
@@ -938,7 +938,7 @@ stays reproducible.
 | `{luhn()}` | derivation | Luhn check digit over the digits emitted so far in this expansion |
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
-| `{fnr(x)}` | derivation | the rest of a Norwegian fødselsnummer after its date and first individ digit, the last seven digits emitted, zeros read before fewer: a second individ digit it picks, the third individ digit `x` reads, and Skatteetaten's two check digits; nothing where `x` is not one digit |
+| `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
 | `{int(min,max)}` | sample | uniform integer in `[min, max]` |
