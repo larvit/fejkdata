@@ -1183,7 +1183,7 @@ and regenerate seeded fixtures and expected values when you raise that version.
 |---------|-------|-------|
 | Shipped data | remove or rename a path; change a category's format; remove a value, or change a weight or a repeat; add a reference from one shipped category into another; change a table's key, name, weight or parent column, or remove a row | a path outside a record's columns, a locale, a value in a list, a row |
 | Records (a table is one) | remove, rename, retype or add a column; let a column be null | a record, as a new category |
-| Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name | a builtin |
+| Data format | a fence: a spelling a load rejects that it accepted, in a category or a manifest; a template option, since it reserves a field name; change what a builtin returns for an input | a builtin |
 | CLI | remove or rename a flag, or change its default; change what an exit code means; change the framing a `--format` writes (header, quoting, statement shape), the `--list` layout, or what an error names | a flag, a format |
 | Library | change or remove an exported name; raise the lowest supported Go | an exported name, a `With…` option |
 | Data packages | rename or remove a package; move a category to another package; make a package read another it did not | a package |

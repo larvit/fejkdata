@@ -8,6 +8,9 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
+- `{ascii(x)}` and `{slugify(x)}` fold 129 more Latin letters to base letters, those of
+  Latin Extended-A, part of Latin Extended-B and `ẞ`, where they dropped them: `Wałęsa`
+  becomes `Walesa`, not `Wasa`, and slugs to `walesa`.
 - `sv_SE.company` loses its fields `base` and `suffix`. No field in this release gives a
   bound company its name or its legal form. `registered` draws among the legal forms,
   and each form (`ab`, `e`, `hb`, `brf`, `ek`, `kb`) holds a `name` and, but for `e`, a
