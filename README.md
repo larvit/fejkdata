@@ -212,16 +212,22 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 
 ### PowerShell and cmd.exe
 
+In cmd.exe, `echo` sends its quotes and the space before `|`, which make the template text, so write neither:
+
+```bat
+echo {/sv_SE.person}| fejkdata
+```
+
+In PowerShell 7, single quotes keep the braces:
+
 ```powershell
-'{/sv_SE.person}' | fejkdata                                  # PowerShell: single quotes keep the braces
+'{/sv_SE.person}' | fejkdata
 ```
 
-```bat
-echo {/sv_SE.person}| fejkdata                                :: cmd.exe: no quotes and no space before |, since echo sends both
-```
+Windows PowerShell 5.1 pipes a byte-order mark ahead of the template, which turns a lone reference under `--format` into text and breaks a JSON template, and its `>` writes UTF-16, so `people.csv` is not UTF-8. Hand either to cmd.exe:
 
-```bat
-cmd /c "fejkdata --format csv --repeat 1000000 < person.json > people.csv"   :: from Windows PowerShell 5.1, whose > writes UTF-16 and garbles Östersund
+```powershell
+cmd /c "fejkdata --format csv --repeat 1000000 < person.json > people.csv"
 ```
 
 ### Your own data
