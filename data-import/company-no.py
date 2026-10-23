@@ -103,9 +103,13 @@ def roots(usage, trade):
 
 
 def place_names():
-    """The lower-case names of geo/NO's poststeder and kommuner, a kommune's names in more languages, Rana - Raane, each apart."""
-    names = [r["name"] for path in ("locality.tsv", "municipality.tsv") for r in csv.DictReader(io.StringIO((ROOT / "geo/NO" / path).read_text(encoding="utf-8")), delimiter="\t")]
-    return {part.lower() for name in names for part in name.split(" - ")}
+    """The lower-case names of geo/NO's poststeder and kommuner."""
+    return {r["name"].lower() for path in ("locality.tsv", "municipality.tsv") for r in csv.DictReader(io.StringIO((ROOT / "geo/NO" / path).read_text(encoding="utf-8")), delimiter="\t")}
+
+
+def place_span(words, sets):
+    """The number of words, two or more, from the start of words that spell a place, Mo i Rana; else 0."""
+    return next((n for n in range(len(words), 1, -1) if " ".join(words[:n]).lower() in sets.places), 0)
 
 
 def endings(places):
@@ -117,15 +121,20 @@ def endings(places):
 
 def shape_of(form, words, sets, trade):
     """The kinds of the words, as SLOTS keys; an ENK name gets its last name by the module docstring's rule."""
-    shape = []
-    for i, w in enumerate(words):
-        low = w.lower()
+    shape, i = [], 0
+    while i < len(words):
+        low, span = words[i].lower(), place_span(words[i:], sets)
+        if span:
+            shape.append("P")
+            i += span
+            continue
         if low.isdigit():
             shape.append("N")
         elif low in ("og", "&"):
             shape.append(low)
         else:
             shape.append(kind(low, sets, i == len(words) - 1) or ("T" if low in trade else "X"))
+        i += 1
     if form in NO_WORDING and "S" not in shape and "X" in shape:
         after_first = [i for i in range(1, len(shape)) if shape[i] == "X" and shape[i - 1] == "F"]
         shape[after_first[0] if after_first else shape.index("X")] = "S"

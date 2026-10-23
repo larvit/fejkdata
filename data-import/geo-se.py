@@ -166,9 +166,8 @@ def localities(codes, tatorter, municipalities, population):
 
 
 def street_name(name):
-    # A word of four capitals or fewer is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan.
     opening = name[0].isupper() or name.split()[0] in PARTICLES
-    return opening and not NOT_A_STREET.search(name) and not any(len(w) >= 5 and w.isupper() for w in name.split())
+    return opening and not NOT_A_STREET.search(name) and not geo.in_capitals(name)
 
 
 def streets(segments, codes, localities, share, minimum):
@@ -197,8 +196,7 @@ def main():
     municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipality_names.items()}
     kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
     geo.log_dropped_localities(dropped["locality"])
-    if dropped["municipality"] or dropped["region"]:
-        sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
+    geo.exit_on_dropped_parents(dropped)
     places = kept["locality"]
 
     tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
