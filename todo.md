@@ -1017,7 +1017,7 @@ They need sha256 and keccak for Base58Check and EIP-55.
 
 ### 63. Pair a street with its exact postnummer.
 
-Needs an application to Lantmäteriet; today a Swedish street goes to the nearest postal code centroid. Kartverket's address register, which `data-import/geo-no.py` reads, already pairs each Norwegian address with its postnummer. It rewrites shipped rows, so it is a major once 1.0 is cut and a minor before that.
+Sweden needs an application to Lantmäteriet; today a Swedish street goes to the nearest postal code centroid. Norway needs none: Kartverket's address register, which `data-import/geo-no.py` reads, pairs each address with its postnummer, though `geo.NO` too draws a street and a postnummer apart, each inside one poststed. It rewrites shipped rows, so it is a major once 1.0 is cut and a minor before that.
 
 ### 59. Promise in `Generator`'s godoc that its renders run one at a time.
 

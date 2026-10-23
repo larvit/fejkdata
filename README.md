@@ -13,8 +13,9 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish and Norwegian postal town holding a street address, and a sample of US places,
-  ship, and each address takes its street and postal code from one town ([Data](#data)).
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
+  does every Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
+  postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
   a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish
@@ -506,7 +507,7 @@ last name and a trade word, in the proportions the register has them. A last or 
 foretaksnavneloven § 2-2 requires. A trade word names a line of business, like `Holding` or `Eiendom`, and
 `company-word` holds those that 100 or more of the register's names carry. A coined word is made up:
 `company-coined` joins a root that 60 or more names begin with, such as `Nordic`, to an ending that 40 or more
-words of `geo/NO`'s poststed and kommune names share, such as `vik`. Where the register's names hold a postal town
+words of `geo/NO`'s place names share, such as `vik`. Where the register's names hold a postal town
 (poststed) or a municipality (kommune), the shape draws a poststed from `geo.NO.locality`, as in
 `Hamar Nordicdal AS`. A name is invented, and may also be a real
 company's.
@@ -685,13 +686,14 @@ neighbouring one.
 | `postal-code` | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | NO: addresses; SE: one; US: address ranges |
 | `street` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | NO: addresses; SE: segments; US: address ranges |
 
-Kartverket's register spells a poststed in capitals, `MO I RANA`, and `geo.NO` writes it as a
-place name, `Mo i Rana`. A kommune or fylke that has an official name in more than one language,
-such as `Trondheim - Tråante`, ships the Norwegian one, `Trondheim`, which Kartverket writes. Two
-kommuner named alike keep SSB's fylke in brackets, `Herøy (Nordland)`, so each name selects one. Each
-Norwegian street lies in a poststed whose addresses it holds.
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
 Svalbard has no kommune in Statistics Norway's classification, so it ships no place.
+Kartverket's register spells a poststed in capitals, `MO I RANA`, and `geo.NO` writes it as a
+place name, `Mo i Rana`. A kommune or fylke that has an official name in more than one language,
+such as `Trondheim - Tråante`, ships the Norwegian one, `Trondheim`, which Kartverket writes.
+Kommuner that share a name keep Statistics Norway's fylke in brackets, `Herøy (Nordland)` and
+`Herøy (Møre og Romsdal)`, so each name selects one. A Norwegian street sits under each poststed
+where it has an address.
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
@@ -1051,8 +1053,8 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 ### Transforms
 
 `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` and `{slugify(x)}` rewrite the value of `x` — a
-field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds the Latin letters of ruby-i18n's default
-table, Latin-1's and Latin Extended-A's among them (`Åsa Öberg` → `Asa Oberg`, `Wałęsa` → `Walesa`), and
+field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds the Latin letters of the default table of
+ruby-i18n, Rails' translation library: Latin-1's and most of Latin Extended-A's (`Åsa Öberg` → `Asa Oberg`, `Wałęsa` → `Walesa`), and
 drops any other non-ASCII rune, such as the `ễ` of `Nguyễn`. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
 to `-`. It then lowercases, changes each run of characters outside `a` to `z` and `0` to `9`
 to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öberg` →

@@ -1,5 +1,5 @@
-// Package nbno is fejkdata's nb_NO locale module, whose categories are nb_NO.*; its address reads
-// geo.NO, which package geono holds.
+// Package nbno is fejkdata's nb_NO locale module, whose categories are nb_NO.*; its address and
+// company read geo.NO, which package geono holds.
 package nbno
 
 import (

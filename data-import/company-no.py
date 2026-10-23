@@ -4,12 +4,12 @@
     data-import/company-no.py [--register URL_OR_FILE] [--cache DIR] [--out DIR]
 
 The script reads the register's bulk file (155 MB gzip) for counts and writes no row of it. It also reads the
-shipped nb_NO first and last names and geo/NO's poststeder, so run names-no.py and geo-no.py first. It counts the active units, not the bankrupt,
+shipped nb_NO first and last names and geo/NO's place names, so run names-no.py and geo-no.py first. It counts the active units, not the bankrupt,
 those being wound up or those forcibly dissolved. company.json weighs a legal form by its units, and for each
 form writes the shapes of its units' names. The forms are ANS, AS, ASA, DA, ENK, KS and SA. NUF is left out:
 its names carry the foreign enterprise's own form, such as AB, LTD or GMBH, and no Norwegian one.
 
-A shape is the kind of each word of a name: a last name, a first name, a poststed, a number, `og`, `&`, a trade
+A shape is the kind of each word of a name: a last name, a first name, a place, a number, `og`, `&`, a trade
 word, or any other, which draws a coined word. A name counts for a form when it ends in the form's abbreviation, which
 the shape leaves out; an ENK name carries none, so all count. A last or first name is one in the shipped
 nb_NO tables, which hold the names that 200 or more people bear. A shape ships when it is at least
@@ -29,7 +29,7 @@ company-coined.json draws `{a}{b}`. `a` holds the roots: the words of ROOT_LETTE
 or more names and end under a third of the names they are in, none of them a name, a place or a trade word, each
 carried by FORM_MIN names in at least two of the forms AS, ENK, DA and ANS, so a brand one group repeats stays
 out. `b` holds the endings of ENDING_LETTERS letters, starting with a consonant, that ENDING_MIN or more of the
-place words share, less one that a longer ending covers with four fifths of its places.
+words of places share, less one that a longer ending covers with four fifths of its words.
 """
 import argparse
 import csv

@@ -43,7 +43,6 @@ LOWER = {"i", "på"}
 # Not a street: a numbered placeholder such as Veg 7205, Gate 2, Veinr. 8113 or Vegkode 81682, a temporary name, or a
 # name holding a road designation, E6, E-6, Europaveg-39 or FV819.
 NOT_A_STREET = re.compile(r"^(Gate|Veg|Vei) ?\d+\b|^(Veinr|Vegkode|Veg nr)\.? ?\d|^Midlertidig |\b(E|FV|Fv|RV|Rv)-? ?\d+\b|^Europaveg")
-# A house number's length, as the largest number of its digits.
 NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 
 
@@ -70,8 +69,9 @@ def street_name(name):
 
 
 def norwegian_name(official, written=None):
-    """The one of SSB's names in each official language, Trondheim - Tråante, that Kartverket writes, TRONDHEIM, else
-    the first: every fylke with more than one name puts the Norwegian one first."""
+    """The name Kartverket writes, among SSB's names in each official language: SSB names a kommune Trondheim -
+    Tråante, and Kartverket writes TRONDHEIM. With no written name, the first, as every fylke with more than one
+    name puts the Norwegian one first."""
     names = official.split(" - ")
     return next((n for n in names if written and n.upper() == written), names[0])
 
@@ -92,7 +92,7 @@ def tally(addresses):
 
 def localities(t, people, municipalities):
     """Each poststed whose kommune SSB classifies, with that kommune, its population by the module docstring's rule and
-    its centre point. A kommune holding as many of a poststed's addresses as another loses to the lower code."""
+    its centre point. Of two kommuner holding as many of a poststed's addresses, the lower code wins."""
     of_municipality, share, home = collections.Counter(), collections.Counter(), {}
     for (_, municipality), n in t.in_municipality.items():
         of_municipality[municipality] += n

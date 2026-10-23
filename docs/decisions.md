@@ -1145,9 +1145,9 @@ table, which `TestAsciiFoldsEveryShippedNameLetter` checks, and RFC 5322 keeps l
 
 2026-10-21, Lilleman auf Larv. Serves goal 3.3.
 
-`ascii` drops a letter it has no entry for: `Wałęsa` becomes `Wasa`. A name that loses letters
-does not look real, and goal 3.3 asks that values look real. The table takes 129 more entries,
-so `ascii` and `slugify` keep the letters they now drop. The entries are the letters beyond
+`ascii` dropped a letter it had no entry for: `Wałęsa` became `Wasa`. A name that loses letters
+does not look real, and goal 3.3 asks that values look real. The table took 129 more entries,
+so `ascii` and `slugify` keep the letters they dropped. The entries are the letters beyond
 Latin-1 in ruby-i18n's default transliteration table
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)),
 from Latin Extended-A, part of Latin Extended-B, and `ẞ`, the capital sharp s.
