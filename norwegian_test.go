@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"encoding/json"
+	"os"
 	"regexp"
 	"slices"
 	"sort"
@@ -418,7 +420,7 @@ func TestShippedNorwegianCompanyNamesVary(t *testing.T) {
 
 func TestShippedNorwegianAddressIsAStreetANumberAPostnummerAndAPoststed(t *testing.T) {
 	f := shipped(t, WithSeed(3))
-	address := regexp.MustCompile(`^\pL.* [1-9]\d{0,3}[A-Z]?\n\d{4} \pL.*$`)
+	address := regexp.MustCompile(`^[\pL\d].* [1-9]\d{0,3}[A-Z]?\n\d{4} \pL.*$`)
 	for i := 0; i < 300; i++ {
 		if a := fake(t, f, "nb_NO.address"); !address.MatchString(a) {
 			t.Fatalf("nb_NO.address = %q, want a street and a number, then a postnummer and a poststed", a)
@@ -436,7 +438,7 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 			t.Errorf("geo.NO: poststed %q holds a word in capitals", r[0])
 		}
 	}
-	for _, name := range []string{"Oslo", "Bergen", "Mo i Rana", "Kristiansund N", "Ålesund"} {
+	for _, name := range []string{"Oslo", "Bergen", "Mo i Rana", "Kristiansund N", "Nes på Hedmarken", "Ålesund"} {
 		if !names[name] {
 			t.Errorf("geo.NO: no poststed %q", name)
 		}
@@ -486,7 +488,7 @@ func holdsPlace(words []string, places map[string]bool) bool {
 
 func TestShippedNorwegianStreetsAreStreetNames(t *testing.T) {
 	refused := map[string]bool{
-		"E6 Vinne": true, "Europaveg-39": true, "Gate 2": true, "HÅKON DEN GODES GATE": true,
+		"E6 Vinne": true, "Einvik E-6": true, "Europaveg-39": true, "Gate 2": true, "HÅKON DEN GODES GATE": true,
 		"Midlertidig Storehaugen 1500": true, "Pundsvik-FV819": true, "Veg 1152 i Geiranger": true,
 		"Veg 7205": true, "Veg nr 1306": true, "Vegkode 81682": true, "Vei07": true, "Veinr. 8113": true,
 	}
@@ -510,6 +512,70 @@ func TestShippedNorwegianKommuneAndFylkeSelectByTheirNorwegianNames(t *testing.T
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("%s = %q, want %q", path, got, want)
+		}
+	}
+}
+
+// Of Kartverket's 2.57 million street addresses, 18.3% carry a letter after the number and 3.5% a
+// number of four digits.
+func TestShippedNorwegianHouseNumbersFollowKartverketsRegister(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	const draws = 40000
+	var lettered, fourDigits int
+	for i := 0; i < draws; i++ {
+		n := fake(t, f, "nb_NO.address.street-number")
+		digits := strings.TrimRight(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+		if digits != n {
+			lettered++
+		}
+		if len(digits) == 4 {
+			fourDigits++
+		}
+	}
+	assertShare(t, "house numbers with a letter", lettered, draws, 0.183)
+	assertShare(t, "house numbers of four digits", fourDigits, draws, 0.035)
+}
+
+// A word that is both a poststed and a last name, such as Berg, is the last name, so the AS shapes
+// opening with a last name ship.
+func TestShippedNorwegianCompanyNamesOpenWithALastName(t *testing.T) {
+	last := map[string]bool{}
+	for _, row := range tsvRows(t, "data/nb_NO/last-name.tsv") {
+		last[row["name"]] = true
+	}
+	f := shipped(t, WithSeed(12))
+	const draws = 20000
+	opening := 0
+	for i := 0; i < draws; i++ {
+		if words := strings.Fields(fake(t, f, "nb_NO.company.as")); last[words[0]] {
+			opening++
+		}
+	}
+	if share := float64(opening) / draws; share < 0.05 {
+		t.Errorf("%.1f%% of AS names open with a last name, want 5%% or more", 100*share)
+	}
+}
+
+func TestNorwegianCoinedRootsHoldNoWordOfAPlace(t *testing.T) {
+	words := map[string]bool{}
+	for _, table := range []string{"locality", "municipality"} {
+		for _, row := range tsvRows(t, "data/geo/NO/"+table+".tsv") {
+			for _, w := range strings.Fields(strings.ToLower(row["name"])) {
+				words[w] = true
+			}
+		}
+	}
+	b, err := os.ReadFile("data/nb_NO/company-coined.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var coined struct{ A []string }
+	if err := json.Unmarshal(b, &coined); err != nil {
+		t.Fatal(err)
+	}
+	for _, root := range coined.A {
+		if words[strings.ToLower(root)] {
+			t.Errorf("company-coined root %q is a word of a geo/NO place name", root)
 		}
 	}
 }
