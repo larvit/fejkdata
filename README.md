@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish and Norwegian postal town and a sample of US places
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish and Norwegian postal town holding a street address, and a sample of US places,
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
@@ -686,7 +686,9 @@ neighbouring one.
 | `street` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | NO: addresses; SE: segments; US: address ranges |
 
 Kartverket's register spells a poststed in capitals, `MO I RANA`, and `geo.NO` writes it as a
-place name, `Mo i Rana`. Each Norwegian street lies in a poststed whose addresses it holds.
+place name, `Mo i Rana`. A kommune or fylke that has an official name in more than one language,
+such as `Trondheim - Tråante`, ships the Norwegian one, `Trondheim`, which Kartverket writes. Each
+Norwegian street lies in a poststed whose addresses it holds.
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
 Svalbard has no kommune in Statistics Norway's classification, so it ships no place.
 
