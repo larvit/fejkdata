@@ -12,10 +12,8 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 2.2 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.8 |
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
-| 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 4 by 2 | 1.5 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
 | 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | code health by 6 | 17.1 |
@@ -240,10 +238,6 @@
 
 ## Details
 
-### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
-
-Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so `echo {/users} | fejkdata` sends `{/users} ` and stops naming the record. Windows PowerShell 5.1's `>` writes UTF-16, so the bulk quick start's `> people.csv` garbles `Östersund` there; the section must say what to write instead, checked on PowerShell 5.1.
-
 ### 335. Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.
 
 On 2026-10-18 Python 3.15.0 (#219), Fedora 46 (#221) and `golang.org/x/vuln` v1.9.0 (#226) waited four to five days for a hand merge, since `renovate.json` merges only a Go patch itself. None of them reaches the binaries or the image, which is built `FROM scratch`, so no release follows. An update that needs a code or test change still waits for a human.
@@ -251,10 +245,6 @@ On 2026-10-18 Python 3.15.0 (#219), Fedora 46 (#221) and `golang.org/x/vuln` v1.
 ### 336. Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.
 
 The maintainer, 2026-10-18: no patch should wait on a human. A dependency bump that passes the tests unchanged changes no row of the README's Versioning table, so it is a patch; a new Go minor leaves `go.mod`'s `go 1.22`, the lowest supported Go, where it is. `release-tooling/patch_release.py cut` already cuts a Go patch this way from the last release's tag; widen it to the rest, and revise the decision "CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag", which leaves a Go minor to the maintainer. Name in the changelog section each platform a new Go minor stops supporting, such as an older macOS, since a binary user loses it in a patch. Make the comprehension seats' places in `patch_release.py`, `packages.yml` and `goreleaser.yaml` easier to read where the change touches them.
-
-### 337. Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.
-
-Two fresh readers of the README's Go quick start read Names' refusal, "a read of a name inside the field bound to it", as forbidding `{/sv_SE.sex as s}{s.name}` in one struct tag. The loader accepts that tag, as it accepts the `first` field of `sv_SE.person`, `{.first-name as n}{n.name}`. Find the case the loader refuses, state it in Names with a template that shows it, and drop the sentence if it names no case the loader refuses.
 
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
@@ -813,7 +803,7 @@ Technical principle: indent with hard tabs. All 19 scripts indent with four spac
 
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
-A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. Measured on a GitHub `windows-latest` runner (PowerShell 5.1.26100) while shipping item 157: `$OutputEncoding` read US-ASCII, yet a pipe to a program still began with the bytes `EF BB BF`, so a JSON template exited 2 (`'{' inside a token in "\ufeff{…`) and a lone reference under `--format` exited 2 (`an inline record has no fields`). PowerShell 7.6.7 sent no BOM.
+A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. Measured on a GitHub `windows-latest` runner (PowerShell 5.1.26100) while writing the README's PowerShell section: `$OutputEncoding` read US-ASCII, yet a pipe to a program still began with the bytes `EF BB BF`, so a JSON template exited 2 (`'{' inside a token in "\ufeff{…`) and a lone reference under `--format` exited 2 (`an inline record has no fields`). PowerShell 7.6.7 sent no BOM.
 
 ### 163. Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.
 
