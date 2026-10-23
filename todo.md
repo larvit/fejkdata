@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 347`
+`Next ID = 348`
 
 ## Items
 
@@ -209,6 +209,7 @@
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.1 |
 | 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 1.1 |
 | 56 | 0.3.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 1.1 |
+| 347 | 0.3.0 |  |  | **Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.** | 3 | 3 | 2 | 6 | 5 | 1.1 by 4 | 1.1 |
 | 53 | 0.3.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 1.0 |
 | 223 | 0.3.0 |  |  | **Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.** | 3 | 1 | 2 | 4 | 6 | 1 by 4, 4 by 3 | 1.0 |
 | 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 3.3 by 3 | 1.0 |
@@ -919,6 +920,12 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 ### 56. Build on a manual run of `test.yml` on `main`.
 
 A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD` with itself and skips `docker build`.
+
+### 347. Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.
+
+`renovate.json` merges an update itself once the gate passes, but not one from the `github-actions` manager, which also updates the runner that `runs-on` names. Actions wait for a human because some of them run only in jobs that no pull request runs. `.github/workflows/packages.yml` runs only on a release, or by hand for a released tag, with `actions/setup-go`, `goreleaser/goreleaser-action`, `docker/setup-buildx-action`, `docker/login-action`, `actions/upload-pages-artifact` and `actions/deploy-pages`. `.github/workflows/dockerhub-description.yml` runs `peter-evans/dockerhub-description` only on a push to `main`. `test.yml`'s `plan` job runs `actions/download-artifact` only on `main`. An Action major that breaks, once merged untested, first fails in a release run, which may be CI's unattended Go patch. By then the release's tag is published, so a channel the run did not reach serves the old release: goal 1.1's counter-signal.
+
+Run each of those Actions in the gate on a pull request that changes a workflow. For the Packages workflow, that is a dry run that builds everything and publishes nothing. The dry run must read no secret, since a pull request from a fork gets none. Where an Action cannot run without publishing, keep that one Action waiting for a human, named in `renovate.json`. Then drop `!github-actions` from `renovate.json`'s automerge rule, and update the README Development section's list of updates that wait for a human. Make the comprehension seats' places in `packages.yml`, `goreleaser.yaml` and `test.yml`'s `Relevant changes` easier to read where the change touches them.
 
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
