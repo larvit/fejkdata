@@ -1558,14 +1558,19 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges an update itself once every check passes, except an update to what a
-release carries: a Go minor or major, GoReleaser, or `go.mod`. An update to a build, test
-or release tool, such as Python or `govulncheck`, releases nothing. A Go patch does: when
-`main`'s Go is a patch above the last release's, CI cuts a patch of that release: it commits the new Go
-version, `main`'s `.github/` and the patch's `CHANGELOG.md` section to a branch
-`release/X.Y.Z` cut from the last release's tag, builds it through `docker build .`,
-publishes it and its packages, and adds the section to `main` through `security-plan`. A
-newer Go minor, such as 1.28, waits for a release you cut.
+Renovate merges an update to a tool, such as Python or `govulncheck`, itself once every
+check passes, and no release follows. These updates wait for a human:
+
+- Go above a patch, or GoReleaser, since they build a release.
+- `go.mod`'s `go` line or a module it requires, since they set what a release carries.
+- A GitHub Action, since it also runs in jobs no pull request runs.
+
+A Go patch merges itself too, and is released. When `main`'s Go is a patch above the last
+release's, CI cuts a patch of that release. It commits the new Go version, `main`'s
+`.github/` and the patch's `CHANGELOG.md` section to a branch `release/X.Y.Z` cut from
+the last release's tag, builds it through `docker build .`, publishes it and its packages,
+and adds the section to `main` through `security-plan`. A newer Go minor, such as 1.28,
+waits for a release you cut.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
 to `main` that changes one syncs both to Docker Hub. The sync reads the secret
