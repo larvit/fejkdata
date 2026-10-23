@@ -1558,8 +1558,10 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges a Go patch itself once every check passes. When `main`'s Go is then a
-patch above the last release's, CI cuts a patch of that release: it commits the new Go
+Renovate merges an update itself once every check passes, except an update to what a
+release carries: a Go minor or major, GoReleaser, or `go.mod`. An update to a build, test
+or release tool, such as Python or `govulncheck`, releases nothing. A Go patch does: when
+`main`'s Go is a patch above the last release's, CI cuts a patch of that release: it commits the new Go
 version, `main`'s `.github/` and the patch's `CHANGELOG.md` section to a branch
 `release/X.Y.Z` cut from the last release's tag, builds it through `docker build .`,
 publishes it and its packages, and adds the section to `main` through `security-plan`. A
