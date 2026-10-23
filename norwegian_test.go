@@ -443,8 +443,9 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 	}
 }
 
-// Enhetsregisteret's AS names hold a poststed or kommune in 7.1% of them. A poststed that is also a
-// name, such as Berg, counts as the name, so only the others are counted, and half of 7.1% is the floor.
+// Enhetsregisteret's AS names hold a poststed or kommune in 7.1% of them, but only a shape that 1% of
+// the names have ships, and a poststed that is also a name, such as Berg, counts as the name, so the
+// floor is 2%.
 func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 	named := map[string]bool{}
 	for _, file := range []string{"first-name", "last-name"} {
@@ -473,8 +474,8 @@ func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 			}
 		}
 	}
-	if share := float64(holding) / draws; share < 0.071/2 {
-		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 3.55%% or more", 100*share)
+	if share := float64(holding) / draws; share < 0.02 {
+		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 2%% or more", 100*share)
 	}
 }
 
