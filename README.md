@@ -212,7 +212,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 
 ### PowerShell and cmd.exe
 
-In cmd.exe, `echo` sends the space before `|` and any single quotes, which make the template text, so write neither:
+In cmd.exe, `echo` sends the space before `|` and any single quotes, so write neither: around `{/sv_SE.person}` they are text, and `--format` stops naming the record.
 
 ```bat
 echo {/sv_SE.person}| fejkdata
@@ -224,7 +224,7 @@ In PowerShell 7, single quotes keep the braces:
 '{/sv_SE.person}' | fejkdata
 ```
 
-Windows PowerShell 5.1 pipes a byte-order mark ahead of the template, which turns a lone reference under `--format` into text and breaks a JSON template, and its `>` writes UTF-16, so `people.csv` is not UTF-8. Hand either to cmd.exe:
+Windows PowerShell 5.1 pipes a byte-order mark ahead of the template. That makes a lone reference under `--format` text and breaks a JSON template. Its `>` also writes UTF-16, so a redirected file is not UTF-8. Read the template from a file and redirect in cmd.exe instead:
 
 ```powershell
 cmd /c "fejkdata --format csv --repeat 1000000 < person.json > people.csv"
@@ -1148,9 +1148,9 @@ Refused at `New`, each error naming what to write instead:
 - a name that is a field or an option;
 - a binding of anything but a reference, or a field of the template binding it or a path into
   one;
-- a read of a name inside the field bound to it: `{x as n}` with `"x": "{n}"` makes the pick read
-  itself, so read `n` outside `x`. Binding a reference and reading it in the same field is fine:
-  `{/sv_SE.sex as s}{s.name}` works in one struct tag;
+- a read of a name inside the field it binds: `{x as n}` with `"x": "{n}"` makes the pick read
+  itself, so read `n` outside `x`. A binding and a read of it in one field or struct tag is fine:
+  `{/sv_SE.sex as s}{s.name}`;
 - reading a name outside the choice item that binds it, since the other items leave it
   unbound;
 - a path through a name that selects a row: `{r.municipality[0180]}` could mean municipality
