@@ -835,3 +835,12 @@ Inherited architect, decided by:
 
 - Shape: `internal/builtinfunc/builtins.go:27` `builtins`: `fnr` is filed as a derivation but also draws its second individ digit and reads an operand, so the registry comment's two shapes, derivation and sample, no longer cover every entry
 - Shape: `data/nb_NO/birth-day.json:1` `nb_NO.birth-day`: a public category named for a birthday that renders `0181`, the month plus 80, which only the README says
+
+## 2026-10-23T02:54:37Z, PR #256 at 11c6e9f, against cdaae5b
+
+Ruling: same
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | same | same | same | same |
+| Inherited architect | same | same | same | same | same |
