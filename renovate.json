@@ -42,6 +42,28 @@
   ],
   "packageRules": [
     {
+      "description": "A build, test or release tool merges itself once every check passes; none reaches what a release carries, so nothing is released for it",
+      "matchPackageNames": [
+        "*"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "What a release carries waits for a human: Go and GoReleaser",
+      "matchPackageNames": [
+        "golang",
+        "goreleaser/goreleaser"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "What a release carries waits for a human: go.mod's go line and every module it requires",
+      "matchManagers": [
+        "gomod"
+      ],
+      "automerge": false
+    },
+    {
       "groupName": "GoReleaser",
       "matchPackageNames": [
         "goreleaser/goreleaser"
