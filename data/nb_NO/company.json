@@ -13,29 +13,32 @@
     "format": "{name} ANS",
     "name": [
       { "format": "{.company-coined}", "weight": 1165 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 995 },
-      { "format": "{.company-coined} {.company-word}", "weight": 646 },
-      { "format": "{.last-name} {.company-coined}", "weight": 187 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 1026 },
+      { "format": "{.company-coined} {.company-word}", "weight": 647 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 196 },
+      { "format": "{.last-name} {.company-coined}", "weight": 193 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 183 },
       { "format": "{.last-name} {.company-word}", "weight": 162 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 162 },
       { "format": "{.company-coined} {int(1,30)}", "weight": 137 },
-      { "format": "{.company-coined} {.last-name}", "weight": 108 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 93 }
+      { "format": "{.company-coined} {.last-name}", "weight": 110 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 101 },
+      { "format": "{/geo.NO.locality} {.company-word}", "weight": 59 }
     ]
   },
   "as": {
     "format": "{name} AS",
     "name": [
-      { "format": "{.company-coined}", "weight": 101511 },
-      { "format": "{.company-coined} {.company-word}", "weight": 93854 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 69746 },
-      { "format": "{.last-name} {.company-coined}", "weight": 11658 },
+      { "format": "{.company-coined}", "weight": 101525 },
+      { "format": "{.company-coined} {.company-word}", "weight": 94096 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 71373 },
+      { "format": "{.last-name} {.company-coined}", "weight": 11704 },
       { "format": "{.last-name} {.company-word}", "weight": 10665 },
-      { "format": "{.company-coined} {int(1,30)}", "weight": 10447 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 9445 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 8892 },
-      { "format": "{.company-coined} {.last-name}", "weight": 5314 },
-      { "format": "{.first-name} {.company-coined}", "weight": 4640 }
+      { "format": "{.company-coined} {int(1,30)}", "weight": 10450 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 9788 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9785 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 8306 },
+      { "format": "{.company-coined} {.last-name}", "weight": 5400 },
+      { "format": "{.first-name} {.company-coined}", "weight": 4664 }
     ]
   },
   "asa": {
@@ -46,50 +49,49 @@
       { "format": "{.company-coined} {.company-word}", "weight": 17 },
       { "format": "{.last-name} {.company-coined}", "weight": 9 },
       { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 6 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 5 },
       { "format": "{.first-name} {.company-coined}", "weight": 3 },
       { "format": "{.last-name}", "weight": 3 },
-      { "format": "{.company-coined} {.last-name} {.company-coined}", "weight": 3 },
-      { "format": "{.last-name} {.company-word}", "weight": 2 },
-      { "format": "{.company-coined} {.last-name}", "weight": 2 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 2 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-word}", "weight": 2 }
+      { "format": "{.company-coined} {.last-name} {.company-coined}", "weight": 3 }
     ]
   },
   "da": {
     "format": "{name} DA",
     "name": [
       { "format": "{.company-coined}", "weight": 2067 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 1697 },
-      { "format": "{.company-coined} {.company-word}", "weight": 1396 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 1741 },
+      { "format": "{.company-coined} {.company-word}", "weight": 1404 },
       { "format": "{.last-name} {.company-word}", "weight": 339 },
-      { "format": "{.last-name} {.company-coined}", "weight": 270 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 270 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 154 },
-      { "format": "{.company-coined} {.last-name}", "weight": 143 }
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 326 },
+      { "format": "{.last-name} {.company-coined}", "weight": 273 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 209 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 170 },
+      { "format": "{/geo.NO.locality} {.company-word}", "weight": 150 },
+      { "format": "{.company-coined} {.last-name}", "weight": 146 }
     ]
   },
   "enk": {
     "format": "{name}",
     "name": [
-      { "format": "{.first-name} {.last-name}", "weight": 81354 },
-      { "format": "{.last-name} {.company-coined}", "weight": 65919 },
-      { "format": "{.first-name} {.first-name} {.last-name}", "weight": 27165 },
-      { "format": "{.last-name} {.company-word}", "weight": 26086 },
-      { "format": "{.company-coined} {.first-name} {.last-name}", "weight": 22155 },
-      { "format": "{.first-name} {.last-name} {.company-coined}", "weight": 19138 },
-      { "format": "{.last-name} {.company-coined} {.company-coined}", "weight": 17490 },
-      { "format": "{.company-coined} {.last-name}", "weight": 16650 },
-      { "format": "{.last-name} {.first-name}", "weight": 10999 },
-      { "format": "{.last-name}", "weight": 9114 },
-      { "format": "{.first-name} {.company-coined} {.last-name}", "weight": 8509 },
-      { "format": "{.company-coined} {.company-coined} {.first-name} {.last-name}", "weight": 7409 },
-      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 6422 },
-      { "format": "{.first-name} {.last-name} {.company-word}", "weight": 5497 },
+      { "format": "{.first-name} {.last-name}", "weight": 81362 },
+      { "format": "{.last-name} {.company-coined}", "weight": 66117 },
+      { "format": "{.first-name} {.first-name} {.last-name}", "weight": 27171 },
+      { "format": "{.last-name} {.company-word}", "weight": 26088 },
+      { "format": "{.company-coined} {.first-name} {.last-name}", "weight": 22190 },
+      { "format": "{.first-name} {.last-name} {.company-coined}", "weight": 19259 },
+      { "format": "{.last-name} {.company-coined} {.company-coined}", "weight": 17780 },
+      { "format": "{.company-coined} {.last-name}", "weight": 16724 },
+      { "format": "{.last-name} {.first-name}", "weight": 11002 },
+      { "format": "{.last-name}", "weight": 9115 },
+      { "format": "{.first-name} {.company-coined} {.last-name}", "weight": 8642 },
+      { "format": "{.company-coined} {.company-coined} {.first-name} {.last-name}", "weight": 7590 },
+      { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 6551 },
+      { "format": "{.first-name} {.last-name} {.company-word}", "weight": 5501 },
       { "format": "{.first-name} {.last-name} {.last-name}", "weight": 5438 },
-      { "format": "{.last-name} {.first-name} {.first-name}", "weight": 5045 },
-      { "format": "{.last-name} {.company-coined} {.company-word}", "weight": 5010 },
-      { "format": "{.last-name} {.company-coined} {.company-coined} {.company-coined}", "weight": 4972 },
-      { "format": "{.company-coined} {.first-name} {.first-name} {.last-name}", "weight": 4730 }
+      { "format": "{.last-name} {.company-coined} {.company-coined} {.company-coined}", "weight": 5212 },
+      { "format": "{.last-name} {.first-name} {.first-name}", "weight": 5046 },
+      { "format": "{.last-name} {.company-coined} {.company-word}", "weight": 5042 },
+      { "format": "{.company-coined} {.first-name} {.first-name} {.last-name}", "weight": 4731 }
     ]
   },
   "ks": {
@@ -97,19 +99,23 @@
     "name": [
       { "format": "{.company-coined}", "weight": 16 },
       { "format": "{.company-coined} {.company-coined}", "weight": 16 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9 },
       { "format": "{.company-coined} {int(1,30)}", "weight": 7 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 7 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 5 },
       { "format": "{.last-name} {.company-coined}", "weight": 4 },
       { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 4 },
       { "format": "{.company-coined} {.last-name}", "weight": 3 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 3 },
       { "format": "{.last-name} {.company-coined} {.company-word}", "weight": 2 },
       { "format": "{.last-name} {.company-coined} {.company-coined}", "weight": 2 },
       { "format": "{.company-coined} {.company-word}", "weight": 2 },
       { "format": "{.company-coined} {.company-coined} {int(1,30)}", "weight": 2 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 2 },
       { "format": "{.first-name} {.last-name}", "weight": 1 },
+      { "format": "{.company-word} {/geo.NO.locality}", "weight": 1 },
       { "format": "{.company-coined} {int(1,30)} {.company-coined} {.company-coined} {.company-coined}", "weight": 1 },
+      { "format": "{.company-coined} {/geo.NO.locality}", "weight": 1 },
       { "format": "{.company-coined} {.last-name} {.company-coined}", "weight": 1 },
+      { "format": "{.company-coined} {.company-coined} {/geo.NO.locality}", "weight": 1 },
       { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-word} {.company-coined}", "weight": 1 },
       { "format": "{.company-coined} {.company-coined} {.company-coined} {.company-coined} {.company-coined}", "weight": 1 }
     ]
@@ -117,14 +123,15 @@
   "sa": {
     "format": "{name} SA",
     "name": [
-      { "format": "{.company-coined} {.company-coined}", "weight": 2353 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 2413 },
       { "format": "{.company-coined}", "weight": 874 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 652 },
       { "format": "{.last-name} {.company-coined}", "weight": 477 },
-      { "format": "{.company-coined} {.company-word}", "weight": 396 },
-      { "format": "{.company-coined} {.company-coined} og {.company-coined}", "weight": 213 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 165 },
-      { "format": "{.company-coined} og {.company-coined} {.company-coined}", "weight": 75 },
-      { "format": "{.last-name} {.company-word}", "weight": 63 }
+      { "format": "{.company-coined} {.company-word}", "weight": 398 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 310 },
+      { "format": "{.company-coined} {.company-coined} og {.company-coined}", "weight": 216 },
+      { "format": "{.company-coined} {/geo.NO.locality}", "weight": 81 },
+      { "format": "{.company-coined} og {.company-coined} {.company-coined}", "weight": 75 }
     ]
   }
 }

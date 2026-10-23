@@ -4,13 +4,13 @@
     data-import/company-no.py [--register URL_OR_FILE] [--cache DIR] [--out DIR]
 
 The script reads the register's bulk file (155 MB gzip) for counts and writes no row of it. It also reads the
-shipped nb_NO first and last names, so run names-no.py first. It counts the active units, not the bankrupt,
+shipped nb_NO first and last names and geo/NO's poststeder, so run names-no.py and geo-no.py first. It counts the active units, not the bankrupt,
 those being wound up or those forcibly dissolved. company.json weighs a legal form by its units, and for each
 form writes the shapes of its units' names. The forms are ANS, AS, ASA, DA, ENK, KS and SA. NUF is left out:
 its names carry the foreign enterprise's own form, such as AB, LTD or GMBH, and no Norwegian one.
 
-A shape is the kind of each word of a name: a last name, a first name, a number, `og`, `&`, a trade word, or
-any other, which draws a coined word. A name counts for a form when it ends in the form's abbreviation, which
+A shape is the kind of each word of a name: a last name, a first name, a poststed, a number, `og`, `&`, a trade
+word, or any other, which draws a coined word. A name counts for a form when it ends in the form's abbreviation, which
 the shape leaves out; an ENK name carries none, so all count. A last or first name is one in the shipped
 nb_NO tables, which hold the names that 200 or more people bear. A shape ships when it is at least
 company_names.SHARE_MIN of the form's names.
@@ -19,9 +19,8 @@ foretaksnavneloven § 2-2 (https://lovdata.no/dokument/NL/lov/1985-06-21-79) req
 owner's last name. So where none is listed, the unlisted word after a first name is the last name, else the
 first unlisted word.
 
-A place is a word of the poststed or kommune that any unit's business address spells; a region such as Agder
-isn't one. A place is neither a trade word nor a coined one, and a shape holding one is left out until geo/NO
-provides the places to draw.
+A place is the name of a poststed or kommune geo/NO ships, and a shape draws it from geo.NO.locality. No word of
+a place's name, such as Indre in Indre Arna, is a trade word or a coined one.
 
 company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
 company_names.py over the names of the forms AS, ENK, DA and ANS.
@@ -30,7 +29,7 @@ company-coined.json draws `{a}{b}`. `a` holds the roots: the words of ROOT_LETTE
 or more names and end under a third of the names they are in, none of them a name, a place or a trade word, each
 carried by FORM_MIN names in at least two of the forms AS, ENK, DA and ANS, so a brand one group repeats stays
 out. `b` holds the endings of ENDING_LETTERS letters, starting with a consonant, that ENDING_MIN or more of the
-register's places share, less one that a longer ending covers with four fifths of its places.
+place words share, less one that a longer ending covers with four fifths of its places.
 """
 import argparse
 import csv
@@ -38,7 +37,6 @@ import gzip
 import io
 import json
 import re
-import sys
 from collections import Counter, namedtuple
 from pathlib import Path
 
@@ -61,21 +59,18 @@ FUNCTION_WORDS = {"og", "the", "and", "of", "for", "med", "på", "til", "av", "d
 LEGAL_WORDS = {form.lower() for form in FORMS} | {"aksjeselskap", "aksjeselskapet", "ansvarlig", "selskap", "samvirkeforetak"}
 VOCABULARY = Vocabulary(re.compile(r"^[a-zæøåéü]{3,}$"), frozenset(FUNCTION_WORDS), frozenset(LEGAL_WORDS), frozenset({"AS", "ENK", "DA", "ANS"}), 0)
 Words = namedtuple("Words", "surnames firsts places")
-SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "N": "{int(1,30)}", "og": "og", "&": "&"}
+SLOTS = {"X": "{.company-coined}", "T": "{.company-word}", "S": "{.last-name}", "F": "{.first-name}", "P": "{/geo.NO.locality}", "N": "{int(1,30)}", "og": "og", "&": "&"}
 
 
 def register(data):
-    """(units per form, (form, name) of every active unit of FORMS, the lower-case places the register spells)."""
-    counts, names, places = Counter(), [], set()
+    """(units per form, (form, name) of every active unit of FORMS)."""
+    counts, names = Counter(), []
     for row in csv.DictReader(io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(data)), encoding="utf-8", newline="")):
-        if row["forretningsadresse.landkode"] == "NO":
-            for c in ("forretningsadresse.poststed", "forretningsadresse.kommune"):
-                places.update(w for w in re.split(r"[\s,]+", row[c].lower()) if w)
         form = row["organisasjonsform.kode"]
         if form in FORMS and all(row[c] == "false" for c in ("konkurs", "underAvvikling", "underTvangsavviklingEllerTvangsopplosning")):
             counts[form] += 1
             names.append((form, row["navn"]))
-    return counts, names, places
+    return counts, names
 
 
 def without_wording(form, words):
@@ -107,6 +102,12 @@ def roots(usage, trade):
     )
 
 
+def place_names():
+    """The lower-case names of geo/NO's poststeder and kommuner, a kommune's names in more languages, Rana - Raane, each apart."""
+    names = [r["name"] for path in ("locality.tsv", "municipality.tsv") for r in csv.DictReader(io.StringIO((ROOT / "geo/NO" / path).read_text(encoding="utf-8")), delimiter="\t")]
+    return {part.lower() for name in names for part in name.split(" - ")}
+
+
 def endings(places):
     """The endings of company-coined.json, by the rule in the module docstring."""
     count = Counter(p[-n:] for p in places if re.fullmatch(r"[a-zæøå]+", p) for n in ENDING_LETTERS if len(p) > n + 2)
@@ -115,7 +116,7 @@ def endings(places):
 
 
 def shape_of(form, words, sets, trade):
-    """The kinds of the words, as SLOTS keys, or None where a word is a place; an ENK name gets its last name by the module docstring's rule."""
+    """The kinds of the words, as SLOTS keys; an ENK name gets its last name by the module docstring's rule."""
     shape = []
     for i, w in enumerate(words):
         low = w.lower()
@@ -124,10 +125,7 @@ def shape_of(form, words, sets, trade):
         elif low in ("og", "&"):
             shape.append(low)
         else:
-            found = kind(low, sets, i == len(words) - 1) or ("T" if low in trade else "X")
-            if found == "P":
-                return None
-            shape.append(found)
+            shape.append(kind(low, sets, i == len(words) - 1) or ("T" if low in trade else "X"))
     if form in NO_WORDING and "S" not in shape and "X" in shape:
         after_first = [i for i in range(1, len(shape)) if shape[i] == "X" and shape[i - 1] == "F"]
         shape[after_first[0] if after_first else shape.index("X")] = "S"
@@ -135,17 +133,12 @@ def shape_of(form, words, sets, trade):
 
 
 def count_shapes(names, sets, trade):
-    """Per form: the shapes counted over the names that carry the form's abbreviation, less those holding a place."""
-    shapes, carrying = {f: Counter() for f in FORMS}, Counter()
+    """Per form: the shapes counted over the names that carry the form's abbreviation."""
+    shapes = {f: Counter() for f in FORMS}
     for form, name in names:
         left = without_wording(form, split(name))
         if left:
-            carrying[form] += 1
-            shape = shape_of(form, left, sets, trade)
-            if shape:
-                shapes[form][shape] += 1
-    for f in FORMS:
-        print(f"{f}: {1 - sum(shapes[f].values()) / carrying[f]:.1%} of {carrying[f]} names hold a place", file=sys.stderr)
+            shapes[form][shape_of(form, left, sets, trade)] += 1
     return shapes
 
 
@@ -173,15 +166,17 @@ def main():
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
     data = source.fetch(a.register, a.cache, "enhetsregisteret-enheter.csv.gz", magic=b"\x1f\x8b")
-    registered, names, places = register(data)
+    registered, names = register(data)
+    places = place_names()
+    place_words = {w for p in places for w in split(p)}
     sets = Words(column(ROOT / "nb_NO/last-name.tsv"), column(ROOT / "nb_NO/first-name.tsv"), places)
-    named = lambda w: kind(w, sets, True) is not None or kind(w.removesuffix("s"), sets, True) == "S"
+    named = lambda w: kind(w, sets, True) is not None or w in place_words or kind(w.removesuffix("s"), sets, True) == "S"
     usage = word_usage(names, named, VOCABULARY)
     trade = trade_words(usage, VOCABULARY)
     out = Path(a.out)
     tsv.write(out / "company-word.tsv", ["word", "count"], [{"word": s, "count": c} for _, (s, c) in sorted(trade.items())])
     (out / "company-word.json").write_text('{ "format": "{word}", "rows": "company-word.tsv", "weight": "count" }\n', encoding="utf-8")
-    (out / "company-coined.json").write_text(coined_json(roots(usage, trade), endings(places)), encoding="utf-8")
+    (out / "company-coined.json").write_text(coined_json(roots(usage, trade), endings(place_words)), encoding="utf-8")
     (out / "company.json").write_text(company_json(registered, count_shapes(names, sets, trade)), encoding="utf-8")
 
 
