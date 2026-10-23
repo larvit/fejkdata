@@ -347,7 +347,7 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 // oneWord is, per form, the weight of the shipped shapes that are one word and the weight of all its
 // shipped shapes, as company-no.py wrote them; the test holds a render to them.
 func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
-	oneWord := map[string][2]int{"AS": {101525, 337756}, "ENK": {9115, 350561}, "SA": {874, 5496}, "DA": {2067, 6825}, "ANS": {1165, 3979}, "ASA": {88, 186}, "KS": {16, 83}}
+	oneWord := map[string][2]int{"AS": {101525, 337759}, "ENK": {9115, 350561}, "SA": {874, 5505}, "DA": {2067, 6829}, "ANS": {1165, 3980}, "ASA": {88, 186}, "KS": {16, 83}}
 	const draws = 40000
 	for form, c := range oneWord {
 		t.Run(form, func(t *testing.T) {
