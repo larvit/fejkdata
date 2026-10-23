@@ -212,7 +212,7 @@ template holding one from a quoted heredoc or a file. The rest of stdin's rules 
 
 ### PowerShell and cmd.exe
 
-In cmd.exe, `echo` sends its quotes and the space before `|`, which make the template text, so write neither:
+In cmd.exe, `echo` sends the space before `|` and any single quotes, which make the template text, so write neither:
 
 ```bat
 echo {/sv_SE.person}| fejkdata
