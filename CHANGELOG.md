@@ -91,9 +91,18 @@ replacement, and each removed path, column or flag.
   abbreviation), AS, DA, SA, ANS, ASA or KS, such as `Nordicvik Holding AS`. Each form is drawn as often as
   Enhetsregisteret held active units of it, and `nb_NO.company.as`, `.enk`, `.da`, `.sa`, `.ans`, `.asa` and
   `.ks` each draw one form. The name has a shape the register's names of
-  the form have, and reads `nb_NO.company-coined`, `nb_NO.company-word` and `nb_NO`'s names.
+  the form have, and reads `nb_NO.company-coined`, `nb_NO.company-word`, `nb_NO`'s names and
+  `geo.NO.locality`, so a name may hold a poststed, such as `Bergen Nordicvik AS`.
   Enhetsregisteret's data is NLOD 2.0, so a program showing a company credits Brønnøysundregistrene as
   DATA-LICENSES.md asks.
+- `geo.NO`, Norway's places, in the package `github.com/larvit/fejkdata/data/geo/NO` (`geono`):
+  `region` (fylke), `municipality` (kommune), `locality` (poststed), `postal-code` (postnummer)
+  and `street`, from every street address in Kartverket's address register, with populations
+  from Statistics Norway, and an `address` record binding one poststed. Kartverket's data is
+  CC BY 4.0, so a program showing an address credits Kartverket as DATA-LICENSES.md asks.
+- `nb_NO.address`, such as `Storgata 12B\n0155 Oslo`, printing `geo.NO.address`, with the columns
+  `street`, `street-number`, `postal-code` and `locality`. `nbno.Modules()` returns `geono`'s
+  module too.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 
