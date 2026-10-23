@@ -444,7 +444,7 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 }
 
 // Enhetsregisteret's AS names hold a poststed or kommune in 7.1% of them. A poststed that is also a
-// name, such as Berg, counts as the name, so only the others are counted.
+// name, such as Berg, counts as the name, so only the others are counted, and half of 7.1% is the floor.
 func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 	named := map[string]bool{}
 	for _, file := range []string{"first-name", "last-name"} {
@@ -473,7 +473,37 @@ func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 			}
 		}
 	}
-	if share := float64(holding) / draws; share < 0.02 {
-		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 2%% or more", 100*share)
+	if share := float64(holding) / draws; share < 0.071/2 {
+		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 3.55%% or more", 100*share)
+	}
+}
+
+func TestShippedNorwegianStreetsAreStreetNames(t *testing.T) {
+	refused := map[string]bool{
+		"E6 Vinne": true, "Europaveg-39": true, "Gate 2": true, "HÅKON DEN GODES GATE": true,
+		"Midlertidig Storehaugen 1500": true, "Pundsvik-FV819": true, "Veg 1152 i Geiranger": true,
+		"Veg 7205": true, "Veg nr 1306": true, "Vegkode 81682": true, "Vei07": true, "Veinr. 8113": true,
+	}
+	for _, r := range geoRows(t, "NO", "street") {
+		if refused[r[0]] {
+			t.Errorf("geo.NO: street %q in %s, want no numbered placeholder, road designation or name in capitals", r[0], r[1])
+		}
+	}
+}
+
+// SSB names a kommune or fylke in each of its official languages, Trondheim - Tråante; Kartverket's
+// address register, like other Norwegian records, writes the Norwegian one.
+func TestShippedNorwegianKommuneAndFylkeSelectByTheirNorwegianNames(t *testing.T) {
+	f := shipped(t, WithSeed(1))
+	for path, want := range map[string]string{
+		"geo.NO.municipality[Trondheim].code":  "5001",
+		"geo.NO.municipality[Kautokeino].code": "5612",
+		"geo.NO.municipality[Oslo].code":       "0301",
+		"geo.NO.region[Troms].code":            "55",
+		"geo.NO.region[Trøndelag].code":        "50",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s = %q, want %q", path, got, want)
+		}
 	}
 }
