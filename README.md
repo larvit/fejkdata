@@ -13,7 +13,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
 - **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
-  fødselsnummer, phone numbers, companies, emails and dates, with names weighted by how common they are. Every Swedish postal town and a sample of US places
+  fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish and Norwegian postal town and a sample of US places
   ship, and each address takes its street and postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
@@ -439,9 +439,9 @@ it runs from in its help and errors. `--no-shipped-data` leaves out the modules 
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
 its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/nb_NO`,
-`data/sv_SE`), one per country's tree of places (`data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/sv_SE`), one per country's tree of places (`data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`enus`, `nbno`, `svse`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`enus`, `nbno`, `svse`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -482,7 +482,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
-`nb_NO`, Norwegian in the Bokmål standard, carries `birth-day`, `company`, `company-coined`,
+`nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `company`, `company-coined`,
 `company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
 `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
@@ -506,8 +506,9 @@ last name and a trade word, in the proportions the register has them. A last or 
 foretaksnavneloven § 2-2 requires. A trade word names a line of business, like `Holding` or `Eiendom`, and
 `company-word` holds those that 100 or more of the register's names carry. A coined word is made up:
 `company-coined` joins a root that 60 or more names begin with, such as `Nordic`, to an ending that 40 or more
-of the register's place names share, such as `vik`. A name holding a postal town (poststed) or municipality
-(kommune) is left out of the shapes until `geo/NO` ships. A name is invented, and may also be a real
+words of `geo/NO`'s poststed and kommune names share, such as `vik`. Where the register's names hold a postal town
+(poststed) or a municipality (kommune), the shape draws a poststed from `geo.NO.locality`, as in
+`Hamar Nordicdal AS`. A name is invented, and may also be a real
 company's.
 
 `sv_SE.phone` is a mobile number ten times as often as a fixed one. A fixed number starts with an
@@ -676,13 +677,18 @@ street lies in its postort: the import counts each road segment toward the shipp
 owning the postal code whose centre point lies nearest, so a street may sit under a
 neighbouring one.
 
-| Table | `geo.SE` | `geo.US` | Weight |
-|-------|----------|----------|--------|
-| `region` | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
-| `municipality` | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | tätort population, the kommun's where the postort names it, else 200; place population |
-| `postal-code` | postnummer with street delivery, by code | ZCTA, by code | one; address ranges |
-| `street` | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | segments; address ranges |
+| Table | `geo.NO` | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|----------|--------|
+| `region` | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
+| `municipality` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
+| `locality` | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | NO: the kommune's population, shared out over its poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, else 200; US: place population |
+| `postal-code` | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | NO: addresses; SE: one; US: address ranges |
+| `street` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | NO: addresses; SE: segments; US: address ranges |
+
+Kartverket's register spells a poststed in capitals, `MO I RANA`, and `geo.NO` writes it as a
+place name, `Mo i Rana`. Each Norwegian street lies in a poststed whose addresses it holds.
+`nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
+Svalbard has no kommune in Statistics Norway's classification, so it ships no place.
 
 `geo.SE.region[Skåne län].municipality` draws a kommun in Skåne,
 `geo.SE.locality[Lund].street` a street in Lund, and
@@ -1478,12 +1484,13 @@ a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
 and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
 a copy of the surname file. `company-se.py` reads the shipped sv_SE names and `geo/SE`, and `company-no.py`
-the shipped nb_NO names, so run `names-*.py` and `geo-se.py` before them:
+the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-se.py` before them:
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpmethod.py
