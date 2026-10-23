@@ -991,7 +991,7 @@ Split it into items for the CLI, struct tags and the library before starting.
 `geo.SE.municipality[Lund]` and `misc.territory[Sweden]` select a row today. Steps:
 - Have a selector that misses name the key of every row whose cell spells it, matched without case, else say the table selects by its key: `misc.territory[Sweden]` and `misc.territory[se]` name `[SE]`, `misc.protocol[tcp]` its key, and `misc.loglevel[Error]` `[err]`.
 - Delete the `name` option and the load checks it carries, and have `New` refuse a table still carrying `name`, naming `key`.
-- Key `misc.loglevel` on `keyword`, and `geo.SE.locality` on the integer `data-import/geo-se.py` assigns as the decision states, linking `street` and `postal-code` by it.
+- Key `misc.loglevel` on `keyword`, `geo.SE.locality` on the integer `data-import/geo-se.py` assigns as the decision states, and `geo.NO.locality` likewise from `data-import/geo-no.py`, linking each one's `street` and `postal-code` by it.
 - Drop `key` from each locale's `last-name`, from `sv_SE.title` and from `nb_NO.title`, and re-pin `testdata/shipped_shape.txt`.
 - Leave no selection by name in README.md, CHANGELOG.md, docs/ or `--help`.
 
@@ -1017,7 +1017,7 @@ They need sha256 and keccak for Base58Check and EIP-55.
 
 ### 63. Pair a street with its exact postnummer.
 
-Needs an application to Lantmäteriet; today a street goes to the nearest postal code centroid. It rewrites shipped rows, so it is a major once 1.0 is cut and a minor before that.
+Needs an application to Lantmäteriet; today a Swedish street goes to the nearest postal code centroid. Kartverket's address register, which `data-import/geo-no.py` reads, already pairs each Norwegian address with its postnummer. It rewrites shipped rows, so it is a major once 1.0 is cut and a minor before that.
 
 ### 59. Promise in `Generator`'s godoc that its renders run one at a time.
 

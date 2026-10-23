@@ -463,20 +463,25 @@ func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 	const draws = 20000
 	holding := 0
 	for i := 0; i < draws; i++ {
-		words := strings.Fields(strings.TrimSuffix(fake(t, f, "nb_NO.company.as"), " AS"))
-	found:
-		for start := range words {
-			for end := start + 1; end <= len(words); end++ {
-				if places[strings.Join(words[start:end], " ")] {
-					holding++
-					break found
-				}
-			}
+		if holdsPlace(strings.Fields(strings.TrimSuffix(fake(t, f, "nb_NO.company.as"), " AS")), places) {
+			holding++
 		}
 	}
 	if share := float64(holding) / draws; share < 0.02 {
 		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 2%% or more", 100*share)
 	}
+}
+
+// holdsPlace reports whether a run of the words, joined by spaces, is one of places.
+func holdsPlace(words []string, places map[string]bool) bool {
+	for start := range words {
+		for end := start + 1; end <= len(words); end++ {
+			if places[strings.Join(words[start:end], " ")] {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func TestShippedNorwegianStreetsAreStreetNames(t *testing.T) {

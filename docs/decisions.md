@@ -1121,7 +1121,7 @@ removes punctuation instead and turns whitespace into a dash
 ([Django](https://docs.djangoproject.com/en/stable/ref/utils/#django.utils.text.slugify)).
 cocur/slugify spells `ä` as `ae` by default
 ([cocur/slugify](https://github.com/cocur/slugify)); this decision takes the base letter, as
-`ascii` does. All 64 entries of `ascii`'s table match the default transliteration table of
+`ascii` does. All 193 entries of `ascii`'s table match the default transliteration table of
 Rails' I18n gem
 ([ruby-i18n](https://github.com/ruby-i18n/i18n/blob/master/lib/i18n/backend/transliterator.rb)).
 
