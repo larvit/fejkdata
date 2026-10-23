@@ -813,7 +813,7 @@ Technical principle: indent with hard tabs. All 19 scripts indent with four spac
 
 ### 158. Drop a UTF-8 byte order mark that starts stdin, and say in the README how to stop PowerShell 5.1 sending `Göteborg` as `G?teborg`.
 
-A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default.
+A file a Windows editor saves with a BOM prints an invisible U+FEFF first, and a JSON template with one is read as a format string. PowerShell 5.1 encodes what it pipes to a program by `$OutputEncoding`, ASCII by default. Measured on a GitHub `windows-latest` runner (PowerShell 5.1.26100) while shipping item 157: `$OutputEncoding` read US-ASCII, yet a pipe to a program still began with the bytes `EF BB BF`, so a JSON template exited 2 (`'{' inside a token in "\ufeff{…`) and a lone reference under `--format` exited 2 (`an inline record has no fields`). PowerShell 7.6.7 sent no BOM.
 
 ### 163. Lift the CLI's `--repeat` cap, since the CLI streams each render, and give the builtins' count and decimal caps a technical reason in the README.
 
