@@ -687,7 +687,8 @@ neighbouring one.
 
 Kartverket's register spells a poststed in capitals, `MO I RANA`, and `geo.NO` writes it as a
 place name, `Mo i Rana`. A kommune or fylke that has an official name in more than one language,
-such as `Trondheim - Tråante`, ships the Norwegian one, `Trondheim`, which Kartverket writes. Each
+such as `Trondheim - Tråante`, ships the Norwegian one, `Trondheim`, which Kartverket writes. Two
+kommuner named alike keep SSB's fylke in brackets, `Herøy (Nordland)`, so each name selects one. Each
 Norwegian street lies in a poststed whose addresses it holds.
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
 Svalbard has no kommune in Statistics Norway's classification, so it ships no place.
@@ -1050,8 +1051,9 @@ fail, except in a [typed column](#datatype), which must prove neither happens.
 ### Transforms
 
 `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}` and `{slugify(x)}` rewrite the value of `x` — a
-field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds Latin letters (`Åsa Öberg`
-→ `Asa Oberg`) and drops any other non-ASCII rune. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
+field, a path, a `..path` or a [name](#names) — and nest. `ascii` folds the Latin letters of ruby-i18n's default
+table, Latin-1's and Latin Extended-A's among them (`Åsa Öberg` → `Asa Oberg`, `Wałęsa` → `Walesa`), and
+drops any other non-ASCII rune, such as the `ễ` of `Nguyễn`. `slugify` folds as `ascii` does, except that it changes a non-ASCII rune `ascii` would drop
 to `-`. It then lowercases, changes each run of characters outside `a` to `z` and `0` to `9`
 to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öberg` →
 `asa-oberg`, `O'Brien` → `o-brien`, `日本` → the empty string. Two non-empty slugs joined by
