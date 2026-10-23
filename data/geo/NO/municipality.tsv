@@ -1,5 +1,5 @@
 code	name	region	population
-0301	Oslo - Oslove	03	728714
+0301	Oslo	03	728714
 1101	Eigersund	11	15546
 1103	Stavanger	11	151669
 1106	Haugesund	11	38663
@@ -62,11 +62,11 @@ code	name	region	population
 1822	Leirfjord	18	2392
 1824	Vefsn	18	13481
 1825	Grane	18	1415
-1826	Aarborte - Hattfjelldal	18	1255
+1826	Hattfjelldal	18	1255
 1827	Dønna	18	1445
 1828	Nesna	18	1796
 1832	Hemnes	18	4486
-1833	Rana - Raane	18	25844
+1833	Rana	18	25844
 1834	Lurøy	18	1953
 1835	Træna	18	443
 1836	Rødøy	18	1140
@@ -74,11 +74,11 @@ code	name	region	population
 1838	Gildeskål	18	2024
 1839	Beiarn	18	1032
 1840	Saltdal	18	4865
-1841	Fauske - Fuossko	18	9707
-1845	Sørfold - Fuolldá	18	1819
+1841	Fauske	18	9707
+1845	Sørfold	18	1819
 1848	Steigen	18	2679
 1851	Lødingen	18	1964
-1853	Evenes - Evenášši	18	1397
+1853	Evenes	18	1397
 1856	Røst	18	471
 1857	Værøy	18	656
 1859	Flakstad	18	1235
@@ -87,10 +87,10 @@ code	name	region	population
 1866	Hadsel	18	8374
 1867	Bø	18	2609
 1868	Øksnes	18	4613
-1870	Sortland - Suortá	18	10748
+1870	Sortland	18	10748
 1871	Andøy	18	4525
 1874	Moskenes	18	976
-1875	Hábmer - Hamarøy	18	2808
+1875	Hamarøy	18	2808
 3101	Halden	31	32082
 3103	Moss	31	53207
 3105	Sarpsborg	31	60614
@@ -279,14 +279,14 @@ code	name	region	population
 4649	Stad	46	9616
 4650	Gloppen	46	5976
 4651	Stryn	46	7319
-5001	Trondheim - Tråante	50	218460
-5006	Steinkjer - Stïentje	50	24007
-5007	Namsos - Nåavmesjenjaelmie	50	15112
+5001	Trondheim	50	218460
+5006	Steinkjer	50	24007
+5007	Namsos	50	15112
 5014	Frøya	50	5794
 5020	Osen	50	911
 5021	Oppdal	50	7421
 5022	Rennebu	50	2514
-5025	Røros - Rosse	50	5638
+5025	Røros	50	5638
 5026	Holtålen	50	2037
 5027	Midtre Gauldal	50	6088
 5028	Melhus	50	17828
@@ -297,11 +297,11 @@ code	name	region	population
 5034	Meråker	50	2460
 5035	Stjørdal	50	25108
 5036	Frosta	50	2667
-5037	Levanger - Levangke	50	20807
+5037	Levanger	50	20807
 5038	Verdal	50	15435
-5041	Snåase - Snåsa	50	2141
+5041	Snåsa	50	2141
 5042	Lierne	50	1302
-5043	Raarvihke - Røyrvik	50	439
+5043	Røyrvik	50	439
 5044	Namsskogan	50	803
 5045	Grong	50	2292
 5046	Høylandet	50	1230
@@ -318,12 +318,12 @@ code	name	region	population
 5060	Nærøysund	50	9920
 5061	Rindal	50	1935
 5501	Tromsø	55	79943
-5503	Harstad - Hárstták	55	25204
+5503	Harstad	55	25204
 5510	Kvæfjord	55	2901
-5512	Dielddanuorri - Tjeldsund	55	4144
+5512	Tjeldsund	55	4144
 5514	Ibestad	55	1287
-5516	Gratangen - Rivtták	55	1062
-5518	Loabák - Lavangen	55	1002
+5516	Gratangen	55	1062
+5518	Lavangen	55	1002
 5520	Bardu	55	4004
 5522	Salangen	55	2132
 5524	Målselv	55	6819
@@ -332,27 +332,27 @@ code	name	region	population
 5530	Senja	55	14946
 5532	Balsfjord	55	5625
 5534	Karlsøy	55	2235
-5536	Lyngen - Ivgu - Yykeä	55	2732
-5538	Storfjord - Omasvuotna - Omasvuono	55	1848
-5540	Gáivuotna - Kåfjord - Kaivuono	55	1939
+5536	Lyngen	55	2732
+5538	Storfjord	55	1848
+5540	Kåfjord	55	1939
 5542	Skjervøy	55	2802
-5544	Nordreisa - Ráisa - Raisi	55	4863
+5544	Nordreisa	55	4863
 5546	Kvænangen	55	1125
 5601	Alta	56	22074
-5603	Hammerfest - Hámmerfeasta	56	11391
+5603	Hammerfest	56	11391
 5605	Sør-Varanger	56	9947
 5607	Vadsø	56	5808
-5610	Kárášjohka - Karasjok	56	2524
-5612	Guovdageaidnu - Kautokeino	56	2886
+5610	Karasjok	56	2524
+5612	Kautokeino	56	2886
 5614	Loppa	56	846
 5616	Hasvik	56	987
 5618	Måsøy	56	1089
 5620	Nordkapp	56	2945
-5622	Porsanger - Porsángu - Porsanki	56	3906
+5622	Porsanger	56	3906
 5624	Lebesby	56	1249
 5626	Gamvik	56	1019
-5628	Deatnu - Tana	56	2806
+5628	Tana	56	2806
 5630	Berlevåg	56	864
 5632	Båtsfjord	56	2104
 5634	Vardø	56	1969
-5636	Unjárga - Nesseby	56	874
+5636	Nesseby	56	874

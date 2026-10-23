@@ -15,28 +15,28 @@
       { "format": "{.company-coined}", "weight": 1165 },
       { "format": "{.company-coined} {.company-coined}", "weight": 1026 },
       { "format": "{.company-coined} {.company-word}", "weight": 647 },
-      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 196 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 197 },
       { "format": "{.last-name} {.company-coined}", "weight": 193 },
       { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 183 },
       { "format": "{.last-name} {.company-word}", "weight": 162 },
       { "format": "{.company-coined} {int(1,30)}", "weight": 137 },
       { "format": "{.company-coined} {.last-name}", "weight": 110 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 101 },
-      { "format": "{/geo.NO.locality} {.company-word}", "weight": 59 }
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 100 },
+      { "format": "{/geo.NO.locality} {.company-word}", "weight": 60 }
     ]
   },
   "as": {
     "format": "{name} AS",
     "name": [
       { "format": "{.company-coined}", "weight": 101525 },
-      { "format": "{.company-coined} {.company-word}", "weight": 94096 },
-      { "format": "{.company-coined} {.company-coined}", "weight": 71373 },
+      { "format": "{.company-coined} {.company-word}", "weight": 94097 },
+      { "format": "{.company-coined} {.company-coined}", "weight": 71372 },
       { "format": "{.last-name} {.company-coined}", "weight": 11704 },
       { "format": "{.last-name} {.company-word}", "weight": 10665 },
       { "format": "{.company-coined} {int(1,30)}", "weight": 10450 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 9788 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9785 },
-      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 8306 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 9776 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 9751 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 8355 },
       { "format": "{.company-coined} {.last-name}", "weight": 5400 },
       { "format": "{.first-name} {.company-coined}", "weight": 4664 }
     ]
@@ -64,16 +64,16 @@
       { "format": "{.last-name} {.company-word}", "weight": 339 },
       { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 326 },
       { "format": "{.last-name} {.company-coined}", "weight": 273 },
-      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 209 },
-      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 170 },
-      { "format": "{/geo.NO.locality} {.company-word}", "weight": 150 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 212 },
+      { "format": "{.company-coined} {.company-coined} {.company-word}", "weight": 169 },
+      { "format": "{/geo.NO.locality} {.company-word}", "weight": 152 },
       { "format": "{.company-coined} {.last-name}", "weight": 146 }
     ]
   },
   "enk": {
     "format": "{name}",
     "name": [
-      { "format": "{.first-name} {.last-name}", "weight": 81362 },
+      { "format": "{.first-name} {.last-name}", "weight": 81363 },
       { "format": "{.last-name} {.company-coined}", "weight": 66117 },
       { "format": "{.first-name} {.first-name} {.last-name}", "weight": 27171 },
       { "format": "{.last-name} {.company-word}", "weight": 26088 },
@@ -88,7 +88,7 @@
       { "format": "{.company-coined} {.company-coined} {.last-name}", "weight": 6551 },
       { "format": "{.first-name} {.last-name} {.company-word}", "weight": 5501 },
       { "format": "{.first-name} {.last-name} {.last-name}", "weight": 5438 },
-      { "format": "{.last-name} {.company-coined} {.company-coined} {.company-coined}", "weight": 5212 },
+      { "format": "{.last-name} {.company-coined} {.company-coined} {.company-coined}", "weight": 5211 },
       { "format": "{.last-name} {.first-name} {.first-name}", "weight": 5046 },
       { "format": "{.last-name} {.company-coined} {.company-word}", "weight": 5042 },
       { "format": "{.company-coined} {.first-name} {.first-name} {.last-name}", "weight": 4731 }
@@ -125,12 +125,12 @@
     "name": [
       { "format": "{.company-coined} {.company-coined}", "weight": 2413 },
       { "format": "{.company-coined}", "weight": 874 },
-      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 652 },
+      { "format": "{/geo.NO.locality} {.company-coined}", "weight": 665 },
       { "format": "{.last-name} {.company-coined}", "weight": 477 },
       { "format": "{.company-coined} {.company-word}", "weight": 398 },
-      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 310 },
+      { "format": "{.company-coined} {.company-coined} {.company-coined}", "weight": 305 },
       { "format": "{.company-coined} {.company-coined} og {.company-coined}", "weight": 216 },
-      { "format": "{.company-coined} {/geo.NO.locality}", "weight": 81 },
+      { "format": "{.company-coined} {/geo.NO.locality}", "weight": 82 },
       { "format": "{.company-coined} og {.company-coined} {.company-coined}", "weight": 75 }
     ]
   }
