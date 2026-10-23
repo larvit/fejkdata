@@ -12,12 +12,8 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 289 | 0.2.0 |  |  | **Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.8 |
-| 346 | 0.2.0 | 289 |  | **Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 3.1 |
-| 340 | 0.2.0 |  | decision | **Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 3 | 2.4 |
 | 157 | 0.2.0 |  |  | **Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.** | 1 | 2 | 1 | 2 | 1 | 1 by 2 | 2.2 |
 | 335 | 0.2.0 |  |  | **Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 2 | 1.8 |
-| 290 | 0.2.0 | 289 |  | **Give `geo/NO`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.8 |
 | 336 | 0.2.0 | 335 |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
 | 337 | 0.2.0 |  |  | **Make Names match the loader on reads of a bound name inside its own field, and say that a struct tag may bind a name and read it.** | 1 | 2 | 1 | 2 | 2 | 4 by 2 | 1.5 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
@@ -237,24 +233,12 @@
 | 59 | 0.4.0 |  |  | **Promise in `Generator`'s godoc that its renders run one at a time.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 1.1 |
 | 68 | 0.4.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 1.1 |
 | 65 | 0.4.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.7 |
-| 334 | 0.5.0 | 289 |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.6 |
+| 334 | 0.5.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.6 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 5.5 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.9 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
-
-### 289. Add `geo/NO` with Norway's places and postal codes, and `nb_NO.address` printing them.
-
-Bring's postal register spells every poststed in capitals, so the import recases each poststed before `well_cased` sees it.
-
-### 346. Draw the place words of `nb_NO.company`'s name shapes from `geo/NO`, so `data-import/company-no.py` stops leaving out the shapes that hold a place.
-
-Today `data-import/company-no.py` leaves out every name holding a place word, a word of the poststed or kommune a unit's business address spells, since there is no `geo/NO` to draw from: 9.9% of ANS names, 7.1% of AS, 3.4% of ASA, 9.4% of DA, 3.0% of ENK, 13.3% of KS and 21.4% of SA, as the script prints on stderr. Once item 289 ships `geo/NO`, take the places from it instead, and add a `P` slot, `{/geo.NO.locality}` or whatever path the shipped `geo/NO` spells, as `data-import/company-se.py` does with `{/geo.SE.locality}`. Re-run the script, and update its docstring, the README's `nb_NO.company` paragraph ("A name holding a postal town (poststed) or municipality (kommune) is left out of the shapes until `geo/NO` ships") and the `CHANGELOG.md` entry where they need it.
-
-### 340. Fold the Latin letters outside `ascii`'s table, such as `ł`, `š` and `ő`, to base letters, so `slugify` keeps their letters.
-
-The decision in `docs/decisions.md` (2026-10-21) gives the scope and the release. The work: write the test first, with its expected values taken from `DEFAULT_APPROXIMATIONS` in `lib/i18n/backend/transliterator.rb` of `ruby-i18n/i18n`, less `ŉ` and `×`; add the 129 entries to `asciiFolds`; add the `CHANGELOG.md` line under `## [Unreleased]` that names the change. The change also adds "change what a builtin returns for an input" to the Major column of the Data format row in README.md's Versioning table, since after `v1.0.0` that change is major.
 
 ### 157. Show in the README's CLI section, one line per shell family, how PowerShell and cmd.exe pipe a template, and how Windows PowerShell 5.1 writes a UTF-8 file.
 
@@ -263,10 +247,6 @@ Split from item 129. cmd.exe's `echo` keeps its quotes and a trailing space, so 
 ### 335. Merge every Renovate update to a build, test or release tool once the gate passes, and release nothing for it.
 
 On 2026-10-18 Python 3.15.0 (#219), Fedora 46 (#221) and `golang.org/x/vuln` v1.9.0 (#226) waited four to five days for a hand merge, since `renovate.json` merges only a Go patch itself. None of them reaches the binaries or the image, which is built `FROM scratch`, so no release follows. An update that needs a code or test change still waits for a human.
-
-### 290. Give `geo/NO`'s places their streets.
-
-Kartverket's address register (CC BY 4.0) holds every street with its postnummer.
 
 ### 336. Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.
 
