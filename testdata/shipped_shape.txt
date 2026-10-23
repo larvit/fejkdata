@@ -367,7 +367,7 @@ nb_NO.address.street	string
 nb_NO.address.street-number	string
 nb_NO.birth-day	format "{ddmm}"
 nb_NO.birth-day.ddmm	string
-nb_NO.company	format "{registered}"	reads nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name
+nb_NO.company	format "{registered}"	reads geo.NO.locality nb_NO.company nb_NO.company-coined nb_NO.company-word nb_NO.first-name nb_NO.last-name
 nb_NO.company-coined	format "{a}{b}"
 nb_NO.company-coined.a	string
 nb_NO.company-coined.b	string
