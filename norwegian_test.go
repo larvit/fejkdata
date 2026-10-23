@@ -445,8 +445,8 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 	}
 }
 
-// A poststed that is also a name, such as Berg, counts as the name. The AS shapes company-no.py wrote
-// draw a poststed that is no name in 2.15% of AS names; the test holds a render to that share.
+// A poststed that is also a name, such as Berg, counts as the name. A seeded render of the AS shapes
+// company-no.py wrote held a poststed that is no name in 2.15% of AS names; the test holds a render to that share.
 func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 	named := map[string]bool{}
 	for _, file := range []string{"first-name", "last-name"} {
