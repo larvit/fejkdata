@@ -1161,7 +1161,5 @@ The change alters what `ascii` returns for those letters, so it changes what exi
 says. It ships in `0.2.0` and is named in the changelog
 ([Versioning](https://github.com/larvit/fejkdata/blob/main/README.md#versioning)).
 
-The work is `todo.md` item 340.
-
 Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
 default table.
