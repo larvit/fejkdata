@@ -210,6 +210,20 @@ newline after it allowed. Some shells' `echo` reads a backslash as an escape, so
 template holding one from a quoted heredoc or a file. The rest of stdin's rules are under
 [Decisions](docs/decisions.md#the-cli-renders-exactly-the-template-on-its-stdin-and-adds-nothing).
 
+### PowerShell and cmd.exe
+
+```powershell
+'{/sv_SE.person}' | fejkdata                                  # PowerShell: single quotes keep the braces
+```
+
+```bat
+echo {/sv_SE.person}| fejkdata                                :: cmd.exe: no quotes and no space before |, since echo sends both
+```
+
+```bat
+cmd /c "fejkdata --format csv --repeat 1000000 < person.json > people.csv"   :: from Windows PowerShell 5.1, whose > writes UTF-16 and garbles Östersund
+```
+
 ### Your own data
 
 A category is a JSON file in a directory. Save this as `mydata/sql.json`:
@@ -1128,7 +1142,9 @@ Refused at `New`, each error naming what to write instead:
 - a name that is a field or an option;
 - a binding of anything but a reference, or a field of the template binding it or a path into
   one;
-- a read of a name inside the field bound to it: read it outside that field;
+- a read of a name inside the field bound to it: `{x as n}` with `"x": "{n}"` makes the pick read
+  itself, so read `n` outside `x`. Binding a reference and reading it in the same field is fine:
+  `{/sv_SE.sex as s}{s.name}` works in one struct tag;
 - reading a name outside the choice item that binds it, since the other items leave it
   unbound;
 - a path through a name that selects a row: `{r.municipality[0180]}` could mean municipality
