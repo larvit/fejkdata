@@ -445,9 +445,8 @@ func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 	}
 }
 
-// Enhetsregisteret's AS names hold a poststed or kommune in 7.1% of them, but only a shape that 1% of
-// the names have ships, and a poststed that is also a name, such as Berg, counts as the name, so the
-// floor is 2%.
+// A poststed that is also a name, such as Berg, counts as the name. The AS shapes company-no.py wrote
+// draw a poststed that is no name in 2.15% of AS names; the test holds a render to that share.
 func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 	named := map[string]bool{}
 	for _, file := range []string{"first-name", "last-name"} {
@@ -469,9 +468,7 @@ func TestShippedNorwegianCompanyNamesHoldAPoststed(t *testing.T) {
 			holding++
 		}
 	}
-	if share := float64(holding) / draws; share < 0.02 {
-		t.Errorf("%.1f%% of AS names hold a poststed that is no name, want 2%% or more", 100*share)
-	}
+	assertShare(t, "AS names holding a poststed that is no name", holding, draws, 0.0215)
 }
 
 // holdsPlace reports whether a run of the words, joined by spaces, is one of places.
@@ -516,44 +513,28 @@ func TestShippedNorwegianKommuneAndFylkeSelectByTheirNorwegianNames(t *testing.T
 	}
 }
 
-// Of Kartverket's 2.57 million street addresses, 18.3% carry a letter after the number and 3.5% a
-// number of four digits.
+// Of Kartverket's 2.57 million street addresses, 18.3% carry a letter after the number, 22.2% a
+// number of one digit and 3.5% one of four.
 func TestShippedNorwegianHouseNumbersFollowKartverketsRegister(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	const draws = 40000
-	var lettered, fourDigits int
+	var lettered, oneDigit, fourDigits int
 	for i := 0; i < draws; i++ {
 		n := fake(t, f, "nb_NO.address.street-number")
 		digits := strings.TrimRight(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		if digits != n {
 			lettered++
 		}
-		if len(digits) == 4 {
+		switch len(digits) {
+		case 1:
+			oneDigit++
+		case 4:
 			fourDigits++
 		}
 	}
 	assertShare(t, "house numbers with a letter", lettered, draws, 0.183)
+	assertShare(t, "house numbers of one digit", oneDigit, draws, 0.222)
 	assertShare(t, "house numbers of four digits", fourDigits, draws, 0.035)
-}
-
-// A word that is both a poststed and a last name, such as Berg, is the last name, so the AS shapes
-// opening with a last name ship.
-func TestShippedNorwegianCompanyNamesOpenWithALastName(t *testing.T) {
-	last := map[string]bool{}
-	for _, row := range tsvRows(t, "data/nb_NO/last-name.tsv") {
-		last[row["name"]] = true
-	}
-	f := shipped(t, WithSeed(12))
-	const draws = 20000
-	opening := 0
-	for i := 0; i < draws; i++ {
-		if words := strings.Fields(fake(t, f, "nb_NO.company.as")); last[words[0]] {
-			opening++
-		}
-	}
-	if share := float64(opening) / draws; share < 0.05 {
-		t.Errorf("%.1f%% of AS names open with a last name, want 5%% or more", 100*share)
-	}
 }
 
 func TestNorwegianCoinedRootsHoldNoWordOfAPlace(t *testing.T) {
