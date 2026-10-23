@@ -92,14 +92,14 @@ def fence(regions, municipalities, localities, streets, postal_codes):
 
 
 def exit_on_dropped_parents(dropped):
-    """Exits naming each municipality and region fence dropped, for a country whose every one must ship."""
+    """Exits where fence dropped a municipality or a region, naming each; a country whose every one must ship calls it."""
     if dropped["municipality"] or dropped["region"]:
         sys.exit(f"municipalities without a locality: {sorted(dropped['municipality'])}; regions without a municipality: {sorted(dropped['region'])}")
 
 
 def in_capitals(name):
-    """Whether a word of name is five capitals or more, a name the register writes in capitals; a shorter one is an
-    acronym or a Roman numeral: IOGT-vägen, Karl XII gatan."""
+    """Whether a word of name is five capitals or more, as in a street name a source writes in capitals. A shorter
+    word in capitals is an acronym or a Roman numeral: IOGT-vägen, Karl XII gatan."""
     return any(len(w) >= 5 and w.isupper() for w in name.split())
 
 

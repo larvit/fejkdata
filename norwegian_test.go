@@ -428,7 +428,7 @@ func TestShippedNorwegianAddressIsAStreetANumberAPostnummerAndAPoststed(t *testi
 	}
 }
 
-// Bring and Kartverket spell a poststed in capitals, MO I RANA; a place name is written Mo i Rana.
+// Kartverket's address register spells a poststed in capitals, MO I RANA; a place name is written Mo i Rana.
 func TestShippedNorwegianPoststedIsCasedAsAPlaceName(t *testing.T) {
 	names := map[string]bool{}
 	capitals := regexp.MustCompile(`\p{Lu}{2}`)
@@ -497,7 +497,7 @@ func TestShippedNorwegianStreetsAreStreetNames(t *testing.T) {
 }
 
 // SSB names a kommune or fylke in each of its official languages, Trondheim - Tråante; Kartverket's
-// address register, like other Norwegian records, writes the Norwegian one.
+// address register writes the Norwegian one.
 func TestShippedNorwegianKommuneAndFylkeSelectByTheirNorwegianNames(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	for path, want := range map[string]string{

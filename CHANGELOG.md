@@ -8,7 +8,7 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- `{ascii(x)}` and `{slugify(x)}` fold 129 more Latin letters to base letters, those of
+- `{ascii(x)}` and `{slugify(x)}` fold 129 more Latin letters to base letters, most of
   Latin Extended-A, part of Latin Extended-B and `ẞ`, where they dropped them: `Wałęsa`
   becomes `Walesa`, not `Wasa`, and slugs to `walesa`.
 - `sv_SE.company` loses its fields `base` and `suffix`. No field in this release gives a
@@ -93,13 +93,14 @@ replacement, and each removed path, column or flag.
   `.ks` each draw one form. The name has a shape the register's names of
   the form have, and reads `nb_NO.company-coined`, `nb_NO.company-word`, `nb_NO`'s names and
   `geo.NO.locality`, so a name may hold a poststed, such as `Bergen Nordicvik AS`.
-  Enhetsregisteret's data is NLOD 2.0, so a program showing a company credits Brønnøysundregistrene as
-  DATA-LICENSES.md asks.
+  Enhetsregisteret's data is NLOD 2.0, so a program showing a company credits Brønnøysundregistrene, and
+  Kartverket where the name holds a poststed, as DATA-LICENSES.md asks.
 - `geo.NO`, Norway's places, in the package `github.com/larvit/fejkdata/data/geo/NO` (`geono`):
   `region` (fylke), `municipality` (kommune), `locality` (poststed), `postal-code` (postnummer)
   and `street`, from every street address in Kartverket's address register, with populations
-  from Statistics Norway, and an `address` record binding one poststed. Kartverket's data is
-  CC BY 4.0, so a program showing an address credits Kartverket as DATA-LICENSES.md asks.
+  from Statistics Norway, and an `address` record binding one poststed. Both publish under
+  CC BY 4.0, so a program showing an address credits Kartverket and Statistics Norway as
+  DATA-LICENSES.md asks.
 - `nb_NO.address`, such as `Storgata 12B\n0155 Oslo`, printing `geo.NO.address`, with the columns
   `street`, `street-number`, `postal-code` and `locality`. `nbno.Modules()` returns `geono`'s
   module too.
