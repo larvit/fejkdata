@@ -48,7 +48,7 @@ class Effects(NamedTuple):
 	"""The steps of `cut` that run docker, read the network or publish, each a function a test can stand in for."""
 
 	scan: Callable[[str, str, str], str]
-	ship: Callable[[str, str], str]
+	build_and_push: Callable[[str, str], str]
 	publish: Callable[[str, str], tuple[int, str | None]]
 	output: Callable[[str], None]
 	go_notes: Callable[[str], str]
@@ -143,13 +143,16 @@ def prepare(tree: str, released: carried.Carried, patch: carried.Carried) -> Non
 				os.remove(os.path.join(tree, "go.sum"))
 
 
-def patch_tree(tree: str, work: str, released: carried.Carried, patch: carried.Carried, scan: Callable[[str, str, str], str]) -> str:
+def patch_tree(
+	tree: str, work: str, last: str, released: carried.Carried, patch: carried.Carried, scan: Callable[[str, str, str], str],
+) -> str:
 	"""Puts the patch into the release tree, and names the vulnerabilities that drops; refuses a tree still vulnerable."""
 	before = scan(tree, carried.dotted(released.go), os.path.join(work, "before"))
 	prepare(tree, released, patch)
 	after = scan(tree, carried.dotted(patch.go), os.path.join(work, "after"))
-	if vulnerable(after):
-		raise ValueError("the patched tree still carries a known vulnerability; a patch waits for a release the maintainer cuts")
+	found = known_vulnerabilities(after)
+	if found:
+		raise ValueError(f"{last}'s patched tree still carries {found}; a patch waits for a release the maintainer cuts")
 	return out(sys.executable, FILER, "fixed-between", before, after)
 
 
@@ -177,13 +180,16 @@ def shown(root: str, tag: str, path: str) -> str:
 	return run("git", "show", f"{tag}:{path}", cwd=root, ok=(0, 128)).stdout
 
 
-def vulnerable(report: str) -> bool:
-	return run(sys.executable, FILER, "check", report, ok=(0, 1)).returncode != 0
+def known_vulnerabilities(report: str) -> str:
+	"""The vulnerabilities the report names, as the filer's `check` prints them, or "" where it names none."""
+	checked = run(sys.executable, FILER, "check", report, ok=(0, 1))
+	return checked.stdout.strip() if checked.returncode else ""
 
 
 def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	"""Cuts the patch of the last release that the Go, modules and GoReleaser of main's checkout at root call for, if any."""
-	out("git", "rev-parse", "--verify", "-q", f"{last}^{{commit}}", cwd=root)
+	if run("git", "rev-parse", "--verify", "-q", f"{last}^{{commit}}", cwd=root, ok=(0, 1)).returncode:
+		raise ValueError(f"main's checkout holds no tag {last}, the forge's latest release")
 	released = carried.of(lambda path: shown(root, last, path))
 	patch = carried.due(released, carried.of(lambda path: read_if_any(os.path.join(root, path))))
 	if patch is None:
@@ -192,12 +198,12 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	targets = built_for(root, last)
 	breaking = go_release_notes.breaking_lines(released.go, patch.go, targets, effects.go_notes)
 	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
-		fixed = patch_tree(tree, work, released, patch, effects.scan)
+		fixed = patch_tree(tree, work, last, released, patch, effects.scan)
 		text = changelog.section(next_patch(last), date, breaking, changelog.changes(released, patch), last, fixed)
 		path = os.path.join(tree, "CHANGELOG.md")
 		write(path, changelog.insert_section(read(path), text))
 		carry_workflows(root, tree)
-		code, tag = effects.publish(read(path), effects.ship(tree, next_patch(last)))
+		code, tag = effects.publish(read(path), effects.build_and_push(tree, next_patch(last)))
 	if tag:
 		effects.output(f"tag={tag}")
 	return code

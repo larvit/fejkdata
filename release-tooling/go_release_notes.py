@@ -9,7 +9,7 @@ URL = "https://raw.githubusercontent.com/golang/website/master/_content/doc/go{}
 
 
 def systems(goreleaser_yaml: str) -> set[str]:
-	"""The goos and goarch goreleaser.yaml builds, which the notes' Ports subsections head in any case, such as `Darwin` or `ARM64`."""
+	"""The goos and goarch goreleaser.yaml builds."""
 	found = {}
 	for key in ("goos", "goarch"):
 		match = re.search(rf"^\s*{key}: \[([^\]]*)\]$", goreleaser_yaml, re.M)
@@ -20,7 +20,12 @@ def systems(goreleaser_yaml: str) -> set[str]:
 
 
 def requirements(notes: str, minor: str, built_for: set[str]) -> list[str]:
-	"""Each requirement Go `minor`'s notes set on a built-for system, as the notes state it."""
+	"""Each requirement Go `minor`'s notes set on a built-for system, as the notes state it.
+
+	It reads a system's requirements from the Ports subsection its name heads in any case, such as `Darwin` or
+	`ARM64`. It reads none for a system the notes head otherwise, such as riscv64 under `RISC-V`, or wasm under
+	`WebAssembly`.
+	"""
 	ports = re.search(r"^## Ports\b[^\n]*\n(.*?)(?=^## |\Z)", notes, re.M | re.S)
 	if ports is None:
 		return []
