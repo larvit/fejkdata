@@ -1084,18 +1084,21 @@ bump, never the work merged since, save the packaging that `main`'s `goreleaser.
 gives every release it packages. The package-repository checks don't run on the patch:
 `main`'s gate ran them with the GoReleaser and config that package it.
 
-While the patched tree still carries a known vulnerability, the job warns, cuts nothing
-and exits 0, since a later Go or module fix clears it. Each other wait needs a human, so
-the job exits 2 and the run stays red until the maintainer cuts a release or fixes the
-cause: the patched tree fails `docker build .`, such as after a Go minor `main`'s code was
-fixed for; `main`'s `goreleaser.yaml`, which packages the patch, builds for other targets
+A patch waits for a human, cutting nothing, while the patched tree still carries a known
+vulnerability or fails `docker build .`, such as after a Go minor `main`'s code was fixed
+for; while `main`'s `goreleaser.yaml`, which packages the patch, builds for other targets
 than the release's tree names, a change of supported systems (a tree before 0.2.0 names
-none); or a Go minor's release notes hold a sentence about a built-for system in a shape
-the script can't read, so the changelog would miss it. The `plan` job runs after a failed
-release job too, so fixed items still move. A module waits for a release the maintainer
-cuts while `main`'s `go.mod` changes more than module versions: a module required directly
-that the release doesn't, which is work merged since, or another line, such as a `go`
-line raising the lowest supported Go, which is a major.
+none); or while a Go minor's release notes hold a sentence about a built-for system in a
+shape the script can't read, so the changelog would miss it. The job then exits 2, and the
+run stays red until the maintainer cuts a release or fixes the cause. The `plan` job runs
+after a failed release job too, so fixed items still move. A module waits for a release
+the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
+required directly that the release doesn't, which is work merged since, or another line,
+such as a `go` line raising the lowest supported Go, which is a major. A tree still
+vulnerable is one whose modules wait: the release job runs only once `main`'s scan is
+clean, so the vulnerability is in the release's own modules, which no fix on `main`
+reaches. An advisory published between the two scans is the exception: it fails one
+release job, and the next run's scan of `main` finds and files it.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a
