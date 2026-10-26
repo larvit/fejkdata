@@ -1202,8 +1202,8 @@ proportion to the output.
 
 ## Versioning
 
-Semver tags, `v0.1.0` first, on `main` save a Go patch release, which sits on a branch cut
-from the release before it; one version covers the shipped data, the
+Semver tags, `v0.1.0` first, on `main` save a patch CI cuts for a dependency, which sits
+on a branch cut from the release before it; one version covers the shipped data, the
 library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
 changed. A consumer's data, code and scripts keep working across a minor or a patch. A
 minor only adds, and a major is the only release that changes what exists. Seeded output
@@ -1211,7 +1211,9 @@ is the exception: any release, a patch too, may change what a seed draws. Where 
 compare seeded output, install one exact version
 (`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`, the image
 `larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
-and regenerate seeded fixtures and expected values when you raise that version.
+and regenerate seeded fixtures and expected values when you raise that version. A patch
+may also need a newer system: one built with a new Go minor runs only where that Go does,
+and its changelog section names each system the Go minor stops supporting.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
@@ -1409,7 +1411,7 @@ data/           the shipped modules, each a Go package embedding its categories 
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading or as a Go patch of the last release, and the binaries, packages, image and package repositories built for it
+release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for main's dependencies, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
 vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items and to drop fixed ones, naming them for `release-tooling/`, which writes `CHANGELOG.md`
 ```
@@ -1558,19 +1560,17 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges an update to a tool, such as Python or `govulncheck`, itself once every
-check passes, and no release follows. These updates wait for a human:
-
-- Go above a patch, or GoReleaser, since they build a release.
-- `go.mod`'s `go` line or a module it requires, since they set what a release carries.
-- A GitHub Action, since it also runs in jobs no pull request runs.
-
-A Go patch merges itself too, and is released. When `main`'s Go is a patch above the last
-release's, CI cuts a patch of that release. It commits the new Go version, `main`'s
-`.github/` and the patch's `CHANGELOG.md` section to a branch `release/X.Y.Z` cut from
-the last release's tag, builds it through `docker build .`, publishes it and its packages,
-and adds the section to `main` through `security-plan`. A newer Go minor, such as 1.28,
-waits for a release you cut.
+Renovate merges an update itself once every check passes, save one to a GitHub Action,
+which waits for a human since it also runs in jobs no pull request runs. An update to a
+tool, such as Python or `govulncheck`, releases nothing. An update to what a release
+carries is released: Go, a Go minor included, a module `go.mod` requires, or GoReleaser.
+When `main` carries a newer one than the last release, CI cuts a patch of that release. It
+commits `main`'s versions, `main`'s `.github/` and the patch's `CHANGELOG.md` section to a
+branch `release/X.Y.Z` cut from the last release's tag, and builds it on the latest and
+the lowest supported Go. It then publishes it and its packages, and adds the section to
+`main` through `security-plan`. The section names each requirement a new Go minor's
+release notes set on macOS, Linux or Windows, such as a newer macOS. Modules wait for a
+release you cut while `main`'s `go.mod` raises its `go` line, the lowest supported Go.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
 to `main` that changes one syncs both to Docker Hub. The sync reads the secret

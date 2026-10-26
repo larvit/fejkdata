@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 336 | 0.2.0 |  |  | **Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 6 | 1.6 |
 | 347 | 0.2.0 |  |  | **Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.** | 3 | 3 | 2 | 6 | 5 | 1.1 by 4 | 1.1 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
@@ -238,13 +237,9 @@
 
 ## Details
 
-### 336. Release a patch from CI for every update to what a release carries, once the gate passes with no other change: Go, Go's minor included, any module `go.mod` requires, and GoReleaser.
-
-The maintainer, 2026-10-18: no patch should wait on a human. A dependency bump that passes the tests unchanged changes no row of the README's Versioning table, so it is a patch; a new Go minor leaves `go.mod`'s `go 1.22`, the lowest supported Go, where it is. `release-tooling/patch_release.py cut` already cuts a Go patch this way from the last release's tag; widen it to the rest, and revise the decision "CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag", which leaves a Go minor to the maintainer. Name in the changelog section each platform a new Go minor stops supporting, such as an older macOS, since a binary user loses it in a patch. Make the comprehension seats' places in `patch_release.py`, `packages.yml` and `goreleaser.yaml` easier to read where the change touches them.
-
 ### 347. Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.
 
-The maintainer, 2026-10-23: ship it in 0.2.0, beside item 336, since no patch should wait on a human.
+The maintainer, 2026-10-23: ship it in 0.2.0, since no patch should wait on a human.
 
 `renovate.json` merges an update itself once the gate passes, but not one from the `github-actions` manager, which also updates the runner that `runs-on` names. Actions wait for a human because some of them run only in jobs that no pull request runs. `.github/workflows/packages.yml` runs only on a release, or by hand for a released tag, with `actions/setup-go`, `goreleaser/goreleaser-action`, `docker/setup-buildx-action`, `docker/login-action`, `actions/upload-pages-artifact` and `actions/deploy-pages`. `.github/workflows/dockerhub-description.yml` runs `peter-evans/dockerhub-description` only on a push to `main`. `test.yml`'s `plan` job runs `actions/download-artifact` only on `main`. An Action major that breaks, once merged untested, first fails in a release run, which may be CI's unattended Go patch. By then the release's tag is published, so a channel the run did not reach serves the old release: goal 1.1's counter-signal.
 

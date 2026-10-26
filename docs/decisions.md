@@ -280,8 +280,8 @@ Valid while the lowest supported Go is not the latest.
 
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
-instead: the tag can land only there, save a Go patch release (see "CI releases each Go
-patch at once, as a fejkdata patch cut from the last release's tag"), whose tag lands on a
+instead: the tag can land only there, save a patch CI cuts (see "CI releases each update
+to what a release carries at once, as a fejkdata patch cut from the last release's tag"), whose tag lands on a
 commit the same gate builds. The GitHub release the same job publishes keeps one text as
 its body and is where prebuilt binaries attach.
 
@@ -1051,32 +1051,44 @@ found the project reads worse for it: the gate now reads `todo.md`, and a releas
 vuln.go.dev. The maintainer merged it anyway, as the cost of filing into the plan. Valid
 while the binaries are built from the gate's Go version.
 
-## CI releases each Go patch at once, as a fejkdata patch cut from the last release's tag
+## CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag
 
-2026-10-14, decided by the maintainer: CI releases a Go patch without waiting for the
-maintainer to cut a release. Serves goal 1.1. Renovate merges a Go patch to `main` once
-every check passes. When `main`'s Go is then a patch above the last release's, the release
-job cuts a patch through `release-tooling/patch_release.py cut`: it scans the last
-release's tree on its own Go and on `main`'s with govulncheck, cuts nothing, with a
-warning, while the second scan names a vulnerability, and otherwise commits that Go
-version, `main`'s `.github/` (the forge refuses the workflow token a branch whose
-workflows differ from `main`'s) and a changelog section naming the vulnerabilities the
-second scan no longer finds to a branch named for the new version, cut from the last
-release's tag. It builds that commit through `docker build .` and publishes it with
-`release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
-tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
-Go bump, never the work merged since, and its notes name only what its own tree fixed. The
-job compares with the last release's Go, not with the push, and runs one at a time, so a
+2026-10-14, decided by the maintainer; widened 2026-10-18 from Go patches to Go minors,
+modules and GoReleaser, since no patch should wait on a human. Serves goal 1.1.
+
+What a release carries is its Go, the modules `go.mod` requires and the GoReleaser
+`packages.yml` names. A bump that passes the gate unchanged changes no row of the README's
+Versioning table, so it is a patch. Renovate merges one to `main` once every check passes.
+When `main` then carries a newer Go, other modules or another GoReleaser than the last
+release, the release job cuts a patch through `release-tooling/patch_release.py cut`. It
+scans the last release's tree with govulncheck, before and after putting `main`'s versions
+into it. While the second scan names a vulnerability, it cuts nothing, with a warning.
+Otherwise it commits those versions, `main`'s `.github/` (the forge refuses the workflow
+token a branch whose workflows differ from `main`'s) and a changelog section to a branch
+named for the new version, cut from the last release's tag. The section names what
+changed, the vulnerabilities the second scan no longer finds, and each requirement a new
+Go minor's release notes set on a system the binaries are built for. A binary user loses
+such a system in a patch, so the section must say so. The release notes are Go's own,
+from the golang/website repository, and a run that cannot read them exits 2. The job
+builds the commit through `docker build .` and on the lowest supported Go, then publishes
+it with `release-tooling/publish_release.py`, whose burnt-tag check refuses a version
+already tagged elsewhere, such as a planned patch number CI has taken. So a patch ships
+only the bump, never the work merged since. `main`'s modules wait for a release the
+maintainer cuts while its `go.mod` raises the `go` line, since raising the lowest supported
+Go is a major.
+
+The job compares with the last release, not with the push, and runs one at a time, so a
 rerun cuts nothing twice and a missed run is caught up daily; publishing `main`'s heading
 stays on a push, which the gate passed. `patch_release.py` names the last release for
 every job, as the forge's latest release, and owns `CHANGELOG.md`: each run copies into
 `main`'s changelog any section the last release has and `main` lacks, so a lost run loses
 no section, and moves rows planned under a patch CI took to the next patch. The Packages
-workflow builds a tag with the Go its own Dockerfile names. A newer Go minor waits for a
-release the maintainer cuts. The paired ruling against 5aca8a1 found the project reads
-worse for it: two linked scripts, four linked jobs and several writers of `CHANGELOG.md`.
+workflow builds a tag with the Go its own Dockerfile names, and with the GoReleaser of the
+workflow's own commit. The paired ruling against 5aca8a1 found the project reads worse for
+the Go patches: two linked scripts, four linked jobs and several writers of `CHANGELOG.md`.
 The maintainer merged it anyway, as the cost of releasing Go patches without waiting.
-Valid while Go is the one dependency the binaries carry.
+Valid while the binaries carry only Go, the modules `go.mod` requires and what GoReleaser
+builds.
 
 ## A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 

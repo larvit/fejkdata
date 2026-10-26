@@ -107,6 +107,13 @@ replacement, and each removed path, column or flag.
 - `sv_SE.company-word`, the trade words that 100 or more of Bolagsverket's active companies'
   names carry, and `sv_SE.company-coined`, made-up one-word names.
 
+### Changed
+
+- A patch of the latest release follows each update to Go, a Go minor included, to a module
+  fejkdata requires, or to GoReleaser, once the tests pass with it. A Go minor may stop
+  supporting an older system, such as a macOS version; the patch's changelog section names
+  each one.
+
 ## [0.1.2] - 2026-10-20
 
 ### Security
