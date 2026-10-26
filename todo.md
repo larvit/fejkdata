@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 351`
+`Next ID = 352`
 
 ## Items
 
@@ -16,6 +16,7 @@
 | 347 | 0.2.0 |  |  | **Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.** | 3 | 3 | 2 | 6 | 5 | 1.1 by 4 | 1.1 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
+| 351 | 0.3.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 2.2 |
 | 170 | 0.3.0 |  |  | **Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.** | 3 | 1 | 3 | 5 | 3 | code health by 6 | 17.1 |
 | 178 | 0.3.0 |  |  | **Plan with the systems architect which `internal/` packages the engine splits into, by area, and how each type stops being written by more than one stage, then file the moves as items.** | 1 | 2 | 1 | 2 | 3 | code health by 6 | 17.1 |
 | 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, code health by 4 | 16.2 |
@@ -267,6 +268,10 @@ The options to put to the maintainer:
 3. A locale's email draws from a username-like category that holds no names.
 
 The answer goes into `docs/decisions.md`. Option 1 also changes the locales' data, and option 2 the code of `slugify`.
+
+### 351. Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.
+
+The decision says that where no Go version fixes a vulnerability yet, the maintainer drops the vulnerabilities job from the release job's `needs`. The release job's `if` in `.github/workflows/test.yml` also requires `needs.vulnerabilities.result == 'success'`, and a job missing from `needs` is no success, so the release job would be skipped, not run. A skipped job isn't red, so nothing would ship and nothing would say why. Rewording the decision is the maintainer's call. The principles review of item 336 found it.
 
 ### 170. Decide in one function whether a read lands in a name's pick, which `refuseTwiceDrawnIn` calls at load and `keptInPick` at render.
 
