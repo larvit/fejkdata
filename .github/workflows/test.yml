@@ -50,14 +50,9 @@ jobs:
           fi
       # `docker build` streams the context to the daemon. A compose bind-mount of
       # `.` mounts an empty host dir instead, because the job is itself a container.
-      - name: Latest supported Go
+      - name: Latest and lowest supported Go
         if: ${{ steps.changes.outputs.code == 'true' }}
         run: docker build .
-      # Runs even when the step above failed, so a red build says whether the
-      # failure is version-specific.
-      - name: Lowest supported Go
-        if: ${{ !cancelled() && steps.changes.outputs.code == 'true' }}
-        run: docker build --build-arg GO_VERSION=1.22.12 --target portable .
       - name: Package repositories, signed with throwaway keys
         if: ${{ !cancelled() && steps.changes.outputs.packaging == 'true' }}
         run: |
@@ -88,8 +83,10 @@ jobs:
       - run: python3 vulnerability-filing/file_vulnerabilities.py check "$RUNNER_TEMP/vulnerabilities/report.json"
 
   release:
-    name: Release from CHANGELOG.md, or a patch of the last release for main's dependencies
+    name: Release from CHANGELOG.md, or a patch of the last release for what main carries
     needs: [test, vulnerabilities]
+    # On main, outside pull requests, while the vulnerability check passed; the daily run skips
+    # the test job, so a skipped test job lets it through and only a failed one stops it.
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30
