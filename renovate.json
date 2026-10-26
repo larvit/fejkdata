@@ -42,14 +42,9 @@
   ],
   "packageRules": [
     {
-      "description": "An update merges itself once the checks pass, except one to Go or GoReleaser, which build a release, to go.mod, which sets what a release carries, or to a GitHub Action, which also runs in jobs no pull request runs",
+      "description": "An update merges itself once the checks pass, and CI releases one to Go, a module go.mod requires or GoReleaser as a patch of the last release; a GitHub Action waits, since it also runs in jobs no pull request runs",
       "matchManagers": [
-        "!gomod",
         "!github-actions"
-      ],
-      "matchPackageNames": [
-        "!golang",
-        "!goreleaser/goreleaser"
       ],
       "automerge": true
     },
@@ -58,16 +53,6 @@
       "matchPackageNames": [
         "goreleaser/goreleaser"
       ]
-    },
-    {
-      "description": "A Go patch merges itself once every check passes; CI then releases it as a patch of the last release",
-      "matchPackageNames": [
-        "golang"
-      ],
-      "matchUpdateTypes": [
-        "patch"
-      ],
-      "automerge": true
     }
   ]
 }
