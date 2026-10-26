@@ -7,23 +7,31 @@ from fixtures import MAIN, NEW_GO_MOD, RELEASED, SECTION, carrying
 class Section(unittest.TestCase):
 	def test_a_section_names_what_changed_and_what_it_fixes(self):
 		self.assertEqual(
-			changelog.section("0.1.1", "2026-10-14", ["The binaries and image are built with Go 1.27.2."], "v0.1.0", "GO-2026-0001"),
+			changelog.section("0.1.1", "2026-10-14", [], ["The binaries and image are built with Go 1.27.2."], "v0.1.0", "GO-2026-0001"),
 			SECTION,
 		)
 
 	def test_a_section_fixing_nothing_names_only_what_changed(self):
 		self.assertEqual(
-			changelog.section("0.1.1", "2026-10-14", ["The binaries and image are built with Go 1.27.2."], "v0.1.0", ""),
+			changelog.section("0.1.1", "2026-10-14", [], ["The binaries and image are built with Go 1.27.2."], "v0.1.0", ""),
 			"## [0.1.1] - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n",
 		)
 
-	def test_changes_name_go_its_platforms_goreleaser_and_each_module(self):
-		patch = carrying("1.28.0", "v2.19.0", NEW_GO_MOD)
+	def test_a_section_names_the_systems_a_go_minor_drops_first_as_breaking(self):
 		self.assertEqual(
-			changelog.changes(carrying(), patch, ["Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries."]),
+			changelog.section(
+				"0.1.1", "2026-10-14", ["Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries."],
+				["The binaries and image are built with Go 1.28.0."], "v0.1.0", "",
+			),
+			"## [0.1.1] - 2026-10-14\n\n### Breaking\n\n- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n\n"
+			"### Changed\n\n- The binaries and image are built with Go 1.28.0.\n\n",
+		)
+
+	def test_changes_name_go_goreleaser_and_each_module(self):
+		self.assertEqual(
+			changelog.changes(carrying(), carrying("1.28.0", "v2.19.0", NEW_GO_MOD)),
 			[
 				"The binaries and image are built with Go 1.28.0.",
-				"Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.",
 				"The binaries, packages and image are built with GoReleaser v2.19.0.",
 				"The binaries no longer carry example.com/gone.",
 				"The binaries carry example.com/new v0.1.0.",
