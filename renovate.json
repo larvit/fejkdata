@@ -53,6 +53,17 @@
       "matchPackageNames": [
         "goreleaser/goreleaser"
       ]
+    },
+    {
+      "description": "The Dockerfile's LOWEST_GO_VERSION, the lowest supported Go, which only a major raises; a major that raises it raises this match too",
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "golang"
+      ],
+      "matchCurrentValue": "/^1\\.22\\./",
+      "enabled": false
     }
   ]
 }

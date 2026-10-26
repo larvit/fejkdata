@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 348`
+`Next ID = 350`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 349 | 0.2.0 |  | question | **Decide where `file_vulnerabilities.py` plans a vulnerability that only a newer Go minor fixes, now that CI releases a Go minor as a patch, and record why in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 2.2 |
 | 347 | 0.2.0 |  |  | **Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.** | 3 | 3 | 2 | 6 | 5 | 1.1 by 4 | 1.1 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
@@ -231,11 +232,16 @@
 | 68 | 0.4.0 |  | decision | **Make `gitea.larvit.se/larvit/fejkdata` a pull mirror of GitHub.** | 1 | 3 | 2 | 4 | 1 | 1.1 by 1 | 1.1 |
 | 65 | 0.4.0 |  |  | **Hold every change `AGENTS.md` says owes a `CHANGELOG.md` entry to one in CI.** | 2 | 2 | 1 | 3 | 3 | 1 by 1 | 0.7 |
 | 334 | 0.5.0 |  |  | **Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.** | 2 | 2 | 1 | 3 | 2 | 1 by 1, 2.1 by 2 | 2.6 |
+| 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 3.2 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 5.5 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.9 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
+
+### 349. Decide where `file_vulnerabilities.py` plans a vulnerability that only a newer Go minor fixes, now that CI releases a Go minor as a patch, and record why in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge".
+
+`vulnerability-filing/file_vulnerabilities.py` `needs_minor` and `release_for` plan such a vulnerability under the next planned release, not under the patch after the last release. The rule dates from when a Go minor waited for the maintainer. Now Renovate merges a Go minor and `release-tooling/patch_release.py cut` releases it as a patch, so the fix ships in a patch unless that patch waits: the patched tree fails `docker build .`, or the Go minor's release notes hold a sentence the script can't read. The rule's reason is recorded nowhere: not in the filer, the decision or the README's Development section. The architecture review of item 336 asked whether it still holds. If it does, record why there; if not, plan such a fix under the patch like any other.
 
 ### 347. Run each GitHub Action on the pull request that updates it, publishing nothing, and let Renovate merge each Action update the gate ran.
 
@@ -1023,6 +1029,10 @@ The check covers `data` and `testdata/shipped_shape.txt` alone, where `AGENTS.md
 ### 334. Add `nn_NO`, written in Nynorsk, reading `nb_NO`'s names and id and `geo/NO`, with month and weekday names from CLDR and titles of its own.
 
 Nynorsk is Norway's second written standard, the official form in some municipalities. Names, places, streets, ids and phone numbers read the same in both standards, so only the words that differ need a source of their own.
+
+### 348. Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".
+
+The maintainer, 2026-10-26: until 1.0.0, a CI patch built with a new Go minor may drop a system the binaries ran on, and its changelog section names each one. The README's Versioning table makes dropping a system a major from 1.0.0. Roughly every second Go minor of 1.21 to 1.27 raised a macOS, Windows or Linux floor. Two choices: hold such a minor for a major, or let fejkdata's supported systems follow Go after 1.0.0 too, recorded as a lasting departure from the technical principles' semver.
 
 ### 69. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
