@@ -1569,13 +1569,13 @@ commits `main`'s versions, `main`'s `.github/` and the patch's `CHANGELOG.md` se
 branch `release/X.Y.Z` cut from the last release's tag, and builds it through `docker
 build .`. It then publishes it and its packages, and adds the section to `main` through
 `security-plan`. The section names, under Breaking, each requirement a new Go minor's
-release notes set on a system the binaries are built for, such as a newer macOS. While
-the patched tree carries a known vulnerability, the release job warns and cuts nothing,
-until a Go or module fix lands. It fails, cutting nothing, while the patched tree fails
-`docker build .`, while `main`'s `goreleaser.yaml` builds for other targets than the last
-release, or while the release notes say something about a built-for system it cannot
-read: each waits for you, to cut a release or fix the cause. Modules wait for a release
-you cut while `main`'s `go.mod` changes more than their versions, such as its `go` line.
+release notes set on a system the binaries are built for, such as a newer macOS. The
+release job fails, cutting nothing, while the patched tree carries a known vulnerability
+or fails `docker build .`, while `main`'s `goreleaser.yaml` builds for other targets than
+the last release, or while the release notes say something about a built-for system it
+cannot read: each waits for you, to cut a release or fix the cause. Modules wait for a
+release you cut while `main`'s `go.mod` changes more than their versions, such as its
+`go` line.
 Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push

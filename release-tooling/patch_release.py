@@ -8,10 +8,10 @@
       puts them in the last release's tree, builds it through `docker build .`, commits it with
       main's .github/ and a changelog section to a branch release/X.Y.Z cut from the last
       release's tag, and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to
-      GITHUB_OUTPUT. While govulncheck finds a vulnerability in that tree, it warns and cuts
-      nothing. It exits 2, cutting nothing, while the tree fails the build, while main builds for
-      other targets than the release, and while a new Go minor's release notes say something
-      about a built-for system it cannot read: each waits for a human.
+      GITHUB_OUTPUT. It exits 2, cutting nothing, while govulncheck finds a vulnerability in that
+      tree, while the tree fails the build, while main builds for other targets than the release,
+      and while a new Go minor's release notes say something about a built-for system it cannot
+      read: each waits for a human.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
       Adds to CHANGELOG.md each release section the last release has and main lacks, plans
       the report in todo.md through file_vulnerabilities.py, and records each fixed item's
@@ -143,6 +143,16 @@ def prepare(tree: str, released: carried.Carried, patch: carried.Carried) -> Non
 				os.remove(os.path.join(tree, "go.sum"))
 
 
+def patch_tree(tree: str, work: str, released: carried.Carried, patch: carried.Carried, scan: Callable[[str, str, str], str]) -> str:
+	"""Puts the patch into the release tree, and names the vulnerabilities that drops; refuses a tree still vulnerable."""
+	before = scan(tree, carried.dotted(released.go), os.path.join(work, "before"))
+	prepare(tree, released, patch)
+	after = scan(tree, carried.dotted(patch.go), os.path.join(work, "after"))
+	if vulnerable(after):
+		raise ValueError("the patched tree still carries a known vulnerability; a patch waits for a release the maintainer cuts")
+	return out(sys.executable, FILER, "fixed-between", before, after)
+
+
 def carry_workflows(root: str, tree: str) -> None:
 	"""Gives the release tree main's .github/, since the forge refuses the workflow token a push whose workflows differ from main's."""
 	try:
@@ -179,15 +189,10 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	if patch is None:
 		print(f"No patch due: main carries the Go, modules and GoReleaser {last} does.")
 		return 0
-	breaking = go_release_notes.breaking_lines(released.go, patch.go, built_for(root, last), effects.go_notes)
+	targets = built_for(root, last)
+	breaking = go_release_notes.breaking_lines(released.go, patch.go, targets, effects.go_notes)
 	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
-		before = effects.scan(tree, carried.dotted(released.go), os.path.join(work, "before"))
-		prepare(tree, released, patch)
-		after = effects.scan(tree, carried.dotted(patch.go), os.path.join(work, "after"))
-		if vulnerable(after):
-			print(f"::warning::{last}'s tree on main's Go and modules still carries a known vulnerability; no patch is cut")
-			return 0
-		fixed = out(sys.executable, FILER, "fixed-between", before, after)
+		fixed = patch_tree(tree, work, released, patch, effects.scan)
 		text = changelog.section(next_patch(last), date, breaking, changelog.changes(released, patch), last, fixed)
 		path = os.path.join(tree, "CHANGELOG.md")
 		write(path, changelog.insert_section(read(path), text))
