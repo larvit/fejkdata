@@ -131,7 +131,7 @@ class Cut(Repository):
 		self.module_findings = {}
 		self.scanned, self.outputs, self.notes_read = [], [], []
 		self.published = mock.Mock(return_value=(0, "v0.1.1"))
-		self.effects = patch_release.Effects(self.scan, self.ship, self.published, self.outputs.append, self.notes)
+		self.effects = patch_release.Effects(self.scan, self.build_and_push, self.published, self.outputs.append, self.notes)
 
 	def scan(self, tree, go, into):
 		go_mod = self.read(os.path.join(tree, "go.mod"))
@@ -141,7 +141,7 @@ class Cut(Repository):
 			f.write(self.reports[go] + "\n" + self.module_findings.get(go_mod, ""))
 		return os.path.join(into, "report.json")
 
-	def ship(self, tree, version):
+	def build_and_push(self, tree, version):
 		self.shipped = {
 			name: self.read(os.path.join(tree, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod")
 			+ (("go.sum",) if os.path.exists(os.path.join(tree, "go.sum")) else ())
@@ -246,14 +246,14 @@ class Cut(Repository):
 
 	def test_a_patch_that_fails_the_gate_is_refused_and_leaves_no_worktree(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
-		self.effects = self.effects._replace(ship=mock.Mock(side_effect=ValueError("`docker build` failed: vet")))
+		self.effects = self.effects._replace(build_and_push=mock.Mock(side_effect=ValueError("`docker build` failed: vet")))
 		with self.assertRaisesRegex(ValueError, "^`docker build` failed: vet$"):
 			self.cut()
 		self.published.assert_not_called()
 		self.assertEqual(self.worktrees(), 1)
 
 	def test_a_last_release_tag_the_checkout_lacks_is_refused(self):
-		with self.assertRaisesRegex(ValueError, "^`git rev-parse` failed"):
+		with self.assertRaisesRegex(ValueError, "^main's checkout holds no tag v0\\.9\\.0, the forge's latest release$"):
 			patch_release.cut(os.getcwd(), "v0.9.0", "2026-10-14", self.effects)
 
 	def main_cut(self):
@@ -261,7 +261,7 @@ class Cut(Repository):
 		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
 			mock.patch.object(patch_release, "scan_tree", lambda root, tree, go, into: self.scan(tree, go, into)), \
-			mock.patch.object(patch_release, "build_and_push", self.ship), \
+			mock.patch.object(patch_release, "build_and_push", self.build_and_push), \
 			mock.patch.object(publish_release, "publish", self.published), \
 			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as err:
 			code = patch_release.main(["cut"])
@@ -293,7 +293,11 @@ class Cut(Repository):
 		held_back = NEW_GO_MOD.replace("example.com/new v0.1.0 // indirect", "example.com/new v0.1.0")
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("go.mod", held_back))
 		self.module_findings[GO_MOD.format("1.22", "v0.29.0")] = report("GO-2026-0003", module="golang.org/x/text", version="v0.29.0")
-		with self.assertRaisesRegex(ValueError, "^the patched tree still carries a known vulnerability; "):
+		with self.assertRaisesRegex(
+			ValueError,
+			"^v0\\.1\\.0's patched tree still carries 1 known vulnerability: GO-2026-0003 \\(CVE-2026-0003\\);"
+			" a patch waits for a release the maintainer cuts$",
+		):
 			self.cut()
 		self.assertEqual(self.scanned[-1], ("1.27.2", GO_MOD.format("1.22", "v0.29.0")))
 		self.published.assert_not_called()
