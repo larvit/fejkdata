@@ -264,8 +264,9 @@ A consumer building on it breaks, which is the one test every rule above applies
 convention of a minor is not followed. The major that raises it edits each place that
 spells it: `go.mod`'s `go` line, the Dockerfile's `LOWEST_GO_VERSION`, the
 `matchCurrentValue` of `renovate.json`'s rule that keeps Renovate off that ARG, and the
-README's `go get` and Development lines. A regex left behind lets Renovate merge the
-latest Go into `LOWEST_GO_VERSION`, and nothing fails.
+README's `go get` and Development lines. The `lowest` stage fails while its Go's minor is
+not `go.mod`'s `go` line, so a Renovate update that a stale regex lets through fails the
+gate instead of merging.
 
 ## The format check runs on the latest Go only
 
@@ -1079,21 +1080,28 @@ latest supported Go, and on the lowest where the tree's Dockerfile has the `lowe
 which a release before 0.2.0 lacks. It publishes the commit with
 `release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
 tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
-bump, never the work merged since. The package-repository checks don't run on the patch:
+bump, never the work merged since, save the packaging that `main`'s `goreleaser.yaml`
+gives every release it packages. The package-repository checks don't run on the patch:
 `main`'s gate ran them with the GoReleaser and config that package it.
 
-A patch waits for a release the maintainer cuts, with a warning and exit 0, while the
-patched tree still carries a known vulnerability, while it fails `docker build .`, such
-as after a Go minor `main`'s code was fixed for, and while a Go minor's release notes hold
-a sentence about a built-for system in a shape the script can't read. So does a module
-while `main`'s `go.mod` raises its `go` line, since raising the lowest supported Go is a
-major. A run that exits 0 keeps the `plan` job running.
+While the patched tree still carries a known vulnerability, the job warns, cuts nothing
+and exits 0, since a later Go or module fix clears it. Each other wait needs a human, so
+the job exits 2 and the run stays red until the maintainer cuts a release or fixes the
+cause: the patched tree fails `docker build .`, such as after a Go minor `main`'s code was
+fixed for; `main`'s `goreleaser.yaml`, which packages the patch, builds for other targets
+than the release's tree names, a change of supported systems (a tree before 0.2.0 names
+none); or a Go minor's release notes hold a sentence about a built-for system in a shape
+the script can't read, so the changelog would miss it. The `plan` job runs after a failed
+release job too, so fixed items still move. A module waits for a release the maintainer
+cuts while `main`'s `go.mod` changes more than module versions: a module required directly
+that the release doesn't, which is work merged since, or another line, such as a `go`
+line raising the lowest supported Go, which is a major.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a
 dropped runtime version as a change to what exists. The maintainer, 2026-10-26, accepted
 it until 1.0.0, for goal 1.1, and the README's Versioning says so. From 1.0.0 dropping a
-system is a major; item 348 decides how a Go minor that drops one ships then.
+system is a major; `todo.md` item 348 decides how a Go minor that drops one ships then.
 
 The job compares with the last release, not with the push, and runs one at a time, so a
 rerun cuts nothing twice and a missed run is caught up daily; publishing `main`'s heading
@@ -1104,7 +1112,7 @@ no section, and moves rows planned under a patch CI took to the next patch. The 
 workflow builds a tag with the Go its own Dockerfile names. The paired ruling against
 5aca8a1 found the project reads worse for the Go patches: two linked scripts, four linked
 jobs and several writers of `CHANGELOG.md`. The maintainer merged it anyway, as the cost
-of releasing Go patches without waiting. Valid while the binaries carry only Go, the
+of releasing Go patches without waiting; `todo.md` item 350 brings those links back down. Valid while the binaries carry only Go, the
 modules `go.mod` requires and what GoReleaser builds.
 
 ## A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them

@@ -8,11 +8,11 @@ import publish_release
 VULNERABILITY = re.compile(r"GO-\d+-\d+")
 
 
-def changes(released: carried.Carried, patch: carried.Carried, platforms: list[str]) -> list[str]:
+def changes(released: carried.Carried, patch: carried.Carried) -> list[str]:
 	"""The section's lines for what the patch carries that the release did not."""
 	lines = []
 	if patch.go != released.go:
-		lines += [f"The binaries and image are built with Go {carried.dotted(patch.go)}.", *platforms]
+		lines.append(f"The binaries and image are built with Go {carried.dotted(patch.go)}.")
 	if patch.goreleaser != released.goreleaser:
 		lines.append(f"The binaries, packages and image are built with GoReleaser {patch.goreleaser}.")
 	old, new = carried.requires(released.go_mod), carried.requires(patch.go_mod)
@@ -26,10 +26,13 @@ def changes(released: carried.Carried, patch: carried.Carried, platforms: list[s
 	return lines
 
 
-def section(version: str, date: str, changed: list[str], last: str, fixed: str) -> str:
-	text = f"## [{version}] - {date}\n\n### Changed\n\n" + "".join(f"- {line}\n" for line in changed) + "\n"
-	if fixed:
-		text += f"### Security\n\n- The binaries no longer carry {last.removeprefix('v')}'s known vulnerabilities: {fixed}.\n\n"
+def section(version: str, date: str, breaking: list[str], changed: list[str], last: str, fixed: str) -> str:
+	"""The patch's section: Breaking first, as CHANGELOG.md's preamble asks, then Changed, then Security."""
+	security = [f"The binaries no longer carry {last.removeprefix('v')}'s known vulnerabilities: {fixed}."] if fixed else []
+	text = f"## [{version}] - {date}\n\n"
+	for heading, lines in (("Breaking", breaking), ("Changed", changed), ("Security", security)):
+		if lines:
+			text += f"### {heading}\n\n" + "".join(f"- {line}\n" for line in lines) + "\n"
 	return text
 
 

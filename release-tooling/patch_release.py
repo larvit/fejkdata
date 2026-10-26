@@ -5,12 +5,13 @@
       Prints the last release's tag, as the forge names its latest release.
   patch_release.py cut
       When main carries a newer Go, other modules or another GoReleaser than the last release:
-      puts them in the last release's tree, and commits it with main's .github/ and a changelog
-      section to a branch release/X.Y.Z cut from the last release's tag, then publishes it with
-      publish_release.py. Writes `tag=vX.Y.Z` to GITHUB_OUTPUT. It warns and cuts nothing
-      while govulncheck finds a vulnerability in that tree, while the tree fails `docker build .`,
-      and while a new Go minor's release notes say something about a system the binaries are
-      built for that it cannot read.
+      puts them in the last release's tree, builds it through `docker build .`, commits it with
+      main's .github/ and a changelog section to a branch release/X.Y.Z cut from the last
+      release's tag, and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to
+      GITHUB_OUTPUT. While govulncheck finds a vulnerability in that tree, it warns and cuts
+      nothing. It exits 2, cutting nothing, while the tree fails the build, while main builds for
+      other targets than the release, and while a new Go minor's release notes say something
+      about a built-for system it cannot read: each waits for a human.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
       Adds to CHANGELOG.md each release section the last release has and main lacks, plans
       the report in todo.md through file_vulnerabilities.py, and records each fixed item's
@@ -43,15 +44,10 @@ TAG = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
 FILER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vulnerability-filing", "file_vulnerabilities.py")
 
 
-class Hold(Exception):
-	"""Why the patch waits: `cut` warns with it and cuts nothing."""
-
-
 class Effects(NamedTuple):
 	"""The steps of `cut` that run docker, read the network or publish, each a function a test can stand in for."""
 
 	scan: Callable[[str, str, str], str]
-	gate: Callable[[str], None]
 	ship: Callable[[str, str], str]
 	publish: Callable[[str, str], tuple[int, str | None]]
 	output: Callable[[str], None]
@@ -101,24 +97,18 @@ def last_release() -> str:
 		raise ValueError(f"cannot read the last release from the forge: {err}") from err
 
 
-def scan(main: str, tree: str, go: str, into: str) -> str:
-	"""Govulncheck's report on the tree built with that Go, through main's Dockerfile."""
+def scan_tree(root: str, tree: str, go: str, into: str) -> str:
+	"""Govulncheck's report on the tree built with that Go, through the Dockerfile of main's checkout at root."""
 	out(
-		"docker", "build", "-f", os.path.join(main, "Dockerfile"), "--no-cache-filter", "vulnerabilities",
+		"docker", "build", "-f", os.path.join(root, "Dockerfile"), "--no-cache-filter", "vulnerabilities",
 		"--build-arg", f"GO_VERSION={go}", "--target", "vulnerability-report", "--output", into, tree,
 	)
 	return os.path.join(into, "report.json")
 
 
-def gate(tree: str) -> None:
-	"""Builds the tree through its own merge gate, `docker build .`."""
-	built = run("docker", "build", ".", cwd=tree, ok=(0, 1))
-	if built.returncode != 0:
-		raise Hold(f"the patched tree fails `docker build .`: {(built.stderr.strip().splitlines() or [''])[-1]}")
-
-
-def ship(tree: str, version: str) -> str:
-	"""Commits the tree and pushes it to its release branch, and returns its commit."""
+def build_and_push(tree: str, version: str) -> str:
+	"""Builds the tree through its own merge gate, commits it, pushes it to its release branch, and returns its commit."""
+	out("docker", "build", ".", cwd=tree)
 	out("git", "add", "-A", cwd=tree)
 	out("git", "commit", "-qm", f"Release {version}", cwd=tree)
 	server = urllib.parse.urlsplit(os.environ["FORGE_SERVER_URL"])
@@ -130,12 +120,12 @@ def ship(tree: str, version: str) -> str:
 
 
 @contextlib.contextmanager
-def worktree(main: str, tag: str, path: str):
-	out("git", "worktree", "add", "-q", "--detach", path, tag, cwd=main)
+def worktree(root: str, tag: str, path: str):
+	out("git", "worktree", "add", "-q", "--detach", path, tag, cwd=root)
 	try:
 		yield path
 	finally:
-		run("git", "worktree", "remove", "--force", path, cwd=main)
+		run("git", "worktree", "remove", "--force", path, cwd=root)
 
 
 def prepare(tree: str, released: carried.Carried, patch: carried.Carried) -> None:
@@ -153,47 +143,56 @@ def prepare(tree: str, released: carried.Carried, patch: carried.Carried) -> Non
 				os.remove(os.path.join(tree, "go.sum"))
 
 
-def fixed_by(tree: str, work: str, released: carried.Carried, patch: carried.Carried, scanner) -> str:
-	"""Prepares the tree, and names the vulnerabilities it loses by it; Hold while it still carries one."""
-	before = scanner(tree, carried.dotted(released.go), os.path.join(work, "before"))
-	prepare(tree, released, patch)
-	after = scanner(tree, carried.dotted(patch.go), os.path.join(work, "after"))
-	if run(sys.executable, FILER, "check", after, ok=(0, 1)).returncode != 0:
-		raise Hold("the patched tree still carries a known vulnerability")
-	return out(sys.executable, FILER, "fixed-between", before, after)
-
-
-def carry_workflows(main: str, tree: str) -> None:
+def carry_workflows(root: str, tree: str) -> None:
 	"""Gives the release tree main's .github/, since the forge refuses the workflow token a push whose workflows differ from main's."""
 	try:
 		shutil.rmtree(os.path.join(tree, ".github"))
-		shutil.copytree(os.path.join(main, ".github"), os.path.join(tree, ".github"))
+		shutil.copytree(os.path.join(root, ".github"), os.path.join(tree, ".github"))
 	except OSError as err:
 		raise ValueError(f"cannot carry main's .github/ into the release tree: {err}") from err
 
 
-def cut(main: str, last: str, date: str, effects: Effects) -> int:
-	"""Cuts the patch of the last release that the Go, modules and GoReleaser of main's checkout at `main` call for, if any."""
-	released = carried.of(lambda path: run("git", "show", f"{last}:{path}", cwd=main, ok=(0, 128)).stdout)
-	patch = carried.due(released, carried.of(lambda path: read_if_any(os.path.join(main, path))))
+def built_for(root: str, last: str) -> set[str]:
+	"""The targets main's goreleaser.yaml builds, which must be the release's: main's config packages the patch."""
+	path = "release-tooling/goreleaser.yaml"
+	targets = go_release_notes.systems(read(os.path.join(root, path)))
+	released = shown(root, last, path)
+	if released and go_release_notes.systems(released) != targets:
+		raise ValueError(f"main's {path} builds for other targets than {last}; a patch waits for a release the maintainer cuts")
+	return targets
+
+
+def shown(root: str, tag: str, path: str) -> str:
+	"""The file at the tag, or "" where the tag's tree lacks it."""
+	return run("git", "show", f"{tag}:{path}", cwd=root, ok=(0, 128)).stdout
+
+
+def vulnerable(report: str) -> bool:
+	return run(sys.executable, FILER, "check", report, ok=(0, 1)).returncode != 0
+
+
+def cut(root: str, last: str, date: str, effects: Effects) -> int:
+	"""Cuts the patch of the last release that the Go, modules and GoReleaser of main's checkout at root call for, if any."""
+	out("git", "rev-parse", "--verify", "-q", f"{last}^{{commit}}", cwd=root)
+	released = carried.of(lambda path: shown(root, last, path))
+	patch = carried.due(released, carried.of(lambda path: read_if_any(os.path.join(root, path))))
 	if patch is None:
 		print(f"No patch due: main carries the Go, modules and GoReleaser {last} does.")
 		return 0
-	version = next_patch(last)
-	try:
-		built_for = go_release_notes.systems(read(os.path.join(main, "release-tooling", "goreleaser.yaml")))
-		platforms = go_release_notes.lines(released.go, patch.go, built_for, effects.go_notes)
-		with tempfile.TemporaryDirectory() as work, worktree(main, last, os.path.join(work, "tree")) as tree:
-			fixed = fixed_by(tree, work, released, patch, effects.scan)
-			text = changelog.section(version, date, changelog.changes(released, patch, platforms), last, fixed)
-			path = os.path.join(tree, "CHANGELOG.md")
-			write(path, changelog.insert_section(read(path), text))
-			carry_workflows(main, tree)
-			effects.gate(tree)
-			code, tag = effects.publish(read(path), effects.ship(tree, version))
-	except (Hold, go_release_notes.Unreadable) as held:
-		print(f"::warning::no patch of {last} is cut: {held}")
-		return 0
+	breaking = go_release_notes.breaking_lines(released.go, patch.go, built_for(root, last), effects.go_notes)
+	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
+		before = effects.scan(tree, carried.dotted(released.go), os.path.join(work, "before"))
+		prepare(tree, released, patch)
+		after = effects.scan(tree, carried.dotted(patch.go), os.path.join(work, "after"))
+		if vulnerable(after):
+			print(f"::warning::{last}'s tree on main's Go and modules still carries a known vulnerability; no patch is cut")
+			return 0
+		fixed = out(sys.executable, FILER, "fixed-between", before, after)
+		text = changelog.section(next_patch(last), date, breaking, changelog.changes(released, patch), last, fixed)
+		path = os.path.join(tree, "CHANGELOG.md")
+		write(path, changelog.insert_section(read(path), text))
+		carry_workflows(root, tree)
+		code, tag = effects.publish(read(path), effects.ship(tree, next_patch(last)))
 	if tag:
 		effects.output(f"tag={tag}")
 	return code
@@ -207,7 +206,7 @@ def plan(report: str, todo: str, changelog_path: str, last: str) -> int:
 	return 0
 
 
-def publish(text: str, sha: str) -> tuple[int, str | None]:
+def publish_on_forge(text: str, sha: str) -> tuple[int, str | None]:
 	try:
 		return publish_release.publish(text, sha)
 	except urllib.error.URLError as err:
@@ -226,10 +225,10 @@ def main(argv: list[str]) -> int:
 				print(last_release())
 				return 0
 			case ["cut"]:
-				here = os.getcwd()
+				root = os.getcwd()
 				today = datetime.datetime.now(datetime.UTC).date().isoformat()
-				effects = Effects(functools.partial(scan, here), gate, ship, publish, github_output, go_release_notes.fetch)
-				return cut(here, last_release(), today, effects)
+				effects = Effects(functools.partial(scan_tree, root), build_and_push, publish_on_forge, github_output, go_release_notes.fetch)
+				return cut(root, last_release(), today, effects)
 			case ["plan", report, todo, changelog_path]:
 				read(report)
 				return plan(report, todo, changelog_path, last_release())
