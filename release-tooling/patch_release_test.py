@@ -103,7 +103,7 @@ class Repository(unittest.TestCase):
 		os.makedirs("release-tooling")
 		self.write(
 			("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED),
-			("go.mod", GO_MOD.format("1.22", "v0.29.0")), ("go.sum", "sum\n"), ("release-tooling/goreleaser.yaml", GORELEASER),
+			("go.mod", GO_MOD.format("1.22", "v0.29.0")), ("release-tooling/goreleaser.yaml", GORELEASER),
 			(".github/workflows/packages.yml", PACKAGES.format("v2.18.3")), (".github/workflows/gone.yml", "on: push\n"),
 		)
 		git("add", ".")
@@ -128,9 +128,9 @@ class Cut(Repository):
 	def setUp(self):
 		super().setUp()
 		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report(), "1.28.0": report()}
-		self.scanned, self.gated, self.outputs, self.notes_read = [], [], [], []
+		self.scanned, self.outputs, self.notes_read = [], [], []
 		self.published = mock.Mock(return_value=(0, "v0.1.1"))
-		self.effects = patch_release.Effects(self.scan, self.gate, self.ship, self.published, self.outputs.append, self.notes)
+		self.effects = patch_release.Effects(self.scan, self.ship, self.published, self.outputs.append, self.notes)
 
 	def scan(self, tree, go, into):
 		self.scanned.append((go, self.read(os.path.join(tree, "go.mod"))))
@@ -139,12 +139,10 @@ class Cut(Repository):
 			f.write(self.reports[go])
 		return os.path.join(into, "report.json")
 
-	def gate(self, tree):
-		self.gated.append(self.read(os.path.join(tree, "CHANGELOG.md")))
-
 	def ship(self, tree, version):
 		self.shipped = {
-			name: self.read(os.path.join(tree, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod", "go.sum")
+			name: self.read(os.path.join(tree, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod")
+			+ (("go.sum",) if os.path.exists(os.path.join(tree, "go.sum")) else ())
 		}
 		self.shipped_workflows = {
 			name: self.read(os.path.join(tree, ".github/workflows", name))
@@ -161,50 +159,64 @@ class Cut(Repository):
 			code = patch_release.cut(os.getcwd(), "v0.1.0", "2026-10-14", self.effects)
 		return code, out.getvalue()
 
+	def worktrees(self):
+		return len(git("worktree", "list").splitlines())
+
 	def test_cuts_a_patch_of_the_last_release_on_main_s_go(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
 		code, _ = self.cut()
 		self.assertEqual((code, self.outputs), (0, ["tag=v0.1.1"]))
 		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.2"))
 		self.assertEqual(self.shipped["compose.yaml"], COMPOSE.format("1.27.2"))
+		self.assertNotIn("go.sum", self.shipped)
 		self.assertEqual(
 			self.shipped["CHANGELOG.md"],
 			"# Changelog\n\n## [0.1.1] - 2026-10-14\n\n### Changed\n\n- The binaries and image are built with Go 1.27.2.\n\n"
 			"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0001 (CVE-2026-0001),"
 			" GO-2026-0002 (CVE-2026-0002).\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
-		self.assertEqual(self.gated, [self.shipped["CHANGELOG.md"]])
 		self.assertEqual([go for go, _ in self.scanned], ["1.27.1", "1.27.2"])
 		self.assertEqual(
 			self.shipped_workflows, {"packages.yml": PACKAGES.format("v2.18.3"), "test.yml": "on: [push, schedule]\n"}
 		)
 		self.assertEqual(self.notes_read, [])
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+		self.assertEqual(self.worktrees(), 1)
 
-	def test_leaves_no_worktree_behind(self):
-		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
-		self.cut()
-		self.assertEqual(len(git("worktree", "list").splitlines()), 1)
-
-	def test_a_go_minor_names_the_systems_it_stops_supporting(self):
+	def test_a_go_minor_names_the_systems_it_stops_supporting_as_breaking(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")))
 		self.assertEqual(self.cut()[0], 0)
 		self.assertEqual(self.notes_read, ["1.28"])
 		self.assertIn(
-			"### Changed\n\n- The binaries and image are built with Go 1.28.0.\n"
+			"## [0.1.1] - 2026-10-14\n\n### Breaking\n\n"
 			"- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
-			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n",
+			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n"
+			"### Changed\n\n- The binaries and image are built with Go 1.28.0.\n\n",
 			self.shipped["CHANGELOG.md"],
 		)
 
-	def test_a_go_minor_whose_notes_it_cannot_read_is_refused_with_a_warning(self):
+	def test_a_go_minor_whose_notes_it_cannot_read_is_refused(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")))
-		self.notes = lambda minor: NOTES.replace("now requires", "drops everything below")
-		self.effects = self.effects._replace(go_notes=self.notes)
-		code, out = self.cut()
-		self.assertEqual(code, 0)
-		self.assertRegex(out, "^::warning::no patch of v0.1.0 is cut: Go 1.28's release notes say under Windows: .*\n$")
+		self.effects = self.effects._replace(go_notes=lambda minor: NOTES.replace("now requires", "drops everything below"))
+		with self.assertRaisesRegex(ValueError, "^Go 1.28's release notes say under Windows: "):
+			self.cut()
 		self.published.assert_not_called()
+
+	def test_main_building_other_targets_than_the_release_is_refused(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("release-tooling/goreleaser.yaml", GORELEASER.replace("windows", "freebsd")))
+		with self.assertRaisesRegex(ValueError, "^main's release-tooling/goreleaser.yaml builds for other targets than v0.1.0"):
+			self.cut()
+		self.published.assert_not_called()
+
+	def test_a_release_tree_with_no_goreleaser_yaml_is_not_compared(self):
+		git("rm", "-q", "release-tooling/goreleaser.yaml")
+		git("commit", "-qm", "Drop the config")
+		git("tag", "-d", "v0.1.0")
+		git("tag", "v0.1.0")
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
+		os.makedirs("release-tooling", exist_ok=True)
+		self.write(("release-tooling/goreleaser.yaml", GORELEASER))
+		self.assertEqual(self.cut()[0], 0)
 
 	def test_cuts_a_patch_carrying_main_s_modules(self):
 		self.write(("go.mod", NEW_GO_MOD), ("go.sum", "new sum\n"))
@@ -225,25 +237,24 @@ class Cut(Repository):
 			self.shipped["CHANGELOG.md"],
 		)
 
-	def test_a_patch_that_fails_the_gate_is_refused_with_a_warning(self):
+	def test_a_patch_that_fails_the_gate_is_refused_and_leaves_no_worktree(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
-
-		def gate(tree):
-			raise patch_release.Hold("the patched tree fails `docker build .`: ERROR: vet failed")
-
-		self.effects = self.effects._replace(gate=gate)
-		self.assertEqual(
-			self.cut(), (0, "::warning::no patch of v0.1.0 is cut: the patched tree fails `docker build .`: ERROR: vet failed\n")
-		)
+		self.effects = self.effects._replace(ship=mock.Mock(side_effect=ValueError("`docker build` failed: vet")))
+		with self.assertRaisesRegex(ValueError, "^`docker build` failed: vet$"):
+			self.cut()
 		self.published.assert_not_called()
+		self.assertEqual(self.worktrees(), 1)
+
+	def test_a_last_release_tag_the_checkout_lacks_is_refused(self):
+		with self.assertRaisesRegex(ValueError, "^`git rev-parse` failed"):
+			patch_release.cut(os.getcwd(), "v0.9.0", "2026-10-14", self.effects)
 
 	def main_cut(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("output", ""))
 		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
-			mock.patch.object(patch_release, "scan", lambda main, tree, go, into: self.scan(tree, go, into)), \
-			mock.patch.object(patch_release, "gate", self.gate), \
-			mock.patch.object(patch_release, "ship", self.ship), \
+			mock.patch.object(patch_release, "scan_tree", lambda root, tree, go, into: self.scan(tree, go, into)), \
+			mock.patch.object(patch_release, "build_and_push", self.ship), \
 			mock.patch.object(publish_release, "publish", self.published), \
 			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as err:
 			code = patch_release.main(["cut"])
@@ -271,13 +282,14 @@ class Cut(Repository):
 		self.assertEqual(self.cut(), (0, "No patch due: main carries the Go, modules and GoReleaser v0.1.0 does.\n"))
 		self.published.assert_not_called()
 
-	def test_a_patch_still_vulnerable_is_refused_with_a_warning(self):
+	def test_a_patch_still_vulnerable_waits_with_a_warning(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
 		self.reports["1.27.2"] = report("GO-2026-0002")
 		self.assertEqual(
-			self.cut(), (0, "::warning::no patch of v0.1.0 is cut: the patched tree still carries a known vulnerability\n")
+			self.cut(), (0, "::warning::v0.1.0's tree on main's Go and modules still carries a known vulnerability; no patch is cut\n")
 		)
 		self.published.assert_not_called()
+		self.assertEqual(self.worktrees(), 1)
 
 
 class Plan(Repository):
@@ -317,11 +329,13 @@ class Commands(unittest.TestCase):
 
 	def run_stub(self, *argv, cwd=None, ok=(0,)):
 		self.calls.append((argv, cwd))
-		return subprocess.CompletedProcess(argv, self.code, stdout="abc123\n", stderr="#9 ERROR: vet failed\n")
+		if self.code not in ok:
+			raise ValueError(f"`{' '.join(argv[:2])}` failed: vet")
+		return subprocess.CompletedProcess(argv, self.code, stdout="abc123\n", stderr="")
 
-	def test_scan_builds_the_tree_s_report_through_main_s_dockerfile(self):
+	def test_scan_tree_builds_the_tree_s_report_through_main_s_dockerfile(self):
 		with mock.patch.object(patch_release, "run", self.run_stub):
-			self.assertEqual(patch_release.scan("/main", "/tree", "1.27.2", "/into"), "/into/report.json")
+			self.assertEqual(patch_release.scan_tree("/main", "/tree", "1.27.2", "/into"), "/into/report.json")
 		self.assertEqual(
 			self.calls,
 			[((
@@ -330,25 +344,15 @@ class Commands(unittest.TestCase):
 			), None)],
 		)
 
-	def test_gate_builds_the_tree_through_its_own_dockerfile(self):
-		with mock.patch.object(patch_release, "run", self.run_stub):
-			patch_release.gate("/tree")
-		self.assertEqual(self.calls, [(("docker", "build", "."), "/tree")])
-
-	def test_a_failed_gate_holds_the_patch_naming_the_build_s_last_line(self):
-		self.code = 1
-		with mock.patch.object(patch_release, "run", self.run_stub), \
-			self.assertRaisesRegex(patch_release.Hold, "^the patched tree fails `docker build .`: #9 ERROR: vet failed$"):
-			patch_release.gate("/tree")
-
-	def test_ship_commits_and_pushes_the_tree_to_its_release_branch(self):
+	def test_build_and_push_builds_the_tree_then_commits_and_pushes_it_to_its_release_branch(self):
 		env = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner/repo", "FORGE_TOKEN": "t0ken"}
 		with mock.patch.object(patch_release, "run", self.run_stub), mock.patch.dict(os.environ, env):
-			self.assertEqual(patch_release.ship("/tree", "0.1.1"), "abc123")
+			self.assertEqual(patch_release.build_and_push("/tree", "0.1.1"), "abc123")
 		remote = "https://x-access-token:t0ken@forge.example/owner/repo.git"
 		self.assertEqual(
 			self.calls,
 			[
+				(("docker", "build", "."), "/tree"),
 				(("git", "add", "-A"), "/tree"),
 				(("git", "commit", "-qm", "Release 0.1.1"), "/tree"),
 				(("git", "push", "-q", remote, ":refs/heads/release/0.1.1"), "/tree"),
@@ -356,6 +360,12 @@ class Commands(unittest.TestCase):
 				(("git", "rev-parse", "HEAD"), "/tree"),
 			],
 		)
+
+	def test_a_tree_that_fails_the_gate_is_neither_committed_nor_pushed(self):
+		self.code = 1
+		with mock.patch.object(patch_release, "run", self.run_stub), self.assertRaisesRegex(ValueError, "^`docker build` failed"):
+			patch_release.build_and_push("/tree", "0.1.1")
+		self.assertEqual(self.calls, [(("docker", "build", "."), "/tree")])
 
 
 class Main(unittest.TestCase):

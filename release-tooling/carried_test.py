@@ -10,7 +10,7 @@ class Of(unittest.TestCase):
 			"Dockerfile": DOCKERFILE.format("1.27.1"), ".github/workflows/packages.yml": PACKAGES.format("v2.18.3"),
 			"go.mod": GO_MOD.format("1.22", "v0.29.0"), "go.sum": "sum\n",
 		}
-		self.assertEqual(carried.of(lambda path: files.get(path, "")), carrying())
+		self.assertEqual(carried.of(lambda path: files.get(path, "")), carrying(go_sum="sum\n"))
 
 	def test_a_tree_whose_packages_yml_names_no_goreleaser_carries_none(self):
 		self.assertIsNone(carried.of(lambda path: DOCKERFILE.format("1.27.1") if path == "Dockerfile" else "").goreleaser)
@@ -52,6 +52,17 @@ class Due(unittest.TestCase):
 
 	def test_a_go_sum_alone_calls_for_nothing(self):
 		self.assertIsNone(carried.due(carrying(), carrying(go_sum="other sum\n")))
+
+	def test_modules_wait_while_main_requires_another_module_directly(self):
+		main = NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"
+		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
+
+	def test_modules_wait_while_main_s_go_mod_changes_a_line_besides_its_requires(self):
+		main = NEW_GO_MOD + "\nreplace golang.org/x/text => example.com/text v0.30.1\n"
+		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
+
+	def test_an_indirect_module_a_bump_adds_or_drops_is_carried(self):
+		self.assertEqual(carried.due(carrying(), carrying(go_mod=NEW_GO_MOD)).go_mod, NEW_GO_MOD)
 
 
 class Requires(unittest.TestCase):
