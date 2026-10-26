@@ -261,7 +261,11 @@ its references connected.
 2026-09-16, Lilleman auf Larv.
 
 A consumer building on it breaks, which is the one test every rule above applies; Go's
-convention of a minor is not followed.
+convention of a minor is not followed. The major that raises it edits each place that
+spells it: `go.mod`'s `go` line, the Dockerfile's `LOWEST_GO_VERSION`, the
+`matchCurrentValue` of `renovate.json`'s rule that keeps Renovate off that ARG, and the
+README's `go get` and Development lines. A regex left behind lets Renovate merge the
+latest Go into `LOWEST_GO_VERSION`, and nothing fails.
 
 ## The format check runs on the latest Go only
 
@@ -270,7 +274,7 @@ convention of a minor is not followed.
 `gofmt`'s output is the toolchain's, not the code's: 1.27 stopped padding a map
 literal's values out to a lone long key, so no source satisfies both it and 1.22's. A
 consumer on the lowest supported Go depends on the code compiling and its tests passing
-there, which is the `portable` stage, and never runs `gofmt` over this source, so the
+there, which is the `lowest` stage, and never runs `gofmt` over this source, so the
 latest toolchain alone defines the one canonical form a reader meets.
 Valid while the lowest supported Go is not the latest.
 
@@ -1071,7 +1075,8 @@ the last release's tag. The section names what changed, the vulnerabilities the 
 scan no longer finds, and each requirement a new Go minor's release notes set on a system
 `goreleaser.yaml` builds for. The notes are Go's own, from the golang/website repository.
 The job builds the commit through the tree's own `docker build .`, which builds on the
-latest and the lowest supported Go, and publishes it with
+latest supported Go, and on the lowest where the tree's Dockerfile has the `lowest` stage,
+which a release before 0.2.0 lacks. It publishes the commit with
 `release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
 tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
 bump, never the work merged since. The package-repository checks don't run on the patch:
