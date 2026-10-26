@@ -1095,13 +1095,13 @@ run stays red until the maintainer cuts a release or fixes the cause. The `plan`
 after a failed release job too, so fixed items still move. A module waits for a release
 the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
 required directly that the release doesn't, which is work merged since, or another line,
-such as a `go` line raising the lowest supported Go, which is a major. Save in two cases,
-a tree still vulnerable is one whose modules wait: the release job needs a clean scan of
-`main`, so the vulnerability is in the release's own modules, which no fix on `main`
-reaches. First, an advisory published between the two scans fails one release job, and
-the next run's scan of `main` finds and files it. Second, while the maintainer has dropped
-the scan from the release job's `needs`, for a vulnerability no Go version fixes yet,
-every due patch's tree carries that vulnerability: the release job stays red until a fix
+such as a `go` line raising the lowest supported Go, which is a major. A tree still
+vulnerable is nearly always one whose modules wait: the release job needs a clean scan of
+`main`, so the vulnerability sits in the release's own modules, which no fix on `main`
+reaches. Two cases differ. An advisory published between the two scans fails one release
+job, and the next run's scan of `main` finds and files it. And while the maintainer has
+dropped the scan from the release job's `needs`, for a vulnerability no Go version fixes
+yet, every due patch carries that vulnerability, so the release job stays red until a fix
 lands or the maintainer cuts a release.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
