@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 350`
+`Next ID = 351`
 
 ## Items
 
@@ -44,6 +44,7 @@
 | 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 5.9 |
 | 243 | 0.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 5.9 |
 | 72 | 0.3.0 |  | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 2 | 1 | 3 | 3 | code health by 2 | 5.7 |
+| 350 | 0.3.0 |  | decision | **Bring the release path's links down until the paired ruling no longer finds it reads worse than before CI cut patches: one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 5.7 |
 | 210 | 0.3.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.9 |
 | 273 | 0.3.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 5.1 |
 | 206 | 0.3.0 | 345 |  | **Add `zh_CN` with its given names by sex, last names and titles, and `zh_CN.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.9 |
@@ -383,6 +384,10 @@ The IRS's prefix list is facts. [Source research](docs/research/research-sources
 ### 72. Fail the merge gate when test coverage falls below the last recorded figure.
 
 `technical-principles.md` holds that test coverage should not decline. `docker compose run --rm cover` prints the figure, and neither the `Dockerfile` gate nor `.github/workflows/test.yml` checks it.
+
+### 350. Bring the release path's links down until the paired ruling no longer finds it reads worse than before CI cut patches: one writer of `CHANGELOG.md`'s release sections, and fewer linked jobs between the gate, the release and the plan.
+
+The decisions "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag" and "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" record paired rulings that found the project reads worse: two linked scripts, four linked jobs and several writers of `CHANGELOG.md`. The maintainer merged both as the cost of releasing patches without waiting, and this item ends that cost. The seats' places from the 2026-10-14 and 2026-10-15 rulings name what to make easier to read: `vulnerability-filing/file_vulnerabilities.py` `plan` and `release_for`, `release-tooling/patch_release.py` `FILER`, `.github/workflows/test.yml` `release` and `plan` with their combined conditions, `.github/workflows/packages.yml` "Channels holding one version", which reads the latest release from a script named for patches, and `CHANGELOG.md`'s three writers.
 
 ### 210. Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.
 

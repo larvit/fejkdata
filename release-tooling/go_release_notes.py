@@ -8,19 +8,15 @@ from typing import Callable
 URL = "https://raw.githubusercontent.com/golang/website/master/_content/doc/go{}.md"
 
 
-class Unreadable(Exception):
-	"""The notes say something about a built-for system that `requirements` cannot read, so the changelog would miss it."""
-
-
 def systems(goreleaser_yaml: str) -> set[str]:
-	"""The goos and goarch goreleaser.yaml builds, spelled as the notes head their Ports subsections."""
+	"""The goos and goarch goreleaser.yaml builds, which the notes' Ports subsections head in any case, such as `Darwin` or `ARM64`."""
 	found = {}
 	for key in ("goos", "goarch"):
 		match = re.search(rf"^\s*{key}: \[([^\]]*)\]$", goreleaser_yaml, re.M)
 		if match is None:
 			raise ValueError(f"goreleaser.yaml has no `{key}: [...]` line")
 		found[key] = [name.strip() for name in match[1].split(",")]
-	return {name.capitalize() for name in found["goos"]} | {name.upper() for name in found["goarch"]}
+	return set(found["goos"]) | set(found["goarch"])
 
 
 def requirements(notes: str, minor: str, built_for: set[str]) -> list[str]:
@@ -30,7 +26,7 @@ def requirements(notes: str, minor: str, built_for: set[str]) -> list[str]:
 		return []
 	found = []
 	for system in re.finditer(r"^### (\w+)[^\n]*\n(.*?)(?=^### |\Z)", ports[1], re.M | re.S):
-		if system[1] in built_for:
+		if system[1].lower() in built_for:
 			found += _read(system[1], plain(system[2]), minor)
 	return found
 
@@ -42,7 +38,8 @@ def plain(markdown: str) -> str:
 
 
 def _read(system: str, text: str, minor: str) -> list[str]:
-	"""The requirements in one subsection; a sentence naming the minor and a requirement in any other shape is Unreadable.
+	"""The requirements in one subsection; a sentence naming the minor and a requirement in any other shape is refused,
+	so the changelog never misses one.
 
 	"Go 1.N is the last release that …" announces the next minor's requirement, which its own notes set.
 	"""
@@ -53,12 +50,12 @@ def _read(system: str, text: str, minor: str) -> list[str]:
 		if match:
 			found.append(match[0])
 		elif re.search(rf"\bGo {re.escape(minor)}\b", sentence) and re.search(r"requir|discontinu|no longer|drop|remov", sentence, re.I) and "last release" not in sentence:
-			raise Unreadable(f"Go {minor}'s release notes say under {system}: {sentence!r}, which names no requirement in the shape `Go {minor} requires …`")
+			raise ValueError(f"Go {minor}'s release notes say under {system}: {sentence!r}, which names no requirement in the shape `Go {minor} requires …`")
 	return found
 
 
-def lines(old: tuple[int, int, int], new: tuple[int, int, int], built_for: set[str], notes: Callable[[str], str]) -> list[str]:
-	"""A changelog line for each requirement a Go minor above old, up to new, sets on a built-for system."""
+def breaking_lines(old: tuple[int, int, int], new: tuple[int, int, int], built_for: set[str], notes: Callable[[str], str]) -> list[str]:
+	"""A Breaking line for each requirement a Go minor above old, up to new, sets on a built-for system."""
 	minors = [f"{new[0]}.{minor}" for minor in range(old[1] + 1, new[1] + 1)] if old[0] == new[0] else []
 	return [f"{line}, and so do the binaries." for minor in minors for line in requirements(notes(minor), minor, built_for)]
 

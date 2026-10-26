@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Callable
 
 GO_VERSION = re.compile(r"^ARG GO_VERSION=(\d+)\.(\d+)\.(\d+)$", re.M)
-GO_LINE = re.compile(r"^go (\S+)$", re.M)
 GORELEASER = re.compile(r"goreleaser/goreleaser-action@\S+\s+with:\s+version: (\S+)")
 
 
@@ -35,34 +34,47 @@ def dotted(go: tuple[int, int, int]) -> str:
 	return ".".join(map(str, go))
 
 
-def go_line(go_mod: str) -> str | None:
-	"""The lowest supported Go, as go.mod's `go` line names it."""
-	match = GO_LINE.search(go_mod)
-	return match and match[1]
-
-
 def requires(go_mod: str) -> dict[str, str]:
 	"""The modules go.mod requires, by path, each at its version."""
-	found, block = {}, False
+	return _parse(go_mod)[0]
+
+
+def bumps_only(released: str, main: str) -> bool:
+	"""Whether main's go.mod differs from the release's only in module versions: the same modules required directly, and every other line the same."""
+	(old, old_direct, old_rest), (new, new_direct, new_rest) = _parse(released), _parse(main)
+	return new != old and new_direct == old_direct and new_rest == old_rest
+
+
+def _parse(go_mod: str) -> tuple[dict[str, str], set[str], list[str]]:
+	"""go.mod's requires by path, the paths it requires directly, and its other lines but blank ones."""
+	found, direct, rest, block = {}, set(), [], False
 	for line in go_mod.splitlines():
-		words = line.split("//")[0].split()
-		if words == ["require", "("] or words == [")"]:
+		code, _, comment = line.partition("//")
+		words = code.split()
+		if words == ["require", "("] or (block and words == [")"]):
 			block = words != [")"]
-		elif words[:1] == ["require"] and len(words) == 3:
-			found[words[1]] = words[2]
-		elif block and len(words) == 2:
-			found[words[0]] = words[1]
-	return found
+			continue
+		if words[:1] == ["require"] and len(words) == 3:
+			words = words[1:]
+		elif not (block and len(words) == 2):
+			if line.strip():
+				rest.append(line)
+			continue
+		found[words[0]] = words[1]
+		if comment.strip() != "indirect":
+			direct.add(words[0])
+	return found, direct, rest
 
 
 def due(released: Carried, main: Carried) -> Carried | None:
 	"""What a patch of the release carries, main's wherever main moved on, or None while that is what the release carries.
 
-	main's modules wait while its go.mod raises the lowest supported Go, which only a major may do.
+	main's modules wait while its go.mod changes more than their versions, which is work merged since: a module
+	required directly that the release doesn't, or another line, such as a `go` line raising the lowest supported Go.
 	"""
 	if main.goreleaser is None:
 		raise ValueError("main's .github/workflows/packages.yml names no GoReleaser `version:` for goreleaser-action")
-	modules = requires(main.go_mod) != requires(released.go_mod) and go_line(main.go_mod) == go_line(released.go_mod)
+	modules = bumps_only(released.go_mod, main.go_mod)
 	patch = Carried(
 		max(released.go, main.go),
 		main.goreleaser,

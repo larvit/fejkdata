@@ -123,7 +123,8 @@ jobs:
   plan:
     name: Plan known vulnerabilities, and record fixed ones
     needs: [vulnerabilities, release]
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.vulnerabilities.result == 'failure') }}
+    # Runs after a failed release job too: a patch waiting for a human fails it, and fixed items still move.
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.release.result == 'failure' || needs.vulnerabilities.result == 'failure') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     concurrency:
