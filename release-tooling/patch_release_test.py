@@ -53,9 +53,9 @@ class Prepare(unittest.TestCase):
 		self.assertEqual(os.listdir(self.tree), ["go.mod"])
 
 
-def report(*ids):
+def report(*ids, module="stdlib", version="v1.27.1"):
 	messages = [{"osv": {"id": i, "aliases": [f"CVE-{i[3:]}"], "summary": "A flaw"}} for i in ids]
-	messages += [{"finding": {"osv": i, "trace": [{"module": "stdlib", "version": "v1.27.1"}]}} for i in ids]
+	messages += [{"finding": {"osv": i, "trace": [{"module": module, "version": version}]}} for i in ids]
 	return "\n".join(json.dumps(m) for m in messages)
 
 
@@ -128,15 +128,17 @@ class Cut(Repository):
 	def setUp(self):
 		super().setUp()
 		self.reports = {"1.27.1": report("GO-2026-0001", "GO-2026-0002"), "1.27.2": report(), "1.28.0": report()}
+		self.module_findings = {}
 		self.scanned, self.outputs, self.notes_read = [], [], []
 		self.published = mock.Mock(return_value=(0, "v0.1.1"))
 		self.effects = patch_release.Effects(self.scan, self.ship, self.published, self.outputs.append, self.notes)
 
 	def scan(self, tree, go, into):
-		self.scanned.append((go, self.read(os.path.join(tree, "go.mod"))))
+		go_mod = self.read(os.path.join(tree, "go.mod"))
+		self.scanned.append((go, go_mod))
 		os.makedirs(into)
 		with open(os.path.join(into, "report.json"), "w", encoding="utf-8") as f:
-			f.write(self.reports[go])
+			f.write(self.reports[go] + "\n" + self.module_findings.get(go_mod, ""))
 		return os.path.join(into, "report.json")
 
 	def ship(self, tree, version):
@@ -218,14 +220,19 @@ class Cut(Repository):
 		self.write(("release-tooling/goreleaser.yaml", GORELEASER))
 		self.assertEqual(self.cut()[0], 0)
 
-	def test_cuts_a_patch_carrying_main_s_modules(self):
+	def test_cuts_a_patch_carrying_main_s_modules_and_names_the_module_vulnerabilities_it_drops(self):
 		self.write(("go.mod", NEW_GO_MOD), ("go.sum", "new sum\n"))
 		self.reports["1.27.1"] = report()
+		self.module_findings[GO_MOD.format("1.22", "v0.29.0")] = report("GO-2026-0003", module="golang.org/x/text", version="v0.29.0")
 		self.assertEqual(self.cut()[0], 0)
 		self.assertEqual((self.shipped["go.mod"], self.shipped["go.sum"]), (NEW_GO_MOD, "new sum\n"))
 		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.1"))
 		self.assertEqual(self.scanned, [("1.27.1", GO_MOD.format("1.22", "v0.29.0")), ("1.27.1", NEW_GO_MOD)])
 		self.assertIn("- The binaries carry golang.org/x/text v0.30.0, up from v0.29.0.\n", self.shipped["CHANGELOG.md"])
+		self.assertIn(
+			"### Security\n\n- The binaries no longer carry 0.1.0's known vulnerabilities: GO-2026-0003 (CVE-2026-0003).\n\n## [0.1.0]",
+			self.shipped["CHANGELOG.md"],
+		)
 
 	def test_cuts_a_patch_carrying_main_s_goreleaser(self):
 		self.write((".github/workflows/packages.yml", PACKAGES.format("v2.19.0")))
@@ -282,12 +289,13 @@ class Cut(Repository):
 		self.assertEqual(self.cut(), (0, "No patch due: main carries the Go, modules and GoReleaser v0.1.0 does.\n"))
 		self.published.assert_not_called()
 
-	def test_a_patch_still_vulnerable_waits_with_a_warning(self):
-		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
-		self.reports["1.27.2"] = report("GO-2026-0002")
-		self.assertEqual(
-			self.cut(), (0, "::warning::v0.1.0's tree on main's Go and modules still carries a known vulnerability; no patch is cut\n")
-		)
+	def test_a_patched_tree_still_vulnerable_in_the_release_s_modules_is_refused_and_leaves_no_worktree(self):
+		held_back = NEW_GO_MOD.replace("example.com/new v0.1.0 // indirect", "example.com/new v0.1.0")
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("go.mod", held_back))
+		self.module_findings[GO_MOD.format("1.22", "v0.29.0")] = report("GO-2026-0003", module="golang.org/x/text", version="v0.29.0")
+		with self.assertRaisesRegex(ValueError, "^the patched tree still carries a known vulnerability; "):
+			self.cut()
+		self.assertEqual(self.scanned[-1], ("1.27.2", GO_MOD.format("1.22", "v0.29.0")))
 		self.published.assert_not_called()
 		self.assertEqual(self.worktrees(), 1)
 
