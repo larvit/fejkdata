@@ -1054,8 +1054,9 @@ carries both to `main` and merges itself once the tests pass. Where no Go versio
 vulnerability yet, govulncheck has no ignore list: the maintainer drops the job from the
 release's `needs` until one does, and records why here. The paired ruling against f90b4d6
 found the project reads worse for it: the gate now reads `todo.md`, and a release waits on
-vuln.go.dev. The maintainer merged it anyway, as the cost of filing into the plan. Valid
-while the binaries are built from the gate's Go version.
+vuln.go.dev. The maintainer merged it anyway, as the cost of filing into the plan, and
+`todo.md` item 350 ends that cost. Valid while the binaries are built from the gate's Go
+version.
 
 ## CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag
 
@@ -1094,11 +1095,14 @@ run stays red until the maintainer cuts a release or fixes the cause. The `plan`
 after a failed release job too, so fixed items still move. A module waits for a release
 the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
 required directly that the release doesn't, which is work merged since, or another line,
-such as a `go` line raising the lowest supported Go, which is a major. A tree still
-vulnerable is one whose modules wait: the release job runs only once `main`'s scan is
-clean, so the vulnerability is in the release's own modules, which no fix on `main`
-reaches. An advisory published between the two scans is the exception: it fails one
-release job, and the next run's scan of `main` finds and files it.
+such as a `go` line raising the lowest supported Go, which is a major. Save in two cases,
+a tree still vulnerable is one whose modules wait: the release job needs a clean scan of
+`main`, so the vulnerability is in the release's own modules, which no fix on `main`
+reaches. First, an advisory published between the two scans fails one release job, and
+the next run's scan of `main` finds and files it. Second, while the maintainer has dropped
+the scan from the release job's `needs`, for a vulnerability no Go version fixes yet,
+every due patch's tree carries that vulnerability: the release job stays red until a fix
+lands or the maintainer cuts a release.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a
