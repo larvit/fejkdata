@@ -338,10 +338,10 @@ func emailSlug(name string) string {
 	return strings.Trim(slugRun.ReplaceAllString(asciiFold.Replace(strings.ToLower(name)), "-"), "-")
 }
 
-// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the street, postal code and locality sets geoPlaces reads.
+// quickStartShipped holds what a quick start's person must agree with: the first names shipped per sex code, and the geo tables geoPlaces reads.
 type quickStartShipped struct {
 	firstNames map[string]map[string]bool
-	places     map[string]bool
+	places     geoPlaceSet
 }
 
 func loadQuickStartShipped(t *testing.T) quickStartShipped {
@@ -391,7 +391,7 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if number < 0 {
 		return fmt.Errorf("street %q has no number", p.street)
 	}
-	if !s.places[p.street[:number]+"|"+p.postalCode+"|"+p.locality+"|"] {
+	if !s.places.has(p.street[:number] + "|" + p.postalCode + "|" + p.locality + "|") {
 		return fmt.Errorf("street %q, postal code %q and locality %q do not belong together", p.street, p.postalCode, p.locality)
 	}
 	return nil
