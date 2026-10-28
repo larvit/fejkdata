@@ -242,14 +242,15 @@
 
 ### 352. Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.
 
-Today a pull request's run takes 2m28s, and a cold local `docker build .` 82s. Of the run, the build takes about 1m50s: 25s pulling base images, then the latest Go's stage, which is nearly all the root package's race tests, about 80s. Go's build and module caches already carry over from `main`'s runs, and the lowest Go's tests already run without the race detector. Running the slowest tests in parallel halves them locally, but not on the runner's four CPUs, where the race detector keeps them CPU-bound.
+Today a pull request's run takes 2m28s, and a cold local `docker build .` 82s. Of the run, the build takes about 1m50s: 25s pulling base images, then the latest Go's stage, about 80s, nearly all of it the root package's race tests. Go's build and module caches already carry over from `main`'s runs, but the root package's tests rerun on every CI run. Go's test cache matches each file a test opens by its size and mtime, and a fresh checkout gives every file a new mtime. The lowest Go's tests already run without the race detector. Running the slowest tests in parallel halves them locally, but not on the runner's four CPUs, where the race detector keeps them CPU-bound.
 
-The `changes` job adds about 10s to `test`'s critical path: in PR #269's last six runs, `test` started 8 to 14s after the jobs that start at once, 12s in the latest. The split stays, since the Packages dry run starts without waiting for the build, and a change that doesn't touch any file the build reads skips the `test` runner.
+The `changes` job adds about 10s to `test`'s critical path: in PR #269's last six runs, `test` started 8 to 14s after the jobs that start at once, 12s in the latest. `changes` stays a job of its own, since the Packages dry run starts without waiting for the build, and a change that doesn't touch any file the build reads skips the `test` runner.
 
 Ways to get there, to measure before choosing:
 
 - Run the latest Go's race tests on a runner of their own, and the rest of the build on another.
 - Draw fewer values under the race detector in the tests that check a share over 400,000 draws, and keep their full count without it.
+- Give the files and folders of a CI checkout stable mtimes, such as each file's last commit time, so a package whose tests open only unchanged files hits Go's test cache. Today `cli` and `internal/builtinfunc` rerun on every CI run too. The root package's tests list the module's folders, so a change to nearly any file still reruns them.
 
 The comprehension seats found `Dockerfile:39` `vulnerability-filing` hard to read. Where the change touches it, make it easier to read.
 

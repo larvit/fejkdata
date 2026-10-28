@@ -61,7 +61,7 @@
       "automerge": false
     },
     {
-      "description": "An Action whose save path only a push to main runs waits for the maintainer, since a broken one would fail the gate main releases on",
+      "description": "actions/cache and buildkit-cache-dance wait for the maintainer: only a push to main runs their save step, and a broken one fails the gate that main's releases wait for",
       "matchManagers": [
         "github-actions"
       ],
