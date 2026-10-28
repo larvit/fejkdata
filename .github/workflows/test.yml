@@ -55,6 +55,33 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - uses: docker/setup-buildx-action@v4
+        id: buildx
+      # Only a push to main saves the caches, and a pull request starts from main's.
+      - name: Go's build and module caches, kept by main's runs
+        if: github.event_name == 'push'
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/go-caches
+          key: go-caches-${{ github.sha }}
+          restore-keys: go-caches-
+      - name: Go's build and module caches from main's last run
+        if: github.event_name != 'push'
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/go-caches
+          key: go-caches-${{ github.sha }}
+          restore-keys: go-caches-
+      - name: The caches into the Dockerfile's cache mounts, and back out after a push
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-map: |
+            {
+              "${{ runner.temp }}/go-caches/build": "/root/.cache/go-build",
+              "${{ runner.temp }}/go-caches/mod": "/go/pkg/mod"
+            }
+          skip-extraction: ${{ github.event_name != 'push' }}
       # `docker build` streams the context to the daemon. A compose bind-mount of
       # `.` mounts an empty host dir instead, because the job is itself a container.
       - name: Latest and lowest supported Go
