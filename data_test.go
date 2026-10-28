@@ -757,12 +757,12 @@ func geoRows(t *testing.T, country, table string) [][]string {
 type geoPlaceSet struct {
 	name, region map[string]string
 	localities   map[string][]string
-	streets      map[string]bool
+	streets      map[[2]string]bool
 }
 
 func geoPlaces(t *testing.T, country string) geoPlaceSet {
 	rows := func(table string) [][]string { return geoRows(t, country, table) }
-	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, localities: map[string][]string{}, streets: map[string]bool{}}
+	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, localities: map[string][]string{}, streets: map[[2]string]bool{}}
 	if country == "US" {
 		county := map[string]string{}
 		for _, r := range rows("municipality") {
@@ -780,18 +780,41 @@ func geoPlaces(t *testing.T, country string) geoPlaceSet {
 		s.localities[r[0]] = append(s.localities[r[0]], r[1])
 	}
 	for _, r := range rows("street") {
-		s.streets[r[0]+"\t"+r[1]] = true
+		s.streets[[2]string{r[0], r[1]}] = true
 	}
 	return s
 }
 
 func (s geoPlaceSet) has(street, postalCode, locality, region string) bool {
 	for _, l := range s.localities[postalCode] {
-		if s.name[l] == locality && s.region[l] == region && s.streets[street+"\t"+l] {
+		if s.name[l] == locality && s.region[l] == region && s.streets[[2]string{street, l}] {
 			return true
 		}
 	}
 	return false
+}
+
+func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T) {
+	s := geoPlaceSet{
+		name:       map[string]string{"a": "Alby", "b": "Borg"},
+		region:     map[string]string{"a": "Norr", "b": "Söder"},
+		localities: map[string][]string{"111": {"a"}, "222": {"b"}},
+		streets:    map[[2]string]bool{{"Storgatan", "a"}: true, {"Kyrkvägen", "b"}: true},
+	}
+	for _, c := range []struct {
+		street, postalCode, locality, region string
+		want                                 bool
+	}{
+		{"Storgatan", "111", "Alby", "Norr", true},
+		{"Storgatan", "222", "Borg", "Söder", false},
+		{"Kyrkvägen", "111", "Alby", "Norr", false},
+		{"Storgatan", "111", "Borg", "Norr", false},
+		{"Storgatan", "111", "Alby", "Söder", false},
+	} {
+		if got := s.has(c.street, c.postalCode, c.locality, c.region); got != c.want {
+			t.Errorf("has(%q, %q, %q, %q) = %v, want %v", c.street, c.postalCode, c.locality, c.region, got, c.want)
+		}
+	}
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
