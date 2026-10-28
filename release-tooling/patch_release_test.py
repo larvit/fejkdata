@@ -313,6 +313,7 @@ class Cut(Repository):
 		self.published.assert_not_called()
 
 	def test_no_patch_is_due_while_main_s_modules_wait(self):
+		self.reports["1.27.1"] = report()
 		self.write(("go.mod", NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"))
 		self.assertEqual(
 			self.cut(),
@@ -323,6 +324,20 @@ class Cut(Repository):
 			),
 		)
 		self.published.assert_not_called()
+
+	def test_a_last_release_still_vulnerable_while_main_s_modules_wait_is_refused_and_leaves_no_worktree(self):
+		self.module_findings[GO_MOD.format("1.22", "v0.29.0")] = report("GO-2026-0003", module="golang.org/x/text", version="v0.29.0")
+		self.reports["1.27.1"] = report()
+		self.write(("go.mod", NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"))
+		with self.assertRaisesRegex(
+			ValueError,
+			"^v0\\.1\\.0 still carries 1 known vulnerability: GO-2026-0003 \\(CVE-2026-0003\\); main's modules wait for a"
+			" release the maintainer cuts, since its go\\.mod changes more than module versions$",
+		):
+			self.cut()
+		self.assertEqual(self.scanned, [("1.27.1", GO_MOD.format("1.22", "v0.29.0"))])
+		self.published.assert_not_called()
+		self.assertEqual(self.worktrees(), 1)
 
 	def test_a_patched_tree_still_vulnerable_in_the_release_s_modules_is_refused_and_leaves_no_worktree(self):
 		held_back = NEW_GO_MOD.replace("example.com/new v0.1.0 // indirect", "example.com/new v0.1.0")
@@ -366,6 +381,20 @@ class Plan(Repository):
 		self.assertIn(
 			"### Security\n\n- The binaries no longer carry Go 1.27.2's known vulnerabilities: GO-2026-0009 (CVE-2026-0009).\n\n## [0.1.1]",
 			self.read("CHANGELOG.md"),
+		)
+
+	def test_names_under_unreleased_once_what_main_s_go_minor_drops_since_the_last_release(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")))
+		with mock.patch.object(go_release_notes, "fetch", side_effect=lambda minor: NOTES) as fetch:
+			self.plan()
+			self.plan()
+		self.assertEqual(fetch.call_args_list, [mock.call("1.28"), mock.call("1.28")])
+		breaking = (
+			"### Breaking\n\n- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
+			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n"
+		)
+		self.assertEqual(
+			self.read("CHANGELOG.md"), MAIN.replace("### Added", breaking + "### Added").replace("## [0.1.0]", SECTION + "## [0.1.0]")
 		)
 
 	def test_a_fix_recorded_before_its_patch_is_cut_leaves_unreleased_once_the_patch_is_reconciled(self):
