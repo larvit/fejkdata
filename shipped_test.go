@@ -210,6 +210,7 @@ func shippedIndex(t *testing.T) map[string]datafiles.IndexEntry {
 }
 
 func TestEachShippedPackagesModulesHoldWhatItReadsAndRender(t *testing.T) {
+	t.Parallel()
 	modules := shippedModules(t)
 	_, reads, err := shippedManifests(newShippedWhole(t), modules)
 	if err != nil {
@@ -496,6 +497,7 @@ func TestNewMatchesErrLoadOnDataThatFailsToLoad(t *testing.T) {
 }
 
 func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
+	t.Parallel()
 	whole := newShippedWhole(t)
 	paths := whole.List()
 	lazy, err := New(withShipped(), WithSeed(1))
@@ -522,6 +524,7 @@ func TestOnDemandRendersAsTheWholeLoad(t *testing.T) {
 }
 
 func TestEveryShippedCategoryLoadsAlone(t *testing.T) {
+	t.Parallel()
 	for _, p := range sortedNames(shippedIndex(t)) {
 		f, err := New(withShipped(), WithSeed(1))
 		if err != nil {
