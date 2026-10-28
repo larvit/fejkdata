@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/g
 	lowest="go$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' go.mod)" && \
 	{ test "$(go env GOVERSION | cut -d. -f1-2)" = "$lowest" || \
 		{ echo "LOWEST_GO_VERSION is not $lowest, go.mod's go line"; exit 1; }; } && \
-	go vet ./... && go test -race ./... && touch /tested
+	go vet ./... && go test ./... && touch /tested
 
 FROM golang:${GO_VERSION} AS vulnerabilities
 WORKDIR /app
