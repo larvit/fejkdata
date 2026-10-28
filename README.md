@@ -1457,9 +1457,9 @@ the format check and the Go tests. On the lowest, which the Dockerfile's
 `LOWEST_GO_VERSION` names, it runs vet and the Go tests. It also runs the release
 tooling's tests and the vulnerability filer's tests; the filer's tests file an item into
 `todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base,
-and the Packages dry run below. The check `gate` passes once the rest of the gate has,
-and it is the one check that branch protection on `main` requires. Run `docker build .`
-locally before pushing:
+and the Packages dry run below. The check `gate` passes once each of these has passed or
+been skipped, and it is the only check that branch protection on `main` requires. Run
+`docker build .` locally before pushing:
 
 ```sh
 docker build .                                   # the whole build, on both Go versions
@@ -1481,13 +1481,14 @@ no activity, re-enable it under Actions. The same check:
 docker compose run --rm vulncheck
 ```
 
-A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
-files or a workflow also runs the Packages workflow as a dry run. It runs every Action a
-release runs save `actions/deploy-pages`, and `docker/login-action` logs in to GHCR with a
-read-only token. It builds the binaries for every platform, the packages and the images,
-then the apt, dnf and apk repositories, signed with throwaway keys, and installs fejkdata
-from each repository. It doesn't publish any of them or read a repository secret, so it
-runs on a pull request from a fork too. The repository checks, locally:
+A pull request that changes Go code, `release-tooling/`, the `Dockerfile`,
+`.dockerignore`, the licence files or a workflow also runs the Packages workflow as a dry
+run. It runs every Action a release runs save `actions/deploy-pages`, and
+`docker/login-action` logs in to GHCR with a read-only token. It builds the binaries for
+every platform, the packages and the images, then the apt, dnf and apk repositories,
+signed with throwaway keys, and installs fejkdata from each repository. It doesn't publish
+any of them or read a repository secret, so it runs on a pull request from a fork too. The
+repository checks, locally:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
