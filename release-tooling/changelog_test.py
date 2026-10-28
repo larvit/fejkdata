@@ -90,6 +90,15 @@ class Reconcile(unittest.TestCase):
 			changelog.reconcile(main, changelog.insert_section(RELEASED, SECTION)), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]")
 		)
 
+	def test_a_released_section_drops_the_unreleased_breaking_lines_it_holds(self):
+		line = "- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
+		patch = SECTION.replace("### Changed", f"### Breaking\n\n{line}\n### Changed")
+		main = MAIN.replace("### Added", f"### Breaking\n\n{line}- Drop a flag.\n\n### Added")
+		self.assertEqual(
+			changelog.reconcile(main, changelog.insert_section(RELEASED, patch)),
+			MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n\n### Added").replace("## [0.1.0]", patch + "## [0.1.0]"),
+		)
+
 	def test_main_ahead_of_the_release_is_left(self):
 		main = MAIN.replace("## [Unreleased]\n\n### Added\n\n- A thing.\n\n", "## [0.2.0] - 2026-11-01\n\n- A thing.\n\n")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
@@ -99,46 +108,63 @@ class Record(unittest.TestCase):
 	def test_a_fix_goes_under_unreleased_security(self):
 		self.assertIn(
 			"### Added\n\n- A thing.\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0]",
-			changelog.record(MAIN, ["Fix GO-2026-0009."]),
+			changelog.record(MAIN, ["Fix GO-2026-0009."], []),
 		)
 
 	def test_a_second_fix_joins_the_security_section(self):
-		once = changelog.record(MAIN, ["Fix GO-2026-0009."])
+		once = changelog.record(MAIN, ["Fix GO-2026-0009."], [])
 		self.assertIn(
 			"### Security\n\n- Fix GO-2026-0009.\n- Fix GO-2026-0010.\n\n## [0.1.0]",
-			changelog.record(once, ["Fix GO-2026-0010."]),
+			changelog.record(once, ["Fix GO-2026-0010."], []),
 		)
 
 	def test_a_fix_whose_vulnerabilities_a_release_names_is_left(self):
 		main = MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]")
-		self.assertEqual(changelog.record(main, ["Worded otherwise: GO-2026-0001."]), main)
+		self.assertEqual(changelog.record(main, ["Worded otherwise: GO-2026-0001."], []), main)
 
 	def test_a_changelog_topped_by_a_release_gets_unreleased_above_it(self):
 		self.assertEqual(
-			changelog.record(RELEASED, ["Fix GO-2026-0009."]),
+			changelog.record(RELEASED, ["Fix GO-2026-0009."], []),
 			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
 		)
 
 	def test_two_fixes_are_two_bullets(self):
 		self.assertIn(
 			"### Security\n\n- Fix GO-2026-0009.\n- Fix GO-2026-0010.\n\n## [0.1.0]",
-			changelog.record(MAIN, ["Fix GO-2026-0009.", "Fix GO-2026-0010."]),
+			changelog.record(MAIN, ["Fix GO-2026-0009.", "Fix GO-2026-0010."], []),
 		)
 
 	def test_a_changelog_with_no_section_gets_unreleased_at_its_end(self):
 		self.assertEqual(
-			changelog.record("# Changelog\n", ["Fix GO-2026-0009."]),
+			changelog.record("# Changelog\n", ["Fix GO-2026-0009."], []),
 			"# Changelog\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n",
 		)
 
 	def test_a_changelog_with_only_unreleased_ends_in_one_newline(self):
 		self.assertEqual(
-			changelog.record("# Changelog\n\n## [Unreleased]\n", ["Fix GO-2026-0009."]),
+			changelog.record("# Changelog\n\n## [Unreleased]\n", ["Fix GO-2026-0009."], []),
 			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n",
 		)
 
+	def test_a_fix_goes_at_the_end_of_a_security_section_another_follows(self):
+		main = MAIN.replace("### Added", "### Security\n\n- Fix GO-2026-0009.\n\n### Added")
+		self.assertIn("### Security\n\n- Fix GO-2026-0009.\n- Fix GO-2026-0010.\n\n### Added", changelog.record(main, ["Fix GO-2026-0010."], []))
+
+	def test_a_breaking_line_goes_first_under_unreleased(self):
+		self.assertEqual(
+			changelog.record(MAIN, ["Fix GO-2026-0009."], ["Go 1.28 requires macOS 14."]),
+			MAIN.replace("### Added", "### Breaking\n\n- Go 1.28 requires macOS 14.\n\n### Added").replace(
+				"## [0.1.0]", "### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0]"
+			),
+		)
+
+	def test_a_breaking_line_joins_unreleased_s_breaking_section_once(self):
+		main = MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n\n### Added")
+		twice = changelog.record(changelog.record(main, [], ["Go 1.28 requires macOS 14."]), [], ["Go 1.28 requires macOS 14."])
+		self.assertEqual(twice, main.replace("- Drop a flag.\n", "- Drop a flag.\n- Go 1.28 requires macOS 14.\n"))
+
 	def test_nothing_fixed_leaves_the_changelog(self):
-		self.assertEqual(changelog.record(MAIN, []), MAIN)
+		self.assertEqual(changelog.record(MAIN, [], []), MAIN)
 
 
 if __name__ == "__main__":
