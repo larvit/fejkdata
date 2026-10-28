@@ -1577,7 +1577,8 @@ cannot read: each waits for you, to cut a release or fix the cause. Modules wait
 release you cut while `main`'s `go.mod` changes more than their versions, such as its
 `go` line, and the release job fails meanwhile where the last release carries a known
 vulnerability. Until a release ships a Go minor, `security-plan` keeps its Breaking lines
-under `Unreleased`, so a release you cut names them too.
+under `Unreleased`, so a release you cut names them too. While it cannot read the notes,
+it keeps none: write what they require under Breaking yourself before you cut a release.
 Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push

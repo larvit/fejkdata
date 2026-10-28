@@ -1098,7 +1098,9 @@ after a failed release job too, so fixed items still move. It also writes under
 Unreleased's Breaking what each Go minor `main` carries since the last release requires of
 a built-for system, so the release that first ships the minor names it, whether CI cuts it
 as a patch or the maintainer cuts it; a release section copied into `main` takes each such
-line it holds out of Unreleased, as it takes a fix it names. A module waits for a release
+line it holds out of Unreleased, as it takes a fix it names. Where it can't read the notes,
+it records no such line and still moves fixed items, since the release job fails on the
+same notes; the README asks the maintainer to write the lines by hand then. A module waits for a release
 the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
 required directly that the release doesn't, which is work merged since, or another line,
 such as a `go` line raising the lowest supported Go, which is a major. While modules wait
