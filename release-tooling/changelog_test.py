@@ -103,6 +103,19 @@ class Reconcile(unittest.TestCase):
 		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
 
+	def test_a_breaking_section_nothing_leaves_keeps_its_blank_lines(self):
+		main = MAIN.replace("### Added", "### Breaking\n\n```\na\n\n\nb\n```\n\n### Added")
+		self.assertEqual(changelog.reconcile(main, RELEASED), main)
+
+	def test_a_line_reconciled_from_atop_prose_leaves_one_blank_line(self):
+		line = "- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
+		patch = SECTION.replace("### Changed", f"### Breaking\n\n{line}\n### Changed")
+		main = MAIN.replace("### Added", f"### Breaking\n\n{line}\nThe `--x` flag is gone.\n\n### Added")
+		self.assertEqual(
+			changelog.reconcile(main, changelog.insert_section(RELEASED, patch)),
+			MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added").replace("## [0.1.0]", patch + "## [0.1.0]"),
+		)
+
 	def test_a_breaking_line_recorded_after_prose_leaves_the_prose_as_it_was(self):
 		line = "Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries."
 		patch = SECTION.replace("### Changed", f"### Breaking\n\n- {line}\n\n### Changed")
