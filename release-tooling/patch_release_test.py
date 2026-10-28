@@ -397,11 +397,14 @@ class Plan(Repository):
 			self.read("CHANGELOG.md"), MAIN.replace("### Added", breaking + "### Added").replace("## [0.1.0]", SECTION + "## [0.1.0]")
 		)
 
-	def test_go_notes_it_cannot_read_leave_the_plan_and_changelog_as_they_were(self):
+	def test_go_notes_it_cannot_read_still_move_a_fixed_item_and_record_no_breaking_line(self):
+		self.plan("GO-2026-0009")
 		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")))
 		with mock.patch.object(go_release_notes, "fetch", side_effect=ValueError("cannot read Go 1.28's release notes")):
-			self.assertEqual(self.plan("GO-2026-0009"), 2)
-		self.assertEqual((self.read("todo.md"), self.read("CHANGELOG.md")), (TODO, MAIN))
+			self.assertEqual(self.plan(), 0)
+		self.assertNotIn("\n| 7 |", self.read("todo.md"))
+		self.assertIn("### Security\n\n- The binaries no longer carry Go 1.27.2's known vulnerabilities: GO-2026-0009", self.read("CHANGELOG.md"))
+		self.assertNotIn("### Breaking", self.read("CHANGELOG.md"))
 
 	def test_a_fix_recorded_before_its_patch_is_cut_leaves_unreleased_once_the_patch_is_reconciled(self):
 		self.plan("GO-2026-0001", last="v0.1.0")
