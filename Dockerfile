@@ -4,11 +4,11 @@ FROM golang:${GO_VERSION} AS latest
 ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
 WORKDIR /app
 COPY . .
+RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
+	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }
 RUN --mount=type=cache,target=/cache \
 	go vet ./... && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
-	unformatted="$(gofmt -l .)" && { test -z "$unformatted" || \
-		{ echo "unformatted files:"; echo "$unformatted"; exit 1; }; } && \
 	go test -race ./... && touch /tested
 
 FROM golang:${LOWEST_GO_VERSION} AS lowest
@@ -56,5 +56,6 @@ COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 
+# CI builds latest and lowest-and-tooling, never this stage, so a check goes in one of them.
 FROM lowest-and-tooling
 COPY --from=latest /tested /tmp/latest-tested
