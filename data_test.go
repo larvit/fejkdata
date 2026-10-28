@@ -630,7 +630,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 			for i := 0; i < 2000; i++ {
 				got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}`+c.template+`|{/`+c.locale+`.address.street}`)
 				parts := strings.Split(got, "|")
-				if !places[strings.Join(parts[:4], "|")] {
+				if !places.has(strings.Join(parts[:4], "|")) {
 					t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
 				}
 				apart = apart || parts[0] != parts[4]
@@ -661,7 +661,7 @@ func TestShippedAddressStructTagsReadOneName(t *testing.T) {
 		if err := f.FakeStruct(&row); err != nil {
 			t.Fatal(err)
 		}
-		if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places[got] {
+		if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places.has(got) {
 			t.Fatalf("sv_SE.address: struct tags reading one name, %q, are no street, postal code and locality of one place", got)
 		}
 	}
@@ -752,35 +752,50 @@ func geoRows(t *testing.T, country, table string) [][]string {
 	return out
 }
 
-// geoPlaces reads a country's geo tables into every "street|postal-code|locality|region"
-// one locality holds, the region empty for NO and SE, whose addresses carry none.
-func geoPlaces(t *testing.T, country string) map[string]bool {
+// geoPlaceSet holds a country's geo tables, to say whether a "street|postal-code|locality|region"
+// is one locality's, the region empty for NO and SE, whose addresses carry none.
+type geoPlaceSet struct {
+	name, region map[string]string
+	localities   map[string][]string
+	streets      map[string]bool
+}
+
+func geoPlaces(t *testing.T, country string) geoPlaceSet {
 	rows := func(table string) [][]string { return geoRows(t, country, table) }
-	name, region := map[string]string{}, map[string]string{}
+	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, localities: map[string][]string{}, streets: map[string]bool{}}
 	if country == "US" {
 		county := map[string]string{}
 		for _, r := range rows("municipality") {
 			county[r[0]] = r[2]
 		}
 		for _, r := range rows("locality") {
-			name[r[0]], region[r[0]] = r[1], county[r[2]]
+			s.name[r[0]], s.region[r[0]] = r[1], county[r[2]]
 		}
 	} else {
 		for _, r := range rows("locality") {
-			name[r[0]] = r[0]
+			s.name[r[0]] = r[0]
 		}
 	}
-	codes := map[string][]string{}
 	for _, r := range rows("postal-code") {
-		codes[r[1]] = append(codes[r[1]], r[0])
+		s.localities[r[0]] = append(s.localities[r[0]], r[1])
 	}
-	places := map[string]bool{}
 	for _, r := range rows("street") {
-		for _, code := range codes[r[1]] {
-			places[strings.Join([]string{r[0], code, name[r[1]], region[r[1]]}, "|")] = true
+		s.streets[r[0]+"\t"+r[1]] = true
+	}
+	return s
+}
+
+func (s geoPlaceSet) has(place string) bool {
+	parts := strings.Split(place, "|")
+	if len(parts) != 4 {
+		return false
+	}
+	for _, l := range s.localities[parts[1]] {
+		if s.name[l] == parts[2] && s.region[l] == parts[3] && s.streets[parts[0]+"\t"+l] {
+			return true
 		}
 	}
-	return places
+	return false
 }
 
 func TestShippedPersonHasParts(t *testing.T) {
