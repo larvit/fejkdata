@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import io
 import json
@@ -10,6 +11,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from unittest import mock
 
 import changelog
+import go_release_notes
 import patch_release
 import publish_release
 from fixtures import COMPOSE, DOCKERFILE, GO_MOD, GORELEASER, MAIN, NEW_GO_MOD, NOTES, PACKAGES, RELEASED, SECTION, carrying
@@ -96,6 +98,7 @@ class Repository(unittest.TestCase):
 		self.addCleanup(tmp.cleanup)
 		os.chdir(tmp.name)
 		self.addCleanup(os.chdir, cwd)
+		self.root = os.getcwd()
 		git("init", "-q")
 		git("config", "user.email", "test@example.com")
 		git("config", "user.name", "Test")
@@ -142,6 +145,8 @@ class Cut(Repository):
 		return os.path.join(into, "report.json")
 
 	def build_and_push(self, tree, version):
+		self.version = version
+		self.changed = sorted(line.split(maxsplit=1)[1] for line in git("-C", tree, "status", "--porcelain").splitlines())
 		self.shipped = {
 			name: self.read(os.path.join(tree, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod")
 			+ (("go.sum",) if os.path.exists(os.path.join(tree, "go.sum")) else ())
@@ -156,9 +161,12 @@ class Cut(Repository):
 		self.notes_read.append(minor)
 		return NOTES
 
-	def cut(self):
-		with redirect_stdout(io.StringIO()) as out:
-			code = patch_release.cut(os.getcwd(), "v0.1.0", "2026-10-14", self.effects)
+	def cut(self, last="v0.1.0"):
+		status = git("status", "--porcelain")
+		with tempfile.TemporaryDirectory() as elsewhere, contextlib.chdir(elsewhere), redirect_stdout(io.StringIO()) as out:
+			code = patch_release.cut(self.root, last, "2026-10-14", self.effects)
+			self.assertEqual(os.listdir(elsewhere), [])
+		self.assertEqual(git("status", "--porcelain"), status)
 		return code, out.getvalue()
 
 	def worktrees(self):
@@ -168,6 +176,10 @@ class Cut(Repository):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
 		code, _ = self.cut()
 		self.assertEqual((code, self.outputs), (0, ["tag=v0.1.1"]))
+		self.assertEqual(self.version, "0.1.1")
+		self.assertEqual(
+			self.changed, [".github/workflows/gone.yml", ".github/workflows/test.yml", "CHANGELOG.md", "Dockerfile", "compose.yaml"]
+		)
 		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.2"))
 		self.assertEqual(self.shipped["compose.yaml"], COMPOSE.format("1.27.2"))
 		self.assertNotIn("go.sum", self.shipped)
@@ -254,24 +266,35 @@ class Cut(Repository):
 
 	def test_a_last_release_tag_the_checkout_lacks_is_refused(self):
 		with self.assertRaisesRegex(ValueError, "^main's checkout holds no tag v0\\.9\\.0, the forge's latest release$"):
-			patch_release.cut(os.getcwd(), "v0.9.0", "2026-10-14", self.effects)
+			self.cut("v0.9.0")
 
-	def main_cut(self):
-		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("output", ""))
+	def main_cut(self, go="1.27.2"):
+		self.write(("Dockerfile", DOCKERFILE.format(go)), ("output", ""))
 		env = {"GITHUB_OUTPUT": os.path.abspath("output")}
 		with mock.patch.object(patch_release, "last_release", return_value="v0.1.0"), \
-			mock.patch.object(patch_release, "scan_tree", lambda root, tree, go, into: self.scan(tree, go, into)), \
+			mock.patch.object(patch_release, "scan_tree", self.scan_main), \
 			mock.patch.object(patch_release, "build_and_push", self.build_and_push), \
 			mock.patch.object(publish_release, "publish", self.published), \
 			mock.patch.dict(os.environ, env), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as err:
 			code = patch_release.main(["cut"])
 		return code, err.getvalue(), self.read("output")
 
+	def scan_main(self, root, tree, go, into):
+		self.assertEqual(root, self.root)
+		return self.scan(tree, go, into)
+
 	def test_main_hands_the_cut_tag_to_the_workflow(self):
 		self.assertEqual(self.main_cut(), (0, "", "tag=v0.1.1\n"))
 		today = datetime.datetime.now(datetime.UTC).date().isoformat()
 		self.assertTrue(self.shipped["CHANGELOG.md"].startswith(f"# Changelog\n\n## [0.1.1] - {today}\n\n"))
 		self.published.assert_called_once_with(self.shipped["CHANGELOG.md"], "abc123")
+
+	def test_main_reads_a_go_minor_s_release_notes(self):
+		with mock.patch.object(go_release_notes, "fetch", return_value=NOTES):
+			self.assertEqual(self.main_cut("1.28.0")[0], 0)
+		self.assertIn(
+			"### Breaking\n\n- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n", self.shipped["CHANGELOG.md"]
+		)
 
 	def test_main_names_a_forge_error_while_publishing_and_exits_2(self):
 		self.published.side_effect = urllib.error.URLError("forge down")
@@ -286,7 +309,19 @@ class Cut(Repository):
 		self.assertEqual(self.outputs, [])
 
 	def test_no_patch_is_due_while_main_carries_what_the_release_does(self):
-		self.assertEqual(self.cut(), (0, "No patch due: main carries the Go, modules and GoReleaser v0.1.0 does.\n"))
+		self.assertEqual(self.cut(), (0, "No patch due: main carries nothing a patch of v0.1.0 can take.\n"))
+		self.published.assert_not_called()
+
+	def test_no_patch_is_due_while_main_s_modules_wait(self):
+		self.write(("go.mod", NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"))
+		self.assertEqual(
+			self.cut(),
+			(
+				0,
+				"No patch due: main's go.mod changes more than module versions since v0.1.0,"
+				" so its modules wait for a release the maintainer cuts.\n",
+			),
+		)
 		self.published.assert_not_called()
 
 	def test_a_patched_tree_still_vulnerable_in_the_release_s_modules_is_refused_and_leaves_no_worktree(self):
@@ -314,10 +349,10 @@ class Plan(Repository):
 		git("checkout", "-q", "-")
 		self.write(("todo.md", TODO))
 
-	def plan(self, *ids):
+	def plan(self, *ids, last="v0.1.1"):
 		self.write(("report.json", report(*ids).replace("v1.27.1", "v1.27.2")))
-		with redirect_stderr(io.StringIO()):
-			return patch_release.plan("report.json", "todo.md", "CHANGELOG.md", "v0.1.1")
+		with mock.patch.object(patch_release, "last_release", return_value=last), redirect_stderr(io.StringIO()):
+			return patch_release.main(["plan", "report.json", "todo.md", "CHANGELOG.md"])
 
 	def test_files_under_the_next_patch_and_reconciles_the_last_release(self):
 		self.assertEqual(self.plan("GO-2026-0009"), 0)
@@ -333,17 +368,28 @@ class Plan(Repository):
 			self.read("CHANGELOG.md"),
 		)
 
+	def test_a_fix_recorded_before_its_patch_is_cut_leaves_unreleased_once_the_patch_is_reconciled(self):
+		self.plan("GO-2026-0001", last="v0.1.0")
+		self.plan(last="v0.1.0")
+		self.plan()
+		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
+
+
+FORGE = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner/repo", "FORGE_TOKEN": "t0ken"}
+
 
 class Commands(unittest.TestCase):
 	def setUp(self):
 		self.calls = []
 		self.code = 0
+		self.codes = {}
 
 	def run_stub(self, *argv, cwd=None, ok=(0,)):
 		self.calls.append((argv, cwd))
-		if self.code not in ok:
+		code = self.codes.get(argv[-1], self.code)
+		if code not in ok:
 			raise ValueError(f"`{' '.join(argv[:2])}` failed: vet")
-		return subprocess.CompletedProcess(argv, self.code, stdout="abc123\n", stderr="")
+		return subprocess.CompletedProcess(argv, code, stdout="abc123\n", stderr="")
 
 	def test_scan_tree_builds_the_tree_s_report_through_main_s_dockerfile(self):
 		with mock.patch.object(patch_release, "run", self.run_stub):
@@ -357,8 +403,7 @@ class Commands(unittest.TestCase):
 		)
 
 	def test_build_and_push_builds_the_tree_then_commits_and_pushes_it_to_its_release_branch(self):
-		env = {"FORGE_SERVER_URL": "https://forge.example", "FORGE_REPOSITORY": "owner/repo", "FORGE_TOKEN": "t0ken"}
-		with mock.patch.object(patch_release, "run", self.run_stub), mock.patch.dict(os.environ, env):
+		with mock.patch.object(patch_release, "run", self.run_stub), mock.patch.dict(os.environ, FORGE):
 			self.assertEqual(patch_release.build_and_push("/tree", "0.1.1"), "abc123")
 		remote = "https://x-access-token:t0ken@forge.example/owner/repo.git"
 		self.assertEqual(
@@ -372,6 +417,12 @@ class Commands(unittest.TestCase):
 				(("git", "rev-parse", "HEAD"), "/tree"),
 			],
 		)
+
+	def test_build_and_push_pushes_where_no_release_branch_was_left_to_delete(self):
+		self.codes[":refs/heads/release/0.1.1"] = 1
+		with mock.patch.object(patch_release, "run", self.run_stub), mock.patch.dict(os.environ, FORGE):
+			self.assertEqual(patch_release.build_and_push("/tree", "0.1.1"), "abc123")
+		self.assertEqual([argv[-1] for argv, _ in self.calls[-2:]], ["HEAD:refs/heads/release/0.1.1", "HEAD"])
 
 	def test_a_tree_that_fails_the_gate_is_neither_committed_nor_pushed(self):
 		self.code = 1
