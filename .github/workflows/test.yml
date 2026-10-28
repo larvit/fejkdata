@@ -112,7 +112,7 @@ jobs:
         run: python3 release-tooling/publish_release.py
         env:
           SHA: ${{ github.sha }}
-      - name: Patch the last release when main carries a newer Go, other modules or another GoReleaser
+      - name: Patch the last release when main carries a newer Go, module version bumps or another GoReleaser
         id: patch
         if: steps.publish.outputs.tag == ''
         run: |
