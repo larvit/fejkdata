@@ -1072,8 +1072,8 @@ What a release carries is its Go, the modules `go.mod` requires and the GoReleas
 GoReleaser, which for a patch is `main`'s. A bump that passes the gate unchanged changes
 no row of the README's Versioning table, so it is a patch. Renovate merges one to `main`
 once every check passes, save a GoReleaser major, which waits for the maintainer, who
-chose so on 2026-10-28: it may rename the release assets a consumer's script downloads, or
-move the build path the Packages workflow checks, and the gate checks neither. When `main` then carries a newer Go, newer modules or another
+chose so on 2026-10-28: it may rename the release assets a consumer's script downloads,
+which the gate doesn't check. The Packages dry run checks the build path. When `main` then carries a newer Go, newer modules or another
 GoReleaser than the last release, the release job cuts a patch through
 `release-tooling/patch_release.py cut`. It puts `main`'s Go and modules into the last
 release's tree with `main`'s `.github/` (the forge refuses the workflow token a branch
@@ -1088,8 +1088,8 @@ from the last release's tag. It publishes the commit with
 `release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
 tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
 bump, never the work merged since, save the packaging that `main`'s `goreleaser.yaml`
-gives every release it packages. The package-repository checks don't run on the patch:
-`main`'s gate ran them with the GoReleaser and config that package it.
+gives every release it packages. The Packages dry run doesn't run on the patch: `main`'s
+gate ran it with the GoReleaser and config that package it.
 
 A patch waits for a human, cutting nothing, and the job exits 2 until the maintainer cuts
 a release or fixes the cause, while:
@@ -1221,3 +1221,32 @@ says. It ships in `0.2.0` and is named in the changelog
 
 Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
 default table.
+
+## A pull request that changes what a release packages, or a workflow, runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
+
+2026-10-28, decided by the maintainer. Serves goal 1.1 and code health.
+
+Renovate merges a GitHub Action update itself once the gate passes, so each Action a
+release runs must run on the pull request that updates it. Otherwise a broken Action major
+first fails in a release run, after the tag is published, and a channel the run didn't
+reach serves the old release. The Packages workflow therefore runs without a tag as a dry
+run. That run builds everything a release builds, with GoReleaser's `--snapshot` and
+throwaway signing keys, and publishes nothing. It reads no secret, so a pull request from
+a fork runs it too. The two Actions that can't run without publishing,
+`actions/deploy-pages` and `peter-evans/dockerhub-description`, wait for the maintainer,
+named in `renovate.json`.
+
+The dry run also replaces the gate's former package-repository step, so the repository
+check has one CI implementation. A pull request changing what that step watched, Go code
+included, now runs the slower multi-platform dry run. The maintainer accepts that cost.
+
+Renovate merges through GitHub's auto-merge, which waits only for required checks. A
+reusable workflow's checks are named after its jobs when it runs, and after the calling
+job when it is skipped, so no dry-run check reports on every pull request. The `gate` job
+in `test.yml` runs on every pull request and passes once the tests and the dry run have.
+Branch protection on `main` requires it alone. Not making the merge wait on every check
+(Renovate's `platformAutomerge: false`) keeps the vulnerabilities job from blocking a
+merge, as the decision on known vulnerabilities requires.
+
+Valid while Renovate merges through GitHub's auto-merge, and GitHub names a reusable
+workflow's checks by its jobs.

@@ -42,7 +42,7 @@
   ],
   "packageRules": [
     {
-      "description": "An update merges itself once the checks pass, and CI releases one to Go, a module go.mod requires or GoReleaser as a patch of the last release",
+      "description": "An update merges itself once the check gate passes, and CI releases one to Go, a module go.mod requires or GoReleaser as a patch of the last release",
       "matchPackageNames": [
         "*"
       ],
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "description": "A GoReleaser major waits for the maintainer: it may rename the release assets or move the build path the Packages workflow checks, and the gate checks neither",
+      "description": "A GoReleaser major waits for the maintainer: it may rename the release assets, which the gate doesn't check",
       "matchPackageNames": [
         "goreleaser/goreleaser"
       ],

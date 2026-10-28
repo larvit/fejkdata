@@ -117,6 +117,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 - A `slugify` transform makes emails from compound names valid, and the shipped data keeps the compounds
 - `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
+- A pull request that changes what a release packages, or a workflow, runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 
 # Scoring run
 
