@@ -6,13 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 352`
+`Next ID = 353`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 349 | 0.2.0 |  | question | **Decide where `file_vulnerabilities.py` plans a vulnerability that only a newer Go minor fixes, now that CI releases a Go minor as a patch, and record why in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 2 | 2.2 |
+| 352 | 0.2.0 |  | owner | **Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.** | 3 | 2 | 2 | 5 | 3 | code health by 3 | 8.6 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
 | 351 | 0.3.0 |  | question | **Name in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge" each line its escape hatch edits, so dropping the scan from the release job releases instead of skipping the job.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 2.2 |
@@ -242,6 +243,18 @@
 ### 349. Decide where `file_vulnerabilities.py` plans a vulnerability that only a newer Go minor fixes, now that CI releases a Go minor as a patch, and record why in the decision "A known vulnerability in the Go version or a required module blocks a release, even in code fejkdata never calls, and blocks no merge".
 
 `vulnerability-filing/file_vulnerabilities.py` `needs_minor` and `release_for` plan such a vulnerability under the next planned release, not under the patch after the last release. The rule dates from when a Go minor waited for the maintainer. Now Renovate merges a Go minor and `release-tooling/patch_release.py cut` releases it as a patch, so the fix ships in a patch unless that patch waits: the patched tree fails `docker build .`, or the Go minor's release notes hold a sentence the script can't read. The rule's reason is recorded nowhere: not in the filer, the decision or the README's Development section. The architecture review of item 336 asked whether it still holds. If it does, record why there; if not, plan such a fix under the patch like any other.
+
+### 352. Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.
+
+Today a pull request's run takes a median 4.7 minutes, at most 6.6, and a push to main 5.9. In the week to 2026-10-28, the worker waited 2.9 hours on CI and 2 hours on local tests. Most of a run is `docker build .` building every stage from scratch: it downloads the modules and runs `go test -race ./...` twice, on the latest and on the lowest Go.
+
+Ways to get there, to measure before choosing:
+
+- Keep BuildKit's layer cache between CI runs, such as with `docker/build-push-action` and `cache-from: type=gha`.
+- Keep Go's build and module caches in cache mounts (`RUN --mount=type=cache`), so a changed file rebuilds only its packages.
+- Find the stage that takes longest, and shorten that one first.
+
+The comprehension seats found `Dockerfile:26` `vulnerability-filing` and `.github/workflows/test.yml:35` `Relevant changes` hard to read. Where the change touches either, make it easier to read.
 
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
