@@ -199,7 +199,7 @@ func TestSwedishOrganisationsnummer(t *testing.T) {
 func TestSwedishCompanyLegalFormsFollowBolagsverketsRegistrations(t *testing.T) {
 	t.Parallel()
 	sv := shipped(t, WithSeed(1))
-	const draws = 400000
+	const draws = shareDraws
 	form := map[string]int{}
 	for i := 0; i < draws; i++ {
 		v := strings.ToLower(fake(t, sv, "sv_SE.company"))
@@ -242,7 +242,7 @@ func TestSwedishCompanyWordingsAndShapesFollowTheRegister(t *testing.T) {
 	}
 	oneWord := map[string][2]int{"AB": {144879, 552375}, "E": {34479, 134451}, "HB": {5046, 15696}, "BRF": {8409, 22408}, "EK": {1251, 6563}, "KB": {1754, 6611}}
 	sv := shipped(t, WithSeed(2))
-	const draws = 400000
+	const draws = shareDraws
 	written, form, single := map[string]int{}, map[string]int{}, map[string]int{}
 	for i := 0; i < draws; i++ {
 		v := fake(t, sv, "sv_SE.company")

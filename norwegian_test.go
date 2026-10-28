@@ -320,7 +320,7 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 	t.Parallel()
 	f := shipped(t, WithSeed(6))
 	registered := map[string]int{"ENK": 465166, "AS": 423370, "DA": 9105, "SA": 6761, "ANS": 6214, "ASA": 205, "KS": 105}
-	const draws = 400000
+	const draws = shareDraws
 	var total int
 	for _, units := range registered {
 		total += units
