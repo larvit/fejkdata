@@ -57,6 +57,8 @@ jobs:
           persist-credentials: false
       - uses: docker/setup-buildx-action@v4
         id: buildx
+        with:
+          cleanup: false
       # Only a push to main saves the caches, and a pull request starts from main's.
       - name: Go's build and module caches, kept by main's runs
         if: github.event_name == 'push'
