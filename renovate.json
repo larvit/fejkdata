@@ -61,6 +61,17 @@
       "automerge": false
     },
     {
+      "description": "An Action whose save path only a push to main runs waits for the maintainer, since a broken one would fail the gate main releases on",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "actions/cache",
+        "reproducible-containers/buildkit-cache-dance"
+      ],
+      "automerge": false
+    },
+    {
       "description": "A runner update waits for the maintainer, since jobs no pull request runs, such as the release, run on the runner",
       "matchDatasources": [
         "github-runners"

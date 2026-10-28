@@ -251,7 +251,7 @@ Ways to get there, to measure before choosing:
 - Run the latest Go's race tests on a runner of their own, and the rest of the build on another.
 - Draw fewer values under the race detector in the tests that check a share over 400,000 draws, and keep their full count without it.
 
-The comprehension seats found `Dockerfile:26` `vulnerability-filing` hard to read. Where the change touches it, make it easier to read.
+The comprehension seats found `Dockerfile:39` `vulnerability-filing` hard to read. Where the change touches it, make it easier to read.
 
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
