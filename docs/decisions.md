@@ -1235,16 +1235,15 @@ Otherwise a broken Action major first fails in a release run, after the tag is p
 and a channel the run didn't reach serves the old release. The Packages workflow therefore
 runs without a tag as a dry run. That run builds everything a release builds, with
 GoReleaser's `--snapshot` and throwaway signing keys, and doesn't publish anything. It
-runs every Action a release runs save `actions/deploy-pages`, and `docker/login-action`
-logs in to GHCR with a read-only token. It doesn't read a repository secret, so a pull
-request from a fork runs it too.
+runs every Action a release runs save `actions/deploy-pages`. It doesn't read a
+repository secret, so a pull request from a fork runs it too.
 
-The dry run builds in a job of its own, `packages-dry-run`, whose token can only read, so an
-Action a pull request updates can't write to the repository or GHCR before the
-maintainer sees it. Its steps are the release job's, through a YAML anchor. `test.yml`
-still grants the dry run every permission a release takes: GitHub refuses a caller that
-grants a called job less than it requests, a skipped job too. Each job's token gets only
-what the job itself requests.
+`packages.yml` runs the dry run in a job of its own, `packages-dry-run`, whose token can
+only read, so an Action that a pull request updates can't write to the repository or to
+GHCR. Its steps are those of `packages.yml`'s `packages` job, through a YAML anchor. The
+job in `test.yml` that calls `packages.yml`, also named `packages-dry-run`, grants every
+permission a release takes. GitHub refuses a call that grants less than any called job
+requests, even a job the call skips. Each job's token gets only what that job requests.
 
 An update the dry run can't check waits for the maintainer: an Action that publishes, one
 whose output only such an Action reads, and a runner. `renovate.json` names each, and says
