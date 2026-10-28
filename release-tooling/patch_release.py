@@ -47,6 +47,7 @@ import publish_release
 
 TAG = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
 FILER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vulnerability-filing", "file_vulnerabilities.py")
+GORELEASER_YAML = "release-tooling/goreleaser.yaml"
 
 
 class Effects(NamedTuple):
@@ -170,14 +171,11 @@ def carry_workflows(root: str, tree: str) -> None:
 		raise ValueError(f"cannot carry main's .github/ into the release tree: {err}") from err
 
 
-def built_for(root: str, last: str) -> set[str]:
-	"""The targets main's goreleaser.yaml builds, which must be the release's: main's config packages the patch."""
-	path = "release-tooling/goreleaser.yaml"
-	targets = go_release_notes.systems(read(os.path.join(root, path)))
-	released = shown(root, last, path)
+def refuse_other_targets(root: str, last: str, targets: set[str]) -> None:
+	"""Refuses targets main's goreleaser.yaml builds that aren't the release's: main's config packages the patch."""
+	released = shown(root, last, GORELEASER_YAML)
 	if released and go_release_notes.systems(released) != targets:
-		raise ValueError(f"main's {path} builds for other targets than {last}; a patch waits for a release the maintainer cuts")
-	return targets
+		raise ValueError(f"main's {GORELEASER_YAML} builds for other targets than {last}; a patch waits for a release the maintainer cuts")
 
 
 def shown(root: str, tag: str, path: str) -> str:
@@ -215,8 +213,9 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 		else:
 			print(f"No patch due: main carries nothing a patch of {last} can take.")
 		return 0
-	targets = built_for(root, last)
+	targets = go_release_notes.systems(read(os.path.join(root, GORELEASER_YAML)))
 	breaking = go_release_notes.breaking_lines(released.go, patch.go, targets, effects.go_notes)
+	refuse_other_targets(root, last, targets)
 	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
 		fixed = patch_tree(tree, work, last, released, patch, effects.scan)
 		text = changelog.section(next_patch(last), date, breaking, changelog.changes(released, patch), last, fixed)
@@ -240,7 +239,7 @@ def plan(report: str, todo: str, changelog_path: str, last: str, notes: Callable
 
 def unreleased_breaking(last: str, notes: Callable[[str], str]) -> list[str]:
 	"""The Breaking lines of main's Go minors since the last release, for the release shipping them, a patch or one the maintainer cuts."""
-	built_for = go_release_notes.systems(read("release-tooling/goreleaser.yaml"))
+	built_for = go_release_notes.systems(read(GORELEASER_YAML))
 	old, new = carried.go_of(out("git", "show", f"{last}:Dockerfile")), carried.go_of(read("Dockerfile"))
 	try:
 		return go_release_notes.breaking_lines(old, new, built_for, notes)
