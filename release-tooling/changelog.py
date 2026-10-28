@@ -55,9 +55,9 @@ def unreleased(changelog: str) -> re.Match | None:
 
 
 def under_unreleased(changelog: str, heading: str) -> re.Match | None:
-	"""Unreleased's subsection under the heading, its bullets and the blank lines after them."""
+	"""Unreleased's subsection under the heading, with what it holds and the blank lines after them."""
 	section = unreleased(changelog)
-	subsection = re.compile(rf"^### {heading}\n(?P<bullets>.*?)(?=^### |\Z)", re.M | re.S)
+	subsection = re.compile(rf"^### {heading}\n(?P<held>.*?)(?=^### |\Z)", re.M | re.S)
 	return subsection.search(changelog, section.start("body"), section.end()) if section else None
 
 
@@ -69,18 +69,18 @@ def reconcile(main: str, released: str) -> str:
 	missing = [m[0] for m in releases(released) if m["name"] not in have]
 	for text in reversed(missing):
 		main = insert_section(main, text)
-	shipped = "".join(missing)
-	main = drop(main, "Security", lambda bullet: names_only(bullet, set(VULNERABILITY.findall(shipped))))
-	return drop(main, "Breaking", lambda bullet: bullet in shipped)
+	sections = "".join(missing)
+	main = drop(main, "Security", lambda bullet: names_only(bullet, set(VULNERABILITY.findall(sections))))
+	return drop(main, "Breaking", lambda bullet: bullet in sections)
 
 
 def drop(changelog: str, heading: str, shipped: Callable[[str], bool]) -> str:
-	"""The changelog without each shipped bullet under Unreleased's heading, nor the heading once it has no bullet left."""
+	"""The changelog without each shipped bullet under Unreleased's heading, nor the heading once nothing is left under it."""
 	found = under_unreleased(changelog, heading)
 	if found is None:
 		return changelog
-	bullets = BULLET.sub(lambda bullet: "" if shipped(bullet[0]) else bullet[0], found["bullets"])
-	kept = f"### {heading}\n" + bullets if BULLET.search(bullets) else ""
+	left = BULLET.sub(lambda bullet: "" if shipped(bullet[0]) else bullet[0], found["held"])
+	kept = f"### {heading}\n" + left if left.strip() else ""
 	return changelog[: found.start()] + kept + changelog[found.end() :]
 
 
@@ -94,8 +94,8 @@ def record(changelog: str, fixed: list[str], breaking: list[str]) -> str:
 	"""The changelog with each fixed line under Unreleased's Security, save one whose vulnerabilities a release section
 	names, and each Breaking line it lacks under Unreleased's Breaking, its first heading."""
 	released = set(VULNERABILITY.findall("".join(m[0] for m in releases(changelog))))
-	changelog = add(changelog, "Security", [line for line in fixed if not set(VULNERABILITY.findall(line)) <= released], False)
-	return add(changelog, "Breaking", [line for line in breaking if f"- {line}\n" not in changelog], True)
+	changelog = add(changelog, "Security", [line for line in fixed if not set(VULNERABILITY.findall(line)) <= released], first=False)
+	return add(changelog, "Breaking", [line for line in breaking if f"- {line}\n" not in changelog], first=True)
 
 
 def add(changelog: str, heading: str, lines: list[str], first: bool) -> str:
@@ -104,11 +104,21 @@ def add(changelog: str, heading: str, lines: list[str], first: bool) -> str:
 		return changelog
 	bullets = "".join(f"- {line}\n" for line in lines)
 	found = under_unreleased(changelog, heading)
-	if found:
-		inside = list(BULLET.finditer(changelog, found.start("bullets"), found.end()))
-		if inside:
-			return changelog[: inside[-1].end()] + bullets + changelog[inside[-1].end() :]
-		return changelog[: found.start("bullets")] + f"\n{bullets}\n" + changelog[found.end() :]
+	return join_subsection(changelog, found, bullets) if found else new_subsection(changelog, heading, bullets, first)
+
+
+def join_subsection(changelog: str, found: re.Match, bullets: str) -> str:
+	"""The changelog with the bullets after the subsection's last bullet, or after its text where it holds none."""
+	inside = list(BULLET.finditer(changelog, found.start("held"), found.end()))
+	if inside:
+		return changelog[: inside[-1].end()] + bullets + changelog[inside[-1].end() :]
+	text = found["held"].strip("\n")
+	return changelog[: found.start("held")] + "\n" + (text + "\n\n" if text else "") + bullets + "\n" + changelog[found.end() :]
+
+
+def new_subsection(changelog: str, heading: str, bullets: str, first: bool) -> str:
+	"""The changelog with the heading and its bullets as Unreleased's first or last subsection, under a new Unreleased where it
+	has none."""
 	section = unreleased(changelog)
 	if section is None:
 		return insert_section(changelog, f"## [Unreleased]\n\n### {heading}\n\n{bullets}\n")
