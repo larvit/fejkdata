@@ -1,7 +1,7 @@
 import carried
 
 COMPOSE = "x-go: &go\n  image: golang:${{GO_VERSION:-{}}}\n"
-DOCKERFILE = "ARG GO_VERSION={}\nFROM golang:${{GO_VERSION}} AS portable\n"
+DOCKERFILE = "ARG GO_VERSION={}\nFROM golang:${{GO_VERSION}} AS latest\n"
 GO_MOD = "module example.com/m\n\ngo {}\n\nrequire (\n\tgolang.org/x/text {}\n\texample.com/gone v1.0.0 // indirect\n)\n"
 GORELEASER = "builds:\n  - main: ./cmd/fejkdata\n    goos: [linux, darwin, windows]\n    goarch: [amd64, arm64]\n"
 MAIN = """# Changelog

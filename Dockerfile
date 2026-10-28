@@ -1,12 +1,14 @@
 ARG GO_VERSION=1.27.3
 ARG LOWEST_GO_VERSION=1.22.12
-FROM golang:${GO_VERSION} AS portable
+FROM golang:${GO_VERSION} AS latest
 ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
 WORKDIR /app
 COPY . .
 RUN --mount=type=cache,target=/cache \
 	go vet ./... && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
+	unformatted="$(gofmt -l .)" && { test -z "$unformatted" || \
+		{ echo "unformatted files:"; echo "$unformatted"; exit 1; }; } && \
 	go test -race ./... && touch /tested
 
 FROM golang:${LOWEST_GO_VERSION} AS lowest
@@ -47,16 +49,12 @@ WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
 RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git && goreleaser check --config goreleaser.yaml && touch /tested
 
-FROM golang:${GO_VERSION} AS without-race
-WORKDIR /app
+FROM scratch AS lowest-and-tooling
 # BuildKit skips a stage nothing copies from.
 COPY --from=lowest /tested /tmp/lowest-tested
 COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=packaging /tested /tmp/packaging-tested
-COPY . .
-RUN unformatted="$(gofmt -l .)"; test -z "$unformatted" || \
-	{ echo "unformatted files:"; echo "$unformatted"; exit 1; }
 
-FROM without-race
-COPY --from=portable /tested /tmp/portable-tested
+FROM lowest-and-tooling
+COPY --from=latest /tested /tmp/latest-tested

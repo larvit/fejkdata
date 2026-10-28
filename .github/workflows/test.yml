@@ -49,17 +49,13 @@ jobs:
           fi
 
   test:
-    name: ${{ matrix.name }}
+    name: docker build --target ${{ matrix.target }}
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-26.04
     strategy:
       matrix:
-        include:
-          - target: portable
-            name: The latest Go's vet, complexity check and race tests
-          - target: without-race
-            name: The lowest Go's tests, the format check and the tooling's tests
+        target: [latest, lowest-and-tooling]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -92,7 +88,7 @@ jobs:
 
   packages-dry-run:
     needs: changes
-    if: needs.changes.outputs.packaging == 'true'
+    if: github.event_name == 'pull_request' && needs.changes.outputs.packaging == 'true'
     permissions:
       contents: write
       packages: write

@@ -630,7 +630,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 			for i := 0; i < 2000; i++ {
 				got := fakeTemplate(t, f, `{/`+c.locale+`.address as a}`+c.template+`|{/`+c.locale+`.address.street}`)
 				parts := strings.Split(got, "|")
-				if !places.has(strings.Join(parts[:4], "|")) {
+				if !places.has(parts[0], parts[1], parts[2], parts[3]) {
 					t.Fatalf("%s.address: %q is no street, postal code, locality and region of one place", c.locale, got)
 				}
 				apart = apart || parts[0] != parts[4]
@@ -661,8 +661,8 @@ func TestShippedAddressStructTagsReadOneName(t *testing.T) {
 		if err := f.FakeStruct(&row); err != nil {
 			t.Fatal(err)
 		}
-		if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places.has(got) {
-			t.Fatalf("sv_SE.address: struct tags reading one name, %q, are no street, postal code and locality of one place", got)
+		if !places.has(row.Street, row.PostalCode, row.Locality, "") {
+			t.Fatalf("sv_SE.address: struct tags reading one name, %q, %q and %q, are no street, postal code and locality of one place", row.Street, row.PostalCode, row.Locality)
 		}
 	}
 }
@@ -752,8 +752,8 @@ func geoRows(t *testing.T, country, table string) [][]string {
 	return out
 }
 
-// geoPlaceSet holds a country's geo tables, to say whether a "street|postal-code|locality|region"
-// is one locality's, the region empty for NO and SE, whose addresses carry none.
+// geoPlaceSet holds a country's geo tables, to say whether a street, postal code, locality and region
+// are one locality's, the region empty for NO and SE, whose addresses carry none.
 type geoPlaceSet struct {
 	name, region map[string]string
 	localities   map[string][]string
@@ -785,13 +785,9 @@ func geoPlaces(t *testing.T, country string) geoPlaceSet {
 	return s
 }
 
-func (s geoPlaceSet) has(place string) bool {
-	parts := strings.Split(place, "|")
-	if len(parts) != 4 {
-		return false
-	}
-	for _, l := range s.localities[parts[1]] {
-		if s.name[l] == parts[2] && s.region[l] == parts[3] && s.streets[parts[0]+"\t"+l] {
+func (s geoPlaceSet) has(street, postalCode, locality, region string) bool {
+	for _, l := range s.localities[postalCode] {
+		if s.name[l] == locality && s.region[l] == region && s.streets[street+"\t"+l] {
 			return true
 		}
 	}
