@@ -1282,8 +1282,8 @@ key every entry on its inputs, so a restored cache replays only work whose input
 unchanged.
 
 A pull request never runs the save and the extraction, so Renovate leaves an update to
-`actions/cache` or `buildkit-cache-dance` to the maintainer: one that broke them would
-fail `gate` on `main`, and hold every release.
+`actions/cache`, `buildkit-cache-dance` or its `busybox` image to the maintainer: one
+that broke them would fail `gate` on `main`, and hold every release.
 
 With the caches warm, a pull request's run measured 2m28s on 2026-10-28, against 2m51s
 without them.

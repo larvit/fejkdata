@@ -1574,9 +1574,9 @@ Renovate merges an update itself once `gate` passes. These wait for a human:
   publish, so no pull request runs them;
 - one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
   artifact;
-- one to `actions/cache` or `reproducible-containers/buildkit-cache-dance`, since only a
-  push to `main` runs their save step, and a broken one fails `gate` there and holds every
-  release;
+- one to `actions/cache`, `reproducible-containers/buildkit-cache-dance` or the `busybox`
+  image it copies with, since only a push to `main` runs their save step, and a broken one
+  fails `gate` there and holds every release;
 - a runner update, since jobs no pull request runs, such as the release job, run on the
   runner;
 - a GoReleaser major, since it may rename the release assets, which the gate doesn't
