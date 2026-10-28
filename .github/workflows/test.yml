@@ -49,10 +49,17 @@ jobs:
           fi
 
   test:
-    name: vet + fmt + tests
+    name: ${{ matrix.name }}
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-26.04
+    strategy:
+      matrix:
+        include:
+          - target: portable
+            name: The latest Go's vet, complexity check and race tests
+          - target: without-race
+            name: The lowest Go's tests, the format check and the tooling's tests
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,8 +73,8 @@ jobs:
         uses: actions/cache@v6
         with: &go-caches
           path: ${{ runner.temp }}/go-caches
-          key: go-caches-${{ github.sha }}
-          restore-keys: go-caches-
+          key: go-caches-${{ matrix.target }}-${{ github.sha }}
+          restore-keys: go-caches-${{ matrix.target }}-
       - name: Go's build and module caches from main's last run
         if: github.event_name != 'push'
         uses: actions/cache/restore@v6
@@ -80,12 +87,12 @@ jobs:
           skip-extraction: ${{ github.event_name != 'push' }}
           scratch-dir: ${{ runner.temp }}/buildkit-cache-dance
           utility-image: busybox:1.38.0
-      - name: Latest and lowest supported Go
-        run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' .
+      - name: The Dockerfile's ${{ matrix.target }} stage
+        run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' --target '${{ matrix.target }}' .
 
   packages-dry-run:
     needs: changes
-    if: github.event_name == 'pull_request' && needs.changes.outputs.packaging == 'true'
+    if: needs.changes.outputs.packaging == 'true'
     permissions:
       contents: write
       packages: write
