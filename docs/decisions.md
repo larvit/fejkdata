@@ -1263,5 +1263,6 @@ requires it alone. Renovate's `platformAutomerge: false` would make a merge wait
 check, the vulnerabilities job included, which the decision on known vulnerabilities
 forbids.
 
-Valid while Renovate merges through GitHub's auto-merge, and GitHub names a reusable
-workflow's checks by its jobs.
+Valid while Renovate merges through GitHub's auto-merge, GitHub names a reusable
+workflow's checks by its jobs, and every job in `packages.yml` that requests a write
+permission runs only with a tag.
