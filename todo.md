@@ -242,15 +242,14 @@
 
 ### 352. Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.
 
-Today a pull request's run takes a median 4.7 minutes, at most 6.6, and a push to main 5.9. In the week to 2026-10-28, the worker waited 2.9 hours on CI and 2 hours on local tests. Most of a run is `docker build .` building every stage from scratch: it downloads the modules and runs `go test -race ./...` twice, on the latest and on the lowest Go.
+Today a pull request's run takes 2m28s, and a cold local `docker build .` 82s. Of the run, the build takes about 1m50s: 25s pulling base images, then the latest Go's stage, which is nearly all the root package's race tests, about 80s. Go's build and module caches already carry over from `main`'s runs, and the lowest Go's tests already run without the race detector. Running the slowest tests in parallel halves them locally, but not on the runner's four CPUs, where the race detector keeps them CPU-bound.
 
 Ways to get there, to measure before choosing:
 
-- Keep BuildKit's layer cache between CI runs, such as with `docker/build-push-action` and `cache-from: type=gha`.
-- Keep Go's build and module caches in cache mounts (`RUN --mount=type=cache`), so a changed file rebuilds only its packages.
-- Find the stage that takes longest, and shorten that one first.
+- Run the latest Go's race tests on a runner of their own, and the rest of the build on another.
+- Draw fewer values under the race detector in the tests that check a share over 400,000 draws, and keep their full count without it.
 
-The comprehension seats found `Dockerfile:26` `vulnerability-filing` and `.github/workflows/test.yml:35` `Relevant changes` hard to read. Where the change touches either, make it easier to read.
+The comprehension seats found `Dockerfile:26` `vulnerability-filing` hard to read. Where the change touches it, make it easier to read.
 
 ### 169. Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.
 
