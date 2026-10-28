@@ -1045,9 +1045,10 @@ but branch protection does not require. So a vulnerability published in Go, or a
 of vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. On `main`,
 each module's new vulnerabilities are filed as one `security` item in `todo.md`, under the
 patch after the last release, even where only a newer Go minor fixes them: CI releases a Go
-minor as a patch, so the fix doesn't wait for a minor the maintainer cuts. The maintainer
-chose so on 2026-10-28, since the rule that planned such a fix under the next minor dated
-from when a Go minor waited for them. An item whose vulnerabilities
+minor as a patch, so the fix ships in the next patch CI cuts, unless that patch waits for the
+maintainer for a reason the next decision lists. The maintainer chose so on 2026-10-28,
+since the rule that planned such a fix under the next minor dated from when a Go minor
+waited for them. An item whose vulnerabilities
 are gone moves to `CHANGELOG.md` once the report is clean, so the changelog says what was
 fixed. When the report comes back clean before CI cuts the patch that fixes those
 vulnerabilities, as after a failed release job, the item's line leaves Unreleased once that

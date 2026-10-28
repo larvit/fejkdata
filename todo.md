@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 353`
+`Next ID = 355`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 353 | 0.2.0 |  | security | **Run the Packages dry run with read-only tokens, so an Action a pull request updates gets no write access to the repository, GHCR or Pages before it merges.** | 3 | 2 | 2 | 5 | 3 | 1.1 by 3 | 2.0 |
 | 352 | 0.2.0 |  | owner | **Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.** | 3 | 2 | 2 | 5 | 3 | code health by 3 | 8.6 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
@@ -30,6 +31,7 @@
 | 251 | 0.3.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 11.4 |
 | 108 | 0.3.0 |  | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 3.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 174 | 0.3.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 9.1 |
+| 354 | 0.3.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by handing it the date `patch_release.main` reads.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 9.1 |
 | 167 | 0.3.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 8.6 |
 | 195 | 0.3.0 |  | principle | **Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.** | 2 | 1 | 2 | 3 | 3 | code health by 3 | 8.6 |
 | 343 | 0.3.0 |  | defect | **Split the README's Data section, about 225 lines under one heading, into sub-headings, one per feature, so each feature has its own heading (goal 11.1).** | 2 | 2 | 1 | 3 | 3 | 11.1 by 3 | 8.6 |
@@ -239,6 +241,10 @@
 
 ## Details
 
+### 353. Run the Packages dry run with read-only tokens, so an Action a pull request updates gets no write access to the repository, GHCR or Pages before it merges.
+
+`.github/workflows/test.yml` `packages-dry-run` grants `contents: write`, `packages: write`, `pages: write` and `id-token: write`, since a reusable workflow's caller must grant every permission its jobs request, and `packages.yml`'s `packages` job requests `contents: write` and `packages: write` for a release. A pull request from a branch of this repository, as Renovate opens one, gets a token with those rights. Every Action the dry run runs can read it, through `github.token`, though no dry-run step needs more than `contents: read` and, for the GHCR login, `packages: read`. So an Action version that a Renovate pull request brings in could push a branch or tag, cut a GitHub release, or push to GHCR before the gate passes and the maintainer sees it. A fork's pull request gets a read-only token and is not exposed. Job permissions take no expression, so the fix splits the jobs that write, or gives the dry run jobs of its own. Found by the principles pass of PR #267.
+
 ### 352. Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.
 
 Today a pull request's run takes a median 4.7 minutes, at most 6.6, and a push to main 5.9. In the week to 2026-10-28, the worker waited 2.9 hours on CI and 2 hours on local tests. Most of a run is `docker build .` building every stage from scratch: it downloads the modules and runs `go test -race ./...` twice, on the latest and on the lowest Go.
@@ -333,6 +339,10 @@ Item 26 revises the decision, but the decision does not point back to it.
 ### 174. Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.
 
 `compileStep` copies one into the other (`path.go`). Two seats of the 2026-10-09 panel named it.
+
+### 354. Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by handing it the date `patch_release.main` reads.
+
+`release-tooling/patch_release_test.py` `test_main_hands_the_cut_tag_to_the_workflow` reads the wall clock after `patch_release.main` read it at `patch_release.py:270`, and asserts the changelog's date equals its own. A gate run that crosses UTC midnight between the two reads fails. Applies the technical principles' test bullet: a test is deterministic. Found by the principles pass of PR #267.
 
 ### 167. Lower the reading cost of the files a chunk reads most before its first commit.
 
