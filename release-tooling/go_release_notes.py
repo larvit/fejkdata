@@ -1,7 +1,7 @@
 """The requirements a Go minor's release notes set on the systems the binaries are built for."""
 
+import http.client
 import re
-import urllib.error
 import urllib.request
 from typing import Callable
 
@@ -67,7 +67,7 @@ def breaking_lines(old: tuple[int, int, int], new: tuple[int, int, int], built_f
 
 def fetch(minor: str) -> str:
 	try:
-		with urllib.request.urlopen(URL.format(minor)) as resp:
+		with urllib.request.urlopen(URL.format(minor), timeout=60) as resp:
 			return resp.read().decode()
-	except urllib.error.URLError as err:
+	except (OSError, http.client.HTTPException) as err:
 		raise ValueError(f"cannot read Go {minor}'s release notes: {err}") from err
