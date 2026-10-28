@@ -99,12 +99,8 @@ class Reconcile(unittest.TestCase):
 			MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n\n### Added").replace("## [0.1.0]", patch + "## [0.1.0]"),
 		)
 
-	def test_a_breaking_section_of_prose_is_left(self):
-		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
-		self.assertEqual(changelog.reconcile(main, RELEASED), main)
-
-	def test_a_breaking_section_nothing_leaves_keeps_its_blank_lines(self):
-		main = MAIN.replace("### Added", "### Breaking\n\n```\na\n\n\nb\n```\n\n### Added")
+	def test_a_breaking_section_of_prose_nothing_leaves_is_left_with_its_blank_lines(self):
+		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone:\n\n```\na\n\n\nb\n```\n\n### Added")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
 
 	def test_a_line_reconciled_from_atop_prose_leaves_one_blank_line(self):
