@@ -896,3 +896,45 @@ Inherited architect, decided by:
 - Shape: `.github/workflows/test.yml:35` `changed()`: two copied if/else blocks become two one-line outputs, and the `gate` job says why it runs on `always()`
 - Locality: `.github/workflows/packages.yml:29` the `inputs.tag` branches: two modes and a dozen expressions switching on the tag, some inverted, make a reader hold both at every step; balanced by the package-repos build now having one caller
 - Self-sufficiency: `Dockerfile:37` stage `release-tooling`: copies three files with no word why, which only `carried_test.py:15` explains; balanced by the new comments in packages.yml
+
+## 2026-10-28T17:27:59Z, PR #269 at 5582bce, against 70ac017
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | same | better | same | better |
+| Inherited architect | better | worse | better | same | same |
+| Maintainability senior | better | same | better | better | better |
+| Junior A | better | same | better | same | better |
+
+Mid A, decided by:
+
+- Navigation: `README.md:1486` "Development": names the `packaging` line of the `changes` step as the one list of files that trigger a dry run, where 70ac017 restated it in prose that could drift
+- Navigation, Shape: `.github/workflows/test.yml:15` `changes`: change detection and the changelog check sit in a job named for them, and `test` only builds, where 70ac017 hid both inside `test`
+- Shape: `.github/workflows/packages.yml:133` `dockerhub`: no per-step `if: inputs.tag` and no login step that explains a CI quirk; the dry run's limits come from its own read-only job
+- Shape: `vulnerability-filing/file_vulnerabilities.py:115` `release_for`: `needs_minor` and its special case are gone, so it takes two inputs and holds one rule
+
+Inherited architect, decided by:
+
+- Locality: `.github/workflows/packages.yml:163` `repos` and `.github/workflows/packages.yml:204` `pages`: exactly one of `packages` and `packages-dry-run` always skips, so `repos` needs `!cancelled() && !failure()` and `pages` must repeat `needs.repos.result == 'success'`, with no word why; the next job below `repos` without `!cancelled()` skips silently on every release
+- Locality: `.github/workflows/packages.yml:42` `packages`: the dry-run job's steps are an anchor back here, so each job carries the other mode's `inputs.tag` branches and a step edit for one mode changes both
+- Locality, Shape: `.github/workflows/packages.yml:133` `dockerhub`: every per-step `if: inputs.tag` is gone, so the job reads straight through as release-only
+- Navigation, Locality: `.github/workflows/test.yml:15` `changes` and `.github/workflows/test.yml:133` `release`: change detection is a named job, and `release` reads `needs.gate.result`, so whether main passed is decided in one place
+- Navigation: `README.md:1486` "Development": points to the one list of packaging files instead of a hand-written copy
+- Shape: `vulnerability-filing/file_vulnerabilities.py:115` `release_for`: the `needs_minor` property and the `module` parameter are gone
+
+Maintainability senior, decided by:
+
+- Navigation, Shape: `.github/workflows/test.yml:15` `changes`: change detection and the changelog check sit in a job of their own, `test` only builds, and the gate's step names each job's result, so a red gate leads to the failing job
+- Navigation, Self-sufficiency: `README.md:1486` "Development": names the `packaging` line of the `changes` step instead of a hand-kept list that had already left out `go.mod` and `go.sum`
+- Shape, Locality: `vulnerability-filing/file_vulnerabilities.py:115` `release_for`: `needs_minor` and the third parameter are gone, so the release choice is one rule, worded as the file's docstring words it
+- Self-sufficiency: `renovate.json:74` the cache Actions' packageRule: says at the rule why a cache update waits for the maintainer
+- Locality: `.github/workflows/packages.yml:42` `packages`: the steps anchored into the dry run keep `if: inputs.tag` guards that are dead in this job, and `repos` at `:163` needs `!cancelled() && !failure()`, offset by `dockerhub`'s dropped per-step guards
+
+Junior A, decided by:
+
+- Navigation, Shape: `.github/workflows/test.yml:15` `changes`: a job named for detecting changes, which `test` and `packages-dry-run` both read
+- Navigation: `README.md:1486` "Development": points to the one list of packaging files
+- Shape: `vulnerability-filing/file_vulnerabilities.py:115` `release_for`: one rule, two inputs
+- Locality: `.github/workflows/packages.yml:42` `packages`: the anchor shares steps across both modes, which helps and costs about equally
