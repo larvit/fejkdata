@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 355`
+`Next ID = 357`
 
 ## Items
 
@@ -77,6 +77,7 @@
 | 27 | 0.3.0 |  |  | **Merge `en_US.ip` and `sv_SE.ip`, today byte-identical, into one `misc.ip`.** | 2 | 1 | 2 | 3 | 2 | 2 by 1 | 0.9 |
 | 15 | 0.3.0 | 27 |  | **Add `misc.ip`'s documentation, private and CIDR forms, `misc.ipv6` in `2001:db8::/32`, and a locally administered `misc.mac`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3.3 by 4, 2 by 1 | 4.9 |
 | 22 | 0.3.0 |  |  | **Give `url` and `email` a path that draws only domains nobody can register, keeping the wide set as the default.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 3.3 by 6 | 4.8 |
+| 355 | 0.3.0 |  |  | **Run `docker build .` and the Packages dry run on a release commit, and package every release the release job publishes.** | 3 | 2 | 2 | 5 | 2 | 1.1 by 5 | 4.5 |
 | 88 | 0.3.0 |  |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 1 | 1 | 2 | 2 | 3 | 1 by 1, 2.1 by 3, 3 by 3 | 4.4 |
 | 239 | 0.3.0 |  |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 4.4 |
 | 250 | 0.3.0 |  |  | **Add `en_US.month` and `en_US.weekday` names from CLDR, and `en_US.holiday`, the federal holidays.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 4.4 |
@@ -167,6 +168,7 @@
 | 51 | 0.3.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.4 |
 | 115 | 0.3.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.4 |
 | 259 | 0.3.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 2.3 |
+| 356 | 0.3.0 |  |  | **Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 2.2 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 2.1 |
 | 267 | 0.3.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 2.1 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 2.1 |
@@ -494,6 +496,15 @@ Templates, from RFC 5737, RFC 1918 and RFC 9637, which are facts.
 
 17 of the 40 distinct ones shipped today sit on `.se`, `.nu`, `.io` and `.co`, which anyone may register, and only RFC 2606's `example.com`, `.net`, `.org`, `.test`, `.example`, `.invalid` and `.localhost` provably reach nothing.
 
+### 355. Run `docker build .` and the Packages dry run on a release commit, and package every release the release job publishes.
+
+The 0.2.0 commit changed only `CHANGELOG.md`, so the `changes` job skipped the `docker build` jobs and the dry run. The release job still tagged and published v0.2.0, but `packages` was skipped: its `if` has no status function, so GitHub adds `success()`, which fails when any job upstream was skipped. The maintainer ran the Packages workflow by hand. A patch CI cuts on the daily run, which skips the gate, would be skipped the same way.
+
+Two changes:
+
+- `packages`' `if` states its own status check, such as `!cancelled() && needs.release.result == 'success' && needs.release.outputs.tag != ''`.
+- The `changes` job counts a change to `CHANGELOG.md`'s top heading from `[Unreleased]` to a version as a code and packaging change, so the release commit builds through `docker build .` and runs the dry run before it is tagged. Adding `CHANGELOG.md` to the `code` and `packaging` lists would do the same, but it would also run the full build on every changelog fix-up and the dry run on every data pull request, against item 352's two-minute pull request.
+
 ### 88. Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.
 
 A system that stores the 12-digit form never meets the `+`, so it needs a fixture in that form.
@@ -763,6 +774,10 @@ Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.ts
 ### 259. Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
+
+### 356. Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.
+
+Renovate's pull request #257 fails `docker build --target lowest-and-tooling`: `goreleaser check` says the config "uses deprecated properties". Once the fix and the update merge, CI cuts a patch of 0.2.0 for the new GoReleaser.
 
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
