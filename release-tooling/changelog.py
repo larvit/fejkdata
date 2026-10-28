@@ -79,7 +79,7 @@ def drop(changelog: str, heading: str, shipped: Callable[[str], bool]) -> str:
 	found = under_unreleased(changelog, heading)
 	if found is None:
 		return changelog
-	left = BULLET.sub(lambda bullet: "" if shipped(bullet[0]) else bullet[0], found["held"])
+	left = re.sub(r"\n{3,}", "\n\n", BULLET.sub(lambda bullet: "" if shipped(bullet[0]) else bullet[0], found["held"]))
 	kept = f"### {heading}\n" + left if left.strip() else ""
 	return changelog[: found.start()] + kept + changelog[found.end() :]
 
