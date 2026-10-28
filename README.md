@@ -1560,8 +1560,10 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges an update itself once every check passes, save one to a GitHub Action,
-which waits for a human since it also runs in jobs no pull request runs. An update to a
+Renovate merges an update itself once every check passes, save two, which wait for a
+human: one to a GitHub Action, since it also runs in jobs no pull request runs, and a
+GoReleaser major, since it may rename the release assets or move the build path the
+Packages workflow checks, which the gate checks neither of. An update to a
 tool, such as Python or `govulncheck`, releases nothing. An update to what a release
 carries is released: Go, a Go minor included, a module `go.mod` requires, or GoReleaser.
 When `main` carries a newer one than the last release, CI cuts a patch of that release.
