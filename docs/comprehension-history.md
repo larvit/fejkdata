@@ -844,3 +844,29 @@ Ruling: same
 |---|---|---|---|---|---|
 | Mid A | same | same | same | same | same |
 | Inherited architect | same | same | same | same | same |
+
+## 2026-10-28T10:30:06Z, PR #263 at ff9c22d, against dcdb6c1
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | same | same | better |
+| Inherited architect | better | better | same | same | better |
+
+Mid A, decided by:
+
+- Navigation, Overall: `release-tooling/changelog.py:1` module docstrings of `carried.py`, `changelog.py` and `go_release_notes.py`: at dcdb6c1 one `patch_release.py` held version parsing, changelog editing, git and docker; now each concern has a file whose first line says what it owns, so a wrong changelog section or a missing Breaking line leads to one file
+- Locality, Overall: `release-tooling/patch_release.py:203` `cut`, with `Effects` at :53: takes the checkout as `root` and its effects as one named tuple, where at dcdb6c1 it took four unnamed callables and leaned on the working directory in `scan` and `carry_workflows`; the `worktree` context manager also removes the temporary checkout
+- Locality: `Dockerfile:15` stage `lowest`: the lowest Go is an ARG checked against go.mod's `go` line, where at dcdb6c1 `1.22.12` sat in test.yml with nothing tying it to go.mod
+- Locality: `release-tooling/patch_release.py:240` `unreleased_breaking`: `plan` still reads `Dockerfile` and goreleaser.yaml relative to the working directory while `cut` takes `root`, and `go_release_notes.systems` reads only the one-line `goos: [...]` form; partly offsets the gains above
+
+Inherited architect, decided by:
+
+- Locality: `release-tooling/patch_release.py:203` `cut`, with `Effects` at :53: the checkout is passed in as `root`, the effects tests replace are named fields, and the `worktree` context manager removes the release worktree; at dcdb6c1 `cut` took unnamed positional callables, leaned on the current directory and left its worktree behind
+- Locality: `release-tooling/patch_release.py:152` `patch_tree`: raises a `ValueError` naming what it found, where dcdb6c1's `STILL_VULNERABLE` sentinel equal to `None` had every caller test it with `is`
+- Navigation: `release-tooling/changelog.py:64` `reconcile`, beside `carried.py` and `go_release_notes.py`: a wrong changelog section, no patch cut, or a missing Breaking line each points to one file, where at dcdb6c1 all sat in one flat `patch_release.py`
+- Locality: `Dockerfile:15` stage `lowest`: the lowest Go is an ARG checked against go.mod, where at dcdb6c1 it was a literal in test.yml nothing checked
+- Locality: `release-tooling/patch_release.py:231` `plan` and :240 `unreleased_breaking`: the first place to rot; `cut` takes `root`, but `plan` reads files relative to the current directory and runs `git show` with no `cwd`, two conventions in one module
+- Locality: `release-tooling/changelog.py:95` `record` and :74 in `reconcile`, with `go_release_notes.py:65` `breaking_lines`: deduplication and reconciliation match the exact text `breaking_lines` produces, so rewording it in one file quietly breaks the other; a new coupling
+- Navigation: `release-tooling/carried.py:8` `GORELEASER`: the regex reading packages.yml's GoReleaser version copies `renovate.json`'s `matchStrings`, so a change to that step has to know both
