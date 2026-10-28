@@ -1257,7 +1257,8 @@ Renovate merges through GitHub's auto-merge, which waits only for required check
 reusable workflow's checks take its jobs' names when it runs, and the calling job's name
 when it is skipped. So no one dry-run check appears on every pull request, and none can be
 required. The `gate` job in `test.yml` runs on every pull request and passes once the
-tests have passed and the dry run has passed or been skipped. Branch protection on `main`
+changelog check has passed, and the tests and the dry run have each passed or been
+skipped. Branch protection on `main`
 requires it alone. Renovate's `platformAutomerge: false` would make a merge wait for every
 check, the vulnerabilities job included, which the decision on known vulnerabilities
 forbids.

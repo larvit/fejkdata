@@ -12,18 +12,19 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: vet + fmt + tests
+  changes:
+    name: Relevant changes, and the changelog entry for data changes
     if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     outputs:
+      code: ${{ steps.changes.outputs.code }}
       packaging: ${{ steps.changes.outputs.packaging }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Relevant changes
+      - name: Whether the files the build reads, and the files a release packages, changed
         id: changes
         run: |
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
@@ -32,28 +33,36 @@ jobs:
             git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
             base="origin/${GITHUB_BASE_REF:-main}"
           fi
+          echo "base=$base" >> "$GITHUB_ENV"
           changed() { git diff --quiet "$base"...HEAD -- "$@" && echo false || echo true; }
           {
             echo "code=$(changed '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling renovate.json testdata vulnerability-filing README.md todo.md)"
             echo "packaging=$(changed '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows)"
-            echo "base=$base"
           } >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
         run: |
-          base='${{ steps.changes.outputs.base }}'
           if ! git diff --quiet "$base"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
             echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
           fi
+
+  test:
+    name: vet + fmt + tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       # `docker build` streams the context to the daemon. A compose bind-mount of
       # `.` mounts an empty host dir instead, because the job is itself a container.
       - name: Latest and lowest supported Go
-        if: ${{ steps.changes.outputs.code == 'true' }}
         run: docker build .
 
   packages-dry-run:
-    needs: test
-    if: github.event_name == 'pull_request' && needs.test.outputs.packaging == 'true'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.packaging == 'true'
     permissions:
       contents: write
       packages: write
@@ -64,17 +73,18 @@ jobs:
   # main's one required check. A skipped required check counts as passed, so the gate runs even after a failure.
   gate:
     name: gate
-    needs: [test, packages-dry-run]
+    needs: [changes, test, packages-dry-run]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-26.04
     steps:
-      - name: The tests passed, and the Packages dry run passed or had nothing to build
+      - name: The changelog check passed, and the tests and the Packages dry run passed or had nothing to check
         env:
+          CHANGES: ${{ needs.changes.result }}
           TESTS: ${{ needs.test.result }}
           DRY_RUN: ${{ needs.packages-dry-run.result }}
         run: |
-          echo "tests: $TESTS, Packages dry run: $DRY_RUN"
-          [ "$TESTS" = success ] && { [ "$DRY_RUN" = success ] || [ "$DRY_RUN" = skipped ]; }
+          echo "changelog check: $CHANGES, tests: $TESTS, Packages dry run: $DRY_RUN"
+          [ "$CHANGES" = success ] && { [ "$TESTS" = success ] || [ "$TESTS" = skipped ]; } && { [ "$DRY_RUN" = success ] || [ "$DRY_RUN" = skipped ]; }
 
   vulnerabilities:
     name: Known vulnerabilities in this Go version and the required modules
@@ -99,9 +109,9 @@ jobs:
 
   release:
     name: Release from CHANGELOG.md, or a patch of the last release for what main carries
-    needs: [test, vulnerabilities]
-    # The daily run skips the test job: a skipped test job doesn't stop a release, a failed one does.
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
+    needs: [changes, test, vulnerabilities]
+    # The daily run skips the changes and test jobs: a skipped job doesn't stop a release, a failed one does.
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.changes.result != 'failure' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     concurrency:
