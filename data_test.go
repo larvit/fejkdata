@@ -613,8 +613,8 @@ func TestShippedSwedishAddress(t *testing.T) {
 }
 
 // TestShippedAddressIsOneNamedPick pins that an address's street, postal code,
-// locality and region are one place in the geo tables, read through a name in a template or
-// across a struct's tags, and that a reference beside the name is another address.
+// locality and region are one place in the geo tables, read through a name in a template,
+// and that a reference beside the name is another address.
 func TestShippedAddressIsOneNamedPick(t *testing.T) {
 	t.Parallel()
 	for _, c := range []struct{ locale, country, template, largest string }{
@@ -639,27 +639,31 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 			if !apart {
 				t.Errorf("%s: a reference beside a name drew the name's street in 2000 renders, want two addresses", c.locale)
 			}
-			if c.country == "SE" {
-				var row struct {
-					Street     string `fake:"{/sv_SE.address as a}{a.street}"`
-					PostalCode string `fake:"{a.postal-code}"`
-					Locality   string `fake:"{a.locality}"`
-				}
-				for i := 0; i < 200; i++ {
-					if err := f.FakeStruct(&row); err != nil {
-						t.Fatal(err)
-					}
-					if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places[got] {
-						t.Fatalf("sv_SE.address: struct tags reading one name, %q, are no street, postal code and locality of one place", got)
-					}
-				}
-			}
 			for l, n := range localities {
 				if n > localities[c.largest] {
 					t.Errorf("%s.address drew %s %d times and %s %d, want the locality weighted by population", c.locale, l, n, c.largest, localities[c.largest])
 				}
 			}
 		})
+	}
+}
+
+func TestShippedAddressStructTagsReadOneName(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, WithSeed(3))
+	places := geoPlaces(t, "SE")
+	var row struct {
+		Street     string `fake:"{/sv_SE.address as a}{a.street}"`
+		PostalCode string `fake:"{a.postal-code}"`
+		Locality   string `fake:"{a.locality}"`
+	}
+	for i := 0; i < 200; i++ {
+		if err := f.FakeStruct(&row); err != nil {
+			t.Fatal(err)
+		}
+		if got := row.Street + "|" + row.PostalCode + "|" + row.Locality + "|"; !places[got] {
+			t.Fatalf("sv_SE.address: struct tags reading one name, %q, are no street, postal code and locality of one place", got)
+		}
 	}
 }
 
