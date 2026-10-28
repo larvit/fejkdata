@@ -352,7 +352,7 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
 	t.Parallel()
 	oneWord := map[string][2]int{"AS": {101525, 337759}, "ENK": {9115, 350561}, "SA": {874, 5505}, "DA": {2067, 6829}, "ANS": {1165, 3980}, "ASA": {88, 186}, "KS": {16, 83}}
-	const draws = 40000
+	const draws = shareDraws / 10
 	for form, c := range oneWord {
 		t.Run(form, func(t *testing.T) {
 			f := shipped(t, WithSeed(8))
