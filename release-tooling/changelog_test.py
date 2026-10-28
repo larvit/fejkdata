@@ -77,6 +77,19 @@ class Reconcile(unittest.TestCase):
 				candidate = RELEASED.replace("## [0.1.0]", f"## [{name}] - 2026-10-14\n\nA candidate.\n\n## [0.1.0]")
 				self.assertEqual([m["name"] for m in changelog.releases(candidate)], ["0.1.0"])
 
+	def test_a_released_section_drops_the_unreleased_fixes_it_names(self):
+		fixes = "### Security\n\n- Fix GO-2026-0001, which a wrapped\n  bullet names.\n- Fix GO-2026-0009.\n- Harden the parser.\n\n"
+		self.assertEqual(
+			changelog.reconcile(MAIN.replace("## [0.1.0]", fixes + "## [0.1.0]"), changelog.insert_section(RELEASED, SECTION)),
+			MAIN.replace("## [0.1.0]", "### Security\n\n- Fix GO-2026-0009.\n- Harden the parser.\n\n" + SECTION + "## [0.1.0]"),
+		)
+
+	def test_a_security_heading_left_with_no_fix_goes(self):
+		main = MAIN.replace("### Added", "### Security\n\n- Fix GO-2026-0001.\n\n### Added")
+		self.assertEqual(
+			changelog.reconcile(main, changelog.insert_section(RELEASED, SECTION)), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]")
+		)
+
 	def test_main_ahead_of_the_release_is_left(self):
 		main = MAIN.replace("## [Unreleased]\n\n### Added\n\n- A thing.\n\n", "## [0.2.0] - 2026-11-01\n\n- A thing.\n\n")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)

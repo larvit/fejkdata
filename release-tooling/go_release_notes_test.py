@@ -26,8 +26,19 @@ class Requirements(unittest.TestCase):
 		self.assertEqual(go_release_notes.requirements("# Go 1.28 Release Notes\n", "1.28", BUILT_FOR), [])
 
 	def test_a_requirement_in_another_shape_is_refused(self):
-		notes = NOTES.replace("### FreeBSD", "### ARM64\n\nGo 1.28 drops the arm64 port on Windows.\n\n### FreeBSD")
-		with self.assertRaisesRegex(ValueError, "under ARM64: 'Go 1.28 drops the arm64 port on Windows.'"):
+		for sentence in (
+			"Go 1.28 drops the arm64 port on Windows.",
+			"Go 1.28 raises its minimum requirement to ARMv8.1.",
+			"Go 1.28 removes the arm64 port on Windows.",
+		):
+			with self.subTest(sentence=sentence):
+				notes = NOTES.replace("### FreeBSD", f"### ARM64\n\n{sentence}\n\n### FreeBSD")
+				with self.assertRaisesRegex(ValueError, f"under ARM64: '{sentence}'"):
+					go_release_notes.requirements(notes, "1.28", BUILT_FOR)
+
+	def test_a_sentence_in_another_shape_after_a_last_release_one_is_refused(self):
+		notes = NOTES.replace("Go 1.29 will require Linux kernel version 4.4 or later.", "Go 1.28 no longer supports the 386 port.")
+		with self.assertRaisesRegex(ValueError, "under Linux: 'Go 1.28 no longer supports the 386 port.'"):
 			go_release_notes.requirements(notes, "1.28", BUILT_FOR)
 
 	def test_a_port_the_notes_add_is_no_requirement(self):

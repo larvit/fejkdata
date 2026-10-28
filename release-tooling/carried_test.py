@@ -61,6 +61,10 @@ class Due(unittest.TestCase):
 		main = NEW_GO_MOD + "\nreplace golang.org/x/text => example.com/text v0.30.1\n"
 		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
 
+	def test_modules_wait_while_main_s_go_mod_excludes_a_version(self):
+		main = NEW_GO_MOD + "\nexclude golang.org/x/text v0.29.0\n"
+		self.assertIsNone(carried.due(carrying(), carrying(go_mod=main)))
+
 	def test_an_indirect_module_a_bump_adds_or_drops_is_carried(self):
 		self.assertEqual(carried.due(carrying(), carrying(go_mod=NEW_GO_MOD)).go_mod, NEW_GO_MOD)
 
