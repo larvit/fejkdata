@@ -1044,8 +1044,10 @@ of vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. 
 each module's new vulnerabilities are filed as one `security` item in `todo.md`, under the
 patch after the last release, or under the next planned release when only a newer Go minor
 fixes them, so the fix ships without waiting for a minor. An item whose vulnerabilities
-are gone moves to `CHANGELOG.md` once the report is clean, after any patch is cut, so the
-changelog says what was fixed. `vulnerability-filing/file_vulnerabilities.py` writes the
+are gone moves to `CHANGELOG.md` once the report is clean, so the changelog says what was
+fixed. Where that comes before the patch fixing them is cut, as after a failed release job,
+its line leaves Unreleased once the patch's section, which names them, comes into `main`'s
+changelog. `vulnerability-filing/file_vulnerabilities.py` writes the
 item in `todo.md`'s shape with a Score of 0.0, since CI cannot reach `rank_todo.py`, which
 scores it on the next commit to the plan; a test files one into the repository's own
 `todo.md`. `release-tooling/patch_release.py` records the fixed item's line in

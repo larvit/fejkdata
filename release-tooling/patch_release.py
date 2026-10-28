@@ -4,7 +4,7 @@
   patch_release.py last
       Prints the last release's tag, as the forge names its latest release.
   patch_release.py cut
-      When main carries a newer Go, other modules or another GoReleaser than the last release:
+      When main carries a newer Go, module version bumps or another GoReleaser than the last release:
       puts them in the last release's tree, builds it through `docker build .`, commits it with
       main's .github/ and a changelog section to a branch release/X.Y.Z cut from the last
       release's tag, and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to
@@ -13,9 +13,11 @@
       and while a new Go minor's release notes say something about a built-for system it cannot
       read: each waits for a human.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
-      Adds to CHANGELOG.md each release section the last release has and main lacks, plans
-      the report in todo.md through file_vulnerabilities.py, and records each fixed item's
-      line under Unreleased unless a release section already names its vulnerabilities.
+      Adds to CHANGELOG.md each release section the last release has and main lacks, and
+      drops each fix under Unreleased that such a section names, as one recorded before its
+      patch was cut. Plans the report in todo.md through file_vulnerabilities.py, and records
+      each fixed item's line under Unreleased unless a release section already names its
+      vulnerabilities.
 
 Run in a checkout of main, with the forge's env set as for publish_release.py and
 FORGE_SERVER_URL naming the forge's web host, which a push goes to. Exits 2 on
@@ -191,9 +193,13 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	if run("git", "rev-parse", "--verify", "-q", f"{last}^{{commit}}", cwd=root, ok=(0, 1)).returncode:
 		raise ValueError(f"main's checkout holds no tag {last}, the forge's latest release")
 	released = carried.of(lambda path: shown(root, last, path))
-	patch = carried.due(released, carried.of(lambda path: read_if_any(os.path.join(root, path))))
+	checkout = carried.of(lambda path: read_if_any(os.path.join(root, path)))
+	patch = carried.due(released, checkout)
 	if patch is None:
-		print(f"No patch due: main carries the Go, modules and GoReleaser {last} does.")
+		if carried.requires(checkout.go_mod) != carried.requires(released.go_mod):
+			print(f"No patch due: main's go.mod changes more than module versions since {last}, so its modules wait for a release the maintainer cuts.")
+		else:
+			print(f"No patch due: main carries nothing a patch of {last} can take.")
 		return 0
 	targets = built_for(root, last)
 	breaking = go_release_notes.breaking_lines(released.go, patch.go, targets, effects.go_notes)
