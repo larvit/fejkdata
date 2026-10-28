@@ -1237,14 +1237,9 @@ runs every Action a release runs save `actions/deploy-pages`, and `docker/login-
 logs in to GHCR with a read-only token. It doesn't read a repository secret, so a pull
 request from a fork runs it too.
 
-These updates wait for the maintainer, and `renovate.json` names each:
-
-- one to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since both
-  publish, so no pull request runs them;
-- one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
-  artifact, so the dry run can't see the two break in step;
-- a runner update, since jobs no pull request runs, such as the release job, run on the
-  runner.
+An update the dry run can't check waits for the maintainer: an Action that publishes, one
+whose output only such an Action reads, and a runner. `renovate.json` names each, and says
+why.
 
 The dry run also replaces the gate's former package-repository step, so the repository
 check has one CI implementation. A pull request changing what that step watched, Go code
