@@ -105,8 +105,10 @@ def add(changelog: str, heading: str, lines: list[str], first: bool) -> str:
 	bullets = "".join(f"- {line}\n" for line in lines)
 	found = under_unreleased(changelog, heading)
 	if found:
-		at = found.start("bullets") + len(found["bullets"].rstrip("\n")) + 1
-		return changelog[:at] + bullets + changelog[at:]
+		inside = list(BULLET.finditer(changelog, found.start("bullets"), found.end()))
+		if inside:
+			return changelog[: inside[-1].end()] + bullets + changelog[inside[-1].end() :]
+		return changelog[: found.start("bullets")] + f"\n{bullets}\n" + changelog[found.end() :]
 	section = unreleased(changelog)
 	if section is None:
 		return insert_section(changelog, f"## [Unreleased]\n\n### {heading}\n\n{bullets}\n")
