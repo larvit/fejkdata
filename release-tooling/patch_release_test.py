@@ -336,6 +336,7 @@ class Cut(Repository):
 		self.module_findings[GO_MOD.format("1.22", "v0.29.0")] = report("GO-2026-0003", module="golang.org/x/text", version="v0.29.0")
 		self.reports["1.27.1"] = report()
 		self.write(("go.mod", NEW_GO_MOD + "\nrequire example.com/feature v1.0.0\n"))
+		git("commit", "-qam", "Require a feature")
 		with self.assertRaisesRegex(
 			ValueError,
 			"^v0\\.1\\.0 still carries 1 known vulnerability: GO-2026-0003 \\(CVE-2026-0003\\); main's modules wait for a"
@@ -392,6 +393,7 @@ class Plan(Repository):
 
 	def test_names_under_unreleased_once_what_main_s_go_minor_drops_since_the_last_release(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")))
+		git("commit", "-qam", "Go 1.28.0")
 		with mock.patch.object(go_release_notes, "fetch", side_effect=lambda minor: NOTES) as fetch:
 			self.plan()
 			self.plan()
