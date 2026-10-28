@@ -1071,7 +1071,7 @@ What a release carries is its Go, the modules `go.mod` requires and the GoReleas
 `packages.yml` names; the Packages workflow builds every release with its own commit's
 GoReleaser, which for a patch is `main`'s. A bump that passes the gate unchanged changes
 no row of the README's Versioning table, so it is a patch. Renovate merges one to `main`
-once every check passes, save a GoReleaser major, which waits for the maintainer, who
+once `gate` passes, save a GoReleaser major, which waits for the maintainer, who
 chose so on 2026-10-28: it may rename the release assets a consumer's script downloads,
 which the gate doesn't check. The Packages dry run checks the build path. When `main` then carries a newer Go, newer modules or another
 GoReleaser than the last release, the release job cuts a patch through

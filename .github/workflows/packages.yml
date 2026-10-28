@@ -76,9 +76,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # The Dockerfile's packaging stage and package-repos.Dockerfile's snapshot stage pin the same GoReleaser.
       - uses: goreleaser/goreleaser-action@v7
         with:
-          # The Dockerfile's packaging stage and package-repos.Dockerfile's snapshot stage pin the same GoReleaser.
           version: v2.18.3
           workdir: src
           args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ !inputs.tag && '--snapshot' || '' }}

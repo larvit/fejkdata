@@ -1,4 +1,4 @@
-# A release's packages replace the snapshot ones through `--build-context packages=<dir>`.
+# The Packages workflow, releasing or as a dry run, replaces the snapshot packages with its own through `--build-context packages=<dir>`.
 ARG BASE_URL=https://larvit.github.io/fejkdata
 ARG EXPECTED_VERSION
 
