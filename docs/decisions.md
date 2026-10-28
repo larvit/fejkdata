@@ -1295,7 +1295,7 @@ that broke them would fail `gate` on `main`, and hold every release.
 
 With the caches warm, a pull request's run measured 2m28s on 2026-10-28, against 2m51s
 without them. With the race tests on a runner of their own, fewer draws under the race
-detector, and the dry run's caches kept by `actions/cache`, three runs measured 1m38s to
-1m53s the same day.
+detector, and the dry run's caches, three runs measured 1m47s to 1m53s the same day. A
+pull request with none of the caches to restore measured 2m31s.
 
 Valid while GitHub's cache serves a pull request the caches of its base branch.
