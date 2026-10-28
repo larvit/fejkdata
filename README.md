@@ -1454,13 +1454,14 @@ Every pull request runs `docker build .`, and must pass before it can be merged 
 it changes none of the files the build and its tests read, nor the workflow itself, in
 which case it's skipped. On the latest supported Go, that build runs vet, complexity,
 the format check and the Go tests under the race detector. On the lowest, which the
-Dockerfile's `LOWEST_GO_VERSION` names, it runs vet and the Go tests without it. It also runs the release
-tooling's tests and the vulnerability filer's tests; the filer's tests file an item into
-`todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base,
-and the Packages dry run below. The check `gate` passes once each of these has passed or
-been skipped, and it is the only check that branch protection on `main` requires. Run
-`docker build .` locally before pushing. It keeps Go's build and test caches between
-runs, so a rerun tests only the packages a change reaches:
+Dockerfile's `LOWEST_GO_VERSION` names, it runs vet and the Go tests, without the race
+detector. It also runs the release tooling's tests and the vulnerability filer's tests;
+the filer's tests file an item into `todo.md` themselves, so a change to the plan's shape
+can fail them. The rest of the gate is the changelog check, which CI runs against the PR
+base, and the Packages dry run below. The check `gate` passes once each of these has
+passed or been skipped, and it is the only check that branch protection on `main`
+requires. Run `docker build .` locally before pushing. It keeps Go's build and module
+caches between runs, so a rerun tests only the packages a change reaches:
 
 ```sh
 docker build .                                   # the whole build, on both Go versions
@@ -1482,14 +1483,14 @@ Actions. The same check:
 docker compose run --rm vulncheck
 ```
 
-A pull request that changes a workflow or what a release packages, the files on the
-`packaging` line of the `changes` step in `.github/workflows/test.yml`, also runs the
-Packages workflow as a dry run. It runs every Action a release runs save
-`actions/deploy-pages`, with a token that can only read. It builds the binaries for every
-platform, the packages and the images, then the apt, dnf and apk repositories, signed with
-throwaway keys, and installs fejkdata from each repository. It doesn't publish any of them
-or read a repository secret, so it runs on a pull request from a fork too. The repository
-checks, locally:
+A pull request that changes a workflow or what a release packages also runs the Packages
+workflow as a dry run. The `packaging` line of the `changes` step in
+`.github/workflows/test.yml` lists those files. The dry run runs every Action a release
+runs save `actions/deploy-pages`, with a token that can only read. It builds the binaries
+for every platform, the packages and the images, then the apt, dnf and apk repositories,
+signed with throwaway keys, and installs fejkdata from each repository. It doesn't publish
+any of them or read a repository secret, so it runs on a pull request from a fork too.
+The repository checks, locally:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
@@ -1573,6 +1574,9 @@ Renovate merges an update itself once `gate` passes. These wait for a human:
   publish, so no pull request runs them;
 - one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
   artifact;
+- one to `actions/cache` or `reproducible-containers/buildkit-cache-dance`, since only a
+  push to `main` runs their save step, and a broken one fails `gate` there and holds every
+  release;
 - a runner update, since jobs no pull request runs, such as the release job, run on the
   runner;
 - a GoReleaser major, since it may rename the release assets, which the gate doesn't
