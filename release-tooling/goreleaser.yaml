@@ -74,6 +74,7 @@ homebrew_casks:
       owner: larvit
       name: homebrew-tap
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    skip_upload: '{{ ne .Env.LATEST "true" }}'
     hooks:
       post:
         install: |
@@ -90,3 +91,4 @@ scoops:
       owner: larvit
       name: scoop-bucket
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    skip_upload: '{{ ne .Env.LATEST "true" }}'
