@@ -1,7 +1,31 @@
+import json
+import os
+import re
 import unittest
 
 import carried
 from fixtures import COMPOSE, DOCKERFILE, GO_MOD, NEW_GO_MOD, PACKAGES, carrying
+
+
+def repository_file(path: str) -> str:
+	with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", path), encoding="utf-8") as f:
+		return f.read()
+
+
+class TheRepositorysPackagesYml(unittest.TestCase):
+	def assert_names_a_goreleaser_version(self, pattern: re.Pattern):
+		match = pattern.search(repository_file(".github/workflows/packages.yml"))
+		self.assertIsNotNone(match, f"{pattern.pattern} finds no GoReleaser version in .github/workflows/packages.yml")
+		self.assertRegex(match[1], r"^v2\.\d+\.\d+$")
+
+	def test_names_a_goreleaser_version_carried_reads(self):
+		self.assert_names_a_goreleaser_version(carried.GORELEASER)
+
+	def test_names_a_goreleaser_version_renovate_reads(self):
+		managers = json.loads(repository_file("renovate.json"))["customManagers"]
+		(manager,) = [m for m in managers if m.get("depNameTemplate") == "goreleaser/goreleaser"]
+		javascript_named_group = r"\(\?<(\w+)>"
+		self.assert_names_a_goreleaser_version(re.compile(re.sub(javascript_named_group, r"(?P<\1>", manager["matchStrings"][0])))
 
 
 class Of(unittest.TestCase):
