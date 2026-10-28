@@ -103,6 +103,15 @@ class Reconcile(unittest.TestCase):
 		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
 
+	def test_a_breaking_line_recorded_after_prose_leaves_the_prose_as_it_was(self):
+		line = "Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries."
+		patch = SECTION.replace("### Changed", f"### Breaking\n\n- {line}\n\n### Changed")
+		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
+		self.assertEqual(
+			changelog.reconcile(changelog.record(main, [], [line]), changelog.insert_section(RELEASED, patch)),
+			main.replace("## [0.1.0]", patch + "## [0.1.0]"),
+		)
+
 	def test_main_ahead_of_the_release_is_left(self):
 		main = MAIN.replace("## [Unreleased]\n\n### Added\n\n- A thing.\n\n", "## [0.2.0] - 2026-11-01\n\n- A thing.\n\n")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
@@ -163,9 +172,9 @@ class Record(unittest.TestCase):
 		)
 
 	def test_a_breaking_line_joins_unreleased_s_breaking_section_once(self):
-		main = MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n\n### Added")
+		main = MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n- Drop a column.\n\n### Added")
 		twice = changelog.record(changelog.record(main, [], ["Go 1.28 requires macOS 14."]), [], ["Go 1.28 requires macOS 14."])
-		self.assertEqual(twice, main.replace("- Drop a flag.\n", "- Drop a flag.\n- Go 1.28 requires macOS 14.\n"))
+		self.assertEqual(twice, main.replace("- Drop a column.\n", "- Drop a column.\n- Go 1.28 requires macOS 14.\n"))
 
 	def test_a_breaking_line_goes_under_an_empty_unreleased(self):
 		empty = RELEASED.replace("## [0.1.0]", "## [Unreleased]\n\n## [0.1.0]")
