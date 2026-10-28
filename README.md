@@ -1470,12 +1470,12 @@ A known vulnerability in the Go version the gate builds with, or in a module fej
 requires, holds the release and no merge. CI checks on every pull request, every push to
 `main`, and daily. On `main` and in the daily run, CI files each module's new
 vulnerabilities as one `security` item in `todo.md`, under the patch after the last
-release, even where only a newer Go minor fixes them; it moves an item whose vulnerabilities
-are gone into `CHANGELOG.md`. A pull request from the branch `security-plan` carries both
-to `main` and merges itself once the tests pass, which needs "Allow auto-merge" on in the
-repository's settings. When the step "Fetch govulncheck's report from vuln.go.dev" fails,
-vuln.go.dev did not answer: rerun it. When GitHub pauses the daily run after 60 days with
-no activity, re-enable it under Actions. The same check:
+release; it moves an item whose vulnerabilities are gone into `CHANGELOG.md`. A pull
+request from the branch `security-plan` carries both to `main` and merges itself once the
+tests pass, which needs "Allow auto-merge" on in the repository's settings. When the step
+"Fetch govulncheck's report from vuln.go.dev" fails, vuln.go.dev did not answer: rerun
+it. When GitHub pauses the daily run after 60 days with no activity, re-enable it under
+Actions. The same check:
 
 ```sh
 docker compose run --rm vulncheck
