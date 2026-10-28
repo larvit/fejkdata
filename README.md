@@ -1202,14 +1202,14 @@ proportion to the output.
 
 ## Versioning
 
-Semver tags, `v0.1.0` first, on `main` save a patch CI cuts for a new Go, module or
-GoReleaser, which sits on a branch cut from the release before it; one version covers the shipped data, the
-library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what each release
-changed. A consumer's data, code and scripts keep working across a minor or a patch.
-Before 1.0.0, the systems the binaries, packages and image run on are the exception: they
-follow the Go that builds them, so a patch built with a new Go minor may drop one, such as
-an older macOS, and its changelog section names each under Breaking. A minor only adds, and a major is the only release that changes what exists. Seeded output
-is the exception: any release, a patch too, may change what a seed draws. Where you
+Semver tags, `v0.1.0` first, on `main` save a patch CI cuts for an update to Go, a module
+or GoReleaser, which sits on a branch cut from the release before it; one version covers
+the shipped data, the library and the CLI, and [`CHANGELOG.md`](CHANGELOG.md) names what
+each release changed. A consumer's data, code and scripts keep working across a minor or a
+patch. A minor only adds, and a major is the only release that changes what exists. Two
+exceptions: any release, a patch too, may change what a seed draws; and before 1.0.0 a
+patch built with a new Go minor may drop a system the binaries, packages and image run on,
+such as an older macOS, and its changelog section names each one under Breaking. Where you
 compare seeded output, install one exact version
 (`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`, the image
 `larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
@@ -1225,8 +1225,8 @@ and regenerate seeded fixtures and expected values when you raise that version.
 | Data packages | rename or remove a package; move a category to another package; make a package read another it did not | a package |
 | Supported systems | from 1.0.0, drop a system the binaries, packages or image run on | a system |
 
-A patch changes no row of this table, save Supported systems before 1.0.0, as above:
-performance, docs, a new Go, module or GoReleaser, or a fix inside a promised behaviour
+A patch changes no row of this table: performance, docs, an update to Go, a module or
+GoReleaser, or a fix inside a promised behaviour
 that adds or removes no value and changes no path, format or spelling.
 
 An error's wording may improve in a minor; the path, rejected spelling and replacement
@@ -1413,7 +1413,7 @@ data/           the shipped modules, each a Go package embedding its categories 
 data-import/    the scripts that rebuild each sourced table (see DATA-LICENSES.md), and the modules they share
 dockerhub/      the Docker Hub page's short description and overview, which CI syncs from `main`
 docs/           the decision log, the register research behind the shipped data, the survey of other libraries, panels' scores and rulings on how readable the code is, and what each chunk cost an agent to read
-release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for main's Go, modules or GoReleaser, and the binaries, packages, image and package repositories built for it
+release-tooling/ the release CI publishes from the changelog heading or as a patch of the last release for an update to main's Go, modules or GoReleaser, and the binaries, packages, image and package repositories built for it
 testdata/       the pinned shipped shape (see Versioning)
 vulnerability-filing/ the script CI runs to file known vulnerabilities as `todo.md` items and to drop fixed ones, naming them for `release-tooling/`, which writes `CHANGELOG.md`
 ```
@@ -1452,11 +1452,11 @@ docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g
 
 Every pull request runs `docker build .`, and must pass before it can be merged — unless
 it changes none of the files the build and its tests read, nor the workflow itself, in
-which case it's skipped. That build runs vet, complexity, the format check and the Go
-tests on the latest supported Go, vet and the Go tests on the lowest, which its
-`LOWEST_GO_VERSION` names, the release tooling's tests and the vulnerability filer's
-tests, which file an item into `todo.md` itself, so a change to the plan's shape can fail
-it; the rest of the gate is the changelog check, which CI runs against the PR base, and
+which case it's skipped. On the latest supported Go, that build runs vet, complexity,
+the format check and the Go tests. On the lowest, which the Dockerfile's
+`LOWEST_GO_VERSION` names, it runs vet and the Go tests. It also runs the release
+tooling's tests and the vulnerability filer's tests; the filer's tests file an item into
+`todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base, and
 the package-repository checks below. Run `docker build .` locally before pushing:
 
 ```sh
@@ -1564,21 +1564,29 @@ Renovate merges an update itself once every check passes, save one to a GitHub A
 which waits for a human since it also runs in jobs no pull request runs. An update to a
 tool, such as Python or `govulncheck`, releases nothing. An update to what a release
 carries is released: Go, a Go minor included, a module `go.mod` requires, or GoReleaser.
-When `main` carries a newer one than the last release, CI cuts a patch of that release. It
-commits `main`'s versions, `main`'s `.github/` and the patch's `CHANGELOG.md` section to a
-branch `release/X.Y.Z` cut from the last release's tag, and builds it through `docker
-build .`. It then publishes it and its packages, and adds the section to `main` through
-`security-plan`. The section names, under Breaking, each requirement a new Go minor's
-release notes set on a system the binaries are built for, such as a newer macOS. The
-release job fails, cutting nothing, while the patched tree carries a known vulnerability
-or fails `docker build .`, while `main`'s `goreleaser.yaml` builds for other targets than
-the last release, or while the release notes say something about a built-for system it
-cannot read: each waits for you, to cut a release or fix the cause. Modules wait for a
-release you cut while `main`'s `go.mod` changes more than their versions, such as its
-`go` line, and the release job fails meanwhile where the last release carries a known
-vulnerability. Until a release ships a Go minor, `security-plan` keeps its Breaking lines
-under `Unreleased`, so a release you cut names them too. While it cannot read the notes,
-it keeps none: write what they require under Breaking yourself before you cut a release.
+When `main` carries a newer one than the last release, CI cuts a patch of that release.
+
+A patch waits for you, to cut a release or fix the cause, while:
+
+- the patched tree carries a known vulnerability or fails `docker build .`;
+- `main`'s `goreleaser.yaml` builds for other targets than the last release;
+- the release job cannot read what a Go minor's release notes say about a built-for
+  system. The plan job then records no Breaking line for that minor: write what the notes
+  require under Breaking yourself before you cut a release.
+
+Each of these fails the release job, cutting nothing. Modules also wait for a release you
+cut while `main`'s `go.mod` changes more than their versions, such as its `go` line; the
+release job then fails only where the last release carries a known vulnerability.
+
+A patch applies its Go, modules and GoReleaser, `main`'s `.github/` and its
+`CHANGELOG.md` section to the last release's tree, builds it through `docker build .`,
+then commits it to a branch `release/X.Y.Z` and pushes that branch. It then publishes it
+and its packages, and adds the section to `main` through `security-plan`. The section
+names, under Breaking, each requirement a new Go minor's release notes set on a system the
+binaries are built for, such as a newer macOS. Until a release ships a Go minor, the plan
+job records the minor's Breaking lines under `Unreleased`, so a release you cut names them
+too.
+
 Renovate leaves the Dockerfile's `LOWEST_GO_VERSION` alone: raising it is a major.
 
 The Docker Hub page's short description and overview are the files in `dockerhub/`. A push
