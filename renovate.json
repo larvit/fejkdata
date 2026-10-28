@@ -55,6 +55,16 @@
       ]
     },
     {
+      "description": "A GoReleaser major waits for the maintainer: it may rename the release assets or move the build path the Packages workflow checks, and the gate checks neither",
+      "matchPackageNames": [
+        "goreleaser/goreleaser"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
       "description": "The Dockerfile's LOWEST_GO_VERSION, the lowest supported Go, which only a major raises; a major that raises it raises this match too",
       "matchManagers": [
         "dockerfile"
