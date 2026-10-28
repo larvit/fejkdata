@@ -1482,11 +1482,12 @@ docker compose run --rm vulncheck
 ```
 
 A change to Go code, `release-tooling/`, the `Dockerfile`, `.dockerignore`, the licence
-files or a workflow also runs the Packages workflow as a dry run, with every Action a
-release runs save `actions/deploy-pages`. It builds the binaries for every platform, the
-packages and the images, then the apt, dnf and apk repositories, signed with throwaway
-keys, and installs fejkdata from each repository. It publishes none of them and reads no
-secret, so it runs on a pull request from a fork too. The repository checks, locally:
+files or a workflow also runs the Packages workflow as a dry run. It runs every Action a
+release runs save `actions/deploy-pages`, and `docker/login-action` logs in to GHCR with a
+read-only token. It builds the binaries for every platform, the packages and the images,
+then the apt, dnf and apk repositories, signed with throwaway keys, and installs fejkdata
+from each repository. It doesn't publish any of them or read a repository secret, so it
+runs on a pull request from a fork too. The repository checks, locally:
 
 ```sh
 docker build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output /tmp/fejkdata-keys .
@@ -1564,13 +1565,21 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges an update itself once `gate` passes, save these, which wait for a
-human: one to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since
-neither runs without publishing, so no pull request runs them; and a GoReleaser major,
-since it may rename the release assets, which the gate doesn't check. An update to a
-tool, such as Python or `govulncheck`, releases nothing. An update to what a release
-carries is released: Go, a Go minor included, a module `go.mod` requires, or GoReleaser.
-When `main` carries a newer one than the last release, CI cuts a patch of that release.
+Renovate merges an update itself once `gate` passes. These wait for a human:
+
+- an update to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since both
+  publish, so no pull request runs them;
+- one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
+  artifact;
+- a runner update, since jobs no pull request runs, such as the release job, run on the
+  runner;
+- a GoReleaser major, since it may rename the release assets, which the gate doesn't
+  check.
+
+An update to a tool, such as Python or `govulncheck`, isn't released. An update to what a
+release carries is released: Go, a Go minor included, a module `go.mod` requires, or
+GoReleaser. When `main` carries a newer one than the last release, CI cuts a patch of that
+release.
 
 A patch waits for you, to cut a release or fix the cause, while:
 

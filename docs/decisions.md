@@ -1227,14 +1227,23 @@ default table.
 2026-10-28, decided by the maintainer. Serves goal 1.1 and code health.
 
 Renovate merges a GitHub Action update itself once the gate passes, so each Action a
-release runs must run on the pull request that updates it. Otherwise a broken Action major
-first fails in a release run, after the tag is published, and a channel the run didn't
-reach serves the old release. The Packages workflow therefore runs without a tag as a dry
-run. That run builds everything a release builds, with GoReleaser's `--snapshot` and
-throwaway signing keys, and publishes nothing. It reads no secret, so a pull request from
-a fork runs it too. The two Actions that can't run without publishing,
-`actions/deploy-pages` and `peter-evans/dockerhub-description`, wait for the maintainer,
-named in `renovate.json`.
+release runs must run on the pull request that updates it, or wait for the maintainer.
+Otherwise a broken Action major first fails in a release run, after the tag is published,
+and a channel the run didn't reach serves the old release. The Packages workflow therefore
+runs without a tag as a dry run. That run builds everything a release builds, with
+GoReleaser's `--snapshot` and throwaway signing keys, and doesn't publish anything. It
+runs every Action a release runs save `actions/deploy-pages`, and `docker/login-action`
+logs in to GHCR with a read-only token. It doesn't read a repository secret, so a pull
+request from a fork runs it too.
+
+These updates wait for the maintainer, and `renovate.json` names each:
+
+- one to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since both
+  publish, so no pull request runs them;
+- one to `actions/upload-pages-artifact`, since only `actions/deploy-pages` reads its
+  artifact, so the dry run can't see the two break in step;
+- a runner update, since jobs no pull request runs, such as the release job, run on the
+  runner.
 
 The dry run also replaces the gate's former package-repository step, so the repository
 check has one CI implementation. A pull request changing what that step watched, Go code
