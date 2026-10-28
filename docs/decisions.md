@@ -1073,8 +1073,9 @@ GoReleaser, which for a patch is `main`'s. A bump that passes the gate unchanged
 no row of the README's Versioning table, so it is a patch. Renovate merges one to `main`
 once `gate` passes, save a GoReleaser major, which waits for the maintainer, who
 chose so on 2026-10-28: it may rename the release assets a consumer's script downloads,
-which the gate doesn't check. The Packages dry run checks the build path. When `main` then carries a newer Go, newer modules or another
-GoReleaser than the last release, the release job cuts a patch through
+which the gate doesn't check. A major that moves the built binary's path fails the
+Packages dry run. When `main` then carries a newer Go, newer modules or another GoReleaser
+than the last release, the release job cuts a patch through
 `release-tooling/patch_release.py cut`. It puts `main`'s Go and modules into the last
 release's tree with `main`'s `.github/` (the forge refuses the workflow token a branch
 whose workflows differ from `main`'s) and a changelog section, scanning that tree with
@@ -1222,7 +1223,7 @@ says. It ships in `0.2.0` and is named in the changelog
 Valid while every entry of `ascii`'s table maps a letter to letters and comes from ruby-i18n's
 default table.
 
-## A pull request that changes what a release packages, or a workflow, runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
+## A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 
 2026-10-28, decided by the maintainer. Serves goal 1.1 and code health.
 
@@ -1250,12 +1251,13 @@ check has one CI implementation. A pull request changing what that step watched,
 included, now runs the slower multi-platform dry run. The maintainer accepts that cost.
 
 Renovate merges through GitHub's auto-merge, which waits only for required checks. A
-reusable workflow's checks are named after its jobs when it runs, and after the calling
-job when it is skipped, so no dry-run check reports on every pull request. The `gate` job
-in `test.yml` runs on every pull request and passes once the tests and the dry run have.
-Branch protection on `main` requires it alone. Not making the merge wait on every check
-(Renovate's `platformAutomerge: false`) keeps the vulnerabilities job from blocking a
-merge, as the decision on known vulnerabilities requires.
+reusable workflow's checks take its jobs' names when it runs, and the calling job's name
+when it is skipped. So no one dry-run check appears on every pull request, and none can be
+required. The `gate` job in `test.yml` runs on every pull request and passes once the
+tests have passed and the dry run has passed or been skipped. Branch protection on `main`
+requires it alone. Renovate's `platformAutomerge: false` would make a merge wait for every
+check, the vulnerabilities job included, which the decision on known vulnerabilities
+forbids.
 
 Valid while Renovate merges through GitHub's auto-merge, and GitHub names a reusable
 workflow's checks by its jobs.

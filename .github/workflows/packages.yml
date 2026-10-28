@@ -99,7 +99,7 @@ jobs:
           LATEST: ${{ steps.latest.outputs.latest }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
       # A dry run's image is loaded locally, one per platform, its tag suffixed with the platform.
-      - name: The built binary and the image print the tag
+      - name: The built binary and the image print one version, the tag's in a release
         env:
           TAG: ${{ inputs.tag }}
         run: |
