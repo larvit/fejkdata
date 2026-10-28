@@ -120,7 +120,7 @@ jobs:
           python3 release-tooling/patch_release.py cut
 
   plan:
-    name: Plan known vulnerabilities, and record fixed ones
+    name: Plan known vulnerabilities, and record fixed ones and new Go minors' Breaking lines
     needs: [vulnerabilities, release]
     # Runs after a failed release job too: a patch waiting for a human fails it, and fixed items still move.
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.outputs.reported == 'true' && (needs.release.result == 'success' || needs.release.result == 'failure' || needs.vulnerabilities.result == 'failure') }}
@@ -147,7 +147,7 @@ jobs:
         with:
           name: vulnerabilities
           path: ${{ runner.temp }}/vulnerabilities
-      - name: Plan known vulnerabilities, and record fixed ones and the last release
+      - name: Plan known vulnerabilities, and record fixed ones, the last release and new Go minors' Breaking lines
         run: python3 release-tooling/patch_release.py plan "$RUNNER_TEMP/vulnerabilities/report.json" todo.md CHANGELOG.md
       - name: Propose the plan and the changelog to main
         run: |
@@ -160,10 +160,10 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -qC security-plan
-          git commit -qam "Plan known vulnerabilities, and record fixed ones and the last release"
+          git commit -qam "Plan known vulnerabilities, and record fixed ones, the last release and new Go minors' Breaking lines"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" security-plan
           if [ "$(gh pr list --head security-plan --state open --json number --jq length)" = 0 ]; then
-            gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones and the last release" \
+            gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones, the last release and new Go minors' Breaking lines" \
               --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, any release section main lacks and each new Go minor's Breaking lines into CHANGELOG.md. Merges itself once the tests pass."
           fi
           # GitHub holds the pull_request run of a pull request this token opens until it is approved.
