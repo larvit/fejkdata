@@ -1046,23 +1046,23 @@ of vuln.go.dev, holds the release and leaves unrelated pull requests mergeable. 
 each module's new vulnerabilities are filed as one `security` item in `todo.md`, under the
 patch after the last release, even where only a newer Go minor fixes them: CI releases a Go
 minor as a patch, so the fix ships in the next patch CI cuts, unless that patch waits for the
-maintainer for a reason the next decision lists. The maintainer chose so on 2026-10-28,
-since the rule that planned such a fix under the next minor dated from when a Go minor
-waited for them. An item whose vulnerabilities are gone moves to `CHANGELOG.md` once the
-report is clean, so the changelog says what was fixed. When the report comes back clean before CI cuts the patch that fixes those
-vulnerabilities, as after a failed release job, the item's line leaves Unreleased once that
-patch's section reaches `main`'s changelog. `vulnerability-filing/file_vulnerabilities.py` writes the
-item in `todo.md`'s shape with a Score of 0.0, since CI cannot reach `rank_todo.py`, which
-scores it on the next commit to the plan; a test files one into the repository's own
-`todo.md`. `release-tooling/patch_release.py` records the fixed item's line in
-`CHANGELOG.md`. A pull request from `security-plan`, rebuilt from `main` on every run,
-carries both to `main` and merges itself once the tests pass. Where no Go version fixes a
-vulnerability yet, govulncheck has no ignore list: the maintainer drops the job from the
-release's `needs` until one does, and records why here. The paired ruling against f90b4d6
-found the project reads worse for it: the gate now reads `todo.md`, and a release waits on
-vuln.go.dev. The maintainer merged it anyway, as the cost of filing into the plan, and
-`todo.md` item 350 ends that cost. Valid while the binaries are built from the gate's Go
-version.
+maintainer for a reason the decision "CI releases each update to what a release carries at
+once, as a fejkdata patch cut from the last release's tag" lists. The maintainer chose so on
+2026-10-28. An item whose vulnerabilities are gone moves to `CHANGELOG.md` once the report
+is clean, so the changelog says what was fixed. When the report comes back clean before CI
+cuts the patch that fixes those vulnerabilities, as after a failed release job, the item's
+line leaves Unreleased once that patch's section reaches `main`'s changelog.
+`vulnerability-filing/file_vulnerabilities.py` writes the item in `todo.md`'s shape with a
+Score of 0.0, since CI cannot reach `rank_todo.py`, which scores it on the next commit to
+the plan; a test files one into the repository's own `todo.md`.
+`release-tooling/patch_release.py` records the fixed item's line in `CHANGELOG.md`. A pull
+request from `security-plan`, rebuilt from `main` on every run, carries both to `main` and
+merges itself once the tests pass. Where no Go version fixes a vulnerability yet,
+govulncheck has no ignore list: the maintainer drops the job from the release's `needs`
+until one does, and records why here. The paired ruling against f90b4d6 found the project
+reads worse for it: the gate now reads `todo.md`, and a release waits on vuln.go.dev. The
+maintainer merged it anyway, as the cost of filing into the plan, and `todo.md` item 350
+ends that cost. Valid while the binaries are built from the gate's Go version.
 
 ## CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag
 
