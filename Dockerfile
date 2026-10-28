@@ -56,6 +56,6 @@ COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 
-# CI builds latest and lowest-and-tooling, never this stage, so a check goes in one of them.
+# A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.
 FROM lowest-and-tooling
 COPY --from=latest /tested /tmp/latest-tested

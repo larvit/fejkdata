@@ -662,7 +662,7 @@ func TestShippedAddressStructTagsReadOneName(t *testing.T) {
 			t.Fatal(err)
 		}
 		if !places.has(row.Street, row.PostalCode, row.Locality, "") {
-			t.Fatalf("sv_SE.address: struct tags reading one name, %q, %q and %q, are no street, postal code and locality of one place", row.Street, row.PostalCode, row.Locality)
+			t.Fatalf("sv_SE.address: struct tags reading one name, %q, %q and %q, are not the street, postal code and locality of one place", row.Street, row.PostalCode, row.Locality)
 		}
 	}
 }
@@ -752,17 +752,17 @@ func geoRows(t *testing.T, country, table string) [][]string {
 	return out
 }
 
-// geoPlaceSet holds a country's geo tables, to say whether a street, postal code, locality and region
-// are one locality's, the region empty for NO and SE, whose addresses carry none.
+// geoPlaceSet says whether a street, postal code, locality and region belong to one locality of a
+// country's geo tables; pass an empty region for NO and SE, whose addresses carry none.
 type geoPlaceSet struct {
 	name, region map[string]string
-	localities   map[string][]string
+	locality     map[string]string
 	streets      map[[2]string]bool
 }
 
 func geoPlaces(t *testing.T, country string) geoPlaceSet {
 	rows := func(table string) [][]string { return geoRows(t, country, table) }
-	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, localities: map[string][]string{}, streets: map[[2]string]bool{}}
+	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, locality: map[string]string{}, streets: map[[2]string]bool{}}
 	if country == "US" {
 		county := map[string]string{}
 		for _, r := range rows("municipality") {
@@ -777,7 +777,7 @@ func geoPlaces(t *testing.T, country string) geoPlaceSet {
 		}
 	}
 	for _, r := range rows("postal-code") {
-		s.localities[r[0]] = append(s.localities[r[0]], r[1])
+		s.locality[r[0]] = r[1]
 	}
 	for _, r := range rows("street") {
 		s.streets[[2]string{r[0], r[1]}] = true
@@ -786,20 +786,16 @@ func geoPlaces(t *testing.T, country string) geoPlaceSet {
 }
 
 func (s geoPlaceSet) has(street, postalCode, locality, region string) bool {
-	for _, l := range s.localities[postalCode] {
-		if s.name[l] == locality && s.region[l] == region && s.streets[[2]string{street, l}] {
-			return true
-		}
-	}
-	return false
+	l, ok := s.locality[postalCode]
+	return ok && s.name[l] == locality && s.region[l] == region && s.streets[[2]string{street, l}]
 }
 
 func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T) {
 	s := geoPlaceSet{
-		name:       map[string]string{"a": "Alby", "b": "Borg"},
-		region:     map[string]string{"a": "Norr", "b": "Söder"},
-		localities: map[string][]string{"111": {"a"}, "222": {"b"}},
-		streets:    map[[2]string]bool{{"Storgatan", "a"}: true, {"Kyrkvägen", "b"}: true},
+		name:     map[string]string{"a": "Alby", "b": "Borg"},
+		region:   map[string]string{"a": "Norr", "b": "Söder"},
+		locality: map[string]string{"111": "a", "222": "b"},
+		streets:  map[[2]string]bool{{"Storgatan", "a"}: true, {"Kyrkvägen", "b"}: true},
 	}
 	for _, c := range []struct {
 		street, postalCode, locality, region string
