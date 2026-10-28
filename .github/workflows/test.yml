@@ -85,7 +85,7 @@ jobs:
       # `docker build` streams the context to the daemon. A compose bind-mount of
       # `.` mounts an empty host dir instead, because the job is itself a container.
       - name: Latest and lowest supported Go
-        run: docker build .
+        run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' .
 
   packages-dry-run:
     needs: changes
