@@ -90,10 +90,20 @@ class BreakingLines(unittest.TestCase):
 
 class Fetch(unittest.TestCase):
 	def test_a_connection_that_drops_or_stalls_raises_cannot_read_the_notes(self):
-		for err in (http.client.RemoteDisconnected("Remote end closed connection without response"), TimeoutError("The read operation timed out")):
+		dropped = (
+			http.client.RemoteDisconnected("Remote end closed connection without response"),
+			http.client.IncompleteRead(b"<h2"),
+			TimeoutError("The read operation timed out"),
+		)
+		for err in dropped:
 			with self.subTest(err=err), mock.patch("urllib.request.urlopen", side_effect=err):
 				with self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
 					go_release_notes.fetch("1.28")
+
+	def test_a_stalled_server_times_out(self):
+		with mock.patch("urllib.request.urlopen", side_effect=TimeoutError) as urlopen, self.assertRaises(ValueError):
+			go_release_notes.fetch("1.28")
+		self.assertGreater(urlopen.call_args.kwargs.get("timeout", 0), 0)
 
 
 if __name__ == "__main__":
