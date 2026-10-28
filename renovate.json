@@ -26,6 +26,17 @@
     },
     {
       "customType": "regex",
+      "datasourceTemplate": "docker",
+      "description": "The image buildkit-cache-dance copies the caches with, which is an input of the action",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/test\\.yml$/"
+      ],
+      "matchStrings": [
+        "utility-image: (?<depName>[^:\\s]+):(?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
       "datasourceTemplate": "go",
       "description": "Go tools the Dockerfile and compose.yaml run with go run, by their module path",
       "managerFilePatterns": [
