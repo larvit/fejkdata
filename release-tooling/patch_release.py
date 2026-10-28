@@ -11,13 +11,15 @@
       GITHUB_OUTPUT. It exits 2, cutting nothing, while govulncheck finds a vulnerability in that
       tree, while the tree fails the build, while main builds for other targets than the release,
       and while a new Go minor's release notes say something about a built-for system it cannot
-      read: each waits for a human.
+      read: each waits for a human. While main's modules wait and nothing else is due, it scans
+      the last release's tree, and exits 2 where that carries a known vulnerability.
   patch_release.py plan <govulncheck report of main> <todo.md> <CHANGELOG.md>
       Adds to CHANGELOG.md each release section the last release has and main lacks, and
-      drops each fix under Unreleased that such a section names, as one recorded before its
+      drops each line under Unreleased that such a section holds, as one recorded before its
       patch was cut. Plans the report in todo.md through file_vulnerabilities.py, and records
       each fixed item's line under Unreleased unless a release section already names its
-      vulnerabilities.
+      vulnerabilities. Records under Unreleased's Breaking what each Go minor main carries
+      since the last release requires of a built-for system, unless the changelog holds it.
 
 Run in a checkout of main, with the forge's env set as for publish_release.py and
 FORGE_SERVER_URL naming the forge's web host, which a push goes to. Exits 2 on
@@ -188,6 +190,17 @@ def known_vulnerabilities(report: str) -> str:
 	return checked.stdout.strip() if checked.returncode else ""
 
 
+def wait_for_modules(root: str, last: str, released: carried.Carried, scan: Callable[[str, str, str], str]) -> None:
+	"""Says main's modules wait for a release the maintainer cuts; refuses a last release that a known vulnerability holds meanwhile."""
+	with tempfile.TemporaryDirectory() as work, worktree(root, last, os.path.join(work, "tree")) as tree:
+		found = known_vulnerabilities(scan(tree, carried.dotted(released.go), os.path.join(work, "report")))
+	if found:
+		raise ValueError(
+			f"{last} still carries {found}; main's modules wait for a release the maintainer cuts, since its go.mod changes more than module versions"
+		)
+	print(f"No patch due: main's go.mod changes more than module versions since {last}, so its modules wait for a release the maintainer cuts.")
+
+
 def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	"""Cuts the patch of the last release that the Go, modules and GoReleaser of main's checkout at root call for, if any."""
 	if run("git", "rev-parse", "--verify", "-q", f"{last}^{{commit}}", cwd=root, ok=(0, 1)).returncode:
@@ -197,7 +210,7 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	patch = carried.due(released, checkout)
 	if patch is None:
 		if carried.requires(checkout.go_mod) != carried.requires(released.go_mod):
-			print(f"No patch due: main's go.mod changes more than module versions since {last}, so its modules wait for a release the maintainer cuts.")
+			wait_for_modules(root, last, released, effects.scan)
 		else:
 			print(f"No patch due: main carries nothing a patch of {last} can take.")
 		return 0
@@ -215,12 +228,19 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 	return code
 
 
-def plan(report: str, todo: str, changelog_path: str, last: str) -> int:
+def plan(report: str, todo: str, changelog_path: str, last: str, notes: Callable[[str], str]) -> int:
+	breaking = unreleased_breaking(last, notes)
 	text = changelog.reconcile(read(changelog_path), out("git", "show", f"{last}:CHANGELOG.md"))
 	planned = run(sys.executable, FILER, "plan", report, todo, "--patch", next_patch(last))
 	sys.stderr.write(planned.stderr)
-	write(changelog_path, changelog.record(text, planned.stdout.splitlines()))
+	write(changelog_path, changelog.record(text, planned.stdout.splitlines(), breaking))
 	return 0
+
+
+def unreleased_breaking(last: str, notes: Callable[[str], str]) -> list[str]:
+	"""The Breaking lines of main's Go minors since the last release, for the release shipping them, a patch or one the maintainer cuts."""
+	built_for = go_release_notes.systems(read("release-tooling/goreleaser.yaml"))
+	return go_release_notes.breaking_lines(carried.go_of(out("git", "show", f"{last}:Dockerfile")), carried.go_of(read("Dockerfile")), built_for, notes)
 
 
 def publish_on_forge(text: str, sha: str) -> tuple[int, str | None]:
@@ -248,7 +268,7 @@ def main(argv: list[str]) -> int:
 				return cut(root, last_release(), today, effects)
 			case ["plan", report, todo, changelog_path]:
 				read(report)
-				return plan(report, todo, changelog_path, last_release())
+				return plan(report, todo, changelog_path, last_release(), go_release_notes.fetch)
 	except ValueError as err:
 		print(err, file=sys.stderr)
 		return 2
