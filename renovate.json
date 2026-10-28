@@ -72,13 +72,11 @@
       "automerge": false
     },
     {
-      "description": "actions/cache and buildkit-cache-dance wait for the maintainer: only a push to main runs their save step, and a broken one fails the gate that main's releases wait for",
-      "matchManagers": [
-        "github-actions"
-      ],
+      "description": "actions/cache, buildkit-cache-dance and the busybox image it copies with wait for the maintainer: only a push to main runs their save step, and a broken one fails the gate that main's releases wait for",
       "matchPackageNames": [
         "actions/cache",
-        "reproducible-containers/buildkit-cache-dance"
+        "reproducible-containers/buildkit-cache-dance",
+        "busybox"
       ],
       "automerge": false
     },
