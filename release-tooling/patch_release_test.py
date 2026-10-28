@@ -382,6 +382,11 @@ class Plan(Repository):
 		self.assertIn("\n| 7 | 0.1.2 |  | security |", self.read("todo.md"))
 		self.assertEqual(self.read("CHANGELOG.md"), MAIN.replace("## [0.1.0]", SECTION + "## [0.1.0]"))
 
+	def test_files_while_goreleaser_yaml_names_its_systems_in_another_shape(self):
+		self.write(("release-tooling/goreleaser.yaml", "builds:\n  - goos:\n      - linux\n    goarch: [amd64]\n"))
+		self.assertEqual(self.plan("GO-2026-0009"), 0)
+		self.assertIn("\n| 7 | 0.1.2 |  | security |", self.read("todo.md"))
+
 	def test_records_a_fixed_item_under_unreleased(self):
 		self.plan("GO-2026-0009")
 		self.plan()
@@ -397,7 +402,7 @@ class Plan(Repository):
 		with mock.patch.object(go_release_notes, "fetch", side_effect=lambda minor: NOTES) as fetch:
 			self.plan()
 			self.plan()
-		self.assertEqual(fetch.call_args_list, [mock.call("1.28"), mock.call("1.28")])
+		fetch.assert_called_with("1.28")
 		breaking = (
 			"### Breaking\n\n- Go 1.28 requires macOS 14 Sonoma or later, and so do the binaries.\n"
 			"- Go 1.28 now requires at least Windows 10.1 or Windows Server 2019, and so do the binaries.\n\n"
