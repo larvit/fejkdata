@@ -111,8 +111,8 @@ replacement, and each removed path, column or flag.
 
 - A patch of the latest release follows each update to Go, a Go minor included, to a module
   fejkdata requires, or to GoReleaser, once the tests pass with it. Until 1.0.0, a Go minor
-  may stop supporting an older system, such as a macOS version; the patch's changelog
-  section names each one under Breaking.
+  may stop supporting an older system, such as a macOS version; the changelog section of
+  the release that first ships the Go minor names each one under Breaking.
 
 ## [0.1.2] - 2026-10-20
 

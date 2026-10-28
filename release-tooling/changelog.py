@@ -1,12 +1,12 @@
 """CHANGELOG.md's release sections: the one a patch adds, and keeping main's in step with the releases."""
 
 import re
+from typing import Callable
 
 import carried
 import publish_release
 
 VULNERABILITY = re.compile(r"GO-\d+-\d+")
-SECURITY = re.compile(r"^### Security\n(?P<bullets>.*?)(?=^### |\Z)", re.M | re.S)
 BULLET = re.compile(r"^- .*\n(?:[ \t]+\S.*\n)*", re.M)
 
 
@@ -54,26 +54,34 @@ def unreleased(changelog: str) -> re.Match | None:
 	return next((m for m in publish_release.SECTION.finditer(changelog) if m["name"] == "Unreleased"), None)
 
 
+def under_unreleased(changelog: str, heading: str) -> re.Match | None:
+	"""Unreleased's subsection under the heading, its bullets and the blank lines after them."""
+	section = unreleased(changelog)
+	subsection = re.compile(rf"^### {heading}\n(?P<bullets>.*?)(?=^### |\Z)", re.M | re.S)
+	return subsection.search(changelog, section.start("body"), section.end()) if section else None
+
+
 def reconcile(main: str, released: str) -> str:
-	"""Main's changelog with each release section the released changelog has and main lacks, and without each fix under
-	Unreleased's Security that those sections name, as one recorded before its patch was cut."""
+	"""Main's changelog with each release section the released changelog has and main lacks, and without each line under
+	Unreleased that those sections hold, as one recorded before its patch was cut: a fix naming only vulnerabilities they
+	name, or a Breaking line they repeat."""
 	have = {m["name"] for m in releases(main)}
 	missing = [m[0] for m in releases(released) if m["name"] not in have]
 	for text in reversed(missing):
 		main = insert_section(main, text)
-	return drop_fixes(main, set(VULNERABILITY.findall("".join(missing))))
+	shipped = "".join(missing)
+	main = drop(main, "Security", lambda bullet: names_only(bullet, set(VULNERABILITY.findall(shipped))))
+	return drop(main, "Breaking", lambda bullet: bullet in shipped)
 
 
-def drop_fixes(changelog: str, shipped: set[str]) -> str:
-	"""The changelog without each bullet under Unreleased's Security that names only shipped vulnerabilities, nor the
-	heading once it has no bullet left."""
-	section = unreleased(changelog)
-	security = SECURITY.search(changelog, section.start("body"), section.end()) if section else None
-	if security is None:
+def drop(changelog: str, heading: str, shipped: Callable[[str], bool]) -> str:
+	"""The changelog without each shipped bullet under Unreleased's heading, nor the heading once it has no bullet left."""
+	found = under_unreleased(changelog, heading)
+	if found is None:
 		return changelog
-	bullets = BULLET.sub(lambda bullet: "" if names_only(bullet[0], shipped) else bullet[0], security["bullets"])
-	kept = "### Security\n" + bullets if BULLET.search(bullets) else ""
-	return changelog[: security.start()] + kept + changelog[security.end() :]
+	bullets = BULLET.sub(lambda bullet: "" if shipped(bullet[0]) else bullet[0], found["bullets"])
+	kept = f"### {heading}\n" + bullets if BULLET.search(bullets) else ""
+	return changelog[: found.start()] + kept + changelog[found.end() :]
 
 
 def names_only(text: str, vulnerabilities: set[str]) -> bool:
@@ -82,21 +90,31 @@ def names_only(text: str, vulnerabilities: set[str]) -> bool:
 	return bool(named) and named <= vulnerabilities
 
 
-def record(changelog: str, fixed: list[str]) -> str:
-	"""The changelog with each line under Unreleased's Security, save one whose vulnerabilities a release section names."""
+def record(changelog: str, fixed: list[str], breaking: list[str]) -> str:
+	"""The changelog with each fixed line under Unreleased's Security, save one whose vulnerabilities a release section
+	names, and each Breaking line it lacks under Unreleased's Breaking, its first heading."""
 	released = set(VULNERABILITY.findall("".join(m[0] for m in releases(changelog))))
-	new = [line for line in fixed if not set(VULNERABILITY.findall(line)) <= released]
-	if not new:
+	changelog = add(changelog, "Security", [line for line in fixed if not set(VULNERABILITY.findall(line)) <= released], False)
+	return add(changelog, "Breaking", [line for line in breaking if f"- {line}\n" not in changelog], True)
+
+
+def add(changelog: str, heading: str, lines: list[str], first: bool) -> str:
+	"""The changelog with the lines as bullets under Unreleased's heading, made its first or last heading where it lacks it."""
+	if not lines:
 		return changelog
-	bullets = "".join(f"- {line}\n" for line in new)
+	bullets = "".join(f"- {line}\n" for line in lines)
+	found = under_unreleased(changelog, heading)
+	if found:
+		at = found.start("bullets") + len(found["bullets"].rstrip("\n")) + 1
+		return changelog[:at] + bullets + changelog[at:]
 	section = unreleased(changelog)
 	if section is None:
-		return insert_section(changelog, f"## [Unreleased]\n\n### Security\n\n{bullets}\n")
+		return insert_section(changelog, f"## [Unreleased]\n\n### {heading}\n\n{bullets}\n")
 	body = section["body"].strip("\n")
-	if "### Security" in body:
-		body += "\n" + bullets
+	if first:
+		body = f"### {heading}\n\n{bullets}" + ("\n" + body if body else "")
 	else:
-		body += ("\n\n" if body else "") + "### Security\n\n" + bullets
+		body += ("\n\n" if body else "") + f"### {heading}\n\n" + bullets
 	end = section.end()
 	tail = "\n\n" + changelog[end:] if end < len(changelog) else "\n"
 	return changelog[: section.start("body")] + "\n" + body.rstrip("\n") + tail

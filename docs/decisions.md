@@ -1094,10 +1094,16 @@ than the release's tree names, a change of supported systems (a tree before 0.2.
 none); or while a Go minor's release notes hold a sentence about a built-for system in a
 shape the script can't read, so the changelog would miss it. The job then exits 2, and the
 run stays red until the maintainer cuts a release or fixes the cause. The `plan` job runs
-after a failed release job too, so fixed items still move. A module waits for a release
+after a failed release job too, so fixed items still move. It also writes under
+Unreleased's Breaking what each Go minor `main` carries since the last release requires of
+a built-for system, so the release that first ships the minor names it, whether CI cuts it
+as a patch or the maintainer cuts it; a release section copied into `main` takes each such
+line it holds out of Unreleased, as it takes a fix it names. A module waits for a release
 the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
 required directly that the release doesn't, which is work merged since, or another line,
-such as a `go` line raising the lowest supported Go, which is a major. A tree still
+such as a `go` line raising the lowest supported Go, which is a major. While modules wait
+and nothing else is due, the job scans the last release's tree and waits the same way where
+it carries a known vulnerability, since a fix on `main` doesn't reach its users. A tree still
 vulnerable is nearly always one whose modules wait: the release job needs a clean scan of
 `main`, so the vulnerability sits in the release's own modules, which no fix on `main`
 reaches. Two cases differ. An advisory published between the two scans fails one release
