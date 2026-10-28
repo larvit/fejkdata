@@ -66,6 +66,7 @@ jobs:
       - name: The Go version the tag names
         id: go
         run: sed -n 's/^ARG GO_VERSION=/version=/p' src/Dockerfile >> "$GITHUB_OUTPUT"
+      # A release saves Go's build and module caches, and a pull request's dry run restores them.
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.go.outputs.version }}
@@ -162,7 +163,8 @@ jobs:
   repos:
     name: apt, dnf and apk repositories for ${{ inputs.tag || 'a dry run' }}
     needs: [packages, packages-dry-run]
-    # One of packages and packages-dry-run always skips, so this job runs unless one failed. A job below it would skip too, unless it checks results itself, as pages does.
+    # One of packages and packages-dry-run always skips, which skips every job after it unless
+    # its if: checks the results itself, as this one and pages' do.
     if: ${{ !cancelled() && !failure() && (needs.packages.outputs.latest == 'true' || !inputs.tag) }}
     runs-on: ubuntu-26.04
     permissions:
