@@ -85,7 +85,7 @@ jobs:
   release:
     name: Release from CHANGELOG.md, or a patch of the last release for what main carries
     needs: [test, vulnerabilities]
-    # The daily run skips the test job, so only a failed test job stops a release.
+    # The daily run skips the test job: a skipped test job doesn't stop a release, a failed one does.
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30

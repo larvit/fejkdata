@@ -268,7 +268,7 @@ README's `go get` and Development lines. The `lowest` stage fails while its Go's
 not `go.mod`'s `go` line, so a Renovate update that a stale `matchCurrentValue` lets
 through fails the gate. Serves the technical principles' semver, which counts a dropped
 runtime version as a change to what exists. Valid while fejkdata follows semver for the Go
-it builds with.
+versions a consumer builds it with.
 
 ## The format check runs on the latest Go only
 
@@ -1114,8 +1114,8 @@ under Unreleased's Breaking each requirement that a Go minor `main` carried sinc
 release sets on a built-for system, so the release that first ships the minor names it,
 whether CI cuts it as a patch or the maintainer cuts it. A release section copied into
 `main` removes from Unreleased each Breaking line and each fix that the section already
-holds. Where the job can't read the notes, it records no such line and still moves fixed
-items, since the release job fails on the same notes.
+holds. Where the job can't read the notes or `goreleaser.yaml`'s systems, it records no
+such line and still moves fixed items, since the release job fails on the same input.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a

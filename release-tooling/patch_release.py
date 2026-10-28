@@ -239,12 +239,11 @@ def plan(report: str, todo: str, changelog_path: str, last: str, notes: Callable
 
 def unreleased_breaking(last: str, notes: Callable[[str], str]) -> list[str]:
 	"""The Breaking lines of main's Go minors since the last release, for the release shipping them, a patch or one the maintainer cuts."""
-	built_for = go_release_notes.systems(read(GORELEASER_YAML))
 	old, new = carried.go_of(out("git", "show", f"{last}:Dockerfile")), carried.go_of(read("Dockerfile"))
 	try:
-		return go_release_notes.breaking_lines(old, new, built_for, notes)
+		return go_release_notes.breaking_lines(old, new, go_release_notes.systems(read(GORELEASER_YAML)), notes)
 	except ValueError as err:
-		print(f"Records no Breaking line, as the release job fails on the same notes: {err}", file=sys.stderr)
+		print(f"Records no Breaking line, as the release job fails on the same input: {err}", file=sys.stderr)
 		return []
 
 
