@@ -1,4 +1,5 @@
 import http.client
+import os
 import unittest
 from unittest import mock
 
@@ -11,6 +12,10 @@ BUILT_FOR = {"darwin", "linux", "windows", "amd64", "arm64"}
 class Systems(unittest.TestCase):
 	def test_are_goreleaser_yaml_s_goos_and_goarch(self):
 		self.assertEqual(go_release_notes.systems(GORELEASER), BUILT_FOR)
+
+	def test_read_the_shipped_goreleaser_yaml(self):
+		with open(os.path.join(os.path.dirname(__file__), "goreleaser.yaml")) as f:
+			self.assertLessEqual({"linux", "amd64"}, go_release_notes.systems(f.read()))
 
 	def test_a_goreleaser_yaml_naming_no_goos_is_refused(self):
 		with self.assertRaisesRegex(ValueError, "goos"):

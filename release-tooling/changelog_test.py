@@ -99,6 +99,10 @@ class Reconcile(unittest.TestCase):
 			MAIN.replace("### Added", "### Breaking\n\n- Drop a flag.\n\n### Added").replace("## [0.1.0]", patch + "## [0.1.0]"),
 		)
 
+	def test_a_breaking_section_of_prose_is_left(self):
+		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
+		self.assertEqual(changelog.reconcile(main, RELEASED), main)
+
 	def test_main_ahead_of_the_release_is_left(self):
 		main = MAIN.replace("## [Unreleased]\n\n### Added\n\n- A thing.\n\n", "## [0.2.0] - 2026-11-01\n\n- A thing.\n\n")
 		self.assertEqual(changelog.reconcile(main, RELEASED), main)
@@ -175,6 +179,13 @@ class Record(unittest.TestCase):
 		self.assertEqual(
 			changelog.record(bare, ["Fix GO-2026-0009."], []),
 			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
+		)
+
+	def test_a_breaking_line_goes_after_a_breaking_section_s_prose(self):
+		main = MAIN.replace("### Added", "### Breaking\n\nThe `--x` flag is gone.\n\n### Added")
+		self.assertEqual(
+			changelog.record(main, [], ["Go 1.28 requires macOS 14."]),
+			main.replace("The `--x` flag is gone.\n", "The `--x` flag is gone.\n\n- Go 1.28 requires macOS 14.\n"),
 		)
 
 	def test_nothing_fixed_leaves_the_changelog(self):
