@@ -1239,6 +1239,13 @@ runs every Action a release runs save `actions/deploy-pages`, and `docker/login-
 logs in to GHCR with a read-only token. It doesn't read a repository secret, so a pull
 request from a fork runs it too.
 
+The dry run builds in a job of its own, `packages-dry-run`, whose token can only read, so an
+Action a pull request updates can't write to the repository or GHCR before the
+maintainer sees it. Its steps are the release job's, through a YAML anchor. `test.yml`
+still grants the dry run every permission a release takes: GitHub refuses a caller that
+grants a called job less than it requests, a skipped job too. Each job's token gets only
+what the job itself requests.
+
 An update the dry run can't check waits for the maintainer: an Action that publishes, one
 whose output only such an Action reads, and a runner. `renovate.json` names each, and says
 why.

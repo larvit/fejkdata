@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 353 | 0.2.0 |  | security | **Run the Packages dry run with read-only tokens, so an Action a pull request updates gets no write access to the repository or GHCR before it merges.** | 3 | 2 | 2 | 5 | 3 | 1.1 by 3 | 2.0 |
 | 352 | 0.2.0 |  | owner | **Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.** | 3 | 2 | 2 | 5 | 3 | code health by 3 | 8.6 |
 | 169 | 0.3.0 |  | question | **Reword the decision "A parent row with no child row is a load error" to say what each geo import does with such a row: drop it, or exit where `geo-se.py` would lose a kommun or a län.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 9.1 |
 | 345 | 0.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.8 |
@@ -240,10 +239,6 @@
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 
 ## Details
-
-### 353. Run the Packages dry run with read-only tokens, so an Action a pull request updates gets no write access to the repository or GHCR before it merges.
-
-`.github/workflows/test.yml` `packages-dry-run` grants `contents: write`, `packages: write`, `pages: write` and `id-token: write`, since a reusable workflow's caller must grant every permission its jobs request, and `packages.yml`'s `packages` job requests `contents: write` and `packages: write` for a release. A pull request from a branch of this repository, as Renovate opens one, gets a token with those rights. The `packages` job's token gets `contents: write` and `packages: write`, and every Action that job runs can read it, through `github.token`, though no dry-run step needs more than `contents: read` and, for the GHCR login, `packages: read`. So an Action version that a Renovate pull request brings in could push a branch or tag, cut a GitHub release, or push to GHCR before the gate passes and the maintainer sees it. The Pages rights reach only the `pages` job, which a dry run skips. A fork's pull request gets a read-only token and is not exposed. Job permissions take no expression, so the fix moves the steps that write into jobs only a release runs, or gives the dry run jobs of its own. Found by the principles pass of PR #267.
 
 ### 352. Finish the Tests workflow on a pull request in 2 minutes or less, and the local `docker build .` with it.
 
