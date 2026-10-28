@@ -1249,6 +1249,10 @@ An update the dry run can't check waits for the maintainer: an Action that publi
 whose output only such an Action reads, and a runner. `renovate.json` names each, and says
 why.
 
+A push to `main` that changes those files runs the dry run too, so its Go caches are
+`main`'s, and the next pull request's dry run starts from them
+([the cache decision](#ci-keeps-gos-build-and-module-caches-between-mains-runs-and-a-pull-requests-build-starts-from-them)).
+
 The dry run also replaces the gate's former package-repository step, so the repository
 check has one CI implementation. A pull request changing what that step watched, Go code
 included, now runs the slower multi-platform dry run. The maintainer accepts that cost.
@@ -1276,8 +1280,12 @@ The Dockerfile keeps Go's build and module caches in one cache mount, at `/cache
 and `/cache/mod`, the paths `compose.yaml` uses. In the `test` job of `test.yml`,
 `actions/cache` and `buildkit-cache-dance` carry them between runs: a push to `main` saves
 them, and a pull request restores `main`'s latest and saves nothing, so a pull request
-doesn't pay for the upload. The build runs on the builder `setup-buildx-action` made,
-since the cache mount lives in that builder and not in Docker's default one. Go's caches
+doesn't pay for the upload. The job builds the Dockerfile's targets `portable` and
+`without-race` on two runners, each with caches of its own, since each builds different
+packages. The build runs on the builder `setup-buildx-action` made, since the cache mount
+lives in that builder and not in Docker's default one. The Packages dry run keeps
+GoReleaser's Go caches the same way, with `actions/cache` alone, since GoReleaser runs on
+the runner. Go's caches
 key every entry on its inputs, so a restored cache replays only work whose inputs are
 unchanged.
 
@@ -1286,6 +1294,7 @@ A pull request never runs the save and the extraction, so Renovate leaves an upd
 that broke them would fail `gate` on `main`, and hold every release.
 
 With the caches warm, a pull request's run measured 2m28s on 2026-10-28, against 2m51s
-without them.
+without them. With the race tests on a runner of their own, fewer draws under the race
+detector, and the dry run's caches, three runs measured 1m38s to 1m53s the same day.
 
 Valid while GitHub's cache serves a pull request the caches of its base branch.
