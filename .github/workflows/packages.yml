@@ -4,17 +4,17 @@ on:
   workflow_call:
     inputs:
       tag:
+        description: The released tag to package; without one, a dry run builds the checked-out commit, reads no secret and publishes nothing
         type: string
-        required: true
     secrets:
       TAP_GITHUB_TOKEN:
-        required: true
+        required: false
       PACKAGES_GPG_KEY:
-        required: true
+        required: false
       PACKAGES_RSA_KEY:
-        required: true
+        required: false
       DOCKERHUB_TOKEN:
-        required: true
+        required: false
   workflow_dispatch:
     inputs:
       tag:
@@ -26,12 +26,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: packages
+  group: ${{ inputs.tag && 'packages' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   packages:
-    name: Binaries, packages and image for ${{ inputs.tag }}
+    name: Binaries, packages and image for ${{ inputs.tag || 'a dry run' }}
     runs-on: ubuntu-26.04
     permissions:
       contents: write
@@ -66,12 +66,12 @@ jobs:
           FORGE_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          latest="$(python3 tooling/release-tooling/patch_release.py last)"
-          if [ "$latest" = "$TAG" ]; then
+          if [ -z "$TAG" ]; then
+            printf 'latest=true\nargs=--snapshot\n' >> "$GITHUB_OUTPUT"
+          elif [ "$(python3 tooling/release-tooling/patch_release.py last)" = "$TAG" ]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=--skip=homebrew,scoop" >> "$GITHUB_OUTPUT"
-            echo "OLDER_TAG=1" >> "$GITHUB_ENV"
+            printf 'latest=false\nargs=--skip=homebrew,scoop\n' >> "$GITHUB_OUTPUT"
           fi
       - uses: docker/setup-buildx-action@v4
       - uses: docker/login-action@v4
@@ -83,20 +83,38 @@ jobs:
         with:
           version: v2.18.3
           workdir: src
-          args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ steps.latest.outputs.skip }}
+          args: release --clean --config ../tooling/release-tooling/goreleaser.yaml ${{ steps.latest.outputs.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST: ${{ steps.latest.outputs.latest }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-      - name: The built binary and the published image print the tag
+      # A dry run's image is loaded locally, one per platform, its tag suffixed with the platform.
+      - name: The built binary and the image print the tag
         env:
           TAG: ${{ inputs.tag }}
         run: |
-          test "$(dist/fejkdata_linux_amd64_v1/fejkdata --version)" = "fejkdata $TAG"
-          test "$(docker run --rm "ghcr.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
+          printed="$(dist/fejkdata_linux_amd64_v1/fejkdata --version)"
+          if [ -n "$TAG" ]; then
+            test "$printed" = "fejkdata $TAG"
+            image="ghcr.io/larvit/fejkdata:${TAG#v}"
+          else
+            image="ghcr.io/larvit/fejkdata:$(jq -r .version dist/metadata.json)-amd64"
+          fi
+          test "$(docker run --rm "$image" --version)" = "$printed"
+      - uses: actions/upload-artifact@v7
+        if: steps.latest.outputs.latest == 'true'
+        with:
+          name: linux-packages
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.apk
+          retention-days: 1
 
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}
     needs: packages
+    if: inputs.tag
     runs-on: ubuntu-26.04
     permissions:
       packages: read
@@ -123,26 +141,20 @@ jobs:
           test "$(docker run --rm "docker.io/larvit/fejkdata:${TAG#v}" --version)" = "fejkdata $TAG"
 
   repos:
-    name: apt, dnf and apk repositories for ${{ inputs.tag }}
+    name: apt, dnf and apk repositories for ${{ inputs.tag || 'a dry run' }}
     needs: packages
     if: needs.packages.outputs.latest == 'true'
     runs-on: ubuntu-26.04
     permissions:
       contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: The release's Linux packages
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag }}
-        run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir packages --pattern '*.deb' --pattern '*.rpm' --pattern '*.apk'
+      - uses: actions/download-artifact@v8
+        with:
+          name: linux-packages
+          path: packages
       - uses: docker/setup-buildx-action@v4
       - name: Install fejkdata from each repository, then export them
         env:
@@ -150,6 +162,12 @@ jobs:
           PACKAGES_RSA_KEY: ${{ secrets.PACKAGES_RSA_KEY }}
           TAG: ${{ inputs.tag }}
         run: |
+          if [ -z "$TAG" ]; then
+            docker buildx build -f release-tooling/package-repos.Dockerfile --target throwaway-keys --output "$RUNNER_TEMP/keys" .
+            PACKAGES_GPG_KEY="$(cat "$RUNNER_TEMP/keys/gpg.asc")"
+            PACKAGES_RSA_KEY="$(cat "$RUNNER_TEMP/keys/rsa.pem")"
+            export PACKAGES_GPG_KEY PACKAGES_RSA_KEY
+          fi
           build() {
             docker buildx build -f release-tooling/package-repos.Dockerfile \
               --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY \
@@ -160,5 +178,18 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site
+
+  pages:
+    name: Deploy the repositories for ${{ inputs.tag }}
+    needs: repos
+    if: inputs.tag
+    runs-on: ubuntu-26.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@v5

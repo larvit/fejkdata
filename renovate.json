@@ -42,11 +42,22 @@
   ],
   "packageRules": [
     {
-      "description": "An update merges itself once the checks pass, and CI releases one to Go, a module go.mod requires or GoReleaser as a patch of the last release; a GitHub Action waits, since it also runs in jobs no pull request runs",
-      "matchManagers": [
-        "!github-actions"
+      "description": "An update merges itself once the checks pass, and CI releases one to Go, a module go.mod requires or GoReleaser as a patch of the last release",
+      "matchPackageNames": [
+        "*"
       ],
       "automerge": true
+    },
+    {
+      "description": "An Action that cannot run without publishing waits for the maintainer, since no pull request runs it",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "actions/deploy-pages",
+        "peter-evans/dockerhub-description"
+      ],
+      "automerge": false
     },
     {
       "groupName": "GoReleaser",
