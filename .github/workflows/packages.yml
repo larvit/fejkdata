@@ -186,7 +186,6 @@ jobs:
         with:
           name: linux-packages
           path: packages
-      - uses: docker/setup-buildx-action@v4
       - name: Install fejkdata from each repository, then export them
         env:
           PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
