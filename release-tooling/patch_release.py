@@ -19,7 +19,8 @@
       patch was cut. Plans the report in todo.md through file_vulnerabilities.py, and records
       each fixed item's line under Unreleased unless a release section already names its
       vulnerabilities. Records under Unreleased's Breaking what each Go minor main carries
-      since the last release requires of a built-for system, unless the changelog holds it.
+      since the last release requires of a built-for system, unless the changelog holds it;
+      where it cannot read Go's notes, it says so and records none, as `cut` fails on them.
 
 Run in a checkout of main, with the forge's env set as for publish_release.py and
 FORGE_SERVER_URL naming the forge's web host, which a push goes to. Exits 2 on
@@ -240,7 +241,12 @@ def plan(report: str, todo: str, changelog_path: str, last: str, notes: Callable
 def unreleased_breaking(last: str, notes: Callable[[str], str]) -> list[str]:
 	"""The Breaking lines of main's Go minors since the last release, for the release shipping them, a patch or one the maintainer cuts."""
 	built_for = go_release_notes.systems(read("release-tooling/goreleaser.yaml"))
-	return go_release_notes.breaking_lines(carried.go_of(out("git", "show", f"{last}:Dockerfile")), carried.go_of(read("Dockerfile")), built_for, notes)
+	old, new = carried.go_of(out("git", "show", f"{last}:Dockerfile")), carried.go_of(read("Dockerfile"))
+	try:
+		return go_release_notes.breaking_lines(old, new, built_for, notes)
+	except ValueError as err:
+		print(f"Records no Breaking line, as the release job fails on the same notes: {err}", file=sys.stderr)
+		return []
 
 
 def publish_on_forge(text: str, sha: str) -> tuple[int, str | None]:
