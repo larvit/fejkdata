@@ -2,4 +2,4 @@
 .claude/
 *.out
 data-import/cache/
-__pycache__/
+**/__pycache__/
