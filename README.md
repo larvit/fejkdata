@@ -1460,8 +1460,11 @@ the filer's tests file an item into `todo.md` themselves, so a change to the pla
 can fail them. The rest of the gate is the changelog check, which CI runs against the PR
 base, and the Packages dry run below. The check `gate` passes once each of these has
 passed or been skipped, and it is the only check that branch protection on `main`
-requires. Run `docker build .` locally before pushing. It keeps Go's build and module
-caches between runs, so a rerun tests only the packages a change reaches:
+requires. CI builds `docker build .` as two halves on two runners, to finish sooner: the
+target `portable` runs the latest Go's vet, complexity check and race tests, and the
+target `without-race` runs the rest. Run `docker build .` locally before pushing. It keeps
+Go's build and module caches between runs, so a rerun tests only the packages a change
+reaches:
 
 ```sh
 docker build .                                   # the whole build, on both Go versions
@@ -1484,7 +1487,8 @@ docker compose run --rm vulncheck
 ```
 
 A pull request that changes a workflow or what a release packages also runs the Packages
-workflow as a dry run. The `packaging` line of the `changes` step in
+workflow as a dry run, and so does a push to `main` that changes them, to keep the dry
+run's Go caches for the next pull request. The `packaging` line of the `changes` step in
 `.github/workflows/test.yml` lists those files. The dry run runs every Action a release
 runs save `actions/deploy-pages`, with a token that can only read. It builds the binaries
 for every platform, the packages and the images, then the apt, dnf and apk repositories,
