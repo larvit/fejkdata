@@ -1,4 +1,6 @@
+import http.client
 import unittest
+from unittest import mock
 
 import go_release_notes
 from fixtures import GORELEASER, NOTES
@@ -79,6 +81,14 @@ class BreakingLines(unittest.TestCase):
 
 	def test_a_go_patch_reads_no_notes(self):
 		self.assertEqual(go_release_notes.breaking_lines((1, 27, 1), (1, 27, 2), BUILT_FOR, None), [])
+
+
+class Fetch(unittest.TestCase):
+	def test_a_connection_that_drops_or_stalls_is_notes_it_cannot_read(self):
+		for err in (http.client.RemoteDisconnected("Remote end closed connection without response"), TimeoutError("The read operation timed out")):
+			with self.subTest(err=err), mock.patch("urllib.request.urlopen", side_effect=err):
+				with self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
+					go_release_notes.fetch("1.28")
 
 
 if __name__ == "__main__":

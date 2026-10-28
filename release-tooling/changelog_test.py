@@ -163,6 +163,20 @@ class Record(unittest.TestCase):
 		twice = changelog.record(changelog.record(main, [], ["Go 1.28 requires macOS 14."]), [], ["Go 1.28 requires macOS 14."])
 		self.assertEqual(twice, main.replace("- Drop a flag.\n", "- Drop a flag.\n- Go 1.28 requires macOS 14.\n"))
 
+	def test_a_breaking_line_goes_under_an_empty_unreleased(self):
+		empty = RELEASED.replace("## [0.1.0]", "## [Unreleased]\n\n## [0.1.0]")
+		self.assertEqual(
+			changelog.record(empty, [], ["Go 1.28 requires macOS 14."]),
+			"# Changelog\n\n## [Unreleased]\n\n### Breaking\n\n- Go 1.28 requires macOS 14.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
+		)
+
+	def test_a_fix_goes_under_a_security_heading_with_no_bullet(self):
+		bare = RELEASED.replace("## [0.1.0]", "## [Unreleased]\n\n### Security\n## [0.1.0]")
+		self.assertEqual(
+			changelog.record(bare, ["Fix GO-2026-0009."], []),
+			"# Changelog\n\n## [Unreleased]\n\n### Security\n\n- Fix GO-2026-0009.\n\n## [0.1.0] - 2026-10-13\n\nThe first release.\n",
+		)
+
 	def test_nothing_fixed_leaves_the_changelog(self):
 		self.assertEqual(changelog.record(MAIN, [], []), MAIN)
 
