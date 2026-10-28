@@ -1257,9 +1257,9 @@ Renovate merges through GitHub's auto-merge, which waits only for required check
 reusable workflow's checks take its jobs' names when it runs, and the calling job's name
 when it is skipped. So no one dry-run check appears on every pull request, and none can be
 required. The `gate` job in `test.yml` runs on every pull request and every push to
-`main`, and passes once the changes job, which holds the changelog check, has passed, and
-the tests and the dry run have each passed or been skipped. Branch protection on `main`
-requires it alone, and a push to `main` releases only once it passes. Renovate's
+`main`. It passes once the `changes` job, which holds the changelog check, has passed,
+and the tests and the dry run have each passed or been skipped. Branch protection on
+`main` requires it alone, and a push to `main` releases only once it passes. Renovate's
 `platformAutomerge: false` would make a merge wait for every check, the vulnerabilities
 job included, which the decision on known vulnerabilities forbids.
 
@@ -1272,21 +1272,20 @@ permission runs only with a tag.
 2026-10-28, the maintainer, for code health: a gate that finishes sooner is one a
 contributor waits on less before changing the code again.
 
-The Dockerfile keeps Go's build and module caches in one cache mount, at `compose.yaml`'s
-paths under `/cache`. In the `test` job of `test.yml`, `actions/cache` and
-`buildkit-cache-dance` carry them between runs: a push to `main` saves them, and a pull
-request restores `main`'s latest and saves nothing, so a pull request doesn't pay for the
-upload. The build runs on the builder `setup-buildx-action` made, since the cache mount
-lives in that builder and not in Docker's default one. Go's caches key every entry on its
-inputs, so a restored cache replays only work whose inputs are unchanged.
+The Dockerfile keeps Go's build and module caches in one cache mount, at `/cache/build`
+and `/cache/mod`, the paths `compose.yaml` uses. In the `test` job of `test.yml`,
+`actions/cache` and `buildkit-cache-dance` carry them between runs: a push to `main` saves
+them, and a pull request restores `main`'s latest and saves nothing, so a pull request
+doesn't pay for the upload. The build runs on the builder `setup-buildx-action` made,
+since the cache mount lives in that builder and not in Docker's default one. Go's caches
+key every entry on its inputs, so a restored cache replays only work whose inputs are
+unchanged.
 
 A pull request never runs the save and the extraction, so Renovate leaves an update to
 `actions/cache` or `buildkit-cache-dance` to the maintainer: one that broke them would
 fail `gate` on `main`, and hold every release.
 
 With the caches warm, a pull request's run measured 2m28s on 2026-10-28, against 2m51s
-without them. Most of what is left is the root package's race tests, about 80s on the
-runner's four CPUs: nearly every pull request changes a file those tests read, so they
-rerun.
+without them.
 
 Valid while GitHub's cache serves a pull request the caches of its base branch.
