@@ -1450,15 +1450,16 @@ whenever it recurs:
 docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g)" /cache
 ```
 
-Every pull request runs the two halves of `docker build .`, the targets `latest` and
-`lowest-and-tooling`, on two runners, and must pass before it can be merged — unless it
-changes none of the files the build and its tests read, nor the workflow itself, in which
-case it's skipped. On the latest supported Go, that build runs vet, complexity,
-the format check and the Go tests under the race detector. On the lowest, which the
-Dockerfile's `LOWEST_GO_VERSION` names, it runs vet and the Go tests, without the race
-detector. It also runs the release tooling's tests and the vulnerability filer's tests;
-the filer's tests file an item into `todo.md` themselves, so a change to the plan's shape
-can fail them. The rest of the gate is the changelog check, which CI runs against the PR
+Every pull request must pass `docker build .` before it can be merged. CI skips the build
+for a pull request that changes none of the files the build and its tests read, nor the
+workflow itself. Otherwise CI runs the build's two halves, the targets `latest` and
+`lowest-and-tooling`, on two runners. `latest` runs the format check, vet, the complexity
+check and the Go tests under the race detector, on the latest supported Go.
+`lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
+Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
+tooling's tests, the vulnerability filer's tests and the check of GoReleaser's config; the
+filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
+fail them. The rest of the gate is the changelog check, which CI runs against the PR
 base, and the Packages dry run below. The check `gate` passes once each of these has
 passed or been skipped, and it is the only check that branch protection on `main`
 requires. Run `docker build .` locally before pushing. It keeps Go's build and module
