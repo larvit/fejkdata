@@ -69,20 +69,8 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.go.outputs.version }}
-          cache: false
-      - name: Go's build and module caches, kept by main's dry runs
-        if: ${{ !inputs.tag && github.event_name == 'push' }}
-        uses: actions/cache@v6
-        with: &go-caches
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: dry-run-go-caches-${{ github.sha }}
-          restore-keys: dry-run-go-caches-
-      - name: Go's build and module caches from main's last dry run
-        if: ${{ !inputs.tag && github.event_name != 'push' }}
-        uses: actions/cache/restore@v6
-        with: *go-caches
+          cache: true
+          cache-dependency-path: src/go.mod
       - name: Whether the tag is the latest release
         id: latest
         if: inputs.tag
@@ -174,6 +162,7 @@ jobs:
   repos:
     name: apt, dnf and apk repositories for ${{ inputs.tag || 'a dry run' }}
     needs: [packages, packages-dry-run]
+    # One of packages and packages-dry-run always skips, so this job runs unless one failed. A job below it would skip too, unless it checks results itself, as pages does.
     if: ${{ !cancelled() && !failure() && (needs.packages.outputs.latest == 'true' || !inputs.tag) }}
     runs-on: ubuntu-26.04
     permissions:

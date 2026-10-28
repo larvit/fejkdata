@@ -391,7 +391,7 @@ func (s quickStartShipped) checkPerson(p quickStartPerson) error {
 	if number < 0 {
 		return fmt.Errorf("street %q has no number", p.street)
 	}
-	if !s.places.has(p.street[:number] + "|" + p.postalCode + "|" + p.locality + "|") {
+	if !s.places.has(p.street[:number], p.postalCode, p.locality, "") {
 		return fmt.Errorf("street %q, postal code %q and locality %q do not belong together", p.street, p.postalCode, p.locality)
 	}
 	return nil
