@@ -1459,7 +1459,8 @@ tooling's tests and the vulnerability filer's tests; the filer's tests file an i
 `todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base,
 and the Packages dry run below. The check `gate` passes once each of these has passed or
 been skipped, and it is the only check that branch protection on `main` requires. Run
-`docker build .` locally before pushing:
+`docker build .` locally before pushing. It keeps Go's build and test caches between
+runs, so a rerun tests only the packages a change reaches:
 
 ```sh
 docker build .                                   # the whole build, on both Go versions
