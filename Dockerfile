@@ -1,18 +1,19 @@
 ARG GO_VERSION=1.27.3
 ARG LOWEST_GO_VERSION=1.22.12
 FROM golang:${GO_VERSION} AS portable
-
+ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
 WORKDIR /app
 COPY . .
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=cache,target=/cache \
 	go vet ./... && \
 	go run github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0 -over 14 -ignore _test . && \
 	go test -race ./...
 
 FROM golang:${LOWEST_GO_VERSION} AS lowest
+ENV GOCACHE=/cache/build GOMODCACHE=/cache/mod
 WORKDIR /app
 COPY . .
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=cache,target=/cache \
 	lowest="go$(sed -n 's/^go \([0-9]*\.[0-9]*\).*/\1/p' go.mod)" && \
 	{ test "$(go env GOVERSION | cut -d. -f1-2)" = "$lowest" || \
 		{ echo "LOWEST_GO_VERSION is not $lowest, go.mod's go line"; exit 1; }; } && \
