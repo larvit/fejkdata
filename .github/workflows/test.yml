@@ -33,15 +33,17 @@ jobs:
             git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
             base="origin/${GITHUB_BASE_REF:-main}"
           fi
-          echo "base=$base" >> "$GITHUB_ENV"
           changed() { git diff --quiet "$base"...HEAD -- "$@" && echo false || echo true; }
           {
             echo "code=$(changed '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling renovate.json testdata vulnerability-filing README.md todo.md)"
             echo "packaging=$(changed '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows)"
+            echo "base=$base"
           } >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
+        env:
+          BASE: ${{ steps.changes.outputs.base }}
         run: |
-          if ! git diff --quiet "${base:?}"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
+          if ! git diff --quiet "${BASE:?}"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$BASE"...HEAD -- CHANGELOG.md; then
             echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
           fi
@@ -76,8 +78,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           cache-map: '{"${{ runner.temp }}/go-caches": "/cache"}'
           skip-extraction: ${{ github.event_name != 'push' }}
-      # `docker build` streams the context to the daemon. A compose bind-mount of
-      # `.` mounts an empty host dir instead, because the job is itself a container.
+          scratch-dir: ${{ runner.temp }}/buildkit-cache-dance
+          utility-image: busybox:1.38.0
       - name: Latest and lowest supported Go
         run: docker buildx build --builder '${{ steps.buildx.outputs.name }}' .
 
@@ -98,13 +100,13 @@ jobs:
     if: always() && github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     steps:
-      - name: The changes and changelog check passed, and the tests and the Packages dry run passed or had nothing to check
+      - name: The changes job passed, and the tests and the Packages dry run passed or were skipped
         env:
           CHANGES: ${{ needs.changes.result }}
           TESTS: ${{ needs.test.result }}
           DRY_RUN: ${{ needs.packages-dry-run.result }}
         run: |
-          echo "changes and changelog check: $CHANGES, tests: $TESTS, Packages dry run: $DRY_RUN"
+          echo "changes job: $CHANGES, tests: $TESTS, Packages dry run: $DRY_RUN"
           [ "$CHANGES" = success ] && { [ "$TESTS" = success ] || [ "$TESTS" = skipped ]; } && { [ "$DRY_RUN" = success ] || [ "$DRY_RUN" = skipped ]; }
 
   vulnerabilities:
@@ -132,7 +134,7 @@ jobs:
     name: Release from CHANGELOG.md, or a patch of the last release for what main carries
     needs: [gate, vulnerabilities]
     # The daily run skips the gate: a skipped gate doesn't stop a release, a failed one does.
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.gate.result != 'failure' }}
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.vulnerabilities.result == 'success' && needs.gate.result != 'failure' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     concurrency:
