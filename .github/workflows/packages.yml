@@ -201,7 +201,7 @@ jobs:
   pages:
     name: Deploy the repositories to GitHub Pages
     needs: repos
-    if: ${{ !cancelled() && !failure() && inputs.tag }}
+    if: ${{ !cancelled() && needs.repos.result == 'success' && inputs.tag }}
     runs-on: ubuntu-26.04
     permissions:
       pages: write
