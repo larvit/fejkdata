@@ -216,6 +216,13 @@ class Cut(Repository):
 			self.cut()
 		self.published.assert_not_called()
 
+	def test_go_notes_it_cannot_read_are_named_before_main_s_other_targets(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.28.0")), ("release-tooling/goreleaser.yaml", GORELEASER.replace("windows", "windows, freebsd")))
+		self.effects = self.effects._replace(go_notes=lambda minor: NOTES.replace("now requires", "drops everything below"))
+		with self.assertRaisesRegex(ValueError, "^Go 1.28's release notes say under Windows: "):
+			self.cut()
+		self.published.assert_not_called()
+
 	def test_main_building_other_targets_than_the_release_is_refused(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("release-tooling/goreleaser.yaml", GORELEASER.replace("windows", "freebsd")))
 		with self.assertRaisesRegex(ValueError, "^main's release-tooling/goreleaser.yaml builds for other targets than v0.1.0"):
