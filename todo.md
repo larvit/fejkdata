@@ -340,6 +340,8 @@ Item 26 revises the decision, but the decision does not point back to it.
 
 `reading-cost` after the chunk of item 292, on 2026-10-22: "Rising: the last 5 chunks' median is 113334 new input tokens before their first commit, the 5 before them 78241". It listed no file read most over the last 5.
 
+`reading-cost` after the chunk of item 347, on 2026-10-28: "Rising: the last 5 chunks' median is 110298 new input tokens before their first commit, the 5 before them 97116". It listed no file read most over the last 5.
+
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
 Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
