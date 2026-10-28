@@ -16,7 +16,7 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 	def assert_names_a_goreleaser_version(self, pattern: re.Pattern):
 		match = pattern.search(repository_file(".github/workflows/packages.yml"))
 		self.assertIsNotNone(match, f"{pattern.pattern} finds no GoReleaser version in .github/workflows/packages.yml")
-		self.assertRegex(match[1], r"^v2\.\d+\.\d+$")
+		self.assertRegex(match[1], r"^v\d+\.\d+\.\d+$")
 
 	def test_names_a_goreleaser_version_carried_reads(self):
 		self.assert_names_a_goreleaser_version(carried.GORELEASER)
@@ -26,6 +26,12 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 		(manager,) = [m for m in managers if m.get("depNameTemplate") == "goreleaser/goreleaser"]
 		javascript_named_group = r"\(\?<(\w+)>"
 		self.assert_names_a_goreleaser_version(re.compile(re.sub(javascript_named_group, r"(?P<\1>", manager["matchStrings"][0])))
+
+	def test_names_the_goreleaser_both_dockerfiles_build_with(self):
+		(version,) = carried.GORELEASER.findall(repository_file(".github/workflows/packages.yml"))
+		image = re.compile(r"^FROM goreleaser/goreleaser:(\S+) ", re.M)
+		for dockerfile in ["Dockerfile", "release-tooling/package-repos.Dockerfile"]:
+			self.assertEqual(image.findall(repository_file(dockerfile)), [version], dockerfile)
 
 
 class Of(unittest.TestCase):
