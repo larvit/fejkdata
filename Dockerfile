@@ -31,12 +31,12 @@ FROM scratch AS vulnerability-report
 COPY --from=vulnerabilities /report.json /
 
 # The full image ships git, which patch_release's tests drive; patch_release runs the filer.
-FROM python:3.15.1 AS release-tooling
+FROM python:3.15.2 AS release-tooling
 COPY release-tooling/ /release-tooling/
 COPY vulnerability-filing/ /vulnerability-filing/
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
-FROM python:3.15.1-slim AS vulnerability-filing
+FROM python:3.15.2-slim AS vulnerability-filing
 COPY vulnerability-filing/ /vulnerability-filing/
 # The filer's test files an item into the plan itself.
 COPY todo.md /todo.md
