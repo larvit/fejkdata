@@ -1483,8 +1483,8 @@ docker compose run --rm vulncheck
 
 A pull request that changes Go code, `release-tooling/`, the `Dockerfile`,
 `.dockerignore`, the licence files or a workflow also runs the Packages workflow as a dry
-run. It runs every Action a release runs save `actions/deploy-pages`, and
-`docker/login-action` logs in to GHCR with a read-only token. It builds the binaries for
+run. It runs every Action a release runs save `actions/deploy-pages`, with a token that
+can only read. It builds the binaries for
 every platform, the packages and the images, then the apt, dnf and apk repositories,
 signed with throwaway keys, and installs fejkdata from each repository. It doesn't publish
 any of them or read a repository secret, so it runs on a pull request from a fork too. The
