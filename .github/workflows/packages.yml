@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       tag:
-        description: The released tag to package; without one, a dry run builds the checked-out commit, reads no secret and publishes nothing
+        description: The released tag to package; without one, a dry run builds the checked-out commit, doesn't read a repository secret or publish anything
         type: string
     secrets:
       TAP_GITHUB_TOKEN:
@@ -78,7 +78,8 @@ jobs:
           FORGE_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          if [ "$(python3 tooling/release-tooling/patch_release.py last)" = "$TAG" ]; then
+          last="$(python3 tooling/release-tooling/patch_release.py last)"
+          if [ "$last" = "$TAG" ]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: docker/setup-buildx-action@v4
@@ -118,12 +119,11 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.apk
-          retention-days: 1
+          retention-days: ${{ inputs.tag && 90 || 1 }}
 
   dockerhub:
-    name: Docker Hub image for ${{ inputs.tag }}
+    name: Docker Hub image for ${{ inputs.tag || 'a dry run' }}
     needs: packages
-    if: inputs.tag
     runs-on: ubuntu-26.04
     permissions:
       packages: read
@@ -134,10 +134,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/login-action@v4
+        if: inputs.tag
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Copy the GHCR image to Docker Hub, and check it prints the tag
+        if: inputs.tag
         env:
           LATEST: ${{ needs.packages.outputs.latest }}
           TAG: ${{ inputs.tag }}
@@ -189,7 +191,7 @@ jobs:
           path: site
 
   pages:
-    name: Deploy the repositories for ${{ inputs.tag }}
+    name: Deploy the repositories to GitHub Pages
     needs: repos
     if: inputs.tag
     runs-on: ubuntu-26.04

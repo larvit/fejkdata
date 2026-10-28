@@ -49,13 +49,21 @@
       "automerge": true
     },
     {
-      "description": "An Action that cannot run without publishing waits for the maintainer, since no pull request runs it",
+      "description": "An Action no pull request runs, since it publishes, waits for the maintainer, and so does one whose output only such an Action reads",
       "matchManagers": [
         "github-actions"
       ],
       "matchPackageNames": [
         "actions/deploy-pages",
+        "actions/upload-pages-artifact",
         "peter-evans/dockerhub-description"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "A runner update waits for the maintainer, since jobs no pull request runs, such as the release, run on the runner",
+      "matchDatasources": [
+        "github-runners"
       ],
       "automerge": false
     },
