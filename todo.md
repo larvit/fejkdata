@@ -43,7 +43,6 @@
 | 34 | 0.3.0 |  |  | **Add `{isin()}`, `{cusip()}`, `{aba()}` and `{vin()}`.** | 2 | 1 | 2 | 3 | 4 | 1 by 1, 3 by 4 | 2.1 |
 | 154 | 0.3.0 | 34 |  | **Add `en_US.routing`, an ABA routing number over the Fed's prefix ranges with its check digit drawn by `{aba()}`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 5.9 |
 | 243 | 0.3.0 |  |  | **Add `en_US.ein`, drawing only the prefixes the IRS assigns.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, 2.1 by 3, 3 by 3 | 5.9 |
-| 72 | 0.3.0 |  | principle | **Fail the merge gate when test coverage falls below the last recorded figure.** | 2 | 2 | 1 | 3 | 3 | code health by 2 | 5.7 |
 | 350 | 0.3.0 |  | decision | **Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.** | 3 | 2 | 3 | 6 | 5 | code health by 5 | 5.7 |
 | 210 | 0.3.0 |  |  | **Add `fr_FR` with its given names by sex, last names and titles, and `fr_FR.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.9 |
 | 273 | 0.3.0 | 210 |  | **Add `fr_FR`'s national personal id, the NIR, the numéro de sécurité sociale, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 5.1 |
@@ -376,10 +375,6 @@ Today `containedNode`'s cell line in `graph.go`, `table.compileCells` and each s
 ### 243. Add `en_US.ein`, drawing only the prefixes the IRS assigns.
 
 The IRS's prefix list is facts. [Source research](docs/research/research-sources-world.md).
-
-### 72. Fail the merge gate when test coverage falls below the last recorded figure.
-
-`technical-principles.md` holds that test coverage should not decline. `docker compose run --rm cover` prints the figure, and neither the `Dockerfile` gate nor `.github/workflows/test.yml` checks it.
 
 ### 350. Bring the release path's links down until paired rulings against f90b4d6 and 5aca8a1 no longer find the project reads worse.
 
