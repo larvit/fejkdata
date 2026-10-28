@@ -1,3 +1,5 @@
 .git/
 .claude/
 *.out
+data-import/cache/
+__pycache__/

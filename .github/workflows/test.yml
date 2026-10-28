@@ -41,7 +41,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
         run: |
-          if ! git diff --quiet "$base"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
+          if ! git diff --quiet "${base:?}"...HEAD -- data testdata/shipped_shape.txt && git diff --quiet "$base"...HEAD -- CHANGELOG.md; then
             echo "::error::the shipped data changed without a CHANGELOG.md entry (see the README's Versioning)"
             exit 1
           fi
@@ -59,7 +59,6 @@ jobs:
         id: buildx
         with:
           cleanup: false
-      # Only a push to main saves the caches, and a pull request starts from main's.
       - name: Go's build and module caches, kept by main's runs
         if: github.event_name == 'push'
         uses: actions/cache@v6

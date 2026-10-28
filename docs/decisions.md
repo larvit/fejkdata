@@ -1280,6 +1280,10 @@ upload. The build runs on the builder `setup-buildx-action` made, since the cach
 lives in that builder and not in Docker's default one. Go's caches key every entry on its
 inputs, so a restored cache replays only work whose inputs are unchanged.
 
+A pull request never runs the save and the extraction, so Renovate leaves an update to
+`actions/cache` or `buildkit-cache-dance` to the maintainer: one that broke them would
+fail `gate` on `main`, and hold every release.
+
 With the caches warm, a pull request's run measured 2m28s on 2026-10-28, against 2m51s
 without them. Most of what is left is the root package's race tests, about 80s on the
 runner's four CPUs: nearly every pull request changes a file those tests read, so they
