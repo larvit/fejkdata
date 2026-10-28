@@ -435,6 +435,7 @@ func readmeStruct(t *testing.T, block string) reflect.Type {
 }
 
 func TestReadmeBulkQuickStart(t *testing.T) {
+	t.Parallel()
 	section := readmeSection(t, readme(t), "### Bulk fixtures")
 	block := jsonBlock.FindStringSubmatch(section)
 	if block == nil {
@@ -486,6 +487,7 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 }
 
 func TestReadmeGoQuickStart(t *testing.T) {
+	t.Parallel()
 	section := readmeSection(t, readme(t), "### Go tests")
 	block := goBlock.FindStringSubmatch(section)
 	printed := regexp.MustCompile(`(?m)^\s*// With seed 1, p is (\{.*\})$`).FindStringSubmatch(section)

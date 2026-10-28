@@ -317,6 +317,7 @@ func TestShippedNorwegianEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 // The active units of each form in Enhetsregisteret on 2026-10-22, leaving out the bankrupt, those being
 // wound up and those forcibly dissolved.
 func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testing.T) {
+	t.Parallel()
 	f := shipped(t, WithSeed(6))
 	registered := map[string]int{"ENK": 465166, "AS": 423370, "DA": 9105, "SA": 6761, "ANS": 6214, "ASA": 205, "KS": 105}
 	const draws = 400000
@@ -349,6 +350,7 @@ func TestShippedNorwegianCompanyEndsInALegalFormDrawnByEnhetsregisteret(t *testi
 // oneWord is, per form, the weight of the shipped shapes that are one word and the weight of all its
 // shipped shapes, as company-no.py wrote them; the test holds a render to them.
 func TestShippedNorwegianCompanyNamesFollowTheShapesOfEnhetsregisteret(t *testing.T) {
+	t.Parallel()
 	oneWord := map[string][2]int{"AS": {101525, 337759}, "ENK": {9115, 350561}, "SA": {874, 5505}, "DA": {2067, 6829}, "ANS": {1165, 3980}, "ASA": {88, 186}, "KS": {16, 83}}
 	const draws = 40000
 	for form, c := range oneWord {
