@@ -938,3 +938,116 @@ Junior A, decided by:
 - Navigation: `README.md:1486` "Development": points to the one list of packaging files
 - Shape: `vulnerability-filing/file_vulnerabilities.py:115` `release_for`: one rule, two inputs
 - Locality: `.github/workflows/packages.yml:42` `packages`: the anchor shares steps across both modes, which helps and costs about equally
+
+## 2026-10-28T19:03:28Z, PR #270 at bea5b7c, against e192e2b
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Shape, Navigation: `Dockerfile:3` `latest`: named for what it is, the build on the latest Go, and for the CI target that runs it, where `portable` hinted at something it doesn't do
+- Navigation: `.github/workflows/test.yml:52` `test`: each matrix leg is named for the Dockerfile target it builds, where one `vet + fmt + tests` job didn't say which half broke
+- Locality, Self-sufficiency: `Dockerfile:52` `lowest-and-tooling`: each check sits in the stage it belongs to, and the final stage's comment says where a new check goes
+- Self-sufficiency, Locality: `.github/workflows/packages.yml:166` `repos`: the comment says why its `if:` checks its needs' results itself, and the one at `:69` says who saves and who restores setup-go's cache
+- Locality: `.github/workflows/test.yml:72` `go-caches`: the key names the target, so the two legs can't overwrite each other's cache
+- Self-sufficiency: `README.md:1453` "Development": names both targets and what each runs, in the Dockerfile's and the workflow's words
+
+Inherited architect, decided by:
+
+- Navigation, Locality: `Dockerfile:52` `lowest-and-tooling`: a failed job's name leads straight to a stage of that name, and the format check no longer runs at the end of an unnamed final stage
+- Locality, Shape: `data_test.go:757` `geoPlaceSet`: the typed `has` replaces a joined `street|code|locality|region` key that two callers rebuilt by hand
+- Shape: `Dockerfile:3` `latest`: the latest-Go stage is named as the counterpart of `lowest`, matching the README, the matrix and `release-tooling/fixtures.py:4`
+- Self-sufficiency: `.github/workflows/packages.yml:166` `repos`: the comment explains GitHub's skip rule, which a reader of the base had to know from GitHub's docs
+- Self-sufficiency: `README.md:1453` "Development": names the two targets and what each runs, the GoReleaser config check included
+- Self-sufficiency: `share_draws_race_test.go:5` `shareDraws`: a small cost; nothing says why the race build draws fewer, though `assertShare` scales its bounds with the draws
+
+## 2026-10-28T19:10:18Z, PR #270 at bea5b7c
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6 | 6 |
+| Inherited architect | 7.5 | 5.5 | 6 | 7.5 | 6.5 |
+| Mean | 7.13 | 5.50 | 6.38 | 6.38 | 6.13 |
+
+Junior A, hardest first:
+
+- `pick.go:9` `pickKey`: levels, addressed keys and moving a key under the template's key took three passes, with a heap-escape rule hidden in readUnder's index arithmetic
+- `path.go:190` `drawSteps`: climbed and drawMemo.stepDownPins decide whether a step down draws afresh, rebuilt only through rows.Pins.Above
+- `namefence.go:76` `refuseTwiceDrawnIn`: which template shape it refuses stays unclear without an example
+- `datatype.go:230` `columnReadOf`: readsColumn couples four functions in three files
+- `table.go:253` `table.route`: readsRow, pinnedBelow and fromRow combine into draw
+
+Mid A, hardest first:
+
+- `pick.go:179` `readName`: frames, base, pick, pickAt, the memo fields and the pins held at once, and readUnder changes the levels it is given
+- `render.go:146` `readField`: three read paths, the fresh one with its own pins and frame
+- `path.go:190` `drawSteps`: climbed and stepDownPins decide when a step down draws again
+- `table.go:253` `route`: four booleans into draw and next, proven only with a truth table
+- `arm.go:90` `compileArm`: a named read takes levelKeys from 0 and a fresh read from 1, with no word why
+
+Maintainability senior, hardest first:
+
+- `pick.go:28` `pickKey`: levels against addressed keys live in four files: pick.go, arm.go, resolve.go and namefence.go
+- `namefence.go:76` `refuseTwiceDrawnIn`: the load-time proof that picks stay consistent, unprovable by reading
+- `path.go:190` `drawSteps`: climbed, the step-down memo and route's flags decide together whether a row is drawn
+- `datatype.go:230` `columnReadOf`: a four-function change-together set held only by a comment
+- `env.go:71` `enter`: which frames a nested render sees, with comments on heap escape rather than visibility
+- `path.go:145` `walkEvery`: a slice-capacity trick forces copy-on-append, with nothing saying why
+
+Inherited architect, would restructure first:
+
+- `pick.go:179` `readName`: pick, pin, memo and frame are four views of one fixed draw, held at once
+- `node.go:65` `template`: filled in four phases by four files, with readsColumn's change-together set
+- `render.go:56` `render`: a switch that renderEdges and contained in graph.go must mirror
+- `format.go:1` `compileFormat`: the root format.go checks and compiles, it doesn't format
+- `.github/workflows/test.yml:136` `release`: the Tests workflow also releases and plans vulnerability fixes
+- `cli/cli.go:508` `isPath`: copies the path grammar
+
+## 2026-10-28T19:15:31Z, PR #270 rerun at bea5b7c
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7 | 5 | 6 | 6 | 6 |
+| Mid A | 7 | 5.5 | 6.5 | 6.5 | 6 |
+| Maintainability senior | 7 | 5.5 | 6 | 6 | 6 |
+| Inherited architect | 7 | 5.5 | 6.5 | 7 | 6.5 |
+| Mean | 7.00 | 5.38 | 6.25 | 6.38 | 6.13 |
+
+Junior A, hardest first:
+
+- `pick.go:70` `keptInPick`: pick-key levels, addressed keys, the memo fields and the frame stack held at once to say whether a fresh read is kept
+- `name.go:61` `bindNames`: the scope condition in the gather closure carries a rule stated nowhere near it
+- `path.go:190` `drawSteps`: climbed and stepDownPins, beside walkEvery's unmarked slice aliasing
+- `namefence.go:76` `refuseTwiceDrawnIn`: depends on pick.go's addressed keys, in another file
+- `table.go:253` `route`: readsRow, pinnedBelow and draw tabulated by hand
+
+Mid A, hardest first:
+
+- `pick.go:9` `pickKey`: levels and addressed keys explained in one dense comment, with readUnder building them by hand
+- `pick.go:179` `readName`: one name, one pick across categories is carried by frames a memo shares, stated at no read site
+- `namefence.go:76` `refuseTwiceDrawnIn`: two walks mixed, and which programs it refuses needs the README
+- `path.go:190` `drawSteps`: `..`, climbed, stepDownPins and pinnedBelow across three files and rows/pins.go
+- `render.go:146` `readField`: three paths, and clearing env.pick only makes sense after pickKey
+
+Maintainability senior, hardest first:
+
+- `pick.go:79` `readUnder`: whether a read is kept depends on addressed keys gathered at load from other templates
+- `namefence.go:346` `refuseTwiceDrawnIn`: recurses with refuseTwiceDrawn, and no sentence states the invariant they enforce
+- `render.go:146` `readField`: why a fresh read forgets the pick lives in another file
+- `datatype.go:230` `columnReadOf`: three-index slice appends with no stated reason, feeding four coupled readers
+- `node.go:65` `template`: filled in four stages by four files, with no word on which field is valid when
+
+Inherited architect, would restructure first:
+
+- `pick.go:70` `keptInPick`: keeping a name's draw spans six root files plus internal/rows/pins.go
+- `render.go:56` `render`: one of six node-kind switches a new kind must touch, kept in step with renderEdges by a comment
+- `datatype.go:230` `columnReadOf`: column-read resolution filed under a type name
+- `calc.go:51` `checkOperands`: the root calc.go only checks, sharing its stem with two other calc files
+- `AGENTS.md:3` "Rules": the compose-service list omits cover, bench, dev, tidy and data-import
