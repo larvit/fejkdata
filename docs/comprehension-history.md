@@ -870,3 +870,29 @@ Inherited architect, decided by:
 - Locality: `release-tooling/patch_release.py:231` `plan` and :240 `unreleased_breaking`: the first place to rot; `cut` takes `root`, but `plan` reads files relative to the current directory and runs `git show` with no `cwd`, two conventions in one module
 - Locality: `release-tooling/changelog.py:95` `record` and :74 in `reconcile`, with `go_release_notes.py:65` `breaking_lines`: deduplication and reconciliation match the exact text `breaking_lines` produces, so rewording it in one file quietly breaks the other; a new coupling
 - Navigation: `release-tooling/carried.py:8` `GORELEASER`: the regex reading packages.yml's GoReleaser version copies `renovate.json`'s `matchStrings`, so a change to that step has to know both
+
+## 2026-10-28T12:09:11Z, PR #265 at ece8375, against 1524d0e
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | same | worse | better | better | better |
+| Inherited architect | same | same | better | same | better |
+
+Mid A, decided by:
+
+- Locality: `.github/workflows/packages.yml:7` `on.workflow_call.inputs.tag`: an empty tag turns the release workflow into a dry run, and a dozen distant expressions re-read that switch, so changing one step means holding "no tag publishes nothing" across the file, where 1524d0e had one path that always took a tag
+- Shape, Self-sufficiency: `renovate.json:51` `packageRules`: the blanket `!github-actions` rule becomes rules naming exactly what waits, each description saying why, so a reader learns why an update did not merge itself without another document
+- Locality, Shape: `release-tooling/goreleaser.yaml:60` `dockers_v2.tags`: one positive `LATEST`, passed in the goreleaser step's env and read by `skip_upload` too, replaces a negated `OLDER_TAG` set through `GITHUB_ENV` and a separate `--skip`; the step's new name says what it does
+- Shape: `.github/workflows/test.yml:35` `changed()`: two copied diff blocks become one helper called twice, and the `gate` job says why it runs `always()`
+- Locality: `.github/workflows/test.yml:54` `packages-dry-run`: the throwaway-key repository build has one path instead of a copy in the `test` job; partly offsets the dual-mode cost
+- Self-sufficiency: `Dockerfile:37` stage `release-tooling`: copies packages.yml, renovate.json and the Dockerfile with nothing saying why; the reason is only in `carried_test.py`
+
+Inherited architect, decided by:
+
+- Shape: `release-tooling/goreleaser.yaml:60` `dockers_v2.tags`: `tags` and `skip_upload` read a positively named `LATEST` and each target says beside itself when it skips, where 1524d0e split the rule over two files as a negated `isEnvSet "OLDER_TAG"` and an outside `--skip`
+- Shape: `.github/workflows/packages.yml:72` step `latest`: named for what it does and writes only `latest=true`, where "Channels holding one version" also wrote the skip flag and `OLDER_TAG`
+- Shape: `.github/workflows/test.yml:35` `changed()`: two copied if/else blocks become two one-line outputs, and the `gate` job says why it runs on `always()`
+- Locality: `.github/workflows/packages.yml:29` the `inputs.tag` branches: two modes and a dozen expressions switching on the tag, some inverted, make a reader hold both at every step; balanced by the package-repos build now having one caller
+- Self-sufficiency: `Dockerfile:37` stage `release-tooling`: copies three files with no word why, which only `carried_test.py:15` explains; balanced by the new comments in packages.yml
