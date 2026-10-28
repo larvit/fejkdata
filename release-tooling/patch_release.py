@@ -4,7 +4,7 @@
   patch_release.py last
       Prints the last release's tag, as the forge names its latest release.
   patch_release.py cut
-      When main carries a newer Go, module version bumps or another GoReleaser than the last release:
+      When main carries a newer Go, newer modules or another GoReleaser than the last release:
       puts them in the last release's tree, builds it through `docker build .`, commits it with
       main's .github/ and a changelog section to a branch release/X.Y.Z cut from the last
       release's tag, and publishes it with publish_release.py. Writes `tag=vX.Y.Z` to

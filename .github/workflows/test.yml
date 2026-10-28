@@ -85,8 +85,7 @@ jobs:
   release:
     name: Release from CHANGELOG.md, or a patch of the last release for what main carries
     needs: [test, vulnerabilities]
-    # On main, outside pull requests, while the vulnerability check passed; the daily run skips
-    # the test job, so a skipped test job lets it through and only a failed one stops it.
+    # The daily run skips the test job, so only a failed test job stops a release.
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.vulnerabilities.result == 'success' && needs.test.result != 'failure' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -112,7 +111,7 @@ jobs:
         run: python3 release-tooling/publish_release.py
         env:
           SHA: ${{ github.sha }}
-      - name: Patch the last release when main carries a newer Go, module version bumps or another GoReleaser
+      - name: Patch the last release when main carries a newer Go, newer modules or another GoReleaser
         id: patch
         if: steps.publish.outputs.tag == ''
         run: |
@@ -165,7 +164,7 @@ jobs:
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" security-plan
           if [ "$(gh pr list --head security-plan --state open --json number --jq length)" = 0 ]; then
             gh pr create --head security-plan --title "Plan known vulnerabilities, and record fixed ones and the last release" \
-              --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, and any release section main lacks, into CHANGELOG.md. Merges itself once the tests pass."
+              --body "Plans each module's new known vulnerabilities in todo.md, scored 0.0 until rank_todo.py scores them; moves fixed ones, any release section main lacks and each new Go minor's Breaking lines into CHANGELOG.md. Merges itself once the tests pass."
           fi
           # GitHub holds the pull_request run of a pull request this token opens until it is approved.
           sha="$(git rev-parse HEAD)"

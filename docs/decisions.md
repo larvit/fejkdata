@@ -265,8 +265,10 @@ convention of a minor is not followed. The major that raises it edits each place
 spells it: `go.mod`'s `go` line, the Dockerfile's `LOWEST_GO_VERSION`, the
 `matchCurrentValue` of `renovate.json`'s rule that keeps Renovate off that ARG, and the
 README's `go get` and Development lines. The `lowest` stage fails while its Go's minor is
-not `go.mod`'s `go` line, so a Renovate update that a stale regex lets through fails the
-gate instead of merging.
+not `go.mod`'s `go` line, so a Renovate update that a stale `matchCurrentValue` lets
+through fails the gate. Serves the technical principles' semver, which counts a dropped
+runtime version as a change to what exists. Valid while fejkdata follows semver for the Go
+it builds with.
 
 ## The format check runs on the latest Go only
 
@@ -285,9 +287,9 @@ Valid while the lowest supported Go is not the latest.
 
 A tag pushed by hand is served by `go get` at once, so a tag whose commit lacks its
 heading is burnt, not fixed. The heading on a gate-passed `main` commit is the trigger
-instead: the tag can land only there, save a patch CI cuts (see "CI releases each update
-to what a release carries at once, as a fejkdata patch cut from the last release's
-tag"), whose tag lands on a commit its own tree's `docker build .` builds. The GitHub
+instead: the tag can land only there, save a patch CI cuts, whose tag lands on a commit
+that passed its own tree's `docker build .` (decision "CI releases each update to what a
+release carries at once, as a fejkdata patch cut from the last release's tag"). The GitHub
 release the same job publishes keeps one text as its body and is where prebuilt
 binaries attach.
 
@@ -1045,9 +1047,9 @@ each module's new vulnerabilities are filed as one `security` item in `todo.md`,
 patch after the last release, or under the next planned release when only a newer Go minor
 fixes them, so the fix ships without waiting for a minor. An item whose vulnerabilities
 are gone moves to `CHANGELOG.md` once the report is clean, so the changelog says what was
-fixed. Where that comes before the patch fixing them is cut, as after a failed release job,
-its line leaves Unreleased once the patch's section, which names them, comes into `main`'s
-changelog. `vulnerability-filing/file_vulnerabilities.py` writes the
+fixed. When the report comes back clean before CI cuts the patch that fixes those
+vulnerabilities, as after a failed release job, the item's line leaves Unreleased once that
+patch's section reaches `main`'s changelog. `vulnerability-filing/file_vulnerabilities.py` writes the
 item in `todo.md`'s shape with a Score of 0.0, since CI cannot reach `rank_todo.py`, which
 scores it on the next commit to the plan; a test files one into the repository's own
 `todo.md`. `release-tooling/patch_release.py` records the fixed item's line in
@@ -1069,50 +1071,49 @@ What a release carries is its Go, the modules `go.mod` requires and the GoReleas
 `packages.yml` names; the Packages workflow builds every release with its own commit's
 GoReleaser, which for a patch is `main`'s. A bump that passes the gate unchanged changes
 no row of the README's Versioning table, so it is a patch. Renovate merges one to `main`
-once every check passes. When `main` then carries a newer Go, other modules or another
+once every check passes. When `main` then carries a newer Go, newer modules or another
 GoReleaser than the last release, the release job cuts a patch through
 `release-tooling/patch_release.py cut`. It puts `main`'s Go and modules into the last
-release's tree, scanning that tree with govulncheck before and after, and commits it,
-`main`'s `.github/` (the forge refuses the workflow token a branch whose workflows differ
-from `main`'s) and a changelog section to a branch named for the new version, cut from
-the last release's tag. The section names what changed, the vulnerabilities the second
+release's tree with `main`'s `.github/` (the forge refuses the workflow token a branch
+whose workflows differ from `main`'s) and a changelog section, scanning that tree with
+govulncheck before and after. The section names what changed, the vulnerabilities the second
 scan no longer finds, and each requirement a new Go minor's release notes set on a system
 `goreleaser.yaml` builds for. The notes are Go's own, from the golang/website repository.
-The job builds the commit through the tree's own `docker build .`, which builds on the
-latest supported Go, and on the lowest where the tree's Dockerfile has the `lowest` stage,
-which a release before 0.2.0 lacks. It publishes the commit with
+The job builds the tree through its own `docker build .`, which builds on the latest
+supported Go, and on the lowest where the tree's Dockerfile has the `lowest` stage, which a
+release before 0.2.0 lacks, then commits it to a branch named for the new version, cut
+from the last release's tag. It publishes the commit with
 `release-tooling/publish_release.py`, whose burnt-tag check refuses a version already
 tagged elsewhere, such as a planned patch number CI has taken. So a patch ships only the
 bump, never the work merged since, save the packaging that `main`'s `goreleaser.yaml`
 gives every release it packages. The package-repository checks don't run on the patch:
 `main`'s gate ran them with the GoReleaser and config that package it.
 
-A patch waits for a human, cutting nothing, while the patched tree still carries a known
-vulnerability or fails `docker build .`, such as after a Go minor `main`'s code was fixed
-for; while `main`'s `goreleaser.yaml`, which packages the patch, builds for other targets
-than the release's tree names, a change of supported systems (a tree before 0.2.0 names
-none); or while a Go minor's release notes hold a sentence about a built-for system in a
-shape the script can't read, so the changelog would miss it. The job then exits 2, and the
-run stays red until the maintainer cuts a release or fixes the cause. The `plan` job runs
-after a failed release job too, so fixed items still move. It also writes under
-Unreleased's Breaking what each Go minor `main` carries since the last release requires of
-a built-for system, so the release that first ships the minor names it, whether CI cuts it
-as a patch or the maintainer cuts it; a release section copied into `main` takes each such
-line it holds out of Unreleased, as it takes a fix it names. Where it can't read the notes,
-it records no such line and still moves fixed items, since the release job fails on the
-same notes; the README asks the maintainer to write the lines by hand then. A module waits for a release
-the maintainer cuts while `main`'s `go.mod` changes more than module versions: a module
-required directly that the release doesn't, which is work merged since, or another line,
-such as a `go` line raising the lowest supported Go, which is a major. While modules wait
-and nothing else is due, the job scans the last release's tree and waits the same way where
-it carries a known vulnerability, since a fix on `main` doesn't reach its users. A tree still
-vulnerable is nearly always one whose modules wait: the release job needs a clean scan of
-`main`, so the vulnerability sits in the release's own modules, which no fix on `main`
-reaches. Two cases differ. An advisory published between the two scans fails one release
-job, and the next run's scan of `main` finds and files it. And while the maintainer has
-dropped the scan from the release job's `needs`, for a vulnerability no Go version fixes
-yet, every due patch carries that vulnerability, so the release job stays red until a fix
-lands or the maintainer cuts a release.
+A patch waits for a human, cutting nothing, and the job exits 2 until the maintainer cuts
+a release or fixes the cause, while:
+
+- the patched tree still carries a known vulnerability or fails `docker build .`, such as
+  after `main`'s code was fixed for a Go minor;
+- `main`'s `goreleaser.yaml`, which packages the patch, builds for other targets than the
+  release's tree names, a change of supported systems (a tree before 0.2.0 names none);
+- a Go minor's release notes hold a sentence about a built-for system in a shape the
+  script can't read, so the changelog would miss it;
+- `main`'s `go.mod` changes more than module versions, which holds back its modules: a
+  module required directly that the release doesn't, which is work merged since, or
+  another line, such as a `go` line raising the lowest supported Go, which is a major.
+  While nothing else is due, the job scans the last release's tree and exits 2 only where
+  it carries a known vulnerability, since a fix on `main` doesn't reach its users.
+
+An advisory published between the release job's scan of `main` and its scan of the tree
+fails one release job, and the next run's scan of `main` files it.
+
+The `plan` job runs after a failed release job too, so fixed items still move. It writes
+under Unreleased's Breaking each requirement that a Go minor `main` carried since the last
+release sets on a built-for system, so the release that first ships the minor names it,
+whether CI cuts it as a patch or the maintainer cuts it. A release section copied into
+`main` removes from Unreleased each Breaking line and each fix that the section already
+holds. Where the job can't read the notes, it records no such line and still moves fixed
+items, since the release job fails on the same notes.
 
 A patch built with a new Go minor may drop a system the binaries ran on, such as an older
 macOS. That departs from the technical principles' semver, read strictly, which counts a
@@ -1129,8 +1130,9 @@ no section, and moves rows planned under a patch CI took to the next patch. The 
 workflow builds a tag with the Go its own Dockerfile names. The paired ruling against
 5aca8a1 found the project reads worse for the Go patches: two linked scripts, four linked
 jobs and several writers of `CHANGELOG.md`. The maintainer merged it anyway, as the cost
-of releasing Go patches without waiting; `todo.md` item 350 brings those links back down. Valid while the binaries carry only Go, the
-modules `go.mod` requires and what GoReleaser builds.
+of releasing Go patches without waiting; `todo.md` item 350 brings those links back down.
+Valid while a release carries only its Go, the modules `go.mod` requires and the GoReleaser
+that packages it.
 
 ## A `todo.md` item names goal 1 in its Moves when it makes fejkdata better for the people using it, not only when it wins more of them
 

@@ -84,7 +84,7 @@ class BreakingLines(unittest.TestCase):
 
 
 class Fetch(unittest.TestCase):
-	def test_a_connection_that_drops_or_stalls_is_notes_it_cannot_read(self):
+	def test_a_connection_that_drops_or_stalls_raises_cannot_read_the_notes(self):
 		for err in (http.client.RemoteDisconnected("Remote end closed connection without response"), TimeoutError("The read operation timed out")):
 			with self.subTest(err=err), mock.patch("urllib.request.urlopen", side_effect=err):
 				with self.assertRaisesRegex(ValueError, "^cannot read Go 1.28's release notes: "):
