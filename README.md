@@ -1456,8 +1456,8 @@ which case it's skipped. On the latest supported Go, that build runs vet, comple
 the format check and the Go tests. On the lowest, which the Dockerfile's
 `LOWEST_GO_VERSION` names, it runs vet and the Go tests. It also runs the release
 tooling's tests and the vulnerability filer's tests; the filer's tests file an item into
-`todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base, and
-the package-repository checks below. Run `docker build .` locally before pushing:
+`todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base,
+the package-repository checks and the Packages dry run below. Run `docker build .` locally before pushing:
 
 ```sh
 docker build .                                   # the whole build, on both Go versions
@@ -1490,6 +1490,11 @@ PACKAGES_GPG_KEY="$(cat /tmp/fejkdata-keys/gpg.asc)" PACKAGES_RSA_KEY="$(cat /tm
   docker build -f release-tooling/package-repos.Dockerfile --target checks \
   --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
 ```
+
+A pull request that changes a workflow also runs the Packages workflow as a dry run, with
+every Action a release runs save `actions/deploy-pages`. It builds the binaries, packages
+and images, and the repositories signed with throwaway keys, then publishes none of them
+and reads no secret, so it runs on a pull request from a fork too.
 
 A panel of simulated readers scores how easy the code is to understand, and
 [`AGENTS.md`](AGENTS.md) states the 7.0 target, which blocks no merge. Goal 4 is checked
@@ -1560,10 +1565,11 @@ replaces what it uploaded before. For a tag older than the latest release it lea
 tap, the bucket, the image's `latest` tags and the repositories alone, since each holds one
 version.
 
-Renovate merges an update itself once every check passes, save two, which wait for a
-human: one to a GitHub Action, since it also runs in jobs no pull request runs, and a
-GoReleaser major, since it may rename the release assets or move the build path the
-Packages workflow checks, which the gate checks neither of. An update to a
+Renovate merges an update itself once every check passes, save these, which wait for a
+human: one to `actions/deploy-pages` or `peter-evans/dockerhub-description`, since
+neither runs without publishing, so no pull request runs them; and a GoReleaser major,
+since it may rename the release assets or move the build path the Packages workflow
+checks, which the gate checks neither of. An update to a
 tool, such as Python or `govulncheck`, releases nothing. An update to what a release
 carries is released: Go, a Go minor included, a module `go.mod` requires, or GoReleaser.
 When `main` carries a newer one than the last release, CI cuts a patch of that release.

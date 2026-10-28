@@ -16,6 +16,8 @@ jobs:
     name: vet + fmt + tests
     if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
+    outputs:
+      workflows: ${{ steps.changes.outputs.workflows }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -30,17 +32,13 @@ jobs:
             git fetch --no-tags origin "${GITHUB_BASE_REF:-main}"
             base="origin/${GITHUB_BASE_REF:-main}"
           fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling testdata vulnerability-filing README.md todo.md; then
-            echo "code=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "code=true" >> "$GITHUB_OUTPUT"
-          fi
-          if git diff --quiet "$base"...HEAD -- '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows/packages.yml .github/workflows/test.yml; then
-            echo "packaging=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "packaging=true" >> "$GITHUB_OUTPUT"
-          fi
-          echo "base=$base" >> "$GITHUB_OUTPUT"
+          changed() { git diff --quiet "$base"...HEAD -- "$@" && echo false || echo true; }
+          {
+            echo "code=$(changed '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling testdata vulnerability-filing README.md todo.md)"
+            echo "packaging=$(changed '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows/packages.yml .github/workflows/test.yml)"
+            echo "workflows=$(changed .github/workflows)"
+            echo "base=$base"
+          } >> "$GITHUB_OUTPUT"
       - name: CHANGELOG entry for data changes
         run: |
           base='${{ steps.changes.outputs.base }}'
@@ -60,6 +58,16 @@ jobs:
           PACKAGES_GPG_KEY="$(cat "$RUNNER_TEMP/keys/gpg.asc")" PACKAGES_RSA_KEY="$(cat "$RUNNER_TEMP/keys/rsa.pem")" \
             docker build -f release-tooling/package-repos.Dockerfile --target checks \
             --secret id=gpg,env=PACKAGES_GPG_KEY --secret id=rsa,env=PACKAGES_RSA_KEY .
+
+  packages-dry-run:
+    needs: test
+    if: github.event_name == 'pull_request' && needs.test.outputs.workflows == 'true'
+    permissions:
+      contents: write
+      packages: write
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/packages.yml
 
   vulnerabilities:
     name: Known vulnerabilities in this Go version and the required modules
