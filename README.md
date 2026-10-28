@@ -1453,8 +1453,8 @@ docker compose run --rm --user root --entrypoint chown test -R "$(id -u):$(id -g
 Every pull request runs `docker build .`, and must pass before it can be merged — unless
 it changes none of the files the build and its tests read, nor the workflow itself, in
 which case it's skipped. On the latest supported Go, that build runs vet, complexity,
-the format check and the Go tests. On the lowest, which the Dockerfile's
-`LOWEST_GO_VERSION` names, it runs vet and the Go tests. It also runs the release
+the format check and the Go tests under the race detector. On the lowest, which the
+Dockerfile's `LOWEST_GO_VERSION` names, it runs vet and the Go tests without it. It also runs the release
 tooling's tests and the vulnerability filer's tests; the filer's tests file an item into
 `todo.md` themselves, so a change to the plan's shape can fail them. The rest of the gate is the changelog check, which CI runs against the PR base,
 and the Packages dry run below. The check `gate` passes once each of these has passed or
