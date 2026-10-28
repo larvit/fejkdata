@@ -34,7 +34,7 @@ jobs:
           fi
           changed() { git diff --quiet "$base"...HEAD -- "$@" && echo false || echo true; }
           {
-            echo "code=$(changed '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling testdata vulnerability-filing README.md todo.md)"
+            echo "code=$(changed '*.go' go.mod go.sum Dockerfile .dockerignore .github data dockerhub release-tooling renovate.json testdata vulnerability-filing README.md todo.md)"
             echo "packaging=$(changed '*.go' go.mod go.sum release-tooling Dockerfile .dockerignore LICENSE DATA-LICENSES.md .github/workflows)"
             echo "base=$base"
           } >> "$GITHUB_OUTPUT"
