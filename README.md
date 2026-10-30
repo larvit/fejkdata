@@ -1246,10 +1246,13 @@ renamed or retyped line is a major.
 
 ## Audience
 
-App developers writing tests and fixtures, in Go and at a shell:
+App developers writing tests and fixtures, in Go, in JavaScript or TypeScript, and at a
+shell:
 
 - a **bulk fixture author**, millions of rows into CSV or SQL
 - a **Go test author**, filling a struct with `FakeStruct`
+- a **JavaScript or TypeScript test author**, rendering templates from the npm package
+  in Node, Bun, Deno or a browser
 - a **hand fixture author**, a few values at a shell
 - a **validator-facing author**, who needs a value a real checker accepts
 - a **data author**, who writes categories under `--data-path` and meets every load
@@ -1258,7 +1261,7 @@ App developers writing tests and fixtures, in Go and at a shell:
   their own
 
 and a **contributor**, who reads [`todo.md`](todo.md), [`AGENTS.md`](AGENTS.md) and
-the Development section below, and who ships a register the six above then draw from.
+the Development section below, and who ships a register the seven above then draw from.
 
 ## Goals
 
@@ -1275,8 +1278,14 @@ against each other in the order listed.
       - Signal: the channels carrying the current release rise.
       - Counter-signal: a channel serves an old release.
       - Why: a channel that lags the release is worse than none.
-2. **Achieve:** **Enough data ships built in to fill a real test database: the CLI carries
-   all of it, a library imports what it needs, and nothing is fetched at run time.**
+   2. **Achieve:** JavaScript and TypeScript code renders the same templates and data as
+      Go, from an npm package that runs wherever JavaScript does.
+      - Signal: the package's downloads rise.
+      - Counter-signal: a library feature reaches JavaScript a release after Go.
+      - Why: JavaScript users stay only while the package keeps pace with Go.
+2. **Achieve:** **Enough data ships built in to fill a real test database: the CLI and the
+   JavaScript package carry all of it, a Go program imports what it needs, and nothing is
+   fetched at run time.**
    - Signal: the locales covering every common category rise.
    - Counter-signal: categories ship as stubs.
    - Why: a thin category is a gap the user hits later.
@@ -1285,7 +1294,7 @@ against each other in the order listed.
       - Signal: the filled cells of the locale-by-category grid rise.
       - Counter-signal: a cell ships with a handful of values.
       - Why: coverage counts only where it fills a database.
-   2. **Maintain:** A program carries only the data it imports.
+   2. **Maintain:** A Go program carries only the data it imports.
 3. **Achieve:** **Every value is one of three kinds, and the docs say which: real, a thing
    that exists, such as the territory `SE`; valid, made up but passing the check the real
    system applies, such as a Swedish personal number; or invented, such as a town that
@@ -1361,9 +1370,12 @@ against each other in the order listed.
    6. **Maintain:** A CLI carrying your own modules is a few lines of Go, and works just
       like `fejkdata`.
 9. **Maintain:** **The same seed, date, data and versions always give the same output.**
-   1. **Maintain:** In the library, the caller supplies everything that can change the
-      output: data, seed and date.
-10. **Maintain:** **Every runtime dependency is one the standard library can't replace.**
+   1. **Maintain:** In the library, in Go and JavaScript alike, the caller supplies
+      everything that can change the output: data, seed and date.
+   2. **Maintain:** The JavaScript package renders what the Go library renders, byte for
+      byte.
+10. **Maintain:** **Every runtime dependency is one the standard library can't replace,
+    and the JavaScript package doesn't depend on any other npm package.**
 11. **Maintain:** **The docs are a map of the template language.**
     1. **Maintain:** Every feature has its own heading.
     2. **Maintain:** Every example runs as a test and shows its output.
