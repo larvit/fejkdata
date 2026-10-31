@@ -139,7 +139,7 @@ A directory a machine happens to have would make `--seed 42` machine-dependent;
 
 ## The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0
 
-2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 5.2, 6.3, 8 and 9.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.3.0. The CLI binary may grow to hundreds of MB.
+2026-10-04, Lilleman auf Larv; revised 2026-10-09 to put the packages in the core's Go module. Serves goals 2.2, 5.2, 6.3, 8 and 9.1. Carried out by `todo.md` items 181, 186 and 196, all in 0.8.0. The CLI binary may grow to hundreds of MB.
 
 - One Go package per locale, one per country's `geo` tree, and one for `misc`, all in the core's Go module. A package registers nothing when imported.
 - A bare `New()` loads no data and fails, naming the option to add. `WithoutShippedData` goes.
@@ -983,19 +983,21 @@ template can be written with no escape and no options, as `echo 'name: {/sv_SE.p
 is. A template that prints a literal brace writes `{{` or `}}`, and the goal allows that. Valid
 while `{{` and `}}` are the template syntax's only escape.
 
-## The locales are Ethnologue 2026's ten most-spoken languages, each in the country with the most speakers of it, the Nordic countries and Germany
+## Locales ship by region: the Nordic countries, then the rest of the EU, then the rest of Europe, then the rest of the world
 
-2026-10-11, Lilleman auf Larv. Serves goal 2. [The Ethnologue
-200](https://www.ethnologue.com/insights/ethnologue200/) for 2026 ranks languages by first-
-and second-language speakers together: English, Mandarin Chinese, Hindi, Spanish, Standard
-Arabic, French, Bengali, Portuguese, Indonesian and Urdu. Each ships in the country with the
-most speakers of it: `en_US`, `zh_CN`, `hi_IN`, `es_MX`, `ar_EG`, `fr_FR`, `bn_BD`, `pt_BR`,
-`id_ID` and `ur_PK`. The Nordic countries are `sv_SE`, `nb_NO`, `da_DK`, `fi_FI` and
-`is_IS`, and the maintainer adds Germany, `de_DE`. Each locale carries goal 2.1's
-categories, and its `address` reads its country's `geo/` tree by reference. Egypt and
-Pakistan are not yet confirmed: `todo.md` item 209 and `todo.md` item 214 check each against
-Ethnologue's country pages before it ships, and record the result here. Valid until
-Ethnologue's ranking changes its ten.
+2026-10-11, Lilleman auf Larv; revised 2026-10-31 to order locales by region, in place of
+Ethnologue's ten most-spoken languages. Serves goal 2.1.
+
+The Nordic countries are `sv_SE`, `nb_NO` with `nn_NO`, `da_DK`, `fi_FI` and `is_IS`. The
+rest of the EU filed so far is `de_DE` and `fr_FR`. The rest of the world filed so far comes
+from the old ranking, [the Ethnologue
+200](https://www.ethnologue.com/insights/ethnologue200/) for 2026, each language in the
+country with the most speakers of it: `en_US`, `zh_CN`, `hi_IN`, `es_MX`, `ar_EG`, `bn_BD`,
+`pt_BR`, `id_ID` and `ur_PK`. Egypt and Pakistan are not yet confirmed: `todo.md` item 209
+and `todo.md` item 214 check each against Ethnologue's country pages before it ships, and
+record the result here. A region's locales ship before the next region's; within a region,
+the plan's scores order them. Each locale carries goal 2.1's categories, and its `address`
+reads its country's `geo/` tree by reference.
 
 ## A country with no open address register covering it whole ships its places and postal codes without streets
 

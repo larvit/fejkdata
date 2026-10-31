@@ -1290,7 +1290,9 @@ against each other in the order listed.
    - Counter-signal: categories ship as stubs.
    - Why: a thin category is a gap the user hits later.
    1. **Achieve:** Each locale covers the common categories: names, addresses, phone
-      numbers, ids, companies and dates.
+      numbers, ids, companies and dates. Locales come in this order: the Nordic
+      countries, then the rest of the EU, then the rest of Europe, then the rest of the
+      world.
       - Signal: the filled cells of the locale-by-category grid rise.
       - Counter-signal: a cell ships with a handful of values.
       - Why: coverage counts only where it fills a database.
