@@ -44,7 +44,7 @@ COPY vulnerability-filing/ /vulnerability-filing/
 COPY todo.md /todo.md
 RUN python3 -m unittest discover -s /vulnerability-filing -p '*_test.py' && touch /tested
 
-FROM goreleaser/goreleaser:v2.18.3 AS packaging
+FROM goreleaser/goreleaser:v2.19.0 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
 RUN git init -q && git remote add origin https://github.com/larvit/fejkdata.git && goreleaser check --config goreleaser.yaml && touch /tested
