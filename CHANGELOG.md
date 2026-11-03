@@ -4,6 +4,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
+## [Unreleased]
+
+### Breaking
+
+- `misc.territory.country` is now `misc.territory.sovereign`. It still holds the alpha-2
+  code of the state a territory belongs to: `{/misc.territory[GL].sovereign}` is `DK`.
+
 ## [0.2.0] - 2026-10-28
 
 ### Breaking

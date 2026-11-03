@@ -630,7 +630,7 @@ giving that name no territory — spell it as the text `"UTC"`. `misc.useragent`
 until an international source replaces them.
 
 ISO 3166-1 codes territories, not sovereign states, so that is what the table is
-called: Greenland and Åland have codes of their own, and `misc.territory.country`
+called: Greenland and Åland have codes of their own, and `misc.territory.sovereign`
 names the state each belongs to — `DK` for Greenland, `FI` for Åland, and its own
 code for a sovereign one, or for one the register names no state for.
 
