@@ -177,6 +177,40 @@ func TestAMountedDirNamesItsFilesWhereTheyAreOnDisk(t *testing.T) {
 	}
 }
 
+// failingFS fails to open the path fails.
+type failingFS struct {
+	fs.FS
+	fails string
+}
+
+func (f failingFS) Open(name string) (fs.File, error) {
+	if name == f.fails {
+		return nil, fs.ErrPermission
+	}
+	return f.FS.Open(name)
+}
+
+func TestAMountedTreeNamesWhatItCannotReadUnderItsNamespace(t *testing.T) {
+	tree := fstest.MapFS{"sub/b.json": {Data: []byte(`"x"`)}, "sub/b.tsv": {Data: []byte("r\n")}}
+	compile := func(Category) error { return nil }
+	wantPrefix := func(what string, err error, want string) {
+		t.Helper()
+		if err == nil || !strings.HasPrefix(err.Error(), want+": ") {
+			t.Errorf("%s = %v, want the error to name %s", what, err, want)
+		}
+	}
+	wantPrefix("Load of a missing folder", FS(tree).Mounted("my.data").Load([]string{"my", "data", "gone"}, "x", compile), "my/data/gone")
+	wantPrefix("Walk of an unreadable folder", FS(failingFS{tree, "sub"}).Mounted("my.data").Walk(compile), "my/data/sub")
+	err := FS(failingFS{tree, "sub/b.tsv"}).Mounted("my.data").Load([]string{"my", "data", "sub"}, "b", func(c Category) error {
+		_, err := c.ReadRows("b.tsv")
+		wantPrefix("ReadRows of an unreadable file", err, "my/data/sub/b.tsv")
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAMountedTreeHandsItsCategoriesUnderItsNamespace(t *testing.T) {
 	src := FS(fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`{"rows":"b.tsv"}`)}, "sub/b.tsv": {Data: []byte("r\n")}}).Mounted("my.data")
 	got, err := walk(t, src)
