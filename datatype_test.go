@@ -216,6 +216,31 @@ func TestDisagreementRefusesTwoTextItems(t *testing.T) {
 	mustPanic(t, "two text items", func() { _ = disagreement(&template{}, DataTypeString, &template{}, DataTypeString) })
 }
 
+func TestAReadOfAPathIntoAColumnIsNotThatColumn(t *testing.T) {
+	for _, src := range []string{
+		`{"format":"{w.x as p}{p}","w":{"format":"{int(1,9)}","datatype":"integer","x":"abc"},"c":"{p}"}`,
+		`{"format":"{w as p}{p}","w":{"format":"{int(1,9)}","datatype":"integer","x":"abc"},"c":"{p.x}"}`,
+	} {
+		f := newGenerator(t, writeData(t, map[string]string{"row": src}), WithSeed(1))
+		r, err := f.FakeRecord("row")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if c := r.Columns()[0]; c.Name != "c" || c.DataType != DataTypeString || c.Value != "abc" {
+			t.Errorf("%s: columns = %+v, want c the string abc", src, r.Columns())
+		}
+	}
+}
+
+func TestAColumnItsOwnRecordReadsIsNamedByItsCategory(t *testing.T) {
+	_, err := New(WithDataPath(writeData(t, map[string]string{
+		"row": `{"format":"{place as p}","place":[{"format":"{int(1,9)}","datatype":"integer"},"x"],"a":"{p}"}`,
+	})), WithSeed(1))
+	if err == nil || !strings.Contains(err.Error(), `row: field "place"`) {
+		t.Errorf("New = %v, want the disagreeing column named under its category", err)
+	}
+}
+
 func TestASignedZeroIsZero(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"row": `{"format":"","i":{"format":"-0","datatype":"integer"},"n":{"format":"-0.00","datatype":"number"}}`}))
 	r, err := f.FakeRecord("row")

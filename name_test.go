@@ -225,6 +225,8 @@ func TestNameErrors(t *testing.T) {
 			"a binding names nothing"},
 		{"rendered twice where a path reads it", map[string]string{"word": `{"format":"{w}-{w}","w":["a","b"]}`, "card": `"{/word as n}{n}|{n.w}"`},
 			`{n} renders field "w" twice`},
+		{"rendered twice below where a path reads it", map[string]string{"word": `{"format":"{w}","w":{"format":"{a}-{a}","a":["x","y"]}}`, "card": `"{/word as n}{n}|{n.w.a}"`},
+			`{n} renders field "a" twice, so {n.w.a}`},
 		{"a binding in a cell", map[string]string{"word": `["a","b"]`, "t.json": `{"format":"{k}","rows":"t.tsv","key":"k"}`, "t.tsv": "k\tc\nx\t{/word as w}{w}{w}\ny\tz\n"},
 			"a table binds no name"},
 		{"in a category's name", map[string]string{"a as b": `"x"`},
