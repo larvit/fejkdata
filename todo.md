@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 31 | 0.3.0 |  |  | **Rename `misc.territory.country` to `sovereign`.** | 2 | 1 | 2 | 3 | 2 | 1 by 1, code health by 4 | 14.9 |
 | 175 | 0.3.0 |  |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 2 | 2 | code health by 4 | 14.0 |
 | 216 | 0.3.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 236 | 0.3.0 |  |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 2 | 4 | 2 | 1 by 1, 2.1 by 3, 3 by 2 | 4.6 |
@@ -244,10 +243,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 31. Rename `misc.territory.country` to `sovereign`.
-
-It holds a code, and `country` collides with the `misc.country` path it replaced.
 
 ### 175. Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.
 
