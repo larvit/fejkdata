@@ -762,3 +762,20 @@ Read most (opens and searches):
 - `docs/decisions.md` 2
 - `env.go` 2
 - `internal/datafiles/manifest.go` 2
+
+## Reading cost, chunk 27e330b779d0, finished 2026-11-03T21:27:29Z
+
+68873 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 7
+- `table_test.go` 5
+- `README.md` 4
+- `data_test.go` 4
+- `CHANGELOG.md` 2
+- `cli/cli_test.go` 2
+- `cmd/fejkdata/main_test.go` 2
+- `data-import/territory.py` 2
+- `docs/decisions.md` 2
+- `loading_test.go` 2
