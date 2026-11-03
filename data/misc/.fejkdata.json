@@ -15,7 +15,7 @@
 		"misc.objectid": {"paths":[""]},
 		"misc.port": {"paths":["","number","service"]},
 		"misc.protocol": {"paths":["","keyword","name","number"]},
-		"misc.territory": {"paths":["","alpha2","alpha3","calling-code","capital","country","currency","flag","languages","name","numeric","timezone","timezone.offset","timezone.territory","timezone.weight","timezone.zone","tld"]},
+		"misc.territory": {"paths":["","alpha2","alpha3","calling-code","capital","currency","flag","languages","name","numeric","sovereign","timezone","timezone.offset","timezone.territory","timezone.weight","timezone.zone","tld"]},
 		"misc.timezone": {"parent":"territory","paths":["","offset","territory","weight","zone"]},
 		"misc.tld": {"paths":["","tld","type","unicode"]},
 		"misc.useragent": {"paths":["","browser","device","os","ua"]},
