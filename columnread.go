@@ -8,10 +8,10 @@ import (
 	"github.com/larvit/fejkdata/internal/proven"
 )
 
-// columnRead is a record's column read by a format that only reads one reference or name,
-// which is the column: it takes the column's datatype and null. category and field name it;
-// category is "" for a column of the reading template's own record, which checkColumns reaches
-// on its own.
+// columnRead is a record's column that a format reads, where the format only reads that one
+// reference or name. The format then counts as the column: it takes the column's datatype and
+// null. category and field name the column; category is "" for a column of the reading
+// template's own record, which checkColumns reaches on its own.
 type columnRead struct {
 	a               arm
 	category, field string
@@ -19,7 +19,8 @@ type columnRead struct {
 }
 
 // columnReadOf is the record's column t's format reads, where the format only reads one reference
-// or name, and nil where it does not or t declares a string, which reads the column as text.
+// or name. It is nil where the format reads anything else, where t's repeat is not 1, or where t
+// declares a string, which reads the column as text.
 func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
 	ops := t.compiled.ops
 	if t.datatype != nil && *t.datatype == DataTypeString || t.repeat != 1 || len(ops) != 1 || ops[0].Kind != grammar.PathRead || len(ops[0].arms) != 1 {
@@ -49,8 +50,7 @@ func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead 
 	return nil
 }
 
-// checkReadColumns runs check on the column of another category that each of items reads, so
-// checkColumns names a column read before its readers.
+// checkReadColumns runs check on the column of another category that each of items reads.
 func checkReadColumns(items []*template, check func(label, name string, column node) error) error {
 	for _, it := range items {
 		if r := it.readsColumn; r != nil && r.category != "" {
@@ -73,7 +73,7 @@ func itemDatatype(t *template) DataType {
 	return DataTypeString
 }
 
-// proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
+// proveColumnItem proves what a column item renders or, where the item is a column read, the column it reads.
 func (p *valueProof) proveColumnItem(t *template) proven.Facts {
 	if t.readsColumn == nil {
 		return p.prove(t)
@@ -81,8 +81,8 @@ func (p *valueProof) proveColumnItem(t *template) proven.Facts {
 	return p.proveColumn(t.readsColumn.column)
 }
 
-// readColumnItem reads the column t is, where it is one: rendering t's format would print a null
-// the column drew as "".
+// readColumnItem reads the column t reads, where t is a column read. Rendering t's format
+// instead would print a null the column drew as "".
 func readColumnItem(s *drawstate.State, t *template, env renderEnv) (r readValue, reads bool) {
 	if t.readsColumn == nil {
 		return readValue{}, false
