@@ -106,7 +106,7 @@ func TestShippedMiscReferenceData(t *testing.T) {
 		"territory":             regexp.MustCompile(`\p{L}`),
 		"territory.alpha2":      regexp.MustCompile(`^[A-Z]{2}$`),
 		"territory.alpha3":      regexp.MustCompile(`^[A-Z]{3}$`),
-		"territory.country":     regexp.MustCompile(`^[A-Z]{2}$`),
+		"territory.sovereign":   regexp.MustCompile(`^[A-Z]{2}$`),
 		"language":              regexp.MustCompile(`\p{L}`),
 		"language.code":         regexp.MustCompile(`^[a-z]{2}$`),
 		"language.code3":        regexp.MustCompile(`^[a-z]{3}$`),
