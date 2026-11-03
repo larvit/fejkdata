@@ -119,7 +119,6 @@ func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	return o, nil
 }
 
-// compileCells compiles every cell carrying a token into cellTemplates.
 func (t *table) compileCells() error {
 	header := t.rows.Header()
 	for row := 0; row < t.rows.Len(); row++ {
@@ -349,7 +348,6 @@ func (t *table) selector(tail []string) (sel string, rest []string, err error) {
 	return sel, rest, nil
 }
 
-// columnOrLinked is what a tail's first segment names in t: a column, or a table linked to it.
 func (t *table) columnOrLinked(tail []string) (column node, child *table, err error) {
 	if len(tail) == 0 {
 		return nil, nil, nil

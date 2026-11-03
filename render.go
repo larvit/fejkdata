@@ -50,8 +50,6 @@ func renderOnce(s *drawstate.State, n node) string {
 	return render(s, n, renderEnv{frames: &frames})
 }
 
-// render evaluates a compiled node to a string. compile validates every node up
-// front, so rendering a compiled tree cannot fail.
 // A child this switch renders is one renderEdges must list too, or the fences miss it.
 func render(s *drawstate.State, n node, env renderEnv) string {
 	switch n := n.(type) {
@@ -141,8 +139,9 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 // readField renders one arm of a token. A read is kept in a name's pick when it reads the name, or
 // a level that a read of the name being rendered addresses; every other read draws afresh, so
 // {word} {word} draws twice and {p.a} {p.b} reads two draws of p.
-// A fresh read clears env.pick: were it kept, a read nested in the fresh one would key the pick's
-// memo under env.pickAt and share a value with another node at that key.
+// A fresh read sets env.pick to nil. With the pick still set, a read nested in the fresh one would
+// look up its key under env.pickAt, the key of the node that holds the fresh read, and could
+// reach a value another node keeps at that key.
 func readField(s *drawstate.State, t *template, env renderEnv, a arm) readValue {
 	switch {
 	case a.kind == namedRead:

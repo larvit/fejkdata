@@ -146,8 +146,6 @@ func flagByShort(name string) *flagDef {
 	return nil
 }
 
-// flagArg is one flag as written: its definition and the value attached to it,
-// if any.
 type flagArg struct {
 	def    *flagDef
 	value  string

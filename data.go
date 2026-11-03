@@ -49,7 +49,6 @@ func compileInto(place func(dir []string) *folder) func(datafiles.Category) erro
 	}
 }
 
-// madeFolder is the folder that dir names under root, made where it is missing or a category.
 func madeFolder(root *folder, dir []string) *folder {
 	g := root
 	for _, seg := range dir {
@@ -86,7 +85,6 @@ type categorySite struct {
 	path string
 }
 
-// categorySites lists every category under root, folders and names in sorted order.
 func categorySites(root *folder) []categorySite {
 	var out []categorySite
 	var walk func(dir []string, g *folder)

@@ -52,8 +52,6 @@ func CalcText(n CalcNode) string {
 	return "?"
 }
 
-// calcParser is a recursive-descent parser over the expression runes, threading
-// expr -> term -> factor for the standard * / before + - precedence.
 type calcParser struct {
 	rs       []rune
 	pos      int
