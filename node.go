@@ -106,7 +106,6 @@ func (t *template) startOf(name string) node {
 // validating structure up front.
 func compile(v jsonvalue.Value) (node, error) { return compileFrom(v, atTop) }
 
-// compileFrom is compile with the root at pos: atTop, or atGoTop for a struct's tags.
 func compileFrom(v jsonvalue.Value, pos position) (node, error) {
 	n, err := compileItem(v.Any(), pos)
 	if err != nil {
@@ -245,7 +244,7 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		c.items[i] = n
 	}
-	if weighted { // uniform choices skip the weight table and draw in O(1)
+	if weighted {
 		if math.IsInf(total, 1) {
 			return nil, fmt.Errorf("choice weights must sum to a finite number, got %v", total)
 		}
@@ -286,7 +285,6 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
 }
 
-// templateOptions is what a template object's option keys say.
 type templateOptions struct {
 	datatype  *DataType
 	format    string

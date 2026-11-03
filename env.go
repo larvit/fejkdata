@@ -67,7 +67,8 @@ func (env renderEnv) rowOf(t *table) int {
 
 // enter starts a read landing on n: the read sees no frame opened before it, and gets a frame for
 // each name scope around n, from memo where there is one, so reads sharing memo read one pick of
-// each name. It returns the mark that closes those frames.
+// each name. It returns env.base, the frame count before it pushed any: popping the frames to that
+// mark closes them all.
 func (env renderEnv) enter(n node, memo *drawMemo) (renderEnv, int) {
 	env = env.entering()
 	for scope := scopeAround(n); scope != nil; scope = scope.up {

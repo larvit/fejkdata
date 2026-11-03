@@ -24,8 +24,10 @@ import (
 // addressed keys are those three, "name", "postal-code" and "postal-code.code".
 type pickKey string
 
-// under is rel, a key from a fresh read's levels, moved under k, the key of what renders. It never
-// returns k itself: on a render k is env.pickAt, and a memo keeping it would move every render's env to the heap.
+// under puts rel beneath k: k + "." + rel, or rel alone where k is empty. So pickKey("a").under("b")
+// is "a.b". Here k is the key of what renders and rel a key from a fresh read's levels.
+// It never returns k itself: on a render k is env.pickAt, and a memo keeping it would move every
+// render's env to the heap.
 func (k pickKey) under(rel pickKey) pickKey {
 	if k == "" {
 		return rel
@@ -157,8 +159,9 @@ func newPickFrame(scope *nameScope) *pickFrame {
 	return f
 }
 
-// scopeAround is the innermost name scope a render of n reads names in, short of the frames n
-// renders itself, one per iteration of a repeat.
+// scopeAround is the innermost name scope a read landing on n looks names up in. A repeated
+// template that owns its scope opens that scope's frame itself, once per iteration, so for it this
+// is the scope around the repeat.
 func scopeAround(n node) *nameScope {
 	switch n := n.(type) {
 	case *template:

@@ -15,7 +15,6 @@ type resolvedRef struct {
 	tail []string
 }
 
-// categoryOf is the category path a resolvedRef's head names.
 func categoryOf(head string) string { return strings.TrimPrefix(head, "/") }
 
 // refSegments resolves a reference written in folder to a path from the root.

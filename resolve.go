@@ -4,8 +4,6 @@ import (
 	"fmt"
 )
 
-// templateSite is a template to resolve, with its folder, empty for an inline template, and
-// eachNode's label for it.
 type templateSite struct {
 	t      *template
 	folder []string

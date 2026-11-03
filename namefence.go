@@ -22,7 +22,6 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 	return nil
 }
 
-// rendersInside reports whether t sits in what one of nodes contains.
 func rendersInside(nodes []node, t *template) bool {
 	seen := map[node]bool{}
 	var inside func(n node) bool
