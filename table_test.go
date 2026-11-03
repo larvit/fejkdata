@@ -913,8 +913,7 @@ func TestShippedTables(t *testing.T) {
 	}
 }
 
-// TestEveryTerritoryNamesAShippedSovereign proves what no parent can: the sovereign a
-// territory names is a row of the same table, which a link would make a cycle.
+// TestEveryTerritoryNamesAShippedSovereign proves every sovereign names a row.
 func TestEveryTerritoryNamesAShippedSovereign(t *testing.T) {
 	header, rows := shippedRows(t, "territory.tsv", "alpha2", "sovereign")
 	keys := map[string]bool{}
