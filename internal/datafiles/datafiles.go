@@ -15,7 +15,7 @@ import (
 
 // Source is one tree to load, from the root of an fs.FS. label prefixes file names in errors;
 // onDisk marks label as a directory that must exist; namespace is the folders its root sits under.
-// A folder is named from above the namespace everywhere; only dirPath drops the namespace.
+// Every dir in this package includes the namespace's folders; only dirPath drops them.
 type Source struct {
 	fsys      fs.FS
 	label     string
@@ -33,14 +33,13 @@ func FS(fsys fs.FS) Source { return Source{fsys: fsys} }
 
 // Mounted is s with its root under the folders the dot path namespace spells, "" for none.
 func (s Source) Mounted(namespace string) Source {
-	s.namespace = nil
 	if namespace != "" {
 		s.namespace = strings.Split(namespace, ".")
 	}
 	return s
 }
 
-// Category is one category file: the folders above it, the namespace's included, its name, and
+// Category is one category file: the folders above it (the namespace's included), its name, and
 // its parsed JSON.
 type Category struct {
 	Folders []string
@@ -65,8 +64,8 @@ func (s Source) dirPath(dir []string) string {
 	return "."
 }
 
-// labelled is the file in dir, or dir itself where file is "", as errors name it: a labelled
-// source's where it is on disk, any other's under its namespace.
+// labelled is how errors name the file in dir, or dir itself where file is "". A source with a
+// label names where the file is on disk; any other names its path with the namespace's folders.
 func (s Source) labelled(dir []string, file string) string {
 	if s.label != "" {
 		return path.Join(s.label, s.filePath(dir, file))
