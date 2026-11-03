@@ -171,8 +171,8 @@ func renderLeaf(s *drawstate.State, n node, env renderEnv) readValue {
 	case *nullItem:
 		return readValue{null: true}
 	case *template:
-		if leaf.readsColumn != nil {
-			return readField(s, leaf, env, leaf.readsColumn.a)
+		if r, reads := readColumnItem(s, leaf, env); reads {
+			return r
 		}
 	}
 	return readValue{text: render(s, n, env)}

@@ -60,14 +60,6 @@ func (p *valueProof) checkField(label string, ft reflect.Type, column node) erro
 	return nil
 }
 
-// proveColumnItem proves a column item: what it renders, or, when it is a column it reads, that column.
-func (p *valueProof) proveColumnItem(t *template) proven.Facts {
-	if t.readsColumn == nil {
-		return p.prove(t)
-	}
-	return p.proveColumn(t.readsColumn.column)
-}
-
 // proveColumn proves a column over what its items draw, a null item marking it null rather than
 // rendering "".
 func (p *valueProof) proveColumn(n node) proven.Facts {

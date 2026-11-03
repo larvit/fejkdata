@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"path"
 	"sort"
 	"strings"
 
@@ -35,7 +34,7 @@ func (s Source) Manifest() (Manifest, error) {
 	if err := s.check(); err != nil {
 		return Manifest{}, err
 	}
-	b, err := fs.ReadFile(s.fsys, path.Join(s.at, ManifestFile))
+	b, err := fs.ReadFile(s.fsys, ManifestFile)
 	if errors.Is(err, fs.ErrNotExist) {
 		return Manifest{}, nil
 	}
@@ -50,7 +49,7 @@ func (s Source) Manifest() (Manifest, error) {
 }
 
 // ManifestPath is the manifest's path as errors name it.
-func (s Source) ManifestPath() string { return s.labelled(path.Join(s.at, ManifestFile)) }
+func (s Source) ManifestPath() string { return s.labelled(s.namespace, ManifestFile) }
 
 // decodeManifest decodes a manifest, refusing any key or shape it does not define, and
 // reports every mistake: first each entry's own, in path order, then each parent naming
