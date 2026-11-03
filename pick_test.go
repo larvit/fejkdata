@@ -379,3 +379,26 @@ func TestEveryReadKeysEachLevelFromItsHeadToItsLeaf(t *testing.T) {
 		}
 	}
 }
+
+func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T) {
+	addressed := map[pickKey]string{"first": "n.first", "w": "n.w", "x.first": "n.x.first"}
+	for name, c := range map[string]struct {
+		at     pickKey
+		a      arm
+		wantBy string
+	}{
+		"a field addressed":              {"", splitArm("first", nil), "n.first"},
+		"a field addressed under at":     {"x", splitArm("first", nil), "n.x.first"},
+		"a path whose first level is":    {"", splitArm("w.deeper", nil), "n.w"},
+		"a field no read addresses":      {"", splitArm("last", nil), ""},
+		"a field addressed elsewhere":    {"x", splitArm("w", nil), ""},
+		"a reference":                    {"", splitArm("/first", nil), ""},
+		"a read through a name":          {"", arm{kind: namedRead, head: "n", levels: levelKeys([]string{"first"}, 0)}, ""},
+		"a read through a name at a key": {"", arm{kind: namedRead, head: "first", levels: levelKeys([]string{"first"}, 1)}, ""},
+	} {
+		by, lands := landsInPick(addressed, c.at, c.a)
+		if by != c.wantBy || lands != (c.wantBy != "") {
+			t.Errorf("%s: landsInPick = %q, %v, want %q", name, by, lands, c.wantBy)
+		}
+	}
+}

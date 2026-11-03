@@ -177,23 +177,31 @@ func TestAMountedDirNamesItsFilesWhereTheyAreOnDisk(t *testing.T) {
 	}
 }
 
-func TestAMountedTreeListsAndReadsUnderItsMount(t *testing.T) {
-	m := mounted{fsys: fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`"y"`)}}, at: "my/data"}
-	for dir, want := range map[string][]string{".": {"my"}, "my": {"data"}, "my/data": {"a.json", "sub"}, "my/data/sub": {"b.json"}} {
-		entries, err := fs.ReadDir(m, dir)
-		var got []string
-		for _, e := range entries {
-			got = append(got, e.Name())
-		}
-		if err != nil || !reflect.DeepEqual(got, want) {
-			t.Errorf("ReadDir(%q) = %v, %v, want %v", dir, got, err, want)
-		}
+func TestAMountedTreeHandsItsCategoriesUnderItsNamespace(t *testing.T) {
+	src := FS(fstest.MapFS{"a.json": {Data: []byte(`"x"`)}, "sub/b.json": {Data: []byte(`{"rows":"b.tsv"}`)}, "sub/b.tsv": {Data: []byte("r\n")}}).Mounted("my.data")
+	got, err := walk(t, src)
+	want := []handed{
+		{[]string{"my", "data"}, "a", "x"},
+		{[]string{"my", "data", "sub"}, "b", map[string]any{"rows": "b.tsv"}},
 	}
-	if b, err := fs.ReadFile(m, "my/data/sub/b.json"); err != nil || string(b) != `"y"` {
-		t.Errorf(`ReadFile("my/data/sub/b.json") = %q, %v, want "y"`, b, err)
+	if err != nil || !reflect.DeepEqual(got, want) {
+		t.Errorf("Walk = %+v, %v, want %+v", got, err, want)
 	}
-	if _, err := fs.ReadFile(m, "other/a.json"); !errors.Is(err, fs.ErrNotExist) {
-		t.Errorf(`ReadFile("other/a.json") = %v, want it not to exist`, err)
+	err = src.Load([]string{"my", "data", "sub"}, "b", func(c Category) error {
+		if !reflect.DeepEqual(c.Folders, []string{"my", "data", "sub"}) {
+			t.Errorf("Load hands Folders %v, want the category's folders under the namespace", c.Folders)
+		}
+		rows, err := c.ReadRows("b.tsv")
+		if rows != "r\n" {
+			t.Errorf("ReadRows = %q, %v, want the file beside the category", rows, err)
+		}
+		return err
+	})
+	if err != nil {
+		t.Errorf("Load = %v", err)
+	}
+	if err := src.Load([]string{"my", "data"}, "gone", func(Category) error { return nil }); !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("Load of no file = %v, want it not to exist", err)
 	}
 }
 
