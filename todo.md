@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 175 | 0.3.0 |  |  | **Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.** | 1 | 2 | 1 | 2 | 2 | code health by 4 | 14.0 |
 | 216 | 0.3.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 236 | 0.3.0 |  |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 2 | 4 | 2 | 1 by 1, 2.1 by 3, 3 by 2 | 4.6 |
 | 235 | 0.3.0 |  |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2.1 by 5, 3 by 5 | 4.6 |
@@ -243,10 +242,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 175. Rewrite the comments the 2026-10-09 panel needed several reads of, and delete those it read as restating their code.
-
-Reread: `readField`'s note on clearing the pick (`render.go`), `pickKey.under`, which three seats read backwards, `scopeAround`'s "short of the frames n renders itself", `enter` returning `env.base` as the pop mark, and add a line at `walkEvery`'s three-index slice, which three seats found unmarked. Restating: `compileCells`, `columnOrLinked`, `render`'s first line, `categorySites`, `madeFolder`, `categoryOf`, `rendersInside`, `templateSite`, `templateOptions`, `compileFrom`, `flagArg`, `drawSeed`, the `calc` parser's precedence line in `internal/grammar`, and `compileChoice`'s note that a uniform choice draws in O(1), which `choice`'s doc already says. A doc comment `go doc` shows on an exported name stays.
 
 ### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
 
