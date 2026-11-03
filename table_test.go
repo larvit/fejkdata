@@ -788,10 +788,10 @@ func TestShippedTables(t *testing.T) {
 		"territory[SE].capital":                 "Stockholm",
 		"territory[SE].currency":                "SEK",
 		"territory[SE].flag":                    "🇸🇪",
-		"territory[SE].country":                 "SE",
+		"territory[SE].sovereign":               "SE",
 		"territory[GL]":                         "Greenland",
-		"territory[GL].country":                 "DK",
-		"territory[Åland Islands].country":      "FI",
+		"territory[GL].sovereign":               "DK",
+		"territory[Åland Islands].sovereign":    "FI",
 		"currency[SEK].name":                    "Swedish Krona",
 		"currency[SEK].symbol":                  "kr",
 		"currency[SEK].numeric":                 "752",
@@ -861,7 +861,7 @@ func TestShippedTables(t *testing.T) {
 		"territory.tld":          regexp.MustCompile(`^\.[a-z]{2}$`),
 		"territory.calling-code": regexp.MustCompile(`^\d{1,4}(-\d{3})?$`),
 		"territory.capital":      regexp.MustCompile(`\p{L}`),
-		"territory.country":      regexp.MustCompile(`^[A-Z]{2}$`),
+		"territory.sovereign":    regexp.MustCompile(`^[A-Z]{2}$`),
 		"territory.currency":     regexp.MustCompile(`^[A-Z]{3}$`),
 		"territory.flag":         regexp.MustCompile(`^[\x{1F1E6}-\x{1F1FF}]{2}$`),
 		"territory.languages":    regexp.MustCompile(`^[a-z]{2,3}(-[A-Z]{2})?(,[a-z]{2,3}(-[A-Z]{2})?)*$`),
@@ -913,17 +913,17 @@ func TestShippedTables(t *testing.T) {
 	}
 }
 
-// TestEveryTerritoryNamesAShippedCountry proves what no parent can: the sovereign a
+// TestEveryTerritoryNamesAShippedSovereign proves what no parent can: the sovereign a
 // territory names is a row of the same table, which a link would make a cycle.
-func TestEveryTerritoryNamesAShippedCountry(t *testing.T) {
-	header, rows := shippedRows(t, "territory.tsv", "alpha2", "country")
+func TestEveryTerritoryNamesAShippedSovereign(t *testing.T) {
+	header, rows := shippedRows(t, "territory.tsv", "alpha2", "sovereign")
 	keys := map[string]bool{}
 	for _, r := range rows {
 		keys[r[header["alpha2"]]] = true
 	}
 	for i, r := range rows {
-		if c := r[header["country"]]; !keys[c] {
-			t.Errorf("territory.tsv line %d: country %q is no alpha2 of the table", i+2, c)
+		if c := r[header["sovereign"]]; !keys[c] {
+			t.Errorf("territory.tsv line %d: sovereign %q is no alpha2 of the table", i+2, c)
 		}
 	}
 }
