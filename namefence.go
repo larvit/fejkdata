@@ -3,8 +3,6 @@ package fejkdata
 import (
 	"fmt"
 	"slices"
-
-	"github.com/larvit/fejkdata/internal/grammar"
 )
 
 // checkNameReads refuses a read of a name inside the field bound to it, and a read {n} beside {n.w}
@@ -69,30 +67,29 @@ func refuseTwiceDrawn(addressed map[pickKey]string, read string, n node, key pic
 	return nil
 }
 
-// refuseTwiceDrawnIn is refuseTwiceDrawn over t's own reads of its fields; a reference or a read
-// through a name draws apart from the pick. It recurses into each read whose key under key is
-// addressed: beside {n.w.a}, it refuses {n} where n's format reads {w} and w's reads {a}-{a},
-// since "w" and "w.a" are addressed.
+// refuseTwiceDrawnIn is refuseTwiceDrawn over the reads of t that land in the pick. It recurses into
+// each of them, as render does: beside {n.w.a}, it refuses {n} where n's format reads {w} and w's
+// reads {a}-{a}, since "w" and "w.a" are addressed.
 func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, key pickKey) error {
 	reads := map[string]int{}
+	addressedBy := map[string]string{}
 	var into []arm
 	for _, o := range t.compiled.ops {
 		heads := map[string]bool{} // one op draws once, whichever arm it takes
 		for _, a := range slices.Concat(o.arms, o.operands) {
-			if grammar.IsRef(a.head) || a.kind == namedRead {
-				continue
-			}
-			if _, kept := addressed[key.under(a.key())]; kept {
+			if by, lands := landsInPick(addressed, key, a); lands {
 				into = append(into, a)
+				heads[a.head] = true
+				addressedBy[a.head] = by
 			}
-			heads[a.head] = true
 		}
 		for head := range heads {
 			reads[head]++
 		}
 	}
 	for _, head := range sortedNames(reads) {
-		if by, kept := addressed[key.under(pickKey(head))]; kept && reads[head] > 1 {
+		if reads[head] > 1 {
+			by := addressedBy[head]
 			return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, head, by, read, by)
 		}
 	}

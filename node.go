@@ -78,12 +78,9 @@ type template struct {
 	nameScope *nameScope // where its tokens look a name up
 
 	// Filled by `resolveTemplates`, from the assembled tree:
-	refs     templateRefs
-	compiled formatOps
-	// readsColumn is set when the format only reads one reference or name, and that read is a
-	// record's column. checkColumns, itemDatatype, proveColumnItem and renderLeaf each read it: change
-	// them together.
-	readsColumn *columnRead
+	refs        templateRefs
+	compiled    formatOps
+	readsColumn *columnRead // where the format is that one column; read only in columnread.go
 
 	// Filled by `settleRecords`, once the load refused every cycle:
 	columns []recordColumn // a record's, where it has fields, in name order

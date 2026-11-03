@@ -1409,7 +1409,8 @@ resolve.go      resolving templates against the assembled tree in steps, each ov
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
-datatype.go     column datatypes: DataType, a template's declared datatype, a column's datatype, and a format that only reads a column
+datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
+columnread.go   a format that only reads a column: what each load check and render asks of it
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main

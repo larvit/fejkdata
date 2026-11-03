@@ -17,7 +17,7 @@ import (
 // binding lands on onward; load gathers them in addressedKeys. When a template a pick renders
 // reads a field, such as the {first} that {p} renders, the pick keeps that read's value only if
 // the read's first-level key, put under the rendering template's key, is one of the name's
-// addressed keys. keptInPick decides this, and readUnder reads it.
+// addressed keys. landsInPick decides this, and readUnder reads it.
 //
 // In geo.SE.address, {.locality as l} binds l, and {l.street.name} passes the levels
 // "", "street" and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code},
@@ -65,13 +65,31 @@ func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*
 	return keys
 }
 
-// keptInPick reports whether a, a fresh read rendering in env.pick, is kept in it: a reads a
-// field, and a read of the pick's name addresses the level a starts at.
+// landsInPick reports whether a, a read in a template that a pick renders at the key at, is kept
+// in that pick, and the spelling of the read of the name that addresses it. Load asks it what to
+// refuse and render what to keep, so a key load gathers matches the one render builds. A reference
+// or a read through a name draws apart from the pick; a field's read is kept where a read of the
+// name addresses the level it starts at.
+//
+// A key spells a path from what the name's target starts at, the root "". A named read starts at
+// that root and may draw a variant there, so its levels start at "": levelKeys(full, 0). A fresh
+// read's root is the template it sits in, which already renders at at, and the first node it can
+// draw is its head, so its levels start at the head: levelKeys(…, 1). Under at, the two spell one
+// field alike: the {first} that {p} renders at "" and the {p.first} beside it both key "first".
+func landsInPick(addressed map[pickKey]string, at pickKey, a arm) (by string, lands bool) {
+	if grammar.IsRef(a.head) || a.kind == namedRead {
+		return "", false
+	}
+	by, lands = addressed[at.under(a.levels[0])]
+	return by, lands
+}
+
+// keptInPick is landsInPick for a read rendering in env, kept only inside a pick.
 func keptInPick(env renderEnv, a arm) bool {
-	if env.pick == nil || grammar.IsRef(a.head) {
+	if env.pick == nil {
 		return false
 	}
-	_, kept := env.pick.named.addressed[env.pickAt.under(a.levels[0])]
+	_, kept := landsInPick(env.pick.named.addressed, env.pickAt, a)
 	return kept
 }
 
