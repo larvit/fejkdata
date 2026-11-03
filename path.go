@@ -147,8 +147,8 @@ func (w *compiledPath) walkEvery(c *choice, tail []string) (node, error) {
 		return nil, err
 	}
 	var last node
-	// before has no spare capacity, so each variant's append copies and cannot overwrite the steps
-	// first keeps.
+	// before has no spare capacity, so each variant's append copies and leaves the first variant's
+	// steps intact.
 	before, first := w.steps[:len(w.steps):len(w.steps)], w.steps
 	for i, item := range c.items {
 		var err error
