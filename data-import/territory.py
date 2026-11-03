@@ -37,7 +37,7 @@ def languages(field):
 
 
 def sovereign(alpha2, independent):
-    """The sovereign state the register records; a territory it records none for stands alone."""
+    """The alpha-2 of the state `is_independent` names, or the territory's own where it names none."""
     m = SOVEREIGN.match(independent)
     if m:
         return m.group(1)
@@ -54,7 +54,7 @@ def rows(text):
             "alpha3": r["ISO3166-1-Alpha-3"],
             "calling-code": calling_code(r["Dial"]),
             "capital": r["Capital"],
-                        "currency": r["ISO4217-currency_alphabetic_code"].split(",")[0],
+            "currency": r["ISO4217-currency_alphabetic_code"].split(",")[0],
             "flag": flag(alpha2),
             "languages": languages(r["Languages"]),
             "name": r["CLDR display name"] or r["official_name_en"],
@@ -77,7 +77,7 @@ def main():
     shipped = {r["alpha2"] for r in table}
     for r in table:
         if r["sovereign"] not in shipped:
-            sys.exit(f"{r['alpha2']}: sovereign {r['sovereign']} is no shipped territory; a sovereign the set drops leaves its territories unreadable")
+            sys.exit(f"{r['alpha2']}: sovereign {r['sovereign']} is no row of the table, so its territories could not select it")
     tsv.write(a.out, COLUMNS, table)
 
 
