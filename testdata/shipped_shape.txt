@@ -332,12 +332,12 @@ misc.territory.alpha2	string
 misc.territory.alpha3	string
 misc.territory.calling-code	string
 misc.territory.capital	string
-misc.territory.country	string
 misc.territory.currency	string
 misc.territory.flag	string
 misc.territory.languages	string
 misc.territory.name	string
 misc.territory.numeric	string
+misc.territory.sovereign	string
 misc.territory.timezone
 misc.territory.timezone.offset
 misc.territory.timezone.territory
