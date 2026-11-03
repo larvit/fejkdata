@@ -745,3 +745,20 @@ Read most (opens and searches):
 - `vulnerability-filing/file_vulnerabilities.py` 2
 - `vulnerability-filing/file_vulnerabilities_test.py` 2
 - `.dockerignore` 1
+
+## Reading cost, chunk 76f95541a6c4, finished 2026-11-03T21:14:23Z
+
+117951 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 9
+- `internal/datafiles/datafiles_test.go` 3
+- `path.go` 3
+- `AGENTS.md` 2
+- `README.md` 2
+- `arm.go` 2
+- `datatype.go` 2
+- `docs/decisions.md` 2
+- `env.go` 2
+- `internal/datafiles/manifest.go` 2
