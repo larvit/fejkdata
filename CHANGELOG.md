@@ -10,6 +10,8 @@ replacement, and each removed path, column or flag.
 
 - `misc.territory.country` is now `misc.territory.sovereign`. It still holds the alpha-2
   code of the state a territory belongs to: `{/misc.territory[GL].sovereign}` is `DK`.
+  The column sorts by name, so `--format csv` writes it after `numeric`, where `country`
+  came after `capital`: read by header, not by position.
 
 ## [0.2.0] - 2026-10-28
 
