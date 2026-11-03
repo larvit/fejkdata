@@ -399,7 +399,7 @@ The maintainer chose on 2026-10-09 to regroup the engine into packages, untangle
 
 - The 25 flat root files are the worst level of the tree; both architect seats grouped them by hand into public API, load, names, render, paths and proofs.
 - The named-pick machinery spans `name.go`, `namefence.go`, `pick.go`, `env.go`, `render.go`, `path.go` and `record.go`, and every seat found it hardest.
-- `template` is filled in four phases by four functions, `readsColumn` has four readers in three files, and `renderEnv` shares one `frameStack` by pointer behind a by-value env.
+- `template` is filled in four phases by four functions, and `renderEnv` shares one `frameStack` by pointer behind a by-value env.
 - Calc lives in five places, and paths are walked by `compiledPath`, `callerPathSteps` and `drawSteps` over one `compileStep`.
 
 The decision "The template engine stays the root package until item 107; what reads no engine type, a table's rows included, sits in `internal/`" says why the engine stayed whole: `template`, `table`, `arm`, `op` and `nameBinding` sit in one cycle, since several load stages each write part of the same structs. The plan answers four questions. How does load finish each value before render reads it? Which packages does that give, and what is each one's fan-out? How does the allocation gate hold? Which of items 172 to 175 does it answer or close? It lands as a `docs/decisions.md` entry replacing that decision, and as items under item 107, each shipping with a paired ruling no worse.

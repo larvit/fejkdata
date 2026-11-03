@@ -8,23 +8,20 @@ import (
 
 // pickKey is the key a named pick's memo keeps one level's draw under.
 //
-// A level is a prefix of a read's path, from where it starts to its leaf; a choice and the
-// variant drawn from it, or a table and its row, share one. A level's key is its path of
-// segments from a root keyed "": for a named read, the node its name's target starts at; for a
-// fresh read, the template it sits in. Load gives each read one key per level, in levelKeys.
+// A level is one prefix of a read's path, and a read has one for each node it passes; a choice
+// and the variant drawn from it, or a table and its row, share one. A level's key is its path from
+// where the read starts, and landsInPick says where that is. Load gives each read one key per
+// level, in levelKeys.
 //
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
 // binding lands on onward; load gathers them in addressedKeys. When a template a pick renders
-// reads a field, such as the {first} that {p} renders, the pick keeps that read's value only if
-// the read's first-level key, put under the rendering template's key, is one of the name's
-// addressed keys. landsInPick decides this, and readUnder reads it.
+// reads a field, the pick keeps that read's value only if the read's first-level key, put under
+// the rendering template's key, is one of the name's addressed keys. landsInPick decides this,
+// and readUnder reads the kept value.
 //
-// In geo.SE.address, {.locality as l} binds l, and {l.street.name} passes the levels
-// "", "street" and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code},
-// l's addressed keys are those three, "name", "postal-code" and "postal-code.code". Where p
-// binds a category whose format reads {first}, and both {p} and {p.first} are read, the {first}
-// that {p} renders has the key "first" under {p}'s key "". {p.first} addresses "first", so both
-// read one draw.
+// In geo.SE.address, {.locality as l} binds l, and {l.street.name} passes the levels "", "street"
+// and "street.name", the last of which is its key. With {l.name} and {l.postal-code.code}, l's
+// addressed keys are those three, "name", "postal-code" and "postal-code.code".
 type pickKey string
 
 // under is rel, a key from a fresh read's levels, moved under k, the key of what renders. It never
@@ -65,17 +62,19 @@ func addressedKeys(ts []templateSite, targets map[*nameBinding]nameTarget) map[*
 	return keys
 }
 
-// landsInPick reports whether a, a read in a template that a pick renders at the key at, is kept
-// in that pick, and the spelling of the read of the name that addresses it. Load asks it what to
-// refuse and render what to keep, so a key load gathers matches the one render builds. A reference
-// or a read through a name draws apart from the pick; a field's read is kept where a read of the
-// name addresses the level it starts at.
+// landsInPick reports whether a pick keeps the value of a. a is a read in a template the pick
+// renders, at is that template's key, and by is the spelling of the read of the name that addresses
+// a. Load and render both call it, so they agree on what a pick keeps. A reference draws afresh and
+// a read through a name reads its own name's pick, so the pick keeps neither. It keeps any other
+// read where a read of the name addresses a's first level, moved under at.
 //
-// A key spells a path from what the name's target starts at, the root "". A named read starts at
-// that root and may draw a variant there, so its levels start at "": levelKeys(full, 0). A fresh
-// read's root is the template it sits in, which already renders at at, and the first node it can
-// draw is its head, so its levels start at the head: levelKeys(…, 1). Under at, the two spell one
-// field alike: the {first} that {p} renders at "" and the {p.first} beside it both key "first".
+// The two kinds of read share a key because of where their levels start. A named read starts at
+// the node its name's target starts at, and may draw a variant there, so its levels start at that
+// node, keyed "" (compileArm). A fresh read starts in the template it sits in, which is already
+// rendering. The first node it can draw is its head, so its levels start at the head (pathArm).
+// at is that template's path from the target's start, so moved under at, a fresh read's key spells
+// the path a named read's does. Where p binds a category whose format reads {first}, the {first}
+// that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
 func landsInPick(addressed map[pickKey]string, at pickKey, a arm) (by string, lands bool) {
 	if grammar.IsRef(a.head) || a.kind == namedRead {
 		return "", false
@@ -84,7 +83,7 @@ func landsInPick(addressed map[pickKey]string, at pickKey, a arm) (by string, la
 	return by, lands
 }
 
-// keptInPick is landsInPick for a read rendering in env, kept only inside a pick.
+// keptInPick is landsInPick for a read rendering in env; with no pick in env it is false.
 func keptInPick(env renderEnv, a arm) bool {
 	if env.pick == nil {
 		return false
