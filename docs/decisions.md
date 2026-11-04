@@ -704,13 +704,42 @@ A reference reaches a table by a path that carries no selector — `sv_SE.addres
 a reader would type a selector. The table's own location can, which is why it keeps its
 path, and why an error names `geo.SE.municipality[1281]` rather than `municipality[1281]`.
 
-## No builtin reads the clock, so a date is bounded by days, never by an age
+## A builtin reads the date the caller gives, never the clock, so `born` bounds a date by an age
 
-2026-09-18, Lilleman auf Larv.
+2026-09-18, Lilleman auf Larv; revised 2026-11-04.
 
-An `age(min,max)` would make a seeded fixture change with the day it runs on, which is
-what a seed exists to prevent; a birthdate for someone 20 to 60 is
-`date(1966-01-01,2006-12-31,…)`, re-pinned as any fixture is.
+Goal 9.1 has the caller supply everything that can change the output, so a seeded fixture changes
+with the day only where the caller gives it a new day. The earlier decision bounded a date by days,
+and a fixed earliest day made the oldest `personnummer` wrong as years passed, against goal 3.
+`born` judges an age by the year of the date, whether or not the birthday has passed, since
+folkbokföringslagen 18 § changes the separator "det år en person fyller 100 år". Valid while no
+builtin needs a part of the date finer than the year to judge an age. `{date(from,to,…)}` keeps its
+absolute days for what no age bounds.
+
+## `New` requires `WithToday`, and `--today` defaults to the system's date
+
+2026-11-04, Lilleman auf Larv.
+
+Goal 9.1 has a library caller supply the date as it supplies the seed, and goal 6.3 has the CLI fill
+it in. A panel of five readers seated as the README's audience chose the spelling: `--today` beside
+`WithToday(time.Time)` won four to one over `--as-of` and `WithAsOf`, and all five wanted `--date` least,
+since it collides with `{date()}` and `sv_SE.date`. `born` won three to two over `birthdate`, and `age`
+and `turns` were wanted least. A date is required even where no template reads it, since a load cannot
+promise that the data never will. Valid while goal 9.1 stands.
+
+## A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`
+
+2026-11-04, Lilleman auf Larv.
+
+Goal 3 asks that a valid value pass its real check, and goal 3.2 asks for a published source. The bands
+and weights are SCB's, in `docs/research/research-age-bands.md`. The law gives no oldest age, so the top
+band stops at 113, the oldest validated age in Sweden: Astrid Zachrison, 1895-05-15 to 2008-05-15
+(LongeviQuest; Wikipedia's list of Swedish supercentenarians). Bands relative to a date cut across
+centuries, so `personnummer-12` cannot write `19{ten}` and `20{ten}`: it prints the century in `born`'s
+layout, and `{luhn(9)}` keeps it out of the check digit. A panel of three readers chose `{luhn(9)}` over
+`{luhn(-9)}`, `{luhnlast(9)}` and `{luhntail(9)}`. No template conditional exists to swap 238 and 239 for
+980 and 981, so a date before 2013, which can draw a birth before 1900, falls outside the test series,
+and the README says so. Valid while the callers' dates lie in 2013 or later, and while no Swede passes 113.
 
 ## `misc` is what every locale shares
 

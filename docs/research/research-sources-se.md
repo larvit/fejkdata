@@ -62,7 +62,7 @@ Recommendation: embed SCB 2022 xlsx-derived lists (top-N per sheet with counts) 
 - Before 1990 the first two födelsenummer digits encoded county; now random (Wikipedia, unverified officially).
 
 ### Samordningsnummer
-- Same layout; day + 60 (3rd → 63); individual number random 001–999, odd male / even female; same Luhn (Skatteverket rättslig vägledning, via search excerpt; page itself blocked). Now regulated by Lag (2022:1697) om samordningsnummer (18 a § FBL repealed) — flag.
+- Same layout; day + 60 (3rd → 63); individual number random 001–999, odd male / even female; same Luhn (Skatteverket rättslig vägledning, via search excerpt; page itself blocked). Now regulated by Lag (2022:1697) om samordningsnummer (18 a § FBL repealed). Its 2 kap. 8 § states no separator and no rule at 100 years, unlike FBL 18 § ("Mellan födelsetiden och födelsenumret sätts ett bindestreck som byts mot ett plustecken det år en person fyller 100 år"), so `sv_SE.samordningsnummer` keeps `-`. Read 2026-11-04 at riksdagen.se: SFS 2022:1697 and SFS 1991:481.
 - Example from Skatteverket: man born 1970-10-03, no. 239 → 701063-2391.
 
 ### Official test numbers (Skatteverket, CC0 1.0)

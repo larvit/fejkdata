@@ -16,7 +16,8 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
-- **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
+- **Valid ids:** personnummer, spelled with a `+` from the year the holder turns 100, and
+  samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
   a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
@@ -29,7 +30,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
 - **Your own data:** each JSON file in a folder you pass adds a path, such as
   `{/acme.customer}`, and a mistake in it fails at load, never mid-render.
-- **Reproducible:** the same seed, version and data give the same output, when one goroutine
+- **Reproducible:** the same seed, date, data and versions give the same output, when one goroutine
   draws it.
 
 [Install](#install) · [CLI](#cli) · [Library](#library) · [Data](#data) · [Data format (templates)](#data-format) ·
@@ -116,6 +117,7 @@ package signup
 
 import (
 	"testing"
+	"time"
 
 	"github.com/larvit/fejkdata"
 	svse "github.com/larvit/fejkdata/data/sv_SE"
@@ -133,7 +135,8 @@ type Person struct {
 }
 
 func TestSignup(t *testing.T) {
-	f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))
+	day := time.Date(2026, 11, 4, 0, 0, 0, 0, time.UTC)
+	f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1), fejkdata.WithToday(day))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,7 +149,7 @@ func TestSignup(t *testing.T) {
 }
 ```
 
-`WithSeed(1)` gives the same person on every run of one version; another seed gives another.
+`WithSeed(1)` and that day give the same person on every run of one version; another seed gives another.
 
 ## CLI
 
@@ -155,6 +158,7 @@ echo '{/sv_SE.person}' | fejkdata                        # Sara Eriksson
 echo '{/sv_SE.person.last}' | fejkdata                   # Eriksson
 echo '{/sv_SE.person} hihi' | fejkdata                   # Sara Eriksson hihi
 echo '{/sv_SE.address}' | fejkdata --seed 42             # the same address every run
+echo '{/sv_SE.personnummer}' | fejkdata --seed 42 --today 2026-11-04   # the same number on any day
 echo '{/sv_SE.word}' | fejkdata -n 3                     # nät, barn and sol, a line each
 printf '%s' '{/sv_SE.word}' | fejkdata -n 3 --separator ', '   # nät, barn, sol
 fejkdata --list                                          # every path the data offers
@@ -180,7 +184,8 @@ these paths; a template reads one as `{/path}`.
 |------|--|
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
-| `-s`, `--seed N` | same seed, version and data: identical output (default: a random seed) |
+| `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
+| `--today DAY` | the date a render is read on, as `YYYY-MM-DD`, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer` (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
@@ -330,11 +335,13 @@ go get github.com/larvit/fejkdata   # Go 1.22+, 64-bit targets
 
 ```go
 import (
+	"time"
+
 	"github.com/larvit/fejkdata"
 	svse "github.com/larvit/fejkdata/data/sv_SE"
 )
 
-f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(42))
+f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(42), fejkdata.WithToday(time.Now()))
 if err != nil {
 	log.Fatal(err)
 }
@@ -354,7 +361,8 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 
 | Option | |
 |--------|--|
-| `WithSeed(n)` | required; the same seed, version and data give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
+| `WithSeed(n)` | required; the same seed, date, data and versions give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
+| `WithToday(day)` | required; the date a render is read on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer`. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It takes the calendar day as written in `day`'s location, in a year from 1 to 9999, and ignores the time of day |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -367,7 +375,7 @@ are `WithDataFS(append(svse.Modules(), enus.Modules()...)...)`. To stand in your
 own places, pass the locale's `FS` alone beside a tree providing `geo.SE.address`, a record
 with a `format` and the columns `sv_SE.address` reads, `street`, `street-number`,
 `postal-code` and `locality`: `WithDataFS(svse.FS, myPlaces)`. `New` fails where no
-`WithDataFS` or `WithDataPath` names the data to load.
+`WithDataFS` or `WithDataPath` names the data to load, and where `WithSeed` or `WithToday` is missing.
 
 `New` refuses data that breaks the grammar, could mean two things or cannot render a valid
 value, and `NewTemplate` refuses such a template. A category of an [indexed](#data) source is
@@ -455,7 +463,7 @@ func main() { os.Exit(cli.Main(append(data.Modules(), mydata)...)) }
 The embed's folders are the paths: `//go:embed acme` serves `acme/customer.json` as
 `{/acme.customer}`. Add `*.tsv` to the embed where your data holds a table. The CLI loads
 its data only when it runs. To catch broken data at `go test`, call
-`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1))` over the same modules, and
+`fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))` over the same modules, and
 render each path once: a module with an [index](#data) checks a category only when a call first
 reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
 it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
@@ -578,7 +586,7 @@ Transportstyrelsen's pages do not confirm.
 
 `sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12` draw a personnummer and a samordningsnummer as twelve
 digits, the century first and no hyphen, `199001012385`: the form many systems store. As in the short form, the Luhn
-check digit covers the last ten digits, which the field `ten` holds.
+check digit covers the last ten digits, which `sv_SE.samordningsnummer-12`'s field `ten` holds.
 
 `sv_SE.bankgiro` draws a bankgiro number of seven or eight digits at even odds, `991-2346` or `5555-5551`, the last
 digit a Luhn check digit. `sv_SE.plusgiro` draws a plusgiro number of two to eight digits, the last a Luhn check
@@ -720,6 +728,16 @@ too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
 `sv_SE.birth-number` under `sex`, is Skatteverket's test series, 238 for a woman and 239
 for a man, which no real person is ever given.
 
+`sv_SE.personnummer` and `sv_SE.personnummer-12` draw ages as often as SCB counted them in Sweden at the
+end of 2024: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged 65–99 and 0.028% aged 100 or more, up to
+113, the oldest age validated in Sweden. An age is judged by the date the caller gives, with
+`WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
+the year the holder turns 100, as folkbokföringslagen 18 § states: read on 2026-11-04, a birth in 1926
+or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
+holds other birth numbers, 980 and 981 among them, so such a number is outside the series.
+`sv_SE.samordningsnummer` keeps `-` and a date from 1930 to 2025: the law that governs it, lag
+(2022:1697), states no `+`.
+
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
 `last-name`. `person` and `personnummer` draw apart, so where a name and a number must
 agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
@@ -728,13 +746,17 @@ agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
 { "format": "{first} {last}, {pnr}",
   "first": "{/sv_SE.sex as s}{s.first-name}",
   "last": "{/sv_SE.last-name}",
-  "pnr": "{date(1930-01-01,2025-12-31,'060102')}-{s.birth-number.number}{luhn()}" }
+  "pnr": [
+    { "format": "{born(0,99,'060102')}-{s.birth-number.number}{luhn()}", "weight": 99.972 },
+    { "format": "{born(100,113,'060102')}+{s.birth-number.number}{luhn()}", "weight": 0.028 }
+  ] }
 ```
 
-Renders e.g. `Anne Grönberg, 011012-2389`.
+Renders e.g. `Anne Grönberg, 011012-2389`. Each item of `pnr` spells its own separator, so a birthdate
+of `born(100,…)` carries the `+`.
 
-Skatteverket's test series is small: a personnummer is one of about 70,000 values, a day
-in 1930–2025 against the two birth numbers, so a fixture past a few hundred rows repeats
+Skatteverket's test series is small: a personnummer is one of about 83,000 values, a day
+in the 114 years up to the given date against the two birth numbers, so a fixture past a few hundred rows repeats
 one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date` and `nb_NO.date`
 are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
@@ -1073,13 +1095,13 @@ namespace too.
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
 zeros (`+5` and `05` are `5`); a count of `0` renders nothing; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
-fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed — a
-time-based id takes its timestamp from the rng, not the clock — so seeded output
-stays reproducible.
+fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed, and `born`
+also reads the given date — a time-based id takes its timestamp from the rng, not the clock — so the same seed
+and date repeat the output.
 
 | Function | Kind | Renders |
 |----------|------|---------|
-| `{luhn()}` | derivation | Luhn check digit over the digits emitted so far in this expansion |
+| `{luhn()}`, `{luhn(n)}` | derivation | Luhn check digit over the digits emitted so far in this expansion, or over the last `n` digits of them |
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
@@ -1095,6 +1117,7 @@ stays reproducible.
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE |
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
+| `{born(min,max,'layout')}` | sample | a second in the years someone turns `min` to `max`, both included, by the date a render is read on, and never after that date; the layout as in `date` |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1106,7 +1129,7 @@ Swedish personnummer is a Luhn checksum over the nine digits before it, six of
 them a birthdate:
 
 ```json
-{ "format": "{date(1930-01-01,2010-12-31,'060102')}-{birth}{luhn()}", "birth": ["238", "239"] }
+{ "format": "{born(0,99,'060102')}-{birth}{luhn()}", "birth": ["238", "239"] }
 ```
 
 Renders e.g. `811218-2389`. A layout is Go's: the reference time `Mon Jan 2
@@ -1119,6 +1142,13 @@ The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. A layout naming no field prints itself, `date` with a clock-only
 layout prints the drawn instant's clock, and `date` over one day with no clock field prints
 that day.
+`born` judges an age by the year of the date given to `WithToday` or `--today`, whether or not the
+birthday has passed: read on 2026-11-04, `born(18,64,'2006-01-02')` draws from 1962-01-01 to 2008-12-31,
+and `born(0,17,'2006-01-02')` from 2009-01-01 to 2026-11-04. It is refused at `New` where an age is
+negative, `min` is above `max` or `max` is above 9999.
+`{luhn(9)}` leaves out what comes before the last nine digits, as a twelve-digit personnummer's century
+stays out of its check digit: `{born(0,99,'20060102')}{birth}{luhn(9)}`. It is refused at `New` where `n`
+is below 1 or above 1048576.
 Rejected at `New`: a bound that is no calendar date, or after the other; an unquoted
 or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
 date field, naming `date`, since `time` draws no date. `{seq()}` spans `Fake`
@@ -1519,7 +1549,7 @@ cmd/fejkdata/   the fejkdata binary: Main over every shipped module
 internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
-internal/drawstate/ the seeded randomness and the {seq()} counters a generator draws through
+internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
 internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by

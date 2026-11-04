@@ -8,6 +8,15 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
+- `New` requires `WithToday(day)`, the date a render is read on, beside `WithSeed`: add
+  `fejkdata.WithToday(time.Now())` for the current date, or a fixed day to repeat a run's output on a
+  later day. Without it `New` fails and names the option.
+- `sv_SE.personnummer` and `sv_SE.personnummer-12` draw ages as often as SCB counted them in Sweden at
+  the end of 2024, up to 113, judged by that date, where they drew evenly from 1930 to 2025. What a seed
+  draws changes, and changes again with the date: give `--today` beside `--seed` to repeat a run on a later
+  day. `sv_SE.personnummer` spells `+` from the year the holder turns 100, so a system reading it must
+  take the `+`, and it is now a choice of four age bands, where a format string stood.
+- `sv_SE.personnummer-12.ten` is removed: take the last ten digits of `{/sv_SE.personnummer-12}`.
 - `misc.territory.country` is now `misc.territory.sovereign`. It still holds the alpha-2
   code of the state a territory belongs to: `{/misc.territory[GL].sovereign}` is `DK`.
   The column sorts by name, so `--format csv` writes it after `numeric`, where `country`
@@ -61,6 +70,10 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- `--today DAY` gives the CLI the date a render is read on, as `YYYY-MM-DD`; it defaults to the
+  system's date.
+- `{born(min,max,'layout')}` draws a birthdate by age, judged by that date.
+- `{luhn(n)}` computes the check digit over the last `n` digits, as a twelve-digit personnummer needs.
 - A load accepts `{n}` beside `{n.w.z}` where `n`'s format is `{w.a} {w.b}` and `w` is a template that
   isn't a choice, and `{n}` beside `{n.w}` where `n`'s format is `{w}-{w}` and `w` is a constant. It
   refused both, though the two reads share no draw that can differ.
@@ -106,6 +119,8 @@ replacement, and each removed path, column or flag.
 
 ### Fixed
 
+- A record naming a choice, such as `{/sv_SE.bankgiro}` under `--format csv`, gives an error matching
+  `ErrNoColumns`, and the CLI adds the same hint on quoting as for a category with no fields.
 - A choice item whose format reads only a name the item binds, such as `{/ab as w}{w.legal}`, draws
   without a panic. It loaded, then panicked when drawn.
 
