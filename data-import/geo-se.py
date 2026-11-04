@@ -30,13 +30,17 @@ POPULATION_QUERY = {
     "response": {"format": "json"},
 }
 TATORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=stat:Tatorter_2023&outputFormat=csv&propertyName=tatort,kommun,bef"
+# Småorter, 50 to 199 people each, carry a code and no name in SCB's open data, so one is found by position: the layer in
+# WGS84, as the postal codes are.
+SMAORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=stat:Smaorter_2023&outputFormat=csv&srsName=EPSG:4326&propertyName=kommun,bef,sp_geometry"
 POSTAL_CODES = "https://download.geonames.org/export/zip/SE.zip"
 NVDB = "https://api.trafikinfo.trafikverket.se/v2/data.json"
 NVDB_PAGE = 50000
 TIMEZONE = "Europe/Stockholm"
 # This script's reading of the "exceptions in big cities" in docs/research/research-geo-se.md, Postal codes → Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
-# A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn.
+# A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn. It is the weight of a
+# postort that is no tätort and lies in no småort of its municipality.
 UNMATCHED_POPULATION = 200
 # Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
 # or a description in one.
@@ -65,6 +69,29 @@ def scb_tatorter(cache):
     for r in csv.DictReader(io.StringIO(text)):
         by_name[r["tatort"]].append((r["kommun"], int(r["bef"])))
     return by_name
+
+
+def scb_smaorter(cache):
+    """Each municipality's småorter as (population, rings), a ring a list of (lon, lat). A ring is any parenthesised run
+    of the WKT, so a hole is a ring too."""
+    csv.field_size_limit(sys.maxsize)
+    text = source.fetch(SMAORTER, cache, "smaorter.csv", magic=b"FID").decode("utf-8")
+    by_municipality = collections.defaultdict(list)
+    for r in csv.DictReader(io.StringIO(text)):
+        rings = [[tuple(map(float, p.split())) for p in ring.split(",")] for ring in re.findall(r"\(([^()]+)\)", r["sp_geometry"])]
+        by_municipality[r["kommun"]].append((int(r["bef"]), rings))
+    return by_municipality
+
+
+def inside(lon, lat, rings):
+    """Whether the point lies in the polygons made of rings: it does where it has an odd number of edges to one side, so
+    a hole counts out."""
+    odd = False
+    for ring in rings:
+        for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
+            if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1:
+                odd = not odd
+    return odd
 
 
 def geonames(cache):
@@ -133,11 +160,14 @@ def municipality_of(name, rows, tatorter, municipalities):
     return None, "unplaced"
 
 
-def population_of(name, municipality, tatorter, municipalities, population):
+def population_of(name, municipality, point, tatorter, municipalities, population, smaorter):
     matches = [m for m in tatorter.get(name, []) if m[0] == municipality]
     if matches:
         return str(max(m[1] for m in matches))
-    return population[municipality] if municipalities[municipality] == name else str(UNMATCHED_POPULATION)
+    if municipalities[municipality] == name:
+        return population[municipality]
+    lat, lon = point
+    return str(next((n for n, rings in smaorter.get(municipality, []) if inside(lon, lat, rings)), UNMATCHED_POPULATION))
 
 
 def well_cased(name):
@@ -146,7 +176,7 @@ def well_cased(name):
     return all(part[:1].isupper() and (len(part) == 1 or not part.isupper()) for part in re.split(r"[ -]", name))
 
 
-def localities(codes, tatorter, municipalities, population):
+def localities(codes, tatorter, municipalities, population, smaorter):
     """Each postort with its municipality, weight, centroid and street-delivery codes."""
     by_locality = collections.defaultdict(list)
     for r in codes:
@@ -160,7 +190,7 @@ def localities(codes, tatorter, municipalities, population):
         if municipality is None or not kept or point is None or not well_cased(name):
             continue
         lat, lon = point
-        out[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, tatorter, municipalities, population), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
+        out[name] = {"name": name, "municipality": municipality, "population": population_of(name, municipality, point, tatorter, municipalities, population, smaorter), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}", "codes": kept}
     print(f"municipality by {dict(how)}; {len(by_locality) - len(out)} postorter dropped before streets", file=sys.stderr)
     return out
 
@@ -190,7 +220,7 @@ def main():
     region_names, municipality_names = scb_codes(cache)
     population = scb_population(cache)
     codes = geonames(cache)
-    places = localities(codes, scb_tatorter(cache), municipality_names, population)
+    places = localities(codes, scb_tatorter(cache), municipality_names, population, scb_smaorter(cache))
     named = streets(nvdb_segments(cache, key), codes, places, a.street_share, a.min_streets)
     regions = {c: {"code": c, "name": n, "population": population[c], "timezone": TIMEZONE} for c, n in region_names.items()}
     municipalities = {c: {"code": c, "name": n, "region": c[:2], "population": population[c]} for c, n in municipality_names.items()}
