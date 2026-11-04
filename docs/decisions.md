@@ -1347,3 +1347,16 @@ of speech by its row count, per "A table whose register publishes no frequency d
 SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swedish list (CC BY 4.0,
 widely used to filter generated text). It leaves compounds and any rude word the list lacks.
 Valid while no open Swedish source tags register.
+
+## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
+
+2026-11-04, the maintainer. Goals 4.3 and 4.6.
+
+`sv_SE.company` prints its wording through `{registered as r}{r}`, so its `legal` field reads the
+word from that pick. The pick is `r`'s, so `{c}` prints `r`'s draw and `{c.registered}` draws its own.
+A reader of `{c} {c.registered}` expects the one pick goal 4.3 promises, and each name keeping its
+own pick says two, so by goal 4.6 the template fails to load, like `{n.w}` beside the format `{w}-{w}`.
+
+Landing the read on `r`'s pick would make two names share draws. Moving the data's choice a level
+down only moves the disagreement to the new level, and leaves users' categories with it.
+Valid while each name keeps its own pick.

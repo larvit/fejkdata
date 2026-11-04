@@ -1198,7 +1198,9 @@ Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps wha
 lands on and every level it passes, so `{n}` and `{n.path}` agree, and so does a
 [transform](#transforms) of `n.path`. Everything else under the name draws as it would
 anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and `{n.w}` beside
-`{n}` is refused, since it could read either draw. A sibling field is bound the same way, so
+`{n}` is refused, since it could read either draw. A reference draws afresh too, so `{n}` and
+`{n.ab.name}` can differ where `n`'s format reads `{.company.ab.name}`, as `sv_SE.company`'s does.
+A sibling field is bound the same way, so
 `{place as p}{p.postal-code} {p.locality}` reads one place ([Correlated fields](#correlated-fields)).
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws,
@@ -1227,6 +1229,10 @@ Refused at `New`, each error naming what to write instead:
   0180 whatever region `r` picked, or 0180 only where `r` picked the region holding it;
 - `{n}` beside `{n.w}` where `n`'s category reads `w` twice, as in `{w}-{w}` or
   `{w.a} {w.b}`;
+- `{n.w}` beside a read of `n` that reads `w` through a name of `n`'s category:
+  `sv_SE.company`'s format is `{registered as r}{r}`, so `{/sv_SE.company as c}{c} {c.registered}`
+  could print two companies. Drop `{c.registered}` to keep one pick, or write
+  `{/sv_SE.company.registered}` for a second draw;
 - a binding in a table's format or cell.
 
 ### Correlated fields
