@@ -157,7 +157,7 @@
 | 358 | 1.2.0 |  |  | **Record in `docs/decisions.md` the JavaScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 3 | 1.2 by 3 | 1.8 |
 | 359 | 1.2.0 | 358 |  | **Build the library to WebAssembly behind a bridge that reads only its public API, and export it from `@larvit/fejkdata` as item 358's decision spells it.** | 3 | 2 | 2 | 5 | 6 | 1.2 by 8 | 1.1 |
 | 360 | 1.2.0 | 359 |  | **Ship TypeScript declarations with `@larvit/fejkdata`, and fail the gate where a typed usage test stops compiling under `tsc --strict`.** | 2 | 1 | 1 | 2 | 3 | 1.2 by 5 | 3.0 |
-| 362 | 1.2.0 | 355, 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 2.4 |
+| 362 | 1.2.0 | 357, 359 |  | **Publish `@larvit/fejkdata` to npm, with provenance, for every release CI cuts, patches included, and pack it in the Packages dry run.** | 3 | 3 | 3 | 7 | 5 | 1.1 by 4, 1.2 by 6 | 2.4 |
 | 361 | 1.2.0 | 359 |  | **Test `@larvit/fejkdata` in the gate on Node, Bun, Deno and a headless browser, and pin that its seeded renders match the Go library's byte for byte.** | 3 | 1 | 2 | 4 | 5 | 1.2 by 4 | 1.0 |
 | 363 | 1.2.0 | 360, 361 |  | **Document `@larvit/fejkdata` in the README: its install line, a JavaScript section beside Library, the runtimes it is tested on and its Versioning row, with every JavaScript example run as a test.** | 2 | 2 | 1 | 3 | 4 | 1.1 by 2, 1.2 by 4 | 2.4 |
 | 345 | 1.3.0 |  | question | **Decide how a locale with names in a script such as Han, Devanagari, Arabic or Bengali gets valid emails, and record it in the `slugify` decision.** | 1 | 2 | 1 | 2 | 1 | 2.1 by 2, 3.3 by 3 | 4.3 |
@@ -561,7 +561,7 @@ Today `Fake("sv_SE.person.")` reports `no field ""`, while `{/sv_SE.person.}` re
 
 The 0.2.0 commit changed only `CHANGELOG.md`, so the `changes` job skipped the `docker build` jobs and the dry run, and the release job tagged a commit neither had built.
 
-The `changes` job counts a change to `CHANGELOG.md`'s top heading from `[Unreleased]` to a version as a code and packaging change, so the release commit builds through `docker build .` and runs the dry run before it is tagged. Adding `CHANGELOG.md` to the `code` and `packaging` lists would do the same, but it would also run the full build on every changelog fix-up and the dry run on every data pull request, against item 352's two-minute pull request.
+Make the `changes` job count a change to `CHANGELOG.md`'s top heading from `[Unreleased]` to a version as a code and packaging change, so the release commit builds through `docker build .` and runs the dry run before it is tagged. Adding `CHANGELOG.md` to the `code` and `packaging` lists would do the same, but it would also run the full build on every changelog fix-up and the dry run on every data pull request, which slows every such pull request.
 
 ### 181. Fail a load where two sources define one category, unless the library's option or the CLI's flag says the later replaces the earlier, and then make every read reach the replacement.
 
