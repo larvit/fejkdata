@@ -448,11 +448,11 @@ a read drew.
 Two declarations of any kind — function, method, field, type — share a name only where one
 definition covers both: the same kind of value, counted or addressed the same way, so a
 reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
-`Generator`, `Template` and `RecordTemplate`. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
-name, since a search returns both and a call site shows no receiver; review judges the
-rest. Item 377 decides whether that test stays. Serves code health: names that tell the truth, and reaching the unit behind a symptom
-without asking a person. Decided 2026-09-25 by Lilleman; valid while code health counts reading
-cost.
+`Generator`, `Template` and `RecordTemplate`. A bare function stays off a method's name, since
+a search returns both and a call site shows no receiver. Review judges this rule, and no test
+scans the source for it. Serves code health: names that tell the truth, and reaching the unit
+behind a symptom without asking a person. Decided 2026-09-25 by Lilleman, and the test dropped
+2026-11-04; valid while code health counts reading cost.
 
 ## The performance gate asserts allocations, not wall-clock time
 
