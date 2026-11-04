@@ -1336,3 +1336,14 @@ counted in the tätort a namesake postort weighs by, so the capital's share of d
 its real one, while a suburb is drawn too rarely. The one published table by postal area,
 `Totalbef_postnr.xls`, holds 2012 and survives only in the Web Archive with no licence stated;
 `todo.md` asks whether it may be used. Valid until that item is answered or SCB publishes one.
+
+## `sv_SE.word` is SALDO's words, one path per part of speech, each spelled as `sentence.adj` is
+
+Goal 3.2. A panel of three readers, seated as bulk, Go and data authors, all chose `word.adj` over
+`word.adjective` and over `sv_SE.adj`, since `en_US.sentence.adj` already shortens it. A word's
+form sits below its path and reads one bound pick, as a company's `legal` does. `word` weighs a part
+of speech by its row count, per "A table whose register publishes no frequency draws evenly".
+
+SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swedish list (CC BY 4.0,
+widely used to filter generated text). It leaves compounds and any rude word the list lacks.
+Valid while no open Swedish source tags register.

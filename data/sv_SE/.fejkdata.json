@@ -42,7 +42,11 @@
 		"sv_SE.vat": {"paths":[""]},
 		"sv_SE.version": {"paths":["","n","pre","suffix"]},
 		"sv_SE.weekday": {"paths":["","code","name"]},
-		"sv_SE.word": {"paths":[""]}
+		"sv_SE.word": {"paths":["","adj","adj.definite","adv","any","noun","noun.definite","verb","verb.present"]},
+		"sv_SE.word-adj": {"paths":["","definite","word"]},
+		"sv_SE.word-adv": {"paths":["","word"]},
+		"sv_SE.word-noun": {"paths":["","definite","word"]},
+		"sv_SE.word-verb": {"paths":["","present","word"]}
 	},
 	"namespace": "sv_SE"
 }
