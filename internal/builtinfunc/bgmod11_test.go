@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 	"testing"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
 )
 
 // bankgirotMod11Valid is Bankgirot's check of a number under the 11-modul: weights 1, 2, 3, up to
@@ -53,5 +55,34 @@ func TestBgmod11TailsAreEveryValidPair(t *testing.T) {
 		if !slices.Equal(tails, want) {
 			t.Fatalf("bgmod11Tails(%s) = %v, want %v", prefix, tails, want)
 		}
+	}
+}
+
+func TestBgmod11RefusesWhatIsNotDigits(t *testing.T) {
+	for _, arg := range []string{"1-2", "a", "1 2", "-1"} {
+		if err := Check("bgmod11", []string{arg}); err == nil {
+			t.Errorf("Check(bgmod11, %q) = nil, want an argument of digits only", arg)
+		}
+	}
+	if err := Check("bgmod11", []string{"0100"}); err != nil {
+		t.Errorf("Check(bgmod11, 0100) = %v, want digits with a leading zero accepted", err)
+	}
+}
+
+// The free digit is the rng's pick among the tails, and the digits emitted before the call count
+// by their digits alone.
+func TestBgmod11DrawsEveryTailAndSkipsWhatIsNotADigit(t *testing.T) {
+	call := Prep("bgmod11", []string{"5"})
+	s := drawstate.New(1)
+	seen := map[string]bool{}
+	for range 400 {
+		tail := call(s, "1 2-3 4", nil)
+		if !bankgirotMod11Valid("51234" + tail) {
+			t.Fatalf("5 and 1 2-3 4 completed by %q, which Bankgirot's 11-modul refuses", tail)
+		}
+		seen[tail] = true
+	}
+	if want := len(bgmod11Tails("51234")); len(seen) != want {
+		t.Errorf("%d tails drawn in 400, want each of the %d valid ones", len(seen), want)
 	}
 }

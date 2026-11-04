@@ -1078,7 +1078,7 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 }
 
 // The 12-digit form is the century and the ten digits of the short form without its hyphen, and
-// the Luhn check stays over those ten digits, which a century prefix would change.
+// the Luhn check stays over those ten digits, since weighing the century too would change it.
 func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
@@ -1119,6 +1119,36 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 		}
 		if !luhnValid(v[2:]) {
 			t.Fatalf("samordningsnummer-12 %q fails the Luhn check over its last ten digits", v)
+		}
+		if year, _ := strconv.Atoi(v[:4]); year < 1930 || year > 2025 {
+			t.Fatalf("samordningsnummer-12 %q, want a year from 1930 to 2025, whichever century its two digits sit in", v)
+		}
+	}
+}
+
+// The 12-digit forms hold the short forms' range of birth years in their own files, so each
+// draws the same first and last year.
+func TestSwedishTwelveDigitFormsSpanTheShortFormsYears(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	span := func(path string, year func(string) int) [2]int {
+		first, last := 9999, 0
+		for i := 0; i < 20000; i++ {
+			y := year(fake(t, sv, path))
+			first, last = min(first, y), max(last, y)
+		}
+		return [2]int{first, last}
+	}
+	short := func(v string) int {
+		yy, _ := strconv.Atoi(v[:2])
+		if yy >= 30 {
+			return 1900 + yy
+		}
+		return 2000 + yy
+	}
+	long := func(v string) int { y, _ := strconv.Atoi(v[:4]); return y }
+	for _, c := range [][2]string{{"personnummer", "personnummer-12"}, {"samordningsnummer", "samordningsnummer-12"}} {
+		if a, b := span("sv_SE."+c[0], short), span("sv_SE."+c[1], long); a != b || a[0] > 1931 || a[1] < 2024 {
+			t.Errorf("%s draws years %v, %s %v, want the same range, 1930 to 2025 at its ends", c[0], a, c[1], b)
 		}
 	}
 }

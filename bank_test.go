@@ -18,7 +18,7 @@ func bankgirotMod11Valid(digits string) bool {
 }
 
 // TestSwedishBankgiro draws 991-2346 and 5555-5551's two forms: seven digits with the hyphen before
-// the last four, eight with it in the middle, the last of them Luhn's check digit as Bankgirot's
+// the last four, eight with it in the middle, the final digit Luhn's check digit as Bankgirot's
 // 10-modul sheet has it.
 func TestSwedishBankgiro(t *testing.T) {
 	if !luhnValid("9912346") || !luhnValid("55555551") {
@@ -69,8 +69,8 @@ func TestSwedishPlusgiro(t *testing.T) {
 
 // clearingRanges are Bankinfrastruktur i Sverige AB's clearing ranges, each with the bank's name,
 // the account type and the comment of Bankgirot's "Bankernas kontonummer" of 2024-02-22, which the
-// table's column Konto-typ gives as type:comment. The ranges 9565-9569 and 9600-9609 are left out:
-// their comment 4 is in no Bankgirot document.
+// list's column Konto-typ gives as type:comment. The ranges 9565-9569 and 9600-9609 are left out:
+// that document does not publish their comment 4.
 var clearingRanges = []struct {
 	first, last int
 	bank        string
