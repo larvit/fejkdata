@@ -94,7 +94,7 @@ class Change(unittest.TestCase):
 	def test_asks_again_until_the_run_is_listed_and_ignores_a_forks(self):
 		forge = Forge(runs=[[], [FORK], [FORK, DELETED_FORK, OURS]])
 		forge.propose()
-		self.assertEqual(forge.slept, [propose_plan.RUN_ATTEMPT_SECONDS] * 2)
+		self.assertEqual(forge.slept, [5, 5])
 		self.assertEqual(forge.ran("gh", "api", "-X"), [("gh", "api", "-X", "POST", f"repos/{REPOSITORY}/actions/runs/7/approve")])
 
 	def test_gives_up_when_no_run_is_ever_listed_and_merges_nothing(self):
