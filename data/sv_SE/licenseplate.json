@@ -1,0 +1,15 @@
+{
+	"format": "{old|current}",
+	"old": "{.licenseplate-letters} {.licenseplate.old-number}",
+	"current": "{.licenseplate-letters} {.licenseplate.current-number}{.licenseplate.last}",
+	"old-number": [
+		{ "format": "{int(1,9)}{digits(2)}", "weight": 900 },
+		{ "format": "0{int(1,9)}{digits(1)}", "weight": 90 },
+		{ "format": "00{int(1,9)}", "weight": 9 }
+	],
+	"current-number": [
+		{ "format": "{int(1,9)}{digits(1)}", "weight": 90 },
+		{ "format": "0{int(1,9)}", "weight": 9 }
+	],
+	"last": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "U", "W", "X", "Y", "Z"]
+}
