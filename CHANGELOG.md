@@ -41,6 +41,14 @@ replacement, and each removed path, column or flag.
 - A load refuses a read such as `{r.legal}`, where `r` is bound to a field holding a choice and the
   `legal` of an item reads a name that item binds. Such a template loaded, then failed when drawn. Bind
   the name outside the choice, or read `{r}` whole.
+- A load refuses `{n.path}` beside a read of `n` that reaches `path` from the pick, where another read
+  of `n` renders the same field afresh: `{n}` and `{n.w}` where `n`'s format is `{w.a}` and `w`'s is
+  `{a}` with a choice `a`. It printed two values for one field. Read `{n.w.a}` too to keep one draw, or
+  drop one read. The refusal for a reference to `path` now holds where `path` runs into a table linked
+  to the one `n` binds: `{r}` beside `{r.municipality.name}`, where `r`'s format is
+  `{/region.municipality.name}`.
+- A choice item whose format reads only a name the item binds, such as `{/ab as w}{w.legal}`, draws
+  without a panic. It loaded, then panicked when drawn.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
