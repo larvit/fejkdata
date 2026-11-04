@@ -861,3 +861,20 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `compose.yaml` 1
 - `data-import/loglevel.py` 1
+
+## Reading cost, chunk 49e9cf786c1f, finished 2026-11-04T14:09:38Z
+
+118390 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 8
+- `DATA-LICENSES.md` 6
+- `todo.md` 6
+- `compose.yaml` 2
+- `data/misc/car.tsv` 2
+- `data_test.go` 2
+- `testdata/shipped_shape.txt` 2
+- `.gitignore` 1
+- `CHANGELOG.md` 1
+- `data-import/bankaccount-se.py` 1
