@@ -30,14 +30,15 @@ func TestNewWithoutADateFailsNamingWithToday(t *testing.T) {
 	}
 }
 
-func TestNewRefusesADateOutsideYearsOneTo9999(t *testing.T) {
-	for _, year := range []int{-1, 0, 10000} {
+// born's oldest age is 999, so from year 1000 on no draw prints a year before 1.
+func TestNewRefusesADateOutsideYears1000To9999(t *testing.T) {
+	for _, year := range []int{-1, 0, 1, 999, 10000} {
 		_, err := New(WithDataFS(), WithSeed(1), WithToday(dayOf(year, 6, 15)))
 		if err == nil || !strings.Contains(err.Error(), "WithToday") {
 			t.Errorf("New(WithToday in year %d) = %v, want it refused, naming WithToday", year, err)
 		}
 	}
-	for _, year := range []int{1, 9999} {
+	for _, year := range []int{1000, 9999} {
 		if _, err := New(WithDataFS(), WithSeed(1), WithToday(dayOf(year, 6, 15))); err != nil {
 			t.Errorf("New(WithToday in year %d) = %v, want it taken", year, err)
 		}
@@ -54,6 +55,24 @@ func TestBornDrawsTheBirthYearsOfTheAges(t *testing.T) {
 	}
 	if first < "1913-01-01" || first[:4] != "1913" || last > "1926-12-31" || last[:4] != "1926" {
 		t.Errorf("born(100,113) read on 2026-11-04 drew %s to %s, want 1913-01-01 to 1926-12-31 at its ends", first, last)
+	}
+	first, last = "9999-12-31", "0000-01-01"
+	for range 5000 {
+		got := mustRender(t, f, `"{born(1,1,'2006-01-02')}"`)
+		first, last = min(first, got), max(last, got)
+	}
+	if first != "2025-01-01" || last != "2025-12-31" {
+		t.Errorf("born(1,1) read on 2026-11-04 drew %s to %s, want 2025-01-01 to 2025-12-31", first, last)
+	}
+}
+
+func TestBornAtItsOldestPrintsNoYearBeforeOne(t *testing.T) {
+	f := readOn(t, dayOf(1000, 6, 15))
+	for range 3000 {
+		got := mustRender(t, f, `"{born(0,999,'2006-01-02')}"`)
+		if got < "0001-01-01" || got > "1000-06-15" {
+			t.Fatalf("born(0,999) read on 1000-06-15 = %s, want a day from 0001-01-01 to 1000-06-15", got)
+		}
 	}
 }
 
@@ -81,14 +100,18 @@ func TestBornDrawsNoDayAfterToday(t *testing.T) {
 // The date is the calendar day as written in its own location, whatever UTC says it is then.
 func TestWithTodayReadsTheDayAsWritten(t *testing.T) {
 	ahead := readOn(t, time.Date(2027, 1, 1, 0, 30, 0, 0, time.FixedZone("", 3600)))
-	behind := readOn(t, time.Date(2026, 12, 31, 23, 30, 0, 0, time.FixedZone("", -5*3600)))
 	for range 50 {
 		if got := mustRender(t, ahead, `"{born(0,0,'2006-01-02')}"`); got != "2027-01-01" {
 			t.Fatalf("born(0,0) read on 2027-01-01 at 00:30 +01:00 = %s, want 2027-01-01", got)
 		}
-		if got := mustRender(t, behind, `"{born(0,0,'2006')}"`); got != "2026" {
-			t.Fatalf("born(0,0) read on 2026-12-31 at 23:30 -05:00 = %s, want a day in 2026", got)
-		}
+	}
+	behind := readOn(t, time.Date(2026, 11, 4, 23, 30, 0, 0, time.FixedZone("", -5*3600)))
+	last := ""
+	for range 20000 {
+		last = max(last, mustRender(t, behind, `"{born(0,0,'2006-01-02')}"`))
+	}
+	if last != "2026-11-04" {
+		t.Errorf("born(0,0) read on 2026-11-04 at 23:30 -05:00 drew up to %s, want up to 2026-11-04", last)
 	}
 	noon, midnight := readOn(t, time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)), readOn(t, dayOf(2026, 11, 4))
 	for range 50 {
@@ -125,7 +148,7 @@ func TestBornRefusesItsMistakes(t *testing.T) {
 		`"{born(-1,5,'06')}"`:     "negative",
 		`"{born(a,5,'06')}"`:      "min",
 		`"{born(0,b,'06')}"`:      "max",
-		`"{born(0,10000,'06')}"`:  "9999",
+		`"{born(0,1000,'06')}"`:   "999",
 		`"{born(0,5,06)}"`:        "not quoted",
 		`"{born(0,5)}"`:           "3 arguments",
 		`"{born(0,5,'06',0102)}"`: "3 arguments",
@@ -135,6 +158,9 @@ func TestBornRefusesItsMistakes(t *testing.T) {
 			t.Errorf("%s = %v, want it refused, naming %q", tmpl, err, want)
 		}
 	}
+	if _, err := f.FakeTemplate(`"{born(0,999,'06')}"`); err != nil {
+		t.Errorf("born(0,999) = %v, want it taken", err)
+	}
 }
 
 // luhn(n) reads only the last n digits printed, so a century can sit before them.
@@ -143,10 +169,11 @@ func TestLuhnOverTheLastDigits(t *testing.T) {
 	for tmpl, want := range map[string]string{
 		`"19811218987{luhn(9)}"`:  "198112189876",
 		`"19811218-987{luhn(9)}"`: "19811218-9876",
+		`"19811218a987{luhn(9)}"`: "19811218a9876",
 		`"811218987{luhn(9)}"`:    "8112189876",
 		`"12{luhn(9)}"`:           "125",
 		`"7992739871{luhn(10)}"`:  "79927398713",
-		`"19811218987{luhn(11)}"`: "19811218987" + mustRender(t, f, `"19811218987{luhn()}"`)[11:],
+		`"19811218987{luhn(11)}"`: "198112189875",
 	} {
 		if got := mustRender(t, f, tmpl); got != want {
 			t.Errorf("%s = %q, want %q", tmpl, got, want)

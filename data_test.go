@@ -1099,38 +1099,47 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 
 // The share of each age band is SCB's for Sweden at 2024-12-31, per
 // docs/research/research-age-bands.md: 0-17 20.36%, 18-64 58.80%, 65-99 20.81%, 100 or more 0.028%.
+// Read on 2026-11-04, the bands are the birth years 2009-2026, 1962-2008, 1927-1961 and 1913-1926.
 func TestSwedishPersonnummerWeighsAgesByPopulation(t *testing.T) {
 	const draws = 200000
 	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
 	bands := [4]int{}
+	oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
 	for range draws {
 		v := fake(t, sv, "sv_SE.personnummer-12")
 		born, err := time.Parse("20060102", v[:8])
 		if err != nil {
 			t.Fatalf("personnummer-12 %q holds no calendar date: %v", v, err)
 		}
+		band := 3
 		switch age := 2026 - born.Year(); {
 		case age < 18:
-			bands[0]++
+			band = 0
 		case age < 65:
-			bands[1]++
+			band = 1
 		case age < 100:
-			bands[2]++
-		default:
-			bands[3]++
+			band = 2
 		}
+		bands[band]++
+		oldest[band], youngest[band] = min(oldest[band], born.Year()), max(youngest[band], born.Year())
 	}
 	for i, want := range []float64{20.36, 58.80, 20.81} {
-		if got := 100 * float64(bands[i]) / draws; got < want-1 || got > want+1 {
+		if got := 100 * float64(bands[i]) / draws; got < want-0.3 || got > want+0.3 {
 			t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
 		}
 	}
-	if bands[3] < 25 || bands[3] > 100 {
+	if bands[3] < 33 || bands[3] > 80 {
 		t.Errorf("age 100 or more drew %d in %d, want about 56, 0.028%%", bands[3], draws)
+	}
+	if want := [4]int{2009, 1962, 1927, 1913}; oldest != want {
+		t.Errorf("the bands' oldest birth years = %v, want %v", oldest, want)
+	}
+	if want := [4]int{2026, 2008, 1961, 1926}; youngest != want {
+		t.Errorf("the bands' youngest birth years = %v, want %v", youngest, want)
 	}
 }
 
-// The law sets the + from the start of the year the holder turns 100. Read on 2026-11-04, that is
+// The law sets the + from the year the holder turns 100. Read on 2026-11-04, that is
 // everyone born in 1926 or before, back to 1913, age 113 being the oldest validated Swede's.
 func TestSwedishPersonnummerSpellsThePlusFromTheYearTheHolderTurns100(t *testing.T) {
 	today := dayOf(2026, 11, 4)

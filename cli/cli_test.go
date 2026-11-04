@@ -161,7 +161,7 @@ func TestRunTodaySpellings(t *testing.T) {
 }
 
 func TestRunRefusesAMalformedToday(t *testing.T) {
-	for _, v := range []string{"tomorrow", "", "2030-6-15", "2030-02-30", "20300615", "2030-06-15T12:00:00Z", "0000-06-15", "0001-01-01"} {
+	for _, v := range []string{"tomorrow", "", "2030-6-15", "2030-02-30", "20300615", "2030-06-15T12:00:00Z", "0000-06-15", "0001-01-01", "0999-12-31", "10000-01-01"} {
 		code, out, errb := runOut("x", "--today", v)
 		if code != 2 || out != "" || !strings.Contains(errb, "--today") || !strings.Contains(errb, "YYYY-MM-DD") {
 			t.Errorf("run(--today %q) = %d, %q, %q; want misuse naming --today and YYYY-MM-DD", v, code, out, errb)
@@ -997,10 +997,10 @@ func TestRunNumbersFollowTheShell(t *testing.T) {
 	}
 }
 
-// TestRunRecordOfAFieldlessPath pins the way out of asking a category of one value
+// TestRunRecordOfAPathWithNoColumns pins the way out of asking a choice or a bare format
 // for columns: the record to write, and the quoting a shell needs to take it. The
 // template is well-formed and only the data cannot serve it, so the code is 1.
-func TestRunRecordOfAFieldlessPath(t *testing.T) {
+func TestRunRecordOfAPathWithNoColumns(t *testing.T) {
 	for category, wrapper := range map[string]string{
 		"sv_SE.personnummer": `{"format":"","personnummer":"{/sv_SE.personnummer}"}`,
 		"sv_SE.time":         `{"format":"","time":"{/sv_SE.time}"}`,
