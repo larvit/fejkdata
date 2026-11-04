@@ -184,6 +184,32 @@ func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T
 	}
 }
 
+func TestAReadOfATableRowIsRefusedBesideAReferenceItsFormatMakesToALinkedTable(t *testing.T) {
+	files := nameTables()
+	files["region.json"] = `{"format":"{/region.municipality.name}","rows":"region.tsv","key":"code"}`
+	for label, c := range map[string]struct{ card, want string }{
+		"the row and its linked table are read": {`"{/region as r}{r} {r.municipality.name}"`, "{/region.municipality.name}"},
+		"only the row is read":                  {`"{/region as r}{r}"`, ""},
+	} {
+		t.Run(label, func(t *testing.T) {
+			files["card.json"] = c.card
+			_, err := New(WithSeed(1), WithDataPath(writeFiles(t, files)))
+			switch {
+			case c.want == "" && err != nil:
+				t.Fatalf("New() = %v, want it to load", err)
+			case c.want != "" && err == nil:
+				t.Fatal("New() loaded, want it refused")
+			case c.want != "":
+				for _, want := range []string{"{r}", c.want, "{r.municipality.name}"} {
+					if !strings.Contains(err.Error(), want) {
+						t.Errorf("New() = %v, want an error naming %s", err, want)
+					}
+				}
+			}
+		})
+	}
+}
+
 func TestAReadOfANameLoadsBesideAReferenceThatReachesNoDrawOfItsPath(t *testing.T) {
 	for label, c := range map[string]struct {
 		files map[string]string
