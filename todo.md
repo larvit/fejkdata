@@ -13,14 +13,7 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 368 | 0.3.0 |  | defect | **Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.** | 2 | 2 | 2 | 4 | 3 | 5.4 by 3 | 7.9 |
-| 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
-| 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
-| 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 1.8 |
-| 367 | 0.3.0 |  |  | **Settle the weight of the 373 Swedish postorter that still weigh 200: give each a population from a published source, or record why 200 stays.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.2 by 2 | 1.7 |
-| 127 | 0.3.0 |  |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 2 | 1.7 |
-| 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
-| 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 3.3 by 3 | 0.9 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -239,32 +232,6 @@
 
 Goal 5.4. This category loads, then rendering `legal` panics with `fejkdata: internal error: name "w" is read where no frame of its scope renders`: `{"format":"{registered as r}{r}","legal":"{r.legal}","registered":[{"format":"{.co.ab.written as w}{w}","legal":"{w.legal}"}]}`. `readName` in `pick.go` opens no frame of the item's scope through `bindsField()`. Either render it or refuse it at load.
 
-### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
-
-Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json`, which has the same gap: `{/nb_NO.company as c}` reads no legal form either. An ENK has no abbreviation, so `legal` is empty there.
-
-### 238. Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.
-
-SALDO's morphology is CC BY 4.0; cite Språkbanken (2017), DOI 10.23695/agcm-ny22. [Source research](docs/research/research-sources-se.md).
-
-### 367. Settle the weight of the 373 Swedish postorter that still weigh 200: give each a population from a published source, or record why 200 stays.
-
-`data-import/geo-se.py` weighs a postort by its tätort's population, else by the SCB småort its centre lies in within its kommun, else by 200, the tätort floor (`UNMATCHED_POPULATION`). SCB publishes a småort's code and population but no name, so the match is by point-in-polygon. 373 of `data/geo/SE/locality.tsv`'s postorter still weigh 200: no tätort is named alike, none is named as its kommun, and the centre, a mean of postal-code centroids, lies in no småort of the kommun. Many are suburbs or parts of a tätort under another name, such as Bromma, Farsta, Bandhagen and Enskede; others are villages whose centre falls outside a small småort polygon.
-
-Four, Rökå, Lönneberga, Torsö and Axmar, lie inside a småort of a kommun other than the one the postort carries. The stability review suspects Lönneberga belongs to Hultsfred (0860) and Axmar to Gävle (2180), not Vimmerby (0884) and Söderhamn (2182); check that against a register. The decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" bears on whether such a postort's kommun or its weight changes.
-
-Either find a source that weighs them, such as a population per part of a tätort's polygon, or record in `docs/decisions.md` and at `UNMATCHED_POPULATION` why 200 stays. A changed weight is a major of the shipped data by the README's Versioning table: add it under `CHANGELOG.md`'s Unreleased Breaking section, and update the README's locality row, which says "else 200".
-
-### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
-
-`docs/research/research-geo-se.md` reads delivery digit 0 or 1 as boxes, 2–4 and 6–7 as street, 5 as rural, 8 as reply mail and 9 as competitions or temporary, with exceptions in big cities. `street_delivery` drops 0, 1 and 8 and keeps 9. The panel of 2026-10-05 found it; whether a shipped street carries a 9 code is unchecked.
-
-### 342. Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.
-
-The README's Data section says a script under `data-import/` rebuilds a sourced table, and that elsewhere a hand-written set ships until the plan replaces it (goal 3.2). The 264-row table, with the columns `area`, `ndc`, `name` and `subscriber`, was extracted once from PTS's PDF "The Swedish numbering plan for telephony according to ITU-T E.164", 2024-01-08 (https://pts.se/globalassets/globala-block/nummertillstand/the-swedish-numbering-plan-for-telephony-according-to-itu---2024-01-08.pdf). Each of its rows reads `<ndc> (NDC) <max> <min> Geographic number - Area code for <name>`, and the subscriber range is min and max minus the NDC's length.
-
-That extraction used pypdf, but the `data-import/` scripts use the standard library only. So the item first settles how the script reads the PDF, or a text export of it. Take PTS's newer plan, `nrplansammanstallning-2026-02-04`, if it can be fetched past its Radware check. [Source research](docs/research/research-sources-se.md) §3 has the source notes.
-
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
 The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the oldest draws invalid from 2030. A system holding Swedish personnummer often breaks on the `+`, so a fixture carrying one is a valuable test. Whether a number takes `+` depends on the date it is read, and the decision "No builtin reads the clock, so a date is bounded by days, never by an age" forbids a builtin from reading that date off the clock. This item revises it: once the caller gives the date, an age is a bound, and the CLI's default date makes output change with the day it runs unless the flag is given. Do the first step before the rest:
@@ -274,10 +241,6 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 - Let a data author's own category spell the separator too, through a builtin or a function a data module provides (item 186), and update the README's personnummer recipe and its "a day in 1930–2025" count.
 - Rewrite the README's `--seed` and `WithSeed` rows to goal 9's wording, and name the new required option in the changelog: `New` breaks again here, the first time after 0.1.0, as the maintainer accepted.
 - Research: `sv_SE.samordningsnummer` also hard-codes `-` and draws from 1930. Check whether Lag (2022:1697) om samordningsnummer gives it the same `+`; folkbokföringslagen 18 § states the rule for personnummer only.
-
-### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
-
-GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
 
 ### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
 
