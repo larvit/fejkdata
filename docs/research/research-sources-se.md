@@ -79,6 +79,7 @@ Recommendation: embed SCB 2022 xlsx-derived lists (top-N per sheet with counts) 
 
 ### Bankgiro / Plusgiro (Bankgirot "10-modul" PDF 2016-12-01, verified)
 - Bankgironummer: 7 or 8 digits, last digit mod-10 (Luhn) check; printed 991-2346 (7) / 5555-5551 (8), i.e. hyphen before the last four digits. 90-konton (charity) 900-000x…904-999x, always 7 digits (Wikipedia).
+- Shipped as `sv_SE.bankgiro`, `sv_SE.plusgiro` and `sv_SE.bankaccount`.
 - Plusgironummer: 2–8 digits, last digit Luhn (Wikipedia/samlogic; not from an official Nordea page — flag). Printed with hyphen before check digit, e.g. "12 34 56-7" (convention, unverified).
 
 ### Clearing numbers / bank accounts
