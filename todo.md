@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 367`
+`Next ID = 368`
 
 ## Items
 
@@ -15,6 +15,7 @@
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
 | 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 1.8 |
+| 367 | 0.3.0 |  |  | **Settle the weight of the 373 Swedish postorter that still weigh 200: give each a population from a published source, or record why 200 stays.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.2 by 2 | 1.7 |
 | 127 | 0.3.0 |  |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 2 | 1.7 |
 | 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
@@ -75,7 +76,7 @@
 | 30 | 0.8.0 |  |  | **Draw `email.local` from `username`, so the two share one handle list.** | 1 | 1 | 1 | 1 | 2 | code health by 1 | 3.5 |
 | 255 | 0.8.0 |  |  | **Give `misc.creditcard` a row per network, with its IIN, length, CVV and expiry, and its Luhn check digit.** | 2 | 1 | 2 | 3 | 3 | 1 by 1, 3 by 3, 2 by 2 | 3.5 |
 | 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 3.4 |
-| 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 3.2 |
+| 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 3.2 |
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 3.1 |
 | 113 | 0.8.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 3.0 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.9 |
@@ -238,6 +239,14 @@ Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as 
 ### 238. Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.
 
 SALDO's morphology is CC BY 4.0; cite Språkbanken (2017), DOI 10.23695/agcm-ny22. [Source research](docs/research/research-sources-se.md).
+
+### 367. Settle the weight of the 373 Swedish postorter that still weigh 200: give each a population from a published source, or record why 200 stays.
+
+`data-import/geo-se.py` weighs a postort by its tätort's population, else by the SCB småort its centre lies in within its kommun, else by 200, the tätort floor (`UNMATCHED_POPULATION`). SCB publishes a småort's code and population but no name, so the match is by point-in-polygon. 373 of `data/geo/SE/locality.tsv`'s postorter still weigh 200: no tätort is named alike, none is named as its kommun, and the centre, a mean of postal-code centroids, lies in no småort of the kommun. Many are suburbs or parts of a tätort under another name, such as Bromma, Farsta, Bandhagen and Enskede; others are villages whose centre falls outside a small småort polygon.
+
+Four, Rökå, Lönneberga, Torsö and Axmar, lie inside a småort of a kommun other than the one the postort carries. The stability review suspects Lönneberga belongs to Hultsfred (0860) and Axmar to Gävle (2180), not Vimmerby (0884) and Söderhamn (2182); check that against a register. The decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" bears on whether such a postort's kommun or its weight changes.
+
+Either find a source that weighs them, such as a population per part of a tätort's polygon, or record in `docs/decisions.md` and at `UNMATCHED_POPULATION` why 200 stays. A changed weight is a major of the shipped data by the README's Versioning table: add it under `CHANGELOG.md`'s Unreleased Breaking section, and update the README's locality row, which says "else 200".
 
 ### 127. Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.
 
@@ -477,11 +486,13 @@ A table and its template, from each network's rules, which are facts.
 
 Today the refusal names only the missing field, so a data author fixing a typo opens the category to find the spelling. Item 92 covers the hyphenated `calc` operand only.
 
-### 168. Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, and the name-shape rules of `company-no.py` and `company_names.py`.
+### 168. Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.
 
 Against "Most, if not all, code should have automated tests" in `technical-principles.md`: no Python under `data-import/` has a test, and the gate, `docker build .`, runs Go alone. Today `geo.fence` is checked only by regenerating both countries' TSVs from the full downloads and diffing them. Each locale's places item adds a geo script for its country, each calling `fence`.
 
 The tests also cover the rules of `company-no.py`: `shape_of` reads an unlisted word in an ENK name as the owner's last name, `roots` takes a word carried in at least two forms, and `register`, `without_wording`, `kind`, `count_shapes` and `endings` hold the rest. They cover `word_usage` and `trade_words` in `company_names.py`, which `company-se.py` and `company-no.py` share; its `Vocabulary.acronym_max` makes a word in capitals an acronym only up to that many letters or where it has no vowel.
+
+They cover `scb_smaorter`, `inside` and `population_of` in `geo-se.py` too, where no gate test kills a mutant today, such as a swapped latitude and longitude or a dropped kommun filter.
 
 ### 257. Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.
 
