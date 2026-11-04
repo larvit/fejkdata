@@ -197,9 +197,8 @@ func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T
 	}
 }
 
-// TestEveryGeoTreeHoldsWhatPortsAcrossCountries reads each country under data/geo. A country may ship
-// without streets, as the decision on countries with no open address register says, and then its
-// address holds neither street column.
+// A country may ship without streets, as the decision on countries with no open address register
+// says, and then its address holds neither street column.
 func TestEveryGeoTreeHoldsWhatPortsAcrossCountries(t *testing.T) {
 	entries, err := os.ReadDir("data/geo")
 	if err != nil {

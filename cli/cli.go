@@ -248,7 +248,7 @@ func parseArgs(argv []string) (invocation, error) {
 
 type recordSource func() (*fejkdata.Record, error)
 
-// recordFormat is one way to write records out: all of them, and what zero of them print.
+// recordFormat is one --format that writes records. write streams them, and empty is what a repeat of 0 prints.
 type recordFormat struct {
 	writes string // what it writes between values, which --separator would seem to set
 	write  func(record recordSource, repeat int, table string, out *bufio.Writer) error
@@ -258,8 +258,7 @@ type recordFormat struct {
 // SQL Server refuses a VALUES list above 1000 rows (error 10738).
 const sqlStatementRows = 1000
 
-// recordFormats is every --format that writes records. json frames the records
-// as one array document; ndjson writes one object per line.
+// recordFormats is every --format that writes records.
 var recordFormats = map[string]recordFormat{
 	"csv": {
 		writes: `always separates fields with ","`,
@@ -468,8 +467,8 @@ func writeSQL(record recordSource, repeat int, table string, out *bufio.Writer) 
 	return out.Flush()
 }
 
-// writeNoRecord draws one record, which names a header's columns, so a lone reference to nothing
-// fails as it would with records.
+// writeNoRecord still draws one record: a header's columns come from it, and a lone reference to
+// nothing fails as it would with records.
 func writeNoRecord(record recordSource, format recordFormat, w io.Writer) error {
 	r, err := record()
 	if err != nil || format.empty == nil {

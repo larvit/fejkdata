@@ -12,7 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 377 | 0.3.0 |  | question | **Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes, so the decision "One name, one meaning" keeps no test that scans the source with `ast`.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
+| 377 | 0.3.0 |  | question | **Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -226,11 +226,11 @@
 
 ## Details
 
-### 377. Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes, so the decision "One name, one meaning" keeps no test that scans the source with `ast`.
+### 377. Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes.
 
-The principles pass of the 0.3.0 release review raised this as a 🔴. The decision, made on 2026-09-25, names `naming_test.go`'s `TestNoFunctionSpellsAMethod` as what keeps a bare function off a method's name. `technical-principles.md` bans a test "scanning the source with `ast` or a regex", and the decision names no item that ends the test. The review deleted every other such test; changing this one changes the decision, so it is the human's.
+The principles pass of the 0.3.0 release review raised this as a 🔴. The decision, made on 2026-09-25, names `naming_test.go`'s `TestNoFunctionSpellsAMethod` as what keeps a bare function off a method's name. `technical-principles.md` bans a test "scanning the source with `ast` or a regex", and the decision says only that this item decides. The review deleted every other such test except `TestPackageImports`, which a real defect can fail (goal 2.2); changing this one changes the decision, so it is the human's.
 
-- **Delete it (recommended):** remove `naming_test.go`, and cut the clause so review judges the whole rule, as it already does for other declarations. A new declaration then can't fail the suite with no behaviour broken.
+- **Delete it (recommended):** remove `naming_test.go`, and cut the decision's sentence naming the test, so review judges the whole rule, as it already does for other declarations. A new declaration then fails the suite only where it breaks a behaviour.
 - **Keep the check as a lint step:** run it in the gate, outside the test suite, and record that in the decision.
 - **Keep it as a test:** record in the decision why this one test departs from the principle.
 
@@ -248,7 +248,7 @@ Read them from the register the streets item names, Danmarks Adresseregister, wh
 
 ### 216. Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.
 
-A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `geo_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own. Each `main` in `geo-no.py`, `geo-se.py` and `geo-us.py` repeats five `tsv.write` lines in one order: fold them here, so a new country's script does not copy the block.
+A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `geo_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own. Each `main` in `geo-no.py`, `geo-se.py` and `geo-us.py` repeats five `tsv.write` lines in one order: fold them into one function in `geo.py`, so a new country's script does not copy the block, so a new country's script does not copy the block.
 
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
