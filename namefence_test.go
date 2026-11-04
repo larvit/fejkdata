@@ -147,6 +147,18 @@ func TestAReadOfANameIsRefusedBesideAReadWhoseFormatDrawsOneFieldAfreshAndOneFro
 			"cat":  `{"format":"{a.b}","a":{"format":"{b}","b":["x","y"]}}`,
 			"card": `"{/cat as n}{n.a}|{n}"`,
 		}, []string{"{n}", "{a.b}", "{n.a}", "{b}", "{n.a.b}"}},
+		"both end on a template that isn't a constant": {map[string]string{
+			"cat":  `{"format":"{w.a}","w":{"format":"{a}","a":{"format":"{b}","b":["x","y","z","q"]}}}`,
+			"card": `"{/cat as n}{n}|{n.w}"`,
+		}, []string{"{n}", "{w.a}", "{n.w}", "{a}", "{n.w.a}"}},
+		"the read from the pick goes deeper than the fresh one": {map[string]string{
+			"cat":  `{"format":"{w.a.b}","w":{"format":"{a}","a":{"format":"{b}","b":["x","y","z","q"]}}}`,
+			"card": `"{/cat as n}{n}|{n.w}"`,
+		}, []string{"{n}", "{w.a.b}", "{n.w}", "{a}", "{n.w.a}"}},
+		"the fresh read goes deeper than the one from the pick": {map[string]string{
+			"cat":  `{"format":"{w.a}","w":{"format":"{a.b}","a":{"format":"{b}","b":["x","y","z","q"]}}}`,
+			"card": `"{/cat as n}{n}|{n.w}"`,
+		}, []string{"{n}", "{w.a}", "{n.w}", "{a.b}", "{n.w.a}"}},
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, c.files)
@@ -179,6 +191,21 @@ func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T
 				if got := strings.Split(fake(t, f, "card"), "|"); got[0] != got[1] {
 					t.Fatalf("draw %d = %q, want every read to print one value", i, got)
 				}
+			}
+		})
+	}
+}
+
+func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsAnotherFieldOfTheSameTemplate(t *testing.T) {
+	for label, c := range map[string]struct{ cat, card string }{
+		"two fields of a template that isn't a constant": {
+			`{"format":"{w.a.c}","w":{"format":"{a.d}","a":{"format":"{c}{d}","c":["p","q"],"d":["r","s"]}}}`,
+			`"{/cat as n}{n}|{n.w}"`,
+		},
+	} {
+		t.Run(label, func(t *testing.T) {
+			if _, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card}); err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
 			}
 		})
 	}
