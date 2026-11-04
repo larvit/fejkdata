@@ -15,9 +15,11 @@ replacement, and each removed path, column or flag.
 - `sv_SE.person` gains a column, `birthdate`, a date from 1930-01-01 to 2025-12-31, drawn apart
   from any `personnummer`. It sorts first, so `--format csv` writes it before `first` and
   `--format sql` inserts it: add the column to the table, or read by header.
-- `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` draw a woman and a man by the people of each sex, where
-  they drew them evenly. Each gains a `count` column, which they weigh by: Sweden's population at the end
-  of 2024, Norway's on 1 January 2026 and the United States' on 1 July 2024. What a seed draws changes.
+- `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` draw a woman or a man as often as each sex occurs in the
+  population, where they drew them evenly. Each gains a `count` column, the people of that sex: in Sweden
+  at the end of 2024, in Norway on 1 January 2026 and in the United States on 1 July 2024. What a seed
+  draws changes, and `--format csv` and `--format sql` write the new column for a lone `{/sv_SE.sex}`:
+  add it to the table, or read by header.
 
 ### Added
 
@@ -45,7 +47,7 @@ replacement, and each removed path, column or flag.
 - `sv_SE.ssyk`, SCB's SSYK 2012 occupation codes, the 429 four-digit ones, selected by a code such as
   `2512` and drawn as the code and its Swedish label.
 - `sv_SE.car`, a make and a model such as `Volvo XC60`, weighted by Mobility Sweden's registrations of
-  new passenger cars in 2025. It holds the 119 models with 500 or more.
+  new passenger cars in 2025. It holds the 119 models with 500 or more registrations.
 - `sv_SE.month`, CLDR's Swedish month names, selected by 1 to 12: `{/sv_SE.month[1]}` is `januari`.
 - `sv_SE.weekday`, CLDR's Swedish weekday names, selected by 1 (Monday) to 7: `{/sv_SE.weekday[7]}` is `söndag`.
 - `sv_SE.holiday`, the thirteen public holidays of lag (1989:253), selected by a code such as
