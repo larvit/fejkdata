@@ -226,7 +226,8 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // names the one-column record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// choiceRecordError refuses a record naming a choice, which has no columns of its own.
+// choiceRecordError keeps its own message and matches ErrNoColumns, so a record naming a choice gets the
+// one-column hint.
 type choiceRecordError struct{}
 
 func (choiceRecordError) Error() string {

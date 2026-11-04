@@ -140,8 +140,8 @@ func datePrep(a []string) Call {
 	}
 }
 
-// bornPrep draws a second in the years in which someone turns min to max, counted from the year
-// of the date the render is read on, and no later than that date.
+// bornPrep draws a second in the calendar years in which someone turns min to max, counted from the
+// year of today, and no later than today.
 func bornPrep(a []string) Call {
 	lo, hi, layout := atoi(a[0]), atoi(a[1]), layoutOf(a[2])
 	return func(s *drawstate.State, _ string, _ []string) string {

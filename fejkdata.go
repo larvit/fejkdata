@@ -52,10 +52,10 @@ func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
 }
 
-// WithToday gives the date a render is read on, as [New] requires. A value that depends on when
-// it is read, such as what {born(min,max,layout)} draws, is judged by it. It takes the calendar
-// day as written in today's location, in a year from 1000 to 9999, and ignores the time of day. Give
-// time.Now() for the current date, or a fixed day to repeat a run's output on a later day.
+// WithToday gives the date to treat as today, as [New] requires. Ages in {born(min,max,layout)}
+// count from it. It uses the calendar day the value shows in its own location and ignores the time
+// of day; [New] refuses a year outside 1000 to 9999. Give time.Now() for the current date, or a
+// fixed day to repeat a run's output on a later day.
 func WithToday(today time.Time) Option {
 	return func(c *config) { c.today = today }
 }
@@ -87,7 +87,7 @@ func WithDataFS(modules ...fs.FS) Option {
 
 var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n), where the same n repeats a run's output; for a new seed each run, set n := rand.Uint64() (import "math/rand/v2") and log n to replay the run`)
 
-var errNoToday = errors.New(`fejkdata: no date: add fejkdata.WithToday(day), the date a render is read on: time.Now() for the current date, or a fixed day to repeat a run's output on a later day`)
+var errNoToday = errors.New(`fejkdata: no date: add fejkdata.WithToday(day), the date to treat as today; give time.Now() for the current date, or a fixed day to repeat a run's output on a later day`)
 
 var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 

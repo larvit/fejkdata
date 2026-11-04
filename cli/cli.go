@@ -70,7 +70,7 @@ INSERTs of up to 1000 rows, one per line.
                          --format, which has its own separators
       --table T          the INSERT target for --format sql, ignored under any other
                          (default: a lone reference's last segment, else records)
-      --today DAY        the date a render is read on, as YYYY-MM-DD (default: the system's date);
+      --today DAY        the date to treat as today, as YYYY-MM-DD (default: the system's date);
                          give it beside --seed to repeat a run's output on a later day
       --version          print the version, then exit
 

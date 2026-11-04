@@ -57,7 +57,7 @@ Recommendation: embed SCB 2022 xlsx-derived lists (top-N per sheet with counts) 
 ## 2. Identifiers
 
 ### Personnummer (Folkbokföringslagen 1991:481 18 §, verified via lagen.nu)
-- 10 digits: YYMMDD + födelsenummer (3 digits) + kontrollsiffra. Födelsenummer odd = male, even = female. Separator "-" ; "+" once the person turns 100. 12-digit form YYYYMMDDNNNC (no separator).
+- 10 digits: YYMMDD + födelsenummer (3 digits) + kontrollsiffra. Födelsenummer odd = male, even = female. Separator "-" ; "+" from the year the person turns 100. 12-digit form YYYYMMDDNNNC (no separator).
 - Check digit: Luhn/mod 10 over the 9 digits YYMMDDNNN (weights 2,1,2,1,… from the left; sum digits of two-digit products; check = (10 − sum mod 10) mod 10).
 - Before 1990 the first two födelsenummer digits encoded county; now random (Wikipedia, unverified officially).
 

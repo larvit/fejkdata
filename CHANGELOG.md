@@ -8,14 +8,15 @@ replacement, and each removed path, column or flag.
 
 ### Breaking
 
-- `New` requires `WithToday(day)`, the date a render is read on, beside `WithSeed`: add
+- `New` requires `WithToday(day)`, the date to treat as today, beside `WithSeed`: add
   `fejkdata.WithToday(time.Now())` for the current date, or a fixed day to repeat a run's output on a
   later day. Without it `New` fails and names the option.
-- `sv_SE.personnummer` and `sv_SE.personnummer-12` draw ages as often as SCB counted them in Sweden at
-  the end of 2024, up to 113, judged by that date, where they drew evenly from 1930 to 2025. What a seed
-  draws changes, and changes again with the date: give `--today` beside `--seed` to repeat a run on a later
-  day. `sv_SE.personnummer` spells `+` from the year the holder turns 100, so a system reading it must
-  take the `+`, and it is now a choice of four age bands, where a format string stood.
+- `sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in
+  Sweden at the end of 2024, up to age 113, and count ages from `WithToday` or `--today`, where they drew
+  evenly from 1930 to 2025. What a seed draws changes, and changes again with the date: give `WithToday` or
+  `--today` a fixed day to repeat a run on a later day. `sv_SE.personnummer` spells `+` from the year the
+  holder turns 100, so a system reading it must accept the `+`. It is now a choice of four age bands, where
+  a format string stood.
 - `sv_SE.personnummer-12.ten` is removed: for ten digits, write
   `{born(0,99,'060102')}{/sv_SE.birth-number.number}{luhn()}`, or cut the last ten digits of
   `{/sv_SE.personnummer-12}` in your own code.
@@ -72,9 +73,9 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
-- `--today DAY` gives the CLI the date a render is read on, as `YYYY-MM-DD`; it defaults to the
+- `--today DAY` gives the CLI the date to treat as today, as `YYYY-MM-DD`; it defaults to the
   system's date.
-- `{born(min,max,'layout')}` draws a birthdate by age, judged by that date.
+- `{born(min,max,'layout')}` draws a birthdate by age, counted from `WithToday` or `--today`.
 - `{luhn(n)}` computes the check digit over the last `n` digits, as a twelve-digit personnummer needs.
 - A load accepts `{n}` beside `{n.w.z}` where `n`'s format is `{w.a} {w.b}` and `w` is a template that
   isn't a choice, and `{n}` beside `{n.w}` where `n`'s format is `{w}-{w}` and `w` is a constant. It
