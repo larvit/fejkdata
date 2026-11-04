@@ -1631,6 +1631,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/langu
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/licenseplate-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-area-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
