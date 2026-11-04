@@ -102,7 +102,7 @@ The first command prints:
 
 ```text
 email,first,last,locality,personnummer,postal-code,sex,street
-viktoria.larsson@example.com,Viktoria,Larsson,Östersund,740514-2386,831 34,kvinna,Stapelmohrs Väg 9
+viktoria.larsson@example.com,Viktoria,Larsson,Östersund,740514-2386,831 34,kvinna,Sånghusvägen 9
 ```
 
 A fixture this size repeats personnummer and email values. [Data](#data) explains why personnummer repeats. On MySQL or MariaDB, [Records](#records) says what to set before the SQL loads.
@@ -142,7 +142,7 @@ func TestSignup(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Sex is kvinna or man.
-	// With seed 1, p is {Sex:kvinna First:Viktoria Last:Larsson Personnummer:740514-2386 Email:viktoria.larsson@example.com Street:Stapelmohrs Väg 9 PostalCode:831 34 Locality:Östersund}
+	// With seed 1, p is {Sex:kvinna First:Viktoria Last:Larsson Personnummer:740514-2386 Email:viktoria.larsson@example.com Street:Sånghusvägen 9 PostalCode:831 34 Locality:Östersund}
 }
 ```
 
@@ -335,7 +335,7 @@ f, err := fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed
 if err != nil {
 	log.Fatal(err)
 }
-v, err := f.Fake("sv_SE.address") // "Trekungagatan 43\n442 42 Kungälv"
+v, err := f.Fake("sv_SE.address") // "Triogatan 43\n442 42 Kungälv"
 paths := f.List()                  // the paths Fake renders, sorted; direct descents only
 v, err = f.FakeTemplate("name: {/sv_SE.person.last}")      // compile + render in one call
 t, err := f.NewTemplate(`{"format":"name: {x}","x":["bosse","lina"]}`) // compile once
