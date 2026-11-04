@@ -446,6 +446,9 @@ sv_SE.bankgiro
 sv_SE.birth-number	format "{number}"	parent sex
 sv_SE.birth-number.number	string
 sv_SE.birth-number.sex	string
+sv_SE.bloodtype	format "{name}"	weight share
+sv_SE.bloodtype.name	string
+sv_SE.bloodtype.share	string
 sv_SE.color
 sv_SE.company	format "{registered}"	reads geo.SE.locality sv_SE.company sv_SE.company-coined sv_SE.company-word sv_SE.first-name sv_SE.last-name
 sv_SE.company-coined	format "{a}{b}"
@@ -481,6 +484,9 @@ sv_SE.first-name	format "{name}"	name name	weight count	parent sex
 sv_SE.first-name.count	string
 sv_SE.first-name.name	string
 sv_SE.first-name.sex	string
+sv_SE.holiday	format "{name}"	key code	name name
+sv_SE.holiday.code	string
+sv_SE.holiday.name	string
 sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
@@ -493,12 +499,16 @@ sv_SE.licenseplate.current-number	string
 sv_SE.licenseplate.last	string
 sv_SE.licenseplate.old	string
 sv_SE.licenseplate.old-number	string
+sv_SE.month	format "{name}"	key code	name name
+sv_SE.month.code	string
+sv_SE.month.name	string
 sv_SE.organisationsnummer	format "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}"	reads sv_SE.organisationsnummer
 sv_SE.organisationsnummer.group	string
 sv_SE.organisationsnummer.head	string
 sv_SE.organisationsnummer.tail	string
 sv_SE.organisationsnummer.vat	string
 sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
+sv_SE.person.birthdate	string
 sv_SE.person.first	string
 sv_SE.person.last	string
 sv_SE.person.prefix	string null
@@ -541,6 +551,9 @@ sv_SE.sex.first-name.count
 sv_SE.sex.first-name.name
 sv_SE.sex.first-name.sex
 sv_SE.sex.name	string
+sv_SE.territory	format "{name}"	key alpha2	name name
+sv_SE.territory.alpha2	string
+sv_SE.territory.name	string
 sv_SE.time	format "{time('15:04')}"
 sv_SE.title	format "{name}"	key name	weight share
 sv_SE.title.name	string
@@ -555,4 +568,7 @@ sv_SE.version	format "{pre}{n}.{n}.{n}{suffix}"
 sv_SE.version.n	string
 sv_SE.version.pre	string
 sv_SE.version.suffix	string
+sv_SE.weekday	format "{name}"	key code	name name
+sv_SE.weekday.code	string
+sv_SE.weekday.name	string
 sv_SE.word
