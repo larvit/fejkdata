@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 378`
+`Next ID = 382`
 
 ## Items
 
@@ -20,9 +20,14 @@
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
+| 381 | 0.4.0 |  |  | **Show in the README how to replace real data with fake, so a reader starting from that job finds every feature it needs.** | 1 | 2 | 1 | 2 | 2 | 1 by 3, 4 by 2 | 3.9 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
+| 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
+| 379 | 0.4.0 | 249 |  | **Let a template draw a word of a given length from a word category.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
 | 295 | 0.4.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
+| 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
+| 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -208,7 +213,6 @@
 | 323 | 1.3.0 | 214 |  | **Add `ur_PK.company`, `ur_PK.email` and `ur_PK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 333 | 1.3.0 | 217 |  | **Add `de_DE.company`, `de_DE.email` and `de_DE.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 247 | 1.3.0 |  |  | **Add `en_US.licenseplate`, drawn per state from that state's pattern.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 3, 3 by 2 | 2.3 |
-| 249 | 1.3.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 1.8 |
 | 270 | 1.3.0 | 210 |  | **Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 275 | 1.3.0 | 206 |  | **Add `geo/CN` with China's places and postal codes, and `zh_CN.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 279 | 1.3.0 | 208 |  | **Add `geo/MX` with Mexico's places and postal codes, and `es_MX.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
@@ -262,13 +266,53 @@ The range `personnummer` draws, past 100 years with a `+`, must hold for `birthd
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
+### 381. Show in the README how to replace real data with fake, so a reader starting from that job finds every feature it needs.
+
+From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. The README states each feature below, but under the mechanism's name, and it never mentions this job: `anonymize`, `mask` and `existing text` all find nothing.
+
+The reader must find:
+
+- one fake for each original throughout a render: `{x as y}`, which the README presents as values that belong together;
+- a value of a given length: `{lower(n)}`, `{hex(n)}` and `{digits(n)}`;
+- a v4 uuid: `{/misc.uuid}`, since `{uuid()}` draws v7;
+- an id of a fixed shape: literal text around a draw, such as `557058:{/misc.uuid}`;
+- a URL of a given form: `{/en_US.url}` draws a path, and a template adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`;
+- a longer word list: a category of your own under `--data-path`;
+- what stays with the caller until items 378, 379 and 380 ship.
+
+Maintain goals 11.2 and 11.3 apply: every example runs as a test, and the section links to Names and Functions rather than restating them. Done when a fresh-context reader, given only the README and this job, names each feature above without being told.
+
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
 Find the numbering plan and its licence first.
 
+### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
+
+Moby is public domain; WordNet's licence requires its notice and disclaimer on every copy. [Source research](docs/research/part3-science-text-dates.md).
+
+From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, replacing each word with a drawn one. In 0.2.0 `en_US.word` holds 271 distinct words, so a long wiki page holding more distinct words than that collapses them.
+
+### 379. Let a template draw a word of a given length from a word category.
+
+From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds words of 3 to 8 letters and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. `{lower(n)}` gives the length, but not a word.
+
+Item 249 comes first, for the lengths its larger list holds. Maintain goal 5.4 rules out a mid-render error where the category holds no word of that length. A writer panel picks the spelling.
+
 ### 295. Give `geo/DK`'s places their streets.
 
 Danmarks Adresseregister through Datafordeler (free) holds every street with its postnummer.
+
+### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
+
+From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
+
+One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling.
+
+### 380. Let a template redraw a value until it holds none of the strings it is given.
+
+From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
+
+Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
@@ -975,10 +1019,6 @@ No national register defines the account number, and no research file covers Nac
 ### 247. Add `en_US.licenseplate`, drawn per state from that state's pattern.
 
 No open list of state patterns exists: write each state's pattern by hand and check it against that state's DMV. Wikipedia's list (CC BY-SA) and openalpr's (AGPL) may be read, never copied. [Source research](docs/research/research-sources-world.md).
-
-### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
-
-Moby is public domain; WordNet's licence requires its notice and disclaimer on every copy. [Source research](docs/research/part3-science-text-dates.md).
 
 ### 270. Add `geo/FR` with France's places and postal codes, and `fr_FR.address` printing them.
 
