@@ -109,6 +109,16 @@ func (sc *nameScope) bindAll(t *template, where string) error {
 	return nil
 }
 
+// within reports whether sc is other or lies inside it, so other's frame is open wherever sc's is.
+func (sc *nameScope) within(other *nameScope) bool {
+	for ; sc != nil; sc = sc.up {
+		if sc == other {
+			return true
+		}
+	}
+	return false
+}
+
 func (sc *nameScope) spelled() string {
 	if k := sc.kind(); k != scopeCategory {
 		return "in one " + k.String()

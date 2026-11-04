@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 373`
+`Next ID = 375`
 
 ## Items
 
@@ -14,7 +14,9 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 368 | 0.3.0 |  | defect | **Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.** | 2 | 2 | 2 | 4 | 3 | 5.4 by 3 | 7.9 |
 | 371 | 0.3.0 |  | defect | **Refuse `{n.path}` at load beside a read of `n` whose format reaches that path through a reference, so the two never silently disagree.** | 2 | 2 | 2 | 4 | 3 | 4.6 by 3 | 7.9 |
+| 373 | 0.3.0 |  | defect | **Draw a choice item whose format reads only a name the item binds without the panic `name "w" is read where no frame of its scope renders`.** | 2 | 2 | 2 | 4 | 3 | 5.4 by 3 | 7.9 |
 | 372 | 0.3.0 |  | defect | **Load `{n.w.z}` and a constant's `{n.w}` beside `{n}` in both name fences, where the two share no draw that can differ.** | 2 | 2 | 2 | 4 | 3 | 4.7 by 2 | 5.3 |
+| 374 | 0.3.0 |  | defect | **Refuse `{n.path}` at load beside a read of `n` whose format reaches that path through a fresh read or a linked table, so the two never silently disagree.** | 2 | 2 | 2 | 4 | 4 | 4.6 by 3 | 5.3 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
@@ -238,9 +240,22 @@ Goal 5.4. This category loads, then rendering `legal` panics with `fejkdata: int
 
 Goal 4.6. `{/sv_SE.company as c}{c} | {c.ab.name}` loads and printed `Sjöfors Foto AB | Vindäng`, since `sv_SE.company`'s item reads `{.company.ab.name}`, and `landsInPick` in `pick.go` keeps no read through a reference. The README's Names section states this as a limit: remove that sentence once the load refuses it. `pick.go`'s `readName` and `namefence.go`'s `refuseTwiceDrawnIn` are places the comprehension seats found hard, so leave them easier to read.
 
+### 373. Draw a choice item whose format reads only a name the item binds without the panic `name "w" is read where no frame of its scope renders`.
+
+Goal 5.4. These categories load on main, then a draw of `co` panics: `ab = {"format":"{written}","written":["x","y"],"legal":["L","M"]}` and `co = {"format":"{legal}","legal":[{"format":"{/ab as w}{w.legal}"},{"format":"{/ab as w}{w.legal}!"}]}`. The same panic comes through `{r.legal}` where `r` binds a plain template whose `legal` is such a choice. `readColumnItem` in `columnread.go` reads the item's one name, through `readField` and `pick.go`'s `readName`, before `render` opens the item's frame in `renderFrame`, so every read of such an item panics, not only one through a field-bound name. Either open the item's own frame before `readColumnItem`, or give `readsColumn` no value for a template that reads a name of its own scope. Test first: the repro draws 40 times without a panic. `readName` and `columnReadOf` in `datatype.go` are places the comprehension seats found hard, so leave the one the fix touches easier to read.
+
 ### 372. Load `{n.w.z}` and a constant's `{n.w}` beside `{n}` in both name fences, where the two share no draw that can differ.
 
 Goal 4.7. `refuseTwiceDrawnIn` and `refuseDrawnApart` in `namefence.go` refuse by shape. These categories mean one thing and are refused: format `{w.a} {w.b}` with `{n.w.z}`, where `w` is a plain template; format `{w}-{w}` with `w` a constant; format `{w as r}{r}` with `w` a constant; format `{a.b as r}{r}` with `{n.a.z}`, where `a` is a plain template. Keep refusing where a choice on the shared path can draw apart. `refuseTwiceDrawnIn` is a place the comprehension seats found hard, so leave it easier to read.
+
+### 374. Refuse `{n.path}` at load beside a read of `n` whose format reaches that path through a fresh read or a linked table, so the two never silently disagree.
+
+Goal 4.6. Each of these loads on main and prints two values for one field:
+- `cat = {"format":"{w.a}","w":{"format":"{a}","a":["x","y","z","q"],"b":["p"]}}` with the card `{/cat as n}{n}|{n.w}` renders such as `q|x`: `{n}` reads the pick's `w.a`, while `{n.w}` renders `w`, whose `{a}` is a fresh read at the unaddressed key `w.a`.
+- `{"format":"{a.b}","a":{"format":"{b}","b":["x","y"]}}` beside `{n.a}`, where `a`'s format reads `{b}`, renders `{n}` and `{n.a}` apart.
+- A region table with `"format":"{/region.municipality.name}"` and the card `{/region as r}{r} {r.municipality.name}` loads, although `{r}` draws a municipality afresh. Unverified: check that it renders apart before fixing it.
+
+The README's claim that `{n}` and `{n.path}` agree is false wherever one of these holds; correct it with the fix. A fence that refuses what loaded is a minor before 1.0.0: list it under Breaking in `CHANGELOG.md`. `namefence.go`'s `refuseTwiceDrawnIn` and `pick.go`'s `readName` are places the comprehension seats found hard, so leave the one the fix touches easier to read.
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
