@@ -241,8 +241,8 @@ def reach_distance(locality, lat, lon):
 
 def streets(segments, codes, localities, tatorter, share, minimum):
     """The names with most segments per locality. A segment goes to its nearest code centroid, unless it lies in a tätort
-    named as a postort of the same kommun and that postort is nearer by reach_distance: GeoNames gives a big postort one
-    point, so plain nearest leaves it only the streets around that point."""
+    named as a postort of the same kommun and that postort is nearer by reach_distance: GeoNames puts most of a big
+    postort's codes on few points, so plain nearest leaves it only the streets around those points."""
     nearest = geo.Nearest((r["lat"], r["lon"], r["locality"]) for r in codes if r["lat"] is not None and r["locality"] in localities)
     namesakes = Areas((name, rings) for name, municipality, rings in tatorter if name in localities and localities[name]["municipality"] == municipality)
     count = collections.Counter()
