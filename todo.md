@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 376`
+`Next ID = 377`
 
 ## Items
 
@@ -44,7 +44,6 @@
 | 107 | 0.8.0 | 178 | decision | **Move the template engine into the `internal/` packages item 178 plans, untangled so no type is written by more than one stage, leaving the root the public API and its options.** | 4 | 1 | 3 | 6 | 9 | code health by 9 | 0.7 |
 | 177 | 0.8.0 | 107 | decision | **Run the nine-seat comprehension panel and the scoring run again on the moved engine, and file what the panel names.** | 1 | 2 | 1 | 2 | 3 | code health by 4 | 10.5 |
 | 251 | 0.8.0 |  |  | **Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.** | 2 | 1 | 2 | 3 | 2 | code health by 3 | 10.5 |
-| 108 | 0.8.0 |  | defect | **Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 3.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 8.4 |
 | 174 | 0.8.0 |  |  | **Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
 | 354 | 0.8.0 |  |  | **Make `test_main_hands_the_cut_tag_to_the_workflow` pass across UTC midnight, by comparing the changelog's date with the one `patch_release.main` read.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
 | 167 | 0.8.0 |  |  | **Lower the reading cost of the files a chunk reads most before its first commit.** | 1 | 2 | 1 | 2 | 3 | code health by 3 | 7.9 |
@@ -111,6 +110,7 @@
 | 51 | 0.8.0 |  |  | **Spell a table one way across the errors that name it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
 | 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
 | 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 2.1 |
+| 376 | 0.8.0 |  |  | **Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 3 by 2 | 2.0 |
 | 356 | 0.8.0 |  |  | **Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 2.0 |
 | 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.9 |
 | 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
@@ -255,11 +255,11 @@ A second country reading GeoNames' postal codes moves `geonames()`, and the `str
 
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
-Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-31,'2006-01-02')}`, and `data/sv_SE/personnummer.json` draws its own `{date(1930-01-01,2025-12-31,'060102')}`. A record holding both has a birthdate that contradicts the number's first six digits, which breaks goal 3.1. By the decision "Every `{…}` draws afresh, and only a name keeps a pick", the two dates agree only through one named pick. No builtin prints one drawn date in two layouts, so the fix needs one of two things: a date bound to a name and read in two layouts, or a `personnummer` that reads the date a name holds.
+Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-31,'2006-01-02')}`, and `data/sv_SE/personnummer.json` draws its own date in four age bands, such as `{born(18,64,'060102')}`. A record holding both has a birthdate that contradicts the number's first six digits, which breaks goal 3.1. By the decision "Every `{…}` draws afresh, and only a name keeps a pick", the two dates agree only through one named pick. No builtin prints one drawn date in two layouts, so the fix needs one of two things: a date bound to a name and read in two layouts, or a `personnummer` that reads the date a name holds.
 
 `data/sv_SE/samordningsnummer.json` has the same flaw: it draws `{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}`, the birth day plus 60. Make it read the same date. It draws only days 1–28 today, so a date read from a pick needs its day plus 60, over every day of the month.
 
-Item 26, in 0.3.0, ships first. It widens the date range `personnummer` draws from past 100 years and adds a `+`. That range must then hold for `birthdate` too. Neither item blocks the other. Item 28, in 0.8.0, makes `personnummer` read a named pick's sex in the same way as this item reads a date. Whichever lands first sets how `personnummer` reads a named pick, and the other follows it.
+The range `personnummer` draws, past 100 years with a `+`, must hold for `birthdate` too. Item 28, in 0.8.0, makes `personnummer` read a named pick's sex in the same way as this item reads a date. Whichever lands first sets how `personnummer` reads a named pick, and the other follows it.
 
 ### 297. Add `da_DK`'s national personal id, the CPR number, with its check digits.
 
@@ -347,10 +347,6 @@ The decision "comprehension floor: every dimension and the overall at 7.0 or abo
 ### 251. Export from the library whether a reference body is a lone path, so the CLI's `isPath` stops copying the path grammar.
 
 The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli/cli.go`) the CLI's first rot point when the path grammar changes: it copies the grammar because the CLI reads only the library's public API.
-
-### 108. Name item 26 in the decision "No builtin reads the clock, so a date is bounded by days, never by an age", as the item that ends its conflict with goal 3.
-
-Item 26 revises the decision, but the decision does not point back to it.
 
 ### 174. Spell once the fact that a walk's next step leaves a selected row, which `pathPos.fromRow` and `tableRoute.nextLinked` each spell today.
 
@@ -595,6 +591,10 @@ Today a cell reads `g.t.b, line 3` (`containedNode.labelIn`), a cell check `t.ts
 
 Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
 
+### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
+
+The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The bands and weights are the decision "A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`".
+
 ### 356. Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.
 
 Renovate's pull request #257 fails `docker build --target lowest-and-tooling`: `goreleaser check` says the config "uses deprecated properties". Once the fix and the update merge, CI cuts a patch of 0.2.0 for the new GoReleaser.
@@ -709,7 +709,7 @@ Split it into items for the CLI, struct tags and the library before starting.
 
 ### 186. Load a module carrying functions through an option of its own, its functions reaching the generator's randomness and date through an interface the root declares.
 
-Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Its functions get the date item 26 has the caller give. `cli.Main`'s signature grows here, which a minor before 1.0 allows.
+Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Its functions get the date `WithToday` gives. `cli.Main`'s signature grows here, which a minor before 1.0 allows.
 
 ### 66. Cut the README's Layout block to the lines that say what a file name cannot.
 

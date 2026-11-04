@@ -85,7 +85,9 @@ In [docs/decisions.md](docs/decisions.md):
 - A layout is always quoted
 - A title is a table under `sex`
 - A table owns the spelling of a selector on it
-- No builtin reads the clock, so a date is bounded by days, never by an age
+- A builtin reads the date the caller gives, never the clock, so `born` bounds a date by an age
+- `New` requires `WithToday`, and `--today` defaults to the system's date
+- A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`
 - `misc` is what every locale shares
 - A register's canonical spelling loses to the one its domain writes
 - `misc.territory` is the spine, and a `misc` table naming a territory links to it
