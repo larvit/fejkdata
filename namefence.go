@@ -273,9 +273,10 @@ func refuseSkippedItem(t *template, read *arm, below []arm, names resolvedNames)
 }
 
 // refuseFreshDraw refuses read, a read of a name, where what it renders holds a reference that
-// reaches a path another read of the name lands on or passes, through other references too. A
-// reference draws afresh, so {n} and {n.ab.name} could differ where n's format reads {/cat.ab.name};
-// a reference to a constant can't differ.
+// reaches a path another read of the name lands on, passes or renders, through other references too.
+// A reference draws afresh, so {n} and {n.ab.name} could differ where n's format reads
+// {/cat.ab.name}, and so could {n} and {n.ab} where ab's format reads {name}; a reference to a
+// constant can't differ.
 func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 	b := read.named
 	target := names.targets[b]
@@ -299,7 +300,7 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 			if tail > 0 && grammar.IsSelector(target.tail[0]) {
 				path = slices.Concat(target.tail[:1], path)
 			}
-			if by, other := readAddressing(names.reads[b], read, tail, pickKey(strings.Join(path, "."))); other {
+			if by, other := readAddressing(names.reads[b], read, tail, pickKey(strings.Join(path, ".")), leaf); other {
 				return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
 					read.spelling, x.spelling, by, read.spelling, by, by, secondDraw(b, by))
 			}
@@ -437,15 +438,26 @@ func spellingThrough(b *nameBinding, target nameTarget, level pickKey) string {
 	return grammar.JoinSegments(append([]string{b.name}, segs[len(target.tail):]...))
 }
 
-// readAddressing is the spelling of a read other than self that lands on or passes key, where tail
-// is how many segments of its path the name's binding holds.
-func readAddressing(reads []*arm, self *arm, tail int, key pickKey) (string, bool) {
+// readAddressing is the spelling of a read other than self that lands on or passes key, or lands on
+// another level whose render reads leaf, the node key names; tail is how many segments of its path
+// the name's binding holds.
+func readAddressing(reads []*arm, self *arm, tail int, key pickKey, leaf node) (string, bool) {
 	for _, r := range reads {
-		if r != self && slices.Contains(r.levels[tail:], key) {
+		if r != self && (slices.Contains(r.levels[tail:], key) || r.key() != self.key() && rendersField(r, leaf)) {
 			return r.spelling, true
 		}
 	}
 	return "", false
+}
+
+// rendersField reports whether rendering what read lands on reads leaf as a field of its own template.
+func rendersField(read *arm, leaf node) bool {
+	for _, a := range armsRead(read.leaves) {
+		if a.kind == freshRead && !grammar.IsRef(a.head) && slices.Contains(a.leaves, leaf) {
+			return true
+		}
+	}
+	return false
 }
 
 // armsRead is every arm that rendering nodes read, down every variant of a choice, a table's format
