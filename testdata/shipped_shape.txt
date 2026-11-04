@@ -438,6 +438,11 @@ sv_SE.address.locality	string
 sv_SE.address.postal-code	string
 sv_SE.address.street	string
 sv_SE.address.street-number	string
+sv_SE.bankaccount	format "{clearing}-{number}"	key clearing
+sv_SE.bankaccount.bank	string
+sv_SE.bankaccount.clearing	string
+sv_SE.bankaccount.number	string
+sv_SE.bankgiro
 sv_SE.birth-number	format "{number}"	parent sex
 sv_SE.birth-number.number	string
 sv_SE.birth-number.sex	string
@@ -512,6 +517,7 @@ sv_SE.phone-subscriber.digits-6-7	string
 sv_SE.phone-subscriber.digits-6-8	string
 sv_SE.phone.international
 sv_SE.phone.national
+sv_SE.plusgiro
 sv_SE.price	format "{amt}{ore} kr"
 sv_SE.price.amt	string
 sv_SE.price.ore	string
