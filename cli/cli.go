@@ -54,7 +54,7 @@ With --format json, ndjson, csv or sql the template must be a record — a JSON
 template whose fields are its columns, or a lone reference such as {/path}:
 one reference and nothing else, with one newline after it allowed — and the rows are
 written as one JSON array, one JSON object per line, one CSV row (after a header), or
-one INSERT.
+INSERTs of up to 1000 rows, one per line.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv or sql

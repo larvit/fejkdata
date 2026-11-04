@@ -619,7 +619,7 @@ apart from any `personnummer`: a record holding both can give a birthdate that i
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
 förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
-ends `Handelsbolag`, never `HB`. Bind a company to read its word from the same pick:
+reads `Handelsbolag`, `Handelsbolaget` or `handelsbolag`, never `HB`. Bind a company to read its word from the same pick:
 `{/sv_SE.company as c}{c} ({c.legal})` prints `Solvik Bygg AB (AB)` or
 `Handelsbolaget Solvik (Handelsbolaget)`, and `()` for an enskild näringsidkare.
 The name has a shape those companies' names have, such as a made-up
@@ -652,7 +652,7 @@ grammatical.
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
 set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
-`en_US`'s and `nb_NO`'s `word` and `sentence` state no fact and stay hand-written. Where a category
+`en_US`'s `word` and `sentence` state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 
@@ -763,7 +763,7 @@ The `geo` namespace holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
 and drawing its street and postal code inside it. The locale's `address` prints that
 record, and each of its columns describes the address printed. Do not assert that a Swedish
-street lies in its postort: GeoNames gives a postort one point and no area, so the import
+street lies in its postort: GeoNames gives a postal code a point and a postort no area, so the import
 places each road segment by distance, leaning towards the postort a tätort is named after, and
 a street may sit under a neighbouring one.
 
