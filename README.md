@@ -1585,7 +1585,7 @@ REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 ```
 
 A shipped table built from a source is rebuilt by its script under
-[`data-import/`](data-import), one command per dataset, fetching the source named in
+[`data-import/`](data-import), one command per dataset, from the source named in
 [`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
 `data-import/cache/`, which is ignored by version control and grows past a
 gigabyte, so pass `--cache DIR` to reuse a copy you already have and delete it to
