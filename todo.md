@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 368`
+`Next ID = 371`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 368 | 0.3.0 |  | defect | **Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.** | 2 | 2 | 2 | 4 | 3 | 5.4 by 3 | 7.9 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
 | 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 1.8 |
@@ -20,6 +21,8 @@
 | 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 3.3 by 3 | 0.9 |
+| 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
+| 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 294 | 0.4.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
@@ -232,6 +235,10 @@
 
 ## Details
 
+### 368. Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.
+
+Goal 5.4. This category loads, then rendering `legal` panics with `fejkdata: internal error: name "w" is read where no frame of its scope renders`: `{"format":"{registered as r}{r}","legal":"{r.legal}","registered":[{"format":"{.co.ab.written as w}{w}","legal":"{w.legal}"}]}`. `readName` in `pick.go` opens no frame of the item's scope through `bindsField()`. Either render it or refuse it at load.
+
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
 Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json`, which has the same gap: `{/nb_NO.company as c}` reads no legal form either. An ENK has no abbreviation, so `legal` is empty there.
@@ -271,6 +278,14 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 ### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
 
 GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
+
+### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
+
+373 postorter such as Bromma and Farsta weigh 200, because no current SCB table gives a population by postal area. SCB's `Totalbef_postnr.xls`, population on 2012-12-31 by postal code area as divided in April 2013, is the one such table found, linked from sv.wikipedia. It survives only at https://web.archive.org/web/20130928163559/http://www.scb.se/Grupp/Produkter_Tjanster/Skraddarsydd/Regionala_produkter/Marknadsprofiler/Totalbef_postnr.xls. It states no licence and isn't on SCB's open-data list. Recommendation: ask SCB, or leave 200. Docs: `docs/decisions.md` → "A Swedish postort that no published population reaches weighs 200".
+
+### 370. Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.
+
+The SCB småort polygon holding the centre lies in another kommun than the one four postorter carry: Lönneberga 0860 (129 people; carried 0884), Axmar 2180 (103; carried 2182), Rökå 2418 (60; carried 2481) and Torsö 1083 (57; carried 1493). sv.wikipedia places Lönneberga in Hultsfred, Axmar by in Gävle and Rökå in Malå, which supports the småort. Torsö needs care: the småort lies in Blekinge, while sv.wikipedia's Torsö is an island in Mariestad. The decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" forbids the fix, so it stands until answered.
 
 ### 294. Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.
 
