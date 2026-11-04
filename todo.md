@@ -12,21 +12,16 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 239 | 0.3.0 |  |  | **Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 4, 3.2 by 2 | 4.0 |
 | 232 | 0.3.0 |  |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
 | 233 | 0.3.0 |  |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
-| 241 | 0.3.0 |  |  | **Give `sv_SE.person` a `birthdate`.** | 1 | 1 | 2 | 2 | 2 | 1 by 1, 2.1 by 4 | 3.9 |
 | 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3 by 3 | 3.0 |
 | 237 | 0.3.0 |  |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 2.8 |
-| 240 | 0.3.0 |  |  | **Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 2.4 |
-| 242 | 0.3.0 |  |  | **Add `sv_SE.bloodtype`, weighted by Sweden's distribution.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 2 | 2.4 |
 | 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 3 | 2.2 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
 | 238 | 0.3.0 |  |  | **Draw `sv_SE.word` and `sv_SE.sentence` from SALDO's nouns, verbs, adjectives and adverbs, each part of speech a path of its own.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2.1 by 3, 3.2 by 3 | 1.8 |
 | 127 | 0.3.0 |  |  | **Give a Swedish street only postal codes whose delivery digit means street or rural delivery, dropping codes whose delivery digit is 9, or record why they stay.** | 2 | 2 | 2 | 4 | 3 | 1 by 1, 3.3 by 2 | 1.7 |
 | 342 | 0.3.0 |  |  | **Rebuild `data/sv_SE/phone-area.tsv` from PTS's numbering plan with a `data-import/` script, so DATA-LICENSES.md names the script that rebuilds it.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
-| 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 1.0 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 3.3 by 3 | 0.9 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -241,10 +236,6 @@
 
 ## Details
 
-### 239. Add `sv_SE.month` and `sv_SE.weekday` names from CLDR, and `sv_SE.holiday` from lag 1989:253.
-
-CLDR is under the Unicode licence; the law is facts. [Source research](docs/research/research-sources-se.md).
-
 ### 232. Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.
 
 SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
@@ -253,10 +244,6 @@ SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no 
 
 SCB's SSYK pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
 
-### 241. Give `sv_SE.person` a `birthdate`.
-
-The decision "No builtin reads the clock, so a date is bounded by days, never by an age" rules out an age; draw the date between two fixed dates.
-
 ### 20. Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.
 
 None names a `weight`, so a bare `sex` draws evenly.
@@ -264,14 +251,6 @@ None names a `weight`, so a bare `sex` draws evenly.
 ### 237. Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.
 
 The decision "`misc` is what every locale shares" puts a national register's cars in its locale. Mobility Sweden asks for attribution and grants no open licence, so ship the top models as facts. [Source research](docs/research/research-sources-se.md).
-
-### 240. Add `sv_SE.territory`, the Swedish name of each `misc.territory` row, keyed by its alpha-2 code.
-
-From CLDR's `sv` territory names, under the Unicode licence. [Source research](docs/research/research-sources-se.md).
-
-### 242. Add `sv_SE.bloodtype`, weighted by Sweden's distribution.
-
-geblod.nu's 2007 figures, via sv.wikipedia: A+ 37, O+ 32, B+ 10, A− 7, O− 6, AB+ 5, B− 2, AB− 1 (%). Item 262 plans a global `misc.bloodtype` from AABB. [Source research](docs/research/research-sources-se.md).
 
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
