@@ -266,6 +266,10 @@ func TestAReadLandingAboveAReferenceIsRefusedWhereRenderingItsLevelReadsTheRefer
 			regionRef("{/region.name}"),
 			`"{/region[01] as r}{r}|{r.name}"`,
 			[]string{"{r}", "{/region.name}", "{r.name}"}},
+		"a field whose format holds a reference of its own to the target": {
+			map[string]string{"cat.json": `{"format":"{/cat.ab.name} {ab}","ab":{"format":"{name}{/cat.ab.name}","name":["x","y"]}}`},
+			`"{/cat as n}{n}|{n.ab}"`,
+			[]string{"{n}", "{/cat.ab.name}", "{n.ab}"}},
 		"a field whose format reads a field above the target": {
 			map[string]string{"cat.json": `{"format":"{/cat.ab.c}","ab":{"format":"{c.name}","c":` + ab + `}}`},
 			`"{/cat as n}{n}|{n.ab}"`,
