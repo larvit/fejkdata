@@ -46,7 +46,7 @@ func splitArm(name string, refs map[string]resolvedRef) arm {
 }
 
 func pathArm(name, head string, segs []string) arm {
-	return arm{spelling: name, head: head, tail: segs, levels: levelKeys(append([]string{head}, segs...), 1)}
+	return arm{spelling: name, head: head, tail: segs, levels: freshLevels(head, segs)}
 }
 
 // key is the key of the leaf a lands on, the one key every way of writing this read shares.
@@ -112,6 +112,6 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	}
 	w := compilePath(target.start, full)
 	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
-	a.levels = levelKeys(full, 0)
+	a.levels = namedLevels(full)
 	return a, nil
 }

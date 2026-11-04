@@ -67,21 +67,26 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 	return out
 }
 
-// shippedModules is every module data.Modules lists, each beside its folder under data/: its
-// namespace, a dot a slash.
+// shippedModules is every module data.Modules lists. Each manifest names its namespace, and its folder
+// under data/ is that namespace, a dot a slash.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{
-		{fsys: enus.FS, modules: enus.Modules, namespace: "en_US"},
-		{fsys: geono.FS, modules: geono.Modules, namespace: "geo.NO"},
-		{fsys: geose.FS, modules: geose.Modules, namespace: "geo.SE"},
-		{fsys: geous.FS, modules: geous.Modules, namespace: "geo.US"},
-		{fsys: misc.FS, modules: misc.Modules, namespace: "misc"},
-		{fsys: nbno.FS, modules: nbno.Modules, namespace: "nb_NO"},
-		{fsys: svse.FS, modules: svse.Modules, namespace: "sv_SE"},
+		{fsys: enus.FS, modules: enus.Modules},
+		{fsys: geono.FS, modules: geono.Modules},
+		{fsys: geose.FS, modules: geose.Modules},
+		{fsys: geous.FS, modules: geous.Modules},
+		{fsys: misc.FS, modules: misc.Modules},
+		{fsys: nbno.FS, modules: nbno.Modules},
+		{fsys: svse.FS, modules: svse.Modules},
 	}
 	for i := range out {
-		out[i].dir = strings.ReplaceAll(out[i].namespace, ".", "/")
+		manifest, err := datafiles.FS(out[i].fsys).Manifest()
+		if err != nil || manifest.Namespace == "" {
+			t.Fatalf("module %d of shippedModules needs a %s naming its namespace: %v", i, datafiles.ManifestFile, err)
+		}
+		out[i].namespace = manifest.Namespace
+		out[i].dir = strings.ReplaceAll(manifest.Namespace, ".", "/")
 	}
 	var listed []fs.FS
 	for _, m := range out {

@@ -393,8 +393,8 @@ func TestAReadLandsInAPickWhereAReadOfItsNameAddressesItsFirstLevel(t *testing.T
 		"a field no read addresses":       {"", splitArm("last", nil), ""},
 		"a field addressed elsewhere":     {"x", splitArm("w", nil), ""},
 		"a reference a read's key spells": {"k", splitArm(".x", nil), ""},
-		"a read through a name":           {"", arm{kind: namedRead, head: "n", levels: levelKeys([]string{"first"}, 0)}, ""},
-		"a read through a name at a key":  {"", arm{kind: namedRead, head: "first", levels: levelKeys([]string{"first"}, 1)}, ""},
+		"a read through a name":           {"", arm{kind: namedRead, head: "n", levels: namedLevels([]string{"first"})}, ""},
+		"a read through a name at a key":  {"", arm{kind: namedRead, head: "first", levels: freshLevels("first", nil)}, ""},
 	} {
 		by, lands := landsInPick(addressed, c.at, c.a)
 		if by != c.wantBy || lands != (c.wantBy != "") {
