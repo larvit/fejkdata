@@ -1301,3 +1301,10 @@ With the caches warm, three runs of a pull request's Tests workflow measured 1m4
 1m53s on 2026-10-28, and one with no cache to restore measured 2m31s.
 
 Valid while GitHub's cache serves a pull request the caches of its base branch.
+
+## `--format sql` writes at most 1000 rows per INSERT
+
+Serves goal 1: a bulk fixture loads faster as multi-row INSERTs, and it must load on the database it targets.
+SQL Server limits the `VALUES` clause of an `INSERT` to 1,000 rows and returns error 10738 above that
+([Table Value Constructor](https://learn.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql)),
+so the CLI starts a new statement at that count. There is no flag for it.
