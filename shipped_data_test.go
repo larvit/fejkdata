@@ -41,7 +41,7 @@ func TestShippedDataStaysUnder100MiB(t *testing.T) {
 }
 
 func TestEveryShippedModuleLoads(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatalf("New() = %v", err)
 	}
@@ -58,7 +58,7 @@ func TestEveryShippedModuleLoads(t *testing.T) {
 
 func TestWithDataPathLayersOverShipped(t *testing.T) {
 	dir := writeData(t, map[string]string{"sv_SE/word": `"only-mine"`, "greeting": `"hej"`})
-	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
@@ -75,7 +75,7 @@ func TestWithDataPathLayersOverShipped(t *testing.T) {
 
 func TestUserDataMayReferenceShipped(t *testing.T) {
 	dir := writeData(t, map[string]string{"greeting": `"Hej {/sv_SE.person}!"`})
-	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatalf("New = %v", err)
 	}
@@ -95,7 +95,7 @@ func TestAGeneratorWithNoDataRendersWhatReadsNone(t *testing.T) {
 		"no module":    {WithDataFS()},
 		"empty folder": {WithDataPath(t.TempDir())},
 	} {
-		f, err := New(append(opts, WithSeed(1))...)
+		f, err := New(append(opts, WithSeed(1), onTestDay)...)
 		if err != nil {
 			t.Fatalf("%s: New = %v, want a generator holding no data", name, err)
 		}
@@ -135,7 +135,7 @@ func TestWithDataFS(t *testing.T) {
 		".hidden.json":   {Data: []byte(`"ignored"`)},
 		"broken/no.json": {Data: []byte(`"x"`)},
 	}
-	f, err := New(WithDataFS(fsys), WithSeed(1))
+	f, err := New(WithDataFS(fsys), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatalf("New(WithDataFS) = %v", err)
 	}
@@ -146,7 +146,7 @@ func TestWithDataFS(t *testing.T) {
 		t.Errorf("nested.x.y = %q, want z", got)
 	}
 	bad := fstest.MapFS{"broken.json": {Data: []byte(`{ not json`)}}
-	if _, err := New(WithSeed(1), WithDataFS(bad)); err == nil || !strings.Contains(err.Error(), "broken.json") {
+	if _, err := New(WithSeed(1), onTestDay, WithDataFS(bad)); err == nil || !strings.Contains(err.Error(), "broken.json") {
 		t.Errorf("New(bad fs) = %v, want an error naming the file", err)
 	}
 }
@@ -154,7 +154,7 @@ func TestWithDataFS(t *testing.T) {
 func TestWithDataFSLayersEachModuleOverTheOneBefore(t *testing.T) {
 	a := fstest.MapFS{"x.json": {Data: []byte(`"a"`)}, "y.json": {Data: []byte(`"a"`)}}
 	b := fstest.MapFS{"x.json": {Data: []byte(`"b"`)}}
-	f, err := New(WithSeed(1), WithDataFS(a, b))
+	f, err := New(WithSeed(1), onTestDay, WithDataFS(a, b))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(a, b)) = %v", err)
 	}
@@ -165,13 +165,13 @@ func TestWithDataFSLayersEachModuleOverTheOneBefore(t *testing.T) {
 
 func TestWithDataFSRefusesANilModule(t *testing.T) {
 	var unset fs.FS
-	if _, err := New(WithSeed(1), WithDataFS(fstest.MapFS{}, unset)); err == nil || !strings.Contains(err.Error(), "WithDataFS module 2 is nil") {
+	if _, err := New(WithSeed(1), onTestDay, WithDataFS(fstest.MapFS{}, unset)); err == nil || !strings.Contains(err.Error(), "WithDataFS module 2 is nil") {
 		t.Errorf("New(WithDataFS(fsys, nil)) = %v, want module 2 named nil", err)
 	}
 }
 
 func TestFakeIsSafeForConcurrentUse(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}

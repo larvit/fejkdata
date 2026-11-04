@@ -77,7 +77,7 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 		if strings.Contains(body, "…") {
 			continue
 		}
-		f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1))
+		f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
 		if err != nil {
 			t.Errorf("README example does not load: %v\n%s", err, body)
 			continue
@@ -103,7 +103,7 @@ func TestReadmeRecordExample(t *testing.T) {
 	if block == nil {
 		t.Fatal("README lost the Records example")
 	}
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"users": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"users": block[1]})), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +131,7 @@ func TestReadmeSQLExampleOutput(t *testing.T) {
 	if block == nil || want == nil {
 		t.Fatal("README lost the SQL example or its printed output")
 	}
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"sql": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"sql": block[1]})), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func TestReadmeDatatypeExample(t *testing.T) {
 		t.Fatal("README lost the Datatype section")
 	}
 	block := jsonBlock.FindStringSubmatch(src[i:])
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"order": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"order": block[1]})), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +191,7 @@ func TestReadmeTableExample(t *testing.T) {
 		t.Fatal("README Table section has no json block")
 	}
 	body := src[i:][at[2]:at[3]]
-	f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, i+at[0], body))), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, i+at[0], body))), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -442,7 +442,7 @@ func TestReadmeBulkQuickStart(t *testing.T) {
 		t.Fatal("README's bulk quick start has no json record")
 	}
 	dir := writeData(t, map[string]string{"person": block[1]})
-	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -473,7 +473,7 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	if !strings.Contains(section, "fejkdata --seed 1 --format csv < person.json") {
 		t.Fatal("README's bulk quick start no longer runs the command its output shows")
 	}
-	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"person": block[1]})), WithSeed(1))
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"person": block[1]})), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -504,7 +504,7 @@ func TestReadmeGoQuickStart(t *testing.T) {
 		t.Error("README's Go quick start no longer imports the data this test loads")
 	}
 	typ := readmeStruct(t, block[1])
-	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1))
+	f, err := New(WithDataFS(svse.Modules()...), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}

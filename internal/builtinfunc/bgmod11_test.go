@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
@@ -73,7 +74,7 @@ func TestBgmod11RefusesWhatIsNotDigits(t *testing.T) {
 // by their digits alone.
 func TestBgmod11DrawsEveryTailAndSkipsWhatIsNotADigit(t *testing.T) {
 	call := Prep("bgmod11", []string{"5"})
-	s := drawstate.New(1)
+	s := drawstate.New(1, time.Time{})
 	seen := map[string]bool{}
 	for range 400 {
 		tail := call(s, "1 2-3 4", nil)

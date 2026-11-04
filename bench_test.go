@@ -8,7 +8,7 @@ import (
 
 func benchGenerator(b *testing.B, data Option) *Generator {
 	b.Helper()
-	f, err := New(data, WithSeed(1))
+	f, err := New(data, WithSeed(1), onTestDay)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func BenchmarkNamedWide(b *testing.B) {
 func BenchmarkFirstFake(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		f, err := New(withShipped(), WithSeed(1))
+		f, err := New(withShipped(), WithSeed(1), onTestDay)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -101,7 +101,7 @@ func BenchmarkFirstFake(b *testing.B) {
 func BenchmarkNew(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		if _, err := New(withShipped(), WithSeed(1)); err != nil {
+		if _, err := New(withShipped(), WithSeed(1), onTestDay); err != nil {
 			b.Fatal(err)
 		}
 	}

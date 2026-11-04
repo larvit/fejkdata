@@ -57,7 +57,7 @@ func structData(t *testing.T) *Generator {
 		"mid":    `{"format":"","score":["{/src.score}",{"format":"5","datatype":"integer"}]}`,
 		"src":    `{"format":"","code":[null,"200","404"],"del":null,"score":[null,{"format":"{int(1,9)}","datatype":"integer"}]}`,
 		"trip":   `{"format":"","leg":[{"format":"{to}","to":"Oslo"},{"format":"{to}","to":"Rome"}]}`,
-	}), WithSeed(1))
+	}), WithSeed(1), onTestDay)
 }
 
 func TestFakeStructFieldTaggedWithAColumnIsThatColumn(t *testing.T) {

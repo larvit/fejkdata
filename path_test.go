@@ -130,14 +130,14 @@ func TestPathKeyIsUnambiguous(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"cat": `[{"format":"{a.b}","a.b":"1"},{"format":"{a}","a":{"format":"{b}","b":"2"}}]`,
 	})
-	_, err := New(WithSeed(1), WithDataPath(dir))
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(dir))
 	if err == nil || !strings.Contains(err.Error(), `field "a.b" contains "."`) {
 		t.Fatalf("New = %v, want the dotted field name rejected", err)
 	}
 	// The same data without the dotted key is fine, and the path reaches a node.
 	f := newGenerator(t, writeData(t, map[string]string{
 		"cat": `{"format":"{a.b}","a":{"format":"{b}","b":"2"}}`,
-	}), WithSeed(1))
+	}), WithSeed(1), onTestDay)
 	if !slices.Contains(f.List(), "cat.a.b") {
 		t.Error("List() omits cat.a.b, which the data carries")
 	}

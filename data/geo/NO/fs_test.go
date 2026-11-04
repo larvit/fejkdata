@@ -3,6 +3,7 @@ package geono_test
 import (
 	"io/fs"
 	"testing"
+	"time"
 
 	"github.com/larvit/fejkdata"
 	geono "github.com/larvit/fejkdata/data/geo/NO"
@@ -12,7 +13,7 @@ func TestFSLoadsByItsManifest(t *testing.T) {
 	if _, err := fs.Stat(geono.FS, ".fejkdata.json"); err != nil {
 		t.Fatalf("FS holds no manifest: %v", err)
 	}
-	f, err := fejkdata.New(fejkdata.WithDataFS(geono.Modules()...), fejkdata.WithSeed(1))
+	f, err := fejkdata.New(fejkdata.WithDataFS(geono.Modules()...), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))
 	if err != nil {
 		t.Fatalf("New(WithDataFS(Modules()...)) = %v", err)
 	}
