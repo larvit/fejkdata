@@ -1438,6 +1438,30 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 	}
 }
 
+// A company's format reads its wording through a name, so a read of the wording beside it would be a
+// second company, and the load says how to write each meaning.
+func TestACompanysRegisteredBesideTheCompanyIsRefused(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, WithSeed(3))
+	for _, locale := range []string{"sv_SE", "nb_NO"} {
+		company := "/" + locale + ".company"
+		_, err := f.NewTemplate("{" + company + " as c}{c} / {c.registered}")
+		if err == nil {
+			t.Fatalf("%s: {c.registered} beside {c} loaded, want it refused", locale)
+		}
+		for _, want := range []string{"{c.registered}", "{" + company + ".registered}"} {
+			if !strings.Contains(err.Error(), want) {
+				t.Errorf("%s: error %q, want it to name %s", locale, err, want)
+			}
+		}
+		for _, loads := range []string{"{" + company + " as c}{c}|{c.legal}", "{" + company + " as c}{c.registered}", "{" + company + ".registered}"} {
+			if _, err := f.NewTemplate(loads); err != nil {
+				t.Errorf("NewTemplate(%s) = %v, want it to load", loads, err)
+			}
+		}
+	}
+}
+
 // The wordings are those TestSwedishCompanyWordingsAndShapesFollowTheRegister holds a company to, and an
 // enskild näringsidkare carries none.
 func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {

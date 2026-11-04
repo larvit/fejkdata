@@ -405,6 +405,89 @@ func TestAFieldBindingReadInsideItsFieldIsRefused(t *testing.T) {
 	}
 }
 
+// companyLike binds its choice to a name of its own, as sv_SE.company does, so that legal reads the
+// wording's word from the pick the format prints.
+const companyLike = `{"format":"{registered as r}{r}","legal":"{r.legal}","registered":[{"format":"A","legal":"a"},{"format":"B","legal":"b"},{"format":"C","legal":"c"},{"format":"D","legal":"d"}]}`
+
+func TestAReadOfAFieldItsCategoryReadsThroughANameIsRefused(t *testing.T) {
+	for label, c := range map[string]struct {
+		files map[string]string
+		want  []string
+	}{
+		"beside the name read whole": {map[string]string{"co": companyLike, "card": `"{/co as c}{c} / {c.registered}"`},
+			[]string{"{c}", `"registered"`, `"r"`, "{c.registered}", "{/co.registered}"}},
+		"written before the name read whole": {map[string]string{"co": companyLike, "card": `"{/co as c}{c.registered} / {c}"`},
+			[]string{"{c}", "{c.registered}", "{/co.registered}"}},
+		"beside another field reading that name": {map[string]string{"co": companyLike, "card": `"{/co as c}{c.registered} ({c.legal})"`},
+			[]string{"{c.legal}", "{c.registered}", "{/co.registered}"}},
+		"a path below the field": {map[string]string{"co": companyLike, "card": `"{/co as c}{c} ({c.registered.legal})"`},
+			[]string{"{c}", "{c.registered.legal}", "{/co.registered.legal}"}},
+		"as a transform's operand": {map[string]string{"co": companyLike, "card": `"{/co as c}{c} {uppercase(c.registered)}"`},
+			[]string{"{c}", "{c.registered}"}},
+		"across a record's columns": {map[string]string{"co": companyLike, "card": `{"format":"","a":"{/co as c}{c}","b":"{c.registered}"}`},
+			[]string{"{c}", "{c.registered}"}},
+		"the name read in a field the format reads": {map[string]string{"co": `{"format":"{registered as r}{x}","x":"{r}","registered":["A","B"]}`, "card": `"{/co as c}{c} {c.registered}"`},
+			[]string{"{c}", "{c.registered}"}},
+		"a binding of a path into the field": {map[string]string{"co": `{"format":"{a.b as r}{r}","a":{"format":"{b}","b":["x","y"]}}`, "card": `"{/co as c}{c} {c.a}"`},
+			[]string{"{c}", `"a.b"`, "{c.a}", "{/co.a}"}},
+		"a field further down": {map[string]string{"co": `{"format":"{sub}","sub":{"format":"{x as q}{q}","x":["a","b"]}}`, "card": `"{/co as c}{c} {c.sub.x}"`},
+			[]string{"{c}", `"x"`, "{c.sub.x}", "{/co.sub.x}"}},
+		"a field of a choice's item": {map[string]string{"co": `{"format":"{v}","v":[{"format":"{x as q}{q}","x":["a","b"]},{"format":"z","x":"y"}]}`, "card": `"{/co as c}{c.v} {c.v.x}"`},
+			[]string{"{c.v}", "{c.v.x}", "{/co.v.x}"}},
+		"through a name bound to a field": {map[string]string{"card": `{"format":"{place as p}{p}|{p.x}","place":{"format":"{x as q}{q}","x":["a","b"]}}`},
+			[]string{"{p}", `"x"`, "{p.x}", "{place.x}"}},
+	} {
+		t.Run(label, func(t *testing.T) {
+			_, err := New(WithSeed(1), WithDataPath(writeData(t, c.files)))
+			if err == nil {
+				t.Fatal("New() loaded, want it refused")
+			}
+			for _, want := range c.want {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("New() = %v, want an error naming %s", err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestReadsOfACategoryReadingAFieldThroughANameThatAgreeLoad(t *testing.T) {
+	const draws = 100
+	word := map[string]string{"A": "a", "B": "b", "C": "c", "D": "d"}
+	for label, read := range map[string]string{
+		"the name read whole and another field": `"{/co as c}{c}|{c.legal}"`,
+		"the field and a path below it":         `"{/co as c}{c.registered}|{c.registered.legal}"`,
+	} {
+		t.Run(label, func(t *testing.T) {
+			f := newGenerator(t, writeData(t, map[string]string{"co": companyLike, "card": read}), WithSeed(7))
+			for i := 0; i < draws; i++ {
+				got := strings.Split(fake(t, f, "card"), "|")
+				if word[got[0]] != got[1] {
+					t.Fatalf("card = %q, want both reads from one pick", got)
+				}
+			}
+		})
+	}
+	for label, c := range map[string]struct{ co, card, wantHolds string }{
+		"the field read alone":             {companyLike, `"{/co as c}{c.registered}"`, "ABCD"},
+		"the field read twice":             {companyLike, `"{/co as c}{c.registered}{c.registered}"`, "ABCD"},
+		"the field read with no name":      {companyLike, `"{/co.registered}"`, "ABCD"},
+		"no name beside the name":          {companyLike, `"{/co as c}{/co.registered}{c}"`, "ABCD"},
+		"a whole read that skips the name": {`{"format":"x{registered as r}","legal":"{r.legal}","registered":[{"format":"A","legal":"a"},{"format":"B","legal":"b"}]}`, `"{/co as c}{c}{c.registered}"`, "xAB"},
+	} {
+		t.Run(label, func(t *testing.T) {
+			f := newGenerator(t, writeData(t, map[string]string{"co": c.co, "card": c.card}), WithSeed(7))
+			for i := 0; i < draws; i++ {
+				for _, r := range fake(t, f, "card") {
+					if !strings.ContainsRune(c.wantHolds, r) {
+						t.Fatalf("card holds %q, want only letters of %q", r, c.wantHolds)
+					}
+				}
+			}
+		})
+	}
+}
+
 func TestANameReadAloneIsTheRecordColumnItReads(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"src": `{"format":"","score":[null,{"format":"{int(1,9)}","datatype":"integer"}],"code":["1","2"]}`,
