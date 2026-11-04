@@ -599,12 +599,14 @@ law's entry for every Sunday, and holds no dates, since seven of the holidays mo
 
 `sv_SE.sni` is SCB's SNI 2025 industry classification at its finest level, 835 five-digit codes, and
 `sv_SE.ssyk` its SSYK 2012 occupation classification at four digits, 429 codes. Each is selected by its
-code, `{/sv_SE.sni[62.100].name}` is `Dataprogrammering` and `{/sv_SE.ssyk[2512].name}` is
-`Mjukvaru- och systemutvecklare m.fl.`, and draws evenly as the code and its label, `62.100 Dataprogrammering`.
-Both are real. `sv_SE.car` is a make and a model, `Volvo XC60`, weighted by Mobility Sweden's registrations of
-new passenger cars in 2025. It holds the 119 models with 500 or more of them, as Mobility Sweden groups them:
-`EX/XC40` is two models in one row. A model is real, and the shares are those of 2025's new cars, not of the
-cars on the road.
+code: `{/sv_SE.sni[62.100].name}` is `Dataprogrammering` and `{/sv_SE.ssyk[2512].name}` is
+`Mjukvaru- och systemutvecklare m.fl.`. A draw picks a code evenly and prints it with its label,
+`62.100 Dataprogrammering`. Both are real.
+
+`sv_SE.car` is a make and a model, `Volvo XC60`, weighted by Mobility Sweden's registrations of new
+passenger cars in 2025. It holds the 119 models with 500 or more registrations, as Mobility Sweden groups
+them: `EX/XC40` is two models in one row. A model is real, spelled as its maker writes it, and the shares
+are those of 2025's new cars, not of the cars on the road.
 
 `sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
 often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
@@ -685,10 +687,10 @@ states: Greenland and Åland have codes of their own. `misc.territory.sovereign`
 state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign state names
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
 
-`sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, Statistics
-Norway, the SSA and the Census Bureau. `sex` counts the people of each sex in its `count`
-column: Sweden's population at the end of 2024, Norway's on 1 January 2026 and the United States'
-on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+`first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
+SCB, Statistics Norway, the SSA and the Census Bureau. `sex` counts them in its `count` column:
+Sweden's population at the end of 2024, Norway's on 1 January 2026 and the United States' on 1 July
+2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` binds one first name and reads its sex through it, `{.first-name as n}` and

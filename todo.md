@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 365`
+`Next ID = 366`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 365 | 0.3.0 |  |  | **List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 232 | 0.3.0 |  |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
 | 233 | 0.3.0 |  |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
 | 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3 by 3 | 3.0 |
@@ -235,6 +236,10 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
+
+### 365. List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.
+
+The README's data-import section says it holds one command per dataset, and its block of `docker compose run` lines has none for `data-import/bankaccount-se.py` or `data-import/licenseplate-se.py`. Add both, in alphabetical order, and check no other script in `data-import/` is missing.
 
 ### 232. Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.
 
