@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"math"
@@ -1474,9 +1475,26 @@ func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 		}
 	}
 	assertShare(t, "companies with no legal word", seen[""], draws, 8468.0/61777)
+	raw, err := os.ReadFile("data/sv_SE/company.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var company struct {
+		Registered []struct{ Format, Legal string } `json:"registered"`
+	}
+	if err := json.Unmarshal(raw, &company); err != nil {
+		t.Fatal(err)
+	}
+	listed := map[string]bool{}
+	for _, item := range company.Registered {
+		listed[item.Legal] = true
+		if item.Legal != "" && !strings.HasPrefix(item.Format, item.Legal+" ") && !strings.HasSuffix(item.Format, " "+item.Legal) {
+			t.Errorf("%q is listed with legal %q, which it does not start or end with", item.Format, item.Legal)
+		}
+	}
 	for _, w := range append(after, before...) {
-		if seen[w] == 0 {
-			t.Errorf("no company of %d carries the legal word %q", draws, w)
+		if !listed[w] {
+			t.Errorf("no registered company form carries the legal word %q", w)
 		}
 	}
 }
