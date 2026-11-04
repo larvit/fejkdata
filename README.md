@@ -498,8 +498,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
-`samordningsnummer`, `organisationsnummer`, `vat`, `company-coined`, `company-word`,
-`phone-area` and `phone-subscriber`;
+`samordningsnummer`, `organisationsnummer`, `vat`, `licenseplate`, `licenseplate-letters`,
+`company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -560,6 +560,13 @@ may hold it. A bound number reads `national`, `46 12 34 56`, and `international`
 
 A bound `organisationsnummer`
 has its own VAT number in `vat`, and `sv_SE.vat` draws one with no organisationsnummer.
+`sv_SE.licenseplate` draws a registration number, `ABC 123` or `ABC 12A` at even odds. It is valid, not real: a
+drawn plate has the shape of a Swedish one and may be on a real car. Its three letters come from
+`licenseplate-letters`, every combination of the 23 letters plates use (no I, Q or V) but the 99
+that Transportstyrelsen blocks, such as `APA` and `XXX`. The last character of `ABC 12A` is never O either. The digits
+run from `001` to `999`, and from `01` to `99` in `ABC 12A`, whose digits the article doesn't give. The two forms and the letters
+are those of sv.wikipedia's article on Swedish plates, not confirmed by Transportstyrelsen.
+
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
 förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
