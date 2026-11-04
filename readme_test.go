@@ -494,7 +494,7 @@ func TestReadmeGoQuickStart(t *testing.T) {
 	if block == nil || printed == nil {
 		t.Fatal("README's Go quick start lost its go block or its printed person")
 	}
-	if !strings.Contains(block[1], "fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1))") {
+	if !strings.Contains(block[1], "fejkdata.New(fejkdata.WithDataFS(svse.Modules()...), fejkdata.WithSeed(1), fejkdata.WithToday(day))") {
 		t.Error("README's Go quick start no longer has the New call this test runs")
 	}
 	if !strings.Contains(block[1], "f.FakeStruct(&p)") {
