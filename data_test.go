@@ -1499,6 +1499,77 @@ func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 	}
 }
 
+func swedishWordForms(t *testing.T, table string) map[string]string {
+	t.Helper()
+	raw, err := os.ReadFile("data/sv_SE/" + table + ".tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	forms := map[string]string{}
+	for _, line := range strings.Split(strings.TrimSpace(string(raw)), "\n")[1:] {
+		word, form, _ := strings.Cut(line, "\t")
+		forms[word] = form
+	}
+	return forms
+}
+
+func TestSwedishWordHoldsSaldoFormsPerPartOfSpeech(t *testing.T) {
+	t.Parallel()
+	for _, c := range []struct{ table, word, form string }{
+		{"word-noun", "hus", "huset"},
+		{"word-noun", "flicka", "flickan"},
+		{"word-verb", "springa", "springer"},
+		{"word-adj", "stor", "stora"},
+		{"word-adv", "ofta", ""},
+	} {
+		if got, ok := swedishWordForms(t, c.table)[c.word]; !ok || got != c.form {
+			t.Errorf("%s holds %q with form %q (held: %v), want %q", c.table, c.word, got, ok, c.form)
+		}
+	}
+	if n := len(swedishWordForms(t, "word-noun")); n < 50000 {
+		t.Errorf("word-noun holds %d nouns, want SALDO's, tens of thousands", n)
+	}
+}
+
+func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, WithSeed(5))
+	nouns, verbs, adjs, advs := swedishWordForms(t, "word-noun"), swedishWordForms(t, "word-verb"), swedishWordForms(t, "word-adj"), swedishWordForms(t, "word-adv")
+	definite := map[string]bool{}
+	for _, form := range nouns {
+		definite[form] = true
+	}
+	present := map[string]bool{}
+	for _, form := range verbs {
+		present[form] = true
+	}
+	seen := map[string]int{}
+	for i := 0; i < 2000; i++ {
+		for path, held := range map[string]func(string) bool{
+			"sv_SE.word.noun":          func(w string) bool { _, ok := nouns[w]; return ok },
+			"sv_SE.word.noun.definite": func(w string) bool { return definite[w] },
+			"sv_SE.word.verb":          func(w string) bool { _, ok := verbs[w]; return ok },
+			"sv_SE.word.verb.present":  func(w string) bool { return present[w] },
+			"sv_SE.word.adj":           func(w string) bool { _, ok := adjs[w]; return ok },
+			"sv_SE.word.adv":           func(w string) bool { _, ok := advs[w]; return ok },
+		} {
+			if got := fake(t, sv, path); !held(got) {
+				t.Fatalf("%s = %q, which its table does not hold", path, got)
+			}
+		}
+		w := fake(t, sv, "sv_SE.word")
+		switch _, n := nouns[w]; {
+		case n:
+			seen["noun"]++
+		default:
+			seen["other"]++
+		}
+	}
+	if seen["noun"] == 0 || seen["other"] == 0 {
+		t.Errorf("sv_SE.word drew %v, want nouns and other parts of speech", seen)
+	}
+}
+
 func TestSwedishPostortKeepsItsDeliveryDigitNineCodes(t *testing.T) {
 	t.Parallel()
 	shipped := map[string]string{}
