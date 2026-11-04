@@ -499,8 +499,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
-`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `company-coined`,
-`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `territory` and `weekday`;
+`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
+`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory` and `weekday`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -597,6 +597,15 @@ law's entry for every Sunday, and holds no dates, since seven of the holidays mo
 `sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2 code:
 `{/sv_SE.territory[DE]}` is `Tyskland`. All four are real names.
 
+`sv_SE.sni` is SCB's SNI 2025 industry classification at its finest level, 835 five-digit codes, and
+`sv_SE.ssyk` its SSYK 2012 occupation classification at four digits, 429 codes. Each is selected by its
+code, `{/sv_SE.sni[62.100].name}` is `Dataprogrammering` and `{/sv_SE.ssyk[2512].name}` is
+`Mjukvaru- och systemutvecklare m.fl.`, and draws evenly as the code and its label, `62.100 Dataprogrammering`.
+Both are real. `sv_SE.car` is a make and a model, `Volvo XC60`, weighted by Mobility Sweden's registrations of
+new passenger cars in 2025. It holds the 119 models with 500 or more of them, as Mobility Sweden groups them:
+`EX/XC40` is two models in one row. A model is real, and the shares are those of 2025's new cars, not of the
+cars on the road.
+
 `sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
 often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
 shares are real. `sv_SE.person.birthdate` is invented, a date from 1930-01-01 to 2025-12-31, and it is drawn
@@ -677,7 +686,9 @@ state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign s
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
 
 `sex`, `first-name` and `last-name` are tables weighted by bearers, from SCB, Statistics
-Norway, the SSA and the Census Bureau. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+Norway, the SSA and the Census Bureau. `sex` counts the people of each sex in its `count`
+column: Sweden's population at the end of 2024, Norway's on 1 January 2026 and the United States'
+on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` binds one first name and reads its sex through it, `{.first-name as n}` and
@@ -1586,6 +1597,7 @@ the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-
 `cldr-sv.py` reads the shipped `misc/territory.tsv`, so run `territory.py` before it:
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr-sv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
@@ -1604,6 +1616,9 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/sex-population.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/sni-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/ssyk-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
