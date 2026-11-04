@@ -185,8 +185,8 @@ func TestSwedishBankAccountHasOneRowPerClearingNumber(t *testing.T) {
 		t.Fatal(err)
 	}
 	lines := strings.Split(strings.TrimSuffix(string(b), "\n"), "\n")
-	if lines[0] != "clearing\tbank\tweighed\tnumber" {
-		t.Fatalf("header %q, want clearing, bank, weighed and number", lines[0])
+	if lines[0] != "clearing\tbank\tnumber" {
+		t.Fatalf("header %q, want clearing, bank and number", lines[0])
 	}
 	var want []string
 	for _, r := range clearingRanges {
