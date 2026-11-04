@@ -64,12 +64,16 @@ def publish(changelog: str, sha: str) -> tuple[int, str | None]:
 	return 0, tag
 
 
+def github_output(line: str) -> None:
+	with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+		f.write(line + "\n")
+
+
 def main() -> int:
 	with open("CHANGELOG.md", encoding="utf-8") as f:
 		code, tag = publish(f.read(), os.environ["SHA"])
 	if tag:
-		with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-			f.write(f"tag={tag}\n")
+		github_output(f"tag={tag}")
 	return code
 
 

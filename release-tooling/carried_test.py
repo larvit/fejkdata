@@ -34,6 +34,16 @@ class TheRepositorysPackagesYml(unittest.TestCase):
 			self.assertEqual(image.findall(repository_file(dockerfile)), [version], dockerfile)
 
 
+class TheRepositorysComposeFile(unittest.TestCase):
+	def test_runs_the_go_and_the_tools_the_dockerfile_gates_with(self):
+		compose, dockerfile = repository_file("compose.yaml"), repository_file("Dockerfile")
+		go = re.search(r"golang:\$\{GO_VERSION:-(\S+)\}", compose)[1]
+		self.assertEqual(carried.dotted(carried.go_of(dockerfile)), go)
+		for tool in [r"gocyclo@\S+ -over \d+ -ignore \S+", r"govulncheck@\S+ -scan \w+"]:
+			(gated,) = re.findall(tool, dockerfile)
+			self.assertEqual(re.findall(tool, compose), [gated])
+
+
 class Of(unittest.TestCase):
 	def test_reads_go_goreleaser_and_the_modules_from_a_tree(self):
 		files = {

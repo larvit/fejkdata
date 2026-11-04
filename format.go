@@ -145,7 +145,7 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 		}
 		if len(fields) == 0 {
 			hint := ""
-			if wholeToken && hintableRef(name) {
+			if wholeToken && grammar.CheckPathIdentifiers(name) == nil {
 				hint = fmt.Sprintf(" — write {/%s} to reference the data", name)
 			}
 			return true, fmt.Errorf("no field %q; a token names a sibling field, and this template has none%s", a.head, hint)
@@ -156,12 +156,6 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 		return false, fmt.Errorf("field %q: %w", a.head, err)
 	}
 	return false, nil
-}
-
-// hintableRef reports whether {/name} is a reference the grammar accepts, so the
-// hint never names a spelling that fails too.
-func hintableRef(name string) bool {
-	return grammar.CheckPathIdentifiers(name) == nil
 }
 
 // tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads.

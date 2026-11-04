@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -207,22 +208,15 @@ func (t *template) fixedText() (string, bool) {
 }
 
 func compileChoice(items []any, pos position) (node, error) {
-	itemPos := inFormat
-	if pos.column() {
-		itemPos = pos
-	}
 	switch len(items) {
 	case 0:
 		return nil, fmt.Errorf("empty choice")
 	case 1:
-		w, err := weightOf(items[0])
-		if err != nil {
-			return nil, err
-		}
-		if w == 0 {
-			return nil, fmt.Errorf("every weight is 0, so the choice has nothing to draw")
-		}
-		return compileItem(items[0], pos)
+		return compileLoneItem(items[0], pos)
+	}
+	itemPos := inFormat
+	if pos.column() {
+		itemPos = pos
 	}
 	c := &choice{items: make([]node, len(items))}
 	cum := make([]float64, len(items))
@@ -238,23 +232,42 @@ func compileChoice(items []any, pos position) (node, error) {
 		}
 		total += w
 		cum[i] = total
-		n, err := compileItem(raw, itemPos)
-		if err != nil {
+		if c.items[i], err = compileItem(raw, itemPos); err != nil {
 			return nil, err
 		}
-		c.items[i] = n
 	}
 	if weighted {
-		if math.IsInf(total, 1) {
-			return nil, fmt.Errorf("choice weights must sum to a finite number, got %v", total)
-		}
-		if total == 0 {
-			return nil, fmt.Errorf("every weight is 0, so the choice has nothing to draw")
+		if err := checkWeightSum(total); err != nil {
+			return nil, err
 		}
 		c.cum = cum
 	}
 	c.shared = sharedPaths(c.items, true)
 	return c, nil
+}
+
+// compileLoneItem compiles a choice of one item, which is that item.
+func compileLoneItem(raw any, pos position) (node, error) {
+	w, err := weightOf(raw)
+	if err != nil {
+		return nil, err
+	}
+	if w == 0 {
+		return nil, errNothingToDraw
+	}
+	return compileItem(raw, pos)
+}
+
+var errNothingToDraw = errors.New("every weight is 0, so the choice has nothing to draw")
+
+func checkWeightSum(total float64) error {
+	if math.IsInf(total, 1) {
+		return fmt.Errorf("choice weights must sum to a finite number, got %v", total)
+	}
+	if total == 0 {
+		return errNothingToDraw
+	}
+	return nil
 }
 
 func compileTemplate(m map[string]any, pos position) (node, error) {

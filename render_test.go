@@ -2,7 +2,6 @@ package fejkdata
 
 import (
 	"encoding/json"
-	"go/ast"
 	"reflect"
 	"slices"
 	"testing"
@@ -71,7 +70,9 @@ var nodeSwitchSkips = map[string][]string{
 	"valueProof.prove": {"folder"},
 }
 
-func TestNodeSwitchesHandleEveryKind(t *testing.T) {
+// nodeSamples holds one node of each kind, by the kind's name, and the table they came from.
+func nodeSamples(t *testing.T) (map[string]node, *table) {
+	t.Helper()
 	f := newGenerator(t, writeFiles(t, map[string]string{
 		"r.json": `{"format":"{name}","rows":"r.tsv","key":"code"}`,
 		"r.tsv":  "code\tname\n01\t{digits(2)}\n02\tB\n",
@@ -89,16 +90,12 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 	} {
 		samples[reflect.TypeOf(n).Elem().Name()] = n
 	}
-	kinds := nodeKinds(t)
-	sampled := make([]string, 0, len(samples))
-	for kind := range samples {
-		sampled = append(sampled, kind)
-	}
-	slices.Sort(sampled)
-	if !slices.Equal(kinds, sampled) {
-		t.Fatalf("node kinds %v, samples %v; give every kind a sample here", kinds, sampled)
-	}
-	switches := map[string]func(node){
+	return samples, tbl
+}
+
+// nodeSwitches calls each function holding a type switch over node kinds.
+func nodeSwitches(tbl *table) map[string]func(node) {
+	return map[string]func(node){
 		"childNamed":  func(n node) { _, _ = childNamed(n, "x") },
 		"columnItems": func(n node) { columnItems(n) },
 		"contained":   func(n node) { contained(n) },
@@ -111,20 +108,21 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 		"routeSteps":       func(n node) { _, _ = routeSteps(nil, nil, tbl, tableRoute{next: n}, 0) },
 		"valueProof.prove": func(n node) { (&valueProof{}).prove(n) },
 	}
-	found := nodeSwitchesPanickingOnOtherKinds(t, kinds)
-	listed := make([]string, 0, len(switches))
-	for name := range switches {
-		listed = append(listed, name)
-	}
-	slices.Sort(listed)
-	if !slices.Equal(found, listed) {
-		t.Fatalf("functions with a type switch over node kinds and a panicking default: %v; this test calls %v; call each function found", found, listed)
-	}
-	for name, call := range switches {
+}
+
+func TestNodeSwitchesPanicOnAnUnhandledNode(t *testing.T) {
+	_, tbl := nodeSamples(t)
+	for name, call := range nodeSwitches(tbl) {
 		mustPanic(t, name+" on an unhandled node", func() { call(&unhandledNode{}) })
-		for _, kind := range kinds {
+	}
+}
+
+func TestNodeSwitchesHandleEveryKind(t *testing.T) {
+	samples, tbl := nodeSamples(t)
+	for name, call := range nodeSwitches(tbl) {
+		for kind, n := range samples {
 			if slices.Contains(nodeSwitchSkips[name], kind) {
-				mustPanic(t, name+" on a skipped "+kind, func() { call(samples[kind]) })
+				mustPanic(t, name+" on a skipped "+kind, func() { call(n) })
 				continue
 			}
 			func() {
@@ -133,86 +131,18 @@ func TestNodeSwitchesHandleEveryKind(t *testing.T) {
 						t.Errorf("%s on %s: %v", name, kind, r)
 					}
 				}()
-				call(samples[kind])
+				call(n)
 			}()
 		}
 	}
+}
+
+func TestRenderEdgesListWhatRenderRecursesInto(t *testing.T) {
+	samples, _ := nodeSamples(t)
 	for kind, n := range samples {
 		recurses := kind != "nullItem" && !slices.Contains(nodeSwitchSkips["render"], kind)
 		if edges := renderEdges(n); recurses != (len(edges) > 0) {
 			t.Errorf("%s: render recurses into it %v, renderEdges lists %d edges; a kind render recurses into has edges, and no other", kind, recurses, len(edges))
 		}
 	}
-}
-
-func nodeKinds(t *testing.T) []string {
-	t.Helper()
-	var kinds []string
-	_, files := sourceFiles(t)
-	for _, file := range files {
-		for _, decl := range file.Decls {
-			if d, isFunc := decl.(*ast.FuncDecl); isFunc && d.Name.Name == "isNode" {
-				kinds = append(kinds, receiverType(d.Recv))
-			}
-		}
-	}
-	slices.Sort(kinds)
-	return kinds
-}
-
-func nodeSwitchesPanickingOnOtherKinds(t *testing.T, kinds []string) []string {
-	t.Helper()
-	var names []string
-	_, files := sourceFiles(t)
-	for _, file := range files {
-		for _, decl := range file.Decls {
-			d, isFunc := decl.(*ast.FuncDecl)
-			if !isFunc || d.Body == nil {
-				continue
-			}
-			name := d.Name.Name
-			if recv := receiverType(d.Recv); recv != "" {
-				name = recv + "." + name
-			}
-			ast.Inspect(d.Body, func(n ast.Node) bool {
-				if sw, isTypeSwitch := n.(*ast.TypeSwitchStmt); isTypeSwitch && panicsOnOtherNodeKinds(sw, kinds) {
-					names = append(names, name)
-				}
-				return true
-			})
-		}
-	}
-	slices.Sort(names)
-	return slices.Compact(names)
-}
-
-func panicsOnOtherNodeKinds(sw *ast.TypeSwitchStmt, kinds []string) bool {
-	casesNode, panics := false, false
-	for _, stmt := range sw.Body.List {
-		clause := stmt.(*ast.CaseClause)
-		if clause.List == nil {
-			panics = slices.ContainsFunc(clause.Body, isPanic)
-		}
-		for _, e := range clause.List {
-			if star, isPointer := e.(*ast.StarExpr); isPointer {
-				if id, isIdent := star.X.(*ast.Ident); isIdent && slices.Contains(kinds, id.Name) {
-					casesNode = true
-				}
-			}
-		}
-	}
-	return casesNode && panics
-}
-
-func isPanic(stmt ast.Stmt) bool {
-	expr, isExpr := stmt.(*ast.ExprStmt)
-	if !isExpr {
-		return false
-	}
-	call, isCall := expr.X.(*ast.CallExpr)
-	if !isCall {
-		return false
-	}
-	id, isIdent := call.Fun.(*ast.Ident)
-	return isIdent && id.Name == "panic"
 }

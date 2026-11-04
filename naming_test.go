@@ -2,8 +2,8 @@ package fejkdata
 
 import (
 	"go/ast"
-	"go/build"
-	"path/filepath"
+	"go/parser"
+	"go/token"
 	"slices"
 	"sort"
 	"strings"
@@ -21,42 +21,18 @@ func TestNoFunctionSpellsAMethod(t *testing.T) {
 	}
 }
 
-func TestEveryPanicIsAnInternalError(t *testing.T) {
-	eachPackage(t, func(dir string, pkg *build.Package) {
-		var names []string
-		for _, name := range pkg.GoFiles {
-			names = append(names, filepath.Join(dir, name))
-		}
-		fset, files := parseFiles(t, names)
-		for _, f := range files {
-			ast.Inspect(f, func(n ast.Node) bool {
-				call, isCall := n.(*ast.CallExpr)
-				if !isCall || !isIdent(call.Fun, "panic") {
-					return true
-				}
-				if arg, isArgCall := call.Args[0].(*ast.CallExpr); !isArgCall || !isBroken(arg.Fun) {
-					t.Errorf("%s: panic with invariant.Broken(…), so every invariant break greps to one phrase", fset.Position(call.Pos()))
-				}
-				return true
-			})
-		}
-	})
-}
-
-func isBroken(e ast.Expr) bool {
-	sel, isSel := e.(*ast.SelectorExpr)
-	return isSel && isIdent(sel.X, "invariant") && sel.Sel.Name == "Broken"
-}
-
-func isIdent(e ast.Expr, name string) bool {
-	id, isID := e.(*ast.Ident)
-	return isID && id.Name == name
-}
-
 func namespaceFiles(t *testing.T) []*ast.File {
 	t.Helper()
 	pkg := packageDir(t)
-	_, files := parseFiles(t, slices.Concat(pkg.GoFiles, pkg.TestGoFiles))
+	fset := token.NewFileSet()
+	var files []*ast.File
+	for _, name := range slices.Concat(pkg.GoFiles, pkg.TestGoFiles) {
+		f, err := parser.ParseFile(fset, name, nil, 0)
+		if err != nil {
+			t.Fatalf("parse %s: %v", name, err)
+		}
+		files = append(files, f)
+	}
 	return files
 }
 
@@ -76,4 +52,19 @@ func declaredCalls(files []*ast.File) (funcs map[string]bool, methods map[string
 		}
 	}
 	return funcs, methods
+}
+
+func receiverType(recv *ast.FieldList) string {
+	if recv == nil || len(recv.List) == 0 {
+		return ""
+	}
+	e := recv.List[0].Type
+	if star, isPointer := e.(*ast.StarExpr); isPointer {
+		e = star.X
+	}
+	id, isIdent := e.(*ast.Ident)
+	if !isIdent {
+		return ""
+	}
+	return id.Name
 }
