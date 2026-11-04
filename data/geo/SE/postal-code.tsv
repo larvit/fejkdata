@@ -3731,6 +3731,7 @@ code	locality
 263 91	Höganäs
 263 92	Jonstorp
 263 93	Höganäs
+263 94	Mjöhult
 264 20	Klippan
 264 21	Klippan
 264 22	Klippan
@@ -3908,6 +3909,9 @@ code	locality
 271 73	Köpingebro
 271 74	Glemmingbro
 271 75	Glemmingebro
+271 76	Löderup
+271 77	Löderup
+271 78	Löderup
 271 91	Ystad
 271 92	Ystad
 271 93	Ystad
@@ -4021,11 +4025,15 @@ code	locality
 275 93	Sjöbo
 275 94	Sjöbo
 275 95	Sjöbo
+275 96	Sövde
 276 21	Borrby
 276 30	Borrby
 276 35	Borrby
 276 36	Borrby
 276 37	Borrby
+276 40	Löderup
+276 45	Löderup
+276 46	Löderup
 276 50	Hammenhög
 276 55	Hammenhög
 276 56	Hammenhög
@@ -5182,6 +5190,7 @@ code	locality
 376 92	Svängsta
 376 93	Svängsta
 380 30	Rockneby
+380 31	Läckeby
 380 40	Orrefors
 380 41	Gullaskruv
 380 42	Målerås
@@ -5399,6 +5408,8 @@ code	locality
 395 93	Rockneby
 395 94	Rockneby
 395 95	Rockneby
+395 97	Läckeby
+395 98	Läckeby
 411 00	Göteborg
 411 01	Göteborg
 411 02	Göteborg
@@ -8503,6 +8514,7 @@ code	locality
 590 78	Vreta Kloster
 590 79	Vreta Kloster
 590 90	Ankarsrum
+590 91	Hjorted
 590 92	Totebo
 590 93	Gunnebo
 590 94	Blackstad
@@ -8604,6 +8616,7 @@ code	locality
 593 70	Ankarsrum
 593 71	Ankarsrum
 593 72	Totebo
+593 73	Hjorted
 593 74	Gunnebo
 593 75	Gunnebo
 593 76	Blackstad

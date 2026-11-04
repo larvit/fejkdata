@@ -31,6 +31,9 @@ replacement, and each removed path, column or flag.
   `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
   the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` is two draws: read
   `{c.legal}` instead.
+- `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
+  holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
+  join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
 - `--format sql` writes up to 1000 rows per INSERT, one statement per line, where it wrote one INSERT
   per row. A script counting lines or splitting statements on newlines sees fewer of them.
 
