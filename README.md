@@ -1243,12 +1243,15 @@ Refused at `New`, each error naming what to write instead:
 - `{n.path}` beside a read of `n` that renders a reference to `path`, or to a path above it, even
   through other references: a reference draws afresh, so `{c}` and `{c.ab.name}` can differ in
   `{/sv_SE.company as c}{c} {c.ab.name}`, where `sv_SE.company`'s items read `{.company.ab.name}`.
-  Drop `{c.ab.name}`, or write `{/sv_SE.company.ab.name}` for a second draw. A reference to a
-  constant, with no choice on the way, is fine. A path into a table linked to the one `n` binds
-  counts too: `{r}` beside `{r.municipality.name}`, where `r`'s format is `{/region.municipality.name}`;
-- `{n.path}` beside a read of `n` that renders the same field afresh: where `n`'s format is `{w.a}`
-  and `w`'s is `{a}`, `{n}` reads the pick's `w.a` and `{n.w}` draws `w`'s `a` afresh, so a choice `a`
-  could print two values. Read `{n.w.a}` too to keep one draw, or drop one read. A constant `a` is fine;
+  Drop `{c.ab.name}`, or write `{/sv_SE.company.ab.name}` for a second draw. The same holds for a
+  `path` that runs into a table linked to the one `n` binds: `{/region as r}{r} {r.municipality.name}`,
+  where the table `region`'s format is `{/region.municipality.name}`. A reference to a constant, with
+  no choice on the way, is fine;
+- two reads of `n` where one reads a field from the pick and the other draws that field afresh:
+  where `n`'s format is `{w.a}` and `w`'s is `{a}`, `{n}` reads `w.a` from the pick, but `{n.w}` draws
+  its own `a`, so an `a` that isn't a constant could print two values. Read `{n.w.a}` in place of
+  `{n.w}` to keep one draw, or write `{/cat.w}` for a second draw, where `n` binds `/cat`. A constant
+  `a` is fine;
 - a path through a name bound to a field holding a choice, where the path steps into an item and
   the field it lands on reads a name that item binds: `{r.legal}` where each item binds `w` and
   its `legal` reads `{w.legal}`. Bind `w` outside the choice, or read `{r}` whole;

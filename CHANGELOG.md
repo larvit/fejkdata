@@ -34,21 +34,18 @@ replacement, and each removed path, column or flag.
   the format `{w as r}{r}`, since the two could print different draws. A pair that shares no draw, such
   as a constant `w`, still loads. The error says how to write each meaning.
 - A load refuses `{n.path}` beside a read of `n` that renders a reference to `path`, or to a path above
-  it: a reference draws afresh, so the two could print different draws.
-  `{/sv_SE.company as c}{c} {c.ab.name}` no longer loads: drop `{c.ab.name}` to keep one pick, or write
-  `{/sv_SE.company.ab.name}` for a second draw. A reference to a constant, with no choice on the way,
-  still loads.
+  it, also where `path` runs into a table linked to the one `n` binds: a reference draws afresh, so the
+  two could print different draws. `{/sv_SE.company as c}{c} {c.ab.name}` no longer loads: drop
+  `{c.ab.name}` to keep one pick, or write `{/sv_SE.company.ab.name}` for a second draw. Nor does
+  `{/region as r}{r} {r.municipality.name}` where the table `region`'s format is
+  `{/region.municipality.name}`. A reference to a constant, with no choice on the way, still loads.
 - A load refuses a read such as `{r.legal}`, where `r` is bound to a field holding a choice and the
   `legal` of an item reads a name that item binds. Such a template loaded, then failed when drawn. Bind
   the name outside the choice, or read `{r}` whole.
-- A load refuses `{n.path}` beside a read of `n` that reaches `path` from the pick, where another read
-  of `n` renders the same field afresh: `{n}` and `{n.w}` where `n`'s format is `{w.a}` and `w`'s is
-  `{a}` with a choice `a`. It printed two values for one field. Read `{n.w.a}` too to keep one draw, or
-  drop one read. The refusal for a reference to `path` now holds where `path` runs into a table linked
-  to the one `n` binds: `{r}` beside `{r.municipality.name}`, where `r`'s format is
-  `{/region.municipality.name}`.
-- A choice item whose format reads only a name the item binds, such as `{/ab as w}{w.legal}`, draws
-  without a panic. It loaded, then panicked when drawn.
+- A load refuses two reads of `n` where one reads a field from the pick and the other draws that field
+  afresh: `{n}` beside `{n.w}`, where `n`'s format is `{w.a}` and `w`'s is `{a}`, and `a` isn't a
+  constant. The two could print different values. Read `{n.w.a}` in place of `{n.w}` to keep one draw,
+  or write `{/cat.w}` for a second draw, where `n` binds `/cat`.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
@@ -103,6 +100,11 @@ replacement, and each removed path, column or flag.
   sv.wikipedia's Blodgrupp article.
 - `{bgmod11(x)}`, a builtin that prints a random digit and the check digit that complete the digits
   emitted so far, after the literal digits `x`, to a number Bankgirot's 11-modul accepts.
+
+### Fixed
+
+- A choice item whose format reads only a name the item binds, such as `{/ab as w}{w.legal}`, draws
+  without a panic. It loaded, then panicked when drawn.
 
 ## [0.2.0] - 2026-10-28
 
