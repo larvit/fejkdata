@@ -430,6 +430,31 @@ func TestRunUnknownCategoryFails(t *testing.T) {
 	}
 }
 
+func TestRunSQLUnknownCategoryFails(t *testing.T) {
+	code, _, errb := runOut("{/nope}", "--data-path", svSE, "--format", "sql")
+	if code != 1 {
+		t.Fatalf("run = %d, want 1", code)
+	}
+	if !strings.Contains(errb, "nope") {
+		t.Errorf("stderr %q should name the unknown category", errb)
+	}
+}
+
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("disk full") }
+
+func TestRunSQLWriteFailureFails(t *testing.T) {
+	var errb bytes.Buffer
+	code := run("fejkdata", shipped, []string{"--seed", "1", "--format", "sql", "--data-path", recordDir(t)}, 1, strings.NewReader("{/users}"), failingWriter{}, &errb)
+	if code != 1 {
+		t.Fatalf("run = %d, want 1", code)
+	}
+	if !strings.Contains(errb.String(), "disk full") {
+		t.Errorf("stderr %q should name the write error", errb.String())
+	}
+}
+
 func TestRunList(t *testing.T) {
 	code, out, errb := runOut("", "--data-path", svSE, "--list")
 	if code != 0 {

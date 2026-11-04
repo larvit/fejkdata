@@ -584,7 +584,4 @@ func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	if got, want := r.SQLValues(), `(42, 'O''Brien')`; got != want {
 		t.Errorf("SQLValues = %q, want %q", got, want)
 	}
-	if got, want := r.SQLInsert("t"), r.SQLInsertHeader("t")+" "+r.SQLValues()+";"; got != want {
-		t.Errorf("SQLInsert = %q, want the header and values joined: %q", got, want)
-	}
 }

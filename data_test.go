@@ -1594,6 +1594,91 @@ func TestSwedishWordPathsDrawTheirPartOfSpeech(t *testing.T) {
 	}
 }
 
+func TestSwedishBoundWordReadsItsOwnForm(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, WithSeed(6))
+	for _, c := range []struct{ path, form, table string }{
+		{"sv_SE.word.noun", "definite", "word-noun"},
+		{"sv_SE.word.verb", "present", "word-verb"},
+		{"sv_SE.word.adj", "definite", "word-adj"},
+	} {
+		forms := swedishWordForms(t, c.table)
+		for i := 0; i < 200; i++ {
+			word, form, _ := strings.Cut(fakeTemplate(t, sv, "{/"+c.path+" as w}{w}|{w."+c.form+"}"), "|")
+			if forms[word] != form {
+				t.Fatalf("%s %q printed %s %q, want its own, %q", c.path, word, c.form, form, forms[word])
+			}
+		}
+	}
+}
+
+func TestSwedishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
+	t.Parallel()
+	raw, err := os.ReadFile("data/sv_SE/word.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var word struct {
+		Any []struct {
+			Format string `json:"format"`
+			Weight int    `json:"weight"`
+		} `json:"any"`
+	}
+	if err := json.Unmarshal(raw, &word); err != nil {
+		t.Fatal(err)
+	}
+	if len(word.Any) != 4 {
+		t.Fatalf("any holds %d parts of speech, want 4", len(word.Any))
+	}
+	for _, part := range word.Any {
+		table := strings.Trim(part.Format, "{.}")
+		if rows := len(swedishWordForms(t, table)); part.Weight != rows {
+			t.Errorf("%s weighs %d, want its %d rows", table, part.Weight, rows)
+		}
+	}
+}
+
+func TestSwedishSentenceDrawsTheFormsItsPatternNeeds(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, WithSeed(7))
+	forms := func(table string) map[string]bool {
+		held := map[string]bool{}
+		for _, form := range swedishWordForms(t, table) {
+			held[form] = true
+		}
+		return held
+	}
+	adj, noun, present := forms("word-adj"), forms("word-noun"), forms("word-verb")
+	lemma := swedishWordForms(t, "word-verb")
+	for i := 0; i < 200; i++ {
+		sentence := fake(t, sv, "sv_SE.sentence")
+		w := strings.Fields(strings.TrimRight(sentence, ".!?"))
+		last := len(w) - 1
+		var adjs, nouns []string
+		var verbHeld bool
+		if strings.HasSuffix(sentence, "?") {
+			adjs, nouns = []string{w[last-4]}, []string{w[last-3], w[last]}
+			_, verbHeld = lemma[w[last-2]]
+		} else {
+			adjs, nouns = []string{w[1], w[5]}, []string{w[2], w[6]}
+			verbHeld = present[w[3]]
+		}
+		if !verbHeld {
+			t.Errorf("sentence %q holds a verb form its pattern doesn't read", sentence)
+		}
+		for _, n := range nouns {
+			if !noun[n] {
+				t.Errorf("sentence %q prints %q, no definite noun", sentence, n)
+			}
+		}
+		for _, a := range adjs {
+			if !adj[a] {
+				t.Errorf("sentence %q prints %q, no definite adjective", sentence, a)
+			}
+		}
+	}
+}
+
 func TestSwedishPostortKeepsItsDeliveryDigitNineCodes(t *testing.T) {
 	t.Parallel()
 	shipped := map[string]string{}
