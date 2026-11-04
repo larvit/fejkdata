@@ -527,10 +527,9 @@ func TestRecordTemplateRejectsATopLevelRepeat(t *testing.T) {
 	}
 }
 
-// TestRecordOfAFieldlessCategoryNamesTheWrapper pins the way out of the first
-// command a fixture author types: a category of one value has no columns, and the
-// error names the record that gives it one.
-func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
+// TestRecordOfAChoiceNamesTheWrapper pins the way out of the first command a fixture
+// author types: a choice has no columns, and the error names the record that gives it one.
+func TestRecordOfAChoiceNamesTheWrapper(t *testing.T) {
 	f := shipped(t, WithSeed(1))
 	want := `{"format":"","personnummer":"{/sv_SE.personnummer}"}`
 	_, err := f.FakeRecord("sv_SE.personnummer")
