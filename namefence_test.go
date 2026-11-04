@@ -216,6 +216,7 @@ func TestAReadOfATableRowIsRefusedBesideAReferenceItsFormatMakesToALinkedTable(t
 	files["region.json"] = `{"format":"{/region.municipality.name}","rows":"region.tsv","key":"code"}`
 	for label, c := range map[string]struct{ card, want string }{
 		"the row and its linked table are read": {`"{/region as r}{r} {r.municipality.name}"`, "{/region.municipality.name}"},
+		"a selected row and its linked table":   {`"{/region[01] as r}{r}|{r.municipality.name}"`, "{/region.municipality.name}"},
 		"only the row is read":                  {`"{/region as r}{r}"`, ""},
 	} {
 		t.Run(label, func(t *testing.T) {
