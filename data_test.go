@@ -323,11 +323,9 @@ func TestSwedishVat(t *testing.T) {
 	}
 }
 
-// Transportstyrelsen's 99 blocked letter combinations, read 2026-03-31.
+// The 99 letter combinations Transportstyrelsen's page listed as blocked when it was updated on 2026-03-31.
 const blockedPlates = "APA ARG ASS BAJ BSS CUC CUK CUM DUM ETA ETT FAG FAN FEG FEL FEM FES FET FNL FUC FUK FUL GAM GAY GEJ GEY GHB GUD GYN HAT HBT HKH HOR HOT KGB KKK KUC KUF KUG KUK KYK LAM LAT LEM LOJ LSD LUS MAD MAO MEN MES MLB MUS NAZ NRP NSF NYP OND OOO ORM PAJ PKK PLO PMS PUB RAP RAS ROM RPS RUS SEG SEX SJU SOS SPY SUG SUP SUR TBC TOA TOK TRE TYP UFO USA WAM WAR WWW XTC XTZ XUK XXL XXX ZEX ZOG ZPY ZUG ZUP ZOO"
 
-// A plate's letters are the 23 that registration plates use, every combination of three but
-// the blocked ones, each once.
 func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T) {
 	b, err := os.ReadFile("data/sv_SE/licenseplate-letters.tsv")
 	if err != nil {
@@ -371,8 +369,8 @@ func TestSwedishLicensePlate(t *testing.T) {
 	for i := 0; i < 5000; i++ {
 		v := fake(t, sv, "sv_SE.licenseplate")
 		m := plate.FindStringSubmatch(v)
-		if m == nil || slices.Contains(blocked, m[1]) || m[2] == "000" || m[3] == "00" {
-			t.Fatalf("sv_SE.licenseplate %q, want ABC 123 or ABC 12A: no I, Q or V, no O in the last place, no blocked letters and no 000 or 00", v)
+		if m == nil || slices.Contains(blocked, m[1]) || m[2] == "000" {
+			t.Fatalf("sv_SE.licenseplate %q, want ABC 123 or ABC 12A: no I, Q or V, no O in the last place, no blocked combination and no 000", v)
 		}
 		if m[2] != "" {
 			old++
@@ -382,6 +380,53 @@ func TestSwedishLicensePlate(t *testing.T) {
 	}
 	if old < 2000 || current < 2000 {
 		t.Errorf("%d plates of the form ABC 123 and %d of ABC 12A in 5000, want about half each", old, current)
+	}
+}
+
+// ABC 123 runs from 001 to 999 and ABC 12A from 00A to 99Z, each number as often as another, and
+// the last character is any of the 22 letters but O.
+func TestSwedishLicensePlateNumbersAndLastLetters(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	const draws = 30000
+	old, current, last := map[string]int{}, map[string]int{}, map[string]int{}
+	for i := 0; i < draws; i++ {
+		old[fake(t, sv, "sv_SE.licenseplate.old-number")]++
+		current[fake(t, sv, "sv_SE.licenseplate.current-number")]++
+		last[fake(t, sv, "sv_SE.licenseplate.last")]++
+	}
+	var below100, below10 int
+	for n := 1; n <= 999; n++ {
+		c := old[fmt.Sprintf("%03d", n)]
+		if c == 0 {
+			t.Errorf("sv_SE.licenseplate.old-number never drew %03d in %d draws", n, draws)
+		}
+		if n < 100 {
+			below100 += c
+		}
+		if n < 10 {
+			below10 += c
+		}
+	}
+	if len(old) != 999 {
+		t.Errorf("old-number drew %d distinct numbers, want the 999 from 001 to 999", len(old))
+	}
+	assertShare(t, "old numbers below 100", below100, draws, 99.0/999)
+	assertShare(t, "old numbers below 10", below10, draws, 9.0/999)
+	for n := 0; n <= 99; n++ {
+		if current[fmt.Sprintf("%02d", n)] == 0 {
+			t.Errorf("sv_SE.licenseplate.current-number never drew %02d in %d draws", n, draws)
+		}
+	}
+	if len(current) != 100 {
+		t.Errorf("current-number drew %d distinct numbers, want the 100 from 00 to 99", len(current))
+	}
+	var got []string
+	for l := range last {
+		got = append(got, l)
+	}
+	slices.Sort(got)
+	if strings.Join(got, "") != "ABCDEFGHJKLMNPRSTUWXYZ" {
+		t.Errorf("last drew %v, want each of A-Z but I, O, Q and V", got)
 	}
 }
 
