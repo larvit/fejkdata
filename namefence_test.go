@@ -266,6 +266,10 @@ func TestAReadLandingAboveAReferenceIsRefusedWhereRenderingItsLevelReadsTheRefer
 			regionRef("{/region.name}"),
 			`"{/region[01] as r}{r}|{r.name}"`,
 			[]string{"{r}", "{/region.name}", "{r.name}"}},
+		"a field whose format reads a field above the target": {
+			map[string]string{"cat.json": `{"format":"{/cat.ab.c}","ab":{"format":"{c.name}","c":` + ab + `}}`},
+			`"{/cat as n}{n}|{n.ab}"`,
+			[]string{"{n}", "{/cat.ab.c}", "{n.ab}"}},
 		"a field whose format reads the target through a field": {
 			map[string]string{"cat.json": `{"format":"{/cat.ab.c.name}","ab":{"format":"{c}","c":` + ab + `}}`},
 			`"{/cat as n}{n}|{n.ab}"`,
@@ -294,6 +298,18 @@ func TestAReadLandingAboveAReferenceLoadsWhereRenderingItsLevelDoesNotReadTheRef
 		"the level's format reads no field": {
 			`{"format":"{/cat.ab.name}","ab":{"format":"k","name":["x","y"]}}`,
 			`"{/cat as n}{n}|{n.ab}"`, "k"},
+		"the level's format holds the reference itself": {
+			`{"format":"{ab}","ab":{"format":"{name}{/cat.ab.name}","name":["x","y"]}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "="},
+		"the level's format reaches the target only through a reference": {
+			`{"format":"{ab}","ab":{"format":"{/cat.ab.name}","name":["x","y"]}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "="},
+		"the level's format reads the target through a name bound to a reference": {
+			`{"format":"{ab}","ab":{"format":"{/cat.ab.name as q}{q}","name":["x","y"]}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "="},
+		"the level's format reads a name bound to another draw of the target": {
+			`{"format":"{/cat.ab.name} {/cat.ab.name as q}{ab}","ab":{"format":"{q}","name":["x","y"]}}`,
+			`"{/cat as n}{n}|{n.ab}"`, ""},
 		"the level's format reads the target's constant": {
 			`{"format":"{/cat.ab.name}","ab":{"format":"{name}","name":"k"}}`,
 			`"{/cat as n}{n}|{n.ab}"`, "k"},
@@ -303,8 +319,9 @@ func TestAReadLandingAboveAReferenceLoadsWhereRenderingItsLevelDoesNotReadTheRef
 			if err != nil {
 				t.Fatalf("New() = %v, want it to load", err)
 			}
-			if got := strings.SplitN(fake(t, f, "card"), "|", 2); got[1] != c.want {
-				t.Errorf("card = %q, want it to end %q", got, c.want)
+			got := strings.SplitN(fake(t, f, "card"), "|", 2)
+			if c.want == "=" && got[0] != got[1] || c.want != "" && c.want != "=" && got[1] != c.want {
+				t.Errorf("card = %q, want it to end %q, or both reads to agree where that is =", got, c.want)
 			}
 		})
 	}
