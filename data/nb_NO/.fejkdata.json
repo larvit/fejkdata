@@ -15,7 +15,7 @@
 		"nb_NO.phone": {"paths":["","block","international","national","subscriber"]},
 		"nb_NO.phone-fixed": {"paths":["","prefix"]},
 		"nb_NO.phone-mobile": {"paths":["","prefix"]},
-		"nb_NO.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
+		"nb_NO.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
 		"nb_NO.title": {"paths":["","name","share"]}
 	},
 	"namespace": "nb_NO"

@@ -14,7 +14,7 @@
 		"en_US.phone-exchange": {"paths":[""]},
 		"en_US.price": {"paths":["","amt","cents"]},
 		"en_US.sentence": {"paths":["","adj","noun","prep","verb"]},
-		"en_US.sex": {"paths":["","code","first-name","first-name.count","first-name.name","first-name.sex","name","title","title.name","title.sex","title.share"]},
+		"en_US.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name","title","title.name","title.sex","title.share"]},
 		"en_US.ssn": {"paths":["","area","group","serial"]},
 		"en_US.time": {"paths":[""]},
 		"en_US.title": {"parent":"sex","paths":["","name","sex","share"]},

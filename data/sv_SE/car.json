@@ -1,0 +1,1 @@
+{ "format": "{make} {model}", "rows": "car.tsv", "weight": "registrations" }
