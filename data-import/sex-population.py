@@ -9,7 +9,7 @@
 - en_US: the Census Bureau's national population estimates by age and sex, the resident population on
   1 July 2024 (vintage 2024, public domain)
 
-The names are ours: the word each language uses for a woman and a man.
+The names are ours: `kvinna` and `man`, `kvinne` and `mann`, `female` and `male`.
 """
 import argparse
 import csv

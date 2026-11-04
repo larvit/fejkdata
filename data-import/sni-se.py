@@ -3,7 +3,7 @@
 
     data-import/sni-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-One row per detaljgrupp, the five-digit level, with its code spelled `01.110` and its Swedish label.
+One row per detaljgrupp, the five-digit level, with its code spelled `01.110`, as SCB's "Officiell kodstruktur" writes it, and its Swedish label.
 SCB's sheet pads some codes and labels with spaces, which the script strips.
 """
 import argparse
