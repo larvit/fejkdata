@@ -13,10 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 365 | 0.3.0 |  |  | **List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
-| 232 | 0.3.0 |  |  | **Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
-| 233 | 0.3.0 |  |  | **Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3, 3.2 by 3 | 3.9 |
-| 20 | 0.3.0 |  | defect | **Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 3 by 3 | 3.0 |
-| 237 | 0.3.0 |  |  | **Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 2, 3.2 by 2 | 2.8 |
 | 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 3 | 2.2 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
@@ -240,22 +236,6 @@
 ### 365. List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.
 
 The README's data-import section says it holds one command per dataset, and its block of `docker compose run` lines has none for `data-import/bankaccount-se.py` or `data-import/licenseplate-se.py`. Add both, in alphabetical order, and check no other script in `data-import/` is missing.
-
-### 232. Add `sv_SE.sni`, a table of SCB's SNI 2025 industry codes with their Swedish labels.
-
-SNI 2025 replaces SNI 2007 from 2025-12-08. SCB's classification pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
-
-### 233. Add `sv_SE.ssyk`, a table of SCB's SSYK 2012 occupation codes with their Swedish labels.
-
-SCB's SSYK pages state no licence; its terms ask for "Källa: SCB". [Source research](docs/research/research-sources-se.md).
-
-### 20. Weight `sv_SE.sex`, `en_US.sex` and `nb_NO.sex` by bearers, as the README's Data section says they are.
-
-None names a `weight`, so a bare `sex` draws evenly.
-
-### 237. Add `sv_SE.car`, a make and model weighted by Mobility Sweden's 2025 registrations.
-
-The decision "`misc` is what every locale shares" puts a national register's cars in its locale. Mobility Sweden asks for attribution and grants no open licence, so ship the top models as facts. [Source research](docs/research/research-sources-se.md).
 
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
