@@ -55,16 +55,58 @@ func TestAReadThroughAFieldBoundNameLoadsWhereNoNameOfTheItemIsRead(t *testing.T
 	}
 }
 
-func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testing.T) {
-	co := `{"format":"{/co.ab.name}","ab":{"format":"{name}","name":["a","b","c","d"]}}`
-	_, err := loadFence(t, map[string]string{"co": co, "card": `"{/co as c}{c} {c.ab.name}"`})
-	if err == nil {
-		t.Fatal("New() loaded, want it refused")
+func TestANameReadInsideTheItemThatBindsItLoads(t *testing.T) {
+	const ab = `{"format":"{written}","written":["x","y"],"legal":["L","M"]}`
+	for label, co := range map[string]string{
+		"a name bound to a field of the item": `{"format":"{registered}","registered":[{"format":"{/ab as w}{w}{legal as r} {r}","legal":"{w.legal}"},{"format":"{/ab as w}{w}{legal as r} {r}!","legal":"{w.legal}"}]}`,
+		"a read of a field of that field":     `{"format":"{registered}","registered":[{"format":"{/ab as w}{w}{inner as r} {r.legal}","inner":{"format":"a","legal":"{w.legal}"}},{"format":"{/ab as w}{w}{inner as r} {r.legal}!","inner":{"format":"b","legal":"{w.legal}"}}]}`,
+	} {
+		t.Run(label, func(t *testing.T) {
+			f, err := loadFence(t, map[string]string{"ab": ab, "co": co})
+			if err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
+			}
+			for i := 0; i < 20; i++ {
+				fake(t, f, "co")
+			}
+		})
 	}
-	for _, want := range []string{"{c}", "{/co.ab.name}", "{c.ab.name}"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Errorf("New() = %v, want an error naming %s", err, want)
-		}
+}
+
+func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testing.T) {
+	for label, c := range map[string]struct {
+		files map[string]string
+		want  []string
+	}{
+		"a reference to a field": {map[string]string{
+			"co":   `{"format":"{/co.ab.name}","ab":{"format":"{name}","name":["a","b","c","d"]}}`,
+			"card": `"{/co as c}{c} {c.ab.name}"`,
+		}, []string{"{c}", "{/co.ab.name}", "{c.ab.name}"}},
+		"a path through a choice to constants": {map[string]string{
+			"co":   `{"format":"{/co.w.name}","w":[{"format":"A","name":"a"},{"format":"B","name":"b"}]}`,
+			"card": `"{/co as c}{c} {c.w.name}"`,
+		}, []string{"{c}", "{/co.w.name}", "{c.w.name}"}},
+		"a reference reached through another category": {map[string]string{
+			"other": `"{/co.ab.name}"`,
+			"co":    `{"format":"{/other}","ab":{"format":"{name}","name":["a","b","c","d"]}}`,
+			"card":  `"{/co as c}{c} {c.ab.name}"`,
+		}, []string{"{c}", "{/co.ab.name}", "{c.ab.name}"}},
+		"a path three fields down beside siblings": {map[string]string{
+			"co":   `{"format":"{/co.a.b.c}","a":{"format":"{b.c}","e":"s","b":{"format":"{c}","d":"t","c":["p","q"]}}}`,
+			"card": `"{/co as c}{c} {c.a.b.c}"`,
+		}, []string{"{c}", "{/co.a.b.c}", "{c.a.b.c}"}},
+	} {
+		t.Run(label, func(t *testing.T) {
+			_, err := loadFence(t, c.files)
+			if err == nil {
+				t.Fatal("New() loaded, want it refused")
+			}
+			for _, want := range c.want {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("New() = %v, want an error naming %s", err, want)
+				}
+			}
+		})
 	}
 }
 
@@ -141,6 +183,12 @@ func TestReadsOfANameAreRefusedWhereASharedChoiceCouldDrawApart(t *testing.T) {
 		"a plain template read twice": {
 			`{"format":"{w}-{w}","w":{"format":"{a}","a":["x","y"]}}`,
 			`"{/cat as n}{n}|{n.w}"`, `renders field "w" twice`},
+		"two fields of a plain template, read whole beside them": {
+			`{"format":"{w.a} {w.b}","w":{"format":"{a}","a":["x","y"],"b":["p"]}}`,
+			`"{/cat as n}{n}|{n.w}"`, `renders field "w" twice`},
+		"a plain template whose leaf draws, bound to a name": {
+			`{"format":"{a.b as r}{r}","a":{"format":"{b}","b":{"format":"{q}","q":["x","y"]}}}`,
+			`"{/cat as n}{n}|{n.a}"`, `through name "r"`},
 	} {
 		t.Run(label, func(t *testing.T) {
 			_, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
