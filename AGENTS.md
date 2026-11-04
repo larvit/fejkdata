@@ -120,6 +120,8 @@ In [docs/decisions.md](docs/decisions.md):
 - A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 - CI keeps Go's build and module caches between `main`'s runs, and a pull request's build starts from them
 - `--format sql` writes at most 1000 rows per INSERT
+- A Swedish street's postal codes keep delivery digit 9
+- A Swedish postort that no published population reaches weighs 200
 
 # Scoring run
 

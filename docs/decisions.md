@@ -634,6 +634,15 @@ run printing the first `en_US.address` took 145 ms, `sv_SE.address` 95 ms and
 `--min-streets` on the import scripts build another set. Valid while the first reach of
 a country stays unnoticed beside a test run.
 
+A Swedish road segment goes to the postort owning the nearest GeoNames point. That left Stockholm
+363 street names, since GeoNames puts most of its codes on few points beside its suburbs'. So a segment inside an SCB tätort (CC0) named as a postort of the same kommun goes to that
+postort where its distance over the fourth root of the postort's codes is the shorter. The
+exponent was chosen on 46 well-known streets of the Stockholm area, picked by hand: plain nearest
+placed 21 right, a fourth root 30, an exponent of 0.35 placed 32 with 2741 names under Stockholm and
+61 under Solna, and a square root 25 with 12 under Solna. Stockholm now holds 1580 names and Solna 210, down from
+234. Valid while no open source maps a street to its postort; Lantmäteriet's address product
+needs personal-data terms, and OpenStreetMap is ODbL.
+
 ## A locale's `address` binds its country's record once and prints it whole
 
 2026-09-18, Lilleman auf Larv; revised 2026-10-05. Goal 3.1.
@@ -1308,3 +1317,22 @@ Serves goal 1: a bulk fixture loads faster as multi-row INSERTs, and it must loa
 SQL Server limits the `VALUES` clause of an `INSERT` to 1,000 rows and returns error 10738 above that
 ([Table Value Constructor](https://learn.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql)),
 so the CLI starts a new statement at that count. There is no flag for it.
+
+## A Swedish street's postal codes keep delivery digit 9
+
+Goal 3.2. sv.wikipedia's tables read xx9 xx in a two-position place as "Tävlingspost", temporary
+codes for a large expected volume of mail, and xxx 9x in a three-position place as rural delivery.
+Dropping 9 after a two-digit prefix would remove real street codes: directories list residents at
+169 41 and 169 34 Solna and companies at 589 41 Linköping, and it would leave Solna 3 codes. GeoNames
+doesn't mark a temporary code, and PostNord publishes no open list, so the digit can't tell them
+apart. A rare temporary code on a fake address is the smaller error. Valid until an open register
+marks them.
+
+## A Swedish postort that no published population reaches weighs 200
+
+Goal 3.2. SCB publishes populations for a tätort, a kommun and an unnamed småort, none for a part
+of a tätort, so 373 postorter such as Bromma and Farsta stay at the tätort floor. Their people are
+counted in the tätort a namesake postort weighs by, so the capital's share of draws stays near
+its real one, while a suburb is drawn too rarely. The one published table by postal area,
+`Totalbef_postnr.xls`, holds 2012 and survives only in the Web Archive with no licence stated;
+`todo.md` asks whether it may be used. Valid until that item is answered or SCB publishes one.

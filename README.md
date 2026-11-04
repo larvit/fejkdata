@@ -755,9 +755,9 @@ The `geo` namespace holds one tree per country under its alpha-2 code: five
 [linked tables](#linked-tables) named alike, and an `address` record binding one locality
 and drawing its street and postal code inside it. The locale's `address` prints that
 record, and each of its columns describes the address printed. Do not assert that a Swedish
-street lies in its postort: the import counts each road segment toward the shipped postort
-owning the postal code whose centre point lies nearest, so a street may sit under a
-neighbouring one.
+street lies in its postort: GeoNames gives a postort one point and no area, so the import
+places each road segment by distance, leaning towards the postort a tätort is named after, and
+a street may sit under a neighbouring one.
 
 | Table | `geo.NO` | `geo.SE` | `geo.US` | Weight |
 |-------|----------|----------|----------|--------|
