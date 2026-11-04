@@ -129,6 +129,16 @@ class SetGo(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			carried.set_go("FROM scratch\n", "1.27.2")
 
+	def test_sets_goreleaser_in_a_dockerfile_and_leaves_its_other_images(self):
+		self.assertEqual(
+			carried.set_goreleaser("FROM debian:13.1 AS a\nFROM goreleaser/goreleaser:v2.18.3 AS b\n", "v2.20.0"),
+			"FROM debian:13.1 AS a\nFROM goreleaser/goreleaser:v2.20.0 AS b\n",
+		)
+
+	def test_a_file_naming_no_goreleaser_is_refused(self):
+		with self.assertRaises(ValueError):
+			carried.set_goreleaser("FROM scratch\n", "v2.20.0")
+
 
 if __name__ == "__main__":
 	unittest.main()
