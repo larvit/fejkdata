@@ -304,9 +304,9 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 	return nil
 }
 
-// fieldRead is a read of a field made while rendering a read of a name, at key in the pick: levels
-// is a's levels moved under key, and kept says whether the pick keeps the value, as landsInPick
-// does. Where a is not kept, it draws afresh.
+// fieldRead is a read a of a field, made in the template in while rendering of, a read of a name:
+// levels is a's levels moved under the key in the pick of the template rendering it, and kept says
+// whether the pick keeps the value, as landsInPick does. Where a is not kept, it draws afresh.
 type fieldRead struct {
 	a      arm
 	in     *template
@@ -371,16 +371,19 @@ func fieldReadsUnder(read *arm, addressed map[pickKey]string) []fieldRead {
 func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
 	b := read.named
 	addressed := names.addressed[b]
-	for _, x := range fieldReadsUnder(read, addressed) {
-		if !x.kept {
-			continue
+	var fresh []fieldRead
+	for _, other := range names.reads[b] {
+		for _, u := range fieldReadsUnder(other, addressed) {
+			if !u.kept {
+				fresh = append(fresh, u)
+			}
 		}
-		for _, other := range names.reads[b] {
-			for _, u := range fieldReadsUnder(other, addressed) {
-				if level, apart := readsFieldApart(x, u); !u.kept && apart {
-					return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so they could differ; read {%s} too to keep one draw, or drop {%s}",
-						read.spelling, x.a.spelling, other.spelling, u.a.spelling, spellingThrough(b, names.targetOf(b), level), other.spelling)
-				}
+	}
+	for _, x := range fieldReadsUnder(read, addressed) {
+		for _, u := range fresh {
+			if level, apart := readsFieldApart(x, u); x.kept && apart {
+				return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so they could differ; read {%s} too to keep one draw, or drop {%s}",
+					read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, spellingThrough(b, names.targetOf(b), level), u.of.spelling)
 			}
 		}
 	}
