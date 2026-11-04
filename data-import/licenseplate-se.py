@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Rebuild data/sv_SE/licenseplate-letters.tsv: every combination of the 23 letters a Swedish plate uses, but Transportstyrelsen's blocked ones.
+"""Rebuild data/sv_SE/licenseplate-letters.tsv: every three-letter combination of a Swedish plate's 23 letters but the blocked ones.
 
     data-import/licenseplate-se.py [--out FILE]
 
-The 99 blocked combinations are the list Transportstyrelsen's page "Spärrade bokstavskombinationer"
-held until it was changed on 2026-08-30; it names none now, so they are kept here as read 2026-03-31.
+The 99 blocked combinations are the list that Transportstyrelsen's page "Spärrade bokstavskombinationer"
+held when it was updated on 2026-03-31. Its update of 2026-08-30 removed them, so they are kept here.
 """
 import argparse
 import itertools
