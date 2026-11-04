@@ -546,7 +546,7 @@ sv_SE.price.ore	string
 sv_SE.samordningsnummer	format "{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}-{.birth-number.number}{luhn()}"	reads sv_SE.birth-number
 sv_SE.samordningsnummer-12	reads sv_SE.birth-number
 sv_SE.samordningsnummer-12.ten
-sv_SE.sentence
+sv_SE.sentence	reads sv_SE.word-adj sv_SE.word-noun sv_SE.word-verb
 sv_SE.sentence.adj
 sv_SE.sentence.noun
 sv_SE.sentence.prep
@@ -588,4 +588,23 @@ sv_SE.version.suffix	string
 sv_SE.weekday	format "{name}"	key code	name name
 sv_SE.weekday.code	string
 sv_SE.weekday.name	string
-sv_SE.word
+sv_SE.word	format "{any}"	reads sv_SE.word-adj sv_SE.word-adv sv_SE.word-noun sv_SE.word-verb
+sv_SE.word-adj	format "{word}"
+sv_SE.word-adj.definite	string
+sv_SE.word-adj.word	string
+sv_SE.word-adv	format "{word}"
+sv_SE.word-adv.word	string
+sv_SE.word-noun	format "{word}"
+sv_SE.word-noun.definite	string
+sv_SE.word-noun.word	string
+sv_SE.word-verb	format "{word}"
+sv_SE.word-verb.present	string
+sv_SE.word-verb.word	string
+sv_SE.word.adj	string
+sv_SE.word.adj.definite
+sv_SE.word.adv	string
+sv_SE.word.any	string
+sv_SE.word.noun	string
+sv_SE.word.noun.definite
+sv_SE.word.verb	string
+sv_SE.word.verb.present
