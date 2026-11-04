@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 216 | 0.3.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 236 | 0.3.0 |  |  | **Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.** | 2 | 2 | 2 | 4 | 2 | 1 by 1, 2.1 by 3, 3 by 2 | 4.6 |
 | 235 | 0.3.0 |  |  | **Add `sv_SE.bankgiro` and `sv_SE.plusgiro` with their Luhn check digit, and `sv_SE.bankaccount` with a clearing number and the check digit its bank's account type demands.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2.1 by 5, 3 by 5 | 4.6 |
 | 88 | 0.3.0 |  |  | **Add a 12-digit `YYYYMMDDNNNC` form of `sv_SE.personnummer` and `sv_SE.samordningsnummer`, the form Skatteverket's testpersonnummer series and many systems store.** | 1 | 1 | 2 | 2 | 3 | 1 by 1, 2.1 by 3, 3 by 3 | 4.0 |
@@ -33,6 +32,7 @@
 | 21 | 0.3.0 |  |  | **List `title` in both locales, and `sv_SE`'s `birth-number`, in the README's Data list of what each locale carries.** | 1 | 2 | 1 | 2 | 1 | 1 by 1 | 1.0 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 201 | 0.3.0 |  |  | **Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.** | 3 | 2 | 2 | 5 | 6 | 1 by 2, 2.1 by 2, 3.3 by 3 | 0.9 |
+| 216 | 0.4.0 |  |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -243,10 +243,6 @@
 
 ## Details
 
-### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
-
-A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
-
 ### 236. Add `sv_SE.licenseplate`, `ABC 123` and `ABC 12A`, never drawing a combination Transportstyrelsen blocks.
 
 Transportstyrelsen's 99 blocked combinations are facts, with no licence stated; the `ABC 123` and `ABC 12A` formats come from sv.wikipedia, unconfirmed by Transportstyrelsen. [Source research](docs/research/research-sources-se.md).
@@ -322,6 +318,10 @@ The format hard-codes `-`, and its earliest birthdate, 1930-01-01, makes the old
 ### 201. Place each Swedish street in the postort whose area holds it, so a big postort such as Stockholm carries its own streets.
 
 GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, and `streets()` in `geo-se.py` counts each road segment toward the nearest postort's point. Every street then ships at most 363 names under Stockholm, the rest going to Bromma, Hägersten and other neighbours. Find an open source of areas first, such as SCB's tätort polygons (CC0), and how a tätort maps to a postort; record the source in `DATA-LICENSES.md` and the method in the decision on the default embed. The README's warning that a street may sit under a neighbouring postort is revised to match.
+
+### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
+
+A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
 
 ### 297. Add `da_DK`'s national personal id, the CPR number, with its check digits.
 
