@@ -1245,10 +1245,11 @@ Refused at `New`, each error naming what to write instead:
   `{/sv_SE.company as c}{c} {c.ab.name}`, where `sv_SE.company`'s items read `{.company.ab.name}`.
   Drop `{c.ab.name}`, or write `{/sv_SE.company.ab.name}` for a second draw. The same holds for a
   `path` that runs into a table linked to the one `n` binds: `{/region as r}{r} {r.municipality.name}`,
-  where the table `region`'s format is `{/region.municipality.name}`. So does a `path` that lands above
-  the reference's target on a level whose format reads it: `{/region as r}{r} {r.municipality}`,
-  where `municipality`'s format is `{name}`. A level whose format doesn't read the target is fine, and
-  so is a reference to a constant, with no choice on the way;
+  where the table `region`'s format is `{/region.municipality.name}`. The same holds for a `path` that
+  lands on a level above the reference's target, where that level's format reads the target:
+  `{/region as r}{r} {r.municipality}`, where `municipality`'s format is `{name}`. A level whose
+  format doesn't read the target is fine, and so is a reference to a constant, with no choice on
+  the way;
 - two reads of `n` where one reads a field from the pick and the other draws that field afresh:
   where `n`'s format is `{w.a}` and `w`'s is `{a}`, `{n}` reads `w.a` from the pick, but `{n.w}` draws
   its own `a`, so an `a` that isn't a constant could print two values. Read `{n.w.a}` in place of

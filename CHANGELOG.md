@@ -38,9 +38,10 @@ replacement, and each removed path, column or flag.
   two could print different draws. `{/sv_SE.company as c}{c} {c.ab.name}` no longer loads: drop
   `{c.ab.name}` to keep one pick, or write `{/sv_SE.company.ab.name}` for a second draw. Nor does
   `{/region as r}{r} {r.municipality.name}` where the table `region`'s format is
-  `{/region.municipality.name}`. Nor does `{/region as r}{r} {r.municipality}`, where `path` lands above
-  the reference's target on a level whose format reads it. A reference to a constant, with no choice
-  on the way, still loads, and so does a level whose format doesn't read the target.
+  `{/region.municipality.name}`. Nor does `{/region as r}{r} {r.municipality}`, where `municipality`'s format is `{name}`: `path` lands
+  on a level above the reference's target, and that level's format reads the target. A reference to a
+  constant, with no choice on the way, still loads, and so does a `path` whose level's format doesn't
+  read the target.
 - A load refuses a read such as `{r.legal}`, where `r` is bound to a field holding a choice and the
   `legal` of an item reads a name that item binds. Such a template loaded, then failed when drawn. Bind
   the name outside the choice, or read `{r}` whole.
