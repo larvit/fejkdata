@@ -143,7 +143,7 @@ func refuseTwiceDrawnIn(pick pickReads, read string, t *template, key pickKey) e
 	return nil
 }
 
-// readTwiceApart reports whether x and y, two reads of t that the pick keeps, pass one choice, or
+// readTwiceApart reports whether x and y, two reads of t that the pick keeps, pass one choice or table, or
 // read one leaf that isn't a constant, or share a level a read of the name lands on, where a read of
 // the whole level draws what the two keep. Drawn apart, such reads could differ. Two fields of a
 // template that isn't a choice share none of these. key is t's level under the pick.
@@ -156,8 +156,8 @@ func readTwiceApart(pick pickReads, key pickKey, t *template, x, y arm) bool {
 	return drawsAlong(t.startOf(x.head), x.tail[:common], x.key() == y.key() || landed)
 }
 
-// drawsAlong reports whether the walk of path from start meets a choice at one of its levels, or,
-// with leaf, ends on a level that isn't a constant.
+// drawsAlong reports whether the walk of path from start meets a choice or a table at one of its
+// levels, or, with leaf, ends on a level that isn't a constant.
 func drawsAlong(start node, path []string, leaf bool) bool {
 	n := start
 	for i := 0; ; i++ {
@@ -219,7 +219,7 @@ func refuseDrawnApart(read *arm, below []arm, names resolvedNames) error {
 
 // sharedDraw reports whether the reads of one name share a draw that could differ with a name bound
 // to target, which sits at the path above under the first name's pick, and returns the read that
-// shares it. They share one where a read of the first name passes a choice on target's path, lands
+// shares it. They share one where a read of the first name passes a choice or table on target's path, lands
 // above target's leaf with a choice below it, or lands on a leaf that isn't a constant.
 func sharedDraw(pick pickReads, target nameTarget, above []string) (by string, shares bool) {
 	n := target.start
@@ -278,7 +278,8 @@ func refuseSkippedItem(t *template, read *arm, below []arm, names resolvedNames)
 // a reference to a constant can't differ.
 func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 	b := read.named
-	start, tail := names.targets[b].start, len(names.targets[b].tail)
+	target := names.targets[b]
+	start, tail := target.start, len(target.tail)
 	seen := map[node]bool{}
 	for queue := slices.Clone(below); len(queue) > 0; queue = queue[1:] {
 		x := queue[0]
@@ -295,6 +296,9 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 			if !within || len(path) == 0 || !drawsAlong(start, path, true) {
 				continue
 			}
+			if tail > 0 && grammar.IsSelector(target.tail[0]) {
+				path = slices.Concat(target.tail[:1], path)
+			}
 			if by, other := readAddressing(names.reads[b], read, tail, pickKey(strings.Join(path, "."))); other {
 				return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
 					read.spelling, x.spelling, by, read.spelling, by, by, secondDraw(b, by))
@@ -304,9 +308,9 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 	return nil
 }
 
-// fieldRead is a read a of a field, made in the template in while rendering of, a read of a name:
-// levels is a's levels moved under the key in the pick of the template rendering it, and kept says
-// whether the pick keeps the value, as landsInPick does. Where a is not kept, it draws afresh.
+// fieldRead is a read of a field met while of, a read of a name, renders. a is the read and in the
+// template holding it; levels is a's levels moved under in's key in the pick. kept says whether the
+// pick keeps a's value, as landsInPick reports; where it doesn't, a draws afresh.
 type fieldRead struct {
 	a      arm
 	in     *template
@@ -315,9 +319,9 @@ type fieldRead struct {
 	of     *arm
 }
 
-// fieldReadsUnder is every read of a field that rendering read makes, down every variant of a
-// choice and every field a kept read renders, as render does. A reference draws afresh whatever
-// its pick, and a read through a name has a pick of its own, so neither is listed.
+// fieldReadsUnder is every field read made while read renders, down every variant of a choice and
+// every field a kept read renders. A reference draws afresh whatever its pick, and a read through a
+// name has a pick of its own, so neither is listed.
 func fieldReadsUnder(read *arm, addressed map[pickKey]string) []fieldRead {
 	type site struct {
 		n   node
@@ -363,27 +367,48 @@ func fieldReadsUnder(read *arm, addressed map[pickKey]string) []fieldRead {
 	return found
 }
 
-// refuseKeptAndFreshField refuses read, a read of a name, where what it renders reads from the pick
-// a field that what another read of the name renders draws afresh, and the two could differ. A
-// read inside a template is kept only where a read of the name addresses its first level, so with
-// {n} and {n.w}, where n's format is {w.a} and w's is {a}, {n} reads the pick's w.a and {n.w} draws
-// w's a afresh.
-func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
-	b := read.named
-	addressed := names.addressed[b]
-	var fresh []fieldRead
-	for _, other := range names.reads[b] {
-		for _, u := range fieldReadsUnder(other, addressed) {
-			if !u.kept {
-				fresh = append(fresh, u)
+// freshFieldReads is the reads of a field that rendering a read of b makes afresh, listed under each
+// level they read. Reads of one key render the same, so it walks each key once.
+func (names resolvedNames) freshFieldReads(b *nameBinding) map[pickKey][]fieldRead {
+	if byLevel, built := names.fresh[b]; built {
+		return byLevel
+	}
+	byLevel := map[pickKey][]fieldRead{}
+	walked := map[pickKey]bool{}
+	for _, read := range names.reads[b] {
+		if walked[read.key()] {
+			continue
+		}
+		walked[read.key()] = true
+		for _, u := range fieldReadsUnder(read, names.addressed[b]) {
+			if u.kept {
+				continue
+			}
+			for _, level := range u.levels {
+				byLevel[level] = append(byLevel[level], u)
 			}
 		}
 	}
-	for _, x := range fieldReadsUnder(read, addressed) {
-		for _, u := range fresh {
-			if level, apart := readsFieldApart(x, u); x.kept && apart {
-				return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so they could differ; read {%s} too to keep one draw, or drop {%s}",
-					read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, spellingThrough(b, names.targetOf(b), level), u.of.spelling)
+	names.fresh[b] = byLevel
+	return byLevel
+}
+
+// refuseKeptAndFreshField refuses read, a read of a name, where it reads a field from the pick that
+// another read of the name draws afresh, and the two could differ: with {n} and {n.w}, where n's
+// format is {w.a} and w's is {a}, {n} reads the pick's w.a and {n.w} draws w's a afresh.
+func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
+	b := read.named
+	byLevel := names.freshFieldReads(b)
+	for _, x := range fieldReadsUnder(read, names.addressed[b]) {
+		if !x.kept {
+			continue
+		}
+		for _, level := range x.levels {
+			for _, u := range byLevel[level] {
+				if level, apart := readsFieldApart(x, u); apart {
+					return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so {%s} and {%s} could differ; read {%s} in place of {%s} to keep one draw, or write {%s} for a second draw",
+						read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, read.spelling, u.of.spelling, spellingThrough(b, names.targetOf(b), level), u.of.spelling, secondDraw(b, u.of.spelling))
+				}
 			}
 		}
 	}
@@ -392,11 +417,11 @@ func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
 
 // readsFieldApart reports whether x, which the pick keeps, and u, which draws afresh, read a field
 // they could draw apart: they share a level, and the walk to the deepest one they share meets a
-// choice, or both end there on something that isn't a constant. It returns that level.
+// choice or table, or one ends there on something that isn't a constant. It returns that level.
 func readsFieldApart(x, u fieldRead) (level pickKey, apart bool) {
 	for j := len(u.levels) - 1; j >= 0; j-- {
 		if slices.Contains(x.levels, u.levels[j]) {
-			both := x.levels[len(x.levels)-1] == u.levels[j] && j == len(u.levels)-1
+			both := x.levels[len(x.levels)-1] == u.levels[j] || j == len(u.levels)-1
 			return u.levels[j], drawsAlong(u.in.startOf(u.a.head), u.a.tail[:j], both)
 		}
 	}
