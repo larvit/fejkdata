@@ -1105,6 +1105,7 @@ func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
 func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
+	centuries := map[string]int{}
 	for i := 0; i < 3000; i++ {
 		v := fake(t, sv, "sv_SE.samordningsnummer-12")
 		if !re.MatchString(v) {
@@ -1123,6 +1124,10 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 		if year, _ := strconv.Atoi(v[:4]); year < 1930 || year > 2025 {
 			t.Fatalf("samordningsnummer-12 %q, want a year from 1930 to 2025, whichever century its two digits sit in", v)
 		}
+		centuries[v[:2]]++
+	}
+	if centuries["19"] < 1500 || centuries["20"] < 400 {
+		t.Errorf("centuries drawn %v in 3000, want 1930 to 1999 and 2000 to 2025 in proportion to their days", centuries)
 	}
 }
 
