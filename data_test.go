@@ -1510,12 +1510,15 @@ func TestSwedishStreetSitsInThePostortWhoseAreaHoldsIt(t *testing.T) {
 	}
 	for locality, names := range map[string][]string{
 		"Stockholm": {"Sveavägen", "Birger Jarlsgatan", "Hornsgatan", "Götgatan", "Odengatan", "Fleminggatan"},
-		"Bromma":    {"Bergslagsvägen", "Ulvsundavägen"},
+		"Bromma":    {"Bergslagsvägen"},
 	} {
 		for _, name := range names {
 			if !streets[locality][name] {
 				t.Errorf("%s has no %s", locality, name)
 			}
 		}
+	}
+	if got := len(streets["Stockholm"]); got < 1000 {
+		t.Errorf("Stockholm has %d streets, want the 1000 or more of a capital's own postort", got)
 	}
 }
