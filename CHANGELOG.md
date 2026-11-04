@@ -16,7 +16,9 @@ replacement, and each removed path, column or flag.
   draws changes, and changes again with the date: give `--today` beside `--seed` to repeat a run on a later
   day. `sv_SE.personnummer` spells `+` from the year the holder turns 100, so a system reading it must
   take the `+`, and it is now a choice of four age bands, where a format string stood.
-- `sv_SE.personnummer-12.ten` is removed: take the last ten digits of `{/sv_SE.personnummer-12}`.
+- `sv_SE.personnummer-12.ten` is removed: for ten digits, write
+  `{born(0,99,'060102')}{/sv_SE.birth-number.number}{luhn()}`, or cut the last ten digits of
+  `{/sv_SE.personnummer-12}` in your own code.
 - `misc.territory.country` is now `misc.territory.sovereign`. It still holds the alpha-2
   code of the state a territory belongs to: `{/misc.territory[GL].sovereign}` is `DK`.
   The column sorts by name, so `--format csv` writes it after `numeric`, where `country`
