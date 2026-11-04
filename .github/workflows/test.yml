@@ -205,7 +205,7 @@ jobs:
 
   packages:
     needs: release
-    if: needs.release.outputs.tag != ''
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.tag != '' }}
     permissions:
       contents: write
       packages: write
