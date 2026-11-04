@@ -14,7 +14,7 @@ import changelog
 import go_release_notes
 import patch_release
 import publish_release
-from fixtures import COMPOSE, DOCKERFILE, GO_MOD, GORELEASER, MAIN, NEW_GO_MOD, NOTES, PACKAGES, RELEASED, SECTION, carrying
+from fixtures import COMPOSE, DOCKERFILE, GO_MOD, GORELEASER, MAIN, NEW_GO_MOD, NOTES, PACKAGE_REPOS, PACKAGES, RELEASED, SECTION, carrying
 
 
 class NextPatch(unittest.TestCase):
@@ -42,10 +42,9 @@ class Prepare(unittest.TestCase):
 			return f.read()
 
 	def test_writes_the_patch_s_go_and_modules_into_the_release_tree(self):
-		pin = DOCKERFILE.format("1.27.1") + "FROM goreleaser/goreleaser:v2.18.3 AS packaging\n"
-		self.files(("Dockerfile", pin), ("compose.yaml", COMPOSE.format("1.27.1")), ("go.mod", GO_MOD.format("1.22", "v0.29.0")), ("go.sum", "sum\n"))
-		patch_release.prepare(self.tree, carrying(), carrying("1.27.2", "v2.19.0", NEW_GO_MOD, "new sum\n"))
-		self.assertEqual(self.read("Dockerfile"), pin.replace("1.27.1", "1.27.2"))
+		self.files(("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("go.mod", GO_MOD.format("1.22", "v0.29.0")), ("go.sum", "sum\n"))
+		patch_release.prepare(self.tree, carrying(), carrying("1.27.2", go_mod=NEW_GO_MOD, go_sum="new sum\n"))
+		self.assertEqual(self.read("Dockerfile"), DOCKERFILE.format("1.27.2"))
 		self.assertEqual(self.read("compose.yaml"), COMPOSE.format("1.27.2"))
 		self.assertEqual((self.read("go.mod"), self.read("go.sum")), (NEW_GO_MOD, "new sum\n"))
 
@@ -107,6 +106,7 @@ class Repository(unittest.TestCase):
 		self.write(
 			("Dockerfile", DOCKERFILE.format("1.27.1")), ("compose.yaml", COMPOSE.format("1.27.1")), ("CHANGELOG.md", RELEASED),
 			("go.mod", GO_MOD.format("1.22", "v0.29.0")), ("release-tooling/goreleaser.yaml", GORELEASER),
+			("release-tooling/package-repos.Dockerfile", PACKAGE_REPOS),
 			(".github/workflows/packages.yml", PACKAGES.format("v2.18.3")), (".github/workflows/gone.yml", "on: push\n"),
 		)
 		git("add", ".")
@@ -148,8 +148,12 @@ class Cut(Repository):
 		self.version = version
 		self.changed = sorted(line.split(maxsplit=1)[1] for line in git("-C", tree, "status", "--porcelain").splitlines())
 		self.shipped = {
-			name: self.read(os.path.join(tree, name)) for name in ("Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod")
-			+ (("go.sum",) if os.path.exists(os.path.join(tree, "go.sum")) else ())
+			name: self.read(os.path.join(tree, name))
+			for name in (
+				"Dockerfile", "compose.yaml", "CHANGELOG.md", "go.mod", "go.sum",
+				"release-tooling/goreleaser.yaml", "release-tooling/package-repos.Dockerfile",
+			)
+			if os.path.exists(os.path.join(tree, name))
 		}
 		self.shipped_workflows = {
 			name: self.read(os.path.join(tree, ".github/workflows", name))
@@ -254,14 +258,35 @@ class Cut(Repository):
 		)
 
 	def test_cuts_a_patch_carrying_main_s_goreleaser(self):
-		self.write((".github/workflows/packages.yml", PACKAGES.format("v2.19.0")))
+		main_config = GORELEASER + "homebrew_casks:\n  - name: fejkdata\n"
+		self.write((".github/workflows/packages.yml", PACKAGES.format("v2.19.0")), ("release-tooling/goreleaser.yaml", main_config))
 		self.reports["1.27.1"] = report()
 		self.assertEqual(self.cut()[0], 0)
 		self.assertEqual(self.shipped_workflows["packages.yml"], PACKAGES.format("v2.19.0"))
+		self.assertEqual(self.shipped["Dockerfile"], DOCKERFILE.format("1.27.1").replace("v2.18.3", "v2.19.0"))
+		self.assertEqual(self.shipped["release-tooling/package-repos.Dockerfile"], PACKAGE_REPOS.replace("v2.18.3", "v2.19.0"))
+		self.assertEqual(self.shipped["release-tooling/goreleaser.yaml"], main_config)
 		self.assertIn(
 			"### Changed\n\n- The binaries, packages and image are built with GoReleaser v2.19.0.\n\n## [0.1.0]",
 			self.shipped["CHANGELOG.md"],
 		)
+
+	def test_a_patch_on_the_release_s_goreleaser_keeps_the_tree_s_config(self):
+		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")), ("release-tooling/goreleaser.yaml", GORELEASER + "homebrew_casks:\n  - name: fejkdata\n"))
+		self.assertEqual(self.cut()[0], 0)
+		self.assertEqual(self.shipped["release-tooling/goreleaser.yaml"], GORELEASER)
+		self.assertEqual(self.shipped["release-tooling/package-repos.Dockerfile"], PACKAGE_REPOS)
+
+	def test_a_release_tree_naming_no_goreleaser_image_is_refused_and_leaves_no_worktree(self):
+		git("rm", "-q", "release-tooling/package-repos.Dockerfile")
+		git("commit", "-qm", "Release 0.1.0 again")
+		git("tag", "-f", "v0.1.0")
+		self.write((".github/workflows/packages.yml", PACKAGES.format("v2.19.0")))
+		self.reports["1.27.1"] = report()
+		with self.assertRaisesRegex(ValueError, "package-repos.Dockerfile"):
+			self.cut()
+		self.published.assert_not_called()
+		self.assertEqual(self.worktrees(), 1)
 
 	def test_a_patch_that_fails_the_gate_is_refused_and_leaves_no_worktree(self):
 		self.write(("Dockerfile", DOCKERFILE.format("1.27.2")))
