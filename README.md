@@ -1579,9 +1579,11 @@ a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket
 in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
 and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
 a copy of the surname file. `company-se.py` reads the shipped sv_SE names and `geo/SE`, and `company-no.py`
-the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-se.py` before them:
+the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-se.py` before them;
+`cldr-sv.py` reads the shipped `misc/territory.tsv`, so run `territory.py` before it:
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr-sv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py

@@ -1158,22 +1158,41 @@ func TestSwedishTwelveDigitFormsSpanTheShortFormsYears(t *testing.T) {
 	}
 }
 
-// The month and weekday names are CLDR's Swedish ones, a month and a weekday numbered as ISO 8601
-// does, and the holidays are the thirteen that lag (1989:253) 1 § lists, less the Sundays.
 func TestShippedSwedishCalendar(t *testing.T) {
 	f := shipped(t, WithSeed(3))
 	for path, want := range map[string]string{
 		"sv_SE.month[1]":                        "januari",
+		"sv_SE.month[2]":                        "februari",
 		"sv_SE.month[3]":                        "mars",
+		"sv_SE.month[4]":                        "april",
+		"sv_SE.month[5]":                        "maj",
+		"sv_SE.month[6]":                        "juni",
+		"sv_SE.month[7]":                        "juli",
 		"sv_SE.month[8]":                        "augusti",
+		"sv_SE.month[9]":                        "september",
+		"sv_SE.month[10]":                       "oktober",
+		"sv_SE.month[11]":                       "november",
 		"sv_SE.month[12]":                       "december",
 		"sv_SE.weekday[1]":                      "måndag",
+		"sv_SE.weekday[2]":                      "tisdag",
+		"sv_SE.weekday[3]":                      "onsdag",
 		"sv_SE.weekday[4]":                      "torsdag",
+		"sv_SE.weekday[5]":                      "fredag",
 		"sv_SE.weekday[6]":                      "lördag",
 		"sv_SE.weekday[7]":                      "söndag",
-		"sv_SE.holiday[nationaldagen]":          "nationaldagen",
+		"sv_SE.holiday[nyarsdagen]":             "nyårsdagen",
+		"sv_SE.holiday[trettondedag-jul]":       "trettondedag jul",
+		"sv_SE.holiday[langfredagen]":           "långfredagen",
+		"sv_SE.holiday[paskdagen]":              "påskdagen",
+		"sv_SE.holiday[annandag-pask]":          "annandag påsk",
 		"sv_SE.holiday[forsta-maj]":             "första maj",
 		"sv_SE.holiday[kristi-himmelsfardsdag]": "Kristi himmelsfärdsdag",
+		"sv_SE.holiday[pingstdagen]":            "pingstdagen",
+		"sv_SE.holiday[nationaldagen]":          "nationaldagen",
+		"sv_SE.holiday[midsommardagen]":         "midsommardagen",
+		"sv_SE.holiday[alla-helgons-dag]":       "alla helgons dag",
+		"sv_SE.holiday[juldagen]":               "juldagen",
+		"sv_SE.holiday[annandag-jul]":           "annandag jul",
 	} {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
@@ -1200,7 +1219,6 @@ func TestShippedSwedishCalendar(t *testing.T) {
 	}
 }
 
-// sv_SE.territory names every misc.territory row, keyed by its alpha-2 code.
 func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
 	keys := func(file string) []string {
 		data, err := os.ReadFile(file)
@@ -1232,8 +1250,6 @@ func TestShippedSwedishTerritoryNamesEveryMiscTerritory(t *testing.T) {
 	}
 }
 
-// sv_SE.bloodtype draws the eight types at Sweden's shares: A+ 37, 0+ 32, B+ 10, A- 7, 0- 6, AB+ 5,
-// B- 2 and AB- 1 percent.
 func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	const draws = 40000
@@ -1246,14 +1262,12 @@ func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 		t.Errorf("drew %v, want exactly the types %v", counts, want)
 	}
 	for name, share := range want {
-		if got := float64(counts[name]) * 100 / draws; math.Abs(got-share) > 1 {
-			t.Errorf("%s drew %.1f%%, want %v%% within one point", name, got, share)
+		if got := float64(counts[name]) * 100 / draws; math.Abs(got-share) > 0.5 {
+			t.Errorf("%s drew %.1f%%, want %v%% within half a point", name, got, share)
 		}
 	}
 }
 
-// A person's birthdate falls between the fixed dates the personnummer's does, 1930-01-01 and
-// 2025-12-31.
 func TestShippedSwedishPersonBirthdate(t *testing.T) {
 	f := shipped(t, WithSeed(5))
 	first, last := time.Date(2100, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -1272,7 +1286,7 @@ func TestShippedSwedishPersonBirthdate(t *testing.T) {
 			last = d
 		}
 	}
-	if first.Year() > 1931 || last.Year() < 2024 {
-		t.Errorf("birthdates span %d to %d in 5000 draws, want the whole range", first.Year(), last.Year())
+	if first.After(time.Date(1930, 3, 1, 0, 0, 0, 0, time.UTC)) || last.Before(time.Date(2025, 11, 1, 0, 0, 0, 0, time.UTC)) {
+		t.Errorf("birthdates span %s to %s in 5000 draws, want 1930-01-01 to 2025-12-31 at its ends", first.Format("2006-01-02"), last.Format("2006-01-02"))
 	}
 }
