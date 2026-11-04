@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 377 | 0.3.0 |  | question | **Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -230,14 +229,6 @@
 
 ## Details
 
-### 377. Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes.
-
-The principles pass of the 0.3.0 release review raised this as a 🔴. The decision, made on 2026-09-25, names `naming_test.go`'s `TestNoFunctionSpellsAMethod` as what keeps a bare function off a method's name. `technical-principles.md` bans a test "scanning the source with `ast` or a regex", and the decision says only that this item decides. The review deleted every other such test except `TestPackageImports`, which a real defect can fail (goal 2.2); changing this one changes the decision, so it is the human's.
-
-- **Delete it (recommended):** remove `naming_test.go`, and cut the decision's sentence naming the test, so review judges the whole rule, as it already does for other declarations. A new declaration then fails the suite only where it breaks a behaviour.
-- **Keep the check as a lint step:** run it in the gate, outside the test suite, and record that in the decision.
-- **Keep it as a test:** record in the decision why this one test departs from the principle.
-
 ### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
 
 373 postorter such as Bromma and Farsta weigh 200, because no current SCB table gives a population by postal area. SCB's `Totalbef_postnr.xls`, population on 2012-12-31 by postal code area as divided in April 2013, is the one such table found, linked from sv.wikipedia. It survives only at https://web.archive.org/web/20130928163559/http://www.scb.se/Grupp/Produkter_Tjanster/Skraddarsydd/Regionala_produkter/Marknadsprofiler/Totalbef_postnr.xls. It states no licence and isn't on SCB's open-data list. Recommendation: ask SCB, or leave 200. Docs: `docs/decisions.md` → "A Swedish postort with no published population of its own weighs 200".
@@ -424,6 +415,8 @@ The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli
 `reading-cost` after the chunk of item 365, on 2026-11-04: "Rising: the last 5 chunks' median is 118390 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `README.md` 34, `todo.md` 30, `data_test.go` 15, `DATA-LICENSES.md` 8, `CHANGELOG.md` 7, `compose.yaml` 5, `testdata/shipped_shape.txt` 4, `docs/decisions.md` 3, `data-import/loglevel.py` 2, `data/misc/car.tsv` 2.
 
 `reading-cost` at the release review of 0.3.0, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
+
+`reading-cost` after the chunk of item 377, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
