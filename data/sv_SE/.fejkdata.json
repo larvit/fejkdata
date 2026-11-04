@@ -11,6 +11,8 @@
 		"sv_SE.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"sv_SE.ip": {"paths":[""]},
 		"sv_SE.last-name": {"paths":["","count","name"]},
+		"sv_SE.licenseplate": {"paths":["","current","current-number","last","old","old-number"]},
+		"sv_SE.licenseplate-letters": {"paths":["","letters"]},
 		"sv_SE.organisationsnummer": {"paths":["","group","head","tail","vat"]},
 		"sv_SE.person": {"paths":["","first","last","prefix","sex"]},
 		"sv_SE.personnummer": {"paths":[""]},
