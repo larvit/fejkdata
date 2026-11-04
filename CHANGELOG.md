@@ -34,6 +34,12 @@ replacement, and each removed path, column or flag.
 - `sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12`, the twelve-digit form of each, century
   first and no hyphen, `199001012385`. The Luhn check digit covers the last ten digits, which the
   field `ten` holds.
+- `sv_SE.month` and `sv_SE.weekday`, Unicode CLDR's Swedish names, a month numbered 1 to 12 and a
+  weekday 1 (Monday) to 7, and `sv_SE.holiday`, the thirteen public holidays of lag (1989:253), selected
+  by a code such as `nationaldagen`. `sv_SE.territory` is the Swedish name of each `misc.territory` row,
+  selected by its alpha-2 code.
+- `sv_SE.bloodtype`, a blood type at Sweden's shares, `A+` 37 percent down to `AB-` 1 percent, from
+  sv.wikipedia's Blodgrupp article. `sv_SE.person.birthdate`, a date from 1930-01-01 to 2025-12-31.
 - `{bgmod11(x)}`, a builtin that prints a random digit and the check digit that complete the digits
   emitted so far, after the literal digits `x`, to a number Bankgirot's 11-modul accepts.
 
