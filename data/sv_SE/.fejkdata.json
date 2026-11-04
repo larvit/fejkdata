@@ -7,7 +7,7 @@
 		"sv_SE.bloodtype": {"paths":["","name","share"]},
 		"sv_SE.car": {"paths":["","make","model","registrations"]},
 		"sv_SE.color": {"paths":[""]},
-		"sv_SE.company": {"paths":["","ab","ab.name","ab.written","brf","brf.name","brf.written","e","e.name","ek","ek.name","ek.written","hb","hb.name","hb.written","kb","kb.name","kb.written","registered"]},
+		"sv_SE.company": {"paths":["","ab","ab.name","ab.written","brf","brf.name","brf.written","e","e.name","ek","ek.name","ek.written","hb","hb.name","hb.written","kb","kb.name","kb.written","legal","registered","registered.legal"]},
 		"sv_SE.company-coined": {"paths":["","a","b"]},
 		"sv_SE.company-word": {"paths":["","count","word"]},
 		"sv_SE.date": {"paths":[""]},

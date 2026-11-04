@@ -8,7 +8,7 @@ company.json weighs a legal form by its new registrations in STATISTICS_YEAR. Fo
 wordings that the names of the form's active companies carry, and the shapes of those names. A shape is the
 kind of each word: a surname, its genitive, a given name, a place, a number, `och`, `&` or `i`, a trade word,
 or any other, which draws a coined word. A wording or shape ships when it is at least company_names.SHARE_MIN of
-the form's names.
+the form's names. `registered` holds one item per form and wording, so `legal` reads the wording its company prints.
 
 company-word.tsv holds the trade words, each with its count and its most common spelling, by the rule of
 company_names.py over the names of the forms AB, HB, KB and E.
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import source
 import tsv
-from company_names import Vocabulary, column, common, split, trade_words, weighted, word_usage
+from company_names import Vocabulary, column, common, legal_item, split, trade_words, weighted, word_usage
 
 REGISTER = "https://vardefulla-datamangder.bolagsverket.se/bolagsverket/bolagsverket_bulkfil.zip"
 STATISTICS = "https://www.bolagsverket.se/statistik/ftgstat_oppna.csv"
@@ -133,21 +133,34 @@ def lines(key, items):
     return [f'    "{key}": [', ",\n".join("      " + i for i in items), "    ]"]
 
 
+def written_format(form, where, wording):
+    ref = "{.company.%s.name}" % form.lower()
+    return f"{ref} {wording}" if where == "after" else f"{wording} {ref}"
+
+
+def registered_items(form, wordings, registered):
+    """The items of `registered` for one form: its registrations split by how often each wording is written."""
+    if not wordings:
+        return [legal_item("{.company.%s}" % form.lower(), "", registered)]
+    kept = common(wordings)
+    total = sum(c for _, c in kept)
+    return [legal_item(written_format(form, where, w), w, round(registered * c / total, 2)) for (where, w), c in kept]
+
+
 def form_block(form, wordings, shapes):
     """One form's object: its names by shape, and, when it has wordings, the company as written."""
     low = form.lower()
     names = lines("name", [weighted(" ".join(SLOTS[k] for k in shape), c) for shape, c in common(shapes)])
     if not wordings:
         return "\n".join([f'  "{low}": {{', '    "format": "{name}",', *names, "  }"])
-    ref = "{.company.%s.name}" % low
-    written = lines("written", [weighted(f"{ref} {w}" if where == "after" else f"{w} {ref}", c) for (where, w), c in common(wordings)])
+    written = lines("written", [weighted(written_format(form, where, w), c) for (where, w), c in common(wordings)])
     return "\n".join([f'  "{low}": {{', '    "format": "{written}",', *names[:-1], names[-1] + ",", *written, "  }"])
 
 
 def company_json(registered, wordings, shapes):
-    forms = [weighted("{.company.%s}" % f.lower(), registered[f]) for f in sorted(FORMS, key=lambda f: -registered[f])]
+    forms = [i for f in sorted(FORMS, key=lambda f: -registered[f]) for i in registered_items(f, wordings[f] if f != "E" else None, registered[f])]
     blocks = [form_block(f, wordings[f] if f != "E" else None, shapes[f]) for f in FORMS]
-    return '{\n  "format": "{registered}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
+    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
 def main():

@@ -59,6 +59,10 @@ def weighted(fmt, weight):
     return "{ " + f'"format": {quoted(fmt)}, "weight": {weight}' + " }"
 
 
+def legal_item(fmt, legal, weight):
+    return "{ " + f'"format": {quoted(fmt)}, "legal": {quoted(legal)}, "weight": {weight}' + " }"
+
+
 def word_usage(names, named, vocabulary):
     """The Usage of each word of the vocabulary's letters that is no name, place, legal or function word, by lower case."""
     usage = defaultdict(Usage)
