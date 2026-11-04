@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 365 | 0.3.0 |  |  | **List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 3 | 2.2 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
@@ -233,10 +232,6 @@
 
 ## Details
 
-### 365. List `bankaccount-se.py` and `licenseplate-se.py` in the README's rebuild commands.
-
-The README's data-import section says it holds one command per dataset, and its block of `docker compose run` lines has none for `data-import/bankaccount-se.py` or `data-import/licenseplate-se.py`. Add both, in alphabetical order, and check no other script in `data-import/` is missing.
-
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 
 Goal 3.1 keeps values that belong together in one pick, but `{/sv_SE.company as c}` can read no legal form beside its name, since `sv_SE.company.suffix` is gone. The legal-form word sits after the name (`AB`, `Aktiebolag`, `ekonomisk förening`) or before it (`Handelsbolaget`, `Bostadsrättsföreningen`), and an enskild näringsidkare has none, so `legal` is empty there. `data-import/company-se.py` writes `data/sv_SE/company.json`, so the change goes into the script. `data-import/company-no.py` writes `data/nb_NO/company.json`, which has the same gap: `{/nb_NO.company as c}` reads no legal form either. An ENK has no abbreviation, so `legal` is empty there.
@@ -395,6 +390,8 @@ Item 26 revises the decision, but the decision does not point back to it.
 `reading-cost` on 2026-11-03: "Rising: the last 5 chunks' median is 102919 new input tokens before their first commit, the 5 before them 70758". Read most over the last 5 (opens and searches): `todo.md` 4, `README.md` 3, `docs/decisions.md` 3, `.github/workflows/packages.yml` 2, `data_test.go` 2, `norwegian_test.go` 2, `release-tooling/goreleaser.yaml` 2, `vulnerability-filing/file_vulnerabilities.py` 2, `vulnerability-filing/file_vulnerabilities_test.py` 2, `.dockerignore` 1.
 
 `reading-cost` on 2026-11-04: "Rising: the last 5 chunks' median is 117951 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `todo.md` 31, `README.md` 10, `data_test.go` 8, `docs/decisions.md` 8, `table_test.go` 5, `node.go` 4, `path.go` 4, `AGENTS.md` 3, `env.go` 3, `internal/datafiles/datafiles_test.go` 3.
+
+`reading-cost` after the chunk of item 365, on 2026-11-04: "Rising: the last 5 chunks' median is 118390 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `README.md` 34, `todo.md` 30, `data_test.go` 15, `DATA-LICENSES.md` 8, `CHANGELOG.md` 7, `compose.yaml` 5, `testdata/shipped_shape.txt` 4, `docs/decisions.md` 3, `data-import/loglevel.py` 2, `data/misc/car.tsv` 2.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 

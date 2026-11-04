@@ -1599,6 +1599,7 @@ the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-
 `cldr-sv.py` reads the shipped `misc/territory.tsv`, so run `territory.py` before it:
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/bankaccount-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr-sv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
@@ -1610,6 +1611,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-u
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpmethod.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpstatus.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/language.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/licenseplate-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
