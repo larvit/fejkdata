@@ -41,10 +41,39 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 }
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
-// target, and the keys its reads address.
+// target, the reads of it, and the keys they address. places holds, for each node a fence asked
+// about, every node under it with the fields leading there.
 type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
+	reads     map[*nameBinding][]*arm
 	addressed map[*nameBinding]map[pickKey]string
+	places    map[node]map[node][]string
+}
+
+// pathTo is the fields leading from from down to want, if want lies under from.
+func (names resolvedNames) pathTo(from, want node) ([]string, bool) {
+	index, built := names.places[from]
+	if !built {
+		index = map[node][]string{}
+		indexPaths(from, nil, index)
+		names.places[from] = index
+	}
+	path, within := index[want]
+	return path, within
+}
+
+func indexPaths(n node, path []string, index map[node][]string) {
+	if _, seen := index[n]; seen {
+		return
+	}
+	index[n] = path
+	for _, c := range contained(n) {
+		below := path
+		if c.name != "" {
+			below = append(path[:len(path):len(path)], c.name)
+		}
+		indexPaths(c.node, below, index)
+	}
 }
 
 // targetOf is what b binds, whether it is among the templates being resolved or a category's, resolved earlier.
@@ -74,7 +103,8 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 		s.t.compiled = compiled
 	}
-	names := resolvedNames{targets: targets, addressed: addressedKeys(ts, targets)}
+	reads := readsOfNames(ts)
+	names := resolvedNames{targets: targets, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}}
 	for _, s := range ts {
 		s.t.readsColumn = columnReadOf(s.t, targets)
 	}

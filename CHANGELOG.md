@@ -33,6 +33,13 @@ replacement, and each removed path, column or flag.
 - A load refuses `{n.w}` beside a read of `n` that reads `w` through a name of `n`'s category, such as
   the format `{w as r}{r}`, since the two could print different draws. The error says how to write each
   meaning.
+- A load refuses `{n.path}` beside a read of `n` whose category reads that path through a reference,
+  such as the format `{.company.ab.name}`: a reference draws afresh, so `{n}` and `{n.ab.name}`
+  could print different draws. A path that holds a constant still loads. The error says how to
+  write each meaning.
+- A load refuses `{r.legal}` where `r` is bound to a field holding a choice, the field it reaches reads a name
+  that an item of the choice binds, and `r`'s read steps into the item without rendering it. It
+  failed on the first draw before. Bind the name outside the choice, or read `{r}` whole.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
@@ -45,6 +52,9 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- A load accepts `{n.w.z}` beside `{n}` where `n`'s format is `{w.a} {w.b}` and `w` is a plain template,
+  and a constant's `{n.w}` beside `{n}` where `n`'s format is `{w}-{w}`. It refused both: the two reads
+  share no draw that can differ.
 - `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech; `sv_SE.word.noun.definite`,
   `sv_SE.word.verb.present` and `sv_SE.word.adj.definite` each draw a word and print one form of it. `sv_SE.word.any` prints what
   `sv_SE.word` prints. They read the tables `sv_SE.word-noun`, `word-verb`, `word-adj` and `word-adv`.
