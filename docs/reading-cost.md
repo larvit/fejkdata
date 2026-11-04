@@ -972,3 +972,16 @@ Read most (opens and searches):
 - `fejkdata_test.go` 1
 - `pick.go` 1
 - `render.go` 1
+
+## Reading cost, chunk a41d333b71fb, finished 2026-11-04T19:11:06Z
+
+74589 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `namefence_test.go` 3
+- `name_test.go` 2
+- `README.md` 1
+- `arm.go` 1
+- `namefence.go` 1
+- `pick.go` 1
