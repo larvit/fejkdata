@@ -1436,3 +1436,47 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		}
 	}
 }
+
+// The wordings are those TestSwedishCompanyWordingsAndShapesFollowTheRegister holds a company to, and an
+// enskild näringsidkare carries none.
+func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
+	t.Parallel()
+	sv := shipped(t, WithSeed(3))
+	after := []string{"AB", "Aktiebolag", "Handelsbolag", "handelsbolag", "Kommanditbolag", "kommanditbolag", "Ekonomisk förening", "ekonomisk förening", "ek. för.", "Ek. för."}
+	before := []string{"Handelsbolaget", "Kommanditbolaget", "Bostadsrättsföreningen"}
+	seen := map[string]int{}
+	const draws = shareDraws / 10
+	for i := 0; i < draws; i++ {
+		company, legal, _ := strings.Cut(fakeTemplate(t, sv, "{/sv_SE.company as c}{c}|{c.legal}"), "|")
+		seen[legal]++
+		switch {
+		case legal == "":
+			for _, w := range after {
+				if strings.HasSuffix(company, " "+w) {
+					t.Fatalf("company %q has an empty legal, yet ends in %q", company, w)
+				}
+			}
+			for _, w := range before {
+				if strings.HasPrefix(company, w+" ") {
+					t.Fatalf("company %q has an empty legal, yet starts with %q", company, w)
+				}
+			}
+		case slices.Contains(before, legal):
+			if !strings.HasPrefix(company, legal+" ") {
+				t.Fatalf("company %q does not start with its legal %q", company, legal)
+			}
+		case slices.Contains(after, legal):
+			if !strings.HasSuffix(company, " "+legal) {
+				t.Fatalf("company %q does not end in its legal %q", company, legal)
+			}
+		default:
+			t.Fatalf("legal %q of company %q is no wording of a legal form", legal, company)
+		}
+	}
+	assertShare(t, "companies with no legal word", seen[""], draws, 8468.0/61777)
+	for _, w := range append(after, before...) {
+		if seen[w] == 0 {
+			t.Errorf("no company of %d carries the legal word %q", draws, w)
+		}
+	}
+}

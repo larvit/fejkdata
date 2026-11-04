@@ -562,3 +562,28 @@ func TestNorwegianCoinedRootsHoldNoWordOfAPlace(t *testing.T) {
 		}
 	}
 }
+
+// An ENK carries no abbreviation, so its legal is empty; every other form's name ends in its legal.
+func TestNorwegianCompanyLegalIsTheAbbreviationOfTheBoundCompany(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, WithSeed(4))
+	abbreviation := regexp.MustCompile(` (AS|DA|ANS|ASA|KS|SA)$`)
+	seen := map[string]int{}
+	const draws = shareDraws / 10
+	for i := 0; i < draws; i++ {
+		company, legal, _ := strings.Cut(fakeTemplate(t, f, "{/nb_NO.company as c}{c}|{c.legal}"), "|")
+		seen[legal]++
+		m := abbreviation.FindStringSubmatch(company)
+		switch {
+		case legal == "" && m != nil:
+			t.Fatalf("company %q has an empty legal, yet ends in %q", company, m[1])
+		case legal != "" && (m == nil || m[1] != legal):
+			t.Fatalf("company %q does not end in its legal %q", company, legal)
+		}
+	}
+	for _, form := range []string{"", "AS", "DA", "SA", "ANS"} {
+		if seen[form] == 0 {
+			t.Errorf("no company of %d has the legal %q", draws, form)
+		}
+	}
+}
