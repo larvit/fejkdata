@@ -940,3 +940,20 @@ Read most (opens and searches):
 - `.gitignore` 1
 - `compose.yaml` 1
 - `data-import/company-no.py` 1
+
+## Reading cost, chunk be1b02d48672, finished 2026-11-04T17:52:55Z
+
+216694 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `name_test.go` 4
+- `todo.md` 4
+- `docs/decisions.md` 3
+- `path.go` 3
+- `graph.go` 2
+- `name.go` 2
+- `namefence.go` 2
+- `node.go` 2
+- `pick_test.go` 2
