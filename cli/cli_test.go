@@ -833,9 +833,27 @@ func TestRunRecordSQL(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("run = %d, stderr=%q", code, errb)
 	}
-	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
-	if len(lines) != 2 || !strings.HasPrefix(lines[0], `INSERT INTO "people" ("first", "last") VALUES (`) {
-		t.Fatalf("sql output = %q, want two INSERT INTO people statements", out)
+	if !regexp.MustCompile(`^INSERT INTO "people" \("first", "last"\) VALUES \('[^']*', '[^']*'\),\('[^']*', '[^']*'\);\n$`).MatchString(out) {
+		t.Fatalf("sql output = %q, want one INSERT INTO people of two rows", out)
+	}
+}
+
+func TestRunRecordSQLStartsANewStatementEveryThousandRows(t *testing.T) {
+	code, out, errb := runOut("{/users}", "--seed", "1", "--format", "sql", "--repeat", "2001", "--data-path", recordDir(t))
+	if code != 0 {
+		t.Fatalf("run = %d, stderr=%q", code, errb)
+	}
+	statements := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	if len(statements) != 3 {
+		t.Fatalf("%d statements, want 3", len(statements))
+	}
+	for i, want := range []int{1000, 1000, 1} {
+		if !strings.HasPrefix(statements[i], `INSERT INTO "users" ("first", "last") VALUES (`) || !strings.HasSuffix(statements[i], ");") {
+			t.Errorf("statement %d = %q, want a whole INSERT", i, statements[i])
+		}
+		if got := strings.Count(statements[i], "),(") + 1; got != want {
+			t.Errorf("statement %d holds %d rows, want %d", i, got, want)
+		}
 	}
 }
 
