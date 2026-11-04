@@ -29,7 +29,7 @@ replacement, and each removed path, column or flag.
   `{/sv_SE.company}` or `{/nb_NO.company}`: add it to the table, or read by header. An item of
   `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
   the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` or `{c.legal}` no
-  longer loads: drop it, or write `{/sv_SE.company.registered}` for a second company.
+  longer loads: read `{c}` for the bound company, or write `{/sv_SE.company.registered}` for a second one.
 - A load refuses `{n.w}` beside a read of `n` that reads `w` through a name of `n`'s category, such as
   the format `{w as r}{r}`, since the two could print different draws. The error says how to write each
   meaning.

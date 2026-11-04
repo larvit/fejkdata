@@ -6,13 +6,15 @@
 
 `Bar = 0`
 
-`Next ID = 371`
+`Next ID = 373`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 368 | 0.3.0 |  | defect | **Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.** | 2 | 2 | 2 | 4 | 3 | 5.4 by 3 | 7.9 |
+| 371 | 0.3.0 |  | defect | **Refuse `{n.path}` at load beside a read of `n` whose format reaches that path through a reference, so the two never silently disagree.** | 2 | 2 | 2 | 4 | 3 | 4.6 by 3 | 7.9 |
+| 372 | 0.3.0 |  | defect | **Load `{n.w.z}` and a constant's `{n.w}` beside `{n}` in both name fences, where the two share no draw that can differ.** | 2 | 2 | 2 | 4 | 3 | 4.7 by 2 | 5.3 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
@@ -231,6 +233,14 @@
 ### 368. Refuse at load a read through a field-bound name that lands on a choice item's field reading a name the item binds, so it no longer panics at render.
 
 Goal 5.4. This category loads, then rendering `legal` panics with `fejkdata: internal error: name "w" is read where no frame of its scope renders`: `{"format":"{registered as r}{r}","legal":"{r.legal}","registered":[{"format":"{.co.ab.written as w}{w}","legal":"{w.legal}"}]}`. `readName` in `pick.go` opens no frame of the item's scope through `bindsField()`. Either render it or refuse it at load.
+
+### 371. Refuse `{n.path}` at load beside a read of `n` whose format reaches that path through a reference, so the two never silently disagree.
+
+Goal 4.6. `{/sv_SE.company as c}{c} | {c.ab.name}` loads and printed `Sjöfors Foto AB | Vindäng`, since `sv_SE.company`'s item reads `{.company.ab.name}`, and `landsInPick` in `pick.go` keeps no read through a reference. The README's Names section states this as a limit: remove that sentence once the load refuses it. `pick.go`'s `readName` and `namefence.go`'s `refuseTwiceDrawnIn` are places the comprehension seats found hard, so leave them easier to read.
+
+### 372. Load `{n.w.z}` and a constant's `{n.w}` beside `{n}` in both name fences, where the two share no draw that can differ.
+
+Goal 4.7. `refuseTwiceDrawnIn` and `refuseDrawnApart` in `namefence.go` refuse by shape. These categories mean one thing and are refused: format `{w.a} {w.b}` with `{n.w.z}`, where `w` is a plain template; format `{w}-{w}` with `w` a constant; format `{w as r}{r}` with `w` a constant; format `{a.b as r}{r}` with `{n.a.z}`, where `a` is a plain template. Keep refusing where a choice on the shared path can draw apart. `refuseTwiceDrawnIn` is a place the comprehension seats found hard, so leave it easier to read.
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
