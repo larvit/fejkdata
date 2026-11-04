@@ -115,6 +115,10 @@ func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testin
 			"co":    `{"format":"{/other}","ab":{"format":"{name}","name":["a","b","c","d"]}}`,
 			"card":  `"{/co as c}{c} {c.ab.name}"`,
 		}, []string{"{c}", "{/co.ab.name}", "{c.ab.name}"}},
+		"a name bound to a field of the category": {map[string]string{
+			"co":   `{"format":"{w}","w":{"format":"{/co.w.a}","a":["x","y","z","q"]}}`,
+			"card": `"{/co.w as n}{n}|{n.a}"`,
+		}, []string{"{n}", "{/co.w.a}", "{n.a}"}},
 		"a path three fields down beside siblings": {map[string]string{
 			"co":   `{"format":"{/co.a.b.c}","a":{"format":"{b.c}","e":"s","b":{"format":"{c}","d":"t","c":["p","q"]}}}`,
 			"card": `"{/co as c}{c} {c.a.b.c}"`,
