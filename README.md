@@ -499,7 +499,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `licenseplate`, `licenseplate-letters`,
-`bankgiro`, `plusgiro`, `bankaccount`, `company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
+`personnummer-12`, `samordningsnummer-12`, `bankgiro`, `plusgiro`, `bankaccount`, `company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -568,6 +568,10 @@ the 99 that Transportstyrelsen's page listed as blocked in March 2026 and no lon
 The last character of `ABC 12A` is any of those letters but O. The numbers run from `001` to `999`, and from `00` to `99`
 in `ABC 12A`. The forms, letters and numbers are those of sv.wikipedia's article on Swedish plates, which
 Transportstyrelsen's pages do not confirm.
+
+`sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12` draw the same numbers as twelve digits, the century first and
+no hyphen, `199001012389`, the form many systems store. The check digit is still the Luhn digit over the last ten, and
+the century follows the date: 1930 to 1999 and 2000 to 2025 in proportion to their days.
 
 `sv_SE.bankgiro` draws a bankgiro number, seven or eight digits at even odds with a Luhn check digit, printed
 `991-2346` or `5555-5551`. `sv_SE.plusgiro` draws a plusgiro number of two to eight digits with a Luhn check digit,

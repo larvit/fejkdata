@@ -32,6 +32,8 @@ replacement, and each removed path, column or flag.
   clearing number; its fields are `clearing`, `bank` and `number`. The 15 clearing numbers of
   `9565` to `9569` and `9600` to `9609` are left out, since that document does not publish
   their check.
+- `sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12`, the twelve-digit form of each, century
+  first and no hyphen, `199001012389`. The check digit is the Luhn digit over the last ten digits.
 - `{bgmod11(x)}`, a builtin that completes a number under Bankgirot's 11-modul after the digits
   emitted so far, which follow the literal digits `x`.
 
