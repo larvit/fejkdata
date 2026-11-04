@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 364`
+`Next ID = 365`
 
 ## Items
 
@@ -32,6 +32,7 @@
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 294 | 0.4.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
+| 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
@@ -311,6 +312,14 @@ Read them from the register the streets item names, Danmarks Adresseregister, wh
 ### 216. Share between countries what `geo-se.py` and `data_test.go` hard-code for SE, in the first locale chunk that needs each.
 
 A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `data_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own.
+
+### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
+
+Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-31,'2006-01-02')}`, and `data/sv_SE/personnummer.json` draws its own `{date(1930-01-01,2025-12-31,'060102')}`. A record holding both has a birthdate that contradicts the number's first six digits, which breaks goal 3.1. By the decision "Every `{…}` draws afresh, and only a name keeps a pick", the two dates agree only through one named pick. No builtin prints one drawn date in two layouts, so the fix needs one of two things: a date bound to a name and read in two layouts, or a `personnummer` that reads the date a name holds.
+
+`data/sv_SE/samordningsnummer.json` has the same flaw: it draws `{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}`, the birth day plus 60. Make it read the same date. It draws only days 1–28 today, so a date read from a pick needs its day plus 60, over every day of the month.
+
+Item 26, in 0.3.0, ships first. It widens the date range `personnummer` draws from past 100 years and adds a `+`. That range must then hold for `birthdate` too. Neither item blocks the other. Item 28, in 0.8.0, makes `personnummer` read a named pick's sex in the same way as this item reads a date. Whichever lands first sets how `personnummer` reads a named pick, and the other follows it.
 
 ### 297. Add `da_DK`'s national personal id, the CPR number, with its check digits.
 
