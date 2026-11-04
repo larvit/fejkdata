@@ -4,8 +4,8 @@
     data-import/cldr-sv.py [--dates URL_OR_FILE] [--territories URL_OR_FILE] [--cache DIR] [--out-dir DIR] [--misc FILE]
 
 A month is numbered 1 to 12 and a weekday 1 (Monday) to 7 (Sunday), as ISO 8601 does. The
-territory table holds one row for each alpha-2 code in data/misc/territory.tsv, and the script
-refuses a code CLDR has no Swedish name for.
+territory table holds one row for each alpha-2 code in data/misc/territory.tsv; when CLDR has no
+Swedish name for a code, the script exits with an error before it writes territory.tsv.
 """
 import argparse
 import csv
@@ -40,7 +40,7 @@ def main():
     gregorian = load(a.dates, a.cache, "cldr-sv-ca-gregorian.json")["dates"]["calendars"]["gregorian"]
     months = gregorian["months"]["format"]["wide"]
     if sorted(months, key=int) != [str(i) for i in range(1, 13)]:
-        sys.exit(f"CLDR numbers the months {sorted(months)}, not 1 to 12")
+        sys.exit(f"CLDR numbers the months {sorted(months, key=int)}, not 1 to 12")
     tsv.write(out / "month.tsv", ["code", "name"], [{"code": m, "name": months[m]} for m in sorted(months, key=int)])
     days = gregorian["days"]["format"]["wide"]
     if sorted(days) != sorted(WEEKDAYS):

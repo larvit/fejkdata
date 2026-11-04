@@ -499,8 +499,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
-`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `company-coined`, `company-word`,
-`holiday`, `month`, `phone-area`, `phone-subscriber`, `territory` and `weekday`;
+`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `company-coined`,
+`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `territory` and `weekday`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
