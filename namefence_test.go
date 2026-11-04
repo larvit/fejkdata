@@ -134,6 +134,56 @@ func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testin
 	}
 }
 
+func TestAReadOfANameIsRefusedBesideAReadWhoseFormatDrawsOneFieldAfreshAndOneFromThePick(t *testing.T) {
+	for label, c := range map[string]struct {
+		files map[string]string
+		want  []string
+	}{
+		"a field of a field": {map[string]string{
+			"cat":  `{"format":"{w.a}","w":{"format":"{a}","a":["x","y","z","q"],"b":["p"]}}`,
+			"card": `"{/cat as n}{n}|{n.w}"`,
+		}, []string{"{n}", "{w.a}", "{n.w}", "{a}"}},
+		"the read of the field comes first": {map[string]string{
+			"cat":  `{"format":"{a.b}","a":{"format":"{b}","b":["x","y"]}}`,
+			"card": `"{/cat as n}{n.a}|{n}"`,
+		}, []string{"{n}", "{a.b}", "{n.a}", "{b}"}},
+	} {
+		t.Run(label, func(t *testing.T) {
+			_, err := loadFence(t, c.files)
+			if err == nil {
+				t.Fatal("New() loaded, want it refused")
+			}
+			for _, want := range c.want {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("New() = %v, want an error naming %s", err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestAReadOfANameLoadsBesideAReadWhoseFormatReadsOneFieldOneWay(t *testing.T) {
+	const cat = `{"format":"{w.a}","w":{"format":"{a}","a":["x","y","z","q"],"b":["p"]}}`
+	for label, c := range map[string]struct{ cat, card string }{
+		"the field is constant":                  {`{"format":"{w.a}","w":{"format":"{a}","a":"x"}}`, `"{/cat as n}{n}|{n.w}"`},
+		"the field is read through the name too": {cat, `"{/cat as n}{n}|{n.w}|{n.w.a}"`},
+		"only the whole is read":                 {cat, `"{/cat as n}{n}|{n}"`},
+		"only the field is read":                 {cat, `"{/cat as n}{n.w}|{n.w}"`},
+	} {
+		t.Run(label, func(t *testing.T) {
+			f, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
+			if err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
+			}
+			for i := 0; i < 40; i++ {
+				if got := strings.Split(fake(t, f, "card"), "|"); got[0] != got[1] {
+					t.Fatalf("draw %d = %q, want every read to print one value", i, got)
+				}
+			}
+		})
+	}
+}
+
 func TestAReadOfANameLoadsBesideAReferenceThatReachesNoDrawOfItsPath(t *testing.T) {
 	for label, c := range map[string]struct {
 		files map[string]string
