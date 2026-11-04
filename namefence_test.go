@@ -134,7 +134,7 @@ func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testin
 	}
 }
 
-func TestAReadOfANameIsRefusedBesideAReadWhoseFormatDrawsOneFieldAfreshAndOneFromThePick(t *testing.T) {
+func TestAReadOfANameIsRefusedBesideAReadThatDrawsAfreshAFieldItReadsFromThePick(t *testing.T) {
 	for label, c := range map[string]struct {
 		files map[string]string
 		want  []string
@@ -142,7 +142,7 @@ func TestAReadOfANameIsRefusedBesideAReadWhoseFormatDrawsOneFieldAfreshAndOneFro
 		"a field of a field": {map[string]string{
 			"cat":  `{"format":"{w.a}","w":{"format":"{a}","a":["x","y","z","q"],"b":["p"]}}`,
 			"card": `"{/cat as n}{n}|{n.w}"`,
-		}, []string{"{n}", "{w.a}", "{n.w}", "{a}", "{n.w.a}"}},
+		}, []string{"{n}", "{w.a}", "{n.w}", "{a}", "{n.w.a}", "{/cat.w}"}},
 		"the read of the field comes first": {map[string]string{
 			"cat":  `{"format":"{a.b}","a":{"format":"{b}","b":["x","y"]}}`,
 			"card": `"{/cat as n}{n.a}|{n}"`,
