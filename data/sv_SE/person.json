@@ -1,5 +1,6 @@
 {
   "format": "{prefix}{first} {last}",
+  "birthdate": "{date(1930-01-01,2025-12-31,'2006-01-02')}",
   "first": "{.first-name as n}{n.name}",
   "last": "{.last-name.name}",
   "prefix": [null, { "format": "{.title.name} ", "weight": 0.05 }],
