@@ -1586,44 +1586,49 @@ REPIN=1 docker compose run --rm --user "$(id -u):$(id -g)" test
 
 A shipped table built from a source is rebuilt by its script under
 [`data-import/`](data-import), one command per dataset, from the source named in
-[`DATA-LICENSES.md`](DATA-LICENSES.md). Downloads are cached under
-`data-import/cache/`, which is ignored by version control and grows past a
-gigabyte, so pass `--cache DIR` to reuse a copy you already have and delete it to
-fetch afresh; `geo-us.py` fetches two
-TIGER/Line files per county it ships, about a gigabyte, `geo-se.py` needs
-a Trafikverket API key, free at [data.trafikverket.se](https://data.trafikverket.se/),
-in `TRAFIKVERKET_API_KEY` or a `--key-file`, and the Census host behind `geo-us.py`
-and `names-us.py` rejects a client for a while after a burst, so `--surnames` takes
-a copy of the surname file. `company-se.py` reads the shipped sv_SE names and `geo/SE`, and `company-no.py`
-the shipped nb_NO names and `geo/NO`, so run `names-*.py`, `geo-no.py` and `geo-se.py` before them;
-`cldr-sv.py` reads the shipped `misc/territory.tsv`, so run `territory.py` before it:
+[`DATA-LICENSES.md`](DATA-LICENSES.md). The block below runs top to bottom, the
+scripts whose tables others read first: `territory.py`, `geo-*.py` and `names-*.py`.
+`cldr-sv.py` and `timezone.py` read the shipped `misc/territory.tsv`,
+`company-se.py` the shipped sv_SE names and `geo/SE`, and `company-no.py` the
+shipped nb_NO names and `geo/NO`.
+
+Downloads are cached under `data-import/cache/`, which version control ignores and
+which grows past a gigabyte. Delete that folder to fetch afresh, or pass
+`--cache DIR` to a script to reuse a copy of it you already have.
+
+- `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
+- `geo-se.py` needs a Trafikverket API key, free at
+  [data.trafikverket.se](https://data.trafikverket.se/), in `TRAFIKVERKET_API_KEY`
+  or a `--key-file`.
+- The Census host behind `geo-us.py` and `names-us.py` rejects a client for a while
+  after a burst, so give `names-us.py` a copy of the surname file with `--surnames`.
 
 ```sh
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py
+docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/bankaccount-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/car-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/cldr-sv.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/company-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/currency.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py
-docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpmethod.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/httpstatus.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/language.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/licenseplate-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/sex-population.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/sni-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/ssyk-se.py
-docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
