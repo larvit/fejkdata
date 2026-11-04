@@ -589,15 +589,18 @@ that document doesn't publish their check.
 `bankgiro`, `plusgiro` and `bankaccount` draw valid numbers, not real ones: a number drawn may belong to a real
 account.
 
-`sv_SE.month` and `sv_SE.weekday` are Unicode CLDR's Swedish names, `januari` to `december` selected by
-`{/sv_SE.month[1]}` to `[12]`, and `måndag` to `söndag` by `[1]` to `[7]`, Monday first as ISO 8601 numbers them.
-`sv_SE.holiday` holds the thirteen public holidays that lag (1989:253) names, such as `nationaldagen` and
-`första maj`, selected by a code, `{/sv_SE.holiday[nationaldagen]}`; it holds no Sundays and no dates, since Easter
-moves most of them. `sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2
-code: `{/sv_SE.territory[DE]}` is `Tyskland`. Their values are real. `sv_SE.bloodtype` draws a blood type, `A+`,
-`0-` and the others in the Swedish `0` spelling, as often as sv.wikipedia's Blodgrupp article gives them for Sweden. `A+` is
-the commonest, at 37 percent, and the value is real too. `sv_SE.person.birthdate` is invented: a date from
-1930-01-01 to 2025-12-31, drawn apart from any personnummer.
+`sv_SE.month` and `sv_SE.weekday` are Unicode CLDR's Swedish names. `{/sv_SE.month[1]}` is `januari` and
+`[12]` is `december`; `{/sv_SE.weekday[1]}` is `måndag` and `[7]` is `söndag`, Monday first as ISO 8601
+numbers them. `sv_SE.holiday` holds the thirteen public holidays that lag (1989:253) names, each selected by a
+code in lower case ASCII with hyphens, `{/sv_SE.holiday[nationaldagen]}` or `[forsta-maj]`. It leaves out the
+law's entry for every Sunday, and holds no dates, since seven of the holidays move from year to year.
+`sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2 code:
+`{/sv_SE.territory[DE]}` is `Tyskland`. All four are real names.
+
+`sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
+often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
+shares are real. `sv_SE.person.birthdate` is invented, a date from 1930-01-01 to 2025-12-31, and it is drawn
+apart from any `personnummer`: a record holding both can give a birthdate that its personnummer contradicts.
 
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
