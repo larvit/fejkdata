@@ -240,6 +240,7 @@ type recordFormat struct {
 	writes string // what it writes between values, which --separator would seem to set
 }
 
+// SQL Server refuses a VALUES list above 1000 rows (error 10738).
 const sqlStatementRows = 1000
 
 // recordFormats is every --format that writes records. json frames the records

@@ -94,8 +94,8 @@ func (r *Record) SQLInsert(table string) string {
 	return r.SQLInsertHeader(table) + " " + r.SQLValues() + ";"
 }
 
-// SQLInsertHeader renders the start of an INSERT into table, up to and including VALUES. Join
-// records' SQLValues after it with a comma, and end the statement with a semicolon.
+// SQLInsertHeader renders the start of an INSERT into table, up to and including VALUES. Follow
+// it with records' SQLValues, a comma between each, and a semicolon.
 func (r *Record) SQLInsertHeader(table string) string {
 	cols := make([]string, len(r.columns))
 	for i, c := range r.columns {

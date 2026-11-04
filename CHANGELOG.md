@@ -24,10 +24,9 @@ replacement, and each removed path, column or flag.
   50 to 199 people, where the table weighted each 200. `sv_SE.address` draws those postorter less
   often, and what a seed draws changes.
 - `sv_SE.company` and `nb_NO.company` gain a field and record column, `legal`, the legal-form word of
-  the company: `{/sv_SE.company as c}{c} ({c.legal})` reads both from one pick. It is empty for an
+  the company: `{/sv_SE.company as c}{c} ({c.legal})` reads both from one pick. `legal` is empty for an
   enskild näringsidkare and an ENK. `--format csv` and `--format sql` write the column for a lone
-  `{/sv_SE.company}` or `{/nb_NO.company}`: add it to the table, or read by header. Each category's
-  format is now `{registered as r}{r}`, and each item of `registered` carries `legal`. An item of
+  `{/sv_SE.company}` or `{/nb_NO.company}`: add it to the table, or read by header. An item of
   `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
   the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` or `{c.legal}` no
   longer loads: drop it, or write `{/sv_SE.company.registered}` for a second company.
@@ -37,19 +36,20 @@ replacement, and each removed path, column or flag.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
-- `sv_SE.word` and `sv_SE.sentence` draw from Språkbanken's SALDO, about 108,000 words where 233 were hand-written, so
-  what a seed draws changes and a word may be long or rare. `sv_SE.sentence` is no less ungrammatical than before.
+- `sv_SE.word` and `sv_SE.sentence` draw from SALDO, Språkbanken's Swedish dictionary, about 108,000 words where 233 were
+  hand-written, so what a seed draws changes and a word may be long or rare.
 - `--format sql` writes up to 1000 rows per INSERT, one statement per line, where it wrote one INSERT
-  per row. A script counting lines or splitting statements on newlines sees fewer of them.
+  per row. A script counting lines or splitting statements on newlines sees fewer of them. A statement fails
+  whole, so one row a constraint refuses, such as a repeated value in a `UNIQUE` column, loses up to 1000
+  rows where it lost one: drop the constraint while loading, or load through a category of your own whose values are unique.
 
 ### Added
 
 - `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech; `sv_SE.word.noun.definite`,
-  `sv_SE.word.verb.present` and `sv_SE.word.adj.definite` give a form of the word. They read the tables
-  `sv_SE.word-noun`, `word-verb`, `word-adj` and `word-adv`.
+  `sv_SE.word.verb.present` and `sv_SE.word.adj.definite` each draw a word and print one form of it. `sv_SE.word.any` prints what
+  `sv_SE.word` prints. They read the tables `sv_SE.word-noun`, `word-verb`, `word-adj` and `word-adv`.
 - `Record.SQLInsertHeader(table)` and `Record.SQLValues()`, the two parts a program joins into a
   multi-row INSERT. `SQLInsert(table)` still writes one row's statement.
-
 - `sv_SE.licenseplate`, a Swedish registration number, `ABC 123` or `ABC 12A` at even odds.
   It is valid, not real: a drawn plate may be on a real car. Its three letters never form one
   of the 99 combinations that Transportstyrelsen's page listed as blocked in March 2026, and

@@ -297,6 +297,9 @@ A column carrying a newline keeps it inside the quoted CSV field or the SQL stri
 literal, so a row can span physical lines: read the stream with a CSV or SQL
 parser rather than splitting it on newlines.
 
+A statement fails whole: one row a constraint refuses loses its whole statement, up to 1000 rows.
+A shipped category may repeat a value, so a `UNIQUE` column takes a category of your own.
+
 The SQL is ANSI — identifiers in double quotes, a literal quote doubled (`''`),
 backslashes passed through — so a hyphenated field like `postal-code` stays a
 valid identifier. PostgreSQL and SQLite take it as written; MySQL and MariaDB need
@@ -384,8 +387,8 @@ A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
 (one object), `CSVHeader()`/`CSVLine()`, `SQLInsert(table)` (one statement) or
 `SQLInsertHeader(table)`/`SQLValues()` — the shapes the CLI's `--format` writes, each without a
-trailing newline. To write a multi-row INSERT, join `SQLValues()` after the header with commas
-and end it with `;`; neither call adds them. `FakeRecord` and
+trailing newline. To write a multi-row INSERT, write the header, then each record's `SQLValues()` with a comma
+between them, then `;`. `FakeRecord` and
 `FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
 choice of more than one item, or a folder — errors.
 
@@ -619,13 +622,25 @@ apart from any `personnummer`: a record holding both can give a birthdate that i
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
 förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
-reads `Handelsbolag`, `Handelsbolaget` or `handelsbolag`, never `HB`. Bind a company to read its word from the same pick:
+reads `Handelsbolag`, `Handelsbolaget` or `handelsbolag`, never `HB`. Bind a company to read its legal-form word from the same pick:
 `{/sv_SE.company as c}{c} ({c.legal})` prints `Solvik Bygg AB (AB)` or
 `Handelsbolaget Solvik (Handelsbolaget)`, and `()` for an enskild näringsidkare.
 The name has a shape those companies' names have, such as a made-up
 word and a trade word like `Bygg` or `Holding`, or a surname and a trade word. `company-word` holds the
 trade words that 100 or more of the register's names carry, and `company-coined` the made-up words.
 A name is invented, and may also be a real company's.
+
+`sv_SE.word` draws evenly from about 108,000 words of SALDO, Språkbanken's Swedish dictionary.
+SALDO has no frequencies, so a word may be rare. `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` each
+draw one part of speech. `sv_SE.word.noun.definite`, `sv_SE.word.verb.present` and
+`sv_SE.word.adj.definite` each draw a word and print one form of it, such as `huset`, `springer` or
+`stora`. To read a word and its form from one pick, bind it: `{/sv_SE.word.noun as n}{n} {n.definite}`
+prints `hus huset`.
+
+The import drops the words on LDNOOBW's Swedish list of rude words, and other rude words remain, so
+read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
+and doesn't make them agree, so its sentences aren't grammatical.
+
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
@@ -640,14 +655,6 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `timezone`, `tld` and `useragent` are [tables](#table), so
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
-
-`sv_SE.word` draws evenly from about 108,000 words of Språkbanken's SALDO. `sv_SE.word.noun`,
-`.verb`, `.adj` and `.adv` each draw one part of speech, and `sv_SE.word.noun.definite`,
-`sv_SE.word.verb.present` and `sv_SE.word.adj.definite` give a form of the word, such as `huset`,
-`springer` or `stora`. Bind one to read the word and its form from one pick. SALDO is a dictionary
-with no frequencies, so a word may be rare, and dropping the rude words on one published list
-doesn't remove every word a reader finds rude. `sv_SE.sentence` strings these together, so it isn't
-grammatical.
 
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
@@ -1623,8 +1630,8 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 - The Census host behind `geo-us.py` and `names-us.py` rejects a client for a while
   after a burst, so give `names-us.py` a copy of the Census `names.zip` with `--surnames`.
 - `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
-- `word-se.py` fetches SALDO's morphology, 254 MB.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
+- `word-se.py` fetches SALDO's morphology, 254 MB.
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
