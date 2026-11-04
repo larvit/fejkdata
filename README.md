@@ -757,7 +757,7 @@ neighbouring one.
 |-------|----------|----------|----------|--------|
 | `region` | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
 | `municipality` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | NO: the kommune's population, shared out over its poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, else 200; US: place population |
+| `locality` | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | NO: the kommune's population, shared out over its poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, the småort's where the postort lies in one, else 200; US: place population |
 | `postal-code` | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | NO: addresses; SE: one; US: address ranges |
 | `street` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | NO: addresses; SE: segments; US: address ranges |
 
@@ -1602,6 +1602,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
   or a `--key-file`.
 - The Census host behind `geo-us.py` and `names-us.py` rejects a client for a while
   after a burst, so give `names-us.py` a copy of the Census `names.zip` with `--surnames`.
+- `geo-se.py` fetches SCB's småort polygons, about 120 MB.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 
 ```sh

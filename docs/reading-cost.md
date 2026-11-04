@@ -890,3 +890,19 @@ Read most (opens and searches):
 - `data-import/bankaccount-se.py` 1
 - `data-import/licenseplate-se.py` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk b1adecfe231e, finished 2026-11-04T14:23:34Z
+
+54417 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 12
+- `todo.md` 4
+- `data-import/source.py` 2
+- `docs/decisions.md` 2
+- `AGENTS.md` 1
+- `DATA-LICENSES.md` 1
+- `data-import/geo-us.py` 1
+- `data-import/names-us.py` 1
+- `data-import/timezone.py` 1
