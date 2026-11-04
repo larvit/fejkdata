@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 366 | 0.3.0 |  |  | **Rewrite the README's data-import paragraph so its run order matches the block of commands and each clause says which script it governs.** | 1 | 2 | 1 | 2 | 1 | code health by 2 | 8.4 |
 | 19 | 0.3.0 |  |  | **Fill the 398 Swedish localities weighted 200 from SCB småorter.** | 2 | 2 | 2 | 4 | 4 | 1 by 1, 2.1 by 2, 3.2 by 3 | 2.2 |
 | 341 | 0.3.0 |  |  | **Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.** | 3 | 2 | 2 | 5 | 4 | 1 by 1, 2.1 by 4 | 1.9 |
 | 222 | 0.3.0 |  |  | **Write `--format sql` and `SQLInsert` rows as multi-row INSERTs, so a bulk fixture loads fast.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
@@ -232,10 +231,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 366. Rewrite the README's data-import paragraph so its run order matches the block of commands and each clause says which script it governs.
-
-Two prose-review findings on the paragraph above the block of `data-import/<script>.py` commands in the README's Development section. First, the paragraph says to run `names-*.py`, `geo-no.py` and `geo-se.py` before `company-*.py`, and `territory.py` before `cldr-sv.py`, but the block is alphabetical, so pasting it runs each pair in the wrong order. The paragraph also leaves out that `timezone.py` reads the shipped `misc/territory.tsv` too. Second, one sentence packs five ideas: "delete it" may mean the cache or a copy you pass, `--surnames` doesn't say it belongs to `names-us.py`, and "about a gigabyte" doesn't say whether that is per county or `geo-us.py`'s total.
 
 ### 341. Add a `legal` field to `sv_SE.company` and `nb_NO.company` that prints a bound company's legal-form word, so `{c.legal}` reads it from the same pick as `{c}`.
 

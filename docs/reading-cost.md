@@ -878,3 +878,15 @@ Read most (opens and searches):
 - `.gitignore` 1
 - `CHANGELOG.md` 1
 - `data-import/bankaccount-se.py` 1
+
+## Reading cost, chunk a63daba5ca79, finished 2026-11-04T14:16:43Z
+
+47053 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 4
+- `README.md` 2
+- `data-import/bankaccount-se.py` 1
+- `data-import/licenseplate-se.py` 1
+- `docs/decisions.md` 1
