@@ -1158,3 +1158,36 @@ Inherited architect, would restructure first:
 - `render.go:54` `render`: a child rendered here must also be listed in renderEdges, held by a comment and a panic
 - `data/geo/SE/address.json:3` `street`: binds l inside the field its siblings read, correct but reading as a bug on the file the 3am question opens
 - `internal/rows/rows.go:343` `Descendant`: ranges a map, sound only because linked tables are siblings with unique names, and nothing says so
+
+## 2026-11-04T21:57:22Z, PR #296 at 3473360, against 6d1bafa
+
+Ruling: better
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Mid A | better | better | better | better | better |
+| Inherited architect | better | better | better | better | better |
+
+Mid A, decided by:
+
+- Overall, Locality, Shape: `namefence.go:120` `walkRoutes`: one walk lists every read with its kind and place in the pick, where the older version had three walks with slightly different following rules; `route`'s fields valid only for some kinds and the `inPick` and `kept` state remain a cost
+- Navigation, Self-sufficiency: `namefence.go:36` `checkNameRead`: its comment lists the two ways a name breaks its promise and maps each to the refuser that catches it
+- Locality: `namefence.go:467` `freshFieldReads`: a plain function called at `resolve.go:115`, where a check used to fill `names.fresh` lazily
+- Locality, Shape: `cli/cli.go:252` `recordFormat`: each format carries its own `write` and `empty`, where `writeRecords` branched on the format and `writeNoRecord` inferred its output
+- Shape: `pick.go:40` `namedLevels`: this and `freshLevels` replace `levelKeys(path, from)` and its bare 0 or 1 with two truthful names
+- Shape: `namefence.go:534` `readAddressing`: a method taking a `refReach` replaces a 7-argument function, and `refuseFreshDraw` shrinks into `refsReached` and `underSelector`
+- Shape: `columnread.go:25` `columnReadOf`: splits into `readsOneArm` and `columnSource`, replacing one long function with a long guard
+- Self-sufficiency: `pick.go:125` `namedPick`: its comment gives the pick's lifecycle, which the older version left the reader to reconstruct
+- Self-sufficiency, Locality: `data.go:152` `pipeline.run`: its comment states the stage order and why it holds
+
+Inherited architect, decided by:
+
+- Navigation, Self-sufficiency, Overall: `namefence.go:36` `checkNameRead`: its comment lists the two ways a name breaks its promise and which refuser handles each, so a load error leads straight to the right fence
+- Shape, Locality: `namefence.go:120` `walkRoutes`: one walk and one `routes` list feed every fence, where separate walkers each had their own rule; `route`'s partial fields, the `inPick` flag and the silent reset at `:141` are smaller costs than what it removes
+- Locality: `resolve.go:115` `resolveTemplates`: `fresh` is computed up front by a free function, removing a hidden write that depended on call order
+- Shape, Self-sufficiency: `pick.go:40` `namedLevels`: this and `freshLevels` replace `levelKeys(path, from)` with a bare 0 or 1, and each comment says why its levels start where they do
+- Self-sufficiency: `data.go:152` `pipeline.run`: the new comment says why each stage must follow the one before
+- Locality, Shape: `cli/cli.go:252` `recordFormat`: each format owns its writer and its zero-record output, so adding a format touches one table entry; `write` takes a `table` only the SQL writer uses
+- Navigation, Self-sufficiency: `release-tooling/propose_plan.py:43` `propose`: about 30 lines of shell in the workflow are now a named script with a test file
+- Shape: `columnread.go:37` `readsOneArm`: this and `columnSource` split the older `columnReadOf` into a test and a lookup whose names say which is which
+- Shape, Locality: `namefence.go:41` `checkNameRead`: `names.pick(b)` and `refReach` replace a repeated struct literal, the 7-argument `readAddressing` and the nested loop in `refuseFreshDraw`
