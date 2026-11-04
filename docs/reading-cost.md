@@ -810,3 +810,20 @@ Read most (opens and searches):
 - `data-import/geo-se.py` 1
 - `data-import/geo.py` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 8ed2038b7178, finished 2026-11-04T12:34:26Z
+
+97099 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `data_test.go` 4
+- `CHANGELOG.md` 2
+- `todo.md` 2
+- `compose.yaml` 1
+- `data-import/loglevel.py` 1
+- `data-import/source.py` 1
+- `data/misc/car.json` 1
+- `data/sv_SE/.fejkdata.json` 1
+- `data/sv_SE/fs.go` 1
