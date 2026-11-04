@@ -129,6 +129,12 @@ replacement, and each removed path, column or flag.
 - A choice item whose format reads only a name the item binds, such as `{/ab as w}{w.legal}`, draws
   without a panic. It loaded, then panicked when drawn.
 
+## [0.2.1] - 2026-11-04
+
+### Changed
+
+- The binaries, packages and image are built with GoReleaser v2.20.0.
+
 ## [0.2.0] - 2026-10-28
 
 ### Breaking
