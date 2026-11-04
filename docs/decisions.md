@@ -708,12 +708,12 @@ path, and why an error names `geo.SE.municipality[1281]` rather than `municipali
 
 2026-09-18, Lilleman auf Larv; revised 2026-11-04.
 
-Goal 9.1 has the caller supply everything that can change the output, so a seeded fixture changes
-with the day only where the caller gives it a new day. The earlier decision bounded a date by days,
+Goal 9.1 has the caller supply everything that can change the output, so in the library a seeded fixture
+changes with the day only where the caller gives it a new day. The earlier decision bounded a date by days,
 and a fixed earliest day made the oldest `personnummer` wrong as years passed, against goal 3.
-`born` judges an age by the year of the date, whether or not the birthday has passed, since
+`born` counts an age by the year of the date, whether or not the birthday has passed, since
 folkbokföringslagen 18 § changes the separator "det år en person fyller 100 år". Valid while no
-builtin needs a part of the date finer than the year to judge an age. `{date(from,to,…)}` keeps its
+builtin needs a part of the date finer than the year to count an age. `{date(from,to,…)}` keeps its
 absolute days for what no age bounds.
 
 ## `New` requires `WithToday`, and `--today` defaults to the system's date
@@ -727,13 +727,13 @@ since it collides with `{date()}` and `sv_SE.date`. `born` won three to two over
 and `turns` were wanted least. A date is required even where no template reads it, since a load cannot
 promise that the data never will. Valid while goal 9.1 stands.
 
-## A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`
+## `sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`
 
 2026-11-04, Lilleman auf Larv.
 
 Goal 3 asks that a valid value pass its real check, and goal 3.2 asks for a published source. The bands
 and weights are SCB's, in `docs/research/research-age-bands.md`. The law gives no oldest age, so the top
-band stops at 113, the oldest validated age in Sweden: Astrid Zachrison, 1895-05-15 to 2008-05-15
+band stops at 113, the oldest validated age in Sweden: Astrid Zachrison, 113 years
 (LongeviQuest; Wikipedia's list of Swedish supercentenarians). Bands relative to a date cut across
 centuries, so `personnummer-12` cannot write `19{ten}` and `20{ten}`: it prints the century in `born`'s
 layout, and `{luhn(9)}` keeps it out of the check digit. A panel of three readers chose `{luhn(9)}` over

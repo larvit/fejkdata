@@ -593,7 +593,7 @@ Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
 
 ### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
 
-The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The bands and weights are the decision "A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`".
+The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The decision "`sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`" sets the bands and weights.
 
 ### 356. Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.
 

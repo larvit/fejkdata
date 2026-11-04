@@ -16,8 +16,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
-- **Valid ids:** personnummer, spelled with a `+` from the year the holder turns 100, and
-  samordningsnummer from Skatteverket's test series, and
+- **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
   a checker that requires a month of 1 to 12 refuses the fødselsnummer; Swedish
   organisationsnummer and VAT numbers that pass the format and the checksum, not a VIES lookup, so a drawn one may be a real organisation's; SSNs
@@ -149,7 +148,7 @@ func TestSignup(t *testing.T) {
 }
 ```
 
-`WithSeed(1)` and that day give the same person on every run of one version; another seed gives another.
+`WithSeed(1)` and `WithToday(day)` give the same person on every run of one version; another seed gives another.
 
 ## CLI
 
@@ -185,7 +184,7 @@ these paths; a template reads one as `{/path}`.
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
-| `--today DAY` | the date a render is read on, as `YYYY-MM-DD` from year 1000 on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer` (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
+| `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
@@ -362,7 +361,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | Option | |
 |--------|--|
 | `WithSeed(n)` | required; the same seed, date, data and versions give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
-| `WithToday(day)` | required; the date a render is read on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer`. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It takes the calendar day as written in `day`'s location, in a year from 1000 to 9999, and ignores the time of day |
+| `WithToday(day)` | required; the date to treat as today. Ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer`, count from it. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It uses the calendar day that `day` shows in its own location and ignores the time of day. `New` refuses a year outside 1000 to 9999 |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -728,16 +727,16 @@ too, so a person's prefix never contradicts it. A `personnummer`'s birth number,
 `sv_SE.birth-number` under `sex`, is Skatteverket's test series, 238 for a woman and 239
 for a man, which no real person is ever given.
 
-`sv_SE.personnummer` and `sv_SE.personnummer-12` draw ages as often as SCB counted them in Sweden at the
-end of 2024: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged 65–99 and 0.028% aged 100 or more, up to
-113, the oldest age validated in Sweden. An age is judged by the date the caller gives, with
+`sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in Sweden
+at the end of 2024, and a birthdate evenly inside each: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged
+65–99 and 0.028% aged 100 to 113, the oldest age validated in Sweden. Ages count from the date given to
 `WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
-the year the holder turns 100, as folkbokföringslagen 18 § states: read on 2026-11-04, a birth in 1926
+the year the holder turns 100, as folkbokföringslagen 18 § states: with today at 2026-11-04, a birth in 1926
 or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
 holds other birth numbers, 980 and 981 among them, so such a number is outside the series. A birth in a
 year Skatteverket hasn't published yet is outside it too; it adds the coming year each December.
-`sv_SE.samordningsnummer` keeps `-` and a date from 1930 to 2025: the law that governs it, lag
-(2022:1697), states no `+`.
+`sv_SE.samordningsnummer` draws a date from 1930 to 2025 and always spells `-`, since lag (2022:1697), the
+law that governs it, states no `+`.
 
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
 `last-name`. `person` and `personnummer` draw apart, so where a name and a number must
@@ -1095,10 +1094,10 @@ namespace too.
 
 A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
-zeros (`+5` and `05` are `5`); a count of `0` renders nothing; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
-fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed, and `born`
-also reads the given date — a time-based id takes its timestamp from the rng, not the clock — so the same seed
-and date repeat the output.
+zeros (`+5` and `05` are `5`); a count of `0` renders nothing, except in `luhn(n)`, which refuses it; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
+fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed, and a
+time-based id takes its timestamp from the rng, not the clock. `born` also reads the date from `WithToday` or
+`--today`. The same seed and date repeat the output.
 
 | Function | Kind | Renders |
 |----------|------|---------|
@@ -1118,7 +1117,7 @@ and date repeat the output.
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE |
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
-| `{born(min,max,'layout')}` | sample | a second in the years someone turns `min` to `max`, both included, by the date a render is read on, and never after that date; the layout as in `date` |
+| `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1133,9 +1132,13 @@ them a birthdate:
 { "format": "{born(0,99,'060102')}-{birth}{luhn()}", "birth": ["238", "239"] }
 ```
 
-Renders e.g. `811218-2389`. A layout is Go's: the reference time `Mon Jan 2
+Renders e.g. `811218-2384`. `{luhn(9)}` leaves out what comes before the last nine digits, as a twelve-digit
+personnummer's century stays out of its check digit: `{born(0,99,'20060102')}{birth}{luhn(9)}`. It is refused at
+`New` where `n` is below 1 or above 1048576.
+
+A layout is Go's: the reference time `Mon Jan 2
 15:04:05 MST 2006` spelled as the output should look, quoted, since a layout may
-carry the comma that separates arguments, with English names. Every second
+carry the comma that separates arguments, with English names. In `date`, every second
 between the two days is reachable, so a layout with a clock draws the time too, and
 `from` may equal `to`, which is that one day. The instant is UTC, so a zone in the
 layout prints `UTC` or `Z`.
@@ -1143,16 +1146,16 @@ The quotes delimit a layout outside a selector only, so `[O'Fallon]` in an
 argument stays a name. A layout naming no field prints itself, `date` with a clock-only
 layout prints the drawn instant's clock, and `date` over one day with no clock field prints
 that day.
-`born` judges an age by the year of the date given to `WithToday` or `--today`, whether or not the
-birthday has passed: read on 2026-11-04, `born(18,64,'2006-01-02')` draws from 1962-01-01 to 2008-12-31,
+Rejected at `New`: a `date` bound that is no calendar date, or after the other; an unquoted
+or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
+date field, naming `date`, since `time` draws no date.
+
+`born` counts an age by the year of the date given to `WithToday` or `--today`, whether or not the
+birthday has passed: with today at 2026-11-04, `born(18,64,'2006-01-02')` draws from 1962-01-01 to 2008-12-31,
 and `born(0,17,'2006-01-02')` from 2009-01-01 to 2026-11-04. It is refused at `New` where an age is
 negative, `min` is above `max` or `max` is above 999.
-`{luhn(9)}` leaves out what comes before the last nine digits, as a twelve-digit personnummer's century
-stays out of its check digit: `{born(0,99,'20060102')}{birth}{luhn(9)}`. It is refused at `New` where `n`
-is below 1 or above 1048576.
-Rejected at `New`: a bound that is no calendar date, or after the other; an unquoted
-or double-quoted layout, naming the single-quoted one; and `time` with a layout naming a
-date field, naming `date`, since `time` draws no date. `{seq()}` spans `Fake`
+
+`{seq()}` spans `Fake`
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above; give each record its own counter, `{seq(orders)}`, where one
 generator fills several.

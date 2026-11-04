@@ -1,5 +1,5 @@
-// Package drawstate holds a generator's seeded randomness, its {seq()} counters and the date its
-// renders are read on.
+// Package drawstate holds a generator's seeded randomness, its {seq()} counters and the date it
+// treats as today.
 package drawstate
 
 import (
@@ -15,8 +15,8 @@ type State struct {
 	today    time.Time
 }
 
-// New builds the state a seed and a date reproduce. It keeps the date's calendar day as written
-// in its own location, at midnight UTC.
+// New builds the state a seed and a date reproduce. It keeps the calendar day the date shows in its
+// own location, stored as midnight UTC.
 func New(seed uint64, today time.Time) *State {
 	year, month, day := today.Date()
 	return &State{
@@ -30,7 +30,7 @@ func (s *State) IntN(n int) int { return s.rand.IntN(n) }
 
 func (s *State) Float64() float64 { return s.rand.Float64() }
 
-// Today is the date a render is read on, at midnight UTC.
+// Today is the date to treat as today, at midnight UTC.
 func (s *State) Today() time.Time { return s.today }
 
 // Weighted draws an index into cum, a running sum of weights of 0 or more with a positive total,

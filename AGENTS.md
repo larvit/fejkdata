@@ -87,7 +87,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A table owns the spelling of a selector on it
 - A builtin reads the date the caller gives, never the clock, so `born` bounds a date by an age
 - `New` requires `WithToday`, and `--today` defaults to the system's date
-- A `sv_SE.personnummer` is a choice of four age bands, up to 113, and carries no `ten`
+- `sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`
 - `misc` is what every locale shares
 - A register's canonical spelling loses to the one its domain writes
 - `misc.territory` is the spine, and a `misc` table naming a territory links to it

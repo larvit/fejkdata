@@ -23,7 +23,6 @@ func luhnArg(a []string) error {
 	return nil
 }
 
-// luhnPrep checks every digit emitted so far, or only the last n of them.
 func luhnPrep(a []string) Call {
 	n := -1
 	if len(a) == 1 {
