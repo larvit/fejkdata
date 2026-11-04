@@ -827,3 +827,20 @@ Read most (opens and searches):
 - `data/misc/car.json` 1
 - `data/sv_SE/.fejkdata.json` 1
 - `data/sv_SE/fs.go` 1
+
+## Reading cost, chunk 928e8fb6f022, finished 2026-11-04T13:14:50Z
+
+150916 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 7
+- `todo.md` 5
+- `CHANGELOG.md` 3
+- `data/sv_SE/personnummer.json` 2
+- `data_test.go` 2
+- `internal/builtinfunc/builtins.go` 2
+- `builtins_test.go` 1
+- `calc.go` 1
+- `compose.yaml` 1
+- `data-import/licenseplate-se.py` 1
