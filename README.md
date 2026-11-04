@@ -499,7 +499,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
 `version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
 `samordningsnummer`, `organisationsnummer`, `vat`, `licenseplate`, `licenseplate-letters`,
-`company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
+`bankgiro`, `plusgiro`, `bankaccount`, `company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -568,6 +568,18 @@ the 99 that Transportstyrelsen's page listed as blocked in March 2026 and no lon
 The last character of `ABC 12A` is any of those letters but O. The numbers run from `001` to `999`, and from `00` to `99`
 in `ABC 12A`. The forms, letters and numbers are those of sv.wikipedia's article on Swedish plates, which
 Transportstyrelsen's pages do not confirm.
+
+`sv_SE.bankgiro` draws a bankgiro number, seven or eight digits at even odds with a Luhn check digit, printed
+`991-2346` or `5555-5551`. `sv_SE.plusgiro` draws a plusgiro number of two to eight digits with a Luhn check digit,
+printed with the hyphen before the check digit and the rest in pairs from the right, `12 34 56-7`; that length and
+spelling are from Wikipedia and convention, not from an official page. `sv_SE.bankaccount` draws a bank account,
+`1522-8923497`: a clearing number and an account number that the check digit of the clearing number's bank accepts.
+Select a bank by its clearing number, `{/sv_SE.bankaccount[5000]}`; its fields are `clearing`, `bank` and `number`.
+The clearing numbers and banks are those of Bankinfrastruktur i Sverige AB's list, and the account numbers follow
+its document "Bankernas kontonummer" of 2024-02-22. Swedbank's clearing numbers from `8000` to `8999` have a
+fifth digit that the table leaves out. The 15 clearing numbers of `9565`–`9569` and `9600`–`9609` are left out,
+since the document does not publish their check. These are valid,
+not real: a drawn number may belong to a real account.
 
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
@@ -1016,6 +1028,7 @@ stays reproducible.
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
+| `{bgmod11(x)}` | derivation | completes a number under Bankgirot's 11-modul after the digits emitted so far, which follow the literal digits `x`: a digit it picks, then the check digit, so the whole number's digits, weighted 1, 2, 3 and up to 10 from the right and then 1 again, sum to a multiple of 11; `x` is `0` where nothing comes before |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |
 | `{int(min,max)}` | sample | uniform integer in `[min, max]` |
