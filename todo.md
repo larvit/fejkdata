@@ -281,7 +281,7 @@ GeoNames gives Stockholm's 1,139 postal codes 2 points and Göteborg's 758 one, 
 
 ### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
 
-373 postorter such as Bromma and Farsta weigh 200, because no current SCB table gives a population by postal area. SCB's `Totalbef_postnr.xls`, population on 2012-12-31 by postal code area as divided in April 2013, is the one such table found, linked from sv.wikipedia. It survives only at https://web.archive.org/web/20130928163559/http://www.scb.se/Grupp/Produkter_Tjanster/Skraddarsydd/Regionala_produkter/Marknadsprofiler/Totalbef_postnr.xls. It states no licence and isn't on SCB's open-data list. Recommendation: ask SCB, or leave 200. Docs: `docs/decisions.md` → "A Swedish postort that no published population reaches weighs 200".
+373 postorter such as Bromma and Farsta weigh 200, because no current SCB table gives a population by postal area. SCB's `Totalbef_postnr.xls`, population on 2012-12-31 by postal code area as divided in April 2013, is the one such table found, linked from sv.wikipedia. It survives only at https://web.archive.org/web/20130928163559/http://www.scb.se/Grupp/Produkter_Tjanster/Skraddarsydd/Regionala_produkter/Marknadsprofiler/Totalbef_postnr.xls. It states no licence and isn't on SCB's open-data list. Recommendation: ask SCB, or leave 200. Docs: `docs/decisions.md` → "A Swedish postort with no published population of its own weighs 200".
 
 ### 370. Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.
 

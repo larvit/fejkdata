@@ -4,9 +4,9 @@
     data-import/word-se.py [--saldo URL_OR_FILE] [--rude URL_OR_FILE] [--cache DIR] [--out DIR]
 
 A row is a noun, verb, adjective or adverb that SALDO spells in lower-case letters alone, with the forms its table
-carries: a noun's definite singular, a verb's present and an adjective's definite plural. An entry lacking one, such as
-a noun with no singular or a verb only in its s-form, is dropped, and so is a word on the Swedish list of LDNOOBW's rude
-words. SALDO gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
+carries: a noun's definite singular, a verb's present and an adjective's definite plural. An entry lacking that form, such as
+a noun with no singular or a verb only in its s-form, is dropped, and so is one whose word or form is on LDNOOBW's Swedish
+list of rude words. SALDO gives no frequency, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse
 import io
@@ -22,7 +22,7 @@ RUDE = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-
 OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE"
 CACHE = Path(__file__).resolve().parent / "cache"
 LETTERS = re.compile(r"[^\W\d_A-ZÅÄÖ]+")
-# SALDO's partOfSpeech, the path, and the msd of the form the table carries and of the lemma's own form.
+# SALDO's partOfSpeech: the path, the form's column, and SALDO's msd (its morphological tag) for that form and for the lemma.
 PARTS = {
     "nn": ("noun", "definite", "sg def nom", "sg indef nom"),
     "vb": ("verb", "present", "pres ind aktiv", "inf aktiv"),

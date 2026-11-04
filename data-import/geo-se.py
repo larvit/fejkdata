@@ -103,7 +103,7 @@ def inside(lon, lat, rings):
 
 
 class Areas:
-    """Finds the area holding a point, each area's edges filed by latitude band so a test reads only its own band."""
+    """Finds the area holding a point, each area's edges filed by latitude band, so checking a point reads only its own band."""
 
     BAND = 0.01
 
@@ -233,8 +233,8 @@ def street_name(name):
 
 
 def reach_distance(locality, lat, lon):
-    """The distance to a postort's centre over its reach, the fourth root of its codes. The decision on the default embed
-    says why the fourth root."""
+    """The distance to a postort's centre over its reach, the fourth root of its codes. docs/decisions.md says why
+    the fourth root."""
     scale = math.cos(math.radians(lat))
     return math.hypot(float(locality["lat"]) - lat, (float(locality["lon"]) - lon) * scale) / len(locality["codes"]) ** 0.25
 

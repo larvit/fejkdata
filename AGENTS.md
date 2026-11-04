@@ -119,10 +119,10 @@ In [docs/decisions.md](docs/decisions.md):
 - `ascii` folds the Latin letters of ruby-i18n's default table except `ŉ`, so names such as `Wałęsa` keep their letters
 - A pull request that changes a workflow or what a release packages runs the Packages workflow as a dry run, and `gate` is `main`'s one required check
 - CI keeps Go's build and module caches between `main`'s runs, and a pull request's build starts from them
-- `--format sql` writes at most 1000 rows per INSERT
 - A Swedish street's postal codes keep delivery digit 9
-- `sv_SE.word` is SALDO's words, one path per part of speech, each spelled as `sentence.adj` is
-- A Swedish postort that no published population reaches weighs 200
+- A Swedish postort with no published population of its own weighs 200
+- A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
+- `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 # Scoring run
