@@ -246,16 +246,13 @@ func parseArgs(argv []string) (invocation, error) {
 	return in, nil
 }
 
-// recordFormat is one way to write a record out: the line each record renders,
-// the header that precedes the first one, and the open/close frame plus the
-// between-record separator a document form needs.
+type recordSource func() (*fejkdata.Record, error)
+
+// recordFormat is one way to write records out: all of them, and what zero of them print.
 type recordFormat struct {
-	header func(*fejkdata.Record) string
-	line   func(r *fejkdata.Record, table string) string
-	open   string
-	close  string
-	sep    string
 	writes string // what it writes between values, which --separator would seem to set
+	write  func(record recordSource, repeat int, table string, out *bufio.Writer) error
+	empty  func(*fejkdata.Record) string // nil where zero records print nothing
 }
 
 // SQL Server refuses a VALUES list above 1000 rows (error 10738).
@@ -264,16 +261,21 @@ const sqlStatementRows = 1000
 // recordFormats is every --format that writes records. json frames the records
 // as one array document; ndjson writes one object per line.
 var recordFormats = map[string]recordFormat{
-	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n", writes: `always separates fields with ","`},
-	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n", writes: "writes the records as one JSON array"},
-	"ndjson": {line: jsonLine, sep: "\n", writes: "writes one record per line"},
-	"sql":    {writes: "writes one INSERT per line"},
-}
-
-func jsonLine(r *fejkdata.Record, _ string) string { return r.JSON() }
-
-func (in invocation) writesRecords() bool {
-	return in.format != "text"
+	"csv": {
+		writes: `always separates fields with ","`,
+		write:  recordLines{header: (*fejkdata.Record).CSVHeader, line: (*fejkdata.Record).CSVLine, sep: "\n"}.write,
+		empty:  func(r *fejkdata.Record) string { return r.CSVHeader() + "\n" },
+	},
+	"json": {
+		writes: "writes the records as one JSON array",
+		write:  recordLines{line: (*fejkdata.Record).JSON, open: "[", close: "]", sep: ",\n"}.write,
+		empty:  func(*fejkdata.Record) string { return "[]\n" },
+	},
+	"ndjson": {
+		writes: "writes one record per line",
+		write:  recordLines{line: (*fejkdata.Record).JSON, sep: "\n"}.write,
+	},
+	"sql": {writes: "writes one INSERT per line", write: writeSQL},
 }
 
 // formatNames lists the --format values, text included, for the misuse error.
@@ -361,7 +363,7 @@ func (in invocation) options(modules []fs.FS, sys system) []fejkdata.Option {
 // write streams the input's renders to w, repeat of them joined by the separator; a write
 // failure surfaces from Flush, bufio keeping the first one.
 func (in invocation) write(f *fejkdata.Generator, src input, w io.Writer) error {
-	if in.writesRecords() {
+	if in.format != "text" {
 		return in.writeRecords(f, src, w)
 	}
 	t, err := f.NewTemplate(src.template)
@@ -396,8 +398,6 @@ func (in invocation) recordStream(f *fejkdata.Generator, src input) (func() (*fe
 	return record, table, nil
 }
 
-// writeRecords streams a record per line in the chosen format, framing a document
-// form with its open/close brackets and a header preceding the first record.
 func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer) error {
 	record, table, err := in.recordStream(f, src)
 	if err != nil {
@@ -407,39 +407,49 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 	if in.repeat == 0 {
 		return writeNoRecord(record, format, w)
 	}
-	out := bufio.NewWriter(w)
-	if in.format == "sql" {
-		return in.writeSQL(record, table, out)
-	}
-	if format.open != "" {
-		out.WriteString(format.open)
+	return format.write(record, in.repeat, table, bufio.NewWriter(w))
+}
+
+// recordLines writes each record on a line of its own, framed by open and close, with the header
+// before the first where the format has one.
+type recordLines struct {
+	header func(*fejkdata.Record) string
+	line   func(*fejkdata.Record) string
+	open   string
+	close  string
+	sep    string
+}
+
+func (f recordLines) write(record recordSource, repeat int, _ string, out *bufio.Writer) error {
+	if f.open != "" {
+		out.WriteString(f.open)
 		out.WriteByte('\n')
 	}
-	for i := 0; i < in.repeat; i++ {
+	for i := 0; i < repeat; i++ {
 		r, err := record()
 		if err != nil {
 			return err
 		}
-		if i == 0 && format.header != nil {
-			out.WriteString(format.header(r))
+		if i == 0 && f.header != nil {
+			out.WriteString(f.header(r))
 			out.WriteByte('\n')
 		}
 		if i > 0 {
-			out.WriteString(format.sep)
+			out.WriteString(f.sep)
 		}
-		out.WriteString(format.line(r, table))
+		out.WriteString(f.line(r))
 	}
-	if format.close != "" {
+	if f.close != "" {
 		out.WriteByte('\n')
-		out.WriteString(format.close)
+		out.WriteString(f.close)
 	}
 	out.WriteByte('\n')
 	return out.Flush()
 }
 
 // writeSQL streams the records as INSERTs of up to sqlStatementRows rows, one statement per line.
-func (in invocation) writeSQL(record func() (*fejkdata.Record, error), table string, out *bufio.Writer) error {
-	for i := 0; i < in.repeat; i++ {
+func writeSQL(record recordSource, repeat int, table string, out *bufio.Writer) error {
+	for i := 0; i < repeat; i++ {
 		r, err := record()
 		if err != nil {
 			return err
@@ -458,19 +468,14 @@ func (in invocation) writeSQL(record func() (*fejkdata.Record, error), table str
 	return out.Flush()
 }
 
-// writeNoRecord writes zero records: the header where the format writes one, an empty document
-// where it frames one, else nothing. It draws one record, which names the header's columns, so a
-// lone reference to nothing fails as it would with records.
-func writeNoRecord(record func() (*fejkdata.Record, error), format recordFormat, w io.Writer) error {
+// writeNoRecord draws one record, which names a header's columns, so a lone reference to nothing
+// fails as it would with records.
+func writeNoRecord(record recordSource, format recordFormat, w io.Writer) error {
 	r, err := record()
-	switch {
-	case err != nil:
+	if err != nil || format.empty == nil {
 		return err
-	case format.header != nil:
-		_, err = io.WriteString(w, format.header(r)+"\n")
-	case format.open != "":
-		_, err = io.WriteString(w, format.open+format.close+"\n")
 	}
+	_, err = io.WriteString(w, format.empty(r))
 	return err
 }
 

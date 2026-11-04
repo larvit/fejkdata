@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 377`
+`Next ID = 378`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 377 | 0.3.0 |  | question | **Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes, so the decision "One name, one meaning" keeps no test that scans the source with `ast`.** | 1 | 1 | 1 | 1 | 1 | code health by 2 | 8.4 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -224,6 +225,14 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
+
+### 377. Decide whether `TestNoFunctionSpellsAMethod` stays a test, moves to a lint step in the gate, or goes, so the decision "One name, one meaning" keeps no test that scans the source with `ast`.
+
+The principles pass of the 0.3.0 release review raised this as a 🔴. The decision, made on 2026-09-25, names `naming_test.go`'s `TestNoFunctionSpellsAMethod` as what keeps a bare function off a method's name. `technical-principles.md` bans a test "scanning the source with `ast` or a regex", and the decision names no item that ends the test. The review deleted every other such test; changing this one changes the decision, so it is the human's.
+
+- **Delete it (recommended):** remove `naming_test.go`, and cut the clause so review judges the whole rule, as it already does for other declarations. A new declaration then can't fail the suite with no behaviour broken.
+- **Keep the check as a lint step:** run it in the gate, outside the test suite, and record that in the decision.
+- **Keep it as a test:** record in the decision why this one test departs from the principle.
 
 ### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
 

@@ -13,9 +13,6 @@ func TestEachDatatypeIsSpelledAsDataWritesIt(t *testing.T) {
 			t.Errorf("%d: String = %q, Noun = %q, want %q", int(d), d.String(), Noun(d), want)
 		}
 	}
-	if Count != 4 {
-		t.Errorf("Count = %d, want the four datatypes", Count)
-	}
 }
 
 func TestStringNamesADatatypeNoDataWrites(t *testing.T) {

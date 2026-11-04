@@ -729,8 +729,8 @@ for a man, which no real person is ever given.
 
 `sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in Sweden
 at the end of 2024, and a birthdate evenly inside each: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged
-65–99 and 0.028% aged 100 to 113, the oldest age validated in Sweden. Ages count from the date given to
-`WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
+65–99 and 0.028% aged 100 to 113, the oldest age validated in Sweden. Ages count as [`born`](#functions)
+counts them, so what a seed draws changes with the date. The short form spells `-`, and `+` from
 the year the holder turns 100, as folkbokföringslagen 18 § states: with today at 2026-11-04, a birth in 1926
 or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
 holds other birth numbers, 980 and 981 among them, so such a number is outside the series. A birth in a
@@ -1096,8 +1096,7 @@ A `{name(args)}` token calls a builtin. Arguments are checked at `New`: a bad
 count, range, country or expression fails fast; an integer may carry a sign or leading
 zeros (`+5` and `05` are `5`); a count of `0` renders nothing, except in `luhn(n)`, which refuses it; bounds are finite; and a length, count or decimal place beyond a sane maximum is rejected, so a
 fat-fingered `hex(2000000000)` never tries to allocate gigabytes. Every builtin draws only from the seed, and a
-time-based id takes its timestamp from the rng, not the clock. `born` also reads the date from `WithToday` or
-`--today`. The same seed and date repeat the output.
+time-based id takes its timestamp from the rng, not the clock. `born` also reads the date you give. The same seed and date repeat the output.
 
 | Function | Kind | Renders |
 |----------|------|---------|
@@ -1238,8 +1237,8 @@ row:
 Renders e.g. `🇳🇴 Norway: capital Oslo, calling code +47`. A name keeps what each `{n.path}`
 lands on and every level it passes, so `{n}` and `{n.path}` agree, and so does a
 [transform](#transforms) of `n.path`. Everything else under the name draws as it would
-anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and unless `w` is a
-constant, `{n.w}` beside `{n}` is refused, since it could read either draw. A sibling field is bound the same way, so
+anywhere: if `n`'s category has the format `{w}-{w}`, it draws `w` twice, and the refusals below
+say when that refuses `{n.w}` beside `{n}`. A sibling field is bound the same way, so
 `{place as p}{p.postal-code} {p.locality}` reads one place ([Correlated fields](#correlated-fields)).
 
 A name is a pick of its own: `{t.name}` and `{/misc.territory.name}` beside it are two draws,
@@ -1575,7 +1574,6 @@ Source is bind-mounted; build caches persist in the `gocache` volume.
 
 ```sh
 docker compose run --rm test    # go test -race
-docker compose run --rm cover   # tests with coverage
 docker compose run --rm bench   # benchmarks
 docker compose run --rm build   # compile the library
 docker compose run --rm vet     # go vet

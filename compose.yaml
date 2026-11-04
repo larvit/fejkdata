@@ -15,10 +15,6 @@ services:
     <<: *go
     command: go test -race ./...
 
-  cover:
-    <<: *go
-    command: sh -c "go test -coverpkg=./... -coverprofile=/tmp/cover.out ./... && go tool cover -func=/tmp/cover.out | tail -1"
-
   bench:
     <<: *go
     command: go test -run XXX -bench . -benchmem ./...

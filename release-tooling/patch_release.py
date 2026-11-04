@@ -254,11 +254,6 @@ def publish_on_forge(text: str, sha: str) -> tuple[int, str | None]:
 		raise ValueError(f"cannot publish the release: {err}") from err
 
 
-def github_output(line: str) -> None:
-	with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-		f.write(line + "\n")
-
-
 def main(argv: list[str]) -> int:
 	try:
 		match argv:
@@ -268,7 +263,7 @@ def main(argv: list[str]) -> int:
 			case ["cut"]:
 				root = os.getcwd()
 				today = datetime.datetime.now(datetime.UTC).date().isoformat()
-				effects = Effects(functools.partial(scan_tree, root), build_and_push, publish_on_forge, github_output, go_release_notes.fetch)
+				effects = Effects(functools.partial(scan_tree, root), build_and_push, publish_on_forge, publish_release.github_output, go_release_notes.fetch)
 				return cut(root, last_release(), today, effects)
 			case ["plan", report, todo, changelog_path]:
 				read(report)

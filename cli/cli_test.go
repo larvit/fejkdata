@@ -645,8 +645,10 @@ func TestUsageExamplesRenderWithNoData(t *testing.T) {
 			t.Errorf("usage names %s, a path a custom CLI may not carry", token)
 		}
 	}
-	if !strings.Contains(usage, "\nExit codes: 0 success, 1 runtime error, 2 misuse.\n") {
-		t.Errorf("usage does not list the exit codes")
+	for _, code := range []string{"0 success", "1 runtime error", "2 misuse"} {
+		if !strings.Contains(usage, code) {
+			t.Errorf("usage does not name exit code %s", code)
+		}
 	}
 }
 

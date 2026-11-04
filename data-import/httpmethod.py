@@ -23,7 +23,6 @@ CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["idempotent", "method", "safe"]
 CORE = re.compile(r"\[RFC9110, Section 9\.3\.|\[RFC5789, Section 2\]")
 BOOLEAN = {"yes": "true", "no": "false"}
-SELECTOR = '[]{}"|'  # mirrors inSelector in internal/grammar/path.go
 EXPECTED = 9
 
 
@@ -32,8 +31,8 @@ def rows(text):
         method = (r["Method Name"] or "").strip()
         if not CORE.search(r["Reference"] or ""):
             continue
-        if set(method) & set(SELECTOR):
-            sys.exit(f"{method}: a method holding one of {SELECTOR} is one a selector cannot spell")
+        if set(method) & set(tsv.SELECTOR):
+            sys.exit(f"{method}: a method holding one of {tsv.SELECTOR} is one a selector cannot spell")
         answers = {}
         for column in ("Safe", "Idempotent"):
             answer = (r[column] or "").strip()

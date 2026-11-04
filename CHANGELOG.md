@@ -11,15 +11,12 @@ replacement, and each removed path, column or flag.
 - `New` requires `WithToday(day)`, the date to treat as today, beside `WithSeed`: add
   `fejkdata.WithToday(time.Now())` for the current date, or a fixed day to repeat a run's output on a
   later day. Without it `New` fails and names the option.
-- `sv_SE.personnummer` and `sv_SE.personnummer-12` draw four age bands as often as SCB counted them in
-  Sweden at the end of 2024, up to age 113, and count ages from `WithToday` or `--today`, where they drew
+- `sv_SE.personnummer` draws four age bands as often as SCB counted them in
+  Sweden at the end of 2024, up to age 113, and counts ages from `WithToday` or `--today`, where it drew
   evenly from 1930 to 2025. What a seed draws changes, and changes again with the date: give `WithToday` or
   `--today` a fixed day to repeat a run on a later day. `sv_SE.personnummer` spells `+` from the year the
   holder turns 100, so a system reading it must accept the `+`. It is now a choice of four age bands, where
   a format string stood.
-- `sv_SE.personnummer-12.ten` is removed: for ten digits, write
-  `{born(0,99,'060102')}{/sv_SE.birth-number.number}{luhn()}`, or cut the last ten digits of
-  `{/sv_SE.personnummer-12}` in your own code.
 - `misc.territory.country` is now `misc.territory.sovereign`. It still holds the alpha-2
   code of the state a territory belongs to: `{/misc.territory[GL].sovereign}` is `DK`.
   The column sorts by name, so `--format csv` writes it after `numeric`, where `country`
@@ -102,8 +99,8 @@ replacement, and each removed path, column or flag.
   `9565` to `9569` and `9600` to `9609` are not shipped, since that document doesn't publish their
   check. The drawn numbers are valid, not real: one may belong to a real account.
 - `sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12`, the twelve-digit form of each, century
-  first and no hyphen, `199001012385`. The Luhn check digit covers the last ten digits, which the
-  field `ten` holds.
+  first and no hyphen, `199001012385`. The Luhn check digit covers the last ten digits, which
+  `sv_SE.samordningsnummer-12`'s field `ten` holds.
 - `sv_SE.sni`, SCB's SNI 2025 industry codes, the 835 five-digit ones, selected by a code such as
   `62.100` and drawn as the code and its Swedish label.
 - `sv_SE.ssyk`, SCB's SSYK 2012 occupation codes, the 429 four-digit ones, selected by a code such as

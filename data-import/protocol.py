@@ -21,7 +21,6 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "misc" / "protocol.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 COLUMNS = ["keyword", "name", "number"]
 SKIP = ("Reserved", "deprecated")
-SELECTOR = '[]{}"|'  # mirrors inSelector in internal/grammar/path.go
 
 
 def rows(text):
@@ -39,8 +38,8 @@ def refuse_an_unselectable_row(table):
     keywords, names = {}, {}
     for r in table:
         for column in ("keyword", "name"):
-            if set(r[column]) & set(SELECTOR):
-                sys.exit(f"{r['keyword']}: {column} {r[column]!r} holds one of {SELECTOR}, which a selector cannot spell")
+            if set(r[column]) & set(tsv.SELECTOR):
+                sys.exit(f"{r['keyword']}: {column} {r[column]!r} holds one of {tsv.SELECTOR}, which a selector cannot spell")
         if r["keyword"] in keywords:
             sys.exit(f"{r['keyword']}: repeats the keyword of protocol {keywords[r['keyword']]}")
         keywords[r["keyword"]] = r["number"]

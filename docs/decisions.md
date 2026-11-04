@@ -979,7 +979,7 @@ Shipped under that decision: item 89, the last of 0.1.0, at 52e0304. Its paired 
 
 Shipped under the floor as 0.1.0's distribution, each by the maintainer's decision: item 58, prebuilt binaries and packages, which the plan had under 0.2.0, on 2026-10-13; and the image on Docker Hub, on 2026-10-14. Neither changes Go code.
 
-Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item 182, the shipped data as Go packages, at a632a92. Its last paired ruling against bf1becb was same overall, Mid A better and Junior A worse, with Shape fallen, three seats against the namespace mount in `internal/datafiles/mount.go` and the `at` field of `datafiles.Source`; the scoring run that would rule it worse under the floor was not run. Item 197 removed that mount and the `at` field.
+Shipped by the maintainer's decision of 2026-10-11 with its ratchet waived: item 182, the shipped data as Go packages, at a632a92. Its last paired ruling against bf1becb was same overall, Mid A better and Junior A worse, with Shape fallen; the scoring run that would rule it worse under the floor was not run.
 
 Shipped under the floor before that by the maintainer's decisions of 2026-10-07, each with the scoring run and its ratchet waived: the CLI reading its template from stdin; and goal 4.7 loading whatever is well-formed and means one thing, dropping every refusal that guessed at a mistake.
 

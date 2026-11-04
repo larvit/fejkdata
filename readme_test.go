@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
+	"go/build"
 	"go/parser"
 	"go/token"
 	"os"
@@ -60,6 +61,15 @@ func exampleFiles(t *testing.T, src string, at int, body string) map[string]stri
 	return files
 }
 
+func packageDir(t *testing.T) *build.Package {
+	t.Helper()
+	pkg, err := build.ImportDir(".", 0)
+	if err != nil {
+		t.Fatalf("read the package directory: %v", err)
+	}
+	return pkg
+}
+
 func readme(t *testing.T) string {
 	t.Helper()
 	src, err := os.ReadFile("README.md")
@@ -74,9 +84,6 @@ func TestReadmeExamplesLoadAndRender(t *testing.T) {
 	src := readme(t)
 	for _, at := range jsonBlock.FindAllStringSubmatchIndex(src, -1) {
 		body := src[at[2]:at[3]]
-		if strings.Contains(body, "…") {
-			continue
-		}
 		f, err := New(withShipped(), WithDataPath(writeFiles(t, exampleFiles(t, src, at[0], body))), WithSeed(1), onTestDay)
 		if err != nil {
 			t.Errorf("README example does not load: %v\n%s", err, body)

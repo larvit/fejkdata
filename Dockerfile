@@ -36,6 +36,7 @@ COPY vulnerability-filing/ /vulnerability-filing/
 COPY .github/workflows/packages.yml /.github/workflows/packages.yml
 COPY renovate.json /renovate.json
 COPY Dockerfile /Dockerfile
+COPY compose.yaml /compose.yaml
 RUN python3 -m unittest discover -s /release-tooling -p '*_test.py' && touch /tested
 
 FROM python:3.15.2-slim AS vulnerability-filing

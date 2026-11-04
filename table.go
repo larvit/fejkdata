@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -53,15 +54,6 @@ func (t *table) cellIndex(row, col int) int { return row*len(t.rows.Header()) + 
 
 var tableOptions = []string{"format", "key", "name", "parent", "rows", "weight"}
 
-func isTableOption(name string) bool {
-	for _, o := range tableOptions {
-		if o == name {
-			return true
-		}
-	}
-	return false
-}
-
 func compileTable(m map[string]any, dir []string, name string, readRows func(file string) (string, error)) (*table, error) {
 	o, err := readTableOptions(m)
 	if err != nil {
@@ -92,7 +84,7 @@ type tableOptionValues struct {
 func readTableOptions(m map[string]any) (tableOptionValues, error) {
 	var o tableOptionValues
 	for k := range m {
-		if !isTableOption(k) {
+		if !slices.Contains(tableOptions, k) {
 			return o, fmt.Errorf("a table takes %s; %q is none of them", strings.Join(tableOptions, ", "), k)
 		}
 	}
