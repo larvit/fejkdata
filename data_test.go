@@ -1290,3 +1290,164 @@ func TestShippedSwedishPersonBirthdate(t *testing.T) {
 		t.Errorf("birthdates span %s to %s in 5000 draws, want 1930-01-01 to 2025-12-31 at its ends", first.Format("2006-01-02"), last.Format("2006-01-02"))
 	}
 }
+
+func tsvTable(t *testing.T, path string) (header []string, rows [][]string) {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, line := range strings.Split(strings.TrimSuffix(string(data), "\n"), "\n") {
+		cells := strings.Split(line, "\t")
+		switch {
+		case i == 0:
+			header = cells
+		case len(cells) != len(header):
+			t.Fatalf("%s line %d has %d cells, want %d", path, i+1, len(cells), len(header))
+		default:
+			rows = append(rows, cells)
+		}
+	}
+	return header, rows
+}
+
+// sv_SE.sni is SCB's SNI 2025 detaljgrupper: 835 five-digit codes, each selected by its code and
+// drawn as the code and its Swedish label.
+func TestShippedSwedishSNI(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	for path, want := range map[string]string{
+		"sv_SE.sni[01.110]":      "01.110 Odling av spannmål (utom ris), baljväxter och oljeväxter",
+		"sv_SE.sni[62.100].name": "Dataprogrammering",
+		"sv_SE.sni[17.110].name": "Massatillverkning",
+		"sv_SE.sni[99.000].code": "99.000",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	header, rows := tsvTable(t, "data/sv_SE/sni.tsv")
+	if !slices.Equal(header, []string{"code", "name"}) || len(rows) != 835 {
+		t.Fatalf("sni.tsv has columns %v and %d rows, want code, name and 835", header, len(rows))
+	}
+	code := regexp.MustCompile(`^\d\d\.\d{3}$`)
+	seen := map[string]bool{}
+	for _, row := range rows {
+		if !code.MatchString(row[0]) || seen[row[0]] || row[1] != strings.TrimSpace(row[1]) || row[1] == "" {
+			t.Errorf("sni.tsv row %q is not a unique NN.NNN code with a trimmed label", row)
+		}
+		seen[row[0]] = true
+	}
+	drawn := regexp.MustCompile(`^\d\d\.\d{3} \S`)
+	for i := 0; i < 200; i++ {
+		if got := fake(t, f, "sv_SE.sni"); !drawn.MatchString(got) {
+			t.Fatalf("sv_SE.sni drew %q, want a code, a space and a label", got)
+		}
+	}
+}
+
+// sv_SE.ssyk is SCB's SSYK 2012 at four digits: 429 occupation groups, each selected by its code.
+func TestShippedSwedishSSYK(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	for path, want := range map[string]string{
+		"sv_SE.ssyk[2512]":      "2512 Mjukvaru- och systemutvecklare m.fl.",
+		"sv_SE.ssyk[1111].name": "Politiker",
+		"sv_SE.ssyk[2221].name": "Grundutbildade sjuksköterskor",
+		"sv_SE.ssyk[5223].name": "Butikssäljare, fackhandel",
+		"sv_SE.ssyk[5120].code": "5120",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	header, rows := tsvTable(t, "data/sv_SE/ssyk.tsv")
+	if !slices.Equal(header, []string{"code", "name"}) || len(rows) != 429 {
+		t.Fatalf("ssyk.tsv has columns %v and %d rows, want code, name and 429", header, len(rows))
+	}
+	code := regexp.MustCompile(`^\d{4}$`)
+	seen := map[string]bool{}
+	for _, row := range rows {
+		if !code.MatchString(row[0]) || seen[row[0]] || row[1] != strings.TrimSpace(row[1]) || row[1] == "" {
+			t.Errorf("ssyk.tsv row %q is not a unique four-digit code with a trimmed label", row)
+		}
+		seen[row[0]] = true
+	}
+}
+
+// sv_SE.car holds each model that Mobility Sweden's December 2025 report counts 500 or more new
+// passenger cars of in 2025, less its "Övriga" rows, weighted by those registrations.
+func TestShippedSwedishCar(t *testing.T) {
+	header, rows := tsvTable(t, "data/sv_SE/car.tsv")
+	if !slices.Equal(header, []string{"make", "model", "registrations"}) || len(rows) != 119 {
+		t.Fatalf("car.tsv has columns %v and %d rows, want make, model, registrations and 119", header, len(rows))
+	}
+	total, registrations := 0, map[string]int{}
+	for _, row := range rows {
+		n, err := strconv.Atoi(row[2])
+		if err != nil || n < 500 {
+			t.Errorf("car.tsv row %q has no registrations of 500 or more", row)
+		}
+		if strings.HasPrefix(strings.ToUpper(row[1]), strings.ToUpper(row[0])+" ") || strings.Contains(strings.ToUpper(row[1]), "ÖVRIGA") {
+			t.Errorf("car.tsv row %q repeats its make in the model or is an Övriga row", row)
+		}
+		total += n
+		registrations[row[0]+" "+row[1]] = n
+	}
+	for name, want := range map[string]int{
+		"Volvo XC60":                  17933,
+		"Volkswagen ID.7/ID.7 Tourer": 8134,
+		"Tesla Model Y":               5822,
+		"Mercedes-Benz E-Klass":       2596,
+		"Lynk & Co 01":                757,
+		"Renault 5":                   1371,
+		"Toyota RAV 4":                5091,
+		"Porsche 911":                 575,
+	} {
+		if registrations[name] != want {
+			t.Errorf("car.tsv gives %s %d registrations, want %d", name, registrations[name], want)
+		}
+	}
+	if total != 242981 {
+		t.Errorf("car.tsv registrations sum to %d, want 242981", total)
+	}
+	f := shipped(t, WithSeed(7))
+	const draws = 60000
+	xc60 := 0
+	for i := 0; i < draws; i++ {
+		if fake(t, f, "sv_SE.car") == "Volvo XC60" {
+			xc60++
+		}
+	}
+	want := 17933 * 100 / float64(total)
+	if got := float64(xc60) * 100 / draws; math.Abs(got-want) > 0.5 {
+		t.Errorf("Volvo XC60 drew %.2f%%, want %.2f%% within half a point", got, want)
+	}
+}
+
+// The sex tables hold the people of each sex: SCB's population at the end of 2024, Statistics
+// Norway's on 1 January 2026 and the Census Bureau's estimate for 1 July 2024.
+func TestShippedSexIsWeightedByPopulation(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	for path, want := range map[string]string{
+		"sv_SE.sex[f].count": "5262925",
+		"sv_SE.sex[m].count": "5324785",
+		"nb_NO.sex[f].count": "2790483",
+		"nb_NO.sex[m].count": "2836917",
+		"en_US.sex[f].count": "171773106",
+		"en_US.sex[m].count": "168337882",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
+		}
+	}
+	const draws = 100000
+	female := 0
+	for i := 0; i < draws; i++ {
+		if fake(t, f, "en_US.sex") == "female" {
+			female++
+		}
+	}
+	want := 171773106 * 100 / float64(171773106+168337882)
+	if got := float64(female) * 100 / draws; math.Abs(got-want) > 0.3 {
+		t.Errorf("en_US.sex drew female %.2f%%, want %.2f%% within 0.3 points of the population's", got, want)
+	}
+}
