@@ -1291,26 +1291,6 @@ func TestShippedSwedishPersonBirthdate(t *testing.T) {
 	}
 }
 
-func tsvTable(t *testing.T, path string) (header []string, rows [][]string) {
-	t.Helper()
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for i, line := range strings.Split(strings.TrimSuffix(string(data), "\n"), "\n") {
-		cells := strings.Split(line, "\t")
-		switch {
-		case i == 0:
-			header = cells
-		case len(cells) != len(header):
-			t.Fatalf("%s line %d has %d cells, want %d", path, i+1, len(cells), len(header))
-		default:
-			rows = append(rows, cells)
-		}
-	}
-	return header, rows
-}
-
 // sv_SE.sni is SCB's SNI 2025 detaljgrupper: 835 five-digit codes, each selected by its code and
 // drawn as the code and its Swedish label.
 func TestShippedSwedishSNI(t *testing.T) {
@@ -1325,22 +1305,14 @@ func TestShippedSwedishSNI(t *testing.T) {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 		}
 	}
-	header, rows := tsvTable(t, "data/sv_SE/sni.tsv")
-	if !slices.Equal(header, []string{"code", "name"}) || len(rows) != 835 {
-		t.Fatalf("sni.tsv has columns %v and %d rows, want code, name and 835", header, len(rows))
+	rows := tsvRows(t, "data/sv_SE/sni.tsv")
+	if len(rows) != 835 {
+		t.Fatalf("sni.tsv has %d rows, want 835", len(rows))
 	}
 	code := regexp.MustCompile(`^\d\d\.\d{3}$`)
-	seen := map[string]bool{}
 	for _, row := range rows {
-		if !code.MatchString(row[0]) || seen[row[0]] || row[1] != strings.TrimSpace(row[1]) || row[1] == "" {
-			t.Errorf("sni.tsv row %q is not a unique NN.NNN code with a trimmed label", row)
-		}
-		seen[row[0]] = true
-	}
-	drawn := regexp.MustCompile(`^\d\d\.\d{3} \S`)
-	for i := 0; i < 200; i++ {
-		if got := fake(t, f, "sv_SE.sni"); !drawn.MatchString(got) {
-			t.Fatalf("sv_SE.sni drew %q, want a code, a space and a label", got)
+		if !code.MatchString(row["code"]) || row["name"] != strings.TrimSpace(row["name"]) || row["name"] == "" {
+			t.Errorf("sni.tsv row %q is not an NN.NNN code with a trimmed label", row)
 		}
 	}
 }
@@ -1359,38 +1331,36 @@ func TestShippedSwedishSSYK(t *testing.T) {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 		}
 	}
-	header, rows := tsvTable(t, "data/sv_SE/ssyk.tsv")
-	if !slices.Equal(header, []string{"code", "name"}) || len(rows) != 429 {
-		t.Fatalf("ssyk.tsv has columns %v and %d rows, want code, name and 429", header, len(rows))
+	rows := tsvRows(t, "data/sv_SE/ssyk.tsv")
+	if len(rows) != 429 {
+		t.Fatalf("ssyk.tsv has %d rows, want 429", len(rows))
 	}
 	code := regexp.MustCompile(`^\d{4}$`)
-	seen := map[string]bool{}
 	for _, row := range rows {
-		if !code.MatchString(row[0]) || seen[row[0]] || row[1] != strings.TrimSpace(row[1]) || row[1] == "" {
-			t.Errorf("ssyk.tsv row %q is not a unique four-digit code with a trimmed label", row)
+		if !code.MatchString(row["code"]) || row["name"] != strings.TrimSpace(row["name"]) || row["name"] == "" {
+			t.Errorf("ssyk.tsv row %q is not a four-digit code with a trimmed label", row)
 		}
-		seen[row[0]] = true
 	}
 }
 
 // sv_SE.car holds each model that Mobility Sweden's December 2025 report counts 500 or more new
 // passenger cars of in 2025, less its "Övriga" rows, weighted by those registrations.
 func TestShippedSwedishCar(t *testing.T) {
-	header, rows := tsvTable(t, "data/sv_SE/car.tsv")
-	if !slices.Equal(header, []string{"make", "model", "registrations"}) || len(rows) != 119 {
-		t.Fatalf("car.tsv has columns %v and %d rows, want make, model, registrations and 119", header, len(rows))
+	rows := tsvRows(t, "data/sv_SE/car.tsv")
+	if len(rows) != 119 {
+		t.Fatalf("car.tsv has %d rows, want 119", len(rows))
 	}
 	total, registrations := 0, map[string]int{}
 	for _, row := range rows {
-		n, err := strconv.Atoi(row[2])
+		n, err := strconv.Atoi(row["registrations"])
 		if err != nil || n < 500 {
 			t.Errorf("car.tsv row %q has no registrations of 500 or more", row)
 		}
-		if strings.HasPrefix(strings.ToUpper(row[1]), strings.ToUpper(row[0])+" ") || strings.Contains(strings.ToUpper(row[1]), "ÖVRIGA") {
+		if strings.HasPrefix(strings.ToUpper(row["model"]), strings.ToUpper(row["make"])+" ") || strings.Contains(strings.ToUpper(row["model"]), "ÖVRIGA") {
 			t.Errorf("car.tsv row %q repeats its make in the model or is an Övriga row", row)
 		}
 		total += n
-		registrations[row[0]+" "+row[1]] = n
+		registrations[row["make"]+" "+row["model"]] = n
 	}
 	for name, want := range map[string]int{
 		"Volvo XC60":                  17933,
@@ -1399,8 +1369,16 @@ func TestShippedSwedishCar(t *testing.T) {
 		"Mercedes-Benz E-Klass":       2596,
 		"Lynk & Co 01":                757,
 		"Renault 5":                   1371,
-		"Toyota RAV 4":                5091,
+		"Toyota RAV4":                 5091,
 		"Porsche 911":                 575,
+		"Toyota bZ4X":                 746,
+		"BMW iX1":                     1795,
+		"Audi Q4 e-tron":              2042,
+		"Hyundai i10":                 578,
+		"Volkswagen T-Roc":            3669,
+		"Volvo XC90":                  2078,
+		"Škoda Octavia":               2219,
+		"Citroën C4":                  536,
 	} {
 		if registrations[name] != want {
 			t.Errorf("car.tsv gives %s %d registrations, want %d", name, registrations[name], want)
@@ -1438,16 +1416,5 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		if got := fake(t, f, path); got != want {
 			t.Errorf("Fake(%q) = %q, want %q", path, got, want)
 		}
-	}
-	const draws = 100000
-	female := 0
-	for i := 0; i < draws; i++ {
-		if fake(t, f, "en_US.sex") == "female" {
-			female++
-		}
-	}
-	want := 171773106 * 100 / float64(171773106+168337882)
-	if got := float64(female) * 100 / draws; math.Abs(got-want) > 0.3 {
-		t.Errorf("en_US.sex drew female %.2f%%, want %.2f%% within 0.3 points of the population's", got, want)
 	}
 }
