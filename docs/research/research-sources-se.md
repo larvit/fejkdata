@@ -79,14 +79,15 @@ Recommendation: embed SCB 2022 xlsx-derived lists (top-N per sheet with counts) 
 
 ### Bankgiro / Plusgiro (Bankgirot "10-modul" PDF 2016-12-01, verified)
 - Bankgironummer: 7 or 8 digits, last digit mod-10 (Luhn) check; printed 991-2346 (7) / 5555-5551 (8), i.e. hyphen before the last four digits. 90-konton (charity) 900-000x…904-999x, always 7 digits (Wikipedia).
-- Shipped as `sv_SE.bankgiro`, `sv_SE.plusgiro` and `sv_SE.bankaccount`.
 - Plusgironummer: 2–8 digits, last digit Luhn (Wikipedia/samlogic; not from an official Nordea page — flag). Printed with hyphen before check digit, e.g. "12 34 56-7" (convention, unverified).
+- Shipped as `sv_SE.bankgiro` and `sv_SE.plusgiro`.
 
 ### Clearing numbers / bank accounts
 - Bankinfrastruktur i Sverige AB CSV (verified, 57 rows, 40 actors): https://www.bankinfrastruktur.se/media/1melztro/tabell-over-clearingnummer-250305.csv (also `/media/sqfjsvkp/clearingnummertabell-for-nedladdning.csv`, 63 rows, newer, includes Zimpler 2130-2139). Columns: `Clearingnummer;Aktör;BIC;IBAN ID;Konto-typ;Metod IBAN konvertering`. Semicolon, UTF-8 BOM. Page: https://www.bankinfrastruktur.se/framtidens-betalningsinfrastruktur/iban-och-svenskt-nationellt-kontonummer. No licence; disclaimer "garanterar inte att publicerade uppgifter är korrekta".
 - Key ranges: Nordea 1100–1199, 1400–2099, 3000–3399, 3410–3999, 4000–4999 (3300 and 3782 = personkonto); Danske 1200–1399, 2400–2499; SEB 5000–5999, 9120–9124, 9130–9149; Handelsbanken 6000–6999; Swedbank 7000–7999 (4-digit) and 8000–8999 (5-digit clearing with own check digit); Länsförsäkringar 3400–3409, 9020–9029, 9060–9069; Skandiabanken 9150–9169; ICA 9270–9279; Avanza 9550–9569; Nordnet 9100–9109; Klarna 9780–9789.
 - Bankgirot "Bankernas kontonummer" 2024-02-22 (verified text): Typ 1 = 4-digit clearing + 7-digit account (11 digits) with mod-11 check, weights 1,10,9,…,1; comment 1 = weigh clearing minus first digit + 7 digits; comment 2 = whole clearing + 7 digits. Typ 2 = clearing not part of the account: Handelsbanken 9-digit account mod-11 (comment 2); Swedbank 8000–8999 up to 10 digits mod-10 (comment 3); Danske 9180–9189, Nordea personkonto 3300/3782, Sparbanken Syd 9570–9579 10 digits mod-10 (comment 1).
 - IBAN SE (Bankinfrastruktur page, verified): 24 chars = "SE" + 2 check digits + 3-digit IBAN ID (from CSV column, e.g. Nordea 300, SEB 500, Handelsbanken 600, Swedbank 800, Danske 120, LF 902) + 17-digit account (zero-padded; clearing included/excluded per "Metod IBAN konvertering" 1–3).
+- Shipped as `sv_SE.bankaccount`, less the 15 clearing numbers of comment 4.
 
 ## 3. Phone
 

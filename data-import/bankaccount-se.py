@@ -4,11 +4,14 @@
     data-import/bankaccount-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
 One row per clearing number of each listed range, with the template that draws an account number
-its bank's check digit accepts, per "Bankernas kontonummer" (Bankinfrastruktur i Sverige AB,
-2024-02-22): type 1 comment 1 weighs the clearing number without its first digit and seven digits
-under the 11-modul, comment 2 the whole clearing number and seven digits, type 2 comment 1 is ten
-digits under the 10-modul (Luhn), comment 2 nine digits under the 11-modul, and comment 3 ten
-digits under the 10-modul. Comment 4 is not published, so its ranges are left out.
+passing the check Bankgirot's "Bankernas kontonummer" (2024-02-22) gives the range. The list's
+"Konto-typ" column holds the account type and a comment number:
+
+- type 1, comment 1: seven digits, 11-modul over the clearing number without its first digit and them
+- type 1, comment 2: seven digits, 11-modul over the whole clearing number and them
+- type 2, comment 1 or 3: ten digits, 10-modul (Luhn)
+- type 2, comment 2: nine digits, 11-modul
+- comment 4: not published, so its ranges are left out
 """
 import argparse
 import csv

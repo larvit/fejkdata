@@ -22,20 +22,20 @@ replacement, and each removed path, column or flag.
   and `current`, one form each, and the parts they join: `old-number`, `001` to `999`,
   `current-number`, `00` to `99`, and `last`, the final letter. `sv_SE.licenseplate-letters`
   holds the three-letter combinations, in its field `letters`.
-- `sv_SE.bankgiro`, a bankgiro number of seven or eight digits with its Luhn check digit,
-  `991-2346` or `5555-5551`, and `sv_SE.plusgiro`, a plusgiro number of two to eight digits
-  with its Luhn check digit, `12 34 56-7`. The plusgiro length and spelling are from
-  Wikipedia and convention. Both are valid, not real.
-- `sv_SE.bankaccount`, a bank account, `1522-8923497`, with the clearing number and the check
-  digit that its bank demands, from Bankinfrastruktur i Sverige AB's list of clearing numbers
-  and its "Bankernas kontonummer" of 2024-02-22. `{/sv_SE.bankaccount[5000]}` selects a
-  clearing number; its fields are `clearing`, `bank` and `number`. The 15 clearing numbers of
-  `9565` to `9569` and `9600` to `9609` are left out, since that document does not publish
-  their check.
+- `sv_SE.bankgiro`, a bankgiro number of seven or eight digits, `991-2346` or `5555-5551`, and
+  `sv_SE.plusgiro`, a plusgiro number of two to eight digits, `12 34 56-6`. The last digit of each
+  is a Luhn check digit. Wikipedia and convention give the plusgiro length and spelling.
+- `sv_SE.bankaccount`, a clearing number and an account number that passes the check its bank
+  demands, `1522-8923497`, from Bankinfrastruktur i Sverige AB's list of clearing numbers and
+  Bankgirot's "Bankernas kontonummer" of 2024-02-22. `{/sv_SE.bankaccount[5000]}` selects a
+  clearing number, and a row's fields are `clearing`, `bank` and `number`. The 15 clearing numbers
+  `9565` to `9569` and `9600` to `9609` are not shipped, since that document doesn't publish their
+  check. The drawn numbers are valid, not real: one may belong to a real account.
 - `sv_SE.personnummer-12` and `sv_SE.samordningsnummer-12`, the twelve-digit form of each, century
-  first and no hyphen, `199001012389`. The check digit is the Luhn digit over the last ten digits.
-- `{bgmod11(x)}`, a builtin that completes a number under Bankgirot's 11-modul after the digits
-  emitted so far, which follow the literal digits `x`.
+  first and no hyphen, `199001012385`. The Luhn check digit covers the last ten digits, which the
+  field `ten` holds.
+- `{bgmod11(x)}`, a builtin that prints a random digit and the check digit that complete the digits
+  emitted so far, after the literal digits `x`, to a number Bankgirot's 11-modul accepts.
 
 ## [0.2.0] - 2026-10-28
 
