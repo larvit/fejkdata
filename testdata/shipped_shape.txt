@@ -480,6 +480,14 @@ sv_SE.ip
 sv_SE.last-name	format "{name}"	key name	weight count
 sv_SE.last-name.count	string
 sv_SE.last-name.name	string
+sv_SE.licenseplate	format "{old|current}"	reads sv_SE.licenseplate sv_SE.licenseplate-letters
+sv_SE.licenseplate-letters	format "{letters}"
+sv_SE.licenseplate-letters.letters	string
+sv_SE.licenseplate.current	string
+sv_SE.licenseplate.current-number	string
+sv_SE.licenseplate.last	string
+sv_SE.licenseplate.old	string
+sv_SE.licenseplate.old-number	string
 sv_SE.organisationsnummer	format "{.organisationsnummer.head as h}{.organisationsnummer.tail as t}{h}-{t}{luhn()}"	reads sv_SE.organisationsnummer
 sv_SE.organisationsnummer.group	string
 sv_SE.organisationsnummer.head	string
