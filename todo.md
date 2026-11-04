@@ -20,7 +20,7 @@
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
-| 381 | 0.4.0 |  |  | **Show in the README how to replace real data with fake, so a reader starting from that job finds every feature it needs.** | 1 | 2 | 1 | 2 | 2 | 1 by 3, 4 by 2 | 3.9 |
+| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake.** | 2 | 2 | 2 | 4 | 4 | 1 by 6, 4 by 3 | 3.6 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
@@ -266,11 +266,15 @@ The range `personnummer` draws, past 100 years with a `+`, must hold for `birthd
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
-### 381. Show in the README how to replace real data with fake, so a reader starting from that job finds every feature it needs.
+### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake.
 
-From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. The README states each feature below, but under the mechanism's name, and it never mentions this job: `anonymize`, `mask` and `existing text` all find nothing.
+From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. Each document left that reader without a trail:
 
-The reader must find:
+- `--help` names neither `{x as y}` nor any function, and doesn't mention the README.
+- `--list` prints only data paths, so nothing in the CLI shows that `{hex(n)}` or `{lower(n)}` exists.
+- The README states each feature below, but under the mechanism's name, and it never mentions this job: `anonymize`, `mask` and `existing text` all find nothing.
+
+A reader replacing the values of real documents with fakes that keep their shape must find:
 
 - one fake for each original throughout a render: `{x as y}`, which the README presents as values that belong together;
 - a value of a given length: `{lower(n)}`, `{hex(n)}` and `{digits(n)}`;
@@ -280,7 +284,15 @@ The reader must find:
 - a longer word list: a category of your own under `--data-path`;
 - what stays with the caller until items 378, 379 and 380 ship.
 
-Maintain goals 11.2 and 11.3 apply: every example runs as a test, and the section links to Names and Functions rather than restating them. Done when a fresh-context reader, given only the README and this job, names each feature above without being told.
+That job is the first test, not the limit: seat one fresh-context reader per `## Audience` persona, each with a job that persona would have, and fix what they can't find.
+
+Limits on the change:
+
+- Maintain goal 11.3: `--help` and any section for a job point to Names and Functions rather than restating them, and 11.2 makes every example a test.
+- Maintain goal 8.6: `--help` keeps naming the running CLI, as `mycli --help` does today, and a custom CLI's own functions show beside the builtins.
+- The README's Versioning table counts a change to the `--list` layout as major, so listing functions there takes a `Breaking` entry in `CHANGELOG.md`, or the functions go elsewhere. A new flag or spelling goes to a writer panel.
+
+Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told.
 
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
