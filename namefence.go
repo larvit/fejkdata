@@ -300,7 +300,7 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 			if tail > 0 && grammar.IsSelector(target.tail[0]) {
 				path = slices.Concat(target.tail[:1], path)
 			}
-			if by, other := readAddressing(names.reads[b], read, tail, pickKey(strings.Join(path, ".")), leaf); other {
+			if by, other := readAddressing(names, names.reads[b], read, tail, pickKey(strings.Join(path, ".")), leaf); other {
 				return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
 					read.spelling, x.spelling, by, read.spelling, by, by, secondDraw(b, by))
 			}
@@ -439,25 +439,36 @@ func spellingThrough(b *nameBinding, target nameTarget, level pickKey) string {
 }
 
 // readAddressing is the spelling of a read other than self that lands on or passes key, or lands on
-// another level whose render reads leaf, the node key names; tail is how many segments of its path
-// the name's binding holds.
-func readAddressing(reads []*arm, self *arm, tail int, key pickKey, leaf node) (string, bool) {
+// a level whose render reads leaf, the node at key; tail is how many segments of its path the name's
+// binding holds.
+func readAddressing(names resolvedNames, reads []*arm, self *arm, tail int, key pickKey, leaf node) (string, bool) {
 	for _, r := range reads {
-		if r != self && (slices.Contains(r.levels[tail:], key) || r.key() != self.key() && rendersField(r, leaf)) {
+		if r != self && (slices.Contains(r.levels[tail:], key) || rendersField(names, r, leaf)) {
 			return r.spelling, true
 		}
 	}
 	return "", false
 }
 
-// rendersField reports whether rendering what read lands on reads leaf as a field of its own template.
-func rendersField(read *arm, leaf node) bool {
+// rendersField reports whether rendering what read lands on, down every field it renders, reads
+// leaf or a node under it through a field read, and no reference to such a node. A reference there is
+// drawn once with the level, so a read of the level and one of the whole agree.
+func rendersField(names resolvedNames, read *arm, leaf node) bool {
+	reads := false
 	for _, a := range armsRead(read.leaves) {
-		if a.kind == freshRead && !grammar.IsRef(a.head) && slices.Contains(a.leaves, leaf) {
-			return true
+		if a.kind != freshRead {
+			continue
+		}
+		for _, l := range a.leaves {
+			if _, under := names.pathTo(leaf, l); under {
+				if grammar.IsRef(a.head) {
+					return false
+				}
+				reads = true
+			}
 		}
 	}
-	return false
+	return reads
 }
 
 // armsRead is every arm that rendering nodes read, down every variant of a choice, a table's format
