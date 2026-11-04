@@ -520,7 +520,8 @@ mailbox.
 active units of it on 2026-10-22: sole proprietorship (ENK), limited company (AS), and DA, SA, ANS, ASA and
 KS. An ENK's name has no abbreviation after it, and the others end in theirs, such as `Nordicvik Holding AS`.
 `nb_NO.company.as` draws only a limited company, and `.enk`, `.da`, `.sa`, `.ans`, `.asa` and `.ks` each draw their
-form.
+form. Bind a company to read its abbreviation from the same pick: `{/nb_NO.company as c}{c.legal}` prints the
+`AS` of `Nordicvik Holding AS`, and nothing for an ENK.
 
 A name has a shape that the register's names of its form have, such as a coined word and a trade word, or a
 last name and a trade word, in the proportions the register has them. A last or first name is drawn from
@@ -616,7 +617,10 @@ apart from any `personnummer`: a record holding both can give a birthdate that i
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
 förening and kommanditbolag. It spells the form as the register's active companies do, so a handelsbolag
-ends `Handelsbolag`, never `HB`. The name has a shape those companies' names have, such as a made-up
+ends `Handelsbolag`, never `HB`. Bind a company to read its word from the same pick:
+`{/sv_SE.company as c}{c} ({c.legal})` prints `Solvik Bygg AB (AB)` or
+`Handelsbolaget Solvik (Handelsbolaget)`, and `()` for an enskild näringsidkare.
+The name has a shape those companies' names have, such as a made-up
 word and a trade word like `Bygg` or `Holding`, or a surname and a trade word. `company-word` holds the
 trade words that 100 or more of the register's names carry, and `company-coined` the made-up words.
 A name is invented, and may also be a real company's.

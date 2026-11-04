@@ -1,13 +1,14 @@
 {
-  "format": "{registered}",
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
   "registered": [
-    { "format": "{.company.enk}", "weight": 465166 },
-    { "format": "{.company.as}", "weight": 423370 },
-    { "format": "{.company.da}", "weight": 9105 },
-    { "format": "{.company.sa}", "weight": 6761 },
-    { "format": "{.company.ans}", "weight": 6214 },
-    { "format": "{.company.asa}", "weight": 205 },
-    { "format": "{.company.ks}", "weight": 105 }
+    { "format": "{.company.enk}", "legal": "", "weight": 465166 },
+    { "format": "{.company.as}", "legal": "AS", "weight": 423370 },
+    { "format": "{.company.da}", "legal": "DA", "weight": 9105 },
+    { "format": "{.company.sa}", "legal": "SA", "weight": 6761 },
+    { "format": "{.company.ans}", "legal": "ANS", "weight": 6214 },
+    { "format": "{.company.asa}", "legal": "ASA", "weight": 205 },
+    { "format": "{.company.ks}", "legal": "KS", "weight": 105 }
   ],
   "ans": {
     "format": "{name} ANS",

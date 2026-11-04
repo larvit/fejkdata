@@ -1,12 +1,21 @@
 {
-  "format": "{registered}",
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
   "registered": [
-    { "format": "{.company.ab}", "weight": 50859 },
-    { "format": "{.company.e}", "weight": 8468 },
-    { "format": "{.company.hb}", "weight": 1557 },
-    { "format": "{.company.brf}", "weight": 398 },
-    { "format": "{.company.ek}", "weight": 319 },
-    { "format": "{.company.kb}", "weight": 176 }
+    { "format": "{.company.ab.name} AB", "legal": "AB", "weight": 46914.11 },
+    { "format": "{.company.ab.name} Aktiebolag", "legal": "Aktiebolag", "weight": 3944.89 },
+    { "format": "{.company.e}", "legal": "", "weight": 8468 },
+    { "format": "{.company.hb.name} Handelsbolag", "legal": "Handelsbolag", "weight": 1370.51 },
+    { "format": "Handelsbolaget {.company.hb.name}", "legal": "Handelsbolaget", "weight": 103.19 },
+    { "format": "{.company.hb.name} handelsbolag", "legal": "handelsbolag", "weight": 83.31 },
+    { "format": "Bostadsrättsföreningen {.company.brf.name}", "legal": "Bostadsrättsföreningen", "weight": 398.0 },
+    { "format": "{.company.ek.name} Ekonomisk förening", "legal": "Ekonomisk förening", "weight": 139.9 },
+    { "format": "{.company.ek.name} ekonomisk förening", "legal": "ekonomisk förening", "weight": 118.75 },
+    { "format": "{.company.ek.name} ek. för.", "legal": "ek. för.", "weight": 38.33 },
+    { "format": "{.company.ek.name} Ek. för.", "legal": "Ek. för.", "weight": 22.02 },
+    { "format": "{.company.kb.name} Kommanditbolag", "legal": "Kommanditbolag", "weight": 147.13 },
+    { "format": "Kommanditbolaget {.company.kb.name}", "legal": "Kommanditbolaget", "weight": 21.65 },
+    { "format": "{.company.kb.name} kommanditbolag", "legal": "kommanditbolag", "weight": 7.22 }
   ],
   "ab": {
     "format": "{written}",

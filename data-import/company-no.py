@@ -42,7 +42,7 @@ from pathlib import Path
 
 import source
 import tsv
-from company_names import FORM_MIN, Vocabulary, column, common, quoted, split, trade_words, weighted, word_usage
+from company_names import FORM_MIN, Vocabulary, column, common, legal_item, quoted, split, trade_words, weighted, word_usage
 
 REGISTER = "https://data.brreg.no/enhetsregisteret/api/enheter/lastned/csv"
 ROOT = Path(__file__).resolve().parent.parent / "data"
@@ -159,9 +159,9 @@ def form_block(form, shapes):
 
 
 def company_json(registered, shapes):
-    forms = [weighted("{.company.%s}" % f.lower(), registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
+    forms = [legal_item("{.company.%s}" % f.lower(), "" if f in NO_WORDING else f, registered[f]) for f in sorted(FORMS, key=lambda f: (-registered[f], f))]
     blocks = [form_block(f, shapes[f]) for f in FORMS]
-    return '{\n  "format": "{registered}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
+    return '{\n  "format": "{registered as r}{r}",\n  "legal": "{r.legal}",\n  "registered": [\n    ' + ",\n    ".join(forms) + "\n  ],\n" + ",\n".join(blocks) + "\n}\n"
 
 
 def coined_json(a, b):

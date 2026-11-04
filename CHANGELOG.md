@@ -23,6 +23,14 @@ replacement, and each removed path, column or flag.
 - `geo.SE.locality` weights 24 postorter by the population of the SCB småort 2023 each lies in,
   50 to 199 people, where the table weighted each 200. `sv_SE.address` draws those postorter less
   often, and what a seed draws changes.
+- `sv_SE.company` and `nb_NO.company` gain a field and record column, `legal`, the legal-form word of
+  the company: `{/sv_SE.company as c}{c} ({c.legal})` reads both from one pick. It is empty for an
+  enskild näringsidkare and an ENK. `--format csv` and `--format sql` write the column for a lone
+  `{/sv_SE.company}` or `{/nb_NO.company}`: add it to the table, or read by header. Each category's
+  format is now `{registered as r}{r}`, and each item of `registered` carries `legal`. An item of
+  `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
+  the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` is two draws: read
+  `{c.legal}` instead.
 
 ### Added
 
