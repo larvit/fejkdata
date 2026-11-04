@@ -1481,21 +1481,16 @@ func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 	}
 }
 
-func TestSwedishTwoPositionPlaceShipsNoCompetitionCode(t *testing.T) {
+func TestSwedishPostortKeepsItsDeliveryDigitNineCodes(t *testing.T) {
 	t.Parallel()
-	twoPosition := map[string]bool{"Helsingborg": true, "Linköping": true, "Norrköping": true, "Örebro": true, "Uppsala": true}
-	visbyRural := 0
+	shipped := map[string]string{}
 	for _, r := range geoRows(t, "SE", "postal-code") {
-		code, locality := r[0], r[1]
-		if twoPosition[locality] && code[2] == '9' {
-			t.Errorf("%s ships %s, whose third digit marks competition mail", locality, code)
-		}
-		if locality == "Visby" && code[4] == '9' {
-			visbyRural++
-		}
+		shipped[r[0]] = r[1]
 	}
-	if visbyRural == 0 {
-		t.Error("Visby ships no xxx 9x code, the fourth digit that marks rural delivery in a three-position place")
+	for code, locality := range map[string]string{"169 41": "Solna", "169 34": "Solna", "589 41": "Linköping"} {
+		if shipped[code] != locality {
+			t.Errorf("%s belongs to %q, want %s, where people and companies have street addresses", code, shipped[code], locality)
+		}
 	}
 }
 
