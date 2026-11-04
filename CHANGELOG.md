@@ -21,6 +21,10 @@ replacement, and each removed path, column or flag.
   draws changes, and `--format csv` and `--format sql` write the new column for a lone `{/sv_SE.sex}`:
   add it to the table, or read by header.
 
+- `geo.SE.locality` weights each of 24 postorter by the people of the SCB småort 2023 it lies in,
+  50 to 199, where it weighted it 200. `sv_SE.address` draws those postorter less often, and what a
+  seed draws changes.
+
 ### Added
 
 - `sv_SE.licenseplate`, a Swedish registration number, `ABC 123` or `ABC 12A` at even odds.
