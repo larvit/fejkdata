@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -34,6 +35,7 @@ type Generator struct {
 type config struct {
 	seed       uint64
 	seeded     bool
+	today      time.Time
 	sources    []datafiles.Source
 	nilModules error
 	// dataGiven is whether a data option was passed, even WithDataFS(), which loads none.
@@ -43,11 +45,19 @@ type config struct {
 // Option configures a [Generator].
 type Option func(*config)
 
-// WithSeed seeds the generator, as [New] requires: two generators with the same seed,
-// version and data emit identical sequences. For a new seed each run, set
+// WithSeed seeds the generator, as [New] requires: two generators with the same seed, date,
+// data and versions emit identical sequences. For a new seed each run, set
 // seed := rand.Uint64() (math/rand/v2), and log it to replay the run.
 func WithSeed(seed uint64) Option {
 	return func(c *config) { c.seed, c.seeded = seed, true }
+}
+
+// WithToday gives the date a render is read on, as [New] requires. A value that depends on when
+// it is read, such as what {born(min,max,layout)} draws, is judged by it. It takes the calendar
+// day as written in today's location, in a year from 1 to 9999, and ignores the time of day. Give
+// time.Now() for the current date, or a fixed day to repeat a run's output on a later day.
+func WithToday(today time.Time) Option {
+	return func(c *config) { c.today = today }
 }
 
 // WithDataPath layers a data directory over what is loaded before it. Repeat it to
@@ -77,6 +87,8 @@ func WithDataFS(modules ...fs.FS) Option {
 
 var errNoSeed = errors.New(`fejkdata: no seed: add fejkdata.WithSeed(n), where the same n repeats a run's output; for a new seed each run, set n := rand.Uint64() (import "math/rand/v2") and log n to replay the run`)
 
+var errNoToday = errors.New(`fejkdata: no date: add fejkdata.WithToday(day), the date a render is read on: time.Now() for the current date, or a fixed day to repeat a run's output on a later day`)
+
 var errNoData = errors.New(`fejkdata: no data: add fejkdata.WithDataFS(data.Modules()...) (import "github.com/larvit/fejkdata/data") for all shipped data, WithDataFS/WithDataPath for your own, or WithDataFS() for none`)
 
 // ErrLoad marks data that fails to load: in New, or on the first call reaching a category
@@ -90,9 +102,10 @@ func (e loadError) Unwrap() error      { return e.error }
 func (loadError) Is(target error) bool { return target == ErrLoad }
 
 // New builds a generator from the options' sources, merged in order with the last
-// winning a name clash; it fails where no [WithSeed] gives the seed, or no [WithDataFS]
-// or [WithDataPath] names the data to load. Each JSON file becomes a category named
-// after the file (address.json -> "address") and each subdirectory a namespace segment.
+// winning a name clash; it fails where no [WithSeed] gives the seed, no [WithToday] the
+// date, or no [WithDataFS] or [WithDataPath] names the data to load. Each JSON file
+// becomes a category named after the file (address.json -> "address") and each
+// subdirectory a namespace segment.
 // It errors on a missing directory, invalid JSON or invalid data. Given only
 // WithDataFS() with no modules, New loads no data, and the generator renders templates
 // that read none. A source whose .fejkdata.json carries an index, as each shipped
@@ -110,7 +123,7 @@ func New(opts ...Option) (*Generator, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fejkdata: %w", loadError{err})
 	}
-	return &Generator{drawState: drawstate.New(c.seed), root: root}, nil
+	return &Generator{drawState: drawstate.New(c.seed, c.today), root: root}, nil
 }
 
 // List returns the sorted dotted paths Fake renders: each category and every field,
@@ -133,6 +146,11 @@ func (c config) misuse() error {
 	}
 	if !c.seeded {
 		err = errors.Join(err, errNoSeed)
+	}
+	if c.today.IsZero() {
+		err = errors.Join(err, errNoToday)
+	} else if year := c.today.Year(); year < 1 || year > 9999 {
+		err = errors.Join(err, fmt.Errorf("fejkdata: WithToday: year %d is outside 1 to 9999", year))
 	}
 	return errors.Join(err, c.nilModules)
 }

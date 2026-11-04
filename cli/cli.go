@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/larvit/fejkdata"
 )
@@ -64,11 +65,13 @@ INSERTs of up to 1000 rows, one per line.
       --no-shipped-data  load only the --data-path directories
   -n, --repeat N         render the template N times, 0..1048576 (default 1); 0 prints nothing,
                          [] under --format json, or the header under --format csv
-  -s, --seed N           same seed, version and data: identical output (default: a random seed)
+  -s, --seed N           same seed, date, data and versions: identical output (default: a random seed)
       --separator S      string between repeated renders (default empty); refused with a record
                          --format, which has its own separators
       --table T          the INSERT target for --format sql, ignored under any other
                          (default: a lone reference's last segment, else records)
+      --today DAY        the date a render is read on, as YYYY-MM-DD (default: the system's date);
+                         give it beside --seed to repeat a run's output on a later day
       --version          print the version, then exit
 
 A short flag's value attaches or follows (-n3, -n 3); short flags bundle (-hn 3);
@@ -91,7 +94,14 @@ type invocation struct {
 	separatorSet bool
 	table        string
 	tableSet     bool
+	today        time.Time
 	version      bool
+}
+
+// system holds what the machine gives where no flag does.
+type system struct {
+	seed  uint64
+	today time.Time
 }
 
 type flagDef struct {
@@ -125,6 +135,14 @@ var flagDefs = []flagDef{
 	}},
 	{"separator", "", true, func(in *invocation, v string) error { in.separator, in.separatorSet = v, true; return nil }},
 	{"table", "", true, func(in *invocation, v string) error { in.table, in.tableSet = v, true; return nil }},
+	{"today", "", true, func(in *invocation, v string) error {
+		day, err := time.Parse(time.DateOnly, v)
+		if err != nil || !day.After(time.Time{}) {
+			return fmt.Errorf("--today needs a date as YYYY-MM-DD, after 0001-01-01, got %q", v)
+		}
+		in.today = day
+		return nil
+	}},
 	{"version", "", false, func(in *invocation, _ string) error { in.version = true; return nil }},
 }
 
@@ -321,7 +339,7 @@ func (in invocation) check(name string) error {
 	return nil
 }
 
-func (in invocation) options(modules []fs.FS, systemSeed uint64) []fejkdata.Option {
+func (in invocation) options(modules []fs.FS, sys system) []fejkdata.Option {
 	if in.noShipped {
 		modules = nil
 	}
@@ -331,9 +349,13 @@ func (in invocation) options(modules []fs.FS, systemSeed uint64) []fejkdata.Opti
 	}
 	seed := in.seed
 	if !in.seeded {
-		seed = systemSeed
+		seed = sys.seed
 	}
-	return append(opts, fejkdata.WithSeed(seed))
+	today := in.today
+	if today.IsZero() {
+		today = sys.today
+	}
+	return append(opts, fejkdata.WithSeed(seed), fejkdata.WithToday(today))
 }
 
 // write streams the input's renders to w, repeat of them joined by the separator; a write
@@ -597,7 +619,7 @@ func Main(modules ...fs.FS) int {
 	if fi, err := os.Stdin.Stat(); err == nil && fi.Mode()&os.ModeCharDevice != 0 {
 		stdin = nil
 	}
-	return run(commandName(os.Args[0]), modules, os.Args[1:], rand.Uint64(), stdin, os.Stdout, os.Stderr)
+	return run(commandName(os.Args[0]), modules, os.Args[1:], system{rand.Uint64(), time.Now()}, stdin, os.Stdout, os.Stderr)
 }
 
 // commandName is the name the command runs under: the file arg0 names, less a Windows
@@ -613,9 +635,9 @@ func commandName(arg0 string) string {
 	return name
 }
 
-// run is Main over the given streams, run as the command name, seeded by systemSeed where
-// no --seed is given. A nil stdin is a terminal, which holds no template.
-func run(name string, modules []fs.FS, args []string, systemSeed uint64, stdin io.Reader, stdout, stderr io.Writer) int {
+// run is Main over the given streams, run as the command name, with sys's seed and date where no
+// flag gives them. A nil stdin is a terminal, which holds no template.
+func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reader, stdout, stderr io.Writer) int {
 	in, err := parseArgs(args)
 	if err != nil {
 		return misuse(stderr, name, err)
@@ -638,7 +660,7 @@ func run(name string, modules []fs.FS, args []string, systemSeed uint64, stdin i
 			return fail(stderr, name, err)
 		}
 	}
-	f, err := fejkdata.New(in.options(modules, systemSeed)...)
+	f, err := fejkdata.New(in.options(modules, sys)...)
 	if err != nil {
 		return fail(stderr, name, err)
 	}

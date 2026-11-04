@@ -25,10 +25,11 @@ const (
 
 // builtins is the registry of {name(args)} functions. Derivations read the digits
 // emitted so far in the current expansion (place them after their payload);
-// samples read only the rng. A time-based id (uuid v7, ulid) draws its timestamp
-// from the rng, not the wall clock, so seeded output stays reproducible.
+// samples read only the rng, and born also the date. A time-based id (uuid v7, ulid)
+// draws its timestamp from the rng, not the wall clock, so seeded output stays
+// reproducible.
 var builtins = withTransforms(map[string]builtin{
-	"luhn":    {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
+	"luhn":    {arity: -1, checkArgs: luhnArg, prep: luhnPrep},
 	"mod11":   {arity: 0, prep: derive(mod11Check)},
 	"ean":     {arity: 0, prep: derive(eanCheck)},
 	"bgmod11": {arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
@@ -70,6 +71,7 @@ var builtins = withTransforms(map[string]builtin{
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
 	"date":   {arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"born":   {arity: -1, checkArgs: bornArgs, prep: bornPrep},
 	"time":   {arity: -1, checkArgs: timeArg, prep: timePrep},
 	CalcName: {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on

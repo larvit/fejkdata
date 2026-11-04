@@ -5,7 +5,7 @@
 // module fejkdata ships, from github.com/larvit/fejkdata/data. Their folders and files
 // become a dot-path namespace, and you generate values by path:
 //
-//	f, _ := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42))
+//	f, _ := fejkdata.New(fejkdata.WithDataFS(data.Modules()...), fejkdata.WithSeed(42), fejkdata.WithToday(time.Now()))
 //	f.Fake("sv_SE.address")          // "Triogatan 43\n442 42 Kungälv"
 //	f.Fake("sv_SE.address.locality") // "Umeå": a second call draws afresh
 //
