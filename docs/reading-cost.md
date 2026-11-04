@@ -779,3 +779,34 @@ Read most (opens and searches):
 - `data-import/territory.py` 2
 - `docs/decisions.md` 2
 - `loading_test.go` 2
+
+## Reading cost, chunk 552129dd5acd, finished 2026-11-03T21:34:49Z
+
+60850 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `node.go` 4
+- `pick.go` 2
+- `render.go` 2
+- `README.md` 1
+- `cli/cli.go` 1
+- `env.go` 1
+- `internal/grammar/calc.go` 1
+- `name.go` 1
+- `namefence.go` 1
+- `path.go` 1
+
+## Reading cost, chunk ae6fee742fdc, finished 2026-11-04T11:51:55Z
+
+214648 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 11
+- `data_test.go` 2
+- `AGENTS.md` 1
+- `data-import/geo-no.py` 1
+- `data-import/geo-se.py` 1
+- `data-import/geo.py` 1
+- `docs/decisions.md` 1
