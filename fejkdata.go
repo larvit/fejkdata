@@ -54,7 +54,7 @@ func WithSeed(seed uint64) Option {
 
 // WithToday gives the date a render is read on, as [New] requires. A value that depends on when
 // it is read, such as what {born(min,max,layout)} draws, is judged by it. It takes the calendar
-// day as written in today's location, in a year from 1 to 9999, and ignores the time of day. Give
+// day as written in today's location, in a year from 1000 to 9999, and ignores the time of day. Give
 // time.Now() for the current date, or a fixed day to repeat a run's output on a later day.
 func WithToday(today time.Time) Option {
 	return func(c *config) { c.today = today }
@@ -149,8 +149,8 @@ func (c config) misuse() error {
 	}
 	if c.today.IsZero() {
 		err = errors.Join(err, errNoToday)
-	} else if year := c.today.Year(); year < 1 || year > 9999 {
-		err = errors.Join(err, fmt.Errorf("fejkdata: WithToday: year %d is outside 1 to 9999", year))
+	} else if year := c.today.Year(); year < 1000 || year > 9999 {
+		err = errors.Join(err, fmt.Errorf("fejkdata: WithToday: year %d is outside 1000 to 9999", year))
 	}
 	return errors.Join(err, c.nilModules)
 }

@@ -185,7 +185,7 @@ these paths; a template reads one as `{/path}`.
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
-| `--today DAY` | the date a render is read on, as `YYYY-MM-DD`, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer` (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
+| `--today DAY` | the date a render is read on, as `YYYY-MM-DD` from year 1000 on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer` (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
@@ -362,7 +362,7 @@ ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, el
 | Option | |
 |--------|--|
 | `WithSeed(n)` | required; the same seed, date, data and versions give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
-| `WithToday(day)` | required; the date a render is read on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer`. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It takes the calendar day as written in `day`'s location, in a year from 1 to 9999, and ignores the time of day |
+| `WithToday(day)` | required; the date a render is read on, which judges an age in [`{born(…)}`](#functions) and so in `sv_SE.personnummer`. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It takes the calendar day as written in `day`'s location, in a year from 1000 to 9999, and ignores the time of day |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -1145,7 +1145,7 @@ that day.
 `born` judges an age by the year of the date given to `WithToday` or `--today`, whether or not the
 birthday has passed: read on 2026-11-04, `born(18,64,'2006-01-02')` draws from 1962-01-01 to 2008-12-31,
 and `born(0,17,'2006-01-02')` from 2009-01-01 to 2026-11-04. It is refused at `New` where an age is
-negative, `min` is above `max` or `max` is above 9999.
+negative, `min` is above `max` or `max` is above 999.
 `{luhn(9)}` leaves out what comes before the last nine digits, as a twelve-digit personnummer's century
 stays out of its check digit: `{born(0,99,'20060102')}{birth}{luhn(9)}`. It is refused at `New` where `n`
 is below 1 or above 1048576.

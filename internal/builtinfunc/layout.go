@@ -11,8 +11,8 @@ import (
 
 const dayLayout = "2006-01-02"
 
-// maxAge caps born's ages, so a fat-fingered one fails at New.
-const maxAge = 9999
+// maxAge caps born's ages: read in year 1000, the lowest New takes, it still prints year 1 or later.
+const maxAge = 999
 
 // quotedLayout reports whether an arg carries the single quotes a layout is written in.
 func quotedLayout(a string) bool {

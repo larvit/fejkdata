@@ -137,8 +137,8 @@ var flagDefs = []flagDef{
 	{"table", "", true, func(in *invocation, v string) error { in.table, in.tableSet = v, true; return nil }},
 	{"today", "", true, func(in *invocation, v string) error {
 		day, err := time.Parse(time.DateOnly, v)
-		if err != nil || !day.After(time.Time{}) {
-			return fmt.Errorf("--today needs a date as YYYY-MM-DD, after 0001-01-01, got %q", v)
+		if err != nil || day.Year() < 1000 {
+			return fmt.Errorf("--today needs a date as YYYY-MM-DD, from year 1000 on, got %q", v)
 		}
 		in.today = day
 		return nil
