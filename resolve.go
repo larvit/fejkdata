@@ -47,6 +47,14 @@ type resolvedNames struct {
 	addressed map[*nameBinding]map[pickKey]string
 }
 
+// targetOf is what b binds, whether it is among the templates being resolved or a category's, resolved earlier.
+func (names resolvedNames) targetOf(b *nameBinding) nameTarget {
+	if target, resolving := names.targets[b]; resolving {
+		return target
+	}
+	return b.target
+}
+
 // resolveTemplates resolves ts in steps, each over every template before the next starts. The
 // names' targets, keys and reads pass to later steps as arguments, and the bindings take their
 // targets and keys only once every check has passed.

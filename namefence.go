@@ -3,10 +3,13 @@ package fejkdata
 import (
 	"fmt"
 	"slices"
+	"strings"
+
+	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// checkNameReads refuses a read of a name inside the field bound to it, and a read {n} beside {n.w}
-// where n's pick renders w twice.
+// checkNameReads refuses a read of a name inside the field bound to it, a read {n} beside {n.w}
+// where n's pick renders w twice, and one where n's category reads w through a name of its own.
 func checkNameReads(label string, t *template, names resolvedNames) error {
 	for _, r := range namedReads(t) {
 		b, target := r.a.named, names.targets[r.a.named]
@@ -17,6 +20,9 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 			if err := refuseTwiceDrawn(names.addressed[b], r.a.spelling, leaf, r.a.key()); err != nil {
 				return fmt.Errorf("%s: token {%s}: %w", label, r.o.Body, err)
 			}
+		}
+		if err := refuseDrawnApart(r.a, names); err != nil {
+			return fmt.Errorf("%s: token {%s}: %w", label, r.o.Body, err)
 		}
 	}
 	return nil
@@ -100,4 +106,73 @@ func refuseTwiceDrawnIn(addressed map[pickKey]string, read string, t *template, 
 		}
 	}
 	return nil
+}
+
+// refuseDrawnApart refuses read, a read of a name, where what it renders reads a field through a name
+// bound to that field and another read of the name passes the field. Each name keeps its own pick:
+// where n binds a category whose format is {w as r}{r}, {n} prints r's draw of w and {n.w} n's.
+func refuseDrawnApart(read *arm, names resolvedNames) error {
+	outer := read.named
+	for _, inner := range fieldNamesRead(read.leaves) {
+		if inner == outer {
+			continue // a read inside the field bound to it, refused where it sits
+		}
+		level, within := levelOf(names.targetOf(inner).start, names.targets[outer].start)
+		if by, passed := names.addressed[outer][level]; within && passed {
+			return fmt.Errorf("{%s} reads field %q through name %q, a pick of its own, so {%s} would read another draw; drop {%s} to keep one pick, or write {%s} for a second draw",
+				read.spelling, inner.ref, inner.name, by, by, outer.ref+strings.TrimPrefix(by, outer.name))
+		}
+	}
+	return nil
+}
+
+// fieldNamesRead is every name bound to a field that rendering nodes reads. It stays in their
+// category: a path through a name can't follow a reference, or a name bound to one, out of it.
+func fieldNamesRead(nodes []node) []*nameBinding {
+	var found []*nameBinding
+	seen := map[node]bool{}
+	var read func(n node)
+	read = func(n node) {
+		if seen[n] {
+			return
+		}
+		seen[n] = true
+		switch n := n.(type) {
+		case *choice:
+			for _, item := range n.items {
+				read(item)
+			}
+		case *template:
+			for _, o := range n.compiled.ops {
+				for _, a := range slices.Concat(o.arms, o.operands) {
+					switch {
+					case a.kind == namedRead && a.named.bindsField():
+						found = append(found, a.named)
+					case a.kind == namedRead || grammar.IsRef(a.head):
+						continue
+					}
+					for _, leaf := range a.leaves {
+						read(leaf)
+					}
+				}
+			}
+		}
+	}
+	for _, n := range nodes {
+		read(n)
+	}
+	return found
+}
+
+// levelOf is want's key in a pick of from: the fields leading down to it, if it lies under from.
+func levelOf(want, from node) (pickKey, bool) {
+	if from == want {
+		return "", true
+	}
+	for _, c := range contained(from) {
+		if key, within := levelOf(want, c.node); within {
+			return pickKey(join(c.name, string(key))), true
+		}
+	}
+	return "", false
 }
