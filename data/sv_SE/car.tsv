@@ -3,15 +3,15 @@ Volvo	XC60	17933
 Volvo	EX/XC40	10895
 Volvo	S/V60	4972
 Volvo	EX30	4892
-Volvo	S/V90N	3174
+Volvo	S/V90	3174
 Volvo	EC/C40	2463
-Volvo	XC90II	2078
+Volvo	XC90	2078
 Volvo	EX90	1636
 Volkswagen	ID.7/ID.7 Tourer	8134
 Volkswagen	ID.4	4766
 Volkswagen	Tiguan	4656
 Volkswagen	Passat	4146
-Volkswagen	T-ROC	3669
+Volkswagen	T-Roc	3669
 Volkswagen	ID.3	3114
 Volkswagen	Golf	2504
 Volkswagen	Tayron	1892
@@ -19,13 +19,13 @@ Volkswagen	Taigo	1371
 Volkswagen	ID. Buzz	1066
 Volkswagen	Multivan	888
 Volkswagen	T-Cross	723
-Toyota	RAV 4	5091
+Toyota	RAV4	5091
 Toyota	Yaris Cross	3856
 Toyota	Corolla	3406
 Toyota	Yaris	3244
 Toyota	Corolla Cross	2849
 Toyota	C-HR	2448
-Toyota	BZ4X	746
+Toyota	bZ4X	746
 Kia	EV3	5522
 Kia	Sportage	3353
 Kia	Ceed	2678
@@ -46,30 +46,30 @@ Mercedes-Benz	C-Klass	1159
 Mercedes-Benz	Sprinter	680
 Mercedes-Benz	GLB	529
 Mercedes-Benz	GLA	507
-Skoda	Kodiaq	5149
-Skoda	Enyaq	3896
-Skoda	Octavia	2219
-Skoda	Superb	1364
-Skoda	Elroq	1341
-Skoda	Kamiq	1112
-Skoda	Fabia	915
-Skoda	Karoq	668
+Škoda	Kodiaq	5149
+Škoda	Enyaq	3896
+Škoda	Octavia	2219
+Škoda	Superb	1364
+Škoda	Elroq	1341
+Škoda	Kamiq	1112
+Škoda	Fabia	915
+Škoda	Karoq	668
 BMW	5-Serie	2248
-BMW	IX1	1795
-BMW	I5	1532
+BMW	iX1	1795
+BMW	i5	1532
 BMW	X3	1498
-BMW	I4	1372
+BMW	i4	1372
 BMW	3-Serie	1372
 BMW	X1	1131
 BMW	X5	1016
 BMW	1-Serie	998
-BMW	IX	664
+BMW	iX	664
 Audi	A3	2891
-Audi	Q4 E-Tron	2042
-Audi	A6 E-Tron	1931
+Audi	Q4 e-tron	2042
+Audi	A6 e-tron	1931
 Audi	A6	1624
 Audi	A5	1525
-Audi	Q6 E-Tron	1409
+Audi	Q6 e-tron	1409
 Audi	Q3	1133
 Audi	Q5	892
 Audi	Q8	536
@@ -93,7 +93,7 @@ Ford	Explorer	785
 Ford	Transit	741
 Ford	Kuga	703
 Hyundai	Tucson	889
-Hyundai	I10	578
+Hyundai	i10	578
 Hyundai	Kona	515
 Nissan	Qashqai	1454
 Nissan	Ariya	830
@@ -114,7 +114,7 @@ SEAT	Leon	619
 MINI	Hatch	594
 MINI	Aceman	555
 Lynk & Co	01	757
-Citroen	C4	536
+Citroën	C4	536
 Zeekr	7X	748
 Xpeng	G6	592
 BYD	Seal U	594

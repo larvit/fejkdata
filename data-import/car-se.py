@@ -3,13 +3,15 @@
 
     data-import/car-se.py [--source URL_OR_FILE] [--cache DIR] [--out FILE]
 
-The source is the December 2025 report, sheet "PB - Fabrikat och modell": each make with the models it
-registered and their registrations from January to December 2025. A row ships for each model with 500 or
-more registrations. The sheet's "Övriga" rows, the models a make leaves ungrouped, are dropped. The sheet
-writes a model in capitals after its make, `VW ID.4`: the script drops that prefix, which is the make's
-name, `Volkswagen` as `VW` and `Mercedes-Benz` as `MERCEDES`, and gives every run of four or more
-capital letters an initial capital, `TIGUAN` as `Tiguan`. Shorter runs, such as `XC60` and `RAV 4`, keep
-the sheet's spelling.
+The source is the December 2025 report, sheet "PB - Fabrikat och modell": each make, its models, and each
+model's registrations from January to December 2025. A row ships for each model with 500 or more
+registrations. The sheet's "Övriga" rows, the models a make leaves ungrouped, are dropped.
+
+The sheet writes a model in capitals after its make's name, `VW ID.4`. The script drops that prefix: the
+make's name in capitals, its part before a hyphen (`MERCEDES`), or `VW` for Volkswagen. It then gives every
+run of four or more capital letters an initial capital, `TIGUAN` as `Tiguan`. Shorter runs, such as `XC60`,
+keep the sheet's spelling, except where `MAKES` or `SPELLINGS` gives the maker's own: `Škoda`, `iX1`,
+`bZ4X`, `Q4 e-tron`.
 """
 import argparse
 import re
@@ -26,7 +28,23 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "sv_SE" / "car.tsv"
 CACHE = Path(__file__).resolve().parent / "cache"
 MINIMUM = 500
 TOTAL = 272998
-PREFIXES = {"Volkswagen": ["VW"], "Mercedes-Benz": ["MERCEDES"]}
+PREFIXES = {"Volkswagen": ["VW"]}
+MAKES = {"Citroen": "Citroën", "Skoda": "Škoda"}
+SPELLINGS = {
+    ("Audi", "A6 E-Tron"): "A6 e-tron",
+    ("Audi", "Q4 E-Tron"): "Q4 e-tron",
+    ("Audi", "Q6 E-Tron"): "Q6 e-tron",
+    ("BMW", "I4"): "i4",
+    ("BMW", "I5"): "i5",
+    ("BMW", "IX"): "iX",
+    ("BMW", "IX1"): "iX1",
+    ("Hyundai", "I10"): "i10",
+    ("Toyota", "BZ4X"): "bZ4X",
+    ("Toyota", "RAV 4"): "RAV4",
+    ("Volkswagen", "T-ROC"): "T-Roc",
+    ("Volvo", "S/V90N"): "S/V90",
+    ("Volvo", "XC90II"): "XC90",
+}
 WORD = re.compile(r"[A-ZÅÄÖ]{4,}")
 HEADER = "Fabrikat (Antal reg. YTD↓ )"
 
@@ -62,7 +80,11 @@ def main():
     p.add_argument("--out", default=str(OUT))
     a = p.parse_args()
     sheet = list(xlsx.rows(source.fetch(a.source, a.cache, "mobility-sweden-2025-12.xlsx", magic=b"PK"), SHEET))
-    rows = [{"make": make, "model": spelled(make, model), "registrations": n} for make, model, n in models(sheet) if n >= MINIMUM and "ÖVRIGA" not in model]
+    rows = []
+    for make, model, n in models(sheet):
+        if n >= MINIMUM and "ÖVRIGA" not in model:
+            model = spelled(make, model)
+            rows.append({"make": MAKES.get(make, make), "model": SPELLINGS.get((make, model), model), "registrations": n})
     tsv.write(a.out, ["make", "model", "registrations"], rows)
 
 
