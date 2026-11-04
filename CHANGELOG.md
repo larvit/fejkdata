@@ -34,11 +34,16 @@ replacement, and each removed path, column or flag.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
+- `sv_SE.word` and `sv_SE.sentence` draw from Språkbanken's SALDO, about 108,000 words where 233 were hand-written, so
+  what a seed draws changes and a word may be long or rare. `sv_SE.sentence` is no less ungrammatical than before.
 - `--format sql` writes up to 1000 rows per INSERT, one statement per line, where it wrote one INSERT
   per row. A script counting lines or splitting statements on newlines sees fewer of them.
 
 ### Added
 
+- `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech; `sv_SE.word.noun.definite`,
+  `sv_SE.word.verb.present` and `sv_SE.word.adj.definite` give a form of the word. They read the tables
+  `sv_SE.word-noun`, `word-verb`, `word-adj` and `word-adv`.
 - `Record.SQLInsertHeader(table)` and `Record.SQLValues()`, the two parts a program joins into a
   multi-row INSERT. `SQLInsert(table)` still writes one row's statement.
 

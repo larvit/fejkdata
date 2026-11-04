@@ -121,6 +121,7 @@ In [docs/decisions.md](docs/decisions.md):
 - CI keeps Go's build and module caches between `main`'s runs, and a pull request's build starts from them
 - `--format sql` writes at most 1000 rows per INSERT
 - A Swedish street's postal codes keep delivery digit 9
+- `sv_SE.word` is SALDO's words, one path per part of speech, each spelled as `sentence.adj` is
 - A Swedish postort that no published population reaches weighs 200
 
 # Scoring run

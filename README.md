@@ -502,7 +502,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
-`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory` and `weekday`;
+`company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -641,10 +641,18 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
 
+`sv_SE.word` draws evenly from about 108,000 words of Språkbanken's SALDO. `sv_SE.word.noun`,
+`.verb`, `.adj` and `.adv` each draw one part of speech, and `sv_SE.word.noun.definite`,
+`sv_SE.word.verb.present` and `sv_SE.word.adj.definite` give a form of the word, such as `huset`,
+`springer` or `stora`. Bind one to read the word and its form from one pick. SALDO is a dictionary
+with no frequencies, so a word may be rare, and dropping the rude words on one published list
+doesn't remove every word a reader finds rude. `sv_SE.sentence` strings these together, so it isn't
+grammatical.
+
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
-set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2). Copy
-that states no fact, such as `word` and `sentence`, stays hand-written. Where a category
+set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
+`en_US`'s and `nb_NO`'s `word` and `sentence` state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 
@@ -1608,7 +1616,8 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
   or a `--key-file`.
 - The Census host behind `geo-us.py` and `names-us.py` rejects a client for a while
   after a burst, so give `names-us.py` a copy of the Census `names.zip` with `--surnames`.
-- `geo-se.py` fetches SCB's småort polygons, about 120 MB.
+- `geo-se.py` fetches SCB's småort polygons, about 120 MB, and its tätort polygons.
+- `word-se.py` fetches SALDO's morphology, 254 MB.
 - `geo-us.py` fetches two TIGER/Line files per county it ships, about a gigabyte in all.
 
 ```sh
@@ -1641,6 +1650,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/ssyk-
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/timezone.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/tld.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/useragent.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/word-se.py
 ```
 
 To release, head `CHANGELOG.md` with the version's section in place of `Unreleased`
