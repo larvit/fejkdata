@@ -61,7 +61,7 @@ func TestNorwegianLastNamesStartWithHansenJohansenOlsen(t *testing.T) {
 }
 
 func TestNorwegianPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestNorwegianPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.
 }
 
 func TestNorwegianSexAndTitleAreSelectable(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +140,7 @@ func TestNorwegianBirthDaysAreEveryDayOfAYearInSkatteetatensSyntheticMonths(t *t
 // defines it: six digits of date with 80 added to the month, three individ digits whose
 // range gives the century, and two check digits.
 func TestNorwegianFodselsnummerIsSkatteetatensSyntheticSeries(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestNorwegianFodselsnummerIsSkatteetatensSyntheticSeries(t *testing.T) {
 }
 
 func TestNorwegianFodselsnummerAgreesWithABoundSex(t *testing.T) {
-	f, err := New(withShipped(), WithSeed(1))
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}

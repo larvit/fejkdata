@@ -3,6 +3,7 @@ package rows
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
@@ -97,7 +98,7 @@ func TestPinRowRefusesARowOutsideThePinnedParent(t *testing.T) {
 
 func TestDrawInDrawsInsideThePinnedParentAndPinsItsAncestors(t *testing.T) {
 	country, city := family(t)
-	s := drawstate.New(1)
+	s := drawstate.New(1, time.Time{})
 	for i := 0; i < 50; i++ {
 		var p Pins[string]
 		if err := p.PinRow(country, 0); err != nil {

@@ -255,7 +255,7 @@ func TestNameErrors(t *testing.T) {
 				}
 				files[name] = body
 			}
-			_, err := New(WithSeed(1), WithDataPath(writeFiles(t, files)))
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files)))
 			if c.want == "" {
 				if err != nil {
 					t.Fatalf("New() = %v, want it to load", err)
@@ -438,7 +438,7 @@ func TestAReadOfAFieldItsCategoryReadsThroughANameIsRefused(t *testing.T) {
 			[]string{"{p}", `"x"`, "{p.x}", "{place.x}"}},
 	} {
 		t.Run(label, func(t *testing.T) {
-			_, err := New(WithSeed(1), WithDataPath(writeData(t, c.files)))
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeData(t, c.files)))
 			if err == nil {
 				t.Fatal("New() loaded, want it refused")
 			}
@@ -548,7 +548,7 @@ func TestARowThroughANameHintsAPathThatLoads(t *testing.T) {
 	files := nameTables()
 	files["card.json"] = `{"format":"{x as r}{r[01]}","x":"{/region}"}`
 	want := `a path through name "r" may not select a row; bind the row to a name of its own`
-	if _, err := New(WithSeed(1), WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
+	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files))); err == nil || !strings.Contains(err.Error(), want) {
 		t.Errorf("New(a field-bound name selecting a row) = %v, want %s", err, want)
 	}
 }

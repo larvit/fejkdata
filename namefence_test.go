@@ -7,7 +7,7 @@ import (
 
 func loadFence(t *testing.T, files map[string]string) (*Generator, error) {
 	t.Helper()
-	return New(WithSeed(1), WithDataPath(writeData(t, files)))
+	return New(WithSeed(1), onTestDay, WithDataPath(writeData(t, files)))
 }
 
 func TestAReadThroughAFieldBoundNameIsRefusedWhereItsFieldReadsANameTheItemBinds(t *testing.T) {
@@ -225,7 +225,7 @@ func TestAReadOfATableRowIsRefusedBesideAReferenceItsFormatMakesToALinkedTable(t
 	} {
 		t.Run(label, func(t *testing.T) {
 			files["card.json"] = c.card
-			_, err := New(WithSeed(1), WithDataPath(writeFiles(t, files)))
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, files)))
 			switch {
 			case c.want == "" && err != nil:
 				t.Fatalf("New() = %v, want it to load", err)
@@ -281,7 +281,7 @@ func TestAReadLandingAboveAReferenceIsRefusedWhereRenderingItsLevelReadsTheRefer
 	} {
 		t.Run(label, func(t *testing.T) {
 			c.files["card.json"] = c.card
-			_, err := New(WithSeed(1), WithDataPath(writeFiles(t, c.files)))
+			_, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, c.files)))
 			if err == nil {
 				t.Fatal("New() loaded, want it refused")
 			}

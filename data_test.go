@@ -438,12 +438,13 @@ func TestSwedishLicensePlateNumbersAndLastLetters(t *testing.T) {
 func TestSwedishPersonnummer(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	re := regexp.MustCompile(`^\d{6}-23[89]\d$`)
+	reShort := regexp.MustCompile(`^\d{6}[-+]23[89]\d$`)
 	sawLongMonthEnd, birth := false, map[string]bool{}
 	for i := 0; i < 2000; i++ {
 		v := fake(t, sv, "sv_SE.personnummer")
 		d := digitsOnly(v)
-		if !re.MatchString(v) {
-			t.Fatalf("personnummer %q, want YYMMDD-238C or YYMMDD-239C", v)
+		if !reShort.MatchString(v) {
+			t.Fatalf("personnummer %q, want YYMMDD-238C or YYMMDD-239C, or + for -", v)
 		}
 		if _, err := time.Parse("060102", d[:6]); err != nil {
 			t.Fatalf("personnummer %q is not a valid calendar date: %v", v, err)
@@ -1096,28 +1097,118 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 	}
 }
 
-// The 12-digit form is the century and the ten digits of the short form without its hyphen, and
+// The share of each age band is SCB's for Sweden at 2024-12-31, per
+// docs/research/research-age-bands.md: 0-17 20.36%, 18-64 58.80%, 65-99 20.81%, 100 or more 0.028%.
+func TestSwedishPersonnummerWeighsAgesByPopulation(t *testing.T) {
+	const draws = 200000
+	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
+	bands := [4]int{}
+	for range draws {
+		v := fake(t, sv, "sv_SE.personnummer-12")
+		born, err := time.Parse("20060102", v[:8])
+		if err != nil {
+			t.Fatalf("personnummer-12 %q holds no calendar date: %v", v, err)
+		}
+		switch age := 2026 - born.Year(); {
+		case age < 18:
+			bands[0]++
+		case age < 65:
+			bands[1]++
+		case age < 100:
+			bands[2]++
+		default:
+			bands[3]++
+		}
+	}
+	for i, want := range []float64{20.36, 58.80, 20.81} {
+		if got := 100 * float64(bands[i]) / draws; got < want-1 || got > want+1 {
+			t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
+		}
+	}
+	if bands[3] < 25 || bands[3] > 100 {
+		t.Errorf("age 100 or more drew %d in %d, want about 56, 0.028%%", bands[3], draws)
+	}
+}
+
+// The law sets the + from the start of the year the holder turns 100. Read on 2026-11-04, that is
+// everyone born in 1926 or before, back to 1913, age 113 being the oldest validated Swede's.
+func TestSwedishPersonnummerSpellsThePlusFromTheYearTheHolderTurns100(t *testing.T) {
+	today := dayOf(2026, 11, 4)
+	sv := shipped(t, WithToday(today))
+	pluses := 0
+	for range 200000 {
+		v := fake(t, sv, "sv_SE.personnummer")
+		day, err := time.Parse("060102", v[:6])
+		if err != nil {
+			t.Fatalf("personnummer %q holds no calendar date: %v", v, err)
+		}
+		yy, century := day.Year()%100, 1900
+		if v[6] == '-' {
+			if yy <= 26 {
+				century = 2000
+			}
+			if holder := dayOf(century+yy, day.Month(), day.Day()); holder.After(today) || holder.Year() < 1927 {
+				t.Fatalf("personnummer %q read on %s, want - for a birth in 1927 or later, and none after the date", v, today.Format(time.DateOnly))
+			}
+			continue
+		}
+		pluses++
+		if v[6] != '+' || yy < 13 || yy > 26 {
+			t.Fatalf("personnummer %q read on %s, want + for a birth from 1913 to 1926", v, today.Format(time.DateOnly))
+		}
+	}
+	if pluses == 0 {
+		t.Error("never drew a +")
+	}
+}
+
+// Both forms draw one date from one set of bands, so a seed gives one person in both spellings.
+func TestSwedishPersonnummerFormsSpellOneNumber(t *testing.T) {
+	short, long := shipped(t, WithToday(dayOf(2026, 11, 4))), shipped(t, WithToday(dayOf(2026, 11, 4)))
+	saw := map[byte]bool{}
+	for range 100000 {
+		a, b := fake(t, short, "sv_SE.personnummer"), fake(t, long, "sv_SE.personnummer-12")
+		if a[:6]+a[7:] != b[2:] {
+			t.Fatalf("personnummer %q and personnummer-12 %q, want the short form's digits after the century", a, b)
+		}
+		if year, _ := strconv.Atoi(b[:4]); (a[6] == '+') != (year <= 1926) {
+			t.Fatalf("personnummer %q and personnummer-12 %q, want + exactly for a birth in 1926 or before", a, b)
+		}
+		saw[a[6]] = true
+	}
+	if !saw['+'] || !saw['-'] {
+		t.Errorf("separators drawn %v, want both", saw)
+	}
+}
+
+// The 12-digit form is the century and the ten digits of the short form without its separator, and
 // the Luhn check stays over those ten digits, since weighing the century too would change it.
 func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
-	sv := shipped(t, WithSeed(1))
+	today := dayOf(2026, 11, 4)
+	sv := shipped(t, WithToday(today))
 	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
-	centuries := map[string]int{}
-	for i := 0; i < 3000; i++ {
+	first, last := time.Date(9999, 1, 1, 0, 0, 0, 0, time.UTC), time.Time{}
+	for i := 0; i < 20000; i++ {
 		v := fake(t, sv, "sv_SE.personnummer-12")
 		if !re.MatchString(v) {
 			t.Fatalf("personnummer-12 %q, want YYYYMMDD23[89]C", v)
 		}
 		born, err := time.Parse("20060102", v[:8])
-		if err != nil || born.Year() < 1930 || born.Year() > 2025 {
-			t.Fatalf("personnummer-12 %q is not a date between 1930 and 2025: %v", v, err)
+		if err != nil || born.After(today) {
+			t.Fatalf("personnummer-12 %q holds no calendar date up to %s: %v", v, today.Format(time.DateOnly), err)
 		}
 		if !luhnValid(v[2:]) {
 			t.Fatalf("personnummer-12 %q fails the Luhn check over its last ten digits", v)
 		}
-		centuries[v[:2]]++
+		if born.Before(first) {
+			first = born
+		}
+		if born.After(last) {
+			last = born
+		}
 	}
-	if centuries["19"] < 1500 || centuries["20"] < 400 {
-		t.Errorf("centuries drawn %v in 3000, want 1930 to 1999 and 2000 to 2025 in proportion to their days", centuries)
+	if first.Year() > 1927 || last.Year() != 2026 {
+		t.Errorf("personnummer-12 drew %s to %s in 20000, want it to reach the date's year and back towards 1926", first.Format(time.DateOnly), last.Format(time.DateOnly))
 	}
 }
 
@@ -1150,9 +1241,9 @@ func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
 	}
 }
 
-// The 12-digit forms hold the short forms' range of birth years in their own files, so each
+// The 12-digit form holds the short form's range of birth years in its own file, so each
 // draws the same first and last year.
-func TestSwedishTwelveDigitFormsSpanTheShortFormsYears(t *testing.T) {
+func TestSwedishSamordningsnummerFormsSpanOneRangeOfYears(t *testing.T) {
 	sv := shipped(t, WithSeed(1))
 	span := func(path string, year func(string) int) [2]int {
 		first, last := 9999, 0
@@ -1170,10 +1261,8 @@ func TestSwedishTwelveDigitFormsSpanTheShortFormsYears(t *testing.T) {
 		return 2000 + yy
 	}
 	long := func(v string) int { y, _ := strconv.Atoi(v[:4]); return y }
-	for _, c := range [][2]string{{"personnummer", "personnummer-12"}, {"samordningsnummer", "samordningsnummer-12"}} {
-		if a, b := span("sv_SE."+c[0], short), span("sv_SE."+c[1], long); a != b || a[0] > 1931 || a[1] < 2024 {
-			t.Errorf("%s draws years %v, %s %v, want the same range, 1930 to 2025 at its ends", c[0], a, c[1], b)
-		}
+	if a, b := span("sv_SE.samordningsnummer", short), span("sv_SE.samordningsnummer-12", long); a != b || a[0] > 1931 || a[1] < 2024 {
+		t.Errorf("samordningsnummer draws years %v, samordningsnummer-12 %v, want the same range, 1930 to 2025 at its ends", a, b)
 	}
 }
 

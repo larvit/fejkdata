@@ -31,7 +31,7 @@ func TestCheckNamesWhatACallGetsWrong(t *testing.T) {
 		want string
 	}{
 		{"nope", nil, `unknown function "nope"`},
-		{"luhn", []string{"1"}, "luhn takes 0 arguments, got 1"},
+		{"mod11", []string{"1"}, "mod11 takes 0 arguments, got 1"},
 		{"hex", nil, "hex takes 1 argument, got 0"},
 		{"fnr", nil, "fnr takes 1 argument, got 0"},
 		{"calc", []string{"a +"}, `calc("a +"): `},

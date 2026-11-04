@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/larvit/fejkdata/data"
 	"github.com/larvit/fejkdata/internal/drawstate"
@@ -14,6 +15,11 @@ import (
 )
 
 func withShipped() Option { return WithDataFS(data.Modules()...) }
+
+var (
+	testDay   = time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
+	onTestDay = WithToday(testDay)
+)
 
 // newGenerator creates a generator over a single data directory, failing on
 // error. Most tests load one dir; newGeneratorN loads several (last-loaded wins
@@ -29,7 +35,7 @@ func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 	for _, dir := range dirs {
 		all = append(all, WithDataPath(dir))
 	}
-	f, err := New(append(append(all, WithSeed(1)), opts...)...)
+	f, err := New(append(append(all, WithSeed(1), onTestDay), opts...)...)
 	if err != nil {
 		t.Fatalf("New(%q): %v", dirs, err)
 	}
@@ -40,7 +46,7 @@ func newGeneratorN(t *testing.T, dirs []string, opts ...Option) *Generator {
 // categories sit at the root, failing on error.
 func newBareModule(t *testing.T, module string, opts ...Option) *Generator {
 	t.Helper()
-	f, err := New(append([]Option{WithDataFS(withoutManifest{os.DirFS(filepath.Join("data", module))}), WithSeed(1)}, opts...)...)
+	f, err := New(append([]Option{WithDataFS(withoutManifest{os.DirFS(filepath.Join("data", module))}), WithSeed(1), onTestDay}, opts...)...)
 	if err != nil {
 		t.Fatalf("New(%s without its manifest): %v", module, err)
 	}
@@ -58,14 +64,14 @@ func fake(t *testing.T, f *Generator, path string) string {
 }
 
 func TestNewMissingDirectory(t *testing.T) {
-	_, err := New(WithSeed(1), WithDataPath("data/de_DE"))
+	_, err := New(WithSeed(1), onTestDay, WithDataPath("data/de_DE"))
 	if err == nil || !strings.Contains(err.Error(), "de_DE") || !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("New(missing) error = %v, want the real error, naming the path", err)
 	}
 }
 
 func TestNewRejectsAnEmptyDataPath(t *testing.T) {
-	_, err := New(WithSeed(1), WithDataPath(""))
+	_, err := New(WithSeed(1), onTestDay, WithDataPath(""))
 	if err == nil || !strings.Contains(err.Error(), "empty") {
 		t.Fatalf("New(WithDataPath(\"\")) = %v, want the empty path named", err)
 	}
@@ -114,7 +120,7 @@ func fakeTemplate(t *testing.T, f *Generator, s string) string {
 
 // engine builds a seeded generator with no loaded categories, for rendering tests.
 func engine(seed uint64) *Generator {
-	return &Generator{drawState: drawstate.New(seed)}
+	return &Generator{drawState: drawstate.New(seed, testDay)}
 }
 
 // parse unmarshals a JSON template fragment into its dynamic form.

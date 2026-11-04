@@ -1,9 +1,12 @@
 package drawstate
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestOneSeedDrawsOneSequence(t *testing.T) {
-	a, b := New(42), New(42)
+	a, b := New(42, time.Time{}), New(42, time.Time{})
 	for i := 0; i < 50; i++ {
 		if x, y := a.IntN(1<<30), b.IntN(1<<30); x != y {
 			t.Fatalf("seed 42 diverged at draw %d: %d != %d", i, x, y)
@@ -12,7 +15,7 @@ func TestOneSeedDrawsOneSequence(t *testing.T) {
 }
 
 func TestTwoSeedsDrawTwoSequences(t *testing.T) {
-	a, b := New(1), New(2)
+	a, b := New(1, time.Time{}), New(2, time.Time{})
 	for i := 0; i < 50; i++ {
 		if a.IntN(1<<30) != b.IntN(1<<30) {
 			return
@@ -22,7 +25,7 @@ func TestTwoSeedsDrawTwoSequences(t *testing.T) {
 }
 
 func TestCountersCountFromOneEach(t *testing.T) {
-	s := New(1)
+	s := New(1, time.Time{})
 	for want := uint64(1); want <= 3; want++ {
 		if got := s.Seq(""); got != want {
 			t.Fatalf("Seq(\"\") = %d, want %d", got, want)
@@ -34,13 +37,13 @@ func TestCountersCountFromOneEach(t *testing.T) {
 	if got := s.Seq(""); got != 4 {
 		t.Fatalf("Seq(\"\") after Seq(orders) = %d, want 4", got)
 	}
-	if got := New(1).Seq(""); got != 1 {
+	if got := New(1, time.Time{}).Seq(""); got != 1 {
 		t.Fatalf("a new state's Seq = %d, want 1", got)
 	}
 }
 
 func TestWeightedDrawsByWeight(t *testing.T) {
-	s := New(1)
+	s := New(1, time.Time{})
 	counts := make([]int, 3)
 	for i := 0; i < 30000; i++ {
 		counts[s.Weighted([]float64{1, 2, 6})]++

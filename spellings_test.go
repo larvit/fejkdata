@@ -100,7 +100,7 @@ func TestAJSONNumberOrBooleanIsItsText(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
 		"n": `{"format":"{x}","x":{"format":"{a} {b} {c} {d}","a":5,"b":1.50,"c":12345678901234567890,"d":true}}`,
 		"l": `[1e3]`,
-	}), WithSeed(1))
+	}), WithSeed(1), onTestDay)
 	if v := fake(t, f, "n"); v != "5 1.50 12345678901234567890 true" {
 		t.Errorf("n = %q, want each number and boolean as written", v)
 	}

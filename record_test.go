@@ -3,6 +3,7 @@ package fejkdata
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -536,13 +537,16 @@ func TestRecordOfAFieldlessCategoryNamesTheWrapper(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), want) {
 		t.Fatalf("FakeRecord(sv_SE.personnummer) = %v, want it to name %s", err, want)
 	}
+	if !errors.Is(err, ErrNoColumns) {
+		t.Errorf("FakeRecord(sv_SE.personnummer) = %v, want it to match ErrNoColumns", err)
+	}
 	if _, err := f.FakeRecordTemplate(`{"format":"","personnummer":"{/sv_SE.personnummer}"}`); err != nil {
 		t.Fatalf("the named wrapper does not render: %v", err)
 	}
 }
 
 func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
-	f := newShippedWhole(t, WithSeed(1))
+	f := newShippedWhole(t, WithSeed(1), onTestDay)
 	records := 0
 	if err := eachNode(&f.root, "", func(label string, n node) error {
 		tm, isTemplate := n.(*template)
@@ -570,7 +574,7 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 	t.Parallel()
 	dir := writeData(t, map[string]string{"t": `{"format":"","age":{"format":"42","datatype":"integer"},"name":"O'Brien"}`})
-	f, err := New(WithDataPath(dir), WithSeed(1))
+	f, err := New(WithDataPath(dir), WithSeed(1), onTestDay)
 	if err != nil {
 		t.Fatal(err)
 	}
