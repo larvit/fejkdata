@@ -739,7 +739,8 @@ centuries, so `personnummer-12` cannot write `19{ten}` and `20{ten}`: it prints 
 layout, and `{luhn(9)}` keeps it out of the check digit. A panel of three readers chose `{luhn(9)}` over
 `{luhn(-9)}`, `{luhnlast(9)}` and `{luhntail(9)}`. No template conditional exists to swap 238 and 239 for
 980 and 981, so a date before 2013, which can draw a birth before 1900, falls outside the test series,
-and the README says so. Valid while the callers' dates lie in 2013 or later, and while no Swede passes 113.
+and so does a birth in a year Skatteverket hasn't published. Valid while the callers' dates lie from 2013
+up to the years Skatteverket has published, and while no Swede passes 113.
 
 ## `misc` is what every locale shares
 

@@ -734,7 +734,8 @@ end of 2024: 20.36% aged 0–17, 58.80% aged 18–64, 20.81% aged 65–99 and 0.
 `WithToday` or `--today`, so what a seed draws changes with that date. The short form spells `-`, and `+` from
 the year the holder turns 100, as folkbokföringslagen 18 § states: read on 2026-11-04, a birth in 1926
 or earlier carries the `+`. A date before 2013 can draw a birth before 1900, where the test series
-holds other birth numbers, 980 and 981 among them, so such a number is outside the series.
+holds other birth numbers, 980 and 981 among them, so such a number is outside the series. A birth in a
+year Skatteverket hasn't published yet is outside it too; it adds the coming year each December.
 `sv_SE.samordningsnummer` keeps `-` and a date from 1930 to 2025: the law that governs it, lag
 (2022:1697), states no `+`.
 
@@ -1344,7 +1345,7 @@ such as an older macOS, and its changelog section names each one under Breaking.
 compare seeded output, install one exact version
 (`go install github.com/larvit/fejkdata/cmd/fejkdata@vX.Y.Z`, the image
 `larvit/fejkdata:X.Y.Z` or a release's binary; `go.mod` already pins one),
-and regenerate seeded fixtures and expected values when you raise that version.
+give a fixed `--today` or `WithToday` day, and regenerate seeded fixtures and expected values when you raise that version.
 
 | Surface | Major | Minor |
 |---------|-------|-------|
