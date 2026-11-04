@@ -1076,3 +1076,49 @@ func TestShippedUSTitleAgreesWithSex(t *testing.T) {
 		}
 	}
 }
+
+// The 12-digit form is the century and the ten digits of the short form without its hyphen, and
+// the Luhn check stays over those ten digits, which a century prefix would change.
+func TestSwedishPersonnummerTwelveDigits(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
+	centuries := map[string]int{}
+	for i := 0; i < 3000; i++ {
+		v := fake(t, sv, "sv_SE.personnummer-12")
+		if !re.MatchString(v) {
+			t.Fatalf("personnummer-12 %q, want YYYYMMDD23[89]C", v)
+		}
+		born, err := time.Parse("20060102", v[:8])
+		if err != nil || born.Year() < 1930 || born.Year() > 2025 {
+			t.Fatalf("personnummer-12 %q is not a date between 1930 and 2025: %v", v, err)
+		}
+		if !luhnValid(v[2:]) {
+			t.Fatalf("personnummer-12 %q fails the Luhn check over its last ten digits", v)
+		}
+		centuries[v[:2]]++
+	}
+	if centuries["19"] < 1500 || centuries["20"] < 400 {
+		t.Errorf("centuries drawn %v in 3000, want 1930 to 1999 and 2000 to 2025 in proportion to their days", centuries)
+	}
+}
+
+func TestSwedishSamordningsnummerTwelveDigits(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	re := regexp.MustCompile(`^(19|20)\d{6}23[89]\d$`)
+	for i := 0; i < 3000; i++ {
+		v := fake(t, sv, "sv_SE.samordningsnummer-12")
+		if !re.MatchString(v) {
+			t.Fatalf("samordningsnummer-12 %q, want YYYYMM(61-88)23[89]C", v)
+		}
+		day, err := strconv.Atoi(v[6:8])
+		if err != nil || day < 61 || day > 88 {
+			t.Fatalf("samordningsnummer-12 %q, want a day of 61 to 88", v)
+		}
+		if _, err := time.Parse("200601", v[:6]); err != nil {
+			t.Fatalf("samordningsnummer-12 %q is not a valid year and month: %v", v, err)
+		}
+		if !luhnValid(v[2:]) {
+			t.Fatalf("samordningsnummer-12 %q fails the Luhn check over its last ten digits", v)
+		}
+	}
+}
