@@ -16,10 +16,12 @@ replacement, and each removed path, column or flag.
 ### Added
 
 - `sv_SE.licenseplate`, a Swedish registration number, `ABC 123` or `ABC 12A` at even odds.
-  It is valid, not real: a drawn plate may be on a real car. Its letters never form one of
-  the 99 combinations Transportstyrelsen blocks, nor use I, Q or V, and the last character
-  of `ABC 12A` is never O. Its fields are `old`, `current`, `old-number`, `current-number`
-  and `last`. `sv_SE.licenseplate-letters` holds the letter combinations it draws from.
+  It is valid, not real: a drawn plate may be on a real car. Its three letters never form one
+  of the 99 combinations that Transportstyrelsen's page listed as blocked in March 2026, and
+  never include I, Q or V. The last character of `ABC 12A` is never O. Its fields are `old`
+  and `current`, one form each, and the parts they join: `old-number`, `001` to `999`,
+  `current-number`, `00` to `99`, and `last`, the final letter. `sv_SE.licenseplate-letters`
+  holds the three-letter combinations, in its field `letters`.
 
 ## [0.2.0] - 2026-10-28
 

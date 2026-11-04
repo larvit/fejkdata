@@ -323,7 +323,7 @@ func TestSwedishVat(t *testing.T) {
 	}
 }
 
-// The 99 letter combinations Transportstyrelsen's page listed as blocked when it was updated on 2026-03-31.
+// The 99 combinations that Transportstyrelsen's page listed as blocked when it was updated on 2026-03-31.
 const blockedPlates = "APA ARG ASS BAJ BSS CUC CUK CUM DUM ETA ETT FAG FAN FEG FEL FEM FES FET FNL FUC FUK FUL GAM GAY GEJ GEY GHB GUD GYN HAT HBT HKH HOR HOT KGB KKK KUC KUF KUG KUK KYK LAM LAT LEM LOJ LSD LUS MAD MAO MEN MES MLB MUS NAZ NRP NSF NYP OND OOO ORM PAJ PKK PLO PMS PUB RAP RAS ROM RPS RUS SEG SEX SJU SOS SPY SUG SUP SUR TBC TOA TOK TRE TYP UFO USA WAM WAR WWW XTC XTZ XUK XXL XXX ZEX ZOG ZPY ZUG ZUP ZOO"
 
 func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T) {
