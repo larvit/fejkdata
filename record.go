@@ -156,7 +156,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	record, err := recordOf(n)
-	if errors.Is(err, ErrNoColumns) || errors.Is(err, errChoiceRecord) {
+	if errors.Is(err, ErrNoColumns) {
 		ns := grammar.IdentifierSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
@@ -222,11 +222,17 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// ErrNoColumns matches the error for a record with no fields; FakeRecord's names the
-// one-column record to write instead.
+// ErrNoColumns matches the error for a record with no fields or naming a choice; FakeRecord's
+// names the one-column record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-var errChoiceRecord = errors.New("names a choice, not a template; a record is a template whose fields are its columns")
+// choiceRecordError refuses a record naming a choice, which has no columns of its own.
+type choiceRecordError struct{}
+
+func (choiceRecordError) Error() string {
+	return "names a choice, not a template; a record is a template whose fields are its columns"
+}
+func (choiceRecordError) Is(target error) bool { return target == ErrNoColumns }
 
 // recordOf is the record template n is; settleRecords fixed its columns at load.
 func recordOf(n node) (*template, error) {
@@ -235,7 +241,7 @@ func recordOf(n node) (*template, error) {
 	}
 	t, ok := n.(*template)
 	if !ok {
-		return nil, errChoiceRecord
+		return nil, choiceRecordError{}
 	}
 	if len(t.fields) == 0 {
 		return nil, ErrNoColumns

@@ -1,4 +1,6 @@
 [
-  { "format": "19{ten}", "ten": "{date(1930-01-01,1999-12-31,'060102')}{.birth-number.number}{luhn()}", "weight": 70 },
-  { "format": "20{ten}", "ten": "{date(2000-01-01,2025-12-31,'060102')}{.birth-number.number}{luhn()}", "weight": 26 }
+  { "format": "{born(0,17,'20060102')}{.birth-number.number}{luhn(9)}", "weight": 20.36 },
+  { "format": "{born(18,64,'20060102')}{.birth-number.number}{luhn(9)}", "weight": 58.80 },
+  { "format": "{born(65,99,'20060102')}{.birth-number.number}{luhn(9)}", "weight": 20.81 },
+  { "format": "{born(100,113,'20060102')}{.birth-number.number}{luhn(9)}", "weight": 0.028 }
 ]

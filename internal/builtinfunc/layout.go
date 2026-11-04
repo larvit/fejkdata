@@ -11,6 +11,9 @@ import (
 
 const dayLayout = "2006-01-02"
 
+// maxAge caps born's ages, so a fat-fingered one fails at New.
+const maxAge = 9999
+
 // quotedLayout reports whether an arg carries the single quotes a layout is written in.
 func quotedLayout(a string) bool {
 	return len(a) >= 2 && a[0] == '\'' && a[len(a)-1] == '\''
@@ -79,6 +82,30 @@ func dateArgs(a []string) error {
 	_, err = layoutArg(a[2])
 	return err
 }
+func bornArgs(a []string) error {
+	if err := layoutArity("born", 3, a); err != nil {
+		return err
+	}
+	lo, err := intArg(a[0])
+	if err != nil {
+		return fmt.Errorf("born(min,max,layout): min %w", err)
+	}
+	hi, err := intArg(a[1])
+	if err != nil {
+		return fmt.Errorf("born(min,max,layout): max %w", err)
+	}
+	if lo < 0 {
+		return fmt.Errorf("born(min,max,layout): min %d is negative", lo)
+	}
+	if lo > hi {
+		return fmt.Errorf("born(min,max,layout): min %d > max %d", lo, hi)
+	}
+	if hi > maxAge {
+		return fmt.Errorf("born(min,max,layout): max %d exceeds the maximum %d", hi, maxAge)
+	}
+	_, err = layoutArg(a[2])
+	return err
+}
 func timeArg(a []string) error {
 	if err := layoutArity("time", 1, a); err != nil {
 		return err
@@ -110,6 +137,18 @@ func datePrep(a []string) Call {
 	layout, start, span := layoutOf(a[2]), from.Unix(), int(to.Unix()-from.Unix())+86400
 	return func(s *drawstate.State, _ string, _ []string) string {
 		return time.Unix(start+int64(s.IntN(span)), 0).UTC().Format(layout)
+	}
+}
+
+// bornPrep draws a second in the years in which someone turns min to max, counted from the year
+// of the date the render is read on, and no later than that date.
+func bornPrep(a []string) Call {
+	lo, hi, layout := atoi(a[0]), atoi(a[1]), layoutOf(a[2])
+	return func(s *drawstate.State, _ string, _ []string) string {
+		today := s.Today()
+		start := time.Date(today.Year()-hi, 1, 1, 0, 0, 0, 0, time.UTC).Unix()
+		end := min(time.Date(today.Year()-lo, 12, 31, 0, 0, 0, 0, time.UTC).Unix(), today.Unix())
+		return time.Unix(start+int64(s.IntN(int(end-start)+86400)), 0).UTC().Format(layout)
 	}
 }
 func timePrep(a []string) Call {

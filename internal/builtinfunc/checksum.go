@@ -1,6 +1,51 @@
 package builtinfunc
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/larvit/fejkdata/internal/drawstate"
+)
+
+func luhnArg(a []string) error {
+	if len(a) > 1 {
+		return fmt.Errorf("luhn takes at most one count, got %d", len(a))
+	}
+	if len(a) == 0 {
+		return nil
+	}
+	if err := countArg(a); err != nil {
+		return fmt.Errorf("luhn(n): %w", err)
+	}
+	if atoi(a[0]) == 0 {
+		return errors.New("luhn(n): count 0 reads no digit; write luhn() to read them all")
+	}
+	return nil
+}
+
+// luhnPrep checks every digit emitted so far, or only the last n of them.
+func luhnPrep(a []string) Call {
+	n := -1
+	if len(a) == 1 {
+		n = atoi(a[0])
+	}
+	return func(_ *drawstate.State, emitted string, _ []string) string {
+		return string(rune('0' + luhnCheck(lastDigits(emitted, n))))
+	}
+}
+
+// lastDigits cuts s to start at its n-th digit from the end; a negative n, or one past the digits
+// s holds, leaves it whole.
+func lastDigits(s string, n int) string {
+	for i := len(s) - 1; i >= 0 && n > 0; i-- {
+		if s[i] >= '0' && s[i] <= '9' {
+			if n--; n == 0 {
+				return s[i:]
+			}
+		}
+	}
+	return s
+}
 
 // luhnCheck returns the Luhn check digit (0-9) over the digits of s; non-digit
 // runes are skipped. Doubling runs from the rightmost digit, so the result is

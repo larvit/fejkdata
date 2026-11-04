@@ -22,7 +22,7 @@
 		"sv_SE.organisationsnummer": {"paths":["","group","head","tail","vat"]},
 		"sv_SE.person": {"paths":["","birthdate","first","last","prefix","sex"]},
 		"sv_SE.personnummer": {"paths":[""]},
-		"sv_SE.personnummer-12": {"paths":["","ten"]},
+		"sv_SE.personnummer-12": {"paths":[""]},
 		"sv_SE.phone": {"paths":["","international","national"]},
 		"sv_SE.phone-area": {"paths":["","area","name","ndc","subscriber"]},
 		"sv_SE.phone-subscriber": {"paths":["","digits-5-6","digits-5-7","digits-6-7","digits-6-8"]},
