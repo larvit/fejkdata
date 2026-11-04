@@ -119,8 +119,8 @@ replacement, and each removed path, column or flag.
 
 ### Changed
 
-- The Homebrew cask clears macOS's quarantine attribute through Homebrew's `postflight_steps`.
-  A Homebrew too old to read the cask needs `brew update` first.
+- Installing with Homebrew needs a newer Homebrew than before. If Homebrew can't read the cask,
+  run `brew update` and install again.
 
 ### Fixed
 
