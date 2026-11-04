@@ -13,6 +13,14 @@ replacement, and each removed path, column or flag.
   The column sorts by name, so `--format csv` writes it after `numeric`, where `country`
   came after `capital`: read by header, not by position.
 
+### Added
+
+- `sv_SE.licenseplate`, a Swedish registration number, `ABC 123` or `ABC 12A` at even odds.
+  It is valid, not real: a drawn plate may be on a real car. Its letters never form one of
+  the 99 combinations Transportstyrelsen blocks, nor use I, Q or V, and the last character
+  of `ABC 12A` is never O. Its fields are `old`, `current`, `old-number`, `current-number`
+  and `last`. `sv_SE.licenseplate-letters` holds the letter combinations it draws from.
+
 ## [0.2.0] - 2026-10-28
 
 ### Breaking
