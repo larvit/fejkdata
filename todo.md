@@ -436,6 +436,8 @@ Item 26 revises the decision, but the decision does not point back to it.
 
 `reading-cost` on 2026-11-03: "Rising: the last 5 chunks' median is 102919 new input tokens before their first commit, the 5 before them 70758". Read most over the last 5 (opens and searches): `todo.md` 4, `README.md` 3, `docs/decisions.md` 3, `.github/workflows/packages.yml` 2, `data_test.go` 2, `norwegian_test.go` 2, `release-tooling/goreleaser.yaml` 2, `vulnerability-filing/file_vulnerabilities.py` 2, `vulnerability-filing/file_vulnerabilities_test.py` 2, `.dockerignore` 1.
 
+`reading-cost` on 2026-11-04: "Rising: the last 5 chunks' median is 117951 new input tokens before their first commit, the 5 before them 98791". Read most over the last 5 (opens and searches): `todo.md` 31, `README.md` 10, `data_test.go` 8, `docs/decisions.md` 8, `table_test.go` 5, `node.go` 4, `path.go` 4, `AGENTS.md` 3, `env.go` 3, `internal/datafiles/datafiles_test.go` 3.
+
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
 Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
