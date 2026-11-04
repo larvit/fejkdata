@@ -90,3 +90,10 @@ def set_go(text: str, version: str) -> str:
 	if changed == text:
 		raise ValueError("a file names no Go version to set")
 	return changed
+
+
+def set_goreleaser(text: str, version: str) -> str:
+	changed, count = re.subn(r"^FROM goreleaser/goreleaser:\S+", f"FROM goreleaser/goreleaser:{version}", text, flags=re.M)
+	if not count:
+		raise ValueError("a file names no GoReleaser image to set")
+	return changed

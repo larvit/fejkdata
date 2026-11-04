@@ -135,7 +135,7 @@ def worktree(root: str, tag: str, path: str):
 
 
 def prepare(tree: str, released: carried.Carried, patch: carried.Carried) -> None:
-	"""Puts the patch's Go and modules into the release tree; its GoReleaser comes with main's .github/."""
+	"""Puts the patch's Go and modules into the release tree."""
 	if patch.go != released.go:
 		for name in ("Dockerfile", "compose.yaml"):
 			path = os.path.join(tree, name)
@@ -169,6 +169,14 @@ def carry_workflows(root: str, tree: str) -> None:
 		shutil.copytree(os.path.join(root, ".github"), os.path.join(tree, ".github"))
 	except OSError as err:
 		raise ValueError(f"cannot carry main's .github/ into the release tree: {err}") from err
+
+
+def carry_goreleaser(root: str, tree: str, version: str) -> None:
+	"""Gives the release tree main's GoReleaser and config, since the tree's gate pins its images to packages.yml's version and checks the config on it."""
+	for name in ("Dockerfile", "release-tooling/package-repos.Dockerfile"):
+		path = os.path.join(tree, name)
+		write(path, carried.set_goreleaser(read(path), version))
+	write(os.path.join(tree, GORELEASER_YAML), read(os.path.join(root, GORELEASER_YAML)))
 
 
 def refuse_other_targets(root: str, last: str, targets: set[str]) -> None:
@@ -222,6 +230,8 @@ def cut(root: str, last: str, date: str, effects: Effects) -> int:
 		path = os.path.join(tree, "CHANGELOG.md")
 		write(path, changelog.insert_section(read(path), text))
 		carry_workflows(root, tree)
+		if patch.goreleaser != released.goreleaser:
+			carry_goreleaser(root, tree, patch.goreleaser)
 		code, tag = effects.publish(read(path), effects.build_and_push(tree, next_patch(last)))
 	if tag:
 		effects.output(f"tag={tag}")

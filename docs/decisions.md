@@ -1113,7 +1113,8 @@ than the last release, the release job cuts a patch through
 `release-tooling/patch_release.py cut`. It puts `main`'s Go and modules into the last
 release's tree with `main`'s `.github/` (the forge refuses the workflow token a branch
 whose workflows differ from `main`'s) and a changelog section, scanning that tree with
-govulncheck before and after. The section names what changed, the vulnerabilities the second
+govulncheck before and after. Where GoReleaser moved, it also sets the tree's GoReleaser
+images and takes `main`'s `goreleaser.yaml`, or the tree's own gate fails. The section names what changed, the vulnerabilities the second
 scan no longer finds, and each requirement a new Go minor's release notes set on a system
 `goreleaser.yaml` builds for. The notes are Go's own, from the golang/website repository.
 The job builds the tree through its own `docker build .`, which builds on the latest
