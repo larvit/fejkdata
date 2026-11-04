@@ -114,7 +114,6 @@
 | 115 | 0.8.0 |  |  | **Spell a rows file's line one way in every error, naming the file.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
 | 259 | 0.8.0 |  |  | **Add `misc.airport` with its IATA and ICAO codes, territory and municipality, `misc.airline`, `misc.aircraft`, and `misc.flight`, `seat` and `pnr`.** | 2 | 2 | 1 | 3 | 5 | 1 by 2, 2 by 4, 3.2 by 3 | 2.1 |
 | 376 | 0.8.0 |  |  | **Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.** | 2 | 2 | 1 | 3 | 4 | 1 by 3, 3 by 2 | 2.0 |
-| 356 | 0.8.0 |  |  | **Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.** | 1 | 2 | 2 | 3 | 1 | 1.1 by 2 | 2.0 |
 | 267 | 0.8.0 |  |  | **Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.** | 1 | 2 | 1 | 2 | 4 | 1 by 1, 2 by 2, 3.2 by 2 | 1.9 |
 | 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
 | 264 | 0.8.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
@@ -638,10 +637,6 @@ Tables and templates, from OurAirports (public domain) and Wikidata (CC0).
 ### 376. Let a template ask for a `sv_SE.personnummer` of a child, an adult, someone of 65 or more or a centenarian, and for a mix of them.
 
 The category weighs four age bands in one choice, and a template can reach only the whole. A test of a system's handling of the `+` has to draw until one comes, at 0.028%. Bench the spelling with the README's audience: a table selector, a path per band or a builtin. The decision "`sv_SE.personnummer` and `sv_SE.personnummer-12` are each a choice of four age bands, up to age 113, and `personnummer-12` has no `ten`" sets the bands and weights.
-
-### 356. Replace the properties GoReleaser 2.19 deprecates in `release-tooling/goreleaser.yaml`, so Renovate's update to 2.19 passes the gate.
-
-Renovate's pull request #257 fails `docker build --target lowest-and-tooling`: `goreleaser check` says the config "uses deprecated properties". Once the fix and the update merge, CI cuts a patch of 0.2.0 for the new GoReleaser.
 
 ### 267. Add `misc.book` titles and authors, `misc.genre`, `misc.instrument`, and `misc.dish` and `misc.ingredient`.
 
