@@ -450,7 +450,7 @@ definition covers both: the same kind of value, counted or addressed the same wa
 reader landing on the wrong one concludes nothing false, as `Fake` renders one value on
 `Generator`, `Template` and `RecordTemplate`. `TestNoFunctionSpellsAMethod` keeps a bare function off a method's
 name, since a search returns both and a call site shows no receiver; review judges the
-rest. Serves code health: names that tell the truth, and reaching the unit behind a symptom
+rest. Item 377 decides whether that test stays. Serves code health: names that tell the truth, and reaching the unit behind a symptom
 without asking a person. Decided 2026-09-25 by Lilleman; valid while code health counts reading
 cost.
 

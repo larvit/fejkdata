@@ -39,7 +39,8 @@ func readsOneArm(t *template) bool {
 	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1
 }
 
-// columnSource is the record a's read starts from, the category holding it, and the path below it.
+// columnSource is the node a's read starts from, the category holding that node, empty where it is
+// t's own, and the path below it.
 // start is nil where a reads a field of t itself.
 func columnSource(t *template, a arm, targets map[*nameBinding]nameTarget) (start node, category string, tail []string) {
 	switch b := a.named; {

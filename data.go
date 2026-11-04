@@ -145,10 +145,10 @@ func categoryPipeline(sites []categorySite, root map[string]node) pipeline {
 	}
 }
 
-// run takes a load through its stages in order. resolve binds what each template's tokens read and
-// refuses names and references that fail. The cycle check comes before settleRecords and the node fences,
-// whose walks recurse unguarded. settleRecords fixes each record's columns, which checkColumns proves
-// and the node fences then read.
+// run needs each stage to follow the one before. resolve binds what each template's tokens read, and
+// refuses a name or reference that can't resolve. The cycle check comes before the walks of
+// settleRecords and the node fences, which recurse unguarded. settleRecords fixes each record's
+// columns, which checkColumns proves and the node fences read.
 func (p pipeline) run() error {
 	if err := p.resolve(); err != nil {
 		return err
@@ -166,8 +166,7 @@ func (p pipeline) run() error {
 }
 
 // checkNodeFences runs the per-node fences over s, each over every node before the next,
-// so which of several broken nodes is reported does not depend on the walk. Its walks
-// recurse unguarded, so pipeline.run refuses cycles first.
+// so which of several broken nodes is reported does not depend on the walk.
 func checkNodeFences(s nodeSet) error {
 	mem := renderCounts{}
 	if err := s(func(label string, n node) error { return repeatCheck(label, n, mem) }); err != nil {

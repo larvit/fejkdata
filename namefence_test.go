@@ -416,8 +416,6 @@ func TestReadsOfANameAreRefusedWhereASharedChoiceCouldDrawApart(t *testing.T) {
 	}
 }
 
-// A table's format is the row's rendering, not a field of the pick: the row is kept, so {r} and {r.name}
-// print one row's name, however often the format reads it.
 func TestATableFormatReadingAColumnTwiceLoadsBesideAReadOfThatColumn(t *testing.T) {
 	f, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
 		"row.json": `{"format":"{name}-{name}","rows":"row.tsv","key":"code","name":"name"}`,

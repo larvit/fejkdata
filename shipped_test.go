@@ -68,7 +68,7 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 }
 
 // shippedModules is every module data.Modules lists. Each manifest names its namespace, and its folder
-// under data/ is that namespace, a dot a slash.
+// under data/ is that namespace, with each dot a slash.
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{

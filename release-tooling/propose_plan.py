@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Propose what `patch_release.py plan` changed in todo.md and CHANGELOG.md to main, as a pull request that merges itself.
+"""Open a pull request to main that holds what `patch_release.py plan` changed in todo.md and CHANGELOG.md, and merges itself.
 
 With no change, closes a pull request still proposing one. Run in a checkout of main, with
 GH_TOKEN and GITHUB_REPOSITORY set. Exits 2 on a step it cannot complete, naming it.
@@ -34,7 +34,7 @@ def pull_request_run(run: Callable, sleep: Callable[[int], None], repository: st
 	path = f"repos/{repository}/actions/runs?event=pull_request&head_sha={sha}"
 	for _ in range(RUN_ATTEMPTS):
 		for found in json.loads(run("gh", "api", path).stdout)["workflow_runs"]:
-			if found["head_repository"]["full_name"] == repository:
+			if (found["head_repository"] or {}).get("full_name") == repository:
 				return found
 		sleep(RUN_ATTEMPT_SECONDS)
 	raise ValueError(f"no pull_request run for {sha}; its required check will never report")
@@ -52,7 +52,7 @@ def propose(run: Callable, sleep: Callable[[int], None], repository: str, token:
 	run("git", "push", "-qf", f"https://x-access-token:{token}@github.com/{repository}.git", BRANCH)
 	if not is_open(run):
 		run("gh", "pr", "create", "--head", BRANCH, "--title", TITLE, "--body", BODY)
-	# GitHub holds the pull_request run of a pull request this token opens until it is approved.
+	# GitHub holds the pull_request run of a pull request this token opens until that run is approved.
 	found = pull_request_run(run, sleep, repository, run("git", "rev-parse", "HEAD").stdout.strip())
 	if found["conclusion"] == "action_required":
 		run("gh", "api", "-X", "POST", f"repos/{repository}/actions/runs/{found['id']}/approve")

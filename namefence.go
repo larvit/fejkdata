@@ -26,7 +26,7 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 //
 // The read has no pick to read:
 //   - the name is read inside the field bound to it, checked here
-//   - it steps into a choice's item without opening the item's frame: refuseSkippedItem
+//   - the read steps into a choice's item without opening the item's frame: refuseSkippedItem
 //
 // The read and another read of the name reach one level by routes that can draw apart:
 //   - the pick renders a field twice: refuseTwiceDrawn
@@ -81,7 +81,7 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
-// routeKind is how a read met while a read of a name renders relates to the name's pick.
+// routeKind says what a name's pick does with a read that rendering the name reaches.
 type routeKind uint8
 
 const (
@@ -90,9 +90,9 @@ const (
 	routeKept                   // the pick keeps its value, and what it renders is part of the pick
 )
 
-// route is one read met while nodes render: a, in the op at index op of template in. Where kind isn't
-// routeApart, at is in's key in the pick and levels is a's levels moved under at. by is the read of
-// the name that addresses a kept route.
+// route is one read met while nodes render. Field a is the read, in the template holding it and op the
+// index of the op holding it. Unless kind is routeApart, at is the template's key in the pick, and
+// levels is a's levels moved under that key. by is the read of the name that addresses a kept route.
 type route struct {
 	a      *arm
 	in     *template
@@ -103,13 +103,21 @@ type route struct {
 	by     string
 }
 
-// routesUnder is every read that rendering nodes makes, down every variant of a choice, a table's
-// format and every field a read renders, in render order, once per key a template renders at.
-//
-// nodes sit at key at in a pick whose name's reads address the keys in addressed. With no addressed
-// keys there is no pick, and every route is routeApart. A table's format is apart too: the pick pins
-// the row, so its columns read one row whichever read renders them.
-func routesUnder(nodes []node, at pickKey, addressed map[pickKey]string) []route {
+// routesUnder is every read that rendering nodes makes, where nodes sit at key start in a name's pick
+// and addressed holds the keys the name's reads address.
+func routesUnder(nodes []node, start pickKey, addressed map[pickKey]string) []route {
+	return walkRoutes(nodes, start, addressed, true)
+}
+
+// routesApart is every read that rendering nodes makes outside any pick, each a routeApart.
+func routesApart(nodes []node) []route {
+	return walkRoutes(nodes, "", nil, false)
+}
+
+// walkRoutes lists reads in render order. It goes down every variant of a choice, a table's format and
+// every field a read renders, and visits a template once per key. A table's format is apart: the pick
+// pins the row, so its columns read one row whichever read renders them.
+func walkRoutes(nodes []node, start pickKey, addressed map[pickKey]string, inPick bool) []route {
 	type site struct {
 		n      node
 		at     pickKey
@@ -152,7 +160,7 @@ func routesUnder(nodes []node, at pickKey, addressed map[pickKey]string) []route
 		}
 	}
 	for _, n := range nodes {
-		walk(n, at, addressed != nil)
+		walk(n, start, inPick)
 	}
 	return found
 }
@@ -252,10 +260,13 @@ func refuseTwiceDrawn(pick pickReads, read string, routes []route) error {
 	return nil
 }
 
-// readTwiceApart reports whether x and y, two reads of one template that the pick keeps, pass one
-// choice or table, or read one leaf that isn't a constant, or share a level a read of the name lands
-// on, where a read of the whole level draws what the two keep. Drawn apart, such reads could differ.
-// Two fields of a template that isn't a choice share none of these.
+// readTwiceApart reports whether x and y, two reads of one template that the pick keeps, could differ
+// if drawn apart. They could where they:
+//   - pass one choice or table
+//   - read one leaf that isn't a constant
+//   - share a level a read of the name lands on, since reading that whole level draws what the two keep
+//
+// Two fields of a template that isn't a choice do none of these.
 func readTwiceApart(pick pickReads, x, y route) bool {
 	common := 0
 	for common < min(len(x.a.tail), len(y.a.tail)) && x.a.tail[common] == y.a.tail[common] {
@@ -327,9 +338,9 @@ func refuseDrawnApart(pick pickReads, read *arm, routes []route, names resolvedN
 	return nil
 }
 
-// sharedDraw reports whether the reads of one name share a draw that could differ with a name bound
-// to target, which sits at the path above under the first name's pick, and returns the read that
-// shares it. It walks target's path level by level, and at each level, in this order:
+// sharedDraw reports whether a read of one name shares, with a second name bound to target, a draw
+// that could differ, and returns that read. Parameter above is target's path under the first name's
+// pick. It walks target's path level by level, and at each level, in this order:
 //   - no read of the first name addresses the level: they share none
 //   - the level is a choice or a table: they share it
 //   - the level is target's leaf: they share it unless it is a constant
@@ -415,8 +426,8 @@ type refReach struct {
 	leaf node
 }
 
-// refsReached is every node the references among routes land on, and those that what they render
-// holds in turn, across categories. Each node is listed once, with the first reference to reach it.
+// refsReached is every node the references among routes land on, and every node those render in turn,
+// across categories. Each node is listed once, with the first reference to reach it.
 func refsReached(routes []route) []refReach {
 	var found []refReach
 	seen := map[node]bool{}
@@ -429,7 +440,7 @@ func refsReached(routes []route) []refReach {
 			if !seen[leaf] {
 				seen[leaf] = true
 				found = append(found, refReach{x, leaf})
-				queue = append(queue, routesUnder([]node{leaf}, "", nil)...)
+				queue = append(queue, routesApart([]node{leaf})...)
 			}
 		}
 	}
@@ -445,23 +456,23 @@ func underSelector(target nameTarget, path []string) []string {
 	return path
 }
 
-// fieldRead is a field read that draws afresh while of, a read of a name, renders.
+// fieldRead is a field read that draws afresh. Field of is the read of the name whose render makes it.
 type fieldRead struct {
 	route
 	of *arm
 }
 
-// freshFieldReads is the reads of a field that rendering a read of b makes afresh, listed under each
-// level they read. Reads of one key render the same, so it walks each key once.
-func (names resolvedNames) freshFieldReads(b *nameBinding) map[pickKey][]fieldRead {
+// freshFieldReads is, for one name, the reads of a field that rendering a read of it makes afresh,
+// listed under each level they read. Reads of one key render the same, so it walks each key once.
+func freshFieldReads(reads []*arm, addressed map[pickKey]string) map[pickKey][]fieldRead {
 	byLevel := map[pickKey][]fieldRead{}
 	walked := map[pickKey]bool{}
-	for _, read := range names.reads[b] {
+	for _, read := range reads {
 		if walked[read.key()] {
 			continue
 		}
 		walked[read.key()] = true
-		for _, r := range routesUnder(read.leaves, read.key(), names.addressed[b]) {
+		for _, r := range routesUnder(read.leaves, read.key(), addressed) {
 			if r.kind != routeFresh {
 				continue
 			}
@@ -478,7 +489,7 @@ func (names resolvedNames) freshFieldReads(b *nameBinding) map[pickKey][]fieldRe
 // format is {w.a} and w's is {a}, {n} reads the pick's w.a and {n.w} draws w's a afresh.
 func refuseKeptAndFreshField(read *arm, routes []route, names resolvedNames) error {
 	b := read.named
-	byLevel := names.freshFieldReads(b)
+	byLevel := names.fresh[b]
 	for _, x := range routes {
 		if x.kind != routeKept {
 			continue
@@ -531,9 +542,9 @@ func (p pickReads) readAddressing(self *arm, key pickKey, reached refReach, name
 
 // rendersField reports whether rendering what read lands on, down every field it renders, reads
 // reached.leaf or a node under it through a field read, and doesn't render reached.ref. That reference
-// is drawn once with a level that holds it, so a read of that level and one of its whole agree.
+// is drawn once with a level that holds it, so a read of that level and a read of the whole agree.
 func rendersField(names resolvedNames, read *arm, reached refReach) bool {
-	routes := routesUnder(read.leaves, "", nil)
+	routes := routesApart(read.leaves)
 	if slices.ContainsFunc(routes, func(r route) bool { return r.a == reached.ref }) {
 		return false
 	}
