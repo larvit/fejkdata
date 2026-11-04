@@ -32,7 +32,7 @@ concurrency:
 jobs:
   packages:
     name: Binaries, packages and image for ${{ inputs.tag }}
-    if: inputs.tag
+    if: ${{ !cancelled() && inputs.tag }}
     runs-on: ubuntu-26.04
     permissions:
       contents: write
@@ -135,6 +135,7 @@ jobs:
   dockerhub:
     name: Docker Hub image for ${{ inputs.tag }}
     needs: packages
+    if: ${{ !cancelled() && needs.packages.result == 'success' }}
     runs-on: ubuntu-26.04
     permissions:
       packages: read
