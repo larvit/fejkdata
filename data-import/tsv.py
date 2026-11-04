@@ -7,12 +7,12 @@ from pathlib import Path
 NAME = re.compile(r"^[^\W\d_]{2,}([ '-][^\W\d_]{2,})*$")
 
 
-def write(path, columns, rows):
-    """Write the rows as a TSV of a header and at least one row, each cell stripped, non-empty and free of tabs, newlines and braces."""
+def write(path, columns, rows, templates=()):
+    """Write the rows as a TSV of a header and at least one row, each cell stripped, non-empty and free of tabs, newlines and braces; a column named in templates may hold braces."""
     lines = ["\t".join(columns)]
     for row in rows:
         cells = [str(row[c]).strip() for c in columns]
-        if not all(cells) or any(re.search(r"[\t\n{}]", c) for c in cells):
+        if not all(cells) or any(re.search(r"[\t\n]" if c in templates else r"[\t\n{}]", cell) for c, cell in zip(columns, cells)):
             raise ValueError(f"{path}: a cell is empty or holds a tab, newline or brace: {row}")
         lines.append("\t".join(cells))
     if len(lines) < 2:

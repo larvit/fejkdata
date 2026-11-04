@@ -1,0 +1,1 @@
+["{int(1,9)}{digits(2)}-{digits(3)}{luhn()}", "{int(1,9)}{digits(3)}-{digits(3)}{luhn()}"]

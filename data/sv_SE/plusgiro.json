@@ -1,0 +1,9 @@
+[
+  "{int(1,9)}-{luhn()}",
+  "{int(1,9)}{digits(1)}-{luhn()}",
+  "{int(1,9)} {digits(2)}-{luhn()}",
+  "{int(1,9)}{digits(1)} {digits(2)}-{luhn()}",
+  "{int(1,9)} {digits(2)} {digits(2)}-{luhn()}",
+  "{int(1,9)}{digits(1)} {digits(2)} {digits(2)}-{luhn()}",
+  "{int(1,9)} {digits(2)} {digits(2)} {digits(2)}-{luhn()}"
+]
