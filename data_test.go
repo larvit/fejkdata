@@ -1480,3 +1480,42 @@ func TestSwedishCompanyLegalIsTheWordOfTheBoundCompany(t *testing.T) {
 		}
 	}
 }
+
+func TestSwedishTwoPositionPlaceShipsNoCompetitionCode(t *testing.T) {
+	t.Parallel()
+	twoPosition := map[string]bool{"Helsingborg": true, "Linköping": true, "Norrköping": true, "Örebro": true, "Uppsala": true}
+	visbyRural := 0
+	for _, r := range geoRows(t, "SE", "postal-code") {
+		code, locality := r[0], r[1]
+		if twoPosition[locality] && code[2] == '9' {
+			t.Errorf("%s ships %s, whose third digit marks competition mail", locality, code)
+		}
+		if locality == "Visby" && code[4] == '9' {
+			visbyRural++
+		}
+	}
+	if visbyRural == 0 {
+		t.Error("Visby ships no xxx 9x code, the fourth digit that marks rural delivery in a three-position place")
+	}
+}
+
+func TestSwedishStreetSitsInThePostortWhoseAreaHoldsIt(t *testing.T) {
+	t.Parallel()
+	streets := map[string]map[string]bool{}
+	for _, r := range geoRows(t, "SE", "street") {
+		if streets[r[1]] == nil {
+			streets[r[1]] = map[string]bool{}
+		}
+		streets[r[1]][r[0]] = true
+	}
+	for locality, names := range map[string][]string{
+		"Stockholm": {"Sveavägen", "Birger Jarlsgatan", "Hornsgatan", "Götgatan", "Odengatan", "Fleminggatan"},
+		"Bromma":    {"Bergslagsvägen", "Ulvsundavägen"},
+	} {
+		for _, name := range names {
+			if !streets[locality][name] {
+				t.Errorf("%s has no %s", locality, name)
+			}
+		}
+	}
+}
