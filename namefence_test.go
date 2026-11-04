@@ -73,6 +73,30 @@ func TestANameReadInsideTheItemThatBindsItLoads(t *testing.T) {
 	}
 }
 
+func TestAChoiceItemThatReadsOnlyANameItBindsDraws(t *testing.T) {
+	const ab = `{"format":"{written}","written":["x","y"],"legal":["L","M"]}`
+	const item = `[{"format":"{/ab as w}{w.legal}"},{"format":"{/ab as w}{w.legal}!"}]`
+	for label, c := range map[string]struct{ co, path string }{
+		"the choice is the category's format":  {`{"format":"{legal}","legal":` + item + `}`, "co"},
+		"the choice is read through a field":   {`{"format":"{legal}","legal":` + item + `}`, "co.legal"},
+		"the choice is a field of a bound row": {`{"format":"{p as r}{r.legal}","p":{"format":"a","legal":` + item + `}}`, "co"},
+	} {
+		t.Run(label, func(t *testing.T) {
+			f, err := loadFence(t, map[string]string{"ab": ab, "co": c.co})
+			if err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
+			}
+			for i := 0; i < 40; i++ {
+				switch got := fake(t, f, c.path); got {
+				case "L", "M", "L!", "M!":
+				default:
+					t.Fatalf("draw %d = %q, want L, M, L! or M!", i, got)
+				}
+			}
+		})
+	}
+}
+
 func TestAReadOfANameIsRefusedBesideAReferenceItsFormatMakesToThatPath(t *testing.T) {
 	for label, c := range map[string]struct {
 		files map[string]string
