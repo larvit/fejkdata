@@ -323,6 +323,68 @@ func TestSwedishVat(t *testing.T) {
 	}
 }
 
+// Transportstyrelsen's 99 blocked letter combinations, read 2026-03-31.
+const blockedPlates = "APA ARG ASS BAJ BSS CUC CUK CUM DUM ETA ETT FAG FAN FEG FEL FEM FES FET FNL FUC FUK FUL GAM GAY GEJ GEY GHB GUD GYN HAT HBT HKH HOR HOT KGB KKK KUC KUF KUG KUK KYK LAM LAT LEM LOJ LSD LUS MAD MAO MEN MES MLB MUS NAZ NRP NSF NYP OND OOO ORM PAJ PKK PLO PMS PUB RAP RAS ROM RPS RUS SEG SEX SJU SOS SPY SUG SUP SUR TBC TOA TOK TRE TYP UFO USA WAM WAR WWW XTC XTZ XUK XXL XXX ZEX ZOG ZPY ZUG ZUP ZOO"
+
+// A plate's letters are the 23 that registration plates use, every combination of three but
+// the blocked ones, each once.
+func TestSwedishLicensePlateLettersAreEveryCombinationButTheBlocked(t *testing.T) {
+	b, err := os.ReadFile("data/sv_SE/licenseplate-letters.tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := strings.Split(strings.TrimSpace(string(b)), "\n")
+	if rows[0] != "letters" {
+		t.Fatalf("header %q, want letters", rows[0])
+	}
+	blocked := strings.Fields(blockedPlates)
+	if len(blocked) != 99 {
+		t.Fatalf("the test holds %d blocked combinations, want 99", len(blocked))
+	}
+	const alphabet = "ABCDEFGHJKLMNOPRSTUWXYZ"
+	want := len(alphabet)*len(alphabet)*len(alphabet) - len(blocked)
+	if len(rows)-1 != want {
+		t.Fatalf("%d rows, want %d: 23 letters cubed less the 99 blocked", len(rows)-1, want)
+	}
+	seen := map[string]bool{}
+	for _, r := range rows[1:] {
+		if len(r) != 3 || strings.Trim(r, alphabet) != "" {
+			t.Fatalf("row %q, want three of %s", r, alphabet)
+		}
+		if seen[r] {
+			t.Fatalf("row %q repeats", r)
+		}
+		seen[r] = true
+	}
+	for _, c := range blocked {
+		if seen[c] {
+			t.Errorf("row %q is blocked by Transportstyrelsen", c)
+		}
+	}
+}
+
+func TestSwedishLicensePlate(t *testing.T) {
+	sv := shipped(t, WithSeed(1))
+	plate := regexp.MustCompile(`^([A-HJ-PR-UW-Z]{3}) (?:(\d{3})|(\d{2})([A-HJ-NPR-UW-Z]))$`)
+	blocked := strings.Fields(blockedPlates)
+	var old, current int
+	for i := 0; i < 5000; i++ {
+		v := fake(t, sv, "sv_SE.licenseplate")
+		m := plate.FindStringSubmatch(v)
+		if m == nil || slices.Contains(blocked, m[1]) || m[2] == "000" || m[3] == "00" {
+			t.Fatalf("sv_SE.licenseplate %q, want ABC 123 or ABC 12A: no I, Q or V, no O in the last place, no blocked letters and no 000 or 00", v)
+		}
+		if m[2] != "" {
+			old++
+		} else {
+			current++
+		}
+	}
+	if old < 2000 || current < 2000 {
+		t.Errorf("%d plates of the form ABC 123 and %d of ABC 12A in 5000, want about half each", old, current)
+	}
+}
+
 // TestSwedishPersonnummer checks what the shape regex can't: the date is a real
 // calendar date, the birth number is Skatteverket's test series (238 female, 239
 // male), the trailing digit is a Luhn checksum over the other nine, and a
