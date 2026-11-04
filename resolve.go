@@ -41,8 +41,8 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 }
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
-// target, the reads of it, and the keys they address. places holds, for each node a fence asked
-// about, every node under it with the fields leading there.
+// target, the reads of it, and the keys they address. places caches pathTo: for each node it was
+// called from, every node under it with the fields leading there.
 type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
 	reads     map[*nameBinding][]*arm
