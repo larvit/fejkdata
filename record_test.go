@@ -566,3 +566,25 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 		t.Fatal("no shipped record walked")
 	}
 }
+
+func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{"t": `{"format":"","age":{"format":"42","datatype":"integer"},"name":"O'Brien"}`})
+	f, err := New(WithDataPath(dir), WithSeed(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := f.FakeRecord("t")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := r.SQLInsertHeader("my table"), `INSERT INTO "my table" ("age", "name") VALUES`; got != want {
+		t.Errorf("SQLInsertHeader = %q, want %q", got, want)
+	}
+	if got, want := r.SQLValues(), `(42, 'O''Brien')`; got != want {
+		t.Errorf("SQLValues = %q, want %q", got, want)
+	}
+	if got, want := r.SQLInsert("t"), r.SQLInsertHeader("t")+" "+r.SQLValues()+";"; got != want {
+		t.Errorf("SQLInsert = %q, want the header and values joined: %q", got, want)
+	}
+}
