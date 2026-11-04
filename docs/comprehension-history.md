@@ -1051,3 +1051,110 @@ Inherited architect, would restructure first:
 - `datatype.go:230` `columnReadOf`: column-read resolution filed under a type name
 - `calc.go:51` `checkOperands`: the root calc.go only checks, sharing its stem with two other calc files
 - `AGENTS.md:3` "Rules": the compose-service list omits cover, bench, dev, tidy and data-import
+
+## 2026-11-04T20:15:28Z, PR #295 at ba315b6
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 6 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7 | 5.5 | 6.5 | 6 | 6 |
+| Maintainability senior | 7 | 5.5 | 6.5 | 6 | 6 |
+| Inherited architect | 7 | 6 | 6 | 7 | 6.5 |
+| Mean | 7.13 | 5.75 | 6.38 | 6.38 | 6.25 |
+
+Junior A, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: a worklist, a seen set, a selector prepend and an early return on pointer identity held at once, and the result looks order-dependent
+- `namefence.go:150` `readTwiceApart`: its last argument only gets its meaning one function down, in drawsAlong
+- `namefence.go:422` `readsFieldApart`: the `both` condition stayed opaque, and freshFieldReads reads like a getter but fills a cache
+- `pick.go:77` `landsInPick`: fresh and named keys match only through a levelKeys offset whose two call sites don't say why they differ
+- `pick.go:196` `readName`: frames, base, pick, pickAt and four memo maps across three files, traced by hand
+- `path.go:192` `drawSteps`: two silent modes, nil memo and nil pins, plus a climbed flag
+- `columnread.go:24` `columnReadOf`: "this column is really a read" reaches four files, and a synthetic arm mirrors compileArm
+- `name.go:61` `bindNames`: which node owns a scope is decided in a closure condition
+
+Mid A, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: each continue is a rule whose reason lives in the README, and the selector prepend stayed opaque
+- `namefence.go:456` `rendersField`: returns false mid-loop while reads may be true, so the answer looks order-dependent
+- `namefence.go:422` `readsFieldApart`: assumes levels and tail line up by an index relation stated nowhere near it
+- `pick.go:77` `landsInPick`: load and render share a key scheme that everything in namefence.go needs held in mind
+- `pick.go:196` `readName`: frames change on a by-value env over a shared stack, and the lifecycle has no single statement
+- `table.go:252` `route`: six fields combine conditionally, and tail[2:] is safe only through a proof elsewhere
+- `columnread.go:24` `columnReadOf`: three spellings of one read, with dense slice building
+- `cli/cli.go:569` `hasEmptySegment`: the stepUp toggle is a small puzzle its comment doesn't explain
+
+Maintainability senior, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: a queue, a seen set and a drawsAlong guard live at once, with examples and no invariant
+- `namefence.go:400` `refuseKeptAndFreshField`: the `both` condition can be traced but not justified, and level is shadowed
+- `namefence.go:120` `refuseTwiceDrawnIn`: five sibling fences each define "could differ" their own way, with no map to the README's bullets
+- `pick.go:77` `landsInPick`: a load fence and a render agree purely through key strings, and no type enforces that
+- `path.go:192` `drawSteps`: how a path passes a table is split across routing, compiling and drawing
+- `render.go:144` `readField`: a by-value env holds a pointer to a stack mutated out of sight
+- `columnread.go:24` `columnReadOf`: three switch arms build start, category and tail from three shapes of read
+- `resolve.go:96` `resolveTemplates`: each step fills a partially initialised struct, and the order is held by the pipeline, not by types
+
+Inherited architect, would restructure first:
+
+- `data.go:148` `pipeline.run`: the root's five unnamed strata show only here and in resolveTemplates, after about twelve files
+- `namefence.go:23` `checkNameRead`: each refusal predicts what the memo will do, by hand, and each new read adds one
+- `path.go:87` `compiledPath.walk`: one of five walkers that each encode how a path moves
+- `render.go:54` `render`: one of six node-kind switches a new kind must reach, none failing at compile
+- `node.go:65` `template`: fields filled phase by phase, so a reader must know what has run
+- `record.go:323` `wholeLevels`: hand-copies what compileArm does
+- `cli/cli.go:555` `isPath`: a copy of the grammar, since the CLI reads only the public API
+
+## 2026-11-04T20:15:30Z, PR #295 rerun at ba315b6
+
+| Seat | Navigation | Locality | Shape | Self-sufficiency | Overall |
+|---|---|---|---|---|---|
+| Junior A | 7.5 | 6 | 6.5 | 6.5 | 6.5 |
+| Mid A | 7.5 | 6 | 7 | 7 | 6.5 |
+| Maintainability senior | 7 | 5.5 | 6 | 6 | 6 |
+| Inherited architect | 7 | 5.5 | 6 | 7 | 6.5 |
+| Mean | 7.25 | 5.75 | 6.38 | 6.63 | 6.38 |
+
+Junior A, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: levels, tail offset, leaf identity and arm identity held at once, and the selector prepend has no comment
+- `namefence.go:422` `readsFieldApart`: triple nesting and the `both` expression stayed opaque, and level is shadowed
+- `namefence.go:224` `sharedDraw`: a five-way decision in one loop, reached through a bool that stacks several disjuncts
+- `pick.go:196` `readName`: load and render must agree on keys, with an allocation-driven quirk in its near-twin readUnder
+- `env.go:72` `enter`: whether a frame opens depends on what an earlier read did
+- `table.go:252` `route`: six fields with interacting bools, then translated into steps
+- `cli/cli.go:555` `isPath`: a second copy of the path grammar, and nothing forces it to follow
+- `columnread.go:24` `columnReadOf`: the targets argument exists only because b.target is not set yet
+
+Mid A, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: keys, levels, tails and leaves held at once, and readAddressing takes six parameters
+- `namefence.go:400` `refuseKeptAndFreshField`: the `both` condition depends on an indexing relation it doesn't state
+- `namefence.go:23` `checkNameRead`: five fences in sequence, and nothing says how they divide the problem
+- `pick.go:77` `landsInPick`: keys match only through levelKeys' two starts, tied together by prose alone
+- `pick.go:196` `readName`: env.pick, pickAt, base, the frames and enteredFrames interact, found by tracing
+- `path.go:119` `compileStep`: fromRow, pinnedBelow, up, nextLinked, climbed and at cross two files
+- `name.go:61` `bindNames`: the gather closure's scope condition is dense for what the unit does
+- `cli/cli.go:555` `isPath`: nothing visible stops it drifting from SplitPath
+
+Maintainability senior, hardest first:
+
+- `namefence.go:280` `refuseFreshDraw`: why each continue is safe stayed largely opaque, and the selector prepend has no explanation
+- `namefence.go:400` `refuseKeptAndFreshField`: the `both` condition and the tail slice mix two coordinate systems
+- `namefence.go:23` `checkNameRead`: five refusals with no statement of what they jointly protect, so the list's completeness can't be judged
+- `pick.go:77` `landsInPick`: resolved only after several rereads with both levelKeys call sites open
+- `path.go:192` `drawSteps`: several switch sites over step kinds, with flags and nils changing behaviour
+- `render.go:144` `readField`: three read paths treat the pick and frames differently, and an escape-analysis rule can't be seen at call sites
+- `columnread.go:24` `columnReadOf`: a four-way case where an empty category means "own record"
+- `name.go:61` `bindNames`: real semantics in one scope condition, and a kind classification that depends on case order
+
+Inherited architect, would restructure first:
+
+- `namefence.go:23` `checkNameRead`: the fences statically re-model what render's memo does, each walk mirroring render its own way
+- `env.go:33` `renderEnv`: who opens which frame takes three places held at once
+- `path.go:192` `drawSteps`: its mode is an unnamed concept recovered from which arguments are nil
+- `path.go:87` `compiledPath.walk`: a second walker in callerPathSteps is easy to leave unpatched
+- `node.go:65` `template`: filled by stages whose order sits in pipeline.run
+- `render.go:54` `render`: a child rendered here must also be listed in renderEdges, held by a comment and a panic
+- `data/geo/SE/address.json:3` `street`: binds l inside the field its siblings read, correct but reading as a bug on the file the 3am question opens
+- `internal/rows/rows.go:343` `Descendant`: ranges a map, sound only because linked tables are siblings with unique names, and nothing says so
