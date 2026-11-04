@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/larvit/fejkdata/internal/grammar"
+	"github.com/larvit/fejkdata/internal/invariant"
 )
 
 // checkNameReads refuses a read of a name that could disagree with another read of it, or that reads
@@ -37,7 +38,10 @@ func checkNameRead(t *template, read *arm, names resolvedNames) error {
 	if err := refuseSkippedItem(t, read, below, names); err != nil {
 		return err
 	}
-	return refuseFreshDraw(read, below, names)
+	if err := refuseFreshDraw(read, below, names); err != nil {
+		return err
+	}
+	return refuseKeptAndFreshField(read, names)
 }
 
 func rendersInside(nodes []node, t *template) bool {
@@ -296,6 +300,111 @@ func refuseFreshDraw(read *arm, below []arm, names resolvedNames) error {
 		}
 	}
 	return nil
+}
+
+// fieldRead is a read of a field made while rendering a read of a name, at key in the pick: levels
+// is a's levels moved under key, and kept says whether the pick keeps the value, as landsInPick
+// does. Where a is not kept, it draws afresh.
+type fieldRead struct {
+	a      arm
+	in     *template
+	levels []pickKey
+	kept   bool
+	of     *arm
+}
+
+// fieldReadsUnder is every read of a field that rendering read makes, down every variant of a
+// choice and every field a kept read renders, as render does. A reference draws afresh whatever
+// its pick, and a read through a name has a pick of its own, so neither is listed.
+func fieldReadsUnder(read *arm, addressed map[pickKey]string) []fieldRead {
+	type site struct {
+		n   node
+		key pickKey
+	}
+	var found []fieldRead
+	seen := map[site]bool{}
+	var walk func(n node, key pickKey)
+	walk = func(n node, key pickKey) {
+		if seen[site{n, key}] {
+			return
+		}
+		seen[site{n, key}] = true
+		switch n := n.(type) {
+		case *choice:
+			for _, item := range n.items {
+				walk(item, key)
+			}
+		case *template:
+			for _, o := range n.compiled.ops {
+				for _, a := range slices.Concat(o.arms, o.operands) {
+					if a.kind == namedRead || grammar.IsRef(a.head) {
+						continue
+					}
+					_, kept := landsInPick(addressed, key, a)
+					levels := make([]pickKey, len(a.levels))
+					for i, l := range a.levels {
+						levels[i] = key.under(l)
+					}
+					found = append(found, fieldRead{a: a, in: n, levels: levels, kept: kept, of: read})
+					if kept {
+						for _, leaf := range a.leaves {
+							walk(leaf, key.under(a.key()))
+						}
+					}
+				}
+			}
+		}
+	}
+	for _, leaf := range read.leaves {
+		walk(leaf, read.key())
+	}
+	return found
+}
+
+// refuseKeptAndFreshField refuses read, a read of a name, where what it renders reads from the pick
+// a field that what another read of the name renders draws afresh, and the two could differ. A
+// read inside a template is kept only where a read of the name addresses its first level, so with
+// {n} and {n.w}, where n's format is {w.a} and w's is {a}, {n} reads the pick's w.a and {n.w} draws
+// w's a afresh.
+func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
+	b := read.named
+	addressed := names.addressed[b]
+	for _, x := range fieldReadsUnder(read, addressed) {
+		if !x.kept {
+			continue
+		}
+		for _, other := range names.reads[b] {
+			for _, u := range fieldReadsUnder(other, addressed) {
+				if level, apart := readsFieldApart(x, u); !u.kept && apart {
+					return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so they could differ; read {%s} too to keep one draw, or drop {%s}",
+						read.spelling, x.a.spelling, other.spelling, u.a.spelling, spellingThrough(b, names.targetOf(b), level), other.spelling)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// readsFieldApart reports whether x, which the pick keeps, and u, which draws afresh, read a field
+// they could draw apart: they share a level, and the walk to the deepest one they share meets a
+// choice, or both end there on something that isn't a constant. It returns that level.
+func readsFieldApart(x, u fieldRead) (level pickKey, apart bool) {
+	for j := len(u.levels) - 1; j >= 0; j-- {
+		if slices.Contains(x.levels, u.levels[j]) {
+			both := x.levels[len(x.levels)-1] == u.levels[j] && j == len(u.levels)-1
+			return u.levels[j], drawsAlong(u.in.startOf(u.a.head), u.a.tail[:j], both)
+		}
+	}
+	return "", false
+}
+
+// spellingThrough is how to read level, a key in the pick of b, through b's name.
+func spellingThrough(b *nameBinding, target nameTarget, level pickKey) string {
+	segs, err := grammar.SplitPath(string(level))
+	if err != nil || len(segs) < len(target.tail) {
+		panic(invariant.Broken("level %q of name %q is not a path under its binding", level, b.name))
+	}
+	return grammar.JoinSegments(append([]string{b.name}, segs[len(target.tail):]...))
 }
 
 // readAddressing is the spelling of a read other than self that lands on or passes key, where tail
