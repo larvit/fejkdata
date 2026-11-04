@@ -20,28 +20,39 @@ func checkNameReads(label string, t *template, names resolvedNames) error {
 	return nil
 }
 
+// checkNameRead refuses read, a read in t of a name, where the name can't keep its promise. A name
+// keeps one pick (goal 4.3), and a template that can't keep that fails to load (goal 4.6). There are
+// two ways to break it.
+//
+// The read has no pick to read:
+//   - the name is read inside the field bound to it, checked here
+//   - it steps into a choice's item without opening the item's frame: refuseSkippedItem
+//
+// The read and another read of the name reach one level by routes that can draw apart:
+//   - the pick renders a field twice: refuseTwiceDrawn
+//   - a nested name has a pick of its own: refuseDrawnApart
+//   - a reference draws afresh: refuseFreshDraw
+//   - a field read the pick doesn't keep draws afresh: refuseKeptAndFreshField
 func checkNameRead(t *template, read *arm, names resolvedNames) error {
 	b := read.named
 	if b.bindsField() && rendersInside(compilePath(names.targets[b].start, names.targets[b].tail).leaves, t) {
 		return fmt.Errorf("name %q is read inside %q, the field bound to it; read the name outside that field", b.name, b.ref)
 	}
-	pick := pickReads{reads: names.reads[b], addressed: names.addressed[b]}
-	for _, leaf := range read.leaves {
-		if err := refuseTwiceDrawn(pick, read.spelling, leaf, read.key()); err != nil {
-			return err
-		}
-	}
-	below := armsRead(read.leaves)
-	if err := refuseDrawnApart(read, below, names); err != nil {
+	pick := names.pick(b)
+	routes := routesUnder(read.leaves, read.key(), pick.addressed)
+	if err := refuseTwiceDrawn(pick, read.spelling, routes); err != nil {
 		return err
 	}
-	if err := refuseSkippedItem(t, read, below, names); err != nil {
+	if err := refuseDrawnApart(pick, read, routes, names); err != nil {
 		return err
 	}
-	if err := refuseFreshDraw(read, below, names); err != nil {
+	if err := refuseSkippedItem(t, read, routes, names); err != nil {
 		return err
 	}
-	return refuseKeptAndFreshField(read, names)
+	if err := refuseFreshDraw(pick, read, routes, names); err != nil {
+		return err
+	}
+	return refuseKeptAndFreshField(read, routes, names)
 }
 
 func rendersInside(nodes []node, t *template) bool {
@@ -70,11 +81,146 @@ func rendersInside(nodes []node, t *template) bool {
 	return false
 }
 
+// routeKind is how a read met while a read of a name renders relates to the name's pick.
+type routeKind uint8
+
+const (
+	routeApart routeKind = iota // a reference, a read through a name, or any read below a read that isn't kept
+	routeFresh                  // a field read in what the pick renders, not kept, so it draws afresh
+	routeKept                   // the pick keeps its value, and what it renders is part of the pick
+)
+
+// route is one read met while nodes render: a, in the op at index op of template in. Where kind isn't
+// routeApart, at is in's key in the pick and levels is a's levels moved under at. by is the read of
+// the name that addresses a kept route.
+type route struct {
+	a      *arm
+	in     *template
+	op     int
+	kind   routeKind
+	at     pickKey
+	levels []pickKey
+	by     string
+}
+
+// routesUnder is every read that rendering nodes makes, down every variant of a choice, a table's
+// format and every field a read renders, in render order, once per key a template renders at.
+//
+// nodes sit at key at in a pick whose name's reads address the keys in addressed. With no addressed
+// keys there is no pick, and every route is routeApart. A table's format is apart too: the pick pins
+// the row, so its columns read one row whichever read renders them.
+func routesUnder(nodes []node, at pickKey, addressed map[pickKey]string) []route {
+	type site struct {
+		n      node
+		at     pickKey
+		inPick bool
+	}
+	var found []route
+	seen := map[site]bool{}
+	var walk func(n node, at pickKey, inPick bool)
+	walk = func(n node, at pickKey, inPick bool) {
+		if seen[site{n, at, inPick}] {
+			return
+		}
+		seen[site{n, at, inPick}] = true
+		switch n := n.(type) {
+		case *choice:
+			for _, item := range n.items {
+				walk(item, at, inPick)
+			}
+		case *table, *tableRow:
+			for _, e := range renderEdges(n) {
+				walk(e.to, "", false)
+			}
+		case *template:
+			for i, o := range n.compiled.ops {
+				for _, a := range armsOf(o) {
+					r := route{a: a, in: n, op: i}
+					if inPick {
+						r = r.placedAt(at, addressed)
+					}
+					found = append(found, r)
+					if !staysInCategory(a) {
+						continue
+					}
+					below, kept := r.below()
+					for _, leaf := range a.leaves {
+						walk(leaf, below, kept)
+					}
+				}
+			}
+		}
+	}
+	for _, n := range nodes {
+		walk(n, at, addressed != nil)
+	}
+	return found
+}
+
+// placedAt is r, met in what the pick renders at key at, with its place in the pick.
+func (r route) placedAt(at pickKey, addressed map[pickKey]string) route {
+	if r.a.kind == namedRead || grammar.IsRef(r.a.head) {
+		return r
+	}
+	r.kind, r.at = routeFresh, at
+	if by, kept := landsInPick(addressed, at, *r.a); kept {
+		r.kind, r.by = routeKept, by
+	}
+	r.levels = make([]pickKey, len(r.a.levels))
+	for i, l := range r.a.levels {
+		r.levels[i] = at.under(l)
+	}
+	return r
+}
+
+// below is the key in the pick of what r renders, and whether that is part of the pick.
+func (r route) below() (pickKey, bool) {
+	if r.kind != routeKept {
+		return "", false
+	}
+	return r.levels[len(r.levels)-1], true
+}
+
+// staysInCategory reports whether what a renders is in a's category. A reference's and a
+// reference-bound name's are not, and neither shares the pick.
+func staysInCategory(a *arm) bool {
+	return a.kind == namedRead && a.named.bindsField() || a.kind == freshRead && !grammar.IsRef(a.head)
+}
+
+// keptBySite is the routes the pick keeps, one group per template and key, each group in the order
+// the walk first met it.
+func keptBySite(routes []route) [][]route {
+	type site struct {
+		in *template
+		at pickKey
+	}
+	var groups [][]route
+	index := map[site]int{}
+	for _, r := range routes {
+		if r.kind != routeKept {
+			continue
+		}
+		i, met := index[site{r.in, r.at}]
+		if !met {
+			i = len(groups)
+			index[site{r.in, r.at}] = i
+			groups = append(groups, nil)
+		}
+		groups[i] = append(groups[i], r)
+	}
+	return groups
+}
+
 // pickReads is the reads of one name: the arms that read it, and the keys they address, each with the
-// spelling of the first read reaching it.
+// spelling of the first read reaching it. bound is how many segments of a read's path the binding holds.
 type pickReads struct {
 	reads     []*arm
 	addressed map[pickKey]string
+	bound     int
+}
+
+func (names resolvedNames) pick(b *nameBinding) pickReads {
+	return pickReads{reads: names.reads[b], addressed: names.addressed[b], bound: len(names.targets[b].tail)}
 }
 
 // landingOn is the spelling of a read that lands on key.
@@ -87,73 +233,37 @@ func (p pickReads) landingOn(key pickKey) (string, bool) {
 	return "", false
 }
 
-// refuseTwiceDrawn refuses read, a read of a name that lands on n, where n renders a field twice and
-// another read of the name addresses a draw those two renders share. The pick keeps one draw of the
-// field: where n binds a category whose format is {w}-{w}, a {n.w} beside {n} cannot say which draw
-// it reads. key is n's level under the pick.
-func refuseTwiceDrawn(pick pickReads, read string, n node, key pickKey) error {
-	switch n := n.(type) {
-	case *choice:
-		for _, item := range n.items {
-			if err := refuseTwiceDrawn(pick, read, item, key); err != nil {
-				return err
-			}
-		}
-	case *template:
-		return refuseTwiceDrawnIn(pick, read, n, key)
-	}
-	return nil
-}
-
-// landing is an arm of a template that lands in the pick: by is the read of the name addressing it,
-// and op the index of the op holding it.
-type landing struct {
-	a  arm
-	by string
-	op int
-}
-
-// refuseTwiceDrawnIn is refuseTwiceDrawn over the reads of t that land in the pick. It recurses into
-// each of them, as render does: beside {n.w.a}, it refuses {n} where n's format reads {w} and w's
-// reads {a}-{a}, since "w" and "w.a" are addressed. One op draws once, whichever arm it takes, so
-// only reads in two ops can draw apart.
-func refuseTwiceDrawnIn(pick pickReads, read string, t *template, key pickKey) error {
-	var into []landing
-	for i, o := range t.compiled.ops {
-		for _, a := range slices.Concat(o.arms, o.operands) {
-			if by, lands := landsInPick(pick.addressed, key, a); lands {
-				into = append(into, landing{a, by, i})
-			}
-		}
-	}
-	for i, x := range into {
-		for _, y := range into[:i] {
-			if x.op != y.op && x.a.head == y.a.head && readTwiceApart(pick, key, t, x.a, y.a) {
-				return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, x.a.head, x.by, read, x.by)
-			}
-		}
-	}
-	for _, l := range into {
-		for _, leaf := range l.a.leaves {
-			if err := refuseTwiceDrawn(pick, read, leaf, key.under(l.a.key())); err != nil {
-				return err
+// refuseTwiceDrawn refuses read, a read of a name, where what it renders reads a field twice and
+// another read of the name addresses a draw the two reads share, so one level has two routes. The
+// pick keeps one draw of the field: where n binds a category whose format is {w}-{w}, a {n.w} beside
+// {n} cannot say which draw it reads. It looks at every level the pick renders: beside {n.w.a}, it
+// refuses {n} where n's format reads {w} and w's reads {a}-{a}, since "w" and "w.a" are addressed. One
+// op draws once, whichever arm it takes, so only reads in two ops can draw apart.
+func refuseTwiceDrawn(pick pickReads, read string, routes []route) error {
+	for _, kept := range keptBySite(routes) {
+		for i, x := range kept {
+			for _, y := range kept[:i] {
+				if x.op != y.op && x.a.head == y.a.head && readTwiceApart(pick, x, y) {
+					return fmt.Errorf("{%s} renders field %q twice, so {%s} cannot say which draw it reads; drop {%s} or {%s}", read, x.a.head, x.by, read, x.by)
+				}
 			}
 		}
 	}
 	return nil
 }
 
-// readTwiceApart reports whether x and y, two reads of t that the pick keeps, pass one choice or table, or
-// read one leaf that isn't a constant, or share a level a read of the name lands on, where a read of
-// the whole level draws what the two keep. Drawn apart, such reads could differ. Two fields of a
-// template that isn't a choice share none of these. key is t's level under the pick.
-func readTwiceApart(pick pickReads, key pickKey, t *template, x, y arm) bool {
+// readTwiceApart reports whether x and y, two reads of one template that the pick keeps, pass one
+// choice or table, or read one leaf that isn't a constant, or share a level a read of the name lands
+// on, where a read of the whole level draws what the two keep. Drawn apart, such reads could differ.
+// Two fields of a template that isn't a choice share none of these.
+func readTwiceApart(pick pickReads, x, y route) bool {
 	common := 0
-	for common < min(len(x.tail), len(y.tail)) && x.tail[common] == y.tail[common] {
+	for common < min(len(x.a.tail), len(y.a.tail)) && x.a.tail[common] == y.a.tail[common] {
 		common++
 	}
-	_, landed := pick.landingOn(key.under(x.levels[common]))
-	return drawsAlong(t.startOf(x.head), x.tail[:common], x.key() == y.key() || landed)
+	_, landed := pick.landingOn(x.levels[common])
+	endsOnShared := x.a.key() == y.a.key() || landed
+	return drawsAlong(x.in.startOf(x.a.head), x.a.tail[:common], endsOnShared)
 }
 
 // drawsAlong reports whether the walk of path from start meets a choice or a table at one of its
@@ -197,11 +307,11 @@ func isConstant(n node) bool {
 // bound to that field and another read of the name shares a draw with it. Each name keeps its own
 // pick: where n binds a category whose format is {w as r}{r}, {n} prints r's draw of w and {n.w}
 // n's; a field that only reads fields of a template that isn't a choice, or a constant, shares none.
-func refuseDrawnApart(read *arm, below []*arm, names resolvedNames) error {
+func refuseDrawnApart(pick pickReads, read *arm, routes []route, names resolvedNames) error {
 	outer := read.named
-	for _, x := range below {
-		inner := x.named
-		if x.kind != namedRead || !inner.bindsField() || inner == outer { // a name's own read inside its field is refused where it sits
+	for _, r := range routes {
+		inner := r.a.named
+		if r.a.kind != namedRead || !inner.bindsField() || inner == outer { // a name's own read inside its field is refused where it sits
 			continue
 		}
 		target := names.targetOf(inner)
@@ -209,7 +319,7 @@ func refuseDrawnApart(read *arm, below []*arm, names resolvedNames) error {
 		if !inside {
 			continue
 		}
-		if by, shares := sharedDraw(pickReads{reads: names.reads[outer], addressed: names.addressed[outer]}, target, above); shares {
+		if by, shares := sharedDraw(pick, target, above); shares {
 			return fmt.Errorf("{%s} reads field %q through name %q, a pick of its own, so {%s} would read another draw; drop {%s} to keep one pick, or write {%s} for a second draw",
 				read.spelling, inner.ref, inner.name, by, by, secondDraw(outer, by))
 		}
@@ -219,8 +329,12 @@ func refuseDrawnApart(read *arm, below []*arm, names resolvedNames) error {
 
 // sharedDraw reports whether the reads of one name share a draw that could differ with a name bound
 // to target, which sits at the path above under the first name's pick, and returns the read that
-// shares it. They share one where a read of the first name passes a choice or table on target's path, lands
-// above target's leaf with a choice below it, or lands on a leaf that isn't a constant.
+// shares it. It walks target's path level by level, and at each level, in this order:
+//   - no read of the first name addresses the level: they share none
+//   - the level is a choice or a table: they share it
+//   - the level is target's leaf: they share it unless it is a constant
+//   - a read lands on the level, and a draw lies below it on target's path: they share that draw
+//   - target's path goes on by a step no field spells, such as "..": they count as sharing one
 func sharedDraw(pick pickReads, target nameTarget, above []string) (by string, shares bool) {
 	n := target.start
 	for i := 0; ; i++ {
@@ -250,11 +364,12 @@ func secondDraw(b *nameBinding, by string) string { return b.ref + strings.TrimP
 // refuseSkippedItem refuses read, a read through a name bound to a field of t, where it steps into an
 // item of a choice and what it renders reads a name that item binds. The read opens no frame for the
 // item, so the name has no pick there, unless t lies in the item and its frame is already open.
-func refuseSkippedItem(t *template, read *arm, below []*arm, names resolvedNames) error {
+func refuseSkippedItem(t *template, read *arm, routes []route, names resolvedNames) error {
 	if !read.named.bindsField() {
 		return nil
 	}
-	for _, x := range below {
+	for _, r := range routes {
+		x := r.a
 		if x.kind != namedRead {
 			continue
 		}
@@ -277,103 +392,68 @@ func refuseSkippedItem(t *template, read *arm, below []*arm, names resolvedNames
 // A reference draws afresh, so {n} and {n.ab.name} could differ where n's format reads
 // {/cat.ab.name}, and so could {n} and {n.ab} where ab's format reads {name}; a reference to a
 // constant can't differ.
-func refuseFreshDraw(read *arm, below []*arm, names resolvedNames) error {
+func refuseFreshDraw(pick pickReads, read *arm, routes []route, names resolvedNames) error {
 	b := read.named
 	target := names.targets[b]
-	start, tail := target.start, len(target.tail)
-	seen := map[node]bool{}
-	for queue := slices.Clone(below); len(queue) > 0; queue = queue[1:] {
-		x := queue[0]
-		if !grammar.IsRef(x.head) {
+	for _, reached := range refsReached(routes) {
+		path, within := names.pathTo(target.start, reached.leaf)
+		if !within || len(path) == 0 || !drawsAlong(target.start, path, true) {
 			continue
 		}
-		for _, leaf := range x.leaves {
-			if seen[leaf] {
-				continue
-			}
-			seen[leaf] = true
-			queue = append(queue, armsRead([]node{leaf})...)
-			path, within := names.pathTo(start, leaf)
-			if !within || len(path) == 0 || !drawsAlong(start, path, true) {
-				continue
-			}
-			if tail > 0 && grammar.IsSelector(target.tail[0]) {
-				path = slices.Concat(target.tail[:1], path)
-			}
-			if by, other := readAddressing(names, names.reads[b], read, tail, pickKey(strings.Join(path, ".")), x, leaf); other {
-				return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
-					read.spelling, x.spelling, by, read.spelling, by, by, secondDraw(b, by))
-			}
+		key := pickKey(strings.Join(underSelector(target, path), "."))
+		if by, other := pick.readAddressing(read, key, reached, names); other {
+			return fmt.Errorf("{%s} reaches {%s}, which draws afresh a path {%s} reads from the pick, so {%s} and {%s} could differ; drop {%s}, or write {%s} for a second draw",
+				read.spelling, reached.ref.spelling, by, read.spelling, by, by, secondDraw(b, by))
 		}
 	}
 	return nil
 }
 
-// fieldRead is a read of a field met while of, a read of a name, renders. a is the read and in the
-// template holding it; levels is a's levels moved under in's key in the pick. kept says whether the
-// pick keeps a's value, as landsInPick reports; where it doesn't, a draws afresh.
-type fieldRead struct {
-	a      arm
-	in     *template
-	levels []pickKey
-	kept   bool
-	of     *arm
+// refReach is a node that a reference lands on.
+type refReach struct {
+	ref  *arm
+	leaf node
 }
 
-// fieldReadsUnder is every field read made while read renders, down every variant of a choice and
-// every field a kept read renders. A reference draws afresh whatever its pick, and a read through a
-// name has a pick of its own, so neither is listed.
-func fieldReadsUnder(read *arm, addressed map[pickKey]string) []fieldRead {
-	type site struct {
-		n   node
-		key pickKey
-	}
-	var found []fieldRead
-	seen := map[site]bool{}
-	var walk func(n node, key pickKey)
-	walk = func(n node, key pickKey) {
-		if seen[site{n, key}] {
-			return
+// refsReached is every node the references among routes land on, and those that what they render
+// holds in turn, across categories. Each node is listed once, with the first reference to reach it.
+func refsReached(routes []route) []refReach {
+	var found []refReach
+	seen := map[node]bool{}
+	for queue := slices.Clone(routes); len(queue) > 0; queue = queue[1:] {
+		x := queue[0].a
+		if !grammar.IsRef(x.head) {
+			continue
 		}
-		seen[site{n, key}] = true
-		switch n := n.(type) {
-		case *choice:
-			for _, item := range n.items {
-				walk(item, key)
-			}
-		case *template:
-			for _, o := range n.compiled.ops {
-				for _, a := range slices.Concat(o.arms, o.operands) {
-					if a.kind == namedRead || grammar.IsRef(a.head) {
-						continue
-					}
-					_, kept := landsInPick(addressed, key, a)
-					levels := make([]pickKey, len(a.levels))
-					for i, l := range a.levels {
-						levels[i] = key.under(l)
-					}
-					found = append(found, fieldRead{a: a, in: n, levels: levels, kept: kept, of: read})
-					if kept {
-						for _, leaf := range a.leaves {
-							walk(leaf, key.under(a.key()))
-						}
-					}
-				}
+		for _, leaf := range x.leaves {
+			if !seen[leaf] {
+				seen[leaf] = true
+				found = append(found, refReach{x, leaf})
+				queue = append(queue, routesUnder([]node{leaf}, "", nil)...)
 			}
 		}
-	}
-	for _, leaf := range read.leaves {
-		walk(leaf, read.key())
 	}
 	return found
+}
+
+// underSelector is path, from a binding's start, as a key spells it. A key holds the selector of a
+// binding such as {/region[01] as r}, and a walk of the tree passes no selector.
+func underSelector(target nameTarget, path []string) []string {
+	if len(target.tail) > 0 && grammar.IsSelector(target.tail[0]) {
+		return slices.Concat(target.tail[:1], path)
+	}
+	return path
+}
+
+// fieldRead is a field read that draws afresh while of, a read of a name, renders.
+type fieldRead struct {
+	route
+	of *arm
 }
 
 // freshFieldReads is the reads of a field that rendering a read of b makes afresh, listed under each
 // level they read. Reads of one key render the same, so it walks each key once.
 func (names resolvedNames) freshFieldReads(b *nameBinding) map[pickKey][]fieldRead {
-	if byLevel, built := names.fresh[b]; built {
-		return byLevel
-	}
 	byLevel := map[pickKey][]fieldRead{}
 	walked := map[pickKey]bool{}
 	for _, read := range names.reads[b] {
@@ -381,34 +461,33 @@ func (names resolvedNames) freshFieldReads(b *nameBinding) map[pickKey][]fieldRe
 			continue
 		}
 		walked[read.key()] = true
-		for _, u := range fieldReadsUnder(read, names.addressed[b]) {
-			if u.kept {
+		for _, r := range routesUnder(read.leaves, read.key(), names.addressed[b]) {
+			if r.kind != routeFresh {
 				continue
 			}
-			for _, level := range u.levels {
-				byLevel[level] = append(byLevel[level], u)
+			for _, level := range r.levels {
+				byLevel[level] = append(byLevel[level], fieldRead{r, read})
 			}
 		}
 	}
-	names.fresh[b] = byLevel
 	return byLevel
 }
 
 // refuseKeptAndFreshField refuses read, a read of a name, where it reads a field from the pick that
 // another read of the name draws afresh, and the two could differ: with {n} and {n.w}, where n's
 // format is {w.a} and w's is {a}, {n} reads the pick's w.a and {n.w} draws w's a afresh.
-func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
+func refuseKeptAndFreshField(read *arm, routes []route, names resolvedNames) error {
 	b := read.named
 	byLevel := names.freshFieldReads(b)
-	for _, x := range fieldReadsUnder(read, names.addressed[b]) {
-		if !x.kept {
+	for _, x := range routes {
+		if x.kind != routeKept {
 			continue
 		}
 		for _, level := range x.levels {
 			for _, u := range byLevel[level] {
-				if level, apart := readsFieldApart(x, u); apart {
+				if shared, apart := readsFieldApart(x, u); apart {
 					return fmt.Errorf("{%s} reads {%s} from the pick, but {%s} renders {%s}, the same field, afresh, so {%s} and {%s} could differ; read {%s} in place of {%s} to keep one draw, or write {%s} for a second draw",
-						read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, read.spelling, u.of.spelling, spellingThrough(b, names.targetOf(b), level), u.of.spelling, secondDraw(b, u.of.spelling))
+						read.spelling, x.a.spelling, u.of.spelling, u.a.spelling, read.spelling, u.of.spelling, spellingThrough(b, names.targetOf(b), shared), u.of.spelling, secondDraw(b, u.of.spelling))
 				}
 			}
 		}
@@ -419,11 +498,12 @@ func refuseKeptAndFreshField(read *arm, names resolvedNames) error {
 // readsFieldApart reports whether x, which the pick keeps, and u, which draws afresh, read a field
 // they could draw apart: they share a level, and the walk to the deepest one they share meets a
 // choice or table, or one ends there on something that isn't a constant. It returns that level.
-func readsFieldApart(x, u fieldRead) (level pickKey, apart bool) {
+// u.levels[0] is u's head, so u.levels[j] is where the walk of u's tail[:j] ends.
+func readsFieldApart(x route, u fieldRead) (shared pickKey, apart bool) {
 	for j := len(u.levels) - 1; j >= 0; j-- {
 		if slices.Contains(x.levels, u.levels[j]) {
-			both := x.levels[len(x.levels)-1] == u.levels[j] || j == len(u.levels)-1
-			return u.levels[j], drawsAlong(u.in.startOf(u.a.head), u.a.tail[:j], both)
+			oneEndsHere := x.levels[len(x.levels)-1] == u.levels[j] || j == len(u.levels)-1
+			return u.levels[j], drawsAlong(u.in.startOf(u.a.head), u.a.tail[:j], oneEndsHere)
 		}
 	}
 	return "", false
@@ -439,11 +519,10 @@ func spellingThrough(b *nameBinding, target nameTarget, level pickKey) string {
 }
 
 // readAddressing is the spelling of a read other than self that lands on or passes key, or lands on
-// a level whose render reads leaf, the node at key, and doesn't render x, the reference that
-// reaches it; tail is how many segments of its path the name's binding holds.
-func readAddressing(names resolvedNames, reads []*arm, self *arm, tail int, key pickKey, x *arm, leaf node) (string, bool) {
-	for _, r := range reads {
-		if r != self && (slices.Contains(r.levels[tail:], key) || rendersField(names, r, x, leaf)) {
+// a level whose render reads reached.leaf, the node at key, and doesn't render reached.ref.
+func (p pickReads) readAddressing(self *arm, key pickKey, reached refReach, names resolvedNames) (string, bool) {
+	for _, r := range p.reads {
+		if r != self && (slices.Contains(r.levels[p.bound:], key) || rendersField(names, r, reached)) {
 			return r.spelling, true
 		}
 	}
@@ -451,24 +530,22 @@ func readAddressing(names resolvedNames, reads []*arm, self *arm, tail int, key 
 }
 
 // rendersField reports whether rendering what read lands on, down every field it renders, reads
-// leaf or a node under it through a field read, and doesn't render x. The reference x is drawn once
-// with a level that holds it, so a read of that level and one of its whole agree.
-func rendersField(names resolvedNames, read, x *arm, leaf node) bool {
-	reads := false
-	for _, a := range armsRead(read.leaves) {
-		if a == x {
+// reached.leaf or a node under it through a field read, and doesn't render reached.ref. That reference
+// is drawn once with a level that holds it, so a read of that level and one of its whole agree.
+func rendersField(names resolvedNames, read *arm, reached refReach) bool {
+	routes := routesUnder(read.leaves, "", nil)
+	if slices.ContainsFunc(routes, func(r route) bool { return r.a == reached.ref }) {
+		return false
+	}
+	return slices.ContainsFunc(routes, func(r route) bool {
+		if r.a.kind != freshRead || grammar.IsRef(r.a.head) {
 			return false
 		}
-		if a.kind != freshRead || grammar.IsRef(a.head) {
-			continue
-		}
-		for _, l := range a.leaves {
-			if _, under := names.pathTo(leaf, l); under {
-				reads = true
-			}
-		}
-	}
-	return reads
+		return slices.ContainsFunc(r.a.leaves, func(l node) bool {
+			_, under := names.pathTo(reached.leaf, l)
+			return under
+		})
+	})
 }
 
 // armsOf is the arms of o, each the one in o's slices, so that an arm met twice is equal to itself.
@@ -478,43 +555,6 @@ func armsOf(o op) []*arm {
 		for i := range arms {
 			found = append(found, &arms[i])
 		}
-	}
-	return found
-}
-
-// armsRead is every arm that rendering nodes read, down every variant of a choice, a table's format
-// and every field a read renders. It stays in their category: a reference's or a reference-bound
-// name's arm is counted, but what it renders is not followed, since neither shares the pick.
-func armsRead(nodes []node) []*arm {
-	var found []*arm
-	seen := map[node]bool{}
-	var read func(n node)
-	read = func(n node) {
-		if seen[n] {
-			return
-		}
-		seen[n] = true
-		switch n := n.(type) {
-		case *choice, *table, *tableRow:
-			for _, e := range renderEdges(n) {
-				read(e.to)
-			}
-		case *template:
-			for _, o := range n.compiled.ops {
-				for _, a := range armsOf(o) {
-					found = append(found, a)
-					if a.kind == namedRead && !a.named.bindsField() || a.kind == freshRead && grammar.IsRef(a.head) {
-						continue
-					}
-					for _, leaf := range a.leaves {
-						read(leaf)
-					}
-				}
-			}
-		}
-	}
-	for _, n := range nodes {
-		read(n)
 	}
 	return found
 }

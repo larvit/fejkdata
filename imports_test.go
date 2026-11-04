@@ -32,14 +32,6 @@ func TestPackageImports(t *testing.T) {
 		".":                    {"internal/builtinfunc", "internal/datafiles", "internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/jsonvalue", "internal/proven", "internal/rows"},
 		"cli":                  {"."},
 		"cmd/fejkdata":         {"cli", "data"},
-		"data":                 {"data/en_US", "data/geo/NO", "data/geo/SE", "data/geo/US", "data/misc", "data/nb_NO", "data/sv_SE"},
-		"data/en_US":           {"data/geo/US"},
-		"data/geo/NO":          nil,
-		"data/geo/SE":          nil,
-		"data/geo/US":          nil,
-		"data/misc":            nil,
-		"data/nb_NO":           {"data/geo/NO"},
-		"data/sv_SE":           {"data/geo/SE"},
 		"internal/builtinfunc": {"internal/datatype", "internal/drawstate", "internal/grammar", "internal/invariant", "internal/proven"},
 		"internal/datafiles":   {"internal/grammar", "internal/jsonvalue"},
 		"internal/datatype":    nil,
@@ -51,27 +43,20 @@ func TestPackageImports(t *testing.T) {
 		"internal/rows":        {"internal/drawstate", "internal/grammar", "internal/invariant"},
 	}
 	testsAlso := map[string][]string{
-		".":           {"data", "data/en_US", "data/geo/NO", "data/geo/SE", "data/geo/US", "data/misc", "data/nb_NO", "data/sv_SE"},
-		"cli":         {"internal/grammar"},
-		"data/en_US":  {"."},
-		"data/geo/NO": {"."},
-		"data/geo/SE": {"."},
-		"data/geo/US": {"."},
-		"data/misc":   {"."},
-		"data/nb_NO":  {"."},
-		"data/sv_SE":  {"."},
+		"cli": {"internal/grammar"},
 	}
 	seen := map[string]bool{}
 	eachPackage(t, func(dir string, pkg *build.Package) {
 		seen[dir] = true
 		may, listed := allowed[dir]
-		if !listed {
+		if !listed && !isShippedData(dir) {
 			t.Errorf("package %s is not listed: add the module packages it may import", dir)
 			return
 		}
 		for _, imp := range slices.Concat(pkg.Imports, pkg.TestImports, pkg.XTestImports) {
 			may := may
-			if !slices.Contains(pkg.Imports, imp) {
+			testOnly := !slices.Contains(pkg.Imports, imp)
+			if testOnly {
 				may = slices.Concat(may, testsAlso[dir])
 			}
 			if imp != module && !strings.HasPrefix(imp, module+"/") {
@@ -82,7 +67,7 @@ func TestPackageImports(t *testing.T) {
 			if rel == "" {
 				rel = "."
 			}
-			if rel != dir && !slices.Contains(may, rel) {
+			if rel != dir && !slices.Contains(may, rel) && !mayImportShippedData(dir, rel, testOnly) {
 				t.Errorf("package %s imports %s, which its list does not allow", dir, rel)
 			}
 		}
@@ -95,6 +80,24 @@ func TestPackageImports(t *testing.T) {
 			t.Errorf("listed package %s does not exist", dir)
 		}
 	}
+}
+
+func isShippedData(dir string) bool { return dir == "data" || strings.HasPrefix(dir, "data/") }
+
+// mayImportShippedData reports whether dir may import rel, a package under data/. The data package
+// imports them all, a locale data/<ll_CC> only data/geo/<CC>, and the root's tests any. misc and a
+// geo package import none.
+func mayImportShippedData(dir, rel string, testOnly bool) bool {
+	switch {
+	case !isShippedData(rel):
+		return false
+	case dir == "data":
+		return true
+	case dir == ".":
+		return testOnly
+	}
+	_, country, isLocale := strings.Cut(strings.TrimPrefix(dir, "data/"), "_")
+	return isShippedData(dir) && isLocale && rel == "data/geo/"+country
 }
 
 // eachPackage calls fn with every Go package in the module and its slash-separated directory.

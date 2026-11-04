@@ -11,7 +11,7 @@ import (
 // A level is one prefix of a read's path, and a read has one for each node it passes; a choice
 // and the variant drawn from it, or a table and its row, share one. A level's key is its path from
 // where the read starts, and landsInPick says where that is. Load gives each read one key per
-// level, in levelKeys.
+// level, in namedLevels or freshLevels.
 //
 // A name's addressed keys are the keys some read of it lands on or passes, from the level its
 // binding lands on onward; load gathers them in addressedKeys. When a template a pick renders
@@ -35,13 +35,21 @@ func (k pickKey) under(rel pickKey) pickKey {
 	return k + "." + rel
 }
 
-// levelKeys is the key of each prefix of path holding at least from segments, shortest first.
-func levelKeys(path []string, from int) []pickKey {
-	levels := make([]pickKey, len(path)-from+1)
+// namedLevels is the levels of a read through a name, whose path runs from its target's start: the
+// key of that start, "", then the key of each longer prefix of path, shortest first.
+func namedLevels(path []string) []pickKey {
+	levels := make([]pickKey, len(path)+1)
 	for i := range levels {
-		levels[i] = pickKey(grammar.JoinSegments(path[:from+i]))
+		levels[i] = pickKey(grammar.JoinSegments(path[:i]))
 	}
 	return levels
+}
+
+// freshLevels is the levels of a fresh read of head and segs: the key of head, then the key of each
+// longer path, shortest first. It has no "" level, since the template the read sits in is already
+// rendering and head is the first node the read can draw.
+func freshLevels(head string, segs []string) []pickKey {
+	return namedLevels(append([]string{head}, segs...))[1:]
 }
 
 // addressedKeys is every key the reads of each name land on or pass, from the name's own level,
@@ -69,8 +77,8 @@ func addressedKeys(reads map[*nameBinding][]*arm, targets map[*nameBinding]nameT
 //
 // The two kinds of read share a key because of where their levels start. A named read starts at
 // the node its name's target starts at, and may draw a variant there, so its levels start at that
-// node, keyed "" (compileArm). A fresh read starts in the template it sits in, which is already
-// rendering. The first node it can draw is its head, so its levels start at the head (pathArm).
+// node, keyed "" (namedLevels). A fresh read starts in the template it sits in, which is already
+// rendering. The first node it can draw is its head, so its levels start at the head (freshLevels).
 // at is that template's path from the target's start, so moved under at, a fresh read's key spells
 // the path a named read's does. Where p binds a category whose format reads {first}, the {first}
 // that {p} renders at "" and the {p.first} beside it both key "first", and read one draw.
@@ -108,6 +116,12 @@ func readUnder(s *drawstate.State, t *template, env renderEnv, a arm) readValue 
 
 // namedPick is one draw of a name: the variant drawn at each level a read of it addresses, the
 // value each read there produced, by its pickKey, and the table rows they pinned.
+//
+// Its life runs in this order:
+//  1. It is created with its frame, by newPickFrame, and holds no draw yet.
+//  2. It draws on the first read of the name.
+//  3. Each read keeps its value by key, so a later read of that key prints the same value.
+//  4. It ends when its frame pops. A frame kept in another pick's memo (enter) lasts as long as that pick.
 type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
@@ -203,7 +217,7 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 		return r
 	}
 	leaf, pins := p.draw(s, a.named.target.start, a.steps, a.levels)
-	if a.named.bindsField() {
+	if a.named.bindsField() { // the read stays in the category, so its frames are already open
 		return p.renderAt(s, leaf, pins, a.key(), env)
 	}
 	env, mark := env.enter(leaf, &p.memo)

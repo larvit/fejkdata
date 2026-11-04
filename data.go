@@ -145,6 +145,10 @@ func categoryPipeline(sites []categorySite, root map[string]node) pipeline {
 	}
 }
 
+// run takes a load through its stages in order. resolve binds what each template's tokens read and
+// refuses names and references that fail. The cycle check comes before settleRecords and the fences,
+// whose walks recurse unguarded. settleRecords fixes each record's columns, which checkColumns proves
+// and the node fences then read.
 func (p pipeline) run() error {
 	if err := p.resolve(); err != nil {
 		return err

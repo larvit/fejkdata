@@ -42,13 +42,12 @@ func resolveInlineTemplates(nodes nodeSet, root map[string]node) error {
 
 // resolvedNames is what resolveTemplates resolved about the names of a set of templates: each binding's
 // target, the reads of it, and the keys they address. places caches pathTo: for each node it was
-// called from, every node under it with the fields leading there. fresh caches freshFieldReads.
+// called from, every node under it with the fields leading there.
 type resolvedNames struct {
 	targets   map[*nameBinding]nameTarget
 	reads     map[*nameBinding][]*arm
 	addressed map[*nameBinding]map[pickKey]string
 	places    map[node]map[node][]string
-	fresh     map[*nameBinding]map[pickKey][]fieldRead
 }
 
 // pathTo is the fields leading from from down to want, if want lies under from.
@@ -110,7 +109,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		s.t.compiled = compiled
 	}
 	reads := readsOfNames(ts)
-	names := resolvedNames{targets: targets, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
+	names := resolvedNames{targets: targets, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}}
 	for _, s := range ts {
 		s.t.readsColumn = columnReadOf(s.t, targets)
 	}
