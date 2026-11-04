@@ -28,14 +28,15 @@ const (
 // samples read only the rng. A time-based id (uuid v7, ulid) draws its timestamp
 // from the rng, not the wall clock, so seeded output stays reproducible.
 var builtins = withTransforms(map[string]builtin{
-	"luhn":   {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
-	"mod11":  {arity: 0, prep: derive(mod11Check)},
-	"ean":    {arity: 0, prep: derive(eanCheck)},
-	"fnr":    {arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
-	"uuid":   {arity: 0, prep: sample(uuidV7)},
-	"ulid":   {arity: 0, prep: sample(ulid)},
-	"nanoid": {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
-	"hex":    {arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
+	"luhn":    {arity: 0, prep: derive(func(e string) string { return string(rune('0' + luhnCheck(e))) })},
+	"mod11":   {arity: 0, prep: derive(mod11Check)},
+	"ean":     {arity: 0, prep: derive(eanCheck)},
+	"bgmod11": {arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
+	"fnr":     {arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
+	"uuid":    {arity: 0, prep: sample(uuidV7)},
+	"ulid":    {arity: 0, prep: sample(ulid)},
+	"nanoid":  {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
+	"hex":     {arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
 	"digits": {arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		if atoi(a[0]) == 0 {
 			return proven.Unproven("{" + token + "} prints nothing, which is no number")
