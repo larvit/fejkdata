@@ -255,6 +255,17 @@ func namedReads(t *template) []namedReadAt {
 	return out
 }
 
+// readsOfNames is every read of each name in ts, in the order ts lists them.
+func readsOfNames(ts []templateSite) map[*nameBinding][]*arm {
+	reads := map[*nameBinding][]*arm{}
+	for _, s := range ts {
+		for _, r := range namedReads(s.t) {
+			reads[r.a.named] = append(reads[r.a.named], r.a)
+		}
+	}
+	return reads
+}
+
 // nameTargets resolves what each binding of ts binds, from its binder's references.
 func nameTargets(ts []templateSite) map[*nameBinding]nameTarget {
 	targets := map[*nameBinding]nameTarget{}
