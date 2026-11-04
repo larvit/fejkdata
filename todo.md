@@ -6,12 +6,13 @@
 
 `Bar = 0`
 
-`Next ID = 375`
+`Next ID = 376`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 375 | 0.3.0 |  | defect | **Refuse at load `{n}` beside `{n.path}` where `path` lands above a reference `n`'s format makes, so the two never silently disagree.** | 2 | 2 | 2 | 4 | 3 | 4.6 by 3 | 7.9 |
 | 26 | 0.3.0 |  | defect | **Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.** | 4 | 2 | 3 | 7 | 6 | 1 by 2, 3 by 6 | 1.0 |
 | 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
@@ -226,6 +227,16 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
+
+### 375. Refuse at load `{n}` beside `{n.path}` where `path` lands above a reference `n`'s format makes, so the two never silently disagree.
+
+Goal 4.6. `refuseFreshDraw` in `namefence.go` refuses a read of the name only where `readAddressing` finds it lands on or passes the reference's key. A read that lands above the key loads and prints a value that disagrees with `{n}`:
+- With the data of `nameTables()` in `name_test.go` and `region.json`'s format `{/region.municipality.name}`, the card `{/region as r}{r}|{r.municipality}` loads and prints `Stockholm|Solna`. `{r.municipality}` renders the pinned municipality row's format `{name}`, while `{r}` draws a fresh region's municipality.
+- A template has the same gap on main: the category `{"format":"{/cat.ab.name}","ab":{"format":"{name}","name":["x","y"]}}` with the card `{/cat as n}{n}|{n.ab}`.
+
+Count a read that lands above the reference's key as addressing it only where rendering the level it lands on reaches that key. A level whose format never reads the reference's target then stays loadable. Test first in `namefence_test.go`, with a loading case where the level above doesn't render the target.
+
+Also check whether the same change closes a gap `refuseFreshDraw` already had: with region's format `{/region.name}`, the card `{/region[01] as r}{r}|{r.name}` loads, and `{r}` disagrees with `{r.name}`. `namefence.go`'s `refuseTwiceDrawnIn` is a place the comprehension seats found hard; where the fix touches it, leave it easier to read.
 
 ### 26. Spell `sv_SE.personnummer` with the `+` Skatteverket uses from the year the holder turns 100, judged by a date the caller gives.
 
