@@ -43,8 +43,9 @@ en_US.sentence.adj
 en_US.sentence.noun
 en_US.sentence.prep
 en_US.sentence.verb
-en_US.sex	format "{name}"	key code	name name
+en_US.sex	format "{name}"	key code	name name	weight count
 en_US.sex.code	string
+en_US.sex.count	string
 en_US.sex.first-name
 en_US.sex.first-name.count
 en_US.sex.first-name.name
@@ -420,8 +421,9 @@ nb_NO.phone.block	string
 nb_NO.phone.international	string
 nb_NO.phone.national	string
 nb_NO.phone.subscriber	string
-nb_NO.sex	format "{name}"	key code	name name
+nb_NO.sex	format "{name}"	key code	name name	weight count
 nb_NO.sex.code	string
+nb_NO.sex.count	string
 nb_NO.sex.first-name
 nb_NO.sex.first-name.count
 nb_NO.sex.first-name.name
@@ -449,6 +451,10 @@ sv_SE.birth-number.sex	string
 sv_SE.bloodtype	format "{name}"	weight share
 sv_SE.bloodtype.name	string
 sv_SE.bloodtype.share	string
+sv_SE.car	format "{make} {model}"	weight registrations
+sv_SE.car.make	string
+sv_SE.car.model	string
+sv_SE.car.registrations	string
 sv_SE.color
 sv_SE.company	format "{registered}"	reads geo.SE.locality sv_SE.company sv_SE.company-coined sv_SE.company-word sv_SE.first-name sv_SE.last-name
 sv_SE.company-coined	format "{a}{b}"
@@ -541,16 +547,23 @@ sv_SE.sentence.adj
 sv_SE.sentence.noun
 sv_SE.sentence.prep
 sv_SE.sentence.verb
-sv_SE.sex	format "{name}"	key code	name name
+sv_SE.sex	format "{name}"	key code	name name	weight count
 sv_SE.sex.birth-number
 sv_SE.sex.birth-number.number
 sv_SE.sex.birth-number.sex
 sv_SE.sex.code	string
+sv_SE.sex.count	string
 sv_SE.sex.first-name
 sv_SE.sex.first-name.count
 sv_SE.sex.first-name.name
 sv_SE.sex.first-name.sex
 sv_SE.sex.name	string
+sv_SE.sni	format "{code} {name}"	key code
+sv_SE.sni.code	string
+sv_SE.sni.name	string
+sv_SE.ssyk	format "{code} {name}"	key code
+sv_SE.ssyk.code	string
+sv_SE.ssyk.name	string
 sv_SE.territory	format "{name}"	key alpha2	name name
 sv_SE.territory.alpha2	string
 sv_SE.territory.name	string
