@@ -31,15 +31,16 @@ replacement, and each removed path, column or flag.
   the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` or `{c.legal}` no
   longer loads: read `{c}` for the bound company, or write `{/sv_SE.company.registered}` for a second one.
 - A load refuses `{n.w}` beside a read of `n` that reads `w` through a name of `n`'s category, such as
-  the format `{w as r}{r}`, since the two could print different draws. The error says how to write each
-  meaning.
-- A load refuses `{n.path}` beside a read of `n` whose category reads that path through a reference,
-  such as the format `{.company.ab.name}`: a reference draws afresh, so `{n}` and `{n.ab.name}`
-  could print different draws. A path that holds a constant still loads. The error says how to
-  write each meaning.
-- A load refuses `{r.legal}` where `r` is bound to a field holding a choice, the field it reaches reads a name
-  that an item of the choice binds, and `r`'s read steps into the item without rendering it. It
-  failed on the first draw before. Bind the name outside the choice, or read `{r}` whole.
+  the format `{w as r}{r}`, since the two could print different draws. A pair that shares no draw, such
+  as a constant `w`, still loads. The error says how to write each meaning.
+- A load refuses `{n.path}` beside a read of `n` that renders a reference to `path`, or to a path above
+  it: a reference draws afresh, so the two could print different draws.
+  `{/sv_SE.company as c}{c} {c.ab.name}` no longer loads: drop `{c.ab.name}` to keep one pick, or write
+  `{/sv_SE.company.ab.name}` for a second draw. A reference to a constant, with no choice on the way,
+  still loads.
+- A load refuses a read such as `{r.legal}`, where `r` is bound to a field holding a choice and the
+  `legal` of an item reads a name that item binds. Such a template loaded, then failed when drawn. Bind
+  the name outside the choice, or read `{r}` whole.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
@@ -52,9 +53,9 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
-- A load accepts `{n.w.z}` beside `{n}` where `n`'s format is `{w.a} {w.b}` and `w` is a plain template,
-  and a constant's `{n.w}` beside `{n}` where `n`'s format is `{w}-{w}`. It refused both: the two reads
-  share no draw that can differ.
+- A load accepts `{n}` beside `{n.w.z}` where `n`'s format is `{w.a} {w.b}` and `w` is a template that
+  isn't a choice, and `{n}` beside `{n.w}` where `n`'s format is `{w}-{w}` and `w` is a constant. It
+  refused both, though the two reads share no draw that can differ.
 - `sv_SE.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech; `sv_SE.word.noun.definite`,
   `sv_SE.word.verb.present` and `sv_SE.word.adj.definite` each draw a word and print one form of it. `sv_SE.word.any` prints what
   `sv_SE.word` prints. They read the tables `sv_SE.word-noun`, `word-verb`, `word-adj` and `word-adv`.
