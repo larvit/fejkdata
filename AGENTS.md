@@ -123,6 +123,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A Swedish street's postal codes keep delivery digit 9
 - `sv_SE.word` is SALDO's words, one path per part of speech, each spelled as `sentence.adj` is
 - A Swedish postort that no published population reaches weighs 200
+- `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 # Scoring run
 

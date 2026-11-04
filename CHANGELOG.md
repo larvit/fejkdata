@@ -29,8 +29,11 @@ replacement, and each removed path, column or flag.
   `{/sv_SE.company}` or `{/nb_NO.company}`: add it to the table, or read by header. Each category's
   format is now `{registered as r}{r}`, and each item of `registered` carries `legal`. An item of
   `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
-  the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` is two draws: read
-  `{c.legal}` instead.
+  the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` or `{c.legal}` no
+  longer loads: drop it, or write `{/sv_SE.company.registered}` for a second company.
+- A load refuses `{n.w}` beside a read of `n` that reads `w` through a name of `n`'s category, such as
+  the format `{w as r}{r}`, since the two could print different draws. The error says how to write each
+  meaning.
 - `geo.SE`: a road segment inside a tätort leans towards the postort the tätort is named after, so Stockholm
   holds 1580 street names where it held 363, and a postort beside it, such as Solna, holds fewer. Five postorter
   join `locality`: Hjorted, Läckeby, Löderup, Mjöhult and Sövde. Seeded Swedish addresses change.
