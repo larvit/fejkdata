@@ -174,11 +174,13 @@ func drawsAlong(start node, path []string, leaf bool) bool {
 	}
 }
 
-// isDraw reports whether n draws a variant, which a pick keeps and a fresh read does not. No table
-// lies where a fence walks: only a category is a table, and a fence starts inside one.
+// isDraw reports whether n draws a variant or a row, which a pick keeps and a fresh read does not.
 func isDraw(n node) bool {
-	_, isChoice := n.(*choice)
-	return isChoice
+	switch n.(type) {
+	case *choice, *table:
+		return true
+	}
+	return false
 }
 
 // isConstant reports whether every render of n is the same text.
@@ -418,9 +420,9 @@ func readAddressing(reads []*arm, self *arm, tail int, key pickKey) (string, boo
 	return "", false
 }
 
-// armsRead is every arm that rendering nodes read, down every variant of a choice and every field
-// a read renders. It stays in their category: a reference's or a reference-bound name's arm is
-// counted, but what it renders is not followed, since neither shares the pick.
+// armsRead is every arm that rendering nodes read, down every variant of a choice, a table's format
+// and every field a read renders. It stays in their category: a reference's or a reference-bound
+// name's arm is counted, but what it renders is not followed, since neither shares the pick.
 func armsRead(nodes []node) []arm {
 	var found []arm
 	seen := map[node]bool{}
@@ -431,9 +433,9 @@ func armsRead(nodes []node) []arm {
 		}
 		seen[n] = true
 		switch n := n.(type) {
-		case *choice:
-			for _, item := range n.items {
-				read(item)
+		case *choice, *table, *tableRow:
+			for _, e := range renderEdges(n) {
+				read(e.to)
 			}
 		case *template:
 			for _, o := range n.compiled.ops {
