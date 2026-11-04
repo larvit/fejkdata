@@ -496,10 +496,11 @@ segments below that. It needs no index. Each shipped module carries one, so
 `data/sv_SE/person.json` is `sv_SE.person`.
 
 `sv_SE` and `en_US` each carry `address`, `color`, `company`, `date`, `email`, `first-name`,
-`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `url`, `username`,
-`version` and `word`, formatted per locale; `sv_SE` adds `personnummer`,
+`ip`, `last-name`, `person`, `phone`, `price`, `sentence`, `sex`, `time`, `title`, `url`, `username`,
+`version` and `word`, formatted per locale; `sv_SE` adds `birth-number`, `personnummer`,
 `samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
-`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `company-coined`, `company-word`, `phone-area` and `phone-subscriber`;
+`licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `company-coined`, `company-word`,
+`holiday`, `month`, `phone-area`, `phone-subscriber`, `territory` and `weekday`;
 `en_US` adds `ssn`, `itin` and
 `phone-exchange` (the three digits after the area code).
 
@@ -587,6 +588,16 @@ that document doesn't publish their check.
 
 `bankgiro`, `plusgiro` and `bankaccount` draw valid numbers, not real ones: a number drawn may belong to a real
 account.
+
+`sv_SE.month` and `sv_SE.weekday` are Unicode CLDR's Swedish names, `januari` to `december` selected by
+`{/sv_SE.month[1]}` to `[12]`, and `måndag` to `söndag` by `[1]` to `[7]`, Monday first as ISO 8601 numbers them.
+`sv_SE.holiday` holds the thirteen public holidays that lag (1989:253) names, such as `nationaldagen` and
+`första maj`, selected by a code, `{/sv_SE.holiday[nationaldagen]}`; it holds no Sundays and no dates, since Easter
+moves most of them. `sv_SE.territory` is the Swedish name of each `misc.territory` row, selected by its alpha-2
+code: `{/sv_SE.territory[DE]}` is `Tyskland`. Their values are real. `sv_SE.bloodtype` draws a blood type, `A+`,
+`0-` and the others in the Swedish `0` spelling, as often as sv.wikipedia's Blodgrupp article gives them for Sweden. `A+` is
+the commonest, at 37 percent, and the value is real too. `sv_SE.person.birthdate` is invented: a date from
+1930-01-01 to 2025-12-31, drawn apart from any personnummer.
 
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
