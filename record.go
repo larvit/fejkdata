@@ -91,13 +91,26 @@ func csvField(s string) string {
 // SQLInsert renders the record as one INSERT statement into table, identifiers in ANSI
 // double quotes.
 func (r *Record) SQLInsert(table string) string {
+	return r.SQLInsertHeader(table) + " " + r.SQLValues() + ";"
+}
+
+// SQLInsertHeader renders the start of an INSERT into table, up to and including VALUES. Join
+// records' SQLValues after it with a comma, and end the statement with a semicolon.
+func (r *Record) SQLInsertHeader(table string) string {
 	cols := make([]string, len(r.columns))
-	vals := make([]string, len(r.columns))
 	for i, c := range r.columns {
 		cols[i] = quoteIdent(c.Name)
+	}
+	return fmt.Sprintf("INSERT INTO %s (%s) VALUES", quoteIdent(table), strings.Join(cols, ", "))
+}
+
+// SQLValues renders the record as one row of a VALUES list.
+func (r *Record) SQLValues() string {
+	vals := make([]string, len(r.columns))
+	for i, c := range r.columns {
 		vals[i] = literal(c, sqlString, "NULL")
 	}
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", quoteIdent(table), strings.Join(cols, ", "), strings.Join(vals, ", "))
+	return "(" + strings.Join(vals, ", ") + ")"
 }
 
 func sqlString(s string) string {

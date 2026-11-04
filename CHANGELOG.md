@@ -31,8 +31,13 @@ replacement, and each removed path, column or flag.
   `sv_SE.company.registered` is now one wording of one form, weighted by the form's registrations and
   the wording's share, so what a seed draws changes. `{c.registered}` beside `{c}` is two draws: read
   `{c.legal}` instead.
+- `--format sql` writes up to 1000 rows per INSERT, one statement per line, where it wrote one INSERT
+  per row. A script counting lines or splitting statements on newlines sees fewer of them.
 
 ### Added
+
+- `Record.SQLInsertHeader(table)` and `Record.SQLValues()`, the two parts a program joins into a
+  multi-row INSERT. `SQLInsert(table)` still writes one row's statement.
 
 - `sv_SE.licenseplate`, a Swedish registration number, `ABC 123` or `ABC 12A` at even odds.
   It is valid, not real: a drawn plate may be on a real car. Its three letters never form one

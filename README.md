@@ -25,7 +25,7 @@ echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 - **Registers:** ISO 3166-1 territories, ISO 4217 currencies, ISO 639 languages, IANA
   time zones, TLDs, ports, HTTP status codes, media types and more, as tables you
   select a row from.
-- **Bulk output:** records as JSON, NDJSON, CSV or SQL `INSERT`s, streamed.
+- **Bulk output:** records as JSON, NDJSON, CSV or multi-row SQL `INSERT`s, streamed.
 - **Go structs:** `FakeStruct` fills a struct from its `fake:"…"` tags.
 - **Your own data:** each JSON file in a folder you pass adds a path, such as
   `{/acme.customer}`, and a mistake in it fails at load, never mid-render.
@@ -280,8 +280,8 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 ```
 
 `--repeat` streams that many records — `json` frames them as one array document,
-`ndjson` writes one object per line, `csv` a row after a header, `sql` one INSERT
-per line. Only a category-level template is a record, or a one-item choice holding one; a
+`ndjson` writes one object per line, `csv` a row after a header, `sql` one multi-row INSERT
+per line, each of up to 1000 rows. Only a category-level template is a record, or a one-item choice holding one; a
 field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
 projecting columns — ask for more records with `--repeat`. A `repeat` on a column
@@ -382,8 +382,10 @@ A path, wherever a call takes one, may start with one `/`, as a reference does.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
-(one object), `CSVHeader()`/`CSVLine()`, or `SQLInsert(table)` — the shapes the
-CLI's `--format` writes, each without a trailing newline. `FakeRecord` and
+(one object), `CSVHeader()`/`CSVLine()`, `SQLInsert(table)` (one statement) or
+`SQLInsertHeader(table)`/`SQLValues()` — the shapes the CLI's `--format` writes, each without a
+trailing newline. To write a multi-row INSERT, join `SQLValues()` after the header with commas
+and end it with `;`; neither call adds them. `FakeRecord` and
 `FakeRecordTemplate` take a record; a path or template that is not one — a bare string, a
 choice of more than one item, or a folder — errors.
 

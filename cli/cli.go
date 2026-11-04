@@ -240,13 +240,15 @@ type recordFormat struct {
 	writes string // what it writes between values, which --separator would seem to set
 }
 
+const sqlStatementRows = 1000
+
 // recordFormats is every --format that writes records. json frames the records
 // as one array document; ndjson writes one object per line.
 var recordFormats = map[string]recordFormat{
 	"csv":    {header: (*fejkdata.Record).CSVHeader, line: func(r *fejkdata.Record, _ string) string { return r.CSVLine() }, sep: "\n", writes: `always separates fields with ","`},
 	"json":   {line: jsonLine, open: "[", close: "]", sep: ",\n", writes: "writes the records as one JSON array"},
 	"ndjson": {line: jsonLine, sep: "\n", writes: "writes one record per line"},
-	"sql":    {line: func(r *fejkdata.Record, table string) string { return r.SQLInsert(table) }, sep: "\n", writes: "writes one INSERT per line"},
+	"sql":    {writes: "writes one INSERT per line"},
 }
 
 func jsonLine(r *fejkdata.Record, _ string) string { return r.JSON() }
@@ -383,6 +385,9 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		return writeNoRecord(record, format, w)
 	}
 	out := bufio.NewWriter(w)
+	if in.format == "sql" {
+		return in.writeSQL(record, table, out)
+	}
 	if format.open != "" {
 		out.WriteString(format.open)
 		out.WriteByte('\n')
@@ -406,6 +411,27 @@ func (in invocation) writeRecords(f *fejkdata.Generator, src input, w io.Writer)
 		out.WriteString(format.close)
 	}
 	out.WriteByte('\n')
+	return out.Flush()
+}
+
+// writeSQL streams the records as INSERTs of up to sqlStatementRows rows, one statement per line.
+func (in invocation) writeSQL(record func() (*fejkdata.Record, error), table string, out *bufio.Writer) error {
+	for i := 0; i < in.repeat; i++ {
+		r, err := record()
+		if err != nil {
+			return err
+		}
+		switch {
+		case i == 0:
+			out.WriteString(r.SQLInsertHeader(table) + " ")
+		case i%sqlStatementRows == 0:
+			out.WriteString(";\n" + r.SQLInsertHeader(table) + " ")
+		default:
+			out.WriteByte(',')
+		}
+		out.WriteString(r.SQLValues())
+	}
+	out.WriteString(";\n")
 	return out.Flush()
 }
 
