@@ -807,9 +807,8 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	t.Error("geo.US: every locality holds 2500 people or more, want places drawn down to villages")
 }
 
-// TestShippedSwedishSmallPlacesKeepTheirPopulation pins postorter that lie inside one of SCB's
-// småorter of 2023, which hold 50 to 199 people, so a hamlet is drawn less often than the 200 a
-// tätort's floor gives a postort SCB has no count for.
+// TestShippedSwedishSmallPlacesKeepTheirPopulation pins postorter that lie inside an SCB småort
+// of 2023, which holds 50 to 199 people.
 func TestShippedSwedishSmallPlacesKeepTheirPopulation(t *testing.T) {
 	t.Parallel()
 	want := map[string]string{"Ambjörby": "127", "Storlien": "89", "Utö": "54", "Målerås": "196", "Latikberg": "51"}

@@ -30,8 +30,8 @@ POPULATION_QUERY = {
     "response": {"format": "json"},
 }
 TATORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=stat:Tatorter_2023&outputFormat=csv&propertyName=tatort,kommun,bef"
-# Småorter, 50 to 199 people each, carry a code and no name in SCB's open data, so one is found by position: the layer in
-# WGS84, as the postal codes are.
+# SCB's open data gives a småort, 50 to 199 people, a code and no name, so a postort is matched to one by position.
+# srsName asks for WGS84, the coordinates the postal codes use.
 SMAORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=stat:Smaorter_2023&outputFormat=csv&srsName=EPSG:4326&propertyName=kommun,bef,sp_geometry"
 POSTAL_CODES = "https://download.geonames.org/export/zip/SE.zip"
 NVDB = "https://api.trafikinfo.trafikverket.se/v2/data.json"
@@ -39,8 +39,8 @@ NVDB_PAGE = 50000
 TIMEZONE = "Europe/Stockholm"
 # This script's reading of the "exceptions in big cities" in docs/research/research-geo-se.md, Postal codes → Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
-# A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn. It is the weight of a
-# postort that is no tätort and lies in no småort of its municipality.
+# A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn. The weight of
+# a postort that is no tätort, is not named as its kommun and lies in no småort of its kommun.
 UNMATCHED_POPULATION = 200
 # Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
 # or a description in one.
@@ -84,8 +84,8 @@ def scb_smaorter(cache):
 
 
 def inside(lon, lat, rings):
-    """Whether the point lies in the polygons made of rings: it does where it has an odd number of edges to one side, so
-    a hole counts out."""
+    """Whether the point lies in the polygons made of rings: a ray running east from it crosses an odd number of their
+    edges there, and a hole's ring, crossed too, puts the point back outside."""
     odd = False
     for ring in rings:
         for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
