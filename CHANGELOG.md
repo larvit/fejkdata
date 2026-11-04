@@ -20,10 +20,9 @@ replacement, and each removed path, column or flag.
   at the end of 2024, in Norway on 1 January 2026 and in the United States on 1 July 2024. What a seed
   draws changes, and `--format csv` and `--format sql` write the new column for a lone `{/sv_SE.sex}`:
   add it to the table, or read by header.
-
-- `geo.SE.locality` weights each of 24 postorter by the people of the SCB småort 2023 it lies in,
-  50 to 199, where it weighted it 200. `sv_SE.address` draws those postorter less often, and what a
-  seed draws changes.
+- `geo.SE.locality` weights 24 postorter by the population of the SCB småort 2023 each lies in,
+  50 to 199 people, where the table weighted each 200. `sv_SE.address` draws those postorter less
+  often, and what a seed draws changes.
 
 ### Added
 
