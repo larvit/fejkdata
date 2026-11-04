@@ -117,6 +117,11 @@ replacement, and each removed path, column or flag.
 - `{bgmod11(x)}`, a builtin that prints a random digit and the check digit that complete the digits
   emitted so far, after the literal digits `x`, to a number Bankgirot's 11-modul accepts.
 
+### Changed
+
+- The Homebrew cask clears macOS's quarantine attribute through Homebrew's `postflight_steps`.
+  A Homebrew too old to read the cask needs `brew update` first.
+
 ### Fixed
 
 - A record naming a choice, such as `{/sv_SE.bankgiro}` under `--format csv`, gives an error matching
