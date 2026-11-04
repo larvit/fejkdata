@@ -242,6 +242,74 @@ func TestAReadOfATableRowIsRefusedBesideAReferenceItsFormatMakesToALinkedTable(t
 	}
 }
 
+func TestAReadLandingAboveAReferenceIsRefusedWhereRenderingItsLevelReadsTheReferenceTarget(t *testing.T) {
+	const ab = `{"format":"{name}","name":["x","y"]}`
+	regionRef := func(format string) map[string]string {
+		files := nameTables()
+		files["region.json"] = `{"format":"` + format + `","rows":"region.tsv","key":"code"}`
+		return files
+	}
+	for label, c := range map[string]struct {
+		files map[string]string
+		card  string
+		want  []string
+	}{
+		"a linked table's row, whose format reads the target": {
+			regionRef("{/region.municipality.name}"),
+			`"{/region as r}{r}|{r.municipality}"`,
+			[]string{"{r}", "{/region.municipality.name}", "{r.municipality}"}},
+		"a field, whose format reads the target": {
+			map[string]string{"cat.json": `{"format":"{/cat.ab.name}","ab":` + ab + `}`},
+			`"{/cat as n}{n}|{n.ab}"`,
+			[]string{"{n}", "{/cat.ab.name}", "{n.ab}"}},
+		"a selected row beside a reference to its column": {
+			regionRef("{/region.name}"),
+			`"{/region[01] as r}{r}|{r.name}"`,
+			[]string{"{r}", "{/region.name}", "{r.name}"}},
+		"a field whose format reads the target through a field": {
+			map[string]string{"cat.json": `{"format":"{/cat.ab.c.name}","ab":{"format":"{c}","c":` + ab + `}}`},
+			`"{/cat as n}{n}|{n.ab}"`,
+			[]string{"{n}", "{/cat.ab.c.name}", "{n.ab}"}},
+	} {
+		t.Run(label, func(t *testing.T) {
+			c.files["card.json"] = c.card
+			_, err := New(WithSeed(1), WithDataPath(writeFiles(t, c.files)))
+			if err == nil {
+				t.Fatal("New() loaded, want it refused")
+			}
+			for _, want := range c.want {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("New() = %v, want an error naming %s", err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestAReadLandingAboveAReferenceLoadsWhereRenderingItsLevelDoesNotReadTheReferenceTarget(t *testing.T) {
+	for label, c := range map[string]struct{ cat, card, want string }{
+		"the level's format reads another field": {
+			`{"format":"{/cat.ab.name}","ab":{"format":"{other}","name":["x","y"],"other":"k"}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "k"},
+		"the level's format reads no field": {
+			`{"format":"{/cat.ab.name}","ab":{"format":"k","name":["x","y"]}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "k"},
+		"the level's format reads the target's constant": {
+			`{"format":"{/cat.ab.name}","ab":{"format":"{name}","name":"k"}}`,
+			`"{/cat as n}{n}|{n.ab}"`, "k"},
+	} {
+		t.Run(label, func(t *testing.T) {
+			f, err := loadFence(t, map[string]string{"cat": c.cat, "card": c.card})
+			if err != nil {
+				t.Fatalf("New() = %v, want it to load", err)
+			}
+			if got := strings.SplitN(fake(t, f, "card"), "|", 2); got[1] != c.want {
+				t.Errorf("card = %q, want it to end %q", got, c.want)
+			}
+		})
+	}
+}
+
 func TestAReadOfANameLoadsBesideAReferenceThatReachesNoDrawOfItsPath(t *testing.T) {
 	for label, c := range map[string]struct {
 		files map[string]string
