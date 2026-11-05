@@ -17,7 +17,7 @@
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
-| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake, and keep them and the project's other reader-facing resources correct and in step by program wherever a program can.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
+| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
@@ -247,7 +247,7 @@ The range `personnummer` draws, past 100 years with a `+`, must hold for `birthd
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
-### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake, and keep them and the project's other reader-facing resources correct and in step by program wherever a program can.
+### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.
 
 From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. Each document left that reader without a trail:
 
@@ -267,16 +267,17 @@ A reader replacing the values of real documents with fakes that keep their shape
 
 That job is the first test, not the limit: seat one fresh-context reader per `## Audience` persona, each with a job that persona would have, and fix what they can't find.
 
-Keeping them in step: where `--help`, `--list`, the README and other resources a reader lands on, such as the Docker Hub page, state one fact, a program keeps them in step. It generates the fact from one source where it can, such as `--help`'s functions from the builtins. Elsewhere a test in the merge gate fails when a document and the code part, as `TestDockerhubPageSaysOnlyWhatReadmeSays` does for the Docker Hub page. The chunk names any fact no program can check.
+Keeping them in step: when two of `--help`, `--list`, the README and the other pages a reader lands on, such as the Docker Hub page, state the same fact, a program keeps them in step. It generates the fact from one source where it can, such as the function names in `--help` from the builtins, with what each does left to Functions. Elsewhere a test in the merge gate fails when a document disagrees with the code or with another document, as `TestDockerhubPageSaysOnlyWhatReadmeSays` does for the Docker Hub page's tagline and commands against the README. The chunk's PR summary lists each fact no program can check.
 
 Limits on the change:
 
 - Maintain goal 11.3: `--help` and any section for a job point to Names and Functions rather than restating them, and 11.2 makes every example a test.
 - Maintain goal 8.6: `--help` keeps naming the running CLI, as `mycli --help` does today, and a custom CLI's own functions show beside the builtins.
 - A breaking change is welcome here where it moves a goal, as the maintainer answered on 2026-11-05. It ships in this minor with a `Breaking` entry in `CHANGELOG.md`.
-- Listing functions in `--list` also departs from the decision "`--list` stays a plain list of paths", whose reason is that a script reads every line as a path. So ask the maintainer before changing that decision, or put the functions elsewhere. A new flag or spelling goes to a writer panel.
+- Listing functions in `--list` changes a layout the README's Versioning table counts as major, and departs from the decision "`--list` stays a plain list of paths", whose reason is that a script reads every line as a path. So ask the maintainer before changing that decision, or put the functions elsewhere.
+- A new flag or spelling goes to a writer panel.
 
-Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told, and a test in the merge gate fails when a builtin or flag is added without reaching the documents that list it.
+Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told. Every fact two of these documents state is generated, tested or listed as unchecked, and a test in the merge gate fails when a builtin or flag is added but missing from a document that lists it.
 
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
@@ -306,9 +307,9 @@ One word reads as one fake throughout a render, as a name's reads do. Maintain g
 
 ### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
 
-SCB is the source of truth here, as the maintainer answered on 2026-11-05. In `municipality_of` in `data-import/geo-se.py`, a småort holding the postort's centre, in any kommun, wins over the codes' vote. A postort named as a kommun or a tätort is placed as it is today. `population_of` then finds that småort, so the postort weighs its people instead of 200.
+In `municipality_of` in `data-import/geo-se.py`, a småort holding the postort's centre, in any kommun, wins over the codes' vote. A postort named as a kommun or a tätort is placed as it is today. `population_of` then finds that småort, so the postort weighs its people instead of 200.
 
-This moves at least four postorter: Lönneberga to 0860 (129 people; carried 0884), Axmar to 2180 (103; carried 2182), Rökå to 2418 (60; carried 2481) and Torsö to 1083 (57; carried 1493). Torsö moves too, although its småort lies in Blekinge and sv.wikipedia's Torsö is an island in Mariestad.
+This moves the four postorter known so far: Lönneberga to 0860 (129 people; today 0884), Axmar to 2180 (103; today 2182), Rökå to 2418 (60; today 2481) and Torsö to 1083 (57; today 1493). Torsö moves too, although its småort lies in Blekinge and sv.wikipedia's Torsö is an island in Mariestad.
 
 The chunk retitles the decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" to include the småort.
 
