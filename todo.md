@@ -12,20 +12,19 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 369 | 0.4.0 |  | question | **Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
-| 370 | 0.4.0 |  | question | **Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 294 | 0.4.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
-| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake.** | 2 | 2 | 2 | 4 | 4 | 1 by 6, 4 by 3 | 3.6 |
+| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake, and keep them and the project's other reader-facing resources correct and in step by program wherever a program can.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 379 | 0.4.0 | 249 |  | **Let a template draw a word of a given length from a word category.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
 | 295 | 0.4.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
+| 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
@@ -228,21 +227,13 @@
 
 ## Details
 
-### 369. Decide whether `geo-se.py` may weigh Swedish postorter from SCB's archived `Totalbef_postnr.xls` of 2012, which states no licence.
-
-373 postorter such as Bromma and Farsta weigh 200, because no current SCB table gives a population by postal area. SCB's `Totalbef_postnr.xls`, population on 2012-12-31 by postal code area as divided in April 2013, is the one such table found, linked from sv.wikipedia. It survives only at https://web.archive.org/web/20130928163559/http://www.scb.se/Grupp/Produkter_Tjanster/Skraddarsydd/Regionala_produkter/Marknadsprofiler/Totalbef_postnr.xls. It states no licence and isn't on SCB's open-data list. Recommendation: ask SCB, or leave 200. Docs: `docs/decisions.md` → "A Swedish postort with no published population of its own weighs 200".
-
-### 370. Decide whether a Swedish postort takes the kommun of the SCB småort holding its centre where its codes name another kommun.
-
-The SCB småort polygon holding the centre lies in another kommun than the one four postorter carry: Lönneberga 0860 (129 people; carried 0884), Axmar 2180 (103; carried 2182), Rökå 2418 (60; carried 2481) and Torsö 1083 (57; carried 1493). sv.wikipedia places Lönneberga in Hultsfred, Axmar by in Gävle and Rökå in Malå, which supports the småort. Torsö needs care: the småort lies in Blekinge, while sv.wikipedia's Torsö is an island in Mariestad. The decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" forbids the fix, so it stands until answered.
-
 ### 294. Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.
 
 Read them from the register the streets item names, Danmarks Adresseregister, where it holds them; else find an open source first.
 
 ### 216. Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.
 
-A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `geo_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own. Each `main` in `geo-no.py`, `geo-se.py` and `geo-us.py` repeats five `tsv.write` lines in one order: fold them into one function in `geo.py`, so a new country's script does not copy the block, so a new country's script does not copy the block.
+A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `geo_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own. Each `main` in `geo-no.py`, `geo-se.py` and `geo-us.py` repeats five `tsv.write` lines in one order: fold them into one function in `geo.py`, so a new country's script does not copy the block.
 
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
@@ -256,7 +247,7 @@ The range `personnummer` draws, past 100 years with a `+`, must hold for `birthd
 
 Find the issuer's rules, and a test series if it publishes one, first.
 
-### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake.
+### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, tested first on replacing real data with fake, and keep them and the project's other reader-facing resources correct and in step by program wherever a program can.
 
 From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. Each document left that reader without a trail:
 
@@ -276,13 +267,16 @@ A reader replacing the values of real documents with fakes that keep their shape
 
 That job is the first test, not the limit: seat one fresh-context reader per `## Audience` persona, each with a job that persona would have, and fix what they can't find.
 
+Keeping them in step: where `--help`, `--list`, the README and other resources a reader lands on, such as the Docker Hub page, state one fact, a program keeps them in step. It generates the fact from one source where it can, such as `--help`'s functions from the builtins. Elsewhere a test in the merge gate fails when a document and the code part, as `TestDockerhubPageSaysOnlyWhatReadmeSays` does for the Docker Hub page. The chunk names any fact no program can check.
+
 Limits on the change:
 
 - Maintain goal 11.3: `--help` and any section for a job point to Names and Functions rather than restating them, and 11.2 makes every example a test.
 - Maintain goal 8.6: `--help` keeps naming the running CLI, as `mycli --help` does today, and a custom CLI's own functions show beside the builtins.
-- The README's Versioning table counts a change to the `--list` layout as major, so listing functions there takes a `Breaking` entry in `CHANGELOG.md`, or the functions go elsewhere. A new flag or spelling goes to a writer panel.
+- A breaking change is welcome here where it moves a goal, as the maintainer answered on 2026-11-05. It ships in this minor with a `Breaking` entry in `CHANGELOG.md`.
+- Listing functions in `--list` also departs from the decision "`--list` stays a plain list of paths", whose reason is that a script reads every line as a path. So ask the maintainer before changing that decision, or put the functions elsewhere. A new flag or spelling goes to a writer panel.
 
-Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told.
+Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told, and a test in the merge gate fails when a builtin or flag is added without reaching the documents that list it.
 
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
@@ -309,6 +303,14 @@ Danmarks Adresseregister through Datafordeler (free) holds every street with its
 From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
 
 One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling.
+
+### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
+
+SCB is the source of truth here, as the maintainer answered on 2026-11-05. In `municipality_of` in `data-import/geo-se.py`, a småort holding the postort's centre, in any kommun, wins over the codes' vote. A postort named as a kommun or a tätort is placed as it is today. `population_of` then finds that småort, so the postort weighs its people instead of 200.
+
+This moves at least four postorter: Lönneberga to 0860 (129 people; carried 0884), Axmar to 2180 (103; carried 2182), Rökå to 2418 (60; carried 2481) and Torsö to 1083 (57; carried 1493). Torsö moves too, although its småort lies in Blekinge and sv.wikipedia's Torsö is an island in Mariestad.
+
+The chunk retitles the decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" to include the småort.
 
 ### 380. Let a template redraw a value until it holds none of the strings it is given.
 

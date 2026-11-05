@@ -652,6 +652,10 @@ GeoNames leaves a fifth of Sweden's codes without a kommun and carries stale spe
 the nearest code across a border named the wrong kommun half the time it was tried, so a
 postort none of the three rules place is dropped, as is one not cased like a place name.
 
+`todo.md` item 370 places a postort by the SCB småort holding its centre, ahead of its codes, since SCB is
+the source of truth (the maintainer, 2026-11-05, goal 3.2). A småort holds a point by its polygon, so
+this uses no distance.
+
 ## A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places
 
 2026-09-24, Lilleman auf Larv.
@@ -1354,8 +1358,7 @@ of a tätort, so 373 postorter such as Bromma and Farsta stay at the tätort flo
 are counted in the tätort that its neighbouring postort of the same name weighs by, so Stockholm's
 share of draws stays near its real one and a suburb is drawn too rarely. The one published table by
 postal area, `Totalbef_postnr.xls`, holds figures for 2012 and survives only in the Web Archive with
-no licence stated; item 369 asks whether it may be used. Valid until item 369 is answered or SCB
-publishes one.
+no licence stated, so it stays unused (the maintainer, 2026-11-05). Valid until SCB publishes one.
 
 ## A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
 
