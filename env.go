@@ -11,11 +11,13 @@ type readValue struct {
 	null bool
 }
 
-// frameStack is the frames of the name scopes rendering, innermost last. A render's env points
+// frameStack is what lasts a whole render: the frames of the name scopes rendering, innermost
+// last, and the fakes its {anonymize()} calls drew. A render's env points
 // at it, and a repeat iteration's shares it: holding the frames in a renderEnv would move every
 // render's env to the heap.
 type frameStack struct {
 	frames []*pickFrame
+	fakes  map[fakeKey]string // each word an {anonymize()} call met in the render, and its fake
 }
 
 func (st *frameStack) push(f *pickFrame) int {

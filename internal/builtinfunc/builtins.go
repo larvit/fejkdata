@@ -71,11 +71,12 @@ var builtins = withTransforms(map[string]builtin{
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date":      {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: dateArgs, prep: datePrep},
-	"born":      {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
-	AddDaysName: {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: addDaysArgs, prep: addDaysPrep, operands: addDaysOperands},
-	"time":      {calls: []string{"time('layout')"}, arity: -1, checkArgs: timeArg, prep: timePrep},
-	CalcName:    {calls: []string{CalcName + "(expr)", CalcName + "(expr,dp)"}, arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
+	"date":        {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"born":        {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
+	AddDaysName:   {calls: []string{AddDaysName + "(d,n)", AddDaysName + "(d,n,'layout')"}, arity: -1, checkArgs: addDaysArgs, prep: addDaysPrep, operands: addDaysOperands},
+	"time":        {calls: []string{"time('layout')"}, arity: -1, checkArgs: timeArg, prep: timePrep},
+	AnonymizeName: {calls: []string{AnonymizeName + "(text,words)"}, arity: 2, checkArgs: pathArgs, prep: renderedByFejkdata, operands: func(a []string) []string { return a }},
+	CalcName:      {calls: []string{CalcName + "(expr)", CalcName + "(expr,dp)"}, arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
