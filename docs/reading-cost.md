@@ -1159,3 +1159,20 @@ Read most (opens and searches):
 Read most (opens and searches):
 
 - `todo.md` 5
+
+## Reading cost, chunk 2c1f28df6d1a, finished 2026-11-08T14:57:41Z
+
+192578 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 16
+- `docs/decisions.md` 4
+- `todo.md` 4
+- `data_test.go` 2
+- `testdata/shipped_shape.txt` 2
+- `builtins_test.go` 1
+- `compose.yaml` 1
+- `data/misc/.fejkdata.json` 1
+- `data/misc/creditcard.json` 1
+- `data/misc/fs.go` 1
