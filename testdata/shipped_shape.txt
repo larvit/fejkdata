@@ -3,18 +3,18 @@ da_DK.address.locality	string
 da_DK.address.postal-code	string
 da_DK.address.street	string
 da_DK.address.street-number	string
-da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.parity.digit)}"	reads da_DK.sex
+da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.individ.digit)}"	reads da_DK.sex
 da_DK.cpr.birth	string
 da_DK.first-name	format "{name}"	name name	weight count	parent sex
 da_DK.first-name.count	string
 da_DK.first-name.name	string
 da_DK.first-name.sex	string
+da_DK.individ	format "{digit}"	parent sex
+da_DK.individ.digit	string
+da_DK.individ.sex	string
 da_DK.last-name	format "{name}"	key name	weight count
 da_DK.last-name.count	string
 da_DK.last-name.name	string
-da_DK.parity	format "{digit}"	parent sex
-da_DK.parity.digit	string
-da_DK.parity.sex	string
 da_DK.person	format "{prefix}{first} {last}"	reads da_DK.first-name da_DK.last-name da_DK.title
 da_DK.person.first	string
 da_DK.person.last	string
@@ -27,10 +27,10 @@ da_DK.sex.first-name
 da_DK.sex.first-name.count
 da_DK.sex.first-name.name
 da_DK.sex.first-name.sex
+da_DK.sex.individ
+da_DK.sex.individ.digit
+da_DK.sex.individ.sex
 da_DK.sex.name	string
-da_DK.sex.parity
-da_DK.sex.parity.digit
-da_DK.sex.parity.sex
 da_DK.title	format "{name}"	key name	weight share
 da_DK.title.name	string
 da_DK.title.share	string
