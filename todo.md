@@ -6,13 +6,14 @@
 
 `Bar = 0`
 
-`Next ID = 399`
+`Next ID = 400`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
+| 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -231,6 +232,10 @@ Question for the maintainer: what does a render print when no draw can pass? The
 - accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
 
 Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
+
+### 399. Give every service in `compose.yaml` a memory and a swap limit.
+
+No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test` or a data import can take all of a contributor's memory. Set each service's limits to what its work needs.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
