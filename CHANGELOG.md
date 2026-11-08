@@ -13,8 +13,8 @@ replacement, and each removed path, column or flag.
   `"ride": {"format":"{n}","n":null}`, now counts: `null` was text and `datatype` did nothing there.
   A bare number or boolean there stays text.
 - A column that reads one field through a name, as `"len":"{p.len}"` does, now has that field's
-  datatype and null, so an integer `len` is written `3` where it was written `"3"`. Add
-  `"datatype":"string"` to the column to keep the text, with a null written `""`. A choice whose
+  datatype and null, so an integer `len` is written `3` where it was written `"3"`. Write
+  the column as `{"format":"{p.len}","datatype":"string"}` to keep the text, with a null written `""`. A choice whose
   items hold different datatypes of that field fails to load; give them one datatype.
 
 ### Added
