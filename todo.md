@@ -12,10 +12,7 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
-| 390 | 0.4.0 |  |  | **Show in the README how to load a run's output into PostgreSQL, SQLite, MySQL and MongoDB through a pipe, and record in `docs/decisions.md` that no database or HTTP sink is built in.** | 1 | 1 | 1 | 1 | 2 | 1 by 4 | 3.4 |
 | 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
-| 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
 | 398 | 0.4.0 |  |  | **Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.** | 2 | 1 | 2 | 3 | 3 | 3.3 by 5 | 2.6 |
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
@@ -232,25 +229,9 @@
 
 ## Details
 
-### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
-
-From a real-world use case, a scheduler's fixtures: `pattern` and `weekday`, read only through names, became empty CSV columns. An extra column costs a `COPY` into a table without it. Moving the helper to its own category works on 0.3.0, as `{"format":"{/pool as p}","rrule":"{p.rrule}"}` writes only `rrule`, but it splits one idea across two files, so say so in the Records section until this ships.
-
-A writer panel picks the spelling. The scheduler's author offered `_weekday`, `"column": false` and a `columns` list. A new option reserves its key, as the decision "Options and fields share one namespace" says, which breaks a field of that name. Goal 4.7 weighs against a convention that guesses from a name. The fix holds for `FakeRecord` and every `--format`. `recordColumns` and `settleRecords` are places the comprehension seats found hard: make them easier where this touches them.
-
-### 390. Show in the README how to load a run's output into PostgreSQL, SQLite, MySQL and MongoDB through a pipe, and record in `docs/decisions.md` that no database or HTTP sink is built in.
-
-From an outside review of what makes a fake-data tool the first choice, which asked for `--to-postgres`, `--to-mongodb` and a webhook sink. `--format sql` streams INSERTs that PostgreSQL and SQLite take as written, `csv` feeds `\copy`, and `ndjson` feeds `mongoimport` and `curl --data-binary @-`, so a pipe already reaches each target. A driver per database breaks goal 10, which allows only a dependency the standard library can't replace, and an address, credentials and retries are a second command line against goal 6. Show one pipe per target in the Records section, with `{seq()}` ids, and the MySQL settings its SQL note already names. Run the left side of each example as a test (goal 11.2). Record the refusal under a title `AGENTS.md` lists, citing goals 6 and 10.
-
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
 Find the numbering plan and its licence first.
-
-### 383. Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.
-
-From a real-world use case, a scheduler's fixtures, whose `len_days` and `count` used `0` for "unset" because the docs did not settle this. Tried on 0.3.0 with `{pattern as p}` and `"len": "{p.len}"`, where `len` is null in one item of `pattern` and a typed `{int()}` in another: `ndjson` writes `"3"` and `""`, and `"datatype": "integer"` on the column refuses it with `"" is not an integer`. With `p` bound to the reference `/src`, `{s.score}` already writes `3` and `null`.
-
-Today's output is what the Datatype section's "any other read" states, so this is no defect, and writing `3` for `"3"` is a `Breaking` entry. Items holding different datatypes stay refused. Revise the decision "A column that only reads one reference or name is the column it reads" and that section. `columnSource` and `recordColumns` are places the comprehension seats found hard: make them easier where this touches them.
 
 ### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
 
@@ -333,7 +314,7 @@ From the same review, whose ask was timestamps that fit a dashboard: `{date()}` 
 
 ### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
 
-From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside item 390's pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
+From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside the README's database pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
 
 ### 299. Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.
 
