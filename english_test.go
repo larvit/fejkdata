@@ -64,7 +64,7 @@ func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
 			t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
 		}
 	}
-	for _, word := range []string{"table", "city", "teacher"} {
+	for _, word := range []string{"table", "city", "teacher", "boy", "queen", "tool"} {
 		if _, ok := nouns[word]; !ok {
 			t.Errorf("word-noun lacks %q", word)
 		}
