@@ -161,7 +161,7 @@ func (w *valueWalk) walk(n node, tail []string, weight float64, pre, suf string)
 	case *table:
 		return w.walkTable(n, tail, weight, pre, suf)
 	case *tableColumn:
-		return w.walkCells(n, weight, pre, suf)
+		return w.walkRows(n.t, []rowPart{{column: n}}, weight, pre, suf)
 	case *nullItem:
 		return errors.New("the path may draw a null")
 	}
@@ -247,25 +247,64 @@ func (w *valueWalk) walkArm(t *template, a arm, weight float64, pre, suf string)
 
 func (w *valueWalk) walkTable(t *table, tail []string, weight float64, pre, suf string) error {
 	if len(tail) == 0 {
+		if parts, own := ownColumnReads(t); own {
+			return w.walkRows(t, parts, weight, pre, suf)
+		}
 		return w.walk(t.formatTemplate, nil, weight, pre, suf)
 	}
 	if c, isColumn := t.formatTemplate.fields[tail[0]].(*tableColumn); isColumn && len(tail) == 1 {
 		return w.walk(c, nil, weight, pre, suf)
 	}
-	return fmt.Errorf("follows no selector, linked table or step up: %s of %s", grammar.JoinSegments(tail), t.rows.Segment())
+	return fmt.Errorf("the path runs through a selector, a linked table or \"..\": %s of %s", grammar.JoinSegments(tail), t.rows.Segment())
 }
 
-// walkCells lists a column's cells, each weighed by its row, as a draw over the whole table does.
-func (w *valueWalk) walkCells(c *tableColumn, weight float64, pre, suf string) error {
-	total := 0.0
-	for r := 0; r < c.t.rows.Len(); r++ {
-		total += c.t.rows.Weight(r)
-	}
-	for r := 0; r < c.t.rows.Len(); r++ {
-		if cell := c.t.cellTemplate(r, c.i); cell != nil {
-			return fmt.Errorf("column %s of %s holds %q, which a where clause can't weigh", c.name(), c.t.rows.Segment(), cell.format)
+// rowPart is one piece of a row's text: fixed text, or the row's cell in column.
+type rowPart struct {
+	lit    string
+	column *tableColumn
+}
+
+// ownColumnReads is t's format as fixed text and plain reads of t's own columns; own is false where
+// the format reads anything else.
+func ownColumnReads(t *table) (parts []rowPart, own bool) {
+	for _, o := range t.formatTemplate.compiled.ops {
+		if o.Kind == grammar.LiteralRun {
+			parts = append(parts, rowPart{lit: o.Lit})
+			continue
 		}
-		if err := w.emit(pre+c.t.rows.Cell(r, c.i)+suf, weight*c.t.rows.Weight(r)/total); err != nil {
+		if o.Kind != grammar.PathRead || o.Where != nil || o.Distinct != nil || len(o.arms) != 1 {
+			return nil, false
+		}
+		a := o.arms[0]
+		c, isColumn := t.formatTemplate.fields[a.head].(*tableColumn)
+		if !isColumn || a.kind != freshRead || len(a.tail) > 0 {
+			return nil, false
+		}
+		parts = append(parts, rowPart{column: c})
+	}
+	return parts, true
+}
+
+// walkRows lists each row of t as parts spell it, weighed by the row, as a draw over the whole table
+// does.
+func (w *valueWalk) walkRows(t *table, parts []rowPart, weight float64, pre, suf string) error {
+	total := 0.0
+	for r := 0; r < t.rows.Len(); r++ {
+		total += t.rows.Weight(r)
+	}
+	for r := 0; r < t.rows.Len(); r++ {
+		text := pre
+		for _, p := range parts {
+			if p.column == nil {
+				text += p.lit
+				continue
+			}
+			if cell := t.cellTemplate(r, p.column.i); cell != nil {
+				return fmt.Errorf("column %s of %s holds %q, which is not fixed text", p.column.name(), t.rows.Segment(), cell.format)
+			}
+			text += t.rows.Cell(r, p.column.i)
+		}
+		if err := w.emit(text+suf, weight*t.rows.Weight(r)/total); err != nil {
 			return err
 		}
 	}
@@ -432,9 +471,32 @@ func (v *valueDraw) proveEveryDrawPasses() error {
 		hi = bounds[v.hi.read][0]
 	}
 	if passing := v.passing(lo, hi); passing < v.count {
-		return errors.New(v.shortfall(passing))
+		return v.rangeShortfall(lo, hi, passing)
 	}
 	return nil
+}
+
+// rangeShortfall says that the length lo to hi leaves passing values, too few, naming the length's
+// names at the values that narrow it to lo to hi.
+func (v *valueDraw) rangeShortfall(lo, hi float64, passing int) error {
+	var at []string
+	if v.lo.read >= 0 {
+		at = append(at, fmt.Sprintf("%s is %.0f", v.reads[v.lo.read].spelling, lo))
+	}
+	if v.hi.read >= 0 {
+		at = append(at, fmt.Sprintf("%s is %.0f", v.reads[v.hi.read].spelling, hi))
+	}
+	switch {
+	case len(at) == 0:
+		return errors.New(v.shortfall(passing))
+	case lo <= hi:
+		return fmt.Errorf("where %s, %s", strings.Join(at, " and "), v.shortfall(passing))
+	case v.hi.read < 0:
+		return fmt.Errorf("where %s, length %.0f to %.0f holds no length; keep %s at or below %d", at[0], lo, hi, v.reads[v.lo.read].spelling, v.hi.n)
+	case v.lo.read < 0:
+		return fmt.Errorf("where %s, length %.0f to %.0f holds no length; keep %s at %d or above", at[0], lo, hi, v.reads[v.hi.read].spelling, v.lo.n)
+	}
+	return fmt.Errorf("where %s, length %.0f to %.0f holds no length; keep %s at or below %s", strings.Join(at, " and "), lo, hi, v.reads[v.lo.read].spelling, v.reads[v.hi.read].spelling)
 }
 
 // shortfall says that passing values are fewer than a draw takes.

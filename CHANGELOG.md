@@ -28,8 +28,8 @@ replacement, and each removed path, column or flag.
   2025 evenly, so what a seed draws changes, and changes again with the date. The format binds the date, `{birth as b}`,
   and the new paths are `sv_SE.person.birth`, `birth.date`, `birth.sign`, `personnummer`, `samordningsnummer` and
   `samordningsnummer.birthday`, the birth date's day of the month.
-- A name can no longer contain ` where `, which now opens a filter, or ` distinct `, which now opens a draw of
-  distinct values; rename it.
+- A name can no longer contain ` where ` or ` distinct `, nor end in ` where` or ` distinct`: in a token, ` where`
+  now opens a filter and ` distinct` a draw of distinct values. Rename it.
 - `geo.SE.locality` places four postorter in the kommun of the SCB småort holding their centre, where their postal
   codes named another: Lönneberga in 0860 Hultsfred, not 0884 Vimmerby; Axmar in 2180 Gävle, not 2182 Söderhamn; Rökå
   in 2418 Malå, not 2481 Lycksele; and Torsö in 1083 Sölvesborg, not 1493 Mariestad. Each weighs that småort's people,
@@ -49,7 +49,7 @@ replacement, and each removed path, column or flag.
   fails to load.
 - `{anonymize(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
   length the words hold, in the case of the word it replaces. Digits and punctuation stay, and a word reads as one
-  fake throughout a render.
+  fake throughout a render, in every call reading the same words.
 - `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`
   prints an end `n` days after the start it shows. A third argument, `{adddays(d,n,'layout')}`, prints it in another layout.
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`

@@ -163,7 +163,8 @@ fejkdata renders the fakes. Each part of the job:
 - The same fake wherever one original recurs in a render: bind a pick to a name,
   `{/en_US.person as p}`, and read `{p}` each time ([Names](#names)).
 - Free text, word by word: `{anonymize(text, /en_US.word)}` keeps its punctuation, digits,
-  case and word lengths ([Transforms](#transforms)).
+  case and word lengths, where the text writes each `{` and `}` as `{{` and `}}`
+  ([Transforms](#transforms)).
 - A value of a given length: `{lower(n)}`, `{upper(n)}`, `{digits(n)}` or `{hex(n)}`
   ([Functions](#functions)).
 - A v4 UUID: `{/misc.uuid}`, since `{uuid()}` draws a v7.
@@ -609,7 +610,7 @@ after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.js
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/`, ` as `,
 which binds a [name](#names), ` where `, which opens a [filter](#filters), or ` distinct `, which opens a
-[distinct draw](#distinct-draws), nor be `-`, which a struct tag reserves. A dot-prefixed
+[distinct draw](#distinct-draws), nor end in ` where` or ` distinct`, nor be `-`, which a struct tag reserves. A dot-prefixed
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
@@ -1517,19 +1518,23 @@ to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öb
 Renders `Åsa Öberg <asa.oberg@example.com>` or `Bo Ek <bo.ek@example.com>`, never
 a mix.
 
-`{anonymize(text,words)}` replaces each word of `text`, a run of letters, with a word drawn from
-the path `words`, such as `/en_US.word`. The word drawn has the length of the one it replaces,
-or else the nearest length `words` holds, the shorter on a tie, and takes the case of the letter
-at each place. Digits, punctuation and every other character stay, so `PROJ-123` keeps its digits:
+A word is a run of letters. `{anonymize(text,words)}` replaces each word of `text` with one drawn
+from the path `words`, such as `/en_US.word`: a word of the same length, or else of the nearest
+length `words` holds, the shorter on a tie. The fake takes the case of the replaced word's letter at
+each position, or of its last letter beyond it. Digits, punctuation and every other character stay,
+so `PROJ-123` keeps its digits:
 
 ```json
 { "format": "{anonymize(text, /en_US.word)}", "text": "Ping Anna: PROJ-123 is done, ANNA." }
 ```
 
-Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` A word reads as one fake throughout a render,
-whatever its case; a record renders each row anew. `words` draws by its weights among its values
-made of letters alone, which must be fixed text, as a [filter](#filters)'s are. Neither argument
-may be a call, so `anonymize` doesn't nest.
+Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` A word reads as one fake, whatever its case, in
+every call of a render that reads the same list as `words`; a record renders each row anew. A URL's
+scheme and host are words too, so to keep them, pass only the rest as `text`. The field holding the
+original is a [format string](#format-string), so write each `{` and `}` in it as `{{` and `}}`.
+`words` is a path, never a name, and must render only fixed text, as a [filter](#filters)'s path
+must. It draws by weight among its values made of letters alone, and fails to load where it has
+none. Neither argument may be a call, and no transform takes one, so `anonymize` doesn't nest.
 
 ### References
 
@@ -1636,15 +1641,15 @@ Renders e.g. `crane`. A clause holds one or more conditions, joined by `and`:
 - `not 'cat', 'dog'` drops those values, each compared whole.
 - `not containing 'cat'` drops every value holding `cat`, `concatenate` included.
 
-The values that pass keep their [weights](#weight). `as` after the clause binds the filtered draw:
-`{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name's pick is drawn already, so a
-clause filters the path the name binds, never the name.
+A quoted value can't hold an apostrophe. The values that pass keep their [weights](#weight). `as`
+after the clause binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A
+name's pick is drawn already, so a clause filters the path the name binds, never the name.
 
 Refused at `New`:
 
 - a clause no value passes, for any length a name it reads may hold;
 - a path whose values are not fixed text, such as `{uuid()}`, a null, a repeat, or a format
-  reading two tokens;
+  reading two tokens, save a table's format reading only its own columns, as `misc.car`'s does;
 - a path through a selector, a linked table or `..`;
 - a clause on a call, on `{a|b}`, or in a table's format or cell.
 
