@@ -178,3 +178,70 @@ func TestDanishSexAndTitleAreSelectable(t *testing.T) {
 		}
 	}
 }
+
+func TestShippedDanishAddressIsAStreetANumberAPostnummerAndAPostdistrikt(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	address := regexp.MustCompile(`^[\pL\d].* [1-9]\d{0,3}[A-Z]?\n\d{4} \pL.*$`)
+	for i := 0; i < 300; i++ {
+		if a := fake(t, f, "da_DK.address"); !address.MatchString(a) {
+			t.Fatalf("da_DK.address = %q, want a street and a number, then a postnummer and a postdistrikt", a)
+		}
+	}
+}
+
+// A postdistrikt is named as DAR writes it, its kommune and region by the codes DAR and DAGI write
+// for Statistics Denmark's kommune 101 and region 084.
+func TestShippedDanishPlacesAreNamedAndNumberedAsDARWritesThem(t *testing.T) {
+	districts := map[string]bool{}
+	for _, r := range geoRows(t, "DK", "locality") {
+		districts[r[0]] = true
+	}
+	for _, name := range []string{"København K", "Frederiksberg C", "Aarhus C", "Odense C", "Aalborg", "Esbjerg", "Rønne"} {
+		if !districts[name] {
+			t.Errorf("geo.DK: no postdistrikt %q", name)
+		}
+	}
+	f := shipped(t, WithSeed(1))
+	for path, want := range map[string]string{
+		"geo.DK.municipality[København].code":    "0101",
+		"geo.DK.municipality[Odense].code":       "0461",
+		"geo.DK.municipality[Aarhus].code":       "0751",
+		"geo.DK.municipality[København].region":  "1084",
+		"geo.DK.region[Region Nordjylland].code": "1081",
+		"geo.DK.postal-code[8000].locality":      "Aarhus C",
+		"geo.DK.postal-code[5000].locality":      "Odense C",
+	} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s = %q, want %q", path, got, want)
+		}
+	}
+	if n := len(geoRows(t, "DK", "region")); n != 5 {
+		t.Errorf("geo.DK holds %d regions, want Denmark's 5", n)
+	}
+}
+
+// Of DAR's 2.62 million house numbers in force, 14.4% carry a letter after the number, 29.3% a
+// number of one digit and none one of four.
+func TestShippedDanishHouseNumbersFollowDAR(t *testing.T) {
+	f := shipped(t, WithSeed(11))
+	const draws = 40000
+	var lettered, oneDigit, fourDigits int
+	for i := 0; i < draws; i++ {
+		n := fake(t, f, "da_DK.address.street-number")
+		digits := strings.TrimRight(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+		if digits != n {
+			lettered++
+		}
+		switch len(digits) {
+		case 1:
+			oneDigit++
+		case 4:
+			fourDigits++
+		}
+	}
+	assertShare(t, "house numbers with a letter", lettered, draws, 0.144)
+	assertShare(t, "house numbers of one digit", oneDigit, draws, 0.293)
+	if fourDigits > 0 {
+		t.Errorf("da_DK.address drew %d house numbers of four digits in %d, want none, as DAR holds none", fourDigits, draws)
+	}
+}
