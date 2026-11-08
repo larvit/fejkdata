@@ -117,8 +117,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 	if err := compileFormats(ts, targets); err != nil {
 		return err
 	}
-	values, err := valueDraws(ts, targets)
-	if err != nil {
+	if err := valueDraws(ts, targets); err != nil {
 		return err
 	}
 	if err := anonymizeWords(ts, targets); err != nil {
@@ -146,7 +145,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 	}
 	for b, target := range targets {
-		b.target, b.addressed, b.values = target, names.addressed[b], values[b]
+		b.target, b.addressed = target, names.addressed[b]
 	}
 	return nil
 }

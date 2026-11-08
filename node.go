@@ -209,6 +209,18 @@ func (t *template) fixedText() (string, bool) {
 	return "", false
 }
 
+// printedOp is the one op of t that prints, past the binds a where or distinct clause compiles to,
+// which print nothing; ok is false where t prints through more ops or none.
+func (t *template) printedOp() (printed op, ok bool) {
+	n := 0
+	for _, o := range t.compiled.ops {
+		if o.Kind != grammar.NameBind {
+			printed, n = o, n+1
+		}
+	}
+	return printed, n == 1
+}
+
 func compileChoice(items []any, pos position) (node, error) {
 	switch len(items) {
 	case 0:

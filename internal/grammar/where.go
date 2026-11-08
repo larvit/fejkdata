@@ -45,26 +45,34 @@ func containsWord(s, word string) bool {
 }
 
 // cutWord cuts a token's body around its first " "+word outside a selector and a quote, where the
-// word ends the body or a space follows it.
-func cutWord(body, word string) (head, rest string, found bool) {
-	word = " " + word
+// word ends the body or a space follows it. A quote opens only inside a clause, so a path may hold an
+// apostrophe, as o'neil does; inClause says body starts inside one.
+func cutWord(body, word string, inClause bool) (head, rest string, found bool) {
 	depth, quoted := 0, false
 	for i := 0; i < len(body); i++ {
 		switch c := body[i]; {
-		case c == '[' && !quoted:
+		case quoted:
+			quoted = c != '\''
+		case c == '[':
 			depth++
 		case c == ']' && depth > 0:
 			depth--
-		case c == '\'' && depth == 0:
-			quoted = !quoted
-		case depth == 0 && !quoted && strings.HasPrefix(body[i:], word):
-			after := body[i+len(word):]
-			if after == "" || after[0] == ' ' {
-				return body[:i], strings.TrimPrefix(after, " "), true
-			}
+		case depth > 0:
+		case c == '\'' && inClause:
+			quoted = true
+		case atWord(body, i, word):
+			return body[:i], strings.TrimPrefix(body[i+1+len(word):], " "), true
+		case atWord(body, i, whereWord) || atWord(body, i, distinctWord):
+			inClause = true
 		}
 	}
 	return body, "", false
+}
+
+// atWord reports whether body holds " "+word at i, ending body or followed by a space.
+func atWord(body string, i int, word string) bool {
+	after, found := strings.CutPrefix(body[i:], " "+word)
+	return found && (after == "" || after[0] == ' ')
 }
 
 // lastAsOutsideQuotes cuts clause around its last " as " outside a quote.
@@ -93,11 +101,11 @@ type clauses struct {
 // cutClauses cuts body around its clauses; found is false for a body with neither a where nor a
 // distinct clause.
 func cutClauses(body string) (c clauses, found bool) {
-	c.head, c.where, c.filters = cutWord(body, whereWord)
+	c.head, c.where, c.filters = cutWord(body, whereWord, false)
 	if c.filters {
-		c.where, c.distinct, c.picks = cutWord(c.where, distinctWord)
+		c.where, c.distinct, c.picks = cutWord(c.where, distinctWord, true)
 	} else {
-		c.head, c.distinct, c.picks = cutWord(body, distinctWord)
+		c.head, c.distinct, c.picks = cutWord(body, distinctWord, false)
 	}
 	last := &c.where
 	if c.picks {
@@ -306,10 +314,19 @@ func (p *whereParser) length() (Length, error) {
 		}
 		return Length{N: n}, nil
 	}
-	if err := CheckIdentifier(l.text); err != nil {
+	if err := CheckIdentifier(withoutMember(l.text)); err != nil {
 		return Length{}, fmt.Errorf("length %s: %w", l.text, err)
 	}
 	return Length{Name: l.text}, nil
+}
+
+// withoutMember is name without a member's key, as m of m[1]; the key is checked where the name
+// resolves.
+func withoutMember(name string) string {
+	if head, _, found := strings.Cut(name, "["); found && strings.HasSuffix(name, "]") {
+		return head
+	}
+	return name
 }
 
 func (p *whereParser) quotedList() ([]string, error) {

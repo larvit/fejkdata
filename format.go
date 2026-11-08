@@ -98,8 +98,9 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 // field, and names a valid name that is no option.
 func checkBind(t grammar.Token, fields map[string]node) error {
 	ref, name := t.BoundRef, t.Bound
-	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body && t.Where == nil && t.Distinct == nil {
-		return fmt.Errorf("token {%s}: write {%s}", t.Body, trimmed)
+	if ref != strings.TrimSpace(ref) || name != strings.TrimSpace(name) {
+		between := strings.TrimPrefix(strings.TrimSuffix(t.Body, name), ref)
+		return fmt.Errorf("token {%s}: write {%s%s%s}", t.Body, strings.TrimSpace(ref), between, strings.TrimSpace(name))
 	}
 	if err := checkBound(ref, fields); err != nil {
 		return fmt.Errorf("token {%s}: %w", t.Body, err)
