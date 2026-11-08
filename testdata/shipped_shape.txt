@@ -407,6 +407,9 @@ misc.coordinate	format "{lat}, {lon}"
 misc.coordinate.lat	string
 misc.coordinate.lon	string
 misc.creditcard
+misc.creditcard-test	format "{number}"	key brand
+misc.creditcard-test.brand	string
+misc.creditcard-test.number	string
 misc.creditcard.d
 misc.currency	format "{code}"	key code	name name
 misc.currency.code	string
@@ -423,6 +426,9 @@ misc.httpmethod.safe	string
 misc.httpstatus	format "{code} {reason}"	key code	name reason
 misc.httpstatus.code	string
 misc.httpstatus.reason	string
+misc.iban-test	format "{iban}"	key country
+misc.iban-test.country	string
+misc.iban-test.iban	string
 misc.language	format "{name}"	key code	name name
 misc.language.code	string
 misc.language.code3	string
