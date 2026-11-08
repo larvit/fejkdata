@@ -608,7 +608,8 @@ after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.js
 `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
 last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/`, ` as `,
-which binds a [name](#names), or ` where `, which opens a [filter](#filters), nor be `-`, which a struct tag reserves. A dot-prefixed
+which binds a [name](#names), ` where `, which opens a [filter](#filters), or ` distinct `, which opens a
+[distinct draw](#distinct-draws), nor be `-`, which a struct tag reserves. A dot-prefixed
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
@@ -1647,6 +1648,43 @@ Refused at `New`:
 - a path through a selector, a linked table or `..`;
 - a clause on a call, on `{a|b}`, or in a table's format or cell.
 
+### Distinct draws
+
+`distinct N` after a path draws N different items or rows in one pick. `joined` prints them as one
+value, with its text between each two:
+
+```json
+{ "format": "BYDAY={day distinct 2 joined ','}", "day": ["MO", "TU", "WE", "TH", "FR"] }
+```
+
+Renders e.g. `BYDAY=TU,MO`, never `MO,MO`. `as` binds the pick to a name, and `{n[1]}` to `{n[N]}`
+read its members, each as often as you like, so a record's columns can share one pick:
+
+```json
+"{/en_US.word where length 5 distinct 3 as w}{w[1]}, {w[2]} and {w[3]}"
+```
+
+Renders e.g. `crane, shore and plume`. With `joined` before `as`, `{n}` reads the members joined.
+`distinct` comes after a [`where`](#filters) clause and before `as`, and draws among the values that
+pass it.
+
+Different means different items or rows, whatever they print: two rows that both print `cat` may
+both be drawn. Each member is drawn by its [weight](#weight) among the items not drawn yet, so an
+item of weight `0` never is. A draw costs what its count costs, whatever the size of the table.
+
+Joined members are text: a column reading them is a string column, and `calc`, `adddays` and
+`where length` refuse them. One member is a value of the column it comes from, and keeps its type.
+
+Refused at `New`, each error naming what to write instead:
+
+- more members than the path renders values of weight above `0`, or than pass its `where` clause,
+  for any length a name it reads may hold;
+- `distinct N` with neither `joined` nor `as`;
+- `{n}` on a name bound without `joined`, a member outside `[1]` to `[N]`, and a path after the
+  name, such as `{n[1].x}`;
+- `distinct` on a name, which is drawn already: write it on the draw the name binds;
+- every path and place a [filter](#filters) refuses.
+
 ### Correlated fields
 
 `{name.field}` reads a path into a sibling. Several tokens read one draw of it through a
@@ -1926,7 +1964,7 @@ graph.go        the node graph: tree walks, containment and render edges, and th
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
-where.go        where clauses: the values a filtered path may draw, fixed at load with their weights, and the draw among those that pass
+where.go        where and distinct clauses: the values a clause draws from, fixed at load with their weights, and the draw of those that pass, without repeats
 anonymize.go    {anonymize()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
@@ -1938,7 +1976,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
-internal/grammar/ how the template language is written: format tokens, where clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
+internal/grammar/ how the template language is written: format tokens, where and distinct clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands

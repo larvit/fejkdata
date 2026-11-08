@@ -28,7 +28,8 @@ replacement, and each removed path, column or flag.
   2025 evenly, so what a seed draws changes, and changes again with the date. The format binds the date, `{birth as b}`,
   and the new paths are `sv_SE.person.birth`, `birth.date`, `birth.sign`, `personnummer`, `samordningsnummer` and
   `samordningsnummer.birthday`, the birth date's day of the month.
-- A name can no longer contain ` where `, which now opens a filter; rename it.
+- A name can no longer contain ` where `, which now opens a filter, or ` distinct `, which now opens a draw of
+  distinct values; rename it.
 
 ### Added
 
@@ -37,6 +38,10 @@ replacement, and each removed path, column or flag.
   `not 'cat', 'dog'` and `not containing 'cat'`. A length may read a name, `{n as k}{/en_US.word where length k}`,
   and `as` after the clause binds the filtered draw. A path whose values are not fixed text, or a clause no
   value can pass, fails to load.
+- `distinct N` draws N different items or rows in one pick, each by its weight among those not drawn yet.
+  `{day distinct 2 joined ','}` prints them joined, as `TU,MO`, and `{/en_US.word distinct 3 as w}` binds them,
+  read as `{w[1]}` to `{w[3]}`. It comes after a `where` clause and before `as`. Asking for more than the path
+  holds fails to load.
 - `{anonymize(text, /en_US.word)}` replaces each word of `text` with a drawn word of its length, or the nearest
   length the words hold, in the case of the word it replaces. Digits and punctuation stay, and a word reads as one
   fake throughout a render.
