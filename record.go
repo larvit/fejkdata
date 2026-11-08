@@ -180,7 +180,7 @@ func (f *Generator) FakeRecord(path string) (*Record, error) {
 		return nil, fmt.Errorf("fejkdata: %s descends into %q, a field; only a category-level template is a record", path, tail[0])
 	}
 	record, err := recordOf(n)
-	if errors.Is(err, ErrNoColumns) {
+	if errors.Is(err, ErrNoColumns) && err != holdsOnlyLets {
 		ns := grammar.IdentifierSegments(segments)
 		return nil, fmt.Errorf(`fejkdata: %s %w; render it as a column of one: {"format":"","%s":"{/%s}"}`, path, err, ns[len(ns)-1], path)
 	}
@@ -246,12 +246,11 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 	return t.Fake(), nil
 }
 
-// ErrNoColumns matches the error for a record with no fields or naming a choice; FakeRecord's
-// names the one-column record to write instead.
+// ErrNoColumns matches the error for a record with no fields, naming a choice or holding every
+// field in "let"; FakeRecord's names the one-column record to write instead, for all but the last.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// noColumnsError keeps its own message and matches ErrNoColumns, so a record naming a choice, or
-// holding every field in let, gets the one-column hint.
+// noColumnsError keeps its own message and matches ErrNoColumns.
 type noColumnsError string
 
 func (e noColumnsError) Error() string      { return string(e) }
@@ -259,7 +258,7 @@ func (noColumnsError) Is(target error) bool { return target == ErrNoColumns }
 
 const (
 	namesAChoice  = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
-	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column`)
+	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column; move one out of "let"`)
 )
 
 // recordOf is the record template n is; settleRecords fixed its columns at load.
@@ -277,7 +276,7 @@ func recordOf(n node) (*template, error) {
 	if !t.isRecord {
 		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if len(t.columns)+len(t.helpers) != len(t.fields) {
+	if len(t.columns)+len(t.lets) != len(t.fields) {
 		panic(invariant.Broken("record %q was reached before its load settled its columns", t.format))
 	}
 	if len(t.columns) == 0 {
@@ -323,7 +322,7 @@ func recordColumns(t *template) []recordColumn {
 	}
 	var columns []recordColumn
 	for _, name := range sortedNames(t.fields) {
-		if !t.helpers[name] {
+		if !t.lets[name] {
 			field := t.fields[name]
 			columns = append(columns, recordColumn{name: name, datatype: columnDatatype(field), field: field, boundWhole: whole[field]})
 		}

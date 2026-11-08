@@ -54,7 +54,7 @@ func checkColumns(s nodeSet) error {
 		}
 		checked[column] = true
 		items, _ := columnItems(column)
-		if err := checkReadColumns(label, items, check); err != nil {
+		if err := checkReadColumns(label, name, items, check); err != nil {
 			return err
 		}
 		if len(items) == 0 {

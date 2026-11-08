@@ -661,13 +661,14 @@ func TestRecordLetErrors(t *testing.T) {
 		{`{"format":"","let":"a","b":"y"}`, "let is an option and takes an object of fields, not a string"},
 		{`{"format":"","let":{"a":"x"},"a":"y"}`, `field "a" is in let and beside it`},
 		{`{"format":"","let":{"a.b":"x"},"c":"y"}`, "field"},
+		{`{"format":"","let":{"weight":"w"},"b":"y"}`, `"weight" is an option`},
 	} {
 		if _, err := f.NewRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("NewRecordTemplate(%s) = %v, want an error containing %q", c.input, err, c.want)
 		}
 	}
 	_, err := f.NewRecordTemplate(`{"format":"","let":{"a":"x"}}`)
-	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), "let") {
+	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), `move one out of "let"`) {
 		t.Errorf("NewRecordTemplate(only let fields) = %v, want ErrNoColumns naming let", err)
 	}
 	if _, err := f.NewTemplate(`{"format":"{let}"}`); err == nil || !strings.Contains(err.Error(), "option") {
@@ -719,9 +720,32 @@ func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing
 func TestRecordColumnReadingThroughItemsOfDifferentDatatypesIsRefused(t *testing.T) {
 	t.Parallel()
 	dir := writeData(t, map[string]string{
-		"c": `{"format":"{pattern as p}","pattern":[{"format":"a","len":{"format":"1","datatype":"integer"}},{"format":"b","len":"x"}],"len":"{p.len}"}`,
+		"c": `{"format":"{pattern as p}","pattern":[{"format":"a","len":{"format":"1","datatype":"integer"}},{"format":"b","len":"x"}],"length":"{p.len}"}`,
 	})
-	if _, err := New(WithDataPath(dir), WithSeed(1), onTestDay); err == nil || !strings.Contains(err.Error(), `field "len"`) || !strings.Contains(err.Error(), "integer") {
+	if _, err := New(WithDataPath(dir), WithSeed(1), onTestDay); err == nil || !strings.Contains(err.Error(), `c: field "length"`) || !strings.Contains(err.Error(), "integer") {
 		t.Errorf("New = %v, want a column whose items hold integer and text refused", err)
+	}
+}
+
+func TestRecordColumnReadingTwoFieldsDeepKeepsItsDatatypeAndNull(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{
+		"deep": `{"format":"{shape as p}","shape":{"format":"s","d":{"format":"x","e":[null,{"format":"{int(1,9)}","datatype":"integer"}]}},"e":"{p.d.e}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	seen := map[bool]bool{}
+	for i := 0; i < 100; i++ {
+		r, err := f.FakeRecord("deep")
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := r.Columns()[0]
+		if c.DataType != DataTypeInteger || c.Null != (c.Value == "") {
+			t.Fatalf("column = %+v, want an integer column, null or a digit", c)
+		}
+		seen[c.Null] = true
+	}
+	if !seen[true] || !seen[false] {
+		t.Errorf("100 records drew null and digit as %v, want both", seen)
 	}
 }
