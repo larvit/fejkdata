@@ -90,6 +90,52 @@ func TestShippedMiscCategories(t *testing.T) {
 	}
 }
 
+func TestShippedMiscTestNumbers(t *testing.T) {
+	f := newBareModule(t, "misc", WithSeed(1))
+	cards := map[string]string{
+		"visa": "4242424242424242", "mastercard": "5555555555554444", "amex": "378282246310005",
+		"discover": "6011111111111117", "diners": "3056930009020004", "jcb": "3566002020360505",
+		"unionpay": "6200000000000005",
+	}
+	ibans := map[string]string{
+		"BE": "BE62510007547061", "DE": "DE89370400440532013000", "DK": "DK5000400440116243",
+		"ES": "ES0700120345030000067890", "FI": "FI2112345600000785", "NO": "NO9386011117947",
+		"SE": "SE3550000000054910000003",
+	}
+	published := map[string]bool{}
+	for brand, number := range cards {
+		if got := fake(t, f, "creditcard-test["+brand+"]"); got != number {
+			t.Fatalf("creditcard-test[%s] = %q, want %q", brand, got, number)
+		}
+		if !luhnValid(number) {
+			t.Fatalf("test card %q is not Luhn-valid", number)
+		}
+		published[number] = true
+	}
+	for cc, number := range ibans {
+		if got := fake(t, f, "iban-test["+cc+"]"); got != number {
+			t.Fatalf("iban-test[%s] = %q, want %q", cc, got, number)
+		}
+		if !ibanValid(number) {
+			t.Fatalf("test IBAN %q fails the mod-97 check", number)
+		}
+		published[number] = true
+	}
+	seen := map[string]bool{}
+	for i := 0; i < 300; i++ {
+		for _, path := range []string{"creditcard-test", "iban-test"} {
+			v := fake(t, f, path)
+			if !published[v] {
+				t.Fatalf("%s drew %q, which is no published test number", path, v)
+			}
+			seen[v] = true
+		}
+	}
+	if len(seen) != len(published) {
+		t.Fatalf("300 draws reached %d of %d test numbers", len(seen), len(published))
+	}
+}
+
 // TestShippedMiscReferenceData covers the locale-neutral reference categories:
 // codes follow their standard shape, dotted sub-paths resolve, emoji is a real
 // glyph, and a coordinate parses to a point within geographic bounds.
