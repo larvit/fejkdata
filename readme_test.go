@@ -647,3 +647,56 @@ func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
 		t.Fatalf("README's Functions table lists %v, want each builtin's calls: %v", listed, want)
 	}
 }
+
+func TestReadmeRatiosAndRules(t *testing.T) {
+	section := readmeSection(t, readme(t), "### Ratios and rules")
+	for _, word := range []string{"ratio", "percent", "`if`"} {
+		if !strings.Contains(section, word) {
+			t.Errorf("README's Ratios and rules section never says %s, so a search for it finds nothing", word)
+		}
+	}
+	blocks := jsonBlock.FindAllStringSubmatch(section, -1)
+	if len(blocks) != 2 {
+		t.Fatalf("README's Ratios and rules section has %d json examples, want a ratio and a rule", len(blocks))
+	}
+	render := func(block string, n int) []string {
+		f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"example": block})), WithSeed(1), onTestDay)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []string
+		for i := 0; i < n; i++ {
+			s, err := f.Fake("example")
+			if err != nil {
+				t.Fatal(err)
+			}
+			got = append(got, s)
+		}
+		return got
+	}
+	active := 0
+	for _, s := range render(blocks[0][1], 5000) {
+		switch s {
+		case "active":
+			active++
+		case "inactive":
+		default:
+			t.Fatalf("the ratio example prints %q, want active or inactive", s)
+		}
+	}
+	if share := float64(active) / 5000; share < 0.77 || share > 0.83 {
+		t.Errorf("the ratio example prints active %.3f of the time, want about 0.80", share)
+	}
+	currency := map[string]string{"SE": "SEK", "NO": "NOK", "DK": "DKK"}
+	seen := map[string]bool{}
+	for _, s := range render(blocks[1][1], 300) {
+		var country, code string
+		if n, _ := fmt.Sscanf(s, "%s pays in %s", &country, &code); n != 2 || currency[country] != code {
+			t.Fatalf("the rule example prints %q, want a country beside its own currency", s)
+		}
+		seen[country] = true
+	}
+	if len(seen) != len(currency) {
+		t.Errorf("the rule example drew only %v of %d countries", seen, len(currency))
+	}
+}
