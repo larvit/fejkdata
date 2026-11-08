@@ -51,6 +51,7 @@ https://github.com/larvit/fejkdata#names
 BUILTINS
 What each takes and renders: https://github.com/larvit/fejkdata#functions
 The whole template language: https://github.com/larvit/fejkdata#data-format
+Writing a --data-path directory: https://github.com/larvit/fejkdata#your-own-data
 
 Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
