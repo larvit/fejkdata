@@ -92,12 +92,13 @@ func csvField(s string) string {
 func (r *Record) TSVHeader() string {
 	names := make([]string, len(r.columns))
 	for i, c := range r.columns {
-		names[i] = c.Name
+		names[i] = tsvCell(c.Name)
 	}
 	return strings.Join(names, "\t")
 }
 
-// TSVLine renders the column values as one table row: a null column an empty cell.
+// TSVLine renders the column values as one table row. A null column and an empty string are an empty
+// cell, a brace is doubled, as a table cell reads braces as tokens, and a tab, CR or LF is a space.
 func (r *Record) TSVLine() string {
 	cells := make([]string, len(r.columns))
 	for i, c := range r.columns {
@@ -106,8 +107,7 @@ func (r *Record) TSVLine() string {
 	return strings.Join(cells, "\t")
 }
 
-// tsvCell doubles the braces a table cell reads as tokens. A table has no escape for a tab or a
-// line break, and a render must not fail mid-run, so each becomes a space.
+// tsvCell spells a tab or line break as a space, as a table has no escape for one and a render must not fail mid-run.
 func tsvCell(s string) string { return tsvCellEscapes.Replace(s) }
 
 var tsvCellEscapes = strings.NewReplacer("{", "{{", "}", "}}", "\t", " ", "\r", " ", "\n", " ")
