@@ -523,13 +523,12 @@ segments below that. It needs no index. Each shipped module carries one, so
 `nb_NO.title[dr.]`.
 
 `da_DK`, Danish, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
-`da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No open source holds Danish
-name counts in bulk, so the top 20 girls' names, boys' names and last names keep [Statistics
+`da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
+Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
-1 January 2026, and every other name is a language model's recall of a name common in Denmark, ordered from the most to the
-least common, with an estimated count. The names are real; their weights past the twentieth are an
-order of commonness, not a published figure. A program showing the top 20 counts or the sex counts
-credits "Kilde: Danmarks Statistik".
+1 January 2026. Every other name is a language model's recall of a name common in Denmark, ordered from
+the most to the least common, and its weight is an estimate that keeps that order. A program showing the
+top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
@@ -725,9 +724,10 @@ state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign s
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
-SCB, Statistics Norway, the SSA and the Census Bureau, and for Denmark Statistics Denmark and a language model's recall. `sex` counts them in its `count` column:
-Sweden's population at the end of 2024, Norway's and Denmark's on 1 January 2026 and the United States' on 1 July
-2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
+SCB, Statistics Norway, the SSA and the Census Bureau, and for Denmark from Statistics Denmark's top 20 and a
+language model's recall (the weights of the recalled names are estimates). `sex` counts the people of each
+sex in its `count` column: Sweden's population at the end of 2024, Norway's and Denmark's on 1 January 2026 and
+the United States' on 1 July 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.
 `person` binds one first name and reads its sex through it, `{.first-name as n}` and
@@ -1694,6 +1694,7 @@ only the checkout, so a folder or file you pass to a script, such as `DIR`,
 
 ```sh
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/territory.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
