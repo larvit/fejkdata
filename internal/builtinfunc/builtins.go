@@ -34,6 +34,7 @@ var builtins = withTransforms(map[string]builtin{
 	"ean":     {arity: 0, prep: derive(eanCheck)},
 	"bgmod11": {arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
 	"fnr":     {arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
+	"cpr":     {arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
 	"uuid":    {arity: 0, prep: sample(uuidV7)},
 	"ulid":    {arity: 0, prep: sample(ulid)},
 	"nanoid":  {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},

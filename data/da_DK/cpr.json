@@ -1,0 +1,8 @@
+{
+  "format": "{/da_DK.sex as s}{birth}-{cpr(s.parity.digit)}",
+  "birth": [
+    { "format": "{born(0,17,'020106')}", "weight": 18.85 },
+    { "format": "{born(18,64,'020106')}", "weight": 60.06 },
+    { "format": "{born(65,99,'020106')}", "weight": 21.09 }
+  ]
+}
