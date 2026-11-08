@@ -3,8 +3,31 @@ da_DK.address.locality	string
 da_DK.address.postal-code	string
 da_DK.address.street	string
 da_DK.address.street-number	string
+da_DK.company	format "{registered as r}{r}"	reads da_DK.company da_DK.company-coined da_DK.company-word da_DK.first-name da_DK.last-name geo.DK.locality
+da_DK.company-coined	format "{a}{b}"
+da_DK.company-coined.a	string
+da_DK.company-coined.b	string
+da_DK.company-word
+da_DK.company.aps	string
+da_DK.company.aps.name
+da_DK.company.as	string
+da_DK.company.as.name
+da_DK.company.enk	string
+da_DK.company.enk.name
+da_DK.company.is	string
+da_DK.company.is.name
+da_DK.company.ks	string
+da_DK.company.ks.name
+da_DK.company.legal	string
+da_DK.company.registered	string
+da_DK.company.registered.legal
 da_DK.cpr	format "{/da_DK.sex as s}{birth}-{cpr(s.individ.digit)}"	reads da_DK.sex
 da_DK.cpr.birth	string
+da_DK.date	format "{date(1970-01-01,2029-12-31,'2.1.2006')}"
+da_DK.email	format "{local}@{domain}"	reads da_DK.first-name da_DK.last-name
+da_DK.email.domain	string
+da_DK.email.local	string
+da_DK.email.local.n
 da_DK.first-name	format "{name}"	name name	weight count	parent sex
 da_DK.first-name.count	string
 da_DK.first-name.name	string
