@@ -26,8 +26,10 @@ func CheckIdentifier(name string) error {
 	if strings.Contains(name, AsWord) {
 		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, AsWord)
 	}
-	if containsWhere(name) {
-		return fmt.Errorf("%q contains %q, which a token reads as opening a filter; rename it", name, strings.TrimSuffix(WhereWord, " "))
+	for _, w := range [...]struct{ word, opens string }{{whereWord, "a filter"}, {distinctWord, "a draw of distinct values"}} {
+		if containsWord(name, w.word) {
+			return fmt.Errorf("%q contains %q, which a token reads as opening %s; rename it", name, w.word, w.opens)
+		}
 	}
 	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {
 		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",

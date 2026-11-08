@@ -2,6 +2,7 @@ package fejkdata
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/grammar"
@@ -19,6 +20,7 @@ type arm struct {
 	leaves   []node // every node the path may land on, one per variant it passes
 	kind     armKind
 	named    *nameBinding // namedRead: the binding of the name it reads through
+	member   int          // namedRead of a distinct draw: the member it reads, counted from 1; 0 reads them joined
 }
 
 // armKind is how expand reads an arm, fixed at compile.
@@ -69,7 +71,7 @@ type op struct {
 	// fixed; expand reads them before the call. For a token with a where clause, they are
 	// the names its length reads. nil for a token that reads none.
 	operands []arm
-	filter   *whereFilter // a token with a where clause: what it draws from
+	values   *valueDraw   // a token with a where or a distinct clause: what it draws from
 	words    *lengthIndex // an {anonymize()} call: the words its second operand holds, which expand never reads
 }
 
@@ -102,7 +104,13 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 		return a, nil
 	}
 	b := t.nameScope.lookup(a.head)
-	if grammar.HasSelector(a.tail) {
+	if b.distinct != nil {
+		member, err := memberRead(b, a)
+		if err != nil {
+			return a, err
+		}
+		a.member, a.tail = member, nil
+	} else if grammar.HasSelector(a.tail) {
 		if b.bindsField() {
 			return a, fmt.Errorf("a path through name %q may not select a row; bind the row to a name of its own", a.head)
 		}
@@ -117,4 +125,23 @@ func (t *template) compileArm(name string, targets map[*nameBinding]nameTarget) 
 	a.kind, a.named, a.steps, a.leaves = namedRead, b, w.steps, w.leaves
 	a.levels = namedLevels(full)
 	return a, nil
+}
+
+// memberRead is the member of b's distinct draw that a reads, counted from 1, or 0 where a reads them
+// joined.
+func memberRead(b *nameBinding, a arm) (int, error) {
+	n := b.distinct.N
+	switch {
+	case len(a.tail) == 0 && !b.distinct.Joins:
+		return 0, fmt.Errorf("name %q holds %d distinct picks: read one, as {%s[1]}, or add joined ',' after distinct %d to read them as one", b.name, n, b.name, n)
+	case len(a.tail) == 0:
+		return 0, nil
+	case len(a.tail) > 1 || !grammar.IsSelector(a.tail[0]):
+		return 0, fmt.Errorf("name %q holds distinct picks, each read whole, as {%s[1]}", b.name, b.name)
+	}
+	k, err := strconv.Atoi(grammar.SelectorOf(a.tail[0]))
+	if err != nil || k < 1 || k > n {
+		return 0, fmt.Errorf("name %q holds %d picks, {%s[1]} to {%s[%d]}", b.name, n, b.name, b.name, n)
+	}
+	return k, nil
 }

@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"strings"
+
 	"github.com/larvit/fejkdata/internal/drawstate"
 	"github.com/larvit/fejkdata/internal/grammar"
 	"github.com/larvit/fejkdata/internal/invariant"
@@ -126,6 +128,7 @@ type namedPick struct {
 	named *nameBinding
 	memo  drawMemo
 	pins  pinSet
+	drawn []string // what a where or a distinct clause drew, nil before the first read
 }
 
 // drawMemo is what a named pick has drawn: the variant each level was drawn as, so every path
@@ -216,8 +219,14 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	if r, done := p.memo.value[a.key()]; done {
 		return r
 	}
-	if a.named.filter != nil {
-		return p.keep(a.key(), readValue{text: a.named.filter.draw(s, env)})
+	if v := a.named.values; v != nil {
+		if p.drawn == nil {
+			p.drawn = v.draw(s, env)
+		}
+		if a.member > 0 {
+			return readValue{text: p.drawn[a.member-1]}
+		}
+		return readValue{text: strings.Join(p.drawn, v.sep)}
 	}
 	leaf, pins := p.draw(s, a.named.target.start, a.steps, a.levels)
 	if a.named.bindsField() { // the read stays in the category, so its frames are already open

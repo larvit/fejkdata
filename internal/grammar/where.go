@@ -8,8 +8,11 @@ import (
 	"strings"
 )
 
-// WhereWord opens a token's filter: {path where clause}, or {path where clause as name}.
-const WhereWord = " where "
+// The words that open a token's clauses, in the order they come: {path where … distinct N … as name}.
+const (
+	whereWord    = "where"
+	distinctWord = "distinct"
+)
 
 // Where is a filter over the values a path can draw: a value passes when every condition holds.
 type Where struct {
@@ -27,17 +30,24 @@ type Length struct {
 	Name string
 }
 
-var whereKeywords = []string{"and", "containing", "length", "not", "to"}
-
-// containsWhere reports whether s holds the word that opens a filter.
-func containsWhere(s string) bool {
-	return strings.Contains(s, WhereWord) || strings.HasSuffix(s, strings.TrimSuffix(WhereWord, " "))
+// Distinct is a draw of N distinct values in one pick, printed joined by Sep where Joins is set.
+type Distinct struct {
+	N     int
+	Joins bool
+	Sep   string
 }
 
-// cutWhere cuts a token's body around its first " where" outside a selector and a quote, where
-// the word ends the body or a space follows it.
-func cutWhere(body string) (head, clause string, found bool) {
-	word := strings.TrimSuffix(WhereWord, " ")
+var whereKeywords = []string{"and", "containing", "length", "not", "to"}
+
+// containsWord reports whether s holds word after a space, where the word ends s or a space follows it.
+func containsWord(s, word string) bool {
+	return strings.Contains(s, " "+word+" ") || strings.HasSuffix(s, " "+word)
+}
+
+// cutWord cuts a token's body around its first " "+word outside a selector and a quote, where the
+// word ends the body or a space follows it.
+func cutWord(body, word string) (head, rest string, found bool) {
+	word = " " + word
 	depth, quoted := 0, false
 	for i := 0; i < len(body); i++ {
 		switch c := body[i]; {
@@ -48,9 +58,9 @@ func cutWhere(body string) (head, clause string, found bool) {
 		case c == '\'' && depth == 0:
 			quoted = !quoted
 		case depth == 0 && !quoted && strings.HasPrefix(body[i:], word):
-			rest := body[i+len(word):]
-			if rest == "" || rest[0] == ' ' {
-				return body[:i], strings.TrimPrefix(rest, " "), true
+			after := body[i+len(word):]
+			if after == "" || after[0] == ' ' {
+				return body[:i], strings.TrimPrefix(after, " "), true
 			}
 		}
 	}
@@ -74,26 +84,90 @@ func lastAsOutsideQuotes(clause string) (before, name string, found bool) {
 	return clause[:at], clause[at+len(AsWord):], true
 }
 
-// whereToken parses a token body carrying a filter: one path, a clause, and the name it may bind.
-func whereToken(body, head, clause string) (Token, error) {
+// clauses is a token body cut around its where and distinct clauses and the name it binds.
+type clauses struct {
+	head, where, distinct, name string
+	filters, picks, binds       bool
+}
+
+// cutClauses cuts body around its clauses; found is false for a body with neither a where nor a
+// distinct clause.
+func cutClauses(body string) (c clauses, found bool) {
+	c.head, c.where, c.filters = cutWord(body, whereWord)
+	if c.filters {
+		c.where, c.distinct, c.picks = cutWord(c.where, distinctWord)
+	} else {
+		c.head, c.distinct, c.picks = cutWord(body, distinctWord)
+	}
+	last := &c.where
+	if c.picks {
+		last = &c.distinct
+	}
+	*last, c.name, c.binds = lastAsOutsideQuotes(*last)
+	return c, c.filters || c.picks
+}
+
+// clauseToken parses a token body carrying a where or a distinct clause: one path, its clauses, and
+// the name it may bind.
+func clauseToken(body string, c clauses) (Token, error) {
+	_, _, bindsInHead := cutOutside(c.head, AsWord)
 	switch {
-	case indexOutside(head, '(') >= 0:
-		return Token{}, fmt.Errorf("token {%s}: a where clause filters a path's draw, not a call's", body)
-	case indexOutside(head, '|') >= 0:
-		return Token{}, fmt.Errorf("token {%s}: a where clause filters one path; write a token for each", body)
+	case indexOutside(c.head, '(') >= 0:
+		return Token{}, fmt.Errorf("token {%s}: a where or distinct clause draws from a path, not a call", body)
+	case indexOutside(c.head, '|') >= 0:
+		return Token{}, fmt.Errorf("token {%s}: a where or distinct clause draws from one path; write a token for each", body)
+	case bindsInHead:
+		return Token{}, fmt.Errorf("token {%s}: as comes after the clauses: {path where … distinct N as name}", body)
+	case c.filters && containsWord(c.head, distinctWord):
+		return Token{}, fmt.Errorf("token {%s}: the where clause comes before distinct: {path where … distinct N}", body)
 	}
-	if _, _, binds := cutOutside(head, AsWord); binds {
-		return Token{}, fmt.Errorf("token {%s}: the where clause comes before as: {path where … as name}", body)
+	tok := Token{Kind: PathRead, Body: body, Arms: []string{c.head}}
+	if c.binds {
+		tok = Token{Kind: NameBind, Body: body, BoundRef: c.head, Bound: c.name}
 	}
-	clause, name, binds := lastAsOutsideQuotes(clause)
-	w, err := ParseWhere(clause)
+	var err error
+	if c.filters {
+		if tok.Where, err = ParseWhere(c.where); err != nil {
+			return Token{}, fmt.Errorf("token {%s}: %w", body, err)
+		}
+	}
+	if c.picks {
+		if tok.Distinct, err = parseDistinct(c.distinct); err != nil {
+			return Token{}, fmt.Errorf("token {%s}: %w", body, err)
+		}
+		if !c.binds && !tok.Distinct.Joins {
+			n := tok.Distinct.N
+			return Token{}, fmt.Errorf("token {%s}: distinct %d draws %d values into one token; join them, as distinct %d joined ',', or bind them, as distinct %d as name", body, n, n, n, n)
+		}
+	}
+	return tok, nil
+}
+
+// parseDistinct parses a distinct clause: a whole number of 1 or more, then joined and a quoted
+// separator where the values print as one.
+func parseDistinct(clause string) (*Distinct, error) {
+	lx, err := lexWhere(clause)
 	if err != nil {
-		return Token{}, fmt.Errorf("token {%s}: %w", body, err)
+		return nil, fmt.Errorf("distinct %s: %w", clause, err)
 	}
-	if binds {
-		return Token{Kind: NameBind, Body: body, BoundRef: head, Bound: name, Where: w}, nil
+	p := &whereParser{lx: lx}
+	l, ok := p.next()
+	n, convErr := strconv.Atoi(l.text)
+	if !ok || l.quoted || convErr != nil || n < 1 {
+		return nil, fmt.Errorf("distinct %s: distinct takes a whole number of 1 or more, as distinct 3", clause)
 	}
-	return Token{Kind: PathRead, Body: body, Arms: []string{head}, Where: w}, nil
+	d := &Distinct{N: n}
+	if p.word("joined") {
+		sep, ok := p.next()
+		if !ok || !sep.quoted {
+			return nil, fmt.Errorf("distinct %s: joined takes a quoted separator, as joined ','", clause)
+		}
+		d.Joins, d.Sep = true, sep.text
+	}
+	if !p.done() {
+		return nil, fmt.Errorf("distinct %s: %s follows the count, where only joined ',' may", clause, p.peek())
+	}
+	return d, nil
 }
 
 type whereLexeme struct {

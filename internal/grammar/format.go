@@ -69,7 +69,8 @@ type Token struct {
 	Arms []string // PathRead: the '|' alternatives
 	// NameBind: the reference it binds, and the name.
 	BoundRef, Bound string
-	Where           *Where // PathRead or NameBind: the filter on its draw, nil for none
+	Where           *Where    // PathRead or NameBind: the filter on its draw, nil for none
+	Distinct        *Distinct // PathRead or NameBind: several distinct draws in one pick, nil for one draw
 }
 
 type TokenKind uint8
@@ -100,8 +101,8 @@ func ParseFormat(format string) ([]Token, error) {
 			return nil
 		}
 		flush()
-		if head, clause, filters := cutWhere(u.body); filters {
-			tok, err := whereToken(u.body, head, clause)
+		if c, found := cutClauses(u.body); found {
+			tok, err := clauseToken(u.body, c)
 			toks = append(toks, tok)
 			return err
 		}
