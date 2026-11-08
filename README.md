@@ -1404,6 +1404,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
+| `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1445,6 +1446,24 @@ negative, `min` is above `max` or `max` is above 999.
 calls and `repeat`, resets with a new generator, and is the natural primary key for
 the SQL example above; give each record its own counter, `{seq(orders)}`, where one
 generator fills several.
+
+### Date offsets
+
+`{adddays(d,n)}` prints the date `d` plus `n` days, so a fixture's end falls a drawn number of
+days after its start. Read `d` through a [name](#names), so both columns show one date:
+
+```json
+{ "format": "{start as s}{len as n}{s},{n},{adddays(s,n)}", "start": "{date(2026-01-01,2026-12-31,'2006-01-02')}", "len": "{int(1,30)}" }
+```
+
+Renders e.g. `2026-03-28,5,2026-04-02`. A third argument prints the result in another layout:
+`{adddays(s,-1,'January 2, 2006')}` prints the day before `s` as `March 27, 2026`.
+
+Refused at `New`, each error naming what to write instead: a `d` that could render anything but
+one `date` or `born` call, such as `"on {date(…)}"` or another `adddays`, or calls in two layouts; a layout that
+does not read back as the day it printed, such as `'01-02'` with no year or `'060102'` with a
+two-digit one; an `n` that is not always a whole number; and an offset beyond a million days
+either way.
 
 ### Computation
 
@@ -1858,13 +1877,14 @@ resolve.go      resolving templates against the assembled tree in steps, each ov
 graph.go        the node graph: tree walks, containment and render edges, and the cycle and repeat fences
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
+adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
-internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, transforms and calc arithmetic
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
