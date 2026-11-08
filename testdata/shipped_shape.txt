@@ -93,6 +93,7 @@ en_US.itin.serial	string
 en_US.last-name	format "{name}"	key name	weight count
 en_US.last-name.count	string
 en_US.last-name.name	string
+en_US.paragraph	reads en_US.sentence
 en_US.person	format "{prefix}{first} {last}"	reads en_US.first-name en_US.last-name
 en_US.person.first	string
 en_US.person.last	string
@@ -106,7 +107,7 @@ en_US.phone.line
 en_US.price	format "${amt}.{cents}"
 en_US.price.amt	string
 en_US.price.cents	string
-en_US.sentence
+en_US.sentence	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb
 en_US.sentence.adj
 en_US.sentence.noun
 en_US.sentence.prep
@@ -141,7 +142,22 @@ en_US.version	format "{pre}{n}.{n}.{n}{suffix}"
 en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
-en_US.word
+en_US.word	format "{any}"	reads en_US.word-adj en_US.word-adv en_US.word-noun en_US.word-verb
+en_US.word-adj	format "{word}"
+en_US.word-adj.word	string
+en_US.word-adv	format "{word}"
+en_US.word-adv.word	string
+en_US.word-noun	format "{word}"
+en_US.word-noun.word	string
+en_US.word-verb	format "{word}"
+en_US.word-verb.present	string
+en_US.word-verb.word	string
+en_US.word.adj	string
+en_US.word.adv	string
+en_US.word.any	string
+en_US.word.noun	string
+en_US.word.verb	string
+en_US.word.verb.present
 geo.DK.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DK.locality
 geo.DK.address.locality	string
 geo.DK.address.postal-code	string
