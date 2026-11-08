@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
-| 385 | 0.4.0 |  |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
@@ -233,17 +232,6 @@ Question for the maintainer: what does a render print when no draw can pass? The
 - accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
 
 Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
-
-### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
-
-From a real-world use case, a scheduler's fixtures: `BYDAY={d},{d}` yields `MO,MO`, and the crew columns `e1` to `e4` collide. Goal 4.2 keeps `{d},{d}` as two draws, so this is a spelling of its own, and a writer panel picks it for both shapes: one value holding several, and several columns reading one pick's members.
-
-Distinct means distinct items or rows, whatever they print. Asking for more than a choice's items of weight above `0` is refused at load (goal 5.4), and weights hold among those still undrawn. A draw costs what its count costs, not the size of the table (goal 12.1).
-
-The panel ran on 2026-11-08: a bulk fixture author, a data author, a JavaScript test author and a hand fixture author.
-- **Count:** all four chose `distinct N`, which comes after any `where` and before `as`: `{/en_US.word where length 5 distinct 3 as w}`. They read `pick` as allowing repeats and `take` as the first rows.
-- **Members:** all four counted them from 1. Two chose `{t[1]}`, one `{t#1}` and one `{t.1}`. The seats against `[1]` read it as clashing with a selector's key.
-- **One joined value:** two chose `{/misc.weekday distinct 2 joined ','}`, one `sep ','` and one `{join(d, ',')}` over a bound name.
 
 ### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
 
