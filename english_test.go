@@ -35,6 +35,13 @@ func TestEnglishWordHoldsWordNetWordsPerPartOfSpeech(t *testing.T) {
 		{"word-verb", "pass", "passes"},
 		{"word-verb", "have", "has"},
 		{"word-verb", "be", "is"},
+		{"word-verb", "woo", "woos"},
+		{"word-verb", "tattoo", "tattoos"},
+		{"word-verb", "radio", "radios"},
+		{"word-verb", "solo", "solos"},
+		{"word-verb", "echo", "echoes"},
+		{"word-verb", "veto", "vetoes"},
+		{"word-verb", "stomach", "stomachs"},
 		{"word-adj", "big", ""},
 		{"word-adv", "often", ""},
 	} {
@@ -45,6 +52,21 @@ func TestEnglishWordHoldsWordNetWordsPerPartOfSpeech(t *testing.T) {
 	for table, least := range map[string]int{"word-noun": 40000, "word-verb": 5000, "word-adj": 10000, "word-adv": 2500} {
 		if n := len(englishWordForms(t, table)); n < least {
 			t.Errorf("%s holds %d words, want WordNet's, %d or more", table, n, least)
+		}
+	}
+}
+
+func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
+	t.Parallel()
+	nouns := englishWordForms(t, "word-noun")
+	for _, word := range []string{"paris", "texas", "einstein", "monday", "london", "abc", "dago", "gook", "wop"} {
+		if _, ok := nouns[word]; ok {
+			t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
+		}
+	}
+	for _, word := range []string{"table", "city", "teacher"} {
+		if _, ok := nouns[word]; !ok {
+			t.Errorf("word-noun lacks %q", word)
 		}
 	}
 }
@@ -133,7 +155,7 @@ func TestEnglishWordWeighsAPartOfSpeechByItsRows(t *testing.T) {
 	}
 }
 
-func TestEnglishWordDrawsFarMoreDistinctWordsThanItsHandWrittenList(t *testing.T) {
+func TestEnglishWordDrawsAWideSpreadOfWords(t *testing.T) {
 	t.Parallel()
 	en := shipped(t, WithSeed(8))
 	distinct := map[string]bool{}
@@ -141,7 +163,7 @@ func TestEnglishWordDrawsFarMoreDistinctWordsThanItsHandWrittenList(t *testing.T
 		distinct[fake(t, en, "en_US.word")] = true
 	}
 	if len(distinct) < 3000 {
-		t.Errorf("5000 draws of en_US.word gave %d distinct words, want a dictionary's spread, not 271", len(distinct))
+		t.Errorf("5000 draws of en_US.word gave %d distinct words, want a dictionary's spread", len(distinct))
 	}
 }
 
