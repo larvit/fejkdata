@@ -25,6 +25,13 @@ replacement, and each removed path, column or flag.
   Klimadatastyrelsen. The Go package is `github.com/larvit/fejkdata/data/geo/DK`, which
   `data/da_DK`'s `Modules()` also returns.
 
+### Changed
+
+- A token reading a field beside its own template, as `{b}` does in
+  `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now says that a token reads
+  only the fields of the template whose format holds it. It names the fix: give `a` a format and a `b`
+  of its own, or, outside a choice's item, bind `{b as n}` in the format beside `a` and read `{n}`.
+
 ## [0.3.0] - 2026-11-05
 
 ### Breaking

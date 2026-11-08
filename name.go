@@ -177,11 +177,20 @@ func eachContained(n node, where string, fn func(c node, where string) error) er
 // order compile reports in, and refuses a field spelling a name. A refusal searches scopes, every
 // scope of the category, for a name bound where the read cannot see it.
 func answerReads(root node, scopes []*nameScope) error {
-	var answer func(n node, where string) error
-	answer = func(n node, where string) error {
+	var answer func(n node, where string, up besideField) error
+	answer = func(n node, where string, up besideField) error {
 		t, isTemplate := n.(*template)
-		if err := eachContained(n, where, answer); err != nil {
-			return err
+		for _, c := range contained(n) {
+			next, inner := where, up
+			if c.name != "" {
+				next += fmt.Sprintf("field %q: ", c.name)
+			}
+			if isTemplate {
+				inner = besideField{t, c.name}
+			}
+			if err := answer(c.node, next, inner); err != nil {
+				return err
+			}
 		}
 		if !isTemplate {
 			return nil
@@ -197,17 +206,33 @@ func answerReads(root node, scopes []*nameScope) error {
 		}
 		for _, u := range t.unbound {
 			if t.nameScope.lookup(u.head) == nil {
-				return unanswered(where, u, t.nameScope, scopes)
+				return unanswered(where, u, t.nameScope, scopes, up)
 			}
 		}
 		return nil
 	}
-	return answer(root, "")
+	return answer(root, "", besideField{})
+}
+
+// besideField is the nearest template holding a template, and the field of it the template
+// sits under.
+type besideField struct {
+	t     *template
+	field string
+}
+
+// refusal is the refusal of u where up's template holds u's head.
+func (up besideField) refusal(where string, u unboundRead) error {
+	fix := fmt.Sprintf("give field %q a format and a %q of its own", up.field, u.head)
+	if up.t.nameScope.kind() != scopeChoiceItem {
+		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read {n}", u.head, up.field)
+	}
+	return fmt.Errorf("%stoken {%s}: no field %q; a token reads only the fields of the template whose format holds it, and %q is a field beside field %q: %s", where, u.body, u.head, u.head, up.field, fix)
 }
 
 // unanswered is the refusal of u, a read no field or name answers: naming the repeat binding the
 // name where the read cannot see it, else the names the read sees.
-func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScope) error {
+func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScope, up besideField) error {
 	for _, sc := range scopes {
 		if b, ok := sc.bindings[u.head]; ok {
 			at := strings.TrimSuffix(b.where, ": ")
@@ -219,6 +244,9 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 			}
 			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
 		}
+	}
+	if up.t != nil && up.field != "" && up.t.fields[u.head] != nil {
+		return up.refusal(where, u)
 	}
 	var visible []string
 	for sc := seen; sc != nil; sc = sc.up {

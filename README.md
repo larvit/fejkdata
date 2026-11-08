@@ -302,7 +302,25 @@ literal, so a row can span physical lines: read the stream with a CSV or SQL
 parser rather than splitting it on newlines.
 
 A statement fails whole: one row a constraint refuses loses its whole statement, up to 1000 rows.
-A shipped category may repeat a value, so a `UNIQUE` column takes a category of your own.
+A shipped category may repeat a value. `{seq()}` counts up through a run, so a column carrying it
+never repeats, and a `UNIQUE` column loads. Give each such column its own counter. Save `users.json`:
+
+```json
+{
+  "format": "",
+  "callsign": "T-{seq(callsign)}",
+  "email": "{/sv_SE.username}.{seq(email)}@example.com"
+}
+```
+
+`fejkdata --seed 1 --format csv --repeat 3 < users.json` prints:
+
+```text
+callsign,email
+T-1,fizz14.1@example.com
+T-2,modig.drake2024.2@example.com
+T-3,majahed7.3@example.com
+```
 
 The SQL is ANSI — identifiers in double quotes, a literal quote doubled (`''`),
 backslashes passed through — so a hyphenated field like `postal-code` stays a
@@ -863,7 +881,7 @@ Every character is literal except a `{…}` token:
 
 | Token | Renders |
 |-------|---------|
-| `{name}` | the sibling field `name`, or the pick bound to the name ([Names](#names)) |
+| `{name}` | the field `name` of the template whose format holds the token, or the pick bound to the name ([Names](#names)) |
 | `{x as name}` | nothing: binds one pick of `x`, a reference, a sibling field or a path into one, to `name` ([Names](#names)) |
 | `{name.field}` | `field` of a fresh draw of the sibling `name`, or of the pick bound to it ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
@@ -873,6 +891,11 @@ Every character is literal except a `{…}` token:
 
 Each `{…}` draws afresh, so `{w} {w}`, `{p.a} {p.b}` and `{/person.first} {/person.last}`
 are two draws each. Only a [name](#names) keeps one pick for every read of it.
+
+A token reads only the fields of the template whose format holds it. In
+`{"format":"{a}","a":"x{b}","b":"y"}`, `a` holds no field, so its `{b}` fails to load. Give `a` a
+`b` of its own, `"a":{"format":"x{b}","b":"y"}`, or bind `b` in the format beside it and read the
+name: `{"format":"{b as n}{a}","a":"x{n}","b":"y"}`.
 
 ```json
 "100 Main St, Apt {int(1,9)}{upper(1)} — tel {digits(3)}-{digits(4)}"
