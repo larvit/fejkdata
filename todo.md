@@ -12,8 +12,8 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 4 | 1 | 2 | 5 | 6 | 1 by 4, 4 by 3 | 0.9 |
+| 378 | 0.4.0 | 379 |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 4 | 1 | 2 | 5 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
@@ -223,12 +223,6 @@
 
 ## Details
 
-### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
-
-From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
-
-One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling.
-
 ### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
 
 From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds WordNet's words, of any length, and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
@@ -245,6 +239,12 @@ A panel of four readers, seated as a bulk fixture author, a data author, a JavaS
 - `as` binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name can't be filtered, since its pick is already drawn.
 
 Length counts Unicode code points, with the shipped data held in NFC by a test, since counting what a reader sees takes a dependency goal 10 rules out. Each reader sketched item 385's distinct pick as a clause after this one.
+
+### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
+
+From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
+
+One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling. It draws each word through item 379's index by length and fixed-text check, and adds a function operand that reads a category whole.
 
 ### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
 
@@ -380,6 +380,8 @@ The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli
 `reading-cost` after the chunk of item 377, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
 
 `reading-cost` before the chunk of item 379, on 2026-11-08: "Rising: the last 5 chunks' median is 104363 new input tokens before their first commit, the 5 before them 72993". Read most over the last 5 (opens and searches): `README.md` 27, `todo.md` 24, `readme_test.go` 11, `builtins_test.go` 7, `cli/cli_test.go` 7, `record_test.go` 7, `compose.yaml` 6, `danish_test.go` 6, `norwegian_test.go` 5, `cli/cli.go` 4.
+
+`reading-cost` on 2026-11-08: "Rising: the last 5 chunks' median is 112711 new input tokens before their first commit, the 5 before them 85771". Read most over the last 5 (opens and searches): `README.md` 38, `todo.md` 22, `swedish_test.go` 14, `docs/decisions.md` 11, `builtins_test.go` 7, `valueproof.go` 7, `CHANGELOG.md` 6, `DATA-LICENSES.md` 6, `calc_test.go` 6, `adddays.go` 5.
 
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 

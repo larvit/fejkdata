@@ -1227,3 +1227,20 @@ Read most (opens and searches):
 - `valueproof.go` 3
 - `compose.yaml` 2
 - `docs/decisions.md` 2
+
+## Reading cost, chunk 45771ba875f5, finished 2026-11-08T19:19:55Z
+
+112711 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `swedish_test.go` 11
+- `README.md` 9
+- `calc_test.go` 6
+- `adddays.go` 5
+- `todo.md` 4
+- `valueproof.go` 4
+- `compose.yaml` 2
+- `data/sv_SE/person.json` 2
+- `internal/builtinfunc/builtinfunc.go` 2
+- `internal/proven/proven.go` 2
