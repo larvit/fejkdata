@@ -87,7 +87,7 @@ func DateLayout(name string, args []string) (string, bool) {
 // no day, or fields packed so that one reading is ambiguous, such as '2006-1_2', does not.
 func ReadsBack(layout string) bool {
 	days := []time.Time{time.Date(1, 2, 3, 4, 5, 6, 0, time.UTC), time.Date(1969, 12, 31, 23, 0, 0, 0, time.UTC), time.Date(9999, 11, 28, 0, 0, 0, 0, time.UTC)}
-	for d := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC); d.Year() == 2000; d = d.Add(24*time.Hour + 11*time.Minute + 7*time.Second) {
+	for d := time.Date(2000, 1, 1, 23, 59, 59, 0, time.UTC); d.Year() == 2000; d = d.Add(24*time.Hour - 11*time.Minute - 7*time.Second) {
 		days = append(days, d)
 	}
 	for _, d := range days {
