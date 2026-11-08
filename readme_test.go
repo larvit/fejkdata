@@ -493,6 +493,37 @@ func TestReadmeBulkQuickStartOutput(t *testing.T) {
 	}
 }
 
+func TestReadmeUniqueColumnOutput(t *testing.T) {
+	src := readme(t)
+	at := strings.Index(src, "`{seq()}` counts")
+	if at < 0 {
+		t.Fatal("README's Records section lost its unique-column example")
+	}
+	block := jsonBlock.FindStringSubmatch(src[at:])
+	out := textBlock.FindStringSubmatch(src[at:])
+	if block == nil || out == nil || !strings.Contains(src[at:], "fejkdata --seed 1 --format csv --repeat 3 < ids.json") {
+		t.Fatal("README's unique-column example lost its record, its command or its printed output")
+	}
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"ids": block[1]})), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for i := 0; i < 3; i++ {
+		r, err := f.FakeRecord("ids")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if i == 0 {
+			got = append(got, r.CSVHeader())
+		}
+		got = append(got, r.CSVLine())
+	}
+	if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
+		t.Errorf("README prints %q for --seed 1 --format csv --repeat 3, it renders %q", want, strings.Join(got, "\n"))
+	}
+}
+
 func TestReadmeGoQuickStart(t *testing.T) {
 	t.Parallel()
 	section := readmeSection(t, readme(t), "### Go tests")
