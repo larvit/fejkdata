@@ -54,6 +54,23 @@ func TestAnonymizeKeepsOneFakePerWordWithinARender(t *testing.T) {
 	}
 }
 
+func TestAnonymizeKeepsOneFakePerWordAcrossATemplateAndTheCategoryItReads(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"w.json":      `["cat","dog","pig","owl","ant","bee","elk","yak"]`,
+		"ticket.json": `{"format":"{anonymize(u,/w)}","u":"Ann"}`,
+	}))
+	tp, err := f.NewTemplate(`{"format":"{anonymize(t,/w)}|{/ticket}","t":"Ann"}`)
+	if err != nil {
+		t.Fatalf("NewTemplate: %v", err)
+	}
+	for i := 0; i < 20; i++ {
+		got := tp.Fake()
+		if halves := strings.Split(got, "|"); halves[0] != halves[1] {
+			t.Fatalf("render = %q, want Ann one fake in the template and in the category it reads", got)
+		}
+	}
+}
+
 func TestAnonymizeDrawsWithTheWordsWeights(t *testing.T) {
 	f := engine(3)
 	src := `{"format":"{anonymize(t,w)}","t":"cat","w":[{"format":"abc","weight":3},{"format":"xyz","weight":1}]}`
