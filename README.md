@@ -302,8 +302,10 @@ literal, so a row can span physical lines: read the stream with a CSV or SQL
 parser rather than splitting it on newlines.
 
 A statement fails whole: one row a constraint refuses loses its whole statement, up to 1000 rows.
-A shipped category may repeat a value. `{seq()}` counts up through a run, so a column carrying it
-never repeats, and a `UNIQUE` column loads. Give each such column its own counter. Save `users.json`:
+A shipped category may repeat a value. `{seq()}` counts 1, 2, 3 through a run. A column that ends
+in a `.`, the count and fixed text, as the email below ends in `.{seq(email)}@example.com`, never
+repeats, whatever is drawn before the `.`, so a `UNIQUE` column loads. A named counter, `seq(email)`,
+counts its column from 1. Save `ids.json`:
 
 ```json
 {
@@ -313,7 +315,7 @@ never repeats, and a `UNIQUE` column loads. Give each such column its own counte
 }
 ```
 
-`fejkdata --seed 1 --format csv --repeat 3 < users.json` prints:
+`fejkdata --seed 1 --format csv --repeat 3 < ids.json` prints:
 
 ```text
 callsign,email
@@ -881,7 +883,7 @@ Every character is literal except a `{…}` token:
 
 | Token | Renders |
 |-------|---------|
-| `{name}` | the field `name` of the template whose format holds the token, or the pick bound to the name ([Names](#names)) |
+| `{name}` | the sibling field `name`, or the pick bound to the name ([Names](#names)) |
 | `{x as name}` | nothing: binds one pick of `x`, a reference, a sibling field or a path into one, to `name` ([Names](#names)) |
 | `{name.field}` | `field` of a fresh draw of the sibling `name`, or of the pick bound to it ([Correlated fields](#correlated-fields)) |
 | `{a\|b}` | one of the named fields, even odds |
@@ -892,10 +894,11 @@ Every character is literal except a `{…}` token:
 Each `{…}` draws afresh, so `{w} {w}`, `{p.a} {p.b}` and `{/person.first} {/person.last}`
 are two draws each. Only a [name](#names) keeps one pick for every read of it.
 
-A token reads only the fields of the template whose format holds it. In
-`{"format":"{a}","a":"x{b}","b":"y"}`, `a` holds no field, so its `{b}` fails to load. Give `a` a
-`b` of its own, `"a":{"format":"x{b}","b":"y"}`, or bind `b` in the format beside it and read the
-name: `{"format":"{b as n}{a}","a":"x{n}","b":"y"}`.
+A token's sibling fields are the fields of the template whose format holds it, and a token reads
+no other field. In `{"format":"{a}","a":"x{b}","b":"y"}`, `a` has no fields, so its `{b}` fails to
+load. Give `a` a `b` of its own, `"a":{"format":"x{b}","b":"y"}`, or bind `b` in the outer format,
+beside `a`, and read the name: `{"format":"{b as n}{a}","a":"x{n}","b":"y"}`. Inside a choice's
+item, give the field its own.
 
 ```json
 "100 Main St, Apt {int(1,9)}{upper(1)} — tel {digits(3)}-{digits(4)}"
