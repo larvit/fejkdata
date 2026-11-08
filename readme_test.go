@@ -634,8 +634,8 @@ func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
 		seed                 uint64
 		csv                  bool
 	}{
-		{"A field only other fields read, through a name, goes under `let`", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
-		{"A column that reads a field through a name keeps the field's null", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
+		{"`let` is an option holding fields that write no column", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
+		{"`sched.json` shows it", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
 	} {
 		at := strings.Index(src, c.after)
 		if at < 0 {
