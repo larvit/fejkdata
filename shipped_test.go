@@ -17,6 +17,7 @@ import (
 	"testing/fstest"
 
 	"github.com/larvit/fejkdata/data"
+	dadk "github.com/larvit/fejkdata/data/da_DK"
 	enus "github.com/larvit/fejkdata/data/en_US"
 	geono "github.com/larvit/fejkdata/data/geo/NO"
 	geose "github.com/larvit/fejkdata/data/geo/SE"
@@ -72,6 +73,7 @@ func (m shippedModule) whole(t testing.TB) fs.FS {
 func shippedModules(t testing.TB) []shippedModule {
 	t.Helper()
 	out := []shippedModule{
+		{fsys: dadk.FS, modules: dadk.Modules},
 		{fsys: enus.FS, modules: enus.Modules},
 		{fsys: geono.FS, modules: geono.Modules},
 		{fsys: geose.FS, modules: geose.Modules},

@@ -181,7 +181,7 @@ func TestShippedPersonNames(t *testing.T) {
 	if _, err := f.Fake("en_US.first-name[Taylor]"); err == nil || !strings.Contains(err.Error(), "sex[f].first-name[Taylor]") {
 		t.Fatalf("Fake(en_US.first-name[Taylor]) = %v, want both sexes' rows listed", err)
 	}
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
 		seen := map[string]bool{}
 		for i := 0; i < 2000; i++ {
 			seen[fake(t, f, locale+".sex[f].first-name")] = true
@@ -189,7 +189,7 @@ func TestShippedPersonNames(t *testing.T) {
 			first, sex, _ := strings.Cut(got, "|")
 			fake(t, f, locale+".sex["+sex+"].first-name["+first+"]")
 		}
-		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" {
+		if len(seen) < 300 || !seen["Anna"] && locale == "sv_SE" || !seen["Mary"] && locale == "en_US" || !seen["Kari"] && locale == "nb_NO" || !seen["Mette"] && locale == "da_DK" {
 			t.Fatalf("%s female first names: %d distinct in 2000, want a weighted register", locale, len(seen))
 		}
 	}
@@ -199,7 +199,7 @@ func TestShippedPersonNames(t *testing.T) {
 // from one pick, and that two names bound to one person category are two people.
 func TestShippedPersonIsOneNamedPick(t *testing.T) {
 	f := shipped(t, WithSeed(9))
-	for _, locale := range []string{"sv_SE", "en_US", "nb_NO"} {
+	for _, locale := range []string{"sv_SE", "en_US", "nb_NO", "da_DK"} {
 		apart := false
 		for i := 0; i < 300; i++ {
 			got := fakeTemplate(t, f, `{/`+locale+`.person as a}{/`+locale+`.person as b}{a.first}|{a.sex}|{a.prefix}|{b.first}|{b.sex}`)
@@ -305,7 +305,7 @@ func TestShippedStreetNumberFormats(t *testing.T) {
 }
 
 // The sex tables hold the people of each sex: SCB's population at the end of 2024, Statistics
-// Norway's on 1 January 2026 and the Census Bureau's estimate for 1 July 2024.
+// Norway's and Denmark's on 1 January 2026 and the Census Bureau's estimate for 1 July 2024.
 func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 	f := shipped(t, WithSeed(3))
 	for path, want := range map[string]string{
@@ -313,6 +313,8 @@ func TestShippedSexIsWeightedByPopulation(t *testing.T) {
 		"sv_SE.sex[m].count": "5324785",
 		"nb_NO.sex[f].count": "2790483",
 		"nb_NO.sex[m].count": "2836917",
+		"da_DK.sex[f].count": "3029291",
+		"da_DK.sex[m].count": "2996312",
 		"en_US.sex[f].count": "171773106",
 		"en_US.sex[m].count": "168337882",
 	} {
