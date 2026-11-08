@@ -47,6 +47,7 @@ RUN python3 -m unittest discover -s /vulnerability-filing -p '*_test.py' && touc
 
 FROM python:3.15.2-slim AS data-import
 COPY data-import/ /data-import/
+COPY data/ /data/
 RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
 
 FROM goreleaser/goreleaser:v2.20.0 AS packaging
