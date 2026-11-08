@@ -72,14 +72,13 @@ func TestDanishOtherNamesAreRarerThanTheTwentieth(t *testing.T) {
 		what string
 		got  map[string]int
 		top  map[string]int
-		min  int
-	}{{"girls", first["f"], dstGirls, 200}, {"boys", first["m"], dstBoys, 200}, {"last names", last, dstLast, 200}} {
+	}{{"girls", first["f"], dstGirls}, {"boys", first["m"], dstBoys}, {"last names", last, dstLast}} {
 		twentieth := 1 << 30
 		for _, n := range c.top {
 			twentieth = min(twentieth, n)
 		}
-		if len(c.got) < c.min {
-			t.Errorf("%s: %d names, want %d or more", c.what, len(c.got), c.min)
+		if len(c.got) < 200 {
+			t.Errorf("%s: %d names, want 200 or more", c.what, len(c.got))
 		}
 		for name, n := range c.got {
 			if _, top := c.top[name]; !top && n >= twentieth {
@@ -133,7 +132,7 @@ func TestDanishPersonIsATitleOrNoneAFirstNameOfItsSexAndALastName(t *testing.T) 
 		}
 		sex, prefix, name, surname, whole := cells[0], cells[1], cells[2], cells[3], cells[4]
 		if first[sex][name] == 0 {
-			t.Fatalf("%q: %q is not a first name shipped for the sex %q, which is kvinde or mand", got, name, sex)
+			t.Fatalf("%q: %q is not a first name shipped for the sex %q", got, name, sex)
 		}
 		if last[surname] == 0 {
 			t.Fatalf("%q: %q is not a shipped last name", got, surname)

@@ -3,17 +3,14 @@
 
     data-import/names-dk.py [--out DIR]
 
-No open source holds Danish name counts in bulk. Statistics Denmark (CC BY 4.0, "Kilde: Danmarks Statistik")
-publishes the top 20 girls' names, boys' names and last names of the people living in Denmark on
-1 January 2026 ("Names in the entire population", dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)
-and a count one name at a time, and Wikidata's Danish names miss most of the common ones. So:
+- The top 20 girls' names, boys' names and last names keep the counts Statistics Denmark published for the
+  people living in Denmark on 1 January 2026 (CC BY 4.0, "Kilde: Danmarks Statistik";
+  dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen).
+- Every other name is a language model's recall of a name common in Denmark, listed from the most to the
+  least common. Its count is the twentieth name's count times 20 over its rank, an estimate that keeps the
+  order and is no published figure.
 
-- the top 20 of each list keep Statistics Denmark's counts;
-- every other name is a language model's recall of a name common in Denmark, listed from the most to
-  the least common, with an estimated count that falls as one over its rank below the twentieth name's.
-
-Those counts are estimates of the order of the names, not published figures. A name that girls and
-boys both bear has a row under each sex.
+A name that girls and boys both bear has a row under each sex.
 """
 import argparse
 import sys
@@ -45,49 +42,43 @@ LAST = {
 GIRLS_RECALLED = """
 Karen Inge Birgit Jette Bente Annette Dorte Lisbeth Eva Ulla
 Rikke Birthe Lotte Vibeke Ingrid Tove Berit Randi Jytte Lis
-Anette Karin Grethe Dorthe Ruth Bodil Merete Anja Pernille Sofie
-Katrine Line Trine Sara Mia Maja Laura Cecilie Johanne Josefine
-Freja Clara Nanna Ellen Signe Sine Stine Mie Kamilla Sanne
-Lisa Lærke Emilie Amalie Frederikke Caroline Isabella Sofia Nicoline Mathilde
+Sofie Katrine Line Trine Sara Mia Maja Laura Cecilie Johanne
+Josefine Freja Clara Nanna Ellen Signe Sine Stine Mie Kamilla
+Sanne Lisa Anette Karin Grethe Dorthe Ruth Bodil Merete Anja
+Pernille Lærke Emilie Amalie Frederikke Caroline Isabella Sofia Nicoline Mathilde
 Alberte Astrid Agnes Alma Olivia Victoria Marie Christina Kristine Katja
 Michelle Malene Heidi Tanja Helene Henriette Winnie Hanna Jeanette Jane
 Lena Lillian Elisabeth Else Margit Jonna Gerda Aase Agnete Alice
-Birte Conny Doris Gunhild Hedvig Iben Irene Janni Jacqueline Joan
-Kathrine Kirstine Lea Lilian Liselotte Majbritt Maiken Mary Mona Nina
-Rie Rose Sidsel Stephanie Sussie Ursula Vivi Yvonne Ella Luna
-Liv Filippa Selma Sally Naja Nora Vilma Esther Silje Thea
-Tilde Karoline Cathrine Lykke Elna Edith Hanni Helga Gudrun Inger
-Margrethe Hannah Jenny Susan Kim Ditte Lizette Mai Marlene Mikala
-Sonja Solvej Sabrina Ronja Rebekka Pauline Patricia Natasja Nadia Mille
-Maj Mari Lina Lilly Lise Leonora Laila Kristina Kitte Karla
-Karina Julia Josephine Johanna Jessica Jasmin Ina Ilse Hilda Henny
-Helena Gry Gunvor Grete Gertrud Gabriella Fie Fanny Evelyn Eline
-Elise Elsebeth Emmely Emelie Elin Dorthea Dina Dagmar Cornelia Connie
-Christel Cecilia Celina Bettina Betina Bertha Benedikte Beate Ane Anita
-Angelina Andrea Anastasia Amanda Alexandra Alva Alicia Agathe Adelina Abelone
-Gunna Hedda Ingeborg Ingelise Jannie Joanna Judith Jutta Kaja Kamille
-Kate Katharina Klara Kristiane Laerke Leila Lisette Lola Louisa Lucia
-Madeleine Magdalene Majken Malou Martha Marta Matilde Melanie Melissa Michaela
-Mira Monica Naomi Nicole Olga Oline Paula Petra Rachel Ragnhild
-Regina Rigmor Rina Rosa Rosalie Sandra Sidse Sigrid Simone Sophie
-Stella Stina Tamara Teresa Thilde Tia Vera Veronica Viola Viktoria
-Wilma Zara Alexia Alexine Amelia Anine Annelise Annelie Annemarie Annemette
-Anni Annika Annie Aurora Bella Bianca Birgitte Birgitta Bolette Brigitte
-Britt Camille Carina Carla Carmen Carolina Cassandra Dorrit Eleonora Elizabeth
-Ellinor Elvira Emilia Erica Erika Estrid Felicia Fiona Frida Gerd
-Gina Iris Isabel Isabelle Alexa Alina Allis Amy Andrine Angelika
-Aya Cleo Dagny Diana Edda Eleonore Elena Elsa Emmeline Erna
-Ester Fabiana Hilde Hulda Ilsa Isa Jana Janne Jasmine Jeanne
-Jill Jorun Juliane Kamma Karolina Lajla Laurine Leonie Lillie Linda
-Lotus Lulu Maia Malin Mariam Marianna Maryam Mathea Maya Meta
-Minna Molly Mynte Nadja Nathalie Nikita Ninna Pil Rakel Rasmine
-Rita Rosita Roskva Sabine Salma Sania Sarah Sasha Saga Sia
-Siri Sonia Susanna Svea Tanya Tara Tessa Theodora Therese Tilda
-Tonja Tuva Una Vanessa Vicky Vivian Wilhelmine Wibeke Zaynab Zoe
-Zofia Agnethe Aina Alberthe Alette Anny Ashley Bibi Bonnie Brita
-Cille Dicte Dorit Eira Elva Emely Fatma Gudny Helen Hermine
-Ines Isolde Jacoba Jolanda Kristin Lilli Linnea Lucca Lucy Madelene
-Nelly Nynne Petrine
+Birte Conny Doris Gunhild Inger Margrethe Sonja Jenny Linda Susan
+Kim Birgitte Ella Liv Luna Selma Filippa Sally Naja Nora
+Vilma Esther Silje Thea Tilde Karoline Cathrine Lykke Iben Irene
+Janni Joan Kathrine Kirstine Lea Lilian Liselotte Majbritt Maiken Mona
+Nina Rie Rose Sidsel Stephanie Sussie Ursula Vivi Yvonne Mille
+Maj Mari Lina Lise Karina Kitte Laila Lilly Leonora Hedvig
+Edith Elna Hanni Helga Gudrun Hannah Lizette Mai Marlene Mikala
+Solvej Sabrina Ronja Rebekka Pauline Patricia Natasja Nadia Julia Johanna
+Jessica Jasmin Ina Britt Anita Andrea Amanda Alexandra Annie Anni
+Annika Annelise Annemarie Annemette Nicole Melanie Melissa Monica Paula Petra
+Rachel Rosa Sandra Sigrid Simone Stella Vera Zara Regina Rigmor
+Ragnhild Gry Gunvor Grete Gertrud Fie Fanny Evelyn Eline Elise
+Elsebeth Emelie Elin Dina Dagmar Connie Cecilia Celina Bettina Betina
+Benedikte Beate Ane Angelina Anastasia Alva Alicia Agathe Adelina Abelone
+Gunna Hedda Ingeborg Ingelise Jannie Kaja Kamille Katharina Kate Lola
+Louisa Lucia Madeleine Magdalene Majken Malou Martha Marta Matilde Michaela
+Mira Naomi Olga Oline Aurora Bolette Camille Carina Carla Carmen
+Carolina Cassandra Dorrit Eleonora Elizabeth Ellinor Elvira Emilia Erika Felicia
+Fiona Frida Gerd Iris Isabel Isabelle Alexa Alina Amy Dagny
+Diana Edda Eleonore Elena Elsa Erna Ester Hilde Isa Jana
+Janne Jasmine Jeanne Jill Josephine Juliane Kamma Karolina Lajla Laurine
+Leonie Lillie Lulu Maia Malin Maryam Mathea Maya Meta Minna
+Molly Mynte Nadja Nathalie Ninna Pil Rita Rasmine Sabine Salma
+Sarah Sasha Saga Sia Siri Sonia Susanna Svea Tara Tessa
+Theodora Therese Tilda Una Vanessa Vivian Wilhelmine Zoe Aina Alette
+Anny Bibi Bonnie Brita Cille Dicte Dorit Eira Elva Emely
+Gudny Helen Hermine Ines Isolde Jacoba Kristin Lilli Linnea Lucca
+Lucy Madelene Nelly Nynne Petrine Henny Agnethe Ashley Fatma Jolanda
+Joanna Zofia Zaynab Vicky Tuva Tonja Tanya Rakel Rosita Roskva
+Mariam Marianna Lotus Ilsa Hulda Fabiana
 """.split()
 
 BOYS_RECALLED = """
@@ -101,65 +92,62 @@ Carl Marius Gustav Johannes Jakob Bjarne Preben Knud Svend Torben
 Tommy René Ivan Ib Viggo Kjeld Verner Arne Aage Henning
 Jørn Ejvind Egon Gunnar Helge Holger Ulrik Kent Dan Jim
 John Jimmy Steffen Stefan Sten Thorkild Tom Thorsten Uffe Lennart
-Ulf Vagn Villy Vilhelm Axel Aksel Alex Alf Alan Aleksander
-Ali Asger Asbjørn Aske Bastian Bendt Birger Bjørn Bobby Bruno
-Charles Christoffer David Edvard Edward Emanuel Ernst Esben Felix Gabriel
-Georg Harald Hjalte Hugo Jeppe Joe Jon Josef Joseph Julian
-Julius Karl Kevin Kristoffer Lauge Laurits Leo Leon Leonard Levi
-Liam Louis Luca Ludvig Lukas Marco Mario Markus Marvin Mathis
-Matias Max Maximilian Mehmet Mikael Mohamed Mohammad Nick Nicklas Nicolai
-Nils Olaf Olav Omar Oskar Otto Ove Pascal Paul Peder
-Phillip Rafael Ragnar Ravn Regnar Rikard Robert Robin Roland Rolf
-Rudolf Sam Samuel Silas Sigurd Sofus Stig Tage Theis Theodor
-Thor Thorvald Tim Torsten Tue Valentin Vincent Walter Yusuf Adam
-Adrian Alvin Amir Christopher Dominik Jannik Karsten Klaus Kaj Kåre
-Joakim Joachim Jasper Jack Isak Gert Erling Ejnar Fabian Frits
-Gorm Gregers Halfdan Heine Henri Hakon Sune Sverre Toke Troels
-Tyge Jarl Eric Ernest Frode Frede Hjalmar Iver Karim Anker
-Arvid Atle Børge Carlo Claes Edmund Emilio Eskild Ewald Gustaf
-Harry James Jerry Jesse Kjartan Kresten Magne Maurice Morgan Noa
-Pelle Rickard Ronnie Sander Simeon Storm Svenn Timm Ulrich Vigo
-Walther Werner Wolfgang Xavier Yngve Zacharias Bertil Bjarke Jarne Jeremy
-Reinhard Manfred Lorenz Melvin Kian Dion Hasse Ingemar Ingvar Jochum
-Jonny Jürgen Olof Sigvald Skjold Gerhard Hermann Ahmad Hussein Bashir
-Ronni Ebbe Eigil Elof Emmanuel Erland Folmer Freddy Henny Ketil
-Laust Nikolas Oluf Orla Ricky Sigfred Tonny Torkil Villum
+Karsten Klaus Kaj Kåre Joakim Joachim Jasper Jeppe Bastian Jannik
+Mikael Tim Hjalte Torsten Rolf Roland Ebbe Eigil Erland Esben
+Freddy Georg Karl Kevin Ronni Leo Laust Lauge Nikolas Oluf
+Otto Peder Ricky Robert Sigfred Thorvald Tonny Torkil Villum Vilhelm
+Mohamed Mohammad Ahmad Ali Omar Yusuf Hussein Amir Bashir Vagn
+Villy Ulf Axel Aksel Alex Alf Alan Aleksander Asger Asbjørn
+Aske Bendt Birger Bjørn Bobby Bruno Charles Christoffer David Edvard
+Edward Emanuel Erling Ernst Gert Gorm Harald Herman Jack Joe
+Jon Josef Joseph Julian Julius Lukas Louis Ludvig Luca Liam
+Leon Levi Marco Mario Markus Marvin Max Maximilian Nicklas Nicolai
+Nils Olaf Olav Oskar Ove Paul Rafael Ragnar Ravn Robin
+Sam Samuel Silas Sigurd Stig Tage Theis Theodor Thor Tue
+Valentin Vincent Walter Adam Adrian Alvin Christopher Dominik Eskild Frode
+Frede Hjalmar Iver Karim Anker Arvid Atle Børge Carlo Claes
+Edmund Emilio Ewald Gustaf Harry James Jerry Jesse Kjartan Kresten
+Magne Maurice Morgan Noa Pelle Rickard Ronnie Sander Simeon Storm
+Svenn Timm Ulrich Vigo Walther Werner Wolfgang Xavier Yngve Zacharias
+Bertil Bjarke Jarne Jeremy Reinhard Manfred Lorenz Melvin Kian Dion
+Hasse Ingemar Ingvar Jochum Jonny Jürgen Olof Sigvald Skjold Gerhard
+Hermann Eric Ernest Sune Sverre Toke Troels Tyge Jarl Fabian
+Frits Gregers Halfdan Heine Henri Hakon Ejnar Elof Folmer Ketil
+Isak Eske
 """.split()
 
 LAST_RECALLED = """
 Frederiksen Jakobsen Mikkelsen Holm Lund Schmidt Eriksen Kristiansen Henriksen Simonsen
 Clausen Andreasen Iversen Jeppesen Mogensen Jacobsen Olesen Laursen Frandsen Knudsen
-Lauridsen Bertelsen Berg Svendsen Johannesen Thomassen Hermansen Nissen Hjort Dam
-Bruun Winther Lassen Skov Dahl Bech Kjær Kjeldsen Lauritsen Therkildsen
-Thorsen Vestergaard Lindberg Lorentzen Michelsen Nørgaard Nyholm Rosenberg Schou Toft
-Overgaard Bøgh Brandt Bak Bruhn Christoffersen Damgaard Ebbesen Eliasen Enevoldsen
-Fischer Friis Gregersen Grønbæk Hald Hansson Hedegaard Hjorth Holst Jessen
-Jochumsen Juhl Kaas Karlsen Kofoed Krogh Kruse Lange Leth Lindholm
-Mathiesen Nygaard Nørregaard Paulsen Rask Riis Rohde Sand Schultz Skovgaard
-Steffensen Strøm Sundby Svane Sønderby Thygesen Ulrich Vang Villadsen Winter
-Ravn Bendtsen Bjerregaard Bundgaard Carlsen Dalsgaard Ejlersen Falk Foged Gram
-Guldberg Hartmann Haugaard Hviid Højer Ibsen Jepsen Juul Klausen Lindgren
-Lykke Munk Neergaard Nørgård Ohlsen Pallesen Quist Rømer Storgaard Thorup
-Valentin Vinther Wagner Wulff Aagaard Abrahamsen Albertsen Arildsen Asmussen Axelsen
-Bach Bagge Balle Beck Becker Bengtsson Bentsen Bille Bjerre Bjørn
-Bonde Borg Borup Boysen Brink Brix Brodersen Buus Callesen Christophersen
-Dahlgaard Dalgaard Daugaard Ditlevsen Dreyer Duus Eilersen Ellegaard Elmholt Engelbrecht
-Engholm Esbensen Faber Fabricius Fallesen Fjord Fogh Frost Fuglsang Gad
-Gade Gundersen Gustavsen Hammer Hauge Heide Helmer Hemmingsen Hoffmann Holmberg
-Holme Hvidt Høeg Høgh Højgaard Hørup Isaksen Jansen Jarl Jonassen
-Justesen Jæger Kjeldgaard Klitgaard Koch Kragh Krarup Kristoffersen Kruuse Lorenzen
-Lundgaard Lykkegaard Magnussen Mathisen Meyer Neumann Nedergaard Ottosen Schrøder Tang
-Vestergård Weber Wilhelmsen Østergaard Ørsted
+Lauridsen Bertelsen Berg Svendsen Johannesen Thomassen Hermansen Nissen Dam Bruun
+Winther Lassen Skov Dahl Bech Kjær Kjeldsen Lauritsen Therkildsen Thorsen
+Vestergaard Lindberg Lorentzen Michelsen Nørgaard Nyholm Rosenberg Schou Toft Overgaard
+Bøgh Brandt Bak Bruhn Christoffersen Damgaard Ebbesen Eliasen Enevoldsen Fischer
+Friis Gregersen Grønbæk Hald Hedegaard Hjorth Holst Jessen Jochumsen Juhl
+Kaas Karlsen Kofoed Krogh Kruse Lange Leth Lindholm Mathiesen Nygaard
+Nørregaard Paulsen Rask Riis Schultz Skovgaard Steffensen Strøm Sundby Svane
+Sønderby Thygesen Villadsen Winter Ravn Bendtsen Bjerregaard Carlsen Dalsgaard Ejlersen
+Falk Foged Gram Hartmann Haugaard Hviid Højer Ibsen Jepsen Juul
+Klausen Lindgren Lykke Munk Neergaard Nørgård Ohlsen Pallesen Quist Thorup
+Valentin Vinther Wagner Wulff Aagaard Abrahamsen Albertsen Asmussen Axelsen Bach
+Bagge Balle Beck Becker Bentsen Bille Bjerre Bjørn Bonde
+Borg Borup Boysen Brink Brix Brodersen Buus Callesen Christophersen Dahlgaard
+Dalgaard Daugaard Ditlevsen Dreyer Duus Eilersen Ellegaard Elmholt Engelbrecht Engholm
+Esbensen Faber Fabricius Fallesen Fjord Fogh Frost Fuglsang Gad Gade
+Gundersen Gustavsen Hammer Hauge Heide Helmer Hemmingsen Hoffmann Holmberg Holme
+Husted Hvidt Høeg Høgh Højgaard Hørup Isaksen Jansen Jonassen Justesen
+Jæger Kjeldgaard Klitgaard Koch Kragh Krarup Kristoffersen Kruuse Lauersen Lorenzen
+Lundgaard Lykkegaard Magnussen Mathisen Meyer Neumann Nedergaard Nordahl Ottosen Rosendahl
+Rosenkilde Roed Skaarup Stenbæk Stephansen Thaysen Tønnesen Trolle Vang
+Lehmann Markussen Mouritsen Nordentoft Overby Weber Wilhelmsen Wittrup Østergaard Pagh
+Pape Schwartz Schrøder Stoltenberg Sylvest Jacobi Juncker Kirk
+Kvist Lerche Marcussen
 """.split()
 
 
 def ranked(top, recalled, what):
     """The rows (name, count) of a list: the top 20 as published, then the recalled names, each one below the one before."""
     names = list(top) + recalled
-    seen = {}
-    for name in names:
-        if name in seen:
-            seen[name] += 1
     dupes = sorted({n for n in names if names.count(n) > 1})
     if dupes:
         sys.exit(f"{what}: listed twice: {', '.join(dupes)}")
