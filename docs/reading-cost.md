@@ -1151,3 +1151,11 @@ Read most (opens and searches):
 - `compose.yaml` 1
 - `data-import/tsv.py` 1
 - `data/da_DK/.fejkdata.json` 1
+
+## Reading cost, chunk 4fc369b4f3f1, finished 2026-11-08T14:38:26Z
+
+49232 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 5
