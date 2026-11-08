@@ -93,19 +93,22 @@ func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
 func TestDistinctRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
-		`{"format":"{w distinct 4 joined ','}","w":["a","b","c"]}`:                                             "renders 3 of weight above 0",
-		`{"format":"{w distinct 3 joined ','}","w":["a","b",{"format":"c","weight":0}]}`:                       "renders 2 of weight above 0",
-		`{"format":"{w where length 3 distinct 3 joined ','}","w":["cat","dog","horse"]}`:                      "only 2 pass",
-		`{"format":"{n as k}{w where length k distinct 2 joined ','}","n":["3","4"],"w":["cat","dog","bird"]}`: "where k is 4",
-		`{"format":"{w distinct 2 as e}{e}","w":["a","b"]}`:                                                    "{e[1]}",
-		`{"format":"{w distinct 2 as e}{e[3]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
-		`{"format":"{w distinct 2 as e}{e[0]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
-		`{"format":"{w distinct 2 as e}{e[x]}","w":["a","b","c"]}`:                                             "{e[1]} to {e[2]}",
-		`{"format":"{w distinct 2 as e}{e[1].x}","w":["a","b"]}`:                                               "read whole",
-		`{"format":"{w distinct 2 as e}{e.x}","w":["a","b"]}`:                                                  "read whole",
-		`{"format":"{w as e}{e[1]}","w":["a","b"]}`:                                                            "select a row",
-		`{"format":"{w distinct 2 joined ','}","w":["{lower(5)}","b","c"]}`:                                    "fixed at load",
-		`{"format":"{w as x}{x distinct 2 joined ','}","w":["a","b"]}`:                                         "drawn once",
+		`{"format":"{w distinct 4 joined ','}","w":["a","b","c"]}`:                                                                             "renders 3 of weight above 0",
+		`{"format":"{w distinct 3 joined ','}","w":["a","b",{"format":"c","weight":0}]}`:                                                       "renders 2 of weight above 0",
+		`{"format":"{w where length 3 distinct 3 joined ','}","w":["cat","dog","horse"]}`:                                                      "only 2 pass",
+		`{"format":"{n as k}{w where length k distinct 2 joined ','}","n":["3","4"],"w":["cat","dog","bird"]}`:                                 "where k is 4",
+		`{"format":"{w distinct 2 as e}{e}","w":["a","b"]}`:                                                                                    "{e[1]}",
+		`{"format":"{w distinct 2 as e}{e[3]}","w":["a","b","c"]}`:                                                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[0]}","w":["a","b","c"]}`:                                                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[x]}","w":["a","b","c"]}`:                                                                             "{e[1]} to {e[2]}",
+		`{"format":"{w distinct 2 as e}{e[1].x}","w":["a","b"]}`:                                                                               "read whole",
+		`{"format":"{w distinct 2 as e}{e.x}","w":["a","b"]}`:                                                                                  "read whole",
+		`{"format":"{w as e}{e[1]}","w":["a","b"]}`:                                                                                            "select a row",
+		`{"format":"{w distinct 2 joined ','}","w":["{lower(5)}","b","c"]}`:                                                                    "fixed at load",
+		`{"format":"{w as x}{x distinct 2 joined ','}","w":["a","b"]}`:                                                                         "drawn once",
+		`{"format":"{w distinct 2 joined ',' as e}{v where length e}","w":["3","4","5"],"v":["cat","bird","horse"]}`:                           "joins several values",
+		`{"format":"{w distinct 2 joined ',' as e}{calc(e*2)}","w":["3","4","5"]}`:                                                             "joins several values",
+		`{"format":"{d as s}{w distinct 2 joined ',' as e}{adddays(s,e)}","d":"{date(2026-01-01,2026-12-31,'2006-01-02')}","w":["3","4","5"]}`: "joins several values",
 	} {
 		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
@@ -140,6 +143,18 @@ func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
 		}
 		if c.DataType != want {
 			t.Errorf("column %s = %q of %s, want %s", c.Name, c.Value, c.DataType, want)
+		}
+	}
+}
+
+func TestDistinctJoinedIsNoTypedValue(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"n": `["1","2","3"]`}))
+	for _, src := range []string{
+		`{"format":"","c":{"format":"{/n distinct 2 joined ','}","datatype":"integer"}}`,
+		`{"format":"{w distinct 2 joined ',' as e}","c":{"format":"{e}","datatype":"integer"},"w":["1","2","3"]}`,
+	} {
+		if _, err := f.NewRecordTemplate(src); err == nil || !strings.Contains(err.Error(), "prints text, not an integer") {
+			t.Errorf("NewRecordTemplate(%s) = %v, want an integer column of joined values refused", src, err)
 		}
 	}
 }
