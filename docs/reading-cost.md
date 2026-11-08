@@ -1176,3 +1176,20 @@ Read most (opens and searches):
 - `data/misc/.fejkdata.json` 1
 - `data/misc/creditcard.json` 1
 - `data/misc/fs.go` 1
+
+## Reading cost, chunk 20cf77d25b08, finished 2026-11-08T15:21:37Z
+
+86259 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 6
+- `README.md` 4
+- `CHANGELOG.md` 3
+- `DATA-LICENSES.md` 3
+- `danish_test.go` 3
+- `data-import/company-no.py` 2
+- `data/nb_NO/company-word.tsv` 2
+- `docs/decisions.md` 2
+- `norwegian_test.go` 2
+- `data-import/company-se.py` 1
