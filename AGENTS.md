@@ -103,7 +103,6 @@ In [docs/decisions.md](docs/decisions.md):
 - The Swedish ids draw Skatteverket's test series
 - The Norwegian id draws Skatteetaten's synthetic series
 - The US given names come from a mirror of the SSA file
-- `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall, in order of commonness
 - `List` advertises direct descents only
 - A path draws through its compiled steps
 - A name lives in the category binding it, or in the repeat or choice item binding it, and is drawn on its first read
@@ -128,6 +127,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
+- `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall, in order of commonness
 
 # Scoring run
 
