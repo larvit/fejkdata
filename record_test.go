@@ -577,8 +577,8 @@ func TestEveryRecordCarriesItsShapeOnceLoaded(t *testing.T) {
 			return nil
 		}
 		records++
-		if len(tm.columns) != len(tm.fields) {
-			t.Errorf("%s: %d record columns, want one per field, %d", label, len(tm.columns), len(tm.fields))
+		if want := len(tm.fields) - len(tm.lets); len(tm.columns) != want {
+			t.Errorf("%s: %d record columns, want one per field outside let, %d", label, len(tm.columns), want)
 		}
 		for _, c := range tm.columns {
 			if c.field != tm.fields[c.name] || c.datatype != columnDatatype(c.field) {
