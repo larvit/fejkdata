@@ -561,7 +561,7 @@ A table and its templates, from CSS Color 4 (W3C) and the XKCD colour survey (CC
 
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
-Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field, `{adddays(b,0,'060102')}{b.sign}{n..sex.birth-number.number}{luhn()}`, so this item may follow that shape.
+Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field in `data/sv_SE/person.json`, so this item may follow that shape.
 
 ### 13. Place xlsx cells by their `r` reference in `data-import/xlsx.py`.
 

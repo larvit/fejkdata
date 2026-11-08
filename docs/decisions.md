@@ -879,8 +879,9 @@ A Luhn-valid personnummer over a random birth number may be a living person's; 2
 239 after any date are blocked from assignment, so the shipped `personnummer` and
 `samordningsnummer` use those. They sit in a `birth-number` table under `sex`, not in a
 column of it, so a pick of a sex can read the number, and `sex` keeps one shape across
-locales. `sv_SE.person`'s `personnummer` and `samordningsnummer` read it that way, so each
-agrees with the person's sex, and `todo.md` item 28 has `sv_SE.personnummer` follow. A
+locales. `sv_SE.person`'s `personnummer` and `samordningsnummer` read the number through the
+person's pick of a sex, so each agrees with that sex. `todo.md` item 28 makes
+`sv_SE.personnummer` read a named pick's sex the same way. A
 samordningsnummer's day is the birthday plus 60: `sv_SE.samordningsnummer` draws it from 61 to
 88, valid in every month, and `sv_SE.person` computes it from the birth date it binds.
 
