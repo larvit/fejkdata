@@ -1193,3 +1193,20 @@ Read most (opens and searches):
 - `docs/decisions.md` 2
 - `norwegian_test.go` 2
 - `data-import/company-se.py` 1
+
+## Reading cost, chunk 59f3db3f4875, finished 2026-11-08T18:01:44Z
+
+82388 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 5
+- `todo.md` 4
+- `CHANGELOG.md` 3
+- `DATA-LICENSES.md` 3
+- `docs/decisions.md` 3
+- `swedish_test.go` 3
+- `american_test.go` 2
+- `data-import/source.py` 1
+- `data-import/word-se.py` 1
+- `data/en_US/.fejkdata.json` 1
