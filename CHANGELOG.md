@@ -24,6 +24,10 @@ replacement, and each removed path, column or flag.
   postdistrikt, such as `Vestergade 12\n8000 Aarhus C`. A program showing the addresses credits
   Klimadatastyrelsen. The Go package is `github.com/larvit/fejkdata/data/geo/DK`, which
   `data/da_DK`'s `Modules()` also returns.
+- `--format tsv`, and `Record.TSVHeader` and `Record.TSVLine` in the library, write a record as the
+  rows of a table, so a later run draws a column from an earlier run's records through a table over
+  the file. A brace in a value is written doubled, a tab or a line break as a space, and a null
+  column as an empty cell.
 
 ### Changed
 

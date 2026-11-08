@@ -262,7 +262,7 @@ For structured output a record writes the row for you.
 ### Records
 
 A record is a template seen as columns: its fields are the columns, its `format`
-the whole. `--format json|ndjson|csv|sql` writes the records; the library's
+the whole. `--format json|ndjson|csv|tsv|sql` writes the records; the library's
 `FakeRecord` (below) hands back the columns. A column is a string unless it declares a
 [datatype](#datatype), and a [`null`](#null) item draws it as null. Save
 `mydata/users.json`:
@@ -284,7 +284,7 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --table people # IN
 ```
 
 `--repeat` streams that many records — `json` frames them as one array document,
-`ndjson` writes one object per line, `csv` a row after a header, `sql` one multi-row INSERT
+`ndjson` writes one object per line, `csv` and `tsv` a row after a header, `sql` one multi-row INSERT
 per line, each of up to 1000 rows. Only a category-level template is a record, or a one-item choice holding one; a
 field, a choice of more items or a folder errors, and so does a `repeat` on
 the template itself, which composes the format into one string rather than
@@ -329,6 +329,42 @@ backslashes passed through — so a hyphenated field like `postal-code` stays a
 valid identifier. PostgreSQL and SQLite take it as written; MySQL and MariaDB need
 `ANSI_QUOTES` and `NO_BACKSLASH_ESCAPES` set first, or they read `"users"` as a
 string and a backslash as an escape.
+
+`--format tsv` writes a [table](#table)'s rows, so a later run draws from this run's records.
+Save `gen/series.json`, run it, and keep the output as `mydata/series.tsv`:
+
+```json
+{ "format": "", "id": "{seq()}", "customer": ["Ada", "Bo", "Cy"] }
+```
+
+```sh
+echo '{/series}' | fejkdata --seed 1 -d ./gen --format tsv -n 3 > mydata/series.tsv
+```
+
+```tsv
+customer	id
+Bo	1
+Ada	2
+Cy	3
+```
+
+Save `mydata/series.json` beside it, and a second run draws a series that exists, with the
+customer of the same row:
+
+```json
+{ "format": "{id}", "rows": "series.tsv" }
+```
+
+```sh
+echo '{"format":"","series_id":"{/series as s}{s.id}","customer":"{s.customer}"}' |
+  fejkdata --seed 1 -d ./mydata --format csv -n 4   # series_id,customer  →  1,Bo  3,Cy  2,Ada  2,Ada
+```
+
+Each order draws a row of the table, so several orders may name one series; a `weight`
+column skews that. A tsv cell reads `{…}` as a token, so a brace in a value is written doubled,
+`{{x}}` for `{x}`. A table has no escape for a tab or a line break, and a render fails at load
+or not at all, so each becomes a space. A null column is an empty cell, as an empty string
+is, and a record of one empty column is a blank line, which a table refuses.
 
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: `Fake` renders
