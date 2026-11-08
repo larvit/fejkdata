@@ -77,6 +77,16 @@ func Operands(name string, args []string) []string {
 	return b.operands(args)
 }
 
+// Names lists every builtin's name, sorted.
+func Names() []string {
+	names := make([]string, 0, len(builtins))
+	for name := range builtins {
+		names = append(names, name)
+	}
+	slices.Sort(names)
+	return names
+}
+
 // IsTransform reports a builtin that rewrites the text of its one operand.
 func IsTransform(name string) bool {
 	_, isTransform := transforms[name]

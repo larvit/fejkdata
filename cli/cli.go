@@ -43,6 +43,15 @@ or layered with --data-path. A reference names a category or a dotted path into 
 table's row by key or name ({/table[KEY]}), and .. steps up from a row to the row it
 links to.
 
+Each {…} draws afresh, save a name: {/path as p} picks once and prints nothing, and every
+{p} and {p.field} after it reads that one pick, so values that belong together agree:
+https://github.com/larvit/fejkdata#names
+
+{name(args)} calls a builtin, such as {lower(8)} for eight letters a-z. The builtins:
+BUILTINS
+What each takes and renders: https://github.com/larvit/fejkdata#functions
+The whole template language: https://github.com/larvit/fejkdata#data-format
+
 Under --format text, the default, what you send is what renders, and COMMAND adds
 nothing: a format string keeps every byte, so echo's newline ends each render, and
 printf '%s' sends none. -n joins renders with --separator, empty by default. A JSON
@@ -654,7 +663,7 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 		return misuse(stderr, name, err)
 	}
 	if in.help {
-		io.WriteString(stdout, strings.ReplaceAll(usage, "COMMAND", name))
+		io.WriteString(stdout, help(name))
 		return 0
 	}
 	if in.version {
@@ -685,6 +694,21 @@ func run(name string, modules []fs.FS, args []string, sys system, stdin io.Reade
 		return fail(stderr, name, err)
 	}
 	return 0
+}
+
+// help is the usage as name, with fejkdata's builtins listed in lines of up to 88 columns.
+func help(name string) string {
+	var lines []string
+	line := " "
+	for _, b := range fejkdata.Builtins() {
+		if len(line)+1+len(b) > 88 {
+			lines = append(lines, line)
+			line = " "
+		}
+		line += " " + b
+	}
+	lines = append(lines, line)
+	return strings.NewReplacer("COMMAND", name, "BUILTINS", strings.Join(lines, "\n")).Replace(usage)
 }
 
 func readStdin(stdin io.Reader, name string) (input, error) {

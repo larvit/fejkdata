@@ -151,6 +151,34 @@ func TestSignup(t *testing.T) {
 
 `WithSeed(1)` and `WithToday(day)` give the same person on every run of one version; another seed gives another.
 
+### Anonymizing real data
+
+To anonymize or mask existing text, such as a document holding real names, ids and URLs,
+your program finds each real value and puts a fake of the same shape in its place.
+fejkdata renders the fakes. Each part of the job, with where its rule is stated:
+
+- The same fake wherever one original recurs in a render: bind a pick to a name,
+  `{/en_US.person as p}`, and read `{p}` each time ([Names](#names)).
+- A value of a given length: `{lower(n)}`, `{upper(n)}`, `{digits(n)}` or `{hex(n)}`
+  ([Functions](#functions)).
+- A v4 UUID: `{/misc.uuid}`, since `{uuid()}` draws a v7.
+- An id of a fixed shape: literal text around a draw, such as `557058:{/misc.uuid}`
+  ([Format string](#format-string)).
+- A URL of a given form: `{/en_US.url}` draws a host and maybe a path, and the template
+  adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`.
+- A longer word list than the shipped one: a category of your own ([Your own data](#your-own-data)).
+
+```json
+"{/en_US.person as p}{p} <{lower(6)}@example.com> signed as {p}, id 557058:{/misc.uuid}, {/en_US.url}?{lower(4)}={digits(3)}"
+```
+
+Renders e.g. `David Greer <tdsagk@example.com> signed as David Greer, id
+557058:3bcf0fc3-f7b0-4d58-bf7f-88c29c39f316, https://blog.example.com?ojat=642`.
+
+Your program keeps the rest of the job: finding the values in the text, giving one original
+the same fake across renders, rewriting a text word by word while keeping its punctuation,
+and keeping a fake from equalling or holding its original.
+
 ## CLI
 
 ```sh
@@ -422,6 +450,7 @@ rt, err := f.NewRecordTemplate(`{"format":"","id":{"format":"{seq(users)}","data
 r = rt.Fake()                             // render a row; loop this for bulk output
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
+names := fejkdata.Builtins()              // the functions a template calls as {name(args)}, sorted
 ```
 
 | Option | |
