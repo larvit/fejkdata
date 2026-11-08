@@ -507,37 +507,43 @@ func TestShippedDanishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
 	}
 }
 
-func TestShippedDanishEmailDrawsItsNamesFromDanishNames(t *testing.T) {
-	var slugs []string
+func TestShippedDanishEmailHoldsAFirstAndALastNameInHalfItsAddresses(t *testing.T) {
 	fold := strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
-	ascii := regexp.MustCompile(`^[a-z]{6,}$`)
-	for _, row := range tsvRows(t, "data/da_DK/last-name.tsv") {
-		if slug := fold.Replace(strings.ToLower(row["name"])); ascii.MatchString(slug) {
-			slugs = append(slugs, slug)
+	slugs := func(file string) map[string]bool {
+		out := map[string]bool{}
+		for _, row := range tsvRows(t, file) {
+			out[fold.Replace(strings.ToLower(row["name"]))] = true
 		}
+		return out
 	}
+	firsts, lasts := slugs("data/da_DK/first-name.tsv"), slugs("data/da_DK/last-name.tsv")
+	trailingDigits := regexp.MustCompile(`\d+$`)
 	f := shipped(t, WithSeed(9))
+	var named int
 	seen := map[string]bool{}
 	for i := 0; i < 5000; i++ {
-		email := fake(t, f, "da_DK.email")
-		for _, slug := range slugs {
-			if strings.Contains(email, slug) {
-				seen[slug] = true
+		local, _, _ := strings.Cut(fake(t, f, "da_DK.email"), "@")
+		local = trailingDigits.ReplaceAllString(local, "")
+		for cut := 1; cut < len(local); cut++ {
+			right := strings.TrimLeft(local[cut:], "._-")
+			if firsts[strings.TrimRight(local[:cut], "._-")] && lasts[right] {
+				named++
+				seen[right] = true
+				break
 			}
 		}
 	}
-	if len(seen) < 40 {
-		t.Errorf("5000 emails carry %d distinct last names of da_DK.last-name, want 40 or more", len(seen))
+	if named < 2000 || len(seen) < 40 {
+		t.Errorf("5000 emails held a first and a last name in %d, of %d distinct last names; want 2000 or more of 40 or more", named, len(seen))
 	}
 }
 
-// Statistics Denmark's table DEMO15, "Business demography by type of ownership", 2024: 14,812 new
-// sole proprietorships, 12,127 private limited companies, 373 public limited companies and 728 partnerships
-// and limited partnerships. It doesn't split the last, so I/S and K/S are drawn evenly.
-func TestShippedDanishCompanyEndsInALegalFormDrawnByStatisticsDenmarksNewEnterprises(t *testing.T) {
+// Statistics Denmark's table GF15, 2024: 132,403 sole proprietorships, 218,208 private limited companies,
+// 30,750 public limited companies and 11,679 partnerships and limited partnerships, split evenly.
+func TestShippedDanishCompanyEndsInALegalFormDrawnByStatisticsDenmarksEnterprises(t *testing.T) {
 	t.Parallel()
 	f := shipped(t, WithSeed(6))
-	registered := map[string]int{"ENK": 14812, "ApS": 12127, "A/S": 373, "I/S": 364, "K/S": 364}
+	registered := map[string]int{"ENK": 132403, "ApS": 218208, "A/S": 30750, "I/S": 5840, "K/S": 5839}
 	var total int
 	for _, n := range registered {
 		total += n
@@ -579,7 +585,7 @@ func TestShippedDanishCompanyPathsDrawOneFormEachAndLegalIsItsAbbreviation(t *te
 	}
 }
 
-func TestShippedDanishCompanyNamesHoldTradeWordsLastNamesAndPlaces(t *testing.T) {
+func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.T) {
 	t.Parallel()
 	src, err := os.ReadFile("data/da_DK/company-word.json")
 	if err != nil {
@@ -589,28 +595,35 @@ func TestShippedDanishCompanyNamesHoldTradeWordsLastNamesAndPlaces(t *testing.T)
 	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
 		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
 	}
-	var places, lasts []string
-	for _, row := range tsvRows(t, "data/geo/DK/locality.tsv") {
-		places = append(places, row["name"])
+	set := func(file string) map[string]bool {
+		out := map[string]bool{}
+		for _, row := range tsvRows(t, file) {
+			out[row["name"]] = true
+		}
+		return out
 	}
-	for _, row := range tsvRows(t, "data/da_DK/last-name.tsv") {
-		lasts = append(lasts, row["name"])
-	}
-	holds := func(names []string, company string) bool {
-		for _, n := range names {
-			if strings.Contains(company, n) {
-				return true
+	places, firsts, lasts := set("data/geo/DK/locality.tsv"), set("data/da_DK/first-name.tsv"), set("data/da_DK/last-name.tsv")
+	f := shipped(t, WithSeed(8))
+	seen := map[string]bool{}
+	for i := 0; i < 4000; i++ {
+		name := fake(t, f, "da_DK.company.enk")
+		for _, w := range words {
+			if head, ok := strings.CutSuffix(name, " "+w); ok {
+				switch {
+				case places[head]:
+					seen["place and trade word"] = true
+				case lasts[head]:
+					seen["last name and trade word"] = true
+				}
 			}
 		}
-		return false
+		if first, last, ok := strings.Cut(name, " "); ok && firsts[first] && lasts[last] {
+			seen["first and last name"] = true
+		}
 	}
-	f := shipped(t, WithSeed(8))
-	var word, place, last bool
-	for i := 0; i < 4000 && !(word && place && last); i++ {
-		c := fake(t, f, "da_DK.company")
-		word, place, last = word || holds(words, c), place || holds(places, c), last || holds(lasts, c)
-	}
-	if !word || !place || !last {
-		t.Errorf("4000 companies held a trade word: %v, a place: %v, a last name: %v; want all true", word, place, last)
+	for _, shape := range []string{"place and trade word", "last name and trade word", "first and last name"} {
+		if !seen[shape] {
+			t.Errorf("4000 sole proprietorships never drew a name of the shape %s", shape)
+		}
 	}
 }
