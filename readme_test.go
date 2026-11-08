@@ -688,15 +688,19 @@ func TestReadmeRatiosAndRules(t *testing.T) {
 		t.Errorf("the ratio example prints active %.3f of the time, want about 0.80", share)
 	}
 	currency := map[string]string{"SE": "SEK", "NO": "NOK", "DK": "DKK"}
-	seen := map[string]bool{}
-	for _, s := range render(blocks[1][1], 300) {
+	const draws = 3000
+	seen := map[string]int{}
+	for _, s := range render(blocks[1][1], draws) {
 		var country, code string
 		if n, _ := fmt.Sscanf(s, "%s pays in %s", &country, &code); n != 2 || currency[country] != code {
 			t.Fatalf("the rule example prints %q, want a country beside its own currency", s)
 		}
-		seen[country] = true
+		seen[country]++
 	}
 	if len(seen) != len(currency) {
 		t.Errorf("the rule example drew only %v of %d countries", seen, len(currency))
+	}
+	if share := float64(seen["SE"]) / draws; share < 0.45 || share > 0.55 {
+		t.Errorf("the rule example prints SE %.3f of the time, the README says three in six", share)
 	}
 }
