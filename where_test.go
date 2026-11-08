@@ -190,6 +190,13 @@ func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
 	}
 }
 
+func TestWhereSaysAQuotedValueHoldsNoApostrophe(t *testing.T) {
+	src := `{"format":"{w where not 'O'Brien'}","w":["Ann"]}`
+	if _, err := engine(1).NewTemplate(src); err == nil || !strings.Contains(err.Error(), "a quoted value can't hold an apostrophe") {
+		t.Errorf("NewTemplate(%s) = %v, want an error saying a quoted value can't hold an apostrophe", src, err)
+	}
+}
+
 func TestWhereFiltersTheShippedWords(t *testing.T) {
 	t.Parallel()
 	f := shipped(t)
