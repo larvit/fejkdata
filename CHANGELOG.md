@@ -28,9 +28,15 @@ replacement, and each removed path, column or flag.
   2025 evenly, so what a seed draws changes, and changes again with the date. The format binds the date, `{birth as b}`,
   and the new paths are `sv_SE.person.birth`, `birth.date`, `birth.sign`, `personnummer`, `samordningsnummer` and
   `samordningsnummer.birthday`, the birth date's day of the month.
+- A name can no longer contain ` where `, which now opens a filter; rename it.
 
 ### Added
 
+- A `where` clause draws only among the values that pass it, keeping their weights:
+  `{/en_US.word where length 5 and not containing 'x'}`. The conditions are `length 5`, `length 4 to 6`,
+  `not 'cat', 'dog'` and `not containing 'cat'`. A length may read a name, `{n as k}{/en_US.word where length k}`,
+  and `as` after the clause binds the filtered draw. A path whose values are not fixed text, or a clause no
+  value can pass, fails to load.
 - `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`
   prints an end `n` days after the start it shows. A third argument, `{adddays(d,n,'layout')}`, prints it in another layout.
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
@@ -110,6 +116,8 @@ replacement, and each removed path, column or flag.
 
 ### Changed
 
+- `geo.US`'s Utqiaġvik is written in NFC, as every other shipped value is, so its `ġ` is one code
+  point and the name is nine long.
 - A token reading a field beside the field that holds it, as `{b}` does in
   `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
   names the fix.

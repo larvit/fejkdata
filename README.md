@@ -606,8 +606,8 @@ read from disk. The CLI carries every module, and a library loads those it passe
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
 `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/` or ` as `,
-which binds a [name](#names), nor be `-`, which a struct tag reserves. A dot-prefixed
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/`, ` as `,
+which binds a [name](#names), or ` where `, which opens a [filter](#filters), nor be `-`, which a struct tag reserves. A dot-prefixed
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
@@ -1604,6 +1604,33 @@ Refused at `New`, each error naming what to write instead:
   its `legal` reads `{w.legal}`. Bind `w` outside the choice, or read `{r}` whole;
 - a binding in a table's format or cell.
 
+### Filters
+
+A `where` clause after a path draws only among the values that pass it:
+
+```json
+"{/en_US.word where length 5 and not containing 'x'}"
+```
+
+Renders e.g. `crane`. A clause holds one or more conditions, joined by `and`:
+
+- `length 5`, or `length 4 to 6` with both ends included, counts a value's Unicode code points.
+  A length may read a [name](#names), as in `{n as k}{/en_US.word where length k}`.
+- `not 'cat', 'dog'` drops those values, each compared whole.
+- `not containing 'cat'` drops every value holding `cat`, `concatenate` included.
+
+The values that pass keep their [weights](#weight). `as` after the clause binds the filtered draw:
+`{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name's pick is drawn already, so a
+clause filters the path the name binds, never the name.
+
+Refused at `New`:
+
+- a clause no value passes, for any length a name it reads may hold;
+- a path whose values are not fixed text, such as `{uuid()}`, a null, a repeat, or a format
+  reading two tokens;
+- a path through a selector, a linked table or `..`;
+- a clause on a call, on `{a|b}`, or in a table's format or cell.
+
 ### Correlated fields
 
 `{name.field}` reads a path into a sibling. Several tokens read one draw of it through a
@@ -1883,6 +1910,7 @@ graph.go        the node graph: tree walks, containment and render edges, and th
 sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
+where.go        where clauses: the values a filtered path may draw, fixed at load with their weights, and the draw among those that pass
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
@@ -1893,7 +1921,7 @@ internal/builtinfunc/ the {name()} functions: their checks and draws, checksums,
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through
-internal/grammar/ how the template language is written: format tokens, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
+internal/grammar/ how the template language is written: format tokens, where clauses, paths and selectors, reference sigils, identifiers, calc syntax, and whether a string is a template or a path
 internal/invariant/ the one phrase every package panics with when an invariant breaks
 internal/jsonvalue/ a decoded JSON value, its numbers kept as written, the one input a template compiles from, and the kind an error names it by
 internal/proven/ what a proof knows of a value, and the bounds a calc takes from its operands
