@@ -678,8 +678,7 @@ func TestRecordLetErrors(t *testing.T) {
 func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing.T) {
 	t.Parallel()
 	dir := writeData(t, map[string]string{
-		"sched": `{"format":"{pattern as p}{shape as s}","pattern":[{"format":"daily","len":[null]},{"format":"weekly","len":{"format":"{int(1,9)}","datatype":"integer"}}],"shape":{"format":"s","size":[null,{"format":"{int(1,9)}","datatype":"integer"}]},"len":"{p.len}","size":"{s.size}","kind":"{p}"}`,
-		"mixed": `{"format":"{pattern as p}","pattern":[{"format":"a","len":{"format":"1","datatype":"integer"}},{"format":"b","len":"x"}],"len":"{p.len}"}`,
+		"sched": `{"format":"{pattern as p}{shape as s}","pattern":[{"format":"daily","len":null},{"format":"weekly","len":{"format":"{int(1,9)}","datatype":"integer"}}],"shape":{"format":"s","size":[null,{"format":"{int(1,9)}","datatype":"integer"}]},"len":"{p.len}","size":"{s.size}","kind":"{p}"}`,
 	})
 	f := newGenerator(t, dir, WithSeed(1))
 	nulls := map[string]int{}
@@ -701,8 +700,8 @@ func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing
 			t.Fatalf("%s: want len null for daily and a digit for weekly", r.JSON())
 		case s.Null == digit(s):
 			t.Fatalf("size = %+v, want null or a digit", s)
-		case strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`):
-			t.Fatalf("JSON() = %s, want a null len written null and a digit written bare", r.JSON())
+		case strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`) || strings.Contains(r.JSON(), `"size":"`):
+			t.Fatalf("JSON() = %s, want a null written null and a digit written bare", r.JSON())
 		}
 		for name, c := range map[string]Column{"len": l, "size": s} {
 			if c.Null {
@@ -715,11 +714,14 @@ func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing
 			t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
 		}
 	}
-	r, err := f.FakeRecord("mixed")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := r.Columns()[0].DataType; got != DataTypeString {
-		t.Errorf("len over items of different datatypes = %s, want string, as any other read", got)
+}
+
+func TestRecordColumnReadingThroughItemsOfDifferentDatatypesIsRefused(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{
+		"c": `{"format":"{pattern as p}","pattern":[{"format":"a","len":{"format":"1","datatype":"integer"}},{"format":"b","len":"x"}],"len":"{p.len}"}`,
+	})
+	if _, err := New(WithDataPath(dir), WithSeed(1), onTestDay); err == nil || !strings.Contains(err.Error(), `field "len"`) || !strings.Contains(err.Error(), "integer") {
+		t.Errorf("New = %v, want a column whose items hold integer and text refused", err)
 	}
 }

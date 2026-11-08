@@ -1200,3 +1200,45 @@ func TestHelpAndReadmeNameEveryFlag(t *testing.T) {
 		}
 	}
 }
+
+func TestReadmeLoadIntoADatabaseLeftSidesRun(t *testing.T) {
+	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, section, _ := strings.Cut(string(readme), "\n### Load into a database\n")
+	section, _, _ = strings.Cut(section, "\n## ")
+	block := regexp.MustCompile("(?s)```json\n(.*?)```").FindStringSubmatch(section)
+	if block == nil {
+		t.Fatal("README's Load into a database lost its users.json")
+	}
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "users.json"), []byte(block[1]), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	starts := map[string]string{"sql": "INSERT INTO", "csv": "id,name\n", "ndjson": `{"id":`}
+	tools := map[string]bool{}
+	for _, line := range strings.Split(section, "\n") {
+		stages := strings.Split(line, " | ")
+		if len(stages) != 3 || !strings.HasPrefix(stages[0], "echo ") {
+			continue
+		}
+		args := strings.Fields(strings.TrimPrefix(stages[1], "fejkdata "))
+		for i, a := range args {
+			if a == "./mydata" {
+				args[i] = dir
+			}
+		}
+		code, out, errb := runOut("{/users}", args...)
+		format := args[slices.Index(args, "--format")+1]
+		if code != 0 || !strings.HasPrefix(out, starts[format]) || strings.Count(out, "\n") < 1 {
+			t.Errorf("README's %q = %d, %q, stderr %q, want a %s run", stages[1], code, out, errb, format)
+		}
+		tools[strings.Fields(stages[2])[0]] = true
+	}
+	for _, tool := range []string{"psql", "sqlite3", "mysql", "mongoimport", "curl"} {
+		if !tools[tool] {
+			t.Errorf("README's Load into a database lost its %s line", tool)
+		}
+	}
+}

@@ -627,6 +627,49 @@ func TestReadmeTSVExampleOutput(t *testing.T) {
 	}
 }
 
+func TestReadmeLetAndNameReadExamplesOutput(t *testing.T) {
+	src := readme(t)
+	for _, c := range []struct {
+		after, name, command string
+		seed                 uint64
+		csv                  bool
+	}{
+		{"A field only other fields read, through a name, goes under `let`", "ride", "fejkdata --seed 2 --format csv --repeat 3 < ride.json", 2, true},
+		{"A column that reads a field through a name keeps the field's null", "sched", "fejkdata --seed 1 --format ndjson --repeat 3 < sched.json", 1, false},
+	} {
+		at := strings.Index(src, c.after)
+		if at < 0 {
+			t.Fatalf("README lost the paragraph %q", c.after)
+		}
+		block, out := jsonBlock.FindStringSubmatch(src[at:]), textBlock.FindStringSubmatch(src[at:])
+		if block == nil || out == nil || !strings.Contains(src[at:], c.command) {
+			t.Fatalf("README's %s example lost its record, its command or its printed output", c.name)
+		}
+		f, err := New(WithDataPath(writeData(t, map[string]string{c.name: block[1]})), WithSeed(c.seed), onTestDay)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []string
+		for i := 0; i < 3; i++ {
+			r, err := f.FakeRecord(c.name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			switch {
+			case c.csv && i == 0:
+				got = append(got, r.CSVHeader(), r.CSVLine())
+			case c.csv:
+				got = append(got, r.CSVLine())
+			default:
+				got = append(got, r.JSON())
+			}
+		}
+		if want := strings.TrimSpace(out[1]); strings.Join(got, "\n") != want {
+			t.Errorf("README prints %q for %s, it renders %q", want, c.command, strings.Join(got, "\n"))
+		}
+	}
+}
+
 func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
 	src := readme(t)
 	start := strings.Index(src, "\n### Functions\n")
