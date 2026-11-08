@@ -1,1 +1,1 @@
-{ "format": "{digit}", "rows": "parity.tsv", "parent": "sex" }
+{ "format": "{digit}", "rows": "individ.tsv", "parent": "sex" }
