@@ -100,11 +100,31 @@ func TestWhereFiltersATable(t *testing.T) {
 	}
 }
 
+func TestAClauseDrawsWholeRowsOfATableReadingSeveralColumns(t *testing.T) {
+	f := newGenerator(t, writeFiles(t, map[string]string{
+		"car.json": `{"format":"{make} {model}","rows":"car.tsv"}`,
+		"car.tsv":  "make\tmodel\nVolvo\tV70\nSaab\t900\nKia\tRio\n",
+	}))
+	for src, want := range map[string][]string{
+		`"{/car where length 7}"`:               {"Kia Rio"},
+		`"{/car where not containing 'a'}"`:     {"Volvo V70"},
+		`"{/car distinct 2 as c}{c[1]}/{c[2]}"`: {"Volvo V70/Saab 900", "Volvo V70/Kia Rio", "Saab 900/Volvo V70", "Saab 900/Kia Rio", "Kia Rio/Volvo V70", "Kia Rio/Saab 900"},
+	} {
+		tp, err := f.NewTemplate(src)
+		if err != nil {
+			t.Fatalf("NewTemplate(%s): %v", src, err)
+		}
+		drawsExactly(t, src, tp.Fake, want...)
+	}
+}
+
 func TestWhereRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeFiles(t, map[string]string{
 		"animal.json": `{"format":"{name}","rows":"animal.tsv"}`,
 		"animal.tsv":  "name\ncat\n{/other}\n",
 		"other.json":  `"horse"`,
+		"boat.json":   `{"format":"{make} {model}","rows":"boat.tsv"}`,
+		"boat.tsv":    "make\tmodel\nX\t{/other}\n",
 	}))
 	if _, err := New(WithSeed(1), onTestDay, WithDataPath(writeFiles(t, map[string]string{
 		"pet.json": `{"format":"{name where length 3}","rows":"pet.tsv"}`,
@@ -130,9 +150,42 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		`{"format":"{w where length 1}","w":[{"format":"{v where length 2}","v":["a","bb"]}]}`: "an item drawing through a clause of its own",
 		`{"format":"{w where length 3 as  x}{ x}","w":["cat"]}`:                                "a name padded with a space",
 		`"{/animal.name where length 3}"`:                                                      "a table cell carrying a token",
+		`"{/boat where length 7}"`:                                                             "a row reading a cell that carries a token",
 	} {
 		if _, err := f.NewTemplate(src); err == nil {
 			t.Errorf("NewTemplate(%s) = nil error, want it refused for %s", src, why)
+		}
+	}
+}
+
+func TestAClauseWordRightAfterAsIsTheNameItBinds(t *testing.T) {
+	f := engine(1)
+	for src, want := range map[string]string{
+		`{"format":"{x as where}{where}","x":"a"}`:                                "a",
+		`{"format":"{x as distinct}{distinct}","x":"a"}`:                          "a",
+		`{"format":"{w where length 1 as where}{where}","w":["a","bb"]}`:          "a",
+		`{"format":"{w distinct 1 as distinct}{distinct[1]}","w":["a"]}`:          "a",
+		`{"format":"{w where length 1 distinct 1 as where}{where[1]}","w":["a"]}`: "a",
+	} {
+		if got := mustRender(t, f, src); got != want {
+			t.Errorf("render(%s) = %q, want %q", src, got, want)
+		}
+	}
+}
+
+// A range is proved at its narrowest, the highest its lower end may print and the lowest its upper
+// end may, and the error names the values that narrow it.
+func TestWhereNamesTheLengthsThatLeaveNoValue(t *testing.T) {
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
+	for src, want := range map[string]string{
+		`{"format":"{n as k}{w where length k to 6}","n":"{int(3,8)}","w":["cat","bird","horse"]}`:                       "where k is 8, length 8 to 6 holds no length; keep k at or below 6",
+		`{"format":"{n as k}{w where length 3 to k}","n":"{int(1,5)}","w":["cat","bird","horse"]}`:                       "where k is 1, length 3 to 1 holds no length; keep k at 3 or above",
+		`{"format":"{n as k}{m as j}{w where length k to j}","n":"{int(3,5)}","m":"{int(4,6)}","w":["cat","bird"]}`:      "where k is 5 and j is 4, length 5 to 4 holds no length; keep k at or below j",
+		`{"format":"{n as k}{w where length k to 9}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:                       "where k is 6, no value passes the where clause",
+		`{"format":"{n as k}{w where length k to 9 distinct 2 joined ','}","n":"{int(3,5)}","w":["cat","bird","horse"]}`: "where k is 5, distinct 2 draws 2 values, and only 1 passes",
+	} {
+		if _, err := f.NewTemplate(src); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("NewTemplate(%s) = %v, want an error holding %q", src, err, want)
 		}
 	}
 }
