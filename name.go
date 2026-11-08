@@ -76,7 +76,7 @@ func bindNames(root node) error {
 			t.nameScope = scope
 		}
 		_, isChoice := n.(*choice)
-		return eachContained(n, where, func(c node, where string) error { return gather(c, scope, isChoice, where) })
+		return eachContained(n, where, func(c containedNode, where string) error { return gather(c.node, scope, isChoice, where) })
 	}
 	if err := gather(root, nil, false, ""); err != nil {
 		return err
@@ -160,13 +160,13 @@ func (t *template) ownScope() *nameScope {
 
 // eachContained calls fn for each node n contains, with where naming the fields reaching it as
 // compile errors do.
-func eachContained(n node, where string, fn func(c node, where string) error) error {
+func eachContained(n node, where string, fn func(c containedNode, where string) error) error {
 	for _, c := range contained(n) {
 		next := where
 		if c.name != "" {
 			next += fmt.Sprintf("field %q: ", c.name)
 		}
-		if err := fn(c.node, next); err != nil {
+		if err := fn(c, next); err != nil {
 			return err
 		}
 	}
@@ -180,20 +180,18 @@ func answerReads(root node, scopes []*nameScope) error {
 	var answer func(n node, where string, up besideField) error
 	answer = func(n node, where string, up besideField) error {
 		t, isTemplate := n.(*template)
-		for _, c := range contained(n) {
-			next, inner := where, up
-			if c.name != "" {
-				next += fmt.Sprintf("field %q: ", c.name)
+		err := eachContained(n, where, func(c containedNode, where string) error {
+			inner := up
+			switch n.(type) {
+			case *template:
+				inner = besideField{t: t, field: c.name}
+			case *choice:
+				inner.inItem = true
 			}
-			if isTemplate {
-				inner = besideField{t, c.name}
-			}
-			if err := answer(c.node, next, inner); err != nil {
-				return err
-			}
-		}
-		if !isTemplate {
-			return nil
+			return answer(c.node, where, inner)
+		})
+		if err != nil || !isTemplate {
+			return err
 		}
 		for _, name := range sortedNames(t.fields) {
 			if b := t.nameScope.lookup(name); b != nil {
@@ -214,20 +212,25 @@ func answerReads(root node, scopes []*nameScope) error {
 	return answer(root, "", besideField{})
 }
 
-// besideField is the nearest template holding a template, and the field of it the template
-// sits under.
+// besideField locates a template from above: t is the nearest template containing it, field
+// is the field of t it lies under, and inItem says it is an item of a choice in that field.
 type besideField struct {
-	t     *template
-	field string
+	t      *template
+	field  string
+	inItem bool
 }
 
 // refusal is the refusal of u where up's template holds u's head.
 func (up besideField) refusal(where string, u unboundRead) error {
-	fix := fmt.Sprintf("give field %q a format and a %q of its own", up.field, u.head)
-	if up.t.nameScope.kind() != scopeChoiceItem {
-		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read {n}", u.head, up.field)
+	holder := fmt.Sprintf("field %q", up.field)
+	if up.inItem {
+		holder = fmt.Sprintf("the item of field %q holding it", up.field)
 	}
-	return fmt.Errorf("%stoken {%s}: no field %q; a token reads only the fields of the template whose format holds it, and %q is a field beside field %q: %s", where, u.body, u.head, u.head, up.field, fix)
+	fix := fmt.Sprintf("give %s a format and a %q of its own", holder, u.head)
+	if up.t.nameScope.kind() != scopeChoiceItem {
+		fix += fmt.Sprintf(", or bind {%s as n} in the format beside field %q and read n in place of %s", u.head, up.field, u.head)
+	}
+	return fmt.Errorf("%stoken {%s}: %q is a field beside field %q, and a token reads only the fields of the template whose format holds it: %s", where, u.body, u.head, up.field, fix)
 }
 
 // unanswered is the refusal of u, a read no field or name answers: naming the repeat binding the
@@ -245,7 +248,7 @@ func unanswered(where string, u unboundRead, seen *nameScope, scopes []*nameScop
 			return fmt.Errorf("%s%w; name %q is bound at %s, inside a repeat, which a read outside the repeat cannot see; bind it outside the repeat to read one pick on every line", where, u.err, u.head, at)
 		}
 	}
-	if up.t != nil && up.field != "" && up.t.fields[u.head] != nil {
+	if up.t != nil && up.t.fields[u.head] != nil {
 		return up.refusal(where, u)
 	}
 	var visible []string
