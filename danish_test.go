@@ -341,10 +341,9 @@ func TestDanishCprAgreesWithABoundSex(t *testing.T) {
 	}
 }
 
-// The national numbering plan of the Danish Agency for Data Supply and Infrastructure's Executive
-// Order No. 1883 of 7 December 2020, Annex 1: the first two digits of an 8-digit number say
-// mainly mobile or mainly fixed, and the series named in the plan's note (!) are mobile inside fixed
-// ranges. A series with third digit 0 is kept for expansion.
+// Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan: the
+// first two digits of an 8-digit number say mainly mobile or mainly fixed, and the prefixes of its
+// note (!) are mobile inside fixed ranges. A prefix with third digit 0 is kept for expansion.
 const (
 	planMobile     = "20-29 30-31 40-42 50-53 60-61 71 81 91-93"
 	planFixed      = "32-36 38-39 43-49 54-59 62-66 69 70 72-79 82 86-89 96-99"

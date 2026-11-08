@@ -4,10 +4,10 @@
     data-import/phone-dk.py [--out-mobile FILE] [--out-fixed FILE]
 
 The plan is Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering
-Plan, in force from 21 December 2020: for each first two digits of an 8-digit number it says
-mainly mobile or mainly fixed, and note (!) lists the three-digit series that are mobile inside
-fixed ranges. A row is a three-digit series, written as "34 2". A series with third digit 0 is
-kept for expansion, and the plan reserves 67, 68, 83-85, 94 and 95, gives 80 to freephone, 90 to
+Plan, in force from 21 December 2020. It calls each range of 8-digit numbers, by their first two
+digits, mainly mobile or mainly fixed. Its note (!) lists the three-digit prefixes that are mobile
+inside the fixed ranges. A row is a three-digit prefix, written as "34 2". A prefix with third digit 0
+is kept for expansion, and the plan reserves 67, 68, 83-85, 94 and 95, gives 80 to freephone, 90 to
 premium rate services and 37 to 12-digit M2M numbers, so none of these is a row.
 """
 import argparse
