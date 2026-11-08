@@ -921,8 +921,9 @@ is real and never reused. Digitaliseringsstyrelsen's test data is handed out on 
 published. So `da_DK.cpr` is valid and may be a living person's, and the README says so. The
 office's own "fiktive" form, 6 added to the first day digit, is used for real payroll cases and
 fails every date check, so it isn't a series that reaches nothing real. A form that reaches
-nothing real isn't shipped. Item 23 in `todo.md` ends the departure from goal 3.3. Valid while the
-CPR office publishes no test series or unassigned range.
+nothing real isn't shipped. Item 23 in `todo.md` ends the departure from goal 3.3. The maintainer
+accepted shipping `da_DK.cpr` as valid but not synthetic until then, rather than holding it back or drawing the fictitious
+form. Valid while the CPR office publishes no test series or unassigned range.
 
 The rules are the office's "Personnummeret i CPR-systemet" (2008): the ten digits weighted
 4 3 2 7 6 5 4 3 2 1 add up to a multiple of 11, the last digit is even for a woman and odd for a
