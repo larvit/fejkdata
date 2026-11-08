@@ -29,16 +29,16 @@ replacement, and each removed path, column or flag.
   written doubled, a tab or a line break as a space, and a null column as an empty cell.
 - `da_DK.cpr`, a Danish CPR number such as `070761-4285`: a birth date of someone under 100, drawn
   by Statistics Denmark's shares of under 18, 18 to 64 and 65 and over, a seventh digit that the
-  CPR office's table gives the year, and a last digit whose parity is the sex's, which makes the
-  ten digits pass the CPR office's modulus 11 check. The CPR office publishes no test series and no
-  unassigned range, so a number may be a living person's. Its `birth` field is the date, and
-  `da_DK.parity` holds a digit of each `da_DK.sex`'s parity.
+  CPR office's table of century digits allows for the year, and a last digit that is even for a
+  woman and odd for a man, such that the ten digits pass the office's modulus 11 check. The office
+  publishes no test series and no unassigned range, so a number may be a living person's. Its
+  `birth` field is the date, and `da_DK.individ` holds a digit of each `da_DK.sex`'s parity.
 - The builtin `{cpr(x)}` completes a CPR number. It reads the last six digits emitted, the date,
-  and adds a seventh digit the year of that date allows, a second and a third it picks, and a check
-  digit with the parity of the digit `x` reads. The year is the latest one not after the date
+  and adds a seventh digit that the year of that date allows, an eighth and a ninth it picks, and a
+  check digit with the parity of the digit `x` reads. The year is the latest one not after the date
   of `WithToday` or `--today` that bears the year digits. It adds nothing where `x` is not one digit
-  or that year lies outside 1858 to 2057, the years the CPR office's table writes.
-  `{/da_DK.cpr.birth}-{cpr(s.parity.digit)}` agrees with a bound sex `s`.
+  or that year lies outside 1858 to 2057, the years the office's table writes.
+  `{/da_DK.cpr.birth}-{cpr(s.individ.digit)}` agrees with a bound sex `s`.
 
 ### Changed
 

@@ -247,15 +247,15 @@ func TestShippedDanishHouseNumbersFollowDAR(t *testing.T) {
 	}
 }
 
-func TestDanishParityHoldsOneDigitOfEachSexsParity(t *testing.T) {
-	rows := tsvRows(t, "data/da_DK/parity.tsv")
+func TestDanishIndividHoldsOneDigitOfEachSexsParity(t *testing.T) {
+	rows := tsvRows(t, "data/da_DK/individ.tsv")
 	if len(rows) != 2 {
-		t.Fatalf("parity.tsv holds %d rows, want one per sex", len(rows))
+		t.Fatalf("individ.tsv holds %d rows, want one per sex", len(rows))
 	}
 	for _, row := range rows {
 		digit, err := strconv.Atoi(row["digit"])
 		if err != nil || digit < 0 || digit > 9 || (digit%2 == 1) != (row["sex"] == "m") {
-			t.Errorf("parity.tsv row %v: want one digit, odd for m and even for f", row)
+			t.Errorf("individ.tsv row %v: want one digit, odd for m and even for f", row)
 		}
 	}
 }
@@ -326,7 +326,7 @@ func TestDanishCprAgreesWithABoundSex(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for i := 0; i < 500; i++ {
-		got, err := f.FakeTemplate("{/da_DK.sex as s}{s.name}|{/da_DK.cpr.birth}-{cpr(s.parity.digit)}")
+		got, err := f.FakeTemplate("{/da_DK.sex as s}{s.name}|{/da_DK.cpr.birth}-{cpr(s.individ.digit)}")
 		if err != nil {
 			t.Fatal(err)
 		}
