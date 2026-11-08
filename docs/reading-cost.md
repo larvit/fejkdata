@@ -1038,3 +1038,20 @@ Read most (opens and searches):
 - `data-import/geo.py` 4
 - `DATA-LICENSES.md` 3
 - `compose.yaml` 3
+
+## Reading cost, chunk 2b55881224fd, finished 2026-11-08T11:43:06Z
+
+127121 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 11
+- `README.md` 9
+- `format.go` 3
+- `name.go` 3
+- `name_test.go` 2
+- `compose.yaml` 1
+- `data/sv_SE/date.json` 1
+- `data/sv_SE/fs.go` 1
+- `data/sv_SE/person.json` 1
+- `data/sv_SE/personnummer-12.json` 1
