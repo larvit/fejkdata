@@ -1,0 +1,10 @@
+{
+	"index": {
+		"da_DK.first-name": {"parent":"sex","paths":["","count","name","sex"]},
+		"da_DK.last-name": {"paths":["","count","name"]},
+		"da_DK.person": {"paths":["","first","last","prefix","sex"]},
+		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"da_DK.title": {"paths":["","name","share"]}
+	},
+	"namespace": "da_DK"
+}
