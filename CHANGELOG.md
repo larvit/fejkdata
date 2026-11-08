@@ -57,11 +57,12 @@ replacement, and each removed path, column or flag.
 - `da_DK.phone`, a Danish phone number such as `41 23 45 67`, mobile ten times as often as fixed,
   grouped in pairs as the Danish Language Council (Dansk Sprognævn) writes it. Its `national` and
   `international` (`+45 41 23 45 67`) fields are the two spellings of one number. It reads
-  `da_DK.phone-mobile` and `da_DK.phone-fixed`, tables of the three-digit series, keyed as written,
-  `phone-mobile[34 2]`, that Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall
-  Danish Numbering Plan allocates to mainly mobile or mainly fixed numbers. A number's `block` is
-  that series and its `subscriber` the last five digits. The plan publishes no register of
-  assigned numbers, so a number may be a real subscriber's.
+  `da_DK.phone-mobile` and `da_DK.phone-fixed`, tables of the three-digit prefixes that Annex 1 of
+  Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan allocates to
+  mainly mobile or mainly fixed numbers, each keyed by its prefix as written, `phone-mobile[34 2]`.
+  A number's `block` is that prefix and its `subscriber` the last five digits. Neither the order nor
+  the authority's guide to it lists the numbers assigned to providers, so a number may be a real
+  subscriber's.
 - `fejkdata.Builtins()` returns each way a template calls a builtin function, sorted, with its
   arguments named, such as `hex(n)`, `iban(CC)`, `seq()` and `seq(name)`. `--help` lists them and
   explains names: `{/path as p}` draws once and prints nothing, and every `{p}` and `{p.field}`
