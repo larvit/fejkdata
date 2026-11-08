@@ -1134,3 +1134,20 @@ Read most (opens and searches):
 - `format.go` 2
 - `compose.yaml` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 220f45f62beb, finished 2026-11-08T14:32:19Z
+
+85771 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 4
+- `CHANGELOG.md` 3
+- `README.md` 3
+- `DATA-LICENSES.md` 2
+- `danish_test.go` 2
+- `data-import/phone-no.py` 2
+- `norwegian_test.go` 2
+- `compose.yaml` 1
+- `data-import/tsv.py` 1
+- `data/da_DK/.fejkdata.json` 1

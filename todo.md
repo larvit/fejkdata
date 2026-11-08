@@ -408,6 +408,8 @@ The inherited architect of the 0.1.0 scoring run on 52e0304 named `isPath` (`cli
 
 `reading-cost` after the chunk of item 377, on 2026-11-04: "Rising: the last 5 chunks' median is 103168 new input tokens before their first commit, the 5 before them 89405". Read most over the last 5 (opens and searches): `README.md` 29, `todo.md` 17, `cli/cli.go` 13, `docs/decisions.md` 12, `CHANGELOG.md` 7, `name_test.go` 6, `namefence_test.go` 6, `data_test.go` 5, `shape_test.go` 4, `docs/research/research-sources-se.md` 3.
 
+`reading-cost` before the chunk of item 379, on 2026-11-08: "Rising: the last 5 chunks' median is 104363 new input tokens before their first commit, the 5 before them 72993". Read most over the last 5 (opens and searches): `README.md` 27, `todo.md` 24, `readme_test.go` 11, `builtins_test.go` 7, `cli/cli_test.go` 7, `record_test.go` 7, `compose.yaml` 6, `danish_test.go` 6, `norwegian_test.go` 5, `cli/cli.go` 4.
+
 ### 195. Parse each builtin argument once, in `checkArgs`, and hand `prep` and `proveNumber` the parsed value.
 
 Applies "Validate data and build DTOs as early as possible" in `~/.claude/principles/technical-principles.md`. Today `checkArgs` (`internal/builtinfunc/builtins.go`) checks an argument, then `prep` and `proveNumber` parse it again through `atoi`/`atof`, which panic on bad input; `layout.go`, `transform.go` and `calc.go` call them too; two parsers can drift, and a drift panics at compile instead of failing the load.
