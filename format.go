@@ -59,7 +59,10 @@ func checkToken(t grammar.Token, fields map[string]node) ([]unboundRead, error) 
 		}
 		return checkReads(t, fields, true)
 	case grammar.NameBind:
-		return nil, checkBind(t, fields)
+		if err := checkBind(t, fields); err != nil {
+			return nil, err
+		}
+		return checkReads(t, fields, true)
 	case grammar.PathRead:
 		return checkReads(t, fields, false)
 	}
@@ -95,7 +98,7 @@ func checkReads(t grammar.Token, fields map[string]node, operands bool) ([]unbou
 // field, and names a valid name that is no option.
 func checkBind(t grammar.Token, fields map[string]node) error {
 	ref, name := t.BoundRef, t.Bound
-	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body {
+	if trimmed := strings.TrimSpace(ref) + grammar.AsWord + strings.TrimSpace(name); trimmed != t.Body && t.Where == nil {
 		return fmt.Errorf("token {%s}: write {%s}", t.Body, trimmed)
 	}
 	if err := checkBound(ref, fields); err != nil {
@@ -158,12 +161,13 @@ func checkArm(name string, fields map[string]node, wholeToken bool) (missing boo
 	return false, nil
 }
 
-// tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads.
+// tokenReads lists the names t reads: a read's arms, or the operands a call's builtin reads, and
+// the names a where clause's length reads.
 func tokenReads(t grammar.Token) []string {
 	if t.Kind == grammar.BuiltinCall {
 		return builtinfunc.Operands(t.Fn, t.Args)
 	}
-	return t.Arms
+	return append(t.Arms[:len(t.Arms):len(t.Arms)], lengthNames(t.Where)...)
 }
 
 // formatOps is a compiled format: its ops, and the size of its literal text.
@@ -173,7 +177,8 @@ type formatOps struct {
 }
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
-// targets; a {ref as n} token compiles to no op. checkTokens proved every token valid.
+// targets; a {ref as n} token compiles to no op, and a {ref where … as n} token to an op that
+// expand skips, holding the names its length reads. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {
@@ -187,8 +192,14 @@ func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps,
 			o.operands, err = t.compileArms(builtinfunc.Operands(tok.Fn, tok.Args), targets)
 		case grammar.PathRead:
 			o.arms, err = t.compileArms(tok.Arms, targets)
+			if err == nil && tok.Where != nil {
+				o.operands, err = t.compileLengths(tok.Where, targets)
+			}
 		case grammar.NameBind:
-			continue
+			if tok.Where == nil {
+				continue
+			}
+			o.operands, err = t.compileLengths(tok.Where, targets)
 		}
 		if err != nil {
 			return c, fmt.Errorf("token {%s}: %w", tok.Body, err)

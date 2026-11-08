@@ -139,7 +139,7 @@ func compileCell(cell string) (*template, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := refuseTableBinding(n.tokens); err != nil {
+	if err := refuseInTable(n.tokens); err != nil {
 		return nil, err
 	}
 	if len(n.unbound) > 0 {
@@ -155,7 +155,7 @@ func (t *table) compileRowFormat(format string) error {
 	if err != nil {
 		return err
 	}
-	if err := refuseTableBinding(toks); err != nil {
+	if err := refuseInTable(toks); err != nil {
 		return err
 	}
 	for _, tok := range toks {
@@ -185,11 +185,14 @@ func (t *table) compileRowFormat(format string) error {
 	return nil
 }
 
-// refuseTableBinding refuses a table's format or cell binding a name.
-func refuseTableBinding(toks []grammar.Token) error {
+// refuseInTable refuses a table's format or cell binding a name or filtering a draw.
+func refuseInTable(toks []grammar.Token) error {
 	for _, tok := range toks {
-		if tok.Kind == grammar.NameBind {
+		switch {
+		case tok.Kind == grammar.NameBind:
 			return fmt.Errorf("token {%s}: a table binds no name; bind it in a template reading the table", tok.Body)
+		case tok.Where != nil:
+			return fmt.Errorf("token {%s}: a table filters no draw; filter it in a template reading the table", tok.Body)
 		}
 	}
 	return nil

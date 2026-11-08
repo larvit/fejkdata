@@ -69,6 +69,7 @@ type Token struct {
 	Arms []string // PathRead: the '|' alternatives
 	// NameBind: the reference it binds, and the name.
 	BoundRef, Bound string
+	Where           *Where // PathRead or NameBind: the filter on its draw, nil for none
 }
 
 type TokenKind uint8
@@ -99,6 +100,11 @@ func ParseFormat(format string) ([]Token, error) {
 			return nil
 		}
 		flush()
+		if head, clause, filters := cutWhere(u.body); filters {
+			tok, err := whereToken(u.body, head, clause)
+			toks = append(toks, tok)
+			return err
+		}
 		if ref, name, binds := cutOutside(u.body, AsWord); binds && indexOutside(u.body, '(') < 0 {
 			toks = append(toks, Token{Kind: NameBind, Body: u.body, BoundRef: ref, Bound: name})
 			return nil

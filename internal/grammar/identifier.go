@@ -26,6 +26,9 @@ func CheckIdentifier(name string) error {
 	if strings.Contains(name, AsWord) {
 		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, AsWord)
 	}
+	if containsWhere(name) {
+		return fmt.Errorf("%q contains %q, which a token reads as opening a filter; rename it", name, strings.TrimSuffix(WhereWord, " "))
+	}
 	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {
 		return fmt.Errorf("%q contains %q; a name may not use %s, which the dot path, {token} and JSON grammars reserve",
 			name, name[i:i+1], reservedList)

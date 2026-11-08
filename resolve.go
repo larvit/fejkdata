@@ -110,6 +110,10 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 		s.t.compiled = compiled
 	}
+	filters, err := filterDraws(ts, targets)
+	if err != nil {
+		return err
+	}
 	reads := readsOfNames(ts)
 	names := resolvedNames{targets: targets, reads: reads, addressed: addressedKeys(reads, targets), places: map[node]map[node][]string{}, fresh: map[*nameBinding]map[pickKey][]fieldRead{}}
 	for b, bound := range reads {
@@ -132,7 +136,7 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		}
 	}
 	for b, target := range targets {
-		b.target, b.addressed = target, names.addressed[b]
+		b.target, b.addressed, b.filter = target, names.addressed[b], filters[b]
 	}
 	return nil
 }

@@ -74,7 +74,7 @@ func columnsAt(n node, tail []string) (columns []node) {
 
 func readsOneArm(t *template) bool {
 	ops := t.compiled.ops
-	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1
+	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1 && ops[0].Where == nil
 }
 
 // columnSource is the node a's read starts from (nil where a reads no node), the category holding
