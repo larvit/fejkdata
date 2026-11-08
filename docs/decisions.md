@@ -1454,9 +1454,10 @@ it. `DATA-LICENSES.md` names the licence.
 The import keeps a word that WordNet's data files spell in lower-case letters alone, since its index files
 lower-case every lemma and would let `paris` and `abc` through. A verb gets its third person by the spelling
 rule, with `be`, `have`, `stomach`, `quiz`, `whiz` and the `-o` verbs that take a plain `s` as exceptions, since
-WordNet has no forms. The import drops a word with a sense in WordNet's usage domains of disparagement, ethnic
+WordNet has no forms. The import drops a word whose every sense is in WordNet's usage domains of disparagement, ethnic
 slurs or obscenity, which tag slurs such as `dago` that LDNOOBW's English list lacks, and the exact matches
-of that list.
+of that list. A word with one tagged sense among others, such as `boy`, `queen` or `tool`, stays, so `gook` stays
+for its other sense.
 
 WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of speech by its row count and
 draws each word evenly, which keeps the spread this data exists to widen.

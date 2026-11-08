@@ -1,7 +1,7 @@
 {
   "format": "{any}",
   "any": [
-    { "format": "{.word-noun}", "weight": 41299 },
+    { "format": "{.word-noun}", "weight": 41330 },
     { "format": "{.word-verb}", "weight": 8383 },
     { "format": "{.word-adj}", "weight": 17173 },
     { "format": "{.word-adv}", "weight": 3619 }

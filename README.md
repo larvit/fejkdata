@@ -854,9 +854,9 @@ verbs, adjectives and adverbs it spells in lower-case letters alone, so no prope
 the senses of only a quarter of its words in a text sample, so it gives no frequency to draw by, and a word may
 be rare. `en_US.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech. `en_US.word.verb.present`
 draws a verb and prints its third person, such as `carries`. To read a verb and its third person from one pick,
-bind it: `{/en_US.word.verb as v}{v} {v.present}` prints `carry carries`. The import drops a word with a sense in
+bind it: `{/en_US.word.verb as v}{v} {v.present}` prints `carry carries`. The import drops a word whose every sense is in
 WordNet's usage domain of disparagement, ethnic slurs or obscenity, and the words on LDNOOBW's English list of rude
-words. Other rude words remain, so read the output before showing it to anyone. `en_US.sentence` fills a fixed
+words. A word with a harmless sense, such as `boy`, stays, and other rude words remain, so read the output before showing it to anyone. `en_US.sentence` fills a fixed
 pattern with these words and doesn't make them agree, so its sentences aren't grammatical. `en_US.paragraph` joins
 three to six sentences. WordNet's licence asks for its notice and disclaimer on every copy of its database:
 `data/en_US/WORDNET-LICENSE.txt` holds them, the `en_US` module embeds the file, and the release archives and

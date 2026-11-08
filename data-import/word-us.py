@@ -6,8 +6,8 @@
 A row is a noun, verb, adjective or adverb that WordNet's data files spell in lower-case letters alone, so a phrase, a
 proper noun, an acronym and a word with a hyphen or an apostrophe are left out. WordNet's index files lower-case every
 lemma, so the spelling comes from the data files. A verb carries its third-person present, by the spelling rule or
-one of IRREGULAR. A word is dropped when one of its senses is in WordNet's usage domain of disparagement, ethnic
-slurs or obscenity, or when it is on LDNOOBW's English list of rude words. WordNet's sense counts cover a quarter of
+one of IRREGULAR. A word is dropped when every one of its senses is in WordNet's usage domain of disparagement,
+ethnic slurs or obscenity, or when it is on LDNOOBW's English list of rude words. WordNet's sense counts cover a quarter of
 its words, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse
@@ -65,8 +65,8 @@ def tables(tarball, rude):
     rows = {}
     for part in PARTS:
         senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
-        dropped = {w for w, d in senses if d & domains}
-        words = sorted({w for w, _ in senses if LETTERS.fullmatch(w) and w not in dropped and w not in rude})
+        kept = {w for w, d in senses if not d & domains}
+        words = sorted({w for w, _ in senses if LETTERS.fullmatch(w) and w in kept and w not in rude})
         rows[part] = [{"word": w, "present": present(w)} if part == "verb" else {"word": w} for w in words]
     return rows
 
