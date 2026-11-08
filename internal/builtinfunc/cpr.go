@@ -9,8 +9,7 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// cprWeights are the weights CPR-kontoret defines for the ten digits, which must add up to a
-// multiple of 11.
+// cprWeights are CPR-kontoret's weights for the ten digits; a number's weighted sum is a multiple of 11.
 var cprWeights = [10]int{4, 3, 2, 7, 6, 5, 4, 3, 2, 1}
 
 func cprArg(a []string) error {
@@ -54,23 +53,23 @@ func cprSeventhDigits(year int) string {
 	return ""
 }
 
-// cprTail completes a CPR number after its first seven digits, a date and the seventh digit: the
-// given second digit, a third that it tries from start on, and a check digit that has the parity
-// of last. A third digit whose check digit would be 10 or of the other parity is no number.
-func cprTail(prefix string, last byte, second, start int) string {
+// cprTail completes a CPR number after its first seven digits: the given eighth digit, a ninth
+// that it tries from start on, and a check digit that has the parity of last. A ninth digit whose
+// check digit would be 10 or of the other parity is no number.
+func cprTail(prefix string, last byte, eighth, start int) string {
 	for i := range 10 {
-		third := (start + i) % 10
-		digits := prefix + string(rune('0'+second)) + string(rune('0'+third))
+		ninth := (start + i) % 10
+		digits := prefix + string(rune('0'+eighth)) + string(rune('0'+ninth))
 		sum := 0
 		for j, d := range digits {
 			sum += cprWeights[j] * int(d-'0')
 		}
 		check := (11 - sum%11) % 11
 		if check != 10 && check%2 == int(last-'0')%2 {
-			return string(rune('0'+second)) + string(rune('0'+third)) + string(rune('0'+check))
+			return string(rune('0'+eighth)) + string(rune('0'+ninth)) + string(rune('0'+check))
 		}
 	}
-	// Unreachable: the ten thirds give ten different check digits of the eleven residues, and
-	// each parity holds five of the digits 0 to 9, so at most one of them is lost.
+	// Unreachable: the ten ninths give ten different residues of the eleven, so at most one of
+	// the five digits of the wanted parity is missing as a check digit.
 	panic(invariant.Broken("cpr found no valid completion of %q with parity %c", prefix, last))
 }

@@ -914,35 +914,45 @@ Skatteverket's test series sets the precedent of a plain name with the series do
 
 2026-11-08, Lilleman auf Larv.
 
-The CPR office publishes no test series and no unassigned range, and says every number it issues
+Goal 3 (a valid id passes the check the real system applies) and goal 3.1 (values that belong
+together share one pick) are served. Goal 3.3 (a form that reaches nothing real) is not:
+the CPR office publishes no test series and no unassigned range, and says every number it issues
 is real and never reused. Digitaliseringsstyrelsen's test data is handed out on application, not
-published. So `da_DK.cpr` is valid and may be a living person's, against goal 3.3, and the
-README says so. The office's own "fiktive" form, 6 added to the first day digit, is used for
-real payroll cases and fails every date check, so it isn't a series that reaches nothing real.
-A form that reaches nothing real isn't shipped.
+published. So `da_DK.cpr` is valid and may be a living person's, and the README says so. The
+office's own "fiktive" form, 6 added to the first day digit, is used for real payroll cases and
+fails every date check, so it isn't a series that reaches nothing real. A form that reaches
+nothing real isn't shipped. Item 23 in `todo.md` ends the departure from goal 3.3. Valid while the
+CPR office publishes no test series or unassigned range.
 
 The rules are the office's "Personnummeret i CPR-systemet" (2008): the ten digits weighted
 4 3 2 7 6 5 4 3 2 1 add up to a multiple of 11, the last digit is even for a woman and odd for a
 man, and the year digits with the seventh digit name the century. cpr.dk adds that numbers
-failing the check have been issued since 2007; those aren't drawn, since a checker may require
-the check and none requires its absence. A last digit of 10 is no number, and a template can't
-redraw it, and the parity of the last digit is the sex's too. So `{cpr(x)}` picks the second and
-third digit and the check digit, the third by trial, and `x` supplies only the parity, from
-`da_DK.parity` under `sex`, one digit a sex. Whatever the first eight digits, at least four
-of the ten third digits pass, so a completion always exists.
+failing the check have been issued since 2007. Those aren't drawn: a checker may require the
+check, and none requires that it fail.
+
+A template can't redraw a check digit of 10, and the sex's parity falls on the last digit, the
+check. So `{cpr(x)}` picks the seventh digit, an eighth and a ninth digit, and the check digit,
+the ninth by trial, and `x` supplies only the parity, from `da_DK.individ` under `sex`, one digit a
+sex. Whatever the first eight digits, at least four of the ten ninth digits pass, so a completion
+always exists.
 
 The century can't be written in data: the seventh digit depends on the full year, and a template
 prints only the year digits. So `{cpr(x)}` takes the year as the latest not after `WithToday`
-that bears them, and draws the seventh digit evenly among those the table gives that year; the
-office publishes no frequency. The date comes from `born(0,99)`, whose hundred years have one
-century each, so someone of 100 or older, 0.02% of the population, isn't drawn. The three age
-bands carry Statistics Denmark's FOLK1A shares for 1 January 2026, the 100 or older folded into
-the last band. Years outside 1858 to 2057, which the office's table can't write, render nothing,
-a visibly short number, as in `fnr`.
+that bears them, and draws the seventh digit evenly among those the office's table of century
+digits gives that year, since the office publishes no frequency. The date comes from
+`born(0,99,…)`, which draws from 100 calendar years, so each pair of year digits names one year, and someone of 100 or older, 0.02% of
+the population, isn't drawn. The three age bands carry Statistics Denmark's FOLK1A shares for
+1 January 2026, the 100 or older folded into the last band. Years outside 1858 to 2057, which the
+table can't write, render nothing, a visibly short number, as in `fnr`.
 
 `cpr` is the register's own name, and the function takes `fnr`'s shape: a derivation after the
 date, with the sex's digit as its operand. The number is written `ddmmyy-ssss`, as the office
 writes it.
+
+Fresh-context readers seated as the README's hand fixture, Go test, validator-facing and bulk
+fixture authors picked the spellings. All four chose `cpr` for the path and `{cpr(x)}` for the
+function, since Danes write it, and all four chose `individ` over `parity` for the table, the
+name `nb_NO` uses for the same job.
 
 ## The US given names come from a mirror of the SSA file
 
