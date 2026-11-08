@@ -9,20 +9,20 @@ replacement, and each removed path, column or flag.
 ### Breaking
 
 - `let` is an option, so a field can no longer be named `let`; give it another name.
-- A template inside a column, as a record's `"ride": {"format":"{n}","n":null}` does, now reads
-  `null` and `datatype` in its fields: they were text before. A bare number or boolean there stays
-  text.
-- A column that reads one field through a name, as `{"id":"{p.id}"}` does, now has that field's
-  datatype and null: an integer where it wrote `"3"`. Items of a choice with different datatypes
-  are refused at load, as a column's own items are.
+- A `null` or a `datatype` in the fields of a template inside a column, as in
+  `"ride": {"format":"{n}","n":null}`, now counts: `null` was text and `datatype` did nothing there.
+  A bare number or boolean there stays text.
+- A column that reads one field through a name, as `"len":"{p.len}"` does, now has that field's
+  datatype and null, so an integer `len` is written `3` where it was written `"3"`. Add
+  `"datatype":"string"` to the column to keep the text, with a null written `""`. A choice whose
+  items hold different datatypes of that field fails to load; give them one datatype.
 
 ### Added
 
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
   has the one column `b`. A record holding every field in `let` fails with `ErrNoColumns`.
 - The README's [Load into a database](https://github.com/larvit/fejkdata#load-into-a-database)
-  section pipes records into PostgreSQL, SQLite, MySQL and MongoDB. No database or HTTP sink is
-  built in.
+  section pipes records into PostgreSQL, SQLite, MySQL and MongoDB.
 - `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name`, `da_DK.last-name`,
   `da_DK.sex` (`kvinde` and `mand`) and `da_DK.title` (`dr.` and `professor`). A first name that girls
   and boys both bear has a row under each sex, and a person's first name and sex agree. The top 20

@@ -329,28 +329,7 @@ projects those parts rather than the value, so for one column holding what `Fake
 renders, write `{"format":"","price":"{/sv_SE.price}"}` as a fieldless category asks
 for.
 
-A field only other fields read, through a name, goes under `let`: it is a field like any
-other, drawn and read the same, but it writes no column. Save `ride.json`:
-
-```json
-{
-  "format": "{day as d}",
-  "let": { "day": ["Mon", "Tue", "Wed", "Thu"] },
-  "name": "run {d}",
-  "rule": "every {d}"
-}
-```
-
-`fejkdata --seed 2 --format csv --repeat 3 < ride.json` prints:
-
-```text
-name,rule
-run Tue,every Tue
-run Mon,every Mon
-run Tue,every Tue
-```
-
-A record holding every field under `let` has no column and errors like one with no field.
+A field only other fields read goes under [`let`](#let) and writes no column.
 
 A column carrying a newline keeps it inside the quoted CSV field or the SQL string
 literal, so a row can span physical lines: read the stream with a CSV or SQL
@@ -449,16 +428,16 @@ it to a name and read the name
 ### Load into a database
 
 fejkdata writes to its standard output and nothing else, so a pipe carries a run into a
-database or an HTTP endpoint, and fejkdata needs no driver, address or credentials of its
-own ([Decisions](docs/decisions.md#no-database-or-http-sink-is-built-in)). Save
+database or an HTTP endpoint ([Decisions](docs/decisions.md#no-database-or-http-sink-is-built-in)). Save
 `mydata/users.json`:
 
 ```json
 { "format": "", "id": { "format": "{seq()}", "datatype": "integer" }, "name": ["Ada", "Bo", "Cy"] }
 ```
 
-Each line loads a thousand records into a `users` table that already has the columns `id`
-and `name`; `csv` writes them in that name order, so the `\copy` lists them:
+Each line sends a thousand records to `users`: a table for `psql`, `sqlite3` and `mysql`,
+which must already have the columns `id` and `name`, a collection for `mongoimport` and an
+endpoint for `curl`. `csv` writes the columns in name order, so the `\copy` lists them:
 
 ```sh
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format sql --repeat 1000 | psql mydb
@@ -469,8 +448,7 @@ echo '{/users}' | fejkdata --seed 1 -d ./mydata --format ndjson --repeat 1000 | 
 echo '{/users}' | fejkdata --seed 1 -d ./mydata --format ndjson --repeat 1000 | curl --data-binary @- -H 'Content-Type: application/x-ndjson' https://example.test/users
 ```
 
-The `mysql` line sets the two modes the [SQL note](#records) names. The `mongoimport` line
-loads MongoDB, and the `curl` line posts the records to an HTTP endpoint.
+The `mysql` line sets the two modes the [SQL note](#records) names.
 
 ## Library
 
@@ -1117,9 +1095,8 @@ writes `42` rather than `"42"` and `sql` a bare literal; a column without one, o
 ```
 
 Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
-template, or an item of a choice standing in for one; so is a field of a template that
-stands as a column, which a name can read, as below. `datatype` anywhere else does
-nothing. A typed column holds one value, alone in its format: a
+template, or an item of a choice standing in for one. A field of a template that stands as a
+column counts too, for a name that reads it, as below. `datatype` anywhere else does nothing. A typed column holds one value, alone in its format: a
 literal, one `{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
 values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
 `0` decimals within int64 — `number` a JSON number, `boolean` `true` or `false`. A value its
@@ -1135,7 +1112,29 @@ A column whose format is one read of a record's column and nothing else —
 beside `{place as p}` in its own record, or `"len": "{p.len}"` beside `{pattern as p}` where
 each item of the field `pattern` has a `len` — is that column: it takes the column's datatype and
 is null where the column is, and a struct field tagged `src.score` is nil there. The `len`
-of every item `p` can bring must hold one datatype, or the load fails. A
+of every item `p` can bring must hold one datatype, or the load fails; one may be null.
+`sched.json` shows it:
+
+```json
+{
+  "format": "{pattern as p}",
+  "pattern": [
+    { "format": "daily", "len": null },
+    { "format": "weekly", "len": { "format": "{int(1,9)}", "datatype": "integer" } }
+  ],
+  "len": "{p.len}"
+}
+```
+
+`fejkdata --seed 1 --format ndjson --repeat 3 < sched.json` prints:
+
+```text
+{"len":1,"pattern":"weekly"}
+{"len":null,"pattern":"daily"}
+{"len":null,"pattern":"daily"}
+```
+
+`len` is an integer column, null for `daily`. A
 `datatype` of its own types the column's values where they prove it, and `"string"`
 reads them as text. Any other read renders the column's text, a null as `""`.
 
@@ -1160,32 +1159,34 @@ renders a null as `""`. The other items' weights skew its odds:
 
 `deleted_at` is null every draw, `middle` a name three draws in four. Anywhere but a
 column, `null` renders `""`. Rejected at load: a column whose items hold different
-datatypes.
+datatypes. A read through a name keeps the null too ([Datatype](#datatype)).
 
-A column that reads a field through a name keeps the field's null and datatype, also where
-the name binds a field that is a template or a choice of templates; a `null` or a `datatype`
-in such a template's own fields counts, as in a column. Save `sched.json`:
+### Let
+
+`let` is an option holding fields that write no column. They are drawn and read as any field
+is, so a field only other fields read goes there. Save `ride.json`:
 
 ```json
 {
-  "format": "{pattern as p}",
-  "pattern": [
-    { "format": "daily", "len": null },
-    { "format": "weekly", "len": { "format": "{int(1,9)}", "datatype": "integer" } }
-  ],
-  "len": "{p.len}"
+  "format": "{day as d}",
+  "let": { "day": ["Mon", "Tue", "Wed", "Thu"] },
+  "name": "run {d}",
+  "rule": "every {d}"
 }
 ```
 
-`fejkdata --seed 1 --format ndjson --repeat 3 < sched.json` prints:
+`fejkdata --seed 2 --format csv --repeat 3 < ride.json` prints:
 
 ```text
-{"len":1,"pattern":"weekly"}
-{"len":null,"pattern":"daily"}
-{"len":null,"pattern":"daily"}
+name,rule
+run Tue,every Tue
+run Mon,every Mon
+run Tue,every Tue
 ```
 
-`len` is an integer column, null for `daily`.
+A field is in `let` or beside it, never both, and an option name can't be a field in
+`let`. A record holding every field in `let` has no column and fails with `ErrNoColumns`.
+Anywhere but a record's top level, a field in `let` is the same as one beside it.
 
 ### Table
 
@@ -1317,9 +1318,8 @@ reference, `..` is the folder above ([References](#references)).
 
 `format`, `weight`, `repeat`, `separator`, `datatype` and `let` are the only options;
 **any other key is a field** (see [Decisions](docs/decisions.md#options-and-fields-share-one-namespace)), and `rows` makes a category
-a [table](#table), so no template carries a field of that name. `let` is an object of fields
-that write no [column](#records); a field cannot be named in both `let` and beside it. A [name](#names) shares the
-namespace too.
+a [table](#table), so no template carries a field of that name. `let` holds fields that write
+no [column](#let). A [name](#names) shares the namespace too.
 
 ### Functions
 
