@@ -55,8 +55,9 @@ With --format json, ndjson, csv, tsv or sql the template must be a record — a 
 template whose fields are its columns, or a lone reference such as {/path}:
 one reference and nothing else, with one newline after it allowed — and the rows are
 written as one JSON array, one JSON object per line, one CSV or tab-separated row (after a
-header), or INSERTs of up to 1000 rows, one per line. A tsv is a table's rows: braces
-are written doubled, and a tab or line break in a value as a space.
+header), or INSERTs of up to 1000 rows, one per line. A tsv file is what a table reads,
+so a later run can draw from this run's records: it writes a brace doubled, and a tab
+or line break in a value as a space.
 
   -d, --data-path D      a data directory to layer over the shipped data (repeatable; last wins on a clash)
       --format F         output form: text (default), json, ndjson, csv, tsv or sql
