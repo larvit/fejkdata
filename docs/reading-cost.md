@@ -1021,3 +1021,20 @@ Read most (opens and searches):
 Read most (opens and searches):
 
 - `todo.md` 2
+
+## Reading cost, chunk 5be512d2a3db, finished 2026-11-08T11:17:12Z
+
+263530 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 13
+- `data-import/geo-se.py` 13
+- `todo.md` 10
+- `danish_test.go` 8
+- `data-import/geo-no.py` 6
+- `data/geo/DK/street.tsv` 5
+- `data-import/geo-us.py` 4
+- `data-import/geo.py` 4
+- `DATA-LICENSES.md` 3
+- `compose.yaml` 3
