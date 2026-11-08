@@ -546,42 +546,47 @@ func TestShippedLastNameComposition(t *testing.T) {
 // The share of each age band is SCB's for Sweden at 2024-12-31, per
 // docs/research/research-age-bands.md: 0-17 20.36%, 18-64 58.80%, 65-99 20.81%, 100 or more 0.028%.
 // Read on 2026-11-04, the bands are the birth years 2009-2026, 1962-2008, 1927-1961 and 1913-1926.
-func TestSwedishPersonnummerWeighsAgesByPopulation(t *testing.T) {
-	const draws = 200000
-	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
-	bands := [4]int{}
-	oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
-	for range draws {
-		v := fake(t, sv, "sv_SE.personnummer-12")
-		born, err := time.Parse("20060102", v[:8])
-		if err != nil {
-			t.Fatalf("personnummer-12 %q holds no calendar date: %v", v, err)
-		}
-		band := 3
-		switch age := 2026 - born.Year(); {
-		case age < 18:
-			band = 0
-		case age < 65:
-			band = 1
-		case age < 100:
-			band = 2
-		}
-		bands[band]++
-		oldest[band], youngest[band] = min(oldest[band], born.Year()), max(youngest[band], born.Year())
-	}
-	for i, want := range []float64{20.36, 58.80, 20.81} {
-		if got := 100 * float64(bands[i]) / draws; got < want-0.3 || got > want+0.3 {
-			t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
-		}
-	}
-	if bands[3] < 33 || bands[3] > 80 {
-		t.Errorf("age 100 or more drew %d in %d, want about 56, 0.028%%", bands[3], draws)
-	}
-	if want := [4]int{2009, 1962, 1927, 1913}; oldest != want {
-		t.Errorf("the bands' oldest birth years = %v, want %v", oldest, want)
-	}
-	if want := [4]int{2026, 2008, 1961, 1926}; youngest != want {
-		t.Errorf("the bands' youngest birth years = %v, want %v", youngest, want)
+// A person's birthdate draws from the same bands, since its personnummer reads it.
+func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
+	for path, layout := range map[string]string{"sv_SE.personnummer-12": "20060102", "sv_SE.person.birthdate": "2006-01-02"} {
+		t.Run(path, func(t *testing.T) {
+			const draws = 200000
+			sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
+			bands := [4]int{}
+			oldest, youngest := [4]int{9999, 9999, 9999, 9999}, [4]int{}
+			for range draws {
+				v := fake(t, sv, path)
+				born, err := time.Parse(layout, v[:min(len(v), len(layout))])
+				if err != nil {
+					t.Fatalf("%s %q holds no calendar date: %v", path, v, err)
+				}
+				band := 3
+				switch age := 2026 - born.Year(); {
+				case age < 18:
+					band = 0
+				case age < 65:
+					band = 1
+				case age < 100:
+					band = 2
+				}
+				bands[band]++
+				oldest[band], youngest[band] = min(oldest[band], born.Year()), max(youngest[band], born.Year())
+			}
+			for i, want := range []float64{20.36, 58.80, 20.81} {
+				if got := 100 * float64(bands[i]) / draws; got < want-0.3 || got > want+0.3 {
+					t.Errorf("age band %d drew %.2f%%, want about %.2f%%", i, got, want)
+				}
+			}
+			if bands[3] < 33 || bands[3] > 80 {
+				t.Errorf("age 100 or more drew %d in %d, want about 56, 0.028%%", bands[3], draws)
+			}
+			if want := [4]int{2009, 1962, 1927, 1913}; oldest != want {
+				t.Errorf("the bands' oldest birth years = %v, want %v", oldest, want)
+			}
+			if want := [4]int{2026, 2008, 1961, 1926}; youngest != want {
+				t.Errorf("the bands' youngest birth years = %v, want %v", youngest, want)
+			}
+		})
 	}
 }
 
@@ -831,26 +836,45 @@ func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 	}
 }
 
-func TestShippedSwedishPersonBirthdate(t *testing.T) {
-	f := shipped(t, WithSeed(5))
-	first, last := time.Date(2100, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
-	for i := 0; i < 5000; i++ {
-		d, err := time.Parse("2006-01-02", fake(t, f, "sv_SE.person.birthdate"))
-		if err != nil {
-			t.Fatalf("sv_SE.person.birthdate is not a YYYY-MM-DD date: %v", err)
-		}
-		if d.Before(time.Date(1930, 1, 1, 0, 0, 0, 0, time.UTC)) || d.After(time.Date(2025, 12, 31, 0, 0, 0, 0, time.UTC)) {
-			t.Fatalf("birthdate %s is outside 1930-01-01 to 2025-12-31", d.Format("2006-01-02"))
-		}
-		if d.Before(first) {
-			first = d
-		}
-		if d.After(last) {
-			last = d
-		}
+// A person's personnummer and samordningsnummer read its birthdate and its sex: the
+// personnummer spells the date as YYMMDD, with + from the year the holder turns 100, and the
+// samordningsnummer adds 60 to the day. Read on 2026-11-04, the + is for a birth in 1926 or before.
+func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
+	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
+	person, err := sv.NewTemplate(`{/sv_SE.person as p}{p.birthdate}|{p.personnummer}|{p.samordningsnummer}|{p.sex}`)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if first.After(time.Date(1930, 3, 1, 0, 0, 0, 0, time.UTC)) || last.Before(time.Date(2025, 11, 1, 0, 0, 0, 0, time.UTC)) {
-		t.Errorf("birthdates span %s to %s in 5000 draws, want 1930-01-01 to 2025-12-31 at its ends", first.Format("2006-01-02"), last.Format("2006-01-02"))
+	birthNumber := map[string]string{"kvinna": "238", "man": "239"}
+	pluses, days := 0, map[int]bool{}
+	for range 200000 {
+		v := person.Fake()
+		f := strings.Split(v, "|")
+		born, err := time.Parse(time.DateOnly, f[0])
+		if err != nil || born.Year() < 1913 || born.After(dayOf(2026, 11, 4)) {
+			t.Fatalf("person %q, want a birthdate from 1913-01-01 to 2026-11-04", v)
+		}
+		sign := "-"
+		if born.Year() <= 1926 {
+			sign, pluses = "+", pluses+1
+		}
+		pnr := born.Format("060102") + sign + birthNumber[f[3]]
+		if len(f[1]) != 11 || f[1][:10] != pnr || !luhnValid(digitsOnly(f[1])) {
+			t.Fatalf("person %q, want a Luhn-valid personnummer starting %s", v, pnr)
+		}
+		sam := born.Format("0601") + strconv.Itoa(born.Day()+60) + "-" + birthNumber[f[3]]
+		if len(f[2]) != 11 || f[2][:10] != sam || !luhnValid(digitsOnly(f[2])) {
+			t.Fatalf("person %q, want a Luhn-valid samordningsnummer starting %s", v, sam)
+		}
+		days[born.Day()+60] = true
+	}
+	if pluses == 0 {
+		t.Error("never drew a +")
+	}
+	for day := 61; day <= 91; day++ {
+		if !days[day] {
+			t.Errorf("samordningsnummer never drew the day %d", day)
+		}
 	}
 }
 
