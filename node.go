@@ -68,7 +68,7 @@ type template struct {
 	format     string
 	tokens     []grammar.Token
 	fields     map[string]node
-	helpers    map[string]bool // the fields its "let" holds, which write no column
+	lets       map[string]bool // the fields its "let" holds, which write no column
 	repeat     int
 	separator  string
 	datatype   *DataType     // the "datatype" it carries, which wins over that of a column it reads; nil where none
@@ -291,7 +291,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 			fieldPos = inColumnField
 		}
 	}
-	fields, helpers, err := compileFields(m, fieldPos)
+	fields, lets, err := compileFields(m, fieldPos)
 	if err != nil {
 		return nil, err
 	}
@@ -299,7 +299,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, helpers: helpers, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, lets: lets, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
 }
 
 type templateOptions struct {
@@ -333,13 +333,16 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 }
 
 // compileFields compiles the fields beside the options, and those the "let" option holds, which it
-// also names in helpers.
-func compileFields(m map[string]any, pos position) (fields map[string]node, helpers map[string]bool, err error) {
+// also names in lets. A key of let that is an option name fails, as a field cannot take it.
+func compileFields(m map[string]any, pos position) (fields map[string]node, lets map[string]bool, err error) {
 	fields = make(map[string]node, len(m))
 	compile := func(raw map[string]any, skipOptions bool) error {
 		for _, k := range sortedNames(raw) {
-			if skipOptions && isOption(k) {
-				continue
+			if isOption(k) {
+				if skipOptions {
+					continue
+				}
+				return fmt.Errorf("let holds fields, and %q is an option; name the field otherwise", k)
 			}
 			if err := grammar.CheckIdentifier(k); err != nil {
 				return fmt.Errorf("field %w", err)
@@ -369,11 +372,11 @@ func compileFields(m map[string]any, pos position) (fields map[string]node, help
 	if err := compile(held, false); err != nil {
 		return nil, nil, err
 	}
-	helpers = make(map[string]bool, len(held))
+	lets = make(map[string]bool, len(held))
 	for k := range held {
-		helpers[k] = true
+		lets[k] = true
 	}
-	return fields, helpers, nil
+	return fields, lets, nil
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format
