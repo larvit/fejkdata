@@ -13,9 +13,8 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
-| 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 4 | 1 | 2 | 5 | 6 | 1 by 4, 4 by 3 | 0.9 |
-| 378 | 0.4.0 | 379 |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 4 | 1 | 2 | 5 | 5 | 1 by 5 | 1.3 |
-| 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
+| 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 4 | 1 | 2 | 5 | 5 | 1 by 5 | 1.3 |
+| 385 | 0.4.0 |  |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
@@ -227,7 +226,7 @@
 
 From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
 
-Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. It spells its condition as item 379's clause does.
+Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. It spells its condition as the `where` clause does.
 
 Question for the maintainer: what does a render print when no draw can pass? The strings that adf-codec excludes are known only at render: they are the document's own tokens. So a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Goal 5.4 then rules out an error, and a redraw loop has no bound. The options are:
 - a fallback value that the clause must name;
@@ -236,28 +235,11 @@ Question for the maintainer: what does a render print when no draw can pass? The
 
 Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
 
-### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
-
-From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds WordNet's words, of any length, and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
-
-The filter applies only where every item's value is fixed text, such as a word list, a choice of literal strings or a table column whose cells hold no `{…}`. A generated value, such as `{uuid()}`, is refused at load; item 380 covers it. Where no item can pass, the template fails to load (goal 5.4), including for each length a name such as `k` can take. Weights hold among the items that pass. The filtered set, or an index by length, is built once on first reach, so a draw costs what it did (goal 12.1).
-
-A panel of four readers, seated as a bulk fixture author, a data author, a JavaScript test author and a hand fixture author, ranked an infix clause like `as` first, every one of them: `{/en_US.word where length 5}`. Each read a function form such as `{length(/en_US.word, 5)}` as measuring a length. Each read an excluded `'cat'` as that word alone, never `concatenate`, and asked for a word of its own, such as `containing`, before any substring match. The maintainer chose the spelling on 2026-11-08:
-
-- `{/en_US.word where length 5}` and `{/en_US.word where length 4 to 6}`, both ends included. Ranges take `to`, since `..` already steps up a level (goal 4.4).
-- `{/en_US.word where not 'cat', 'dog'}` excludes those values, compared whole.
-- `{/en_US.word where not containing 'cat'}` excludes every item holding `cat`, `concatenate` included.
-- `and` joins conditions: `{/en_US.word where length 5 and not 'cat'}`.
-- A length may read a name: `{n as k}{/en_US.word where length k}` beside `"n": "{int(3,8)}"`.
-- `as` binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name can't be filtered, since its pick is already drawn.
-
-Length counts Unicode code points, with the shipped data held in NFC by a test, since counting what a reader sees takes a dependency goal 10 rules out. Each reader sketched item 385's distinct pick as a clause after this one.
-
 ### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
 
 From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
 
-One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling. It draws each word through item 379's index by length and fixed-text check, and adds a function operand that reads a category whole.
+One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling. It draws each word through the `where` clause's index by length and fixed-text check, and adds a function operand that reads a category whole.
 
 The panel ran on 2026-11-08: a hand fixture author, a bulk fixture author, a JavaScript test author and a Go test author. All four ranked `{anonymize(text, /en_US.word)}` first, ahead of `reword`, `fakewords`, `rewrite`, `scramble` and `mask`. All four read the text first and the word list second as right. Two asked the docs to say that digits stay, so an id in the text survives. One asked them to say whether one fake per word holds for a row or for the whole run.
 
