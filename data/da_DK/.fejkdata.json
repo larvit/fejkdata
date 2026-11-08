@@ -1,10 +1,12 @@
 {
 	"index": {
 		"da_DK.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"da_DK.cpr": {"paths":["","birth"]},
 		"da_DK.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},
+		"da_DK.parity": {"parent":"sex","paths":["","digit","sex"]},
 		"da_DK.person": {"paths":["","first","last","prefix","sex"]},
-		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name"]},
+		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","name","parity","parity.digit","parity.sex"]},
 		"da_DK.title": {"paths":["","name","share"]}
 	},
 	"namespace": "da_DK"
