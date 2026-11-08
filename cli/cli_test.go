@@ -1095,6 +1095,38 @@ func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
 	}
 }
 
+func TestDocsURLPinsTheReleaseItRuns(t *testing.T) {
+	fejkdata := func(version string, replace *debug.Module) *debug.Module {
+		return &debug.Module{Path: "github.com/larvit/fejkdata", Version: version, Replace: replace}
+	}
+	mycli := debug.Module{Path: "example.com/mycli", Version: "v9.0.0"}
+	pinned, latest := "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md", "https://github.com/larvit/fejkdata"
+	for _, c := range []struct {
+		info *debug.BuildInfo
+		want string
+	}{
+		{&debug.BuildInfo{Main: *fejkdata("v0.4.0", nil)}, pinned},
+		{&debug.BuildInfo{Main: *fejkdata("(devel)", nil)}, latest},
+		{&debug.BuildInfo{Main: *fejkdata("v0.4.1-0.20261108120000-abcdef123456", nil)}, latest},
+		{&debug.BuildInfo{Main: *fejkdata("v0.4.0+dirty", nil)}, latest},
+		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", nil)}}, pinned},
+		{&debug.BuildInfo{Main: mycli, Deps: []*debug.Module{fejkdata("v0.4.0", &debug.Module{Path: "example.com/fork", Version: "v0.4.1"})}}, latest},
+		{&debug.BuildInfo{Main: mycli}, latest},
+		{nil, latest},
+	} {
+		if got := docsURL(c.info); got != c.want {
+			t.Errorf("docsURL(%+v) = %q, want %q", c.info, got, c.want)
+		}
+	}
+}
+
+func TestHelpLinksTheDocsItIsGiven(t *testing.T) {
+	out := help("mycli", "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md")
+	if !strings.Contains(out, "https://github.com/larvit/fejkdata/blob/v0.4.0/README.md#names") {
+		t.Errorf("help does not link the v0.4.0 README's Names:\n%s", out)
+	}
+}
+
 func TestHelpListsEveryBuiltin(t *testing.T) {
 	_, out, _ := runOut("", "--help")
 	start := strings.Index(out, "builtins:\n")
@@ -1102,11 +1134,19 @@ func TestHelpListsEveryBuiltin(t *testing.T) {
 		t.Fatalf("--help has no list of builtins:\n%s", out)
 	}
 	var listed []string
+	lines := 0
 	for _, line := range strings.Split(out[start+len("builtins:\n"):], "\n") {
 		if !strings.HasPrefix(line, "  ") {
 			break
 		}
+		if len(line) > 88 {
+			t.Errorf("--help lists builtins on a line of %d columns, over 88: %q", len(line), line)
+		}
+		lines++
 		listed = append(listed, strings.Fields(line)...)
+	}
+	if lines < 2 {
+		t.Errorf("--help lists the builtins on %d line, want them wrapped", lines)
 	}
 	if want := fejkdata.Builtins(); !slices.Equal(listed, want) {
 		t.Fatalf("--help lists the builtins %v, want %v", listed, want)
