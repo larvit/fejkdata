@@ -285,7 +285,7 @@ Find the numbering plan and its licence first.
 
 ### 395. Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time.
 
-From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Spell its date arithmetic as `{adddays(d,n)}` does, which offsets a date a name read by whole days. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
+From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Its date arithmetic should read like `{adddays(d,n)}`, which adds whole days to a date that a name holds. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
 
 ### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
 
