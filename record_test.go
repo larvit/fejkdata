@@ -163,6 +163,7 @@ func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
 func TestRecordTSV(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"id":"{{x}}","name":"a\tb\r\nc","nick":""}`,
+		"odd": `{"format":"","x\ny":"1","z\tw":"2"}`,
 	})
 	r, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("row")
 	if err != nil {
@@ -173,6 +174,13 @@ func TestRecordTSV(t *testing.T) {
 	}
 	if got, want := r.TSVLine(), "42\t\t{{x}}\ta b  c\t"; got != want {
 		t.Errorf("TSVLine() = %q, want %q: a null column and an empty one an empty cell, braces doubled, a tab, CR or LF a space", got, want)
+	}
+	odd, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("odd")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := odd.TSVHeader(), "x y\tz w"; got != want {
+		t.Errorf("TSVHeader() of names holding a line break and a tab = %q, want %q, one line of two cells", got, want)
 	}
 }
 
