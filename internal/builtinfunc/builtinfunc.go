@@ -22,8 +22,6 @@ type Call func(s *drawstate.State, emitted string, operands []string) string
 // where checkArgs does all the validation.
 type builtin struct {
 	arity int
-	// calls shows each way to call the builtin, its args named as README's Functions
-	// table names them.
 	calls []string
 	// prep parses validated args once, at compile time, into the closure a render calls.
 	prep      func(args []string) Call

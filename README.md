@@ -73,8 +73,8 @@ Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` p
 The binaries are unsigned. macOS refuses to run one a browser downloaded until you run
 `xattr -d com.apple.quarantine fejkdata`.
 
-No npm package ships yet, so JavaScript and TypeScript code runs the CLI, with `--seed` and
-`--today` to repeat a run.
+No npm package ships yet. From JavaScript or TypeScript, run the CLI as a child process,
+with `--seed` and `--today` to repeat a run.
 
 ## Quick start
 
@@ -158,7 +158,7 @@ func TestSignup(t *testing.T) {
 
 To anonymize or mask existing text, such as a document holding real names, ids and URLs,
 your program finds each real value and puts a fake of the same shape in its place.
-fejkdata renders the fakes. Each part of the job, with where its rule is stated:
+fejkdata renders the fakes. Each part of the job:
 
 - The same fake wherever one original recurs in a render: bind a pick to a name,
   `{/en_US.person as p}`, and read `{p}` each time ([Names](#names)).
@@ -169,7 +169,7 @@ fejkdata renders the fakes. Each part of the job, with where its rule is stated:
   ([Format string](#format-string)).
 - A URL of a given form: `{/en_US.url}` draws a host and maybe a path, and the template
   adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`.
-- A longer word list than the shipped one: a category of your own ([Your own data](#your-own-data)).
+- A longer word list than a locale's `word`: a category of your own ([Your own data](#your-own-data)).
 
 ```json
 "{/en_US.person as p}{p} <{lower(6)}@example.com> signed as {p}, id 557058:{/misc.uuid}, {/en_US.url}?{lower(4)}={digits(3)}"
@@ -178,9 +178,9 @@ fejkdata renders the fakes. Each part of the job, with where its rule is stated:
 Renders e.g. `David Greer <tdsagk@example.com> signed as David Greer, id
 557058:3bcf0fc3-f7b0-4d58-bf7f-88c29c39f316, https://blog.example.com?ojat=642`.
 
-Your program keeps the rest of the job: finding the values in the text, giving one original
-the same fake across renders, rewriting a text word by word while keeping its punctuation,
-and keeping a fake from equalling or holding its original.
+Your program keeps the rest of the job: giving one original the same fake across renders,
+rewriting a text word by word while keeping its punctuation, and keeping a fake from
+equalling or containing its original.
 
 ## CLI
 
@@ -563,7 +563,8 @@ its data only when it runs. To catch broken data at `go test`, call
 `fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))` over the same modules, and
 render each path once: a module with an [index](#data) checks a category only when a call first
 reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
-it runs from in its help and errors, and its `--help` lists the [functions](#functions) a template calls. `--no-shipped-data` leaves out the modules passed to
+it runs from in its help and errors. Its `--help` lists the [functions](#functions) a
+template calls. `--no-shipped-data` leaves out the modules passed to
 `Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
 
 ## Data

@@ -157,6 +157,5 @@ func (c config) misuse() error {
 }
 
 // Builtins returns each way a template may call a function, sorted, with its args named,
-// such as hex(n) for {hex(8)}. The functions ship with fejkdata, so a template calls the
-// same ones in every program.
+// such as hex(n) for {hex(8)}. The list is the same in every program.
 func Builtins() []string { return builtinfunc.Calls() }
