@@ -39,9 +39,13 @@ replacement, and each removed path, column or flag.
   of `WithToday` or `--today` that bears the year digits. It adds nothing where `x` is not one digit
   or that year lies outside 1858 to 2057, the years the office's table writes.
   `{/da_DK.cpr.birth}-{cpr(s.individ.digit)}` agrees with a bound sex `s`.
-- `fejkdata.Builtins()` returns each way a template calls a function, such as `hex(n)` and
-  `iban(CC)`, sorted. `--help` lists them, shows a name such as `{/path as p}`, and links the
-  README's Names, Functions and Data format sections.
+- `fejkdata.Builtins()` returns each way a template calls a builtin function, sorted, with its
+  arguments named, such as `hex(n)`, `iban(CC)`, `seq()` and `seq(name)`. `--help` lists them and
+  explains names: `{/path as p}` draws once and prints nothing, and every `{p}` and `{p.field}`
+  reads that one pick. It also links the README's Names, Functions, Data format and Your own data
+  sections. The links point at the README of the fejkdata release the binary was built with, such
+  as `.../blob/v0.4.0/README.md#names`. A build from anything else, such as a development build, a
+  pseudo-version or a replaced module, links the latest README.
 
 ### Changed
 
