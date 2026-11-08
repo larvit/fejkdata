@@ -20,10 +20,10 @@ replacement, and each removed path, column or flag.
 - `geo.DK`, Denmark's places: its regions and kommuner from Statistics Denmark, and every postdistrikt
   holding a street address in Danmarks Adresseregister, each with its postnumre and its streets. A
   kommune's `code` is four digits as the address register writes it, `0101`, and a region's is
-  `1084`. `da_DK.address` prints `geo.DK.address`, a street, a house number, a postnummer and a
+  `1084`, as DAGI, the register of Denmark's divisions, writes it. `da_DK.address` prints `geo.DK.address`, a street, a house number, a postnummer and a
   postdistrikt, such as `Vestergade 12\n8000 Aarhus C`. A program showing the addresses credits
   Klimadatastyrelsen. The Go package is `github.com/larvit/fejkdata/data/geo/DK`, which
-  `data/da_DK`'s `Modules()` now also returns.
+  `data/da_DK`'s `Modules()` also returns.
 
 ## [0.3.0] - 2026-11-05
 

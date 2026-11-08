@@ -189,9 +189,9 @@ func TestShippedDanishAddressIsAStreetANumberAPostnummerAndAPostdistrikt(t *test
 	}
 }
 
-// A postdistrikt is named as DAR writes it, its kommune and region by the codes DAR and DAGI write
-// for Statistics Denmark's kommune 101 and region 084.
-func TestShippedDanishPlacesAreNamedAndNumberedAsDARWritesThem(t *testing.T) {
+// A postdistrikt is named as DAR writes it. Statistics Denmark's kommune 101 is numbered 0101, as DAR
+// writes it, and its region 084 is numbered 1084, as DAGI writes it.
+func TestShippedDanishPlacesAreNamedAndNumberedAsTheRegistersWriteThem(t *testing.T) {
 	districts := map[string]bool{}
 	for _, r := range geoRows(t, "DK", "locality") {
 		districts[r[0]] = true
@@ -220,8 +220,8 @@ func TestShippedDanishPlacesAreNamedAndNumberedAsDARWritesThem(t *testing.T) {
 	}
 }
 
-// Of DAR's 2.62 million house numbers in force, 14.4% carry a letter after the number, 29.3% a
-// number of one digit and none one of four.
+// Of DAR's 2.62 million house numbers in force, 14.4% carry a letter after the number, 29.3% have
+// one digit and none has four.
 func TestShippedDanishHouseNumbersFollowDAR(t *testing.T) {
 	f := shipped(t, WithSeed(11))
 	const draws = 40000
