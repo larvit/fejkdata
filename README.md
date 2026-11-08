@@ -1096,7 +1096,8 @@ writes `42` rather than `"42"` and `sql` a bare literal; a column without one, o
 
 Writes e.g. `{"id":1,"paid":true,"total":59.97}`. A column is a field of the top-level
 template, or an item of a choice standing in for one. A field of a template that stands as a
-column counts too, for a name that reads it, as below. `datatype` anywhere else does nothing. A typed column holds one value, alone in its format: a
+column counts too, for a name that reads it, as below. `datatype` anywhere else does
+nothing. A typed column holds one value, alone in its format: a
 literal, one `{int()}`, `{float()}`, `{seq()}` or `{calc()}` call, or a read that lands only on such
 values. `integer` is an int64 written `-?(0|[1-9][0-9]*)` — `{float()}` prints one at
 `0` decimals within int64 — `number` a JSON number, `boolean` `true` or `false`. A value its
@@ -1134,8 +1135,9 @@ of every item `p` can bring must hold one datatype, or the load fails; one may b
 {"len":null,"pattern":"daily"}
 ```
 
-`len` is an integer column, null for `daily`. A
-`datatype` of its own types the column's values where they prove it, and `"string"`
+`len` is an integer column, null for `daily`.
+
+A `datatype` of its own types the column's values where they prove it, and `"string"`
 reads them as text. Any other read renders the column's text, a null as `""`.
 
 A typed column's `{calc()}` must be proven to print a number: each operand a number
