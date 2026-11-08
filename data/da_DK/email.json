@@ -1,0 +1,24 @@
+{
+  "format": "{local}@{domain}",
+  "local": [
+    {
+      "format": "{/da_DK.first-name as f}{/da_DK.last-name as l}{slugify(f.name)}{sep}{slugify(l.name)}{n}",
+      "weight": 3,
+      "sep": [{ "format": ".", "weight": 2 }, "_", "-", ""],
+      "n": [{ "format": "", "weight": 3 }, "1", "7", "42", "88", "99"]
+    },
+    {
+      "format": "{adj}{noun}{n}",
+      "weight": 2,
+      "adj": ["blid", "cool", "dristig", "flink", "flot", "glad", "hurtig", "klog", "modig", "rolig", "sej", "sjov", "super", "turbo", "vild"],
+      "noun": ["bamse", "bjorn", "elg", "hare", "hund", "hval", "kat", "laks", "mus", "ninja", "panda", "pingvin", "pirat", "robot", "ugle", "ulv"],
+      "n": [{ "format": "", "weight": 2 }, "7", "13", "14", "42", "77", "99", "123", "420", "2024"]
+    },
+    {
+      "format": "{w}{n}",
+      "w": ["blip", "boop", "fizz", "floof", "glorp", "kapow", "kazoo", "nattugle", "pew", "pixelhund", "pling", "plonk", "snork", "splat", "superhund", "turbokat", "vroom", "wahoo", "woot", "yeet", "zap", "zoom"],
+      "n": [{ "format": "", "weight": 2 }, "7", "14", "42", "69", "99", "123", "420", "1337", "2000", "9000"]
+    }
+  ],
+  "domain": ["demo.example.net", "dev.example.com", "example.com", "example.net", "example.org", "mail.example.com", "mail.example.org", "post.example.com", "test.example.org", "webmail.example.net"]
+}
