@@ -252,10 +252,7 @@ func (p *namedPick) draw(s *drawstate.State, start node, steps []pathStep, level
 func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pickKey, env renderEnv) readValue {
 	env = env.at(leaf, pins)
 	env.pick, env.pickAt = p, key
-	return p.keep(key, renderLeaf(s, leaf, env))
-}
-
-func (p *namedPick) keep(key pickKey, r readValue) readValue {
+	r := renderLeaf(s, leaf, env)
 	if p.memo.value == nil {
 		p.memo.value = map[pickKey]readValue{}
 	}

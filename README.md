@@ -1650,7 +1650,7 @@ Refused at `New`:
 
 ### Distinct draws
 
-`distinct N` after a path draws N different items or rows in one pick. `joined` prints them as one
+`distinct N` after a path draws N different values in one pick. `joined` prints them as one
 value, with its text between each two:
 
 ```json
@@ -1668,12 +1668,14 @@ Renders e.g. `crane, shore and plume`. With `joined` before `as`, `{n}` reads th
 `distinct` comes after a [`where`](#filters) clause and before `as`, and draws among the values that
 pass it.
 
-Different means different items or rows, whatever they print: two rows that both print `cat` may
-both be drawn. Each member is drawn by its [weight](#weight) among the items not drawn yet, so an
-item of weight `0` never is. A draw costs what its count costs, whatever the size of the table.
+Different means different values, whatever they print: two rows that both print `cat` may both be
+drawn. Each value of a nested choice is a member of its own, so `/en_US.word`, a choice of four parts
+of speech, draws different words. Each member is drawn by its [weight](#weight) among the values not
+drawn yet, so a value of weight `0` never is.
 
 Joined members are text: a column reading them is a string column, and `calc`, `adddays` and
-`where length` refuse them. One member is a value of the column it comes from, and keeps its type.
+`where length` refuse them. A single member, such as `{w[1]}`, is a value of the column it comes
+from and keeps its type, so `calc(w[1]*2)` and `where length w[1]` read it.
 
 Refused at `New`, each error naming what to write instead:
 

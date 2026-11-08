@@ -41,7 +41,7 @@ func checkCalcNames(label string, t *template) error {
 // operandNodes lists every node each operand of o may render, once its template and names resolve.
 func operandNodes(o op) func(name string) []node {
 	return func(name string) []node {
-		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.head == name })]
+		a := o.operands[slices.IndexFunc(o.operands, func(a arm) bool { return a.spelling == name })]
 		if len(a.leaves) == 0 {
 			panic(invariant.Broken("calc operand %q was read before it was compiled", name))
 		}

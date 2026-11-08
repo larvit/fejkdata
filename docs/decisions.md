@@ -1610,3 +1610,7 @@ members from 1; two chose `{t[1]}`, one `{t#1}` and one `{t.1}`. For one value, 
 
 The seats against `[1]` read it as a selector's key. On a distinct name `[k]` is always a member,
 since such a name refuses every other tail. Valid while goal 4 stands.
+
+Members are different values, not different items: each value of a nested choice counts on its own.
+`/en_US.word` is a choice of four parts of speech, so counting items would draw different parts of
+speech, never three different words.

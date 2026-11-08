@@ -139,23 +139,25 @@ func (p *valueProof) proveUnion(nodes []node) proven.Facts {
 	return v
 }
 
-// proveTemplate proves a template that renders one value: fixed text, or a format that is
-// one token alone.
+// proveTemplate proves a template that renders one value: fixed text, or a format whose one token
+// that prints stands alone.
 func (p *valueProof) proveTemplate(t *template) proven.Facts {
 	lit, fixed := t.fixedText()
+	o, one := t.printedOp()
 	switch {
 	case t.repeat != 1:
 		return proven.Unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
 	case fixed:
 		return proven.Literal(lit)
-	case len(t.compiled.ops) != 1 || t.compiled.ops[0].Kind == grammar.NameBind:
+	case !one:
 		v := proven.Unproven(notOneValue(t.format, typedCalls))
 		v.NotOperand = notOneValue(t.format, operandCalls)
 		return v
 	}
-	o := t.compiled.ops[0]
 	body, name, args := o.Body, o.Fn, o.Args
 	switch {
+	case o.Kind == grammar.LiteralRun:
+		return proven.Literal(o.Lit)
 	case o.Kind == grammar.PathRead && (o.Distinct != nil || slices.ContainsFunc(o.arms, readsJoined)):
 		return joinedText(body)
 	case o.Kind == grammar.PathRead:

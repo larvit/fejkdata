@@ -156,8 +156,9 @@ func (p *calcParser) number() (CalcNode, error) {
 	return CalcNum(v), nil
 }
 
-// ident reads a field or name: a letter or '_', then letters, digits or '_'. A '-'
-// is always the minus operator, so a hyphenated one can't be an operand.
+// ident reads a field or name: a letter or '_', then letters, digits or '_', and maybe a member's
+// key in brackets, as m[1]. A '-' is always the minus operator, so a hyphenated one can't be an
+// operand.
 func (p *calcParser) ident() (CalcNode, error) {
 	start := p.pos
 	for p.pos < len(p.rs) {
@@ -165,6 +166,11 @@ func (p *calcParser) ident() (CalcNode, error) {
 			p.pos++
 		} else {
 			break
+		}
+	}
+	if p.pos < len(p.rs) && p.rs[p.pos] == '[' {
+		if end := slices.Index(p.rs[p.pos:], ']'); end > 0 {
+			p.pos += end + 1
 		}
 	}
 	name := string(p.rs[start:p.pos])

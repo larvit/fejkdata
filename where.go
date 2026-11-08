@@ -61,7 +61,7 @@ func lengthNames(w *grammar.Where) []string {
 func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
 	for _, name := range lengthNames(w) {
-		if !t.isName(name) {
+		if !t.isName(splitArm(name, nil).head) {
 			return nil, fmt.Errorf("length %s reads a name, and %q is a field; bind it first, as {%s as n}, and write length n", name, name, name)
 		}
 		a, err := t.compileArm(name, targets)
@@ -73,10 +73,9 @@ func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nam
 	return arms, nil
 }
 
-// valueDraws builds the draw of each token in ts with a where or a distinct clause, and returns those
-// of the names bound to one.
-func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (map[*nameBinding]*valueDraw, error) {
-	binds := map[*nameBinding]*valueDraw{}
+// valueDraws builds the draw of each token in ts with a where or a distinct clause, and gives a name
+// bound to one its draw.
+func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 	for _, s := range ts {
 		for i := range s.t.compiled.ops {
 			o := &s.t.compiled.ops[i]
@@ -85,22 +84,22 @@ func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) (map[*na
 			}
 			v, err := s.t.valueDrawOf(o, targets)
 			if err != nil {
-				return nil, fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
+				return fmt.Errorf("%s: token {%s}: %w", s.label, o.Body, err)
 			}
 			o.values = v
 			if o.Kind == grammar.NameBind {
-				binds[s.t.nameScope.bindings[o.Bound]] = v
+				s.t.nameScope.bindings[o.Bound].values = v
 			}
 		}
 	}
 	for _, s := range ts {
 		for _, r := range namedReads(s.t) {
-			if binds[r.a.named] != nil && len(r.a.tail) > 0 {
-				return nil, fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.label, r.o.Body, r.a.head, r.a.head)
+			if r.a.named.values != nil && len(r.a.tail) > 0 {
+				return fmt.Errorf("%s: token {%s}: name %q holds a filtered draw, which is read whole: {%s}", s.label, r.o.Body, r.a.head, r.a.head)
 			}
 		}
 	}
-	return binds, nil
+	return nil
 }
 
 // valueDrawOf builds o's draw over the values the path it reads renders, and proves every draw
@@ -376,8 +375,7 @@ func (x *lengthIndex) drawIndex(s *drawstate.State, from, to int, drawn []int) i
 		}
 		v += x.cum[d] - x.before(d)
 	}
-	i := min(from+sort.Search(to-from, func(i int) bool { return x.cum[from+i] > v }), to-1)
-	return undrawnNear(i, from, to, drawn)
+	return undrawnNear(from+sort.Search(to-from, func(i int) bool { return x.cum[from+i] > v }), from, to, drawn)
 }
 
 // before is the running sum of the odds of the texts before index i.
@@ -388,8 +386,8 @@ func (x *lengthIndex) before(i int) float64 {
 	return x.cum[i-1]
 }
 
-// undrawnNear is i, or where rounding landed i on a drawn index, the nearest index from up to to
-// not drawn.
+// undrawnNear is i, or where rounding landed i on a drawn index or on to, the first undrawn index
+// after it, else the last one before it, from up to to.
 func undrawnNear(i, from, to int, drawn []int) int {
 	for j := i; j < to; j++ {
 		if _, taken := slices.BinarySearch(drawn, j); !taken {

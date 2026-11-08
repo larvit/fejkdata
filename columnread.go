@@ -26,10 +26,10 @@ type columnRead struct {
 // declares a string, which reads the column as text. targets is an argument since the bindings
 // take theirs only once every check has passed.
 func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead {
-	if !readsOneArm(t) {
+	a, one := readsOneArm(t)
+	if !one {
 		return nil
 	}
-	a := t.compiled.ops[0].arms[0]
 	start, category, tail := columnSource(t, a, targets)
 	target, isTemplate := start.(*template)
 	if !isTemplate || !target.isRecord || len(tail) == 0 {
@@ -72,9 +72,14 @@ func columnsAt(n node, tail []string) (columns []node) {
 	return columns
 }
 
-func readsOneArm(t *template) bool {
-	ops := t.compiled.ops
-	return (t.datatype == nil || *t.datatype != DataTypeString) && t.repeat == 1 && len(ops) == 1 && ops[0].Kind == grammar.PathRead && len(ops[0].arms) == 1 && ops[0].Where == nil && ops[0].Distinct == nil && !readsJoined(ops[0].arms[0])
+// readsOneArm is the one arm t prints, where t's format prints one plain read and t reads it as its
+// datatype.
+func readsOneArm(t *template) (arm, bool) {
+	o, one := t.printedOp()
+	if !one || (t.datatype != nil && *t.datatype == DataTypeString) || t.repeat != 1 || o.Kind != grammar.PathRead || len(o.arms) != 1 || o.Where != nil || o.Distinct != nil || readsJoined(o.arms[0]) {
+		return arm{}, false
+	}
+	return o.arms[0], true
 }
 
 // readsJoined is whether a reads the members of a distinct draw joined, which is text whatever
