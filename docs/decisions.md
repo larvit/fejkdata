@@ -1508,17 +1508,16 @@ what `fejkdata` writes.
 
 ## `misc.creditcard-test` and `misc.iban-test` are tables of published test numbers
 
-2026-11-08, Lilleman auf Larv. Serves goal 3.3: a default `misc.creditcard` or `{iban(CC)}` can reach a real card or account, so a form that can't sits beside it.
+2026-11-08, Lilleman auf Larv. Serves goal 3.3: a drawn `misc.creditcard` number or `{iban(CC)}` can reach a real card or account, so a form made of numbers published for testing sits beside it.
 
-A panel of three readers, seated as bulk, validator-facing, Go and hand fixture authors, chose the spelling:
+A panel of three readers, each seated as one or two of the README's authors, chose the spelling:
 `creditcard-test` and `iban-test` won two to one over `testcard` and `testiban`, because `--list` puts
 `misc.creditcard-test` beside `misc.creditcard` and `-test` follows `personnummer-12` and `phone-exchange`.
-`testbankaccount` was last for all three, as it doesn't say IBAN.
 
-Each is a table, keyed by brand or by country code, with one row per key and an even draw, as no
-source publishes a frequency. The cards are the brands' rows of Stripe's testing page
-(docs.stripe.com/testing, "Simulate a payment by card brand"), taken from 2026-11-08, and the IBANs are the first row, the
-success case, of its SEPA Direct Debit test IBANs for BE, DE, ES, FI, NO and SE. Stripe lists no Danish
-IBAN, so `DK` is Danske Bank's example, which its page (danskeci.com, "IBAN") calls fictive. A published
-test number is one a payment provider's sandbox accepts and a live system doesn't. Valid while Stripe's
-page and Danske Bank's list state them.
+Each is a table keyed by brand or by country code, one row per key. The cards are the brands' rows of
+Stripe's testing page (docs.stripe.com/testing, "Simulate a payment by card brand"), read on 2026-11-08.
+The IBANs are the first row, the success case, of its SEPA Direct Debit test IBANs for BE, DE, ES, FI,
+NO and SE. Stripe lists no Danish IBAN, so `DK` is the example on Danske Bank's page
+(danskeci.com, "IBAN"), which calls its example accounts fictive. Neither source says that no real card
+or account holds a number, so the README claims only that they are published for testing. Valid while
+those pages state them.
