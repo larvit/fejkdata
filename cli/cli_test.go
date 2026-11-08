@@ -565,8 +565,8 @@ func TestRunNamesItselfByTheCommandName(t *testing.T) {
 	if code := run("mycli", shipped, []string{"-d", "/nope"}, system{1, testDay}, strings.NewReader("{/sv_SE.person}"), &out, &errb); code != 1 || !strings.HasPrefix(errb.String(), "mycli: ") || strings.Contains(errb.String(), "fejkdata") {
 		t.Errorf("mycli -d /nope = %d, %q, want a load error under mycli", code, errb.String())
 	}
-	if code := run("mycli", shipped, []string{"--help"}, system{1, testDay}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(out.String(), "fejkdata") {
-		t.Errorf("mycli --help = %d, %q, want mycli named throughout", code, out.String())
+	if code := run("mycli", shipped, []string{"--help"}, system{1, testDay}, nil, &out, &errb); code != 0 || !strings.HasPrefix(out.String(), "Usage: <template> | mycli [flags]\n") || strings.Contains(strings.ReplaceAll(out.String(), "https://github.com/larvit/fejkdata#", ""), "fejkdata") {
+		t.Errorf("mycli --help = %d, %q, want mycli named throughout, save in links to fejkdata's docs", code, out.String())
 	}
 }
 
