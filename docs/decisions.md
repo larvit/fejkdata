@@ -1413,7 +1413,7 @@ break the promise. Faker's `unique` raises after 1000 tries, which is the error 
 here. A column carrying `{seq()}`, such as `T-{seq(c)}`, is unique by construction.
 Valid while goals 5.4 and 12.1 hold.
 
-## `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall, in order of commonness
+## `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall
 
 2026-11-08, the maintainer. Goal 3.2.
 
@@ -1424,7 +1424,8 @@ counts was found online, and goal 3.2 prefers a good source without requiring on
 chose the model's own knowledge over Wikidata.
 
 So the top 20 of each list keep Statistics Denmark's counts of 1 January 2026, and every other
-name is a language model's recall of a name common in Denmark, listed from the most to the least
-common, with an estimated count of the twentieth name's count times 20 over its rank. A recalled
-name never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
+name is a language model's recall of a name common in Denmark. The commoner ones come first, from
+the most to the least common, with an estimated count of the twentieth name's count times 20 over
+its rank; the rarer ones follow in no order and share the count of the last rank. A recalled name
+never outweighs the twentieth. The sex counts are Statistics Denmark's table FOLK1A.
 Valid while no good source of Danish name counts is found; a bulk file replaces the recall.

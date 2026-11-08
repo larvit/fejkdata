@@ -526,8 +526,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
-1 January 2026. Every other name is a language model's recall of a name common in Denmark, ordered from
-the most to the least common, and its weight is an estimate that keeps that order. A program showing the
+1 January 2026. Every other name is a language model's recall of a name common in Denmark: the commoner ones come first,
+from the most to the least common, and the rarer ones share one weight. These weights are estimates. A program showing the
 top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
