@@ -677,11 +677,17 @@ sv_SE.organisationsnummer.group	string
 sv_SE.organisationsnummer.head	string
 sv_SE.organisationsnummer.tail	string
 sv_SE.organisationsnummer.vat	string
-sv_SE.person	format "{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
+sv_SE.person	format "{birth as b}{prefix}{first} {last}"	reads sv_SE.first-name sv_SE.last-name sv_SE.title
+sv_SE.person.birth
+sv_SE.person.birth.date
+sv_SE.person.birth.sign
 sv_SE.person.birthdate	string
 sv_SE.person.first	string
 sv_SE.person.last	string
+sv_SE.person.personnummer	string
 sv_SE.person.prefix	string null
+sv_SE.person.samordningsnummer	string
+sv_SE.person.samordningsnummer.day
 sv_SE.person.sex	string
 sv_SE.personnummer	reads sv_SE.birth-number
 sv_SE.personnummer-12	reads sv_SE.birth-number
