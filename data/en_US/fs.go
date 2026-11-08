@@ -12,7 +12,7 @@ import (
 // FS holds the locale alone, its categories and its manifest; pass Modules unless your own
 // data stands in for geo.US.
 //
-//go:embed *.json *.tsv .fejkdata.json
+//go:embed *.json *.tsv *.txt .fejkdata.json
 var FS embed.FS
 
 // Modules returns FS and every module it reads, to pass to fejkdata.WithDataFS.
