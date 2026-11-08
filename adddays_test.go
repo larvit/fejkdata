@@ -65,10 +65,29 @@ func TestAddDaysRefusesWhatIsNoProvenDateOrDayCount(t *testing.T) {
 		`{"format":"{x as s}{y as u}{adddays(u,1)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}","y":"{adddays(s,1)}"}`: "one adddays",
 		`{"format":"{x as s}{adddays(s,1,2006-01-02)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                   "'2006-01-02'",
 		`{"format":"{x as s}{adddays(s)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                                "2 or 3 arguments",
+		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'2006-01')}"}`:                                 "does not read back",
+		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'200612')}"}`:                                  "does not read back",
+		`{"format":"{x as s}{adddays(s,1)}","x":"{date(2020-01-01,2020-12-31,'2006-1_2')}"}`:                                "does not read back",
+		`{"format":"{x as s}{adddays(s,1000001)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                        "exceeds",
+		`{"format":"{x as s}{adddays(s,-1000001)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`:                       "exceeds",
+		`{"format":"{x as s}{adddays(s,n)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}","n":"{int(1,1000001)}"}`:       "1000001",
+		`{"format":"{x as s}{adddays(s,-n)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}","n":"{int(1,9)}"}`:            "draw it negative",
 	} {
 		_, err := resolved(t, tmpl)
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("compile(%s) = %v, want an error mentioning %q", tmpl, err, want)
+		}
+	}
+}
+
+func TestAddDaysAcceptsAMillionDaysEitherWay(t *testing.T) {
+	for _, tmpl := range []string{
+		`{"format":"{x as s}{adddays(s,1000000)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`,
+		`{"format":"{x as s}{adddays(s,-1000000)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}"}`,
+		`{"format":"{x as s}{adddays(s,n)}","x":"{date(2020-01-01,2020-12-31,'2006-01-02')}","n":"{int(-1000000,1000000)}"}`,
+	} {
+		if _, err := resolved(t, tmpl); err != nil {
+			t.Errorf("compile(%s) = %v, want no error", tmpl, err)
 		}
 	}
 }
