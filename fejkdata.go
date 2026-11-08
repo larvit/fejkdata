@@ -156,7 +156,7 @@ func (c config) misuse() error {
 	return errors.Join(err, c.nilModules)
 }
 
-// Builtins returns the sorted names of the functions every template may call as
-// {name(args)}, such as hex in {hex(8)}. They ship with fejkdata, so a template calls the
-// same functions in every program.
-func Builtins() []string { return builtinfunc.Names() }
+// Builtins returns each way a template may call a function, sorted, with its args named,
+// such as hex(n) for {hex(8)}. The functions ship with fejkdata, so a template calls the
+// same ones in every program.
+func Builtins() []string { return builtinfunc.Calls() }

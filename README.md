@@ -73,6 +73,9 @@ Linux, macOS and Windows on amd64 and arm64, and the `.deb`, `.rpm` and `.apk` p
 The binaries are unsigned. macOS refuses to run one a browser downloaded until you run
 `xattr -d com.apple.quarantine fejkdata`.
 
+No npm package ships yet, so JavaScript and TypeScript code runs the CLI, with `--seed` and
+`--today` to repeat a run.
+
 ## Quick start
 
 ### Bulk fixtures
@@ -450,7 +453,7 @@ rt, err := f.NewRecordTemplate(`{"format":"","id":{"format":"{seq(users)}","data
 r = rt.Fake()                             // render a row; loop this for bulk output
 err = f.FakeStruct(&user)                 // fill a struct's fake:"…" tagged fields
 ok, err := fejkdata.IsTemplate(arg)       // an inline template by its shape, else a path
-names := fejkdata.Builtins()              // the functions a template calls as {name(args)}, sorted
+calls := fejkdata.Builtins()              // each way to call a function, such as hex(n), sorted
 ```
 
 | Option | |
@@ -560,7 +563,7 @@ its data only when it runs. To catch broken data at `go test`, call
 `fejkdata.New(fejkdata.WithDataFS(...), fejkdata.WithSeed(1), fejkdata.WithToday(time.Now()))` over the same modules, and
 render each path once: a module with an [index](#data) checks a category only when a call first
 reaches it. The CLI takes `fejkdata`'s flags and exit codes, and names itself by the file
-it runs from in its help and errors. `--no-shipped-data` leaves out the modules passed to
+it runs from in its help and errors, and its `--help` lists the [functions](#functions) a template calls. `--no-shipped-data` leaves out the modules passed to
 `Main`, and `--version` prints your module's version beside the fejkdata version it is built with.
 
 ## Data

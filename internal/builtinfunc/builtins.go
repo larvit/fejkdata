@@ -29,37 +29,37 @@ const (
 // draws its timestamp from the rng, not the wall clock, so seeded output stays
 // reproducible.
 var builtins = withTransforms(map[string]builtin{
-	"luhn":    {arity: -1, checkArgs: luhnArg, prep: luhnPrep},
-	"mod11":   {arity: 0, prep: derive(mod11Check)},
-	"ean":     {arity: 0, prep: derive(eanCheck)},
-	"bgmod11": {arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
-	"fnr":     {arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
-	"cpr":     {arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
-	"uuid":    {arity: 0, prep: sample(uuidV7)},
-	"ulid":    {arity: 0, prep: sample(ulid)},
-	"nanoid":  {arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
-	"hex":     {arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
-	"digits": {arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
+	"luhn":    {calls: []string{"luhn()", "luhn(n)"}, arity: -1, checkArgs: luhnArg, prep: luhnPrep},
+	"mod11":   {calls: []string{"mod11()"}, arity: 0, prep: derive(mod11Check)},
+	"ean":     {calls: []string{"ean()"}, arity: 0, prep: derive(eanCheck)},
+	"bgmod11": {calls: []string{"bgmod11(x)"}, arity: 1, checkArgs: bgmod11Arg, prep: bgmod11Prep},
+	"fnr":     {calls: []string{"fnr(x)"}, arity: 1, checkArgs: fnrArg, prep: fnrPrep, operands: func(a []string) []string { return a }},
+	"cpr":     {calls: []string{"cpr(x)"}, arity: 1, checkArgs: cprArg, prep: cprPrep, operands: func(a []string) []string { return a }},
+	"uuid":    {calls: []string{"uuid()"}, arity: 0, prep: sample(uuidV7)},
+	"ulid":    {calls: []string{"ulid()"}, arity: 0, prep: sample(ulid)},
+	"nanoid":  {calls: []string{"nanoid(n)"}, arity: 1, checkArgs: countArg, prep: chars(nanoidAlphabet)},
+	"hex":     {calls: []string{"hex(n)"}, arity: 1, checkArgs: countArg, prep: chars(hexDigits)},
+	"digits": {calls: []string{"digits(n)"}, arity: 1, checkArgs: countArg, prep: chars("0123456789"), prints: datatype.String, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		if atoi(a[0]) == 0 {
 			return proven.Unproven("{" + token + "} prints nothing, which is no number")
 		}
 		return proven.Printing(token, prints, proven.Bounded(0, math.Pow(10, float64(atoi(a[0])))-1, true))
 	}},
-	"upper": {arity: 1, checkArgs: countArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-	"lower": {arity: 1, checkArgs: countArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
-	"base64": {arity: 1, checkArgs: countArg, prep: func(a []string) Call {
+	"upper": {calls: []string{"upper(n)"}, arity: 1, checkArgs: countArg, prep: chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+	"lower": {calls: []string{"lower(n)"}, arity: 1, checkArgs: countArg, prep: chars("abcdefghijklmnopqrstuvwxyz")},
+	"base64": {calls: []string{"base64(n)"}, arity: 1, checkArgs: countArg, prep: func(a []string) Call {
 		n := atoi(a[0])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return base64.StdEncoding.EncodeToString(randBytes(s, n))
 		}
 	}},
-	"int": {arity: 2, checkArgs: intRangeArgs, prep: func(a []string) Call {
+	"int": {calls: []string{"int(min,max)"}, arity: 2, checkArgs: intRangeArgs, prep: func(a []string) Call {
 		lo, span := atoi(a[0]), atoi(a[1])-atoi(a[0])+1
 		return func(s *drawstate.State, _ string, _ []string) string { return strconv.Itoa(lo + s.IntN(span)) }
 	}, prints: datatype.Integer, proveNumber: func(token string, prints datatype.DataType, a []string) proven.Facts {
 		return proven.Printing(token, prints, proven.Bounded(float64(atoi(a[0])), float64(atoi(a[1])), true))
 	}},
-	"float": {arity: 3, checkArgs: floatArgs, prep: func(a []string) Call {
+	"float": {calls: []string{"float(min,max,dp)"}, arity: 3, checkArgs: floatArgs, prep: func(a []string) Call {
 		lo, hi, dp := atof(a[0]), atof(a[1]), atoi(a[2])
 		return func(s *drawstate.State, _ string, _ []string) string {
 			return formatFloat(lo+s.Float64()*(hi-lo), dp)
@@ -67,18 +67,18 @@ var builtins = withTransforms(map[string]builtin{
 	}, prints: datatype.Number, proveNumber: func(token string, _ datatype.DataType, a []string) proven.Facts {
 		return proven.PrintedNumber(token, proven.Bounded(atof(a[0]), atof(a[1]), false), atoi(a[2]))
 	}},
-	"iban": {arity: 1, checkArgs: ibanArg, prep: func(a []string) Call {
+	"iban": {calls: []string{"iban(CC)"}, arity: 1, checkArgs: ibanArg, prep: func(a []string) Call {
 		cc := a[0]
 		return func(s *drawstate.State, _ string, _ []string) string { return iban(s, cc) }
 	}},
-	"date":   {arity: -1, checkArgs: dateArgs, prep: datePrep},
-	"born":   {arity: -1, checkArgs: bornArgs, prep: bornPrep},
-	"time":   {arity: -1, checkArgs: timeArg, prep: timePrep},
-	CalcName: {arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
+	"date":   {calls: []string{"date(from,to,'layout')"}, arity: -1, checkArgs: dateArgs, prep: datePrep},
+	"born":   {calls: []string{"born(min,max,'layout')"}, arity: -1, checkArgs: bornArgs, prep: bornPrep},
+	"time":   {calls: []string{"time('layout')"}, arity: -1, checkArgs: timeArg, prep: timePrep},
+	CalcName: {calls: []string{CalcName + "(expr)", CalcName + "(expr,dp)"}, arity: -1, checkArgs: checkCalc, prep: calcPrep, operands: calcOperands},
 	// seq is the one stateful builtin: a per-generator counter from 1, advancing on
 	// each call. An optional name selects an independent counter; no name uses the
 	// default one. Deterministic by construction, so seeded output stays stable.
-	"seq": {arity: -1, checkArgs: seqArg, prep: func(a []string) Call {
+	"seq": {calls: []string{"seq()", "seq(name)"}, arity: -1, checkArgs: seqArg, prep: func(a []string) Call {
 		key := ""
 		if len(a) == 1 {
 			key = a[0]
