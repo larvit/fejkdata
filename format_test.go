@@ -130,3 +130,38 @@ func TestFormatCompileErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestAReadOfAFieldBesideItsTemplateNamesTheRuleAndTheFix(t *testing.T) {
+	const rule = "a token reads only the fields of the template whose format holds it"
+	const ownFix = `give field "a" a format and a "b" of its own`
+	const bindFix = `bind {b as n} in the format beside field "a" and read {n}`
+	for _, c := range []struct {
+		name, src string
+		bind      bool
+	}{
+		{"a bare string", `{"format":"{a}","a":"x{b}","b":"y"}`, true},
+		{"a bare string reading a name", `{"format":"{w as p}{a}","w":["v","z"],"a":"{p}{b}","b":"y"}`, true},
+		{"a field of a choice's item", `{"format":"{c}","c":[{"format":"{a}","a":"x{b}","b":"y"},"z"]}`, false},
+	} {
+		_, err := resolved(t, c.src)
+		if err == nil {
+			t.Errorf("%s: compile(%s) loaded, want a refusal", c.name, c.src)
+			continue
+		}
+		msg := err.Error()
+		if !strings.Contains(msg, rule) || !strings.Contains(msg, ownFix) {
+			t.Errorf("%s: compile(%s) = %v, want it to state %q and name the fix %q", c.name, c.src, err, rule, ownFix)
+		}
+		if strings.Contains(msg, bindFix) != c.bind {
+			t.Errorf("%s: compile(%s) = %v, want the binding fix %q offered: %v", c.name, c.src, err, bindFix, c.bind)
+		}
+	}
+	for _, src := range []string{
+		`{"format":"{a}","a":{"format":"x{b}","b":"y"}}`,
+		`{"format":"{b as n}{a}","a":"x{n}","b":"y"}`,
+	} {
+		if got := mustRender(t, engine(1), src); got != "xy" {
+			t.Errorf("render(%s) = %q, want the fix the refusal names to print xy", src, got)
+		}
+	}
+}
