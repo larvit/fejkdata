@@ -130,7 +130,7 @@ func TestDistinctRefusesInATable(t *testing.T) {
 func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
 		"src": `{"format":"","n":[{"format":"10","datatype":"integer"},{"format":"20","datatype":"integer"},{"format":"30","datatype":"integer"}]}`,
-		"row": `{"format":"{/src.n distinct 2 joined ',' as e}","pair":"{/src.n distinct 2 joined ','}","both":"{e}","first":"{e[1]}","own":"{/src.n distinct 2 as y}{y[1]}","kept":"{/src.n where length 2 as z}{z}"}`,
+		"row": `{"format":"{/src.n distinct 2 joined ',' as e}","pair":"{/src.n distinct 2 joined ','}","both":"{e}","first":"{e[1]}","own":"{/src.n distinct 2 as y}{y[1]}","kept":"{/src.n where length 2 as z}{z}","lit":{"format":"{/src.n where length 2 as q}5","datatype":"integer"}}`,
 	}))
 	r, err := f.FakeRecord("row")
 	if err != nil {
@@ -138,7 +138,7 @@ func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
 	}
 	for _, c := range r.Columns() {
 		want := DataTypeString
-		if c.Name == "first" || c.Name == "own" || c.Name == "kept" {
+		if c.Name == "first" || c.Name == "own" || c.Name == "kept" || c.Name == "lit" {
 			want = DataTypeInteger
 		}
 		if c.DataType != want {
