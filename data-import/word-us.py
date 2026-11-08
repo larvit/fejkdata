@@ -3,15 +3,17 @@
 
     data-import/word-us.py [--wordnet URL_OR_FILE] [--rude URL_OR_FILE] [--cache DIR] [--out DIR]
 
-A row is a noun, verb, adjective or adverb that WordNet's index lists in lower-case letters alone, so a phrase, a proper
-noun and a word with a hyphen or an apostrophe are left out. A verb carries its third-person present, the regular
-spelling or one of REGULAR's exceptions. A word on LDNOOBW's English list of rude words is dropped. WordNet's sense
-counts cover a quarter of its words, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
+A row is a noun, verb, adjective or adverb that WordNet's data files spell in lower-case letters alone, so a phrase, a
+proper noun, an acronym and a word with a hyphen or an apostrophe are left out. WordNet's index files lower-case every
+lemma, so the spelling comes from the data files. A verb carries its third-person present, by the spelling rule or
+one of IRREGULAR. A word is dropped when one of its senses is in WordNet's usage domain of disparagement, ethnic
+slurs or obscenity, or when it is on LDNOOBW's English list of rude words. WordNet's sense counts cover a quarter of
+its words, so each word is drawn evenly, and `word` weighs a part of speech by its row count.
 """
 import argparse
+import io
 import re
 import tarfile
-import io
 from pathlib import Path
 
 import source
@@ -22,32 +24,49 @@ RUDE = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-
 OUT = Path(__file__).resolve().parent.parent / "data" / "en_US"
 CACHE = Path(__file__).resolve().parent / "cache"
 LETTERS = re.compile(r"[a-z]+")
+RUDE_DOMAINS = {"disparagement", "ethnic_slur", "obscenity"}
 PARTS = ("noun", "verb", "adj", "adv")
 # The verbs whose third person the spelling rule gets wrong.
-REGULAR = {"be": "is", "have": "has", "quiz": "quizzes", "whiz": "whizzes"}
+IRREGULAR = {"be": "is", "have": "has", "quiz": "quizzes", "stomach": "stomachs", "whiz": "whizzes"}
+IRREGULAR.update({v: v + "s" for v in "bravo bunco crescendo decrescendo demo disco ditto kayo mambo solo tango velcro".split()})
 
 
 def present(verb):
-    if verb in REGULAR:
-        return REGULAR[verb]
+    if verb in IRREGULAR:
+        return IRREGULAR[verb]
     if re.search(r"[^aeiou]y$", verb):
         return verb[:-1] + "ies"
-    if re.search(r"(s|x|z|ch|sh|o)$", verb):
+    if re.search(r"([^aeiou]o|s|x|z|ch|sh)$", verb):
         return verb + "es"
     return verb + "s"
 
 
-def lemmas(tarball, part):
-    """The lemmas of dict/index.<part>, whose license-header lines open with two spaces."""
+def synsets(tarball, part):
+    """Each synset of dict/data.<part> as its offset, its words and the offsets it points to as `;u`, a usage domain."""
     with tarfile.open(fileobj=io.BytesIO(tarball)) as archive:
-        text = archive.extractfile(f"dict/index.{part}").read().decode("utf-8")
-    return (line.split(" ", 1)[0] for line in text.split("\n") if line and not line.startswith("  "))
+        text = archive.extractfile(f"dict/data.{part}").read().decode("utf-8")
+    for line in text.split("\n"):
+        if not line or line.startswith("  "):
+            continue
+        field = line.split("|")[0].split(" ")
+        words = [re.sub(r"\(\w+\)$", "", field[4 + 2 * i]) for i in range(int(field[3], 16))]
+        pointers = field[4 + 2 * len(words) :]
+        domains = {pointers[k + 1] for k in range(1, 4 * int(pointers[0]), 4) if pointers[k] == ";u"}
+        yield field[0], words, domains
+
+
+def rude_domains(tarball):
+    """The offsets of the usage domains RUDE_DOMAINS names, which are nouns."""
+    return {offset for offset, words, _ in synsets(tarball, "noun") if RUDE_DOMAINS & set(words)}
 
 
 def tables(tarball, rude):
+    domains = rude_domains(tarball)
     rows = {}
     for part in PARTS:
-        words = sorted({w for w in lemmas(tarball, part) if LETTERS.fullmatch(w) and w not in rude})
+        senses = [(w, d) for _, words, d in synsets(tarball, part) for w in words]
+        dropped = {w for w, d in senses if d & domains}
+        words = sorted({w for w, _ in senses if LETTERS.fullmatch(w) and w not in dropped and w not in rude})
         rows[part] = [{"word": w, "present": present(w)} if part == "verb" else {"word": w} for w in words]
     return rows
 

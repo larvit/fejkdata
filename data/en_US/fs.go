@@ -9,7 +9,7 @@ import (
 	geous "github.com/larvit/fejkdata/data/geo/US"
 )
 
-// FS holds the locale alone, its categories and its manifest; pass Modules unless your own
+// FS holds the locale alone, its categories, WordNet's licence and its manifest; pass Modules unless your own
 // data stands in for geo.US.
 //
 //go:embed *.json *.tsv *.txt .fejkdata.json

@@ -25,6 +25,8 @@ archives:
     files:
       - LICENSE
       - DATA-LICENSES.md
+      - src: data/en_US/WORDNET-LICENSE.txt
+        dst: WORDNET-LICENSE.txt
       - README.md
       - CHANGELOG.md
 
@@ -51,6 +53,8 @@ nfpms:
         dst: /usr/share/doc/fejkdata/LICENSE
       - src: DATA-LICENSES.md
         dst: /usr/share/doc/fejkdata/DATA-LICENSES.md
+      - src: data/en_US/WORDNET-LICENSE.txt
+        dst: /usr/share/doc/fejkdata/WORDNET-LICENSE.txt
 
 dockers_v2:
   - images:

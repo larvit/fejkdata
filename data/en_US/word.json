@@ -1,10 +1,10 @@
 {
   "format": "{any}",
   "any": [
-    { "format": "{.word-noun}", "weight": 55077 },
-    { "format": "{.word-verb}", "weight": 8406 },
-    { "format": "{.word-adj}", "weight": 17851 },
-    { "format": "{.word-adv}", "weight": 3627 }
+    { "format": "{.word-noun}", "weight": 41299 },
+    { "format": "{.word-verb}", "weight": 8383 },
+    { "format": "{.word-adj}", "weight": 17173 },
+    { "format": "{.word-adv}", "weight": 3619 }
   ],
   "noun": "{.word-noun}",
   "verb": { "format": "{.word-verb as verbword}{verbword}", "present": "{verbword.present}" },
