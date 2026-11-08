@@ -1404,7 +1404,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
-| `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
+| `{adddays(d,n)}`, `{adddays(d,n,'layout')}` | computation | the date `d` reads plus `n` days, an integer, field, path or name, negative for earlier; the time of day stays, and the layout is `d`'s unless given ([Date offsets](#date-offsets)) |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
@@ -1450,7 +1450,8 @@ generator fills several.
 ### Date offsets
 
 `{adddays(d,n)}` prints the date `d` plus `n` days, so a fixture's end falls a drawn number of
-days after its start. Read `d` through a [name](#names), so both columns show one date:
+days after its start. Read `d` through a [name](#names): the name keeps one draw, so the start
+printed and the end computed from it share one date:
 
 ```json
 { "format": "{start as s}{len as n}{s},{n},{adddays(s,n)}", "start": "{date(2026-01-01,2026-12-31,'2006-01-02')}", "len": "{int(1,30)}" }
@@ -1459,8 +1460,8 @@ days after its start. Read `d` through a [name](#names), so both columns show on
 Renders e.g. `2026-03-28,5,2026-04-02`. A third argument prints the result in another layout:
 `{adddays(s,-1,'January 2, 2006')}` prints the day before `s` as `March 27, 2026`.
 
-Refused at `New`, each error naming what to write instead: a `d` that could render anything but
-one `date` or `born` call, such as `"on {date(…)}"` or another `adddays`, or calls in two layouts; a layout that
+Refused at `New`: a `d` that may render anything but a `date` or `born` call, such as
+`"on {date(…)}"` or another `adddays`; a `d` whose calls print in more than one layout; a layout that
 does not read back as the day it printed, such as `'01-02'` with no year or `'060102'` with a
 two-digit one; an `n` that is not always a whole number; and an offset beyond a million days
 either way.

@@ -1563,7 +1563,7 @@ NO and SE. Stripe lists no Danish IBAN, so `DK` is the example on Danske Bank's 
 or account holds a number, so the README claims only that they are published for testing. Valid while
 those pages state them.
 
-## A date offset is `adddays(d,n)`, and its `d` is one `date` or `born` call whose layout reads back
+## A date offset is `adddays(d,n)`, and its `d` reads `date` or `born` calls in one layout that reads back
 
 2026-11-08, Lilleman auf Larv.
 
@@ -1571,10 +1571,12 @@ Goal 4 asks that a template be easy to write and read, and goals 5.1 and 5.4 tha
 forbid fail at load. A panel of four readers, seated as the bulk fixture author, the Go test author, the
 JavaScript test author and the hand fixture author, chose a day-offset function four to none over a
 `date()` whose bounds read a name and over `calc` on a date: its unit is in its name, and neither `date`
-nor `calc` changes meaning. A second panel of three chose `adddays` three to none over `days`, which read
-as a count, `dateadd` and `plusdays`, and an optional layout, defaulting to `d`'s, two to one.
+nor `calc` changes meaning. A second panel of three chose the name `adddays` three to none over `days`, `dateadd` and
+`plusdays`; `days` read as a count. The same panel chose, two to one, an optional third argument for
+the layout, which defaults to `d`'s.
 
 `adddays` parses the text `d` printed, so it reads only what proves one layout at load, and only a
-layout that prints every day from year 1 to 9999 so it parses back as that day. It does not read
+layout that parses back as the day it printed, checked on every day of a leap year and on days in
+years 1, 1969 and 9999. It does not read
 another `adddays`, whose result could pass year 9999. Valid while goal 4 stands and no builtin but
 `date` and `born` draws a date.
