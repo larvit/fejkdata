@@ -21,7 +21,7 @@
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
-| 397 | 0.4.0 |  |  | **State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's, and file a form that reaches nothing real.** | 1 | 1 | 1 | 1 | 2 | 3 by 2 | 1.5 |
+| 397 | 0.4.0 |  |  | **State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's.** | 1 | 1 | 1 | 1 | 2 | 3 by 2 | 1.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 4 | 1 | 2 | 5 | 7 | 1 by 2, 3.1 by 4 | 1.4 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
@@ -235,7 +235,7 @@
 
 ### 391. Show in the README how to write ratios and rules as data: 80% `active` by a weighted choice, and a currency that follows its country by a named pick.
 
-From the same review, which asked for weights and `if/then` rules. Both already exist: a choice's `weight` skews odds (Weight), and a table row bound to a name keeps a country and its currency together (Correlated fields, goal 3.1). Neither reads as an answer to "80% active" or "if country is SE, currency is SEK", so a reader searching `ratio`, `percent` or `if` finds nothing. Add no conditional syntax: goal 4's counter-signal is a Data format section growing faster than the categories using it. Every example runs as a test and shows its output (goal 11.2), and a hit on `percent` or `ratio` lands on it.
+From the outside review item 390 names, which asked for weights and `if/then` rules. Both already exist: a choice's `weight` skews odds (Weight), and a table row bound to a name keeps a country and its currency together (Correlated fields, goal 3.1). Neither reads as an answer to "80% active" or "if country is SE, currency is SEK", so a reader searching `ratio`, `percent` or `if` finds nothing. Add no conditional syntax: goal 4's counter-signal is a Data format section growing faster than the categories using it. Every example runs as a test and shows its output (goal 11.2), and a hit on `percent` or `ratio` lands on it.
 
 ### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
 
@@ -286,9 +286,9 @@ From a real-world use case, a scheduler's fixtures: `UNTIL = DTSTART + N days` c
 
 A writer panel picks the spelling, between a date offset, a `date()` whose bound reads another field, and `calc` over dates; the author offered each. What it reads comes through a name, so both columns show one date, and is proven a date at load (goals 5.1 and 5.4). It reads no clock (goal 9).
 
-### 397. State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's, and file a form that reaches nothing real.
+### 397. State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's.
 
-A validator author in a reader panel couldn't tell whether a drawn card number or IBAN may belong to someone. Both may: `misc.creditcard` draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` a random BBAN with mod-97 check digits. Goal 3.3's counter-signal is a default value reaching a real system. The issuers' published test numbers would be the form that reaches nothing real.
+A validator-facing author in a reader panel couldn't tell whether a drawn card number or IBAN may belong to someone. Both may: `misc.creditcard` draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` a random BBAN with mod-97 check digits. Goal 3 asks the docs to say which kind a value is, and goal 3.3's counter-signal is a default value reaching a real system. Offering a form that reaches nothing real, such as the issuers' published test card numbers, is a further item.
 
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
