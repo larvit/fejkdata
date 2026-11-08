@@ -603,26 +603,27 @@ func TestShippedDanishCompanyNamesAreBuiltOfNamesPlacesAndTradeWords(t *testing.
 	}
 	places, firsts, lasts := set("data/geo/DK/locality.tsv"), set("data/da_DK/first-name.tsv"), set("data/da_DK/last-name.tsv")
 	f := shipped(t, WithSeed(8))
-	seen := map[string]bool{}
-	for i := 0; i < 4000; i++ {
+	seen := map[string]int{}
+	const draws = 4000
+	for i := 0; i < draws; i++ {
 		name := fake(t, f, "da_DK.company.enk")
 		for _, w := range words {
 			if head, ok := strings.CutSuffix(name, " "+w); ok {
 				switch {
 				case places[head]:
-					seen["place and trade word"] = true
+					seen["place and trade word"]++
 				case lasts[head]:
-					seen["last name and trade word"] = true
+					seen["last name and trade word"]++
 				}
 			}
 		}
 		if first, last, ok := strings.Cut(name, " "); ok && firsts[first] && lasts[last] {
-			seen["first and last name"] = true
+			seen["first and last name"]++
 		}
 	}
 	for _, shape := range []string{"place and trade word", "last name and trade word", "first and last name"} {
-		if !seen[shape] {
-			t.Errorf("4000 sole proprietorships never drew a name of the shape %s", shape)
+		if seen[shape] < draws/10 {
+			t.Errorf("%d sole proprietorships drew a name of the shape %s %d times, want %d or more", draws, shape, seen[shape], draws/10)
 		}
 	}
 }
