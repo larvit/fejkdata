@@ -1055,3 +1055,20 @@ Read most (opens and searches):
 - `data/sv_SE/fs.go` 1
 - `data/sv_SE/person.json` 1
 - `data/sv_SE/personnummer-12.json` 1
+
+## Reading cost, chunk 8d5d85c52e90, finished 2026-11-08T11:58:28Z
+
+72993 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `cli/cli_test.go` 6
+- `README.md` 4
+- `cli/cli.go` 3
+- `record.go` 3
+- `todo.md` 3
+- `internal/rows/rows.go` 2
+- `record_test.go` 2
+- `compose.yaml` 1
+- `docs/decisions.md` 1
+- `perf_test.go` 1
