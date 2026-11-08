@@ -127,6 +127,9 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		if err := checkCalcNames(s.label, s.t); err != nil {
 			return err
 		}
+		if err := proveAddDays(s.label, s.t); err != nil {
+			return err
+		}
 	}
 	for b, target := range targets {
 		b.target, b.addressed = target, names.addressed[b]

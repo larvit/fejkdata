@@ -24,6 +24,8 @@ replacement, and each removed path, column or flag.
 
 ### Added
 
+- `{adddays(d,n)}` prints the date `d` plus `n` days, keeping its time of day: `{start as s}{len as n}{s},{adddays(s,n)}`
+  prints an end `n` days after the start it shows. A third argument, `{adddays(d,n,'layout')}`, prints it in another layout.
 - The option `let` holds fields that write no column: `{"format":"{a}","let":{"a":"{/x}"},"b":"{a}"}`
   has the one column `b`. A record holding every field in `let` fails with `ErrNoColumns`.
 - `misc.creditcard-test` and `misc.iban-test` draw only numbers published for testing:
