@@ -22,6 +22,9 @@ type Call func(s *drawstate.State, emitted string, operands []string) string
 // where checkArgs does all the validation.
 type builtin struct {
 	arity int
+	// calls shows each way to call the builtin, its args named as README's Functions
+	// table names them.
+	calls []string
 	// prep parses validated args once, at compile time, into the closure a render calls.
 	prep      func(args []string) Call
 	checkArgs func(args []string) error
@@ -77,14 +80,14 @@ func Operands(name string, args []string) []string {
 	return b.operands(args)
 }
 
-// Names lists every builtin's name, sorted.
-func Names() []string {
-	names := make([]string, 0, len(builtins))
-	for name := range builtins {
-		names = append(names, name)
+// Calls lists every way to call a builtin, sorted.
+func Calls() []string {
+	var calls []string
+	for _, b := range builtins {
+		calls = append(calls, b.calls...)
 	}
-	slices.Sort(names)
-	return names
+	slices.Sort(calls)
+	return calls
 }
 
 // IsTransform reports a builtin that rewrites the text of its one operand.
