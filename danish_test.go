@@ -1,6 +1,8 @@
 package fejkdata
 
 import (
+	"encoding/json"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -467,5 +469,148 @@ func TestShippedDanishPhoneInternational(t *testing.T) {
 		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+45 "+parts[0] {
 			t.Fatalf("%q: want the national form twice, then +45 and the national form", got)
 		}
+	}
+}
+
+// Dansk Sprognævn's answer SV00000046: the traditional Danish date is day, month and year in digits,
+// with no zero before a one-digit day or month.
+func TestShippedDanishDateIsDayMonthYearWithDotsAndNoLeadingZeroFrom1970To2029(t *testing.T) {
+	f := shipped(t, WithSeed(3))
+	date := regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)
+	first, last, short := 9999, 0, false
+	for i := 0; i < 500; i++ {
+		got := fake(t, f, "da_DK.date")
+		d, err := time.Parse("2.1.2006", got)
+		if err != nil || !date.MatchString(got) || d.Year() < 1970 || d.Year() > 2029 {
+			t.Fatalf("date %q is not d.m.yyyy without leading zeros in 1970 to 2029: %v", got, err)
+		}
+		first, last, short = min(first, d.Year()), max(last, d.Year()), short || d.Day() < 10
+	}
+	if first != 1970 || last != 2029 || !short {
+		t.Errorf("500 dates span %d to %d, with a one-digit day: %v; want 1970 to 2029 and true", first, last, short)
+	}
+}
+
+func TestShippedDanishEmailIsAsciiAtADomainNobodyCanRegister(t *testing.T) {
+	f := shipped(t, WithSeed(4))
+	email := regexp.MustCompile(`^[a-z0-9]+([._-][a-z0-9]+)*@([a-z0-9-]+\.)*example\.(com|org|net)$`)
+	seen := map[string]bool{}
+	for i := 0; i < 500; i++ {
+		got := fake(t, f, "da_DK.email")
+		if !email.MatchString(got) {
+			t.Fatalf("email %q is not lower-case ASCII at example.com, example.org or example.net", got)
+		}
+		seen[got] = true
+	}
+	if len(seen) < 400 {
+		t.Errorf("500 emails drew %d distinct, want 400 or more", len(seen))
+	}
+}
+
+func TestShippedDanishEmailDrawsItsNamesFromDanishNames(t *testing.T) {
+	var slugs []string
+	fold := strings.NewReplacer("æ", "ae", "ø", "o", "å", "a")
+	ascii := regexp.MustCompile(`^[a-z]{6,}$`)
+	for _, row := range tsvRows(t, "data/da_DK/last-name.tsv") {
+		if slug := fold.Replace(strings.ToLower(row["name"])); ascii.MatchString(slug) {
+			slugs = append(slugs, slug)
+		}
+	}
+	f := shipped(t, WithSeed(9))
+	seen := map[string]bool{}
+	for i := 0; i < 5000; i++ {
+		email := fake(t, f, "da_DK.email")
+		for _, slug := range slugs {
+			if strings.Contains(email, slug) {
+				seen[slug] = true
+			}
+		}
+	}
+	if len(seen) < 40 {
+		t.Errorf("5000 emails carry %d distinct last names of da_DK.last-name, want 40 or more", len(seen))
+	}
+}
+
+// Statistics Denmark's table DEMO15, "Business demography by type of ownership", 2024: 14,812 new
+// sole proprietorships, 12,127 private limited companies, 373 public limited companies and 728 partnerships
+// and limited partnerships. It doesn't split the last, so I/S and K/S are drawn evenly.
+func TestShippedDanishCompanyEndsInALegalFormDrawnByStatisticsDenmarksNewEnterprises(t *testing.T) {
+	t.Parallel()
+	f := shipped(t, WithSeed(6))
+	registered := map[string]int{"ENK": 14812, "ApS": 12127, "A/S": 373, "I/S": 364, "K/S": 364}
+	var total int
+	for _, n := range registered {
+		total += n
+	}
+	name := regexp.MustCompile(`^\p{Lu}[\p{L}\p{N} &'.-]*[\p{L}\p{N}]( (ApS|A/S|I/S|K/S))?$`)
+	abbreviation := regexp.MustCompile(` (ApS|A/S|I/S|K/S)$`)
+	form := map[string]int{}
+	for i := 0; i < shareDraws; i++ {
+		got := fake(t, f, "da_DK.company")
+		if !name.MatchString(got) || strings.HasSuffix(got, " ENK") {
+			t.Fatalf("company %q is not a name that may end in a legal form", got)
+		}
+		if m := abbreviation.FindStringSubmatch(got); m != nil {
+			form[m[1]]++
+		} else {
+			form["ENK"]++
+		}
+	}
+	for code, n := range registered {
+		assertShare(t, code+" of the companies", form[code], shareDraws, float64(n)/float64(total))
+	}
+}
+
+func TestShippedDanishCompanyPathsDrawOneFormEachAndLegalIsItsAbbreviation(t *testing.T) {
+	f := shipped(t, WithSeed(7))
+	for path, suffix := range map[string]string{"enk": "", "aps": " ApS", "as": " A/S", "is": " I/S", "ks": " K/S"} {
+		for i := 0; i < 100; i++ {
+			got := fake(t, f, "da_DK.company."+path)
+			if suffix == "" && regexp.MustCompile(` (ApS|A/S|I/S|K/S)$`).MatchString(got) || !strings.HasSuffix(got, suffix) {
+				t.Fatalf("da_DK.company.%s = %q, want a name ending in %q", path, got, suffix)
+			}
+		}
+	}
+	for i := 0; i < 200; i++ {
+		company, legal, _ := strings.Cut(fakeTemplate(t, f, "{/da_DK.company as c}{c}|{c.legal}"), "|")
+		if legal != "" && !strings.HasSuffix(company, " "+legal) || legal == "" && strings.Contains(company, "/") {
+			t.Fatalf("company %q has legal %q", company, legal)
+		}
+	}
+}
+
+func TestShippedDanishCompanyNamesHoldTradeWordsLastNamesAndPlaces(t *testing.T) {
+	t.Parallel()
+	src, err := os.ReadFile("data/da_DK/company-word.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var words []string
+	if err := json.Unmarshal(src, &words); err != nil || len(words) < 20 {
+		t.Fatalf("company-word.json is %d words (%v), want an array of 20 or more", len(words), err)
+	}
+	var places, lasts []string
+	for _, row := range tsvRows(t, "data/geo/DK/locality.tsv") {
+		places = append(places, row["name"])
+	}
+	for _, row := range tsvRows(t, "data/da_DK/last-name.tsv") {
+		lasts = append(lasts, row["name"])
+	}
+	holds := func(names []string, company string) bool {
+		for _, n := range names {
+			if strings.Contains(company, n) {
+				return true
+			}
+		}
+		return false
+	}
+	f := shipped(t, WithSeed(8))
+	var word, place, last bool
+	for i := 0; i < 4000 && !(word && place && last); i++ {
+		c := fake(t, f, "da_DK.company")
+		word, place, last = word || holds(words, c), place || holds(places, c), last || holds(lasts, c)
+	}
+	if !word || !place || !last {
+		t.Errorf("4000 companies held a trade word: %v, a place: %v, a last name: %v; want all true", word, place, last)
 	}
 }
