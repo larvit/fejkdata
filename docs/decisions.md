@@ -423,7 +423,7 @@ over the one it reads: the one way to type a column someone else wrote.
 
 It reads through a field as well: `{p.id}` where `p` binds a record whose `id` is an integer is
 an integer column, and where `p` binds a choice of templates each with an `id`, every item's `id`
-must agree on datatype and null, or the load fails as it does for a column's own items.
+must agree on datatype, or the load fails as it does for a column's own items; one may be null.
 
 ## A typed column's calc is refused unless proven
 
@@ -1490,17 +1490,18 @@ A record wrote one column per field, so a field there only to be named by anothe
 fields: they bind and resolve as any field does and write no column. A writer panel seated as the
 README's audience chose `let` over `hidden`, `private` and `_`-prefixed names: it was the one
 spelling readers took for a local binding. It costs one reserved key, and a field can no longer
-be named `let`. A key in `let` and beside it fails to load, so a field has one place; a record
-whose fields are all in `let` has no columns and is `ErrNoColumns`.
+be named `let`. A key in `let` and beside it fails to load, so a field has one place, and an
+option name in `let` fails too. `let` loads wherever fields do and changes nothing outside a
+record's top level, as goal 4.7 asks of what is well-formed and means one thing. A record whose
+fields are all in `let` has no columns and is `ErrNoColumns`.
 
 ## No database or HTTP sink is built in
 
 2026-11-08, Lilleman auf Larv. Serves goal 6, one command line gets you a value, and goal 10,
 every runtime dependency is one the standard library can't replace.
 
-`fejkdata` writes JSON, CSV, TSV and SQL `INSERT`s to stdout, and the README shows each of the
-four databases a developer loads test data into, PostgreSQL, SQLite, MySQL and MongoDB, reading
-that output on stdin. A built-in sink would add a driver per database, or an HTTP client with its
+`fejkdata` writes JSON, CSV, TSV and SQL `INSERT`s to stdout, and the README shows four common
+databases, PostgreSQL, SQLite, MySQL and MongoDB, and an HTTP endpoint reading that output on stdin. A built-in sink would add a driver per database, or an HTTP client with its
 authentication and retry rules, each a dependency the standard library can't replace, for a step
 `psql`, `sqlite3`, `mysql`, `mongoimport` and `curl` already do. Valid while those tools read
 what `fejkdata` writes.
