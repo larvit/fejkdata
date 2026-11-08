@@ -20,6 +20,15 @@ da_DK.person.first	string
 da_DK.person.last	string
 da_DK.person.prefix	string null
 da_DK.person.sex	string
+da_DK.phone	format "{block as b}{subscriber as s}{national}"	reads da_DK.phone-fixed da_DK.phone-mobile
+da_DK.phone-fixed	format "{prefix}"	key prefix
+da_DK.phone-fixed.prefix	string
+da_DK.phone-mobile	format "{prefix}"	key prefix
+da_DK.phone-mobile.prefix	string
+da_DK.phone.block	string
+da_DK.phone.international	string
+da_DK.phone.national	string
+da_DK.phone.subscriber	string
 da_DK.sex	format "{name}"	key code	name name	weight count
 da_DK.sex.code	string
 da_DK.sex.count	string
