@@ -1,8 +1,18 @@
 {
-  "format": "{prefix}{first} {last}",
-  "birthdate": "{date(1930-01-01,2025-12-31,'2006-01-02')}",
+  "format": "{birth as b}{prefix}{first} {last}",
+  "let": {
+    "birth": [
+      { "format": "{date}", "date": "{born(0,17,'2006-01-02')}", "sign": "-", "weight": 20.36 },
+      { "format": "{date}", "date": "{born(18,64,'2006-01-02')}", "sign": "-", "weight": 58.80 },
+      { "format": "{date}", "date": "{born(65,99,'2006-01-02')}", "sign": "-", "weight": 20.81 },
+      { "format": "{date}", "date": "{born(100,113,'2006-01-02')}", "sign": "+", "weight": 0.028 }
+    ]
+  },
+  "birthdate": "{b}",
   "first": "{.first-name as n}{n.name}",
   "last": "{.last-name.name}",
+  "personnummer": "{adddays(b,0,'060102')}{b.sign}{n..sex.birth-number.number}{luhn()}",
   "prefix": [null, { "format": "{.title.name} ", "weight": 0.05 }],
+  "samordningsnummer": { "format": "{adddays(b,0,'0601')}{calc(day+60)}-{n..sex.birth-number.number}{luhn()}", "day": "{adddays(b,0,'02')}" },
   "sex": "{n..sex.name}"
 }
