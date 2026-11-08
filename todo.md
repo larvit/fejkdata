@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
-| 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -232,14 +231,6 @@ Question for the maintainer: what does a render print when no draw can pass? The
 - accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
 
 Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
-
-### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
-
-In `municipality_of` in `data-import/geo-se.py`, a småort holding the postort's centre, in any kommun, wins over the codes' vote. A postort named as a kommun or a tätort is placed as it is today. `population_of` then finds that småort, so the postort weighs its people instead of 200.
-
-This moves the four postorter known so far: Lönneberga to 0860 (129 people; today 0884), Axmar to 2180 (103; today 2182), Rökå to 2418 (60; today 2481) and Torsö to 1083 (57; today 1493). Torsö moves too, although its småort lies in Blekinge and sv.wikipedia's Torsö is an island in Mariestad.
-
-The chunk retitles the decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" to include the småort.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 

@@ -30,6 +30,10 @@ replacement, and each removed path, column or flag.
   `samordningsnummer.birthday`, the birth date's day of the month.
 - A name can no longer contain ` where `, which now opens a filter, or ` distinct `, which now opens a draw of
   distinct values; rename it.
+- `geo.SE.locality` places four postorter in the kommun of the SCB småort holding their centre, where their postal
+  codes named another: Lönneberga in 0860 Hultsfred, not 0884 Vimmerby; Axmar in 2180 Gävle, not 2182 Söderhamn; Rökå
+  in 2418 Malå, not 2481 Lycksele; and Torsö in 1083 Sölvesborg, not 1493 Mariestad. Each weighs that småort's people,
+  57 to 129, where it weighed 200, so `sv_SE.address` draws them less often, and what a seed draws changes.
 
 ### Added
 
