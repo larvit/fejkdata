@@ -59,7 +59,7 @@ func TestEnglishWordHoldsWordNetWordsPerPartOfSpeech(t *testing.T) {
 func TestEnglishWordTablesDropProperNounsAndSlurs(t *testing.T) {
 	t.Parallel()
 	nouns := englishWordForms(t, "word-noun")
-	for _, word := range []string{"paris", "texas", "einstein", "monday", "london", "abc", "dago", "gook", "wop"} {
+	for _, word := range []string{"paris", "texas", "einstein", "monday", "london", "abc", "dago", "wop", "yid"} {
 		if _, ok := nouns[word]; ok {
 			t.Errorf("word-noun holds %q, a proper noun, an acronym or a slur", word)
 		}
