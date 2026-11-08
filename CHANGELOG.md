@@ -24,7 +24,8 @@ replacement, and each removed path, column or flag.
 - `sv_SE.person`'s format binds one birth date, `{birth as b}`, and the record gains the columns `personnummer` and
   `samordningsnummer`, which spell that date and the person's sex, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer}`
   prints e.g. `1932-04-16 320416-2394`. `birthdate` draws `sv_SE.personnummer`'s four age bands, counted from the date given
-  to `WithToday` or `--today`, where it drew 1930 to 2025 evenly.
+  to `WithToday` or `--today`, where it drew 1930 to 2025 evenly. The new paths are `sv_SE.person.birth`, `birth.date`,
+  `birth.sign`, `personnummer`, `samordningsnummer` and `samordningsnummer.birthday`, the birth date's day of the month.
 
 ### Added
 
