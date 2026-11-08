@@ -69,10 +69,11 @@ func cutWord(body, word string, inClause bool) (head, rest string, found bool) {
 	return body, "", false
 }
 
-// atWord reports whether body holds " "+word at i, ending body or followed by a space.
+// atWord reports whether body holds " "+word at i, ending body or followed by a space, and not right
+// after " as", where word is the name bound, as in {x as where}.
 func atWord(body string, i int, word string) bool {
 	after, found := strings.CutPrefix(body[i:], " "+word)
-	return found && (after == "" || after[0] == ' ')
+	return found && (after == "" || after[0] == ' ') && !strings.HasSuffix(body[:i+1], AsWord)
 }
 
 // lastAsOutsideQuotes cuts clause around its last " as " outside a quote.
@@ -195,7 +196,7 @@ func lexWhere(clause string) ([]whereLexeme, error) {
 		case '\'':
 			end := strings.IndexByte(clause[i+1:], '\'')
 			if end < 0 {
-				return nil, fmt.Errorf("a quote opens at %q and never closes", clause[i:])
+				return nil, fmt.Errorf("a quote opens at %q and never closes; a quoted value can't hold an apostrophe", clause[i:])
 			}
 			out = append(out, whereLexeme{text: clause[i+1 : i+1+end], quoted: true})
 			i += end + 2

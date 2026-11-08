@@ -758,7 +758,7 @@ Items to file once the goal is in:
 4. Redraw on a collision in a column marked unique, deterministically from the key, within a memory bound the README states.
 5. Keep, on request, a personnummer's birth date or sex and a postal code's region, the docs naming what each kept field gives away.
 6. Read a PostgreSQL `COPY` or MySQL `INSERT` dump.
-7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone.
+7. Name the output pseudonymised in the README, never anonymised: under GDPR, data is personal while the key exists, and a rare mix of kept fields can still identify someone. The builtin `{anonymize(text,words)}` keeps its name, which a writer panel chose; once a release ships it, renaming it is a major.
 
 ### 357. Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.
 

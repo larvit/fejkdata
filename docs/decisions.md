@@ -1614,3 +1614,17 @@ since such a name refuses every other tail. Valid while goal 4 stands.
 Members are different values, not different items: each value of a nested choice counts on its own.
 `/en_US.word` is a choice of four parts of speech, so counting items would draw different parts of
 speech, never three different words.
+
+## `{anonymize(text,words)}` replaces each word of `text` with one drawn from the path `words`
+
+2026-11-08, Lilleman auf Larv.
+
+Goal 4 asks that a template be easy to write and read. A panel of four readers, seated as the hand
+fixture author, the bulk fixture author, the JavaScript test author and the Go test author, all ranked
+`{anonymize(text, /en_US.word)}` first, ahead of `reword`, `fakewords`, `rewrite`, `scramble` and
+`mask`. All four read the text first and the word list second. Two asked the docs to say that digits
+stay, and one asked whether one fake per word holds for a row or a run.
+
+`words` is a path, so the template picks the language of the fakes. The name says what the call does
+to the text, not what the output is in law: item 190 asks whether the README calls such output
+pseudonymised, and renaming the builtin then is a major. Valid while goal 4 stands.
