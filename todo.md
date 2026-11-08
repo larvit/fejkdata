@@ -12,11 +12,11 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 4 | 1 | 2 | 5 | 6 | 1 by 4, 4 by 3 | 0.9 |
 | 378 | 0.4.0 | 379 |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 4 | 1 | 2 | 5 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
-| 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -223,6 +223,19 @@
 
 ## Details
 
+### 380. Let a template redraw a value until it holds none of the strings it is given.
+
+From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
+
+Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. It spells its condition as item 379's clause does.
+
+Question for the maintainer: what does a render print when no draw can pass? The strings that adf-codec excludes are known only at render: they are the document's own tokens. So a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Goal 5.4 then rules out an error, and a redraw loop has no bound. The options are:
+- a fallback value that the clause must name;
+- null;
+- accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
+
+Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
+
 ### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
 
 From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds WordNet's words, of any length, and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
@@ -246,11 +259,18 @@ From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) ano
 
 One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling. It draws each word through item 379's index by length and fixed-text check, and adds a function operand that reads a category whole.
 
+The panel ran on 2026-11-08: a hand fixture author, a bulk fixture author, a JavaScript test author and a Go test author. All four ranked `{anonymize(text, /en_US.word)}` first, ahead of `reword`, `fakewords`, `rewrite`, `scramble` and `mask`. All four read the text first and the word list second as right. Two asked the docs to say that digits stay, so an id in the text survives. One asked them to say whether one fake per word holds for a row or for the whole run.
+
 ### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
 
 From a real-world use case, a scheduler's fixtures: `BYDAY={d},{d}` yields `MO,MO`, and the crew columns `e1` to `e4` collide. Goal 4.2 keeps `{d},{d}` as two draws, so this is a spelling of its own, and a writer panel picks it for both shapes: one value holding several, and several columns reading one pick's members.
 
 Distinct means distinct items or rows, whatever they print. Asking for more than a choice's items of weight above `0` is refused at load (goal 5.4), and weights hold among those still undrawn. A draw costs what its count costs, not the size of the table (goal 12.1).
+
+The panel ran on 2026-11-08: a bulk fixture author, a data author, a JavaScript test author and a hand fixture author.
+- **Count:** all four chose `distinct N`, which comes after any `where` and before `as`: `{/en_US.word where length 5 distinct 3 as w}`. They read `pick` as allowing repeats and `take` as the first rows.
+- **Members:** all four counted them from 1. Two chose `{t[1]}`, one `{t#1}` and one `{t.1}`. The seats against `[1]` read it as clashing with a selector's key.
+- **One joined value:** two chose `{/misc.weekday distinct 2 joined ','}`, one `sep ','` and one `{join(d, ',')}` over a bound name.
 
 ### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
 
@@ -259,12 +279,6 @@ In `municipality_of` in `data-import/geo-se.py`, a småort holding the postort's
 This moves the four postorter known so far: Lönneberga to 0860 (129 people; today 0884), Axmar to 2180 (103; today 2182), Rökå to 2418 (60; today 2481) and Torsö to 1083 (57; today 1493). Torsö moves too, although its småort lies in Blekinge and sv.wikipedia's Torsö is an island in Mariestad.
 
 The chunk retitles the decision "A postort's kommun comes from its name, its tätort or its codes, never from distance" to include the småort.
-
-### 380. Let a template redraw a value until it holds none of the strings it is given.
-
-From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
-
-Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. It spells its condition as item 379's clause does.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 
