@@ -21,6 +21,10 @@ replacement, and each removed path, column or flag.
   parts of speech, and both categories read the new tables `en_US.word-noun`, `word-verb`, `word-adj` and `word-adv`.
   A program embedding the `en_US` module carries WordNet's licence, `WORDNET-LICENSE.txt`, as the release archives and
   packages do.
+- `sv_SE.person`'s format binds one birth date, `{birth as b}`, and the record gains the columns `personnummer` and
+  `samordningsnummer`, which spell that date and the person's sex, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer}`
+  prints e.g. `1932-04-16 320416-2394`. `birthdate` draws `sv_SE.personnummer`'s four age bands, counted from the date given
+  to `WithToday` or `--today`, where it drew 1930 to 2025 evenly.
 
 ### Added
 
