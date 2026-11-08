@@ -6,6 +6,9 @@
 		"da_DK.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},
 		"da_DK.person": {"paths":["","first","last","prefix","sex"]},
+		"da_DK.phone": {"paths":["","block","international","national","subscriber"]},
+		"da_DK.phone-fixed": {"paths":["","prefix"]},
+		"da_DK.phone-mobile": {"paths":["","prefix"]},
 		"da_DK.sex": {"paths":["","code","count","first-name","first-name.count","first-name.name","first-name.sex","individ","individ.digit","individ.sex","name"]},
 		"da_DK.title": {"paths":["","name","share"]}
 	},
