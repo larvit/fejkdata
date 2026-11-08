@@ -1089,3 +1089,20 @@ Read most (opens and searches):
 - `compose.yaml` 2
 - `docs/decisions.md` 2
 - `internal/builtinfunc/fnr.go` 2
+
+## Reading cost, chunk ff92ba0971bf, finished 2026-11-08T13:34:15Z
+
+162838 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `README.md` 10
+- `cli/cli_test.go` 7
+- `cli/cli.go` 4
+- `readme_test.go` 4
+- `todo.md` 4
+- `builtins_test.go` 3
+- `compose.yaml` 1
+- `data/en_US/url.json` 1
+- `data/misc/uuid.json` 1
+- `fejkdata.go` 1
