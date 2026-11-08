@@ -741,6 +741,7 @@ func TestRunRepeatOfZeroWritesNoRecord(t *testing.T) {
 		{[]string{"--format", "ndjson"}, ""},
 		{[]string{"--format", "csv"}, "first,last\n"},
 		{[]string{"--format", "sql"}, ""},
+		{[]string{"--format", "tsv"}, "first\tlast\n"},
 	} {
 		if code, out, errb := runOut("{/users}", append(c.args, "-n", "0", "-d", dir)...); code != 0 || out != c.want {
 			t.Errorf("run(-n 0 %v) = %d, %q, %q, want %q", c.args, code, out, errb, c.want)
@@ -863,6 +864,57 @@ func TestRunRecordNDJSON(t *testing.T) {
 	}
 }
 
+func TestRunRecordTSVFeedsALaterRun(t *testing.T) {
+	writeFile := func(dir, name, content string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	first := t.TempDir()
+	writeFile(first, "series.json", `{"format":"","id":"{seq()}","customer":["Ada","{{x}}"]}`)
+	code, tsv, errb := runOut("{/series}", "--seed", "1", "--format", "tsv", "-n", "30", "-d", first)
+	if code != 0 {
+		t.Fatalf("tsv run = %d, stderr=%q", code, errb)
+	}
+	if !strings.HasPrefix(tsv, "customer\tid\n") || strings.Count(tsv, "\n") != 31 {
+		t.Fatalf("tsv output = %q, want a header and 30 rows", tsv)
+	}
+	_, truth, _ := runOut("{/series}", "--seed", "1", "--format", "ndjson", "-n", "30", "-d", first)
+	valid := map[string]bool{}
+	for _, line := range strings.Split(strings.TrimSpace(truth), "\n") {
+		var m map[string]string
+		if err := json.Unmarshal([]byte(line), &m); err != nil {
+			t.Fatal(err)
+		}
+		valid[m["id"]+" "+m["customer"]] = true
+	}
+
+	second := t.TempDir()
+	writeFile(second, "series.tsv", tsv)
+	writeFile(second, "series.json", `{"format":"{id}","rows":"series.tsv"}`)
+	writeFile(second, "orders.json", `{"format":"","series_id":"{/series as s}{s.id}","customer":"{s.customer}"}`)
+	code, out, errb := runOut("{/orders}", "--seed", "2", "--format", "ndjson", "-n", "100", "-d", second)
+	if code != 0 {
+		t.Fatalf("second run = %d, stderr=%q", code, errb)
+	}
+	seen := map[string]bool{}
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		var m map[string]string
+		if err := json.Unmarshal([]byte(line), &m); err != nil {
+			t.Fatal(err)
+		}
+		key := m["series_id"] + " " + m["customer"]
+		if !valid[key] {
+			t.Fatalf("order %q names no series the first run wrote", key)
+		}
+		seen[m["customer"]] = true
+	}
+	if !seen["{x}"] || !seen["Ada"] {
+		t.Fatalf("customers drawn = %v, want both Ada and the literal {x} the first run wrote as {{x}}", seen)
+	}
+}
+
 func TestRunRecordCSVRoundTrips(t *testing.T) {
 	code, out, errb := runOut("{/users}\r\n", "--seed", "1", "--format", "csv", "--repeat", "3", "--data-path", recordDir(t))
 	if code != 0 {
@@ -947,9 +999,10 @@ func TestRunRecordMisuse(t *testing.T) {
 		args []string
 		want string
 	}{
-		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, sql or text"},
+		{[]string{"--format", "yaml"}, "--format takes csv, json, ndjson, sql, text or tsv"},
 		{[]string{"--format", "sql", "--table", ""}, "--table names the INSERT target"},
 		{[]string{"--format", "csv", "--separator", ";"}, `--separator joins text renders; --format csv always separates fields with ","`},
+		{[]string{"--format", "tsv", "--separator", ","}, "--separator joins text renders; --format tsv always separates fields with a tab"},
 		{[]string{"--format", "json", "--separator", ","}, "--separator joins text renders"},
 		{[]string{"--format", "ndjson", "--separator", ","}, "--separator joins text renders"},
 		{[]string{"--format", "sql", "--separator", ","}, "--separator joins text renders"},

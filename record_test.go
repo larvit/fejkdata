@@ -160,6 +160,22 @@ func TestRecordCSVEmptyValueStaysARow(t *testing.T) {
 	}
 }
 
+func TestRecordTSV(t *testing.T) {
+	dir := writeData(t, map[string]string{
+		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"id":"{{x}}","name":"a\tb\r\nc","nick":""}`,
+	})
+	r, err := newGenerator(t, dir, WithSeed(1)).FakeRecord("row")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := r.TSVHeader(), "age\tgone\tid\tname\tnick"; got != want {
+		t.Errorf("TSVHeader() = %q, want %q", got, want)
+	}
+	if got, want := r.TSVLine(), "42\t\t{{x}}\ta b  c\t"; got != want {
+		t.Errorf("TSVLine() = %q, want %q: a null column and an empty one an empty cell, braces doubled, a tab, CR or LF a space", got, want)
+	}
+}
+
 func TestRecordWritesTypedAndNullColumns(t *testing.T) {
 	dir := writeData(t, map[string]string{
 		"row": `{"format":"","age":{"format":"42","datatype":"integer"},"gone":null,"name":"O'Brien","nick":"","paid":{"format":"true","datatype":"boolean"},"price":{"format":"19.99","datatype":"number"}}`,
