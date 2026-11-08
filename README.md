@@ -216,7 +216,7 @@ these paths; a template reads one as `{/path}`.
 | `-d`, `--data-path D` | a directory to layer over the shipped data; repeatable, the last wins a name clash |
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
-| `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
+| `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
 | `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
 | `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv` or `sql` — a record's columns, one record per row (json frames them as an array) |
@@ -486,7 +486,7 @@ calls := fejkdata.Builtins()              // each way to call a function, such a
 | Option | |
 |--------|--|
 | `WithSeed(n)` | required; the same seed, date, data and versions give the same sequence. For a new seed each run, set `n := rand.Uint64()` (`math/rand/v2`), and log `n` to replay the run |
-| `WithToday(day)` | required; the date to treat as today. Ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer`, count from it. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It uses the calendar day that `day` shows in its own location and ignores the time of day. `New` refuses a year outside 1000 to 9999 |
+| `WithToday(day)` | required; the date to treat as today. Ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer` and `sv_SE.person`, count from it. Give `time.Now()` for the current date, or a fixed day to repeat a run's output on a later day. It uses the calendar day that `day` shows in its own location and ignores the time of day. `New` refuses a year outside 1000 to 9999 |
 | `WithDataPath(dir)` | layer a directory; repeat to layer several, the last wins a clash |
 | `WithDataFS(modules...)` | layer modules in order, each an `fs.FS`: a shipped package's `Modules()...`, or your own `embed.FS`; `WithDataFS()` loads none |
 
@@ -964,8 +964,8 @@ law that governs it, states no `+`.
 above, and the samordningsnummer adds 60 to the day, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
 `1932-04-16 320416-2394 320476-2391`.
 
-A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name`. `sv_SE.personnummer` draws apart from it, so where that name and a number must
+To choose the sex, assemble the person from the tables — `sex[f].first-name` beside
+`last-name`. `sv_SE.personnummer` draws its own sex, so where that name and a number must
 agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
 
 ```json

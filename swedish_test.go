@@ -546,7 +546,6 @@ func TestShippedLastNameComposition(t *testing.T) {
 // The share of each age band is SCB's for Sweden at 2024-12-31, per
 // docs/research/research-age-bands.md: 0-17 20.36%, 18-64 58.80%, 65-99 20.81%, 100 or more 0.028%.
 // Read on 2026-11-04, the bands are the birth years 2009-2026, 1962-2008, 1927-1961 and 1913-1926.
-// A person's birthdate draws from the same bands, since its personnummer reads it.
 func TestSwedishBirthDatesWeighAgesByPopulation(t *testing.T) {
 	for path, layout := range map[string]string{"sv_SE.personnummer-12": "20060102", "sv_SE.person.birthdate": "2006-01-02"} {
 		t.Run(path, func(t *testing.T) {
@@ -836,9 +835,7 @@ func TestShippedSwedishBloodTypeFollowsItsShares(t *testing.T) {
 	}
 }
 
-// A person's personnummer and samordningsnummer read its birthdate and its sex: the
-// personnummer spells the date as YYMMDD, with + from the year the holder turns 100, and the
-// samordningsnummer adds 60 to the day. Read on 2026-11-04, the + is for a birth in 1926 or before.
+// A personnummer spells + from the year the holder turns 100: with today at 2026-11-04, a birth in 1926 or before.
 func TestSwedishPersonNumbersSpellItsBirthdateAndSex(t *testing.T) {
 	sv := shipped(t, WithToday(dayOf(2026, 11, 4)))
 	person, err := sv.NewTemplate(`{/sv_SE.person as p}{p.birthdate}|{p.personnummer}|{p.samordningsnummer}|{p.sex}`)
