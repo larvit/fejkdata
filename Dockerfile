@@ -45,6 +45,10 @@ COPY vulnerability-filing/ /vulnerability-filing/
 COPY todo.md /todo.md
 RUN python3 -m unittest discover -s /vulnerability-filing -p '*_test.py' && touch /tested
 
+FROM python:3.15.2-slim AS data-import
+COPY data-import/ /data-import/
+RUN python3 -m unittest discover -s /data-import -p '*_test.py' && touch /tested
+
 FROM goreleaser/goreleaser:v2.20.0 AS packaging
 WORKDIR /check
 COPY release-tooling/goreleaser.yaml ./
@@ -55,6 +59,7 @@ FROM scratch AS lowest-and-tooling
 COPY --from=lowest /tested /tmp/lowest-tested
 COPY --from=release-tooling /tested /tmp/release-tooling-tested
 COPY --from=vulnerability-filing /tested /tmp/vulnerability-filing-tested
+COPY --from=data-import /tested /tmp/data-import-tested
 COPY --from=packaging /tested /tmp/packaging-tested
 
 # A pull request's CI builds only latest and lowest-and-tooling, so a check goes in one of them.

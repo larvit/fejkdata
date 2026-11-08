@@ -811,11 +811,11 @@ a street may sit under a neighbouring one.
 | `municipality` | kommune, by code or name | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
 | `locality` | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, the småort's of its kommun where the postort lies in one, else 200; US: place population |
 | `postal-code` | postnummer with a street address, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; SE: one; US: address ranges |
-| `street` | street name, every one in the register but one holding a word of five capitals or more | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; SE: segments; US: address ranges |
+| `street` | street name, every one in Danmarks Adresseregister | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; SE: segments; US: address ranges |
 
 `da_DK.address` prints `geo.DK.address`, such as `Vestergade 12\n8000 Aarhus C`. A postdistrikt such
-as `København K` holds many postnumre. A kommune's `code` is four digits, `0101`, and a region's
-`1084`, as the address register writes them. Christiansø ships no place: its addresses lie in the
+as `København K` holds many postnumre. A kommune's `code` is four digits, `0101`, as the address register
+writes it, and a region's is `1084`, as DAGI, the register of Denmark's divisions, writes it. Christiansø ships no place: its addresses lie in the
 postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt where it has an address.
 
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
@@ -1619,7 +1619,7 @@ workflow itself. Otherwise CI runs the build's two halves, the targets `latest` 
 check and the Go tests under the race detector, on the latest supported Go.
 `lowest-and-tooling` runs vet and the Go tests without the race detector, on the lowest
 Go, which the Dockerfile's `LOWEST_GO_VERSION` names. That target also runs the release
-tooling's tests, the vulnerability filer's tests and the check of GoReleaser's config; the
+tooling's tests, the vulnerability filer's tests, the geo imports' tests and the check of GoReleaser's config; the
 filer's tests file an item into `todo.md` themselves, so a change to the plan's shape can
 fail them. The rest of the gate is the changelog check, which CI runs against the PR
 base, and the Packages dry run below. The check `gate` passes once each of these has

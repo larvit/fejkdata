@@ -3,13 +3,14 @@
 
     data-import/geo-dk.py [--cache DIR] [--min-streets N] [--street-share F] [--out DIR]
 
-DAR, read through Datafordeler, holds every address in force, each with its street, house number, postnummer,
-postdistrikt and kommune. A postdistrikt is a locality, with each postnummer and street its addresses spell, each
-weighted by its addresses. A postdistrikt's kommune and population follow geo.homes, from Danmarks Statistik's
-population of each kommune. Its centre is the mean of GeoNames' points for its postnumre. Danmarks Statistik numbers
-the regions and kommuner in three digits, such as 084 and 101; DAR writes a kommune in four, 0101, and DAGI, the
-register of Denmark's divisions, a region as 1084, so the tables write those. Christiansø, kommune 411, ships no place:
-its addresses lie in the postdistrikt Gudhjem, whose kommune is Bornholm.
+DAR, read through Datafordeleren, holds every address in force, each with its street, house number, postnummer,
+postdistrikt and kommune. Each postdistrikt is a locality. Its postnumre and streets are the ones its addresses
+spell, each weighted by its addresses. Its kommune and population follow geo.homes, from Danmarks Statistik's
+population of each kommune.
+
+Danmarks Statistik numbers the regions and kommuner in three digits, such as 084 and 101. The tables write a kommune
+in four digits, 0101, as DAR does, and a region as 1084, as DAGI, the register of Denmark's divisions, does.
+Christiansø, kommune 411, ships no place: its addresses lie in the postdistrikt Gudhjem, whose kommune is Bornholm.
 """
 import collections
 import csv
@@ -17,8 +18,6 @@ import io
 import json
 import re
 import sys
-import time
-import urllib.request
 from dataclasses import dataclass, field
 
 import geo
@@ -60,8 +59,7 @@ def tally(addresses):
         t.in_municipality[(place, municipality)] += 1
         t.codes[place][code] += 1
         t.numbers[geo.number_range(number, bool(letter))] += 1
-        if not geo.in_capitals(street):
-            t.streets[(place, street)] += 1
+        t.streets[(place, street)] += 1
     return t
 
 
@@ -70,7 +68,7 @@ def dar_pages(path):
     with open(path.with_suffix(".part"), "w", encoding="utf-8") as out:
         page = 1
         while True:
-            rows = json.loads(fetch(ADDRESSES.format(PAGE, page)))
+            rows = json.loads(source.download(ADDRESSES.format(PAGE, page), b"["))
             for r in rows:
                 out.write(f"{r['adgangsadressebetegnelse']}\t{r.get('husnummertekst', '')}\t{r['vejmidte']}\n")
             print(f"DAR page {page}: {len(rows)} addresses", file=sys.stderr)
@@ -78,18 +76,6 @@ def dar_pages(path):
                 break
             page += 1
     path.with_suffix(".part").rename(path)
-
-
-def fetch(url):
-    for attempt in range(1, 6):
-        req = urllib.request.Request(url, headers={"User-Agent": "fejkdata-data-import (https://github.com/larvit/fejkdata)"})
-        try:
-            with urllib.request.urlopen(req, timeout=600) as r:
-                return r.read()
-        except OSError as e:
-            print(f"{url}: {e}, attempt {attempt}", file=sys.stderr)
-            time.sleep(10 * attempt)
-    sys.exit(f"{url}: no valid download in 5 attempts")
 
 
 def addresses(cache):

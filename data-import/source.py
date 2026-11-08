@@ -13,6 +13,14 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
     path = Path(cache) / name
     if path.exists():
         return path.read_bytes()
+    body = download(source, magic, data, headers)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(body)
+    return body
+
+
+def download(source, magic=b"", data=None, headers=None):
+    """The bytes of a URL, in up to 5 attempts, each answer opening with magic."""
     for attempt in range(1, 6):
         req = urllib.request.Request(source, data=data, headers={"User-Agent": "fejkdata-data-import (https://github.com/larvit/fejkdata)", **(headers or {})})
         try:
@@ -21,8 +29,6 @@ def fetch(source, cache, name, magic=b"", data=None, headers=None):
         except OSError:
             body = b""
         if body and body.startswith(magic) and b"Request Rejected" not in body[:512]:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(body)
             return body
         if attempt < 5:
             time.sleep(10 * attempt)
