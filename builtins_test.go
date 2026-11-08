@@ -496,14 +496,14 @@ func TestASignOrLeadingZeroIsTheInteger(t *testing.T) {
 	}
 }
 
-func TestBuiltinsNamesEachFunctionOnceInOrder(t *testing.T) {
+func TestBuiltinsShowsEachCallOnceInOrder(t *testing.T) {
 	got := Builtins()
-	for _, name := range []string{"hex", "lower", "digits", "uuid", "calc", "slugify"} {
+	for _, name := range []string{"hex(n)", "lower(n)", "digits(n)", "uuid()", "iban(CC)", "seq()", "seq(name)", "date(from,to,'layout')", "slugify(x)"} {
 		if !slices.Contains(got, name) {
 			t.Errorf("Builtins() = %v, missing %s", got, name)
 		}
 	}
 	if !slices.IsSorted(got) || len(slices.Compact(slices.Clone(got))) != len(got) {
-		t.Errorf("Builtins() = %v, want each name once, sorted", got)
+		t.Errorf("Builtins() = %v, want each call once, sorted", got)
 	}
 }

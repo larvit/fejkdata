@@ -96,3 +96,16 @@ func TestAsciiFoldsEveryShippedNameLetter(t *testing.T) {
 		}
 	}
 }
+
+func TestEveryBuiltinShowsItsCalls(t *testing.T) {
+	for name, b := range builtins {
+		if len(b.calls) == 0 {
+			t.Errorf("%s shows no call", name)
+		}
+		for _, c := range b.calls {
+			if !strings.HasPrefix(c, name+"(") || !strings.HasSuffix(c, ")") {
+				t.Errorf("%s shows the call %q, want %s(…)", name, c, name)
+			}
+		}
+	}
+}
