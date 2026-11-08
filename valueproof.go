@@ -147,7 +147,7 @@ func (p *valueProof) proveTemplate(t *template) proven.Facts {
 		return proven.Unproven(fmt.Sprintf("%q carries a repeat, which composes text rather than one value", t.format))
 	case fixed:
 		return proven.Literal(lit)
-	case len(t.compiled.ops) != 1:
+	case len(t.compiled.ops) != 1 || t.compiled.ops[0].Kind == grammar.NameBind:
 		v := proven.Unproven(notOneValue(t.format, typedCalls))
 		v.NotOperand = notOneValue(t.format, operandCalls)
 		return v

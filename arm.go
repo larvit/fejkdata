@@ -66,8 +66,10 @@ type op struct {
 	arms []arm // grammar.PathRead: the '|' alternatives, split into head and tail once
 	call builtinfunc.Call
 	// operands are the fields the builtin reads, in the order its operands func
-	// fixed; expand reads them before the call. nil for a builtin that reads none.
+	// fixed; expand reads them before the call. For a token with a where clause, they are
+	// the names its length reads. nil for a token that reads none.
 	operands []arm
+	filter   *whereFilter // a token with a where clause: what it draws from
 }
 
 func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {

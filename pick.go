@@ -216,6 +216,9 @@ func readName(s *drawstate.State, env renderEnv, a arm) readValue {
 	if r, done := p.memo.value[a.key()]; done {
 		return r
 	}
+	if a.named.filter != nil {
+		return p.keep(a.key(), readValue{text: a.named.filter.draw(s, env)})
+	}
 	leaf, pins := p.draw(s, a.named.target.start, a.steps, a.levels)
 	if a.named.bindsField() { // the read stays in the category, so its frames are already open
 		return p.renderAt(s, leaf, pins, a.key(), env)
@@ -240,7 +243,10 @@ func (p *namedPick) draw(s *drawstate.State, start node, steps []pathStep, level
 func (p *namedPick) renderAt(s *drawstate.State, leaf node, pins *pinSet, key pickKey, env renderEnv) readValue {
 	env = env.at(leaf, pins)
 	env.pick, env.pickAt = p, key
-	r := renderLeaf(s, leaf, env)
+	return p.keep(key, renderLeaf(s, leaf, env))
+}
+
+func (p *namedPick) keep(key pickKey, r readValue) readValue {
 	if p.memo.value == nil {
 		p.memo.value = map[pickKey]readValue{}
 	}

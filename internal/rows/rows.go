@@ -82,6 +82,14 @@ func (t *Table[O]) Len() int { return len(t.cells) / len(t.header) }
 
 func (t *Table[O]) Cell(row, col int) string { return t.cells[row*len(t.header)+col] }
 
+// Weight is row's weight in a draw over the whole table: 1 for each row where the table names no weight column.
+func (t *Table[O]) Weight(row int) float64 {
+	if t.weights == nil {
+		return 1
+	}
+	return t.weights[row]
+}
+
 // parseRows reads the TSV: the header line names the columns, each following line
 // is a row of as many cells. Cells are substrings of data, so the file is held once.
 func (t *Table[O]) parseRows(data string) error {

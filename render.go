@@ -121,6 +121,10 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 		case grammar.LiteralRun:
 			b.WriteString(o.Lit)
 		case grammar.PathRead:
+			if o.filter != nil {
+				b.WriteString(o.filter.draw(s, env))
+				continue
+			}
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
 		case grammar.BuiltinCall:
 			var operands []string
