@@ -1,0 +1,31 @@
+{
+  "format": "{registered as r}{r}",
+  "legal": "{r.legal}",
+  "registered": [
+    { "format": "{.company.enk}", "legal": "", "weight": 14812 },
+    { "format": "{.company.aps}", "legal": "ApS", "weight": 12127 },
+    { "format": "{.company.as}", "legal": "A/S", "weight": 373 },
+    { "format": "{.company.is}", "legal": "I/S", "weight": 364 },
+    { "format": "{.company.ks}", "legal": "K/S", "weight": 364 }
+  ],
+  "enk": {
+    "format": "{name}",
+    "name": ["{.first-name} {.last-name}", "{.first-name} {.last-name} {.company-word}", "{.last-name} {.company-word}", "{.company-coined} {.company-word}", "{/geo.DK.locality} {.company-word}"]
+  },
+  "aps": {
+    "format": "{name} ApS",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DK.locality} {.company-word}", "{.first-name} {.last-name}", "{.company-coined} {.company-coined}"]
+  },
+  "as": {
+    "format": "{name} A/S",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DK.locality} {.company-word}", "{.company-coined} {.company-coined}"]
+  },
+  "is": {
+    "format": "{name} I/S",
+    "name": ["{.last-name} & {.last-name}", "{.company-coined} {.company-word}", "{.last-name} {.company-word}", "{/geo.DK.locality} {.company-word}"]
+  },
+  "ks": {
+    "format": "{name} K/S",
+    "name": ["{.company-coined}", "{.company-coined} {.company-word}", "{/geo.DK.locality} {.company-word}", "{.last-name} {.company-word}"]
+  }
+}

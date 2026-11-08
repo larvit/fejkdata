@@ -1,7 +1,12 @@
 {
 	"index": {
 		"da_DK.address": {"paths":["","locality","postal-code","street","street-number"]},
+		"da_DK.company": {"paths":["","aps","aps.name","as","as.name","enk","enk.name","is","is.name","ks","ks.name","legal","registered","registered.legal"]},
+		"da_DK.company-coined": {"paths":["","a","b"]},
+		"da_DK.company-word": {"paths":[""]},
 		"da_DK.cpr": {"paths":["","birth"]},
+		"da_DK.date": {"paths":[""]},
+		"da_DK.email": {"paths":["","domain","local","local.n"]},
 		"da_DK.first-name": {"parent":"sex","paths":["","count","name","sex"]},
 		"da_DK.individ": {"parent":"sex","paths":["","digit","sex"]},
 		"da_DK.last-name": {"paths":["","count","name"]},

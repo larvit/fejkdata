@@ -1,0 +1,5 @@
+{
+  "format": "{a}{b}",
+  "a": ["Alfa", "Aqua", "Bright", "Dan", "Dansk", "Danske", "Delta", "Easy", "Elite", "Euro", "Fyn", "Future", "Global", "Grøn", "Jysk", "Kron", "Kyst", "Lyng", "Max", "Midt", "Multi", "Nord", "Nordic", "Nova", "Ny", "Omega", "Prima", "Pure", "Royal", "Scan", "Skov", "Smart", "Sol", "Star", "Strand", "Sund", "Top", "Total", "Vest", "Øst"],
+  "b": ["borg", "by", "dal", "gaard", "holm", "lund", "løkke", "næs", "sted", "strup", "vang", "vig"]
+}
