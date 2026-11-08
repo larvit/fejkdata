@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -492,5 +493,17 @@ func TestASignOrLeadingZeroIsTheInteger(t *testing.T) {
 		`"{int(+1,5)}"`:                     `"{int(1,5)}"`,
 	} {
 		sameRenders(t, long, short)
+	}
+}
+
+func TestBuiltinsNamesEachFunctionOnceInOrder(t *testing.T) {
+	got := Builtins()
+	for _, name := range []string{"hex", "lower", "digits", "uuid", "calc", "slugify"} {
+		if !slices.Contains(got, name) {
+			t.Errorf("Builtins() = %v, missing %s", got, name)
+		}
+	}
+	if !slices.IsSorted(got) || len(slices.Compact(slices.Clone(got))) != len(got) {
+		t.Errorf("Builtins() = %v, want each name once, sorted", got)
 	}
 }

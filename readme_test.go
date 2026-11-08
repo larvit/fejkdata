@@ -626,3 +626,26 @@ func TestReadmeTSVExampleOutput(t *testing.T) {
 		t.Errorf("README prints %q for the second run, it renders %q", want, strings.Join(got, "\n"))
 	}
 }
+
+func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
+	src := readme(t)
+	start := strings.Index(src, "\n### Functions\n")
+	if start < 0 {
+		t.Fatal("README has no Functions section")
+	}
+	section := src[start+1:]
+	section = section[:headingEnd.FindStringIndex(section[1:])[0]+1]
+	var listed []string
+	for _, row := range regexp.MustCompile("(?m)^\\| `\\{.*$").FindAllString(section, -1) {
+		cell := strings.SplitN(row, "|", 3)[1]
+		for _, m := range regexp.MustCompile("`\\{([a-z0-9]+)\\(").FindAllStringSubmatch(cell, -1) {
+			if !slices.Contains(listed, m[1]) {
+				listed = append(listed, m[1])
+			}
+		}
+	}
+	slices.Sort(listed)
+	if want := Builtins(); !slices.Equal(listed, want) {
+		t.Fatalf("README's Functions table lists %v, want every builtin: %v", listed, want)
+	}
+}
