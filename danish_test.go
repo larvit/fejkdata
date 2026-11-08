@@ -340,3 +340,133 @@ func TestDanishCprAgreesWithABoundSex(t *testing.T) {
 		t.Errorf("500 draws gave the sexes %v, want both", seen)
 	}
 }
+
+// The national numbering plan of the Danish Agency for Data Supply and Infrastructure's Executive
+// Order No. 1883 of 7 December 2020, Annex 1: the first two digits of an 8-digit number say
+// mainly mobile or mainly fixed, and the series named in the plan's note (!) are mobile inside fixed
+// ranges. A series with third digit 0 is kept for expansion.
+const (
+	planMobile     = "20-29 30-31 40-42 50-53 60-61 71 81 91-93"
+	planFixed      = "32-36 38-39 43-49 54-59 62-66 69 70 72-79 82 86-89 96-99"
+	planMobileNote = "342 344-349 356-357 359 362 365-366 389 398 431 441 462 466 468 472 474 476 478 485-486 488-489 " +
+		"493-496 498-499 542-543 545 551-552 556 571-574 577 579 584 586-587 589 597-598 627 629 641 649 658 " +
+		"662-665 667 692-694 697 771-772 782-783 785-786 788-789 826-827 829"
+)
+
+func planSet(t *testing.T, spec string) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, tok := range strings.Fields(spec) {
+		lo, hi, ranged := strings.Cut(tok, "-")
+		if !ranged {
+			hi = lo
+		}
+		from, err1 := strconv.Atoi(lo)
+		to, err2 := strconv.Atoi(hi)
+		if err1 != nil || err2 != nil {
+			t.Fatalf("plan token %q", tok)
+		}
+		for n := from; n <= to; n++ {
+			out[strconv.Itoa(n)] = true
+		}
+	}
+	return out
+}
+
+// danishSeries returns the three-digit series of one kind as the shipped tables write them, "34 2".
+func danishSeries(t *testing.T, mobile bool) map[string]bool {
+	t.Helper()
+	note := planSet(t, planMobileNote)
+	twos := planSet(t, planFixed)
+	if mobile {
+		twos = planSet(t, planMobile)
+	}
+	out := map[string]bool{}
+	for two := range twos {
+		for c := 1; c <= 9; c++ {
+			series := two + strconv.Itoa(c)
+			if mobile || !note[series] {
+				out[two+" "+strconv.Itoa(c)] = true
+			}
+		}
+	}
+	if !mobile {
+		return out
+	}
+	for series := range note {
+		out[series[:2]+" "+series[2:]] = true
+	}
+	return out
+}
+
+func TestShippedDanishPhoneTablesHoldTheSeriesOfTheNumberingPlan(t *testing.T) {
+	for kind, mobile := range map[string]bool{"mobile": true, "fixed": false} {
+		want := danishSeries(t, mobile)
+		got := map[string]bool{}
+		for _, row := range tsvRows(t, "data/da_DK/phone-"+kind+".tsv") {
+			if got[row["prefix"]] {
+				t.Errorf("phone-%s repeats %q", kind, row["prefix"])
+			}
+			got[row["prefix"]] = true
+		}
+		for p := range want {
+			if !got[p] {
+				t.Errorf("phone-%s lacks %q, a series the plan allocates to %s", kind, p, kind)
+			}
+		}
+		for p := range got {
+			if !want[p] {
+				t.Errorf("phone-%s holds %q, which the plan does not allocate to %s", kind, p, kind)
+			}
+		}
+	}
+}
+
+func TestShippedDanishPhoneSeriesIsARowOnlyOfItsKind(t *testing.T) {
+	f := shipped(t, WithSeed(2))
+	for path, want := range map[string]string{"da_DK.phone-mobile[34 2]": "34 2", "da_DK.phone-mobile[21 1]": "21 1", "da_DK.phone-fixed[34 3]": "34 3", "da_DK.phone-fixed[75 1]": "75 1"} {
+		if got := fake(t, f, path); got != want {
+			t.Errorf("%s = %q, want %q", path, got, want)
+		}
+	}
+	for _, path := range []string{"da_DK.phone-fixed[34 2]", "da_DK.phone-mobile[34 3]", "da_DK.phone-mobile[20 0]", "da_DK.phone-fixed[37 1]", "da_DK.phone-fixed[67 1]", "da_DK.phone-mobile[90 1]", "da_DK.phone-fixed[80 1]", "da_DK.phone-fixed[30 0]"} {
+		if got, err := f.Fake(path); err == nil {
+			t.Errorf("%s = %q, but the plan allocates no such series to that kind", path, got)
+		}
+	}
+}
+
+func TestShippedDanishPhoneIsMobileTenTimesAsOftenAsFixed(t *testing.T) {
+	mobile, fixed := danishSeries(t, true), danishSeries(t, false)
+	national := regexp.MustCompile(`^(\d\d) (\d)\d( \d\d){2}$`)
+	f := shipped(t, WithSeed(11))
+	var nFixed int
+	for i := 0; i < 30000; i++ {
+		n := fake(t, f, "da_DK.phone")
+		m := national.FindStringSubmatch(n)
+		if m == nil {
+			t.Fatalf("phone %q is not 8 digits grouped in twos", n)
+		}
+		switch series := m[1] + " " + m[2]; {
+		case mobile[series]:
+		case fixed[series]:
+			nFixed++
+		default:
+			t.Fatalf("phone %q lies in series %q, which the plan allocates to neither mobile nor fixed numbers", n, series)
+		}
+	}
+	if nFixed < 2580 || nFixed > 2880 {
+		t.Fatalf("30000 phones drew %d fixed, want about an eleventh, 2727 give or take 150", nFixed)
+	}
+}
+
+func TestShippedDanishPhoneInternational(t *testing.T) {
+	f := shipped(t, WithSeed(5))
+	for i := 0; i < 300; i++ {
+		got := fakeTemplate(t, f, "{/da_DK.phone as p}{p}|{p.national}|{p.international}")
+		parts := strings.Split(got, "|")
+		if len(parts) != 3 || parts[0] != parts[1] || parts[2] != "+45 "+parts[0] {
+			t.Fatalf("%q: want the national form twice, then +45 and the national form", got)
+		}
+	}
+}
