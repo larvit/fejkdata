@@ -36,7 +36,6 @@
 | 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 392 | 0.5.0 |  |  | **Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.** | 1 | 1 | 2 | 2 | 3 | 1 by 2 | 1.3 |
-| 393 | 0.5.0 | 392 |  | **Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.** | 3 | 2 | 2 | 5 | 7 | 1 by 6 | 0.5 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -141,6 +140,7 @@
 | 14 | 0.8.0 |  |  | **Spell `misc.creditcard`'s digit runs `{digits(n)}`.** | 1 | 1 | 1 | 1 | 2 | 4 by 1 | 0.7 |
 | 33 | 0.8.0 |  |  | **Group `data/misc` into folders where a group name makes a path easier to guess.** | 3 | 1 | 3 | 5 | 5 | 1 by 1, 4 by 2 | 0.7 |
 | 193 | 0.8.0 |  | decision | **Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.** | 4 | 2 | 3 | 7 | 6 | 1 by 1, 2 by 3 | 0.5 |
+| 393 | 0.8.0 | 392 |  | **Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.** | 3 | 2 | 2 | 5 | 7 | 1 by 6 | 0.5 |
 | 218 | 0.8.0 |  | decision | **Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.** | 3 | 2 | 2 | 5 | 7 | 1 by 1, 2.1 by 4 | 0.3 |
 | 129 | 0.8.0 |  | decision | **Take a template wherever the library renders, so `fake:"{/sv_SE.person.first}"` and `Fake("{/sv_SE.person}")` render, and text with no `{…}` prints as written, as the CLI already does.** | 4 | 1 | 3 | 6 | 8 | 1 by 3, 4 by 7 | 0.3 |
 | 41 | 0.8.0 |  | decision | **Key every table by one key column, as the decision "A table selects by one key column, a code, never a free-form name" states.** | 4 | 1 | 3 | 6 | 7 | 1 by 1, 4 by 4 | 0.3 |
@@ -379,10 +379,6 @@ Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus 
 ### 392. Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.
 
 From the same review, whose first ask was relational integrity: an invoice's `customer_id` naming a customer the run wrote. Today one run writes one record shape (item 221), and `--format tsv` links two runs through a table over that file. The panel picks between a manifest file naming each template and its count, a repeated flag, and a folder of templates, and what a parent with no rows, a cycle and a child outnumbering its parents do. Seat the readers from the README's `## Audience`, and bench the spelling before any code (`CLAUDE.md` → "Bench a syntax"). A new flag reserves its name against goal 6.1. Output ordering must keep a SQL load valid: parents first.
-
-### 393. Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.
-
-Implements item 392's pick. `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. The same seed gives the same files (goal 9). `{seq(name)}` counters stay per table. A child that outnumbers its parents repeats them, as repeated draws do, and a `weight` skews it. Ship the first chunk with two tables, then widen.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
@@ -766,6 +762,10 @@ A `"repeat": 14` over `{digits(1)}` draws every 14-digit run with the odds `{dig
 ### 193. Move the largest shipped packages into nested Go modules that keep their import paths, once `TestShippedDataStaysUnder100MiB` fails.
 
 Carries out the decision "The shipped data is Go packages a library imports by choice, and the CLI carries every one, from 0.1.0". Each nested module requires the core release that drops its package, so no build sees the package twice. It brings per-module tags and a workspace, so it moves into the release of the chunk whose data trips the gate.
+
+### 393. Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.
+
+Implements item 392's pick. `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. The same seed gives the same files (goal 9). `{seq(name)}` counters stay per table. A child that outnumbers its parents repeats them, as repeated draws do, and a `weight` skews it. Ship the first chunk with two tables, then widen.
 
 ### 218. Give every country shipped without streets its streets, once the maintainer accepts ODbL data or the country opens a register.
 
