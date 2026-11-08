@@ -639,8 +639,8 @@ segments below that. It needs no index. Each shipped module carries one, so
 `samordningsnummer`, `personnummer-12`, `samordningsnummer-12`, `organisationsnummer`, `vat`,
 `licenseplate`, `licenseplate-letters`, `bankgiro`, `plusgiro`, `bankaccount`, `bloodtype`, `car`, `company-coined`,
 `company-word`, `holiday`, `month`, `phone-area`, `phone-subscriber`, `sni`, `ssyk`, `territory`, `weekday`, `word-adj`, `word-adv`, `word-noun` and `word-verb`;
-`en_US` adds `ssn`, `itin` and
-`phone-exchange` (the three digits after the area code).
+`en_US` adds `ssn`, `itin`,
+`phone-exchange` (the three digits after the area code), `paragraph`, `word-adj`, `word-adv`, `word-noun` and `word-verb`.
 
 `nb_NO`, Norwegian in the Bokmål standard, carries `address`, `birth-day`, `company`, `company-coined`,
 `company-word`, `date`, `email`, `first-name`, `fodselsnummer`, `individ`, `last-name`, `person`,
@@ -849,6 +849,17 @@ The import drops the words on LDNOOBW's Swedish list of rude words, and other ru
 read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
 and doesn't make them agree, so its sentences aren't grammatical.
 
+`en_US.word` draws evenly from about 85,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
+verbs, adjectives and adverbs it lists in lower-case letters alone. WordNet's sense counts cover a quarter
+of its words, so a word may be rare. `en_US.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech.
+`en_US.word.verb.present` draws a verb and prints its third person, such as `carries`. To read a verb and its
+third person from one pick, bind it: `{/en_US.word.verb as v}{v} {v.present}` prints `carry carries`. The import
+drops the words on LDNOOBW's English list of rude words, and other rude words remain, so read the output before
+showing it to anyone. `en_US.sentence` fills a fixed pattern with these words and doesn't make them agree, so
+its sentences aren't grammatical, and `en_US.paragraph` joins three to six of them. WordNet's licence asks
+that its notice appear on every copy of the words: `data/en_US/WORDNET-LICENSE.txt` holds it, and the `en_US`
+module embeds it.
+
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
@@ -867,7 +878,7 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
 set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
-`en_US`'s `word` and `sentence` state no fact and stay hand-written. Where a category
+`en_US`'s `sentence` patterns state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or

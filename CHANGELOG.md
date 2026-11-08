@@ -25,6 +25,10 @@ replacement, and each removed path, column or flag.
   Stripe's test card for each of seven brands, and Stripe's test IBAN for each of BE, DE, ES,
   FI, NO and SE, with Danske Bank's fictive example for DK. Both are tables, so `misc.creditcard-test[visa]`
   and `misc.iban-test[SE]` select one row.
+- `en_US.word.noun`, `.verb`, `.adj` and `.adv` draw one part of speech, and `en_US.word.verb.present` draws a verb and
+  prints its third person, such as `carries`. `en_US.word.any` prints what `en_US.word` prints. They read the tables
+  `en_US.word-noun`, `word-verb`, `word-adj` and `word-adv`.
+- `en_US.paragraph`, three to six sentences of `en_US.sentence`.
 - `da_DK.date`, a date from 1970 to 2029 such as `2.4.2019`, with no zero before a one-digit day or month.
 - `da_DK.email`, a lower-case ASCII address at `example.com`, `example.org` or `example.net`, or a
   subdomain of one. Half of its local parts are a first and a last name drawn from `da_DK.first-name`
@@ -92,6 +96,8 @@ replacement, and each removed path, column or flag.
 
 ### Changed
 
+- `en_US.word` and `en_US.sentence` draw from WordNet 3.0, about 85,000 words where 271 were hand-written,
+  so what a seed draws changes and a word may be long or rare. The `en_US` module now carries WordNet's licence.
 - A token reading a field beside the field that holds it, as `{b}` does in
   `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
   names the fix.

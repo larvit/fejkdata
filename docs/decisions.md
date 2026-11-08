@@ -1438,6 +1438,24 @@ SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swed
 widely used to filter generated text). It leaves compounds and any rude word the list lacks.
 Valid while no open Swedish source tags register.
 
+## `en_US.word` holds WordNet's words, under the paths `sv_SE.word` has, and its notice ships with them
+
+2026-11-08, the maintainer. Goals 3.2 and 2.
+
+Moby Part-of-Speech II is public domain but tags a verb only as "usually a participle", so its verbs mix
+`stirred` and `hiving` with base forms, and its adjectives carry `un-` forms beside their stems. WordNet lists
+lemmas only, one index per part of speech, so a verb is always its base form. Its licence (SPDX `WordNet`)
+asks for its copyright notice and disclaimer on every copy of the database. `data/en_US/WORDNET-LICENSE.txt`
+holds them and `en_US` embeds the file, so a Go program importing the locale and the CLI
+carry it; `DATA-LICENSES.md` names it in the attribution column.
+
+The import keeps a lemma spelled in lower-case letters alone, which drops phrases, proper nouns and
+hyphenated words, and a verb gets its third person by the regular spelling rule with `be`, `have`, `quiz` and
+`whiz` as exceptions, since WordNet has no forms. LDNOOBW's English list, as for Swedish, drops its exact matches.
+WordNet's sense counts cover a quarter of its lemmas, and a count from a 1960s corpus would shrink the spread this
+data exists to widen, so `word` weighs a part of speech by its row count and draws each word evenly.
+Valid while no open English source gives a frequency for every word.
+
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 
 2026-11-04, the maintainer. Goals 4.3 and 4.6.
