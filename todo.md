@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 398`
+`Next ID = 399`
 
 ## Items
 
@@ -17,6 +17,7 @@
 | 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
+| 398 | 0.4.0 |  |  | **Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.** | 2 | 1 | 2 | 3 | 3 | 3.3 by 5 | 2.6 |
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
@@ -267,6 +268,10 @@ A panel of four readers, seated as a bulk fixture author, a data author, a JavaS
 - `as` binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A name can't be filtered, since its pick is already drawn.
 
 Length counts Unicode code points, with the shipped data held in NFC by a test, since counting what a reader sees takes a dependency goal 10 rules out. Each reader sketched item 385's distinct pick as a clause after this one.
+
+### 398. Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.
+
+The README's Data section says a drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real, and that a real card or account may hold it: a default value reaching a real system, goal 3.3's counter-signal. `misc.creditcard` (`data/misc/creditcard.json`) draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` (`internal/builtinfunc/checksum.go`) draws a random BBAN with mod-97 check digits. The README also says `todo.md` plans the path for a category without one; this item makes that true for these two. Source the numbers from the networks' and banks' published test lists, cited in the decision recording the choice, never assembled from plausible ones (`~/.claude/CLAUDE.md` → Web research). The path's name is a spelling users write, so a syntax panel picks it.
 
 ### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
 
