@@ -38,8 +38,7 @@ TIMEZONE = "Europe/Stockholm"
 # This script's reading of the "exceptions in big cities" in docs/research/research-geo-se.md, Postal codes → Structure.
 ONE_POSITION = {"Stockholm", "Göteborg", "Malmö"}
 # A tätort's floor: "minst 200 invånare", docs/research/research-geo-se.md, Lantmäteriet → Ortnamn. The weight of
-# a postort that is no tätort, is not named as its kommun and lies in no småort of its kommun; docs/decisions.md says
-# why it stays.
+# a postort that is no tätort, is not named as its kommun and lies in no småort; docs/decisions.md says why it stays.
 UNMATCHED_POPULATION = 200
 # Not a street: a road number, a ferry route, a cycle path's or road association's label, a placeholder, or two names
 # or a description in one.
@@ -165,7 +164,7 @@ def street_delivery(name, codes):
     return [c for c in codes if c[length] not in "018"]
 
 
-def municipality_of(name, rows, tatorter, municipalities):
+def municipality_of(name, rows, point, tatorter, municipalities, smaorter):
     named = [code for code, n in municipalities.items() if n == name]
     if named:
         return named[0], "kommun"
@@ -174,9 +173,20 @@ def municipality_of(name, rows, tatorter, municipalities):
     if matches:
         in_vote = [m for m in matches if voted and m[0] == voted.most_common(1)[0][0]]
         return max(in_vote or matches, key=lambda m: m[1])[0], "tatort"
+    held = smaort_municipality(point, municipalities, smaorter)
+    if held:
+        return held, "smaort"
     if voted:
         return voted.most_common(1)[0][0], "codes"
     return None, "unplaced"
+
+
+def smaort_municipality(point, municipalities, smaorter):
+    """The kommun of the småort holding point, or None."""
+    if point is None:
+        return None
+    lat, lon = point
+    return next((m for m, places in smaorter.items() if m in municipalities for _, rings in places if inside(lon, lat, rings)), None)
 
 
 def population_of(name, municipality, point, tatorter, municipalities, population, smaorter):
@@ -202,10 +212,10 @@ def localities(codes, tatorter, municipalities, population, smaorter):
         by_locality[r["locality"]].append(r)
     out, how = {}, collections.Counter()
     for name, rows in by_locality.items():
-        municipality, method = municipality_of(name, rows, tatorter, municipalities)
+        point = geo.centroid(rows)
+        municipality, method = municipality_of(name, rows, point, tatorter, municipalities, smaorter)
         how[method] += 1
         kept = street_delivery(name, [r["code"].replace(" ", "") for r in rows])
-        point = geo.centroid(rows)
         if municipality is None or not kept or point is None or not well_cased(name):
             continue
         lat, lon = point

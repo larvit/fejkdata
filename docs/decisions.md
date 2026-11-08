@@ -649,17 +649,18 @@ same four columns as `geo.SE.address`. Its format binds one name,
 `{a.street}`, so the country's format is written once and every column describes the
 address printed. Valid while a record cannot read another whole and keep its columns.
 
-## A postort's kommun comes from its name, its tätort or its codes, never from distance
+## A postort's kommun comes from its name, its tätort, the SCB småort holding its centre or its codes, never from distance
 
 2026-09-24, Lilleman auf Larv.
 
 GeoNames leaves a fifth of Sweden's codes without a kommun and carries stale spellings;
 the nearest code across a border named the wrong kommun half the time it was tried, so a
-postort none of the three rules place is dropped, as is one not cased like a place name.
+postort none of the four rules place is dropped, as is one not cased like a place name.
 
-`todo.md` item 370 will place a postort by the SCB småort holding its centre, ahead of its codes, since
-SCB is the source of truth for which kommun a place lies in (the maintainer, 2026-11-05, goal 3.2). The
-test is whether the småort's polygon contains the centre, so it measures no distance.
+A postort that is neither a kommun nor a tätort takes the kommun of the SCB småort holding its centre,
+ahead of its codes, since SCB is the source of truth for which kommun a place lies in (the maintainer,
+2026-11-05, goal 3.2). The test is whether the småort's polygon contains the centre, so it measures no
+distance.
 
 ## A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places
 
