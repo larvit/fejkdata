@@ -27,8 +27,11 @@ func CheckIdentifier(name string) error {
 		return fmt.Errorf("%q contains %q, which a token reads as binding a name; rename it", name, AsWord)
 	}
 	for _, w := range [...]struct{ word, opens string }{{whereWord, "a filter"}, {distinctWord, "a draw of distinct values"}} {
-		if containsWord(name, w.word) {
-			return fmt.Errorf("%q contains %q, which a token reads as opening %s; rename it", name, w.word, w.opens)
+		switch {
+		case strings.Contains(name, " "+w.word+" "):
+			return fmt.Errorf("%q contains %q, which a token reads as opening %s; rename it", name, " "+w.word+" ", w.opens)
+		case strings.HasSuffix(name, " "+w.word):
+			return fmt.Errorf("%q ends in %q, which a token reads as opening %s; rename it", name, " "+w.word, w.opens)
 		}
 	}
 	if i := strings.IndexAny(name, reservedInIdentifier); i >= 0 {

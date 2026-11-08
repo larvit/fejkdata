@@ -24,7 +24,7 @@ type nameBinding struct {
 	name     string
 	ref      string // what it binds, as written: a reference, or a path into a field of binder
 	body     string
-	distinct *grammar.Distinct // what a {ref distinct N as name} draws; nil for one pick
+	distinct *grammar.Distinct // what a {ref distinct N as name} draws; nil for a single value
 	where    string            // the fields reaching the binding template, as a compile error spells them
 	scope    *nameScope
 	index    int

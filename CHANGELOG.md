@@ -28,8 +28,8 @@ replacement, and each removed path, column or flag.
   2025 evenly, so what a seed draws changes, and changes again with the date. The format binds the date, `{birth as b}`,
   and the new paths are `sv_SE.person.birth`, `birth.date`, `birth.sign`, `personnummer`, `samordningsnummer` and
   `samordningsnummer.birthday`, the birth date's day of the month.
-- A name can no longer contain ` where ` or ` distinct `, nor end in ` where` or ` distinct`: in a token, ` where`
-  now opens a filter and ` distinct` a draw of distinct values. Rename it.
+- A field, column, category, folder or bound name can no longer contain ` where ` or ` distinct `, or end in
+  ` where` or ` distinct`, since ` where ` now opens a filter and ` distinct ` a draw of distinct values; rename it.
 - `geo.SE.locality` places four postorter in the kommun of the SCB småort holding their centre, where their postal
   codes named another: Lönneberga in 0860 Hultsfred, not 0884 Vimmerby; Axmar in 2180 Gävle, not 2182 Söderhamn; Rökå
   in 2418 Malå, not 2481 Lycksele; and Torsö in 1083 Sölvesborg, not 1493 Mariestad. Each weighs that småort's people,
@@ -130,7 +130,7 @@ replacement, and each removed path, column or flag.
 ### Changed
 
 - `geo.US`'s Utqiaġvik is written in NFC, as every other shipped value is, so its `ġ` is one code
-  point and the name is nine long.
+  point and the name is nine code points long.
 - A token reading a field beside the field that holds it, as `{b}` does in
   `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
   names the fix.

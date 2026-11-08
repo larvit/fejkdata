@@ -99,7 +99,6 @@ func TestDistinctWeighsEachMemberAmongTheItemsLeft(t *testing.T) {
 	}
 }
 
-// Each case names the words its error must hold, which say what to write instead.
 func TestDistinctRefusesAtLoad(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}))
 	for src, want := range map[string]string{
@@ -138,7 +137,6 @@ func TestDistinctRefusesInATable(t *testing.T) {
 	}
 }
 
-// Joined members are text, whatever the column they come from; one member is a value of that column.
 func TestDistinctJoinedColumnIsTextAndAMemberTheColumnItReads(t *testing.T) {
 	f := newGenerator(t, writeData(t, map[string]string{
 		"src": `{"format":"","n":[{"format":"10","datatype":"integer"},{"format":"20","datatype":"integer"},{"format":"30","datatype":"integer"}]}`,

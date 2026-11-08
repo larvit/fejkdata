@@ -10,22 +10,31 @@ import (
 	"github.com/larvit/fejkdata/internal/grammar"
 )
 
-// fakeKey is a word an {anonymize()} call met, in lower case, and the words it drew a fake from.
+// fakeKey is a word an {anonymize()} call met, in lower case, and where it read the words it drew a
+// fake from.
 type fakeKey struct {
-	words *lengthIndex
-	word  string
+	at   wordsAt
+	word string
 }
 
 // wordsAt is where an {anonymize()} call reads its words: the node its path starts at, and the rest.
+// A render keys its fakes by it, so calls reading one list keep one fake per word, whichever load
+// built their words.
 type wordsAt struct {
 	start node
 	tail  string
 }
 
+// wordList is the words an {anonymize()} call draws from, by length, and where it reads them.
+type wordList struct {
+	lengthIndex
+	at wordsAt
+}
+
 // anonymizeWords builds the words each {anonymize()} call in ts draws from, once per path they
-// are read at, so calls reading one list keep one fake per word.
+// are read at.
 func anonymizeWords(ts []templateSite, targets map[*nameBinding]nameTarget) error {
-	built := map[wordsAt]*lengthIndex{}
+	built := map[wordsAt]*wordList{}
 	for _, s := range ts {
 		for i := range s.t.compiled.ops {
 			o := &s.t.compiled.ops[i]
@@ -43,9 +52,9 @@ func anonymizeWords(ts []templateSite, targets map[*nameBinding]nameTarget) erro
 }
 
 // wordsOf is the values a's path renders that are made of letters alone, by length.
-func (t *template) wordsOf(a arm, targets map[*nameBinding]nameTarget, built map[wordsAt]*lengthIndex) (*lengthIndex, error) {
+func (t *template) wordsOf(a arm, targets map[*nameBinding]nameTarget, built map[wordsAt]*wordList) (*wordList, error) {
 	if a.kind == namedRead {
-		return nil, fmt.Errorf("%q is a name, which holds one pick; read the words whole, as in {%s(t,/en_US.word)}", a.head, builtinfunc.AnonymizeName)
+		return nil, fmt.Errorf("%q is a name, which holds one pick; pass the path it binds, as in {%s(t,/en_US.word)}", a.head, builtinfunc.AnonymizeName)
 	}
 	at := wordsAt{t.startOf(a.head), strings.Join(a.tail, ".")}
 	if words, done := built[at]; done {
@@ -64,14 +73,14 @@ func (t *template) wordsOf(a arm, targets map[*nameBinding]nameTarget, built map
 	if len(letters) == 0 {
 		return nil, fmt.Errorf("%s holds no word made of letters alone", a.spelling)
 	}
-	words := newLengthIndex(letters)
-	built[at] = &words
-	return &words, nil
+	words := &wordList{newLengthIndex(letters), at}
+	built[at] = words
+	return words, nil
 }
 
-// anonymize rewrites each word of text, a run of letters, as a word of its length or the nearest
-// length x holds, one fake per word in the render; every other rune stays.
-func (x *lengthIndex) anonymize(s *drawstate.State, frames *frameStack, text string) string {
+// anonymize rewrites each run of letters in text as a word of its length, or of the nearest length
+// x holds, one fake per word in the render; every other rune stays.
+func (x *wordList) anonymize(s *drawstate.State, frames *frameStack, text string) string {
 	var b strings.Builder
 	rs := []rune(text)
 	for i := 0; i < len(rs); {
@@ -90,8 +99,8 @@ func (x *lengthIndex) anonymize(s *drawstate.State, frames *frameStack, text str
 	return b.String()
 }
 
-func (x *lengthIndex) fake(s *drawstate.State, frames *frameStack, word []rune) string {
-	key := fakeKey{x, strings.ToLower(string(word))}
+func (x *wordList) fake(s *drawstate.State, frames *frameStack, word []rune) string {
+	key := fakeKey{x.at, strings.ToLower(string(word))}
 	if fake, drawn := frames.fakes[key]; drawn {
 		return fake
 	}

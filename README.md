@@ -608,9 +608,10 @@ read from disk. The CLI carries every module, and a library loads those it passe
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
 `sv_SE.person` and replaces the shipped one.
 Sources merge in order; matching folders combine, any other clash is won by the
-last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"`, `/`, ` as `,
-which binds a [name](#names), ` where `, which opens a [filter](#filters), or ` distinct `, which opens a
-[distinct draw](#distinct-draws), nor end in ` where` or ` distinct`, nor be `-`, which a struct tag reserves. A dot-prefixed
+last loaded. Names may not use `.`, `|`, `(`, `{`, `}`, `[`, `]`, `"` or `/`, nor be `-`, which a
+struct tag reserves. Nor may a name contain ` as `, which binds a [name](#names), ` where `, which
+opens a [filter](#filters), or ` distinct `, which opens a [distinct draw](#distinct-draws), or end in
+` where` or ` distinct`. A dot-prefixed
 entry is never a category or a folder, so a data directory can also be a checkout, though
 a category may name a hidden rows file beside it.
 
@@ -1642,28 +1643,29 @@ Renders e.g. `crane`. A clause holds one or more conditions, joined by `and`:
 - `not containing 'cat'` drops every value holding `cat`, `concatenate` included.
 
 A quoted value can't hold an apostrophe. The values that pass keep their [weights](#weight). `as`
-after the clause binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`. A
-name's pick is drawn already, so a clause filters the path the name binds, never the name.
+after the clause binds the filtered draw: `{/en_US.word where length 5 as w}{w} {uppercase(w)}`.
 
 Refused at `New`:
 
-- a clause no value passes, for any length a name it reads may hold;
+- a clause no value passes, even at one length a name it reads may print;
 - a path whose values are not fixed text, such as `{uuid()}`, a null, a repeat, or a format
-  reading two tokens, save a table's format reading only its own columns, as `misc.car`'s does;
+  reading two fields, save a table's format reading only its own columns, as `misc.car`'s does;
 - a path through a selector, a linked table or `..`;
-- a clause on a call, on `{a|b}`, or in a table's format or cell.
+- a clause on a call, on `{a|b}`, or in a table's format or cell;
+- a clause on a name, which is drawn already: write it on the draw the name binds;
+- a path after the name a clause binds, such as `{w.x}`: read `{w}` whole.
 
 ### Distinct draws
 
-`distinct N` after a path draws N different values in one pick. `joined` prints them as one
-value, with its text between each two:
+`distinct N` after a path draws N different values in one pick. `joined ','` prints them as one
+value, with `,` between each two:
 
 ```json
 { "format": "BYDAY={day distinct 2 joined ','}", "day": ["MO", "TU", "WE", "TH", "FR"] }
 ```
 
 Renders e.g. `BYDAY=TU,MO`, never `MO,MO`. `as` binds the pick to a name, and `{n[1]}` to `{n[N]}`
-read its members, each as often as you like, so a record's columns can share one pick:
+read its members, each as often as you like:
 
 ```json
 "{/en_US.word where length 5 distinct 3 as w}{w[1]}, {w[2]} and {w[3]}"
@@ -1682,15 +1684,15 @@ Joined members are text: a column reading them is a string column, and `calc`, `
 `where length` refuse them. A single member, such as `{w[1]}`, is a value of the column it comes
 from and keeps its type, so `calc(w[1]*2)` and `where length w[1]` read it.
 
-Refused at `New`, each error naming what to write instead:
+Refused at `New`:
 
 - more members than the path renders values of weight above `0`, or than pass its `where` clause,
-  for any length a name it reads may hold;
+  even at one length a name it reads may print;
 - `distinct N` with neither `joined` nor `as`;
 - `{n}` on a name bound without `joined`, a member outside `[1]` to `[N]`, and a path after the
   name, such as `{n[1].x}`;
 - `distinct` on a name, which is drawn already: write it on the draw the name binds;
-- every path and place a [filter](#filters) refuses.
+- everything a [filter](#filters) refuses.
 
 ### Correlated fields
 

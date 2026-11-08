@@ -18,7 +18,7 @@ const (
 type Where struct {
 	Length        *LengthRange // nil where the clause names no length
 	Not           []string     // values refused whole
-	NotContaining []string     // values refused wherever they hold one of these
+	NotContaining []string     // substrings: a value holding one is refused
 }
 
 // LengthRange is the lengths a value may have, in code points, both ends included.
@@ -126,7 +126,7 @@ func clauseToken(body string, c clauses) (Token, error) {
 	case indexOutside(c.head, '|') >= 0:
 		return Token{}, fmt.Errorf("token {%s}: a where or distinct clause draws from one path; write a token for each", body)
 	case bindsInHead:
-		return Token{}, fmt.Errorf("token {%s}: as comes after the clauses: {path where … distinct N as name}", body)
+		return Token{}, fmt.Errorf("token {%s}: \"as\" comes after the clauses: {path where … distinct N as name}", body)
 	case c.filters && containsWord(c.head, distinctWord):
 		return Token{}, fmt.Errorf("token {%s}: the where clause comes before distinct: {path where … distinct N}", body)
 	}
@@ -146,7 +146,7 @@ func clauseToken(body string, c clauses) (Token, error) {
 		}
 		if !c.binds && !tok.Distinct.Joins {
 			n := tok.Distinct.N
-			return Token{}, fmt.Errorf("token {%s}: distinct %d draws %d values into one token; join them, as distinct %d joined ',', or bind them, as distinct %d as name", body, n, n, n, n)
+			return Token{}, fmt.Errorf("token {%s}: distinct %d draws %d values into one token; join them, such as {w distinct %d joined ','}, or bind them, such as {w distinct %d as name}", body, n, n, n, n)
 		}
 	}
 	return tok, nil
@@ -163,18 +163,18 @@ func parseDistinct(clause string) (*Distinct, error) {
 	l, ok := p.next()
 	n, convErr := strconv.Atoi(l.text)
 	if !ok || l.quoted || convErr != nil || n < 1 {
-		return nil, fmt.Errorf("distinct %s: distinct takes a whole number of 1 or more, as distinct 3", clause)
+		return nil, fmt.Errorf("distinct %s: \"distinct\" takes a whole number of 1 or more, such as {w distinct 3 joined ','}", clause)
 	}
 	d := &Distinct{N: n}
 	if p.word("joined") {
 		sep, ok := p.next()
 		if !ok || !sep.quoted {
-			return nil, fmt.Errorf("distinct %s: joined takes a quoted separator, as joined ','", clause)
+			return nil, fmt.Errorf("distinct %s: \"joined\" takes a quoted separator, such as {w distinct 2 joined ','}", clause)
 		}
 		d.Joins, d.Sep = true, sep.text
 	}
 	if !p.done() {
-		return nil, fmt.Errorf("distinct %s: %s follows the count, where only joined ',' may", clause, p.peek())
+		return nil, fmt.Errorf("distinct %s: %s follows the count, where only \"joined\" and a quoted separator may", clause, p.peek())
 	}
 	return d, nil
 }
@@ -260,7 +260,7 @@ func ParseWhere(clause string) (*Where, error) {
 			return w, nil
 		}
 		if !p.word("and") {
-			return nil, fmt.Errorf("where %s: and joins two conditions; %s follows one", clause, p.peek())
+			return nil, fmt.Errorf("where %s: \"and\" joins two conditions; %s follows one", clause, p.peek())
 		}
 	}
 }
@@ -283,7 +283,7 @@ func (p *whereParser) condition(w *Where) error {
 		*into = append(*into, values...)
 		return err
 	}
-	return fmt.Errorf("a condition starts with length or not, not %s", p.peek())
+	return fmt.Errorf("a condition starts with \"length\" or \"not\", not %s", p.peek())
 }
 
 func (p *whereParser) lengthRange() (*LengthRange, error) {
@@ -306,7 +306,7 @@ func (p *whereParser) lengthRange() (*LengthRange, error) {
 func (p *whereParser) length() (Length, error) {
 	l, ok := p.next()
 	if !ok || l.quoted || l.text == "," || slices.Contains(whereKeywords, l.text) {
-		return Length{}, fmt.Errorf("length takes a whole number or a name, as length 5 or length k")
+		return Length{}, fmt.Errorf("\"length\" takes a whole number or a name, such as {w where length 5} or {w where length k}")
 	}
 	if l.text[0] == '-' || l.text[0] >= '0' && l.text[0] <= '9' {
 		n, err := strconv.Atoi(l.text)
@@ -335,7 +335,7 @@ func (p *whereParser) quotedList() ([]string, error) {
 	for {
 		l, ok := p.next()
 		if !ok || !l.quoted {
-			return nil, errors.New("not takes quoted values, as not 'cat', 'dog'")
+			return nil, errors.New("\"not\" takes quoted values, such as {w where not 'cat', 'dog'}")
 		}
 		values = append(values, l.text)
 		if p.done() || p.lx[p.at].quoted || p.lx[p.at].text != "," {
