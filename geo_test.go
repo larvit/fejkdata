@@ -1,6 +1,7 @@
 package fejkdata
 
 import (
+	"cmp"
 	"encoding/json"
 	"os"
 	"slices"
@@ -18,6 +19,7 @@ func TestShippedAddressIsOneNamedPick(t *testing.T) {
 		{"sv_SE", "SE", "{a.street}|{a.postal-code}|{a.locality}|", "Stockholm"},
 		{"en_US", "US", "{a.street}|{a.postal-code}|{a.locality}|{a.region}", "New York"},
 		{"nb_NO", "NO", "{a.street}|{a.postal-code}|{a.locality}|", "Oslo"},
+		{"da_DK", "DK", "{a.street}|{a.postal-code}|{a.locality}|", "København S"},
 	} {
 		t.Run(c.locale, func(t *testing.T) {
 			t.Parallel()
@@ -69,7 +71,7 @@ func TestShippedPlacesSpreadAddresses(t *testing.T) {
 	for country, city := range map[string]struct {
 		key   string
 		least int
-	}{"NO": {"Oslo", 2000}, "SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
+	}{"DK": {"København S", 500}, "NO": {"Oslo", 2000}, "SE": {"Göteborg", 1500}, "US": {"0644000", 2500}} {
 		streets := 0
 		for _, r := range geoRows(t, country, "street") {
 			if r[1] == city.key {
@@ -137,41 +139,37 @@ func geoRows(t *testing.T, country, table string) [][]string {
 }
 
 // geoPlaceSet says whether a street, postal code, locality and region belong to one locality of a
-// country's geo tables; pass an empty region for NO and SE, whose addresses carry none.
+// country's geo tables; pass an empty region where the address prints none.
 type geoPlaceSet struct {
 	name, region map[string]string
 	locality     map[string]string
 	streets      map[[2]string]bool
 }
 
+// geoPlaces keys a locality by its code where its table has one, else by its name.
 func geoPlaces(t *testing.T, country string) geoPlaceSet {
-	rows := func(table string) [][]string { return geoRows(t, country, table) }
+	rows := func(table string) []map[string]string { return tsvRows(t, "data/geo/"+country+"/"+table+".tsv") }
 	s := geoPlaceSet{name: map[string]string{}, region: map[string]string{}, locality: map[string]string{}, streets: map[[2]string]bool{}}
-	if country == "US" {
-		county := map[string]string{}
-		for _, r := range rows("municipality") {
-			county[r[0]] = r[2]
-		}
-		for _, r := range rows("locality") {
-			s.name[r[0]], s.region[r[0]] = r[1], county[r[2]]
-		}
-	} else {
-		for _, r := range rows("locality") {
-			s.name[r[0]] = r[0]
-		}
+	region := map[string]string{}
+	for _, r := range rows("municipality") {
+		region[r["code"]] = r["region"]
+	}
+	for _, r := range rows("locality") {
+		key := cmp.Or(r["code"], r["name"])
+		s.name[key], s.region[key] = r["name"], region[r["municipality"]]
 	}
 	for _, r := range rows("postal-code") {
-		s.locality[r[0]] = r[1]
+		s.locality[r["code"]] = r["locality"]
 	}
 	for _, r := range rows("street") {
-		s.streets[[2]string{r[0], r[1]}] = true
+		s.streets[[2]string{r["name"], r["locality"]}] = true
 	}
 	return s
 }
 
 func (s geoPlaceSet) has(street, postalCode, locality, region string) bool {
 	l, ok := s.locality[postalCode]
-	return ok && s.name[l] == locality && s.region[l] == region && s.streets[[2]string{street, l}]
+	return ok && s.name[l] == locality && (region == "" || s.region[l] == region) && s.streets[[2]string{street, l}]
 }
 
 func TestGeoPlacesHoldOnlyOneLocalitysStreetPostalCodeNameAndRegion(t *testing.T) {
