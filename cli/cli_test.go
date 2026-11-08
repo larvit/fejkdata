@@ -1118,9 +1118,26 @@ func TestHelpLeadsToNamesFunctionsAndTheReadme(t *testing.T) {
 	if !regexp.MustCompile(`\{[^}]* as [a-z]+\}`).MatchString(out) {
 		t.Errorf("--help shows no {x as y}:\n%s", out)
 	}
-	for _, link := range []string{"https://github.com/larvit/fejkdata#names", "https://github.com/larvit/fejkdata#functions"} {
+	for _, link := range []string{"https://github.com/larvit/fejkdata#names", "https://github.com/larvit/fejkdata#functions", "https://github.com/larvit/fejkdata#your-own-data"} {
 		if !strings.Contains(out, link) {
 			t.Errorf("--help does not link %s", link)
+		}
+	}
+}
+
+func TestHelpLinksOnlyReadmeHeadings(t *testing.T) {
+	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	anchors := map[string]bool{}
+	for _, m := range regexp.MustCompile(`(?m)^#+ (.+)$`).FindAllStringSubmatch(string(readme), -1) {
+		anchors[strings.ReplaceAll(strings.ToLower(m[1]), " ", "-")] = true
+	}
+	_, out, _ := runOut("", "--help")
+	for _, m := range regexp.MustCompile(`https://github\.com/larvit/fejkdata#(\S+)`).FindAllStringSubmatch(out, -1) {
+		if !anchors[m[1]] {
+			t.Errorf("--help links #%s, which no README heading makes", m[1])
 		}
 	}
 }
