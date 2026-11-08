@@ -162,6 +162,8 @@ fejkdata renders the fakes. Each part of the job:
 
 - The same fake wherever one original recurs in a render: bind a pick to a name,
   `{/en_US.person as p}`, and read `{p}` each time ([Names](#names)).
+- Free text, word by word: `{anonymize(text, /en_US.word)}` keeps its punctuation, digits,
+  case and word lengths ([Transforms](#transforms)).
 - A value of a given length: `{lower(n)}`, `{upper(n)}`, `{digits(n)}` or `{hex(n)}`
   ([Functions](#functions)).
 - A v4 UUID: `{/misc.uuid}`, since `{uuid()}` draws a v7.
@@ -179,8 +181,7 @@ Renders e.g. `David Greer <tdsagk@example.com> signed as David Greer, id
 557058:3bcf0fc3-f7b0-4d58-bf7f-88c29c39f316, https://blog.example.com?ojat=642`.
 
 Your program keeps the rest of the job: giving one original the same fake across renders,
-rewriting a text word by word while keeping its punctuation, and keeping a fake from
-equalling or containing its original.
+and keeping a fake from equalling or containing its original.
 
 ## CLI
 
@@ -1413,6 +1414,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{seq()}`, `{seq(name)}` | counter | next integer from 1 in this generator; `name` selects an independent counter |
 | `{calc(expr)}`, `{calc(expr,dp)}` | computation | an arithmetic expression over sibling fields and names ([Computation](#computation)) |
 | `{lowercase(x)}`, `{uppercase(x)}`, `{ascii(x)}`, `{slugify(x)}` | transform | a field's value rewritten ([Transforms](#transforms)) |
+| `{anonymize(text,words)}` | transform | each word of `text` replaced by one drawn from `words` ([Transforms](#transforms)) |
 
 A derivation reads what is to its left, so place it after its payload; the
 buffer is per expansion, so a nested template keeps fixed parts out of the sum. A
@@ -1513,6 +1515,20 @@ to one `-`, and trims `-` from both ends: `Anna Lena` → `anna-lena`, `Åsa Öb
 
 Renders `Åsa Öberg <asa.oberg@example.com>` or `Bo Ek <bo.ek@example.com>`, never
 a mix.
+
+`{anonymize(text,words)}` replaces each word of `text`, a run of letters, with a word drawn from
+the path `words`, such as `/en_US.word`. The word drawn has the length of the one it replaces,
+or else the nearest length `words` holds, the shorter on a tie, and takes the case of the letter
+at each place. Digits, punctuation and every other character stay, so `PROJ-123` keeps its digits:
+
+```json
+{ "format": "{anonymize(text, /en_US.word)}", "text": "Ping Anna: PROJ-123 is done, ANNA." }
+```
+
+Renders e.g. `Wolf Dirt: KNOT-123 at lazy, DIRT.` A word reads as one fake throughout a render,
+whatever its case; a record renders each row anew. `words` draws by its weights among its values
+made of letters alone, which must be fixed text, as a [filter](#filters)'s are. Neither argument
+may be a call, so `anonymize` doesn't nest.
 
 ### References
 
@@ -1911,13 +1927,14 @@ sorted.go       sortedNames: a map's keys, sorted
 calc.go         the {calc()} operand checks: never a number, and a constant zero divisor
 adddays.go      the {adddays()} proof: its date's one layout reads back, and its day count is a whole number
 where.go        where clauses: the values a filtered path may draw, fixed at load with their weights, and the draw among those that pass
+anonymize.go    {anonymize()}: the words a call draws from, one fake per word in a render, and the case each fake takes
 datatype.go     column datatypes: DataType, a template's declared datatype and a column's datatype
 columnread.go   a format that only reads a column: which column it reads, and the datatype, proof and value load and render take from that column
 valueproof.go   the value proof: what a typed column, calc operand or struct field holds, checked at load
 data.go         the load path: the categories internal/datafiles hands over, compiled into one merged tree, and the load pipeline every entry point runs
 cli/            the fejkdata command, as the library call Main
 cmd/fejkdata/   the fejkdata binary: Main over every shipped module
-internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms and calc arithmetic
+internal/builtinfunc/ the {name()} functions: their checks and draws, checksums, date and time layouts, date offsets, transforms, anonymize's arguments and calc arithmetic
 internal/datafiles/ the walk of a data tree: its folders, its category files and the rows files beside them, and its manifest
 internal/datatype/ the datatype a record column holds; the root's DataType is an alias of it
 internal/drawstate/ the seeded randomness, the {seq()} counters and the date a generator draws through

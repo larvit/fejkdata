@@ -13,7 +13,6 @@
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
-| 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 4 | 1 | 2 | 5 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 |  |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -234,14 +233,6 @@ Question for the maintainer: what does a render print when no draw can pass? The
 - accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
 
 Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
-
-### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
-
-From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
-
-One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling. It draws each word through the `where` clause's index by length and fixed-text check, and adds a function operand that reads a category whole.
-
-The panel ran on 2026-11-08: a hand fixture author, a bulk fixture author, a JavaScript test author and a Go test author. All four ranked `{anonymize(text, /en_US.word)}` first, ahead of `reword`, `fakewords`, `rewrite`, `scramble` and `mask`. All four read the text first and the word list second as right. Two asked the docs to say that digits stay, so an id in the text survives. One asked them to say whether one fake per word holds for a row or for the whole run.
 
 ### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
 
