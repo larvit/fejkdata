@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Statistics Denmark's top 20 of the names that people living in Denmark bore on 1 January 2026,
@@ -243,5 +244,99 @@ func TestShippedDanishHouseNumbersFollowDAR(t *testing.T) {
 	assertShare(t, "house numbers of one digit", oneDigit, draws, 0.293)
 	if fourDigits > 0 {
 		t.Errorf("da_DK.address drew %d house numbers of four digits in %d, want none, as DAR holds none", fourDigits, draws)
+	}
+}
+
+// Statistics Denmark's FOLK1A, the population on 1 January 2026 by age: 6,025,603 people, of
+// whom 1,135,912 were under 18, 3,618,817 were 18 to 64, and the 1,269,665 of 65 to 99 and the
+// 1,209 of 100 or more make up the rest.
+func TestDanishParityHoldsOneDigitOfEachSexsParity(t *testing.T) {
+	rows := tsvRows(t, "data/da_DK/parity.tsv")
+	if len(rows) != 2 {
+		t.Fatalf("parity.tsv holds %d rows, want one per sex", len(rows))
+	}
+	for _, row := range rows {
+		digit, err := strconv.Atoi(row["digit"])
+		if err != nil || digit < 0 || digit > 9 || (digit%2 == 1) != (row["sex"] == "m") {
+			t.Errorf("parity.tsv row %v: want one digit, odd for m and even for f", row)
+		}
+	}
+}
+
+func TestDanishCprIsCprKontoretsNumberOfAPersonUnder100(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const draws = 20000
+	var under18, from18, from65 int
+	centuries := map[int]bool{}
+	sevenths := map[byte]bool{}
+	for i := 0; i < draws; i++ {
+		got := fake(t, f, "da_DK.cpr")
+		if len(got) != 11 || got[6] != '-' || !validCpr(got) {
+			t.Fatalf("%q is not ddmmyy-ssss with a valid check digit", got)
+		}
+		dd, _ := strconv.Atoi(got[0:2])
+		mm, _ := strconv.Atoi(got[2:4])
+		yy, _ := strconv.Atoi(got[4:6])
+		year := cprYear(yy, int(got[7]-'0'))
+		born := time.Date(year, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
+		if born.Day() != dd || int(born.Month()) != mm || born.After(testDay) {
+			t.Fatalf("%q is born on %s, want a day of the calendar not after %s", got, born.Format("2006-01-02"), testDay.Format("2006-01-02"))
+		}
+		age := testDay.Year() - year
+		if born.AddDate(age, 0, 0).After(testDay) {
+			age--
+		}
+		switch {
+		case age < 0 || age > 99:
+			t.Fatalf("%q is born in %d, aged %d, want 0 to 99", got, year, age)
+		case age < 18:
+			under18++
+		case age < 65:
+			from18++
+		default:
+			from65++
+		}
+		centuries[year/100] = true
+		sevenths[got[7]] = true
+	}
+	if !centuries[19] || !centuries[20] {
+		t.Errorf("%d numbers were born in the centuries %v, want the 1900s and the 2000s", draws, centuries)
+	}
+	if len(sevenths) < 6 {
+		t.Errorf("%d numbers held the seventh digits %v, want them to vary", draws, sevenths)
+	}
+	for band, c := range map[string]struct{ got, want float64 }{
+		"under 18": {float64(under18), 18.85},
+		"18 to 64": {float64(from18), 60.06},
+		"65 to 99": {float64(from65), 21.09},
+	} {
+		if share := 100 * c.got / draws; share < c.want-1.5 || share > c.want+1.5 {
+			t.Errorf("%s were %.1f%% of the numbers, want %.2f%% by Statistics Denmark's population", band, share, c.want)
+		}
+	}
+}
+
+func TestDanishCprAgreesWithABoundSex(t *testing.T) {
+	f, err := New(withShipped(), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]bool{}
+	for i := 0; i < 500; i++ {
+		got, err := f.FakeTemplate("{/da_DK.sex as s}{s.name}|{/da_DK.cpr.birth}-{cpr(s.parity.digit)}")
+		if err != nil {
+			t.Fatal(err)
+		}
+		sex, number, _ := strings.Cut(got, "|")
+		if odd := (number[10]-'0')%2 == 1; !validCpr(number) || odd != (sex == "mand") {
+			t.Fatalf("%q: want a valid number, odd for a mand and even for a kvinde", got)
+		}
+		seen[sex] = true
+	}
+	if len(seen) != 2 {
+		t.Errorf("500 draws gave the sexes %v, want both", seen)
 	}
 }
