@@ -12,12 +12,10 @@ import os
 import re
 import sys
 import urllib.request
-import zipfile
 from pathlib import Path
 
 import geo
 import source
-import tsv
 import xlsx
 
 CODES = "https://www.scb.se/contentassets/7a89e48960f741e08918e489ea36354a/kommunlankod-2026.xlsx"
@@ -34,7 +32,6 @@ TATORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&
 # SCB's open data gives a småort, 50 to 199 people, a code and no name, so a postort is matched to one by position.
 # srsName asks for WGS84, the coordinates the postal codes use.
 SMAORTER = "https://geodata.scb.se/geoserver/stat/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=stat:Smaorter_2023&outputFormat=csv&srsName=EPSG:4326&propertyName=kommun,bef,sp_geometry"
-POSTAL_CODES = "https://download.geonames.org/export/zip/SE.zip"
 NVDB = "https://api.trafikinfo.trafikverket.se/v2/data.json"
 NVDB_PAGE = 50000
 TIMEZONE = "Europe/Stockholm"
@@ -124,16 +121,6 @@ class Areas:
             if west <= lon <= east and inside(lon, lat, edges):
                 return value
         return None
-
-
-def geonames(cache):
-    z = zipfile.ZipFile(io.BytesIO(source.fetch(POSTAL_CODES, cache, "SE.zip", magic=b"PK")))
-    rows = []
-    for line in z.read("SE.txt").decode("utf-8").splitlines():
-        f = line.split("\t")
-        lat, lon = (float(f[9]), float(f[10])) if f[9] and f[10] else (None, None)
-        rows.append({"code": f[1], "locality": f[2], "municipality": f[6], "lat": lat, "lon": lon})
-    return rows
 
 
 def nvdb_segments(cache, key):
@@ -263,7 +250,7 @@ def main():
 
     region_names, municipality_names = scb_codes(cache)
     population = scb_population(cache)
-    codes = geonames(cache)
+    codes = geo.geonames(cache, "SE")
     tatorter, areas = scb_tatorter(cache)
     places = localities(codes, tatorter, municipality_names, population, scb_smaorter(cache))
     named = streets(nvdb_segments(cache, key), codes, places, areas, a.street_share, a.min_streets)
@@ -272,13 +259,8 @@ def main():
     kept, dropped = geo.fence(regions, municipalities, places, named, {k: l["codes"] for k, l in places.items()})
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
-    places = kept["locality"]
-
-    tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [m for _, m in sorted(kept["municipality"].items())])
-    tsv.write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
-    tsv.write(out / "postal-code.tsv", ["code", "locality"], sorted(({"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in places.values() for c in l["codes"]), key=lambda r: r["code"]))
-    tsv.write(out / "street.tsv", ["name", "locality", "segments"], [s for locality in sorted(places) for s in named[locality]])
+    postal_codes = [{"code": f"{c[:3]} {c[3:]}", "locality": l["name"]} for l in kept["locality"].values() for c in l["codes"]]
+    geo.write_tables(out, kept, postal_codes, named, postal_code=["code", "locality"], street=["name", "locality", "segments"])
 
 
 if __name__ == "__main__":

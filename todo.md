@@ -12,8 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 294 | 0.4.0 |  |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
-| 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 382 | 0.4.0 |  |  | **Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 2, 4 by 3, 5 by 5 | 6.9 |
 | 223 | 0.4.0 |  |  | **Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.** | 2 | 1 | 2 | 3 | 3 | 1 by 6, 4 by 3 | 5.3 |
@@ -27,7 +25,6 @@
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
-| 295 | 0.4.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
@@ -233,14 +230,6 @@
 
 ## Details
 
-### 294. Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.
-
-Read them from the register the streets item names, Danmarks Adresseregister, where it holds them; else find an open source first.
-
-### 216. Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.
-
-A second country reading GeoNames' postal codes moves `geonames()`, and the `streets()` wrapper around `geo.Nearest`, from `geo-se.py` into `geo.py`. `geo_test.go`'s `geoPlaces` reads every country but US by SE's column positions, and a locality is keyed by name in SE and by code in US: a new country states its own. Each `main` in `geo-no.py`, `geo-se.py` and `geo-us.py` repeats five `tsv.write` lines in one order: fold them into one function in `geo.py`, so a new country's script does not copy the block.
-
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
 Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-31,'2006-01-02')}`, and `data/sv_SE/personnummer.json` draws its own date in four age bands, such as `{born(18,64,'060102')}`. A record holding both has a birthdate that contradicts the number's first six digits, which breaks goal 3.1. By the decision "Every `{…}` draws afresh, and only a name keeps a pick", the two dates agree only through one named pick. No builtin prints one drawn date in two layouts, so the fix needs one of two things: a date bound to a name and read in two layouts, or a `personnummer` that reads the date a name holds.
@@ -349,10 +338,6 @@ From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) ano
 From a real-world use case, a scheduler's fixtures: `UNTIL = DTSTART + N days` cannot be written, so the template emits `start_day` as an epoch-day integer and `len_days`, and the loader builds the date. `{calc()}` reads numbers and `date()` draws only between fixed days, so a fixture's `created_at` before `updated_at` has no spelling either.
 
 A writer panel picks the spelling, between a date offset, a `date()` whose bound reads another field, and `calc` over dates; the author offered each. What it reads comes through a name, so both columns show one date, and is proven a date at load (goals 5.1 and 5.4). It reads no clock (goal 9).
-
-### 295. Give `geo/DK`'s places their streets.
-
-Danmarks Adresseregister through Datafordeler (free) holds every street with its postnummer.
 
 ### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
 

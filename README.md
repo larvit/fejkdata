@@ -12,9 +12,9 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names and persons, and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons and addresses, and `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
-  does every Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
+  does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
 - **Valid ids:** personnummer and samordningsnummer from Skatteverket's test series, and
   fødselsnummer from Skatteetaten's synthetic series, none of which a real person holds, though
@@ -472,9 +472,9 @@ it runs from in its help and errors. `--no-shipped-data` leaves out the modules 
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
 its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/nb_NO`,
-`data/sv_SE`), one per country's tree of places (`data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
+`data/sv_SE`), one per country's tree of places (`data/geo/DK`, `data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`dadk`, `enus`, `nbno`, `svse`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `enus`, `nbno`, `svse`, `geodk`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -522,7 +522,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`da_DK`, Danish, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK`, Danish, carries `address`, `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -805,13 +805,18 @@ street lies in its postort: GeoNames gives a postal code a point and a postort n
 places each road segment by distance, leaning towards the postort a tätort is named after, and
 a street may sit under a neighbouring one.
 
-| Table | `geo.NO` | `geo.SE` | `geo.US` | Weight |
-|-------|----------|----------|----------|--------|
-| `region` | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
-| `municipality` | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
-| `locality` | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | NO: the kommune's population, shared out over its poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, the småort's of its kommun where the postort lies in one, else 200; US: place population |
-| `postal-code` | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | NO: addresses; SE: one; US: address ranges |
-| `street` | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | NO: addresses; SE: segments; US: address ranges |
+| Table | `geo.DK` | `geo.NO` | `geo.SE` | `geo.US` | Weight |
+|-------|----------|----------|----------|----------|--------|
+| `region` | region, by code or name | fylke, by code or name | län, by code or name | state, by USPS abbreviation or name; `code` is the FIPS code | population |
+| `municipality` | kommune, by code or name | kommune, by code or name | kommun, by code or name | county, by FIPS code or name | population |
+| `locality` | postdistrikt, by name: every one with a street address in Danmarks Adresseregister | poststed, by name: every one with a street address in Kartverket's register | postort, by name; [`geo-se.py`](data-import/geo-se.py)'s `localities` picks the candidates, and one with no street is dropped | incorporated place, by GEOID or name; Hawaii has none | DK and NO: the kommune's population, shared out over its postdistrikter or poststeder by their addresses; SE: tätort population, the kommun's where the postort names it, the småort's of its kommun where the postort lies in one, else 200; US: place population |
+| `postal-code` | postnummer with a street address, by code | postnummer with a street address, by code | postnummer with street delivery, by code | ZCTA, by code | DK and NO: addresses; SE: one; US: address ranges |
+| `street` | street name, every one in the register but one holding a word of five capitals or more | street name, every one [`geo-no.py`](data-import/geo-no.py)'s `street_name` accepts | gatunamn, every one [`geo-se.py`](data-import/geo-se.py)'s `street_name` accepts | street name, per place the quarter with most address ranges, at least ten | DK and NO: addresses; SE: segments; US: address ranges |
+
+`da_DK.address` prints `geo.DK.address`, such as `Vestergade 12\n8000 Aarhus C`. A postdistrikt such
+as `København K` holds many postnumre. A kommune's `code` is four digits, `0101`, and a region's
+`1084`, as the address register writes them. Christiansø ships no place: its addresses lie in the
+postdistrikt Gudhjem, on Bornholm. A Danish street sits under each postdistrikt where it has an address.
 
 `nb_NO.address` prints `geo.NO.address`, such as `Thorstein Stenbeks vei 65\n3613 Kongsberg`.
 Svalbard has no kommune in Statistics Norway's classification, so it ships no place.
@@ -1698,6 +1703,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/names-us.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" -e TRAFIKVERKET_API_KEY data-import data-import/geo-se.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/geo-us.py

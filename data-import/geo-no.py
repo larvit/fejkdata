@@ -23,7 +23,6 @@ from dataclasses import dataclass, field
 
 import geo
 import source
-import tsv
 
 ADDRESSES = "https://nedlasting.geonorge.no/geonorge/Basisdata/MatrikkelenAdresse/CSV/Basisdata_0000_Norge_4258_MatrikkelenAdresse_CSV.zip"
 KLASS = "https://data.ssb.no/api/klass/v1/classifications/{}/codesAt?date={}"
@@ -43,7 +42,6 @@ LOWER = {"i", "på"}
 # Not a street: a numbered placeholder such as Veg 7205, Gate 2, Veinr. 8113 or Vegkode 81682, a temporary name, or a
 # name holding a road designation, E6, E-6, Europaveg-39 or FV819.
 NOT_A_STREET = re.compile(r"^(Gate|Veg|Vei) ?\d+\b|^(Veinr|Vegkode|Veg nr)\.? ?\d|^Midlertidig |\b(E|FV|Fv|RV|Rv)-? ?\d+\b|^Europaveg")
-NUMBER_RANGES = ((1, 9), (10, 99), (100, 999), (1000, 9999))
 
 
 @dataclass
@@ -83,7 +81,7 @@ def tally(addresses):
         t.in_municipality[(place, municipality)] += 1
         t.codes[place][code] += 1
         t.points[place].append({"lat": lat, "lon": lon})
-        t.numbers[(next(i for i, (_, top) in enumerate(NUMBER_RANGES) if number <= top), bool(letter))] += 1
+        t.numbers[geo.number_range(number, bool(letter))] += 1
         t.written.setdefault(municipality, written)
         if street_name(street):
             t.streets[(place, street)] += 1
@@ -91,35 +89,15 @@ def tally(addresses):
 
 
 def localities(t, people, municipalities):
-    """Each poststed whose kommune SSB classifies, with that kommune, its population by the module docstring's rule and
-    its centre point. Of two kommuner holding as many of a poststed's addresses, the lower code wins."""
-    of_municipality, share, home = collections.Counter(), collections.Counter(), {}
-    for (_, municipality), n in t.in_municipality.items():
-        of_municipality[municipality] += n
-    for (place, municipality), n in sorted(t.in_municipality.items(), key=lambda kv: (-kv[1], kv[0][1])):
-        share[place] += people.get(municipality, 0) * n / of_municipality[municipality]
-        home.setdefault(place, municipality)
+    """Each poststed whose kommune SSB classifies, with its kommune and population by geo.homes, and its centre point."""
     out = {}
-    for place, municipality in home.items():
+    for place, (municipality, population) in geo.homes(t.in_municipality, people).items():
         if municipality not in municipalities:
             print(f"{place}: kommune {municipality} is not in SSB's classification, dropped", file=sys.stderr)
             continue
         lat, lon = geo.centroid(t.points[place])
-        out[place] = {"name": place, "municipality": municipality, "population": max(1, round(share[place])), "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"}
+        out[place] = {"name": place, "municipality": municipality, "population": population, "lat": f"{lat:.4f}", "lon": f"{lon:.4f}"}
     return out
-
-
-def address_json(numbers):
-    """geo.NO.address, its street-number choice weighted by the register's counts of numbers, by length and letter."""
-    items = ",\n".join(
-        f'    {{ "format": "{{int({low},{top})}}{"{upper(1)}" if lettered else ""}", "weight": {numbers[(i, lettered)]} }}'
-        for lettered in (False, True) for i, (low, top) in enumerate(NUMBER_RANGES) if numbers[(i, lettered)]
-    )
-    return (
-        '{\n  "format": "{street} {street-number}\\n{postal-code} {locality}",\n  "street": "{.locality as l}{l.street.name}",\n'
-        f'  "street-number": [\n{items}\n  ],\n'
-        '  "postal-code": "{l.postal-code.code}",\n  "locality": "{l.name}"\n}\n'
-    )
 
 
 def klass(cache, classification, date):
@@ -157,14 +135,8 @@ def main():
     kept, dropped = geo.fence(regions, municipalities, places, named, t.codes)
     geo.log_dropped_localities(dropped["locality"])
     geo.exit_on_dropped_parents(dropped)
-    places = kept["locality"]
-
-    tsv.write(out / "region.tsv", ["code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [m for _, m in sorted(kept["municipality"].items())])
-    tsv.write(out / "locality.tsv", ["name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
-    tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], [{"code": c, "locality": l, "addresses": n} for c, l, n in sorted((c, l, n) for l in places for c, n in t.codes[l].items())])
-    tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(places) for s in named[locality]])
-    (out / "address.json").write_text(address_json(t.numbers), encoding="utf-8")
+    geo.write_tables(out, kept, [{"code": c, "locality": l, "addresses": n} for l in kept["locality"] for c, n in t.codes[l].items()], named)
+    (out / "address.json").write_text(geo.address_json(t.numbers), encoding="utf-8")
 
 
 if __name__ == "__main__":

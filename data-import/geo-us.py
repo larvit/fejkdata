@@ -17,7 +17,6 @@ import zipfile
 
 import geo
 import source
-import tsv
 
 GAZETTEER = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2026_Gazetteer/2026_Gaz_{}_national.zip"
 POPULATION = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/{}"
@@ -224,13 +223,8 @@ def main():
     kept, dropped = geo.fence(regions, counties, places, named, zctas)
     geo.log_dropped_localities(dropped["locality"])
     print(f"counties without a place, dropped: {len(dropped['municipality'])}; states without a county, dropped: {sorted(dropped['region'])}", file=sys.stderr)
-    places = kept["locality"]
-
-    tsv.write(out / "region.tsv", ["abbr", "code", "name", "population", "timezone"], [r for _, r in sorted(kept["region"].items())])
-    tsv.write(out / "municipality.tsv", ["code", "name", "region", "population"], [c for _, c in sorted(kept["municipality"].items())])
-    tsv.write(out / "locality.tsv", ["code", "name", "municipality", "population", "lat", "lon"], [l for _, l in sorted(places.items())])
-    tsv.write(out / "postal-code.tsv", ["code", "locality", "addresses"], sorted(({"code": z, "locality": l, "addresses": addresses[z]} for l in places for z in zctas[l]), key=lambda r: r["code"]))
-    tsv.write(out / "street.tsv", ["name", "locality", "addresses"], [s for locality in sorted(places) for s in named[locality]])
+    postal_codes = [{"code": z, "locality": l, "addresses": addresses[z]} for l in kept["locality"] for z in zctas[l]]
+    geo.write_tables(out, kept, postal_codes, named, region=["abbr", "code", "name", "population", "timezone"], locality=["code", "name", "municipality", "population", "lat", "lon"])
 
 
 if __name__ == "__main__":
