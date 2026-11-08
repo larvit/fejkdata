@@ -250,14 +250,17 @@ func (f *Generator) FakeRecordTemplate(input string) (*Record, error) {
 // names the one-column record to write instead.
 var ErrNoColumns = errors.New("has no fields, so no columns")
 
-// choiceRecordError keeps its own message and matches ErrNoColumns, so a record naming a choice gets the
-// one-column hint.
-type choiceRecordError struct{}
+// noColumnsError keeps its own message and matches ErrNoColumns, so a record naming a choice, or
+// holding every field in let, gets the one-column hint.
+type noColumnsError string
 
-func (choiceRecordError) Error() string {
-	return "names a choice, not a template; a record is a template whose fields are its columns"
-}
-func (choiceRecordError) Is(target error) bool { return target == ErrNoColumns }
+func (e noColumnsError) Error() string      { return string(e) }
+func (noColumnsError) Is(target error) bool { return target == ErrNoColumns }
+
+const (
+	namesAChoice  = noColumnsError("names a choice, not a template; a record is a template whose fields are its columns")
+	holdsOnlyLets = noColumnsError(`holds every field in "let", which writes no column`)
+)
 
 // recordOf is the record template n is; settleRecords fixed its columns at load.
 func recordOf(n node) (*template, error) {
@@ -266,7 +269,7 @@ func recordOf(n node) (*template, error) {
 	}
 	t, ok := n.(*template)
 	if !ok {
-		return nil, choiceRecordError{}
+		return nil, namesAChoice
 	}
 	if len(t.fields) == 0 {
 		return nil, ErrNoColumns
@@ -274,8 +277,11 @@ func recordOf(n node) (*template, error) {
 	if !t.isRecord {
 		return nil, fmt.Errorf("carries repeat %d, which composes its format into one string; a record projects columns instead — drop the repeat and render the record again for more rows", t.repeat)
 	}
-	if len(t.columns) != len(t.fields) {
+	if len(t.columns)+len(t.helpers) != len(t.fields) {
 		panic(invariant.Broken("record %q was reached before its load settled its columns", t.format))
+	}
+	if len(t.columns) == 0 {
+		return nil, holdsOnlyLets
 	}
 	return t, nil
 }
@@ -315,11 +321,12 @@ func recordColumns(t *template) []recordColumn {
 			whole[b.target.start] = b
 		}
 	}
-	names := sortedNames(t.fields)
-	columns := make([]recordColumn, len(names))
-	for i, name := range names {
-		field := t.fields[name]
-		columns[i] = recordColumn{name: name, datatype: columnDatatype(field), field: field, boundWhole: whole[field]}
+	var columns []recordColumn
+	for _, name := range sortedNames(t.fields) {
+		if !t.helpers[name] {
+			field := t.fields[name]
+			columns = append(columns, recordColumn{name: name, datatype: columnDatatype(field), field: field, boundWhole: whole[field]})
+		}
 	}
 	return columns
 }

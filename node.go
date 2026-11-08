@@ -68,11 +68,12 @@ type template struct {
 	format     string
 	tokens     []grammar.Token
 	fields     map[string]node
+	helpers    map[string]bool // the fields its "let" holds, which write no column
 	repeat     int
 	separator  string
 	datatype   *DataType     // the "datatype" it carries, which wins over that of a column it reads; nil where none
 	fromString bool          // written as a JSON string rather than an object
-	isRecord   bool          // compiled at the top without a repeat, so its fields are record columns
+	isRecord   bool          // compiled at the top or as a column without a repeat, so its fields are columns
 	unbound    []unboundRead // the heads its tokens read that no field holds
 
 	// Filled by `bindNames`, from the compiled category:
@@ -131,15 +132,16 @@ func compileCategory(c datafiles.Category) (node, error) {
 type position int
 
 const (
-	inFormat   position = iota // rendered by a format, so neither
-	atTop                      // a category or an inline template, whose fields may be columns
-	inColumn                   // a column, or a choice item standing in for one
-	atGoTop                    // a struct's tags, whose fields are columns a Go type types
-	inGoColumn                 // a column a struct field's Go type types, or a choice item in one
+	inFormat      position = iota // rendered by a format, so neither
+	atTop                         // a category or an inline template, whose fields may be columns
+	inColumn                      // a column, or a choice item standing in for one
+	atGoTop                       // a struct's tags, whose fields are columns a Go type types
+	inGoColumn                    // a column a struct field's Go type types, or a choice item in one
+	inColumnField                 // a field of a template standing as a column: may be null or typed, a bare number stays text
 )
 
 // column reports a position that is a record column.
-func (p position) column() bool { return p == inColumn || p == inGoColumn }
+func (p position) column() bool { return p == inColumn || p == inGoColumn || p == inColumnField }
 
 // compileItem compiles one node; a weight on it skews only a choice drawing it.
 func compileItem(v any, pos position) (node, error) {
@@ -285,9 +287,11 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 			fieldPos = inColumn
 		case atGoTop:
 			fieldPos = inGoColumn
+		case inColumn, inColumnField:
+			fieldPos = inColumnField
 		}
 	}
-	fields, err := compileFields(m, fieldPos)
+	fields, helpers, err := compileFields(m, fieldPos)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +299,7 @@ func compileTemplate(m map[string]any, pos position) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &template{format: o.format, tokens: toks, fields: fields, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
+	return &template{format: o.format, tokens: toks, fields: fields, helpers: helpers, repeat: o.repeat, separator: o.separator, datatype: o.datatype, isRecord: fieldPos.column(), unbound: unbound}, nil
 }
 
 type templateOptions struct {
@@ -328,22 +332,48 @@ func readOptions(m map[string]any, pos position) (templateOptions, error) {
 	return o, nil
 }
 
-func compileFields(m map[string]any, pos position) (map[string]node, error) {
-	fields := make(map[string]node, len(m))
-	for _, k := range sortedNames(m) {
-		if isOption(k) {
-			continue
+// compileFields compiles the fields beside the options, and those the "let" option holds, which it
+// also names in helpers.
+func compileFields(m map[string]any, pos position) (fields map[string]node, helpers map[string]bool, err error) {
+	fields = make(map[string]node, len(m))
+	compile := func(raw map[string]any, skipOptions bool) error {
+		for _, k := range sortedNames(raw) {
+			if skipOptions && isOption(k) {
+				continue
+			}
+			if err := grammar.CheckIdentifier(k); err != nil {
+				return fmt.Errorf("field %w", err)
+			}
+			if _, twice := fields[k]; twice {
+				return fmt.Errorf("field %q is in let and beside it; write it once", k)
+			}
+			n, err := compileItem(raw[k], pos)
+			if err != nil {
+				return fmt.Errorf("field %q: %w", k, err)
+			}
+			fields[k] = n
 		}
-		if err := grammar.CheckIdentifier(k); err != nil {
-			return nil, fmt.Errorf("field %w", err)
-		}
-		n, err := compileItem(m[k], pos)
-		if err != nil {
-			return nil, fmt.Errorf("field %q: %w", k, err)
-		}
-		fields[k] = n
+		return nil
 	}
-	return fields, nil
+	if err := compile(m, true); err != nil {
+		return nil, nil, err
+	}
+	let, hasLet := m["let"]
+	if !hasLet {
+		return fields, nil, nil
+	}
+	held, ok := let.(map[string]any)
+	if !ok {
+		return nil, nil, fmt.Errorf("let is an option and takes an object of fields, not %s; a field cannot be named \"let\"", jsonvalue.Kind(let))
+	}
+	if err := compile(held, false); err != nil {
+		return nil, nil, err
+	}
+	helpers = make(map[string]bool, len(held))
+	for k := range held {
+		helpers[k] = true
+	}
+	return fields, helpers, nil
 }
 
 // repeatOf reads a template's "repeat" (default 1): how many times its format
@@ -410,7 +440,7 @@ func numberOf(v any) (float64, bool) {
 
 func isOption(name string) bool {
 	switch name {
-	case "datatype", "format", "repeat", "separator", "weight":
+	case "datatype", "format", "let", "repeat", "separator", "weight":
 		return true
 	}
 	return false

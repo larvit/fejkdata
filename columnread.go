@@ -11,11 +11,14 @@ import (
 // columnRead is a record's column that a format reads, where the format only reads that one
 // reference or name. The format then counts as the column: it takes the column's datatype and
 // null. category and field name the column; category is "" for a column of the reading
-// template's own record, which checkColumns reaches on its own.
+// template's own record, which checkColumns reaches on its own. spread is set where the read goes
+// through the items of a choice: column is then a choice of the column each item holds, which
+// checkColumns checks for agreement, since nothing else reaches those items.
 type columnRead struct {
 	a               arm
 	category, field string
 	column          node
+	spread          bool
 }
 
 // columnReadOf is the record's column t's format reads, where the format only reads one reference
@@ -28,10 +31,45 @@ func columnReadOf(t *template, targets map[*nameBinding]nameTarget) *columnRead 
 	}
 	a := t.compiled.ops[0].arms[0]
 	start, category, tail := columnSource(t, a, targets)
-	if target, isTemplate := start.(*template); isTemplate && target.isRecord && len(tail) == 1 {
-		return &columnRead{a: a, category: category, field: tail[0], column: target.fields[tail[0]]}
+	target, isTemplate := start.(*template)
+	if !isTemplate || !target.isRecord || len(tail) == 0 {
+		return nil
 	}
-	return nil
+	columns, spread := columnsAt(target, tail)
+	switch len(columns) {
+	case 0:
+		return nil
+	case 1:
+		return &columnRead{a: a, category: category, field: tail[len(tail)-1], column: columns[0], spread: spread}
+	}
+	return &columnRead{a: a, category: category, field: tail[len(tail)-1], column: &choice{items: columns}, spread: true}
+}
+
+// columnsAt is the columns n holds along tail: the field of a template, and the column of each item
+// of a choice. It is nil where a step has no field to follow, where a template on the way repeats,
+// or where an item of a choice is no template. spread is set where it went through a choice.
+func columnsAt(n node, tail []string) (columns []node, spread bool) {
+	if len(tail) == 0 {
+		return []node{n}, false
+	}
+	switch n := n.(type) {
+	case *template:
+		field, ok := n.fields[tail[0]]
+		if !ok || n.repeat != 1 {
+			return nil, false
+		}
+		return columnsAt(field, tail[1:])
+	case *choice:
+		for _, it := range n.items {
+			below, _ := columnsAt(it, tail)
+			if below == nil {
+				return nil, false
+			}
+			columns = append(columns, below...)
+		}
+		return columns, true
+	}
+	return nil, false
 }
 
 func readsOneArm(t *template) bool {
@@ -57,11 +95,16 @@ func columnSource(t *template, a arm, targets map[*nameBinding]nameTarget) (star
 	return nil, "", nil
 }
 
-// checkReadColumns runs check on the column of another category that each of items reads.
-func checkReadColumns(items []*template, check func(label, name string, column node) error) error {
+// checkReadColumns runs check on the column of another category that each of items reads, and on
+// the choice of columns that an item of the category labelled label reads through a choice.
+func checkReadColumns(label string, items []*template, check func(label, name string, column node) error) error {
 	for _, it := range items {
-		if r := it.readsColumn; r != nil && r.category != "" {
-			if err := check(r.category, r.field, r.column); err != nil {
+		if r := it.readsColumn; r != nil && (r.category != "" || r.spread) {
+			where := label
+			if r.category != "" {
+				where = r.category
+			}
+			if err := check(where, r.field, r.column); err != nil {
 				return err
 			}
 		}
