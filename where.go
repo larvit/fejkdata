@@ -409,7 +409,7 @@ func undrawnNear(i, from, to int, drawn []int) int {
 func (v *valueDraw) proveEveryDrawPasses() error {
 	bounds := make([][2]float64, len(v.reads))
 	for i, a := range v.reads {
-		p := (&valueProof{}).proveUnion(a.leaves)
+		p := (&valueProof{}).proveArm(a)
 		switch {
 		case p.NotOperand != "":
 			return fmt.Errorf("length %s is not always a whole number: %s", a.spelling, p.NotOperand)

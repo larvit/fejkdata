@@ -185,7 +185,8 @@ func (t *table) compileRowFormat(format string) error {
 	return nil
 }
 
-// refuseInTable refuses a table's format or cell binding a name or filtering a draw.
+// refuseInTable refuses a table's format or cell binding a name, filtering a draw or drawing
+// distinct values.
 func refuseInTable(toks []grammar.Token) error {
 	for _, tok := range toks {
 		switch {
@@ -193,6 +194,8 @@ func refuseInTable(toks []grammar.Token) error {
 			return fmt.Errorf("token {%s}: a table binds no name; bind it in a template reading the table", tok.Body)
 		case tok.Where != nil:
 			return fmt.Errorf("token {%s}: a table filters no draw; filter it in a template reading the table", tok.Body)
+		case tok.Distinct != nil:
+			return fmt.Errorf("token {%s}: a table draws no distinct values; draw them in a template reading the table", tok.Body)
 		}
 	}
 	return nil

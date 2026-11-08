@@ -37,7 +37,7 @@ func addDaysLayout(o *op) (string, error) {
 		return layout, nil
 	}
 	n := o.operands[1]
-	v := (&valueProof{}).proveUnion(n.leaves)
+	v := (&valueProof{}).proveArm(n)
 	switch {
 	case v.NotOperand != "":
 		return "", fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
