@@ -6,14 +6,16 @@
 
 `Bar = 0`
 
-`Next ID = 390`
+`Next ID = 397`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
+| 391 | 0.4.0 |  |  | **Show in the README how to write ratios and rules as data: 80% `active` by a weighted choice, and a currency that follows its country by a named pick.** | 1 | 1 | 1 | 1 | 2 | 1 by 3, 4 by 2 | 3.9 |
 | 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
+| 390 | 0.4.0 |  |  | **Show in the README how to load a run's output into PostgreSQL, SQLite, MySQL and MongoDB through a pipe, and record in `docs/decisions.md` that no database or HTTP sink is built in.** | 1 | 1 | 1 | 1 | 2 | 1 by 4 | 3.4 |
 | 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
@@ -28,9 +30,13 @@
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
+| 395 | 0.5.0 | 386 |  | **Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time.** | 2 | 1 | 1 | 2 | 3 | 1 by 4 | 2.6 |
 | 303 | 0.5.0 | 204 |  | **Add `fi_FI.company`, `fi_FI.email` and `fi_FI.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
+| 394 | 0.5.0 |  |  | **Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.** | 2 | 2 | 1 | 3 | 3 | 1 by 3 | 1.9 |
 | 299 | 0.5.0 | 204 |  | **Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 300 | 0.5.0 | 299 |  | **Give `geo/FI`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
+| 392 | 0.5.0 |  |  | **Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.** | 1 | 1 | 2 | 2 | 3 | 1 by 2 | 1.3 |
+| 393 | 0.5.0 | 392 |  | **Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.** | 3 | 2 | 2 | 5 | 7 | 1 by 6 | 0.5 |
 | 205 | 0.6.0 |  |  | **Add `is_IS` with its given names by sex, last names and titles, and `is_IS.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 327 | 0.6.0 | 205 |  | **Add `is_IS`'s national personal id, the kennitala, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 326 | 0.6.0 | 205 |  | **Add `is_IS.phone`, drawn from Iceland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -150,6 +156,7 @@
 | 348 | 1.0.0 |  | question | **Decide how a Go minor that drops a system the binaries run on, such as an older macOS, ships from 1.0.0 on, where dropping a system is a major, and record it in the decision "CI releases each update to what a release carries at once, as a fejkdata patch cut from the last release's tag".** | 1 | 2 | 1 | 2 | 1 | 1.1 by 3 | 3.0 |
 | 69 | 1.0.0 |  |  | **Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.** | 1 | 2 | 1 | 2 | 3 | 1 by 8 | 5.1 |
 | 70 | 1.0.0 |  |  | **Publish a homepage with an in-browser generator, the library compiled to WebAssembly.** | 3 | 2 | 2 | 5 | 6 | 1 by 6 | 0.9 |
+| 396 | 1.1.0 |  | question | **Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.** | 1 | 1 | 1 | 1 | 1 | 1 by 2 | 2.0 |
 | 190 | 1.1.0 |  | question | **Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.** | 4 | 2 | 3 | 7 | 9 | 1 by 4, 3 by 3 | 0.1 |
 | 357 | 1.2.0 |  | question | **Create the `@larvit` organisation on npm, and make this repository's Packages workflow the trusted publisher of `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 1.0 |
 | 358 | 1.2.0 |  |  | **Record in `docs/decisions.md` the JavaScript API that a panel of JavaScript and TypeScript test authors picks for `@larvit/fejkdata`.** | 1 | 2 | 1 | 2 | 3 | 1.2 by 3 | 1.8 |
@@ -258,11 +265,19 @@ Limits on the change:
 
 Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told. Every fact two of these documents state is generated, tested or listed as unchecked, and a test in the merge gate fails when a builtin or flag is added but missing from a document that lists it.
 
+### 391. Show in the README how to write ratios and rules as data: 80% `active` by a weighted choice, and a currency that follows its country by a named pick.
+
+From the same review, which asked for weights and `if/then` rules. Both already exist: a choice's `weight` skews odds (Weight), and a table row bound to a name keeps a country and its currency together (Correlated fields, goal 3.1). Neither reads as an answer to "80% active" or "if country is SE, currency is SEK", so a reader searching `ratio`, `percent` or `if` finds nothing; item 381 covers the same gap for the CLI's own pages. Add no conditional syntax: goal 4's counter-signal is a Data format section growing faster than the categories using it. Every example runs as a test and shows its output (goal 11.2), and a hit on `percent` or `ratio` lands on it.
+
 ### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
 
 From a real-world use case, a scheduler's fixtures: `pattern` and `weekday`, read only through names, became empty CSV columns. An extra column costs a `COPY` into a table without it. Moving the helper to its own category works on 0.3.0, as `{"format":"{/pool as p}","rrule":"{p.rrule}"}` writes only `rrule`, but it splits one idea across two files, so say so in the Records section until this ships.
 
 A writer panel picks the spelling. The scheduler's author offered `_weekday`, `"column": false` and a `columns` list. A new option reserves its key, as the decision "Options and fields share one namespace" says, which breaks a field of that name. Goal 4.7 weighs against a convention that guesses from a name. The fix holds for `FakeRecord` and every `--format`. `recordColumns` and `settleRecords` are places the comprehension seats found hard: make them easier where this touches them.
+
+### 390. Show in the README how to load a run's output into PostgreSQL, SQLite, MySQL and MongoDB through a pipe, and record in `docs/decisions.md` that no database or HTTP sink is built in.
+
+From an outside review of what makes a fake-data tool the first choice, which asked for `--to-postgres`, `--to-mongodb` and a webhook sink. `--format sql` streams INSERTs that PostgreSQL and SQLite take as written, `csv` feeds `\copy`, and `ndjson` feeds `mongoimport` and `curl --data-binary @-`, so a pipe already reaches each target. A driver per database breaks goal 10, which allows only a dependency the standard library can't replace, and an address, credentials and retries are a second command line against goal 6. Show one pipe per target in the Records section, with `{seq()}` ids, and the MySQL settings its SQL note already names. Run the left side of each example as a test (goal 11.2). Record the refusal under a title `AGENTS.md` lists, citing goals 6 and 10.
 
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
@@ -345,6 +360,14 @@ Find the issuer's rules, and a test series if it publishes one, first.
 
 Find the numbering plan and its licence first.
 
+### 395. Add a function that prints a time stepping with `{seq()}` from a start by a step and a jitter, so a run's rows ascend in time.
+
+From the same review, whose ask was timestamps that fit a dashboard: `{date()}` draws each row's time afresh, so rows arrive out of order and with random gaps. The function reads the row's `{seq(name)}`, adds the step times the count, and a bounded jitter smaller than the step, so rows never swap order. It draws only from the seed and the date (goal 9, the decision "A builtin reads the date the caller gives, never the clock"). Spell date arithmetic once with item 386, which computes a date from a printed date, hence the block. A writer panel picks the spelling, and whether a jitter of the step or more is refused at `New`.
+
+### 394. Add a `--format` that writes PostgreSQL's COPY text, so a million rows load through `psql` without parsing an INSERT.
+
+From the same review, which asked for fast seeding of a million-row database. `COPY ... FROM STDIN` takes tab-separated text with `\N` for null, and loads several times faster than INSERT. It needs no dependency (goal 10). A writer panel picks the spelling, `copy` or `pgcopy`, and whether the `COPY` line is written. Measure it against `--format sql` for 1,000,000 rows (goal 12) and show both in the Records section beside item 390's pipes. Escape a tab, a newline and a backslash in a value as COPY text asks; a null column writes `\N`.
+
 ### 299. Add `geo/FI` with Finland's places and postal codes, and `fi_FI.address` printing them.
 
 Posti's free postal code file names each postinumeroalue.
@@ -352,6 +375,14 @@ Posti's free postal code file names each postinumeroalue.
 ### 300. Give `geo/FI`'s places their streets.
 
 Digiroad (CC BY 4.0) names the streets. A street carries its Finnish name, plus a Swedish-name column where the municipality is bilingual.
+
+### 392. Have a panel of bulk fixture authors pick how one run names several linked templates and the foreign columns reading each other's rows, and record the pick in `docs/decisions.md`.
+
+From the same review, whose first ask was relational integrity: an invoice's `customer_id` naming a customer the run wrote. Today one run writes one record shape (item 221), and `--format tsv` links two runs through a table over that file. The panel picks between a manifest file naming each template and its count, a repeated flag, and a folder of templates, and what a parent with no rows, a cycle and a child outnumbering its parents do. Seat the readers from the README's `## Audience`, and bench the spelling before any code (`CLAUDE.md` → "Bench a syntax"). A new flag reserves its name against goal 6.1. Output ordering must keep a SQL load valid: parents first.
+
+### 393. Let one run write several linked tables, parents first, each foreign column drawn from a row already written, to one file or statement stream per table.
+
+Implements item 392's pick. `--format tsv` shows the pieces exist: a table over an earlier run's records draws an id that exists, with the customer of the same row. Keep only the key columns of a written parent in memory, and measure 120,000 parents against goal 12. The same seed gives the same files (goal 9). `{seq(name)}` counters stay per table. A child that outnumbers its parents repeats them, as repeated draws do, and a `weight` skews it. Ship the first chunk with two tables, then widen.
 
 ### 327. Add `is_IS`'s national personal id, the kennitala, with its check digits.
 
@@ -811,6 +842,10 @@ The maintainer, 2026-10-26: until 1.0.0, a CI patch built with a new Go minor ma
 ### 69. Announce v1.0.0 where a developer choosing a fake-data tool already reads, with a README first screen for someone deciding in a minute.
 
 The human cuts v1.0.0 once the shipped data is in its record shape and one full minor has shipped with no breaking change, per the README's Versioning table; pairing a street with its exact postnummer rewrites shipped rows, so a minor with no breaking change follows it first.
+
+### 396. Decide whether `fejkdata` writes Go struct types, and TypeScript types for the npm package, from a record's columns.
+
+From the same review, which asked for `fejkdata generate`. The decision "A record is a template seen as columns; a Go struct is the one second schema" runs the other way: `FakeStruct` takes columns from a struct a caller already wrote, so a generator would make a template a second source of that struct. Item 360 already types the npm package's API. Ask the maintainer whether a Go test author or a TypeScript author has asked for per-template types; if none has, drop the idea. If yes, add the goal or sub-goal, an audience line, and the items.
 
 ### 190. Decide whether fejkdata pseudonymises real datasets, and if so add the goal, the audience persona and the items below to the README and the plan.
 
