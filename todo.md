@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 382`
+`Next ID = 390`
 
 ## Items
 
@@ -16,14 +16,21 @@
 | 294 | 0.4.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
+| 382 | 0.4.0 |  |  | **Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 2, 4 by 3, 5 by 5 | 6.9 |
+| 223 | 0.4.0 |  |  | **Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.** | 2 | 1 | 2 | 3 | 3 | 1 by 6, 4 by 3 | 5.3 |
 | 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
+| 226 | 0.4.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 3, 4 by 2 | 3.9 |
+| 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
 | 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
+| 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
 | 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 379 | 0.4.0 | 249 |  | **Let a template draw a word of a given length from a word category.** | 2 | 1 | 2 | 3 | 3 | 1 by 3 | 1.9 |
+| 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
 | 295 | 0.4.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
+| 385 | 0.4.0 |  |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
 | 370 | 0.4.0 |  | decision | **Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.** | 2 | 2 | 2 | 4 | 3 | 3.2 by 2 | 1.1 |
 | 380 | 0.4.0 |  |  | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
@@ -73,6 +80,7 @@
 | 117 | 0.8.0 |  |  | **List the fields of what a path has reached when its next segment names one that is not there: `{/word as a}{a.zz}` reports `no field "zz"; word has w`.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 4 | 3.4 |
 | 168 | 0.8.0 |  | principle | **Test in the merge gate the shared steps of `data-import/`, starting with `geo.fence`, the småort steps of `geo-se.py`, and the name-shape rules of `company-no.py` and `company_names.py`.** | 3 | 1 | 1 | 3 | 5 | code health by 3 | 3.2 |
 | 257 | 0.8.0 |  |  | **Add `misc.ean`, `upc`, `gtin`, `isbn`, `issn`, `imei`, `asin` and `sku`, with their check digits, under GS1's demo prefix 952 where one applies.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 2 by 3, 3 by 3 | 3.1 |
+| 389 | 0.8.0 |  |  | **Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2 by 1, 3 by 2 | 3.1 |
 | 113 | 0.8.0 |  | defect | **Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.** | 2 | 1 | 2 | 3 | 4 | 1 by 2, 3 by 6 | 3.0 |
 | 260 | 0.8.0 |  |  | **Add `misc.element`, `misc.unit` and `misc.planet`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.9 |
 | 261 | 0.8.0 |  |  | **Add `misc.animal` by class, and `misc.plant`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2, 3.2 by 2 | 2.9 |
@@ -105,7 +113,6 @@
 | 13 | 0.8.0 |  | defect | **Place xlsx cells by their `r` reference in `data-import/xlsx.py`.** | 1 | 2 | 2 | 3 | 2 | 1 by 1, 3.2 by 2 | 2.3 |
 | 165 | 0.8.0 |  |  | **Let a table carry `name` with neither `key` nor `parent`, and list the rows a name matches by their line where it matches several.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.2 |
 | 166 | 0.8.0 |  |  | **Let a key or name cell hold a bracket, a brace, a double quote or a pipe, so the table loads, its row draws at random, and only a selector cannot reach it.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 4 by 2 | 2.2 |
-| 226 | 0.8.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 4 by 2 | 2.2 |
 | 39 | 0.8.0 |  |  | **Stop the `columnKinds` suggestion naming a field's own kind or a narrower one.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
 | 42 | 0.8.0 |  |  | **Refuse a struct tag's `datatype` other than its Go type's before proving its values, as the README's Library section promises.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
 | 46 | 0.8.0 |  |  | **Report the same error every load for a table with two bad options.** | 1 | 1 | 1 | 1 | 2 | 1 by 1, 5 by 2 | 2.1 |
@@ -117,6 +124,7 @@
 | 32 | 0.8.0 |  |  | **Add `misc.browser` as the parent of `misc.useragent`, so `misc.browser[Chrome].useragent` resolves.** | 2 | 1 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
 | 264 | 0.8.0 |  |  | **Add `misc.programminglanguage`, `misc.os`, `misc.database`'s columns, types and engines, and `misc.fileext`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
 | 268 | 0.8.0 |  |  | **Add `misc.lorem`, `hacker`, `hipster`, `catchphrase`, `buzzword` and `quote`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2 by 2 | 1.8 |
+| 387 | 0.8.0 |  |  | **Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 4 by 1 | 1.8 |
 | 91 | 0.8.0 |  |  | **Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 4 | 1.8 |
 | 109 | 0.8.0 |  | principle | **Indent every script under `data-import/` with hard tabs, as `AGENTS.md` requires and `release-tooling/` does.** | 1 | 2 | 1 | 2 | 4 | code health by 1 | 1.8 |
 | 23 | 0.8.0 |  |  | **Give every other shipped category that could reach something real a path that never does.** | 2 | 2 | 2 | 4 | 5 | 1 by 2, 3.3 by 6 | 1.7 |
@@ -129,7 +137,6 @@
 | 29 | 0.8.0 |  |  | **Let a path go from a selected row into the template beside its family: `geo.US.locality[1714000].address`.** | 3 | 1 | 2 | 4 | 4 | 1 by 1, 4 by 3 | 1.4 |
 | 56 | 0.8.0 |  | defect | **Build on a manual run of `test.yml` on `main`.** | 1 | 2 | 1 | 2 | 1 | 1.1 by 1 | 1.0 |
 | 53 | 0.8.0 |  |  | **Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.** | 3 | 1 | 2 | 4 | 5 | 1 by 2, 4 by 2 | 0.9 |
-| 223 | 0.8.0 |  |  | **Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.** | 3 | 1 | 2 | 4 | 6 | 1 by 4, 4 by 3 | 0.9 |
 | 75 | 0.8.0 |  |  | **Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.** | 2 | 1 | 1 | 2 | 5 | 1 by 1, 4 by 3 | 0.9 |
 | 55 | 0.8.0 |  |  | **Document `ErrNoColumns` and `MaxRepeat` in the README's Library section.** | 1 | 2 | 1 | 2 | 2 | 1 by 1 | 0.9 |
 | 17 | 0.8.0 |  |  | **Give every shipped category a column for each part its format composes, and one record shape across the national ids; re-pin the shape.** | 3 | 1 | 3 | 5 | 6 | 1 by 1, 4 by 3, 2 by 2 | 0.7 |
@@ -243,6 +250,22 @@ Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-
 
 The range `personnummer` draws, past 100 years with a `+`, must hold for `birthdate` too. Item 28, in 0.8.0, makes `personnummer` read a named pick's sex in the same way as this item reads a date. Whichever lands first sets how `personnummer` reads a named pick, and the other follows it.
 
+### 382. Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.
+
+From a real-world use case, a scheduler's fixtures. `{"format":"{a}","a":"x{b}","b":"y"}` reports `no field "b"; a token names a sibling field, and this template has none`, though the template holds `b`. Through a name it reports `no field or name "d"; the names bound here are "p"`, which sent the author looking at the name's scope. The Format string table's "the sibling field" has the same gap.
+
+Where the enclosing template holds the field, the error says so and shows the fix: give the field its own, `{"format":"x{b}","b":"y"}`, or bind the sibling in the category's format and read the name. Inside a choice's item only the first works, since a path through a name refuses a field reading a name its item binds.
+
+The refusal stays. Were a bare string to read the fields beside it, `"email":"{first}@x"` beside a column `first` would draw afresh (goal 4.2) while reading as the same person, which goal 4.6 forbids. `checkTokens` and `bindNames` are places the comprehension seats found hard: make them easier where this touches them.
+
+### 223. Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.
+
+From the 2026-10-11 audience bench and a real-world use case, a scheduler's fixtures: `"user_id": "{/users.id}"` draws a fresh user for each order, so its `{seq()}` id names no user the run wrote, and the workaround types the user count twice, in `-n` and in `{int(1,N)}`. The scheduler's `exdates.series_id` drew `{int(1,1000000)}`, and its loader folded that modulo the series count.
+
+A run writes one record shape, as item 221 says, so the earlier record comes from an earlier run. Tables already do the rest: a `series.tsv` beside `{"format":"{id}","rows":"series.tsv"}`, read as `"series_id": "{/series as s}{s.id}"` beside `"customer": "{s.customer}"`, wrote ids that exist and the customer of the same row when tried on 0.3.0. Only the conversion from `csv` is missing, so this needs no reference syntax and no `--ref` flag (goal 4's counter-signal). Many rows to one parent are what repeated draws give, a `weight` column skews them, and item 385 draws without repeats.
+
+`internal/rows` splits on tabs with no escape, and a cell's braces are tokens, so `tsv` writes `{{` and `}}` for literal braces. Decide what a value holding a tab or a newline does, within goal 5.4. Measure a table of 120,000 rows against goal 12. Show the two runs in the README's Records section.
+
 ### 297. Add `da_DK`'s national personal id, the CPR number, with its check digits.
 
 Find the issuer's rules, and a test series if it publishes one, first.
@@ -279,9 +302,25 @@ Limits on the change:
 
 Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told. Every fact two of these documents state is generated, tested or listed as unchecked, and a test in the merge gate fails when a builtin or flag is added but missing from a document that lists it.
 
+### 226. Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.
+
+From a real-world use case, a scheduler's fixtures: `{upper(1)}-{digits(3)}` callsigns repeat within a few hundred rows, so a `UNIQUE` column fails its load. `"callsign": "T-{seq(c)}"` already works, and the Records section's line on `UNIQUE` columns names no way to get one. The decision "No column is declared unique; `{seq()}` makes a column unique" says why this is the one way.
+
+### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
+
+From a real-world use case, a scheduler's fixtures: `pattern` and `weekday`, read only through names, became empty CSV columns. An extra column costs a `COPY` into a table without it. Moving the helper to its own category works on 0.3.0, as `{"format":"{/pool as p}","rrule":"{p.rrule}"}` writes only `rrule`, but it splits one idea across two files, so say so in the Records section until this ships.
+
+A writer panel picks the spelling. The scheduler's author offered `_weekday`, `"column": false` and a `columns` list. A new option reserves its key, as the decision "Options and fields share one namespace" says, which breaks a field of that name. Goal 4.7 weighs against a convention that guesses from a name. The fix holds for `FakeRecord` and every `--format`. `recordColumns` and `settleRecords` are places the comprehension seats found hard: make them easier where this touches them.
+
 ### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
 
 Find the numbering plan and its licence first.
+
+### 383. Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.
+
+From a real-world use case, a scheduler's fixtures, whose `len_days` and `count` used `0` for "unset" because the docs did not settle this. Tried on 0.3.0 with `{pattern as p}` and `"len": "{p.len}"`, where `len` is null in one item of `pattern` and a typed `{int()}` in another: `ndjson` writes `"3"` and `""`, and `"datatype": "integer"` on the column refuses it with `"" is not an integer`. With `p` bound to the reference `/src`, `{s.score}` already writes `3` and `null`.
+
+Today's output is what the Datatype section's "any other read" states, so this is no defect, and writing `3` for `"3"` is a `Breaking` entry. Items holding different datatypes stay refused. Revise the decision "A column that only reads one reference or name is the column it reads" and that section. `columnSource` and `recordColumns` are places the comprehension seats found hard: make them easier where this touches them.
 
 ### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
 
@@ -295,6 +334,12 @@ From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec)'s a
 
 Item 249 comes first, for the lengths its larger list holds. Maintain goal 5.4 rules out a mid-render error where the category holds no word of that length. A writer panel picks the spelling.
 
+### 386. Let a template compute a date from another date it printed, so `until` falls N days after `start`.
+
+From a real-world use case, a scheduler's fixtures: `UNTIL = DTSTART + N days` cannot be written, so the template emits `start_day` as an epoch-day integer and `len_days`, and the loader builds the date. `{calc()}` reads numbers and `date()` draws only between fixed days, so a fixture's `created_at` before `updated_at` has no spelling either.
+
+A writer panel picks the spelling, between a date offset, a `date()` whose bound reads another field, and `calc` over dates; the author offered each. What it reads comes through a name, so both columns show one date, and is proven a date at load (goals 5.1 and 5.4). It reads no clock (goal 9).
+
 ### 295. Give `geo/DK`'s places their streets.
 
 Danmarks Adresseregister through Datafordeler (free) holds every street with its postnummer.
@@ -304,6 +349,12 @@ Danmarks Adresseregister through Datafordeler (free) holds every street with its
 From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) anonymizes public Jira and Confluence documents for its test corpus, so every value must keep its shape while its text, names and URLs change. Nothing here does that, so its `corpus-gathering/anonymize.mjs` splits each string itself: a URL keeps its scheme and separators, and each word takes a draw of the nearest length, in the same case.
 
 One word reads as one fake throughout a render, as a name's reads do. Maintain goal 4.9 makes this a template function, and 2.2 means it takes the words to draw from as an argument rather than reading `en_US`. A writer panel picks its spelling.
+
+### 385. Let a template draw several distinct items of a choice or rows of a table in one pick.
+
+From a real-world use case, a scheduler's fixtures: `BYDAY={d},{d}` yields `MO,MO`, and the crew columns `e1` to `e4` collide. Goal 4.2 keeps `{d},{d}` as two draws, so this is a spelling of its own, and a writer panel picks it for both shapes: one value holding several, and several columns reading one pick's members.
+
+Distinct means distinct items or rows, whatever they print. Asking for more than a choice's items of weight above `0` is refused at load (goal 5.4), and weights hold among those still undrawn. A draw costs what its count costs, not the size of the table (goal 12.1).
 
 ### 370. Give a Swedish postort the kommun of the SCB småort holding its centre, where its codes name another kommun.
 
@@ -504,6 +555,10 @@ They cover `scb_smaorter`, `inside` and `population_of` in `geo-se.py` too, wher
 
 Templates; the check-digit rules are facts.
 
+### 389. Add `misc.rrule`, recurrence rules a test checks against RFC 5545's grammar.
+
+From a real-world use case, a scheduler's fixtures, whose author called it niche, and it would have replaced most of one fixture's template. No register publishes how often each rule is used, so it draws evenly, as the decision "A table whose register publishes no frequency draws evenly" states, rather than the weighted mix the author asked for.
+
 ### 113. Draw `{iban(CC)}` with its country's national check digits, and SE's with a real bank's id, so a validator checking more than mod 97 accepts it.
 
 `iban` in `internal/builtinfunc/checksum.go` draws a random numeric BBAN and sets only the mod-97 digits. BE's last two digits are the first ten mod 97, NO carries a mod-11 account check digit, FI a Luhn digit, ES two control digits, and SE's three-digit bank id must be a real bank's (`docs/research/research-sources-se.md`). Goal 3 asks for the check the real system applies; the README's `{iban(CC)}` row promises only length and mod 97, and changes with it.
@@ -650,6 +705,10 @@ Tables or choices, from GitHub Linguist (MIT) and curated lists. Item 32 adds `m
 
 Tables or choices, from lorem ipsum and lists an LLM writes.
 
+### 387. Let a template draw a number from a bounded normal distribution, so durations and start times cluster without weighted ranges.
+
+From a real-world use case, a scheduler's fixtures: durations cluster around 2 hours and starts around 08:00. A weighted choice of `{int()}` ranges fills a typed column today, coarsely. Bounds are required, so a typed column's proof and `calc`'s still hold. A writer panel picks the spelling, between a third argument to `{int()}` and a function of its own, and what a draw outside the bounds does.
+
 ### 91. Accept a path through a name as a `calc` operand, so `{/misc.coordinate as c}{c}: {calc(c.lat * 60)}` computes from the coordinate `{c}` prints.
 
 A calc operand parses as a bare identifier, so `{calc(c.lat * 60)}` fails with `unexpected ".lat * 60"`, and a second binding of `/misc.coordinate.lat` would draw another coordinate. Resolve the path through `compileArm`'s leaves, as `operandNodes` does for a bare name. A data author who bound a row, `{.product as p}`, then bound its column, `{p.price as pr}`, got `no field "p"; a binding names a field, or a reference…` though `p` is a bound name.
@@ -693,10 +752,6 @@ A manual run diffs against `origin/main`, so on `main` itself it compares `HEAD`
 ### 53. Let a table column carry a `datatype`, so `--format json` writes `"safe": true` and `--format sql` a boolean.
 
 Today only a JSON field takes one, so `misc.httpmethod`'s booleans are typed in Go and text everywhere else. Typing a shipped column changes what `json` and `sql` write, so the capability is a minor and applying it to `misc.httpmethod` is a major.
-
-### 223. Let a column draw a key from another record's rows, so an order's `user_id` names a user the same run wrote.
-
-From the 2026-10-11 audience bench: `"user_id": "{/users.id}"` draws a fresh user for each order, so its `{seq()}` id names no user the run wrote. The workaround types the user count twice, in `-n` and in `{int(1,N)}`.
 
 ### 75. Run every README `sh`, `go` and `text` example as a test, and compare each "Renders" line to a seeded render.
 

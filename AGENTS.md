@@ -126,6 +126,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
 - `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
+- No column is declared unique; `{seq()}` makes a column unique
 
 # Scoring run
 
