@@ -113,21 +113,23 @@ func TestWhereRefusesAtLoad(t *testing.T) {
 		t.Error("a table's format filtering its own column loaded, want it refused: the row is drawn before the format renders")
 	}
 	for src, why := range map[string]string{
-		`{"format":"{w where length 9}","w":["cat","horse"]}`:                                 "no item passes",
-		`{"format":"{n as k}{w where length k}","n":"{int(3,6)}","w":["cat","bird","horse"]}`: "no item of length 6",
-		`{"format":"{n as k}{w where length k}","n":["3","x"],"w":["cat"]}`:                   "a length that can be no whole number",
-		`{"format":"{w where length 5}","w":["{lower(5)}","horse"]}`:                          "a generated value",
-		`{"format":"{w where length 1}","w":["a",null]}`:                                      "a null",
-		`{"format":"{w as x}{x where length 5}","w":["horse"]}`:                               "a name, already drawn",
-		`{"format":"{w where length 5 as x}{x.y}","w":["horse"]}`:                             "a field of a filtered draw",
-		`{"format":"{a|b where length 1}","a":"x","b":"y"}`:                                   "two arms",
-		`{"format":"{w where length k}","w":["cat"]}`:                                         "a length naming no name",
-		`{"format":"{w where length k}","k":"3","w":["cat"]}`:                                 "a length reading a field, not a name",
-		`{"format":"{n as k}{w where length k}","n":"50","w":["cat"]}`:                        "a length past every item",
-		`{"format":"{w where length 3}","w":[{"format":"{a}{b}","a":"x","b":"yz"}]}`:          "an item composed of two reads",
-		`{"format":"{w where length 2}","w":{"format":"ab","repeat":2}}`:                      "a repeat",
-		`{"format":"{v as n}{w where length 1}","v":"a","w":["{n}"]}`:                         "an item reading a name bound outside it",
-		`"{/animal.name where length 3}"`:                                                     "a table cell carrying a token",
+		`{"format":"{w where length 9}","w":["cat","horse"]}`:                                  "no item passes",
+		`{"format":"{n as k}{w where length k}","n":"{int(3,6)}","w":["cat","bird","horse"]}`:  "no item of length 6",
+		`{"format":"{n as k}{w where length k}","n":["3","x"],"w":["cat"]}`:                    "a length that can be no whole number",
+		`{"format":"{w where length 5}","w":["{lower(5)}","horse"]}`:                           "a generated value",
+		`{"format":"{w where length 1}","w":["a",null]}`:                                       "a null",
+		`{"format":"{w as x}{x where length 5}","w":["horse"]}`:                                "a name, already drawn",
+		`{"format":"{w where length 5 as x}{x.y}","w":["horse"]}`:                              "a field of a filtered draw",
+		`{"format":"{a|b where length 1}","a":"x","b":"y"}`:                                    "two arms",
+		`{"format":"{w where length k}","w":["cat"]}`:                                          "a length naming no name",
+		`{"format":"{w where length k}","k":"3","w":["cat"]}`:                                  "a length reading a field, not a name",
+		`{"format":"{n as k}{w where length k}","n":"50","w":["cat"]}`:                         "a length past every item",
+		`{"format":"{w where length 3}","w":[{"format":"{a}{b}","a":"x","b":"yz"}]}`:           "an item composed of two reads",
+		`{"format":"{w where length 2}","w":{"format":"ab","repeat":2}}`:                       "a repeat",
+		`{"format":"{v as n}{w where length 1}","v":"a","w":["{n}"]}`:                          "an item reading a name bound outside it",
+		`{"format":"{w where length 1}","w":[{"format":"{v where length 2}","v":["a","bb"]}]}`: "an item drawing through a clause of its own",
+		`{"format":"{w where length 3 as  x}{ x}","w":["cat"]}`:                                "a name padded with a space",
+		`"{/animal.name where length 3}"`:                                                      "a table cell carrying a token",
 	} {
 		if _, err := f.NewTemplate(src); err == nil {
 			t.Errorf("NewTemplate(%s) = nil error, want it refused for %s", src, why)
@@ -144,6 +146,24 @@ func TestWhereFiltersTheShippedWords(t *testing.T) {
 			if utf8.RuneCountInString(got) != 5 || strings.ToLower(got) != got && strings.ToUpper(got) != got {
 				t.Fatalf("FakeTemplate(%q) = %q, want a word of five letters", src, got)
 			}
+		}
+	}
+}
+
+// Rounding in drawIndex may land on a drawn index or one past the span; undrawnNear then takes the
+// nearest undrawn index inside it, searching forward first.
+func TestUndrawnNearStaysInsideTheSpan(t *testing.T) {
+	for _, c := range []struct {
+		i, from, to, want int
+		drawn             []int
+	}{
+		{i: 2, from: 0, to: 3, drawn: []int{2}, want: 1},
+		{i: 1, from: 0, to: 2, drawn: []int{1}, want: 0},
+		{i: 3, from: 0, to: 3, want: 2},
+		{i: 1, from: 0, to: 3, drawn: []int{1}, want: 2},
+	} {
+		if got := undrawnNear(c.i, c.from, c.to, c.drawn); got != c.want {
+			t.Errorf("undrawnNear(%d, %d, %d, %v) = %d, want %d", c.i, c.from, c.to, c.drawn, got, c.want)
 		}
 	}
 }

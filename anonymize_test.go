@@ -28,6 +28,7 @@ func TestAnonymizeDrawsTheNearestLengthTheWordsHold(t *testing.T) {
 		`{"format":"{anonymize(t,w)}","t":"Hello","w":["ab","abcdef"]}`:               "Abcdef",
 		`{"format":"{anonymize(t,w)}","t":"abcdefghijkl","w":["ab","abcdefgh"]}`:      "abcdefgh",
 		`{"format":"{anonymize(t,w)}","t":"abc","w":["ab","a-b-c","abcdef","12345"]}`: "ab",
+		`{"format":"{anonymize(t,w)}","t":"abc","w":["ab","abcd"]}`:                   "ab",
 	} {
 		if got := mustRender(t, f, src); got != want {
 			t.Errorf("render of %s = %q, want %q", src, got, want)
