@@ -11,10 +11,13 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
 	"time"
+
+	"github.com/larvit/fejkdata"
 )
 
 // shipped holds the shipped modules as read from the checkout, each folder under ../data
@@ -641,7 +644,7 @@ func TestUsageExamplesRenderWithNoData(t *testing.T) {
 		}
 	}
 	for _, token := range regexp.MustCompile(`\{/[^}]*\}`).FindAllString(usage, -1) {
-		if token != "{/path}" && token != "{/table[KEY]}" {
+		if token != "{/path}" && token != "{/table[KEY]}" && token != "{/path as p}" {
 			t.Errorf("usage names %s, a path a custom CLI may not carry", token)
 		}
 	}
@@ -1088,6 +1091,55 @@ func TestADataPathCategoryFailingAtFirstReachExits1(t *testing.T) {
 	for _, args := range [][]string{{"-d", dir}, {"-d", dir, "--format", "json"}} {
 		if code, _, errb := runOut("{/bad}", args...); code != 1 || !strings.Contains(errb, "{/nope}") {
 			t.Errorf("%v on a category failing to load = %d, %q; want exit 1 naming the reference", args, code, errb)
+		}
+	}
+}
+
+func TestHelpListsEveryBuiltin(t *testing.T) {
+	_, out, _ := runOut("", "--help")
+	start := strings.Index(out, "builtins:\n")
+	if start < 0 {
+		t.Fatalf("--help has no list of builtins:\n%s", out)
+	}
+	var listed []string
+	for _, line := range strings.Split(out[start+len("builtins:\n"):], "\n") {
+		if !strings.HasPrefix(line, "  ") {
+			break
+		}
+		listed = append(listed, strings.Fields(line)...)
+	}
+	if want := fejkdata.Builtins(); !slices.Equal(listed, want) {
+		t.Fatalf("--help lists the builtins %v, want %v", listed, want)
+	}
+}
+
+func TestHelpLeadsToNamesFunctionsAndTheReadme(t *testing.T) {
+	_, out, _ := runOut("", "--help")
+	if !regexp.MustCompile(`\{[^}]* as [a-z]+\}`).MatchString(out) {
+		t.Errorf("--help shows no {x as y}:\n%s", out)
+	}
+	for _, link := range []string{"https://github.com/larvit/fejkdata#names", "https://github.com/larvit/fejkdata#functions"} {
+		if !strings.Contains(out, link) {
+			t.Errorf("--help does not link %s", link)
+		}
+	}
+}
+
+func TestHelpAndReadmeNameEveryFlag(t *testing.T) {
+	readme, err := os.ReadFile(filepath.Join("..", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range flagDefs {
+		inHelp, inReadme := "      --"+f.long, "`--"+f.long
+		if f.short != "" {
+			inHelp, inReadme = "  -"+f.short+", --"+f.long, "`-"+f.short+"`, `--"+f.long
+		}
+		if !strings.Contains(usage, inHelp) {
+			t.Errorf("--help does not list %q", inHelp)
+		}
+		if !strings.Contains(string(readme), inReadme) {
+			t.Errorf("README's flag table does not list %q", inReadme)
 		}
 	}
 }
