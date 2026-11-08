@@ -70,6 +70,7 @@ type op struct {
 	// the names its length reads. nil for a token that reads none.
 	operands []arm
 	filter   *whereFilter // a token with a where clause: what it draws from
+	words    *lengthIndex // an {anonymize()} call: the words its second operand holds, which expand never reads
 }
 
 func (t *template) compileArms(names []string, targets map[*nameBinding]nameTarget) ([]arm, error) {

@@ -127,6 +127,10 @@ func expand(s *drawstate.State, t *template, env renderEnv) string {
 			}
 			b.WriteString(readField(s, t, env, o.arms[s.IntN(len(o.arms))]).text)
 		case grammar.BuiltinCall:
+			if o.words != nil {
+				b.WriteString(o.words.anonymize(s, env.frames, readField(s, t, env, o.operands[0]).text))
+				continue
+			}
 			var operands []string
 			if len(o.operands) > 0 {
 				operands = make([]string, len(o.operands))

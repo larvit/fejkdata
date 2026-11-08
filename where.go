@@ -22,11 +22,16 @@ const maxFilterValues = 1 << 20
 // has in a draw of the path. The values are fixed at load; a length that reads a name reads it at
 // each draw.
 type whereFilter struct {
+	lengthIndex
+	lo, hi lengthEnd
+	reads  []arm // the op's operands, which an end reading a name indexes
+}
+
+// lengthIndex holds values by length, each with its odds.
+type lengthIndex struct {
 	texts   []string  // shortest first
 	lengths []int     // each text's length in code points
 	cum     []float64 // running sum of the texts' odds
-	lo, hi  lengthEnd
-	reads   []arm // the op's operands, which an end reading a name indexes
 }
 
 // lengthEnd is one end of a where clause's length: n, or the name reads[read] where read is 0 or more.
@@ -274,23 +279,13 @@ func (w *valueWalk) emit(text string, weight float64) error {
 
 // newWhereFilter keeps the values that pass where's fixed conditions, shortest first.
 func newWhereFilter(values []filterValue, where *grammar.Where, reads []arm) *whereFilter {
-	type kept struct {
-		filterValue
-		length int
-	}
-	var ks []kept
+	var kept []filterValue
 	for _, v := range values {
 		if !slices.Contains(where.Not, v.text) && !slices.ContainsFunc(where.NotContaining, func(s string) bool { return strings.Contains(v.text, s) }) {
-			ks = append(ks, kept{v, utf8.RuneCountInString(v.text)})
+			kept = append(kept, v)
 		}
 	}
-	sort.SliceStable(ks, func(i, j int) bool { return ks[i].length < ks[j].length })
-	f := &whereFilter{texts: make([]string, len(ks)), lengths: make([]int, len(ks)), cum: make([]float64, len(ks)), reads: reads}
-	total := 0.0
-	for i, k := range ks {
-		total += k.weight
-		f.texts[i], f.lengths[i], f.cum[i] = k.text, k.length, total
-	}
+	f := &whereFilter{lengthIndex: newLengthIndex(kept), reads: reads}
 	f.lo, f.hi = lengthEnd{n: 0, read: -1}, lengthEnd{n: math.MaxInt, read: -1}
 	if where.Length != nil {
 		names := lengthNames(where)
@@ -306,11 +301,41 @@ func endOf(l grammar.Length, names []string) lengthEnd {
 	return lengthEnd{read: slices.Index(names, l.Name)}
 }
 
+func newLengthIndex(values []filterValue) lengthIndex {
+	type sized struct {
+		filterValue
+		length int
+	}
+	vs := make([]sized, len(values))
+	for i, v := range values {
+		vs[i] = sized{v, utf8.RuneCountInString(v.text)}
+	}
+	sort.SliceStable(vs, func(i, j int) bool { return vs[i].length < vs[j].length })
+	x := lengthIndex{texts: make([]string, len(vs)), lengths: make([]int, len(vs)), cum: make([]float64, len(vs))}
+	total := 0.0
+	for i, v := range vs {
+		total += v.weight
+		x.texts[i], x.lengths[i], x.cum[i] = v.text, v.length, total
+	}
+	return x
+}
+
 // span is the texts from index from up to to whose length is lo to hi.
-func (f *whereFilter) span(lo, hi int) (from, to int) {
-	from = sort.Search(len(f.lengths), func(i int) bool { return f.lengths[i] >= lo })
-	to = sort.Search(len(f.lengths), func(i int) bool { return f.lengths[i] > hi })
+func (x *lengthIndex) span(lo, hi int) (from, to int) {
+	from = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] >= lo })
+	to = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] > hi })
 	return from, to
+}
+
+// drawIn draws one of the texts from index from up to to, by their odds.
+func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
+	base := 0.0
+	if from > 0 {
+		base = x.cum[from-1]
+	}
+	v := base + s.Float64()*(x.cum[to-1]-base)
+	i := from + sort.Search(to-from, func(i int) bool { return x.cum[from+i] > v })
+	return x.texts[min(i, to-1)]
 }
 
 // proveEveryDrawPasses refuses a filter some draw leaves with no value: one no value passes, or one
@@ -364,13 +389,7 @@ func (f *whereFilter) draw(s *drawstate.State, env renderEnv) string {
 	if from == to {
 		panic(invariant.Broken("a where clause the load proved leaves no value"))
 	}
-	base := 0.0
-	if from > 0 {
-		base = f.cum[from-1]
-	}
-	x := base + s.Float64()*(f.cum[to-1]-base)
-	i := from + sort.Search(to-from, func(i int) bool { return f.cum[from+i] > x })
-	return f.texts[min(i, to-1)]
+	return f.drawIn(s, from, to)
 }
 
 func (e lengthEnd) at(s *drawstate.State, env renderEnv, reads []arm) int {

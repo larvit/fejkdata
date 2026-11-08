@@ -91,6 +91,17 @@ func (names resolvedNames) targetOf(b *nameBinding) nameTarget {
 	return b.target
 }
 
+func compileFormats(ts []templateSite, targets map[*nameBinding]nameTarget) error {
+	for _, s := range ts {
+		compiled, err := compileFormat(s.t, targets)
+		if err != nil {
+			return fmt.Errorf("%s: %w", s.label, err)
+		}
+		s.t.compiled = compiled
+	}
+	return nil
+}
+
 // resolveTemplates resolves ts in steps, each over every template before the next starts. The
 // names' targets, keys and reads pass to later steps as arguments, and the bindings take their
 // targets and keys only once every check has passed.
@@ -103,15 +114,14 @@ func resolveTemplates(ts []templateSite, root map[string]node) error {
 		s.t.refs = refs
 	}
 	targets := nameTargets(ts)
-	for _, s := range ts {
-		compiled, err := compileFormat(s.t, targets)
-		if err != nil {
-			return fmt.Errorf("%s: %w", s.label, err)
-		}
-		s.t.compiled = compiled
+	if err := compileFormats(ts, targets); err != nil {
+		return err
 	}
 	filters, err := filterDraws(ts, targets)
 	if err != nil {
+		return err
+	}
+	if err := anonymizeWords(ts, targets); err != nil {
 		return err
 	}
 	reads := readsOfNames(ts)
