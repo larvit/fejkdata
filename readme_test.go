@@ -572,3 +572,57 @@ func TestReadmeGoQuickStart(t *testing.T) {
 		}
 	}
 }
+
+func TestReadmeTSVExampleOutput(t *testing.T) {
+	src := readme(t)
+	at := strings.Index(src, "`--format tsv` writes")
+	if at < 0 {
+		t.Fatal("README's Records section lost its tsv example")
+	}
+	rest := src[at:]
+	gen := jsonBlock.FindStringSubmatch(rest)
+	written := tsvBlock.FindStringSubmatch(rest)
+	table := jsonBlock.FindAllStringSubmatch(rest, 2)
+	printed := textBlock.FindStringSubmatch(rest)
+	orders := `{"format":"","series_id":"{/series as s}{s.id}","customer":"{s.customer}"}`
+	if gen == nil || written == nil || len(table) < 2 || printed == nil || !strings.Contains(rest, "echo '"+orders+"'") {
+		t.Fatal("README's tsv example lost its record, its table, its rows, its second record or its printed output")
+	}
+	f, err := New(withShipped(), WithDataPath(writeData(t, map[string]string{"series": gen[1]})), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for i := 0; i < 3; i++ {
+		r, err := f.FakeRecord("series")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if i == 0 {
+			got = append(got, r.TSVHeader())
+		}
+		got = append(got, r.TSVLine())
+	}
+	if want := strings.TrimSpace(written[1]); strings.Join(got, "\n") != want {
+		t.Fatalf("README shows %q as the first run's rows, --seed 1 --format tsv -n 3 renders %q", want, strings.Join(got, "\n"))
+	}
+	dir := writeFiles(t, map[string]string{"series.tsv": written[1], "series.json": table[1][1], "orders.json": orders})
+	f, err = New(withShipped(), WithDataPath(dir), WithSeed(1), onTestDay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got = nil
+	for i := 0; i < 4; i++ {
+		r, err := f.FakeRecord("orders")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if i == 0 {
+			got = append(got, r.CSVHeader())
+		}
+		got = append(got, r.CSVLine())
+	}
+	if want := strings.TrimSpace(printed[1]); strings.Join(got, "\n") != want {
+		t.Errorf("README prints %q for the second run, it renders %q", want, strings.Join(got, "\n"))
+	}
+}
