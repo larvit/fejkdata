@@ -839,13 +839,13 @@ and doesn't make them agree, so its sentences aren't grammatical.
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`. `misc` carries `car`, `coordinate`, `creditcard`
-(Luhn-valid), `creditcard-test`, `iban-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
-`httpstatus`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
+(Luhn-valid), `creditcard-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
+`httpstatus`, `iban-test`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
 carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
-`misc.httpstatus.code` — which `--list` shows. `car`, `currency`, `httpmethod`,
-`httpstatus`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
+`misc.httpstatus.code` — which `--list` shows. `car`, `creditcard-test`, `currency`, `httpmethod`,
+`httpstatus`, `iban-test`, `language`, `loglevel`, `mimetype`, `port`, `protocol`, `territory`,
 `timezone`, `tld` and `useragent` are [tables](#table), so
 `misc.territory[SE].capital` and `misc.currency[Euro].symbol` select a row; `car` and
 `useragent` carry no key or name, so they are drawn from rather than selected in.
@@ -858,11 +858,11 @@ has no path that draws only values reaching nothing real (goal 3.3), write a fix
 as `example.com` into the template; `todo.md` plans the path.
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
 the IBAN's mod-97 check, and a real card or account may hold it. `misc.creditcard-test` and
-`misc.iban-test` draw only numbers that reach no real card or account: Stripe's published test
-card for each brand (`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and
-its test IBAN for each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK.
-They are tables, so `{misc.creditcard-test[visa]}` prints `4242424242424242` and
-`{misc.iban-test[SE]}` prints `SE3550000000054910000003`.
+`misc.iban-test` draw only numbers published for testing: Stripe's test card for each brand
+(`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and Stripe's test IBAN for
+each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK. Each key holds one
+number, so there are seven cards and seven IBANs, and `{/misc.creditcard-test[visa]}` always prints
+`4242424242424242` and `{/misc.iban-test[SE]}` `SE3550000000054910000003`.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
@@ -1374,7 +1374,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{uuid()}` | sample | UUID v7 (`misc.uuid` ships v4 as data) |
 | `{ulid()}` | sample | ULID, 26 Crockford base32 chars |
 | `{nanoid(n)}` | sample | URL-safe Nano ID, `n` chars |
-| `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE |
+| `{iban(CC)}` | sample | length- and mod-97-valid IBAN for BE, DE, DK, ES, FI, NO or SE, which a real account may hold; `misc.iban-test` draws published test IBANs |
 | `{date(from,to,'layout')}` | sample | a second between two `YYYY-MM-DD` days, both included, in a quoted Go layout: `'2006-01-02'`, `'January 2, 2006'`, `'060102'`, `'2006-01-02T15:04:05Z'` |
 | `{born(min,max,'layout')}` | sample | a second in the calendar years in which someone turns `min` to `max`, both included, counted from the year of `WithToday` or `--today`, and never after that date; the layout as in `date` |
 | `{time('layout')}` | sample | a second within a day: `'15:04'`, `'3:04 PM'` |
