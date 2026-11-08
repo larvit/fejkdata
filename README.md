@@ -689,24 +689,25 @@ bound sex, read the `birth` field of `da_DK.cpr`, the date, then `{cpr(x)}` with
 Renders e.g. `Bodil Holm, 141062-2730`.
 
 `da_DK.phone` is a mobile number ten times as often as a fixed one. Denmark has no area codes, so
-both have eight digits. The Danish Language Council (Dansk Sprognævn) says on its page
-"telefonnumre" that it is most reader-friendly to write a number as it is said, "som regel i
-grupper af tocifrede tal", and that the plus and the country code are written together:
-`41 23 45 67` and `+45 41 23 45 67`.
+both have eight digits, written in pairs: `41 23 45 67`, and `+45 41 23 45 67` with the country code.
+That follows the Danish Language Council (Dansk Sprognævn), whose page "telefonnumre" says it is most
+reader-friendly to write a number as it is said, "som regel i grupper af tocifrede tal", and that
+the plus and the country code are written together.
 
-`da_DK.phone-mobile` and `da_DK.phone-fixed` hold the three-digit series, such as `34 2`, that
+`da_DK.phone-mobile` and `da_DK.phone-fixed` hold the three-digit prefixes, such as `34 2`, that
 Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan
-allocates to mainly mobile or mainly fixed numbers. A series is mobile where its first two digits
+allocates to mainly mobile or mainly fixed numbers. A prefix is mobile where its first two digits
 are in a range the plan calls mainly mobile, or where the plan's note lists it as mobile inside a
-fixed range. A series with third digit 0 is left out, as the plan keeps it for expansion, and so
-are the reserved ranges, 80 for freephone, 90 for premium rate services and 37 for 12-digit M2M
-numbers. A row is selected by its series, `phone-mobile[34 2]`.
+fixed range. A prefix with third digit 0 is left out, as the plan keeps it for expansion. So are the
+ranges the plan reserves, 67, 68, 83 to 85, 94 and 95, and those it gives to other services: 80 to
+freephone, 90 to premium rate services and 37 to 12-digit M2M numbers. A row is selected by its
+prefix, `phone-mobile[34 2]`.
 
-A number's `block` is one of those series and its `subscriber` the last five digits, such as `5 12
-34`. A number is valid, not real: it lies in a series the plan allocates, which the plan calls
-"mainly" mobile or fixed because numbers move between the two, and a real subscriber may hold it.
-The plan publishes no register of the numbers assigned to providers. A bound number reads
-`national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
+A number's `block` is one of those prefixes and its `subscriber` the last five digits, such as
+`5 12 34`. A number is valid, not real: a real subscriber may hold it. It lies in a range the plan
+allocates, and the plan says "mainly" because numbers move between fixed and mobile networks.
+Neither the order nor the authority's guide to it lists the numbers assigned to providers. A bound
+number reads `national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
@@ -1988,6 +1989,7 @@ docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/licen
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/loglevel.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/mimetype.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-area-se.py
+docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-dk.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/phone-no.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/port.py
 docker compose run --rm --user "$(id -u):$(id -g)" data-import data-import/protocol.py
