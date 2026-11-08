@@ -20,7 +20,7 @@
 		"sv_SE.licenseplate-letters": {"paths":["","letters"]},
 		"sv_SE.month": {"paths":["","code","name"]},
 		"sv_SE.organisationsnummer": {"paths":["","group","head","tail","vat"]},
-		"sv_SE.person": {"paths":["","birthdate","first","last","prefix","sex"]},
+		"sv_SE.person": {"paths":["","birth","birth.date","birth.sign","birthdate","first","last","personnummer","prefix","samordningsnummer","samordningsnummer.day","sex"]},
 		"sv_SE.personnummer": {"paths":[""]},
 		"sv_SE.personnummer-12": {"paths":[""]},
 		"sv_SE.phone": {"paths":["","international","national"]},
