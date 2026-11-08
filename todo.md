@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 398 | 0.4.0 |  |  | **Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.** | 2 | 1 | 2 | 3 | 3 | 3.3 by 5 | 2.6 |
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
@@ -227,10 +226,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 398. Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.
-
-The README's Data section says a drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real, and that a real card or account may hold it: a default value reaching a real system, goal 3.3's counter-signal. `misc.creditcard` (`data/misc/creditcard.json`) draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` (`internal/builtinfunc/checksum.go`) draws a random BBAN with mod-97 check digits. The README also says `todo.md` plans the path for a category without one; this item makes that true for these two. Source the numbers from the networks' and banks' published test lists, cited in the decision recording the choice, never assembled from plausible ones (`~/.claude/CLAUDE.md` → Web research). The path's name is a spelling users write, so a syntax panel picks it.
 
 ### 249. Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.
 

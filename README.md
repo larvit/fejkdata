@@ -839,7 +839,7 @@ and doesn't make them agree, so its sentences aren't grammatical.
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
 may assign: `200` to `999`, except `211`, `311` … `911`, `555`, `950`, `958`, `959` and
 `976`. `misc` carries `car`, `coordinate`, `creditcard`
-(Luhn-valid), `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
+(Luhn-valid), `creditcard-test`, `iban-test`, `currency` (ISO 4217), `datetime` (RFC 3339), `emoji`, `httpmethod`,
 `httpstatus`, `language` (ISO 639-1, with its 639-2/T code), `loglevel` (syslog
 severity), `mac`, `mimetype`, `objectid`, `port`, `protocol`, `territory` (ISO
 3166-1), `timezone` (IANA), `tld` (IANA root zone), `useragent` and `uuid` (v4). Many
@@ -857,7 +857,12 @@ set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2)
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
-the IBAN's mod-97 check, and a real card or account may hold it.
+the IBAN's mod-97 check, and a real card or account may hold it. `misc.creditcard-test` and
+`misc.iban-test` draw only numbers that reach no real card or account: Stripe's published test
+card for each brand (`visa`, `mastercard`, `amex`, `discover`, `diners`, `jcb`, `unionpay`) and
+its test IBAN for each of BE, DE, ES, FI, NO and SE, with Danske Bank's fictive example for DK.
+They are tables, so `{misc.creditcard-test[visa]}` prints `4242424242424242` and
+`{misc.iban-test[SE]}` prints `SE3550000000054910000003`.
 
 `misc.httpmethod`, `misc.protocol` and `misc.port` are IANA's registries.
 `misc.httpmethod` is the eight methods RFC 9110 defines and PATCH; the register's
