@@ -504,6 +504,22 @@ func TestShippedSwedishSmallPlacesKeepTheirPopulation(t *testing.T) {
 	}
 }
 
+func TestShippedSwedishPostortTakesTheKommunOfTheSmaortHoldingItsCentre(t *testing.T) {
+	t.Parallel()
+	want := map[string][2]string{"Lönneberga": {"0860", "129"}, "Axmar": {"2180", "103"}, "Rökå": {"2418", "60"}, "Torsö": {"1083", "57"}}
+	for _, r := range geoRows(t, "SE", "locality") {
+		if w, ok := want[r[0]]; ok {
+			if r[1] != w[0] || r[2] != w[1] {
+				t.Errorf("geo.SE: %s lies in kommun %s with %s people, want %s with %s from the SCB småort holding its centre", r[0], r[1], r[2], w[0], w[1])
+			}
+			delete(want, r[0])
+		}
+	}
+	for name := range want {
+		t.Errorf("geo.SE: no locality %s", name)
+	}
+}
+
 func TestShippedSwedishStreetsAreStreetNames(t *testing.T) {
 	refused := map[string]bool{
 		"Färjeled Henriksdalsbryggan - Barnängsbryggan": true, "HÄLLSÄTTERSLEDEN": true, "Kärrs VSF": true,
