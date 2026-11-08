@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses and CPR numbers, and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses, CPR numbers and phone numbers, and `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
@@ -648,7 +648,7 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`da_DK`, Danish, carries `address`, `cpr`, `first-name`, `individ`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK`, Danish, carries `address`, `cpr`, `first-name`, `individ`, `last-name`, `person`, `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
@@ -687,6 +687,26 @@ bound sex, read the `birth` field of `da_DK.cpr`, the date, then `{cpr(x)}` with
 ```
 
 Renders e.g. `Bodil Holm, 141062-2730`.
+
+`da_DK.phone` is a mobile number ten times as often as a fixed one. Denmark has no area codes, so
+both have eight digits. The Danish Language Council (Dansk Sprognævn) says on its page
+"telefonnumre" that it is most reader-friendly to write a number as it is said, "som regel i
+grupper af tocifrede tal", and that the plus and the country code are written together:
+`41 23 45 67` and `+45 41 23 45 67`.
+
+`da_DK.phone-mobile` and `da_DK.phone-fixed` hold the three-digit series, such as `34 2`, that
+Annex 1 of Executive Order No. 1883 of 7 December 2020 on the Overall Danish Numbering Plan
+allocates to mainly mobile or mainly fixed numbers. A series is mobile where its first two digits
+are in a range the plan calls mainly mobile, or where the plan's note lists it as mobile inside a
+fixed range. A series with third digit 0 is left out, as the plan keeps it for expansion, and so
+are the reserved ranges, 80 for freephone, 90 for premium rate services and 37 for 12-digit M2M
+numbers. A row is selected by its series, `phone-mobile[34 2]`.
+
+A number's `block` is one of those series and its `subscriber` the last five digits, such as `5 12
+34`. A number is valid, not real: it lies in a series the plan allocates, which the plan calls
+"mainly" mobile or fixed because numbers move between the two, and a real subscriber may hold it.
+The plan publishes no register of the numbers assigned to providers. A bound number reads
+`national`, `41 23 45 67`, and `international`, `+45 41 23 45 67`.
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
