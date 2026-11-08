@@ -9,6 +9,7 @@
 		"en_US.ip": {"paths":[""]},
 		"en_US.itin": {"paths":["","area","group","serial"]},
 		"en_US.last-name": {"paths":["","count","name"]},
+		"en_US.paragraph": {"paths":[""]},
 		"en_US.person": {"paths":["","first","last","prefix","sex"]},
 		"en_US.phone": {"paths":["","area","exchange","line"]},
 		"en_US.phone-exchange": {"paths":[""]},
@@ -21,7 +22,11 @@
 		"en_US.url": {"paths":["","host","path"]},
 		"en_US.username": {"paths":["","n"]},
 		"en_US.version": {"paths":["","n","pre","suffix"]},
-		"en_US.word": {"paths":[""]}
+		"en_US.word": {"paths":["","adj","adv","any","noun","verb","verb.present"]},
+		"en_US.word-adj": {"paths":["","word"]},
+		"en_US.word-adv": {"paths":["","word"]},
+		"en_US.word-noun": {"paths":["","word"]},
+		"en_US.word-verb": {"paths":["","present","word"]}
 	},
 	"namespace": "en_US"
 }
