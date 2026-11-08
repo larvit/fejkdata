@@ -12,11 +12,11 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// AddDaysName is the builtin whose date operand package fejkdata proves, since only it holds
-// the nodes the operand reads.
+// AddDaysName is the builtin whose date operand package fejkdata proves, since only that package
+// holds the nodes the operand reads.
 const AddDaysName = "adddays"
 
-// MaxDays caps adddays' offset, so a date it reads, from year 0 to 9999, stays a time.Time.
+// MaxDays caps adddays' offset, so a date it reads, from year 1 to 9999, stays a time.Time.
 const MaxDays = 1000000
 
 func addDaysArgs(a []string) error {
@@ -32,14 +32,27 @@ func addDaysArgs(a []string) error {
 			return errors.New("adddays(d,n) takes a name, a field or a path for d, and for n one of those or an integer")
 		}
 	}
-	if days, literal, err := literalDays(a[1]); literal && err != nil {
-		return fmt.Errorf("adddays(d,n): n %w", err)
-	} else if literal && (days > MaxDays || days < -MaxDays) {
-		return fmt.Errorf("adddays(d,n): n %d exceeds the maximum of %d days either way", days, MaxDays)
+	if err := dayCountArg(a[1]); err != nil {
+		return err
 	}
 	if len(a) == 3 {
 		_, err := layoutArg(a[2])
 		return err
+	}
+	return nil
+}
+
+func dayCountArg(n string) error {
+	days, literal, err := literalDays(n)
+	switch {
+	case !literal:
+		return nil
+	case err != nil && len(n) > 1 && strings.ContainsRune("+-", rune(n[0])) && !strings.ContainsRune("0123456789", rune(n[1])):
+		return fmt.Errorf("adddays(d,n): n %q signs a name, which adddays cannot read; draw it negative instead, such as {int(-30,-1)}", n)
+	case err != nil:
+		return fmt.Errorf("adddays(d,n): n %w; write a whole number of days", err)
+	case days > MaxDays || days < -MaxDays:
+		return fmt.Errorf("adddays(d,n): n %d exceeds the maximum of %d days either way", days, MaxDays)
 	}
 	return nil
 }
@@ -69,10 +82,15 @@ func DateLayout(name string, args []string) (string, bool) {
 	return layoutOf(args[2]), true
 }
 
-// ReadsBack reports whether a date printed in layout parses back as the same day, from year
-// 0 to 9999, as a layout with a two-digit year or no month does not.
+// ReadsBack reports whether a date printed in layout parses back as the same day: every day of a
+// leap year at stepped times, and days in years 1, 1969 and 9999. A layout with a two-digit year,
+// no day, or fields packed so that one reading is ambiguous, such as '2006-1_2', does not.
 func ReadsBack(layout string) bool {
-	for _, d := range []time.Time{time.Date(1, 2, 3, 4, 5, 6, 0, time.UTC), time.Date(1969, 12, 31, 23, 0, 0, 0, time.UTC), time.Date(9999, 11, 28, 0, 0, 0, 0, time.UTC)} {
+	days := []time.Time{time.Date(1, 2, 3, 4, 5, 6, 0, time.UTC), time.Date(1969, 12, 31, 23, 0, 0, 0, time.UTC), time.Date(9999, 11, 28, 0, 0, 0, 0, time.UTC)}
+	for d := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC); d.Year() == 2000; d = d.Add(24*time.Hour + 11*time.Minute + 7*time.Second) {
+		days = append(days, d)
+	}
+	for _, d := range days {
 		back, err := time.Parse(layout, d.Format(layout))
 		if err != nil || back.YearDay() != d.YearDay() || back.Year() != d.Year() {
 			return false
@@ -81,8 +99,8 @@ func ReadsBack(layout string) bool {
 	return true
 }
 
-// AddDays is an adddays call, which Check accepted, reading its date in from, a layout that
-// ReadsBack, and printing it in its own layout, or in from where it gives none.
+// AddDays is an adddays call that Check accepted. It parses its date with the layout from, which
+// ReadsBack, and prints the result in the call's third argument, or in from when the call has two.
 func AddDays(from string, a []string) Call {
 	to := from
 	if len(a) == 3 {
