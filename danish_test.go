@@ -247,9 +247,6 @@ func TestShippedDanishHouseNumbersFollowDAR(t *testing.T) {
 	}
 }
 
-// Statistics Denmark's FOLK1A, the population on 1 January 2026 by age: 6,025,603 people, of
-// whom 1,135,912 were under 18, 3,618,817 were 18 to 64, and the 1,269,665 of 65 to 99 and the
-// 1,209 of 100 or more make up the rest.
 func TestDanishParityHoldsOneDigitOfEachSexsParity(t *testing.T) {
 	rows := tsvRows(t, "data/da_DK/parity.tsv")
 	if len(rows) != 2 {
@@ -263,6 +260,9 @@ func TestDanishParityHoldsOneDigitOfEachSexsParity(t *testing.T) {
 	}
 }
 
+// Statistics Denmark's FOLK1A, the population on 1 January 2026 by age: 6,025,603 people, of
+// whom 1,135,912 were under 18, 3,618,817 were 18 to 64, and the 1,269,665 of 65 to 99 and the
+// 1,209 of 100 or more make up the rest.
 func TestDanishCprIsCprKontoretsNumberOfAPersonUnder100(t *testing.T) {
 	f, err := New(withShipped(), WithSeed(1), onTestDay)
 	if err != nil {

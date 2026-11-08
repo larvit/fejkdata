@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons and addresses, and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names, persons, addresses and CPR numbers, and `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Danish and Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
@@ -587,13 +587,41 @@ segments below that. It needs no index. Each shipped module carries one, so
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
 
-`da_DK`, Danish, carries `address`, `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK`, Danish, carries `address`, `cpr`, `first-name`, `last-name`, `parity`, `person`, `sex` and `title`, built like `nb_NO`'s:
 `da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No good online source of
 Danish name counts was found. The top 20 girls' names, boys' names and last names keep [Statistics
 Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
 1 January 2026. Every other name is a language model's recall of a name common in Denmark: the commoner ones come first,
 from the most to the least common, and the rarer ones share one weight. These weights are estimates. A program showing the
 top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
+
+`da_DK.cpr` is a Danish personal number as the CPR office defines it in "Personnummeret i
+CPR-systemet", `ddmmyy-ssss`: the birth date, a seventh digit that with the year digits names
+the century, two more digits, and a last digit that is even for a woman and odd for a man. The ten
+digits, weighted 4 3 2 7 6 5 4 3 2 1, add up to a multiple of 11. fejkdata draws a date of
+someone under 100 by Statistics Denmark's shares of under 18, 18 to 64 and 65 and over on
+1 January 2026, and a seventh digit evenly from those the office's table gives the year: 0 to 3
+for 1900 to 1936, 0 to 4 and 9 for 1937 to 1999, and 4 to 9 for 2000 to 2036. The number is
+valid and not synthetic: the office publishes no test series and no unassigned range, and never
+reuses a number, so one may be a living person's. Since 2007 the office also issues numbers that
+fail the modulus 11 check, which fejkdata doesn't draw, so a checker that requires the check
+accepts every number here. `{cpr(x)}` takes the century from the latest year not after the date of
+`--today` or `WithToday` that bears the year digits, so a date of someone 100 or older, 0.02% of
+the population, is not drawn. A fixture of a few thousand rows starts to repeat a number, and a
+`UNIQUE` column needs a category of your own.
+
+`da_DK.parity`, under `sex`, holds one digit of each sex's parity. To make a number agree with a
+bound sex, read the `birth` field of `da_DK.cpr`, the date, then `{cpr(x)}`, which completes the
+number from the digit `x` reads:
+
+```json
+{ "format": "{first} {last}, {cpr}",
+  "first": "{/da_DK.sex as s}{s.first-name}",
+  "last": "{/da_DK.last-name}",
+  "cpr": "{/da_DK.cpr.birth}-{cpr(s.parity.digit)}" }
+```
+
+Renders e.g. `Bodil Holm, 141062-2730`.
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
@@ -1189,6 +1217,7 @@ time-based id takes its timestamp from the rng, not the clock. `born` also reads
 | `{mod11()}` | derivation | weighted mod-11 check char (weights 2–7 from the right); `X` for 10 |
 | `{ean()}` | derivation | EAN-13 / UPC-A / ISBN-13 / GTIN check digit |
 | `{fnr(x)}` | derivation | completes a Norwegian fødselsnummer after the last seven digits emitted, its date and first individ digit, with a second individ digit it picks, the third that `x` reads, and the two check digits; fewer than seven digits read as if zeros came first, and `x` that is not one digit renders nothing |
+| `{cpr(x)}` | derivation | completes a Danish CPR number after the last six digits emitted, its date: a seventh digit the table gives the year, a second and a third digit it picks, and the check digit, whose parity is that of the digit `x` reads; the year is the latest one not after today that bears the year digits, and `x` that is not one digit, or a year outside 1858 to 2057, renders nothing |
 | `{bgmod11(x)}` | derivation | a random digit, then the check digit, that complete the digits emitted so far in this expansion to a number Bankgirot's 11-modul accepts: its digits, weighted 1 to 10 from the right and then 1 again, sum to a multiple of 11; the literal digits `x` count as coming first and are not printed (`0` for none) |
 | `{digits(n)}` | sample | `n` digits 0–9 |
 | `{upper(n)}`, `{lower(n)}` | sample | `n` letters A–Z, a–z |

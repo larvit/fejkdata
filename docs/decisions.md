@@ -910,6 +910,40 @@ chose `fnr` for the function, since Norwegians write it, and the bulk fixture au
 for the field. The validator-facing author would have named the synthetic series in the path;
 Skatteverket's test series sets the precedent of a plain name with the series documented.
 
+## The Danish id draws valid CPR numbers over the last hundred years
+
+2026-11-08, Lilleman auf Larv.
+
+The CPR office publishes no test series and no unassigned range, and says every number it issues
+is real and never reused. Digitaliseringsstyrelsen's test data is handed out on application, not
+published. So `da_DK.cpr` is valid and may be a living person's, against goal 3.3, and the
+README says so. The office's own "fiktive" form, 6 added to the first day digit, is used for
+real payroll cases and fails every date check, so it isn't a series that reaches nothing real.
+A form that reaches nothing real isn't shipped.
+
+The rules are the office's "Personnummeret i CPR-systemet" (2008): the ten digits weighted
+4 3 2 7 6 5 4 3 2 1 add up to a multiple of 11, the last digit is even for a woman and odd for a
+man, and the year digits with the seventh digit name the century. cpr.dk adds that numbers
+failing the check have been issued since 2007; those aren't drawn, since a checker may require
+the check and none requires its absence. A last digit of 10 is no number, and a template can't
+redraw it, and the parity of the last digit is the sex's too. So `{cpr(x)}` picks the second and
+third digit and the check digit, the third by trial, and `x` supplies only the parity, from
+`da_DK.parity` under `sex`, one digit a sex. Whatever the first eight digits, at least four
+of the ten third digits pass, so a completion always exists.
+
+The century can't be written in data: the seventh digit depends on the full year, and a template
+prints only the year digits. So `{cpr(x)}` takes the year as the latest not after `WithToday`
+that bears them, and draws the seventh digit evenly among those the table gives that year; the
+office publishes no frequency. The date comes from `born(0,99)`, whose hundred years have one
+century each, so someone of 100 or older, 0.02% of the population, isn't drawn. The three age
+bands carry Statistics Denmark's FOLK1A shares for 1 January 2026, the 100 or older folded into
+the last band. Years outside 1858 to 2057, which the office's table can't write, render nothing,
+a visibly short number, as in `fnr`.
+
+`cpr` is the register's own name, and the function takes `fnr`'s shape: a derivation after the
+date, with the sex's digit as its operand. The number is written `ddmmyy-ssss`, as the office
+writes it.
+
 ## The US given names come from a mirror of the SSA file
 
 2026-09-18, Lilleman auf Larv.
