@@ -241,7 +241,7 @@ func (w *valueWalk) walkTable(t *table, tail []string, weight float64, pre, suf 
 	if c, isColumn := t.formatTemplate.fields[tail[0]].(*tableColumn); isColumn && len(tail) == 1 {
 		return w.walk(c, nil, weight, pre, suf)
 	}
-	return fmt.Errorf("it reads %s of %s, and a where clause reads only a table's rows or one of its columns", grammar.JoinSegments(tail), t.rows.Segment())
+	return fmt.Errorf("follows no selector, linked table or step up: %s of %s", grammar.JoinSegments(tail), t.rows.Segment())
 }
 
 // walkCells lists a column's cells, each weighed by its row, as a draw over the whole table does.
