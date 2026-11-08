@@ -12,7 +12,7 @@ go install github.com/larvit/fejkdata/cmd/fejkdata@latest
 echo '{/sv_SE.person}' | fejkdata   # Sara Eriksson
 ```
 
-- **Data built in:** the `sv_SE` and `en_US` locales and `nb_NO`'s names, persons,
+- **Data built in:** the `sv_SE` and `en_US` locales, `da_DK`'s names and persons, and `nb_NO`'s names, persons,
   fødselsnummer, phone numbers, companies, emails, dates and addresses, with names weighted by how common they are. Every Swedish postal town ships, and so
   does every Norwegian one holding a street address, beside a sample of US places. Each address takes its street and
   postal code from one town ([Data](#data)).
@@ -471,10 +471,10 @@ it runs from in its help and errors. `--no-shipped-data` leaves out the modules 
 ## Data
 
 The shipped data comes in modules, each a Go package in the folder under [`data/`](data)
-its namespace spells, a dot a slash: one per locale (`data/en_US`, `data/nb_NO`,
+its namespace spells, a dot a slash: one per locale (`data/da_DK`, `data/en_US`, `data/nb_NO`,
 `data/sv_SE`), one per country's tree of places (`data/geo/NO`, `data/geo/SE`, `data/geo/US`), and the locale-neutral
 `data/misc`. A package's Go name is its namespace in lower case without separators:
-`enus`, `nbno`, `svse`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
+`dadk`, `enus`, `nbno`, `svse`, `geono`, `geose`, `geous`, `misc`. Each embeds its files, so nothing is
 read from disk. The CLI carries every module, and a library loads those it passes to `WithDataFS`
 ([Library](#library)). A directory is a namespace: each JSON file is a category named
 after the file, each subdirectory a dot-path segment, so `mydata/sv_SE/person.json` is
@@ -521,6 +521,15 @@ segments below that. It needs no index. Each shipped module carries one, so
 `phone`, `phone-fixed`, `phone-mobile`, `sex` and `title`.
 `fodselsnummer` reads `birth-day` and `individ`. `title` has no `parent`, like `sv_SE.title`, so it is selected as
 `nb_NO.title[dr.]`.
+
+`da_DK`, Danish, carries `first-name`, `last-name`, `person`, `sex` and `title`, built like `nb_NO`'s:
+`da_DK.sex` is `kvinde` and `mand`, and `da_DK.title` is `dr.` and `professor`. No open source holds Danish
+name counts in bulk, so the top 20 girls' names, boys' names and last names keep [Statistics
+Denmark](https://www.dst.dk/en/Statistik/emner/borgere/navne/navne-i-hele-befolkningen)'s counts of
+1 January 2026, and every other name is a language model's recall of a name common in Denmark, ordered from the most to the
+least common, with an estimated count. The names are real; their weights past the twentieth are an
+order of commonness, not a published figure. A program showing the top 20 counts or the sex counts
+credits "Kilde: Danmarks Statistik".
 
 `nb_NO.date` is day, month and year with two digits each and dots between, `02.04.2019`, a spelling the
 Language Council of Norway allows. `nb_NO.email` is lower-case ASCII at `example.com`, `example.org`
@@ -716,8 +725,8 @@ state a territory belongs to: `DK` for Greenland, `FI` for Åland. A sovereign s
 itself, and so does a territory its source names no state for, such as Western Sahara, `EH`.
 
 `first-name` and `last-name` are tables weighted by bearers, and `sex` by the people of each sex, from
-SCB, Statistics Norway, the SSA and the Census Bureau. `sex` counts them in its `count` column:
-Sweden's population at the end of 2024, Norway's on 1 January 2026 and the United States' on 1 July
+SCB, Statistics Norway, the SSA and the Census Bureau, and for Denmark Statistics Denmark and a language model's recall. `sex` counts them in its `count` column:
+Sweden's population at the end of 2024, Norway's and Denmark's on 1 January 2026 and the United States' on 1 July
 2024. `first-name` links to `sex`, so `sv_SE.sex[f].first-name`
 draws a woman's name, and a name both sexes carry is a row under each, so
 `en_US.sex[m].first-name[Taylor]` names the one a `first-name[Taylor]` alone cannot.

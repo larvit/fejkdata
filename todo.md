@@ -12,20 +12,19 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 203 | 0.4.0 |  |  | **Add `da_DK` with its given names by sex, last names and titles, and `da_DK.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
-| 294 | 0.4.0 | 203 |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
+| 294 | 0.4.0 |  |  | **Add `geo/DK` with Denmark's places and postal codes, and `da_DK.address` printing them.** | 3 | 2 | 2 | 5 | 5 | 1 by 2, 2.1 by 5 | 1.6 |
 | 216 | 0.4.0 | 294 |  | **Share between countries what `geo-se.py` and `geo_test.go` hard-code for SE, in the first locale chunk that needs each.** | 2 | 2 | 1 | 3 | 2 | code health by 3 | 10.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 3 | 1 | 2 | 4 | 4 | 1 by 2, 3.1 by 4 | 7.9 |
 | 382 | 0.4.0 |  |  | **Say in the refusal of a token reading a field beside its own that a token reads only the fields of the template whose format holds it, name the fix, and state that rule under Format string.** | 1 | 1 | 1 | 1 | 2 | 1 by 2, 4 by 3, 5 by 5 | 6.9 |
 | 223 | 0.4.0 |  |  | **Add `--format tsv`, so a later run draws a column from an earlier run's records, through a table over that file.** | 2 | 1 | 2 | 3 | 3 | 1 by 6, 4 by 3 | 5.3 |
-| 297 | 0.4.0 | 203 |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
+| 297 | 0.4.0 |  |  | **Add `da_DK`'s national personal id, the CPR number, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
 | 226 | 0.4.0 |  |  | **Show in the README how to make a column unique, such as an email's local part carrying `{seq()}`.** | 1 | 2 | 1 | 2 | 2 | 1 by 3, 4 by 2 | 3.9 |
 | 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
-| 296 | 0.4.0 | 203 |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
+| 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 383 | 0.4.0 |  |  | **Make a column that reads one field through a name keep that field's datatype and null, through a template or a choice's items, and show it in the README's Null section.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 2 | 2.9 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
-| 298 | 0.4.0 | 203 |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
+| 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
 | 295 | 0.4.0 | 294 |  | **Give `geo/DK`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
