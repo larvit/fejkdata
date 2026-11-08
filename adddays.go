@@ -40,11 +40,11 @@ func addDaysLayout(o *op) (string, error) {
 	v := (&valueProof{}).proveUnion(n.leaves)
 	switch {
 	case v.NotOperand != "":
-		return "", fmt.Errorf("%s is not always a whole number of days: %s", n.spelling, v.NotOperand)
+		return "", fmt.Errorf("%s is not always a whole number of days: %s; write an integer or read one {int(min,max)}", n.spelling, v.NotOperand)
 	case !v.Integral:
-		return "", fmt.Errorf("%s is not always a whole number of days: it may print a fraction", n.spelling)
+		return "", fmt.Errorf("%s is not always a whole number of days: it may print a fraction; read an {int(min,max)}", n.spelling)
 	case math.Max(math.Abs(v.Lo), math.Abs(v.Hi)) > builtinfunc.MaxDays:
-		return "", fmt.Errorf("%s may reach %g, which exceeds the maximum of %d days either way", n.spelling, math.Max(math.Abs(v.Lo), math.Abs(v.Hi)), builtinfunc.MaxDays)
+		return "", fmt.Errorf("%s may reach %.0f, which exceeds the maximum of %d days either way; narrow it", n.spelling, math.Max(math.Abs(v.Lo), math.Abs(v.Hi)), builtinfunc.MaxDays)
 	}
 	return layout, nil
 }
