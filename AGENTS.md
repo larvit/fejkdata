@@ -134,6 +134,7 @@ In [docs/decisions.md](docs/decisions.md):
 - `da_DK.company` weighs its legal forms by Statistics Denmark's new enterprises and draws its names from a language model's recall
 - A record's `let` fields write no column
 - No database or HTTP sink is built in
+- A date offset is `adddays(d,n)`, and its `d` is one `date` or `born` call whose layout reads back
 
 # Scoring run
 
