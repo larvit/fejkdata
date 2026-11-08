@@ -1210,3 +1210,20 @@ Read most (opens and searches):
 - `data-import/source.py` 1
 - `data-import/word-se.py` 1
 - `data/en_US/.fejkdata.json` 1
+
+## Reading cost, chunk a8fc2d2507ed, finished 2026-11-08T18:44:00Z
+
+288032 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `builtins_test.go` 6
+- `README.md` 4
+- `internal/builtinfunc/layout.go` 4
+- `todo.md` 4
+- `calc.go` 3
+- `format.go` 3
+- `internal/builtinfunc/builtinfunc.go` 3
+- `valueproof.go` 3
+- `compose.yaml` 2
+- `docs/decisions.md` 2
