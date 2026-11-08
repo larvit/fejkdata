@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 4 | 1 | 2 | 5 | 7 | 1 by 2, 3.1 by 4 | 1.4 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 4 | 1 | 2 | 5 | 6 | 1 by 4, 4 by 3 | 0.9 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
@@ -223,14 +222,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
-
-Today `data/sv_SE/person.json` draws `birthdate` with `{date(1930-01-01,2025-12-31,'2006-01-02')}`, and `data/sv_SE/personnummer.json` draws its own date in four age bands, such as `{born(18,64,'060102')}`. A record holding both has a birthdate that contradicts the number's first six digits, which breaks goal 3.1. By the decision "Every `{…}` draws afresh, and only a name keeps a pick", the two dates agree only through one named pick. No builtin prints one drawn date in two layouts, so the fix needs one of two things: a date bound to a name and read in two layouts, or a `personnummer` that reads the date a name holds.
-
-`data/sv_SE/samordningsnummer.json` has the same flaw: it draws `{date(1930-01-01,2025-12-31,'0601')}{int(61,88)}`, the birth day plus 60. Make it read the same date. It draws only days 1–28 today, so a date read from a pick needs its day plus 60, over every day of the month.
-
-The range `personnummer` draws, past 100 years with a `+`, must hold for `birthdate` too. Item 28, in 0.8.0, makes `personnummer` read a named pick's sex in the same way as this item reads a date. Whichever lands first sets how `personnummer` reads a named pick, and the other follows it.
 
 ### 378. Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.
 
@@ -570,7 +561,7 @@ A table and its templates, from CSS Color 4 (W3C) and the XKCD colour survey (CC
 
 ### 28. Accept a middle name, and draw a `personnummer` whose sex matches a sex selected through a named pick.
 
-Today `personnummer` draws its own sex, so a name and a number agree only through the README Data section's template, which reads both through one bound `sex`.
+Today `sv_SE.personnummer` draws its own sex, so a chosen sex and a number agree only through the README Data section's template, which reads both through one bound `sex`. `sv_SE.person` reads its own sex and birth date in its `personnummer` field, `{adddays(b,0,'060102')}{b.sign}{n..sex.birth-number.number}{luhn()}`, so this item may follow that shape.
 
 ### 13. Place xlsx cells by their `r` reference in `data-import/xlsx.py`.
 

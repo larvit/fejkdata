@@ -824,8 +824,7 @@ are those of 2025's new cars, not of the cars on the road.
 
 `sv_SE.bloodtype` draws `A+`, `0-` and the six other types, spelled with the digit `0` as Swedish does, as
 often as sv.wikipedia's Blodgrupp article gives them for Sweden: `A+` is the commonest, at 37 percent. The
-shares are real. `sv_SE.person.birthdate` is invented, a date from 1930-01-01 to 2025-12-31, and it is drawn
-apart from any `personnummer`: a record holding both can give a birthdate that its personnummer contradicts.
+shares are real.
 
 `sv_SE.company` draws a legal form by Bolagsverket's new registrations of 2025: aktiebolag,
 enskild näringsidkare (a name with no legal-form word), handelsbolag, bostadsrättsförening, ekonomisk
@@ -960,8 +959,13 @@ year Skatteverket hasn't published yet is outside it too; it adds the coming yea
 `sv_SE.samordningsnummer` draws a date from 1930 to 2025 and always spells `-`, since lag (2022:1697), the
 law that governs it, states no `+`.
 
+`sv_SE.person` draws one birth date from the four age bands, and its `birthdate`, `personnummer` and
+`samordningsnummer` read it. Both numbers spell the person's sex, and the samordningsnummer adds 60 to the day,
+so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
+`1932-04-16 320416-2394 320476-2391`.
+
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside
-`last-name`. `person` and `personnummer` draw apart, so where a name and a number must
+`last-name`. `sv_SE.personnummer` draws apart from it, so where that name and a number must
 agree, read both through one bound `sex`, `{/sv_SE.sex[f] as s}` for a woman:
 
 ```json
