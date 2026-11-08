@@ -185,9 +185,9 @@ these paths; a template reads one as `{/path}`.
 | `--no-shipped-data` | load only the `--data-path` directories |
 | `-s`, `--seed N` | same seed, date, data and versions: identical output (default: a random seed) |
 | `--today DAY` | the date to treat as today, as `YYYY-MM-DD` from year 1000 on; ages in [`{born(…)}`](#functions), and so in `sv_SE.personnummer`, count from it (default: the system's date, so those draws change as days pass); give it beside `--seed` to repeat a run's output on a later day |
-| `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` |
+| `-n`, `--repeat N` | render the template N times (0 to 1048576), each an independent draw, streamed; `0` prints nothing, `[]` under `--format json`, or the header under `--format csv` or `tsv` |
 | `--separator S` | between repeated renders (default empty); refused with a record `--format`, which has its own separators |
-| `--format F` | `text` (default), `json`, `ndjson`, `csv` or `sql` — a record's columns, one record per row (json frames them as an array) |
+| `--format F` | `text` (default), `json`, `ndjson`, `csv`, `tsv` or `sql` — a record's columns, one record per row (json frames them as an array) |
 | `--table T` | the INSERT target for `--format sql`, ignored under any other (default: a lone reference's last segment, such as `users` for `{/users}`, else `records`) |
 | `--list` | print every path, then exit; `--repeat`, `--separator`, `--format` and `--table` do nothing here |
 | `--version`, `-h`, `--help` | print, then exit |
@@ -330,8 +330,8 @@ valid identifier. PostgreSQL and SQLite take it as written; MySQL and MariaDB ne
 `ANSI_QUOTES` and `NO_BACKSLASH_ESCAPES` set first, or they read `"users"` as a
 string and a backslash as an escape.
 
-`--format tsv` writes a [table](#table)'s rows, so a later run draws from this run's records.
-Save `gen/series.json`, run it, and keep the output as `mydata/series.tsv`:
+`--format tsv` writes records as the TSV file of a [table](#table), so a later run can draw from them.
+A `series` record is run once, and its output kept as `mydata/series.tsv`:
 
 ```json
 { "format": "", "id": "{seq()}", "customer": ["Ada", "Bo", "Cy"] }
@@ -348,8 +348,8 @@ Ada	2
 Cy	3
 ```
 
-Save `mydata/series.json` beside it, and a second run draws a series that exists, with the
-customer of the same row:
+Beside it, `mydata/series.json` makes the file a table. A second run then draws orders, each
+naming a series that exists and the customer on that row:
 
 ```json
 { "format": "{id}", "rows": "series.tsv" }
@@ -357,14 +357,23 @@ customer of the same row:
 
 ```sh
 echo '{"format":"","series_id":"{/series as s}{s.id}","customer":"{s.customer}"}' |
-  fejkdata --seed 1 -d ./mydata --format csv -n 4   # series_id,customer  →  1,Bo  3,Cy  2,Ada  2,Ada
+  fejkdata --seed 1 -d ./mydata --format csv -n 4
 ```
 
-Each order draws a row of the table, so several orders may name one series; a `weight`
-column skews that. A tsv cell reads `{…}` as a token, so a brace in a value is written doubled,
-`{{x}}` for `{x}`. A table has no escape for a tab or a line break, and a render fails at load
-or not at all, so each becomes a space. A null column is an empty cell, as an empty string
-is, and a record of one empty column is a blank line, which a table refuses.
+```text
+customer,series_id
+Bo,1
+Cy,3
+Ada,2
+Ada,2
+```
+
+Each order draws a row afresh, so several orders may name one series, and the table's
+[`weight` option](#table) skews that. To load the first run's records into a database, run it
+again with the same seed and `--format csv` or `sql`, as the file is written for a table:
+a brace is doubled, `{{x}}` for `{x}`, and a tab or line break in a value is a space. A null
+column and an empty string are both an empty cell. A record of one column whose value is
+empty writes a blank line, which a table refuses, so give such a record a second column.
 
 A record written only to emit columns still needs a `format` — the grammar's one
 required key — so `"format": ""` carries the fields with an inert format: `Fake` renders
@@ -448,7 +457,7 @@ A path, wherever a call takes one, may start with one `/`, as a reference does.
 
 A `*Record` carries its columns via `Columns()` — each a `Column` of `Name`,
 `DataType`, rendered `Value` and `Null` — and serializes them with `JSON()`
-(one object), `CSVHeader()`/`CSVLine()`, `SQLInsert(table)` (one statement) or
+(one object), `CSVHeader()`/`CSVLine()`, `TSVHeader()`/`TSVLine()`, `SQLInsert(table)` (one statement) or
 `SQLInsertHeader(table)`/`SQLValues()` — the shapes the CLI's `--format` writes, each without a
 trailing newline. To write a multi-row INSERT, write the header, then each record's `SQLValues()` with a comma
 between them, then `;`. `FakeRecord` and
@@ -1609,7 +1618,7 @@ pick.go         a render's named picks: each level's pick key, the frame each na
 env.go          renderEnv: what a render reads names and rows through, the stack of frames it renders in, and the frames a read opens and finds
 path.go         the dotted-path walks: the paths List advertises, the sub-paths every variant of a choice carries, proving a path reaches a node, and drawing the path
 render.go       Fake, the recursive renderer (choices, format strings, expansions) and the reads its tokens make
-record.go       records: Record, the JSON/CSV/SQL serializers, and their entry points
+record.go       records: Record, the JSON/CSV/TSV/SQL serializers, and their entry points
 struct.go       structs: FakeStruct, fake tags as one record's columns, and a field's Go type as its column's datatype
 inline.go       inline templates: Template, NewTemplate, FakeTemplate, IsTemplate, and their compile and resolve
 format.go       a format's tokens checked against their fields, and compiled into ops
