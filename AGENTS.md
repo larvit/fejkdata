@@ -102,6 +102,7 @@ In [docs/decisions.md](docs/decisions.md):
 - An extension may name two media types
 - The Swedish ids draw Skatteverket's test series
 - The Norwegian id draws Skatteetaten's synthetic series
+- The Danish id draws valid CPR numbers over the last hundred years
 - The US given names come from a mirror of the SSA file
 - `List` advertises direct descents only
 - A path draws through its compiled steps
