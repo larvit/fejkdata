@@ -638,14 +638,12 @@ func TestReadmeFunctionsTableListsEveryBuiltin(t *testing.T) {
 	var listed []string
 	for _, row := range regexp.MustCompile("(?m)^\\| `\\{.*$").FindAllString(section, -1) {
 		cell := strings.SplitN(row, "|", 3)[1]
-		for _, m := range regexp.MustCompile("`\\{([a-z0-9]+)\\(").FindAllStringSubmatch(cell, -1) {
-			if !slices.Contains(listed, m[1]) {
-				listed = append(listed, m[1])
-			}
+		for _, m := range regexp.MustCompile("`\\{([a-z0-9]+\\([^`]*\\))\\}`").FindAllStringSubmatch(cell, -1) {
+			listed = append(listed, m[1])
 		}
 	}
 	slices.Sort(listed)
 	if want := Builtins(); !slices.Equal(listed, want) {
-		t.Fatalf("README's Functions table lists %v, want every builtin: %v", listed, want)
+		t.Fatalf("README's Functions table lists %v, want each builtin's calls: %v", listed, want)
 	}
 }
