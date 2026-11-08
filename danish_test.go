@@ -472,8 +472,7 @@ func TestShippedDanishPhoneInternational(t *testing.T) {
 	}
 }
 
-// Dansk Sprognævn's answer SV00000046: the traditional Danish date is day, month and year in digits,
-// with no zero before a one-digit day or month.
+// Dansk Sprognævn's answer SV00000046 gives 2.10.2003 and advises against 02.10.2003.
 func TestShippedDanishDateIsDayMonthYearWithDotsAndNoLeadingZeroFrom1970To2029(t *testing.T) {
 	f := shipped(t, WithSeed(3))
 	date := regexp.MustCompile(`^([1-9]|[12]\d|3[01])\.([1-9]|1[0-2])\.\d{4}$`)

@@ -31,10 +31,11 @@ replacement, and each removed path, column or flag.
   and `da_DK.last-name`.
 - `da_DK.company`, an invented name and a legal form, ENK (a sole proprietorship, whose name has no
   abbreviation), ApS, A/S, I/S or K/S, such as `Nordholm Holding ApS`. Each form is drawn as often as
-  Statistics Denmark counted new enterprises of it in 2024, and `da_DK.company.enk`, `.aps`, `.as`, `.is`
-  and `.ks` each draw one form. `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
-  The name reads `da_DK.company-coined`, `da_DK.company-word`, `da_DK`'s names and `geo.DK.locality`.
-  Statistics Denmark's data is CC BY 4.0, so a program showing a company credits "Kilde: Danmarks Statistik".
+  Statistics Denmark counted enterprises of it in 2024, except that I/S and K/S, which it counts together,
+  are drawn evenly. `da_DK.company.enk`, `.aps`, `.as`, `.is` and `.ks` each draw one form, and
+  `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick. The name reads
+  `da_DK.company-coined`, `da_DK.company-word`, `da_DK`'s names and `geo.DK.locality`. Statistics Denmark's
+  counts are CC BY 4.0, so a program showing them credits "Kilde: Danmarks Statistik".
 - The README's [Load into a database](https://github.com/larvit/fejkdata#load-into-a-database)
   section pipes records into PostgreSQL, SQLite, MySQL and MongoDB.
 - `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name`, `da_DK.last-name`,

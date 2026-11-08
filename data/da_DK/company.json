@@ -2,11 +2,11 @@
   "format": "{registered as r}{r}",
   "legal": "{r.legal}",
   "registered": [
-    { "format": "{.company.enk}", "legal": "", "weight": 14812 },
-    { "format": "{.company.aps}", "legal": "ApS", "weight": 12127 },
-    { "format": "{.company.as}", "legal": "A/S", "weight": 373 },
-    { "format": "{.company.is}", "legal": "I/S", "weight": 364 },
-    { "format": "{.company.ks}", "legal": "K/S", "weight": 364 }
+    { "format": "{.company.enk}", "legal": "", "weight": 132403 },
+    { "format": "{.company.aps}", "legal": "ApS", "weight": 218208 },
+    { "format": "{.company.as}", "legal": "A/S", "weight": 30750 },
+    { "format": "{.company.is}", "legal": "I/S", "weight": 5840 },
+    { "format": "{.company.ks}", "legal": "K/S", "weight": 5839 }
   ],
   "enk": {
     "format": "{name}",

@@ -657,15 +657,18 @@ from the most to the least common, and the rarer ones share one weight. These we
 top 20 counts or the sex counts credits "Kilde: Danmarks Statistik".
 
 `da_DK.date` is a date from 1970 to 2029 in the traditional Danish spelling, day, month and year with dots and no zero
-before a one-digit day or month, such as `2.4.2019`; Dansk Sprognævn advises against the zero. `da_DK.email` is built like
-`nb_NO.email`, from `da_DK`'s names with `æ`, `ø` and `å` folded to ASCII.
+before a one-digit day or month, such as `2.4.2019`; the Danish Language Council (Dansk Sprognævn) advises against the
+zero. `da_DK.email` is built like `nb_NO.email`: half its local parts are a first and a last name from `da_DK`'s names,
+with `æ`, `ø` and `å` folded to ASCII.
 
-`da_DK.company` draws a legal form as often as Statistics Denmark counted new enterprises of it in 2024 (its table
-DEMO15): sole proprietorship (ENK, whose name has no abbreviation), `ApS`, `A/S`, and `I/S` or `K/S`, which the table
-counts together as partnerships and limited partnerships, so they are drawn evenly. `da_DK.company.enk`, `.aps`,
-`.as`, `.is` and `.ks` each draw one form, and `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
+`da_DK.company` draws a legal form as often as Statistics Denmark counted enterprises of it in 2024 (its table GF15):
+sole proprietorship (ENK), private limited company (`ApS`), public limited company (`A/S`), and `I/S` or `K/S`, which
+the table counts together as partnerships and limited partnerships, so they are drawn evenly. An ENK's name has no
+abbreviation after it, and the others end in theirs, such as `Nordholm Holding ApS`. `da_DK.company.enk`, `.aps`, `.as`,
+`.is` and `.ks` each draw one form, and `{/da_DK.company as c}{c.legal}` prints the abbreviation of the same pick.
 No open bulk file of Danish company names was found, so the name's shapes and the words of `company-coined` and
-`company-word` are a language model's recall, drawn evenly, from `da_DK`'s names and `geo.DK.locality`.
+`company-word` are a language model's recall. Each name is made of those words, `da_DK`'s names and
+`geo.DK.locality`. A name is invented, and may also be a real company's.
 
 `da_DK.cpr` is a Danish personal number as the CPR office defines it in "Personnummeret i
 CPR-systemet", `ddmmyy-ssss`. It passes the office's checks but is not synthetic: the office
@@ -963,7 +966,7 @@ of `born(100,…)` carries the `+`.
 
 Skatteverket's test series is small: a personnummer is one of about 83,000 values, a day
 in the 114 years up to the given date against the two birth numbers, so a fixture past a few hundred rows repeats
-one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date` and `nb_NO.date`
+one and a `UNIQUE` column needs a category of your own. `sv_SE.date`, `en_US.date`, `nb_NO.date` and `da_DK.date`
 are uniform over 1970-01-01 to 2029-12-31, `misc.datetime` over 2000-01-01 to 2029-12-31.
 What the two locales do not share: `en_US.address` carries a `region` column the Swedish
 one has no use for, and `sv_SE.title` has no `parent`, so it is selected as
