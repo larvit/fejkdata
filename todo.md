@@ -247,7 +247,7 @@ One word reads as one fake throughout a render, as a name's reads do. Maintain g
 
 ### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
 
-From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds words of 3 to 8 letters and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
+From two real-world use cases. [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer keeps a table's width by replacing each word with one about as long. `en_US.word` holds WordNet's words, of any length, and no function picks by length, so its `corpus-gathering/anonymize.mjs` draws 20,000 words, sorts them by length and takes the nearest. A scheduler's fixtures wanted values other than a few given ones.
 
 The filter applies only where every item's value is fixed text, such as a word list, a choice of literal strings or a table column whose cells hold no `{…}`. A generated value, such as `{uuid()}`, is refused at load; item 380 covers it. Where no item can pass, the template fails to load (goal 5.4), including for each length a name such as `k` can take. Weights hold among the items that pass. The filtered set, or an index by length, is built once on first reach, so a draw costs what it did (goal 12.1).
 

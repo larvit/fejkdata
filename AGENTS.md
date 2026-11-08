@@ -127,7 +127,7 @@ In [docs/decisions.md](docs/decisions.md):
 - A Swedish postort with no published population of its own weighs 200
 - A Swedish road segment inside a tätort leans towards the postort the tätort is named after, by distance over the fourth root of its codes
 - `sv_SE.word` holds SALDO's words, under one short path per part of speech: `noun`, `verb`, `adj` and `adv`
-- `en_US.word` holds WordNet's words, under the paths `sv_SE.word` has, and its notice ships with them
+- `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 - `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category
 - No column is declared unique; `{seq()}` makes a column unique
 - `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall

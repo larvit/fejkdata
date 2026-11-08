@@ -1438,22 +1438,28 @@ SALDO marks no word as rude, so the import drops exact matches of LDNOOBW's Swed
 widely used to filter generated text). It leaves compounds and any rude word the list lacks.
 Valid while no open Swedish source tags register.
 
-## `en_US.word` holds WordNet's words, under the paths `sv_SE.word` has, and its notice ships with them
+## `en_US.word` holds WordNet's words, under one short path per part of speech, and its notice ships with them
 
 2026-11-08, the maintainer. Goals 3.2 and 2.
 
-Moby Part-of-Speech II is public domain but tags a verb only as "usually a participle", so its verbs mix
-`stirred` and `hiving` with base forms, and its adjectives carry `un-` forms beside their stems. WordNet lists
-lemmas only, one index per part of speech, so a verb is always its base form. Its licence (SPDX `WordNet`)
-asks for its copyright notice and disclaimer on every copy of the database. `data/en_US/WORDNET-LICENSE.txt`
-holds them and `en_US` embeds the file, so a Go program importing the locale and the CLI
-carry it; `DATA-LICENSES.md` names it in the attribution column.
+`en_US.word` holds WordNet 3.0's nouns, verbs, adjectives and adverbs under the paths `noun`, `verb`, `adj` and
+`adv`, as `sv_SE.word` does, and `verb.present` prints a verb's third person. WordNet lists lemmas only, so a verb is
+always its base form; Moby Part-of-Speech II, the public-domain alternative, tags a verb only as "usually a
+participle" and mixes `stirred` and `hiving` with base forms.
 
-The import keeps a lemma spelled in lower-case letters alone, which drops phrases, proper nouns and
-hyphenated words, and a verb gets its third person by the regular spelling rule with `be`, `have`, `quiz` and
-`whiz` as exceptions, since WordNet has no forms. LDNOOBW's English list, as for Swedish, drops its exact matches.
-WordNet's sense counts cover a quarter of its lemmas, and a count from a 1960s corpus would shrink the spread this
-data exists to widen, so `word` weighs a part of speech by its row count and draws each word evenly.
+WordNet's licence (SPDX `WordNet`) asks for its copyright notice and disclaimer on every copy of the database.
+`data/en_US/WORDNET-LICENSE.txt` holds them, `en_US` embeds the file, and the release archives and packages carry
+it. `DATA-LICENSES.md` names the licence.
+
+The import keeps a word that WordNet's data files spell in lower-case letters alone, since its index files
+lower-case every lemma and would let `paris` and `abc` through. A verb gets its third person by the spelling
+rule, with `be`, `have`, `stomach`, `quiz`, `whiz` and the `-o` verbs that take a plain `s` as exceptions, since
+WordNet has no forms. The import drops a word with a sense in WordNet's usage domains of disparagement, ethnic
+slurs or obscenity, which tag slurs such as `dago` that LDNOOBW's English list lacks, and the exact matches
+of that list.
+
+WordNet's sense counts cover a quarter of its lemmas, so `word` weighs a part of speech by its row count and
+draws each word evenly, which keeps the spread this data exists to widen.
 Valid while no open English source gives a frequency for every word.
 
 ## `{n.w}` is refused beside a read of `n` that reads `w` through a name of `n`'s category

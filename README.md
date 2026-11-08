@@ -849,16 +849,18 @@ The import drops the words on LDNOOBW's Swedish list of rude words, and other ru
 read the output before showing it to anyone. `sv_SE.sentence` fills a fixed pattern with these words
 and doesn't make them agree, so its sentences aren't grammatical.
 
-`en_US.word` draws evenly from about 85,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
-verbs, adjectives and adverbs it lists in lower-case letters alone. WordNet's sense counts cover a quarter
-of its words, so a word may be rare. `en_US.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech.
-`en_US.word.verb.present` draws a verb and prints its third person, such as `carries`. To read a verb and its
-third person from one pick, bind it: `{/en_US.word.verb as v}{v} {v.present}` prints `carry carries`. The import
-drops the words on LDNOOBW's English list of rude words, and other rude words remain, so read the output before
-showing it to anyone. `en_US.sentence` fills a fixed pattern with these words and doesn't make them agree, so
-its sentences aren't grammatical, and `en_US.paragraph` joins three to six of them. WordNet's licence asks
-that its notice appear on every copy of the words: `data/en_US/WORDNET-LICENSE.txt` holds it, and the `en_US`
-module embeds it.
+`en_US.word` draws evenly from about 70,000 words of WordNet 3.0, Princeton's English dictionary: the nouns,
+verbs, adjectives and adverbs it spells in lower-case letters alone, so no proper noun or acronym. WordNet counts
+the senses of only a quarter of its words in a text sample, so it gives no frequency to draw by, and a word may
+be rare. `en_US.word.noun`, `.verb`, `.adj` and `.adv` each draw one part of speech. `en_US.word.verb.present`
+draws a verb and prints its third person, such as `carries`. To read a verb and its third person from one pick,
+bind it: `{/en_US.word.verb as v}{v} {v.present}` prints `carry carries`. The import drops a word with a sense in
+WordNet's usage domain of disparagement, ethnic slurs or obscenity, and the words on LDNOOBW's English list of rude
+words. Other rude words remain, so read the output before showing it to anyone. `en_US.sentence` fills a fixed
+pattern with these words and doesn't make them agree, so its sentences aren't grammatical. `en_US.paragraph` joins
+three to six sentences. WordNet's licence asks for its notice and disclaimer on every copy of its database:
+`data/en_US/WORDNET-LICENSE.txt` holds them, the `en_US` module embeds the file, and the release archives and
+packages carry it.
 
 `en_US.phone` draws its exchange from `en_US.phone-exchange`,
 which draws evenly from the codes the North American Numbering Plan Administration (NANPA)
@@ -878,7 +880,7 @@ carry sub-fields — `misc.currency.symbol`, `misc.territory.alpha2`,
 Where a script under [`data-import/`](data-import) reads a source, the facts come from
 that source, and the script drops a row only by a rule it states; elsewhere a small hand-written
 set ships, and [`todo.md`](todo.md) carries the step that replaces it (goal 3.2).
-`en_US`'s `sentence` patterns state no fact and stay hand-written. Where a category
+The `sentence` and `paragraph` patterns state no fact and stay hand-written. Where a category
 has no path that draws only values reaching nothing real (goal 3.3), write a fixed value such
 as `example.com` into the template; `todo.md` plans the path.
 A drawn `misc.creditcard` number or `{iban(CC)}` is valid, not real: it passes the Luhn check or
