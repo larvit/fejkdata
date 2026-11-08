@@ -959,9 +959,9 @@ year Skatteverket hasn't published yet is outside it too; it adds the coming yea
 `sv_SE.samordningsnummer` draws a date from 1930 to 2025 and always spells `-`, since lag (2022:1697), the
 law that governs it, states no `+`.
 
-`sv_SE.person` draws one birth date from the four age bands, and its `birthdate`, `personnummer` and
-`samordningsnummer` read it. Both numbers spell the person's sex, and the samordningsnummer adds 60 to the day,
-so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
+`sv_SE.person` draws one invented birth date from the four age bands, and its `birthdate`, `personnummer` and
+`samordningsnummer` read it. Both numbers spell the person's sex from the same test series, with the limits
+above, and the samordningsnummer adds 60 to the day, so `{/sv_SE.person as p}{p.birthdate} {p.personnummer} {p.samordningsnummer}` renders e.g.
 `1932-04-16 320416-2394 320476-2391`.
 
 A person of a chosen sex is assembled from the tables — `sex[f].first-name` beside

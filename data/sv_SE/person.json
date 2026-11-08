@@ -13,6 +13,6 @@
   "last": "{.last-name.name}",
   "personnummer": "{adddays(b,0,'060102')}{b.sign}{n..sex.birth-number.number}{luhn()}",
   "prefix": [null, { "format": "{.title.name} ", "weight": 0.05 }],
-  "samordningsnummer": { "format": "{adddays(b,0,'0601')}{calc(day+60)}-{n..sex.birth-number.number}{luhn()}", "day": "{adddays(b,0,'02')}" },
+  "samordningsnummer": { "format": "{adddays(b,0,'0601')}{calc(birthday+60)}-{n..sex.birth-number.number}{luhn()}", "birthday": "{adddays(b,0,'02')}" },
   "sex": "{n..sex.name}"
 }
