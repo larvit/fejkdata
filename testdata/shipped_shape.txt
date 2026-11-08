@@ -1,3 +1,8 @@
+da_DK.address	format "{/geo.DK.address as a}{a}"	reads geo.DK.address
+da_DK.address.locality	string
+da_DK.address.postal-code	string
+da_DK.address.street	string
+da_DK.address.street-number	string
 da_DK.first-name	format "{name}"	name name	weight count	parent sex
 da_DK.first-name.count	string
 da_DK.first-name.name	string
@@ -97,6 +102,76 @@ en_US.version.n	string
 en_US.version.pre	string
 en_US.version.suffix	string
 en_US.word
+geo.DK.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.DK.locality
+geo.DK.address.locality	string
+geo.DK.address.postal-code	string
+geo.DK.address.street	string
+geo.DK.address.street-number	string
+geo.DK.locality	format "{name}"	key name	weight population	parent municipality
+geo.DK.locality.lat	string
+geo.DK.locality.lon	string
+geo.DK.locality.municipality	string
+geo.DK.locality.name	string
+geo.DK.locality.population	string
+geo.DK.locality.postal-code
+geo.DK.locality.postal-code.addresses
+geo.DK.locality.postal-code.code
+geo.DK.locality.postal-code.locality
+geo.DK.locality.street
+geo.DK.locality.street.addresses
+geo.DK.locality.street.locality
+geo.DK.locality.street.name
+geo.DK.municipality	format "{name}"	key code	name name	weight population	parent region
+geo.DK.municipality.code	string
+geo.DK.municipality.locality
+geo.DK.municipality.locality.lat
+geo.DK.municipality.locality.lon
+geo.DK.municipality.locality.municipality
+geo.DK.municipality.locality.name
+geo.DK.municipality.locality.population
+geo.DK.municipality.locality.postal-code
+geo.DK.municipality.locality.postal-code.addresses
+geo.DK.municipality.locality.postal-code.code
+geo.DK.municipality.locality.postal-code.locality
+geo.DK.municipality.locality.street
+geo.DK.municipality.locality.street.addresses
+geo.DK.municipality.locality.street.locality
+geo.DK.municipality.locality.street.name
+geo.DK.municipality.name	string
+geo.DK.municipality.population	string
+geo.DK.municipality.region	string
+geo.DK.postal-code	format "{code}"	key code	weight addresses	parent locality
+geo.DK.postal-code.addresses	string
+geo.DK.postal-code.code	string
+geo.DK.postal-code.locality	string
+geo.DK.region	format "{name}"	key code	name name	weight population
+geo.DK.region.code	string
+geo.DK.region.municipality
+geo.DK.region.municipality.code
+geo.DK.region.municipality.locality
+geo.DK.region.municipality.locality.lat
+geo.DK.region.municipality.locality.lon
+geo.DK.region.municipality.locality.municipality
+geo.DK.region.municipality.locality.name
+geo.DK.region.municipality.locality.population
+geo.DK.region.municipality.locality.postal-code
+geo.DK.region.municipality.locality.postal-code.addresses
+geo.DK.region.municipality.locality.postal-code.code
+geo.DK.region.municipality.locality.postal-code.locality
+geo.DK.region.municipality.locality.street
+geo.DK.region.municipality.locality.street.addresses
+geo.DK.region.municipality.locality.street.locality
+geo.DK.region.municipality.locality.street.name
+geo.DK.region.municipality.name
+geo.DK.region.municipality.population
+geo.DK.region.municipality.region
+geo.DK.region.name	string
+geo.DK.region.population	string
+geo.DK.region.timezone	string
+geo.DK.street	format "{name}"	weight addresses	parent locality
+geo.DK.street.addresses	string
+geo.DK.street.locality	string
+geo.DK.street.name	string
 geo.NO.address	format "{street} {street-number}\n{postal-code} {locality}"	reads geo.NO.locality
 geo.NO.address.locality	string
 geo.NO.address.postal-code	string
