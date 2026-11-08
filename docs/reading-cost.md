@@ -1013,3 +1013,11 @@ Read most (opens and searches):
 - `CHANGELOG.md` 1
 - `README.md` 1
 - `docs/decisions.md` 1
+
+## Reading cost, chunk 6a431b27092a, finished 2026-11-08T09:52:19Z
+
+43440 new input tokens before the first commit.
+
+Read most (opens and searches):
+
+- `todo.md` 2
