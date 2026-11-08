@@ -1412,3 +1412,20 @@ cost grow with the run, not with the data it reaches, against goal 12.1. Printin
 break the promise. Faker's `unique` raises after 1000 tries, which is the error mid-render ruled out
 here. A column carrying `{seq()}`, such as `T-{seq(c)}`, is unique by construction.
 Valid while goals 5.4 and 12.1 hold.
+
+## `da_DK`'s names are Statistics Denmark's top 20 and a language model's recall, in order of commonness
+
+2026-11-08, the maintainer. Goal 3.2.
+
+Statistics Denmark publishes the top 20 girls' names, boys' names and last names of the people
+living in Denmark, and a count one name at a time; it offers no bulk table. Wikidata's Danish
+names miss most of the common ones, such as Peter and Jensen. No good source of Danish name
+counts was found online, and goal 3.2 prefers a good source without requiring one. The maintainer
+chose the model's own knowledge over an uneven source.
+
+So the top 20 of each list keep Statistics Denmark's counts of 1 January 2026, and every other
+name is a language model's recall of a name common in Denmark, listed from the most to the least
+common, with an estimated count of the twentieth name's count times 20 over its rank. A recalled
+name never outweighs the twentieth. `DATA-LICENSES.md` and the README say so. The sex counts
+are Statistics Denmark's table FOLK1A.
+Valid while no open source holds Danish name counts in bulk; a bulk file replaces the recall.

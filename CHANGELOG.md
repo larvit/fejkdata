@@ -4,6 +4,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release's
 `Breaking` section comes first and names each rejected spelling with its
 replacement, and each removed path, column or flag.
 
+## Unreleased
+
+### Added
+
+- `da_DK`, Danish, with `da_DK.person` and the tables it reads: `da_DK.first-name` and
+  `da_DK.last-name`, `da_DK.sex`, `kvinde` and `mand`, and `da_DK.title`, `dr.` and `professor`.
+  A first name that girls and boys both bear has a row under each sex, and a person's first name
+  and sex agree. The top 20 girls' names, boys' names and last names carry Statistics Denmark's
+  counts of 1 January 2026, and every other name is a language model's recall of a name common in
+  Denmark with an estimated count, since no open source holds Danish name counts in bulk;
+  `sex` carries Statistics Denmark's population on 1 January 2026. Statistics Denmark's tables
+  are free to reuse with a source credit, so a program showing them credits "Kilde: Danmarks
+  Statistik". The Go package is `github.com/larvit/fejkdata/data/da_DK`, and the CLI carries it.
+
 ## [0.3.0] - 2026-11-05
 
 ### Breaking
