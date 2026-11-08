@@ -12,6 +12,7 @@ import random
 import re
 import struct
 import sys
+import unicodedata
 import urllib.parse
 import zipfile
 
@@ -58,9 +59,10 @@ TIMEZONES = {
 
 def text(data):
     try:
-        return data.decode("utf-8-sig")
+        decoded = data.decode("utf-8-sig")
     except UnicodeDecodeError:
-        return data.decode("latin-1")
+        decoded = data.decode("latin-1")
+    return unicodedata.normalize("NFC", decoded)
 
 
 def gazetteer(cache, kind):
@@ -91,7 +93,7 @@ def dbf_rows(data, wanted):
         row, at = {}, 1
         for name, length in fields:
             if name in wanted:
-                row[name] = record[at:at + length].decode("utf-8", "replace").strip()
+                row[name] = unicodedata.normalize("NFC", record[at:at + length].decode("utf-8", "replace").strip())
             at += length
         yield row
 
