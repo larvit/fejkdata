@@ -12,7 +12,6 @@
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 296 | 0.4.0 |  |  | **Add `da_DK.phone`, drawn from Denmark's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
 | 379 | 0.4.0 |  |  | **Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.** | 3 | 1 | 2 | 4 | 4 | 1 by 4, 4 by 3 | 2.7 |
 | 398 | 0.4.0 |  |  | **Offer a form of `misc.creditcard` and `{iban(CC)}` that draws only numbers reaching no real card or account, such as the card networks' published test card numbers.** | 2 | 1 | 2 | 3 | 3 | 3.3 by 5 | 2.6 |
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
@@ -228,10 +227,6 @@
 | 330 | 1.3.0 | 329 |  | **Give `geo/DE`'s places their streets.** | 2 | 2 | 2 | 4 | 5 | 1 by 1, 2.1 by 4, 3.3 by 2 | 1.6 |
 
 ## Details
-
-### 296. Add `da_DK.phone`, drawn from Denmark's numbering plan.
-
-Find the numbering plan and its licence first.
 
 ### 379. Let a template draw from a category only among the items that pass a `where` clause of length, excluded values and excluded substrings, decided before the draw.
 
