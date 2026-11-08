@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/larvit/fejkdata/internal/builtinfunc"
 	"github.com/larvit/fejkdata/internal/datafiles"
 	"github.com/larvit/fejkdata/internal/drawstate"
 )
@@ -154,3 +155,8 @@ func (c config) misuse() error {
 	}
 	return errors.Join(err, c.nilModules)
 }
+
+// Builtins returns the sorted names of the functions every template may call as
+// {name(args)}, such as hex in {hex(8)}. They ship with fejkdata, so a template calls the
+// same functions in every program.
+func Builtins() []string { return builtinfunc.Names() }

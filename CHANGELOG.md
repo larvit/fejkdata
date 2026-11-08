@@ -39,6 +39,9 @@ replacement, and each removed path, column or flag.
   of `WithToday` or `--today` that bears the year digits. It adds nothing where `x` is not one digit
   or that year lies outside 1858 to 2057, the years the office's table writes.
   `{/da_DK.cpr.birth}-{cpr(s.individ.digit)}` agrees with a bound sex `s`.
+- `fejkdata.Builtins()` returns the sorted names of the functions a template calls as
+  `{name(args)}`. `--help` lists them, shows a name such as `{/path as p}`, and links the
+  README's Names, Functions and Data format sections.
 
 ### Changed
 
