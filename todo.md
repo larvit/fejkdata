@@ -6,13 +6,12 @@
 
 `Bar = 0`
 
-`Next ID = 397`
+`Next ID = 398`
 
 ## Items
 
 | ID | Release | Blocked by | Exempt | Item | L | E | I | R | S | Moves | Score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 381 | 0.4.0 |  |  | **Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.** | 3 | 2 | 2 | 5 | 5 | code health by 2, 1 by 6, 4 by 3 | 4.2 |
 | 391 | 0.4.0 |  |  | **Show in the README how to write ratios and rules as data: 80% `active` by a weighted choice, and a currency that follows its country by a named pick.** | 1 | 1 | 1 | 1 | 2 | 1 by 3, 4 by 2 | 3.9 |
 | 384 | 0.4.0 |  |  | **Let a record keep a field out of its columns, so a field only other fields read writes no column.** | 2 | 1 | 2 | 3 | 3 | 1 by 3, 4 by 3 | 3.4 |
 | 390 | 0.4.0 |  |  | **Show in the README how to load a run's output into PostgreSQL, SQLite, MySQL and MongoDB through a pipe, and record in `docs/decisions.md` that no database or HTTP sink is built in.** | 1 | 1 | 1 | 1 | 2 | 1 by 4 | 3.4 |
@@ -22,6 +21,7 @@
 | 298 | 0.4.0 |  |  | **Add `da_DK.company`, `da_DK.email` and `da_DK.date`.** | 1 | 2 | 1 | 2 | 3 | 1 by 1, 2.1 by 3 | 2.3 |
 | 249 | 0.4.0 |  |  | **Draw `en_US.word` and `en_US.sentence` from Moby or WordNet, each part of speech a path of its own, and add `en_US.paragraph`.** | 2 | 2 | 1 | 3 | 5 | 1 by 3, 2.1 by 3, 3.2 by 3 | 2.1 |
 | 386 | 0.4.0 |  |  | **Let a template compute a date from another date it printed, so `until` falls N days after `start`.** | 3 | 1 | 2 | 4 | 5 | 1 by 5, 4 by 2 | 1.7 |
+| 397 | 0.4.0 |  |  | **State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's, and file a form that reaches nothing real.** | 1 | 1 | 1 | 1 | 2 | 3 by 2 | 1.5 |
 | 364 | 0.4.0 |  | defect | **Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.** | 4 | 1 | 2 | 5 | 7 | 1 by 2, 3.1 by 4 | 1.4 |
 | 378 | 0.4.0 |  |  | **Add a transform that replaces each word of a text with a drawn word, keeping the text's punctuation, case and word lengths.** | 3 | 1 | 2 | 4 | 5 | 1 by 5 | 1.3 |
 | 385 | 0.4.0 | 379 |  | **Let a template draw several distinct items of a choice or rows of a table in one pick.** | 3 | 1 | 2 | 4 | 5 | 1 by 3, 4 by 2 | 1.2 |
@@ -233,41 +233,9 @@
 
 ## Details
 
-### 381. Make `--help`, `--list` and the README lead a reader to every feature their job needs, and have programs keep them and the other pages a reader lands on correct and in step.
-
-From a real-world use case: while building [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer, its author worked from `--help`, `--list` and targeted searches, and reported gaps that aren't gaps. Each document left that reader without a trail:
-
-- `--help` names neither `{x as y}` nor any function, and doesn't mention the README.
-- `--list` prints only data paths, so nothing in the CLI shows that `{hex(n)}` or `{lower(n)}` exists.
-- The README states each feature below, but under the mechanism's name, and it never mentions this job: `anonymize`, `mask` and `existing text` all find nothing.
-
-A reader replacing the values of real documents with fakes that keep their shape must find:
-
-- one fake for each original throughout a render: `{x as y}`, which the README presents as values that belong together;
-- a value of a given length: `{lower(n)}`, `{hex(n)}` and `{digits(n)}`;
-- a v4 uuid: `{/misc.uuid}`, since `{uuid()}` draws v7;
-- an id of a fixed shape: literal text around a draw, such as `557058:{/misc.uuid}`;
-- a URL of a given form: `{/en_US.url}` draws a path, and a template adds the rest, such as `{/en_US.url}?{lower(4)}={digits(3)}`;
-- a longer word list: a category of your own under `--data-path`;
-- what stays with the caller until items 378, 379 and 380 ship.
-
-That job is the first test, not the limit: seat one fresh-context reader per `## Audience` persona, each with a job that persona would have, and fix what they can't find.
-
-Keeping them in step: when two of `--help`, `--list`, the README and the other pages a reader lands on, such as the Docker Hub page, state the same fact, a program keeps them in step. It generates the fact from one source where it can, such as the function names in `--help` from the builtins, with what each does left to Functions. Elsewhere a test in the merge gate fails when a document disagrees with the code or with another document, as `TestDockerhubPageSaysOnlyWhatReadmeSays` does for the Docker Hub page's tagline and commands against the README. The chunk's PR summary lists each fact no program can check.
-
-Limits on the change:
-
-- Maintain goal 11.3: `--help` and any section for a job point to Names and Functions rather than restating them, and 11.2 makes every example a test.
-- Maintain goal 8.6: `--help` keeps naming the running CLI, as `mycli --help` does today, and a custom CLI's own functions show beside the builtins.
-- A breaking change is welcome here where it moves a goal, as the maintainer answered on 2026-11-05. It ships in this minor with a `Breaking` entry in `CHANGELOG.md`.
-- Listing functions in `--list` changes a layout the README's Versioning table counts as major, and departs from the decision "`--list` stays a plain list of paths", whose reason is that a script reads every line as a path. So ask the maintainer before changing that decision, or put the functions elsewhere.
-- A new flag or spelling goes to a writer panel.
-
-Done when, for this job and each persona's, one fresh-context reader given only the CLI and one given only the README each find every feature the job needs without being told. Every fact two of these documents state is generated, tested or listed as unchecked, and a test in the merge gate fails when a builtin or flag is added but missing from a document that lists it.
-
 ### 391. Show in the README how to write ratios and rules as data: 80% `active` by a weighted choice, and a currency that follows its country by a named pick.
 
-From the same review, which asked for weights and `if/then` rules. Both already exist: a choice's `weight` skews odds (Weight), and a table row bound to a name keeps a country and its currency together (Correlated fields, goal 3.1). Neither reads as an answer to "80% active" or "if country is SE, currency is SEK", so a reader searching `ratio`, `percent` or `if` finds nothing; item 381 covers the same gap for the CLI's own pages. Add no conditional syntax: goal 4's counter-signal is a Data format section growing faster than the categories using it. Every example runs as a test and shows its output (goal 11.2), and a hit on `percent` or `ratio` lands on it.
+From the same review, which asked for weights and `if/then` rules. Both already exist: a choice's `weight` skews odds (Weight), and a table row bound to a name keeps a country and its currency together (Correlated fields, goal 3.1). Neither reads as an answer to "80% active" or "if country is SE, currency is SEK", so a reader searching `ratio`, `percent` or `if` finds nothing. Add no conditional syntax: goal 4's counter-signal is a Data format section growing faster than the categories using it. Every example runs as a test and shows its output (goal 11.2), and a hit on `percent` or `ratio` lands on it.
 
 ### 384. Let a record keep a field out of its columns, so a field only other fields read writes no column.
 
@@ -317,6 +285,10 @@ From a real-world use case: [adf-codec](https://github.com/larvit/adf-codec) ano
 From a real-world use case, a scheduler's fixtures: `UNTIL = DTSTART + N days` cannot be written, so the template emits `start_day` as an epoch-day integer and `len_days`, and the loader builds the date. `{calc()}` reads numbers and `date()` draws only between fixed days, so a fixture's `created_at` before `updated_at` has no spelling either.
 
 A writer panel picks the spelling, between a date offset, a `date()` whose bound reads another field, and `calc` over dates; the author offered each. What it reads comes through a name, so both columns show one date, and is proven a date at load (goals 5.1 and 5.4). It reads no clock (goal 9).
+
+### 397. State in the README that a drawn `misc.creditcard` number or `{iban(CC)}` may be a real card's or account's, and file a form that reaches nothing real.
+
+A validator author in a reader panel couldn't tell whether a drawn card number or IBAN may belong to someone. Both may: `misc.creditcard` draws real issuer prefixes (4, 51–55, 34, 37) with a Luhn digit, and `iban` a random BBAN with mod-97 check digits. Goal 3.3's counter-signal is a default value reaching a real system. The issuers' published test numbers would be the form that reaches nothing real.
 
 ### 364. Draw `sv_SE.person.birthdate` from the same date as a `personnummer` drawn beside it.
 
