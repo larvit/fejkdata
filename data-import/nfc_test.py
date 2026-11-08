@@ -6,7 +6,7 @@ DATA = Path(__file__).resolve().parent.parent / "data"
 
 
 class ShippedText(unittest.TestCase):
-    def test_every_shipped_value_is_in_nfc_so_a_length_counts_what_a_reader_sees(self):
+    def test_every_shipped_value_is_in_nfc(self):
         files = sorted(p for p in DATA.rglob("*") if p.suffix in (".json", ".tsv"))
         self.assertTrue(files, f"no shipped data under {DATA}")
         outside = []

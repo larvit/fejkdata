@@ -19,8 +19,8 @@ import (
 const maxDrawValues = 1 << 20
 
 // valueDraw draws among the values a path renders, fixed at load with the odds each has in a draw of
-// the path: one of those that pass a where clause, or count distinct ones where a distinct clause
-// asks. A length that reads a name reads it at each draw.
+// the path: one of the values that pass its where clause, or count distinct ones where a distinct
+// clause asks. A length that reads a name reads it at each draw.
 type valueDraw struct {
 	lengthIndex
 	lo, hi  lengthEnd
@@ -57,7 +57,7 @@ func lengthNames(w *grammar.Where) []string {
 	return names
 }
 
-// compileLengths compiles the names w's length reads, each a name bound around t.
+// compileLengths compiles the names w's length reads, each bound in a template enclosing t.
 func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nameTarget) ([]arm, error) {
 	var arms []arm
 	for _, name := range lengthNames(w) {
@@ -73,8 +73,8 @@ func (t *template) compileLengths(w *grammar.Where, targets map[*nameBinding]nam
 	return arms, nil
 }
 
-// valueDraws builds the draw of each token in ts with a where or a distinct clause, and gives a name
-// bound to one its draw.
+// valueDraws builds the draw of each token in ts with a where or a distinct clause, and gives each
+// name bound to such a token that token's draw.
 func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 	for _, s := range ts {
 		for i := range s.t.compiled.ops {
@@ -102,8 +102,8 @@ func valueDraws(ts []templateSite, targets map[*nameBinding]nameTarget) error {
 	return nil
 }
 
-// valueDrawOf builds o's draw over the values the path it reads renders, and proves every draw
-// leaves enough to draw.
+// valueDrawOf builds o's draw over the values o's path renders, and proves every draw leaves
+// enough to draw.
 func (t *template) valueDrawOf(o *op, targets map[*nameBinding]nameTarget) (*valueDraw, error) {
 	clause := "a where clause filters"
 	if o.Where == nil {
@@ -165,7 +165,7 @@ func (w *valueWalk) walk(n node, tail []string, weight float64, pre, suf string)
 	case *nullItem:
 		return errors.New("the path may draw a null")
 	}
-	panic(invariant.Broken("a where clause walks into %T", n))
+	panic(invariant.Broken("a value walk reaches %T", n))
 }
 
 func (w *valueWalk) walkChoice(c *choice, tail []string, weight float64, pre, suf string) error {
@@ -230,7 +230,7 @@ func oneRead(t *template) (before string, read *op, after string, err error) {
 }
 
 // walkArm walks one arm of t's read: a path from a field or a reference, or through a name t
-// binds itself, which its one read draws as a fresh read would.
+// binds itself; that name's one read draws as a fresh read would.
 func (w *valueWalk) walkArm(t *template, a arm, weight float64, pre, suf string) error {
 	if a.kind != namedRead {
 		return w.walk(t.startOf(a.head), a.tail, weight, pre, suf)
@@ -323,7 +323,7 @@ func (w *valueWalk) emit(text string, weight float64) error {
 }
 
 // newValueDraw keeps the values that pass where's fixed conditions, shortest first, for draws of
-// distinct's count, or of one where distinct is nil.
+// distinct's count, or of one value where distinct is nil.
 func newValueDraw(values []weightedText, where *grammar.Where, distinct *grammar.Distinct, reads []arm) *valueDraw {
 	v := &valueDraw{reads: reads, count: 1, lo: lengthEnd{n: 0, read: -1}, hi: lengthEnd{n: math.MaxInt, read: -1}}
 	if distinct != nil {
@@ -373,20 +373,20 @@ func newLengthIndex(values []weightedText) lengthIndex {
 	return x
 }
 
-// span is the texts from index from up to to whose length is lo to hi.
+// span bounds the texts in x.texts[from:to], those whose length is lo to hi.
 func (x *lengthIndex) span(lo, hi int) (from, to int) {
 	from = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] >= lo })
 	to = sort.Search(len(x.lengths), func(i int) bool { return x.lengths[i] > hi })
 	return from, to
 }
 
-// drawIn draws one of the texts from index from up to to, by their odds.
+// drawIn draws one of the texts in x.texts[from:to], by their odds.
 func (x *lengthIndex) drawIn(s *drawstate.State, from, to int) string {
 	return x.texts[x.drawIndex(s, from, to, nil)]
 }
 
-// drawDistinctIn draws n of the texts from index from up to to, each by its odds among those not
-// drawn yet.
+// drawDistinctIn draws n of the texts in x.texts[from:to], each by its odds among those not drawn
+// yet.
 func (x *lengthIndex) drawDistinctIn(s *drawstate.State, from, to, n int) []string {
 	drawn := make([]int, 0, n) // ascending
 	out := make([]string, n)
@@ -399,8 +399,8 @@ func (x *lengthIndex) drawDistinctIn(s *drawstate.State, from, to, n int) []stri
 	return out
 }
 
-// drawIndex draws the index of one of the texts from index from up to to by their odds, leaving out
-// the ascending indexes drawn. It costs what drawn's length costs, whatever the span's: it draws
+// drawIndex draws the index of one of the texts in x.texts[from:to] by their odds, leaving out
+// the ascending indexes drawn. It costs drawn's length plus a binary search over the span: it draws
 // among the odds left, and steps past each drawn text the draw lands at or beyond.
 func (x *lengthIndex) drawIndex(s *drawstate.State, from, to int, drawn []int) int {
 	base, left := x.before(from), x.cum[to-1]-x.before(from)
@@ -426,7 +426,7 @@ func (x *lengthIndex) before(i int) float64 {
 }
 
 // undrawnNear is i, or where rounding landed i on a drawn index or on to, the first undrawn index
-// after it, else the last one before it, from up to to.
+// after it, else the last one before it, within from:to.
 func undrawnNear(i, from, to int, drawn []int) int {
 	for j := i; j < to; j++ {
 		if _, taken := slices.BinarySearch(drawn, j); !taken {
@@ -441,8 +441,8 @@ func undrawnNear(i, from, to int, drawn []int) int {
 	panic(invariant.Broken("a draw ran out of the values the load proved enough"))
 }
 
-// proveEveryDrawPasses refuses a draw some render leaves with too few values: one too few values
-// pass, or one whose length reads a name that may print a length too few values have.
+// proveEveryDrawPasses refuses a draw that some render leaves with too few values: one where too few
+// values pass, or one whose length reads a name that may print a length too few values have.
 func (v *valueDraw) proveEveryDrawPasses() error {
 	bounds := make([][2]float64, len(v.reads))
 	for i, a := range v.reads {

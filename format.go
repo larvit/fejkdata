@@ -178,8 +178,8 @@ type formatOps struct {
 }
 
 // compileFormat compiles t's parsed format against its resolved references and its names'
-// targets; a {ref as n} token compiles to no op, and a {ref where … as n} token to an op that
-// expand skips, holding the names its length reads. checkTokens proved every token valid.
+// targets; a {ref as n} token compiles to no op, and a bind with a where or distinct clause to an
+// op that expand skips, holding the names its length reads. checkTokens proved every token valid.
 func compileFormat(t *template, targets map[*nameBinding]nameTarget) (formatOps, error) {
 	var c formatOps
 	for _, tok := range t.tokens {

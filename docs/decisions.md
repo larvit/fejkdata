@@ -657,10 +657,10 @@ GeoNames leaves a fifth of Sweden's codes without a kommun and carries stale spe
 the nearest code across a border named the wrong kommun half the time it was tried, so a
 postort none of the four rules place is dropped, as is one not cased like a place name.
 
-A postort that is neither a kommun nor a tätort takes the kommun of the SCB småort holding its centre,
-ahead of its codes, since SCB is the source of truth for which kommun a place lies in (the maintainer,
-2026-11-05, goal 3.2). The test is whether the småort's polygon contains the centre, so it measures no
-distance.
+A postort that is no tätort and is not named as a kommun takes the kommun of the SCB småort holding
+its centre, ahead of its codes, since SCB is the source of truth for which kommun a place lies in (the
+maintainer, 2026-11-05, goal 3.2). The test is whether the småort's polygon contains the centre, so it
+measures no distance. Valid while SCB publishes its småorter with their polygons.
 
 ## A highway designation is not a street, and a US postal code belongs to the place holding most of its land inside places
 
@@ -1589,26 +1589,28 @@ another `adddays`, whose result could pass year 9999. Valid while goal 4 stands 
 2026-11-08, Lilleman auf Larv.
 
 Goal 4 asks that a template be easy to write and read. A panel of four readers, seated as the bulk
-fixture author, the data author, the JavaScript test author and the hand fixture author, ranked a
-clause after the path, as `as` is, first, every one of them: `{/en_US.word where length 5}`. Each read
+fixture author, the data author, the JavaScript test author and the hand fixture author, all ranked
+first a clause after the path, where `as` goes: `{/en_US.word where length 5}`. Each read
 a function form such as `{length(/en_US.word, 5)}` as measuring a length. Each read an excluded `'cat'`
-as that word alone, never `concatenate`, and asked for a word of its own, `containing`, before any
-substring match. The maintainer chose the spelling from that: `length 4 to 6` includes both ends, and
-takes `to` since `..` already steps up a level (goal 4.4). A length counts Unicode code points, since
-counting what a reader sees takes a dependency goal 10 rules out. Valid while goal 4 stands.
+as that word alone, never `concatenate`, and asked for a word of its own, such as `containing`,
+before any substring match. The maintainer chose the spelling from that: `length 4 to 6` includes both ends, and
+takes `to` since `..` already steps up a level (goal 4.4). A length counts Unicode code points, which Go
+and JavaScript count alike. Counting what a reader sees means segmenting graphemes: Go's standard
+library doesn't, and JavaScript's `Intl.Segmenter` follows its runtime's Unicode tables, so the two
+could count one value differently, which goal 9.2 rules out. Valid while goal 4 stands.
 
 ## A distinct draw is `distinct N` after any `where` and before `as`; its members read `[1]` to `[N]`, and `joined 'sep'` prints them as one
 
 2026-11-08, Lilleman auf Larv.
 
-Goal 4.2 keeps `{d},{d}` as two draws, so several different picks of one path take a spelling of their
-own, and goal 4 asks that it be easy to write and read. A panel of four readers, seated as the bulk
+Goal 4.2 keeps `{d},{d}` as two draws, so several different values of one path in one pick take a spelling of
+their own, and goal 4 asks that it be easy to write and read. A panel of four readers, seated as the bulk
 fixture author, the data author, the JavaScript test author and the hand fixture author, all chose
 `distinct N`: they read `pick` as allowing repeats and `take` as the first rows. All four counted
 members from 1; two chose `{t[1]}`, one `{t#1}` and one `{t.1}`. For one value, two chose
 `joined ','`, one `sep ','` and one `{join(d, ',')}` over a bound name.
 
-The seats against `[1]` read it as a selector's key. On a distinct name `[k]` is always a member,
+The two readers who chose otherwise read `[1]` as a selector's key. On a distinct name `[k]` is always a member,
 since such a name refuses every other tail. Valid while goal 4 stands.
 
 Members are different values, not different items: each value of a nested choice counts on its own.

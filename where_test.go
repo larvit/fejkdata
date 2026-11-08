@@ -7,8 +7,6 @@ import (
 	"unicode/utf8"
 )
 
-// drawsExactly renders render 400 times and fails unless every value is one of want and
-// each of want shows up.
 func drawsExactly(t *testing.T, label string, render func() string, want ...string) {
 	t.Helper()
 	seen := map[string]int{}

@@ -8,8 +8,8 @@ import (
 	"github.com/larvit/fejkdata/internal/invariant"
 )
 
-// AnonymizeName is the builtin package fejkdata renders, since only it holds the words its list
-// renders and the fakes a render has drawn.
+// AnonymizeName names the builtin that package fejkdata renders, since only that package holds the
+// words a call's list renders and the fakes a render has drawn.
 const AnonymizeName = "anonymize"
 
 func pathArgs(a []string) error {

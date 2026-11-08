@@ -6,7 +6,7 @@
 
 `Bar = 0`
 
-`Next ID = 400`
+`Next ID = 401`
 
 ## Items
 
@@ -14,6 +14,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 380 | 0.4.0 |  | question | **Let a template redraw a value until it holds none of the strings it is given.** | 3 | 1 | 2 | 4 | 4 | 1 by 2 | 0.9 |
 | 399 | 0.4.0 |  |  | **Give every service in `compose.yaml` a memory and a swap limit.** | 1 | 1 | 1 | 1 | 1 | code health by 1 | 4.2 |
+| 400 | 0.4.0 |  |  | **Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.** | 1 | 2 | 1 | 2 | 1 | code health by 1 | 4.2 |
 | 204 | 0.5.0 |  |  | **Add `fi_FI` with its given names by sex, last names and titles, and `fi_FI.person`.** | 2 | 2 | 1 | 3 | 3 | 1 by 2, 2.1 by 4 | 3.5 |
 | 302 | 0.5.0 | 204 |  | **Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.** | 2 | 1 | 2 | 3 | 3 | 1 by 2, 2.1 by 3, 3 by 3 | 4.6 |
 | 301 | 0.5.0 | 204 |  | **Add `fi_FI.phone`, drawn from Finland's numbering plan.** | 1 | 2 | 1 | 2 | 2 | 1 by 1, 2.1 by 3 | 3.1 |
@@ -224,18 +225,22 @@
 
 From a real-world use case: a uuid that [adf-codec](https://github.com/larvit/adf-codec)'s anonymizer drew held `7958`, a fragment of an original value in the same document. Its leak check left that document out, and it was the only one chosen to show the `breakout` mark. Its `corpus-gathering/anonymize.mjs` now redraws up to 64 times around every token the document holds.
 
-Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. It spells its condition as the `where` clause does.
+Maintain goal 5.4 rules out a mid-render error where every draw hits the list, and 12.1 holds the cost to the data a render reaches. A writer panel picks the spelling. Its condition is spelled as the `where` clause's is.
 
-Question for the maintainer: what does a render print when no draw can pass? The strings that adf-codec excludes are known only at render: they are the document's own tokens. So a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. Goal 5.4 then rules out an error, and a redraw loop has no bound. The options are:
+Question for the maintainer: what does a render print when no draw can pass? The strings that adf-codec excludes are known only at render: they are the document's own tokens. So a load-time check can't refuse the case where no value passes, such as a list holding every hex digit against `{uuid()}`. A redraw loop has no bound. The options are:
 - a fallback value that the clause must name;
 - null;
 - accepting only strings fixed at load, where a load-time check can refuse the impossible case. adf-codec's use isn't served then.
 
-Recommendation: the clause names its fallback. The draw avoids the strings character by character over a builtin's alphabet, with no redraw loop, so it costs the value's length times the strings' total length. The fallback prints only where no value can pass.
+Recommendation: the clause names its fallback. The draw builds the value one character at a time from the builtin's alphabet, skipping a character that would complete one of the strings, so it needs no redraw loop and costs the value's length times the strings' total length. The fallback prints only where no value can pass.
 
 ### 399. Give every service in `compose.yaml` a memory and a swap limit.
 
 No service sets `mem_limit` or `memswap_limit`, so `docker compose run --rm test` or a data import can take all of a contributor's memory. Set each service's limits to what its work needs.
+
+### 400. Retitle the `da_DK.company` line in `AGENTS.md` to its decision's heading, which weighs by Statistics Denmark's enterprises, not new enterprises.
+
+`AGENTS.md` lists the decision as weighing legal forms by "Statistics Denmark's new enterprises". The decision's heading and body in `docs/decisions.md` weigh them by every enterprise of 2024 in table GF15. Copy the heading into `AGENTS.md`.
 
 ### 302. Add `fi_FI`'s national personal id, the henkilötunnus, with its check digits.
 

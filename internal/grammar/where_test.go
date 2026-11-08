@@ -137,10 +137,10 @@ func TestParseFormatRefusesAMalformedDistinctClause(t *testing.T) {
 func TestCheckIdentifierRefusesWhereAndDistinct(t *testing.T) {
 	for _, word := range []string{"where", "distinct"} {
 		inside, end := strconv.Quote(" "+word+" "), strconv.Quote(" "+word)
-		if err := CheckIdentifier("a "+word+" b"); err == nil || !strings.Contains(err.Error(), "contains "+inside) {
+		if err := CheckIdentifier("a " + word + " b"); err == nil || !strings.Contains(err.Error(), "contains "+inside) {
 			t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s", "a "+word+" b", err, inside)
 		}
-		if err := CheckIdentifier("a "+word); err == nil || !strings.Contains(err.Error(), "ends in "+end) {
+		if err := CheckIdentifier("a " + word); err == nil || !strings.Contains(err.Error(), "ends in "+end) {
 			t.Errorf("CheckIdentifier(%q) = %v, want an error naming %s at its end", "a "+word, err, end)
 		}
 		if err := CheckIdentifier(word); err != nil {
