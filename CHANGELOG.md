@@ -16,6 +16,11 @@ replacement, and each removed path, column or flag.
   datatype and null, so an integer `len` is written `3` where it was written `"3"`. Write
   the column as `{"format":"{p.len}","datatype":"string"}` to keep the text, with a null written `""`. A choice whose
   items hold different datatypes of that field fails to load; give them one datatype.
+- `en_US.word` and `en_US.sentence` draw from WordNet 3.0, about 70,000 words where 271 were hand-written, so what a
+  seed draws changes and a word may be long or rare. `en_US.word`'s format is now `{any}`, a pick between the four
+  parts of speech, and both categories read the new tables `en_US.word-noun`, `word-verb`, `word-adj` and `word-adv`.
+  A program embedding the `en_US` module carries WordNet's licence, `WORDNET-LICENSE.txt`, as the release archives and
+  packages do.
 
 ### Added
 
@@ -96,8 +101,6 @@ replacement, and each removed path, column or flag.
 
 ### Changed
 
-- `en_US.word` and `en_US.sentence` draw from WordNet 3.0, about 85,000 words where 271 were hand-written,
-  so what a seed draws changes and a word may be long or rare. The `en_US` module now carries WordNet's licence.
 - A token reading a field beside the field that holds it, as `{b}` does in
   `{"format":"{a}","a":"x{b}","b":"y"}`, still fails to load, and the error now states the rule and
   names the fix.
