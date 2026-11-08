@@ -612,3 +612,114 @@ func TestRecordSQLHeaderAndValuesJoinIntoAMultiRowInsert(t *testing.T) {
 		t.Errorf("SQLValues = %q, want %q", got, want)
 	}
 }
+
+func TestRecordLetFieldsWriteNoColumn(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{
+		"sched": `{"format":"{weekday as d}","let":{"weekday":["MO","TU"],"helper":"x"},"day":"{d}","rrule":"BYDAY={d}"}`,
+		"copy":  `{"format":"","rrule":"{/sched.rrule}","weekday":"{/sched.weekday}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	inline, err := f.NewRecordTemplate(`{"format":"{weekday as d}","let":{"weekday":["MO","TU"]},"day":"{d}"}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]bool{}
+	for i := 0; i < 50; i++ {
+		r, err := f.FakeRecord("sched")
+		if err != nil {
+			t.Fatal(err)
+		}
+		cols := r.Columns()
+		if len(cols) != 2 || cols[0].Name != "day" || cols[1].Name != "rrule" || cols[1].Value != "BYDAY="+cols[0].Value || cols[0].Value != "MO" && cols[0].Value != "TU" {
+			t.Fatalf("Columns = %+v, want day and rrule only, rrule reading the day's pick", cols)
+		}
+		if got := r.CSVHeader(); got != "day,rrule" {
+			t.Fatalf("CSVHeader = %q, want day,rrule", got)
+		}
+		seen[cols[0].Value] = true
+		if c := inline.Fake().Columns(); len(c) != 1 || c[0].Name != "day" {
+			t.Fatalf("inline Columns = %+v, want day only", c)
+		}
+	}
+	if len(seen) != 2 {
+		t.Errorf("drew days %v in 50 records, want both", seen)
+	}
+	cp, err := f.FakeRecord("copy")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := cp.Columns()[1].Name; got != "weekday" || cp.Columns()[1].Value == "" {
+		t.Errorf("copy's columns = %+v, want a let field still readable from another category as weekday", cp.Columns())
+	}
+}
+
+func TestRecordLetErrors(t *testing.T) {
+	t.Parallel()
+	f := newGenerator(t, writeData(t, map[string]string{"x": `"x"`}), WithSeed(1))
+	for _, c := range []struct{ input, want string }{
+		{`{"format":"","let":"a","b":"y"}`, "let is an option and takes an object of fields, not a string"},
+		{`{"format":"","let":{"a":"x"},"a":"y"}`, `field "a" is in let and beside it`},
+		{`{"format":"","let":{"a.b":"x"},"c":"y"}`, "field"},
+	} {
+		if _, err := f.NewRecordTemplate(c.input); err == nil || !strings.Contains(err.Error(), c.want) {
+			t.Errorf("NewRecordTemplate(%s) = %v, want an error containing %q", c.input, err, c.want)
+		}
+	}
+	_, err := f.NewRecordTemplate(`{"format":"","let":{"a":"x"}}`)
+	if !errors.Is(err, ErrNoColumns) || !strings.Contains(err.Error(), "let") {
+		t.Errorf("NewRecordTemplate(only let fields) = %v, want ErrNoColumns naming let", err)
+	}
+	if _, err := f.NewTemplate(`{"format":"{let}"}`); err == nil || !strings.Contains(err.Error(), "option") {
+		t.Errorf("NewTemplate reading let = %v, want let refused as an option, never a field", err)
+	}
+}
+
+func TestRecordColumnReadingAFieldThroughANameKeepsItsDatatypeAndNull(t *testing.T) {
+	t.Parallel()
+	dir := writeData(t, map[string]string{
+		"sched": `{"format":"{pattern as p}{shape as s}","pattern":[{"format":"daily","len":[null]},{"format":"weekly","len":{"format":"{int(1,9)}","datatype":"integer"}}],"shape":{"format":"s","size":[null,{"format":"{int(1,9)}","datatype":"integer"}]},"len":"{p.len}","size":"{s.size}","kind":"{p}"}`,
+		"mixed": `{"format":"{pattern as p}","pattern":[{"format":"a","len":{"format":"1","datatype":"integer"}},{"format":"b","len":"x"}],"len":"{p.len}"}`,
+	})
+	f := newGenerator(t, dir, WithSeed(1))
+	nulls := map[string]int{}
+	for i := 0; i < 200; i++ {
+		r, err := f.FakeRecord("sched")
+		if err != nil {
+			t.Fatal(err)
+		}
+		cols := map[string]Column{}
+		for _, c := range r.Columns() {
+			cols[c.Name] = c
+		}
+		l, s, kind := cols["len"], cols["size"], cols["kind"].Value
+		digit := func(c Column) bool { return !c.Null && len(c.Value) == 1 && c.Value >= "1" && c.Value <= "9" }
+		switch {
+		case l.DataType != DataTypeInteger || s.DataType != DataTypeInteger:
+			t.Fatalf("%s: want len and size integer columns", r.JSON())
+		case kind == "daily" && !l.Null, kind == "weekly" && !digit(l), kind != "daily" && kind != "weekly":
+			t.Fatalf("%s: want len null for daily and a digit for weekly", r.JSON())
+		case s.Null == digit(s):
+			t.Fatalf("size = %+v, want null or a digit", s)
+		case strings.Contains(r.JSON(), `"len":null`) != l.Null || strings.Contains(r.JSON(), `"len":"`):
+			t.Fatalf("JSON() = %s, want a null len written null and a digit written bare", r.JSON())
+		}
+		for name, c := range map[string]Column{"len": l, "size": s} {
+			if c.Null {
+				nulls[name]++
+			}
+		}
+	}
+	for _, name := range []string{"len", "size"} {
+		if n := nulls[name]; n == 0 || n == 200 {
+			t.Errorf("%s drew null %d times in 200 records, want both outcomes", name, n)
+		}
+	}
+	r, err := f.FakeRecord("mixed")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := r.Columns()[0].DataType; got != DataTypeString {
+		t.Errorf("len over items of different datatypes = %s, want string, as any other read", got)
+	}
+}
